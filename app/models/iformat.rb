@@ -39,7 +39,7 @@ class Iformat < ActiveRecord::Base
     end
 
     def formats_for_site(site_id, as_hash = true)
-      formats = ImageBuilder::DEFAULT_FORMATS.dup
+      formats = ::ImageBuilder::DEFAULT_FORMATS.dup
 
       site_formats = {}
       last_update = nil
@@ -62,6 +62,7 @@ class Iformat < ActiveRecord::Base
       return nil unless default = ImageBuilder::DEFAULT_FORMATS[key]
       obj = self.new
       default.each do |k,v|
+        next if k == :hash_id
         obj.send("#{k}=", v.to_s)
       end
       obj
@@ -70,7 +71,20 @@ class Iformat < ActiveRecord::Base
 
   # :size=>:force, :width=>280, :height=>120, :gravity=>Magick::NorthGravity
   def as_hash
-    {:name => self[:name], :size => size.to_sym, :width => width, :height => height, :gravity=>eval("Magick::#{gravity}")}
+    h = {
+      :name    => self[:name],
+      :size    => size.to_sym,
+      :width   => width,
+      :height  => height,
+      :gravity => eval("Magick::#{gravity}"),
+    }
+    h.merge(:hash_id => ImageBuilder.hash_id(h))
+  end
+
+  # This is a unique identifier used to cache images with format:
+  # image30_pv.jpg#{node.updated_at.to_i + format.hash_id}
+  def hash_id
+    ImageBuilder.hash_id(self.as_hash)
   end
 
   def size
@@ -78,7 +92,7 @@ class Iformat < ActiveRecord::Base
   end
 
   def size=(str)
-    self[:size] = SIZES.index(str)
+    self[:size] = SIZES.index(str.to_s)
   end
 
   def gravity
@@ -121,9 +135,9 @@ class Iformat < ActiveRecord::Base
     end
 
     def set_site_formats_date_and_expire_cache
-      Site.connection.execute "UPDATE sites SET formats_updated_at = (SELECT updated_at FROM iformats WHERE site_id = #{self[:site_id]} ORDER BY iformats.updated_at DESC LIMIT 1) WHERE id = #{self[:site_id]}"
+      visitor.site.iformats_updated!
       if self[:name] == 'full'
-        # DO NOT CLEAR !
+        # ORIGINAL DATA: DO NOT CLEAR !
       else
         FileUtils.rmtree(File.join(SITES_ROOT, visitor.site.data_path, self[:name]))
         visitor.site.clear_cache(false)

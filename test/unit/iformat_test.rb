@@ -9,14 +9,28 @@ class IformatTest < Zena::Unit::TestCase
 
   def test_default_format
     login(:lion)
-    assert_equal ({:width=>70, :height=>70, :size=>:force, :gravity => Magick::CenterGravity, :name=>'pv'}), Iformat['pv']
+    assert_equal ({:width=>70, :height=>70, :size=>:force, :gravity => Magick::CenterGravity, :name=>'pv', :hash_id => 966672200693}), Iformat['pv']
   end
 
   def test_redefined_format
     login(:lion)
     fmt = Iformat['med']
     assert_not_equal ImageBuilder::DEFAULT_FORMATS['med'], fmt
-    assert_equal ({:name => 'med', :width=>300, :height=>200, :gravity=>Magick::CenterGravity, :size=>:limit}), fmt
+    assert_equal ({:name => 'med', :width=>300, :height=>200, :gravity=>Magick::CenterGravity, :size=>:limit, :hash_id => 389519063846}), fmt
+  end
+
+  def test_format_hash_id
+    login(:lion)
+    fmt = Iformat['pv']
+    assert_equal 966672200693, fmt[:hash_id]
+    imf = Iformat.create(:name => fmt[:name], :width=>fmt[:width], :height=>fmt[:height], :gravity=>Magick::CenterGravity, :size=>fmt[:size])
+    assert !imf.new_record?
+    # same formate, same hash_id
+    assert_equal fmt[:hash_id], imf.hash_id
+    assert Iformat.update(imf.id, :width => 71)
+    imf = Iformat['pv']
+    assert_not_equal fmt[:width], imf[:width]
+    assert_not_equal fmt[:hash_id], imf[:hash_id]
   end
 
   def test_other_site
@@ -28,7 +42,7 @@ class IformatTest < Zena::Unit::TestCase
     login(:lion)
     assert_nil Iformat['header']
     login(:whale)
-    assert_equal ({:name => 'header', :gravity=>Magick::NorthGravity, :width=>688, :size=>:force, :height=>178}), Iformat['header']
+    assert_equal ({:name => 'header', :gravity=>Magick::NorthGravity, :width=>688, :size=>:force, :height=>178, :hash_id => 586141585348}), Iformat['header']
   end
 
   def test_list
@@ -64,8 +78,8 @@ class IformatTest < Zena::Unit::TestCase
     login(:lion) # flush visitor (new web query)
     assert_equal now, visitor.site[:formats_updated_at].strftime('%Y-%m-%d'), "Site's formats update date changed"
 
-    # format hasn't change in memory yet
-    assert_equal 300, $iformats[sites_id(:zena)]['med'][:width], "Mem cached version not changed"
+    # cache expired
+    assert_nil $iformats[sites_id(:zena)]
 
     fmt2 = Iformat['med'] # updates cache
 
@@ -92,8 +106,7 @@ class IformatTest < Zena::Unit::TestCase
     login(:lion) # flush visitor (new web query)
     assert_nil visitor.site[:formats_updated_at], "Site's formats update date is NULL"
 
-    # format hasn't change in memory yet
-    assert_equal 300, $iformats[sites_id(:zena)]['med'][:width], "Mem cached version not changed"
+    assert_nil $iformats[sites_id(:zena)]
 
     fmt2 = Iformat['med'] # updates cache
 

@@ -1,8 +1,5 @@
 require 'test_helper'
-#require 'test/unit'
-#require 'yamltest'
-#require 'ruby-debug'
-#
+
 unless Module.const_defined?(:ActiveRecord)
   # blank definition from active_support/core_ext/blank.rb
   class String #:nodoc:

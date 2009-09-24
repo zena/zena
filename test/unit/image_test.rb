@@ -95,10 +95,13 @@ class ImageTest < Zena::Unit::TestCase
       assert_equal 2010,   img.version.content.size
       assert_equal 160,  img.version.content.width
       assert_equal 80, img.version.content.height
-      
+      up1 = img.updated_at
       # crop again, same redaction
+      sleep(1)
       assert img.update_attributes(:c_crop=>{:x=>0,:y=>0,:w=>'100',:h=>50})
       img = secure!(Node) { nodes(:bird_jpg) }
+      # this verifies that updated_at is updated even when we only change the content
+      assert_not_equal up1, img.updated_at
       assert_equal 100,  img.version.content.width
       assert_equal 50, img.version.content.height
     end
@@ -149,7 +152,7 @@ class ImageTest < Zena::Unit::TestCase
       assert_equal 660, img.version.content.width
       assert_equal 600, img.version.content.height
       # crop keeping same size => do nothing => keep content
-      assert !img.version.content.can_crop?(:x=>'0',:y=>0,:w=>'660',:h=>600)
+      assert !img.version.content.can_crop?('x'=>'0','y'=>0,'w'=>'660','h'=>600)
       img.update_attributes(:v_text=>"hey", :c_crop=>{:x=>'0',:y=>0,:w=>'660',:h=>600})
       img = secure!(Node) { nodes(:bird_jpg) }
       assert_not_equal pub_version_id, img.version.id

@@ -1,5 +1,4 @@
 require 'test_helper'
-require 'yamltest'
 
 class ZenaTagsTest < Zena::Controller::TestCase
   yamltest :directories => [:default, "#{Zena::ROOT}/bricks/**/test/zafu"]
@@ -226,9 +225,7 @@ class ZenaTagsTest < Zena::Controller::TestCase
     login(:ant)
     visitor.lang = 'en'
     @controller.instance_variable_set(:@visitor, Thread.current.visitor)
-    node = secure!(Node) { nodes(:tree_jpg) }
-    node.inherit = -1
-    assert node.save
+    Node.connection.execute "UPDATE nodes SET rgroup_id = NULL, wgroup_id = NULL, pgroup_id = NULL WHERE id = #{nodes_id(:tree_jpg)}"
     yt_do_test('basic', 'img_private_image')
   end
 

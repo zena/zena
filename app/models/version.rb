@@ -44,6 +44,7 @@ class Version < ActiveRecord::Base
   validates_presence_of :user, :site_id
   validate              :valid_version
   after_save            :save_content
+  after_save            :set_updated_at
   after_destroy         :destroy_content
   before_create         :set_number
 
@@ -229,10 +230,20 @@ class Version < ActiveRecord::Base
       # TODO: Why don't we use @redaction_content ?
       if @content && @content.changed?
         @content[:version_id] ||= self[:id]
-        @content.save_without_validation # validations checked with 'valid_content'
+        # validations checked with 'valid_content'
+        @content.save_without_validation
       else
         true
       end
+    end
+
+    def set_updated_at
+      if @content_updated_but_not_saved
+        # not saved, set updated_at manually
+        Zena::Acts::Multiversion.update_attribute_without_fuss(self, :updated_at, Time.now)
+      end
+      @content_updated_but_not_saved = nil
+      true
     end
 
     def destroy_content
@@ -266,6 +277,8 @@ class Version < ActiveRecord::Base
       errors.add('node', "can't be blank") unless node
       # validate content
       # TODO: we could use autosave here
+      @content_updated_but_not_saved = !changed? && @content && @content.changed?
+
       if @content && @content.changed? && !@content.valid?
         @content.errors.each_error do |attribute,message|
           if attribute.to_s == 'base'

@@ -480,12 +480,24 @@ class NodesController < ApplicationController
         end
       when 'show'
         # show must have a 'path' parameter
+        if params[:format] != 'html' && params[:cachestamp].nil?
+          # maybe not seen, try to find it
+          params.each do |k,v|
+            if k =~ /\A\d+\Z/ && v.nil?
+              params[:cachestamp] = k
+              params.delete(k)
+              break
+            end
+          end
+        end
 
         if params[:prefix] != prefix && !avoid_prefix_redirect
           # lang changed
           set_visitor_lang(params[:prefix])
           redirect_url = zen_path(@node, path_params)
-        elsif params[:path] != zen_path(@node, :format => params[:format], :mode=>params[:mode], :asset=>params[:asset]).split('/')[2..-1]
+        elsif (append_query_params("/#{params[:prefix]}/#{params[:path].join('/')}", :cachestamp => params[:cachestamp]) !=
+               zen_path(@node, :format => params[:format], :mode=>params[:mode], :asset=>params[:asset])) ||
+              (cachestamp_format?(params[:format]) && params[:cachestamp] != make_cachestamp(@node, params[:mode]))
           # badly formed url
           redirect_url = zen_path(@node, path_params)
         elsif params[:mode] == 'edit' && !@node.can_write?
@@ -497,6 +509,7 @@ class NodesController < ApplicationController
       if redirect_url
         redirect_to redirect_url and return false
       end
+
       true
     end
 

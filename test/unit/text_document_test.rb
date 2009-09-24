@@ -50,7 +50,9 @@ class TextDocumentTest < Zena::Unit::TestCase
     login(:lion)
     node = secure!(Node) { nodes(:style_css) }
     bird = secure!(Node) { nodes(:bird_jpg)}
+    b_at = bird.updated_at
     assert bird.update_attributes(:parent_id => node[:parent_id])
+    Zena::Acts::Multiversion.update_attribute_without_fuss(bird, :updated_at, b_at)
     start =<<-END_CSS
     body { font-size:10px; }
     #header { background:url('bird.jpg') }
@@ -64,8 +66,8 @@ class TextDocumentTest < Zena::Unit::TestCase
     assert node.errors.empty?
     res =<<-END_CSS
     body { font-size:10px; }
-    #header { background:url('/en/image30.jpg') }
-    #footer { background:url('/en/image31.jpg') }
+    #header { background:url('/en/image30.jpg?1144713600') }
+    #footer { background:url('/en/image31.jpg?1144713600') }
     END_CSS
     assert_equal res, text
     text = node.parse_assets(text, helper, 'v_text')
@@ -80,7 +82,9 @@ class TextDocumentTest < Zena::Unit::TestCase
     login(:lion)
     node = secure!(Node) { nodes(:style_css) }
     bird = secure!(Node) { nodes(:bird_jpg)}
+    b_at = bird.updated_at
     assert bird.update_attributes(:parent_id => node[:parent_id], :name => "greenBird")
+    Zena::Acts::Multiversion.update_attribute_without_fuss(bird, :updated_at, b_at)
     start =<<-END_CSS
     body { font-size:10px; }
     #header { background:url('green_bird.jpg') }
@@ -95,9 +99,9 @@ class TextDocumentTest < Zena::Unit::TestCase
     assert node.errors.empty?
     res =<<-END_CSS
     body { font-size:10px; }
-    #header { background:url('/en/image30.jpg') }
-    #tiny   { background:url('/en/image30_tiny.jpg') }
-    #footer { background:url('/en/image31.jpg') }
+    #header { background:url('/en/image30.jpg?1144713600') }
+    #tiny   { background:url('/en/image30_tiny.jpg?812062401186') }
+    #footer { background:url('/en/image31.jpg?1144713600') }
     END_CSS
     assert_equal res, text
   end

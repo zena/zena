@@ -2,6 +2,7 @@ module Zena
   module Use
     module Urls
       module Common
+        CACHESTAMP_FORMATS = ['jpg', 'png', 'gif', 'css', 'js']
         def prefix
           if visitor.is_anon?
             visitor.lang
@@ -13,7 +14,10 @@ module Zena
         # Path for the node (as string). Options can be :format, :host and :mode.
         # ex '/en/document34_print.html'
         def zen_path(node, options={})
+
           return '#' unless node
+
+
           if sharp = options.delete(:sharp)
             if sharp =~ /\[(.+)\]/
               sharp_value = node.public_read($1)
@@ -38,13 +42,25 @@ module Zena
           host   = opts.delete(:host)
           abs_url_prefix = host ? "http://#{host}" : ''
 
+          if node.kind_of?(Document) && format == node.version.content.ext
+            if node.public? && !current_site.authentication?
+              # force the use of a cacheable path for the data, even when navigating in '/oo'
+              pre = node.version.lang
+            end
+          end
+
           if asset = opts.delete(:asset)
             mode   = nil
           end
 
-          params = (opts == {}) ? '' : ('?' + opts.map{ |k,v| "#{k}=#{CGI.escape(v.to_s)}"}.join('&'))
 
-          if !asset && node[:id] == current_site[:root_id] && mode.nil? && format == 'html'
+          if cachestamp_format?(format) && ((node.kind_of?(Document) && node.version.content.ext == format) || asset)
+            opts[:cachestamp] = make_cachestamp(node, mode)
+          else
+            opts.delete(:cachestamp) # cachestamp
+          end
+
+          path = if !asset && node[:id] == current_site[:root_id] && mode.nil? && format == 'html'
             "#{abs_url_prefix}/#{pre}" # index page
           elsif node[:custom_base]
             "#{abs_url_prefix}/#{pre}/" +
@@ -60,7 +76,21 @@ module Zena
             (mode  ? "_#{mode}"  : '') +
             (asset ? ".#{asset}" : '') +
             ".#{format}"
-          end + params
+          end
+
+          append_query_params(path, opts)
+        end
+
+        def append_query_params(path, opts)
+          if opts == {}
+            path
+          elsif cachestamp = opts.delete(:cachestamp)
+            list = opts.keys.map{ |k| opts[k] ? "#{k}=#{CGI.escape(opts[k].to_s)}" : nil}.compact
+            path + "?#{cachestamp}" + (list.empty? ? '' : "&#{list.sort.join('&')}")
+          else
+            list = opts.keys.map{ |k| opts[k] ? "#{k}=#{CGI.escape(opts[k].to_s)}" : nil}.compact
+            path + (list.empty? ? '' : "?#{list.sort.join('&')}")
+          end
         end
 
         # Url for a node. Options are 'mode' and 'format'
@@ -71,13 +101,33 @@ module Zena
 
         # Return the path to a document's data
         def data_path(node, opts={})
-          return zen_path(node,opts) unless node.kind_of?(Document)
-          if node.public? && !current_site.authentication?
-            # force the use of a cacheable path for the data, even when navigating in '/oo'
-            # FIXME: we could use 'node.version.lang' if most of the time the version is loaded.
-            zen_path(node, opts.merge(:format => node.version.content.ext, :prefix => node.version.lang))
-          else
+          if node.kind_of?(Document)
             zen_path(node, opts.merge(:format => node.version.content.ext))
+          else
+            zen_path(node, opts)
+          end
+        end
+
+        def cachestamp_format?(format)
+          CACHESTAMP_FORMATS.include?(format)
+        end
+
+        def make_cachestamp(node, mode)
+          if mode
+            if node.kind_of?(Image)
+              if iformat = Iformat[mode]
+                "#{node.updated_at.to_i + iformat[:hash_id]}"
+              else
+                # random (will raise a 404 error anyway)
+                "#{node.updated_at.to_i + Time.now.to_i}"
+              end
+            else
+              # same format but different mode ? foobar_iphone.css ?
+              # will not be used.
+              node.updated_at.to_i.to_s
+            end
+          else
+            node.updated_at.to_i.to_s
           end
         end
 
@@ -85,7 +135,7 @@ module Zena
         def query_params
           res = {}
           path_params.each do |k,v|
-            next if [:mode, :format, :asset].include?(k.to_sym)
+            next if [:mode, :format, :asset, :cachestamp].include?(k.to_sym)
             res[k.to_sym] = v
           end
           res

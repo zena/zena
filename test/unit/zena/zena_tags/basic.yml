@@ -343,13 +343,13 @@ title_link_data:
   context:
     node: 'bird_jpg'
   src: "<h2 do='title' link='data' attr='v_title'>super titre</h2>"
-  res: "<h2><a href='/oo/image30.jpg'><span id='v_title30'>bird</span></a></h2>"
+  res: "<h2><a href='/en/image30.jpg?1144713600'><span id='v_title30'>bird</span></a></h2>"
 
 title_link_data_mode:
   context:
     node: 'bird_jpg'
   src: "<h2 do='title' link='pv.data'>super title</h2>"
-  res: "<h2><a href='/oo/image30_pv.jpg'><span id='v_title30'>bird</span></a></h2>"
+  res: "<h2><a href='/en/image30_pv.jpg?967816914293'><span id='v_title30'>bird</span></a></h2>"
 
 show_parent_title:
   src: "<r:parent><h1 do='title' attr='v_title'>parent title</h1></r:parent>"
@@ -764,7 +764,7 @@ img_tag_icon:
   context:
     node: 'cleanWater'
   src: "<r:img alt_src='icon'/>"
-  res: "<img src='/en/projects/cleanWater/image24_std.jpg' width='545' height='400' alt='it&apos;s a lake' class='std'/>"
+  res: "<img src='/en/projects/cleanWater/image24_std.jpg?929831698949' width='545' height='400' alt='it&apos;s a lake' class='std'/>"
 
 icon:
   context:
@@ -776,31 +776,31 @@ img_image:
   context:
     node: 'bird_jpg'
   src: "<r:img/><r:img mode='med'/>"
-  res: "<img src='/en/image30_std.jpg' width='440' height='400' alt='bird' class='std'/><img src='/en/image30_med.jpg' width='220' height='200' alt='bird' class='med'/>"
+  res: "<img src='/en/image30_std.jpg?929831698949' width='440' height='400' alt='bird' class='std'/><img src='/en/image30_med.jpg?390663777446' width='220' height='200' alt='bird' class='med'/>"
 
 img_private_image:
   context:
     node: 'tree_jpg'
   src: "<r:img/><r:img mode='med'/>"
-  res: "<img src='/oo/image40_std.jpg' width='600' height='399' alt='Autumn Tree' class='std'/><img src='/oo/image40_med.jpg' width='300' height='200' alt='Autumn Tree' class='med'/>"
+  res: "<img src='/oo/image40_std.jpg?929831698949' width='600' height='399' alt='Autumn Tree' class='std'/><img src='/oo/image40_med.jpg?390663777446' width='300' height='200' alt='Autumn Tree' class='med'/>"
 
 img_href:
   context:
     node: 'bird_jpg'
   src: "<r:img link='self'/>"
-  res: "<a href='/oo/image30.html'><img src='/en/image30_std.jpg' width='440' height='400' alt='bird' class='std'/></a>"
+  res: "<a href='/oo/image30.html'><img src='/en/image30_std.jpg?929831698949' width='440' height='400' alt='bird' class='std'/></a>"
 
 img_src_id:
   src: "<r:img src='30'/>"
-  res: "<img src='/en/image30_std.jpg' width='440' height='400' alt='bird' class='std'/>"
+  res: "<img src='/en/image30_std.jpg?929831698949' width='440' height='400' alt='bird' class='std'/>"
 
 img_src_mode:
   src: "<r:img src='30' mode='pv'/>"
-  res: "<img src='/en/image30_pv.jpg' width='70' height='70' alt='bird' class='pv'/>"
+  res: "<img src='/en/image30_pv.jpg?967816914293' width='70' height='70' alt='bird' class='pv'/>"
 
 img_html_params:
   src: "<r:img src='30' id='super'/>"
-  res: "<img src='/en/image30_std.jpg' width='440' height='400' alt='bird' id='super' class='std'/>"
+  res: "<img src='/en/image30_std.jpg?929831698949' width='440' height='400' alt='bird' id='super' class='std'/>"
 
 test_children_plural:
   tem: "<%= 'children'.pluralize %>"

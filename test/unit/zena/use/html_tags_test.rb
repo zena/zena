@@ -35,8 +35,8 @@ class HtmlTagsTest < Zena::View::TestCase
   def test_img_tag
     login(:ant)
     img = secure!(Node) { nodes(:bird_jpg) }
-    assert_equal "<img src='/en/image30.jpg' width='660' height='600' alt='bird' class='full'/>", img_tag(img)
-    assert_equal "<img src='/en/image30_pv.jpg' width='70' height='70' alt='bird' class='pv'/>", img_tag(img, :mode=>'pv')
+    assert_equal "<img src='/en/image30.jpg?1144713600' width='660' height='600' alt='bird' class='full'/>", img_tag(img)
+    assert_equal "<img src='/en/image30_pv.jpg?967816914293' width='70' height='70' alt='bird' class='pv'/>", img_tag(img, :mode=>'pv')
   end
 
   def test_img_tag_document
@@ -63,11 +63,11 @@ class HtmlTagsTest < Zena::View::TestCase
   def test_img_tag_opts
     login(:anon)
     img = secure!(Node) { nodes(:bird_jpg) }
-    assert_equal "<img src='/en/image30.jpg' width='660' height='600' alt='bird' id='yo' class='full'/>",
+    assert_equal "<img src='/en/image30.jpg?1144713600' width='660' height='600' alt='bird' id='yo' class='full'/>",
                   img_tag(img, :mode=>nil, :id=>'yo')
-    assert_equal "<img src='/en/image30_pv.jpg' width='70' height='70' alt='bird' id='yo' class='super'/>",
+    assert_equal "<img src='/en/image30_pv.jpg?967816914293' width='70' height='70' alt='bird' id='yo' class='super'/>",
                   img_tag(img, :mode=>'pv', :id=>'yo', :class=>'super')
-    assert_equal "<img src='/en/image30_med.jpg' width='220' height='200' alt='super man' class='med'/>",
+    assert_equal "<img src='/en/image30_med.jpg?390663777446' width='220' height='200' alt='super man' class='med'/>",
                   img_tag(img, :mode=>'med', :alt=>'super man')
   end
 
@@ -83,7 +83,7 @@ class HtmlTagsTest < Zena::View::TestCase
 
   def test_alt_with_apos
     doc = secure!(Node) { nodes(:lake_jpg) }
-    assert_equal "<img src='/en/projects/cleanWater/image24.jpg' width='600' height='440' alt='it&apos;s a lake' class='full'/>", img_tag(doc)
+    assert_equal "<img src='/en/projects/cleanWater/image24.jpg?1144713600' width='600' height='440' alt='it&apos;s a lake' class='full'/>", img_tag(doc)
   end
 
   def test_select_id

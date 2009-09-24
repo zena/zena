@@ -13,7 +13,7 @@ yamltest:
 
 grosser-fast_gettext:
   lib:        'fast_gettext'
-  version:    '~>0.4.16'
+  version:    '~> 0.4.16'
   source:     'http://gems.github.com'
 
 mislav-will_paginate:

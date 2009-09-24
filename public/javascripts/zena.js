@@ -265,11 +265,10 @@ Zena.Div_editor.prototype = {
 
     this.clone = document.createElement('div');
     this.mark  = document.createElement('div');
-    var now   = new Date();
     Element.setStyle(this.clone, {
       width:  (2 * this.MARGIN + this.pos.fullw) + 'px',
       height: (2 * this.MARGIN + this.pos.fullh) + 'px',
-      background: 'grey url(' + img.src + '?' + now.getTime() +') no-repeat ' + this.MARGIN + 'px ' + this.MARGIN + 'px',
+      background: 'grey url(' + img.src + ') no-repeat ' + this.MARGIN + 'px ' + this.MARGIN + 'px',
       position: 'absolute',
       left: this.pos.offsetx - this.MARGIN + 'px',
       top:  this.pos.offsety - this.MARGIN + 'px'

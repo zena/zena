@@ -25,8 +25,10 @@ class ImageContent < DocumentContent
   end
 
   def can_crop?(format)
-    x, y, w, h = [format['x'].to_f, 0].max, [format['y'].to_f,0].max, [format['w'].to_f, width].min, [format['h'].to_f, height].min
-    format['max_value'] || format['format'] || (x < width && y < height && w > 0 && h > 0) && !(x==0 && y==0 && w == width && h == height)
+    x, y, w, h = [format['x'].to_i, 0].max, [format['y'].to_i, 0].max, [format['w'].to_i, width].min, [format['h'].to_i, height].min
+    (format['max_value'] && (format['max_value'].to_f * (format['max_unit'] == 'Mb' ? 1024 : 1) * 1024) < self.size) ||
+    (format['format'] && format['format'] != self.ext) ||
+    ((x < width && y < height && w > 0 && h > 0) && !(x==0 && y==0 && w == width && h == height))
   end
 
   # Crop the image using the 'crop' hash with the top left corner position (:x, :y) and the width and height (:width, :heigt). Example:

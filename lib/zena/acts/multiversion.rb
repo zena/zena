@@ -1,6 +1,18 @@
 module Zena
   module Acts
     module Multiversion
+      def self.update_attribute_without_fuss(obj, att, value)
+        obj[att] = value
+        if value.kind_of?(Time)
+          value = value.strftime("'%Y-%m-%d %H:%M:%S'")
+        elsif value.nil?
+          value = "NULL"
+        else
+          value = "'#{value}'"
+        end
+        obj.class.connection.execute "UPDATE #{obj.class.table_name} SET #{att}=#{value} WHERE id=#{obj[:id]}"
+      end
+
       module AddActsAsMethods
         # this is called when the module is included into the 'base' module
         def self.included(base)
@@ -30,6 +42,7 @@ module Zena
 
           before_create :cache_version_status_before_create
           before_update :cache_version_status_before_update
+          before_save   :multiversion_before_save
           after_save    :multiversion_after_save
 
           public
@@ -578,6 +591,11 @@ module Zena
             true
           end
 
+          def multiversion_before_save
+            @version_or_content_updated_but_not_saved = !changed? && (@version.changed? || (@version.content && @version.content.changed?))
+            true
+          end
+
           def multiversion_after_save
 
             if @redaction && @redaction.should_save?
@@ -597,6 +615,12 @@ module Zena
               self.class.connection.execute "UPDATE #{version.class.table_name} SET status = '#{@old_publication_to_remove[1]}' WHERE id IN (#{@old_publication_to_remove[0].join(', ')})" unless @old_publication_to_remove[0] == []
             end
 
+            if @version_or_content_updated_but_not_saved
+              # not saved, set updated_at manually
+              update_attribute_without_fuss(:updated_at, @version.updated_at)
+            end
+
+            @changed_before_save       = nil
             @allowed_transitions       = nil
             @old_publication_to_remove = nil
             @redaction                 = nil
@@ -604,15 +628,7 @@ module Zena
           end
 
           def update_attribute_without_fuss(att, value)
-            self[att] = value
-            if value.kind_of?(Time)
-              value = value.strftime("'%Y-%m-%d %H:%M:%S'")
-            elsif value.nil?
-              value = "NULL"
-            else
-              value = "'#{value}'"
-            end
-            self.class.connection.execute "UPDATE #{self.class.table_name} SET #{att}=#{value} WHERE id=#{self[:id]}"
+            Multiversion.update_attribute_without_fuss(self, att, value)
           end
 
           # Any attribute starting with 'v_' belongs to the 'version' or 'redaction'

@@ -304,6 +304,13 @@ class Site < ActiveRecord::Base
     end
   end
 
+  def iformats_updated!
+    Site.connection.execute "UPDATE sites SET formats_updated_at = (SELECT updated_at FROM iformats WHERE site_id = #{self[:id]} ORDER BY iformats.updated_at DESC LIMIT 1) WHERE id = #{self[:id]}"
+    if $iformats
+      $iformats[self[:id]] = @iformats = nil
+    end
+  end
+
   def clear_cache(clear_zafu = true)
     path = "#{SITES_ROOT}#{self.public_path}"
     Site.logger.error("\n-----------------\nCLEAR CACHE FOR SITE #{host}\n-----------------\n")

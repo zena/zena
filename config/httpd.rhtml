@@ -9,3 +9,10 @@ NameVirtualHost *
 <Proxy balancer://<%= balancer %>><% ports.each do |port| %>
   BalancerMember http://127.0.0.1:<%= port %><% end %>
 </Proxy>
+
+<ifmodule mode_expires.c>
+  <filesmatch "\.(jpg|gif|png|css|js)$">
+    ExpiresActive on
+    ExpiresDefault "access plus 1 year"
+  </filesmatch>
+</ifmodule>

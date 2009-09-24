@@ -1,4 +1,5 @@
 require 'tempfile'
+require 'digest/sha1'
 begin
   # this works on the deb box
   require 'RMagick'
@@ -31,20 +32,19 @@ end
 
 class ImageBuilder
   DEFAULT_FORMATS = {
-    'tiny' =>   { :name=>'tiny', :size=>:force, :width=>16,  :height=>16 , :gravity=>Magick::CenterGravity   }.freeze,
-    'mini' =>   { :name=>'mini', :size=>:force, :width=>32,  :height=>32 , :gravity=>Magick::CenterGravity   }.freeze,
-    'square' => { :name=>'square', :size=>:limit, :width=>180, :height=>180, :gravity=>Magick::CenterGravity   }.freeze,
-    'med'  =>   { :name=>'med',  :size=>:limit, :width=>280, :height=>186, :gravity=>Magick::CenterGravity   }.freeze,
-    'top'  =>   { :name=>'top',  :size=>:force, :width=>280, :height=>186, :gravity => Magick::NorthGravity  }.freeze,
-    'low'  =>   { :name=>'low',  :size=>:force, :width=>280, :height=>186, :gravity => Magick::SouthGravity  }.freeze,
-    'side' =>   { :name=>'side', :size=>:force, :width=>220, :height=>500, :gravity=>Magick::CenterGravity   }.freeze,
-    'std'  =>   { :name=>'std',  :size=>:limit, :width=>600, :height=>400, :gravity=>Magick::CenterGravity   }.freeze,
-    'pv'   =>   { :name=>'pv',   :size=>:force, :width=>70,  :height=>70 , :gravity=>Magick::CenterGravity   }.freeze,
-    'edit' =>   { :name=>'edit', :size=>:limit, :width=>400, :height=>400, :gravity=>Magick::CenterGravity   }.freeze,
-    'full' =>   { :name=>'full', :size=>:keep                            , :gravity=>Magick::CenterGravity   }.freeze,
-    nil    =>   { :name=>'full', :size=>:keep                            , :gravity=>Magick::CenterGravity   }.freeze,
+    'tiny' =>   { :name=>'tiny', :size=>:force, :width=>16,  :height=>16 , :gravity=>Magick::CenterGravity   },
+    'mini' =>   { :name=>'mini', :size=>:force, :width=>32,  :height=>32 , :gravity=>Magick::CenterGravity   },
+    'square' => { :name=>'square', :size=>:limit, :width=>180, :height=>180, :gravity=>Magick::CenterGravity },
+    'med'  =>   { :name=>'med',  :size=>:limit, :width=>280, :height=>186, :gravity=>Magick::CenterGravity   },
+    'top'  =>   { :name=>'top',  :size=>:force, :width=>280, :height=>186, :gravity => Magick::NorthGravity  },
+    'low'  =>   { :name=>'low',  :size=>:force, :width=>280, :height=>186, :gravity => Magick::SouthGravity  },
+    'side' =>   { :name=>'side', :size=>:force, :width=>220, :height=>500, :gravity=>Magick::CenterGravity   },
+    'std'  =>   { :name=>'std',  :size=>:limit, :width=>600, :height=>400, :gravity=>Magick::CenterGravity   },
+    'pv'   =>   { :name=>'pv',   :size=>:force, :width=>70,  :height=>70 , :gravity=>Magick::CenterGravity   },
+    'edit' =>   { :name=>'edit', :size=>:limit, :width=>400, :height=>400, :gravity=>Magick::CenterGravity   },
+    'full' =>   { :name=>'full', :size=>:keep                            , :gravity=>Magick::CenterGravity   },
+    nil    =>   { :name=>'full', :size=>:keep                            , :gravity=>Magick::CenterGravity   },
   }.freeze
-
   # 'sepia'=>   { :size=>:limit, :width=>280, :ratio=>2/3.0, :post=>Proc.new {|img| img.sepiatone(Magick::MaxRGB * 0.8)}},
 
   class << self
@@ -54,6 +54,15 @@ class ImageBuilder
 
     def dummy?
       Magick.const_defined?(:ZenaDummy)
+    end
+
+    def hash_id(format)
+      Digest::SHA1.hexdigest("#{format[:name]}#{format[:size]}#{format[:width]}#{format[:height]}#{format[:gravity]}")[0..9].to_i(16)
+    end
+
+    DEFAULT_FORMATS.each do |k, v|
+      v[:hash_id] = ImageBuilder.hash_id(v)
+      v.freeze
     end
   end
 

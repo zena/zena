@@ -151,7 +151,7 @@ live_filter_select_options:
 
 draggable_do_syntax:
   src: "<r:images in='site' do='each' draggable='true' do='img' mode='pv'/>"
-  res: "/div id='list1_30'><img src='/en/image30_pv.jpg'.*list1_30.*.each\(Zena.draggable/"
+  res: "/div id='list1_30'><img src='/en/image30_pv.jpg\?967816914293'.*list1_30.*.each\(Zena.draggable/"
 
 unlink:
   context:

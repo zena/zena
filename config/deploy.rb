@@ -286,6 +286,7 @@ task :apache2_setup, :roles => :web do
   run "test -e /etc/apache2/mods-enabled/proxy_balancer.load || a2enmod proxy_balancer"
   run "test -e /etc/apache2/mods-enabled/proxy.load || a2enmod proxy"
   run "test -e /etc/apache2/mods-enabled/proxy_http.load || a2enmod proxy_http"
+  run "test -e /etc/apache2/mods-enabled/expires.load || a2enmod expires"
   run "/etc/init.d/apache2 force-reload"
 end
 

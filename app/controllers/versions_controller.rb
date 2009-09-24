@@ -215,12 +215,13 @@ class VersionsController < ApplicationController
     def find_node
       @node = secure!(Node) { Node.find_by_zip(params[:node_id]) }
       if params[:id].to_i != 0
-        # try to set current version from version number
-        @node.version(params[:id])
+        begin
+          # try to set current version from version number
+          @node.version(params[:id])
+        rescue ActiveRecord::RecordNotFound
+          redirect_to :id => @node.version.number
+        end
       end
-    rescue ActiveRecord::RecordNotFound
-
-      redirect_to :id => @node.v_number
     end
 
     def verify_access
