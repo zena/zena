@@ -20,7 +20,7 @@ class SitesController < ApplicationController
   # Update source code and restart application
   def zena_up
     # FIXME: this will not work when we move to git...
-    @current_rev = Zena::VERSION::REV.strip.to_i
+    @current_rev = Zena::REVISION.strip.to_i
 
     if params[:rev]
       @target_rev = params[:rev].to_i

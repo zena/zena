@@ -24,6 +24,7 @@ require 'bricks/patcher'
 
 module Zena
   VERSION = '0.13.0'
+  REVISION = 1335
   ROOT    = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 
   class << self

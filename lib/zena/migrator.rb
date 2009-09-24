@@ -44,6 +44,28 @@ module Zena
       end
 
       def init_bricks_migration_table
+
+        # Migrate from 0.11 (rails 1.2.3) to 0.13 (rails 2.3.4)
+        connection = ActiveRecord::Base.connection
+        sm_table = ActiveRecord::Migrator.schema_migrations_table_name
+        si_table = ActiveRecord::Base.table_name_prefix + 'schema_info' + ActiveRecord::Base.table_name_suffix
+        unless connection.tables.detect { |t| t == sm_table }
+          v_brick, v_schema = 0, 0
+          connection.select_all("SELECT `version` FROM #{old_bricks_info_table_name} WHERE brick = 'zena'", "Bricks_info fix").each do |record|
+            v_brick = record['version'].to_i
+          end
+          if v_brick > 0
+            connection.select_all("SELECT `version` FROM #{si_table}", "Bricks_info fix").each do |record|
+              v_schema = record['version'].to_i
+            end
+            if v_schema < v_brick
+              connection.execute "UPDATE schema_info SET version = #{v_brick}"
+              connection.execute "DROP TABLE #{old_bricks_info_table_name}"
+              connection.initialize_schema_migrations_table
+            end
+          end
+        end
+
         unless ActiveRecord::Base.connection.columns(schema_migrations_table_name).map{|c| c.name}.include?('brick')
           ActiveRecord::Migration.announce("adding 'brick' scope to schema_migrations")
           ActiveRecord::Migration.add_column   schema_migrations_table_name, :brick, :string

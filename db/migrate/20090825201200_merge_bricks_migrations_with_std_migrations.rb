@@ -8,7 +8,6 @@ class MergeBricksMigrationsWithStdMigrations < ActiveRecord::Migration
       # merge content from 'bricks_info' in
       schema_table_name = ActiveRecord::Migrator.schema_migrations_table_name
       BricksMergerModel.find(:all).each do |r|
-        puts r.attributes.inspect
         execute "INSERT INTO #{schema_table_name} (brick,version) VALUES (#{r.brick.inspect}, #{r.version.inspect})"
       end
       drop_table :bricks_info
