@@ -5,6 +5,7 @@ class ZazenTest < Zena::View::TestCase
   include Zena::Use::HtmlTags::ViewMethods
   include Zena::Use::Refactor::ViewMethods # fquote, render_to_string
   include Zena::Use::Urls::ViewMethods # zen_path, etc
+  include Bricks::Captcha::ViewMethods # mailhide test
 
   # ============ stubs ============
   def _(str)
