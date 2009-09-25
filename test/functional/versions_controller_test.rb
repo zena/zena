@@ -71,6 +71,22 @@ class VersionsControllerTest < Zena::Controller::TestCase
     assert_equal start, version.text
   end
 
+  def test_destroy_version_with_ajax_should_send_a_dom_remove_and_warning
+    login(:lion)
+    node = secure!(Node) { nodes(:status) }
+    assert_equal 2, node.versions.count
+    put 'remove', :node_id => node.zip, :id => 1, :drive => true, :format => 'js'
+    assert_response :success
+    assert_match %r{Element\.replace\(.versions}, @response.body
+    assert_no_match %r{This node contains sub-nodes}, @response.body
+    assert_equal 2, assigns(:node).versions.count
+    delete 'destroy', :node_id => node.zip, :id => 1, :drive => true, :format => 'js'
+    assert_response :success
+    assert_equal 1, assigns(:node).versions.count
+    assert_match %r{Element\.replace\(.versions}, @response.body
+    assert_match %r{This node contains sub-nodes}, @response.body
+  end
+
 =begin
 
   def test_preview

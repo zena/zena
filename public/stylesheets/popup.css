@@ -11,6 +11,7 @@ body {font: 0.9em Arial, Helvetica, Verdana, sans-serif; background:#BBC5CD; lin
 .previous { float:left;}
 .btn_x {float:right; padding-right:10px;}
 .errors ul { background:#DDC8C8; margin:0 0 5px; padding:4px 0; border-bottom:1px solid #5A3231;}
+.warn { background:#ffc8c8;}
 
 form li { clear:both; padding:3px 0;}
 form .infos li { clear:none;}

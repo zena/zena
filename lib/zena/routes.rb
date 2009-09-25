@@ -34,8 +34,7 @@ module Zena
                                      :remove  => :put,
                                      :redit   => :put,
                                      :preview => :get,
-                                     :link    => :any,
-                                     :destroy_version => :put } # FIXME: should be a DELETE
+                                     :link    => :any }
 
         nodes.resources :links
 

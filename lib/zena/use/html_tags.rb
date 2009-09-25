@@ -529,7 +529,13 @@ module Zena
             # FIXME
             link_to_function(_('btn_view'), "opener.Zena.version_preview('/nodes/#{version.node.zip}/versions/#{version.number}');")
           else
-            link_to_remote( _("btn_#{action}"), :url=>{:controller=>'versions', :action => action, :node_id => version.node[:zip], :id => version.number, :drive=>true}, :title=>_("btn_title_#{action}"), :method => :put ) + "\n"
+            if action == 'destroy_version'
+              action = 'destroy'
+              method = :delete
+            else
+              method = :put
+            end
+            link_to_remote( _("btn_#{action}"), :url=>{:controller=>'versions', :action => action, :node_id => version.node[:zip], :id => version.number, :drive=>true}, :title=>_("btn_title_#{action}"), :method => method ) + "\n"
           end
         end
 

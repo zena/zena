@@ -213,7 +213,7 @@ class VersionsController < ApplicationController
   end
 
   # TODO: test
-  def destroy_version
+  def destroy
     if @node.destroy_version
       flash[:notice] = "Version destroyed."
     else
