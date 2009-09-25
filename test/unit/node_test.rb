@@ -1478,9 +1478,9 @@ done: \"I am done\""
 
   def test_parse_keys
     node = secure(Node) { nodes(:status) }
-    assert_equal ["d_assigned", "v_text", "v_title", "d_problems", "d_archive"], node.parse_keys
+    assert_equal ['d_assigned', 'v_text', 'v_title', 'v_summary', 'd_problems', 'd_archive'], node.parse_keys
 
     note = secure(Node) { nodes(:opening) }
-    assert_equal ["v_text", "v_title"], note.parse_keys
+    assert_equal ['v_text', 'v_title', 'v_summary'], note.parse_keys
   end
 end

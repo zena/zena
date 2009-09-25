@@ -73,5 +73,5 @@ padding:5px; border:1px solid #714D3D; text-align:left; color:#444; z-index:9999
 .zazen .table_add:hover a { visibility:visible;}
 
 /* diff */
-del.diffmod { background:#fcc; padding:1px 2px;}
-ins.diffmod { background:#cfc; text-decoration:none; padding:1px 2px;}
+del.differ, del.differ * { background:#fcc; padding:1px 2px;}
+ins.differ, ins.differ * { background:#cfc; text-decoration:none; padding:1px 2px;}

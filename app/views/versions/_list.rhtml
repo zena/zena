@@ -1,8 +1,4 @@
 <table cellspacing="0" id='versions'>
   <%= render :partial=>'versions/tr', :collection => @node.versions %>
-  <tr class='diff'>
-    <td class="box"></td>
-    <td class="box"><a class='diff' href="#" onclick="opener.Zena.version_diff(<%= @node.zip %>, diff_from, diff_to); return false;"><%= _('btn_diff') %></a></td>
-    <td colspan='6' class='text'><%= _('select version numbers and view differences')%></td>
-  </tr>
 </table>
+<div class='hidden' id='node_zip'><%= @node.zip %></div>

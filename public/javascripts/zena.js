@@ -38,9 +38,6 @@ Zena.save = function(url, form, close_on_complete) {
 var diff_from = '';
 var diff_to = '';
 var diff_next_sel = 'from';
-Zena.show_diff = function(id) {
-  opener.Zena.version_diff(id, diff_from, diff_to);
-}
 
 Zena.diff_select = function(tag) {
   if (diff_next_sel == 'from') {
@@ -69,6 +66,9 @@ Zena.diff_select = function(tag) {
 
   diff_from.style.background = '#7A6414';
   diff_to.style.background = '#FAD12A';
+  if (diff_from != '' && diff_to != '') {
+    opener.Zena.version_diff($('node_zip').innerHTML, diff_from, diff_to);
+  }
 }
 
 // preview discussion.

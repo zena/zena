@@ -21,3 +21,8 @@ mislav-will_paginate:
   version:    '~> 2.2.3'
   lib:        'will_paginate'
   source:     'http://gems.github.com'
+
+pvande-differ:
+  version:    '= 0.1.1'
+  lib:        'differ'
+  source:     'http://gems.github.com'

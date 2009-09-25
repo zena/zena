@@ -1,3 +1,4 @@
+require 'differ'
 class VersionsController < ApplicationController
   layout :popup_layout, :except => [:preview, :diff, :show]
   before_filter :find_node, :verify_access
@@ -81,9 +82,7 @@ class VersionsController < ApplicationController
   # TODO: test/improve or remove (experiments)
   def diff
     # source
-    render_and_cache :cache => false
-    from_body = response.body
-    erase_render_results
+    source = @node.version
     # target
     if params[:to].to_i > 0
       @node.version(params[:to])
@@ -91,12 +90,25 @@ class VersionsController < ApplicationController
       # default
       @node.instance_variable_set(:@version, nil)
     end
+    target = @node.version
 
-    render_and_cache :cache => false
-    to_body = response.body
-    erase_render_results
-    # diff
-    render :text => HTMLDiff::diff(from_body, to_body)
+    ['title', 'text', 'summary'].each do |k|
+      target.send("#{k}=",
+        Differ.diff_by_word(target.send(k) || '', source.send(k) || '').format_as(:html).gsub(/(\s+)<\/del>/, '</del>\1')
+      )
+    end
+
+    source = source.dyn
+    target = target.dyn
+    target.keys.each do |k|
+      target[k] = Differ.diff_by_word(target[k] || '', source[k] || '').format_as(:html).gsub(/(\s+)<\/del>/, '</del>\1')
+    end
+
+    if @node.id == current_site.root_id
+      render_and_cache :cache => false, :mode => '+index'
+    else
+      render_and_cache :cache => false
+    end
   end
 
   # preview when editing node
