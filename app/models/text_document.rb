@@ -37,7 +37,7 @@ class TextDocument < Document
       # error
       unless skin.kind_of?(Skin)
         errors.add('base', 'Cannot parse assets if not in a Skin.')
-        return
+        return text
       end
 
       current_folder = parent.fullpath

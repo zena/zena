@@ -128,9 +128,13 @@ module Zena
           belongs_to :node,  :class_name => opts[:class_name] #, :inverse_of => :versions
           class_eval do
             def node_with_secure
-              n = node_without_secure
-              visitor.visit(n)
-              n
+              @node ||= begin
+                if n = node_without_secure
+                  visitor.visit(n)
+                  n.version = self
+                end
+                n
+              end
             end
             alias_method_chain :node, :secure
           end
@@ -412,6 +416,7 @@ module Zena
             v = versions.find(:first,
               :conditions => [ "((status = #{Zena::Status[:red]} AND user_id = ?) OR status <> #{Zena::Status[:red]}) AND number = ?", visitor.id, key])
             raise ActiveRecord::RecordNotFound unless v
+            v.node = self
             @version = v
           else
             @version ||= if new_record?

@@ -10,12 +10,10 @@ module Zena
         end
 
         def [](role)
-          deb role
           @node.relation_proxy(role.to_s)
         end
 
         def send(role)
-          deb role
           @node.relation_proxy(role.to_s)
         end
 
