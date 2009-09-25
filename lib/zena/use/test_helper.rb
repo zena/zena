@@ -1,3 +1,4 @@
+require 'hpricot'
 module Zena
   module Use
     module TestHelper

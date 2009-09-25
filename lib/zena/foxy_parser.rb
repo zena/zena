@@ -47,6 +47,7 @@ module Zena
       end
     end
 
+    # Is this used ?
     def self.load_file(filepath)
       raise Exception.new("Invalid filepath for loader (#{filepath})") unless ((filepath =~ /.+\.yml$/) && File.exist?(filepath))
       base_objects = {}
@@ -304,7 +305,7 @@ module Zena
       def out(res)
         unless @file
           # only open the file if we have things to write in it
-          @file = File.open("#{Zena::ROOT}/test/fixtures/#{table}.yml", 'wb')
+          @file = File.open("#{RAILS_ROOT}/test/fixtures/#{table}.yml", 'wb')
           @file.puts "# Fixtures generated from content of 'sites' folder by #{self.class} (rake zena:build_fixtures)"
           @file.puts ""
           @file.puts self.class.prelude
@@ -601,7 +602,7 @@ module Zena
       end
 
       def write_versions
-        File.open("#{Zena::ROOT}/test/fixtures/versions.yml", 'ab') do |file|
+        File.open("#{RAILS_ROOT}/test/fixtures/versions.yml", 'ab') do |file|
           file.puts "\n# ========== #{site} (generated from 'nodes.yml') ==========="
           file.puts ""
 
@@ -624,7 +625,7 @@ module Zena
 
       def write_contents
         (@contents[site] || {}).each do |klass, contents|
-          File.open("#{Zena::ROOT}/test/fixtures/#{klass.table_name}.yml", 'ab') do |file|
+          File.open("#{RAILS_ROOT}/test/fixtures/#{klass.table_name}.yml", 'ab') do |file|
             file.puts "\n# ========== #{site} (generated from 'nodes.yml') ==========="
             file.puts ""
             columns = klass.column_names

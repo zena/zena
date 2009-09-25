@@ -7,7 +7,7 @@
     <li>
       <ul class='position' id='sort_<%= name %>'>
         <% list.each do |child| -%>
-        <li id='child_<%= child[:zip] %>'><%= truncate(child.name, 18) %></li>
+        <li id='child_<%= child[:zip] %>'><%= truncate(child.name, :length => 18) %></li>
         <% end -%>
       </ul>
     </li>

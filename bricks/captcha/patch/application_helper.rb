@@ -3,18 +3,9 @@ module Zena::Use::Zazen::ViewMethods
   include ReCaptcha::ViewHelper
   asset_method 'email' => :email_asset
 
-  # FIXME: remove when rails 2.0.
-  # not present in our version of rails. This version is not multi-byte.
-  def truncate(text, length = 30, truncate_string = "...")
-    if text
-      l = length - truncate_string.length
-      text.length > length ? text[0..l] + truncate_string : text
-    end
-  end
-
   # Overwrite mail_hide to avoid MH_PUB, MH_PRIV globals
   def mail_hide(address, options={})
-    contents = options[:contents] || truncate(address,10)
+    contents = options[:contents] || truncate(address, :length => 10)
     pub_key  = options[:mh_pub]  || MH_PUB
     priv_key = options[:mh_priv] || MH_PRIV
     k = ReCaptcha::MHClient.new(pub_key, priv_key)

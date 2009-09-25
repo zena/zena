@@ -1,5 +1,5 @@
 unless defined?(Node.ancestors.include?('Zena::Use::Relations::ClassMethods')) # FIXME: not sure here
-  raise Exception.new("tags brick depends on 'use_relations'")
+  raise Exception.new("tags brick depends on 'Zena::Use::Relations'")
 end
 Node.send(:has_tags)
 Link.send(:attr_public, :name)

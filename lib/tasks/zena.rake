@@ -1,6 +1,8 @@
 require 'yaml'
 require 'fileutils'
 
+require File.join(File.dirname(__FILE__), '..', 'zena.rb') # to have Zena::ROOT
+
 def symlink_assets(from, to)
   from = File.expand_path(from)
   to = File.expand_path(to)
@@ -13,11 +15,19 @@ def symlink_assets(from, to)
   ['calendar', 'images', 'javascripts', 'stylesheets', 'icons'].each do |dir|
     File.unlink("#{to}/public/#{dir}") if File.symlink?("#{to}/public/#{dir}")
     if File.exist?("#{to}/public/#{dir}")
-      # replace each file
-      Dir.foreach("#{from}/public/#{dir}") do |f|
-        next if f =~ /\A\./
-        File.unlink("#{to}/public/#{dir}/#{f}") if File.exist?("#{to}/public/#{dir}/#{f}")
-        FileUtils.ln_s("#{from}/public/#{dir}/#{f}", "#{to}/public/#{dir}/#{f}")
+      if File.directory?("#{to}/public/#{dir}")
+        # replace each file
+        Dir.foreach("#{from}/public/#{dir}") do |f|
+          src, trg = "#{from}/public/#{dir}/#{f}", "#{to}/public/#{dir}/#{f}"
+          next if f =~ /\A\./
+          if File.exist?(trg) || File.symlink?(trg)
+            File.unlink(trg)
+          end
+          FileUtils.ln_s(src, trg)
+        end
+      else
+        # ignore
+        puts "Cannot install assets in #{to}/public/#{dir} (not a directory)"
       end
     else
       FileUtils.ln_s("#{from}/public/#{dir}", "#{to}/public/#{dir}")
@@ -191,9 +201,9 @@ namespace :zena do
       # migrate specific bricks only
       if ENV['BRICK'] == 'zena'
         # migrate 'db/migrate'
-        Zena::Migrator.migrate('db/migrate', ENV["BRICK"], ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
+        Zena::Migrator.migrate("#{Zena::ROOT}/db/migrate", ENV["BRICK"], ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
       else
-        mig_path = "bricks/#{ENV['BRICK']}/migrate"
+        mig_path = "#{Zena::ROOT}/bricks/#{ENV['BRICK']}/migrate"
         if File.exist?(mig_path) && File.directory?(mig_path)
           Zena::Migrator.migrate(mig_path, ENV["BRICK"], ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
         else
@@ -202,7 +212,7 @@ namespace :zena do
       end
     else
       # migrate all to latest
-      paths  = {'zena' => 'db/migrate'}
+      paths  = {'zena' => "#{Zena::ROOT}/db/migrate"}
       bricks = ['zena']
 
       Bricks::Patcher.foreach_brick do |brick_path|
@@ -213,7 +223,7 @@ namespace :zena do
         bricks << brick_name
       end
 
-      bricks.each do |brick_name|
+      bricks.each do |brick_name, path|
         Zena::Migrator.migrate(paths[brick_name], brick_name, nil)
       end
       #ActiveRecord::Migrator.migrate("db/migrate/", nil)
@@ -276,8 +286,9 @@ namespace :zena do
   Rake::TestTask.new(:test => ["zena:test:prepare", "zena:build_fixtures"]) do |t|
     t.libs << "test"
     # do not change the order in which these elements are loaded (adding 'lib/**/test/*_test.rb' fails)
-    t.pattern = ['test/helpers/**/*_test.rb', 'test/unit/**/*_test.rb', 'lib/parser/test/*_test.rb', 'lib/query_builder/test/*_test.rb', 'test/functional/*_test.rb', #'test/integration/*_test.rb',
+    list = ['test/helpers/**/*_test.rb', 'test/unit/**/*_test.rb', 'lib/parser/test/*_test.rb', 'lib/query_builder/test/*_test.rb', 'test/functional/*_test.rb', #'test/integration/*_test.rb',
                  'bricks/**/test/unit/*_test.rb', 'bricks/**/test/functional/*_test.rb', 'bricks/**/test/integration/*_test.rb']
+    t.pattern = list.map {|p| "#{Zena::ROOT}/#{p}"}
     t.verbose = true
   end
   Rake::Task['zena:test'].comment = "Run the tests in test/helpers and test/unit"

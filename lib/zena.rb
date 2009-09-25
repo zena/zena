@@ -23,8 +23,8 @@ UPLOAD_KEY     = defined?(Mongrel) ? 'upload_id' : "X-Progress-ID"
 require 'bricks/patcher'
 
 module Zena
-  VERSION = '0.13.0'
-  REVISION = 1335
+  VERSION = '0.14.0'
+  REVISION = 1336
   ROOT    = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 
   class << self
@@ -106,7 +106,7 @@ module Zena
     def config_gems(config)
       gem_configuration.each do |gem_name, gem_config|
         if gem_config
-          config.gem gem_name, gem_config #.symbolize_keys ? replace '= 3.0.4' by '3.0.4' ?
+          config.gem gem_name, gem_config.symbolize_keys # to we need to replace '= 3.0.4' by '3.0.4' ?
         else
           config.gem gem_name
         end

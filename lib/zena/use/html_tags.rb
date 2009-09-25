@@ -296,8 +296,8 @@ module Zena
             _('img_public')
           else
             names = []
-            names |= [truncate(obj.rgroup.name,7)] if obj.rgroup
-            names |= [truncate(obj.pgroup.name,7)] if obj.pgroup
+            names |= [truncate(obj.rgroup.name, :length => 7)] if obj.rgroup
+            names |= [truncate(obj.pgroup.name, :length => 7)] if obj.pgroup
             names << obj.user.initials
             names.join(', ')
           end

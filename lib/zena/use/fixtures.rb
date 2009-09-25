@@ -1,6 +1,11 @@
 module Zena
   module Use
     module Fixtures
+      # load all fixtures and setup fixture_accessors:
+      FIXTURE_PATH = File.join(RAILS_ROOT, 'test', 'fixtures')
+      FILE_FIXTURES_PATH = File.join(RAILS_ROOT, 'test', 'fixtures', 'files')
+      # We use transactional fixtures with a single load for ALL tests (this is not the default rails implementation). Tests are now 5x-10x faster.
+
       def self.included(base)
         self.load_fixtures unless defined?(@@loaded_fixtures)
       end
@@ -29,6 +34,17 @@ module Zena
         unless File.exist?(File.join(FIXTURE_PATH, 'nodes.yml'))
           puts "No fixtures in 'test/fixtures'. Building from 'test/sites'."
           `cd #{RAILS_ROOT} && rake zena:build_fixtures`
+        end
+
+        # make sure files and import directories are in sync
+        if RAILS_ROOT != Zena::ROOT
+          ['test/fixtures/files', 'test/fixtures/import'].each do |path|
+            from_dir = "#{Zena::ROOT}/#{path}"
+            FileUtils.mkpath(from_dir) unless File.exist?(from_dir)
+            Dir.foreach(from_dir) do |f|
+              FileUtils.cp_r("#{from_dir}/#{f}", "#{RAILS_ROOT}/#{path}/") unless File.exist?("#{RAILS_ROOT}/#{path}/#{f}")
+            end
+          end
         end
 
         Dir.foreach(FIXTURE_PATH) do |file|

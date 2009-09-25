@@ -1,5 +1,3 @@
-require 'hpricot'
-
 module Zena
   module View
     class TestCase < ActionView::TestCase

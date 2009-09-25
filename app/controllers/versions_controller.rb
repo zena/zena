@@ -8,7 +8,13 @@ class VersionsController < ApplicationController
   def show
     respond_to do |format|
 
-      format.html { render_and_cache(:cache=>false) }
+      format.html {
+        if @node.id == current_site.root_id
+          render_and_cache :cache => false, :mode => '+index'
+        else
+          render_and_cache :cache => false
+        end
+      }
 
       format.xml  { render :xml => @node.to_xml }
 
@@ -104,11 +110,7 @@ class VersionsController < ApplicationController
       target[k] = Differ.diff_by_word(target[k] || '', source[k] || '').format_as(:html).gsub(/(\s+)<\/del>/, '</del>\1')
     end
 
-    if @node.id == current_site.root_id
-      render_and_cache :cache => false, :mode => '+index'
-    else
-      render_and_cache :cache => false
-    end
+    show
   end
 
   # preview when editing node

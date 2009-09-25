@@ -1,6 +1,7 @@
+require 'ruby-recaptcha'
+
 # You have to name your module Bricks::[NameOfBrick]::Zafu in order
 # for the module to be inserted into the ZafuParser.
-
 module Bricks
   module Captcha
     module Zafu

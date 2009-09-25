@@ -1,30 +1,32 @@
 require 'tempfile'
 require 'digest/sha1'
-begin
-  # this works on the deb box
-  require 'RMagick'
-rescue LoadError
+unless defined?(Magick)
   begin
-    # this works on my Mac
-    require 'rmagick'
+    # this works on the deb box
+    require 'RMagick'
   rescue LoadError
-    puts "ImageMagick not found. Using dummy."
-    require 'ftools'
-    # Create a dummy magick module
-    module Magick
-      CenterGravity = OverCompositeOp = MaxRGB = NorthGravity = SouthGravity = nil
-      class << self
-      end
-      class ZenaDummy
-        def initialize(*a)
+    begin
+      # this works on my Mac
+      require 'rmagick'
+    rescue LoadError
+      puts "ImageMagick not found. Using dummy."
+      require 'ftools'
+      # Create a dummy magick module
+      module Magick
+        CenterGravity = OverCompositeOp = MaxRGB = NorthGravity = SouthGravity = nil
+        class << self
         end
-        def method_missing(meth, *args)
-          # do nothing
+        class ZenaDummy
+          def initialize(*a)
+          end
+          def method_missing(meth, *args)
+            # do nothing
+          end
         end
-      end
-      class Image < ZenaDummy
-      end
-      class ImageList < ZenaDummy
+        class Image < ZenaDummy
+        end
+        class ImageList < ZenaDummy
+        end
       end
     end
   end
