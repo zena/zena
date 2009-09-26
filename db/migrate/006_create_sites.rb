@@ -1,7 +1,7 @@
 class CreateSites < ActiveRecord::Migration
   def self.up
 
-    create_table(:sites, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+    create_table(:sites, :options => Zena::Db.table_options) do |t|
       t.column :host, :string
       t.column :root_id, :integer
       t.column :su_id, :integer
@@ -18,7 +18,7 @@ class CreateSites < ActiveRecord::Migration
       t.column :default_lang, :string, :size=>2
     end
 
-    create_table(:sites_users, :id=>false,:options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+    create_table(:sites_users, :id=>false,:options => Zena::Db.table_options) do |t|
       t.column :user_id, :integer
       t.column :site_id, :integer
       t.column :status, :integer

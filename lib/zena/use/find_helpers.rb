@@ -48,12 +48,12 @@ module Zena
           rows.fetch_row[0].to_i
         end
 
+        # TODO: move this into Zena::Db
         def fetch_attribute(attribute, sql)
           unless sql =~ /SELECT/i
             sql = "SELECT `#{attribute}` FROM #{table_name} WHERE #{sql}"
           end
-          row = connection.execute(sql).fetch_row
-          row ? row[0] : nil
+          Zena::Db.fetch_row(sql)
         end
       end
     end

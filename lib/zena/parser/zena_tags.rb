@@ -3554,7 +3554,7 @@ module ActiveRecord
       # ref_date can be a string ('2005-05-03') or ruby ('Time.now'). It should not come uncleaned from evil web.
       def date_condition(date_cond, field, ref_date='today')
         if date_cond == 'today' || ref_date == 'today'
-          ref_date = 'now()'
+          ref_date = Zena::Db::NOW
         elsif ref_date =~ /(\d{4}-\d{1,2}-\d{1,2}( \d{1,2}:\d{1,2}(:\d{1,2})?)?)/
           ref_date = "'#{$1}'"
         elsif ref_date =~ /\A"/

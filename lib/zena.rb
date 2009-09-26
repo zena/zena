@@ -52,8 +52,10 @@ module Zena
     def include_modules
       ActionController::Routing::RouteSet::Mapper.send :include, Zena::Routes
 
-      # This has to come first
-      Zena::Fix::MysqlConnection
+      if ActiveRecord::Base.configurations[RAILS_ENV]['adapter'] == 'mysql'
+        # This has to come first
+        Zena::Fix::MysqlConnection
+      end
 
       # FIXME: make this explicit in models
       ActiveRecord::Base.send :include, Zena::Use::PublicAttributes

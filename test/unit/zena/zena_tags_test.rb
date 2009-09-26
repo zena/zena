@@ -106,7 +106,7 @@ class ZenaTagsTest < Zena::Controller::TestCase
   end
 
   def test_relations_updated_today
-    Node.connection.execute "UPDATE nodes SET updated_at = now() WHERE id IN (#{nodes_id(:status)}, #{nodes_id(:art)});"
+    Node.connection.execute "UPDATE nodes SET updated_at = #{Zena::Db::NOW} WHERE id IN (#{nodes_id(:status)}, #{nodes_id(:art)});"
     yt_do_test('relations', 'updated_today')
   end
 
@@ -123,14 +123,14 @@ class ZenaTagsTest < Zena::Controller::TestCase
   end
 
   def test_relations_logged_7_days_ago
-    Node.connection.execute "UPDATE nodes SET log_at = now() WHERE id IN (#{nodes_id(:status)}, #{nodes_id(:art)})"
+    Node.connection.execute "UPDATE nodes SET log_at = #{Zena::Db::NOW} WHERE id IN (#{nodes_id(:status)}, #{nodes_id(:art)})"
     Node.connection.execute "UPDATE nodes SET log_at = curdate() - interval 6 day WHERE id IN (#{nodes_id(:projects)}, #{nodes_id(:cleanWater)})"
     Node.connection.execute "UPDATE nodes SET log_at = curdate() - interval 10 day WHERE id IN (#{nodes_id(:people)});"
     yt_do_test('relations', 'logged_7_days_ago')
   end
 
   def test_relations_around_7_days
-    Node.connection.execute "UPDATE nodes SET log_at = now() WHERE id IN (#{nodes_id(:status)});"
+    Node.connection.execute "UPDATE nodes SET log_at = #{Zena::Db::NOW} WHERE id IN (#{nodes_id(:status)});"
     Node.connection.execute "UPDATE nodes SET log_at = curdate() + interval 5 day WHERE id IN (#{nodes_id(:art)});"
     Node.connection.execute "UPDATE nodes SET log_at = curdate() - interval 6 day WHERE id IN (#{nodes_id(:projects)}, #{nodes_id(:cleanWater)});"
     Node.connection.execute "UPDATE nodes SET log_at = curdate() - interval 10 day WHERE id IN (#{nodes_id(:people)});"

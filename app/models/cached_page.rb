@@ -95,7 +95,9 @@ class CachedPage < ActiveRecord::Base
   private
     def clear_same_path
       # in case the file was removed by hand or someting weird happened (see #166), clear
-      CachedPage.connection.execute "DELETE cached_pages_nodes FROM cached_pages_nodes, cached_pages WHERE cached_pages_nodes.cached_page_id = cached_pages.id AND cached_pages.path = #{CachedPage.connection.quote(self[:path])} AND cached_pages.site_id = #{visitor.site[:id]}"
+      Zena::Db.delete('cached_pages_nodes', :from => ['cached_pages_nodes', 'cached_pages'],
+                      :fields => ['cached_page_id', 'id'],
+                      :where => "cached_pages.path = #{CachedPage.connection.quote(self[:path])} AND cached_pages.site_id = #{visitor.site[:id]}")
       CachedPage.connection.execute "DELETE FROM cached_pages WHERE cached_pages.path = #{CachedPage.connection.quote(self[:path])} AND cached_pages.site_id = #{visitor.site[:id]}"
     end
 
@@ -117,8 +119,8 @@ class CachedPage < ActiveRecord::Base
 
       # create join values from context for automatic expire
       if (ids = @expire_with_ids || visitor.visited_node_ids) != []
-        values = ids.compact.uniq.map {|id| "(#{self[:id]}, #{id})"}.join(',')
-        CachedPage.connection.execute "INSERT INTO cached_pages_nodes (cached_page_id, node_id) VALUES #{values}"
+        values = ids.compact.uniq.map {|id| [self[:id], id]}
+        Zena::Db.insert_many('cached_pages_nodes', ['cached_page_id', 'node_id'], values)
       end
     end
 

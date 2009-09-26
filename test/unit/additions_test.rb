@@ -2,7 +2,7 @@ require 'test_helper'
 class AdditionsTest < Zena::Unit::TestCase
 
   def test_zip_fixtures
-    assert_equal zips_zip(:zena), Node.connection.execute("select zip from zips where site_id = #{sites_id(:zena)}").fetch_row[0].to_i
+    assert_equal zips_zip(:zena), Zena::Db.fetch_row("select zip from zips where site_id = #{sites_id(:zena)}").to_i
   end
 
   def test_fetch_ids

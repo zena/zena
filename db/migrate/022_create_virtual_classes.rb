@@ -1,6 +1,6 @@
 class CreateVirtualClasses < ActiveRecord::Migration
   def self.up
-    create_table(:virtual_classes, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+    create_table(:virtual_classes, :options => Zena::Db.table_options) do |t|
       t.column :name, :string
       t.column :kpath, :string, :limit => 16
       t.column :real_class, :string, :limit => 16

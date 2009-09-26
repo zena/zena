@@ -64,11 +64,9 @@ class User < ActiveRecord::Base
     #   str = id.to_s
     #   if str =~ /\A\d+\Z/
     #     # id
-    #     res = self.connection.execute( "SELECT users.#{sym} FROM users INNER JOIN participations ON users.id = participations.user_id AND participations.site_id = #{current_site[:id]} WHERE id = '#{str}'" ).fetch_row
-    #     res ? res[0].to_i : nil
+    #     Zena::Db.fetch_row( "SELECT users.#{sym} FROM users INNER JOIN participations ON users.id = participations.user_id AND participations.site_id = #{current_site[:id]} WHERE id = '#{str}'")
     #   elsif str =~ /\A([a-zA-Z ]+)(\+*)\Z/
-    #     self.connection.execute( "SELECT users.#{sym} FROM users INNER JOIN participations ON users.id = participations.user_id AND participations.site_id = #{current_site[:id]} WHERE login LIKE #{self.connection.quote("#{$1}%")} LIMIT #{$2.size}, 1" ).fetch_row
-    #     res ? res[0].to_i : nil
+    #     Zena::Db.fetch_row( "SELECT users.#{sym} FROM users INNER JOIN participations ON users.id = participations.user_id AND participations.site_id = #{current_site[:id]} WHERE login LIKE #{self.connection.quote("#{$1}%")} LIMIT #{$2.size}, 1")
     #   else
     #     nil
     #   end

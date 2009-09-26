@@ -22,8 +22,9 @@ class SecureReadTest < Zena::Unit::TestCase
   end
 
   # TODO: move this test in a better place...
-  def test_mysql_time_zone_in_sync
-    assert Node.connection.execute("SELECT (now() - #{Time.now.strftime('%Y%m%d%H%M%S')})").fetch_row[0].to_f == 0.0
+  def test_db_NOW_in_sync
+    assert res = Zena::Db.fetch_row("SELECT (#{Zena::Db::NOW} - #{Time.now.strftime('%Y%m%d%H%M%S')})")
+    assert_equal 0.0, res.to_f
   end
 
   # SECURE FIND TESTS  ===== TODO CORRECT THESE TEST FROM CHANGES TO RULES ========

@@ -270,8 +270,8 @@ class Node < ActiveRecord::Base
       if id.to_s =~ /\A(-?)(\d+)\Z/
         # zip
         # FIXME: this is not secure
-        res = Node.connection.execute( "SELECT #{sym} FROM nodes WHERE site_id = #{current_site[:id]} AND zip = '#{$2}'" ).fetch_row
-        res ? ($1.blank? ? res[0].to_i : -res[0].to_i) : nil
+        res = Zena::Db.fetch_row("SELECT #{sym} FROM nodes WHERE site_id = #{current_site[:id]} AND zip = '#{$2}'")
+        res ? ($1.blank? ? res.to_i : -res.to_i) : nil
       elsif node = find_node_by_pseudo(id,base_node)
         node[sym]
       else

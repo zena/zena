@@ -1,6 +1,6 @@
 class CreateRelations < ActiveRecord::Migration
   def self.up
-    create_table(:relations, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+    create_table(:relations, :options => Zena::Db.table_options) do |t|
       t.column :source_role, :string,  :limit => 32
       t.column :source_kpath, :string, :limit => 16
       t.column :source_unique, :boolean

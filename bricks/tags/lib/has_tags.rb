@@ -1,9 +1,9 @@
-module Zena
+module Bricks
   module Tags
     module HasTags
       # this is called when the module is included into the 'base' module
       def self.included(base)
-        base.extend Zena::Tags::TriggerClassMethod
+        base.extend Bricks::Tags::TriggerClassMethod
       end
     end
 
@@ -14,9 +14,9 @@ module Zena
         attr_public   :name, :tag_list, :tag, :tagged
 
         class_eval <<-END
-          include Zena::Tags::InstanceMethods
+          include Bricks::Tags::InstanceMethods
           class << self
-            include Zena::Tags::ClassMethods
+            include Bricks::Tags::ClassMethods
           end
         END
       end
@@ -156,4 +156,4 @@ module Zena
   end
 end
 
-ActiveRecord::Base.send :include, Zena::Tags::HasTags
+ActiveRecord::Base.send :include, Bricks::Tags::HasTags

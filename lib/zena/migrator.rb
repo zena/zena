@@ -49,7 +49,7 @@ module Zena
         connection = ActiveRecord::Base.connection
         sm_table = ActiveRecord::Migrator.schema_migrations_table_name
         si_table = ActiveRecord::Base.table_name_prefix + 'schema_info' + ActiveRecord::Base.table_name_suffix
-        unless connection.tables.detect { |t| t == sm_table }
+        if !connection.tables.include?(sm_table) && connection.tables.include?(old_bricks_info_table_name)
           v_brick, v_schema = 0, 0
           connection.select_all("SELECT `version` FROM #{old_bricks_info_table_name} WHERE brick = 'zena'", "Bricks_info fix").each do |record|
             v_brick = record['version'].to_i
@@ -64,6 +64,10 @@ module Zena
               connection.initialize_schema_migrations_table
             end
           end
+        end
+
+        if !connection.tables.include?(sm_table)
+          connection.initialize_schema_migrations_table
         end
 
         unless ActiveRecord::Base.connection.columns(schema_migrations_table_name).map{|c| c.name}.include?('brick')

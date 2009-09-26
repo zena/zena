@@ -33,7 +33,7 @@ module Zena
           has_many :versions,  :class_name => opts[:class_name],
                    :order=>"number DESC", :dependent => :destroy #, :inverse_of => :node
           has_many :editions,  :class_name => opts[:class_name],
-                   :conditions=>"publish_from <= now() AND status = #{Zena::Status[:pub]}", :order=>'lang' #, :inverse_of => :node
+                   :conditions=>"publish_from <= #{Zena::Db::NOW} AND status = #{Zena::Status[:pub]}", :order=>'lang' #, :inverse_of => :node
 
           before_validation :set_status_before_validation
           validate      :lock_validation

@@ -38,11 +38,11 @@ class MultipleHostsTest < ActionController::IntegrationTest
         assert File.exist?(filepath), "Cache file created"
         node = nodes(:zena_status)
         assert_equal 1, CachedPage.count(:conditions => "path like '%page#{status_zip}%'")
-        assert_not_equal 0, CachedPage.connection.execute("SELECT COUNT(*) as count_all FROM cached_pages_nodes WHERE node_id = #{node[:id]}").fetch_row[0].to_i
+        assert_not_equal 0, Zena::Db.fetch_row("SELECT COUNT(*) as count_all FROM cached_pages_nodes WHERE node_id = #{node[:id]}").to_i
         node.visitor = Thread.current.visitor
         node.sweep_cache
         assert_equal 0, CachedPage.count(:conditions => "path like '%page#{status_zip}%'")
-        assert_equal 0, CachedPage.connection.execute("SELECT COUNT(*) as count_all FROM cached_pages_nodes WHERE node_id = #{node[:id]}").fetch_row[0].to_i
+        assert_equal 0, Zena::Db.fetch_row("SELECT COUNT(*) as count_all FROM cached_pages_nodes WHERE node_id = #{node[:id]}").to_i
         assert !File.exist?(filepath)
       end
     end

@@ -92,12 +92,12 @@ module Zena
             elsif value && id = @keys[key]
               upd << [value,id]
             elsif value
-              add << "(#{connection.quote(key)},#{connection.quote(value)},'#{@owner[:id].to_i}')"
+              add << [connection.quote(key), connection.quote(value), @owner[:id].to_i]
             end
           end
 
           unless add.empty?
-            connection.execute "INSERT INTO #{table_name} (`key`,`value`,`owner_id`) VALUES #{add.join(', ')}"
+            Zena::Db.insert_many(table_name, ['key', 'value', 'owner_id'], add)
           end
 
           unless del.empty?

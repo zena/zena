@@ -498,12 +498,12 @@ Just doing the above will filter all result according to the logged in user.
               break
             end
             loop_ids << curr_ref
-            rows = self.class.connection.execute("SELECT #{ref_field} FROM #{self.class.table_name} WHERE id=#{curr_ref}")
-            if rows.num_rows == 0
+            curr_ref = Zena::Db.fetch_row("SELECT #{ref_field} FROM #{self.class.table_name} WHERE id=#{curr_ref}")
+            unless curr_ref
               errors.add(ref_field, "reference missing in reference hierarchy")
               raise ActiveRecord::RecordNotFound
             end
-            curr_ref = rows.fetch_row[0].to_i
+            curr_ref = curr_ref.to_i
           end
 
           errors.add(ref_field, 'circular reference') if in_loop
@@ -807,7 +807,7 @@ Just doing the above will filter all result according to the logged in user.
             # site_id AND... OWNER
             "#{table_name}.site_id = #{visitor.site.id} AND (#{table_name}.user_id = '#{visitor[:id]}' OR "+
             # OR READER if published
-            "(#{table_name}.rgroup_id IN (#{visitor.group_ids.join(',')}) AND #{table_name}.publish_from <= now() ) OR " +
+            "(#{table_name}.rgroup_id IN (#{visitor.group_ids.join(',')}) AND #{table_name}.publish_from <= #{Zena::Db::NOW} ) OR " +
             # OR publisher if status is <> red
             "(#{table_name}.pgroup_id IN (#{visitor.group_ids.join(',')}) AND #{table_name}.max_status <> #{Zena::Status[:red]}))"
           end
@@ -824,7 +824,7 @@ Just doing the above will filter all result according to the logged in user.
             secure_with_scope(obj, nil, &block)
           else
             scope = "user_id = '#{visitor[:id]}' OR "+
-            "(wgroup_id IN (#{visitor.group_ids.join(',')}) AND publish_from <= now())"
+            "(wgroup_id IN (#{visitor.group_ids.join(',')}) AND publish_from <= #{Zena::Db::NOW})"
             secure_with_scope(obj, scope, &block)
           end
         rescue ActiveRecord::RecordNotFound

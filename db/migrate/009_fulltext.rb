@@ -1,7 +1,6 @@
 class Fulltext < ActiveRecord::Migration
   def self.up
-    # convert table from InnoDB to MyISAM
-    execute "ALTER TABLE versions ENGINE = MyISAM;"
+    Zena::Db.change_engine('versions', 'MyISAM')
     # add fulltext index
     add_index "versions", ["title", "text", "summary"], :index_type => "FULLTEXT"
   end
@@ -9,6 +8,6 @@ class Fulltext < ActiveRecord::Migration
   def self.down
     remove_index "versions", ["title", "text", "summary"]
 
-    execute "ALTER TABLE versions ENGINE = InnoDB;"
+    Zena::Db.change_engine('versions', 'InnoDB')
   end
 end

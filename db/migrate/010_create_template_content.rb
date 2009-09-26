@@ -1,6 +1,6 @@
 class CreateTemplateContent < ActiveRecord::Migration
   def self.up
-      create_table(:template_contents, :options => 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci') do |t|
+      create_table(:template_contents, :options => Zena::Db.table_options) do |t|
         t.column :site_id, :integer
         t.column :node_id, :integer
         t.column :skin_name, :string
