@@ -280,7 +280,7 @@ module Zena
               dev_box << "<% if @node.kind_of?(Skin) -%>      <li><a href='<%= export_node_path(@node[:zip]) %>'>#{_('export')}</a></li>\n<% end -%>"
               dev_box << "      <li><a href='/users/#{visitor[:id]}/swap_dev'>#{_('turn dev off')}</a></li>\n"
               dev_box << "      <li>skins used: #{skin_names.join(', ')}</li>\n"
-              dev_box << "    <ul>\n  </li>\n</ul></div>"
+              dev_box << "    </ul>\n  </li>\n</ul></div>"
               res.sub!('</body>', "#{dev_box}</body>")
             end
 
@@ -322,7 +322,7 @@ module Zena
         def main_date
           # TODO: timezone for @date ?
           # .to_utc(_('datetime'), visitor.tz)
-          @date ||= params[:date] ? Date.parse(params[:date]) : Date.today
+          @main_date ||= params[:date] ? DateTime.parse(params[:date]) : DateTime.now
         end
 
         # Return sprintf formated entry. Return '' for values eq to zero.

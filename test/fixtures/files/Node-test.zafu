@@ -61,6 +61,27 @@ This filter updates the "distant filter block test"
 </div>
 
 <hr/>
+<h3>date query test</h3>
+
+<h4>event='week'</h4>
+<ul do='nodes in site' event='week'>
+ <li do='each' do='link'/>
+</ul>
+
+<h4>event='today'</h4>
+<ul do='nodes in site' event='today'>
+ <li do='each' do='link'/>
+</ul>
+
+<h4>event='4 days' (+/- 4 days)</h4>
+<ul do='nodes in site' event='4 days'>
+ <li do='each' do='link'/>
+</ul>
+
+<h4>event='-4 hours' (last 4 hours)</h4>
+<ul do='nodes in site' event='-4 hours'>
+ <li do='each' do='link'/>
+</ul>
 
 <h3>calendar test</h3>
 <div do='calendar' find='notes in site'/>

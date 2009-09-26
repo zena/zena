@@ -1,4 +1,14 @@
 # FIXME: we should patch the connection adapters instead of having 'case, when' evaluated each time
+# For example:
+# module ActiveRecord
+#   module ConnectionAdapters
+#     class MysqlAdapter
+#       include Zena::Db::MysqlAdditions
+#     end
+#   end
+# end
+
+
 module Zena
   module Db
     extend self
@@ -8,7 +18,7 @@ module Zena
     when 'mysql'
       NOW = 'now()'
     when 'sqlite3'
-      NOW = "date('now')"
+      NOW = "datetime('now')"
     end
 
 
@@ -18,6 +28,10 @@ module Zena
 
     def execute(*args)
       ActiveRecord::Base.connection.execute(*args)
+    end
+
+    def update(*args)
+      ActiveRecord::Base.connection.update(*args)
     end
 
     def table_options
@@ -87,7 +101,7 @@ module Zena
         end
       else
         values = values.map {|v| "(#{v.join(',')})"}.join(', ')
-        execute "INSERT INTO #{table} (#{columns.join(',')}) VALUES #{values}"
+        execute "INSERT INTO #{table} (#{columns.map{|c| "`#{c}`"}.join(',')}) VALUES #{values}"
       end
     end
 
@@ -100,6 +114,109 @@ module Zena
       when 'mysql'
         res = execute(sql).fetch_row
         res ? res[0].to_i : nil
+      else
+        raise Exception.new("Database Adapter #{adapter.inspect} not supported yet (you can probably fix this).")
+      end
+    end
+
+    def next_zip(site_id)
+      case adapter
+      when 'mysql'
+        res = update "UPDATE zips SET zip=@zip:=zip+1 WHERE site_id = '#{site_id}'"
+        if res == 0
+          # error
+          raise Zena::BadConfiguration, "no zip entry for (#{site_id})"
+        end
+        rows = execute "SELECT @zip"
+        rows.fetch_row[0].to_i
+      when 'sqlite3'
+        # FIXME: is there a way to make this thread safe and atomic (like it is with mysql) ?
+        update "UPDATE zips SET zip=zip+1 WHERE site_id = '#{site_id}'"
+        fetch_row("SELECT zip FROM zips WHERE site_id = '#{site_id}'").to_i
+      else
+        raise Exception.new("Database Adapter #{adapter.inspect} not supported yet (you can probably fix this).")
+      end
+    end
+
+    # Return a string matching the pseudo sql function.
+    def sql_function(function, key)
+      return key unless function
+      res = case adapter
+      when 'mysql'
+        case function
+        when 'year'
+          "year(#{key})"
+        end
+      when 'sqlite3'
+        case function
+        when 'year'
+          "strftime('%Y', #{key})"
+        end
+      end
+      raise Exception.new("Database Adapter #{adapter.inspect} does not support function #{function.inspect}.") unless res
+      res
+    end
+
+    # This is used by zafu and it's a mess.
+    # ref_date can be a string ('2005-05-03') or ruby ('Time.now'). It should not come uncleaned from evil web.
+    def date_condition(date_cond, field, ref_date)
+      case adapter
+      when 'mysql'
+        case date_cond
+        when 'today', 'current', 'same'
+          "DATE(#{field}) = DATE(#{ref_date})"
+        when 'week'
+          "date_format(#{ref_date},'%Y-%v') = date_format(#{field}, '%Y-%v')"
+        when 'month'
+          "date_format(#{ref_date},'%Y-%m') = date_format(#{field}, '%Y-%m')"
+        when 'year'
+          "date_format(#{ref_date},'%Y') = date_format(#{field}, '%Y')"
+        when 'upcoming'
+          "#{field} >= #{ref_date}"
+        else
+          # '2008-01-31 23:50' + INTERVAL 1 hour
+          if date_cond =~ /^(\+|-|)\s*(\d+)\s*(second|minute|hour|day|week|month|year)/
+            count = $2.to_i
+            if $1 == ''
+              # +/-
+              "#{field} > #{ref_date} - INTERVAL #{count} #{$3.upcase} AND #{field} < #{ref_date} + INTERVAL #{count} #{$3.upcase}"
+            elsif $1 == '+'
+              # x upcoming days
+              "#{field} > #{ref_date} AND #{field} < #{ref_date} + INTERVAL #{count} #{$3.upcase}"
+            else
+              # x days in the past
+              "#{field} < #{ref_date} AND #{field} > #{ref_date} - INTERVAL #{count} #{$3.upcase}"
+            end
+          end
+        end
+      when 'sqlite3'
+        case date_cond
+        when 'today', 'current', 'same'
+          "DATE(#{field}) = DATE(#{ref_date})"
+        when 'week'
+          "strftime('%Y-%W', #{ref_date}) = strftime('%Y-%W', #{field})"
+        when 'month'
+          "strftime('%Y-%m', #{ref_date}) = strftime('%Y-%m', #{field})"
+        when 'year'
+          "strftime('%Y', #{ref_date}) = strftime('%Y', #{field})"
+        when 'upcoming'
+          "#{field} >= #{ref_date}"
+        else
+          # date('2008-01-31 23:50','+1 hour')
+          if date_cond =~ /^(\+|-|)\s*(\d+)\s*(second|minute|hour|day|week|month|year)/
+            count = $2.to_i
+            if $1 == ''
+              # +/-
+              "#{field} > DATE(#{ref_date}, '-#{count} #{$3.upcase}') AND #{field} < DATE(#{ref_date}, '+#{count} #{$3.upcase}')"
+            elsif $1 == '+'
+              # x upcoming days
+              "#{field} > #{ref_date} AND #{field} < DATE(#{ref_date}, '+#{count} #{$3.upcase}')"
+            else
+              # x days in the past
+              "#{field} < #{ref_date} AND #{field} > DATE(#{ref_date}, '-#{count} #{$3.upcase}')"
+            end
+          end
+        end
       else
         raise Exception.new("Database Adapter #{adapter.inspect} not supported yet (you can probably fix this).")
       end

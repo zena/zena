@@ -18,12 +18,12 @@ module Zena
       end
 
       def self.load_fixtures
-        # make sure versions is of type InnoDB
+        # make sure versions is of type InnoDB if testing with mysql (transaction support)
         begin
           Node.connection.remove_index "versions", ["title", "text", "summary"]
         rescue ActiveRecord::StatementInvalid
         ensure
-          Node.connection.execute "ALTER TABLE versions ENGINE = InnoDB;"
+          Zena::Db.change_engine('versions', 'InnoDB')
         end
 
         # Our version of loaded fixtures to help define "users_id", "nodes_id" and such.

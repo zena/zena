@@ -10,6 +10,16 @@ module Zena
         @@templates = templates
       end
     end
+
+    def rescue_action_in_public
+      render :text => exception.message + "\n#{exception.backtrace.join("\n")}"
+    end
+
+    def rescue_action(exception)
+      render :text => exception.message + "\n#{exception.backtrace.join("\n")}"
+    end
+
+
     def test_compile
       render :text => ZafuParser.new_with_url(@test_url, :helper => zafu_helper).render(:dev => params['dev'])
     end

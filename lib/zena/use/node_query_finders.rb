@@ -218,7 +218,7 @@ class NodeQuery < QueryBuilder
         # DYNAMIC ATTRIBUTE
         key = field[2..-1]
         key, function = parse_sql_function_in_field(key)
-        key = function ? "#{function}(#{dyn_value('versions', key, context)})" : dyn_value('versions', key, context)
+        key = Zena::Db.sql_function(function, dyn_value('versions', key, context))
       when 'c_'
         # CONTENT TABLE
         field = field[2..-1]
@@ -230,7 +230,7 @@ class NodeQuery < QueryBuilder
         key, function = parse_sql_function_in_field(key)
         if Version.attr_public?(key) && Version.column_names.include?(key)
           vtable_name = needs_table('nodes', 'versions', "TABLE1.id = TABLE2.node_id")
-          key = function ? "#{function}(#{vtable_name}.#{key})" : "#{vtable_name}.#{key}"
+          Zena::Db.sql_function(function, "#{vtable_name}.#{key}")
         else
           # bad version attribute
           nil
@@ -241,7 +241,7 @@ class NodeQuery < QueryBuilder
           @errors_unless_safe_links ||= []
           @errors_unless_safe_links << "cannot use link field '#{key}' in this query" unless (key == 'l_id' && context == :order)
           # ok
-          function ? "#{function}(#{table('links')}.#{key[2..-1]})" : "#{table('links')}.#{key[2..-1]}"
+          Zena::Db.sql_function(function, "#{table('links')}.#{key[2..-1]}")
         else
           # bad attribute
           nil
@@ -256,9 +256,9 @@ class NodeQuery < QueryBuilder
             else
               table_to_use = table_name
             end
-            function ? "#{function}(#{table_to_use}.#{map_def[:key]})" : "#{table_to_use}.#{map_def[:key]}"
+            Zena::Db.sql_function(function, "#{table_to_use}.#{map_def[:key]}")
           elsif (Node.attr_public?(key) && Node.column_names.include?(key))
-            function ? "#{function}(#{table_name}.#{key})" : "#{table_name}.#{key}"
+            Zena::Db.sql_function(function, "#{table_name}.#{key}")
           elsif key =~ /^(.*)_ids?$/
             # tag_id = 33  ===> join links as lk, nodes as tt .......
             rel = $1
@@ -275,7 +275,7 @@ class NodeQuery < QueryBuilder
           end
         else
           if ['id', 'parent_id','project_id','section_id'].include?(key) || (Node.attr_public?(key) && Node.column_names.include?(key))
-            function ? "#{function}(#{table_name}.#{key})" : "#{table_name}.#{key}"
+            Zena::Db.sql_function(function, "#{table_name}.#{key}")
           else
             # bad attribute
             nil

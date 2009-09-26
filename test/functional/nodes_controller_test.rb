@@ -306,6 +306,12 @@ END:VCALENDAR
       assert_equal 80, img.version.content.height
     end
   end
+
+  def test_should_get_test_page_without_errors
+    login(:tiger)
+    get 'show', 'prefix'=>'oo', 'path'=>["page#{nodes_zip(:projects)}_test.html"]
+    assert_response :success
+  end
 end
 
 =begin

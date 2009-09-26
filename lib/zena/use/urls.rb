@@ -84,12 +84,25 @@ module Zena
         def append_query_params(path, opts)
           if opts == {}
             path
-          elsif cachestamp = opts.delete(:cachestamp)
-            list = opts.keys.map{ |k| opts[k] ? "#{k}=#{CGI.escape(opts[k].to_s)}" : nil}.compact
-            path + "?#{cachestamp}" + (list.empty? ? '' : "&#{list.sort.join('&')}")
           else
-            list = opts.keys.map{ |k| opts[k] ? "#{k}=#{CGI.escape(opts[k].to_s)}" : nil}.compact
-            path + (list.empty? ? '' : "?#{list.sort.join('&')}")
+            cachestamp = opts.delete(:cachestamp)
+            list = opts.keys.map do |k|
+              if value = opts[k]
+                if value.respond_to?(:strftime)
+                  "#{k}=#{value.strftime('%Y-%m-%d')}"
+                else
+                  "#{k}=#{CGI.escape(opts[k].to_s)}"
+                end
+              else
+                nil
+              end
+            end.compact
+
+            if cachestamp
+              path + "?#{cachestamp}" + (list.empty? ? '' : "&#{list.sort.join('&')}")
+            else
+              path + (list.empty? ? '' : "?#{list.sort.join('&')}")
+            end
           end
         end
 

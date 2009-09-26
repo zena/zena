@@ -1544,7 +1544,7 @@ class Node < ActiveRecord::Base
 
     # Get unique zip in the current site's scope
     def node_before_create
-      self[:zip] = Node.next_zip(self[:site_id])
+      self[:zip] = Zena::Db.next_zip(self[:site_id])
     end
 
     # Create an 'outside' discussion if the virtual class has auto_create_discussion set

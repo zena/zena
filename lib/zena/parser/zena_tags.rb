@@ -1544,9 +1544,9 @@ module Zena
         select = @params[:select]
         case select
         when 'main'
-          expand_with(:date=>"main_date")
+          expand_with(:date=>'main_date')
         when 'now'
-          expand_with(:date=>"Time.now")
+          expand_with(:date=>'Time.now')
         else
           if select =~ /^\d{4}-\d{1,2}-\d{1,2}$/
             begin
@@ -1633,7 +1633,7 @@ module Zena
           else
             _("made with zena")
           end
-          "<a class='zena' href='http://zenadmin.org' title='zena <%= Zena::VERSION %> #{text}</a>"
+          "<a class='zena' href='http://zenadmin.org' title='zena <%= Zena::VERSION %>'>#{text}</a>"
         end
       end
 
@@ -1990,12 +1990,12 @@ module Zena
         case type
         when :month
           title = "\"\#{_(Date::MONTHNAMES[main_date.mon])} \#{main_date.year}\""
-          prev_date = "\#{(main_date << 1).strftime(\"%Y-%m-%d\")}"
-          next_date = "\#{(main_date >> 1).strftime(\"%Y-%m-%d\")}"
+          prev_date = "\#{main_date.advance(:months => -1).strftime(\"%Y-%m-%d\")}"
+          next_date = "\#{main_date.advance(:months =>  1).strftime(\"%Y-%m-%d\")}"
         when :week
           title = "\"\#{_(Date::MONTHNAMES[main_date.mon])} \#{main_date.year}\""
-          prev_date = "\#{(main_date - 7).strftime(\"%Y-%m-%d\")}"
-          next_date = "\#{(main_date + 7).strftime(\"%Y-%m-%d\")}"
+          prev_date = "\#{main_date.advance(:days => -7).strftime(\"%Y-%m-%d\")}"
+          next_date = "\#{main_date.advance(:days => +7).strftime(\"%Y-%m-%d\")}"
         else
           return parser_error("invalid type (should be 'month' or 'week')")
         end
@@ -2327,7 +2327,7 @@ module Zena
         [:updated, :created, :event, :log].each do |k|
           if value = params[k]
             # current, same are synonym for 'today'
-            filters << Node.connection.date_condition(value,"TABLE_NAME.#{k}_at",current_date)
+            filters << date_condition(value,"TABLE_NAME.#{k}_at",current_date)
           end
         end
 
@@ -3542,15 +3542,8 @@ module Zena
           @params[:publish]
         end
       end
-    end # ZenaTags
-  end # Parser
-end # Zena
 
-# FIXME: this should be in a separate file "adapters_ext"
-module ActiveRecord
-  module ConnectionAdapters
-    class MysqlAdapter
-
+      # This is used by zafu and it's a mess.
       # ref_date can be a string ('2005-05-03') or ruby ('Time.now'). It should not come uncleaned from evil web.
       def date_condition(date_cond, field, ref_date='today')
         if date_cond == 'today' || ref_date == 'today'
@@ -3562,35 +3555,8 @@ module ActiveRecord
         else
           ref_date = "'\#{#{ref_date}.strftime('%Y-%m-%d %H:%M:%S')}'"
         end
-
-        case date_cond
-        when 'today', 'current', 'same'
-          "DATE(#{field}) = DATE(#{ref_date})"
-        when 'week'
-          "date_format(#{ref_date},'%Y-%v') = date_format(#{field}, '%Y-%v')"
-        when 'month'
-          "date_format(#{ref_date},'%Y-%m') = date_format(#{field}, '%Y-%m')"
-        when 'year'
-          "date_format(#{ref_date},'%Y') = date_format(#{field}, '%Y')"
-        when 'upcoming'
-          "#{field} >= #{ref_date}"
-        else
-          # date_add('2008-01-31 23:50',INTERVAL 1 hour)
-          if date_cond =~ /^(\+|-|)\s*(\d+)\s*(second|minute|hour|day|week|month|year)/
-            count = $2.to_i
-            if $1 == ''
-              # +/-
-              "#{field} > #{ref_date} - INTERVAL #{count} #{$3.upcase} AND #{field} < #{ref_date} + INTERVAL #{count} #{$3.upcase}"
-            elsif $1 == '+'
-              # x upcoming days
-              "#{field} > #{ref_date} AND #{field} < #{ref_date} + INTERVAL #{count} #{$3.upcase}"
-            else
-              # x days in the past
-              "#{field} < #{ref_date} AND #{field} > #{ref_date} - INTERVAL #{count} #{$3.upcase}"
-            end
-          end
-        end
+        Zena::Db.date_condition(date_cond, field, ref_date)
       end
-    end
-  end
-end
+    end # ZenaTags
+  end # Parser
+end # Zena

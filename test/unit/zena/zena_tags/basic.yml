@@ -447,8 +447,8 @@ calendar_hours:
   context:
     ref_date: "2009-7-17"
     node: 'zena'
-  # I do not like the way we do this, the 'else' thing is not helping. Maybe we need some extra zafu tags because it's
-  # messy: we have 3 lists (days, hours, nodes) ...
+  # I do not like the way we do this, the 'else' thing is not helping. Maybe we need some
+  # extra zafu tags because it' messy: we have 3 lists (days, hours, nodes) ...
   src: "<div do='calendar' select='added_notes' date='l_date' split_hours='12'><r:if test='hour eq 0' do='[current_date]' format='%d'/><div do='void' set_class='hour_[hour]' do='each' do='[name]' join=', '/><r:else><r:if test='hour eq 0' do='[current_date]' format='%d'/><div do='void' set_class='hour_[hour]'></div></r:else></div>"
   res: "/<td class='ref'>17<div class='hour_0'></div><div class='hour_12'>opening</div></td>/"
 
@@ -1194,7 +1194,7 @@ date_from_params_in_query:
   context:
     year: 2006
   src: "<r:date select='[param:year]-01-01'><r:nodes in='site' log='year' do='each' join=', ' do='[name]'/></r:date>"
-  tem: "/date_format.*format_date.*params\[:year\].*%Y/"
+  tem: "/(date_format|strftime).*format_date.*params\[:year\].*%Y/"
   res: "letter, opening, proposition"
 
 paginate:

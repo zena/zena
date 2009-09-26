@@ -24,17 +24,17 @@ class AdditionsTest < Zena::Unit::TestCase
   end
 
   def test_next_zip
-    assert_raise(Zena::BadConfiguration) { Node.next_zip(88) }
-    assert_equal zips_zip(:zena ) + 1, Node.next_zip(sites_id(:zena))
-    assert_equal zips_zip(:ocean) + 1, Node.next_zip(sites_id(:ocean))
-    assert_equal zips_zip(:zena ) + 2, Node.next_zip(sites_id(:zena))
+    assert_raise(Zena::BadConfiguration) { Zena::Db.next_zip(88) }
+    assert_equal zips_zip(:zena ) + 1, Zena::Db.next_zip(sites_id(:zena))
+    assert_equal zips_zip(:ocean) + 1, Zena::Db.next_zip(sites_id(:ocean))
+    assert_equal zips_zip(:zena ) + 2, Zena::Db.next_zip(sites_id(:zena))
   end
 
   def test_next_zip_rollback
-    assert_raise(Zena::BadConfiguration) { Node.next_zip(88) }
-    assert_equal zips_zip(:zena ) + 1, Node.next_zip(sites_id(:zena))
-    assert_equal zips_zip(:ocean) + 1, Node.next_zip(sites_id(:ocean))
-    assert_equal zips_zip(:zena ) + 2, Node.next_zip(sites_id(:zena))
+    assert_raise(Zena::BadConfiguration) { Zena::Db.next_zip(88) }
+    assert_equal zips_zip(:zena ) + 1, Zena::Db.next_zip(sites_id(:zena))
+    assert_equal zips_zip(:ocean) + 1, Zena::Db.next_zip(sites_id(:ocean))
+    assert_equal zips_zip(:zena ) + 2, Zena::Db.next_zip(sites_id(:zena))
   end
 
   def test_fetch_attribute

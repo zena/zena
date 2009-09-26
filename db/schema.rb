@@ -29,7 +29,7 @@ ActiveRecord::Schema.define(:version => 20090924141459) do
     t.integer  "visitor_id"
     t.string   "visitor_groups", :limit => 200
     t.string   "kpath",          :limit => 200
-    t.integer  "context",        :limit => 200
+    t.integer  "context"
     t.text     "content"
     t.integer  "site_id"
   end
@@ -42,7 +42,7 @@ ActiveRecord::Schema.define(:version => 20090924141459) do
     t.integer  "reply_to"
     t.integer  "user_id"
     t.string   "title",         :limit => 250, :default => "", :null => false
-    t.text     "text",                         :default => "", :null => false
+    t.text     "text",                                         :null => false
     t.string   "author_name",   :limit => 300
     t.integer  "site_id"
     t.string   "ip",            :limit => 200
@@ -54,7 +54,7 @@ ActiveRecord::Schema.define(:version => 20090924141459) do
     t.integer  "version_id"
     t.string   "first_name", :limit => 60,  :default => "", :null => false
     t.string   "name",       :limit => 60,  :default => "", :null => false
-    t.text     "address",                   :default => "", :null => false
+    t.text     "address",                                   :null => false
     t.string   "zip",        :limit => 20,  :default => "", :null => false
     t.string   "city",       :limit => 60,  :default => "", :null => false
     t.string   "telephone",  :limit => 60,  :default => "", :null => false
@@ -72,7 +72,7 @@ ActiveRecord::Schema.define(:version => 20090924141459) do
     t.integer  "user_id"
     t.datetime "date"
     t.text     "text"
-    t.decimal  "value_a"
+    t.decimal  "value_a",    :precision => 24, :scale => 8
     t.integer  "node_a_id"
     t.integer  "node_b_id"
     t.integer  "node_c_id"
@@ -110,8 +110,8 @@ ActiveRecord::Schema.define(:version => 20090924141459) do
     t.text    "value"
   end
 
-  add_index "dyn_attributes", ["owner_table"], :name => "index_dyn_attributes_on_owner_table"
   add_index "dyn_attributes", ["owner_id"], :name => "index_dyn_attributes_on_owner_id"
+  add_index "dyn_attributes", ["owner_table"], :name => "index_dyn_attributes_on_owner_table"
 
   create_table "groups", :force => true do |t|
     t.datetime "created_at"
@@ -185,7 +185,7 @@ ActiveRecord::Schema.define(:version => 20090924141459) do
     t.string  "lang",       :limit => 10, :default => "", :null => false
   end
 
-  add_index "participations", ["user_id", "site_id"], :name => "participationsuser_idsite_id", :unique => true
+  add_index "participations", ["user_id", "site_id"], :name => "user_id", :unique => true
 
   create_table "relations", :force => true do |t|
     t.string  "source_role",   :limit => 32
@@ -254,17 +254,18 @@ ActiveRecord::Schema.define(:version => 20090924141459) do
     t.integer  "user_id",                                     :null => false
     t.string   "lang",         :limit => 10,  :default => "", :null => false
     t.datetime "publish_from"
-    t.text     "comment",                     :default => "", :null => false
+    t.text     "comment",                                     :null => false
     t.string   "title",        :limit => 200, :default => "", :null => false
-    t.text     "summary",                     :default => "", :null => false
-    t.text     "text",                        :default => "", :null => false
+    t.text     "summary",                                     :null => false
+    t.text     "text",                                        :null => false
     t.integer  "status",                      :default => 30, :null => false
     t.integer  "number",                      :default => 1,  :null => false
     t.integer  "content_id"
     t.integer  "site_id"
   end
 
-  add_index "versions", ["title", "text", "summary"], :name => "index_versions_on_title_and_text_and_summary"
+  execute "ALTER TABLE versions ENGINE = MyISAM"
+  execute "CREATE FULLTEXT INDEX index_versions_on_title_and_text_and_summary ON versions (title,text,summary)"
 
   create_table "virtual_classes", :force => true do |t|
     t.string  "name"

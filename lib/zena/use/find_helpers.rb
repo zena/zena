@@ -1,3 +1,5 @@
+# FIXME: ! this should go into Zena::Db !!!!
+
 module Zena
   module Use
     module FindHelpers
@@ -36,16 +38,6 @@ module Zena
           connection.select_all(sql, "#{name} Load").map! do |record|
             Hash[*(attr_list.map {|attr| [attr, record[attr.to_s]] }.flatten)]
           end
-        end
-
-        def next_zip(site_id)
-          res = connection.update "UPDATE zips SET zip=@zip:=zip+1 WHERE site_id = '#{site_id}'"
-          if res == 0
-            # error
-            raise Zena::BadConfiguration, "no zip entry for (#{site_id})"
-          end
-          rows = connection.execute "SELECT @zip"
-          rows.fetch_row[0].to_i
         end
 
         # TODO: move this into Zena::Db

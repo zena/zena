@@ -1,3 +1,5 @@
+require 'active_record/connection_adapters/mysql_adapter'
+
 # ArMysqlFullText
 module ActiveRecord
   class SchemaDumper #:nodoc:
@@ -20,14 +22,15 @@ RUBY
       end
   end
 end
+
 # addition to support the normal 'add_index' syntax
 module ActiveRecord
   module ConnectionAdapters
-    
+
     class MySQLIndexDefinition < Struct.new(:table, :name, :unique, :columns, :index_type) #:nodoc:
     end
     class MysqlAdapter
-      # Now you can write 
+      # Now you can write
       # add_index(:posts, :text, :index_type=>'FULLTEXT')
       def add_index(table_name, column_name, options = {})
         column_names = Array(column_name)
@@ -42,7 +45,7 @@ module ActiveRecord
         quoted_column_names = column_names.map { |e| quote_column_name(e) }.join(", ")
         execute "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{table_name} (#{quoted_column_names})"
       end
-      
+
       def indexes(table_name, name = nil)#:nodoc:
         indexes = []
         current_index = nil

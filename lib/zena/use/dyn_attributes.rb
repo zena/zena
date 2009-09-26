@@ -97,7 +97,7 @@ module Zena
           end
 
           unless add.empty?
-            Zena::Db.insert_many(table_name, ['key', 'value', 'owner_id'], add)
+            Zena::Db.insert_many(table_name, %W{key value owner_id}, add)
           end
 
           unless del.empty?

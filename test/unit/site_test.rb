@@ -23,7 +23,7 @@ class SiteTest < Zena::Unit::TestCase
     assert_kind_of Project, root
     assert_equal 'super', root.version.title
     assert_equal Zena::Status[:pub], root.max_status
-    assert_nothing_raised { Node.next_zip(site[:id]) }
+    assert_nothing_raised { Zena::Db.next_zip(site[:id]) }
 
     admin = secure!(User) { User.find(admin[:id]) }
     assert_kind_of Contact, admin.contact
