@@ -79,8 +79,8 @@ class VersionTest < Zena::Unit::TestCase
   end
 
   def test_version_number_edit_by_attribute
-    login(:ant)
-    node = secure!(Node) { nodes(:ant) }
+    login(:tiger)
+    node = secure!(Node) { nodes(:tiger) }
     version = node.version
     assert_equal 1, version.number
     # edit
@@ -96,8 +96,8 @@ class VersionTest < Zena::Unit::TestCase
   end
 
   def test_version_number_edit
-    login(:ant)
-    node = secure!(Node) { nodes(:ant) }
+    login(:tiger)
+    node = secure!(Node) { nodes(:tiger) }
     version = node.version
     assert_equal 1, version.number
     # can edit
