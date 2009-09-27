@@ -153,8 +153,8 @@ class MultiVersionTest < Zena::Unit::TestCase
   end
 
   def test_version_text_and_summary
-    login(:ant)
-    node = secure!(Node) { nodes(:ant)  }
+    login(:tiger)
+    node = secure!(Node) { nodes(:tiger)  }
     class << node
       def text
         "Node text"
@@ -164,9 +164,9 @@ class MultiVersionTest < Zena::Unit::TestCase
       end
     end
     assert_equal "Node text", node.text
-    assert_equal "Ants work hard", node.version.text
+    assert_equal "Tiger works hard", node.version.text
     assert_equal "Node summary", node.summary
-    assert_equal "I am an ant", node.version.summary
+    assert_match /panthera/, node.version.summary
   end
 
   def test_editions
