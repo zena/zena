@@ -11,9 +11,11 @@ id_becomes_zip:
   sql: "/nodes.zip <> 1/"
 
 version_filter_title_like:
-  src: "nodes where v_title like 'P%' in site"
-  sql: "\"SELECT nodes.* FROM nodes,versions WHERE versions.title LIKE 'P%' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC\""
-  res: "opening, Page-changes, people, Project-changes-xml, projects, proposition"
+  src: "nodes where v_title like 'P%' in site order by zip"
+  sql: "\"SELECT nodes.* FROM nodes,versions WHERE versions.title LIKE 'P%' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.zip ASC\""
+  # we avoid sorting by name here because of collation issues when using different
+  # databases, and that's not what we are testing here
+  res: "people, projects, proposition, opening, Project-changes-xml, Page-changes"
 
 dynattr_filter:
   src: "nodes where d_assigned = 'gaspard' in site"
@@ -42,7 +44,8 @@ year_function:
   context:
     visitor: 'lion'
   src: "nodes where v_updated_at:year = 2007 in project"
-  sql: "[\"SELECT nodes.* FROM nodes,versions WHERE nodes.project_id = ? AND year(versions.updated_at) = 2007 AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC\", @node.get_project_id]"
+  sql: "[\"SELECT nodes.* FROM nodes,versions WHERE nodes.project_id = ? AND year(versions.updated_at) = '2007' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC\", @node.get_project_id]"
+  sqlite3: "[\"SELECT nodes.* FROM nodes,versions WHERE nodes.project_id = ? AND strftime('%Y', versions.updated_at)*1 = 2007 AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC\", @node.get_project_id]"
   res: "bananas"
 
 two_fields:
@@ -90,6 +93,7 @@ pages_group_by_name:
 nodes_group_by_year:
   src: "nodes in site group by log_at:year order by log_at:year asc, name asc"
   sql: "\"SELECT nodes.* FROM nodes WHERE (#{@node.secure_scope('nodes')}) GROUP BY year(nodes.log_at) ORDER BY year(nodes.log_at) ASC, nodes.name ASC\""
+  sqlite3: "\"SELECT nodes.* FROM nodes WHERE (#{@node.secure_scope('nodes')}) GROUP BY strftime('%Y', nodes.log_at)*1 ORDER BY strftime('%Y', nodes.log_at)*1 ASC, nodes.name ASC\""
 
 negative_value:
   src: "notes where custom_a ne -10 in site"

@@ -25,8 +25,6 @@ class NodeQuery < QueryBuilder
     @@filter_fields[key] = fld_def
   end
 
-
-
   def initialize(query, opts = {})
     @uses_node_name = false
     @table_name = 'nodes'

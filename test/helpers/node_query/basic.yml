@@ -133,15 +133,17 @@ order_l_status:
   sql: "[\"SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM nodes,links WHERE nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags) AND links.target_id = ? AND (#{@node.secure_scope('nodes')}) ORDER BY links.status ASC, nodes.name ASC\", @node.id]"
   res: "opening, cleanWater"
 
-paginate:
-  src: "nodes in site limit 2 paginate p"
-  sql: "[\"SELECT nodes.* FROM nodes WHERE (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC LIMIT 2 OFFSET ?\", ((params[:p].to_i > 0 ? params[:p].to_i : 1)-1)*2]"
-  res: "anonymous, ant"
+paginate_one:
+  src: "nodes in site order by zip limit 2 paginate p"
+  # we sort by zip to avoid collation problems when some DB sort Capital letters first
+  # and others are case-insensitive.
+  sql: "[\"SELECT nodes.* FROM nodes WHERE (#{@node.secure_scope('nodes')}) ORDER BY nodes.zip ASC LIMIT 2 OFFSET ?\", ((params[:p].to_i > 0 ? params[:p].to_i : 1)-1)*2]"
+  res: "zena, people"
 
-paginate:
+paginate_two:
   context:
     params:
       p: 2
-  src: "nodes in site limit 2 paginate p"
-  sql: "[\"SELECT nodes.* FROM nodes WHERE (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC LIMIT 2 OFFSET ?\", ((params[:p].to_i > 0 ? params[:p].to_i : 1)-1)*2]"
-  res: "art, bird"
+  src: "nodes in site order by zip limit 2 paginate p"
+  sql: "[\"SELECT nodes.* FROM nodes WHERE (#{@node.secure_scope('nodes')}) ORDER BY nodes.zip ASC LIMIT 2 OFFSET ?\", ((params[:p].to_i > 0 ? params[:p].to_i : 1)-1)*2]"
+  res: "ant, tiger"

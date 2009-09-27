@@ -23,7 +23,7 @@ class NodeQueryTest < Zena::Unit::TestCase
       yt_assert test_err, class_prefix + errors.join(", ")
     else
       sql ||= class_prefix + errors.join(", ")
-      if test_sql = yt_get('sql', file, test)
+      if test_sql = yt_get(Zena::Db.adapter, file, test) || yt_get('sql', file, test)
         test_sql.gsub!(/_ID\(([^\)]+)\)/) do
           Zena::FoxyParser::id($_test_site, $1)
         end

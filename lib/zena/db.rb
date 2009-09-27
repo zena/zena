@@ -167,7 +167,7 @@ module Zena
       when 'sqlite3'
         case function
         when 'year'
-          "strftime('%Y', #{key})"
+          "strftime('%Y', #{key})*1"
         end
       end
       raise Exception.new("Database Adapter #{adapter.inspect} does not support function #{function.inspect}.") unless res
@@ -215,6 +215,8 @@ module Zena
         when 'month'
           "strftime('%Y-%m', #{ref_date}) = strftime('%Y-%m', #{field})"
         when 'year'
+          # we multiply by '1' to force a cast to INTEGER so that comparaison against
+          # numbers works.
           "strftime('%Y', #{ref_date}) = strftime('%Y', #{field})"
         when 'upcoming'
           "#{field} >= #{ref_date}"
