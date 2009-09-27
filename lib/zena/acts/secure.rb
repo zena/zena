@@ -198,11 +198,8 @@ Just doing the above will filter all result according to the logged in user.
         # * owner if visitor's status is at least 'user'
         # * members of +write_group+ if published and the current date is greater or equal to the publication date and the visitor's status is at least 'user'
         def can_write?(vis=visitor, ugps=visitor.group_ids)
-          ( vis.is_su? ) || # super user
-          ( vis.user? && (
-            ( vis[:id] == user_id ) ||
-            ( ugps.include?(wgroup_id) && max_status != Zena::Status[:red] )
-          ))
+          ( vis.is_su? ) ||             # super user
+          ( ugps.include?(wgroup_id) )  # write group
         end
 
         # people who can make visible changes
@@ -513,10 +510,12 @@ Just doing the above will filter all result according to the logged in user.
 
         # Reference to validate access rights
         def ref
-          return self if ref_field == :id && new_record? # new record and self as reference (creating root node)
+          # new record and self as reference (creating root node)
+          return self if ref_field == :id && new_record?
           if !@ref || (@ref.id != ref_field_id)
             # no ref or ref changed
-            @ref = secure(ref_class) { ref_class.find(:first, :conditions => ["id = ?", ref_field_id]) }
+            reference = ref_class.find(:first, :conditions => ["id = ?", ref_field_id])
+            @ref = secure(ref_class) { reference }
           end
           if @ref && (self.new_record? || (:id == ref_field) || (self[:id] != @ref[:id] ))
             # reference is accepted only if it is not the same as self or self is root (ref_field==:id set by Node)
