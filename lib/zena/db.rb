@@ -34,6 +34,10 @@ module Zena
       ActiveRecord::Base.connection.update(*args)
     end
 
+    def connection
+      ActiveRecord::Base.connection
+    end
+
     def table_options
       case adapter
       when 'mysql'
@@ -113,10 +117,23 @@ module Zena
         res.empty? ? nil : res.first[0]
       when 'mysql'
         res = execute(sql).fetch_row
-        res ? res[0].to_i : nil
+        res ? res[0] : nil
       else
         raise Exception.new("Database Adapter #{adapter.inspect} not supported yet (you can probably fix this).")
       end
+    end
+
+    def fetch_ids(sql, attr_name='id')
+      connection.select_all(sql, "#{name} Load").map! do |record|
+        record[attr_name]
+      end
+    end
+
+    def fetch_attribute(attribute, sql)
+      unless sql =~ /SELECT/i
+        sql = "SELECT `#{attribute}` FROM #{table_name} WHERE #{sql}"
+      end
+      Zena::Db.fetch_row(sql)
     end
 
     def next_zip(site_id)

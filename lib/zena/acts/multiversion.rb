@@ -584,7 +584,7 @@ module Zena
               else
                 self.publish_from = version.publish_from
               end
-              @old_publication_to_remove = [version.class.fetch_ids("node_id = '#{self[:id]}' AND lang = '#{version[:lang]}' AND status = '#{Zena::Status[:pub]}' AND id != '#{version.id}'"), (version.status_was == Zena::Status[:rep] ? Zena::Status[:rem] : Zena::Status[:rep])]
+              @old_publication_to_remove = [Zena::Db.fetch_ids("SELECT id FROM versions WHERE node_id = '#{self[:id]}' AND lang = '#{version[:lang]}' AND status = '#{Zena::Status[:pub]}' AND id != '#{version.id}'"), (version.status_was == Zena::Status[:rep] ? Zena::Status[:rem] : Zena::Status[:rep])]
             when :auto_publish
               # publication time might have changed
               if version.publish_from_changed?

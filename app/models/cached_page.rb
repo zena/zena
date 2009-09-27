@@ -89,7 +89,7 @@ class CachedPage < ActiveRecord::Base
 
   # Cached page's creation context (list of node ids).
   def node_ids
-    self.class.fetch_ids("SELECT node_id FROM cached_pages_nodes WHERE cached_page_id = '#{self[:id]}'", 'node_id')
+    Zena::Db.fetch_ids("SELECT node_id FROM cached_pages_nodes WHERE cached_page_id = '#{self[:id]}'", 'node_id')
   end
 
   private

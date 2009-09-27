@@ -1500,12 +1500,12 @@ class Node < ActiveRecord::Base
         # 'Node' does not have a position scope (need two first letters of kpath)
         if new_record?
           if self[:position].to_f == 0
-            pos = Node.fetch_attribute(:position, "SELECT `position` FROM #{Node.table_name} WHERE parent_id = #{Node.connection.quote(self[:parent_id])} AND kpath like #{Node.connection.quote("#{self.class.kpath[0..1]}%")} ORDER BY position DESC LIMIT 1").to_f
+            pos = Zena::Db.fetch_row("SELECT `position` FROM #{Node.table_name} WHERE parent_id = #{Node.connection.quote(self[:parent_id])} AND kpath like #{Node.connection.quote("#{self.class.kpath[0..1]}%")} ORDER BY position DESC LIMIT 1").to_f
             self[:position] = pos > 0 ? pos + 1.0 : 0.0
           end
         elsif parent_id_changed?
           # moved, update position
-          pos = Node.fetch_attribute(:position, "SELECT `position` FROM #{Node.table_name} WHERE parent_id = #{Node.connection.quote(self[:parent_id])} AND kpath like #{Node.connection.quote("#{self.class.kpath[0..1]}%")} ORDER BY position DESC LIMIT 1").to_f
+          pos = Zena::Db.fetch_row("SELECT `position` FROM #{Node.table_name} WHERE parent_id = #{Node.connection.quote(self[:parent_id])} AND kpath like #{Node.connection.quote("#{self.class.kpath[0..1]}%")} ORDER BY position DESC LIMIT 1").to_f
           self[:position] = pos > 0 ? pos + 1.0 : 0.0
         end
       end
@@ -1692,7 +1692,7 @@ class Node < ActiveRecord::Base
       ids = nil
       # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
       base_class.send(:with_exclusive_scope) do
-        ids = base_class.fetch_ids("SELECT id FROM #{base_class.table_name} WHERE #{ref_field(true)} = '#{i.to_i}' AND inherit='1'")
+        ids = Zena::Db.fetch_ids("SELECT id FROM #{base_class.table_name} WHERE #{ref_field(true)} = '#{i.to_i}' AND inherit='1'")
       end
 
       ids.each { |i| clear_children_fullpath(i) }

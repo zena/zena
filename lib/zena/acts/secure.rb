@@ -498,12 +498,7 @@ Just doing the above will filter all result according to the logged in user.
               break
             end
             loop_ids << curr_ref
-            curr_ref = Zena::Db.fetch_row("SELECT #{ref_field} FROM #{self.class.table_name} WHERE id=#{curr_ref}")
-            unless curr_ref
-              errors.add(ref_field, "reference missing in reference hierarchy")
-              raise ActiveRecord::RecordNotFound
-            end
-            curr_ref = curr_ref.to_i
+            curr_ref = Zena::Db.fetch_row("SELECT #{ref_field} FROM #{self.class.table_name} WHERE id=#{curr_ref}").to_i
           end
 
           errors.add(ref_field, 'circular reference') if in_loop
@@ -567,7 +562,7 @@ Just doing the above will filter all result according to the logged in user.
           ids = nil
           # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
           base_class.send(:with_exclusive_scope) do
-            ids = base_class.fetch_ids("SELECT id FROM #{base_class.table_name} WHERE #{ref_field(true)} = '#{i.to_i}' AND inherit='1'")
+            ids = Zena::Db.fetch_ids("SELECT id FROM #{base_class.table_name} WHERE #{ref_field(true)} = '#{i.to_i}' AND inherit='1'")
           end
 
           ids.each { |i| spread_inheritance(i) }

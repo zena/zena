@@ -61,11 +61,8 @@ module Zena
       ActiveRecord::Base.send :include, Zena::Use::PublicAttributes
       ActiveRecord::Base.send :include, Zena::Use::Zafu::ModelMethods
       ActiveRecord::Base.send :include, Zena::Use::NodeQueryFinders::AddUseNodeQueryMethod
-      ActiveRecord::Base.send :include, Zena::Use::FindHelpers
       ActiveRecord::Base.send :include, Zena::Acts::Secure
       ActiveRecord::Base.send :include, Zena::Acts::Multiversion::AddActsAsMethods
-
-      ActiveRecord::Base.send :use_find_helpers # find helpers for all models
     end
 
     def require_in_lib(name, dir, lib_name = nil)
