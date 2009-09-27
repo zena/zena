@@ -9,8 +9,10 @@ module ActiveRecord
         indexes.each do |index|
           if index.kind_of?(ActiveRecord::ConnectionAdapters::MySQLIndexDefinition) && index.index_type == 'FULLTEXT'
             stream.puts <<RUBY
-  execute "ALTER TABLE #{index.table} ENGINE = MyISAM"
-  execute "CREATE #{index.index_type} INDEX #{index.name} ON #{index.table} (#{index.columns.join(',')})"
+  if Zena::Db.adapter == 'mysql'
+    execute "ALTER TABLE #{index.table} ENGINE = MyISAM"
+    execute "CREATE #{index.index_type} INDEX #{index.name} ON #{index.table} (#{index.columns.join(',')})"
+  end
 RUBY
           else
             stream.print "  add_index #{index.table.inspect}, #{index.columns.inspect}, :name => #{index.name.inspect}"
