@@ -27,16 +27,15 @@ class SecureReadTest < Zena::Unit::TestCase
     assert_equal 0.0, res.to_f
   end
 
-  def test_cannot_rwm_own_private_node_if_not_in_any_group
+  def test_cannot_rwm_if_not_in_any_group
     login(:ant)
     # :myLife => { read => 0, write => 0, publish => 0, owner => :ant}
     assert_raise(ActiveRecord::RecordNotFound) { secure!(Node) { nodes(:myLife) }}
     assert_raise(ActiveRecord::RecordNotFound) { secure_write!(Node) { nodes(:myLife) }}
     node = secure_drive(Node) { nodes(:myLife)}
     assert_not_nil node
-    assert_equal 'myLife', node.name
     assert ! node.can_read?, "Cannot read"
-    assert node.can_write? , "Can write"
+    assert ! node.can_write? , "Cannot write"
     assert node.private? , "Node is private"
     assert node.can_manage? , "Can manage"
     assert node.can_drive? , "Can manage"
@@ -100,7 +99,7 @@ class SecureReadTest < Zena::Unit::TestCase
     assert node.can_read? , "Can read"
     #write
     assert_nothing_raised { secure_write!(Node) { node  } }
-    assert !node.can_write? , "Can write"
+    assert node.can_write? , "Can write"
     login(:lion)
     visitor.visit(node)
     assert node.can_write? , "Can write"
@@ -477,6 +476,7 @@ class SecureCreateTest < Zena::Unit::TestCase
     assert_equal 'you cannot change this', note.errors[:rgroup_id]
     assert_equal 'you cannot change this', note.errors[:wgroup_id]
   end
+
   def test_can_man_can_update_private
     login(:ant)
     attrs = node_defaults
@@ -490,7 +490,6 @@ class SecureCreateTest < Zena::Unit::TestCase
     attrs[:wgroup_id] = 98984984 # anything
     attrs[:pgroup_id] = 98984984 # anything
     note = secure!(Note) { Note.create(attrs) }
-    assert ! note.new_record? , "Not a new record"
     assert_equal 0, note.rgroup_id , "Read group is 0"
     assert_equal 0, note.wgroup_id , "Write group is 0"
     assert_equal 0, note.pgroup_id , "Publish group is 0"
@@ -1011,37 +1010,42 @@ end
 
 class SecureVisitorStatusTest < Zena::Unit::TestCase
 
-  def test_reader_cannot_write
+  def test_admin_can_write_if_in_write_group
     login(:whale)
     assert_equal visitor.status, User::Status[:admin]
     node = secure!(Node) { nodes(:ocean) }
+    assert visitor.group_ids.include?(node.wgroup_id)
     assert node.can_write?
+  end
+
+  def test_reader_can_write_if_in_write_group
     login(:messy)
     assert_equal visitor.status, User::Status[:reader]
     node = secure!(Node) { nodes(:ocean) }
-    assert !node.can_write?, "Cannot write if visitor is not a user."
+    assert visitor.group_ids.include?(node.wgroup_id)
+    assert node.can_write?
 
-    Participation.connection.execute "UPDATE participations SET status = #{User::Status[:user]} WHERE user_id = #{users_id(:messy)} AND site_id = #{sites_id(:ocean)}"
-    login(:messy)
-    assert_equal visitor.status, User::Status[:user]
-    node = secure!(Node) { nodes(:ocean) }
-    assert node.can_write?, "Can write if user."
+    # Participation.connection.execute "UPDATE participations SET status = #{User::Status[:user]} WHERE user_id = #{users_id(:messy)} AND site_id = #{sites_id(:ocean)}"
+    # login(:messy)
+    # assert_equal visitor.status, User::Status[:user]
+    # node = secure!(Node) { nodes(:ocean) }
+    # assert node.can_write?, "Can write if user."
   end
 
 
-  def test_reader_cannot_update
+  def test_reader_can_update_attributes_if_in_write_group
     login(:messy)
     assert_equal visitor.status, User::Status[:reader]
     node = secure!(Node) { nodes(:ocean) }
-    assert !node.update_attributes(:v_title => 'hooba')
-    assert_equal 'You do not have the rights to edit', node.errors['base']
-
-    Participation.connection.execute "UPDATE participations SET status = #{User::Status[:user]} WHERE user_id = #{users_id(:messy)} AND site_id = #{sites_id(:ocean)}"
-    login(:messy)
-    assert_equal visitor.status, User::Status[:user]
-    node = secure!(Node) { nodes(:ocean) }
+    assert visitor.group_ids.include?(node.wgroup_id)
     assert node.update_attributes(:v_title => 'hooba')
-    node.publish
+    assert_equal 'hooba', node.v_title
+    # Participation.connection.execute "UPDATE participations SET status = #{User::Status[:user]} WHERE user_id = #{users_id(:messy)} AND site_id = #{sites_id(:ocean)}"
+    # login(:messy)
+    # assert_equal visitor.status, User::Status[:user]
+    # node = secure!(Node) { nodes(:ocean) }
+    # assert node.update_attributes(:v_title => 'hooba')
+    # node.publish
   end
 
 
