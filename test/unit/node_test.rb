@@ -143,7 +143,7 @@ class NodeTest < Zena::Unit::TestCase
 
   def test_ancestors
     Node.connection.execute "UPDATE nodes SET parent_id = #{nodes_id(:proposition)} WHERE id = #{nodes_id(:bird_jpg)}"
-    login(:ant)
+    login(:tiger)
     node = secure!(Node) { nodes(:status) }
     assert_equal ['zena', 'projects', 'cleanWater'], node.ancestors.map { |a| a[:name] }
     node = secure!(Node) { nodes(:zena) }
@@ -152,7 +152,7 @@ class NodeTest < Zena::Unit::TestCase
     prop = secure!(Node) { nodes(:proposition)}
     assert_kind_of Node, prop
     assert prop.can_read?
-    assert_equal ['zena', 'projects', 'proposition'], node.ancestors.map { |a| a[:name] }
+    assert_equal ['zena', 'projects', 'secret', 'proposition'], node.ancestors.map { |a| a[:name] }
   end
 
   def test_ancestors_infinit_loop
@@ -163,10 +163,10 @@ class NodeTest < Zena::Unit::TestCase
   end
 
   def test_ancestor_in_hidden_project
-    login(:ant)
+    login(:tiger)
     node = secure!(Node) { nodes(:proposition) }
     assert_kind_of Node, node
-    assert_equal ['zena', 'projects'], node.ancestors.map { |a| a[:name] } # ant can view 'proposition' but not the project proposition is in
+    assert_equal ['zena', 'projects', 'secret'], node.ancestors.map { |a| a[:name] } # ant can view 'proposition' but not the project proposition is in
   end
 
   def test_create_simplest
@@ -196,7 +196,7 @@ class NodeTest < Zena::Unit::TestCase
     node = secure!(Page) { Page.new(attrs) }
     assert ! node.save , "Save fails"
     assert node.errors[:parent_id].any?
-    assert_equal 'invalid reference', node.errors[:parent_id]
+    assert_equal 'invalid parent', node.errors[:parent_id]
 
     attrs[:parent_id] = nodes_id(:cleanWater) # other parent ok
     node = secure!(Page) { Page.new(attrs) }
@@ -259,7 +259,7 @@ class NodeTest < Zena::Unit::TestCase
     node[:parent_id] = nodes_id(:myDreams) # cannot write here
     assert ! node.save , "Save fails"
     assert node.errors[:parent_id].any?
-    assert_equal 'invalid reference', node.errors[:parent_id]
+    assert_equal ['invalid parent', 'invalid reference'], node.errors[:parent_id]
 
     node = secure!(Node) { nodes(:status)  }
     node[:parent_id] = nodes_id(:projects) # parent ok
@@ -320,8 +320,8 @@ class NodeTest < Zena::Unit::TestCase
   end
 
   def test_section
-    login(:ant)
-    assert_equal nodes_id(:people), secure!(Node) { nodes(:ant) }.section[:id]
+    login(:tiger)
+    assert_equal nodes_id(:people), secure!(Node) { nodes(:tiger) }.section[:id]
     assert_equal nodes_id(:cleanWater), secure!(Node) { nodes(:cleanWater) }.project[:id]
     assert_equal nodes_id(:zena), secure!(Node) { nodes(:cleanWater) }.real_project[:id]
   end
@@ -337,8 +337,8 @@ class NodeTest < Zena::Unit::TestCase
   end
 
   def test_real_section
-    login(:ant)
-    node = secure!(Node) { nodes(:ant) }
+    login(:tiger)
+    node = secure!(Node) { nodes(:tiger) }
     assert_equal nodes_id(:people), node.section[:id]
     node = secure!(Node) { nodes(:people) }
     assert_equal nodes_id(:people), node.section[:id]
@@ -375,10 +375,10 @@ class NodeTest < Zena::Unit::TestCase
   end
 
   def test_author
-    login(:ant)
-    node = secure!(Node) { nodes(:status) }
+    login(:tiger)
+    node = secure!(Node) { nodes(:cleanWater) }
     assert_equal node.user.site_participation[:contact_id], node.author[:id]
-    assert_equal 'Solenopsis Invicta', node.author.fullname
+    assert_equal 'Panther Tigris Sumatran', node.author.fullname
     login(:anon)
     node = secure!(Node) { nodes(:status) }
     assert_nil node.author
@@ -456,26 +456,26 @@ class NodeTest < Zena::Unit::TestCase
   end
 
   def test_sync_section
-    login(:ant)
-    node = secure!(Node) { nodes(:ant) }
-    assert_equal nodes_id(:people), node[:section_id]
-    node[:parent_id] = nodes_id(:collections)
+    login(:tiger)
+    node = secure!(Node) { nodes(:cleanWater) }
+    assert_equal nodes_id(:zena), node[:section_id]
+    node[:parent_id] = nodes_id(:projects)
     assert node.save
     assert_equal nodes_id(:zena), node[:section_id]
-    assert_equal nodes_id(:zena), nodes(:myLife)[:section_id]
+    assert_equal nodes_id(:zena), nodes(:cleanWater)[:section_id]
   end
 
   def test_sync_project_for_node
-    login(:ant)
-    node = secure!(Node) { nodes(:ant) }
-    assert_equal nodes_id(:people), node[:section_id]
+    login(:tiger)
+    node = secure!(Node) { nodes(:people) }
+    assert_equal nodes_id(:zena), node[:section_id]
     assert_equal nodes_id(:zena  ), node[:project_id]
     node[:parent_id] = nodes_id(:cleanWater)
     assert node.save
     assert_equal nodes_id(:cleanWater), node[:project_id]
-    assert_equal nodes_id(:cleanWater), nodes(:myLife)[:project_id]
+    assert_equal nodes_id(:cleanWater), nodes(:people)[:project_id]
     assert_equal nodes_id(:zena      ), node[:section_id]
-    assert_equal nodes_id(:zena      ), nodes(:myLife)[:section_id]
+    assert_equal nodes_id(:zena      ), nodes(:people)[:section_id]
   end
 
   def test_sync_project_for_section
@@ -486,9 +486,9 @@ class NodeTest < Zena::Unit::TestCase
     node[:parent_id] = nodes_id(:cleanWater)
     assert node.save
     assert_equal nodes_id(:cleanWater), node[:project_id]
-    assert_equal nodes_id(:cleanWater), nodes(:myLife)[:project_id]
+    assert_equal nodes_id(:cleanWater), nodes(:people)[:project_id]
     assert_equal nodes_id(:people), node.get_section_id
-    assert_equal nodes_id(:people), nodes(:myLife)[:section_id]
+    assert_equal nodes_id(:zena), nodes(:people)[:section_id]
   end
 
   def test_after_unpublish
@@ -805,7 +805,7 @@ class NodeTest < Zena::Unit::TestCase
     node = secure!(Node) { Node.create_node(:parent_id => nodes_zip(:secret), :name => 'funny') }
     assert_equal nodes_id(:secret), node[:parent_id]
     assert node.new_record?, "Not saved"
-    assert_equal 'invalid reference', node.errors[:parent_id]
+    assert_equal 'invalid parent', node.errors[:parent_id]
   end
 
   def test_create_node_with__parent_id
@@ -813,27 +813,27 @@ class NodeTest < Zena::Unit::TestCase
     node = secure!(Node) { Node.create_node(:_parent_id => nodes_id(:secret), :name => 'funny') }
     assert_equal nodes_id(:secret), node[:parent_id]
     assert node.new_record?, "Not saved"
-    assert_equal 'invalid reference', node.errors[:parent_id]
+    assert_equal 'invalid parent', node.errors[:parent_id]
   end
 
   def test_create_node_ok
-    login(:ant)
-    node = secure!(Node) { Node.create_node('parent_id' => nodes_zip(:myLife), 'name' => 'funny') }
-    assert_equal nodes_id(:myLife), node[:parent_id]
+    login(:tiger)
+    node = secure!(Node) { Node.create_node('parent_id' => nodes_zip(:cleanWater), 'name' => 'funny') }
+    assert_equal nodes_id(:cleanWater), node[:parent_id]
     assert_equal 'funny', node[:name]
-    assert !node.new_record?, "Saved"
+    assert !node.new_record?
   end
 
   def test_create_or_update_node_create
-    login(:ant)
-    node = secure!(Node) { Node.create_or_update_node('parent_id' => nodes_zip(:myLife), 'name' => 'funny') }
-    assert_equal nodes_id(:myLife), node[:parent_id]
+    login(:tiger)
+    node = secure!(Node) { Node.create_or_update_node('parent_id' => nodes_zip(:cleanWater), 'name' => 'funny') }
+    assert_equal nodes_id(:cleanWater), node[:parent_id]
     assert_equal 'funny', node[:name]
     assert !node.new_record?, "Saved"
   end
 
   def test_create_or_update_node_update
-    login(:ant)
+    login(:tiger)
     node = secure!(Node) { Node.create_or_update_node('parent_id' => nodes_zip(:cleanWater), 'name' => 'status', 'v_title'=>"It's all broken") }
     assert_equal nodes_id(:cleanWater), node[:parent_id]
     assert_equal nodes_id(:status), node[:id]
@@ -1172,7 +1172,7 @@ done: \"I am done\""
   end
 
   def test_vkind_of
-    login(:ant)
+    login(:tiger)
     node = secure!(Node) { nodes(:status) }
     assert node.vkind_of?("Page")
     node = secure!(Node) { nodes(:proposition) }
