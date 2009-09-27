@@ -351,12 +351,12 @@ class Node < ActiveRecord::Base
     def create_node(new_attributes)
       attributes = transform_attributes(new_attributes)
 
-      publish_after_save = (attributes.delete('v_status').to_i == Zena::Status[:pub])  # the way this works here and in do_update_attributes is not good
+      # the way this works here and in do_update_attributes is not good
+      publish_after_save = (attributes.delete('v_status').to_i == Zena::Status[:pub])
 
       # TODO: replace this hack with a proper class method 'secure' behaving like the
       # instance method. It would get the visitor and scope from the same hack below.
       scope   = self.scoped_methods[0] || {}
-
 
       klass_name   = attributes.delete('class') || attributes.delete('klass') || 'Page'
       unless klass = get_class(klass_name, :create => true)
@@ -368,6 +368,7 @@ class Node < ActiveRecord::Base
         def node.klass; @klass; end
         return node
       end
+
       node = if klass != self
         # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
         klass.send(:with_exclusive_scope, scope) { klass.create_instance(attributes) }
