@@ -27,11 +27,6 @@ ant:
   class:           Contact
   parent:          people
   user:            ant
-  inherit:         no
-  rgroup:          0
-  wgroup:          0
-  pgroup:          0
-  skin:            default
 
 myLife:
   zip:             16
@@ -39,11 +34,6 @@ myLife:
   kpath:           NP
   parent:          ant
   user:            ant
-  inherit:         no
-  rgroup:          0
-  wgroup:          0
-  pgroup:          0
-  skin:            default
 
 anonymous:
   zip:             47

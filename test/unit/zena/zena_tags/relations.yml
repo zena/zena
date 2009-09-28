@@ -1,7 +1,7 @@
 default:
   context:
     lang: 'en'
-    visitor: 'ant'
+    visitor: 'anon'
     node: 'status'
 
 set_tags:
@@ -17,20 +17,22 @@ tagged:
 documents:
   context:
     node: 'nature'
+    visitor: ant
   src: "<r:documents><r:each join=', '><r:show attr='name'/></r:each></r:documents>"
   res: "forest, tree"
 
 documents_only:
   context:
     node: 'nature'
+    visitor: ant
   src: "<r:documents where='kpath not like \"NDI%\"'><r:each join=', '><r:show attr='name'/></r:each></r:documents>"
   res: "forest"
 
 images:
   context:
-    node: 'nature'
+    node: 'wiki'
   src: "<r:images><r:each join=', '><r:show attr='name'/></r:each></r:images>"
-  res: "tree"
+  res: "bird, flower"
 
 icon:
   context:
@@ -117,6 +119,8 @@ store_img:
   tem: "/if var1 = @node.parent.*var2 = var1.do_find.*relation_id = _ID(node_has_an_icon).*LIKE 'NDI%'.*var2.name.*zen_path\(var1\).*img_tag\(var2/"
 
 author_visitor:
+  context:
+    visitor: ant
   src: "<r:pages in='site' author='visitor' limit='5'><r:each join=', ' do='show' attr='name'/></r:pages>"
   res: "myLife, nature, status"
 
@@ -142,7 +146,7 @@ node_id:
 
 node_path:
   src: "<r:node select='/projects/wiki'><r:link/></r:node>"
-  res: "<a href='/oo/project29.html'>a wiki with zena</a>"
+  res: "<a href='/en/project29.html'>a wiki with zena</a>"
 
 node_root:
   src: "<r:node select='root'><r:show attr='name'/></r:node>"
@@ -223,6 +227,8 @@ this_year:
   res: "art, projects"
 
 date_select:
+  context:
+    visitor: tiger
   src: "<r:date select='2006-04-05'><r:nodes in='site' log='current' do='each' join=', ' do='show' attr='name'/>"
   res: "letter, proposition"
 
@@ -234,11 +240,11 @@ order_limit:
   context:
     node: 'zena'
   src: "<ul do='news' in='site' limit='5' order='updated_at DESC'><li do='each'><r:link/></li></ul>"
-  res: "<ul><li><a href='/oo/projects/cleanWater/post27.html'>parc opening</a></li></ul>"
+  res: "<ul><li><a href='/en/projects/cleanWater/post27.html'>parc opening</a></li></ul>"
 
 relation_not_in_current_node:
   src: "<ul do='news' in='site' limit='5' order='updated_at DESC'><li do='each'><r:link/></li></ul>"
-  res: "<ul><li><a href='/oo/projects/cleanWater/post27.html'>parc opening</a></li></ul>"
+  res: "<ul><li><a href='/en/projects/cleanWater/post27.html'>parc opening</a></li></ul>"
 
 pages_anchor:
   src: "<r:pages in='site' limit='3' do='each' join=', '><r:show attr='name' anchor='true'/></r:pages>"
@@ -257,10 +263,14 @@ nodes:
   res: "lake, lakeAddress, opening, status, track, water"
 
 menu_with_favorites:
+  context:
+    visitor: ant
   src: "<ul><r:root do='pages' only='public' cache='true' name='menu'><li do='each'><r:link/><ul do='pages'><li do='each' do='link'/></ul></li></r:root><r:node select='visitor' do='favorites'><li class='favorites'><r:trans>favorites</r:trans><ul><li do='each' do='link'/></ul></li></ul>"
   res: "/.*tag33.*tag35.*Clean Water.*favorites.*Nature/"
 
 visitor_favorites:
+  context:
+    visitor: ant
   src: "<r:node select='visitor'><ul do='favorites'><li do='each' do='link'/></ul></r:node>"
   res: "<ul><li><a href='/oo/page39.html'>Nature</a></li></ul>"
 
@@ -286,7 +296,7 @@ direction_both_else:
 
 visitor:
   src: "<r:visitor><b do='[v_title]'/></r:visitor>"
-  res: "<b>Solenopsis Invicta</b>"
+  res: "<b>Mr nobody</b>"
 
 relation_in_site:
   src: "<r:tagged in='site' limit='10' do='each' join=',' do='[name]'/>"
@@ -335,7 +345,7 @@ where_two_attributes:
 
 many_or:
   src: "<r:tagged in='site' or='images in site' or='tags in site' do='each' join=',' do='[name]'/>"
-  res: "art,bird,cleanWater,flower,lake,menu,news,opening,tree"
+  res: "art,bird,cleanWater,flower,lake,menu,news,opening"
 
 hot_or_page:
   src: "<r:hot or='page in project'>...</r:hot>"
@@ -350,8 +360,10 @@ where_with_param:
   tem: "/versions.title LIKE \?.*\"%\" \+params\[:t\].to_s\+ \"%\"/"
 
 group_by_secret_project:
-  src: "<r:notes in='site' order='name ASC' do='group' by='project'><b do='project' do='[name]'/>: <r:each join=',' do='[name]'/></r:notes>"
-  res: ": proposition<b>cleanWater</b>: opening<b>zena</b>: letter"
+  context:
+    visitor: ant
+  src: "<r:pages where='name like \"t%\"' in='site' order='name ASC' do='group' by='project'><b do='project' do='[name]'/>: <r:each join=',' do='[name]'/></r:pages>"
+  res: ": talk<b>cleanWater</b>: track"
 
 group_by_project:
   context:
@@ -360,21 +372,22 @@ group_by_project:
   res: "<b>cleanWater</b>: opening<b>secret</b>: proposition<b>zena</b>: letter"
 
 group_by_project_sort_zip:
+  context:
+    visitor: ant
   src: "<r:images in='site' order='name ASC' do='group' by='project' sort='zip'><b do='project' do='[name]'/>: <r:each join=',' do='[name]'/></r:images>"
   res: "<b>zena</b>: tree<b>cleanWater</b>: lake<b>wiki</b>: bird,flower"
 
 group_by_parent_sort:
   src: "<r:images in='site' order='name ASC' do='group' by='parent'><b do='parent' do='[name]'/>: <r:each join=',' do='[name]'/></r:images>"
-  res: "<b>cleanWater</b>: lake<b>nature</b>: tree<b>wiki</b>: bird,flower"
-#icons_from_nodes_from_project:
-#  src: "<r:icons from='nodes' in='project' do='each' join=', ' do='[name]'/>"
-#  res: ""
+  res: "<b>cleanWater</b>: lake<b>wiki</b>: bird,flower"
 
 nodes_in_site_group_by_year:
   src: "<r:nodes in='site' group='log_at:year' order='log_at:year asc, name asc' do='each' join=', '><r:show date='log_at' format='%Y'/></r:nodes>"
   res: ", 2006, 2007"
 
 comments_order_desc:
+  context:
+    visitor: ant
   src: "<r:comments order='created_at desc'><r:each join=', '><r:show date='created_at' format='%Y-%m-%d'/>:<b do='[title]'/></r:each></r:comments>"
   res: "2008-05-21:<b>re: What about rivers ?</b>, 2006-12-20:<b>What about rivers ?</b>, 2006-12-20:<b>Nice site</b>"
 
@@ -393,5 +406,5 @@ comments_previous_node:
   tem: "/zazen\(var1.text, :node=>@node\)/"
 
 comments_in_site_node:
-  src: "<r:comment from='nodes in site' order='created_at desc'><r:node do='[name]'/>: <r:show attr='title'/></r:comment>"
-  res: "myLife: I want to become queen"
+  src: "<r:comments from='nodes in site' order='created_at desc' limit='2' do='each' join=', '><r:node do='[name]'/>: <r:show attr='title'/></r:comments>"
+  res: "myLife: I want to become queen, status: re: What about rivers ?"

@@ -131,7 +131,7 @@ live_filter:
   src: "<r:filter live='true'/><r:block><ol do='pages where name like \"[param:f]%\"'><li do='each' do='[name]'/></ol></r:block>"
   tem: "/nodes.name LIKE \?.*, params\[:f\].to_s\+ \"%\"/"
   'live/filter/en/list2.erb': "/<div id='<%= dom_id\(@node\) %>.*, params\[:f\].*var1.name/"
-  res: "/<input type='text' name='f'.*<div id='list2'><ol><li>status</li><li>track</li></ol></div>/"
+  res: "/<input type='text' name='f'.*<div id='list2'><ol><li>crocodiles</li><li>status</li><li>track</li></ol></div>/"
 
 live_filter_single_element:
   context:
@@ -139,7 +139,7 @@ live_filter_single_element:
   src: "<r:filter live='true'/><r:block><r:page where='name like \"[param:f]%\"' find='first'><b do='[name]'/></r:page></r:block>"
   tem: "/, params\[:f\].to_s/"
   'live/filter/en/single/element/list2.erb': "/<div id='<%= dom_id\(@node\) %>.*params\[:f\].*var1.name/"
-  res: "/<input type='text' name='f'.*<div id='list2'><b>status</b></div>/"
+  res: "/<input type='text' name='f'.*<div id='list2'><b>crocodiles</b></div>/"
 
 live_filter_select_options:
   context:
@@ -147,7 +147,7 @@ live_filter_select_options:
   src: "<r:filter live='true' do='select' name='f' values='1,2'/><r:block><ol do='pages where name like \"[param:f]%\"'><li do='each' do='[name]'/></ol></r:block>"
   tem: "/select name=.f.><%= options_for_select\(\[.1., .2.\], params\[:f\].to_s/"
   'live/filter/en/list2.erb': "/<div id='<%= dom_id\(@node\) %>.*, params\[:f\].to_s/"
-  res: "/<select name='f'.*<div id='list2'><ol><li>status</li><li>track</li></ol></div>/"
+  res: "/<select name='f'.*<div id='list2'><ol><li>crocodiles</li><li>status</li><li>track</li></ol></div>/"
 
 draggable_do_syntax:
   src: "<r:images in='site' do='each' draggable='true' do='img' mode='pv'/>"

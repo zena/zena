@@ -227,23 +227,6 @@ class ZenaTagsTest < Zena::Controller::TestCase
     yt_do_test('relations', 'direction_both_self_auto_ref')
   end
 
-  #def test_apphelper_calendar_from_project
-  #  login(:lion)
-  #  @controller.instance_variable_set(:@visitor, Thread.current.visitor)
-  #  info  = secure!(Note) { Note.create(:name=>'hello', :parent_id=>nodes_id(:collections), :log_at=>'2007-06-22')}
-  #  assert !info.new_record?
-  #  assert_equal nodes_id(:zena), info[:project_id]
-  #  yt_do_test('apphelper', 'calendar_from_project')
-  #end
-
-  def test_basic_img_private_image
-    login(:ant)
-    visitor.lang = 'en'
-    @controller.instance_variable_set(:@visitor, Thread.current.visitor)
-    Node.connection.execute "UPDATE nodes SET rgroup_id = NULL, wgroup_id = NULL, pgroup_id = NULL WHERE id = #{nodes_id(:tree_jpg)}"
-    yt_do_test('basic', 'img_private_image')
-  end
-
   def test_basic_recursion_in_each
     Node.connection.execute "UPDATE nodes SET max_status = 40 WHERE id = #{nodes_id(:status)}"
     Node.connection.execute "UPDATE versions SET status = 40 WHERE node_id = #{nodes_id(:status)}"
