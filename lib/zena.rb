@@ -93,11 +93,13 @@ module Zena
     end
 
     def gems_setup
-      gem_configuration.each do |gem_name, gem_config|
-        if gem_config
-          gem gem_name, gem_config['version']
-        else
-          gem gem_name
+      if RAILS_ROOT != Zena::ROOT
+        gem_configuration.each do |gem_name, gem_config|
+          if gem_config
+            gem gem_name, gem_config['version']
+          else
+            gem gem_name
+          end
         end
       end
     end
