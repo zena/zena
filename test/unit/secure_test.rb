@@ -28,29 +28,21 @@ class SecureReadTest < Zena::Unit::TestCase
   end
 
   def test_cannot_rwm_if_not_in_any_group
-    login(:ant)
-    # :myLife => { read => 0, write => 0, publish => 0, owner => :ant}
-    assert_raise(ActiveRecord::RecordNotFound) { secure!(Node) { nodes(:myLife) }}
-    assert_raise(ActiveRecord::RecordNotFound) { secure_write!(Node) { nodes(:myLife) }}
-    node = secure_drive(Node) { nodes(:myLife)}
-    assert_not_nil node
-    assert ! node.can_read?, "Cannot read"
-    assert ! node.can_write? , "Cannot write"
-    assert node.private? , "Node is private"
-    assert node.can_manage? , "Can manage"
-    assert node.can_drive? , "Can manage"
-    assert ! node.can_visible? , "Cannot make visible changes"
+    login(:anon)
+    assert_raise(ActiveRecord::RecordNotFound) { secure!(Node) { nodes(:secret) }}
+    assert_raise(ActiveRecord::RecordNotFound) { secure_write!(Node) { nodes(:secret) }}
+    assert_raise(ActiveRecord::RecordNotFound) { secure_drive!(Node) { nodes(:secret) }}
   end
 
   def test_cannot_view_others_private_nodes
-    login(:lion)
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { nodes(:myLife) }}
+    login(:anon)
+    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { nodes(:secret) }}
   end
 
   def test_secure_or_nil
-    login(:lion)
+    login(:anon)
     node = false
-    assert_nothing_raised { node = secure(Node) { nodes(:myLife)  }}
+    assert_nothing_raised { node = secure(Node) { nodes(:secret)  }}
     assert_nil node
   end
 
@@ -274,7 +266,7 @@ class SecureCreateTest < Zena::Unit::TestCase
     note = secure!(Note) { Note.create(attrs) }
     assert note.new_record?
     assert note.errors[:parent_id] , "Errors on parent_id"
-    assert_equal 'invalid reference', note.errors[:parent_id]
+    assert_equal 'invalid parent', note.errors[:parent_id]
   end
 
   def test_no_reference
