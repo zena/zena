@@ -426,18 +426,18 @@ module Zena
               v
             else
               min_status = (key == :pub) ? Zena::Status[:pub] : Zena::Status[:red]
-              if max_status >= Zena::Status[:red]
+              if can_write?
                 # normal version
                 v = versions.find(:first,
                   :select     => "*, (lang = #{Node.connection.quote(visitor.lang)}) as lang_ok, (lang = #{Node.connection.quote(ref_lang)}) as ref_ok",
-                  :conditions => [ "(status >= #{min_status} AND user_id = ?) OR status >= #{can_drive? ? [min_status, Zena::Status[:prop]].max : Zena::Status[:pub]}", visitor.id],
                   :order      => "lang_ok DESC, ref_ok DESC, status ASC, publish_from ASC")
                 v.node = self if v # FIXME: remove when :inverse_of moves in Rails stable
                 v
               else
-                # drive only
+                # read only
                 v = versions.find(:first,
                   :select     => "*, (lang = #{Node.connection.quote(visitor.lang)}) as lang_ok, (lang = #{Node.connection.quote(ref_lang)}) as ref_ok",
+                  :conditions => [ "status = #{Zena::Status[:pub]}"],
                   :order      => "lang_ok DESC, ref_ok DESC, status ASC, publish_from ASC")
                 v.node = self if v # FIXME: remove when :inverse_of moves in Rails stable
                 v
