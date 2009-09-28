@@ -634,7 +634,7 @@ class Node < ActiveRecord::Base
         return opts.merge(
           :select => select,
           # version join should be the same as in HasRelations#build_condition
-          :joins  => "INNER JOIN versions AS vs ON vs.node_id = nodes.id AND ((vs.status >= #{Zena::Status[:red]} AND vs.user_id = #{visitor[:id]} AND vs.lang = '#{visitor.lang}') OR vs.status > #{Zena::Status[:red]})",
+          :joins  => "INNER JOIN versions AS vs ON vs.node_id = nodes.id AND ((vs.status >= #{Zena::Status[:pub]} AND vs.user_id = #{visitor[:id]} AND vs.lang = '#{visitor.lang}') OR vs.status > #{Zena::Status[:pub]})",
           :conditions => match,
           :group      => "nodes.id",
           :order  => "score DESC, zip ASC")

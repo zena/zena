@@ -103,7 +103,7 @@ class NodeTest < Zena::Unit::TestCase
     login(:tiger)
     assert_nothing_raised { node = secure!(Node) { nodes(:status) } }
     assert_kind_of Node, node
-    assert_raises (ActiveRecord::RecordNotFound) { node = secure!(Node) { Node.find_by_path('people/ant') } }
+    assert_nothing_raised { node = secure!(Node) { Node.find_by_path('people/ant') } }
     assert_nothing_raised { node = secure!(Node) { Node.find_by_path('people/ant/status')}}
   end
 
@@ -381,7 +381,7 @@ class NodeTest < Zena::Unit::TestCase
     assert_equal 'Panther Tigris Sumatran', node.author.fullname
     login(:anon)
     node = secure!(Node) { nodes(:status) }
-    assert_nil node.author
+    assert_equal 'Solenopsis Invicta', node.author.fullname
   end
 
   def test_ext
@@ -503,7 +503,6 @@ class NodeTest < Zena::Unit::TestCase
     assert_equal Zena::Status[:pub], flower.version.status
     assert wiki.unpublish, 'Can unpublish publication'
     assert_equal 10, wiki.version.status
-    assert_equal 10, wiki.max_status
     bird = secure!(Node) { nodes(:bird_jpg) }
     flower = secure!(Node) { nodes(:flower_jpg) }
     assert_equal 10, bird.version.status
@@ -518,8 +517,6 @@ class NodeTest < Zena::Unit::TestCase
 
   def test_after_propose
     test_site('zena')
-    Version.connection.execute "UPDATE versions SET status = #{Zena::Status[:red]}, user_id=#{users_id(:tiger)} WHERE node_id IN (#{[:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')})"
-    Node.connection.execute "UPDATE nodes SET max_status = #{Zena::Status[:red]}, user_id=#{users_id(:tiger)} WHERE id IN (#{[:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')})"
     login(:tiger)
     wiki = secure!(Node) { nodes(:wiki) }
     bird = secure!(Node) { nodes(:bird_jpg) }
@@ -545,8 +542,6 @@ class NodeTest < Zena::Unit::TestCase
   end
 
   def test_after_refuse
-    Version.connection.execute "UPDATE versions SET status = #{Zena::Status[:red]}, user_id=#{users_id(:tiger)} WHERE node_id IN (#{[:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')})"
-    Node.connection.execute "UPDATE nodes SET max_status = #{Zena::Status[:red]}, user_id=#{users_id(:tiger)} WHERE id IN (#{[:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')})"
     login(:tiger)
     wiki = secure!(Node) { nodes(:wiki) }
     assert wiki.propose, 'Can propose for publication'
@@ -565,8 +560,6 @@ class NodeTest < Zena::Unit::TestCase
   end
 
   def test_after_publish
-    Version.connection.execute "UPDATE versions SET status = #{Zena::Status[:red]}, user_id=#{users_id(:tiger)} WHERE node_id IN (#{[:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')})"
-    Node.connection.execute "UPDATE nodes SET max_status = #{Zena::Status[:red]}, user_id=#{users_id(:tiger)} WHERE id IN (#{[:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')})"
     login(:tiger)
     wiki = secure!(Node) { nodes(:wiki) }
     assert wiki.publish, 'Can publish'
@@ -574,17 +567,16 @@ class NodeTest < Zena::Unit::TestCase
     bird = secure!(Node) { nodes(:bird_jpg) }
     flower = secure!(Node) { nodes(:flower_jpg) }
     assert_equal Zena::Status[:pub], bird.version.status
-    assert_equal Zena::Status[:pub], bird.max_status
     assert_equal Zena::Status[:pub], flower.version.status
   end
 
   def test_all_children
     login(:tiger)
-    assert_raise(ActiveRecord::RecordNotFound) { secure!(Node) { nodes(:ant) }  }
+    assert_nothing_raised { secure!(Node) { nodes(:ant) }  }
     nodes  = secure!(Node) { nodes(:people).send(:all_children) }
     people = secure!(Node) { nodes(:people) }
     assert_equal 4, nodes.size
-    assert_equal 3, people.find(:all, 'children').size
+    assert_equal 4, people.find(:all, 'children').size
     assert_raise(NoMethodError) { people.all_children } # private method
   end
 
@@ -725,9 +717,9 @@ class NodeTest < Zena::Unit::TestCase
     letter = secure!(Node) { Node.create_node(:v_status => Zena::Status[:pub], :v_title => 'a letter', :class => 'Letter', :parent_id => nodes_zip(:cleanWater)) }
     assert !letter.new_record?, "Not a new record"
     assert_equal Zena::Status[:pub], letter.version.status, "Published"
-    login(:anon)
+    login(:ant)
     letter = secure!(Node) { Node.find(letter.id) }
-    assert !letter.can_auto_create_discussion?
+    assert letter.can_auto_create_discussion?
     assert Discussion.create(:node_id=>letter[:id], :lang=>'fr', :inside=>false)
     # there is an open discussion in another lang
     assert letter.can_auto_create_discussion?
@@ -1321,10 +1313,8 @@ done: \"I am done\""
   def test_translate_pseudo_id
     login(:lion)
     { '11'                        => nodes_id(:zena),
-      'bird'                      => nodes_id(:bird_jpg),
       nodes_zip(:cleanWater).to_i => nodes_id(:cleanWater),
-      nodes_zip(:status)          => nodes_id(:status),
-      'statu'                     => nodes_id(:status),
+      nodes_zip(:status)          => nodes_id(:status)
     }.each do |k,v|
       assert_equal v, secure(Node) { Node.translate_pseudo_id(k) }, "'#{k}' should translate to '#{v}'"
     end
