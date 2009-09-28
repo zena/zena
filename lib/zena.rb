@@ -93,21 +93,23 @@ module Zena
     end
 
     def gems_setup
-      if RAILS_ROOT != Zena::ROOT
-        gem_configuration.each do |gem_name, gem_config|
-          if gem_config
-            gem gem_name, gem_config['version']
-          else
-            gem gem_name
-          end
+      gem_configuration.each do |gem_name, gem_config|
+        if gem_config
+          gem gem_name, gem_config['version']
+        else
+          gem gem_name
         end
       end
+    rescue LoadError
+      # ignore (we need this to pass in rake tasks)
     end
 
     def config_gems(config)
       gem_configuration.each do |gem_name, gem_config|
         if gem_config
-          config.gem gem_name, gem_config.symbolize_keys # to we need to replace '= 3.0.4' by '3.0.4' ?
+          conf = gem_config.symbolize_keys
+          conf[:version].gsub!(/\A=\s*/,'')
+          config.gem gem_name, conf
         else
           config.gem gem_name
         end

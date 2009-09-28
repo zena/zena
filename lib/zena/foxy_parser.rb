@@ -564,6 +564,9 @@ module Zena
           version['lang']   ||= elements[name]['ref_lang']
           version['site_id']  = Zena::FoxyParser::multi_site_id(site)
           version['number'] ||= 1
+          %W{title summary text comment}.each do |txt_field|
+            version[txt_field] ||= ''
+          end
 
           if klass = elements[name]['type']
             if klass = klass.version_class.content_class
@@ -635,6 +638,9 @@ module Zena
               content['id'] = Zena::FoxyParser::id(site, "#{name}_#{node['v_lang'] || node['ref_lang']}")
               content['version_id'] = content['id'] if columns.include?('version_id')
               content['node_id'] = node['id'] if columns.include?('node_id')
+              if klass.kind_of?(ContactContent)
+                content['address'] ||= ''
+              end
               file.puts "#{site}_#{name}:"
               content.each do |k,v|
                 file.puts sprintf('  %-16s %s', "#{k}:", v.to_s =~ /^\s*$/ ? v.inspect : v.to_s)
@@ -663,6 +669,9 @@ module Zena
         elements.each do |k,v|
           # set status
           v['status'] = Zena::Status[v['status'].to_sym]
+          %W{title summary text comment}.each do |txt_field|
+            v[txt_field] ||= ''
+          end
           @max_status[site][v['node']] ||= 0
           @max_status[site][v['node']] = v['status'] if v['status'] > @max_status[site][v['node']]
           # set publish_from

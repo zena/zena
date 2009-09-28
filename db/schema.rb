@@ -54,7 +54,7 @@ ActiveRecord::Schema.define(:version => 20090927125912) do
     t.integer  "version_id"
     t.string   "first_name", :limit => 60,  :default => "", :null => false
     t.string   "name",       :limit => 60,  :default => "", :null => false
-    t.text     "address"
+    t.text     "address",                                   :null => false
     t.string   "zip",        :limit => 20,  :default => "", :null => false
     t.string   "city",       :limit => 60,  :default => "", :null => false
     t.string   "telephone",  :limit => 60,  :default => "", :null => false
@@ -254,10 +254,10 @@ ActiveRecord::Schema.define(:version => 20090927125912) do
     t.integer  "user_id",                                    :null => false
     t.string   "lang",         :limit => 10, :default => "", :null => false
     t.datetime "publish_from"
-    t.text     "comment"
-    t.text     "title"
-    t.text     "summary"
-    t.text     "text"
+    t.text     "comment",                                    :null => false
+    t.text     "title",                                      :null => false
+    t.text     "summary",                                    :null => false
+    t.text     "text",                                       :null => false
     t.integer  "status",                     :default => 30, :null => false
     t.integer  "number",                     :default => 1,  :null => false
     t.integer  "content_id"

@@ -44,7 +44,7 @@ year_function:
   context:
     visitor: 'lion'
   src: "nodes where v_updated_at:year = 2007 in project"
-  sql: "[\"SELECT nodes.* FROM nodes,versions WHERE nodes.project_id = ? AND year(versions.updated_at) = '2007' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC\", @node.get_project_id]"
+  sql: "[\"SELECT nodes.* FROM nodes,versions WHERE nodes.project_id = ? AND year(versions.updated_at) = 2007 AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC\", @node.get_project_id]"
   sqlite3: "[\"SELECT nodes.* FROM nodes,versions WHERE nodes.project_id = ? AND strftime('%Y', versions.updated_at)*1 = 2007 AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC\", @node.get_project_id]"
   res: "bananas"
 

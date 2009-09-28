@@ -220,6 +220,14 @@ class Version < ActiveRecord::Base
     new_record? || changed? || (@redaction_content && @redaction_content.changed?)
   end
 
+  def attributes_with_defaults=(attrs)
+    self.attributes_without_defaults = attrs
+    %W{title summary text comment}.each do |txt_field|
+      self[txt_field] ||= ''
+    end
+  end
+  alias_method_chain :attributes=, :defaults
+
   private
     def set_number
       last_record = node.id ? self.connection.select_one("select number from #{self.class.table_name} where node_id = '#{node[:id]}' ORDER BY number DESC LIMIT 1") : nil
@@ -254,11 +262,7 @@ class Version < ActiveRecord::Base
     def version_before_validation
       self[:site_id] = visitor.site.id
       return unless node
-      # [ why do we need these defaults now ? (since rails 1.2)
-      self.text    ||= ""
       self.title     = node.name if self.title.blank?
-      self.summary ||= ""
-      self.comment ||= ""
       self.type    ||= self.class.to_s
 
       self.lang      = visitor.lang if self.lang.blank?

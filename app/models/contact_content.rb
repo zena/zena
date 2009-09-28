@@ -20,7 +20,8 @@ class ContactContent < ActiveRecord::Base
   attr_public        :created_at, :updated_at, :fullname, :initials, :first_name, :name, :address, :zip, :city,
                      :telephone, :mobile, :email, :country
   attr_protected     :site_id
-  before_validation :content_before_validation
+  after_initialize   :set_contact_content_defaults
+  before_validation  :content_before_validation
 
   # Full contact name to show in views.
   def fullname(first_name = self.first_name, name = self.name)
@@ -44,6 +45,14 @@ class ContactContent < ActiveRecord::Base
   def fullname_changed?
     first_name_changed? || name_changed?
   end
+
+  def attributes_with_defaults=(attrs)
+    self.attributes_without_defaults = attrs
+    %W{address}.each do |txt_field|
+      self[txt_field] ||= ''
+    end
+  end
+  alias_method_chain :attributes=, :defaults
 
   private
     def content_before_validation
