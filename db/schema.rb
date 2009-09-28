@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090927125912) do
+ActiveRecord::Schema.define(:version => 20090928143754) do
 
   create_table "cached_pages", :force => true do |t|
     t.text     "path"
@@ -161,7 +161,6 @@ ActiveRecord::Schema.define(:version => 20090927125912) do
     t.integer  "wgroup_id"
     t.integer  "pgroup_id"
     t.datetime "publish_from"
-    t.integer  "max_status",                  :default => 30
     t.datetime "log_at"
     t.string   "ref_lang",     :limit => 10,  :default => "",    :null => false
     t.string   "alias",        :limit => 400
@@ -216,7 +215,6 @@ ActiveRecord::Schema.define(:version => 20090927125912) do
     t.integer  "site_group_id"
     t.string   "name"
     t.boolean  "authentication"
-    t.boolean  "allow_private"
     t.string   "languages"
     t.string   "default_lang"
     t.boolean  "http_auth"
@@ -258,7 +256,7 @@ ActiveRecord::Schema.define(:version => 20090927125912) do
     t.text     "title",                                      :null => false
     t.text     "summary",                                    :null => false
     t.text     "text",                                       :null => false
-    t.integer  "status",                     :default => 30, :null => false
+    t.integer  "status",                     :default => 70, :null => false
     t.integer  "number",                     :default => 1,  :null => false
     t.integer  "content_id"
     t.integer  "site_id"

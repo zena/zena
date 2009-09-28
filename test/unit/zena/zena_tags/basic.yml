@@ -40,7 +40,7 @@ show_title:
   res: "status title"
 
 show_title_with_opts:
-  src: "<h1 do='title' class='s30' status='true' actions='all'>this is the title</h1>"
+  src: "<h1 do='title' class='s70' status='true' actions='all'>this is the title</h1>"
   tem: "/<h1 class='s<%= @node.version.status %>'><%= show_title\(:node=>@node\) \+ node_actions\(:node=>@node, .*:actions=>\"all\"/"
   res: "/<h1 class='s50'><span id=.*class='actions'>/"
 

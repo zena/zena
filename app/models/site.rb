@@ -240,11 +240,6 @@ class Site < ActiveRecord::Base
     @admin_user_ids ||= secure!(User) { User.find(:all, :conditions => "status >= #{User::Status[:admin]}") }.map {|r| r[:id]}
   end
 
-  # Return true if the site is configured to allow private nodes
-  def allow_private?
-    self[:allow_private]
-  end
-
   # Return true if the site is configured to force authentication
   def authentication?
     self[:authentication]

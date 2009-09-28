@@ -1,10 +1,6 @@
 <div class='drive' id='groups'>
-  <% if @node.can_visible?
+  <% if @node.can_drive?
     inherit_modes = [[_('inherit'),1],[_('custom'),0]]
-    inherit_modes << [_('private'),-1] if visitor.site.allow_private?
-  elsif @node.can_manage? && @node.max_status < Zena::Status[:pub] && visitor.site.allow_private?
-    # nothing published yet, node can be reverted to 'inherit' or set 'private' without publish rights
-    inherit_modes = [[_('inherit'),1], [_('private'),-1]]
   else
     inherit_modes = nil
   end

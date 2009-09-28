@@ -171,14 +171,6 @@ class SiteTest < Zena::Unit::TestCase
     assert_equal groups_id(:aqua), grp[:id]
   end
 
-  def test_allow_private
-    site = sites(:zena)
-    assert site.allow_private?, "Private nodes allowed"
-    site.allow_private = false
-    assert site.save, "Can save"
-    assert !site.allow_private?, "Private nodes not allowed"
-  end
-
   def test_protected_fields
     site = sites(:zena)
     site.update_attributes(:id=>sites_id(:ocean), :root_id=>11, :host=>'example.com')

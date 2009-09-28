@@ -67,17 +67,17 @@ ul.errors li { margin-left:0.4em; background:inherit; line-height:1.2em;}
 #drive_links .add_link { border-top:1px solid;}
 #drive_links .btn_add a { visibility:visible;}
 
-/* s50, s40, s30, s20, s10, s0 = pub, prop, red, rep, rem, del */
+/* s50, s60, s70, s20, s10, s0 = pub, prop, red, rep, rem, del */
 .subtitle, .note .subtitle { font-style: italic; font-size: 0.9em; color: #666; margin-top:1em;}
 .subtitle b, .note .subtitle b { font-weight: normal; color: black;}
 .li_s50 {}
-.li_s40 a { border-bottom: 2px solid #73A1A5; }
-.li_s35 a { border-bottom: 2px dotted #73A1A5; }
-.li_s30 a { border-bottom: 2px solid #B7CC87; }
+.li_s60 a { border-bottom: 2px solid #73A1A5; }
+.li_s65 a { border-bottom: 2px dotted #73A1A5; }
+.li_s70 a { border-bottom: 2px solid #B7CC87; }
 .wrong_lang { color: grey; font-weight:normal; font-size:0.7em; text-transform:none; font-style:normal;}
 
-.s30 form, .s35 form, .s40 form, .s10 form, .s20 form { margin-left:20px; display: inline; }
-/*.s30 span, .s35 span, .s40 span, .s10 span, .s20 span { float: right; font-size:0.8em; padding-top:0.5em; }
+.s70 form, .s65 form, .s60 form, .s10 form, .s20 form { margin-left:20px; display: inline; }
+/*.s70 span, .s65 span, .s60 span, .s10 span, .s20 span { float: right; font-size:0.8em; padding-top:0.5em; }
 */
 /* NOTES */
 #left ul { margin:0 0 1em 1em;}

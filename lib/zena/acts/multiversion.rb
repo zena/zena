@@ -55,69 +55,41 @@ module Zena
           # List of allowed *version* transitions with their validation rules. This list
           # concerns the life and death of *a single version*, not the corresponding Node.
 
-                                            # not pub                                   pub
-          add_transition(:publish, :from => [-1..29,31..49].map(&:to_a).flatten, :to => 50) do |r|
-            ( r.can_visible? ||
-              ( r.can_manage?  &&  r.private? )
-            )
-          end
-                                            # red        pub
-          add_transition(:publish, :from => [30], :to => 50) do |r|
-            ( r.can_visible? && r.version.user_id == r.visitor.id ) ||
-            ( r.can_manage?  &&  r.private? )
-          end
-                                                # pub         pub
-          add_transition(:auto_publish, :from => [50], :to => 50) do |r|
-            (   r.can_visible? ||
-              ( r.can_manage?  &&  r.private? )
-            )
-          end
-                                         # red   red_vis     prop
-          add_transition(:propose, :from => (30..34), :to => 40) do |r|
-            r.version.user_id == r.visitor[:id]
-          end
-
-                                         # red   red_vis     prop_with
-          add_transition(:propose, :from => (30..34), :to => 35) do |r|
-            r.version.user_id == r.visitor[:id]
-          end
-
-                                    # prop_with  prop        red
-          add_transition(:refuse,  :from => (35..40), :to => 30) do |r|
-            (   r.can_visible? ||
-              ( r.can_manage?  &&  r.private? )
-            )
-          end
-                                               # pub        rem
-          add_transition(:unpublish,  :from => [50], :to => 10) do |r|
-            r.can_drive_was_true?
-          end
-                                         # pub         red
-          add_transition(:redit, :from => [50], :to => 30) do |r|
-            r.can_edit? && r.version.user_id == visitor.id
-          end
-                                         # rem+1 red         rem
-          add_transition(:remove,  :from => (11..30), :to => 10) do |r|
-            (r.can_drive_was_true? || r.version.user_id == visitor.id )
-          end
-                                                    # red          red
-          add_transition(:update_attributes, :from => [30], :to => 30) do |r|
+          add_transition(:update_attributes, :from => :red, :to => :red) do |r|
             r.can_write?
           end
-                                        # new         red
-          add_transition(:edit, :from => [-1], :to => 30) do |r|
+                                        # new
+          add_transition(:edit, :from => -1, :to => :red) do |r|
             r.can_write?
           end
 
-          #  StatusValidations = {
-          #    #from      #validation #to
-          #   [(0..49),   50] => :publish, #  :pub
-          #   [(30..39),  40] => :propose, #  :prop
-          #   [(30..39),  35] => :propose, #  :prop_with
-          #   [(50..50),  30] => :redit,
-          #   [(30..30),  30] => :update_attributes,
-          #   [(40..49),  30] => :refuse,
-          #  }.freeze
+          add_transition(:auto_publish, :from => :pub, :to => :pub) do |r|
+            r.can_drive?
+          end
+                                            # not pub
+          add_transition(:publish, :from => ((-1..70).to_a - [50]), :to => :pub) do |r|
+            r.can_drive?
+          end
+
+          add_transition(:propose, :from => :red, :to => :prop) do |r|
+            r.can_write?
+          end
+
+          add_transition(:propose, :from => :red, :to => :prop_with) do |r|
+            r.can_write?
+          end
+
+          add_transition(:refuse,  :from => [:prop, :prop_with], :to => :red) do |r|
+            r.can_drive?
+          end
+                                                             # rem
+          add_transition(:remove,  :from => ((-1..70).to_a - [10]), :to => 10) do |r|
+            r.can_drive?
+          end
+
+          add_transition(:redit, :from => (10..50), :to => :red) do |r|
+            r.can_drive?
+          end
         end
 
         def acts_as_version(opts = {})
@@ -219,8 +191,8 @@ module Zena
         end
 
         # people who can publish:
-        # * people who #can_visible? if +status+ >= prop or owner
-        # * people who #can_manage? if node is private
+        # * people who #can_drive? if +status+ >= prop or owner
+        # * people who #can_drive? if node is private
         def can_publish?
           can_apply?(:publish)
         end
@@ -253,6 +225,7 @@ module Zena
         def transition_for(prev, curr)
           prev ||= version.new_record? ? -1 : version.status_was.to_i
           curr ||= version.status.to_i
+
           self.class.transitions.each do |t|
             from, to = t[:from], t[:to]
             if curr == to && from.include?(prev)
@@ -389,13 +362,6 @@ module Zena
           ActiveRecord::ConnectionAdapters::Column.string_to_time(pub_string)
         end
 
-        # Set +max_status+ to the maximum status of all versions
-        def get_max_status(ignore_current = true)
-          vers_table = version.class.table_name
-          new_max    = (self.class.connection.select_one("select #{vers_table}.status from #{vers_table} WHERE #{vers_table}.node_id='#{self[:id]}' #{ignore_current ? "AND id != '#{version.id}'" : ''} order by #{vers_table}.status DESC LIMIT 1") || {})['status']
-          new_max.to_i
-        end
-
         # Update an node's attributes or the node's version/content attributes. If the attributes contains only
         # :v_... or :c_... keys, then only the version will be saved. If the attributes does not contain any :v_... or :c_...
         # attributes, only the node is saved, without creating a new version.
@@ -425,12 +391,11 @@ module Zena
               v.node = self
               v
             else
-              min_status = (key == :pub) ? Zena::Status[:pub] : Zena::Status[:red]
               if can_write?
                 # normal version
                 v = versions.find(:first,
                   :select     => "*, (lang = #{Node.connection.quote(visitor.lang)}) as lang_ok, (lang = #{Node.connection.quote(ref_lang)}) as ref_ok",
-                  :order      => "lang_ok DESC, ref_ok DESC, status ASC, publish_from ASC")
+                  :order      => "lang_ok DESC, ref_ok DESC, status DESC")
                 v.node = self if v # FIXME: remove when :inverse_of moves in Rails stable
                 v
               else
@@ -438,7 +403,7 @@ module Zena
                 v = versions.find(:first,
                   :select     => "*, (lang = #{Node.connection.quote(visitor.lang)}) as lang_ok, (lang = #{Node.connection.quote(ref_lang)}) as ref_ok",
                   :conditions => [ "status = #{Zena::Status[:pub]}"],
-                  :order      => "lang_ok DESC, ref_ok DESC, status ASC, publish_from ASC")
+                  :order      => "lang_ok DESC, ref_ok DESC")
                 v.node = self if v # FIXME: remove when :inverse_of moves in Rails stable
                 v
               end
@@ -475,6 +440,7 @@ module Zena
                     target_status == Zena::Status[:pub] &&
                     Time.now < v.updated_at_was + current_site[:redit_time].to_i && # redit time
                     transition_allowed?(transition_for(50, 50))
+                # autopublish
                 @version
               elsif v.status == Zena::Status[:pub]
                 # make a new redaction
@@ -533,7 +499,6 @@ module Zena
           # the initial redaction.
           def multiversion_before_validation_on_create
             self.edit! unless @redaction
-            self.max_status   = version.status
             self.publish_from = version.publish_from
           end
 
@@ -567,7 +532,6 @@ module Zena
           end
 
           def cache_version_status_before_create
-            self.max_status   = version.status
             self.publish_from = version.publish_from
             true
           end
@@ -578,7 +542,6 @@ module Zena
             self.updated_at = Time.now
             case current_transition[:name]
             when :publish
-              self.max_status   = Zena::Status[:pub]
               if self.publish_from
                 self.publish_from = [self.publish_from, version.publish_from].min
               else
@@ -591,14 +554,6 @@ module Zena
                 # we need to compute new
                 self.publish_from = [get_publish_from, version.publish_from].min
               end
-            when :update_attributes
-              # nothing to do
-            when :unpublish, :remove, :redit, :refuse
-              # moving down
-              self.max_status = [get_max_status, version.status.to_i].max
-            when :propose
-              # moving up
-              self.max_status = [max_status_was.to_i, version.status.to_i].max
             else
             end
             true
@@ -713,8 +668,21 @@ module Zena
           # something like this does not work: @@transitions[self] ||= []
         end
 
-        def add_transition(name, args, &block)
-          self.transitions << args.merge(:name => name, :validate => block)
+        def add_transition(name, opts, &block)
+          v = opts[:from]
+          if v.kind_of?(Symbol)
+            opts[:from] = [Zena::Status[v]]
+          elsif v.kind_of?(Array)
+            opts[:from] = v.map {|e| e.kind_of?(Symbol) ? Zena::Status[e] : e}
+          elsif v.kind_of?(Fixnum)
+            opts[:from] = [v]
+          end
+
+          v = opts[:to]
+          if v.kind_of?(Symbol)
+            opts[:to] = Zena::Status[v]
+          end
+          self.transitions << opts.merge(:name => name, :validate => block)
         end
 
         # Default version class (should usually be overwritten)

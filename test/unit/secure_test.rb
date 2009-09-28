@@ -61,7 +61,7 @@ class SecureReadTest < Zena::Unit::TestCase
     assert ! node.can_read? , "Can read"
     assert ! node.can_write? , "Can write"
     assert ! node.can_publish? , "Can publish"
-    assert ! node.can_manage? , "Can manage"
+    assert ! node.can_drive? , "Can manage"
     assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { Node.find(node.id) }}
   end
 
@@ -98,42 +98,18 @@ class SecureReadTest < Zena::Unit::TestCase
   end
 
   # pgroup cannot read & write
-  def test_publish_group_cannot_read_write
+  def test_drive_group_cannot_read_write
     login(:ant)
     assert_raise(ActiveRecord::RecordNotFound) { secure!(Node) { nodes(:strange)  } }
     assert_raise(ActiveRecord::RecordNotFound) { secure_write!(Node) { nodes(:strange)  } }
     assert_nothing_raised { secure_drive(Node) { nodes(:strange)  }}
   end
 
-  def test_publish_group_cannot_read_after_propose
-    login(:lion)
-    assert_nothing_raised { secure!(Node) { nodes(:strange)  } }
-    lion_node = secure!(Node) { nodes(:strange)  }
-    assert lion_node.can_read? , "Owner can read"
-    assert lion_node.propose
-    assert_equal Zena::Status[:prop], lion_node.version.status
-    assert_equal Zena::Status[:prop], lion_node.max_status
-    login(:ant)
-    ant = secure!(User) { users(:ant) }
-    # now node is 'prop', pgroup cannot see it
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { nodes(:strange)  } }
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure_write!(Node) { nodes(:strange)  } }
-    assert node = secure_drive(Node) { nodes(:strange)  }
-    assert ! ant.group_ids.include?(node.rgroup_id) , "Visitor is not in rgroup"
-    assert ! ant.group_ids.include?(node.wgroup_id) , "Visitor is not in wgroup"
-    assert ! (ant.id == node.user_id) , "Visitor is not the owner"
-    assert ant.group_ids.include?(node.pgroup_id) , "Visitor is in pgroup"
-    assert node.can_publish? , "Can publish"
-    assert !node.can_read? , "Cannot read"
-    assert ! node.can_write? , "Cannot write"
-    assert ! node.can_manage? , "Cannot manage"
-  end
-
-  def test_not_owner_can_vis
+  def test_not_owner_can_drive
     login(:lion)
     node = secure!(Node) { nodes(:status) }
     assert_equal users_id(:ant), node.user_id
-    assert node.can_visible?
+    assert node.can_drive?
   end
 
   def test_public_not_in_rgroup_cannot_rwp
@@ -239,22 +215,19 @@ class SecureCreateTest < Zena::Unit::TestCase
     node = secure!(Node) { Node.new(node_defaults) }
 
     assert node.save, "Node saved"
-    assert_equal Zena::Status[:red], node.max_status, "Max_status did not change"
-    node.propose
-    err node
+    assert_equal Zena::Status[:red], node.version.status
     assert node.propose, "Can propose node"
-    assert_equal Zena::Status[:prop], node.max_status, "node's max_status is now 'prop'"
+    assert_equal Zena::Status[:prop], node.version.status
     assert node.publish, "Can publish node"
-    assert_equal Zena::Status[:pub], node.max_status, "node max_status in now 'pub'"
+    assert_equal Zena::Status[:pub], node.version.status
     assert node.publish_from <= Time.now, "node publish_from is smaller the Time.now"
-    id = node.id
     login(:ant)
-    assert_nothing_raised { node = secure!(Node) { Node.find(id) } }
+    assert_nothing_raised { node = secure!(Node) { Node.find(node.id) } }
     assert node.update_attributes(:v_summary=>'hello my friends'), "Can create a new edition"
-    assert_equal Zena::Status[:pub], node.max_status, "Node max_status did not change"
+    assert_equal Zena::Status[:red], node.version.status
     assert node.propose, "Can propose edition"
-    assert_equal Zena::Status[:pub], node.max_status, "Node max_status did not change"
-    # TODO continue test when 'remove, replace, rollback, ...' are implemented
+    assert_equal Zena::Status[:prop], node.version.status
+    # WE CAN USE THIS TO TEST vhash (version hash cache) when it's implemented
   end
   # 2. valid reference (in which the visitor has write access and ref<>self !)
   def test_invalid_reference_cannot_write_in_new
@@ -324,8 +297,8 @@ class SecureCreateTest < Zena::Unit::TestCase
     assert z.errors.empty? , "No errors"
   end
 
-  # 3. validate +publish_group+ value (same as parent or ref.can_publish? and valid)
-  def test_valid_publish_group_cannot_change_if_not_ref_can_publish
+  # 3. validate +drive_group+ value (same as parent or ref.can_publish? and valid)
+  def test_valid_drive_group_cannot_change_if_not_ref_can_publish
     login(:ant)
     attrs = node_defaults
 
@@ -341,7 +314,7 @@ class SecureCreateTest < Zena::Unit::TestCase
     assert note.errors[:pgroup_id].any?
     assert_equal 'you cannot change this', note.errors[:pgroup_id]
   end
-  def test_invalid_publish_group_visitor_not_in_group_set
+  def test_invalid_drive_group_visitor_not_in_group_set
     login(:ant)
     attrs = node_defaults
 
@@ -353,7 +326,7 @@ class SecureCreateTest < Zena::Unit::TestCase
     assert note.errors[:pgroup_id].any?
     assert_equal 'unknown group', note.errors[:pgroup_id]
   end
-  def test_valid_publish_group
+  def test_valid_drive_group
     login(:ant)
     attrs = node_defaults
     wiki = nodes(:wiki)
@@ -370,12 +343,12 @@ class SecureCreateTest < Zena::Unit::TestCase
 
   # 4. validate +rw groups+ :
   #     a. if can_publish? : valid groups
-  def test_can_vis_bad_rgroup
+  def test_can_drive_bad_rgroup
     login(:tiger)
     attrs = node_defaults
 
     p = secure!(Node) { Node.find(attrs[:parent_id])}
-    assert p.can_visible? , "Can publish"
+    assert p.can_drive? , "Can publish"
 
     # bad rgroup or tiger not in admin
     [99999, groups_id(:admin)].each do |grp|
@@ -387,7 +360,7 @@ class SecureCreateTest < Zena::Unit::TestCase
     end
   end
 
-  def test_can_vis_bad_rgroup_visitor_not_in_group
+  def test_can_drive_bad_rgroup_visitor_not_in_group
     login(:tiger)
     attrs = node_defaults
     attrs[:rgroup_id] = groups_id(:admin) # tiger is not in admin
@@ -396,7 +369,7 @@ class SecureCreateTest < Zena::Unit::TestCase
     assert note.errors[:rgroup_id].any?
     assert_equal 'unknown group', note.errors[:rgroup_id]
   end
-  def test_can_vis_bad_wgroup
+  def test_can_drive_bad_wgroup
     login(:tiger)
     attrs = node_defaults
     # bad wgroup
@@ -406,7 +379,8 @@ class SecureCreateTest < Zena::Unit::TestCase
     assert note.errors[:wgroup_id].any?
     assert_equal 'unknown group', note.errors[:wgroup_id]
   end
-  def test_can_vis_bad_wgroup_visitor_not_in_group
+
+  def test_can_drive_bad_wgroup_visitor_not_in_group
     login(:tiger)
     attrs = node_defaults
 
@@ -416,7 +390,8 @@ class SecureCreateTest < Zena::Unit::TestCase
     assert note.errors[:wgroup_id].any?
     assert_equal 'unknown group', note.errors[:wgroup_id]
   end
-  def test_can_vis_rwgroups_ok
+
+  def test_can_drive_rwgroups_ok
     login(:tiger)
     attrs = node_defaults
     zena = nodes(:zena)
@@ -424,9 +399,10 @@ class SecureCreateTest < Zena::Unit::TestCase
     # all ok
     attrs[:wgroup_id] = groups_id(:managers)
     note = secure!(Note) { Note.create(attrs) }
+    err note
 
-    assert ! note.new_record?, "Not a new record"
-    assert note.errors.empty? , "Errors empty"
+    assert ! note.new_record?
+    assert note.errors.empty?
     assert_equal zena[:rgroup_id], note[:rgroup_id] , "Same rgroup as parent"
     assert_equal groups_id(:managers), note[:wgroup_id] , "New wgroup set"
     assert_equal zena[:pgroup_id], note[:pgroup_id] , "Same pgroup_id as parent"
@@ -467,25 +443,6 @@ class SecureCreateTest < Zena::Unit::TestCase
     assert note.errors[:wgroup_id].any?
     assert_equal 'you cannot change this', note.errors[:rgroup_id]
     assert_equal 'you cannot change this', note.errors[:wgroup_id]
-  end
-
-  def test_can_man_can_update_private
-    login(:ant)
-    attrs = node_defaults
-
-    attrs[:parent_id] = nodes_id(:zena) # ant can write but not publish here
-    p = secure!(Project) { Project.find(attrs[:parent_id])}
-
-    # make private
-    attrs[:inherit  ] = -1 # make private
-    attrs[:rgroup_id] = 98984984 # anything
-    attrs[:wgroup_id] = 98984984 # anything
-    attrs[:pgroup_id] = 98984984 # anything
-    note = secure!(Note) { Note.create(attrs) }
-    assert_equal 0, note.rgroup_id , "Read group is 0"
-    assert_equal 0, note.wgroup_id , "Write group is 0"
-    assert_equal 0, note.pgroup_id , "Publish group is 0"
-    assert_equal -1, note.inherit , "Inherit mode is -1"
   end
 
   def test_can_man_can_inherit_rwp_groups
@@ -533,7 +490,7 @@ class SecureUpdateTest < Zena::Unit::TestCase
     login(:ant)
     node = secure!(Node) { nodes(:lake) }
     assert_kind_of Node, node
-    assert ! node.can_visible? , "Cannot make visible changes"
+    assert ! node.can_drive? , "Cannot make visible changes"
     node.pgroup_id = groups_id(:public)
     assert ! node.save , "Save fails"
     assert node.errors[:base].any?
@@ -546,8 +503,8 @@ class SecureUpdateTest < Zena::Unit::TestCase
     node = secure!(Page) { Page.create(:parent_id=>parent[:id], :name=>'thing')}
     assert_kind_of Node, node
     assert ! node.new_record?  , "Not a new record"
-    assert ! node.can_visible? , "Cannot make visible changes"
-    assert node.can_manage? , "Can manage"
+    assert ! node.can_drive? , "Cannot make visible changes"
+    assert node.can_drive? , "Can manage"
     assert_equal 1, node.inherit , "Inherit mode is 1"
     node.inherit = 0
     assert ! node.save , "Save fails"
@@ -559,7 +516,7 @@ class SecureUpdateTest < Zena::Unit::TestCase
     login(:tiger)
     node = secure!(Node) { nodes(:lake) }
     assert_kind_of Node, node
-    assert node.can_visible? , "Can visible"
+    assert node.can_drive? , "Can visible"
     node[:inherit  ] = 0
     node[:pgroup_id] = groups_id(:admin)
     assert ! node.save , "Save fails"
@@ -571,7 +528,7 @@ class SecureUpdateTest < Zena::Unit::TestCase
     login(:tiger)
     node = secure!(Node) { nodes(:lake) }
     assert_kind_of Contact, node
-    assert node.can_visible? , "Can visible"
+    assert node.can_drive? , "Can visible"
     assert_equal 1, node.inherit , "Inherit mode is 1"
     node[:inherit  ] = 0
     node[:pgroup_id] = groups_id(:public)
@@ -583,7 +540,7 @@ class SecureUpdateTest < Zena::Unit::TestCase
     login(:tiger)
     node = secure!(Node) { nodes(:lake) }
     assert_equal users_id(:ant), node[:user_id]
-    assert node.can_visible? , "Can visible"
+    assert node.can_drive? , "Can visible"
     assert_equal 1, node.inherit , "Inherit mode is 1"
     assert_equal groups_id(:managers), node.pgroup_id
     node[:inherit  ] = 0
@@ -591,38 +548,39 @@ class SecureUpdateTest < Zena::Unit::TestCase
     assert !node.save , "Save fails"
     assert node.errors[:inherit].any?
   end
+
   def test_pgroup_can_nil_if_owner
     # ok
     login(:tiger)
     node = secure!(Node) { nodes(:people) }
     assert_equal users_id(:tiger), node[:user_id]
-    assert node.can_visible? , "Can visible"
+    assert node.can_drive? , "Can visible"
     assert_equal 1, node.inherit , "Inherit mode is 1"
     assert_equal groups_id(:managers), node.pgroup_id
     node[:inherit  ] = 0
     node[:pgroup_id] = nil
-    assert node.save , "Save succeeds"
-    assert node.private?, "Node is now private"
+    assert !node.save
+    assert node.errors[:pgroup_id]
   end
-  def test_rgroup_change_rgroup_with_nil_ok
+
+  def test_cannot_change_rgroup_with_nil
     # ok
     login(:tiger)
     node = secure!(Node) { nodes(:lake) }
-    assert node.can_visible? , "Can visible"
+    assert node.can_drive? , "Can visible"
     assert_equal 1, node.inherit , "Inherit mode is 1"
     assert_equal groups_id(:public), node.rgroup_id
     node[:inherit  ] = 0
     node[:rgroup_id] = nil
-    assert node.save , "Save succeeds"
-    assert_equal 0, node.inherit , "Inherit mode is 0"
-    assert_equal 0, node.rgroup_id
-    assert !node.private?, "Not private"
+    assert !node.save
+    assert node.errors[:rgroup_id]
   end
+
   def test_rgroup_change_rgroup_with_0_ok
     # ok
     login(:tiger)
     node = secure!(Node) { nodes(:lake) }
-    assert node.can_visible? , "Can visible"
+    assert node.can_drive? , "Can visible"
     assert_equal 1, node.inherit , "Inherit mode is 1"
     assert_equal groups_id(:public), node.rgroup_id
     node[:inherit  ] = 0
@@ -636,7 +594,7 @@ class SecureUpdateTest < Zena::Unit::TestCase
     login(:tiger)
     node = secure!(Node) { nodes(:lake) }
     assert_kind_of Node, node
-    assert node.can_visible? , "Can visible"
+    assert node.can_drive? , "Can visible"
     assert_equal 1, node.inherit , "Inherit mode is 1"
     assert_equal groups_id(:public), node.rgroup_id
     node[:inherit  ] = 0
@@ -738,8 +696,8 @@ class SecureUpdateTest < Zena::Unit::TestCase
   def test_cannot_visible_nor_manage
     login(:ant)
     node = secure!(Node) { nodes(:collections) }
-    assert ! node.can_visible? , "Cannot visible"
-    assert ! node.can_manage? , "Cannot manage"
+    assert ! node.can_drive? , "Cannot visible"
+    assert ! node.can_drive? , "Cannot manage"
     assert ! node.update_attributes('name' => 'no way') , "Save fails"
     assert node.errors[:base].any?
     assert_equal 'you do not have the rights to do this', node.errors[:base]
@@ -775,14 +733,14 @@ class SecureUpdateTest < Zena::Unit::TestCase
 
   # 5. validate +rw groups+ :
   #     a. can change to 'inherit' if can_drive?
-  #     b. can change to 'private' if can_manage?
-  #     c. can change to 'custom'  if can_visible?
+  #     b. can change to 'private' if can_drive?
+  #     c. can change to 'custom'  if can_drive?
   def test_update_rw_groups_for_publisher_bad_rgroup
     login(:tiger)
     node = secure!(Node) { nodes(:lake) }
     p = secure!(Page) { Page.find(node[:parent_id])}
-    assert p.can_visible? , "Can visible in reference" # can visible in reference
-    assert node.can_visible? , "Can visible"
+    assert p.can_drive? , "Can visible in reference" # can visible in reference
+    assert node.can_drive? , "Can visible"
 
     # bad rgroup or tiger not in admin
     [99999, groups_id(:admin)].each do |grp|
@@ -834,91 +792,27 @@ class SecureUpdateTest < Zena::Unit::TestCase
     assert node.errors.empty? , "Errors empty"
   end
 
-  #     a. can change to 'inherit' if can_drive?
-  #     b. can change to 'private' if can_manage?
-  #     c. can change to 'custom'  if can_visible?
-  def test_can_man_cannot_custom_inherit
+  def test_can_drive_draft
+    login(:ant)
     node, ref = create_simple_note
-    assert ! node.new_record? , "Not a new record"
-    assert ! ref.can_visible? , "Cannot visible in reference"
-    assert ref.can_write? , "Can write in reference"
-    assert ! node.can_visible? , "Cannot visible"
-    assert node.can_manage? , "Can manage"
+    assert ! node.new_record?
+    assert ! ref.can_drive?, "Cannot drive in reference"
+    assert ref.can_write?, "Can write in reference"
+    assert node.draft?
+    assert node.can_drive?
+
 
     # cannot change inherit
     node[:inherit  ] = 0
-    assert ! node.save , "Save fails"
-    assert node.errors[:inherit].any?
-    assert_equal 'you cannot change this', node.errors[:inherit]
+    assert !node.save
+    assert_equal node.errors[:inherit], 'you cannot change this'
   end
 
-  def test_can_man_can_create_private
+  def test_can_move_draft
+    login(:ant)
     node, ref = create_simple_note
-    # make private
-    node[:inherit  ] = -1 # make private
-    node[:rgroup_id] = 98984984 # anything
-    node[:wgroup_id] = 98984984 # anything
-    node[:pgroup_id] = 98984984 # anything
-    node.save
-
-    assert node.save , "Save succeeds"
-    assert_equal 0, node.rgroup_id , "Read group is 0"
-    assert_equal 0, node.wgroup_id , "Write group is 0"
-    assert_equal 0, node.pgroup_id , "Publish group is 0"
-    assert_equal 0, node.pgroup_id , "Inherit mode is 0"
-  end
-
-  def test_can_man_cannot_create_private_if_site_no_private
-    node, ref = create_simple_note
-    visitor.site[:allow_private] = false
-    # make private
-    node[:inherit  ] = -1 # make private
-    node[:rgroup_id] = 98984984 # anything
-    node[:wgroup_id] = 98984984 # anything
-    node[:pgroup_id] = 98984984 # anything
-    assert !node.save , "Save fails"
-    assert_equal 'you cannot make this node private', node.errors[:inherit]
-  end
-
-  def test_can_man_cannot_lock_inherit
-    node, ref = create_simple_note
-    # make private
-    node[:inherit  ] = 0 # lock inheritance
-    assert ! node.save , "Save fails"
-    assert node.errors[:inherit].any?
-    assert_equal 'you cannot change this', node.errors[:inherit]
-  end
-
-  def test_can_man_update_inherit
-    node, ref = create_simple_note
-    assert node.update_attributes(:inherit=>-1)
-    assert node.publish
-    assert node.can_drive?, "Can drive"
-    assert !node.can_visible?, "Cannot make visible changes"
-    assert_equal Zena::Status[:pub], node.max_status
-    # cannot change rights now
-    assert !node.update_attributes(:inherit=>1)
-
-    node.reload
-    assert node.unpublish
-    assert_equal Zena::Status[:rem], node.max_status
-    assert node.can_drive?, "Can drive"
-    # can change rights now
-    node.update_attributes(:inherit=>1)
-  end
-
-  #     a. can change to 'inherit' if can_drive?
-  #     b. can change to 'private' if can_manage?
-  #     c. can change to 'custom'  if can_visible?
-  def test_can_man_update_attributes
-    node, ref = create_simple_note
-    # make private
-    attrs = { :inherit => -1, :rgroup_id=> 98748987, :wgroup_id => 98984984, :pgroup_id => 98984984 }
-    assert node.update_attributes(attrs), "Update attributes succeeds"
-    assert_equal 0, node.rgroup_id , "Read group is 0"
-    assert_equal 0, node.wgroup_id , "Write group is 0"
-    assert_equal 0, node.pgroup_id , "Publish group is 0"
-    assert_equal -1, node.inherit , "Inherit mode is -1"
+    assert node.update_attributes(:parent_id => nodes_id(:zena))
+    assert_equal nodes_id(:zena), node.parent_id
   end
 
   def test_can_man_can_inherit
@@ -942,7 +836,7 @@ class SecureUpdateTest < Zena::Unit::TestCase
     assert_equal node.publish_from, old
   end
 
-  def test_update_name_publish_group
+  def test_update_name_drive_group
     login(:lion) # owns 'strange'
     node = secure!(Node) { nodes(:strange)  }
     assert node.propose

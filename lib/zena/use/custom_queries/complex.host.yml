@@ -103,7 +103,6 @@ NodeQuery:
       - employees.pgroup_id
       - employees.ref_lang
       - employees.user_id
-      - employees.max_status
       # TODO: next_date = NULL if custom_a is null
       - form.last_date AS last_date
       - form.last_date + INTERVAL NODE_ATTR(custom_a) MONTH AS next_date
@@ -140,7 +139,6 @@ NodeQuery:
       - courses.pgroup_id
       - courses.ref_lang
       - courses.user_id
-      - courses.max_status
       - courses.custom_a AS repeat_every
       - courses.priority
       - form_status.last_date AS last_date

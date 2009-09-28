@@ -6,7 +6,6 @@ ocean:
   public_group:    public
   site_group:      aqua
   authentication:  no
-  allow_private:   no
   auto_publish:    no
   redit_time:      7200
   http_auth:       yes

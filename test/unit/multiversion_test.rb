@@ -515,15 +515,14 @@ class MultiVersionTest < Zena::Unit::TestCase
     node = secure!(Note) { Note.create(:name=>'hello', :parent_id=>nodes_id(:cleanWater)) }
     assert !node.new_record?
     assert node.can_drive?, "Can drive"
-    assert node.can_manage?, "Can manage"
-    assert !node.private?, "Not private"
+    assert node.can_drive?, "Can manage"
     assert !node.can_publish?, "Cannot publish (not private)"
     assert !node.publish, "Cannot publish"
 
     node.update_attributes(:inherit=>-1, :v_status => Zena::Status[:red]) # previous 'node.publish' tried to publish node
 
     assert node.can_drive?, "Can drive"
-    assert node.can_manage?, "Can manage"
+    assert node.can_drive?, "Can manage"
     assert node.can_publish?, "Can publish (private)"
     assert node.publish, "Can publish"
   end

@@ -290,9 +290,7 @@ module Zena
 
         #TODO: test
         def readers_for(obj=@node)
-          readers = if obj.private?
-            _('img_private')
-          elsif [obj.rgroup_id,obj.pgroup_id,obj.user_id].include?(1)
+          readers = if obj.public?
             _('img_public')
           else
             names = []

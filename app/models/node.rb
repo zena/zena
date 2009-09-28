@@ -89,7 +89,6 @@ skin:: name of theSkin to use when rendering the pate ('theme').
 
 Attributes used internally:
 publish_from:: earliest publication date from all published versions.
-max_status:: maximal status from all versions (see Version)
 kpath:: inheritance hierarchy. For example an Image has 'NPDI' (Node, Page, Document, Image), a Letter would have 'NNTL' (Node, Note, Task. Letter). This is used to optimize sql queries.
 fullpath:: cached full path made of ancestors' names (<gdparent name>/<parent name>/<self name>).
 basepath:: cached base path (the base path is used to build the url depending on the 'custom_base' flag).
@@ -134,10 +133,10 @@ class Node < ActiveRecord::Base
   after_save         :spread_project_and_section
   after_save         :clear_children_fullpath
   after_create       :node_after_create
-  attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from, :max_status
+  attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from
   #attr_accessible    :version_content
   attr_public        :id, :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
-                     :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :position, :publish_from, :max_status, :rgroup_id,
+                     :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :position, :publish_from, :rgroup_id,
                      :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count,
                      :custom_a, :custom_b,
                      :m_text, :m_title, :m_author
@@ -1557,7 +1556,7 @@ class Node < ActiveRecord::Base
 
     # Called after a node is 'unpublished'
     def after_unpublish
-      if (self[:max_status] < Zena::Status[:pub]) && !@new_record_before_save
+      if !self[:publish_from] && !@new_record_before_save
         # not published any more. 'unpublish' documents
         sync_documents(:unpublish)
       else

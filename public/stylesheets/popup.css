@@ -183,10 +183,10 @@ ul.infos li { padding:0.4em 0.4em; list-style:none; display:block; }
 .doutside_open   { background:#67ABE0;}
 .doutside_closed { background:#466F91;}
 
+.v70 { background:#B7CC87;}
+.v65 { background:#73A1A5;}
+.v60 { background:#73A1A5;}
 .v50 { background:#FF9400;}
-.v40 { background:#73A1A5;}
-.v35 { background:#73A1A5;}
-.v30 { background:#B7CC87;}
 .v20 { background:#B29E83;}
 .v10 { background:#8B7B65;}
 .v0  { background:#994747;}

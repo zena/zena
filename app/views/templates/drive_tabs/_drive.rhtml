@@ -1,4 +1,4 @@
-<% if @node.ref.can_visible? || @node[:max_status] < Zena::Status[:pub] %>
+<% if @node.ref.can_drive? || @node.draft? %>
 
 <%= render :partial=>'nodes/groups'   %>
 

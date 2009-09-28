@@ -5,10 +5,10 @@ A version implements versioning and permits multiple publications (one for each 
 
 A version's status changes over time. A version usually starts by being a 'redaction', these eventually a 'proposition', etc. The version's status changes by executing actions on the node (publish, remove, etc). Have a look at Acts::As::Multiversion for details. Zena::Status are :
 
+red (70):: version is being written (the redaction is only seen by its author)
+prop_with (65):: document proposed with the redaction. Will be automatically published/removed with the redaction.
+prop (60):: proposed for publication (seen only by the members of the publish group of the node)
 pub (50)::  version is published (can be seen by all readers)
-prop (40):: proposed for publication (seen only by the members of the publish group of the node)
-prop_with (35):: document proposed with the redaction. Will be automatically published/removed with the redaction.
-red (30):: version is being written (the redaction is only seen by its author)
 rep (20):: replaced by a newer version (can be an elligible version for rollback)
 rem (10):: removed (from a rollback)
 del (0):: this is like 'moved to trash'

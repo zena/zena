@@ -1,11 +1,10 @@
 module Zena
   # version status
   Status = {
+    :red  => 70,
+    :prop_with => 65,
+    :prop => 60,
     :pub  => 50,
-    :prop => 40,
-    :prop_with => 35,
-    :red_visible => 33,
-    :red  => 30,
     :rep  => 20,
     :rem  => 10,
     :del  => 0,
@@ -43,15 +42,13 @@ link://rwp_groups.png
     B. <em>node not published yet</em> only :
     5. make an node private (sets all groups to 0) or revert node to default groups (same as parent or project) if node not published yet
     5. can see node (edition = personal redaction or latest version)
-[max_status]
-    This is set to the highest status of all versions. Order from highest to lowest are : 'pub', 'prop', 'red', 'rep', 'rem', 'del'
 
-=== Who can do what
+=== Who can do what (OBSOLTE: NEEDS UPDATE)
 [read]
 * super user
 * owner
 * members of +read_group+ if the node is published and the current date is greater or equal to the publication date
-* members of +publish_group+ if +max_status+ >= prop
+* members of +drive_group+ if +max_status+ >= prop
 
 [write]
 * super user
@@ -60,8 +57,8 @@ link://rwp_groups.png
 
 [publish]
 * super user
-* members of +publish_group+ if +max_status+ >= prop
-* owner if member of +publish_group+
+* members of +drive_group+ if +max_status+ >= prop
+* owner if member of +drive_group+
 
 [manage]
 * owner if +max_status+ <= red
@@ -168,16 +165,6 @@ Just doing the above will filter all result according to the logged in user.
           self
         end
 
-        # Return true if the node is considered as private (+read_group+, +write_group+ and +publish_group+ are +0+)
-        def private?
-          (rgroup_id==0 && wgroup_id==0 && pgroup_id==0)
-        end
-
-        # Return true if the node was considered as private before attributes changes.
-        def private_was_true?
-          (rgroup_id_was==0 && wgroup_id_was==0 && pgroup_id_was==0)
-        end
-
         # Return true if the node can be viewed by all (public)
         def public?
           can_read?(visitor.site.anon,visitor.site.anon.group_ids) # visible by anonymous
@@ -202,46 +189,27 @@ Just doing the above will filter all result according to the logged in user.
           ( ugps.include?(wgroup_id) )  # write group
         end
 
-        # people who can make visible changes
+        # The node has just been created so the creator can still delete it
+        # or move it around.
+        def draft?(vis=visitor)
+          !publish_from && visitor.id == user_id &&
+          visitor.user? && visitor.id == version.user_id &&
+          versions.count == 1
+        end
+
+        # Can alter node (move around, name, rwp groups, etc).
         # * super user
-        # * members of +publish_group+ if member status is at least 'user'
-        # * visitor status is at least 'user' and is a member of the reference's publish group if the item is private
-        def can_visible?(vis=visitor, ugps=visitor.group_ids)
+        # * members of +drive_group+ if member status is at least 'user'
+        def can_drive?(vis=visitor, ugps=visitor.group_ids)
           ( vis.is_su? ) || # super user
-          ( vis.user? && (( ugps.include?(pgroup_id) ) ))
+          ( vis.user? && ugps.include?(pgroup_id) )
         end
 
-        # 'can_visible?' before attribute change
-        def can_visible_was_true?(vis=visitor, ugps=visitor.group_ids)
+
+        # 'can_drive?' before attribute change
+        def can_drive_was_true?(vis=visitor, ugps=visitor.group_ids)
           ( vis.is_su? ) || # super user
-          ( vis.user? && (( ugps.include?(pgroup_id_was) ) ||
-          ( private_was_true? && ugps.include?(ref_was.pgroup_id))))
-        end
-
-        # people who can manage:
-        # * owner if visitor's status is at least 'user' and node's +max_status+ <= red
-        # * owner if visitor's status is at least 'user' and node is private
-        def can_manage?(vis=visitor)
-          ( vis.is_su? ) || # super user
-          ( vis.user? && (( publish_from == nil && vis[:id] == user_id && max_status.to_i <= Zena::Status[:red] ) ||
-          ( private? && vis[:id] == user_id )))
-        end
-
-        # 'can_manage?' before attribute changes
-        def can_manage_was_true?(vis=visitor)
-          ( vis.is_su? ) || # super user
-          ( vis.user? && (( publish_from_was == nil && user_id_was == vis.id && max_status_was.to_i <= Zena::Status[:red] ) ||
-          ( private_was_true? && user_id_was == vis.id )))
-        end
-
-        # can update node (change position, name, rwp groups, etc).
-        def can_drive?
-          can_manage? || can_visible?
-        end
-
-        # 'can_drive?' before attribute changes
-        def can_drive_was_true?
-          can_manage_was_true? || can_visible_was_true?
+          ( vis.user? && ugps.include?(pgroup_id_was) )
         end
 
         def secure_before_validation
@@ -270,33 +238,12 @@ Just doing the above will filter all result according to the logged in user.
             else
               self[:inherit] = 0
             end
-          elsif inherit == -1
-            self[:rgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
-            self[:wgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
-            self[:pgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
           end
           true
         end
 
         def secure_before_validation_on_update
-          self[:kpath]    = self.class.kpath
-
-          [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
-            # set to 0 if nil or ''
-            self[sym] = 0 if self[sym].blank?
-          end
-
-          if self[:inherit] == 0 && pgroup_id == 0
-            # if pgroup_id is set to 0 ==> make node private
-            # why do we need this ?
-            self[:inherit] = -1
-          end
-
-          if self[:inherit] == -1
-            self[:rgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
-            self[:wgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
-            self[:pgroup_id] = 0  # FIXME: why not just use nil ? (NULL in db)
-          end
+          self[:kpath] = self.class.kpath
           true
         end
 
@@ -311,9 +258,9 @@ Just doing the above will filter all result according to the logged in user.
 
         # 1. validate the presence of a valid project (one in which the visitor has write access and project<>self !)
         # 2. validate the presence of a valid reference (project or parent) (in which the visitor has write access and ref<>self !)
-        # 3. validate +publish_group+ value (same as parent or ref.can_visible? and valid)
+        # 3. validate +drive_group+ value (same as parent or ref.can_drive? and valid)
         # 4. validate +rw groups+ :
-        #     a. if can_visible? : valid groups
+        #     a. if can_drive? : valid groups
         #     b. else inherit or private
         # 5. validate the rest
         def secure_on_create
@@ -326,23 +273,16 @@ Just doing the above will filter all result according to the logged in user.
             self[:skin     ] = ref.skin
           when 0
             # custom access rights
-            if ref.can_visible?
+            if ref.can_drive?
               errors.add('rgroup_id', "unknown group") unless visitor.group_ids.include?(rgroup_id)
               errors.add('wgroup_id', "unknown group") unless visitor.group_ids.include?(wgroup_id)
               errors.add('pgroup_id', "unknown group") unless visitor.group_ids.include?(pgroup_id)
-            elsif private?
-              # ok
             else
               errors.add('inherit', "custom access rights not allowed")
               errors.add('rgroup_id', "you cannot change this") unless rgroup_id == ref.rgroup_id
               errors.add('wgroup_id', "you cannot change this") unless wgroup_id == ref.wgroup_id
               errors.add('pgroup_id', "you cannot change this") unless pgroup_id == ref.pgroup_id
               errors.add('skin' , "you cannot change this") unless skin  == ref.skin
-            end
-          when -1
-            # private
-            unless visitor.site.allow_private?
-              errors.add(:inherit, 'private nodes not allowed')
             end
           else
             errors.add(:inherit, "bad inheritance mode")
@@ -354,13 +294,13 @@ Just doing the above will filter all result according to the logged in user.
         # 3. error if user cannot publish nor manage
         # 4. parent/project changed ? verify 'publish access to new *and* old'
         # 5. validate +rw groups+ :
-        #     a. can change to 'inherit' if can_visible? or can_manage? and max_status < pub and does not have children
-        #     b. can change to 'private' if can_manage?
-        #     c. can change to 'custom' if can_visible?
+        #     a. can change to 'inherit' if can_drive? or can_drive? and max_status < pub and does not have children
+        #     b. can change to 'private' if can_drive?
+        #     c. can change to 'custom' if can_drive?
         # 6. validate the rest
         def secure_on_update
           return true unless changed?
-          if !can_drive_was_true?
+          if !can_drive_was_true? || draft?
             errors.add(:base, 'you do not have the rights to do this')
             return
           end
@@ -383,7 +323,7 @@ Just doing the above will filter all result according to the logged in user.
           case inherit
           when 1
             # inherit
-            if inherit_changed? && !(can_visible_was_true? || ( can_manage_was_true? && (max_status_with_heirs_was < Zena::Status[:pub]) ))
+            if inherit_changed? && !(can_drive_was_true? || draft? || ( can_drive_was_true? && published_in_heirs_was? ))
               # published elements in sub-nodes could become visible if the current node starts to inherit
               # visibility rights from parent.
               # Use case:
@@ -391,7 +331,7 @@ Just doing the above will filter all result according to the logged in user.
               # 2. create sub-node B
               # 3. publish B (private, not visible)
               # 4. change 'inherit' on A ----> spread PUB rights ---> B receives visibility rights
-              # 5. B is published and visible without 'visitor.can_visible?'
+              # 5. B is published and visible without 'visitor.can_drive?'
               errors.add('inherit', 'you cannot change this')
               return false
             end
@@ -402,17 +342,13 @@ Just doing the above will filter all result according to the logged in user.
             end
           when 0
             # custom rights
-            if can_visible_was_true?
+            if can_drive_was_true?
               # visitor had super powers on the node before changes
-              if ref.can_visible?
+              if ref.can_drive?
                 # visitor has super powers on the current ref ==> can change groups
-                if private?
-                  # ok (all groups are 0)
-                else
-                  [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
-                    if self[sym] != 0 && self.send(:"#{sym}_changed?") && !visitor.group_ids.include?(self[sym])
-                      errors.add(sym.to_s, "unknown group")
-                    end
+                [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
+                  if self[sym] != 0 && self.send(:"#{sym}_changed?") && !visitor.group_ids.include?(self[sym])
+                    errors.add(sym.to_s, "unknown group")
                   end
                 end
               else
@@ -431,17 +367,6 @@ Just doing the above will filter all result according to the logged in user.
               errors.add('pgroup_id', "you cannot change this") if pgroup_id_changed?
               errors.add('skin',      "you cannot change this") if skin_changed?
             end
-          when -1
-            # make private, only if owner
-            if inherit_changed?
-              if can_drive_was_true? && (user_id == visitor.id) && visitor.site.allow_private?
-                [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
-                  self[sym] = 0
-                end
-              else
-                errors.add('inherit', "you cannot make this node private")
-              end
-            end
           else
             errors.add('inherit', "bad inheritance mode")
           end
@@ -457,7 +382,7 @@ Just doing the above will filter all result according to the logged in user.
         def ref_field_valid?
           if ref_field_id_changed?
             # reference changed
-            if private_was_true? || publish_from_was.nil?
+            if publish_from_was.nil?
               # node was not visible to others, we need write access to both source and destination
               if ref_field_id == self.id ||
                   ! secure_write(ref_class) { ref_class.find(:first, :select => 'id', :conditions => ['id = ?', ref_field_id])} ||
@@ -500,7 +425,7 @@ Just doing the above will filter all result according to the logged in user.
         end
 
         def secure_on_destroy
-          if new_record? || can_drive_was_true?
+          if new_record? || can_drive_was_true? || draft?
             return true
           else
             errors.add('base', "you do not have the rights to do this")
@@ -564,27 +489,24 @@ Just doing the above will filter all result according to the logged in user.
           ids.each { |i| spread_inheritance(i) }
         end
 
-        # return the maximum status of the current node and all it's heirs. This is used to allow
-        # inheritance change with 'manage' rights on private nodes
-        def max_status_with_heirs(max=0)
-          max = [max, max_status].max
-          return max if max == Zena::Status[:pub]
+        # Return true if a heir is published.
+        def published_in_heirs?
+          pub = publish_from
+          return true if pub
           heirs.each do |h|
-            max = [max, h.max_status_with_heirs(max)].max
-            break if max == Zena::Status[:pub]
+            break if pub = h.published_in_heirs?
           end
-          return max
+          return pub
         end
 
-        # return the maximum status of the current node and all it's heirs before attribute change.
-        def max_status_with_heirs_was
-          max = max_status_was.to_i
-          return max if max == Zena::Status[:pub]
+        # Return true if a heir is published.
+        def published_in_heirs_was?
+          pub = publish_from_was
+          return true if pub
           heirs.each do |h|
-            max = [max, h.max_status_with_heirs(max)].max
-            break if max == Zena::Status[:pub]
+            break if pub = h.published_in_heirs?
           end
-          return max
+          return pub
         end
 
         private
@@ -767,7 +689,7 @@ Just doing the above will filter all result according to the logged in user.
         # * super user
         # * owner
         # * members of +read_group+ if the node is published and the current date is greater or equal to the publication date
-        # * members of +publish_group+ if +max_status+ >= prop
+        # * members of +drive_group+ if +max_status+ >= prop
         # The options hash is used internally by zena when maintaining parent to children inheritance and should not be used for other purpose if you do not want to break secure access.
         def secure(klass, opts={}, &block)
           if opts[:secure] == false
@@ -834,8 +756,8 @@ Just doing the above will filter all result according to the logged in user.
         # and 'not published yet' nodes. This is not a bug, such an access is needed to delete old nodes for example.
         # [publish]
         # * super user
-        # * members of +publish_group+
-        # * owner if member of +publish_group+ or private
+        # * members of +drive_group+
+        # * owner if member of +drive_group+ or private
         #
         # [manage]
         # * owner if +max_status+ <= red
@@ -844,9 +766,7 @@ Just doing the above will filter all result according to the logged in user.
           if visitor.is_su? # super user
             secure_with_scope(obj, nil, &block)
           else
-            scope = "(user_id = '#{visitor[:id]}' AND ((rgroup_id = 0 AND wgroup_id = 0 AND pgroup_id = 0)) OR (max_status <= #{Zena::Status[:red]}))" +
-                    " OR "+
-                    "pgroup_id IN (#{visitor.group_ids.join(',')})"
+            scope = "pgroup_id IN (#{visitor.group_ids.join(',')})"
             secure_with_scope(obj, scope, &block)
           end
         rescue ActiveRecord::RecordNotFound

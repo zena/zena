@@ -2,7 +2,7 @@
   <r:with part='menu'/>
 
   <r:with part='main'>
-  <div class='header'><h1 do='title' class='s30' status='true' actions='all'>this is the title</h1></div>
+  <div class='header'><h1 do='title' class='s70' status='true' actions='all'>this is the title</h1></div>
     <ul class='tree' do='nodes'>
       <li class='parent' do='parent'><r:title actions='all' link='tree'/></li>
       <li class='current'><r:show attr='name'/></li>

@@ -40,7 +40,7 @@ class Participation < ActiveRecord::Base
         # What do we do with this error ?
         raise Zena::InvalidRecord, "Could not create contact node for user #{user_id} in site #{site_id} (#{@contact.errors.map{|k,v| [k,v]}.join(', ')})"
       end
-      unless @contact.max_status == Zena::Status[:pub]
+      unless @contact.publish_from
         raise Zena::InvalidRecord, "Could not publish contact node for user #{user_id} in site #{site_id} (#{@contact.errors.map{|k,v| [k,v]}.join(', ')})"
       end
       self[:contact_id] = @contact[:id]
