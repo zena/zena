@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>should_return_from_session :${1:user}, "${2:@${3:${1}}}"</string>
+	<key>name</key>
+	<string>should_return_from_session</string>
+	<key>scope</key>
+	<string>source.ruby.rails.shoulda</string>
+	<key>tabTrigger</key>
+	<string>shrfs</string>
+	<key>uuid</key>
+	<string>6B8F56ED-F4BE-4D92-A0D8-11E79DEDF31E</string>
+</dict>
+</plist>

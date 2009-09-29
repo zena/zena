@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>context "on GET to :${1:show}" do
+  setup { get :$1${2:, :id =&gt; ${3:1}} }
+
+  ${4:should "${5:description}" do
+    $0
+  end}
+end</string>
+	<key>name</key>
+	<string>context block get</string>
+	<key>scope</key>
+	<string>source.ruby.rails.shoulda</string>
+	<key>tabTrigger</key>
+	<string>contg</string>
+	<key>uuid</key>
+	<string>4A3A371D-8037-4370-8C81-658A1E355F8F</string>
+</dict>
+</plist>

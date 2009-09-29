@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>should_have_named_scope :${1:scope_call}${2:, :conditions =&gt; { :${3:column} =&gt; ${4:value} \}}</string>
+	<key>name</key>
+	<string>should_have_named_scope</string>
+	<key>scope</key>
+	<string>source.ruby.rails.shoulda</string>
+	<key>tabTrigger</key>
+	<string>shhns</string>
+	<key>uuid</key>
+	<string>AB124E74-8CD3-4C35-8006-62DDBE5625D8</string>
+</dict>
+</plist>

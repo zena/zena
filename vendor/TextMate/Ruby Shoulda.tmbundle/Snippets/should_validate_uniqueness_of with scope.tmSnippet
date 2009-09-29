@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>should_validate_uniqueness_of :${1:method}${2:, :scoped_to =&gt; ${3:[:${4:column_id}, :${5:column_type}]}}</string>
+	<key>name</key>
+	<string>should_validate_uniqueness_of with scope</string>
+	<key>scope</key>
+	<string>source.ruby.rails.shoulda</string>
+	<key>tabTrigger</key>
+	<string>shvuo</string>
+	<key>uuid</key>
+	<string>769BADDC-DA2D-4220-BF83-C0B13E2436BE</string>
+</dict>
+</plist>

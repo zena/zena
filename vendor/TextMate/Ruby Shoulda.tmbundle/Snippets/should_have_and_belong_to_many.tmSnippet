@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>should_have_and_belong_to_many :${1:object}${2:, :${3:object}${4:, :${5:object}}}</string>
+	<key>name</key>
+	<string>should_have_and_belong_to_many</string>
+	<key>scope</key>
+	<string>source.ruby.rails.shoulda</string>
+	<key>tabTrigger</key>
+	<string>shhabtm</string>
+	<key>uuid</key>
+	<string>5595BC8B-3932-407A-9457-968A96662D2C</string>
+</dict>
+</plist>

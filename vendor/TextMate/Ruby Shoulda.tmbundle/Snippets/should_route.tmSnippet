@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>should_route :${1:get|post|put|delete}, "${2:/posts}"${3:, :controller =&gt; :${4:posts}}${5:, :action =&gt; :${6:create}}${7:, :id =&gt; ${8:1}}</string>
+	<key>name</key>
+	<string>should_route</string>
+	<key>scope</key>
+	<string>source.ruby.rails.shoulda</string>
+	<key>tabTrigger</key>
+	<string>shr</string>
+	<key>uuid</key>
+	<string>40F75860-994B-4E9E-9879-97CE97EF1FE3</string>
+</dict>
+</plist>

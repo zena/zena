@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>beforeRunningCommand</key>
+	<string>saveActiveFile</string>
+	<key>command</key>
+	<string># Assumes the current file is a unittest/shoulda file
+# Runs with the currently-focused method as the test name
+#bin/sh
+
+export RUBYLIB="$TM_BUNDLE_SUPPORT/RubyMate${RUBYLIB:+:$RUBYLIB}"
+"${TM_RUBY:-ruby}" -- "$TM_BUNDLE_SUPPORT/RubyMate/run_script.rb"</string>
+	<key>input</key>
+	<string>document</string>
+	<key>keyEquivalent</key>
+	<string>@r</string>
+	<key>name</key>
+	<string>Run</string>
+	<key>output</key>
+	<string>showAsHTML</string>
+	<key>scope</key>
+	<string>source.ruby.rails.shoulda</string>
+	<key>uuid</key>
+	<string>12D5C90B-1C0A-40F4-B362-BE69BEC4D0F2</string>
+</dict>
+</plist>

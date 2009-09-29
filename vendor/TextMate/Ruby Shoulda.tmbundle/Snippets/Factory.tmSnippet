@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>Factory(:${1:model})</string>
+	<key>name</key>
+	<string>Factory</string>
+	<key>scope</key>
+	<string>source.ruby.rails.shoulda</string>
+	<key>tabTrigger</key>
+	<string>fac</string>
+	<key>uuid</key>
+	<string>FE849AE2-89D1-4AEF-8C22-57D79457F0AC</string>
+</dict>
+</plist>

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>fileTypes</key>
+	<array>
+		<string>shoulda.rb</string>
+	</array>
+	<key>foldingStartMarker</key>
+	<string>(?x)^
+	    (\s*+
+	        (module|class|def
+	        |unless|if
+	        |case
+	        |begin
+	        |for|while|until
+			 |^=begin
+	        |(  "(\\.|[^"])*+"          # eat a double quoted string
+	         | '(\\.|[^'])*+'        # eat a single quoted string
+	         |   [^#"']                # eat all but comments and strings
+	         )*
+	         (                        \s   (do|begin|case)
+	         | (?&lt;!\$)[-+=&amp;|*/~%^&lt;&gt;~] \s*+ (if|unless)
+	         )
+	        )\b
+	        (?! [^;]*+ ; .*? \bend\b )
+	    |(  "(\\.|[^"])*+"              # eat a double quoted string
+	     | '(\\.|[^'])*+'            # eat a single quoted string
+	     |   [^#"']                    # eat all but comments and strings
+	     )*
+	     ( \{ (?!  [^}]*+ \} )
+	     | \[ (?! [^\]]*+ \] )
+	     )
+	    ).*$
+	|   [#] .*? \(fold\) \s*+ $         # Sune’s special marker
+	</string>
+	<key>foldingStopMarker</key>
+	<string>(?x)
+		(   (^|;) \s*+ end   \s*+ ([#].*)? $
+		|   (^|;) \s*+ end \. .* $
+		|   ^     \s*+ [}\]] \s*+ ([#].*)? $
+		|   [#] .*? \(end\) \s*+ $    # Sune’s special marker
+		|   ^=end
+		)</string>
+	<key>keyEquivalent</key>
+	<string>^~R</string>
+	<key>name</key>
+	<string>Ruby on Rails (Shoulda)</string>
+	<key>patterns</key>
+	<array>
+		<dict>
+			<key>include</key>
+			<string>#asserts</string>
+		</dict>
+		<dict>
+			<key>include</key>
+			<string>#macros</string>
+		</dict>
+		<dict>
+			<key>include</key>
+			<string>#setup</string>
+		</dict>
+		<dict>
+			<key>include</key>
+			<string>#context</string>
+		</dict>
+		<dict>
+			<key>include</key>
+			<string>#should</string>
+		</dict>
+		<dict>
+			<key>include</key>
+			<string>source.ruby.rails</string>
+		</dict>
+		<dict>
+			<key>include</key>
+			<string>source.ruby</string>
+		</dict>
+	</array>
+	<key>repository</key>
+	<dict>
+		<key>asserts</key>
+		<dict>
+			<key>match</key>
+			<string>\b(assert[_\w]*)\b</string>
+			<key>name</key>
+			<string>support.function</string>
+		</dict>
+		<key>context</key>
+		<dict>
+			<key>begin</key>
+			<string>^\s*(context)\b</string>
+			<key>beginCaptures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.other.context.ruby.shoulda</string>
+				</dict>
+			</dict>
+			<key>end</key>
+			<string>\b(do)\s*$</string>
+			<key>endCaptures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.control.start-block.ruby.shoulda</string>
+				</dict>
+			</dict>
+			<key>name</key>
+			<string>meta.context.ruby.shoulda</string>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>include</key>
+					<string>source.ruby</string>
+				</dict>
+			</array>
+		</dict>
+		<key>macros</key>
+		<dict>
+			<key>match</key>
+			<string>\b(should_validate_presence_of|should_validate_uniqueness_of|should_not_allow_mass_assignment_of|should_not_allow_values_for|should_allow_values_for|should_ensure_length_in_range|should_ensure_length_at_least|should_ensure_value_in_range|should_validate_numericality_of|should_have_many|should_have_and_belong_to_many|should_have_one|should_belong_to|should_be_restful|should_set_the_flash_to|should_not_set_the_flash|should_assign_to|should_not_assign_to|should_respond_with|should_render_template|should_redirect_to|should_render_a_form|setup|teardown|fixtures|load_all_fixtures|should_have_db_column|should_have_db_columns|should_have_index|should_have_indices|should_validate_acceptance_of|shuold_set_the_flash_to|should_have_readonly_attributes|should_change|should_not_change|should_have_named_scope|should_ensure_length_is|should_filter_params|should_respond_with_content_type|should_route|should_return_from_session)\b</string>
+			<key>name</key>
+			<string>support.shoulda.macro</string>
+		</dict>
+		<key>should</key>
+		<dict>
+			<key>begin</key>
+			<string>^\s*(should|should_eventually)\b</string>
+			<key>beginCaptures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.other.should.ruby.shoulda</string>
+				</dict>
+			</dict>
+			<key>end</key>
+			<string>\b(do)\s*$</string>
+			<key>endCaptures</key>
+			<dict>
+				<key>1</key>
+				<dict>
+					<key>name</key>
+					<string>keyword.control.start-block.ruby.shoulda</string>
+				</dict>
+			</dict>
+			<key>name</key>
+			<string>meta.should.ruby.shoulda</string>
+			<key>patterns</key>
+			<array>
+				<dict>
+					<key>include</key>
+					<string>source.ruby</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+	<key>scopeName</key>
+	<string>source.ruby.rails.shoulda</string>
+	<key>uuid</key>
+	<string>7ED2CAAB-8CE7-4A09-9E66-1D622C60029B</string>
+</dict>
+</plist>

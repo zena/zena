@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>should_change "${1:${2:Model}.${3:count}}"${4:${5:, :from =&gt; ${6:old_value}}${7:, :to =&gt; ${8:new_value}}}</string>
+	<key>name</key>
+	<string>should_change from to</string>
+	<key>scope</key>
+	<string>source.ruby.rails.shoulda</string>
+	<key>tabTrigger</key>
+	<string>shc</string>
+	<key>uuid</key>
+	<string>FC179DAC-A1BC-476C-BB86-FD0FC62B9B1B</string>
+</dict>
+</plist>

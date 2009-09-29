@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>assert_bad_value(${1:${2:Model}}, :${3:attribute}, ${4:value}${5:, /${6:message_to_expect}/})</string>
+	<key>name</key>
+	<string>assert_bad_value</string>
+	<key>scope</key>
+	<string>source.ruby.rails.shoulda</string>
+	<key>tabTrigger</key>
+	<string>asbv</string>
+	<key>uuid</key>
+	<string>7F83B339-D392-41AD-ABE7-84008F1477BE</string>
+</dict>
+</plist>

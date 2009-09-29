@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>beforeRunningCommand</key>
+	<string>saveActiveFile</string>
+	<key>captureFormatString</key>
+	<string>$0</string>
+	<key>capturePattern</key>
+	<string>(/[^:]+):(\d+)</string>
+	<key>command</key>
+	<string># Assumes the current file is a unittest/shoulda file
+# Runs with the currently-focused method as the test name
+#bin/sh
+
+args=$(${TM_RUBY:=ruby} &lt;&lt;"EOF"
+def parse_from_quotes(name)
+  name.to_s.gsub(/^(?:.*"(.*)"|.*'(.*)').*$/) { $1 || $2 }
+end
+
+n = ENV['TM_LINE_NUMBER'].to_i
+
+context, should, name, test_type = nil, nil, nil
+
+File.open(ENV['TM_FILEPATH']) do |f|
+  f.read.split("\n")[0...n].reverse_each do |line|
+    if should
+      if line =~ /^\s*context\b/
+        context = parse_from_quotes(line)
+        break
+      end
+    elsif line =~ /^\s*should\b/
+      test_type = :shoulda
+      should = parse_from_quotes(line)
+    elsif line =~ /^\s*def\s+(test_[\w_]+)/
+      test_type = :test_unit
+      name = $1
+      break
+    end
+  end
+end
+
+if test_type == :shoulda
+  if context &amp;&amp; should &amp;&amp; !context.empty? &amp;&amp; !should.empty?
+    #puts "shoulda"
+    name = "#{context} should #{should}".gsub(/[\+\.\s\'\"\(\)]/,'.')
+    print "--name=/#{name}/ -v v"
+  end
+else
+  print "--name=#{name} -v v"
+end
+EOF)
+
+if [[ -z "$args" ]]; then
+echo -e "This doesn't appear to be a TestCase class."
+exit_show_tool_tip
+fi
+
+export RUBYLIB="$TM_BUNDLE_SUPPORT/RubyMate${RUBYLIB:+:$RUBYLIB}"
+"${TM_RUBY:-ruby}" -- "$TM_BUNDLE_SUPPORT/RubyMate/run_script.rb" $args</string>
+	<key>fileCaptureRegister</key>
+	<string>1</string>
+	<key>input</key>
+	<string>document</string>
+	<key>keyEquivalent</key>
+	<string>@R</string>
+	<key>lineCaptureRegister</key>
+	<string>2</string>
+	<key>name</key>
+	<string>Run Focused Should</string>
+	<key>output</key>
+	<string>showAsHTML</string>
+	<key>scope</key>
+	<string>source.ruby.rails.shoulda</string>
+	<key>uuid</key>
+	<string>6AFF5956-7774-4175-A005-9A03AF7F29B3</string>
+</dict>
+</plist>

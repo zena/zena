@@ -26,3 +26,9 @@ pvande-differ:
   version:    '= 0.1.1'
   lib:        'differ'
   source:     'http://gems.github.com'
+
+thoughtbot-shoulda:
+  development_only: yes
+  version:    '= 2.10.2'
+  lib:        'shoulda'
+  source:     'http://gems.github.com'

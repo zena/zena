@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>beforeRunningCommand</key>
+	<string>saveActiveFile</string>
+	<key>command</key>
+	<string># Assumes the current file is a unittest file
+# Runs with the currently-focused method as the test name
+
+args=$(${TM_RUBY:=ruby} &lt;&lt;"EOF"
+
+def parse_from_quotes(name)
+  name.to_s.gsub(/^(?:.*"(.*)"|.*'(.*)').*$/) { $1 || $2 }
+end
+
+n = ENV['TM_LINE_NUMBER'].to_i
+
+should, context = nil, nil
+
+File.open(ENV['TM_FILEPATH']) do |f|
+  lines     = f.read.split("\n")[0...n].reverse
+  context   = lines.find { |line| line =~ /^\s*context\b/ }
+  should    = parse_from_quotes(lines.find { |line| line =~ /^\s*should\b/ })
+end
+
+if !context.empty? &amp;&amp; !should.empty?
+  puts "shoulda"
+  context = parse_from_quotes( context )
+  name = "#{context}".gsub(/[\+\.\s\'\"\(\)]/,'.')
+  print "--name=/#{name}/ -v v"  
+end
+
+EOF)
+
+if [[ -z "$args" ]]; then
+  echo -e "This doesn't appear to be a TestCase class."
+  exit_show_tool_tip
+  fi
+
+  export RUBYLIB="$TM_BUNDLE_SUPPORT/RubyMate${RUBYLIB:+:$RUBYLIB}"
+  "${TM_RUBY:-ruby}" -- "$TM_BUNDLE_SUPPORT/RubyMate/run_script.rb" $args</string>
+	<key>fallbackInput</key>
+	<string>scope</string>
+	<key>input</key>
+	<string>document</string>
+	<key>keyEquivalent</key>
+	<string>~@r</string>
+	<key>name</key>
+	<string>Run Context</string>
+	<key>output</key>
+	<string>showAsHTML</string>
+	<key>scope</key>
+	<string>source.ruby.rails.shoulda</string>
+	<key>uuid</key>
+	<string>2989704F-8F6B-439F-83A7-368BB174A010</string>
+</dict>
+</plist>

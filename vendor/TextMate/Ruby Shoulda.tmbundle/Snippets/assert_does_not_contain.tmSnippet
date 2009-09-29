@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>assert_does_not_contain(${1:collection}, ${2:/${3:x}/}${4:, "${5:extra_msg}"})</string>
+	<key>name</key>
+	<string>assert_does_not_contain</string>
+	<key>scope</key>
+	<string>source.ruby.rails.shoulda</string>
+	<key>tabTrigger</key>
+	<string>asdnc</string>
+	<key>uuid</key>
+	<string>C752E6BD-19C6-4BC5-A4E3-A3B266CF6B68</string>
+</dict>
+</plist>

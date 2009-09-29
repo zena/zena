@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>name</key>
+	<string>Symbol List: Should</string>
+	<key>scope</key>
+	<string>meta.should.ruby.shoulda</string>
+	<key>settings</key>
+	<dict>
+		<key>showInSymbolList</key>
+		<integer>1</integer>
+		<key>symbolTransformation</key>
+		<string>s/^\s*(should)\s+(.+)\s+do\s*$/$2/</string>
+	</dict>
+	<key>uuid</key>
+	<string>CF7E37B9-B0A1-414C-97D1-3C25F6F047FA</string>
+</dict>
+</plist>

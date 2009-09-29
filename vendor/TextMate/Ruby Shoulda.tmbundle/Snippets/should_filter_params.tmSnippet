@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>content</key>
+	<string>should_filter_params :${1:key}${2:, :${3:key}${4:, :${5:key}}}</string>
+	<key>name</key>
+	<string>should_filter_params</string>
+	<key>scope</key>
+	<string>source.ruby.rails.shoulda</string>
+	<key>tabTrigger</key>
+	<string>shfp</string>
+	<key>uuid</key>
+	<string>6CF2F8CC-F6B1-480E-849D-AB9F646E90EF</string>
+</dict>
+</plist>
