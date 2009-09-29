@@ -46,6 +46,32 @@ class SecureReadTest < Zena::Unit::TestCase
     assert_nil node
   end
 
+  def test_secure_read_with_count
+    assert_equal 4, secure!(Node) { Node.count(:conditions => ['parent_id = ?', nodes_id(:collections)])}
+    assert_equal 4, secure(Node)  { Node.count(:conditions => ['parent_id = ?', nodes_id(:collections)])}
+
+    assert_equal 1, secure!(Node) { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
+    assert_equal 0, secure(Node)  { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
+  end
+
+  def test_secure_write_with_count
+    login(:ant)
+    assert_equal 4, secure_write!(Node) { Node.count(:conditions => ['parent_id = ?', nodes_id(:collections)])}
+    assert_equal 4, secure_write(Node)  { Node.count(:conditions => ['parent_id = ?', nodes_id(:collections)])}
+
+    assert_equal 0, secure_write!(Node) { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
+    assert_equal 0, secure_write(Node)  { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
+  end
+
+  def test_secure_drive_with_count
+    login(:ant)
+    assert_equal 2, secure_drive!(Node) { Node.count(:conditions => ['parent_id = ?', nodes_id(:wiki)])}
+    assert_equal 2, secure_drive(Node)  { Node.count(:conditions => ['parent_id = ?', nodes_id(:wiki)])}
+
+    assert_equal 0, secure_drive!(Node) { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
+    assert_equal 0, secure_drive(Node)  { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
+  end
+
   def test_owner_but_not_in_any_group
     login(:ant)
     assert_raise(ActiveRecord::RecordNotFound) { secure!(Node) { nodes(:proposition) }}

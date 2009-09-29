@@ -197,19 +197,27 @@ Just doing the above will filter all result according to the logged in user.
           versions.count == 1
         end
 
+        # The node has just been created so the creator can still delete it
+        # or move it around.
+        def draft_was_true?(vis=visitor)
+          !publish_from_was && visitor.id == user_id_was &&
+          visitor.user? && visitor.id == version.user_id_was &&
+          versions.count == 1
+        end
+
         # Can alter node (move around, name, rwp groups, etc).
         # * super user
         # * members of +drive_group+ if member status is at least 'user'
         def can_drive?(vis=visitor, ugps=visitor.group_ids)
           ( vis.is_su? ) || # super user
-          ( vis.user? && ugps.include?(pgroup_id) )
+          ( vis.user? && (ugps.include?(pgroup_id) || draft?) )
         end
 
 
         # 'can_drive?' before attribute change
         def can_drive_was_true?(vis=visitor, ugps=visitor.group_ids)
           ( vis.is_su? ) || # super user
-          ( vis.user? && ugps.include?(pgroup_id_was) )
+          ( vis.user? && (ugps.include?(pgroup_id_was) || draft_was_true?) )
         end
 
         def secure_before_validation
@@ -300,9 +308,9 @@ Just doing the above will filter all result according to the logged in user.
         # 6. validate the rest
         def secure_on_update
           return true unless changed?
-          if !can_drive_was_true? || draft?
+          if !can_drive_was_true?
             errors.add(:base, 'you do not have the rights to do this')
-            return
+            return false
           end
 
           if user_id_changed?
@@ -322,50 +330,16 @@ Just doing the above will filter all result according to the logged in user.
           # verify groups
           case inherit
           when 1
-            # inherit
-            if inherit_changed? && !(can_drive_was_true? || draft? || ( can_drive_was_true? && published_in_heirs_was? ))
-              # published elements in sub-nodes could become visible if the current node starts to inherit
-              # visibility rights from parent.
-              # Use case:
-              # 1. create private node A in PUB (public node)
-              # 2. create sub-node B
-              # 3. publish B (private, not visible)
-              # 4. change 'inherit' on A ----> spread PUB rights ---> B receives visibility rights
-              # 5. B is published and visible without 'visitor.can_drive?'
-              errors.add('inherit', 'you cannot change this')
-              return false
-            end
-
-            # make sure rights are inherited.
+            # inherit rights
             [:rgroup_id, :wgroup_id, :pgroup_id, :skin].each do |sym|
               self[sym] = ref[sym]
             end
           when 0
             # custom rights
-            if can_drive_was_true?
-              # visitor had super powers on the node before changes
-              if ref.can_drive?
-                # visitor has super powers on the current ref ==> can change groups
-                [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
-                  if self[sym] != 0 && self.send(:"#{sym}_changed?") && !visitor.group_ids.include?(self[sym])
-                    errors.add(sym.to_s, "unknown group")
-                  end
-                end
-              else
-                # cannot change groups or inherit mode
-                errors.add('inherit',   "you cannot change this") if inherit_changed?
-                errors.add('rgroup_id', "you cannot change this") if rgroup_id_changed?
-                errors.add('wgroup_id', "you cannot change this") if wgroup_id_changed?
-                errors.add('pgroup_id', "you cannot change this") if pgroup_id_changed?
-                # but you can change skins and name
+            [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
+              if self.send(:"#{sym}_changed?") && !visitor.group_ids.include?(self[sym])
+                errors.add(sym.to_s, "unknown group")
               end
-            else
-              # cannot change groups, inherit mode or skin
-              errors.add('inherit',   "you cannot change this") if inherit_changed?
-              errors.add('rgroup_id', "you cannot change this") if rgroup_id_changed?
-              errors.add('wgroup_id', "you cannot change this") if wgroup_id_changed?
-              errors.add('pgroup_id', "you cannot change this") if pgroup_id_changed?
-              errors.add('skin',      "you cannot change this") if skin_changed?
             end
           else
             errors.add('inherit', "bad inheritance mode")
@@ -382,20 +356,24 @@ Just doing the above will filter all result according to the logged in user.
         def ref_field_valid?
           if ref_field_id_changed?
             # reference changed
-            if publish_from_was.nil?
-              # node was not visible to others, we need write access to both source and destination
+            if published_in_heirs_was_true?
+              # node or some children node was published, moves must be made with drive rights in both
+              # source and destination
               if ref_field_id == self.id ||
-                  ! secure_write(ref_class) { ref_class.find(:first, :select => 'id', :conditions => ['id = ?', ref_field_id])} ||
-                  ! secure_write(ref_class) { ref_class.find(:first, :select => 'id', :conditions => ['id = ?', ref_field_id_was])}
+                 secure_drive(ref_class) {
+                   ref_class.find(:count, :conditions => ['id IN (?)', [ref_field_id, ref_field_id_was]]) != 2
+                 }
                 errors.add(ref_field, "invalid reference")
                 return false
               end
+
             else
-              # node was visible, moves must be made with publish rights in both
-              # source and destination
-              if ref_field_id == self[:id] ||
-                  ! secure_drive(ref_class) { ref_class.find(:first, :select => 'id', :conditions => ['id = ?', ref_field_id])} ||
-                  ! secure_drive(ref_class) { ref_class.find(:first, :select => 'id', :conditions => ['id = ?', ref_field_id_was])}
+
+              # node was not visible to others, we need write access to both source and destination
+              if ref_field_id == self.id ||
+                  secure_write(ref_class) {
+                    ref_class.find(:count, :conditions => ['id IN (?)', [ref_field_id, ref_field_id_was]]) != 2
+                  }
                 errors.add(ref_field, "invalid reference")
                 return false
               end
@@ -425,7 +403,7 @@ Just doing the above will filter all result according to the logged in user.
         end
 
         def secure_on_destroy
-          if new_record? || can_drive_was_true? || draft?
+          if new_record? || can_drive_was_true?
             return true
           else
             errors.add('base', "you do not have the rights to do this")
@@ -500,7 +478,7 @@ Just doing the above will filter all result according to the logged in user.
         end
 
         # Return true if a heir is published.
-        def published_in_heirs_was?
+        def published_in_heirs_was_true?
           pub = publish_from_was
           return true if pub
           heirs.each do |h|
