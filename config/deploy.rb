@@ -262,6 +262,7 @@ task :rename_host, :roles => :web do
     old_vhost_path = "#{apache2_vhost_root}/#{self[:old_host]}"
     run "a2dissite #{self[:old_host]}"
     run "test -e #{old_vhost_path} && rm #{old_vhost_path}"
+    # FIXME: remove old awstats vhost !!
     create_vhost
     create_awstats
     clear_zafu
