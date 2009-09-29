@@ -517,6 +517,10 @@ class NodeTest < Zena::Unit::TestCase
 
   def test_after_propose
     test_site('zena')
+    node_ids = [:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')
+    # transform wiki and children into redactions for tiger
+    Version.connection.execute "UPDATE versions SET status = #{Zena::Status[:red]}, user_id=#{users_id(:tiger)} WHERE node_id IN (#{node_ids})"
+    Node.connection.execute "UPDATE nodes SET publish_from = NULL WHERE id IN (#{node_ids})"
     login(:tiger)
     wiki = secure!(Node) { nodes(:wiki) }
     bird = secure!(Node) { nodes(:bird_jpg) }

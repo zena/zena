@@ -82,11 +82,15 @@ module Zena
           add_transition(:refuse,  :from => [:prop, :prop_with], :to => :red) do |r|
             r.can_drive?
           end
-                                                             # rem
-          add_transition(:remove,  :from => ((-1..70).to_a - [10]), :to => 10) do |r|
+          
+          add_transition(:unpublish,  :from => :pub, :to => :rem) do |r|
             r.can_drive?
           end
-
+          
+          add_transition(:remove,  :from => ((-1..70).to_a - [10,50]), :to => :rem) do |r|
+            r.can_drive?
+          end
+          
           add_transition(:redit, :from => (10..50), :to => :red) do |r|
             r.can_drive?
           end
@@ -206,6 +210,12 @@ module Zena
         def can_unpublish?(v=version)
           can_apply?(:unpublish, v)
         end
+
+        # Can remove any other version
+        def can_remove?(v=version)
+          can_apply?(:remove, v)
+        end
+
 
         # Can destroy current version ? (only logged in user can destroy)
         def can_destroy_version?(v=version)
@@ -337,6 +347,10 @@ module Zena
 
         def unpublish
           apply(:unpublish)
+        end
+
+        def remove
+          apply(:remove)
         end
 
         # A published version can be removed by the members of the publish group

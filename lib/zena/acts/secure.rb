@@ -361,18 +361,16 @@ Just doing the above will filter all result according to the logged in user.
               # source and destination
               if ref_field_id == self.id ||
                  secure_drive(ref_class) {
-                   ref_class.find(:count, :conditions => ['id IN (?)', [ref_field_id, ref_field_id_was]]) != 2
+                   ref_class.count(:conditions => ['id IN (?)', [ref_field_id, ref_field_id_was]]) != 2
                  }
                 errors.add(ref_field, "invalid reference")
                 return false
               end
-
             else
-
               # node was not visible to others, we need write access to both source and destination
               if ref_field_id == self.id ||
                   secure_write(ref_class) {
-                    ref_class.find(:count, :conditions => ['id IN (?)', [ref_field_id, ref_field_id_was]]) != 2
+                    ref_class.count(:conditions => ['id IN (?)', [ref_field_id, ref_field_id_was]]) != 2
                   }
                 errors.add(ref_field, "invalid reference")
                 return false

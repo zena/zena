@@ -818,34 +818,77 @@ class SecureUpdateTest < Zena::Unit::TestCase
     assert node.errors.empty? , "Errors empty"
   end
 
-  def test_can_drive_draft
-    login(:ant)
-    node, ref = create_simple_note
-    assert ! node.new_record?
-    assert ! ref.can_drive?, "Cannot drive in reference"
-    assert ref.can_write?, "Can write in reference"
-    assert node.draft?
-    assert node.can_drive?
+  context 'A draft' do
+    setup do
+      login(:ant)
+      @node, ref = create_simple_note
+    end
 
+    should 'be a draft' do
+      assert @node.draft?
+    end
 
-    # cannot change inherit
-    node[:inherit  ] = 0
-    assert !node.save
-    assert_equal node.errors[:inherit], 'you cannot change this'
+    should 'let owner drive' do
+      assert @node.can_drive?
+    end
+
+    should 'not let owner publish' do
+      assert !@node.can_publish?
+      assert !@node.update_attributes(:v_status => Zena::Status[:pub])
+      err @node
+      assert_equal '', @node.errors[:status]
+    end
+
+    should 'not let owner change inherit mode' do
+      @node[:inherit  ] = 0
+      assert !@node.save
+      assert_equal @node.errors[:inherit], 'you cannot change this'
+    end
+
+    should 'be freely moved around by owner' do
+      @node.parent_id = nodes_id(:status)
+      assert @node.save
+      assert_equal nodes_id(:status), @node.parent_id
+    end
+
+    should 'let owner remove version and destroy itself' do
+      assert @node.can_remove?
+      assert @node.remove
+      assert_difference('Node.count', -1) do
+        assert @node.destroy_version
+      end
+    end
   end
 
-  def test_can_move_draft
-    login(:ant)
-    node, ref = create_simple_note
-    assert node.update_attributes(:parent_id => nodes_id(:zena))
-    assert_equal nodes_id(:zena), node.parent_id
+  context 'A draft with children' do
+    setup do
+      node_ids = [:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')
+      login(:ant)
+      Version.connection.execute "UPDATE versions SET status = #{Zena::Status[:red]}, user_id=#{users_id(:ant)} WHERE node_id IN (#{node_ids})"
+      Node.connection.execute "UPDATE nodes SET publish_from = NULL WHERE id IN (#{node_ids})"
+      @node = secure!(Node) { nodes(:wiki) }
+    end
+
+    should 'be freely moved around by owner' do
+      @node.parent_id = nodes_id(:status)
+      assert @node.save
+      assert_equal nodes_id(:status), @node.parent_id
+    end
+
+    should 'not be freely moved around by owner if it contains publications' do
+      Node.connection.execute "UPDATE nodes SET publish_from = '2009-9-26 20:26' WHERE id IN (#{nodes_id(:bird_jpg)})"
+      @node.parent_id = nodes_id(:status)
+      assert !@node.send(:published_in_heirs_was_true?)
+      assert !@node.save
+      assert_equal 'invalid reference', @node.errors[:parent_id]
+    end
   end
 
   def test_can_man_can_inherit
     node, ref = create_simple_note
     # inherit
     node[:inherit  ] = 1 # inherit
-    assert node.save , "Save succeeds"
+    assert !node.save , "Save succeeds"
     assert_equal ref.rgroup_id, node.rgroup_id ,    "Read group is same as reference"
     assert_equal ref.wgroup_id, node.wgroup_id ,   "Write group is same as reference"
     assert_equal ref.pgroup_id, node.pgroup_id , "Publish group is same as reference"
