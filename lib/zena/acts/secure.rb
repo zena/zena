@@ -605,15 +605,6 @@ Just doing the above will filter all result according to the logged in user.
             scope[:find][:joins] = "INNER JOIN #{ntbl} ON #{klass.table_name}.node_id = #{ntbl}.id"
             scope[:find][:readonly]   = false
             scope[:find][:conditions] = secure_scope(ntbl)
-          def versions_with_condition(cond)
-            if is_su?
-              # su is master of all
-              secure(Version) { Version.find(:all, :conditions => cond) }
-            else
-              secure(Version) { Version.find(:all, :conditions => cond, :joins => "INNER JOIN nodes ON node_id = node.id AND #{secure_scope('nodes')}") }
-            end
-          end
-
           elsif klass.column_names.include?('site_id')
             if find_scope && !opts[:site_id_clause_set]
               find_scope = "(#{find_scope}) AND (#{klass.table_name}.site_id = #{visitor.site[:id]})"
