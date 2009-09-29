@@ -529,21 +529,21 @@ class SecureUpdateTest < Zena::Unit::TestCase
     assert node.errors[:base].any?
     assert ['you do not have the rights to do this'], node.errors[:base]
   end
+
   def test_inherit_changed_cannot_visible
     # cannot visible
-    login(:ant)
+    login(:tiger)
     parent = nodes(:cleanWater)
     node = secure!(Page) { Page.create(:parent_id=>parent[:id], :name=>'thing')}
     assert_kind_of Node, node
     assert ! node.new_record?  , "Not a new record"
-    assert ! node.can_drive? , "Cannot make visible changes"
     assert node.can_drive? , "Can manage"
     assert_equal 1, node.inherit , "Inherit mode is 1"
     node.inherit = 0
     assert ! node.save , "Save fails"
-    assert node.errors[:inherit].any?
-    assert ['invalid value'], node.errors[:inherit]
+    assert node.errors[:base].any?
   end
+
   def test_pgroup_changed_bad_pgroup_visitor_not_in_group
     # bad pgroup
     login(:tiger)
@@ -556,6 +556,7 @@ class SecureUpdateTest < Zena::Unit::TestCase
     assert node.errors[:pgroup_id].any?
     assert ['unknown group'], node.errors[:pgroup_id]
   end
+
   def test_pgroup_changed_ok
     # ok
     login(:tiger)
@@ -568,6 +569,7 @@ class SecureUpdateTest < Zena::Unit::TestCase
     assert node.save , "Save succeeds"
     assert_equal 0, node.inherit , "Inherit mode is 0"
   end
+
   def test_pgroup_cannot_nil_unless_owner
     # ok
     login(:tiger)
@@ -579,7 +581,7 @@ class SecureUpdateTest < Zena::Unit::TestCase
     node[:inherit  ] = 0
     node[:pgroup_id] = nil
     assert !node.save , "Save fails"
-    assert node.errors[:inherit].any?
+    assert node.errors[:pgroup_id].any?
   end
 
   def test_pgroup_can_nil_if_owner
@@ -622,20 +624,19 @@ class SecureUpdateTest < Zena::Unit::TestCase
     assert_equal 0, node.inherit , "Inherit mode is 0"
     assert_equal 0, node.rgroup_id
   end
-  def test_rgroup_change_to_private_with_empty_ok
+
+  def test_cannot_save_if_no_more_in_read_group
     # ok
     login(:tiger)
     node = secure!(Node) { nodes(:lake) }
     assert_kind_of Node, node
-    assert node.can_drive? , "Can visible"
     assert_equal 1, node.inherit , "Inherit mode is 1"
     assert_equal groups_id(:public), node.rgroup_id
     node[:inherit  ] = 0
     node[:rgroup_id] = ''
-    assert node.save , "Save succeeds"
-    assert_equal 0, node.inherit , "Inherit mode is 0"
-    assert_equal 0, node.rgroup_id
+    assert !node.save , "Save fails"
   end
+
   def test_group_changed_children_too
     login(:tiger)
     node = secure!(Node) { nodes(:cleanWater)  }
@@ -911,15 +912,21 @@ class SecureUpdateTest < Zena::Unit::TestCase
     assert_equal node.publish_from, old
   end
 
-  def test_update_name_drive_group
+  def test_other_user_can_change_a_proposition
     login(:lion) # owns 'strange'
     node = secure!(Node) { nodes(:strange)  }
+    assert_equal 70, node.version.status #redaction
     assert node.propose
-    login(:ant)
-    node = secure_drive(Node) { nodes(:strange)  } # only in pgroup
+    assert_equal 60, node.version.status #proposition
+    login(:tiger)
+    node = secure_drive(Node) { nodes(:strange)  }
+    assert_equal 60, node.version.status #still proposition
     node.name = "kali"
     assert node.save
+    assert_equal 60, node.version.status #still proposition
+    assert_equal 'kali', node.name
   end
+
   #     3. removing the node and/or sub-nodes
   def test_destroy
     login(:ant)
