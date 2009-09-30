@@ -1,5 +1,9 @@
 require 'test_helper'
 class DbTest < Zena::Unit::TestCase
+  def test_db_NOW_in_sync
+    assert res = Zena::Db.fetch_row("SELECT (#{Zena::Db::NOW} - #{Time.now.strftime('%Y%m%d%H%M%S')})")
+    assert_equal 0.0, res.to_f
+  end
 
   def test_zip_fixtures
     assert_equal zips_zip(:zena), Zena::Db.fetch_row("select zip from zips where site_id = #{sites_id(:zena)}").to_i

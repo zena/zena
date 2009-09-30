@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>content</key>
-	<string>should "$1", :before =&gt; ${2:lambda { ${3:any_code} \}} do
+	<string>should '$1', :before =&gt; ${2:lambda { ${3:any_code} \}} do
   $0
 end</string>
 	<key>name</key>

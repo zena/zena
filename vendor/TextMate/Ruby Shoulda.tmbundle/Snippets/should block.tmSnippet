@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>content</key>
-	<string>should "$1" do
+	<string>should '$1' do
   $0
 end</string>
 	<key>name</key>

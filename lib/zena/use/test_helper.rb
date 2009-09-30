@@ -23,6 +23,17 @@ module Zena
         ::I18n.locale = @visitor.lang
       end
 
+      def set_date(node_syms, opts = {})
+        fld = opts.delete(:fld) || 'log_at'
+        if opts == {}
+          date = Time.now
+        else
+          date = Time.now.advance(opts)
+        end
+        ids = node_syms.kind_of?(Array) ? node_syms.map{|node_sym| nodes_id(node_sym) } : [nodes_id(node_syms)]
+        Node.connection.execute "UPDATE nodes SET #{fld} = '#{date.strftime('%Y-%m-%d %H:%M')}' WHERE id IN (#{ids.join(',')})"
+      end
+
       def preserving_files(path, &block)
         path = "/#{path}" unless path[0..0] == '/'
         if File.exist?("#{SITES_ROOT}#{path}")

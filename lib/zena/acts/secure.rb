@@ -182,11 +182,10 @@ Just doing the above will filter all result according to the logged in user.
 
         # people who can write:
         # * super user
-        # * owner if visitor's status is at least 'user'
-        # * members of +write_group+ if published and the current date is greater or equal to the publication date and the visitor's status is at least 'user'
+        # * members of +write_group+ if there status is at least 'user'.
         def can_write?(vis=visitor, ugps=visitor.group_ids)
           ( vis.is_su? ) ||             # super user
-          ( ugps.include?(wgroup_id) )  # write group
+          ( ugps.include?(wgroup_id) && visitor.user?)  # write group
         end
 
         # The node has just been created so the creator can still delete it
@@ -213,11 +212,22 @@ Just doing the above will filter all result according to the logged in user.
           ( vis.user? && (ugps.include?(pgroup_id) || draft?) )
         end
 
-
         # 'can_drive?' before attribute change
         def can_drive_was_true?(vis=visitor, ugps=visitor.group_ids)
           ( vis.is_su? ) || # super user
           ( vis.user? && (ugps.include?(pgroup_id_was) || draft_was_true?) )
+        end
+
+        # 'can_drive?' without draft? exceptions
+        def full_drive?(vis=visitor, ugps=visitor.group_ids)
+          ( vis.is_su? ) || # super user
+          ( vis.user? && ugps.include?(pgroup_id) )
+        end
+
+        # 'full_drive?' before attribute change
+        def full_drive_was_true?(vis=visitor, ugps=visitor.group_ids)
+          ( vis.is_su? ) || # super user
+          ( vis.user? && ugps.include?(pgroup_id_was) )
         end
 
         def secure_before_validation
@@ -281,7 +291,7 @@ Just doing the above will filter all result according to the logged in user.
             self[:skin     ] = ref.skin
           when 0
             # custom access rights
-            if ref.can_drive?
+            if ref.full_drive?
               errors.add('rgroup_id', "unknown group") unless visitor.group_ids.include?(rgroup_id)
               errors.add('wgroup_id', "unknown group") unless visitor.group_ids.include?(wgroup_id)
               errors.add('pgroup_id', "unknown group") unless visitor.group_ids.include?(pgroup_id)
@@ -328,21 +338,25 @@ Just doing the above will filter all result according to the logged in user.
           return false unless ref_field_valid?
 
           # verify groups
-          case inherit
-          when 1
-            # inherit rights
-            [:rgroup_id, :wgroup_id, :pgroup_id, :skin].each do |sym|
-              self[sym] = ref[sym]
-            end
-          when 0
-            # custom rights
-            [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
-              if self.send(:"#{sym}_changed?") && !visitor.group_ids.include?(self[sym])
-                errors.add(sym.to_s, "unknown group")
-              end
-            end
+          if inherit_changed? && !full_drive_was_true?
+            errors.add(:inherit, 'you cannot change this')
           else
-            errors.add('inherit', "bad inheritance mode")
+            case inherit
+            when 1
+              # inherit rights
+              [:rgroup_id, :wgroup_id, :pgroup_id, :skin].each do |sym|
+                self[sym] = ref[sym]
+              end
+            when 0
+              # custom rights
+              [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
+                if self.send(:"#{sym}_changed?") && !visitor.group_ids.include?(self[sym])
+                  errors.add(sym.to_s, 'unknown group')
+                end
+              end
+            else
+              errors.add('inherit', 'bad inheritance mode')
+            end
           end
         end
 

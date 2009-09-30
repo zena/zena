@@ -68,7 +68,7 @@ module Zena
           end
                                             # not pub
           add_transition(:publish, :from => ((-1..70).to_a - [50]), :to => :pub) do |r|
-            r.can_drive?
+            r.full_drive?
           end
 
           add_transition(:propose, :from => :red, :to => :prop) do |r|
@@ -82,15 +82,15 @@ module Zena
           add_transition(:refuse,  :from => [:prop, :prop_with], :to => :red) do |r|
             r.can_drive?
           end
-          
+
           add_transition(:unpublish,  :from => :pub, :to => :rem) do |r|
             r.can_drive?
           end
-          
+
           add_transition(:remove,  :from => ((-1..70).to_a - [10,50]), :to => :rem) do |r|
             r.can_drive?
           end
-          
+
           add_transition(:redit, :from => (10..50), :to => :red) do |r|
             r.can_drive?
           end

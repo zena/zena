@@ -12,17 +12,6 @@ class ZenaTagsTest < Zena::Controller::TestCase
     super
   end
 
-  def set_date(node_syms, opts = {})
-    fld = opts.delete(:fld) || 'log_at'
-    if opts == {}
-      date = Time.now
-    else
-      date = Time.now.advance(opts)
-    end
-    ids = node_syms.kind_of?(Array) ? node_syms.map{|node_sym| nodes_id(node_sym) } : [nodes_id(node_syms)]
-    Node.connection.execute "UPDATE nodes SET #{fld} = '#{date.strftime('%Y-%m-%d %H:%M')}' WHERE id IN (#{ids.join(',')})"
-  end
-
   def yt_do_test(file, test)
     src = yt_get('src', file, test) if @@test_strings[file][test].keys.include?('src') # we do not want src built from title
     tem = yt_get('tem', file, test)

@@ -891,6 +891,26 @@ class MultiVersionTest < Zena::Unit::TestCase
     assert_equal Zena::Status[:red], node.version.status
   end
 
+  def test_status
+    login(:tiger)
+    node = secure!(Node) { Node.new(node_defaults) }
+
+    assert node.save, "Node saved"
+    assert_equal Zena::Status[:red], node.version.status
+    assert node.propose, "Can propose node"
+    assert_equal Zena::Status[:prop], node.version.status
+    assert node.publish, "Can publish node"
+    assert_equal Zena::Status[:pub], node.version.status
+    assert node.publish_from <= Time.now, "node publish_from is smaller the Time.now"
+    login(:ant)
+    assert_nothing_raised { node = secure!(Node) { Node.find(node.id) } }
+    assert node.update_attributes(:v_summary=>'hello my friends'), "Can create a new edition"
+    assert_equal Zena::Status[:red], node.version.status
+    assert node.propose, "Can propose edition"
+    assert_equal Zena::Status[:prop], node.version.status
+    # WE CAN USE THIS TO TEST vhash (version hash cache) when it's implemented
+  end
+
   def test_publish_with_v_status
     login(:tiger)
     node = secure!(Node) { nodes(:cleanWater)  }

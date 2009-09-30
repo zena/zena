@@ -1,332 +1,353 @@
 require 'test_helper'
+
 class PagerDummy < Node
   def self.ksel
     self == PagerDummy ? 'U' : super
   end
 end
+
 class SubPagerDummy < PagerDummy
 end
-class SecureReadTest < Zena::Unit::TestCase
 
-  def test_kpath
-    assert_equal 'N', Node.kpath
-    assert_equal 'NP', Page.kpath
-    assert_equal 'U', PagerDummy.ksel
-    assert_equal 'NU', PagerDummy.kpath
-    assert_equal 'NUS', SubPagerDummy.kpath
+class SecureTest < Zena::Unit::TestCase
+
+  context 'A class path (kpath)' do
+    should 'represent the class hierarchy' do
+      assert_equal 'N', Node.kpath
+      assert_equal 'NP', Page.kpath
+      assert_equal 'U', PagerDummy.ksel
+      assert_equal 'NU', PagerDummy.kpath
+      assert_equal 'NUS', SubPagerDummy.kpath
+    end
   end
 
-  def test_native_class_keys
-    assert_equal ["N", "ND", "NDI", "NDT", "NDTT", "NN", "NP", "NPP", "NPS", "NPSS", "NR", "NRC", "NU", "NUS"], Node.native_classes.keys.sort
-    assert_equal ["ND", "NDI", "NDT", "NDTT"], Document.native_classes.keys.sort
+  context 'A visitor not in any access groups of a node' do
+    setup do
+      login(:anon)
+    end
+
+    should 'raise an exception when trying to find the node with secure! read scope' do
+      assert_raise(ActiveRecord::RecordNotFound) { secure!(Node) { nodes(:secret) }}
+    end
+
+    should 'raise an exception when trying to find the node with secure! write scope' do
+      assert_raise(ActiveRecord::RecordNotFound) { secure_write!(Node) { nodes(:secret) }}
+    end
+
+    should 'raise an exception when trying to find the node with secure! drive scope' do
+      assert_raise(ActiveRecord::RecordNotFound) { secure_drive!(Node) { nodes(:secret) }}
+    end
+
+    should 'receive nil when calling secure read' do
+      node = nil
+      assert_nothing_raised { node = secure(Node) { nodes(:secret)  }}
+      assert_nil node
+    end
+
+    should 'receive nil when calling secure write' do
+      node = nil
+      assert_nothing_raised { node = secure_write(Node) { nodes(:secret)  }}
+      assert_nil node
+    end
+
+    should 'receive nil when calling secure drive' do
+      node = nil
+      assert_nothing_raised { node = secure_drive(Node) { nodes(:secret)  }}
+      assert_nil node
+    end
+
+    should 'receive 0 when counting nodes with any secure scope' do
+      assert_equal 0, secure!(Node)       { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
+      assert_equal 0, secure(Node)        { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
+      assert_equal 0, secure_write!(Node) { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
+      assert_equal 0, secure_write(Node)  { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
+      assert_equal 0, secure_drive!(Node) { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
+      assert_equal 0, secure_drive(Node)  { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
+    end
+
+    context 'loaded without secure' do
+      setup do
+        @node = nodes(:secret)
+        @visitor.visit(@node)
+      end
+
+      should 'receive false when asking can_read?' do
+        assert !@node.can_read?
+      end
+
+      should 'receive false when asking can_write?' do
+        assert !@node.can_write?
+      end
+
+      should 'receive false when asking can_drive?' do
+        assert !@node.can_drive?
+      end
+    end
+  end # A visitor not in any access groups
+
+  context 'A visitor counting nodes' do
+    setup do
+      login(:ant)
+    end
+
+    should 'only see nodes where she is a member of the read group when using secure' do
+      # 'strange' not seen
+      assert_equal 4, secure!(Node) { Node.count(:conditions => ['parent_id = ?', nodes_id(:collections)])}
+      assert_equal 4, secure(Node)  { Node.count(:conditions => ['parent_id = ?', nodes_id(:collections)])}
+    end
+
+    should 'only see nodes where she is a member of the write group when using secure_write' do
+      assert_equal 4, secure_write!(Node) { Node.count(:conditions => ['parent_id = ?', nodes_id(:collections)])}
+      assert_equal 4, secure_write(Node)  { Node.count(:conditions => ['parent_id = ?', nodes_id(:collections)])}
+    end
+
+    should 'only see nodes where she is a member of the drive group when using secure_drive' do
+      assert_equal 1, secure_drive!(Node) { Node.count(:conditions => ['parent_id = ?', nodes_id(:collections)])}
+      assert_equal 1, secure_drive(Node)  { Node.count(:conditions => ['parent_id = ?', nodes_id(:collections)])}
+    end
+
+    should 'see redactions if she is a member of the write group' do
+      assert_equal 7, secure(Node) { Node.count(:conditions => ['parent_id = ?', nodes_id(:cleanWater)])}
+    end
+
+    should 'not see the node even if she is the owner' do
+      # 'proposition' in secret not seen
+      assert_equal 1, secure(Node) { Node.count(:conditions => ['parent_id = ?', nodes_id(:secret)])}
+    end
+  end # A visitor counting nodes
+
+  context 'A visitor only in the read group' do
+    setup do
+      login(:anon)
+    end
+
+    should 'not see a node that is not published yet' do
+      assert_nil secure(Node) { nodes(:crocodiles) }
+    end
+
+    should 'see published nodes' do
+      assert node = secure(Node) { nodes(:cleanWater) }
+    end
+
+    context 'trying to see a future publication' do
+      setup do
+        set_date(:status, :days => 1, :fld => 'publish_from')
+      end
+
+      should 'see nothing' do
+        assert_nil secure(Node) { nodes(:status) }
+      end
+    end
+  end # A visitor only in the read group
+
+
+  context 'A visitor only in the write group' do
+    setup do
+      login(:ant)
+      ids = [:bananas, :crocodiles].map {|r| nodes_id(r)}.join(',')
+      Node.connection.execute "UPDATE nodes SET rgroup_id = #{groups_id(:managers)}, wgroup_id = #{groups_id(:workers)}, pgroup_id = #{groups_id(:managers)} WHERE id IN (#{ids})"
+    end
+
+    should 'see a node that is not published yet' do
+      assert secure(Node) { nodes(:crocodiles) }
+    end
+
+    should 'see published nodes' do
+      assert secure(Node) { nodes(:bananas) }
+    end
+
+    context 'that is a user' do
+      should 'be able to write redactions' do
+        node = secure(Node) { nodes(:bananas) }
+        assert node.can_write?
+        assert node.update_attributes(:v_title => 'max havelaar')
+        node = secure(Node) { nodes(:bananas) } # reload
+        assert_equal 'max havelaar', node.version.title
+      end
+    end
+
+    context 'that is not a user' do
+      setup do
+        visitor.status = User::Status[:commentator]
+      end
+
+      should 'not be able to write redactions' do
+        node = secure(Node) { nodes(:bananas) }
+        assert !node.can_write?
+        assert !node.update_attributes(:v_title => 'max havelaar')
+      end
+
+      should 'see a node that is not published yet' do
+        assert secure(Node) { nodes(:crocodiles) }
+      end
+    end
+
+    context 'trying to see a future publication' do
+      setup do
+        set_date(:bananas, :days => 1, :fld => 'publish_from')
+      end
+
+      should 'see it' do
+        assert secure(Node) { nodes(:bananas) }
+      end
+    end
+  end # A visitor only in the write group
+
+  context 'A visitor only in the drive group' do
+    setup do
+      login(:ant)
+      ids = [:bananas, :crocodiles].map {|r| nodes_id(r)}.join(',')
+      Node.connection.execute "UPDATE nodes SET rgroup_id = #{groups_id(:managers)}, wgroup_id = #{groups_id(:managers)}, pgroup_id = #{groups_id(:workers)} WHERE id IN (#{ids})"
+    end
+
+    should 'not see a node that is not published yet' do
+      assert_nil secure(Node) { nodes(:crocodiles) }
+    end
+
+    should 'not see published nodes' do
+      assert_nil secure(Node) { nodes(:bananas) }
+    end
+  end # A visitor only in the drive group
+
+  context 'A visitor in the read and drive groups' do
+    setup do
+      login(:ant)
+      ids = [:bananas, :crocodiles].map {|r| nodes_id(r)}.join(',')
+      Node.connection.execute "UPDATE nodes SET rgroup_id = #{groups_id(:workers)}, wgroup_id = #{groups_id(:managers)}, pgroup_id = #{groups_id(:workers)} WHERE id IN (#{ids})"
+    end
+
+    should 'not be able to write' do
+      node = secure!(Node) { nodes(:bananas) }
+      assert !node.can_write?
+      assert !node.update_attributes(:v_title => 'Banana republic')
+    end
+
+    should 'not be able to create sub-nodes' do
+      node = secure!(Node) { Node.create(defaults.merge(:parent_id => nodes_id(:bananas))) }
+      assert node.new_record?
+      assert_equal 'You do not have the rights to edit', node.errors[:base]
+    end
+
+    should 'be able to drive' do
+      node = secure!(Node) { nodes(:bananas) }
+      assert node.can_drive?
+      assert node.update_attributes(:name => 'NamWa')
+    end
+  end # A visitor in the read and drive groups
+
+
+  def defaults
+    { :name       => 'hello',
+      :parent_id  => nodes_id(:zena) }
   end
 
-  # TODO: move this test in a better place...
-  def test_db_NOW_in_sync
-    assert res = Zena::Db.fetch_row("SELECT (#{Zena::Db::NOW} - #{Time.now.strftime('%Y%m%d%H%M%S')})")
-    assert_equal 0.0, res.to_f
+  context 'A visitor in the read and write groups' do
+    setup do
+      login(:ant)
+    end
+
+    context 'without secure' do
+      should 'not be able to build new children' do
+        node = Node.new(defaults)
+        assert !node.save
+        assert_equal 'record not secured', node.errors[:base]
+      end
+
+      should 'not be able to create new children' do
+        node = Node.create(defaults)
+        assert node.new_record?
+        assert_equal 'record not secured', node.errors[:base]
+      end
+    end
+
+    should 'be able to build children nodes' do
+      node = secure(Node) { Node.new(defaults) }
+      assert_difference('Node.count', 1) do
+        assert_difference('Version.count', 1) do
+          assert node.save
+        end
+      end
+    end
+
+    should 'be able to create children nodes' do
+      assert_difference('Node.count', 1) do
+        assert_difference('Version.count', 1) do
+          assert node = secure(Node) { Node.create(defaults) }
+          assert !node.new_record?
+        end
+      end
+    end
+
+    context 'creating a new node' do
+      setup do
+        @node = secure(Node) { Node.create(defaults) }
+      end
+
+      should 'become owner of node and version' do
+        assert_equal visitor.id, @node.user_id
+        assert_equal visitor.id, @node.version.user_id
+      end
+
+      should 'see a draft' do
+        assert @node.draft?
+      end
+    end
+  end # A visitor in the read and write groups
+
+  context 'A visitor in the drive group' do
+    setup do
+      login(:tiger)
+    end
+
+    should 'be able to move node' do
+      node = secure!(Node) { nodes(:projects) }
+      node.parent_id = nodes_id(:collections)
+      assert node.save
+    end
+
+    should 'not be able to create circular references' do
+      # status is a child of projects/cleanWater
+      node = secure!(Node) { nodes(:projects) }
+      assert !node.update_attributes(:parent_id => nodes_id(:status))
+      assert_equal 'circular reference', node.errors[:parent_id]
+    end
+
+    should 'not be able to insert into an existing circular reference' do
+      Node.connection.execute "UPDATE nodes SET parent_id = #{nodes_id(:cleanWater)} WHERE id=#{nodes_id(:projects)}"
+      node = secure!(Node) { nodes(:status)  }
+      assert !node.update_attributes(:parent_id => nodes_id(:projects))
+      assert_equal 'circular reference', node.errors[:parent_id]
+    end
+
+    context 'of the root node' do
+      setup do
+        @node = secure!(Node) { nodes(:zena) }
+      end
+
+      should 'be able to change groups' do
+        # root nodes do not have a parent_id !!
+        # reference = self
+        @node[:pgroup_id] = groups_id(:public)
+        assert @node.save
+      end
+
+      should 'be able to change attributes' do
+        assert @node.update_attributes(:name => 'vodou', :event_at => Time.now)
+      end
+
+      should 'not be able to move' do
+        assert_nil @node[:parent_id]
+        assert !@node.update_attributes(:parent_id => nodes_id(:status))
+        assert_equal 'invalid parent', @node.errors[:parent_id]
+      end
+    end
   end
 
-  def test_cannot_rwm_if_not_in_any_group
-    login(:anon)
-    assert_raise(ActiveRecord::RecordNotFound) { secure!(Node) { nodes(:secret) }}
-    assert_raise(ActiveRecord::RecordNotFound) { secure_write!(Node) { nodes(:secret) }}
-    assert_raise(ActiveRecord::RecordNotFound) { secure_drive!(Node) { nodes(:secret) }}
-  end
-
-  def test_cannot_view_others_private_nodes
-    login(:anon)
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { nodes(:secret) }}
-  end
-
-  def test_secure_or_nil
-    login(:anon)
-    node = false
-    assert_nothing_raised { node = secure(Node) { nodes(:secret)  }}
-    assert_nil node
-  end
-
-  def test_secure_read_with_count
-    assert_equal 4, secure!(Node) { Node.count(:conditions => ['parent_id = ?', nodes_id(:collections)])}
-    assert_equal 4, secure(Node)  { Node.count(:conditions => ['parent_id = ?', nodes_id(:collections)])}
-
-    assert_equal 1, secure!(Node) { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
-    assert_equal 0, secure(Node)  { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
-  end
-
-  def test_secure_write_with_count
-    login(:ant)
-    assert_equal 4, secure_write!(Node) { Node.count(:conditions => ['parent_id = ?', nodes_id(:collections)])}
-    assert_equal 4, secure_write(Node)  { Node.count(:conditions => ['parent_id = ?', nodes_id(:collections)])}
-
-    assert_equal 0, secure_write!(Node) { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
-    assert_equal 0, secure_write(Node)  { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
-  end
-
-  def test_secure_drive_with_count
-    login(:ant)
-    assert_equal 2, secure_drive!(Node) { Node.count(:conditions => ['parent_id = ?', nodes_id(:wiki)])}
-    assert_equal 2, secure_drive(Node)  { Node.count(:conditions => ['parent_id = ?', nodes_id(:wiki)])}
-
-    assert_equal 0, secure_drive!(Node) { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
-    assert_equal 0, secure_drive(Node)  { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
-  end
-
-  def test_owner_but_not_in_any_group
-    login(:ant)
-    assert_raise(ActiveRecord::RecordNotFound) { secure!(Node) { nodes(:proposition) }}
-    assert_raise(ActiveRecord::RecordNotFound) { secure_write!(Node) { nodes(:proposition) }}
-    assert_nil secure_drive(Node) { nodes(:proposition)  }
-  end
-
-  def test_cannot_rwpm_if_not_owner_and_not_in_any_group
-    login(:ant)
-    # not in any group and not owner
-    node = nodes(:secret)
-    node.visitor = visitor
-    assert ! node.can_read? , "Can read"
-    assert ! node.can_write? , "Can write"
-    assert ! node.can_publish? , "Can publish"
-    assert ! node.can_drive? , "Can manage"
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { Node.find(node.id) }}
-  end
-
-  def test_rgroup_can_read_if_published
-    # visitor = public
-    login(:anon)
-    # not published, cannot read
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { nodes(:crocodiles)  }}
-    # published: can read
-    node = secure!(Node) { nodes(:lake)  }
-    assert_kind_of Node, node
-  end
-
-  def test_anon_can_write_if_wgroup_public_and_is_user
-    Participation.connection.execute "UPDATE participations SET status = #{User::Status[:user]} WHERE user_id = #{users_id(:anon)} AND site_id = #{sites_id(:zena)}"
-    login(:anon)
-    node = secure!(Node) { nodes(:wiki) }
-    assert node.can_write?
-  end
-
-  # write group can write and read
-  def test_write_group_can_w
-    login(:tiger)
-    node = nodes(:strange)
-    #read
-    assert_nothing_raised { secure!(Node) { node } }
-    assert node.can_read? , "Can read"
-    #write
-    assert_nothing_raised { secure_write!(Node) { node  } }
-    assert node.can_write? , "Can write"
-    login(:lion)
-    visitor.visit(node)
-    assert node.can_write? , "Can write"
-  end
-
-  # pgroup cannot read & write
-  def test_drive_group_cannot_read_write
-    login(:ant)
-    assert_raise(ActiveRecord::RecordNotFound) { secure!(Node) { nodes(:strange)  } }
-    assert_raise(ActiveRecord::RecordNotFound) { secure_write!(Node) { nodes(:strange)  } }
-    assert_nothing_raised { secure_drive(Node) { nodes(:strange)  }}
-  end
-
-  def test_not_owner_can_drive
-    login(:lion)
-    node = secure!(Node) { nodes(:status) }
-    assert_equal users_id(:ant), node.user_id
-    assert node.can_drive?
-  end
-
-  def test_public_not_in_rgroup_cannot_rwp
-    login(:anon)
-    assert_nil node = secure(Node)       { nodes(:secret)  }
-    assert_nil node = secure_write(Node) { nodes(:secret)  }
-    assert_nil node = secure_drive(Node) { nodes(:secret)  }
-    node = nodes(:secret)
-    assert_raise(Zena::RecordNotSecured) { node.can_read? }
-    visitor.visit(node)
-    assert ! node.can_read? , "Cannot read"
-    assert ! node.can_write? , "Cannot write"
-    assert ! node.can_publish? , "Cannot publish"
-  end
-
-  def test_pgroup_cannot_read_unplished_nodes
-    # create an unpublished node
-    login(:lion)
-    node = secure!(Node) { nodes(:strange)  }
-    node = secure!(Node) { node.clone }
-    node[:publish_from] = nil
-    node[:name] = "new_rec"
-    assert node.new_record?
-    assert node.save
-
-    login(:ant)
-    # node is 'red', cannot see it
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Page) { Page.find_by_name("new_rec") } }
-
-    login(:lion)
-    assert node.propose , "Can propose node for publication."
-
-    login(:ant)
-    # proposed node cannot be seen by pgroup
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Page) { Page.find_by_name("new_rec") } }
-    assert_nil node[:publish_from] , "Not published yet"
-
-    login(:lion)
-    assert node.refuse , "Can refuse node."
-    assert_equal Zena::Status[:red], node.version.status
-    node.remove
-
-    assert node.remove , "Can remove node."
-    login(:ant)
-    # removed node cannot be seen by pgroup
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Page) { Page.find_by_name("new_rec") } }
-    assert_nil node[:publish_from] , "Not published yet"
-  end
-end
-
-class SecureCreateTest < Zena::Unit::TestCase
-
-  def node_defaults
-    {
-    :name       => 'hello',
-    :parent_id  => nodes_id(:zena)
-    }
-  end
-
-  # VALIDATE ON CREATE TESTS
-  def test_unsecure_new_fails
-    login(:ant)
-    # unsecure creation :
-    test_page = Node.new(node_defaults)
-    assert ! test_page.save , "Save fails"
-    assert_equal 'record not secured', test_page.errors[:base]
-  end
-  def test_secure_new_succeeds
-    login(:ant)
-    test_page = secure!(Node) { Node.new(:name=>"yoba", :parent_id=>nodes_id(:zena)) }
-    assert test_page.save , "Save succeeds"
-  end
-  def test_unsecure_create_fails
-    login(:ant)
-    p = Node.create(node_defaults)
-    assert p.new_record?
-    assert_equal 'record not secured', p.errors[:base]
-  end
-  def test_secure_create_succeeds
-    login(:ant)
-    p = secure!(Node) { Node.create(node_defaults) }
-    assert ! p.new_record? , "Not a new record"
-    assert p.id , "Has an id"
-  end
-
-  # 0. set node.user_id = visitor_id
-  def test_owner_is_visitor_on_new
-    login(:ant)
-    test_page = secure!(Node) { Node.new(node_defaults) }
-    test_page[:user_id] = 99 # try to fool
-    assert test_page.save , "Save succeeds"
-    assert_equal users_id(:ant), test_page.user_id
-  end
-  def test_owner_is_visitor_on_create
-    login(:ant)
-    attrs = node_defaults
-    attrs[:user_id] = 99
-    page = secure!(Node) { Node.create(attrs) }
-    assert_equal users_id(:ant), page.user_id
-  end
-  def test_status
-    login(:tiger)
-    node = secure!(Node) { Node.new(node_defaults) }
-
-    assert node.save, "Node saved"
-    assert_equal Zena::Status[:red], node.version.status
-    assert node.propose, "Can propose node"
-    assert_equal Zena::Status[:prop], node.version.status
-    assert node.publish, "Can publish node"
-    assert_equal Zena::Status[:pub], node.version.status
-    assert node.publish_from <= Time.now, "node publish_from is smaller the Time.now"
-    login(:ant)
-    assert_nothing_raised { node = secure!(Node) { Node.find(node.id) } }
-    assert node.update_attributes(:v_summary=>'hello my friends'), "Can create a new edition"
-    assert_equal Zena::Status[:red], node.version.status
-    assert node.propose, "Can propose edition"
-    assert_equal Zena::Status[:prop], node.version.status
-    # WE CAN USE THIS TO TEST vhash (version hash cache) when it's implemented
-  end
-  # 2. valid reference (in which the visitor has write access and ref<>self !)
-  def test_invalid_reference_cannot_write_in_new
-    login(:ant)
-    attrs = node_defaults
-
-    # ant cannot write into secret
-    attrs[:parent_id] = nodes_id(:secret)
-    note = secure!(Note) { Note.create(attrs) }
-    assert note.new_record?
-    assert note.errors[:parent_id] , "Errors on parent_id"
-    assert_equal 'invalid parent', note.errors[:parent_id]
-  end
-
-  def test_no_reference
-    # root nodes do not have a parent_id !!
-    # reference = self
-    login(:lion)
-    node = secure!(Node) { nodes(:zena)  }
-    assert_nil node[:parent_id]
-    node[:pgroup_id] = groups_id(:public)
-    assert node.save, "Can change root group"
-  end
-
-  def test_circular_reference
-    login(:tiger)
-    node = secure!(Node) { nodes(:projects)  }
-    node[:parent_id] = nodes_id(:status)
-    assert ! node.save, 'Save fails'
-    assert_equal 'circular reference', node.errors[:parent_id]
-  end
-
-  def test_existing_circular_reference
-    login(:tiger)
-    Node.connection.execute "UPDATE nodes SET parent_id = #{nodes_id(:cleanWater)} WHERE id=#{nodes_id(:projects)}"
-    node = secure!(Node) { nodes(:status)  }
-    node[:parent_id] = nodes_id(:projects)
-    assert ! node.save, 'Save fails'
-    assert_equal 'circular reference', node.errors[:parent_id]
-  end
-
-  def test_valid_without_circular
-    login(:tiger)
-    node = secure!(Node) { nodes(:status)  }
-    node[:parent_id] = nodes_id(:zena)
-    assert node.save, 'Save succeeds'
-  end
-
-  def test_set_reference_for_root
-    login(:tiger)
-    node = secure!(Node) { nodes(:zena)  }
-    node.name = 'bob'
-    assert node.save
-    node[:parent_id] = nodes_id(:status)
-    assert ! node.save, 'Save fails'
-    assert_equal 'invalid parent', node.errors[:parent_id]
-  end
-
-  def test_valid_reference
-    login(:ant)
-    attrs = node_defaults
-
-    # ok
-    attrs[:parent_id] = nodes_id(:cleanWater)
-    z = secure!(Note) { Note.create(attrs) }
-    assert ! z.new_record? , "Not a new record"
-    assert z.errors.empty? , "No errors"
-  end
 
   # 3. validate +drive_group+ value (same as parent or ref.can_publish? and valid)
   def test_valid_drive_group_cannot_change_if_not_ref_can_publish
     login(:ant)
-    attrs = node_defaults
+    attrs = defaults
 
     # can create node in cleanWater
     cw = nodes(:cleanWater)
@@ -342,7 +363,7 @@ class SecureCreateTest < Zena::Unit::TestCase
   end
   def test_invalid_drive_group_visitor_not_in_group_set
     login(:ant)
-    attrs = node_defaults
+    attrs = defaults
 
     # can publish in ref 'wiki', but is not in group managers
     attrs[:parent_id] = nodes_id(:wiki)
@@ -354,7 +375,7 @@ class SecureCreateTest < Zena::Unit::TestCase
   end
   def test_valid_drive_group
     login(:ant)
-    attrs = node_defaults
+    attrs = defaults
     wiki = nodes(:wiki)
     attrs[:parent_id] = wiki[:id]
     # ant is in the 'site' group, all should be ok
@@ -371,7 +392,7 @@ class SecureCreateTest < Zena::Unit::TestCase
   #     a. if can_publish? : valid groups
   def test_can_drive_bad_rgroup
     login(:tiger)
-    attrs = node_defaults
+    attrs = defaults
 
     p = secure!(Node) { Node.find(attrs[:parent_id])}
     assert p.can_drive? , "Can publish"
@@ -388,7 +409,7 @@ class SecureCreateTest < Zena::Unit::TestCase
 
   def test_can_drive_bad_rgroup_visitor_not_in_group
     login(:tiger)
-    attrs = node_defaults
+    attrs = defaults
     attrs[:rgroup_id] = groups_id(:admin) # tiger is not in admin
     note = secure!(Note) { Note.create(attrs) }
     assert note.new_record?
@@ -397,7 +418,7 @@ class SecureCreateTest < Zena::Unit::TestCase
   end
   def test_can_drive_bad_wgroup
     login(:tiger)
-    attrs = node_defaults
+    attrs = defaults
     # bad wgroup
     attrs[:wgroup_id] = 99999
     note = secure!(Note) { Note.create(attrs) }
@@ -408,7 +429,7 @@ class SecureCreateTest < Zena::Unit::TestCase
 
   def test_can_drive_bad_wgroup_visitor_not_in_group
     login(:tiger)
-    attrs = node_defaults
+    attrs = defaults
 
     attrs[:wgroup_id] = groups_id(:admin) # tiger is not in admin
     note = secure!(Note) { Note.create(attrs) }
@@ -419,7 +440,7 @@ class SecureCreateTest < Zena::Unit::TestCase
 
   def test_can_drive_rwgroups_ok
     login(:tiger)
-    attrs = node_defaults
+    attrs = defaults
     zena = nodes(:zena)
     attrs[:parent_id] = zena[:id]
     # all ok
@@ -437,7 +458,7 @@ class SecureCreateTest < Zena::Unit::TestCase
   #     b. else (can_manage as node is new) : rgroup_id = 0 => inherit, rgroup_id = -1 => private else error.
   def test_can_man_cannot_change_pgroup
     login(:ant)
-    attrs = node_defaults
+    attrs = defaults
 
     attrs[:parent_id] = nodes_id(:zena) # ant can write but not publish here
     p = secure!(Project) { Project.find(attrs[:parent_id])}
@@ -454,7 +475,7 @@ class SecureCreateTest < Zena::Unit::TestCase
   end
   def test_can_man_cannot_change_rw_groups
     login(:ant)
-    attrs = node_defaults
+    attrs = defaults
 
     attrs[:parent_id] = nodes_id(:zena) # ant can write but not publish here
     p = secure!(Project) { Project.find(attrs[:parent_id])}
@@ -473,7 +494,7 @@ class SecureCreateTest < Zena::Unit::TestCase
 
   def test_can_man_can_inherit_rwp_groups
     login(:ant)
-    attrs = node_defaults
+    attrs = defaults
 
     attrs[:parent_id] = nodes_id(:zena) # ant can write but not publish here
     p = secure!(Project) { Project.find(attrs[:parent_id])}
@@ -835,14 +856,13 @@ class SecureUpdateTest < Zena::Unit::TestCase
     should 'not let owner publish' do
       assert !@node.can_publish?
       assert !@node.update_attributes(:v_status => Zena::Status[:pub])
-      err @node
-      assert_equal '', @node.errors[:status]
+      assert_equal 'You do not have the rigths to publish', @node.errors[:base]
     end
 
     should 'not let owner change inherit mode' do
-      @node[:inherit  ] = 0
+      @node[:inherit] = 0
       assert !@node.save
-      assert_equal @node.errors[:inherit], 'you cannot change this'
+      assert_equal 'you cannot change this', @node.errors[:inherit]
     end
 
     should 'be freely moved around by owner' do

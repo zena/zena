@@ -855,15 +855,6 @@ class NodeTest < Zena::Unit::TestCase
     assert_equal TextDocument, Node.get_class('TextDocument')
   end
 
-  def test_get_class_from_kpath
-    assert_equal Node, Node.get_class_from_kpath('N')
-    assert_equal Page, Node.get_class_from_kpath('NP')
-    assert_equal Image, Node.get_class_from_kpath('NDI')
-    assert_equal virtual_classes(:Post), Node.get_class_from_kpath('NNP')
-    assert_equal virtual_classes(:Letter), Node.get_class_from_kpath('NNL')
-    assert_equal TextDocument, Node.get_class_from_kpath('NDT')
-  end
-
   def test_get_attributes_from_yaml
     f = Tempfile.new('any.yml')
     path = f.path
@@ -1167,20 +1158,47 @@ done: \"I am done\""
     assert_equal nodes_id(:flower_jpg), icon[:id] # icon
   end
 
-  def test_vkind_of
-    login(:tiger)
-    node = secure!(Node) { nodes(:status) }
-    assert node.vkind_of?("Page")
-    node = secure!(Node) { nodes(:proposition) }
-    assert node.vkind_of?("Post")
-    node = secure!(Node) { nodes(:status) }
-    assert !node.vkind_of?("Document")
+
+  context 'A class\' native classes hash' do
+    should 'be indexed by kpath' do
+      assert_equal ['N', 'ND', 'NDI', 'NDT', 'NDTT', 'NN', 'NP', 'NPP', 'NPS', 'NPSS', 'NR', 'NRC', 'NU', 'NUS'], Node.native_classes.keys.sort
+      assert_equal ['ND', 'NDI', 'NDT', 'NDTT'], Document.native_classes.keys.sort
+    end
+
+    should 'should point to real (ruby) sub-classes and self' do
+      assert Page.native_classes.values.include?(Page)
+      assert Page.native_classes.values.include?(Project)
+      assert !Project.native_classes.values.include?(Page)
+    end
   end
 
-  def test_native_class_values
-    assert Page.native_classes.values.include?(Project)
-    assert !Project.native_classes.values.include?(Page)
+  context 'A node' do
+    setup do
+      login(:tiger)
+    end
+
+    should 'respond true to vkind_of if it contains a class (real or virtual) in its hierarchy' do
+      assert nodes(:status).vkind_of?('Page')
+      assert nodes(:proposition).vkind_of?('Post')
+    end
+
+    should 'not respond true to vkind_of if it does not contain the class in its heirarchy' do
+      assert !nodes(:status).vkind_of?('Document')
+      assert !nodes(:status).vkind_of?('Post')
+    end
   end
+
+  context 'A class (real or virtual)' do
+    should 'be found from its kpath' do
+      assert_equal Node, Node.get_class_from_kpath('N')
+      assert_equal Page, Node.get_class_from_kpath('NP')
+      assert_equal Image, Node.get_class_from_kpath('NDI')
+      assert_equal virtual_classes(:Post), Node.get_class_from_kpath('NNP')
+      assert_equal virtual_classes(:Letter), Node.get_class_from_kpath('NNL')
+      assert_equal TextDocument, Node.get_class_from_kpath('NDT')
+    end
+  end
+
 
   def test_position_on_create
     login(:lion)
