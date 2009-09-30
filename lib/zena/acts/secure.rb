@@ -104,41 +104,33 @@ In the helpers (if you intend to use secure find there...)
 Just doing the above will filter all result according to the logged in user.
 =end
     module SecureNode
-      # this is called when the module is included into the 'base' module
 
+      # this is called when the module is extended into the Node class
+      def acts_as_secure_node
+        belongs_to :rgroup, :class_name=>'Group', :foreign_key=>'rgroup_id'
+        belongs_to :wgroup, :class_name=>'Group', :foreign_key=>'wgroup_id'
+        belongs_to :pgroup, :class_name=>'Group', :foreign_key=>'pgroup_id'
+        belongs_to :user
+        before_validation  :secure_reference_before_validation
+        # we move all before_validation on update and create here so that it is triggered before multiversion's before_validation
+        before_validation  :secure_before_validation
 
-        def acts_as_secure_node
-          belongs_to :rgroup, :class_name=>'Group', :foreign_key=>'rgroup_id'
-          belongs_to :wgroup, :class_name=>'Group', :foreign_key=>'wgroup_id'
-          belongs_to :pgroup, :class_name=>'Group', :foreign_key=>'pgroup_id'
-          belongs_to :user
-          before_validation  :secure_reference_before_validation
-          # we move all before_validation on update and create here so that it is triggered before multiversion's before_validation
-          before_validation  :secure_before_validation
+        validate {|r| r.errors.add(:base, 'record not secured') unless r.instance_variable_get(:@visitor) }
+        validate_on_update {|r| r.errors.add('site_id', 'cannot change') if r.site_id_changed? }
 
-          validate {|r| r.errors.add(:base, 'record not secured') unless r.instance_variable_get(:@visitor) }
-          validate_on_update {|r| r.errors.add('site_id', 'cannot change') if r.site_id_changed? }
+        validate_on_create :secure_on_create
+        validate_on_update :secure_on_update
 
-          validate_on_create :secure_on_create
-          validate_on_update :secure_on_update
+        before_save :secure_before_save
+        after_save  :secure_after_save
 
-          before_save :secure_before_save
-          after_save  :secure_after_save
+        before_destroy :secure_on_destroy
 
-          before_destroy :secure_on_destroy
-
-          include Zena::Acts::SecureNode::InstanceMethods
-          extend  Zena::Acts::SecureNode::ClassMethods
-
-        end
-
-
+        include Zena::Acts::SecureNode::InstanceMethods
+        extend  Zena::Acts::SecureNode::ClassMethods
+      end
 
       module InstanceMethods
-
-        # def self.included(base)
-        #   base.extend ClassMethods
-        # end
 
         # Store visitor to produce scope when needed and to retrieve correct editions.
         def visitor=(visitor)
@@ -539,7 +531,7 @@ Just doing the above will filter all result according to the logged in user.
           self.send(:"#{ref_field}_changed?")
         end
 
-        end
+      end # InstanceMethods
 
         module ClassMethods
           # kpath is a class shortcut to avoid tons of 'OR type = Page OR type = Document'
@@ -577,8 +569,9 @@ Just doing the above will filter all result according to the logged in user.
             " #{table_name}.kpath LIKE '#{kpath}%' "
           end
 
-      end
-    end
+      end # ClassMethods
+
+    end #SecureNode
 
     # ============================================= SECURE  ===============
     module Secure
