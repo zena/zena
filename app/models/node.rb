@@ -1515,7 +1515,9 @@ class Node < ActiveRecord::Base
     # Make sure the node is complete before creating it (check parent and project references)
     def validate_node
       # when creating root node, self[:id] and :root_id are both nil, so it works.
-      errors.add("parent_id", "invalid parent") unless (parent.kind_of?(Node) && self[:id] != current_site[:root_id]) || (self[:id] == current_site[:root_id] && self[:parent_id] == nil)
+      if parent_id_changed? && self[:id] == current_site[:root_id]
+        errors.add("parent_id", "root should not have a parent") unless self[:parent_id].blank?
+      end
 
       errors.add('comment', 'you do not have the rights to do this') if @add_comment && !can_comment?
 

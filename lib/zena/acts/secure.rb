@@ -345,12 +345,18 @@ Just doing the above will filter all result according to the logged in user.
             when 1
               # inherit rights
               [:rgroup_id, :wgroup_id, :pgroup_id, :skin].each do |sym|
-                self[sym] = ref[sym]
+                if self.send("#{sym}_changed?") && self[sym] != ref[sym]
+                  # manual change of value not allowed without changing inherit mode
+                  errors.add(sym.to_s, 'cannot be changed without changing inherit mode')
+                else
+                  # in case parent changed, keep in sync
+                  self[sym] = ref[sym]
+                end
               end
             when 0
               # custom rights
               [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
-                if self.send(:"#{sym}_changed?") && !visitor.group_ids.include?(self[sym])
+                if self.send("#{sym}_changed?") && !visitor.group_ids.include?(self[sym])
                   errors.add(sym.to_s, 'unknown group')
                 end
               end
@@ -368,36 +374,34 @@ Just doing the above will filter all result according to the logged in user.
 
         # Verify validity of the reference field.
         def ref_field_valid?
-          if ref_field_id_changed?
-            # reference changed
-            if published_in_heirs_was_true?
-              # node or some children node was published, moves must be made with drive rights in both
-              # source and destination
-              if ref_field_id == self.id ||
-                 secure_drive(ref_class) {
-                   ref_class.count(:conditions => ['id IN (?)', [ref_field_id, ref_field_id_was]]) != 2
-                 }
-                errors.add(ref_field, "invalid reference")
-                return false
-              end
-            else
-              # node was not visible to others, we need write access to both source and destination
-              if ref_field_id == self.id ||
-                  secure_write(ref_class) {
-                    ref_class.count(:conditions => ['id IN (?)', [ref_field_id, ref_field_id_was]]) != 2
-                  }
-                errors.add(ref_field, "invalid reference")
-                return false
-              end
+          return true unless ref_field_id_changed?
+          # reference changed
+          if published_in_heirs_was_true?
+            # node or some children node was published, moves must be made with drive rights in both
+            # source and destination
+            if ref_field_id == self.id ||
+               secure_drive(ref_class) {
+                 ref_class.count(:conditions => ['id IN (?)', [ref_field_id, ref_field_id_was]]) != 2
+               }
+              errors.add(ref_field, "invalid reference")
+              return false
             end
-            return false if in_circular_reference
+          else
+            # node was not visible to others, we need write access to both source and destination
+            if ref_field_id == self.id ||
+                secure_write(ref_class) {
+                  ref_class.count(:conditions => ['id IN (?)', [ref_field_id, ref_field_id_was]]) != 2
+                }
+              errors.add(ref_field, "invalid reference")
+              return false
+            end
           end
-          true
+          in_circular_reference? ? false : true
         end
 
         # Make sure there is no circular reference
         # (any way to do this faster ?)
-        def in_circular_reference
+        def in_circular_reference?
           loop_ids = [self[:id]]
           curr_ref = ref_field_id
           in_loop  = false

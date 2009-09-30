@@ -434,6 +434,30 @@ class NodeTest < Zena::Unit::TestCase
   #   node = secure!(Node) { Node.find(visitor.site[:root_id]) }
   #   assert_kind_of Section, node
   # end
+  
+  context 'A visitor in the drive group of the root node' do
+    setup do
+      login(:tiger)
+      @node = secure!(Node) { nodes(:zena) }
+    end
+
+    should 'be allowed to change groups' do
+      # root nodes do not have a parent_id !!
+      # reference = self
+      @node[:pgroup_id] = groups_id(:public)
+      assert @node.save
+    end
+
+    should 'be allowed to change attributes' do
+      assert @node.update_attributes(:name => 'vodou', :event_at => Time.now)
+    end
+
+    should 'not be allowed to set parent' do
+      assert_nil @node[:parent_id]
+      assert !@node.update_attributes(:parent_id => nodes_id(:status))
+      assert_equal 'root should not have a parent', @node.errors[:parent_id]
+    end
+  end
 
   def test_change_section_to_project
     login(:lion)

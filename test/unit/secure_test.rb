@@ -269,13 +269,20 @@ class SecureTest < Zena::Unit::TestCase
       end
     end
 
-    should 'be able to create children nodes' do
+    should 'be able to create child nodes' do
       assert_difference('Node.count', 1) do
         assert_difference('Version.count', 1) do
           assert node = secure(Node) { Node.create(defaults) }
           assert !node.new_record?
         end
       end
+    end
+
+    should 'not be allowed to create child nodes with custom rights' do
+      node = secure(Node) { Node.create(defaults.merge(:inherit => 0, :wgroup_id => groups_id(:public))) }
+      assert node.new_record?
+      assert node.errors[:inherit]
+      assert node.errors[:wgroup_id]
     end
 
     context 'creating a new node' do
@@ -305,62 +312,41 @@ class SecureTest < Zena::Unit::TestCase
       assert node.save
     end
 
-    should 'not be able to create circular references' do
+    should 'not be allowed to create circular references' do
       # status is a child of projects/cleanWater
       node = secure!(Node) { nodes(:projects) }
       assert !node.update_attributes(:parent_id => nodes_id(:status))
       assert_equal 'circular reference', node.errors[:parent_id]
     end
 
-    should 'not be able to insert into an existing circular reference' do
+    should 'not be allowed to insert into an existing circular reference' do
       Node.connection.execute "UPDATE nodes SET parent_id = #{nodes_id(:cleanWater)} WHERE id=#{nodes_id(:projects)}"
       node = secure!(Node) { nodes(:status)  }
       assert !node.update_attributes(:parent_id => nodes_id(:projects))
       assert_equal 'circular reference', node.errors[:parent_id]
     end
 
-    context 'of the root node' do
-      setup do
-        @node = secure!(Node) { nodes(:zena) }
-      end
+    should 'be allowed to change groups even if she has no rights in the parent' do
+      login(:ant) # does not have any rights on talk's parent node (secret)
+      node = secure!(Node) { nodes(:talk) }
+      node.update_attributes(:pgroup_id => groups_id(:public))
+    end
 
-      should 'be able to change groups' do
-        # root nodes do not have a parent_id !!
-        # reference = self
-        @node[:pgroup_id] = groups_id(:public)
-        assert @node.save
-      end
+    should 'not be allowed to set a group she is not in' do
+      login(:ant) # does not have any rights on talk's parent node (secret)
+      node = secure!(Node) { nodes(:talk) }
+      assert !node.update_attributes(:rgroup_id => groups_id(:admin))
+      assert_equal 'unknown group', node.errors[:rgroup_id]
+    end
 
-      should 'be able to change attributes' do
-        assert @node.update_attributes(:name => 'vodou', :event_at => Time.now)
-      end
-
-      should 'not be able to move' do
-        assert_nil @node[:parent_id]
-        assert !@node.update_attributes(:parent_id => nodes_id(:status))
-        assert_equal 'invalid parent', @node.errors[:parent_id]
-      end
+    should 'not change group without explicitely changing inherit mode' do
+      node = secure!(Node) { nodes(:status) }
+      assert !node.update_attributes(:rgroup_id => groups_id(:managers))
+      assert_equal 'cannot be changed without changing inherit mode', node.errors[:rgroup_id]
     end
   end
 
 
-  # 3. validate +drive_group+ value (same as parent or ref.can_publish? and valid)
-  def test_valid_drive_group_cannot_change_if_not_ref_can_publish
-    login(:ant)
-    attrs = defaults
-
-    # can create node in cleanWater
-    cw = nodes(:cleanWater)
-    attrs[:parent_id] = cw[:id]
-    note = secure!(Note) { Note.create(attrs) }
-    assert note.errors.empty?
-
-    # cannot publish in ref 'cleanWater'
-    attrs[:pgroup_id] = groups_id(:public)
-    note = secure!(Note) { Note.create(attrs) }
-    assert note.errors[:pgroup_id].any?
-    assert_equal 'you cannot change this', note.errors[:pgroup_id]
-  end
   def test_invalid_drive_group_visitor_not_in_group_set
     login(:ant)
     attrs = defaults
@@ -856,7 +842,7 @@ class SecureUpdateTest < Zena::Unit::TestCase
     should 'not let owner publish' do
       assert !@node.can_publish?
       assert !@node.update_attributes(:v_status => Zena::Status[:pub])
-      assert_equal 'You do not have the rigths to publish', @node.errors[:base]
+      assert_equal 'You do not have the rights to publish', @node.errors[:base]
     end
 
     should 'not let owner change inherit mode' do
@@ -898,7 +884,7 @@ class SecureUpdateTest < Zena::Unit::TestCase
     should 'not be freely moved around by owner if it contains publications' do
       Node.connection.execute "UPDATE nodes SET publish_from = '2009-9-26 20:26' WHERE id IN (#{nodes_id(:bird_jpg)})"
       @node.parent_id = nodes_id(:status)
-      assert !@node.send(:published_in_heirs_was_true?)
+      assert @node.send(:published_in_heirs_was_true?)
       assert !@node.save
       assert_equal 'invalid reference', @node.errors[:parent_id]
     end
