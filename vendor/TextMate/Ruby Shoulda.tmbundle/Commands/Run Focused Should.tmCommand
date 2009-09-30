@@ -19,19 +19,29 @@ def parse_from_quotes(name)
 end
 
 n = ENV['TM_LINE_NUMBER'].to_i
-
-context, should, name, test_type = nil, nil, nil
+INDENT = 2 # two spaces
+contexts, should, indent = [], nil, ''
+name, test_type = nil, nil
 
 File.open(ENV['TM_FILEPATH']) do |f|
   f.read.split("\n")[0...n].reverse_each do |line|
     if should
-      if line =~ /^\s*context\b/
-        context = parse_from_quotes(line)
-        break
+      if line =~ /^(\s*)context\b/
+        if $1 == indent
+          # we must use indent to avoid stumbling on a context that's not for us
+          contexts.unshift parse_from_quotes(line)
+          indent = indent[0..(-INDENT - 1)]
+          if indent.length &lt; INDENT
+            break
+          end
+        else
+          # wrong indent, ignore
+        end
       end
-    elsif line =~ /^\s*should\b/
+    elsif line =~ /^(\s*)should\b/
       test_type = :shoulda
       should = parse_from_quotes(line)
+      indent = $1[0..(-INDENT - 1)]
     elsif line =~ /^\s*def\s+(test_[\w_]+)/
       test_type = :test_unit
       name = $1
@@ -41,9 +51,9 @@ File.open(ENV['TM_FILEPATH']) do |f|
 end
 
 if test_type == :shoulda
-  if context &amp;&amp; should &amp;&amp; !context.empty? &amp;&amp; !should.empty?
+  if should &amp;&amp; !contexts.empty? &amp;&amp; !should.empty?
     #puts "shoulda"
-    name = "#{context} should #{should}".gsub(/[\+\.\s\'\"\(\)]/,'.')
+    name = "#{contexts.join(' ')} should #{should}".gsub(/[\+\.\s\'\"\(\)]/,'.')
     print "--name=/#{name}/ -v v"
   end
 else
