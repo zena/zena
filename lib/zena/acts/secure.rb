@@ -105,11 +105,8 @@ Just doing the above will filter all result according to the logged in user.
 =end
     module SecureNode
       # this is called when the module is included into the 'base' module
-      def self.included(base)
-        # add all methods from the module "AddActsAsMethod" to the 'base' module
-        base.extend AddActsAsMethod
-      end
-      module AddActsAsMethod
+
+
         def acts_as_secure_node
           belongs_to :rgroup, :class_name=>'Group', :foreign_key=>'rgroup_id'
           belongs_to :wgroup, :class_name=>'Group', :foreign_key=>'wgroup_id'
@@ -129,18 +126,19 @@ Just doing the above will filter all result according to the logged in user.
           after_save  :secure_after_save
 
           before_destroy :secure_on_destroy
-          class_eval <<-END
-            include Zena::Acts::SecureNode::InstanceMethods
-          END
+
+          include Zena::Acts::SecureNode::InstanceMethods
+          extend  Zena::Acts::SecureNode::ClassMethods
+
         end
-      end
+
 
 
       module InstanceMethods
 
-        def self.included(base)
-          base.extend ClassMethods
-        end
+        # def self.included(base)
+        #   base.extend ClassMethods
+        # end
 
         # Store visitor to produce scope when needed and to retrieve correct editions.
         def visitor=(visitor)
@@ -541,6 +539,8 @@ Just doing the above will filter all result according to the logged in user.
           self.send(:"#{ref_field}_changed?")
         end
 
+        end
+
         module ClassMethods
           # kpath is a class shortcut to avoid tons of 'OR type = Page OR type = Document'
           # we build this path with the first letter of each class. The example bellow
@@ -576,7 +576,7 @@ Just doing the above will filter all result according to the logged in user.
           def type_condition
             " #{table_name}.kpath LIKE '#{kpath}%' "
           end
-        end
+
       end
     end
 
@@ -800,5 +800,5 @@ end
 # FIXME: these modules should be included in specific model in order to be
 # more readable and maintable.
 ActiveRecord::Base.send :include, Zena::Acts::Secure     # for other classes
-ActiveRecord::Base.send :include, Zena::Acts::SecureNode # for Nodes
+#ActiveRecord::Base.send :include, Zena::Acts::SecureNode # for Nodes
 ActionController::Base.send :include, Zena::Acts::Secure

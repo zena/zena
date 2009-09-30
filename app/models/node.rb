@@ -161,12 +161,14 @@ class Node < ActiveRecord::Base
                      :data_c => {:node_class => ["DataEntry"], :data_root => 'node_c'},
                      :data_d => {:node_class => ["DataEntry"], :data_root => 'node_d'}
 
+  extend  Zena::Acts::SecureNode
+  include Zena::Use::Relations::ModelMethods
 
   acts_as_secure_node
   acts_as_multiversioned
 
   use_node_query
-  include Zena::Use::Relations::ModelMethods
+
 
   @@native_node_classes = {'N' => self}
   @@unhandled_children  = []
