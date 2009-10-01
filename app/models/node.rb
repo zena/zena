@@ -1521,11 +1521,11 @@ class Node < ActiveRecord::Base
         errors.add("parent_id", "root should not have a parent") unless self[:parent_id].blank?
       end
 
-      errors.add('comment', 'you do not have the rights to do this') if @add_comment && !can_comment?
+      errors.add('comment', 'You do not have the rights to do this') if @add_comment && !can_comment?
 
       if @new_klass
         if !can_drive? || !self[:parent_id]
-          errors.add('klass', 'you do not have the rights to do this')
+          errors.add('klass', 'You do not have the rights to do this')
         else
           errors.add('klass', 'invalid') if !self.class.allowed_change_to_classes.include?(@new_klass)
         end
@@ -1535,15 +1535,10 @@ class Node < ActiveRecord::Base
     # Called before destroy. An node must be empty to be destroyed
     def secure_on_destroy
       return false unless super
-      unless empty?
-        errors.add('base', "contains subpages or data")
-        return false
-      else
-        # expire cache
-        # TODO: test
-        CachedPage.expire_with(self)
-        return true
-      end
+      # expire cache
+      # TODO: test, use observer instead...
+      CachedPage.expire_with(self)
+      true
     end
 
     # Get unique zip in the current site's scope

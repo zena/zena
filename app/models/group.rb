@@ -98,7 +98,7 @@ class Group < ActiveRecord::Base
     # Make sure only admins can create/update groups.
     def valid_group
       unless visitor.is_admin?
-        errors.add('base', 'you do not have the rights to do this')
+        errors.add('base', 'You do not have the rights to do this')
         return false
       end
 

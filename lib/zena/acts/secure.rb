@@ -160,6 +160,12 @@ Just doing the above will filter all result according to the logged in user.
           can_read?(visitor.site.anon,visitor.site.anon.group_ids) # visible by anonymous
         end
 
+        # Return true if the node is not a reference for any other nodes
+        def empty?
+          return true if new_record?
+          0 == self.class.count_by_sql("SELECT COUNT(*) FROM #{self.class.table_name} WHERE #{ref_field} = #{self[:id]}")
+        end
+
         # people who can read:
         # * super user
         # * members of +read_group+ if the node is published and the current date is greater or equal to the publication date
@@ -309,19 +315,18 @@ Just doing the above will filter all result according to the logged in user.
         def secure_on_update
           return true unless changed?
           if !can_drive_was_true?
-            errors.add(:base, 'you do not have the rights to do this')
+            errors.add(:base, 'You do not have the rights to do this')
             return false
           end
 
           if user_id_changed?
             if visitor.is_admin?
               # only admin can change owners
-              # FIXME: AUTH: we are in 'secure' scope but we should fix this when changing authentication.
-              unless User.find(:first, :conditions => ["id = ?",user_id])
-                errors.add(:user_id, "unknown user")
+              unless secure(User) { User.find_by_id(user_id) }
+                errors.add(:user_id, 'unknown user')
               end
             else
-              errors.add(:user_id, "only admins can change owners")
+              errors.add(:user_id, 'Only admins can change owners')
             end
           end
 
@@ -329,7 +334,7 @@ Just doing the above will filter all result according to the logged in user.
 
           # verify groups
           if inherit_changed? && !full_drive_was_true?
-            errors.add(:inherit, 'you cannot change this')
+            errors.add(:inherit, 'cannot be changed')
           else
             case inherit
             when 1
@@ -337,7 +342,11 @@ Just doing the above will filter all result according to the logged in user.
               [:rgroup_id, :wgroup_id, :pgroup_id, :skin].each do |sym|
                 if self.send("#{sym}_changed?") && self[sym] != ref[sym]
                   # manual change of value not allowed without changing inherit mode
-                  errors.add(sym.to_s, 'cannot be changed without changing inherit mode')
+                  if !full_drive_was_true?
+                    errors.add(sym.to_s, 'cannot be changed')
+                  else
+                    errors.add(sym.to_s, 'cannot be changed without changing inherit mode')
+                  end
                 else
                   # in case parent changed, keep in sync
                   self[sym] = ref[sym]
@@ -410,10 +419,15 @@ Just doing the above will filter all result according to the logged in user.
 
         def secure_on_destroy
           if new_record? || can_drive_was_true?
-            return true
+            unless empty?
+              errors.add('base', 'cannot be removed (contains subpages or data)')
+              false
+            else
+              true
+            end
           else
-            errors.add('base', "you do not have the rights to do this")
-            return false
+            errors.add('base', "You do not have the rights to do this")
+            false
           end
         end
 
@@ -533,42 +547,41 @@ Just doing the above will filter all result according to the logged in user.
 
       end # InstanceMethods
 
-        module ClassMethods
-          # kpath is a class shortcut to avoid tons of 'OR type = Page OR type = Document'
-          # we build this path with the first letter of each class. The example bellow
-          # shows how the kpath is built:
-          #           class hierarchy
-          #                Node --> N
-          #       Note --> NN          Page --> NP
-          #                    Document   Form   Section
-          #                       NPD      NPF      NPP
-          # So now, to get all Pages, your sql becomes : WHERE kpath LIKE 'NP%'
-          # to get all Documents : WHERE kpath LIKE 'NPD%'
-          # all pages without Documents : WHERE kpath LIKE 'NP%' AND NOT LIKE 'NPD%'
-          def kpath
-            @@kpath[self] ||= superclass == ActiveRecord::Base ? ksel : (superclass.kpath + ksel)
+      module ClassMethods
+        # kpath is a class shortcut to avoid tons of 'OR type = Page OR type = Document'
+        # we build this path with the first letter of each class. The example bellow
+        # shows how the kpath is built:
+        #           class hierarchy
+        #                Node --> N
+        #       Note --> NN          Page --> NP
+        #                    Document   Form   Section
+        #                       NPD      NPF      NPP
+        # So now, to get all Pages, your sql becomes : WHERE kpath LIKE 'NP%'
+        # to get all Documents : WHERE kpath LIKE 'NPD%'
+        # all pages without Documents : WHERE kpath LIKE 'NP%' AND NOT LIKE 'NPD%'
+        def kpath
+          @@kpath[self] ||= superclass == ActiveRecord::Base ? ksel : (superclass.kpath + ksel)
+        end
+
+        # 'from' and 'joins' are removed: this method is used when receiving calls from zafu. Changing the source table removes
+        # the secure scope.
+        def clean_options(options)
+          options.reject do |k,v|
+            ! [ :conditions, :select, :include, :offset, :limit, :order, :lock ].include?(k)
           end
+        end
 
-          # 'from' and 'joins' are removed: this method is used when receiving calls from zafu. Changing the source table removes
-          # the secure scope.
-          def clean_options(options)
-            options.reject do |k,v|
-              ! [ :conditions, :select, :include, :offset, :limit, :order, :lock ].include?(k)
-            end
-          end
+        # kpath selector for the current class
+        def ksel
+          self.to_s[0..0]
+        end
 
-          # kpath selector for the current class
-          def ksel
-            self.to_s[0..0]
-          end
+        @@kpath = {}
 
-          @@kpath = {}
-
-          # Replace Rails subclasses normal behavior
-          def type_condition
-            " #{table_name}.kpath LIKE '#{kpath}%' "
-          end
-
+        # Replace Rails subclasses normal behavior
+        def type_condition
+          " #{table_name}.kpath LIKE '#{kpath}%' "
+        end
       end # ClassMethods
 
     end #SecureNode

@@ -45,7 +45,7 @@ class Comment < ActiveRecord::Base
 
   def replies(opt={})
     if opt[:with_prop]
-      conditions = ["reply_to = ? AND status > #{Zena::Status[:rem]}", self[:id]]
+      conditions = ["reply_to = ? AND status >= #{Zena::Status[:pub]}", self[:id]]
     else
       conditions = ["reply_to = ? AND status = #{Zena::Status[:pub]}", self[:id]]
     end
@@ -103,7 +103,7 @@ class Comment < ActiveRecord::Base
         elsif is_author?
           errors.add('base', 'discussion closed, comment cannot be updated') if !can_write?
         else
-          errors.add('base', 'you do not have the rights to do this')
+          errors.add('base', 'You do not have the rights to do this')
         end
       end
       errors.add('text', "can't be blank") if self[:text].blank?

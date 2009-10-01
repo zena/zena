@@ -222,12 +222,6 @@ module Zena
           can_apply?(:destroy_version, v)
         end
 
-        # Return true if the node is not a reference for any other node
-        def empty?
-          return true if new_record?
-          0 == self.class.count_by_sql("SELECT COUNT(*) FROM #{self.class.table_name} WHERE #{ref_field} = #{self[:id]}")
-        end
-
         def current_transition
           transition_for(nil, nil)
         end
@@ -710,7 +704,7 @@ module Zena
           node = self.find(version.node_id)
           node.version = version
           # FIXME: remove this
-          node.eval_with_visitor 'errors.add("base", "you do not have the rights to do this") unless version.status == 50 || can_drive? || version.user_id == visitor[:id]'
+          node.eval_with_visitor 'errors.add("base", "You do not have the rights to do this") unless version.status == 50 || can_drive? || version.user_id == visitor[:id]'
         end
       end # ClassMethods
     end # Multiversion
