@@ -341,6 +341,20 @@ class SecureTest < Zena::Unit::TestCase
       assert_equal 'invalid reference', node.errors[:parent_id]
     end
 
+    should 'not be allowed to set nil parent' do
+      login(:ant)
+      node = secure!(Node) { nodes(:talk) }
+      assert !node.update_attributes(:parent_id => nil)
+      assert_equal 'invalid reference', node.errors[:parent_id]
+    end
+
+    should 'not be allowed to set bad parent' do
+      login(:ant)
+      node = secure!(Node) { nodes(:talk) }
+      assert !node.update_attributes(:parent_id => nodes_id(:secret))
+      assert_equal 'invalid reference', node.errors[:parent_id]
+    end
+
     should 'not be allowed to create circular references' do
       # status is a child of projects/cleanWater
       node = secure!(Node) { nodes(:projects) }
@@ -367,30 +381,45 @@ class SecureTest < Zena::Unit::TestCase
       assert_equal groups_id(:managers), node.rgroup_id
     end
 
+    should 'be allowed to create with custom groups without setting inherit' do
+      node = secure!(Node) { Node.create(defaults.merge(:rgroup_id => groups_id(:managers))) }
+      assert !node.new_record?
+      assert_equal groups_id(:managers), node.rgroup_id
+    end
+
     should 'not be allowed create with bad groups' do
       node = secure!(Node) { Node.create(defaults.merge(:inherit => 0, :rgroup_id => groups_id(:admin))) }
       assert node.new_record?
       assert_equal 'unknown group', node.errors[:rgroup_id]
     end
 
+    should 'not be allowed to create with a bad inheritance mode' do
+      node = secure!(Node) { Node.create(defaults.merge(:inherit => 3, :rgroup_id => groups_id(:public))) }
+      assert node.new_record?
+      assert_equal 'bad inheritance mode', node.errors[:inherit]
+    end
+
+    should 'not be allowed to set a bad inheritance mode' do
+      node = secure!(Node) { nodes(:status) }
+      assert !node.update_attributes(:inherit => 3)
+      assert_equal 'bad inheritance mode', node.errors[:inherit]
+    end
+
     should 'not be allowed to set a read group she is not in' do
-      login(:ant) # does not have any rights on talk's parent node (secret)
-      node = secure!(Node) { nodes(:talk) }
-      assert !node.update_attributes(:rgroup_id => groups_id(:admin))
+      node = secure!(Node) { nodes(:status) }
+      assert !node.update_attributes(:inherit => 0, :rgroup_id => groups_id(:admin))
       assert_equal 'unknown group', node.errors[:rgroup_id]
     end
 
     should 'not be allowed to set a write group she is not in' do
-      login(:ant) # does not have any rights on talk's parent node (secret)
-      node = secure!(Node) { nodes(:talk) }
-      assert !node.update_attributes(:wgroup_id => groups_id(:admin))
+      node = secure!(Node) { nodes(:status) }
+      assert !node.update_attributes(:inherit => 0, :wgroup_id => groups_id(:admin))
       assert_equal 'unknown group', node.errors[:wgroup_id]
     end
 
     should 'not be allowed to set a drive group she is not in' do
-      login(:ant) # does not have any rights on talk's parent node (secret)
-      node = secure!(Node) { nodes(:talk) }
-      assert !node.update_attributes(:pgroup_id => groups_id(:admin))
+      node = secure!(Node) { nodes(:status) }
+      assert !node.update_attributes(:inherit => 0, :pgroup_id => groups_id(:admin))
       assert_equal 'unknown group', node.errors[:pgroup_id]
     end
 
@@ -465,6 +494,36 @@ class SecureTest < Zena::Unit::TestCase
     end
   end
 
+  context 'A node readable by anonymous' do
+
+    context 'that is not yet published' do
+      setup do
+        login(:ant)
+        @node = secure!(Node) { nodes(:crocodiles) }
+      end
+
+      should 'not be public' do
+        assert !@node.public?
+      end
+    end
+
+    context 'that is published' do
+      setup do
+        login(:ant)
+        @node = secure!(Node) { nodes(:status) }
+      end
+
+      should 'be public' do
+        assert @node.public?
+      end
+
+      should 'not be public if publication date is not reached yet' do
+        @node.publish_from = Time.now.advance(:days => 1)
+        assert !@node.public?
+      end
+    end
+  end
+
   context 'A draft' do
     setup do
       login(:ant)
@@ -532,6 +591,14 @@ class SecureTest < Zena::Unit::TestCase
 
     should 'not be freely moved around by owner if it contains publications' do
       Node.connection.execute "UPDATE nodes SET publish_from = '2009-9-26 20:26' WHERE id IN (#{nodes_id(:bird_jpg)})"
+      @node.parent_id = nodes_id(:status)
+      assert @node.send(:published_in_heirs_was_true?)
+      assert !@node.save
+      assert_equal 'invalid reference', @node.errors[:parent_id]
+    end
+
+    should 'not be freely moved around by owner if it contains deeply nested publications' do
+      Node.connection.execute "UPDATE nodes SET parent_id = #{nodes_id(:bird_jpg)} WHERE id IN (#{nodes_id(:status)})"
       @node.parent_id = nodes_id(:status)
       assert @node.send(:published_in_heirs_was_true?)
       assert !@node.save
@@ -652,6 +719,50 @@ class SecureTest < Zena::Unit::TestCase
       end
     end
   end # Finding users
+
+  context 'Finding sites' do
+    setup do
+      login(:ant)
+    end
+
+    context 'with secure!' do
+      should 'raise an exception for other sites' do
+        assert_raise(ActiveRecord::RecordNotFound) { secure!(Site) { sites(:ocean) }}
+      end
+
+      should 'be allowed for current site' do
+        assert site = secure!(Site) { sites(:zena) }
+        assert_equal sites_id(:zena), site.id
+      end
+    end
+
+    context 'with secure' do
+      should 'receive nil for other sites' do
+        site = nil
+        assert_nothing_raised { site = secure(Site) { sites(:ocean) }}
+        assert_nil site
+      end
+
+      should 'be allowed for current site' do
+        assert site = secure(Site) { sites(:zena) }
+        assert_equal sites_id(:zena), site.id
+      end
+    end
+  end # Finding sites
+
+  context 'Finding versions' do
+    setup do
+      login(:ant)
+    end
+    context 'with secure' do
+      should 'only return versions where visitor can read or write' do
+        versions = secure(Version) { Version.find(:all, :conditions => "title like 's%'")}
+        assert_equal 4, versions.count
+        assert_equal ['Skins (layout themes)', 'Solenopsis Invicta', 'some opening', 'status title'],
+                     versions.map {|v| v.title }.sort
+      end
+    end
+  end # Finding versions
 
   context 'Using secure without returning Nodes' do
     should 'not raise any exception' do

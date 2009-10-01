@@ -11,10 +11,6 @@ class CommentTest < Zena::Unit::TestCase
     assert_equal Discussion, @comment.discussion.class
   end
 
-  def test_secure
-    assert @comment.secure?
-  end
-
   def test_cannot_set_site_id_for_new_record
     comment = Comment.new(:site_id=>1234)
     assert_nil comment.site_id

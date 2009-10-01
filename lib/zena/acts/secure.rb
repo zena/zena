@@ -243,7 +243,6 @@ Just doing the above will filter all result according to the logged in user.
           [:rgroup_id, :wgroup_id, :pgroup_id, :skin].each do |sym|
             # not defined => inherit
             self[sym] ||= ref[sym]
-            self[sym]   = 0 if self[sym].blank?
           end
 
           if inherit.nil?
@@ -437,29 +436,11 @@ Just doing the above will filter all result according to the logged in user.
           return self if ref_field == :id && new_record?
           if !@ref || (@ref.id != ref_field_id)
             # no ref or ref changed
-            reference = ref_class.find(:first, :conditions => ["id = ?", ref_field_id])
-            @ref = secure(ref_class) { reference }
+            @ref = secure(ref_class) { ref_class.find_by_id(ref_field_id) }
           end
           if @ref && (self.new_record? || (:id == ref_field) || (self[:id] != @ref[:id] ))
             # reference is accepted only if it is not the same as self or self is root (ref_field==:id set by Node)
             @ref.freeze
-          else
-            nil
-          end
-        end
-
-        # Reference before attributes change
-        def ref_was
-          return self if ref_field == :id && new_record? # new record and self as reference (creating root node)
-          if !@ref || (ref_field_id_changed?)
-            # no ref or ref changed
-            @ref_was = secure(ref_class) { ref_class.find(:first, :conditions => ["id = ?", ref_field_id_was]) }
-          else
-            @ref_was = @ref
-          end
-          if @ref_was && (self.new_record? || (:id == ref_field) || (self[:id] != @ref_was[:id] ))
-            # reference is accepted only if it is not the same as self or self is root (ref_field==:id set by Node)
-            @ref_was.freeze
           else
             nil
           end
@@ -599,11 +580,6 @@ Just doing the above will filter all result according to the logged in user.
         @visitor = visitor
       end
 
-      # Check if module Secure is included
-      def secure?
-        true
-      end
-
       # these methods are not actions that can be called from the web !!
       protected
         # secure find with scope (for read/write or publish access).
@@ -635,10 +611,9 @@ Just doing the above will filter all result according to the logged in user.
             end
             scope[:find] = { :conditions => find_scope }
           elsif klass.ancestors.include?(Site)
-            # TODO: write tests
             scope[:find] ||= {}
             ptbl = Participation.table_name
-            scope[:find][:joins] = "INNER JOIN #{ptbl} ON #{klass.table_name}.id = #{ptbl}.site_id AND #{ptbl}.user_id = #{visitor[:id]} AND #{ptbl}.status = #{User::Status[:admin]}"
+            scope[:find][:joins] = "INNER JOIN #{ptbl} ON #{klass.table_name}.id = #{ptbl}.site_id AND #{ptbl}.user_id = #{visitor[:id]}"
             scope[:find][:readonly]   = false
             scope[:find][:select]     = "#{Site.table_name}.*"
             scope[:find][:conditions] = find_scope
