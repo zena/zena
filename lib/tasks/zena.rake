@@ -283,15 +283,27 @@ namespace :zena do
     end
   end
 
+  # do not change the order in which these elements are loaded (adding 'lib/**/test/*_test.rb' fails)
+  tests = ['test/helpers/**/*_test.rb', 'test/unit/**/*_test.rb',
+           'lib/parser/test/*_test.rb', 'lib/query_builder/test/*_test.rb',
+           'test/functional/*_test.rb', #'test/integration/*_test.rb',
+           'bricks/**/test/unit/*_test.rb', 'bricks/**/test/functional/*_test.rb',
+           'bricks/**/test/integration/*_test.rb'].map {|p| "#{Zena::ROOT}/#{p}"}
+
   Rake::TestTask.new(:test => ["zena:test:prepare", "zena:build_fixtures"]) do |t|
     t.libs << "test"
-    # do not change the order in which these elements are loaded (adding 'lib/**/test/*_test.rb' fails)
-    list = ['test/helpers/**/*_test.rb', 'test/unit/**/*_test.rb', 'lib/parser/test/*_test.rb', 'lib/query_builder/test/*_test.rb', 'test/functional/*_test.rb', #'test/integration/*_test.rb',
-                 'bricks/**/test/unit/*_test.rb', 'bricks/**/test/functional/*_test.rb', 'bricks/**/test/integration/*_test.rb']
-    t.pattern = list.map {|p| "#{Zena::ROOT}/#{p}"}
+    t.pattern = tests
     t.verbose = true
   end
   Rake::Task['zena:test'].comment = "Run the tests in test/helpers and test/unit"
+
+  desc 'Analyse code coverage by tests (needs rcov)'
+  task :coverage do
+    cmd = "rcov -I 'lib:test' --rails --exclude 'var/*,gems/*,/Library/*'"
+    test_files = FileList[*tests].map {|f| f.inspect}.join(' ')
+    cmd = "#{cmd} #{test_files}"
+    exec(cmd)
+  end
 
   namespace :fix do
     desc "Update all stored zafu to reflect change from 'news from project' syntax to 'news in project'. BACKUP BEFORE. DO NOT RUN."
