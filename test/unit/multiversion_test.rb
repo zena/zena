@@ -2,22 +2,72 @@ require 'test_helper'
 
 class MultiVersionTest < Zena::Unit::TestCase
 
-  def node_defaults
-    {
-    :name => 'hello',
-    :parent_id => nodes_id(:zena),
-    }
+  def defaults
+    { :name => 'hello',
+      :parent_id => nodes_id(:zena) }
   end
 
-  def test_find_node_by_version
-    login(:ant)
-    node = secure!(Node) { Node.version(versions_id(:lake_red_en)) }
-    assert_equal "this is a new redaction for lake", node.version.comment
-    assert_nothing_raised { node = secure!(Node) { Node.version(versions_id(:zena_en)) } }
-    assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { Node.version(versions_id(:secret_en)) } }
-    login(:lion)
-    assert_nothing_raised { node = secure!(Node) { Node.version(versions_id(:lake_red_en)) } }
+  context 'A visitor without write access' do
+    setup do
+      login(:anon)
+    end
+
+    should 'see a publication in her language' do
+      node = secure!(Node) { nodes(:opening) }
+      assert_equal versions_id(:opening_en), node.version.id
+    end
+
+    should 'see a publication in the selected language' do
+      visitor.lang = 'fr'
+      node = secure!(Node) { nodes(:opening) }
+      assert_equal versions_id(:opening_fr), node.version.id
+    end
+
+    should 'see a publication in the reference lang if there are none for the current language' do
+      visitor.lang = 'de'
+      node = secure!(Node) { nodes(:opening) }
+      assert_equal 'fr', node.ref_lang
+      assert_equal versions_id(:opening_fr), node.version.id
+    end
+
+    context 'when there is only a redaction for the current language' do
+      setup do
+        login(:tiger)
+        visitor.lang = 'fr'
+        version = secure!(Version) { versions(:opening_fr) }
+        node = version.node
+        assert node.destroy_version
+        assert_equal [:opening_red_fr, :opening_en].map{|s| versions_id(s)}.sort, node.versions.map{|v| v.id}.sort
+        login(:anon)
+      end
+
+      should 'see a default publication' do
+        node = secure!(Node) { nodes(:opening) }
+        assert_equal versions_id(:opening_en), node.version.id
+      end
+    end
+  end # A visitor without write access
+
+  context 'A visitor with write access' do
+    setup do
+
+    end
+
+    should 'description' do
+
+    end
   end
+
+  context 'A visitor with read and drive access' do
+    setup do
+
+    end
+
+    should 'description' do
+
+    end
+  end
+
 
   def test_find_version
     login(:tiger) # can_drive
@@ -105,7 +155,7 @@ class MultiVersionTest < Zena::Unit::TestCase
 
   def test_new_with_attributes
     login(:ant)
-    attrs = node_defaults
+    attrs = defaults
     attrs[:v_title] = "Jolly Jumper"
     attrs[:v_summary] = "Jolly summary"
     attrs[:v_comment] = "Jolly comment"
@@ -122,7 +172,7 @@ class MultiVersionTest < Zena::Unit::TestCase
 
   def test_create
     login(:ant)
-    attrs = node_defaults
+    attrs = defaults
     attrs[:v_title] = "Inner voice"
     node = secure!(Node) { Node.create(attrs) }
     node = secure!(Node) { Node.find(node.id) }
@@ -134,7 +184,7 @@ class MultiVersionTest < Zena::Unit::TestCase
     login(:ant) # lang = fr
     node = secure!(Node) { nodes(:opening)  }
     assert_equal "fr", node.version.lang
-    assert_equal "some opening", node.version.title
+    assert_equal "super ouverture", node.version.title
     visitor.lang = "en"
     node = secure!(Node) { nodes(:opening)  }
     assert_equal "en", node.version.lang
@@ -142,7 +192,7 @@ class MultiVersionTest < Zena::Unit::TestCase
     visitor.lang = 'es'
     node = secure!(Node) { nodes(:opening)  }
     assert_equal "fr", node.version.lang
-    assert_equal "some opening", node.version.title
+    assert_equal "super ouverture", node.version.title
     login(:lion) # lang = en
     node = secure!(Node) { nodes(:opening)  }
     assert_equal "en", node.version.lang
@@ -150,7 +200,7 @@ class MultiVersionTest < Zena::Unit::TestCase
     visitor.lang = 'es'
     node = secure!(Node) { nodes(:opening)  }
     assert_equal "fr", node.version.lang
-    assert_equal "some opening", node.version.title
+    assert_equal "super ouverture", node.version.title
   end
 
   def test_version_text_and_summary
@@ -893,7 +943,7 @@ class MultiVersionTest < Zena::Unit::TestCase
 
   def test_status
     login(:tiger)
-    node = secure!(Node) { Node.new(node_defaults) }
+    node = secure!(Node) { Node.new(defaults) }
 
     assert node.save, "Node saved"
     assert_equal Zena::Status[:red], node.version.status

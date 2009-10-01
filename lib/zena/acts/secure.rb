@@ -135,23 +135,6 @@ Just doing the above will filter all result according to the logged in user.
         # Store visitor to produce scope when needed and to retrieve correct editions.
         def visitor=(visitor)
           @visitor = visitor
-          # callback used by functions triggered before 'visitor='
-          if @eval_on_visitor
-            @eval_on_visitor.each do |str|
-              eval(str)
-            end
-            unless errors.empty?
-              raise ActiveRecord::RecordNotFound
-            end
-          end
-          self
-        end
-
-        # list of callbacks to trigger when set_visitor is called
-        # TODO: remove all eval_with_visitor stuff (should not be needed since visitor is a global)
-        def eval_with_visitor(str)
-          @eval_on_visitor ||= []
-          @eval_on_visitor << str
           self
         end
 
@@ -583,40 +566,39 @@ Just doing the above will filter all result according to the logged in user.
       # these methods are not actions that can be called from the web !!
       protected
         # secure find with scope (for read/write or publish access).
-        def secure_with_scope(klass, find_scope, opts={})
+        def secure_with_scope(klass, node_find_scope)
           if ((klass.send(:scoped_methods)[0] || {})[:create] || {})[:visitor]
             # we are already in secure scope: this scope is the new 'exclusive' scope.
             last_scope = klass.send(:scoped_methods).shift
           end
 
           scope = {:create => { :visitor => visitor }}
-          if klass.ancestors.include?(User)
-            scope[:find] ||= {}
+          find = scope[:find] ||= {}
+          if klass.ancestors.include?(Zena::Acts::SecureNode::InstanceMethods)
+            find[:conditions] = node_find_scope
+          elsif klass.ancestors.include?(User)
             ptbl = Participation.table_name
-            scope[:find][:joins] = "INNER JOIN #{ptbl} ON #{klass.table_name}.id = #{ptbl}.user_id AND #{ptbl}.site_id = #{visitor.site[:id]}"
-            scope[:find][:readonly]   = false
-            scope[:find][:select]     = "#{User.table_name}.*"
-            scope[:find][:conditions] = find_scope
+            find[:joins] = "INNER JOIN #{ptbl} ON #{klass.table_name}.id = #{ptbl}.user_id AND #{ptbl}.site_id = #{visitor.site[:id]}"
+            find[:readonly]   = false
+            find[:select]     = "#{User.table_name}.*"
           elsif klass.ancestors.include?(Version)
-            scope[:find] ||= {}
             ntbl = Node.table_name
-            scope[:find][:joins] = "INNER JOIN #{ntbl} ON #{klass.table_name}.node_id = #{ntbl}.id"
-            scope[:find][:readonly]   = false
-            scope[:find][:conditions] = secure_scope(ntbl)
-          elsif klass.column_names.include?('site_id')
-            if find_scope && !opts[:site_id_clause_set]
-              find_scope = "(#{find_scope}) AND (#{klass.table_name}.site_id = #{visitor.site[:id]})"
-            elsif !opts[:site_id_clause_set]
-              find_scope = "#{klass.table_name}.site_id = #{visitor.site[:id]}"
+            find[:joins] = "INNER JOIN #{ntbl} ON #{klass.table_name}.node_id = #{ntbl}.id"
+            find[:readonly] = false
+            if node_find_scope =~ /publish_from/
+              # read, we need to rewrite with node's table name
+              find[:conditions] = secure_scope(ntbl)
+            else
+              # secure write or drive
+              find[:conditions] = node_find_scope.sub('site_id', "#{ntbl}.site_id")
             end
-            scope[:find] = { :conditions => find_scope }
+          elsif klass.column_names.include?('site_id')
+            find[:conditions] = "#{klass.table_name}.site_id = #{visitor.site[:id]}"
           elsif klass.ancestors.include?(Site)
-            scope[:find] ||= {}
             ptbl = Participation.table_name
-            scope[:find][:joins] = "INNER JOIN #{ptbl} ON #{klass.table_name}.id = #{ptbl}.site_id AND #{ptbl}.user_id = #{visitor[:id]}"
-            scope[:find][:readonly]   = false
-            scope[:find][:select]     = "#{Site.table_name}.*"
-            scope[:find][:conditions] = find_scope
+            find[:joins] = "INNER JOIN #{ptbl} ON #{klass.table_name}.id = #{ptbl}.site_id AND #{ptbl}.user_id = #{visitor[:id]}"
+            find[:readonly]   = false
+            find[:select]     = "#{Site.table_name}.*"
           end
 
           # FIXME: 'with_scope' is protected now. Can we live with something cleaner like this ?
@@ -658,12 +640,15 @@ Just doing the above will filter all result according to the logged in user.
         # * members of +drive_group+ if +max_status+ >= prop
         # The options hash is used internally by zena when maintaining parent to children inheritance and should not be used for other purpose if you do not want to break secure access.
         def secure(klass, opts={}, &block)
+          # FIXME: why doesn't secure look like secure_write and secure_drive ?
+          # klass.ancestors.include? should not belong here !
+          # using the same:
+          # secure_with_scope(klass, nil, &block)
+          # for all should work.
           if opts[:secure] == false
             yield
-          elsif klass.ancestors.include?(Zena::Acts::SecureNode::InstanceMethods) && !visitor.is_su? # not super user
-            secure_with_scope(klass, secure_scope(klass.table_name), :site_id_clause_set => true, &block)
           else
-            secure_with_scope(klass, nil, &block)
+            secure_with_scope(klass, secure_scope(klass.table_name), &block)
           end
         rescue ActiveRecord::RecordNotFound
           # Rails generated exceptions
@@ -698,12 +683,12 @@ Just doing the above will filter all result according to the logged in user.
         # * owner
         # * members of +write_group+ if node is published and the current date is greater or equal to the publication date
         def secure_write(obj, &block)
-          if visitor.is_su? # super user
-            secure_with_scope(obj, nil, &block)
+          scope = if visitor.is_su? # super user
+            "site_id = #{visitor.site.id}"
           else
-            scope = "wgroup_id IN (#{visitor.group_ids.join(',')})"
-            secure_with_scope(obj, scope, &block)
+            "site_id = #{visitor.site.id} AND wgroup_id IN (#{visitor.group_ids.join(',')})"
           end
+          secure_with_scope(obj, scope, &block)
         rescue ActiveRecord::RecordNotFound
           # Rails generated exceptions
           # TODO: monitor how often this happens and replace the finders concerned
@@ -729,12 +714,12 @@ Just doing the above will filter all result according to the logged in user.
         # * owner if +max_status+ <= red
         # * owner if private
         def secure_drive(obj, &block)
-          if visitor.is_su? # super user
-            secure_with_scope(obj, nil, &block)
+          scope = if visitor.is_su? # super user
+            "site_id = #{visitor.site.id}"
           else
-            scope = "pgroup_id IN (#{visitor.group_ids.join(',')})"
-            secure_with_scope(obj, scope, &block)
+            "site_id = #{visitor.site.id} AND pgroup_id IN (#{visitor.group_ids.join(',')})"
           end
+          secure_with_scope(obj, scope, &block)
         rescue ActiveRecord::RecordNotFound
           # Rails generated exceptions
           # TODO: monitor how often this happens and replace the finders concerned

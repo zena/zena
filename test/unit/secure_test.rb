@@ -754,11 +754,32 @@ class SecureTest < Zena::Unit::TestCase
     setup do
       login(:ant)
     end
+    
     context 'with secure' do
       should 'only return versions where visitor can read or write' do
         versions = secure(Version) { Version.find(:all, :conditions => "title like 's%'")}
         assert_equal 4, versions.count
-        assert_equal ['Skins (layout themes)', 'Solenopsis Invicta', 'some opening', 'status title'],
+        assert_equal ['Skins (layout themes)', 'Solenopsis Invicta', 'status title', 'super ouverture'],
+                     versions.map {|v| v.title }.sort
+      end
+    end
+    
+    context 'with secure_write' do
+      should 'only return versions where visitor can write' do
+        Node.connection.execute "UPDATE nodes SET wgroup_id = #{groups_id(:admin)} WHERE id = #{nodes_id(:status)}"
+        versions = secure_write(Version) { Version.find(:all, :conditions => "title like 's%'")}
+        assert_equal 3, versions.count
+        assert_equal ['Skins (layout themes)', 'Solenopsis Invicta', 'super ouverture'],
+                     versions.map {|v| v.title }.sort
+      end
+    end
+    
+    context 'with secure_drive' do
+      should 'only return versions where visitor can drive' do
+        Node.connection.execute "UPDATE nodes SET pgroup_id = #{groups_id(:workers)} WHERE id = #{nodes_id(:status)}"
+        versions = secure_drive(Version) { Version.find(:all, :conditions => "title like 's%'")}
+        assert_equal 2, versions.count
+        assert_equal ['Stranger in the night', 'status title'],
                      versions.map {|v| v.title }.sort
       end
     end

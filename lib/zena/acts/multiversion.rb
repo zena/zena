@@ -697,15 +697,6 @@ module Zena
         def version_class
           Version
         end
-
-        # Find a node based on a version id
-        def version(version_id)
-          version = Version.find(version_id.to_i)
-          node = self.find(version.node_id)
-          node.version = version
-          # FIXME: remove this
-          node.eval_with_visitor 'errors.add("base", "You do not have the rights to do this") unless version.status == 50 || can_drive? || version.user_id == visitor[:id]'
-        end
       end # ClassMethods
     end # Multiversion
   end # Acts

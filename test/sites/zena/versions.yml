@@ -276,7 +276,7 @@ opening_red_fr:
   node:            opening
   user:            tiger
   comment:         new redaction for opening
-  title:           some opening
+  title:           super ouverture
   publish_from:
   lang:            fr
   status:          red

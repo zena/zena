@@ -267,7 +267,8 @@ class NodesController < ApplicationController
 
   # Create a backup copy of the current redaction.
   def backup
-    @node = secure_write!(Node) { Node.version(params[:id]) }
+    version = secure_write!(Version) { Version.find(params[:id]) }
+    @node   = version.node
     @node.backup
     if @node.errors.empty?
       flash[:notice] = _("Backup created.")
