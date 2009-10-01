@@ -7,6 +7,8 @@ class MultiVersionTest < Zena::Unit::TestCase
       :parent_id => nodes_id(:zena) }
   end
 
+  # =========== FIND VERSION TESTS =============
+
   context 'A visitor without write access' do
     setup do
       login(:anon)
@@ -33,7 +35,6 @@ class MultiVersionTest < Zena::Unit::TestCase
     context 'when there is only a redaction for the current language' do
       setup do
         login(:tiger)
-        visitor.lang = 'fr'
         version = secure!(Version) { versions(:opening_fr) }
         node = version.node
         assert node.destroy_version
@@ -50,24 +51,56 @@ class MultiVersionTest < Zena::Unit::TestCase
 
   context 'A visitor with write access' do
     setup do
-
+      login(:ant)
     end
 
-    should 'description' do
-
-    end
-  end
-
-  context 'A visitor with read and drive access' do
-    setup do
-
+    should 'see a publication in the selected language' do
+      visitor.lang = 'en'
+      node = secure!(Node) { nodes(:opening) }
+      assert_equal versions_id(:opening_en), node.version.id
     end
 
-    should 'description' do
-
+    should 'see a redaction in her language' do
+      node = secure!(Node) { nodes(:opening) }
+      assert_equal versions_id(:opening_red_fr), node.version.id
     end
-  end
 
+    should 'see a publication in the reference lang if there are none for the current language' do
+      visitor.lang = 'de'
+      node = secure!(Node) { nodes(:opening) }
+      assert_equal 'fr', node.ref_lang
+      assert_equal versions_id(:opening_fr), node.version.id
+    end
+
+    context 'in a language not supported' do
+      setup do
+        login(:tiger)
+        version = secure!(Version) { versions(:opening_fr) }
+        node = version.node
+        assert node.destroy_version
+        assert_equal [:opening_red_fr, :opening_en].map{|s| versions_id(s)}.sort, node.versions.map{|v| v.id}.sort
+        login(:ant)
+      end
+
+      should 'see any publication if there are none for the current language and the reference language' do
+        visitor.lang = 'de'
+        node = secure!(Node) { nodes(:opening) }
+        assert_equal versions_id(:opening_en), node.version.id
+      end
+    end
+
+    should 'see a redaction if there are no publications' do
+      visitor.lang = 'de'
+      node = secure!(Node) { nodes(:crocodiles) }
+      assert_equal versions_id(:crocodiles_en), node.version.id
+    end
+  end # A visitor with write access
+
+
+  # =========== UPDATE VERSION TESTS =============
+
+
+  # =========== OLD TESTS TO REWRITE =============
 
   def test_find_version
     login(:tiger) # can_drive
