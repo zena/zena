@@ -11,8 +11,10 @@ class VersionsController < ApplicationController
       format.html {
         if @node.id == current_site.root_id
           render_and_cache :cache => false, :mode => '+index'
+          insert_warning
         else
           render_and_cache :cache => false
+          insert_warning
         end
       }
 
@@ -250,5 +252,9 @@ class VersionsController < ApplicationController
         # js = call from 'drive' popup
         format.js   { render :action => 'update' }
       end
+    end
+
+    def insert_warning
+      response.body.gsub!('</html>', %Q{<div id='version_warning' class='s#{@node.version.status}'>You are viewing version number <b>#{@node.version.number}</b>, created on #{format_date(@node.version.created_at, _('full_date'))} <a href='#{zen_path(@node)}'>#{_('close')}</a></div></html>})
     end
 end
