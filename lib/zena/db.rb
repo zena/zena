@@ -21,6 +21,14 @@ module Zena
       NOW = "datetime('now')"
     end
 
+    def set_attribute(obj, key, value)
+      obj.send("#{key}=", value)
+      execute "UPDATE #{obj.class.table_name} SET #{key}=#{quote(value)} WHERE id=#{obj[:id]}"
+    end
+
+    def quote(value)
+      connection.quote(value)
+    end
 
     def adapter
       ActiveRecord::Base.configurations[RAILS_ENV]['adapter']

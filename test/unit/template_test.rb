@@ -298,7 +298,7 @@ class TemplateTest < Zena::Unit::TestCase
     tmpt = secure(Template) { Template.create(:parent_id=>nodes_id(:default), 'c_format' => 'vcard', 'c_klass' => 'Node', 'name' => '', 'v_status' => Zena::Status[:pub], 'c_file' =>
       uploaded_file('some.txt', 'text/zafu')) }
     assert_kind_of Template, tmpt
-    tmpt.send(:update_attribute_without_fuss, :updated_at, Time.gm(2006,04,11))
+    Zena::Db.set_attribute(tmpt, :updated_at, Time.gm(2006,04,11))
     assert_equal Zena::Status[:pub], tmpt.version.status
 
     tmpt = secure(Node) { Node.find(tmpt[:id]) } # reload

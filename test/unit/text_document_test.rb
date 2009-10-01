@@ -52,7 +52,7 @@ class TextDocumentTest < Zena::Unit::TestCase
     bird = secure!(Node) { nodes(:bird_jpg)}
     b_at = bird.updated_at
     assert bird.update_attributes(:parent_id => node[:parent_id])
-    Zena::Acts::Multiversion.update_attribute_without_fuss(bird, :updated_at, b_at)
+    Zena::Db.set_attribute(bird, :updated_at, b_at)
     start =<<-END_CSS
     body { font-size:10px; }
     #header { background:url('bird.jpg') }
@@ -95,7 +95,7 @@ class TextDocumentTest < Zena::Unit::TestCase
     bird = secure!(Node) { nodes(:bird_jpg)}
     b_at = bird.updated_at
     assert bird.update_attributes(:parent_id => node[:parent_id], :name => "greenBird")
-    Zena::Acts::Multiversion.update_attribute_without_fuss(bird, :updated_at, b_at)
+    Zena::Db.set_attribute(bird, :updated_at, b_at)
     start =<<-END_CSS
     body { font-size:10px; }
     #header { background:url('green_bird.jpg') }
@@ -121,7 +121,7 @@ class TextDocumentTest < Zena::Unit::TestCase
     login(:tiger)
     textdoc = secure(TextDocument) { TextDocument.create(:parent_id=>nodes_id(:cleanWater), :c_file => uploaded_text('some.txt'), :v_status => Zena::Status[:pub])}
     assert_equal uploaded_text('some.txt').size, textdoc.version.content.size
-    textdoc.send(:update_attribute_without_fuss, :updated_at, Time.gm(2006,04,11))
+    Db.set_attribute(textdoc, :updated_at, Time.gm(2006,04,11))
     assert_equal Zena::Status[:pub], textdoc.version.status
     textdoc = secure(Node) { Node.find(textdoc[:id]) }
     assert_equal '21a6948e0aec6de825009d8fda44f7e4', Digest::MD5.hexdigest(uploaded_text('some.txt').read)

@@ -1,18 +1,6 @@
 module Zena
   module Acts
     module Multiversion
-      def self.update_attribute_without_fuss(obj, att, value)
-        obj[att] = value
-        if value.kind_of?(Time)
-          value = value.strftime("'%Y-%m-%d %H:%M:%S'")
-        elsif value.nil?
-          value = "NULL"
-        else
-          value = "'#{value}'"
-        end
-        obj.class.connection.execute "UPDATE #{obj.class.table_name} SET #{att}=#{value} WHERE id=#{obj[:id]}"
-      end
-
       module AddActsAsMethods
         # this is called when the module is included into the 'base' module
         def self.included(base)
@@ -87,11 +75,15 @@ module Zena
             r.can_drive?
           end
 
-          add_transition(:remove,  :from => ((-1..70).to_a - [10,50]), :to => :rem) do |r|
+          add_transition(:remove,  :from => ((21..49).to_a + [70]), :to => :rem) do |r|
             r.can_drive?
           end
 
-          add_transition(:redit, :from => (10..50), :to => :red) do |r|
+          add_transition(:destroy_version,  :from => (-1..20), :to => -1) do |r|
+            r.can_drive? && !visitor.is_anon? && (r.versions.count > 1 || empty?)
+          end
+
+          add_transition(:redit, :from => (10..49), :to => :red) do |r|
             r.can_drive?
           end
         end
@@ -158,13 +150,13 @@ module Zena
         def can_edit_lang?(lang=nil)
           return false unless can_write?
           if lang
-            # can we create a new redaction for this lang ?
-            v = versions.find(:first, :select => 'id', :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND lang=?", lang])
+            # Is there a proposition lock ?
+            v = versions.find(:first, :select => 'id', :conditions=>["status > #{Zena::Status[:pub]} AND status < #{Zena::Status[:red]} AND lang=?", lang])
             v == nil
           else
             # can we create a new redaction in the current context ?
             # there can only be one redaction/proposition per lang per node. Only the owner of the red can edit
-            v = versions.find(:first, :select => 'id,status,user_id', :conditions=>["status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND lang=?", visitor.lang])
+            v = versions.find(:first, :select => 'id,status,user_id', :conditions=>["status > #{Zena::Status[:pub]} AND status < #{Zena::Status[:red]} AND lang=?", visitor.lang])
             v == nil || (v.status == Zena::Status[:red] && v.user_id == visitor[:id])
           end
         rescue ActiveRecord::RecordNotFound
@@ -265,9 +257,6 @@ module Zena
           return true  if visitor.is_su?
           prev_status = v.status_was.to_i
           case method
-          when :destroy_version
-            # anonymous users cannot destroy
-            can_drive? && prev_status == Zena::Status[:rem] && !visitor.is_anon? && (self.versions.count > 1 || empty?)
           when :edit
             can_edit_lang?
           when :drive
@@ -319,7 +308,7 @@ module Zena
         # Propose for publication
         def propose(prop_status=Zena::Status[:prop])
           if version.status == Zena::Status[:prop]
-            errors.add(:base, 'already proposed')
+            errors.add(:base, 'Already proposed.')
             return false
           end
           apply(:propose, prop_status)
@@ -340,6 +329,10 @@ module Zena
         # if version to publish is 'rem' or 'red' or 'prop' : old publication => 'replaced'
         # if version to publish is 'rep' : old publication => 'removed'
         def publish(pub_time=nil)
+          if version.status == Zena::Status[:pub]
+            errors.add(:base, 'Already published.')
+            return false
+          end
           apply(:publish, pub_time)
         end
 
@@ -354,6 +347,10 @@ module Zena
         # A published version can be removed by the members of the publish group
         # A redaction can be removed by it's owner
         def remove
+          if version.status == Zena::Status[:prop]
+            errors.add(:base, 'You should refuse the proposition before removing it.')
+            return false
+          end
           apply(:remove)
         end
 
@@ -381,44 +378,30 @@ module Zena
           apply(:update_attributes,new_attributes)
         end
 
-        # Return the current version. If @version was not set, this is a normal find or a new record. We have to find
-        # a suitable edition :
-        # * if new_record?, create a new redaction
-        # * find user redaction or proposition in the current lang
-        # * find an edition for current lang
-        # * find an edition in the reference lang for this node
-        # * find the first publication
-        # If 'key' is set to :pub, only find the published versions. If key is a number, find the version with this number.
-        def version(key=nil) #:doc:
-          if !key.nil? && !key.kind_of?(Symbol)
-            v = versions.find(:first,
-              :conditions => [ "((status = #{Zena::Status[:red]} AND user_id = ?) OR status <> #{Zena::Status[:red]}) AND number = ?", visitor.id, key])
-            raise ActiveRecord::RecordNotFound unless v
+        # Return the current version. If @version was not set, this is a normal find or a new record.
+        # TODO: document rules to find version.
+        def version #:doc:
+          @version ||= if new_record?
+            v = version_class.new('lang' => visitor.lang)
+            v.user_id = visitor.id
             v.node = self
-            @version = v
+            v
           else
-            @version ||= if new_record?
-              v = version_class.new('lang' => visitor.lang)
-              v.user_id = visitor.id
-              v.node = self
+            if can_write?
+              # normal version
+              v = versions.find(:first,
+                :select     => "*, (lang = #{Node.connection.quote(visitor.lang)}) as lang_ok, (lang = #{Node.connection.quote(ref_lang)}) as ref_ok",
+                :order      => "lang_ok DESC, ref_ok DESC, status DESC")
+              v.node = self if v # FIXME: remove when :inverse_of moves in Rails stable
               v
             else
-              if can_write?
-                # normal version
-                v = versions.find(:first,
-                  :select     => "*, (lang = #{Node.connection.quote(visitor.lang)}) as lang_ok, (lang = #{Node.connection.quote(ref_lang)}) as ref_ok",
-                  :order      => "lang_ok DESC, ref_ok DESC, status DESC")
-                v.node = self if v # FIXME: remove when :inverse_of moves in Rails stable
-                v
-              else
-                # read only
-                v = versions.find(:first,
-                  :select     => "*, (lang = #{Node.connection.quote(visitor.lang)}) as lang_ok, (lang = #{Node.connection.quote(ref_lang)}) as ref_ok",
-                  :conditions => [ "status = #{Zena::Status[:pub]}"],
-                  :order      => "lang_ok DESC, ref_ok DESC")
-                v.node = self if v # FIXME: remove when :inverse_of moves in Rails stable
-                v
-              end
+              # read only
+              v = versions.find(:first,
+                :select     => "*, (lang = #{Node.connection.quote(visitor.lang)}) as lang_ok, (lang = #{Node.connection.quote(ref_lang)}) as ref_ok",
+                :conditions => [ "status = #{Zena::Status[:pub]}"],
+                :order      => "lang_ok DESC, ref_ok DESC")
+              v.node = self if v # FIXME: remove when :inverse_of moves in Rails stable
+              v
             end
           end
         end
@@ -602,7 +585,7 @@ module Zena
 
             if @version_or_content_updated_but_not_saved
               # not saved, set updated_at manually
-              update_attribute_without_fuss(:updated_at, @version.updated_at)
+              Zena::Db.set_attribute(self, :updated_at, @version.updated_at)
             end
 
             @changed_before_save        = nil
@@ -611,10 +594,6 @@ module Zena
             @old_redaction_to_replace   = nil
             @redaction                  = nil
             true
-          end
-
-          def update_attribute_without_fuss(att, value)
-            Multiversion.update_attribute_without_fuss(self, att, value)
           end
 
           # Any attribute starting with 'v_' belongs to the 'version' or 'redaction'

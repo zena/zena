@@ -47,7 +47,7 @@ class VersionsControllerTest < Zena::Controller::TestCase
     bird = secure!(Node) { nodes(:bird_jpg)}
     b_at = bird.updated_at
     assert bird.update_attributes(:parent_id => node[:parent_id])
-    Zena::Acts::Multiversion.update_attribute_without_fuss(bird, :updated_at, b_at)
+    Zena::Db.set_attribute(bird, :updated_at, b_at)
     start =<<-END_CSS
     body { font-size:10px; }
     #header { background:url('bird.jpg') }

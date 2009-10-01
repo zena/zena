@@ -36,6 +36,43 @@ class DbTest < Zena::Unit::TestCase
     assert_nil Zena::Db.fetch_row("SELECT name FROM nodes WHERE 0")
   end
 
+  context 'A node that needs attribute changes without validations or side effects' do
+    setup do
+      login(:anon)
+      @node = secure!(Node) { nodes(:status) }
+    end
+
+    should 'not change updated_at date' do
+      old_updated_at = @node.updated_at
+      Zena::Db.set_attribute(@node, :name, 'flop')
+      @node = secure!(Node) { nodes(:status) } # reload
+      assert_equal old_updated_at, @node.updated_at
+    end
+
+    should 'set attribute in node' do
+      Zena::Db.set_attribute(@node, :name, 'flop')
+      assert_equal 'flop', @node.name
+    end
+
+    should 'set attribute in db' do
+      Zena::Db.set_attribute(@node, :name, 'flop')
+      @node = secure!(Node) { nodes(:status) } # reload
+      assert_equal 'flop', @node.name
+    end
+
+    should 'set a time' do
+      Zena::Db.set_attribute(@node, :publish_from, Time.gm(2009,10,1))
+      @node = secure!(Node) { nodes(:status) } # reload
+      assert_equal Time.gm(2009,10,1), @node.publish_from
+    end
+
+    should 'set an integer' do
+      Zena::Db.set_attribute(@node.version, :status, Zena::Status[:rep])
+      version = secure!(Version) { Version.find(@node.version.id) } # reload
+      assert_equal Zena::Status[:rep], version.status
+    end
+  end
+
   private
     def assert_list_equal(l1, l2)
       if l1[0].kind_of?(Hash)

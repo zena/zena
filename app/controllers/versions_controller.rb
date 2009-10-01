@@ -1,10 +1,9 @@
 require 'differ'
 class VersionsController < ApplicationController
   layout :popup_layout, :except => [:preview, :diff, :show]
-  before_filter :find_node, :verify_access
+  before_filter :find_version, :verify_access
 
   # Display a specific version of a node
-  # TODO: this controller is nearly the same as NodesController#show, except caching is disabled. Any idea to DRY this ?
   def show
     respond_to do |format|
 
@@ -93,7 +92,8 @@ class VersionsController < ApplicationController
     source = @node.version
     # target
     if params[:to].to_i > 0
-      @node.version(params[:to])
+      version = secure!(Version) { Version.find(:first, :conditions => ['node_id = ? AND number = ?', @node.id, params[:to]])}
+      @node.version = version
     else
       # default
       @node.instance_variable_set(:@version, nil)
@@ -228,14 +228,13 @@ class VersionsController < ApplicationController
 
 
   protected
-    def find_node
+    def find_version
       @node = secure!(Node) { Node.find_by_zip(params[:node_id]) }
       if params[:id].to_i != 0
-        begin
-          # try to set current version from version number
-          @node.version(params[:id])
-        rescue ActiveRecord::RecordNotFound
+        unless version = Version.find(:first, :conditions => ['node_id = ? AND number = ?', @node.id, params[:id]])
           redirect_to :id => @node.version.number
+        else
+          @node.version = version
         end
       end
     end

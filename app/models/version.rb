@@ -248,7 +248,7 @@ class Version < ActiveRecord::Base
     def set_updated_at
       if @content_updated_but_not_saved
         # not saved, set updated_at manually
-        Zena::Acts::Multiversion.update_attribute_without_fuss(self, :updated_at, Time.now)
+        Zena::Db.set_attribute(self, :updated_at, Time.now)
       end
       @content_updated_but_not_saved = nil
       true

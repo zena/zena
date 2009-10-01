@@ -140,11 +140,21 @@ class MultiVersionTest < Zena::Unit::TestCase
         end
 
         should 'be allowed to propose' do
-          visitor.lang = 'fr'
-          assert_equal versions_id(:status_red_fr), node.version.id
           assert @node.can_propose?
           assert @node.propose
-          assert_equal Zena::Status[:prop], node.version.status
+          assert_equal Zena::Status[:prop], @node.version.status
+        end
+
+        should 'not be allowed to publish' do
+          assert !@node.can_publish?
+          assert !@node.publish
+          assert_equal 'You do not have the rights to publish', @node.errors[:base]
+        end
+
+        should 'not be allowed to remove' do
+          assert !@node.can_remove?
+          assert !@node.remove
+          assert_equal 'You do not have the rights to remove', @node.errors[:base]
         end
       end # A visitor with write access on a redaction that she owns
 
@@ -178,7 +188,6 @@ class MultiVersionTest < Zena::Unit::TestCase
         end
 
         should 'be allowed to propose' do
-          assert_equal versions_id(:opening_red_fr), @node.version.id
           assert @node.can_propose?
           assert @node.propose
           assert_equal Zena::Status[:prop], @node.version.status
@@ -242,7 +251,142 @@ class MultiVersionTest < Zena::Unit::TestCase
         assert !@node.can_propose?
         assert !@node.propose # does nothing
       end
+
+      should 'not be allowed to publish' do
+        assert !@node.can_publish?
+        assert !@node.publish
+        assert_equal 'Already published.', @node.errors[:base]
+      end
+
+      should 'not be allowed to unpublish' do
+        assert !@node.can_remove?
+        assert !@node.can_unpublish?
+        assert !@node.unpublish
+        assert_equal 'You do not have the rights to unpublish', @node.errors[:base]
+      end
     end # A visitor with write access on a publication
+
+
+    # -------------------- ON A PROPOSITION
+    context 'on a proposition' do
+      setup do
+        login(:ant)
+        visitor.lang = 'fr'
+        @node = secure!(Node) { nodes(:opening) }
+        @node.propose
+        @node = secure!(Node) { nodes(:opening) } # reload
+      end
+
+      should 'see a proposition' do
+        # this is only to make sure fixtures are used correctly
+        assert_equal Zena::Status[:prop], @node.version.status
+      end
+
+      should 'not be allowed to write' do
+        assert !@node.can_edit?
+        assert !@node.update_attributes(:v_title => 'foobar')
+        assert_equal 'You cannot edit while a proposition is beeing reviewed.', @node.errors[:base]
+      end
+
+      should 'not be allowed to propose' do
+        assert !@node.can_propose?
+        assert !@node.propose
+        assert 'Already proposed.', @node.errors[:base]
+      end
+
+      should 'not be allowed to publish' do
+        assert !@node.can_publish?
+        assert !@node.publish
+        assert_equal 'You do not have the rights to publish', @node.errors[:base]
+      end
+
+      should 'not be allowed to remove' do
+        assert !@node.can_remove?
+        assert !@node.remove
+        assert_equal 'You should refuse the proposition before removing it.', @node.errors[:base]
+      end
+    end # A visitor with write access on a proposition
+
+  end # A visitor with write access
+
+
+  context 'A visitor with drive access' do
+
+    context 'on a redaction' do
+      setup do
+        login(:tiger)
+        @node = secure!(Node) { nodes(:crocodiles) }
+      end
+
+      should 'see a redaction' do
+        # this is only to make sure fixtures are used correctly
+        assert_equal Zena::Status[:red], @node.version.status
+      end
+
+      should 'be allowed to propose' do
+        assert @node.can_propose?
+        assert @node.propose
+        assert_equal Zena::Status[:prop], @node.version.status
+      end
+
+      should 'be allowed to publish' do
+        assert @node.can_publish?
+        assert @node.publish
+        assert_equal Zena::Status[:prop], @node.version.status
+      end
+
+      should 'be allowed to remove' do
+        assert @node.can_remove?
+        assert @node.remove
+        assert_equal Zena::Status[:rem], @node.version.status
+      end
+    end # A visitor with drive access on a redaction
+
+    # -------------------- ON A PUBLICATION
+    context 'on a publication' do
+      setup do
+        login(:tiger)
+        @node = secure!(Node) { nodes(:status) }
+      end
+
+      should 'see a publication' do
+        # this is only to make sure fixtures are used correctly
+        assert_equal Zena::Status[:pub], @node.version.status
+      end
+
+      should 'not be allowed to propose' do
+        assert !@node.can_propose?
+        assert !@node.propose
+        assert_equal 'This transition is not allowed.', @node.errors[:base]
+      end
+
+      should 'not be allowed to publish' do
+        assert !@node.can_publish?
+        assert !@node.publish
+        assert_equal 'Already published.', @node.errors[:base]
+      end
+
+      should 'be allowed to unpublish' do
+        assert @node.can_unpublish?
+        assert @node.unpublish
+        assert_equal Zena::Status[:rem], @node.version.status
+      end
+
+      should 'not be allowed to refuse' do
+        assert !@node.can_refuse?
+        assert !@node.refuse
+        assert_equal 'This transition is not allowed.', @node.errors[:base]
+      end
+
+      should_eventually 'replace a redaction when unpublishing a publication' do
+      end
+
+      should 'not see that she can remove' do
+        assert !@node.can_remove?
+        assert @node.remove
+        assert_equal Zena::Status[:rem], @node.version.status
+      end
+    end # A visitor with drive access on a publication
 
 
     # -------------------- ON A PROPOSITION
@@ -263,185 +407,38 @@ class MultiVersionTest < Zena::Unit::TestCase
       should 'not be allowed to propose' do
         assert !@node.can_propose?
         assert !@node.propose
-        assert 'already proposed', @node.errors[:base]
+        assert 'Already proposed.', @node.errors[:base]
       end
-    end # A visitor with write access on a proposition
 
-  end # A visitor with write access
+      should 'be allowed to publish' do
+        assert @node.can_publish?
+        assert @node.publish
+        assert_equal Zena::Status[:pub], @node.version.status
+      end
+
+      should 'be allowed to refuse' do
+        assert @node.can_refuse?
+        assert @node.refuse
+        assert_equal Zena::Status[:red], @node.version.status
+      end
+
+      should 'not be allowed to remove' do
+        assert !@node.can_remove?
+        assert !@node.remove
+        assert_equal 'You should refuse the proposition before removing it.', @node.errors[:base]
+      end
+
+      should 'not be allowed to unpublish' do
+        assert !@node.can_unpublish?
+      end
+    end # A visitor with drive access on a proposition
+
+  end # A visitor with drive access
 
 
   # =========== OLD TESTS TO REWRITE =============
 
-  def test_update_without_fuss
-    login(:tiger)
-    node = secure!(Node) { nodes(:wiki) }
-    assert_equal Zena::Status[:pub], node[:max_status]
-    node.send(:update_attribute_without_fuss, :max_status, Zena::Status[:red])
-    node = secure!(Node) { nodes(:wiki) }
-    assert_equal Zena::Status[:red], node[:max_status]
-  end
 
-  def test_update_without_fuss_time
-    login(:tiger)
-    node = secure!(Node) { nodes(:wiki) }
-    assert_equal Time.gm(2006,3,10), node[:publish_from]
-    node.send(:update_attribute_without_fuss, :publish_from, Time.gm(2006,12,10))
-    node = secure!(Node) { nodes(:wiki) }
-    assert_equal Time.gm(2006,12,10), node[:publish_from]
-  end
-
-  def test_update_new_red
-    login(:ant)
-    node = secure_write(Node) { nodes(:wiki)  }
-    attrs = { :v_comment=>"hey I'm new !", :v_title=>"new" }
-    assert node.update_attributes( attrs ) , "Edit succeeds"
-    assert ! node.version.new_record? , "Not a new redaction"
-    assert_equal "new", node.version.title
-    # find it
-    node = secure_write(Node) { nodes(:wiki)  }
-    node.attributes = {'v_title' => 'super new'}
-    assert_equal "hey I'm new !", node.version.comment
-    assert_equal "super new", node.version.title
-    assert_equal Zena::Status[:red], node.version.status
-    assert node.update_attributes( :v_title=>"bee bop a lula" ) , "Edit succeeds"
-    assert_equal "bee bop a lula", node.version.title
-    redactions = Version.find(:all, :conditions=>['node_id = ? AND status = ?', nodes_id(:wiki), Zena::Status[:red]])
-    assert_equal 1, redactions.size
-
-    # no two redactions for the same language
-    login(:tiger)
-    visitor.lang = "fr"
-    node = secure_write(Node) { nodes(:wiki)  }
-    assert ! node.update_attributes( :v_title=>"Mon amour") , "Edit fails"
-
-    # can add redactions for different languages
-    visitor.site.languages = 'fr,en,de'
-    visitor.lang = "de"
-    node = secure_write(Node) { nodes(:wiki)  }
-    assert node.update_attributes( :v_title=> "Spieluhr") , "Edit succeeds"
-    redactions = Version.find(:all, :conditions=>['node_id = ? AND status = ?', nodes_id(:wiki), Zena::Status[:red]])
-    assert_equal 2, redactions.size
-  end
-
-  def test_update_attributes
-    login(:ant)
-    visitor.lang = 'en'
-    node = secure_write(Node) { nodes(:lake)  }
-    node.attributes = {'v_title' => 'hop'}
-    assert_equal "hop", node.version.title
-    assert_equal Zena::Status[:red], node.version.status
-    attrs = { :v_comment=>"hey I'm new !", :v_title=>"super new" }
-    assert node.update_attributes( attrs ) , "Edit succeeds"
-
-    node = secure_write(Node) { nodes(:lake)  }
-    assert_equal "hey I'm new !", node.version.comment
-    assert_equal "super new", node.version.title
-    assert_equal Zena::Status[:red], node.version.status
-  end
-
-  def test_update_attributes_bad_user
-    login(:tiger)
-    node = secure_write(Node) { nodes(:lake)  }
-    attrs = { :v_comment=>"hey I'm new !", :v_title=>"super new" }
-    assert ! node.update_attributes( attrs ) , "Edit fails"
-  end
-
-  def test_update_cannot_create_redaction
-    # ant already has a redaction for 'lake', lion cannot create another
-    login(:lion)
-    visitor.lang = 'en'
-    node = secure!(Node) { nodes(:lake)  }
-    attrs = { :rgroup_id => 4, :v_title => "Manager's lake" }
-    assert ! node.update_attributes( attrs ), "Update attributes fails"
-    assert_equal "(ant) is editing this node", node.errors[:base]
-  end
-
-  def test_update_attributes_ok
-    # changes node and creates a new redaction
-    login(:lion)
-    node = secure!(Node) { nodes(:lake_jpg)  }
-    attrs = { :inherit=>0, :rgroup_id => groups_id(:managers), :v_title => "Manager's lake", :v_lang => 'ru'}
-    assert !node.update_attributes( attrs )
-    assert node.errors['version_lang']
-    assert node.errors['version_lang']
-    visitor.site.languages = 'en,fr,ru'
-    assert node.update_attributes( attrs )
-    assert_equal groups_id(:managers), node.rgroup_id
-    assert_equal groups_id(:workers), node.wgroup_id
-    assert_equal groups_id(:managers), node.pgroup_id
-    assert_equal 0, node.inherit
-    assert_equal "Manager's lake", node.version.title
-  end
-
-  def test_create_bad_attributes
-    login(:ant)
-    attrs = {
-    :name => 'new_with_attributes',
-    :rgroup_id => groups_id(:workers),
-    :wgroup_id => groups_id(:workers),
-    :pgroup_id => groups_id(:managers),
-    :parent_id => nodes_id(:secret),
-    :v_title => "A New Node With A Redaction",
-    :v_summary => "new summary"
-    }
-    node = secure!(Node) { Node.new( attrs ) }
-    assert ! node.save , "Save fails"
-    assert node.errors[:parent_id].any?
-  end
-
-  def test_create_with_attributes_ok
-    login(:tiger)
-    attrs = {
-    :name => 'new-with-attributes',
-    :rgroup_id => groups_id(:workers),
-    :wgroup_id => groups_id(:workers),
-    :pgroup_id => groups_id(:managers),
-    :parent_id => nodes_id(:zena),
-    :v_title => "A New Node With A Redaction",
-    :v_summary => "new summary"
-    }
-    node = secure!(Node) { Node.create( attrs ) }
-    assert ! node.new_record? , "Not a new record"
-    assert ! node.version.new_record? , "Not a new redaction"
-    assert_equal Zena::Status[:red], node.version.status
-    assert_equal "A New Node With A Redaction", node.version.title
-    assert_equal "new-with-attributes", node.name
-    assert_equal groups_id(:workers), node.rgroup_id
-  end
-
-  def test_save_redaction
-    login(:ant)
-    visitor.lang = 'en'
-    node = secure!(Node) { nodes(:lake)  }
-    node.version_attributes = {'title' => 'new test'}
-    version_id = node.version.id
-    assert_equal "new test", node.version.title
-    assert_equal versions_id(:lake_red_en), version_id
-    # edit node with form...
-    # post modifications
-    node = secure!(Node) { Node.version(node.version.id) }
-    assert node.update_attributes( :v_title => "Funny lake" )
-
-    assert_equal "Funny lake", node.version.title
-    assert_equal version_id, node.version.id
-    # find redaction again
-    node = secure!(Node) { nodes(:lake)  }
-    node.version_attributes = {'comment' => 'folami'}
-    assert_equal "Funny lake", node.version.title
-    assert_equal version_id, node.version.id
-  end
-
-  def test_propose_node_ok
-    login(:ant)
-    node = secure!(Node) { Node.version(versions_id(:lake_red_en)) }
-    assert node.propose, "Propose for publication succeeds"
-  end
-
-  def test_propose_node_fails
-    login(:tiger)
-    node = secure!(Node) { Node.version(versions_id(:lake_red_en)) }
-    assert ! node.propose, "Propose for publication fails"
-  end
 
   def test_publish_node_ok
     login(:ant)
