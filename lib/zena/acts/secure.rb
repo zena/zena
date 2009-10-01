@@ -239,7 +239,7 @@ Just doing the above will filter all result according to the logged in user.
         end
 
         def secure_before_validation_on_update
-          self[:kpath] = self.class.kpath
+          self[:kpath] = self.vclass.kpath if vclass_id_changed? or type_changed?
           true
         end
 
@@ -402,13 +402,13 @@ Just doing the above will filter all result according to the logged in user.
         def secure_on_destroy
           if new_record? || can_drive_was_true?
             unless empty?
-              errors.add('base', 'cannot be removed (contains subpages or data)')
+              errors.add(:base, 'cannot be removed (contains subpages or data)')
               false
             else
               true
             end
           else
-            errors.add('base', "You do not have the rights to do this")
+            errors.add(:base, 'You do not have the rights to do this')
             false
           end
         end

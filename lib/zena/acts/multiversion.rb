@@ -242,7 +242,7 @@ module Zena
         def transition_allowed?(transition = self.current_transition, v = self.version)
           if transition.kind_of?(Symbol)
             prev_status = v.new_record? ? -1 : v.status_was.to_i
-            transition = self.class.transitions.select { |t| t[:name] == transition && t[:from].include?(prev_status) ? t : nil}[0]
+            transition = self.class.transitions.detect { |t| t[:name] == transition && t[:from].include?(prev_status) }
           end
           transition && (transition[:validate].nil? || transition[:validate].call(self))
         end
@@ -318,6 +318,10 @@ module Zena
 
         # Propose for publication
         def propose(prop_status=Zena::Status[:prop])
+          if version.status == Zena::Status[:prop]
+            errors.add(:base, 'already proposed')
+            return false
+          end
           apply(:propose, prop_status)
         end
 
@@ -464,6 +468,7 @@ module Zena
                 # make a redaction out of this version
                 build_redaction(v, target_status)
               else
+                @old_redaction_to_replace = version
                 # proposition, other status
                 # create dummy for error reporting
                 build_redaction(v, target_status)
@@ -555,7 +560,7 @@ module Zena
               else
                 self.publish_from = version.publish_from
               end
-              @old_publication_to_remove = [Zena::Db.fetch_ids("SELECT id FROM versions WHERE node_id = '#{self[:id]}' AND lang = '#{version[:lang]}' AND status = '#{Zena::Status[:pub]}' AND id != '#{version.id}'"), (version.status_was == Zena::Status[:rep] ? Zena::Status[:rem] : Zena::Status[:rep])]
+              @old_publication_to_replace = [Zena::Db.fetch_ids("SELECT id FROM versions WHERE node_id = '#{self[:id]}' AND lang = '#{version[:lang]}' AND status = '#{Zena::Status[:pub]}' AND id != '#{version.id}'"), (version.status_was == Zena::Status[:rep] ? Zena::Status[:rem] : Zena::Status[:rep])]
             when :auto_publish
               # publication time might have changed
               if version.publish_from_changed?
@@ -587,8 +592,12 @@ module Zena
               end
             end
 
-            if @old_publication_to_remove
-              self.class.connection.execute "UPDATE #{version.class.table_name} SET status = '#{@old_publication_to_remove[1]}' WHERE id IN (#{@old_publication_to_remove[0].join(', ')})" unless @old_publication_to_remove[0] == []
+            if @old_publication_to_replace
+              self.class.connection.execute "UPDATE #{version.class.table_name} SET status = '#{@old_publication_to_replace[1]}' WHERE id IN (#{@old_publication_to_replace[0].join(', ')})" unless @old_publication_to_replace[0] == []
+            end
+
+            if @old_redaction_to_replace
+              self.class.connection.execute "UPDATE #{version.class.table_name} SET status = '#{Zena::Status[:rep]}' WHERE id = #{@old_redaction_to_replace.id}"
             end
 
             if @version_or_content_updated_but_not_saved
@@ -596,10 +605,11 @@ module Zena
               update_attribute_without_fuss(:updated_at, @version.updated_at)
             end
 
-            @changed_before_save       = nil
-            @allowed_transitions       = nil
-            @old_publication_to_remove = nil
-            @redaction                 = nil
+            @changed_before_save        = nil
+            @allowed_transitions        = nil
+            @old_publication_to_replace = nil
+            @old_redaction_to_replace   = nil
+            @redaction                  = nil
             true
           end
 
@@ -690,6 +700,7 @@ module Zena
           if v.kind_of?(Symbol)
             opts[:to] = Zena::Status[v]
           end
+
           self.transitions << opts.merge(:name => name, :validate => block)
         end
 

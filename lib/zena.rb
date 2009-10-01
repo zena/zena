@@ -180,7 +180,7 @@ end
 
 
 # test if DRB started
-unless File.exist?(File.join(File.dirname(__FILE__), '..', 'log', 'upload_progress_drb.pid'))
+unless RAILS_ENV == 'test' || File.exist?(File.join(File.dirname(__FILE__), '..', 'log', 'upload_progress_drb.pid'))
   puts "\n** WARNING: drb server not running. Upload progress will not work."
   puts " * WARNING: you should start the drb server with 'lib/upload_progress_server.rb start'\n\n"
 end

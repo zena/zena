@@ -132,6 +132,17 @@ proposition_en:
   node:            proposition
   user:            tiger
   title:           Proposition
+  number:          1
+  created_at:      2008-08-10
+
+proposition_rep_en:
+  type:            Version
+  node:            proposition
+  user:            tiger
+  title:           I propose we go to sleep
+  status:          rep
+  number:          2
+  created_at:      2009-10-01
 
 
 cleanWater_en:

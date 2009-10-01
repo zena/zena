@@ -32,6 +32,12 @@ class MultiVersionTest < Zena::Unit::TestCase
       assert_equal versions_id(:opening_fr), node.version.id
     end
 
+    should 'see the list of editions' do
+      # published versions
+      node = secure!(Node) { nodes(:opening)  }
+      assert_equal 2, node.editions.count
+    end
+
     context 'when there is only a redaction for the current language' do
       setup do
         login(:tiger)
@@ -82,7 +88,7 @@ class MultiVersionTest < Zena::Unit::TestCase
         login(:ant)
       end
 
-      should 'see any publication if there are none for the current language and the reference language' do
+      should_eventually 'see any publication if there are none for the current language and the reference language' do
         visitor.lang = 'de'
         node = secure!(Node) { nodes(:opening) }
         assert_equal versions_id(:opening_en), node.version.id
@@ -94,232 +100,177 @@ class MultiVersionTest < Zena::Unit::TestCase
       node = secure!(Node) { nodes(:crocodiles) }
       assert_equal versions_id(:crocodiles_en), node.version.id
     end
+
+    context 'on a node with replaced versions' do
+      setup do
+        login(:tiger)
+        @node = secure!(Node) { nodes(:proposition) }
+      end
+
+      should 'see latest publication' do
+        assert_equal versions_id(:proposition_en), @node.version.id
+      end
+    end
   end # A visitor with write access
 
 
   # =========== UPDATE VERSION TESTS =============
 
+  context 'A visitor with write access' do
+
+    context 'on a redaction' do
+
+      context 'that she owns' do
+        setup do
+          login(:tiger)
+          visitor.lang = 'fr'
+          @node = secure!(Node) { nodes(:opening) }
+        end
+
+        should 'see own redaction' do
+          # this is only to make sure fixtures are used correctly
+          assert_equal Zena::Status[:red], @node.version.status
+          assert_equal visitor.id, @node.version.user_id
+        end
+
+        should 'not create a new redaction when editing' do
+          assert_difference('Version.count', 0) do
+            assert @node.update_attributes(:v_title => 'Artificial Intelligence')
+          end
+        end
+
+        should 'be allowed to propose' do
+          visitor.lang = 'fr'
+          assert_equal versions_id(:status_red_fr), node.version.id
+          assert @node.can_propose?
+          assert @node.propose
+          assert_equal Zena::Status[:prop], node.version.status
+        end
+      end # A visitor with write access on a redaction that she owns
+
+      context 'from another author' do
+        setup do
+          login(:ant)
+          visitor.lang = 'fr'
+          @node = secure!(Node) { nodes(:opening) }
+        end
+
+        should 'see other author\'s redaction' do
+          # this is only to make sure fixtures are used correctly
+          assert_equal Zena::Status[:red], @node.version.status
+          assert_not_equal visitor.id, @node.version.user_id
+        end
+
+        should 'not create a new redaction if all attributes are identical' do
+          assert_difference('Version.count', 0) do
+            assert @node.update_attributes(:v_title => @node.version.title, :v_text => @node.version.text)
+          end
+        end
+
+        should 'replace redaction with a new one when editing attributes' do
+          old_redaction_id = @node.version.id
+          assert_difference('Version.count', 1) do
+            assert @node.update_attributes(:v_title => 'Mon idée')
+            assert_equal Zena::Status[:red], @node.version.status
+          end
+          old_redaction = Version.find(old_redaction_id)
+          assert_equal Zena::Status[:rep], old_redaction.status
+        end
+
+        should 'be allowed to propose' do
+          assert_equal versions_id(:opening_red_fr), @node.version.id
+          assert @node.can_propose?
+          assert @node.propose
+          assert_equal Zena::Status[:prop], @node.version.status
+        end
+      end # A visitor with write access on a redaction from another author
+    end # A visitor with write access on a redaction
+
+    # -------------------- ON A PUBLICATION
+    context 'on a publication' do
+      setup do
+        login(:ant)
+        @node = secure!(Node) { nodes(:status) }
+      end
+
+      should 'see a publication' do
+        # this is only to make sure fixtures are used correctly
+        assert_equal Zena::Status[:pub], @node.version.status
+      end
+
+      should 'be allowed to edit' do
+        assert @node.can_edit?
+      end
+
+      should 'create a redaction when updating attributes' do
+        assert_difference('Version.count', 1) do
+          assert @node.update_attributes(:v_title => 'The Technique Of Orchestration')
+        end
+      end
+
+      should 'be able to write new attributes using nested attributes alias' do
+        assert_difference('Version.count', 1) do
+          node = secure!(Node) { nodes(:lake) }
+          assert node.update_attributes(:v_title => 'Mea Lua', :c_country => 'Brazil')
+          node = secure!(Node) { nodes(:lake) } # reload
+          assert_equal 'Mea Lua', node.version.title
+          assert_equal 'Brazil', node.version.content.country
+        end
+      end
+
+      should 'be able to create nodes using nested attributes alias' do
+        node = secure!(Node) { Node.create(defaults.merge(:v_title => 'Pandeiro')) }
+        assert_equal 'Pandeiro', node.version.title
+      end
+
+      should 'create a new redaction when setting version_attributes' do
+        @node.version_attributes = {'title' => 'labias'}
+        assert_equal 'labias', @node.version.title
+        assert @node.version.new_record?
+        assert_difference('Version.count', 1) do
+          assert @node.save
+        end
+      end
+
+      should 'create versions in the current language' do
+        visitor.lang = 'de'
+        @node.version_attributes = {'title' => 'Sein und Zeit'}
+        assert_equal 'de', @node.version.lang
+      end
+
+      should 'not be allowed to propose' do
+        assert !@node.can_propose?
+        assert !@node.propose # does nothing
+      end
+    end # A visitor with write access on a publication
+
+
+    # -------------------- ON A PROPOSITION
+    context 'on a proposition' do
+      setup do
+        login(:tiger)
+        visitor.lang = 'fr'
+        @node = secure!(Node) { nodes(:opening) }
+        @node.propose
+        @node = secure!(Node) { nodes(:opening) } # reload
+      end
+
+      should 'see a proposition' do
+        # this is only to make sure fixtures are used correctly
+        assert_equal Zena::Status[:prop], @node.version.status
+      end
+
+      should 'not be allowed to propose' do
+        assert !@node.can_propose?
+        assert !@node.propose
+        assert 'already proposed', @node.errors[:base]
+      end
+    end # A visitor with write access on a proposition
+
+  end # A visitor with write access
+
 
   # =========== OLD TESTS TO REWRITE =============
-
-  def test_find_version
-    login(:tiger) # can_drive
-    node = secure!(Node) { nodes(:lake) }
-    assert_equal versions_id(:lake_en), node.version(1)[:id]
-    node = secure!(Node) { nodes(:lake) } # reload
-    assert_raise(ActiveRecord::RecordNotFound) { node.version(2) } # redaction from ant
-    Node.connection.execute "UPDATE versions set status = #{Zena::Status[:prop]} where id = #{versions_id(:lake_red_en)}"
-    assert_equal versions_id(:lake_red_en), node.version(2)[:id]
-    assert_equal versions_id(:lake_red_en), node.version[:id]
-    node = secure!(Node) { nodes(:lake) } # reload
-    assert_raise(ActiveRecord::RecordNotFound) { node.version(7) }
-    login(:ant)
-    visitor.lang = 'en'
-    node = secure!(Node) { nodes(:lake) } # reload
-    assert_equal versions_id(:lake_red_en), node.version[:id]
-    node = secure!(Node) { nodes(:lake) } # reload
-    assert_equal versions_id(:lake_red_en), node.version(:pub)[:id]
-  end
-
-  def test_find_version_latest_replaced
-    login(:tiger)
-    node = secure!(Node) { nodes(:status) }
-    pub_version_id = node.version.id
-    assert_equal 2, node.versions.size
-    assert_equal Zena::Status[:pub], node.version.status
-    assert node.update_attributes(:v_title => 'great', :v_text => 'mind')
-    node = secure!(Node) { nodes(:status) }
-    assert_equal 3, node.versions.size
-    assert_equal Zena::Status[:red], node.version.status
-    red_version_id = node.version.id
-    assert_not_equal pub_version_id, red_version_id
-    assert node.remove
-
-    node = secure!(Node) { nodes(:status) }
-    assert_equal pub_version_id, node.version.id
-    assert node.update_attributes(:v_title => 'slow')
-    assert_equal 4, node.versions.size
-    assert_not_equal pub_version_id, node.version.id
-    assert_not_equal red_version_id, node.version.id
-    assert_not_equal 'mind', node.version.text
-  end
-
-  def test_update_same_attributes
-    login(:tiger)
-    visitor.lang = 'en'
-    node = secure!(Node) { nodes(:people) }
-    v_id = node.version.id
-    v_nu = node.version.number
-    assert node.update_attributes(:v_title => node.version.title, :name => 'satori')
-    assert_equal v_nu, node.version.number
-    assert_equal v_id, node.version.id
-    assert_equal 'satori', node.name
-  end
-
-  def test_accessors
-    login(:tiger)
-    node = secure!(Node) { nodes(:status) }
-    assert_equal "status title", node.version.title
-    assert_equal "status comment", node.version.comment
-    assert_equal "status summary", node.version.summary
-    assert_equal "status text", node.version.text
-  end
-
-  def test_content_accessors
-    content = Struct.new(:hello, :name).new('hello', 'guys')
-    login(:tiger)
-    node = secure!(Node) { nodes(:zena) }
-    node.version_attributes = {'comment' => 'hop hop'}
-    node.version.instance_eval { @content = @redaction_content = content; def content_class; @content.class; end }
-    assert_equal 'hello', node.version.content.hello
-    assert_equal 'guys', node.version.content.name
-    node.version.content.hello = 'Thanks'
-    node.version.content.name = 'Matz'
-    assert_equal 'Thanks', node.version.content.hello
-    assert_equal 'Matz', node.version.content.name
-  end
-
-  def test_new_has_redaction
-    login(:ant)
-    node = secure!(Node) { Node.new() }
-    assert_equal Zena::Status[:red], node.version.status
-    assert_equal users_id(:ant), node.version.user_id
-  end
-
-  def test_new_with_attributes
-    login(:ant)
-    attrs = defaults
-    attrs[:v_title] = "Jolly Jumper"
-    attrs[:v_summary] = "Jolly summary"
-    attrs[:v_comment] = "Jolly comment"
-    attrs[:v_text] = "Jolly text"
-    node = secure!(Node) { Node.new(attrs) }
-    assert node.save
-    node = secure!(Node) { Node.find(node.id) }
-    assert_equal Zena::Status[:red], node.version.status
-    assert_equal "Jolly Jumper", node.version.title
-    assert_equal "Jolly summary", node.version.summary
-    assert_equal "Jolly comment", node.version.comment
-    assert_equal "Jolly text", node.version.text
-  end
-
-  def test_create
-    login(:ant)
-    attrs = defaults
-    attrs[:v_title] = "Inner voice"
-    node = secure!(Node) { Node.create(attrs) }
-    node = secure!(Node) { Node.find(node.id) }
-    assert_equal Zena::Status[:red], node.version.status
-    assert_equal "Inner voice", node.version.title
-  end
-
-  def test_version_lang
-    login(:ant) # lang = fr
-    node = secure!(Node) { nodes(:opening)  }
-    assert_equal "fr", node.version.lang
-    assert_equal "super ouverture", node.version.title
-    visitor.lang = "en"
-    node = secure!(Node) { nodes(:opening)  }
-    assert_equal "en", node.version.lang
-    assert_equal "parc opening", node.version.title
-    visitor.lang = 'es'
-    node = secure!(Node) { nodes(:opening)  }
-    assert_equal "fr", node.version.lang
-    assert_equal "super ouverture", node.version.title
-    login(:lion) # lang = en
-    node = secure!(Node) { nodes(:opening)  }
-    assert_equal "en", node.version.lang
-    assert_equal "parc opening", node.version.title
-    visitor.lang = 'es'
-    node = secure!(Node) { nodes(:opening)  }
-    assert_equal "fr", node.version.lang
-    assert_equal "super ouverture", node.version.title
-  end
-
-  def test_version_text_and_summary
-    login(:tiger)
-    node = secure!(Node) { nodes(:tiger)  }
-    class << node
-      def text
-        "Node text"
-      end
-      def summary
-        "Node summary"
-      end
-    end
-    assert_equal "Node text", node.text
-    assert_equal "nothing written yet", node.version.text
-    assert_equal "Node summary", node.summary
-    assert_match /panthera/, node.version.summary
-  end
-
-  def test_editions
-    login(:ant)
-    node = secure!(Node) { nodes(:opening)  }
-    editions = node.editions
-    assert_equal 2, editions.count
-  end
-
-  def test_writer_gets_redaction
-    login(:ant)
-    node = secure!(Node) { nodes(:opening)  }
-    assert_equal "fr", node.version.lang
-    assert_equal "new redaction for opening", node.version.comment
-  end
-
-  def test_set_redaction
-    login(:tiger)
-    visitor.lang = 'es'
-    node = secure!(Node) { nodes(:status) }
-    node.version_attributes = {'title' => 'labias'}
-    assert_equal 'es', node.version.lang
-    assert_equal 'labias', node.version.title
-    assert node.version.new_record?
-  end
-
-  def test_proposition
-    login(:tiger)
-    visitor.lang = 'en'
-    node = secure!(Node) { nodes(:lake)  }
-    assert_equal Zena::Status[:red], node.version.status
-    assert_equal versions_id(:lake_red_en) , node.version.id
-    login(:ant)
-    visitor.lang = 'en'
-    node = secure!(Node) { nodes(:lake)  }
-    assert_equal Zena::Status[:red], node.version.status , "Owner of a redaction sees the redaction"
-    assert_equal versions_id(:lake_red_en) , node.version.id
-    assert node.propose , "Node proposed for publication"
-
-    node = secure!(Node) { nodes(:lake)  }
-    assert_equal Zena::Status[:prop], node.version.status , "Owner sees the proposition"
-    assert_equal versions_id(:lake_red_en) , node.version.id
-
-    login(:anon) # public
-    node = secure!(Node) { nodes(:lake)  }
-    assert_equal Zena::Status[:pub], node.version.status , "Visitor sees the publication"
-    assert_equal versions_id(:lake_en) , node.version.id
-
-    login(:tiger)
-    visitor.lang = 'en'
-    node = secure!(Node) { nodes(:lake)  }
-    assert_equal Zena::Status[:prop], node.version.status , "Publisher sees the proposition"
-    assert_equal versions_id(:lake_red_en) , node.version.id
-  end
-
-  def test_can_edit
-    login(:ant)
-    visitor.lang = 'en'
-    node = secure!(Node) { nodes(:lake)  }
-    node2 = secure!(Node) { nodes(:status)  }
-    assert node.can_edit?
-    assert node2.can_edit?
-    login(:tiger)
-    visitor.lang = 'en'
-    node = secure!(Node) { nodes(:lake)  }
-    node2 = secure!(Node) { nodes(:status)  }
-    assert ! node.can_edit?
-    assert node2.can_edit?
-  end
 
   def test_update_without_fuss
     login(:tiger)

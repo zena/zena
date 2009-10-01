@@ -625,7 +625,7 @@ class Node < ActiveRecord::Base
         return opts.merge(
           :conditions => ["parent_id = ?",node[:id]],
           :order  => 'name ASC' )
-      elsif query != ''
+      elsif !query.blank?
         if RAILS_ENV == 'test'
           match = sanitize_sql(["nodes.name LIKE ?", "#{query}%"])
           select = "nodes.*, #{match} AS score"
