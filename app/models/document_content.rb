@@ -13,7 +13,9 @@ content_type::    file content_type
 class DocumentContent < ActiveRecord::Base
 
   # readable
-  attr_public           :size, :name, :content_type, :ext, :file
+
+  include RubyLess::SafeClass
+  safe_method           :size => Number, :name => String, :content_type => String, :ext => String, :file => File
 
   # writable
   attr_accessible       :content_type, :file
@@ -95,8 +97,8 @@ class DocumentContent < ActiveRecord::Base
         v.rewind
         self.file.rewind
         return true if !same
-      elsif self.class.attr_public?(k.to_s)
-        return true if field_changed?(k, self.send(k), v)
+      elsif type = self.class.safe_method_type([k])
+        return true if field_changed?(k, self.send(type[:method]), v)
       end
     end
     false

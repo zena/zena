@@ -16,7 +16,9 @@ ImageContent also provides a +crop+ pseudo attribute to crop an image. See crop=
 class ImageContent < DocumentContent
   before_validation_on_create :convert_file
 
-  attr_public      :width, :height, :exif, :exif_gps_latitude, :exif_gps_longitude # FIXME: rubyless remove these and access ExifData
+
+  include RubyLess::SafeClass
+  safe_method      :width => Number, :height => Number, :exif => 'ExifData'
 
   attr_accessible  :content_type, :file, :crop
 

@@ -13,9 +13,18 @@ A visitor needs write access in all nodes the data should link to. A visitor als
 A visitor can edit a data entry if he/she has write access to the reference node (node_a).
 =end
 class DataEntry < ActiveRecord::Base
-  attr_public  :created_at, :updated_at, :date, :text, :value, :value_a, :value_b, :node_a_zip, :node_b_zip, :node_c_zip, :node_d_zip
+  include RubyLess::SafeClass
+  safe_attribute :created_at, :updated_at, :date, :text, :value_a, :value_b
+  safe_method    :value => {:class => Number, :nil => true, :method => 'value_a'},
+                 :node_a_zip => {:class => Number, :nil => true},
+                 :node_b_zip => {:class => Number, :nil => true},
+                 :node_c_zip => {:class => Number, :nil => true},
+                 :node_d_zip => {:class => Number, :nil => true}
+
   attr_protected :site_id
+
   zafu_context  :node_a => "Node", :node_b => "Node", :node_c => "Node", :node_d => "Node", :nodes => ["Node"], :author => "Contact", :user => "User"
+
   NodeLinkSymbols   = [:node_a,    :node_b,    :node_c,    :node_d]
   NodeLinkSymbolsId = [:node_a_id, :node_b_id, :node_c_id, :node_d_id]
   validate    :valid_data_entry

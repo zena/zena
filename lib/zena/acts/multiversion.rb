@@ -124,8 +124,8 @@ module Zena
           # Return true if the version would be edited by the attributes
           def would_edit?(new_attrs)
             new_attrs.each do |k,v|
-              if self.class.attr_public?(k.to_s)
-                return true if field_changed?(k, self.send(k), v)
+              if type = self.class.safe_method_type([k])
+                return true if field_changed?(k, self.send(type[:method]), v)
               end
             end
             false

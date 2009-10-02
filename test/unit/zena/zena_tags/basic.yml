@@ -1,4 +1,3 @@
-
 default:
   context:
     lang: 'en'
@@ -170,7 +169,7 @@ show_gsub:
   context:
     node: 'tiger'
   src: "<r:show attr='c_address' gsub='/\\n/;/'/>"
-  tem: "<%= @node.c_public_read(\"address\").to_s.gsub(/\\n/,\";\") %>"
+  tem: "<%= @node.version.safe_content_read(\"address\").to_s.gsub(/\\n/,\";\") %>"
   res: "Small Island;In the Wild"
 
 show_gsub_newline:
@@ -357,8 +356,9 @@ show_parent_title:
   res: "<h1><a href='/oo/projects/cleanWater'><span id='v_title21'>Clean Water project</span></a></h1>"
 
 show_bad_attr:
-  src: "my <r:show attr=':name'/>"
-  res: "my "
+  src: "my <r:show attr=':name'/>, <r:show attr='puts'/>"
+  tem: 'my <%= @node.safe_read(":name") %>, <%= @node.safe_read("puts") %>'
+  res: "my ':name' not readable, 'puts' not readable"
 
 show_name:
   src: "my <r:show attr='name'/>"
@@ -643,7 +643,7 @@ if_in_tag:
   res: "/<p>status</p></form></div>done./"
 
 if_or:
-  src: "<r:if can='write' or_test='[d_foo]'>hello</r:if>"
+  src: "<r:if can='write' or_test='d_foo'>hello</r:if>"
   tem: "/<% if @node.can_write? || !@node.version.dyn[\"foo\"].blank? -%>hello<% end -%>|<% if !@node.version.dyn[\"foo\"].blank? || @node.can_write? -%>hello<% end -%>/"
   res: "hello"
 
@@ -1037,7 +1037,7 @@ input:
   context:
     node: 'ant'
   src: "<r:input name='c_first_name'/>"
-  tem: "<input name='node[c_first_name]' type='text' value='<%= fquote @node.c_public_read(\"first_name\") %>'/>"
+  tem: "<input name='node[c_first_name]' type='text' value='<%= fquote @node.version.safe_content_read(\"first_name\") %>'/>"
   res: "<input name='node[c_first_name]' type='text' value='Solenopsis'/>"
 
 input_style:
@@ -1048,14 +1048,14 @@ textarea:
   context:
     node: 'ant'
   src: "<r:textarea name='c_first_name'/>"
-  tem: "<textarea name='node[c_first_name]'><%= @node.c_public_read(\"first_name\") %></textarea>"
+  tem: "<textarea name='node[c_first_name]'><%= @node.version.safe_content_read(\"first_name\") %></textarea>"
   res: "<textarea name='node[c_first_name]'>Solenopsis</textarea>"
 
 textarea_with_blocks:
   context:
     node: 'ant'
   src: "<r:textarea name='c_first_name'>Sir <r:show attr='c_first_name'/></textarea>"
-  tem: "<textarea name='node[c_first_name]'>Sir <%= @node.c_public_read(\"first_name\") %></textarea></textarea>"
+  tem: "<textarea name='node[c_first_name]'>Sir <%= @node.version.safe_content_read(\"first_name\") %></textarea></textarea>"
   res: "<textarea name='node[c_first_name]'>Sir Solenopsis</textarea></textarea>"
 
 input_new:

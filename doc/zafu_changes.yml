@@ -1,0 +1,13 @@
+CHANGESET1:
+  from: '0.14.0'
+  to:   '0.14.1'
+
+  CHANGES:
+    basic:
+      if_or: "<r:if can='write' or_test='[d_foo]'>hello</r:if>"
+      if_or: "<r:if can='write' or_test='d_foo'>hello</r:if>"
+
+SHOULD_CHANGE:
+  basic:
+    link_sharp_name: "<r:link sharp='[name]'/>"
+    link_sharp_name: "<r:link sharp='#{name}'/>"

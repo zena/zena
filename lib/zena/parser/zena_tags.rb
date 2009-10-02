@@ -3002,6 +3002,7 @@ module Zena
       end
 
       def node_attribute(str, opts={})
+
         if @context[:vars] && @context[:vars].include?(str)
           return "set_#{str}"
         end
@@ -3012,6 +3013,7 @@ module Zena
         return get_param($1) if str =~ /^param:(\w+)$/
 
         attribute, att_node, klass = get_attribute_and_node(str)
+
         return 'nil' unless attribute
 
 
@@ -3027,21 +3029,16 @@ module Zena
             params[:mode]   = @params[:mode]   if @params[:mode]
             params[:format] = @params[:format] if @params[:format]
             "zen_#{real_attribute}(#{node}#{params_to_erb(params)})"
+          elsif type = klass.safe_method_type([real_attribute])
+            "#{att_node}.#{type[:method]}"
           else
-            Node.zafu_attribute(att_node, real_attribute)
+            "#{att_node}.safe_read(#{real_attribute.inspect})"
           end
-          # FIXME: replace theses tests by "klass.attr_public?(real_attribute)" and make sure it works for sub-classes.
-        elsif klass.ancestors.include?(Version) && Version.attr_public?(real_attribute)
-          "#{att_node}.#{real_attribute}"
-        elsif klass.ancestors.include?(DataEntry) && DataEntry.attr_public?(real_attribute)
-          "#{att_node}.#{real_attribute}"
-        elsif klass.ancestors.include?(Comment) && Comment.attr_public?(real_attribute)
-          "#{att_node}.#{real_attribute}"
-        elsif klass.ancestors.include?(ActiveRecord::Base) && klass.attr_public?(real_attribute)
-          "#{att_node}.#{real_attribute}"
+        elsif type = klass.safe_method_type([real_attribute])
+          "#{att_node}.#{type[:method]}"
         else
           # unknown class, resolve at runtime
-          "#{att_node}.public_read(#{real_attribute.inspect})"
+          "#{att_node}.safe_read(#{real_attribute.inspect})"
         end
 
         res = "(#{res} || #{node_attribute(opts[:else])})" if opts[:else]

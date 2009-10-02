@@ -235,7 +235,7 @@ class SecureTest < Zena::Unit::TestCase
       assert_equal 'You do not have the rights to edit.', node.errors[:base]
     end
 
-    should 'be allowed to drive' do
+    should_eventually 'be allowed to drive' do
       node = secure!(Node) { nodes(:bananas) }
       assert node.can_drive?
       assert node.update_attributes(:name => 'NamWa')

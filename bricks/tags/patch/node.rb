@@ -2,9 +2,11 @@ unless defined?(Node.ancestors.include?('Zena::Use::Relations::ClassMethods')) #
   raise Exception.new("tags brick depends on 'Zena::Use::Relations'")
 end
 Node.send(:has_tags)
-Link.send(:attr_public, :name)
 
+Link # make sure it is loaded before we reopen it
 class Link
+  safe_method :name => {:class => String, :nil => true}
+
   def name
     self[:comment]
   end

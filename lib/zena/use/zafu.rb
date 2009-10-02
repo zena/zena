@@ -485,8 +485,7 @@ module Zena
 
       end # ViewMethods
 
-      # This is replaced by public_attributes
-      # Only zafu_context definition is needed (until we use RubyLess)
+      # This will be completely replaced by RubyLess
       module ModelMethods
         def self.included(base)
           zafu_class_methods = <<-END

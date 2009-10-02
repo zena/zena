@@ -1,9 +1,8 @@
 class TemplateContent < ActiveRecord::Base
-
-  attr_public     :tkpath, :ext, :format, :content_type, :filename, :mode, :klass, :skin_name
-
-  # FIXME: use attr_accessible !
-  #safe_attribute  :file
+  include RubyLess::SafeClass
+  safe_attribute  :tkpath, :skin_name, :mode, :klass
+  safe_method     :ext => String, :format => String, :content_type => String, :filename => String
+  #attr_public  :file ?
 
   attr_protected :tkpath
   belongs_to :node
@@ -79,8 +78,8 @@ class TemplateContent < ActiveRecord::Base
         v.rewind
         self.file.rewind
         return true if !same
-      elsif self.class.attr_public?(k.to_s)
-        return true if field_changed?(k, self.send(k), v)
+      elsif type = self.class.safe_method_type([k])
+        return true if field_changed?(k, self.send(type[:method]), v)
       end
     end
     false

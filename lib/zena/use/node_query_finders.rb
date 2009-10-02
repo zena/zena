@@ -226,7 +226,7 @@ class NodeQuery < QueryBuilder
         # VERSION
         key = field[2..-1]
         key, function = parse_sql_function_in_field(key)
-        if Version.attr_public?(key) && Version.column_names.include?(key)
+        if Version.safe_method_type([key]) && Version.column_names.include?(key)
           vtable_name = needs_table('nodes', 'versions', "TABLE1.id = TABLE2.node_id")
           Zena::Db.sql_function(function, "#{vtable_name}.#{key}")
         else
@@ -255,7 +255,7 @@ class NodeQuery < QueryBuilder
               table_to_use = table_name
             end
             Zena::Db.sql_function(function, "#{table_to_use}.#{map_def[:key]}")
-          elsif (Node.attr_public?(key) && Node.column_names.include?(key))
+          elsif (Node.safe_method_type([key]) && Node.column_names.include?(key))
             Zena::Db.sql_function(function, "#{table_name}.#{key}")
           elsif key =~ /^(.*)_ids?$/
             # tag_id = 33  ===> join links as lk, nodes as tt .......
@@ -272,7 +272,7 @@ class NodeQuery < QueryBuilder
             nil
           end
         else
-          if ['id', 'parent_id','project_id','section_id'].include?(key) || (Node.attr_public?(key) && Node.column_names.include?(key))
+          if ['id', 'parent_id','project_id','section_id'].include?(key) || (Node.safe_method_type([key]) && Node.column_names.include?(key))
             Zena::Db.sql_function(function, "#{table_name}.#{key}")
           else
             # bad attribute
@@ -296,7 +296,9 @@ class NodeQuery < QueryBuilder
         @uses_node_name = true
         insert_bind("#{@node_name}.#{fld}")
       else
-        # Node.attr_public?(fld)
+        # type = Node.safe_method_type([fld])
+        # type[:method] ?
+
         # bad parameter
         @errors << "invalid parameter '#{fld}'"
         "0"
@@ -375,7 +377,7 @@ class NodeQuery < QueryBuilder
           end
         elsif type == 'NODE_ATTR'
           attribute = value
-          if Node.attr_public?(attribute)
+          if Node.safe_method_type([attribute])
             insert_bind("#{@node_name}.#{attribute}")
           else
             @errors << "cannot read attribute '#{attribute}' in custom query"

@@ -130,15 +130,16 @@ author:
 
 public_readable_link:
   src: "<r:show attr='set_tag_ids'/>"
-  tem: "<%= @node.set_tag_zips %>"
+  tem: '<%= @node.rel["set_tag"].try(:other_zips) %>'
 
 public_readable_link_for:
   src: "<r:show attr='hot_for_ids'/>"
-  tem: "<%= @node.hot_for_zips %>"
+  tem: '<%= @node.rel["hot_for"].try(:other_zips) %>'
+  res: '21'
 
 public_readable_link_id:
   src: "<r:show attr='icon_id'/>"
-  tem: "<%= @node.icon_zip %>"
+  tem: '<%= @node.rel["icon"].try(:other_zip) %>'
 
 node_id:
   src: "I (<r:show attr='name'/>) know: <r:node select='12'><r:show attr='name'/> with <r:children><span do='each' join=', '><r:show attr='name'>child</r:show></span></r:children></r:node>"

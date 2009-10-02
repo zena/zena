@@ -2,6 +2,8 @@ require 'json'
 require 'rational'
 
 class ExifData < Hash
+  include RubyLess::SafeClass
+
   # You can create new ExifData objects with either a json representation (String), a
   # hash of key => value or an array of key,value pairs.
   def initialize(data)
@@ -17,13 +19,17 @@ class ExifData < Hash
   end
 
   ['DateTime', 'DateTimeOriginal', 'DateTimeDigitised'].each do |k|
-    define_method(k.underscore) do
+    method = k.underscore.to_sym
+    safe_method method => Time
+    define_method(method) do
       date_from_field(k)
     end
   end
 
   ['GPSLongitude', 'GPSLatitude'].each do |k|
-    define_method(k.underscore) do
+    method = k.underscore.to_sym
+    safe_method method => Number
+    define_method(method) do
       position_from_field(k)
     end
   end

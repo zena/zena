@@ -1,5 +1,7 @@
 class Contact < Reference
-  attr_public        :fullname, :initials
+  include RubyLess::SafeClass
+
+  safe_method :fullname => String, :initials => String
 
   class << self
 

@@ -1,5 +1,10 @@
 module Bricks
   module Tags
+    class StringHash
+      include RubyLess::SafeClass
+      safe_method [:[], String] => {:class => String, :nil => true}
+    end
+
     module HasTags
       # this is called when the module is included into the 'base' module
       def self.included(base)
@@ -11,7 +16,7 @@ module Bricks
       def has_tags
         after_save    :update_tags
         zafu_context  :tags => ["Link"]
-        attr_public   :name, :tag_list, :tag, :tagged
+        safe_method   :tag_list => String, :tag => String, :tagged => StringHash
 
         class_eval <<-END
           include Bricks::Tags::InstanceMethods

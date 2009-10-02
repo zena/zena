@@ -2,6 +2,7 @@ hpricot:
 RedCloth:       '= 3.0.4'
 gettext:        '= 1.93.0'
 querybuilder:   '= 0.5.5'
+rubyless:       '= 0.3.1'
 ruby-recaptcha: '= 1.0.0'
 syntax:         '= 1.0.0'
 tzinfo:         '= 0.3.12'

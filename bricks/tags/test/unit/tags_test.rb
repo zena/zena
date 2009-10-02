@@ -5,7 +5,7 @@ class TagsTest < Zena::Unit::TestCase
   def test_tag
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
-    assert Node.attr_public?('tag')
+    assert type = Node.safe_method_type(['tag'])
   end
 
   def test_tag_list

@@ -20,7 +20,7 @@ module Zena
 
           if sharp = options.delete(:sharp)
             if sharp =~ /\[(.+)\]/
-              sharp_value = node.public_read($1)
+              sharp_value = node.safe_read($1)
             elsif sharp == 'true'
               sharp_value = "node#{node[:zip]}"
             else

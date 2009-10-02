@@ -1044,11 +1044,15 @@ done: \"I am done\""
     assert Node.plural_relation?('tagged')
   end
 
-  def test_zafu_attribute
-    assert_equal "bob.name", Node.zafu_attribute('bob', 'name')
-    assert_equal "bob.version.text", Node.zafu_attribute('bob', 'v_text')
-    assert_equal 'bob.version.dyn["super"]', Node.zafu_attribute('bob', 'd_super')
-    assert_equal 'bob.c_public_read("truc")', Node.zafu_attribute('bob', 'c_truc')
+  def test_safe_read
+    login(:ant)
+    node   = secure!(Node) {Node.find(:first, :conditions => ['id = ?', nodes_id(:lake)], :select => "*, 'foozibar' AS foobar") }
+    status = secure!(Node) { nodes(:status) }
+    assert_equal 'lakeAddress', node.safe_read('name')
+    assert_equal 'The lake we love', node.safe_read('v_title')
+    assert_equal 'gaspard', status.safe_read('d_assigned')
+    assert_equal 'Between Tanzania, Congo and Zambia', node.safe_read('c_address')
+    assert_equal 'foozibar', node.safe_read('foobar')
   end
 
   def test_classes_for_form

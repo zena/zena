@@ -16,10 +16,13 @@ email::      email address
 birthday::   birthday (date)
 =end
 class ContactContent < ActiveRecord::Base
+  include RubyLess::SafeClass
+  safe_method    :created_at => Time, :updated_at => Time, :fullname => String, :initials => String,
+                 :address => String, :zip => {:class => Number, :method => 'id'}
+  safe_attribute :name, :first_name, :city, :country, :telephone, :mobile, :email
 
-  attr_public        :created_at, :updated_at, :fullname, :initials, :first_name, :name, :address, :zip, :city,
-                     :telephone, :mobile, :email, :country
   attr_protected     :site_id
+
   after_initialize   :set_contact_content_defaults
   before_validation  :content_before_validation
 

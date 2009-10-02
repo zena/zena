@@ -37,6 +37,7 @@ class NodesController < ApplicationController
   def catch_all
     query_params_list = []
     query_params.each do |k,v|
+      next if v.kind_of?(Hash) # FIXME: we should support nested hashes. Can't we use something in rails here ?
       query_params_list << "#{k}=#{CGI.escape(v)}"
     end
     redirect_to "/" + ([prefix]+params[:path]).flatten.join('/') + (query_params_list == [] ? '' : "?#{query_params_list.join('&')}")

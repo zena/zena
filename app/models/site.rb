@@ -15,7 +15,9 @@ The #Site model holds configuration information for a site:
 +default_lang+::    The default language of the site.
 =end
 class Site < ActiveRecord::Base
-  attr_public   :host
+  include RubyLess::SafeClass
+  safe_method :host => String
+
   validate :valid_site
   validates_uniqueness_of :host
   attr_accessible :dyn_attributes, :name, :languages, :default_lang, :authentication, :allow_private, :http_auth, :auto_publish, :redit_time

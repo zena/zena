@@ -176,9 +176,9 @@ module Zena
           end
         end
 
-        # Same as model method but will not take Proc type resolution. This is
-        # used by attr_public? until RubyLess is used instead or maybe RubyLess
-        # will use it as well...
+        # Same as model method but will not take Proc type resolution. This
+        # could be used by RubyLess to resolve 'v_title' into ==> version ==> title
+        # we will see...
         def nested_model_names_for_alias(attribute)
           attribute = attribute.to_s
           nested_model_names = nil

@@ -32,8 +32,10 @@ class Version < ActiveRecord::Base
   parse_date_attribute :publish_from
 
   # readable
-  attr_public        :title, :text, :summary, :comment, :created_at, :updated_at, :publish_from, :status,
-                     :wgroup_id, :pgroup_id, :zip, :lang, :user_zip
+  include RubyLess::SafeClass
+  safe_attribute     :created_at, :updated_at, :publish_from, :status, :lang
+  safe_method        :title => String, :text => String, :summary => String, :comment => String,
+                     :zip => Number, :user_zip => Number # FIXME: replace by 'id'....
   # writable
   attr_accessible    :title, :text, :summary, :comment, :publish_from, :lang, :status, :content_attributes, :dyn_attributes
   zafu_context       :author => "Contact", :user => "User", :node => "Node"
@@ -205,11 +207,19 @@ class Version < ActiveRecord::Base
         return true if content.would_edit?(v)
       elsif k.to_s == 'dyn_attributes'
         return true if dyn.would_edit?(v)
-      elsif self.class.attr_public?(k.to_s)
-        return true if field_changed?(k, self.send(k), v)
+      elsif type = self.class.safe_method_type([k])
+        return true if field_changed?(k, self.send(type[:method]), v)
       end
     end
     false
+  end
+
+  def safe_content_read(signature)
+    if c = content
+      c.send(:safe_read, signature)
+    else
+      nil
+    end
   end
 
   # Return true if the version has been edited (not just status / publication date change)

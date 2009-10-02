@@ -120,6 +120,23 @@ and the 'photos' url is now in the worldTour project's basepath:
 Setting 'custom_base' on a node should be done with caution as the node's zip is on longer in the url and when you move the node around, there is no way to find the new location from the old url. Custom_base should therefore only be used for nodes that are not going to move.
 =end
 class Node < ActiveRecord::Base
+
+  include RubyLess::SafeClass
+  safe_attribute :created_at, :updated_at, :event_at, :log_at, :publish_from, :basepath
+
+  # we use safe_method because the columns can be null, but the values are never null
+  safe_method   :name => String, :kpath => String, :user_zip => Number, :parent_zip => Number,
+                :project_zip => Number, :section_zip => Number, :skin => String, :ref_lang => String,
+                :fullpath => String, :rootpath => String, :position => Number, :rgroup_id => Number,
+                :wgroup_id => Number, :pgroup_id => Number, :custom_base => Boolean, :klass => String,
+                :score => Number, :comments_count => Number,
+                :custom_a => Number, :custom_b => Number,
+                :m_text => String, :m_title => String, :m_author => String,
+                :zip => Number
+  # FIXME: remove 'zip' and use :id => {:class => Number, :method => 'zip'}
+  # same with parent_zip, section_zip, etc...
+
+  #attr_accessible    :version_content
   has_many           :discussions, :dependent => :destroy
   has_many           :links
   has_and_belongs_to_many :cached_pages
@@ -134,12 +151,6 @@ class Node < ActiveRecord::Base
   after_save         :clear_children_fullpath
   after_create       :node_after_create
   attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from
-  #attr_accessible    :version_content
-  attr_public        :id, :name, :created_at, :updated_at, :event_at, :log_at, :kpath, :user_zip, :parent_zip, :project_zip,
-                     :section_zip, :skin, :ref_lang, :fullpath, :rootpath, :position, :publish_from, :rgroup_id,
-                     :wgroup_id, :pgroup_id, :basepath, :custom_base, :klass, :zip, :score, :comments_count,
-                     :custom_a, :custom_b,
-                     :m_text, :m_title, :m_author
   attr_protected     :site_id
 
   include Zena::Use::Dates::ModelMethods
@@ -302,12 +313,12 @@ class Node < ActiveRecord::Base
       end
     end
 
-    def attr_public?(attribute)
-      if attribute.to_s =~ /(.*)_zips?$/
-        return true if self.ancestors.include?(Node) && RelationProxy.find_by_role($1.singularize)
-      end
-      super
-    end
+    # def attr_public?(attribute)
+    #   if attribute.to_s =~ /(.*)_zips?$/
+    #     return true if self.ancestors.include?(Node) && RelationProxy.find_by_role($1.singularize)
+    #   end
+    #   super
+    # end
 
     def create_or_update_node(new_attributes)
       attributes = transform_attributes(new_attributes)
@@ -748,43 +759,52 @@ class Node < ActiveRecord::Base
       transform_attributes(attributes, base_node)
     end
 
-    # Return a safe string to access node attributes in compiled templates and compiled sql.
-    def zafu_attribute(node, attribute)
-      if node.kind_of?(String)
-        case attribute[0..1]
+    def safe_method_type(signature)
+      if signature.size > 1
+        RubyLess::SafeClass.safe_method_type_for(self, signature)
+      else
+        method = signature.first
+        # if model_names = nested_model_names_for_alias(method)
+        #   # ...
+        # end
+        case method[0..1]
         when 'v_'
-          att = attribute[2..-1]
-          if Version.attr_public?(att)
-            "#{node}.version.#{att}"
+          method = method[2..-1]
+          if type = version_class.safe_method_type([method])
+            type.merge(:method => "version.#{type[:method]}")
           else
             # might be readable by sub-classes
-            "#{node}.version.public_read(#{attribute[2..-1].inspect})"
+            # what is the expected return type ?
+            {:method => "version.safe_read(#{method.inspect})", :nil => true, :class => String}
           end
         when 'c_'
-          "#{node}.c_public_read(#{attribute[2..-1].inspect})"
-        when 'd_'
-          "#{node}.version.dyn[#{attribute[2..-1].inspect}]"
-        else
-          if Node.attr_public?(attribute)
-            "#{node}.#{attribute}"
+          method = method[2..-1]
+          if klass = version_class.content_class && type = klass.safe_method_type([method])
+            type.merge(:method => "version.content.#{type[:method]}")
           else
-            # unknown attribute for Node, resolve at runtime with real class
-            "#{node}.public_read(#{attribute.inspect})"
+            {:method => "version.safe_content_read(#{method.inspect})", :nil => true, :class => String}
           end
-        end
-      else
-        case attribute[0..1]
-        when 'v_'
-          node.version.public_read(attribute[2..-1])
-        when 'c_'
-          node.c_public_read(attribute[2..-1])
         when 'd_'
-          node.version.dyn[attribute[2..-1]]
+          {:method => "version.dyn[#{method[2..-1].inspect}]", :nil => true, :class => String}
         else
-          node.public_read(attribute)
+          if method =~ /^(.+)_((id|zip)(s?))\Z/ && !instance_methods.include?(method)
+            {:method => "rel[#{$1.inspect}].try(:other_#{$2})", :nil => true, :class => ($4.blank? ? Number : [Number])}
+          else
+            RubyLess::SafeClass.safe_method_type_for(self, signature)
+          end
         end
       end
     end
+
+    # Return a safe string to access node attributes in compiled templates and compiled sql.
+    def zafu_attribute(node, attribute)
+      if node.kind_of?(String)
+        raise Exception.new("You should use safe_method_type...")
+      else
+        node.safe_read(attribute)
+      end
+    end
+
 
     def auto_create_discussion
       false
@@ -814,24 +834,25 @@ class Node < ActiveRecord::Base
     raise Zena::RecordNotSecured.new("Visitor not set, record not secured.")
   end
 
-  # Return true if the attribute can be read. This is not the same as attr_public? as some
-  # attributes can be read but should not be shown ('id' or 'file' for example).
-  def safe_attribute?(att)
-    # FIXME: SECURITY: is there any risk here ? (k can be anything)
-    attribute = att.to_s
+  # Return an attribute if it is safe (RubyLess allowed). Return nil otherwise.
+  # This is mostly used when the zafu compiler cannot decide whether a method is safe or not at compile time.
+  def safe_read(attribute)
     case attribute[0..1]
     when 'v_'
-      version.class.safe_attribute?(attribute[2..-1])
+      version.safe_read(attribute[2..-1])
     when 'c_'
-      c = version.content
-      c ? c.class.safe_attribute?(attribute[2..-1]) : false
+      version.safe_content_read(attribute[2..-1])
     when 'd_'
-      true
+      version.dyn[attribute[2..-1]]
     else
-      if attribute =~ /_(id|zip|status|comment)s?\Z/
-        true
+      if @attributes.has_key?(attribute)             &&
+         !self.class.column_names.include?(attribute) &&
+         !methods.include?(attribute)                 &&
+         !self.class.safe_method_type([attribute])
+      # db fetch only: select 'created_at AS age' ----> 'age' can be read
+        @attributes[attribute]
       else
-        self.class.safe_attribute?(attribute)
+        super
       end
     end
   end
@@ -1098,14 +1119,6 @@ class Node < ActiveRecord::Base
     (name && name != '' && name =~ /\./ ) ? name.split('.').last : ''
   end
 
-  def c_public_read(sym)
-    if c = version.content
-      c.public_read(sym)
-    else
-      ''
-    end
-  end
-
   # set name: remove all accents and camelize
   def name=(str)
     return unless str && str != ""
@@ -1232,9 +1245,9 @@ class Node < ActiveRecord::Base
 
   # FIXME: use nested_attributes_alias and try to use native Rails to create the comment
   # comment_attributes=, ...
-  def m_text; nil; end
-  def m_title; nil; end
-  def m_author; nil; end
+  def m_text; ''; end
+  def m_title; ''; end
+  def m_author; ''; end
 
   def m_text=(str)
     @add_comment ||= {}

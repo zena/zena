@@ -11,7 +11,8 @@ Only administrators can change groups. An administrator cannot remove him/hersel
 =end
 class Group < ActiveRecord::Base
 
-  attr_public             :name
+  include RubyLess::SafeClass
+  safe_method             :name => String
   attr_accessible         :name, :user_ids, :replace_by # FIXME: add user_ids ? + add users validation (are in site)
   has_and_belongs_to_many :users, :order=>'login'
   validates_presence_of   :name

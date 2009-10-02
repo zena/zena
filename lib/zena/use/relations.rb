@@ -5,6 +5,9 @@ module Zena
       # The ProxyLoader is used so that nested_attributes_alias resolution through node.send('link').send('friend')
       # makes it to the 'friend' relation proxy.
       class ProxyLoader
+        include RubyLess::SafeClass
+        safe_method [:[], String] => {:class => 'RelationProxy', :nil => true}
+
         def initialize(node)
           @node = node
         end
@@ -53,8 +56,12 @@ module Zena
           base.validate      :relations_valid
           base.after_save    :update_relations
           base.after_destroy :destroy_links
-          base.attr_public   :rel
-          base.attr_public(*LINK_ATTRIBUTES.map {|k| "l_#{k}".to_sym})
+          base.safe_method   :rel => ProxyLoader
+
+          base.safe_method :l_status  => {:class => Number, :nil => true}
+          base.safe_method :l_comment => {:class => String, :nil => true}
+          base.safe_method :l_date    => {:class => Time,   :nil => true}
+
           base.nested_attributes_alias LINK_REGEXP => Proc.new {|obj, m| obj.relation_alias(m) }
           base.class_eval <<-END
             attr_accessor :link

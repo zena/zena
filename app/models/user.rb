@@ -21,7 +21,10 @@ things they can/cannot do :
 TODO: when a user is 'destroyed', pass everything he owns to another user or just mark the user as 'deleted'...
 =end
 class User < ActiveRecord::Base
-  attr_public             :login, :initials, :fullname, :status, :status_name
+  include RubyLess::SafeClass
+  safe_attribute          :login, :name, :first_name, :email, :time_zone, :created_at, :updated_at
+  safe_method             :initials => String, :fullname => String, :status => Number, :status_name => String
+
   zafu_context            :contact => "Contact"
   attr_accessible         :login, :password, :lang, :first_name, :name, :email, :time_zone, :status, :group_ids, :site_ids
   attr_accessor           :visited_node_ids

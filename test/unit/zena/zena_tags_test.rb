@@ -66,12 +66,6 @@ class ZenaTagsTest < Zena::Controller::TestCase
     o_yt_assert test_val, result
   end
 
-  def test_basic_show_bad_attr
-    # FIXME: we must do something about bad attributes : use a 'rescue' when rendering ?
-    assert !Node.attr_public?('puts')
-    assert Node.attr_public?('name')
-  end
-
   def test_basic_cache_part
     with_caching do
       Node.connection.execute "UPDATE nodes SET name = 'first' WHERE id = #{nodes_id(:status)}"
@@ -217,8 +211,9 @@ class ZenaTagsTest < Zena::Controller::TestCase
   end
 
   def test_basic_recursion_in_each
-    Node.connection.execute "UPDATE nodes SET max_status = 40 WHERE id = #{nodes_id(:status)}"
-    Node.connection.execute "UPDATE versions SET status = 40 WHERE node_id = #{nodes_id(:status)}"
+    login(:tiger)
+    node = secure!(Node) { nodes(:status) }
+    node.unpublish
     yt_do_test('basic', 'recursion_in_each')
   end
 

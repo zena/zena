@@ -23,7 +23,7 @@ UPLOAD_KEY     = defined?(Mongrel) ? 'upload_id' : "X-Progress-ID"
 require 'bricks/patcher'
 
 module Zena
-  VERSION = '0.14.0'
+  VERSION = '0.14.1'
   REVISION = 1336
   ROOT    = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 
@@ -58,7 +58,6 @@ module Zena
       end
 
       # FIXME: make this explicit in models
-      ActiveRecord::Base.send :include, Zena::Use::PublicAttributes
       ActiveRecord::Base.send :include, Zena::Use::Zafu::ModelMethods
       ActiveRecord::Base.send :include, Zena::Use::NodeQueryFinders::AddUseNodeQueryMethod
       ActiveRecord::Base.send :include, Zena::Acts::Secure
@@ -396,3 +395,4 @@ end
 EXT_TO_TYPE, TYPE_TO_EXT = make_hashes(EXT_TYPE)
 Zena.add_load_paths
 Zena.gems_setup
+require 'rubyless'
