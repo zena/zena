@@ -279,6 +279,7 @@ class Version < ActiveRecord::Base
     def valid_version
       errors.add('lang', 'invalid') unless visitor.site.lang_list.include?(self[:lang])
       errors.add('node', "can't be blank") unless node
+
       # validate content
       # TODO: we could use autosave here
       @content_updated_but_not_saved = !changed? && @content && @content.changed?

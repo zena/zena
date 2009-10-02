@@ -133,7 +133,7 @@ class UserTest < Zena::Unit::TestCase
     login(:lion)
     user = secure!(User) { users(:lion) }
     assert !user.update_attributes(:status => User::Status[:user])
-    assert_equal 'You do not have the rights to do this', user.errors[:status]
+    assert_equal 'You do not have the rights to do this.', user.errors[:status]
     user = secure!(User) { users(:lion) }
     assert user.update_attributes('status' => User::Status[:admin].to_s, 'time_zone' => 'Europe/Berlin')
   end

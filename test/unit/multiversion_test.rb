@@ -110,7 +110,7 @@ class MultiVersionTest < Zena::Unit::TestCase
       should 'see latest publication' do
         assert_equal versions_id(:proposition_en), @node.version.id
       end
-    end
+    end # A visitor with write access in a language not supported
   end # A visitor with write access
 
 
@@ -148,13 +148,13 @@ class MultiVersionTest < Zena::Unit::TestCase
         should 'not be allowed to publish' do
           assert !@node.can_publish?
           assert !@node.publish
-          assert_equal 'You do not have the rights to publish', @node.errors[:base]
+          assert_equal 'You do not have the rights to publish.', @node.errors[:base]
         end
 
-        should 'not be allowed to remove' do
-          assert !@node.can_remove?
-          assert !@node.remove
-          assert_equal 'You do not have the rights to remove', @node.errors[:base]
+        should 'be allowed to remove' do
+          assert @node.can_remove?
+          assert @node.remove
+          assert_equal Zena::Status[:rem], @node.version.status
         end
       end # A visitor with write access on a redaction that she owns
 
@@ -262,7 +262,7 @@ class MultiVersionTest < Zena::Unit::TestCase
         assert !@node.can_remove?
         assert !@node.can_unpublish?
         assert !@node.unpublish
-        assert_equal 'You do not have the rights to unpublish', @node.errors[:base]
+        assert_equal 'You do not have the rights to unpublish.', @node.errors[:base]
       end
     end # A visitor with write access on a publication
 
@@ -297,13 +297,19 @@ class MultiVersionTest < Zena::Unit::TestCase
       should 'not be allowed to publish' do
         assert !@node.can_publish?
         assert !@node.publish
-        assert_equal 'You do not have the rights to publish', @node.errors[:base]
+        assert_equal 'You do not have the rights to publish.', @node.errors[:base]
       end
 
       should 'not be allowed to remove' do
         assert !@node.can_remove?
         assert !@node.remove
         assert_equal 'You should refuse the proposition before removing it.', @node.errors[:base]
+      end
+
+      should 'not be allowed to refuse' do
+        assert !@node.can_refuse?
+        assert !@node.refuse
+        assert_equal 'You do not have the rights to refuse.', @node.errors[:base]
       end
     end # A visitor with write access on a proposition
 
@@ -332,7 +338,7 @@ class MultiVersionTest < Zena::Unit::TestCase
       should 'be allowed to publish' do
         assert @node.can_publish?
         assert @node.publish
-        assert_equal Zena::Status[:prop], @node.version.status
+        assert_equal Zena::Status[:pub], @node.version.status
       end
 
       should 'be allowed to remove' do
@@ -387,7 +393,7 @@ class MultiVersionTest < Zena::Unit::TestCase
         assert_equal 'This transition is not allowed.', @node.errors[:base]
       end
 
-      should_eventually 'replace a redaction when unpublishing a publication' do
+      should_eventually 'replace a redaction when re editing a removed version' do
       end
 
       should 'not see that she can remove' do
@@ -425,6 +431,21 @@ class MultiVersionTest < Zena::Unit::TestCase
         assert_equal Zena::Status[:pub], @node.version.status
       end
 
+      should 'be allowed to publish by setting status attribute' do
+        assert @node.update_attributes(:v_status => Zena::Status[:pub])
+        assert_equal Zena::Status[:pub], @node.version.status
+      end
+
+      should 'be allowed to publish with a custom date' do
+        assert @node.update_attributes(:v_status => Zena::Status[:pub], :v_publish_from => '2007-01-03')
+        assert_equal Time.gm(2007,1,3), @node.publish_from
+      end
+
+      should 'be allowed to publish and change attributes other then publish_from' do
+        assert @node.update_attributes(:v_status => Zena::Status[:pub], :v_title => 'I hack my own !')
+        assert_equal 'I hack my own !', @node.version.title
+      end
+
       should 'replace old publication on publish' do
         @node.publish
         assert_equal Zena::Status[:rep], versions(:opening_fr).status
@@ -453,6 +474,27 @@ class MultiVersionTest < Zena::Unit::TestCase
       should 'not be allowed to unpublish' do
         assert !@node.can_unpublish?
       end
+
+      context 'from another author' do
+        setup do
+          login(:lion)
+          visitor.lang = 'fr'
+          @node = secure!(Node) { nodes(:opening) } # reload
+        end
+
+        should 'be allowed to publish with a custom date' do
+          assert @node.update_attributes(:v_status => Zena::Status[:pub], :v_publish_from => '2007-01-03')
+          assert_equal Time.gm(2007,1,3), @node.publish_from
+        end
+
+        should 'not be allowed to publish and change attributes other then publish_from' do
+          assert !@node.update_attributes(:v_status => Zena::Status[:pub], :v_title => "I hack you !")
+          err @node.version
+          assert_equal '', @node.errors[:v_title]
+
+        end
+      end
+
     end # A visitor with drive access on a proposition
 
   end # A visitor with drive access
@@ -460,93 +502,6 @@ class MultiVersionTest < Zena::Unit::TestCase
 
   # =========== OLD TESTS TO REWRITE =============
 
-
-
-  def test_publish_node_ok
-    login(:ant)
-    node = secure!(Node) { Node.version(versions_id(:lake_red_en)) }
-    assert node.propose, "Propose for publication succeeds"
-    login(:tiger)
-    visitor.lang = 'en'
-    node = secure!(Node) { nodes(:lake)  }
-    assert_equal versions_id(:lake_red_en), node.version.id, "Publisher sees the proposition"
-    assert node.publish
-    node = secure!(Node) { nodes(:lake)  }
-    assert_equal "The lake we love", node.version.title
-    assert_equal versions_id(:lake_red_en), node.version.id
-    assert_equal 1, node.editions.size
-  end
-
-  def test_publish_with_two_lang_red
-    login(:tiger)
-    visitor.lang = 'en'
-    node = secure!(Node) { nodes(:opening) }
-    assert_equal 3, Version.find(:all, :conditions=>["node_id = ?", node[:id]]).size
-    assert_equal 1, Version.find(:all, :conditions=>["node_id = ? AND status=#{Zena::Status[:red]}", node[:id]]).size
-    assert node.update_attributes(:v_title=>'new title'), "Can create new redaction"
-    assert_equal 2, Version.find(:all, :conditions=>["node_id = ? AND status=#{Zena::Status[:pub]}", node[:id]]).size
-    assert_equal 2, Version.find(:all, :conditions=>["node_id = ? AND status=#{Zena::Status[:red]}", node[:id]]).size
-    assert node.publish, "Can publish"
-    assert_equal 4, Version.find(:all, :conditions=>["node_id = ?", node[:id]]).size
-    assert_equal 1, Version.find(:all, :conditions=>["node_id = ? AND status=#{Zena::Status[:pub]} AND lang='fr'", node[:id]]).size
-    assert_equal 1, Version.find(:all, :conditions=>["node_id = ? AND status=#{Zena::Status[:pub]} AND lang='en'", node[:id]]).size
-  end
-
-  def test_publish_node_fails
-    login(:ant)
-    node = secure!(Node) { Node.version(versions_id(:lake_red_en)) }
-    assert ! node.publish, "Publication fails"
-    login(:tiger)
-    node = secure!(Node) { nodes(:lake)  }
-    assert_equal node.version.id, versions_id(:lake_red_en)
-  end
-
-  def test_publish_new_lang_new_author
-    login(:tiger)
-    visitor.lang = 'fr'
-    node = secure!(Node) { nodes(:lake)  }
-    assert_equal 1, node.editions.size, "English edition exists"
-    assert node.update_attributes( :v_title => "Joli petit lac" )
-    assert node.can_publish?
-    assert node.publish
-    assert_equal 2, node.editions.size, "English and french editions"
-    assert_equal ["en", "fr"], node.traductions.map{|t| t[:lang]}.sort
-  end
-
-  def test_publish_replaced_from_other_author
-    login(:tiger)
-    node = secure!(Page) { Page.create(:name => 'foo', :v_title=> 'Bar', :v_text => 'baz', :parent_id => nodes_id(:status))}
-    assert !node.new_record?
-    assert node.publish
-    vers_number = node.version.number
-    Site.connection.execute "UPDATE sites set redit_time = 60 WHERE id = #{sites_id(:zena)}"
-    login(:lion)
-    node = secure!(Page) { Page.find(node[:id])}
-    # could auto_publish but not same author
-    $degg = true
-    assert node.update_attributes(:v_text => 'lion', :v_status => Zena::Status[:pub])
-    assert_equal Zena::Status[:pub], node.version.status
-    assert_equal 2, node.version.number
-
-    # rollback
-    login(:lion)
-    node = secure!(Page) { Page.find(node[:id])}
-    assert node.version(vers_number) # load with initial version
-    assert node.publish # lion publishes 'replaced' version by 'tiger'
-  end
-
-  def test_publish_with_custom_date
-    login(:tiger)
-    node = secure!(Node) { nodes(:wiki)  }
-    assert_equal 1, node.editions.size, "Only one editions"
-    assert_equal Zena::Status[:pub], node.version.status
-    assert node.update_attributes( :v_title => "OuiOui", :v_publish_from => "2007-01-03" )
-    assert node.publish
-    node = secure!(Node) { nodes(:wiki)  } # reload
-    assert_equal 2, node.versions.size, "Two versions"
-    assert_equal "OuiOui", node.version.title
-    assert_equal Time.gm(2007,1,3), node.version.publish_from
-  end
 
   def test_unpublish_all
     login(:tiger)

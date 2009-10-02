@@ -110,7 +110,7 @@ class Iformat < ActiveRecord::Base
   protected
     def iformat_valid
       if !visitor.is_admin?
-        errors.add('base', 'You do not have the rights to do this')
+        errors.add('base', 'You do not have the rights to do this.')
         return false
       end
 

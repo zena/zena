@@ -68,7 +68,7 @@ module Zena
           end
 
           add_transition(:refuse,  :from => [:prop, :prop_with], :to => :red) do |r|
-            r.can_drive?
+            r.full_drive?
           end
 
           add_transition(:unpublish,  :from => :pub, :to => :rem) do |r|
@@ -511,7 +511,7 @@ module Zena
           def status_validation
             return true unless @redaction && @redaction.should_save?
             if t = current_transition
-              errors.add(:base, "You do not have the rights to #{t[:name].to_s.gsub('_', ' ')}") unless transition_allowed?(t)
+              errors.add(:base, "You do not have the rights to #{t[:name].to_s.gsub('_', ' ')}.") unless transition_allowed?(t)
             else
               errors.add(:base, 'This transition is not allowed.')
             end

@@ -44,7 +44,7 @@ class LinksController < ApplicationController
   # Remove a link (drive popup).
   def remove_link
     unless @node.can_drive?
-      @node.errors.add('base', 'You do not have the rights to do this')
+      @node.errors.add('base', 'You do not have the rights to do this.')
     else
       @link_id = params.link_id
       @node.remove_link(@link_id)
@@ -78,7 +78,7 @@ class LinksController < ApplicationController
 
     def check_can_drive
       unless @node.can_drive?
-        @node.errors.add('base', 'You do not have the rights to do this')
+        @node.errors.add('base', 'You do not have the rights to do this.')
         return false
       end
     end

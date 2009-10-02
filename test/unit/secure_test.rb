@@ -240,7 +240,7 @@ class SecureTest < Zena::Unit::TestCase
     should 'not be allowed to create sub-nodes' do
       node = secure!(Node) { Node.create(defaults.merge(:parent_id => nodes_id(:bananas))) }
       assert node.new_record?
-      assert_equal 'You do not have the rights to edit', node.errors[:base]
+      assert_equal 'You do not have the rights to edit.', node.errors[:base]
     end
 
     should 'be allowed to drive' do
@@ -473,24 +473,24 @@ class SecureTest < Zena::Unit::TestCase
     should 'not be allowed to change groups' do
       @node.pgroup_id = groups_id(:public)
       assert !@node.save
-      assert_equal 'You do not have the rights to do this', @node.errors[:base]
+      assert_equal 'You do not have the rights to do this.', @node.errors[:base]
     end
 
     should 'not be allowed to change name' do
       @node.name = 'slitherin'
       assert !@node.save
-      assert_equal 'You do not have the rights to do this', @node.errors[:base]
+      assert_equal 'You do not have the rights to do this.', @node.errors[:base]
     end
 
     should 'not be allowed to change dates' do
       @node.event_at = Time.now
       assert !@node.save
-      assert_equal 'You do not have the rights to do this', @node.errors[:base]
+      assert_equal 'You do not have the rights to do this.', @node.errors[:base]
     end
 
     should 'not be allowed to destroy' do
       assert !@node.destroy
-      assert_equal 'You do not have the rights to do this', @node.errors[:base]
+      assert_equal 'You do not have the rights to do this.', @node.errors[:base]
     end
   end
 
@@ -541,7 +541,7 @@ class SecureTest < Zena::Unit::TestCase
     should 'not let owner publish' do
       assert !@node.can_publish?
       assert !@node.update_attributes(:v_status => Zena::Status[:pub])
-      assert_equal 'You do not have the rights to publish', @node.errors[:base]
+      assert_equal 'You do not have the rights to publish.', @node.errors[:base]
     end
 
     should 'should be in inherit mode' do
@@ -754,7 +754,7 @@ class SecureTest < Zena::Unit::TestCase
     setup do
       login(:ant)
     end
-    
+
     context 'with secure' do
       should 'only return versions where visitor can read or write' do
         versions = secure(Version) { Version.find(:all, :conditions => "title like 's%'")}
@@ -763,7 +763,7 @@ class SecureTest < Zena::Unit::TestCase
                      versions.map {|v| v.title }.sort
       end
     end
-    
+
     context 'with secure_write' do
       should 'only return versions where visitor can write' do
         Node.connection.execute "UPDATE nodes SET wgroup_id = #{groups_id(:admin)} WHERE id = #{nodes_id(:status)}"
@@ -773,7 +773,7 @@ class SecureTest < Zena::Unit::TestCase
                      versions.map {|v| v.title }.sort
       end
     end
-    
+
     context 'with secure_drive' do
       should 'only return versions where visitor can drive' do
         Node.connection.execute "UPDATE nodes SET pgroup_id = #{groups_id(:workers)} WHERE id = #{nodes_id(:status)}"
@@ -858,15 +858,15 @@ class SecureTest < Zena::Unit::TestCase
 
     should 'not be allowed to drive' do
       assert !@node.update_attributes(:parent_id => nodes_id(:wiki))
-      assert_equal 'You do not have the rights to do this', @node.errors[:base]
+      assert_equal 'You do not have the rights to do this.', @node.errors[:base]
     end
 
     should 'not be allowed to write' do
       assert !@node.update_attributes(:v_title => 'Drosophila')
-      assert_equal 'You do not have the rights to edit', @node.errors[:base]
+      assert_equal 'You do not have the rights to edit.', @node.errors[:base]
     end
 
-    should 'be allowed to post comments' do
+    should_eventually 'be allowed to post comments' do
       assert_difference('Comment.count', 1) do
         assert @node.update_attributes(:m_title => 'changed icon', :m_text => 'new icon is "flower"')
         comment = @node.comments.last
@@ -885,15 +885,15 @@ class SecureTest < Zena::Unit::TestCase
 
     should 'not be allowed to drive' do
       assert !@node.update_attributes(:parent_id => nodes_id(:wiki))
-      assert_equal 'You do not have the rights to do this', @node.errors[:base]
+      assert_equal 'You do not have the rights to do this.', @node.errors[:base]
     end
 
     should 'not be allowed to write' do
       assert !@node.update_attributes(:v_title => 'Drosophila')
-      assert_equal 'You do not have the rights to edit', @node.errors[:base]
+      assert_equal 'You do not have the rights to edit.', @node.errors[:base]
     end
 
-    should 'be allowed to post moderated comments' do
+    should_eventually 'be allowed to post moderated comments' do
       assert_difference('Comment.count', 1) do
         assert @node.update_attributes(:m_title => 'changed icon', :m_text => 'new icon is "flower"')
         comment = @node.comments.last
@@ -912,17 +912,17 @@ class SecureTest < Zena::Unit::TestCase
 
     should 'not be allowed to drive' do
       assert !@node.update_attributes(:parent_id => nodes_id(:wiki))
-      assert_equal 'You do not have the rights to do this', @node.errors[:base]
+      assert_equal 'You do not have the rights to do this.', @node.errors[:base]
     end
 
     should 'not be allowed to write' do
       assert !@node.update_attributes(:v_title => 'Drosophila')
-      assert_equal 'You do not have the rights to edit', @node.errors[:base]
+      assert_equal 'You do not have the rights to edit.', @node.errors[:base]
     end
 
-    should 'not be allowed to post comments' do
+    should_eventually 'not be allowed to post comments' do
       assert !@node.update_attributes(:m_title => 'changed icon', :m_text => 'new icon is "flower"')
-      assert_equal 'You do not have the rights to post comments', @node.errors[:base]
+      assert_equal 'You do not have the rights to post comments.', @node.errors[:base]
     end
   end # A visitor with reader status
 

@@ -516,7 +516,7 @@ class NodesController < ApplicationController
 
     def check_can_drive
       if !@node.can_drive?
-        @node.errors.add('base', 'You do not have the rights to do this')
+        @node.errors.add('base', 'You do not have the rights to do this.')
       end
     end
 

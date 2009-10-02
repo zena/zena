@@ -1525,11 +1525,11 @@ class Node < ActiveRecord::Base
         errors.add("parent_id", "root should not have a parent") unless self[:parent_id].blank?
       end
 
-      errors.add('comment', 'You do not have the rights to do this') if @add_comment && !can_comment?
+      errors.add('comment', 'You do not have the rights to do this.') if @add_comment && !can_comment?
 
       if @new_klass
         if !can_drive? || !self[:parent_id]
-          errors.add('klass', 'You do not have the rights to do this')
+          errors.add('klass', 'You do not have the rights to do this.')
         else
           errors.add('klass', 'invalid') if !self.class.allowed_change_to_classes.include?(@new_klass)
         end

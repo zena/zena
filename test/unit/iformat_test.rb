@@ -176,7 +176,7 @@ class IformatTest < Zena::Unit::TestCase
     login(:ant)
     imf = Iformat.create(:name => 'header', :height=>'34', :width => '500', :size => 'force')
     assert imf.new_record?, "New record"
-    assert_equal "You do not have the rights to do this", imf.errors['base']
+    assert_equal "You do not have the rights to do this.", imf.errors['base']
   end
 
   def test_new_from_default
