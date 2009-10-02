@@ -12,7 +12,7 @@ module Zena
           doc, url = *res
           # TODO: could we use this for caching or will we loose dynamic context based loading ?
           self.expire_with_nodes[url] = doc
-          text = session[:dev] ? doc.version.text : doc.version(:pub).text
+          text = session[:dev] ? doc.version.text : doc.version(true).text
           return text, url, doc
         end
 

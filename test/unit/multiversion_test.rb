@@ -372,6 +372,15 @@ class MultiVersionTest < Zena::Unit::TestCase
         assert_equal Zena::Status[:rem], @node.version.status
       end
 
+      should 'see an up-to-date versions list after unpublish' do
+        @node = secure!(Node) { nodes(:opening) }
+        assert @node.unpublish
+        versions = @node.versions
+        assert_equal Zena::Status[:rem], versions.detect {|v| v.id == versions_id(:opening_en)}.status
+        assert_equal Zena::Status[:pub], versions.detect {|v| v.id == versions_id(:opening_fr)}.status
+        assert_equal Zena::Status[:red], versions.detect {|v| v.id == versions_id(:opening_red_fr)}.status
+      end
+
       should 'not be allowed to refuse' do
         assert !@node.can_refuse?
         assert !@node.refuse
@@ -414,6 +423,19 @@ class MultiVersionTest < Zena::Unit::TestCase
         assert @node.can_publish?
         assert @node.publish
         assert_equal Zena::Status[:pub], @node.version.status
+      end
+
+      should 'replace old publication on publish' do
+        @node.publish
+        assert_equal Zena::Status[:rep], versions(:opening_fr).status
+      end
+
+      should 'see an up-to-date versions list after publish' do
+        @node.publish
+        versions = @node.versions
+        assert_equal Zena::Status[:pub], versions.detect {|v| v.id == versions_id(:opening_en)}.status
+        assert_equal Zena::Status[:rep], versions.detect {|v| v.id == versions_id(:opening_fr)}.status
+        assert_equal Zena::Status[:pub], versions.detect {|v| v.id == versions_id(:opening_red_fr)}.status
       end
 
       should 'be allowed to refuse' do

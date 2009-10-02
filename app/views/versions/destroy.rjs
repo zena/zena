@@ -1,0 +1,6 @@
+# only called when the last version is destroyed in 'drive' popup
+page.replace "messages", :inline => flash_messages
+page.replace "versions", :partial => 'list'
+page.delay(1.0) do
+  page << "opener.Zena.version_preview('#{zen_path(@node.parent)}');self.close();"
+end

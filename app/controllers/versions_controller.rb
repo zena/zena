@@ -219,11 +219,20 @@ class VersionsController < ApplicationController
   # TODO: test
   def destroy
     if @node.destroy_version
-      flash[:notice] = "Version destroyed."
+      if @node.versions.empty?
+        flash[:notice] = "Node destroyed."
+        respond_to do |format|
+          format.html { redirect_to zen_path(@node.parent) }
+          format.js
+        end
+      else
+        flash[:notice] = "Version destroyed."
+        do_rendering
+      end
     else
       flash[:error] = "Could not destroy version."
+      do_rendering
     end
-    do_rendering
   end
 
 

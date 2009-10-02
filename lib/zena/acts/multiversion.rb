@@ -80,7 +80,7 @@ module Zena
           end
 
           add_transition(:destroy_version,  :from => (-1..20), :to => -1) do |r|
-            r.can_drive? && !visitor.is_anon? && (r.versions.count > 1 || empty?)
+            r.can_drive? && !visitor.is_anon? && (r.versions.count > 1 || r.empty?)
           end
 
           add_transition(:redit, :from => (10..49), :to => :red) do |r|
@@ -380,14 +380,14 @@ module Zena
 
         # Return the current version. If @version was not set, this is a normal find or a new record.
         # TODO: document rules to find version.
-        def version #:doc:
+        def version(force_pub = false) #:doc:
           @version ||= if new_record?
             v = version_class.new('lang' => visitor.lang)
             v.user_id = visitor.id
             v.node = self
             v
           else
-            if can_write?
+            if can_write? && !force_pub
               # normal version
               v = versions.find(:first,
                 :select     => "*, (lang = #{Node.connection.quote(visitor.lang)}) as lang_ok, (lang = #{Node.connection.quote(ref_lang)}) as ref_ok",
@@ -565,7 +565,6 @@ module Zena
             if @redaction && @redaction.should_save?
               changes = @redaction.changes
               return false unless @redaction.save
-              self.versions.reset # TODO: it would be nice if we didn't need this...
 
               # What was the transition ?
               if status_changes = changes['status']

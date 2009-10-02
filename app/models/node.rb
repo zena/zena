@@ -795,11 +795,15 @@ class Node < ActiveRecord::Base
 
   # TODO: remove when :inverse_of works.
   def versions_with_secure(*args)
-    list = versions_without_secure(*args)
-    list.each do |v|
-      v.node = self
+    proxy = versions_without_secure(*args)
+    if frozen?
+      proxy = []
+    elsif proxy.loaded?
+      proxy.each do |v|
+        v.node = self
+      end
     end
-    list
+    proxy
   end
   alias_method_chain :versions, :secure
 
