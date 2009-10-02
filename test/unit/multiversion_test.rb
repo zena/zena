@@ -482,11 +482,18 @@ class MultiVersionTest < Zena::Unit::TestCase
           @node = secure!(Node) { nodes(:opening) } # reload
         end
 
-        should 'be allowed to publish with a custom date' do
-          assert @node.update_attributes(:v_status => Zena::Status[:pub], :v_publish_from => '2007-01-03')
-          assert_equal Time.gm(2007,1,3), @node.publish_from
+        should 'be allowed to publish with a custom date anterior to the first publication' do
+          assert @node.update_attributes(:v_status => Zena::Status[:pub], :v_publish_from => '1800-01-03')
+          assert_equal Time.gm(1800,1,3), @node.version.publish_from
+          assert_equal Time.gm(1800,1,3), @node.publish_from
         end
 
+        should 'be allowed to publish with a custom date' do
+          assert @node.update_attributes(:v_status => Zena::Status[:pub], :v_publish_from => '2007-01-03')
+          assert_equal Time.gm(2007,1,3), @node.version.publish_from
+          assert_equal Time.gm(2006,3,10), @node.publish_from # keeps min publication date
+        end
+        
         should 'not be allowed to publish and change attributes other then publish_from' do
           assert !@node.update_attributes(:v_status => Zena::Status[:pub], :v_title => "I hack you !")
           err @node.version
