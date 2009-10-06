@@ -62,7 +62,8 @@ module Zena
       ActiveRecord::Base.send :include, Zena::Use::Zafu::ModelMethods
       ActiveRecord::Base.send :include, Zena::Use::NodeQueryFinders::AddUseNodeQueryMethod
       ActiveRecord::Base.send :include, Zena::Acts::Secure
-      ActiveRecord::Base.send :include, Zena::Acts::Multiversion::AddActsAsMethods
+      ActionController::Base.send :include, Zena::Acts::Secure
+
     end
 
     def require_in_lib(name, dir, lib_name = nil)

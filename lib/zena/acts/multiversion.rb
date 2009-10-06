@@ -1,15 +1,15 @@
 module Zena
   module Acts
     module Multiversion
-      module AddActsAsMethods
-        # this is called when the module is included into the 'base' module
-        def self.included(base)
-          # define class methods
-          base.extend Zena::Acts::Multiversion::AddActsAsMethodsImpl
-        end
-      end
+      # module AddActsAsMethods
+      #   # this is called when the module is included into the 'base' module
+      #   def self.included(base)
+      #     # define class methods
+      #     base.extend Zena::Acts::Multiversion::AddActsAsMethodsImpl
+      #   end
+      # end
 
-      module AddActsAsMethodsImpl
+      #module AddActsAsMethodsImpl
         def acts_as_multiversioned(opts = {})
           opts.reverse_merge!({
             :class_name => 'Version'
@@ -33,12 +33,8 @@ module Zena
           before_save   :multiversion_before_save
           after_save    :multiversion_after_save
 
-          public
-
           include Zena::Acts::Multiversion::InstanceMethods
-          class << self
-            include Zena::Acts::Multiversion::ClassMethods
-          end
+          extend  Zena::Acts::Multiversion::ClassMethods
 
           # List of allowed *version* transitions with their validation rules. This list
           # concerns the life and death of *a single version*, not the corresponding Node.
@@ -130,9 +126,10 @@ module Zena
             end
           end
         end
-      end # AddActsAsMethodsImpl
+      #end # AddActsAsMethodsImpl
 
       module InstanceMethods
+
 
         # VERSION
         def version=(v)
@@ -141,10 +138,6 @@ module Zena
           end
         end
 
-        # FIXME: merge this with the logic in edit!
-        def can_edit?
-          can_edit_lang?
-        end
 
         # FIXME: merge this with the logic in edit!
         def can_edit_lang?(lang=nil)
@@ -162,6 +155,8 @@ module Zena
         rescue ActiveRecord::RecordNotFound
           true
         end
+
+        alias can_edit? can_edit_lang?
 
         def edit_content!
           redaction && redaction.redaction_content
@@ -375,7 +370,13 @@ module Zena
         # :v_... or :c_... keys, then only the version will be saved. If the attributes does not contain any :v_... or :c_...
         # attributes, only the node is saved, without creating a new version.
         def update_attributes(new_attributes)
-          apply(:update_attributes,new_attributes)
+          if can_write?
+            apply(:update_attributes,new_attributes)
+          else
+            # TODO
+            # Should add error in Node
+            self
+          end
         end
 
         # Return the current version. If @version was not set, this is a normal find or a new record.
@@ -450,8 +451,14 @@ module Zena
               if v.status == Zena::Status[:pub]
                 # make a redaction out of this version
                 build_redaction(v, target_status)
+              elsif v.status == Zena::Status[:red]
+                @old_redaction_to_replace = v
+              elsif v.status > Zena::Status[:pub]
+                # proposition: cannot edit here
+                r = build_redaction(v, target_status)
+                r
               else
-                @old_redaction_to_replace = version
+                @old_redaction_to_replace = v
                 # proposition, other status
                 # create dummy for error reporting
                 build_redaction(v, target_status)

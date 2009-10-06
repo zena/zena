@@ -11,7 +11,7 @@ ext::             file extension
 content_type::    file content_type
 =end
 class DocumentContent < ActiveRecord::Base
-  act_as_content
+
   # readable
   attr_public           :size, :name, :content_type, :ext, :file
 
@@ -27,6 +27,9 @@ class DocumentContent < ActiveRecord::Base
   before_save           :content_before_save
   after_save            :content_after_save
   before_destroy        :destroy_file
+
+  extend  Zena::Acts::Multiversion
+  act_as_content
 
   # protect access to size.
   def size=(s)

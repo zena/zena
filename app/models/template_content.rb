@@ -1,5 +1,5 @@
 class TemplateContent < ActiveRecord::Base
-  act_as_content
+
   attr_public     :tkpath, :ext, :format, :content_type, :filename, :mode, :klass, :skin_name
 
   # FIXME: use attr_accessible !
@@ -10,6 +10,9 @@ class TemplateContent < ActiveRecord::Base
   belongs_to :site
   before_validation :template_content_before_validation
   validate   :validate_template_content
+
+  extend  Zena::Acts::Multiversion
+  act_as_content
 
   def preload_version(v)
     # dummy called by Version

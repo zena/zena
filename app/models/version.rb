@@ -38,7 +38,6 @@ class Version < ActiveRecord::Base
   attr_accessible    :title, :text, :summary, :comment, :publish_from, :lang, :status, :content_attributes, :dyn_attributes
   zafu_context       :author => "Contact", :user => "User", :node => "Node"
 
-  acts_as_version
   belongs_to            :user
   before_validation     :version_before_validation
   validates_presence_of :user, :site_id
@@ -49,6 +48,9 @@ class Version < ActiveRecord::Base
   before_create         :set_number
 
   include Zena::Use::DynAttributes::ModelMethods
+  extend  Zena::Acts::Multiversion
+
+  acts_as_version
 
   class << self
     # Some #Version sub-classes need to have more specific content than just 'text' and 'summary'.

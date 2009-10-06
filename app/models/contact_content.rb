@@ -16,12 +16,15 @@ email::      email address
 birthday::   birthday (date)
 =end
 class ContactContent < ActiveRecord::Base
-  act_as_content
+
   attr_public        :created_at, :updated_at, :fullname, :initials, :first_name, :name, :address, :zip, :city,
                      :telephone, :mobile, :email, :country
   attr_protected     :site_id
   after_initialize   :set_contact_content_defaults
   before_validation  :content_before_validation
+
+  extend  Zena::Acts::Multiversion
+  act_as_content
 
   # Full contact name to show in views.
   def fullname(first_name = self.first_name, name = self.name)
