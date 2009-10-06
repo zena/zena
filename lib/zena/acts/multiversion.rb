@@ -1,135 +1,136 @@
 module Zena
+
+  # version status
+  Status = {
+    :red  => 70,
+    :prop_with => 65,
+    :prop => 60,
+    :pub  => 50,
+    :rep  => 20,
+    :rem  => 10,
+    :del  => 0,
+  }.freeze
+
   module Acts
     module Multiversion
-      # module AddActsAsMethods
-      #   # this is called when the module is included into the 'base' module
-      #   def self.included(base)
-      #     # define class methods
-      #     base.extend Zena::Acts::Multiversion::AddActsAsMethodsImpl
-      #   end
-      # end
+      def acts_as_multiversioned(opts = {})
+        opts.reverse_merge!({
+          :class_name => 'Version'
+        })
 
-      #module AddActsAsMethodsImpl
-        def acts_as_multiversioned(opts = {})
-          opts.reverse_merge!({
-            :class_name => 'Version'
-          })
+        # TODO: remove for Observers.
+        after_save    :after_all
 
-          # TODO: remove for Observers.
-          after_save    :after_all
+        has_many :versions,  :class_name => opts[:class_name],
+                 :order=>"number DESC", :dependent => :destroy #, :inverse_of => :node
+        has_many :editions,  :class_name => opts[:class_name],
+                 :conditions=>"publish_from <= #{Zena::Db::NOW} AND status = #{Zena::Status[:pub]}", :order=>'lang' #, :inverse_of => :node
 
-          has_many :versions,  :class_name => opts[:class_name],
-                   :order=>"number DESC", :dependent => :destroy #, :inverse_of => :node
-          has_many :editions,  :class_name => opts[:class_name],
-                   :conditions=>"publish_from <= #{Zena::Db::NOW} AND status = #{Zena::Status[:pub]}", :order=>'lang' #, :inverse_of => :node
+        before_validation :set_status_before_validation
+        validate      :lock_validation
+        validate      :status_validation
+        validate      :version_validation
 
-          before_validation :set_status_before_validation
-          validate      :lock_validation
-          validate      :status_validation
-          validate      :version_validation
+        before_create :cache_version_status_before_create
+        before_update :cache_version_status_before_update
+        before_save   :multiversion_before_save
+        after_save    :multiversion_after_save
 
-          before_create :cache_version_status_before_create
-          before_update :cache_version_status_before_update
-          before_save   :multiversion_before_save
-          after_save    :multiversion_after_save
+        include Zena::Acts::Multiversion::InstanceMethods
+        extend  Zena::Acts::Multiversion::ClassMethods
 
-          include Zena::Acts::Multiversion::InstanceMethods
-          extend  Zena::Acts::Multiversion::ClassMethods
+        # List of allowed *version* transitions with their validation rules. This list
+        # concerns the life and death of *a single version*, not the corresponding Node.
 
-          # List of allowed *version* transitions with their validation rules. This list
-          # concerns the life and death of *a single version*, not the corresponding Node.
-
-          add_transition(:update_attributes, :from => :red, :to => :red) do |r|
-            r.can_write?
-          end
-                                        # new
-          add_transition(:edit, :from => -1, :to => :red) do |r|
-            r.can_write?
-          end
-
-          add_transition(:auto_publish, :from => :pub, :to => :pub) do |r|
-            r.can_drive?
-          end
-                                            # not pub
-          add_transition(:publish, :from => ((-1..70).to_a - [50]), :to => :pub) do |r|
-            r.full_drive?
-          end
-
-          add_transition(:propose, :from => :red, :to => :prop) do |r|
-            r.can_write?
-          end
-
-          add_transition(:propose, :from => :red, :to => :prop_with) do |r|
-            r.can_write?
-          end
-
-          add_transition(:refuse,  :from => [:prop, :prop_with], :to => :red) do |r|
-            r.full_drive?
-          end
-
-          add_transition(:unpublish,  :from => :pub, :to => :rem) do |r|
-            r.can_drive?
-          end
-
-          add_transition(:remove,  :from => ((21..49).to_a + [70]), :to => :rem) do |r|
-            r.can_drive?
-          end
-
-          add_transition(:destroy_version,  :from => (-1..20), :to => -1) do |r|
-            r.can_drive? && !visitor.is_anon? && (r.versions.count > 1 || r.empty?)
-          end
-
-          add_transition(:redit, :from => (10..49), :to => :red) do |r|
-            r.can_drive?
-          end
+        add_transition(:update_attributes, :from => :red, :to => :red) do |r|
+          r.can_write?
+        end
+                                      # new
+        add_transition(:edit, :from => -1, :to => :red) do |r|
+          r.can_write?
         end
 
-        def acts_as_version(opts = {})
-          opts.reverse_merge!({
-            :class_name => 'Node'
-          })
+        add_transition(:auto_publish, :from => :pub, :to => :pub) do |r|
+          r.can_drive?
+        end
+                                          # not pub
+        add_transition(:publish, :from => ((-1..70).to_a - [50]), :to => :pub) do |r|
+          r.full_drive?
+        end
 
-          belongs_to :node,  :class_name => opts[:class_name] #, :inverse_of => :versions
-          class_eval do
-            def node_with_secure
-              @node ||= begin
-                if n = node_without_secure
-                  visitor.visit(n)
-                  n.version = self
-                end
-                n
+        add_transition(:propose, :from => :red, :to => :prop) do |r|
+          r.can_write?
+        end
+
+        add_transition(:propose, :from => :red, :to => :prop_with) do |r|
+          r.can_write?
+        end
+
+        add_transition(:refuse,  :from => [:prop, :prop_with], :to => :red) do |r|
+          r.full_drive?
+        end
+
+        add_transition(:unpublish,  :from => :pub, :to => :rem) do |r|
+          r.can_drive?
+        end
+
+        add_transition(:remove,  :from => ((21..49).to_a + [70]), :to => :rem) do |r|
+          r.can_drive?
+        end
+
+        add_transition(:destroy_version,  :from => (-1..20), :to => -1) do |r|
+          r.can_drive? && !visitor.is_anon? && (r.versions.count > 1 || r.empty?)
+        end
+
+        add_transition(:redit, :from => (10..49), :to => :red) do |r|
+          r.can_drive?
+        end
+      end
+
+      def acts_as_version(opts = {})
+        opts.reverse_merge!({
+          :class_name => 'Node'
+        })
+
+        belongs_to :node,  :class_name => opts[:class_name] #, :inverse_of => :versions
+        class_eval do
+          def node_with_secure
+            @node ||= begin
+              if n = node_without_secure
+                visitor.visit(n)
+                n.version = self
+              end
+              n
+            end
+          end
+          alias_method_chain :node, :secure
+        end
+      end
+
+      def act_as_content
+        class_eval do
+          def preload_version(v)
+            @version = v
+          end
+
+          # FIXME: replace by belongs_to :version ?
+          def version
+            @version ||= Version.find(self[:version_id])
+          end
+
+          # Return true if the version would be edited by the attributes
+          def would_edit?(new_attrs)
+            new_attrs.each do |k,v|
+              if self.class.attr_public?(k.to_s)
+                return true if field_changed?(k, self.send(k), v)
               end
             end
-            alias_method_chain :node, :secure
+            false
           end
         end
-
-        def act_as_content
-          class_eval do
-            def preload_version(v)
-              @version = v
-            end
-
-            # FIXME: replace by belongs_to :version ?
-            def version
-              @version ||= Version.find(self[:version_id])
-            end
-
-            # Return true if the version would be edited by the attributes
-            def would_edit?(new_attrs)
-              new_attrs.each do |k,v|
-                if self.class.attr_public?(k.to_s)
-                  return true if field_changed?(k, self.send(k), v)
-                end
-              end
-              false
-            end
-          end
-        end
-      #end # AddActsAsMethodsImpl
+      end
 
       module InstanceMethods
-
 
         # VERSION
         def version=(v)
@@ -138,9 +139,8 @@ module Zena
           end
         end
 
-
         # FIXME: merge this with the logic in edit!
-        def can_edit_lang?(lang=nil)
+        def can_edit?(lang=nil)
           return false unless can_write?
           if lang
             # Is there a proposition lock ?
@@ -156,7 +156,7 @@ module Zena
           true
         end
 
-        alias can_edit? can_edit_lang?
+        alias can_edit_lang? can_edit?
 
         def edit_content!
           redaction && redaction.redaction_content

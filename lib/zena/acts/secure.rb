@@ -1,15 +1,4 @@
 module Zena
-  # version status
-  Status = {
-    :red  => 70,
-    :prop_with => 65,
-    :prop => 60,
-    :pub  => 50,
-    :rep  => 20,
-    :rem  => 10,
-    :del  => 0,
-  }.freeze
-
   module Acts
 =begin rdoc
 == Secure model
@@ -763,8 +752,4 @@ def current_site
   visitor.site
 end
 
-# FIXME: these modules should be included in specific model in order to be
-# more readable and maintable.
-#ActiveRecord::Base.send :include, Zena::Acts::Secure     # for other classes
-#ActiveRecord::Base.send :include, Zena::Acts::SecureNode # for Nodes
-#ActionController::Base.send :include, Zena::Acts::Secure
+
