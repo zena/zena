@@ -490,10 +490,9 @@ class MultiVersionTest < Zena::Unit::TestCase
           assert_equal Time.gm(2006,3,10), @node.publish_from # keeps min publication date
         end
 
-        should_eventually 'not be allowed to publish and change attributes other then publish_from' do
-          assert !@node.update_attributes(:v_status => Zena::Status[:pub], :v_title => "I hack you !")
-          err @node.version
-          assert_equal '', @node.errors[:v_title]
+        should 'not be allowed to publish and change attributes other then publish_from' do
+          @node.update_attributes(:v_status => Zena::Status[:pub], :v_title => "I hack you !")
+          assert_not_equal "I hack you !", @node.errors[:v_title]
 
         end
       end
