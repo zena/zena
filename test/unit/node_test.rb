@@ -28,8 +28,8 @@ class NodeTest < Zena::Unit::TestCase
     assert_equal ["parent_id = ?", nodes_id(:wiki)], query[:conditions]
   end
 
-  def test_transform_attributes_zazen_shortcut_v_text
-    login(:tiger)
+  def transform_attributes_zazen_shortcut_v_text
+    login(:lion)
     [
       ["Hi, this is just a simple \"test\"::w or \"\"::w+_life.rss. OK ?\n\n!:lake+_pv!",
        "Hi, this is just a simple \"test\":25 or \"\":29_life.rss. OK ?\n\n!24_pv!"],
@@ -54,9 +54,6 @@ class NodeTest < Zena::Unit::TestCase
     login(:tiger)
     visitor[:time_zone] = "Europe/Zurich"
     [
-      [{'parent_id' => 'lake+'},
-       {'parent_id' => nodes_id(:lake_jpg)}],
-
       [{'d_super_id' => 'lake',           'd_other_id' => '11'},
        {'d_super_id' => nodes_zip(:lake), 'd_other_id' => 11}],
 
@@ -196,7 +193,7 @@ class NodeTest < Zena::Unit::TestCase
     node = secure!(Page) { Page.new(attrs) }
     assert ! node.save , "Save fails"
     assert node.errors[:parent_id].any?
-    assert_equal 'invalid parent', node.errors[:parent_id]
+    assert_equal 'invalid reference', node.errors[:parent_id]
 
     attrs[:parent_id] = nodes_id(:cleanWater) # other parent ok
     node = secure!(Page) { Page.new(attrs) }
@@ -259,7 +256,7 @@ class NodeTest < Zena::Unit::TestCase
     node[:parent_id] = nodes_id(:myDreams) # cannot write here
     assert ! node.save , "Save fails"
     assert node.errors[:parent_id].any?
-    assert_equal ['invalid parent', 'invalid reference'], node.errors[:parent_id]
+    assert_equal "invalid reference", node.errors[:parent_id]
 
     node = secure!(Node) { nodes(:status)  }
     node[:parent_id] = nodes_id(:projects) # parent ok
@@ -294,7 +291,7 @@ class NodeTest < Zena::Unit::TestCase
     login(:tiger)
     node = secure!(Node) { nodes(:projects)  }
     assert !node.destroy, "Cannot destroy"
-    assert_equal 'contains subpages or data', node.errors[:base]
+    assert_equal 'cannot be removed (contains subpages or data)', node.errors[:base]
     node = secure!(Node) { nodes(:bananas)  }
     assert node.destroy, "Can destroy"
   end
@@ -304,7 +301,7 @@ class NodeTest < Zena::Unit::TestCase
     node = secure!(Node) { nodes(:lion)  }
     assert_nil node.find(:all, 'pages'), "No subpages"
     assert !node.destroy, "Cannot destroy"
-    assert_equal 'contains subpages or data', node.errors[:base]
+    assert_equal 'cannot be removed (contains subpages or data)', node.errors[:base]
   end
 
   def test_parent
@@ -434,7 +431,7 @@ class NodeTest < Zena::Unit::TestCase
   #   node = secure!(Node) { Node.find(visitor.site[:root_id]) }
   #   assert_kind_of Section, node
   # end
-  
+
   context 'A visitor in the drive group of the root node' do
     setup do
       login(:tiger)
@@ -515,30 +512,6 @@ class NodeTest < Zena::Unit::TestCase
     assert_equal nodes_id(:zena), nodes(:people)[:section_id]
   end
 
-  def test_after_unpublish
-    Version.connection.execute "UPDATE versions SET user_id=#{users_id(:tiger)} WHERE node_id IN (#{[:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')})"
-    Node.connection.execute "UPDATE nodes SET user_id=#{users_id(:tiger)} WHERE id IN (#{[:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')})"
-    login(:tiger)
-    wiki   = secure!(Node) { nodes(:wiki)       }
-    bird   = secure!(Node) { nodes(:bird_jpg)   }
-    flower = secure!(Node) { nodes(:flower_jpg) }
-    assert_equal Zena::Status[:pub], wiki.version.status
-    assert_equal Zena::Status[:pub], bird.version.status
-    assert_equal Zena::Status[:pub], flower.version.status
-    assert wiki.unpublish, 'Can unpublish publication'
-    assert_equal 10, wiki.version.status
-    bird = secure!(Node) { nodes(:bird_jpg) }
-    flower = secure!(Node) { nodes(:flower_jpg) }
-    assert_equal 10, bird.version.status
-    assert_equal 10, flower.version.status
-    assert wiki.publish, 'Can publish'
-    bird = secure!(Node) { nodes(:bird_jpg) }
-    flower = secure!(Node) { nodes(:flower_jpg) }
-    assert_equal Zena::Status[:pub], bird.version.status
-    assert_equal Zena::Status[:pub], bird.max_status
-    assert_equal Zena::Status[:pub], flower.version.status
-  end
-
   def test_after_propose
     test_site('zena')
     node_ids = [:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')
@@ -563,36 +536,6 @@ class NodeTest < Zena::Unit::TestCase
     assert_equal Zena::Status[:prop_with], flower.version.status
     assert wiki.publish
     bird   = secure!(Node) { nodes(:bird_jpg) }
-    flower = secure!(Node) { nodes(:flower_jpg) }
-    assert_equal Zena::Status[:pub], bird.version.status
-    assert_equal Zena::Status[:pub], bird.max_status
-    assert_equal Zena::Status[:pub], flower.version.status
-  end
-
-  def test_after_refuse
-    login(:tiger)
-    wiki = secure!(Node) { nodes(:wiki) }
-    assert wiki.propose, 'Can propose for publication'
-    assert_equal Zena::Status[:prop], wiki.version.status
-    bird = secure!(Node) { nodes(:bird_jpg) }
-    flower = secure!(Node) { nodes(:flower_jpg) }
-    assert_equal Zena::Status[:prop_with], bird.version.status
-    assert_equal Zena::Status[:prop_with], flower.version.status
-    assert wiki.refuse, 'Can refuse'
-    bird = secure!(Node) { nodes(:bird_jpg) }
-    flower = secure!(Node) { nodes(:flower_jpg) }
-    assert_equal Zena::Status[:red], bird.version.status
-    assert_equal Zena::Status[:red], bird.version.status
-    assert_equal Zena::Status[:red], bird.max_status
-    assert_equal Zena::Status[:red], flower.version.status
-  end
-
-  def test_after_publish
-    login(:tiger)
-    wiki = secure!(Node) { nodes(:wiki) }
-    assert wiki.publish, 'Can publish'
-    assert_equal Zena::Status[:pub], wiki.version.status
-    bird = secure!(Node) { nodes(:bird_jpg) }
     flower = secure!(Node) { nodes(:flower_jpg) }
     assert_equal Zena::Status[:pub], bird.version.status
     assert_equal Zena::Status[:pub], flower.version.status
@@ -745,7 +688,7 @@ class NodeTest < Zena::Unit::TestCase
     letter = secure!(Node) { Node.create_node(:v_status => Zena::Status[:pub], :v_title => 'a letter', :class => 'Letter', :parent_id => nodes_zip(:cleanWater)) }
     assert !letter.new_record?, "Not a new record"
     assert_equal Zena::Status[:pub], letter.version.status, "Published"
-    login(:ant)
+    login(:lion)
     letter = secure!(Node) { Node.find(letter.id) }
     assert letter.can_auto_create_discussion?
     assert Discussion.create(:node_id=>letter[:id], :lang=>'fr', :inside=>false)
@@ -825,7 +768,7 @@ class NodeTest < Zena::Unit::TestCase
     node = secure!(Node) { Node.create_node(:parent_id => nodes_zip(:secret), :name => 'funny') }
     assert_equal nodes_id(:secret), node[:parent_id]
     assert node.new_record?, "Not saved"
-    assert_equal 'invalid parent', node.errors[:parent_id]
+    assert_equal 'invalid reference', node.errors[:parent_id]
   end
 
   def test_create_node_with__parent_id
@@ -833,7 +776,7 @@ class NodeTest < Zena::Unit::TestCase
     node = secure!(Node) { Node.create_node(:_parent_id => nodes_id(:secret), :name => 'funny') }
     assert_equal nodes_id(:secret), node[:parent_id]
     assert node.new_record?, "Not saved"
-    assert_equal 'invalid parent', node.errors[:parent_id]
+    assert_equal 'invalid reference', node.errors[:parent_id]
   end
 
   def test_create_node_ok
@@ -1185,7 +1128,7 @@ done: \"I am done\""
 
   context 'A class\' native classes hash' do
     should 'be indexed by kpath' do
-      assert_equal ['N', 'ND', 'NDI', 'NDT', 'NDTT', 'NN', 'NP', 'NPP', 'NPS', 'NPSS', 'NR', 'NRC', 'NU', 'NUS'], Node.native_classes.keys.sort
+      assert_equal ['N', 'ND', 'NDI', 'NDT', 'NDTT', 'NN', 'NP', 'NPP', 'NPS', 'NPSS', 'NR', 'NRC'], Node.native_classes.keys.sort
       assert_equal ['ND', 'NDI', 'NDT', 'NDTT'], Document.native_classes.keys.sort
     end
 
@@ -1199,16 +1142,18 @@ done: \"I am done\""
   context 'A node' do
     setup do
       login(:tiger)
+      @status = secure!(Node){nodes(:status)}
+      @proposition = secure!(Node){nodes(:proposition)}
     end
 
     should 'respond true to vkind_of if it contains a class (real or virtual) in its hierarchy' do
-      assert nodes(:status).vkind_of?('Page')
-      assert nodes(:proposition).vkind_of?('Post')
+      assert @status.vkind_of?('Page')
+      assert @proposition.vkind_of?('Post')
     end
 
     should 'not respond true to vkind_of if it does not contain the class in its heirarchy' do
-      assert !nodes(:status).vkind_of?('Document')
-      assert !nodes(:status).vkind_of?('Post')
+      assert !@status.vkind_of?('Document')
+      assert !@status.vkind_of?('Post')
     end
   end
 
