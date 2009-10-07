@@ -12,7 +12,9 @@ module Zena
   }.freeze
 
   module Acts
+
     module Multiversion
+
       def acts_as_multiversioned(opts = {})
         opts.reverse_merge!({
           :class_name => 'Version'
@@ -22,7 +24,8 @@ module Zena
         after_save    :after_all
 
         has_many :versions,  :class_name => opts[:class_name],
-                 :order=>"number DESC", :dependent => :destroy #, :inverse_of => :node
+                 :order=>"number DESC", :dependent => :destroy  #, :inverse_of => :node
+
         has_many :editions,  :class_name => opts[:class_name],
                  :conditions=>"publish_from <= #{Zena::Db::NOW} AND status = #{Zena::Status[:pub]}", :order=>'lang' #, :inverse_of => :node
 
@@ -141,22 +144,23 @@ module Zena
 
         # FIXME: merge this with the logic in edit!
         def can_edit?(lang=nil)
-          return false unless can_write?
-          if lang
-            # Is there a proposition lock ?
-            v = versions.find(:first, :select => 'id', :conditions=>["status > #{Zena::Status[:pub]} AND status < #{Zena::Status[:red]} AND lang=?", lang])
-            v == nil
-          else
-            # can we create a new redaction in the current context ?
-            # there can only be one redaction/proposition per lang per node. Only the owner of the red can edit
-            v = versions.find(:first, :select => 'id,status,user_id', :conditions=>["status > #{Zena::Status[:pub]} AND status < #{Zena::Status[:red]} AND lang=?", visitor.lang])
-            v == nil || (v.status == Zena::Status[:red] && v.user_id == visitor[:id])
-          end
-        rescue ActiveRecord::RecordNotFound
-          true
+          # Has the visitor write access to the node & node is not a proposition ?
+          can_write? && !(Zena::Status[:prop]..Zena::Status[:prop_with]).include?(version.status)
+
+            # It can be only one readation per lang.
+              # v = versions.find(:first, :select => 'id', :conditions=>["status > #{Zena::Status[:pub]} AND status < #{Zena::Status[:red]} AND lang=?", lang])
+              # v == nil
+            #
+              # can we create a new redaction in the current context ?
+              # there can only be one redaction/proposition per lang per node. Only the owner of the red can edit
+              # v = versions.find(:first, :select => 'id,status,user_id', :conditions=>["status > #{Zena::Status[:pub]} AND status < #{Zena::Status[:red]} AND lang=?", visitor.lang])
+              # v == nil || (v.status == Zena::Status[:red] && v.user_id == visitor[:id])
         end
 
-        alias can_edit_lang? can_edit?
+        def can_update?
+          can_write? && version.status == Zena::Status[:red]
+        end
+
 
         def edit_content!
           redaction && redaction.redaction_content
@@ -253,7 +257,7 @@ module Zena
           prev_status = v.status_was.to_i
           case method
           when :edit
-            can_edit_lang?
+            can_edit?
           when :drive
             can_drive?
           else
@@ -266,7 +270,7 @@ module Zena
         def apply(method, *args)
           res = case method
           when :update_attributes
-            self.attributes = args[0]
+            self.attributes = args.first
             save
           when :propose
             self.version_attributes = {'status' => args[0] || Zena::Status[:prop]}
@@ -370,12 +374,15 @@ module Zena
         # :v_... or :c_... keys, then only the version will be saved. If the attributes does not contain any :v_... or :c_...
         # attributes, only the node is saved, without creating a new version.
         def update_attributes(new_attributes)
-          if can_write?
+          if can_write? && !(Zena::Status[:prop] .. Zena::Status[:prop_with]).include?(version.status)
             apply(:update_attributes,new_attributes)
+          elsif can_drive?
+              unvalid_keys = new_attributes.keys - [:v_status, :v_publish_from]
+              unvalid_keys.empty? ? apply(:update_attributes, new_attributes ) : self
           else
             # TODO
             # Should add error in Node
-            self
+
           end
         end
 
@@ -414,7 +421,6 @@ module Zena
         end
 
         # Creates a new redaction ready to be edited.
-        # TODO: this should be renamed to 'make_redaction' or equivalent.
         def edit!(version_attributes = nil)
           target_status = version_attributes ? version_attributes['status'] : nil
           would_edit    = version_attributes ? version.would_edit?(version_attributes) : true
@@ -453,6 +459,7 @@ module Zena
                 build_redaction(v, target_status)
               elsif v.status == Zena::Status[:red]
                 @old_redaction_to_replace = v
+                build_redaction(v, target_status)
               elsif v.status > Zena::Status[:pub]
                 # proposition: cannot edit here
                 r = build_redaction(v, target_status)
@@ -568,7 +575,6 @@ module Zena
           end
 
           def multiversion_after_save
-
             if @redaction && @redaction.should_save?
               changes = @redaction.changes
               return false unless @redaction.save
