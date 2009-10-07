@@ -377,12 +377,15 @@ module Zena
           if can_write? && !(Zena::Status[:prop] .. Zena::Status[:prop_with]).include?(version.status)
             apply(:update_attributes,new_attributes)
           elsif can_drive?
-              unvalid_keys = new_attributes.keys - [:v_status, :v_publish_from]
-              unvalid_keys.empty? ? apply(:update_attributes, new_attributes ) : self
+            # FIXME: this will not work if we write "versions_attributes => {'status' => 50}"
+            # FIXME: string vs symbols (keys are always strings from the web)
+            # FIXME: this should go into the validation, not here...
+            unvalid_keys = new_attributes.keys - [:v_status, :v_publish_from]
+            unvalid_keys.empty? ? apply(:update_attributes, new_attributes ) : false
           else
-            # TODO
-            # Should add error in Node
-
+            # FIXME: move this into validation when we have vhash
+            errors.add('You are not allowed to write.')
+            false
           end
         end
 
@@ -462,8 +465,7 @@ module Zena
                 build_redaction(v, target_status)
               elsif v.status > Zena::Status[:pub]
                 # proposition: cannot edit here
-                r = build_redaction(v, target_status)
-                r
+                build_redaction(v, target_status)
               else
                 @old_redaction_to_replace = v
                 # proposition, other status

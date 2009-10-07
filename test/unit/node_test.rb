@@ -54,6 +54,9 @@ class NodeTest < Zena::Unit::TestCase
     login(:tiger)
     visitor[:time_zone] = "Europe/Zurich"
     [
+      [{'parent_id' => 'lake+'},
+       {'parent_id' => nodes_id(:lake_jpg)}],
+
       [{'d_super_id' => 'lake',           'd_other_id' => '11'},
        {'d_super_id' => nodes_zip(:lake), 'd_other_id' => 11}],
 
@@ -512,6 +515,31 @@ class NodeTest < Zena::Unit::TestCase
     assert_equal nodes_id(:zena), nodes(:people)[:section_id]
   end
 
+  def test_after_unpublish
+    print 'P'
+    # Version.connection.execute "UPDATE versions SET user_id=#{users_id(:tiger)} WHERE node_id IN (#{[:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')})"
+    # Node.connection.execute "UPDATE nodes SET user_id=#{users_id(:tiger)} WHERE id IN (#{[:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')})"
+    # login(:tiger)
+    # wiki   = secure!(Node) { nodes(:wiki)       }
+    # bird   = secure!(Node) { nodes(:bird_jpg)   }
+    # flower = secure!(Node) { nodes(:flower_jpg) }
+    # assert_equal Zena::Status[:pub], wiki.version.status
+    # assert_equal Zena::Status[:pub], bird.version.status
+    # assert_equal Zena::Status[:pub], flower.version.status
+    # assert wiki.unpublish, 'Can unpublish publication'
+    # assert_equal 10, wiki.version.status
+    # bird = secure!(Node) { nodes(:bird_jpg) }
+    # flower = secure!(Node) { nodes(:flower_jpg) }
+    # assert_equal 10, bird.version.status
+    # assert_equal 10, flower.version.status
+    # assert wiki.publish, 'Can publish'
+    # bird = secure!(Node) { nodes(:bird_jpg) }
+    # flower = secure!(Node) { nodes(:flower_jpg) }
+    # assert_equal Zena::Status[:pub], bird.version.status
+    # assert_equal Zena::Status[:pub], bird.max_status
+    # assert_equal Zena::Status[:pub], flower.version.status
+  end
+
   def test_after_propose
     test_site('zena')
     node_ids = [:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')
@@ -539,6 +567,37 @@ class NodeTest < Zena::Unit::TestCase
     flower = secure!(Node) { nodes(:flower_jpg) }
     assert_equal Zena::Status[:pub], bird.version.status
     assert_equal Zena::Status[:pub], flower.version.status
+  end
+
+  def test_after_refuse
+    print 'P'
+    # login(:tiger)
+    # wiki = secure!(Node) { nodes(:wiki) }
+    # assert wiki.propose, 'Can propose for publication'
+    # assert_equal Zena::Status[:prop], wiki.version.status
+    # bird = secure!(Node) { nodes(:bird_jpg) }
+    # flower = secure!(Node) { nodes(:flower_jpg) }
+    # assert_equal Zena::Status[:prop_with], bird.version.status
+    # assert_equal Zena::Status[:prop_with], flower.version.status
+    # assert wiki.refuse, 'Can refuse'
+    # bird = secure!(Node) { nodes(:bird_jpg) }
+    # flower = secure!(Node) { nodes(:flower_jpg) }
+    # assert_equal Zena::Status[:red], bird.version.status
+    # assert_equal Zena::Status[:red], bird.version.status
+    # assert_equal Zena::Status[:red], bird.max_status
+    # assert_equal Zena::Status[:red], flower.version.status
+  end
+
+  def test_after_publish
+    print 'P'
+    # login(:tiger)
+    # wiki = secure!(Node) { nodes(:wiki) }
+    # assert wiki.publish, 'Can publish'
+    # assert_equal Zena::Status[:pub], wiki.version.status
+    # bird = secure!(Node) { nodes(:bird_jpg) }
+    # flower = secure!(Node) { nodes(:flower_jpg) }
+    # assert_equal Zena::Status[:pub], bird.version.status
+    # assert_equal Zena::Status[:pub], flower.version.status
   end
 
   def test_all_children
@@ -1128,7 +1187,7 @@ done: \"I am done\""
 
   context 'A class\' native classes hash' do
     should 'be indexed by kpath' do
-      assert_equal ['N', 'ND', 'NDI', 'NDT', 'NDTT', 'NN', 'NP', 'NPP', 'NPS', 'NPSS', 'NR', 'NRC'], Node.native_classes.keys.sort
+      assert_equal ['N', 'ND', 'NDI', 'NDT', 'NDTT', 'NN', 'NP', 'NPP', 'NPS', 'NPSS', 'NR', 'NRC', 'NU', 'NUS'], Node.native_classes.keys.sort
       assert_equal ['ND', 'NDI', 'NDT', 'NDTT'], Document.native_classes.keys.sort
     end
 

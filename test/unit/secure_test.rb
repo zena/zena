@@ -1,14 +1,5 @@
 require 'test_helper'
 
-class PagerDummy < Node
-  def self.ksel
-    self == PagerDummy ? 'U' : super
-  end
-end
-
-class SubPagerDummy < PagerDummy
-end
-
 class SecureTest < Zena::Unit::TestCase
 
   def create_simple_note(opts={})
@@ -234,7 +225,7 @@ class SecureTest < Zena::Unit::TestCase
     should 'not be allowed to write' do
       node = secure!(Node) { nodes(:bananas) }
       assert !node.can_write?
-      node.update_attributes(:v_title => 'Banana republic')
+      assert !node.update_attributes(:v_title => 'Banana republic')
       assert_not_equal "Banana republic", node.v_title
     end
 
