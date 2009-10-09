@@ -142,6 +142,79 @@ module Zena
           end
         end
 
+        def vhash
+          @vhash ||= JSON.parse(self[:vhash] || '{"r":{}, "w":{}}')
+        end
+
+        def update_vhash(version)
+          # FIXME: should also update publish_from & old_publications...
+          # puts [@current_transition[:name], version.status, version.id, vhash].inspect
+          case @current_transition[:name]
+          when :edit
+            vhash['w'][version.lang] = version.id
+          when :redit
+            if old_redaction_id = vhash['w'][version.lang]
+              if old_redaction_id != vhash['r'][version.lang]
+                self.class.connection.execute "UPDATE #{version.class.table_name} SET status = '#{Zena::Status[:rem]}' WHERE id = #{old_redaction_id}"
+              end
+            end
+            vhash['w'][version.lang] = version.id
+          when :publish
+            if old_publication_id = vhash['r'][version.lang]
+              self.class.connection.execute "UPDATE #{version.class.table_name} SET status = '#{version.id > old_publication_id ? Zena::Status[:rep] : Zena::Status[:rem]}' WHERE id = #{old_publication_id}"
+            end
+            vhash['r'][version.lang] = vhash['w'][version.lang] = version.id
+          when :unpublish
+            vhash['r'].delete(version.lang)
+          when :remove
+            if v_id = vhash['r'][version.lang]
+              vhash['w'][version.lang] = v_id
+            end
+          end
+          # puts [@current_transition[:name], version.status, version.id, vhash].inspect
+          # puts "---------------------"
+          self[:vhash] = vhash.to_json
+        end
+
+        def rebuild_vhash
+          r_hash, w_hash = {}, {}
+          vhash = {'r' => r_hash, 'w' => w_hash}
+          lang  = nil
+          self.publish_from = n_pub = nil
+          connection.select_all("SELECT id,lang,status,publish_from FROM #{Version.table_name} WHERE node_id = #{self.id} ORDER BY lang ASC, status DESC", "Version Load").each do |record|
+            if record['lang'] != lang
+              lang   = record['lang']
+              # highest status for this lang
+              if record['status'].to_i == Zena::Status[:pub]
+                # ok for readers & writers
+                w_hash[lang] = r_hash[lang] = record['id'].to_i
+                v_pub = DateTime.parse(record['publish_from']) rescue Time.now
+                if n_pub.nil? || v_pub < n_pub
+                  n_pub = v_pub
+                end
+              else
+                # too high, only ok for writers
+                w_hash[lang] = record['id'].to_i
+              end
+            elsif record['status'].to_i == Zena::Status[:pub]
+              # ok for readers
+              r_hash[lang] = record['id'].to_i
+              v_pub = DateTime.parse(record['publish_from']) rescue Time.now
+              if n_pub.nil? || v_pub < n_pub
+                n_pub = v_pub
+              end
+            end
+          end
+          self[:publish_from] = n_pub
+          self[:vhash] = vhash.to_json
+          @vhash = vhash
+        end
+
+        def version_id(force_pub = false)
+          access = (!force_pub && can_write?) ? vhash['w'] : vhash['r']
+          access[visitor.lang] || access[ref_lang] || access.values.first
+        end
+
         # FIXME: merge this with the logic in edit!
         def can_edit?(lang=nil)
           # Has the visitor write access to the node & node is not a proposition ?
@@ -398,22 +471,9 @@ module Zena
             v.node = self
             v
           else
-            if can_write? && !force_pub
-              # normal version
-              v = versions.find(:first,
-                :select     => "*, (lang = #{Node.connection.quote(visitor.lang)}) as lang_ok, (lang = #{Node.connection.quote(ref_lang)}) as ref_ok",
-                :order      => "lang_ok DESC, ref_ok DESC, status DESC")
-              v.node = self if v # FIXME: remove when :inverse_of moves in Rails stable
-              v
-            else
-              # read only
-              v = versions.find(:first,
-                :select     => "*, (lang = #{Node.connection.quote(visitor.lang)}) as lang_ok, (lang = #{Node.connection.quote(ref_lang)}) as ref_ok",
-                :conditions => [ "status = #{Zena::Status[:pub]}"],
-                :order      => "lang_ok DESC, ref_ok DESC")
-              v.node = self if v # FIXME: remove when :inverse_of moves in Rails stable
-              v
-            end
+            v = Version.find(version_id(force_pub))
+            v.node = self
+            v
           end
         end
 
@@ -492,7 +552,9 @@ module Zena
 
         private
           def set_status_before_validation
+            self[:vhash] = @vhash.to_json if @vhash
             multiversion_before_validation_on_create if new_record?
+
             if v = @redaction
               v.status ||= Zena::Status[:red]
               if current_site[:auto_publish]
@@ -526,8 +588,8 @@ module Zena
 
           def status_validation
             return true unless @redaction && @redaction.should_save?
-            if t = current_transition
-              errors.add(:base, "You do not have the rights to #{t[:name].to_s.gsub('_', ' ')}.") unless transition_allowed?(t)
+            if @current_transition = self.current_transition
+              errors.add(:base, "You do not have the rights to #{@current_transition[:name].to_s.gsub('_', ' ')}.") unless transition_allowed?(@current_transition)
             else
               errors.add(:base, 'This transition is not allowed.')
             end
@@ -573,20 +635,22 @@ module Zena
 
           def multiversion_before_save
             @version_or_content_updated_but_not_saved = !changed? && (@version.changed? || (@version.content && @version.content.changed?))
+            if @redaction && @redaction.should_save?
+              changes = @redaction.changes
+              return false unless @redaction.save
+              update_vhash(@redaction)
+            end
+            @redaction = nil
             true
           end
 
           def multiversion_after_save
-            if @redaction && @redaction.should_save?
-              changes = @redaction.changes
-              return false unless @redaction.save
 
-              # What was the transition ?
-              if status_changes = changes['status']
-                transition = transition_for(status_changes[-2], status_changes[-1])
-                method = "after_#{transition[:name]}"
-                send(method) if respond_to?(method, true)
-              end
+            # What was the transition ?
+            if @current_transition
+              method = "after_#{@current_transition[:name]}"
+              send(method) if respond_to?(method, true)
+              @current_transition = nil
             end
 
             if @old_publication_to_replace
@@ -606,7 +670,6 @@ module Zena
             @allowed_transitions        = nil
             @old_publication_to_replace = nil
             @old_redaction_to_replace   = nil
-            @redaction                  = nil
             true
           end
 

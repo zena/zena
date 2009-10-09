@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20091001084025) do
+ActiveRecord::Schema.define(:version => 20091009084057) do
 
   create_table "cached_pages", :force => true do |t|
     t.text     "path"
@@ -174,6 +174,7 @@ ActiveRecord::Schema.define(:version => 20091001084025) do
     t.integer  "vclass_id"
     t.integer  "custom_a"
     t.integer  "custom_b"
+    t.text     "vhash"
   end
 
   create_table "participations", :force => true do |t|
@@ -260,11 +261,6 @@ ActiveRecord::Schema.define(:version => 20091001084025) do
     t.integer  "number",                     :default => 1,  :null => false
     t.integer  "content_id"
     t.integer  "site_id"
-  end
-
-  if Zena::Db.adapter == 'mysql'
-    execute "ALTER TABLE versions ENGINE = MyISAM"
-    execute "CREATE FULLTEXT INDEX index_versions_on_title_and_text_and_summary ON versions (title,text,summary)"
   end
 
   create_table "virtual_classes", :force => true do |t|

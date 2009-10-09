@@ -8,7 +8,7 @@
 .s65, .li_s65 a                  { border-bottom-color:#73A1A5; border-bottom-style:dotted; }
 .s60, .li_s60 a                  { border-bottom-color:#73A1A5;}
 #version_warning { position:fixed; top:0; padding:4px; background:white; color:#222; width:120px; font-size:10px;}
-
+#version_warning a {float:right;}
 /* actions */
 .actions   { margin-left:5px; }
 .actions img {border:none; vertical-align:middle;}

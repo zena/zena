@@ -263,6 +263,6 @@ class VersionsController < ApplicationController
     end
 
     def insert_warning
-      response.body.gsub!('</html>', %Q{<div id='version_warning' class='s#{@node.version.status}'>You are viewing version number <b>#{@node.version.number}</b>, created on #{format_date(@node.version.created_at, _('full_date'))} <a href='#{zen_path(@node)}'>#{_('close')}</a></div></html>})
+      response.body.gsub!('</html>', %Q{<div id='version_warning' class='s#{@node.version.status}'><a href='#{zen_path(@node)}'>#{_('close')}</a> version: <b>#{@node.version.number}</b><br/>author: <b>#{@node.version.user.login}</b><br/>date: #{format_date(@node.version.created_at, _('full_date'))}</div></html>})
     end
 end

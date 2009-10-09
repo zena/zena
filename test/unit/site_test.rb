@@ -223,4 +223,14 @@ class SiteTest < Zena::Unit::TestCase
     assert_equal "/test.host/public", site2.public_path
     assert_equal "/test.host/public", site1.public_path
   end
+
+  def test_rebuild_vhash
+    login(:tiger)
+    Node.connection.execute "UPDATE nodes SET vhash = NULL WHERE id IN (#{nodes_id(:status)}, #{nodes_id(:opening)})"
+    visitor.site.rebuild_vhash
+    status  = secure(Node) { nodes(:status)  }
+    opening = secure(Node) { nodes(:opening) }
+    assert_equal Hash[], status.vhash
+    assert_equal Hash[], opening.vhash
+  end
 end

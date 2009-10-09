@@ -332,6 +332,21 @@ class Site < ActiveRecord::Base
     end
   end
 
+  def rebuild_vhash
+    lang_list = self.lang_list.sort
+    i = 0
+    while true
+      nodes = Node.find(:all, :conditions => ['site_id = ?', id], :order=>'id ASC', :limit => 50, :offset => i * 50)
+      break if nodes.empty?
+      nodes.each do |node|
+        node.rebuild_vhash
+        Node.connection.execute "UPDATE nodes SET publish_from = #{Node.connection.quote(node.publish_from)}, vhash = #{Node.connection.quote(node.vhash.to_json)} WHERE id = #{node.id}"
+      end
+      # 50 more
+      i += 1
+    end
+  end
+
   private
     def valid_site
       errors.add(:host, 'invalid') if self[:host].nil? || (self[:host] =~ /^\./) || (self[:host] =~ /[^\w\.\-]/)

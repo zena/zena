@@ -646,11 +646,12 @@ module Zena
   end
 
   class FoxyVersionsParser < FoxyParser
-    attr_reader :publish_from
+    attr_reader :publish_from, :vhash
 
     def initialize(table_name, opts = {})
       super
       @publish_from = {}
+      @vhash        = {}
     end
 
     private
@@ -658,6 +659,7 @@ module Zena
         super
 
         @publish_from[site] = {}
+        @vhash[site] = {}
         elements.each do |k,v|
           # set status
           v['status'] = Zena::Status[v['status'].to_sym]
@@ -667,6 +669,7 @@ module Zena
           # set publish_from
           @publish_from[site][v['node']] ||= v['publish_from']
           @publish_from[site][v['node']] = v['publish_from'] if v['publish_from'] && v['publish_from'] > @publish_from[site][v['node']]
+          # build vhash
         end
       end
 
