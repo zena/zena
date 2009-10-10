@@ -73,12 +73,11 @@ class ImageContent < DocumentContent
     if format.nil? || format.size == :keep
       self[:width]
     else
-      if img = image_with_format(format)
-        img.width
-      else
-        nil
-      end
+      image_with_format(format).width
     end
+  rescue StandardError
+    # something went wrong (could not find file)
+    0
   end
   
   # Return the height in pixels for an image at the given format.
