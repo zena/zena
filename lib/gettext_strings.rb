@@ -82,10 +82,9 @@ module Zena
     N_('btn_redit')
 
     N_('status_50')         # published
-    N_('status_40')         # proposed
-    N_('status_35')         # proposed with
-    N_('status_33')         # redaction visible
-    N_('status_30')         # redaction
+    N_('status_60')         # proposed
+    N_('status_65')         # proposed with
+    N_('status_70')         # redaction
     N_('status_20')         # replaced
     N_('status_10')         # removed
     N_('status_0')          # deleted

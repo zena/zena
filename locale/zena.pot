@@ -1642,19 +1642,15 @@ msgid "status_50"
 msgstr ""
 
 #: lib/gettext_strings.rb:86
-msgid "status_40"
+msgid "status_60"
 msgstr ""
 
 #: lib/gettext_strings.rb:87
-msgid "status_35"
-msgstr ""
-
-#: lib/gettext_strings.rb:88
-msgid "status_33"
+msgid "status_65"
 msgstr ""
 
 #: lib/gettext_strings.rb:89
-msgid "status_30"
+msgid "status_70"
 msgstr ""
 
 #: lib/gettext_strings.rb:90

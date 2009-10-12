@@ -1787,19 +1787,15 @@ msgid "status_50"
 msgstr "publié"
 
 #: lib/gettext_strings.rb:86
-msgid "status_40"
+msgid "status_60"
 msgstr "proposé"
 
 #: lib/gettext_strings.rb:87
-msgid "status_35"
+msgid "status_65"
 msgstr "proposé avec"
 
-#: lib/gettext_strings.rb:88
-msgid "status_33"
-msgstr "rédaction visible"
-
 #: lib/gettext_strings.rb:89
-msgid "status_30"
+msgid "status_70"
 msgstr "rédaction"
 
 #: lib/gettext_strings.rb:90

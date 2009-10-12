@@ -1793,19 +1793,15 @@ msgid "status_50"
 msgstr "published"
 
 #: lib/gettext_strings.rb:86
-msgid "status_40"
+msgid "status_60"
 msgstr "proposed"
 
 #: lib/gettext_strings.rb:87
-msgid "status_35"
+msgid "status_65"
 msgstr "proposed with"
 
-#: lib/gettext_strings.rb:88
-msgid "status_33"
-msgstr "redaction with"
-
 #: lib/gettext_strings.rb:89
-msgid "status_30"
+msgid "status_70"
 msgstr "redaction"
 
 #: lib/gettext_strings.rb:90
