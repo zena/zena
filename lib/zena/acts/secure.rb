@@ -552,6 +552,20 @@ Just doing the above will filter all result according to the logged in user.
         @visitor = visitor
       end
 
+      # Secure scope for read access
+      def secure_scope(table_name)
+        if visitor.is_su?
+          "#{table_name}.site_id = #{visitor.site.id}"
+        else
+          # site_id AND...
+          "#{table_name}.site_id = #{visitor.site.id} AND ("+
+          # READER if published
+          "(#{table_name}.rgroup_id IN (#{visitor.group_ids.join(',')}) AND #{table_name}.publish_from <= #{Zena::Db::NOW} ) OR " +
+          # OR writer
+          "#{table_name}.wgroup_id IN (#{visitor.group_ids.join(',')}))"
+        end
+      end
+
       # these methods are not actions that can be called from the web !!
       protected
         # secure find with scope (for read/write or publish access).
@@ -650,20 +664,6 @@ Just doing the above will filter all result according to the logged in user.
             raise ActiveRecord::RecordNotFound
           end
           res
-        end
-
-        # Secure scope for read access
-        def secure_scope(table_name)
-          if visitor.is_su?
-            "#{table_name}.site_id = #{visitor.site.id}"
-          else
-            # site_id AND...
-            "#{table_name}.site_id = #{visitor.site.id} AND ("+
-            # READER if published
-            "(#{table_name}.rgroup_id IN (#{visitor.group_ids.join(',')}) AND #{table_name}.publish_from <= #{Zena::Db::NOW} ) OR " +
-            # OR writer
-            "#{table_name}.wgroup_id IN (#{visitor.group_ids.join(',')}))"
-          end
         end
 
         # Secure scope for write access.

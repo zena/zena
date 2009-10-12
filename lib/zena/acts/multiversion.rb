@@ -34,10 +34,11 @@ module Zena
         validate      :status_validation
         validate      :version_validation
 
-        before_create :cache_version_status_before_create
-        before_update :cache_version_status_before_update
+        before_create :cache_version_attributes_before_create
+        before_update :cache_version_attributes_before_update
         before_save   :multiversion_before_save
         after_save    :multiversion_after_save
+        after_create  :cache_version_attributes_after_create
 
         include Zena::Acts::Multiversion::InstanceMethods
         extend  Zena::Acts::Multiversion::ClassMethods
@@ -133,6 +134,43 @@ module Zena
         end
       end
 
+      def self.cached_values_from_records(records)
+        r_hash, w_hash = {}, {}
+        vhash = {'r' => r_hash, 'w' => w_hash}
+        lang  = nil
+        n_pub = nil
+        records.each do |record|
+          if record['lang'] != lang
+            lang   = record['lang']
+            # highest status for this lang
+            if record['status'].to_i == Zena::Status[:pub]
+              # ok for readers & writers
+              w_hash[lang] = r_hash[lang] = record['id'].to_i
+              v_pub = record['publish_from']
+
+              if v_pub.kind_of?(String)
+                v_pub = DateTime.parse(record['publish_from']) rescue Time.now
+              end
+
+              if n_pub.nil? || v_pub < n_pub
+                n_pub = v_pub
+              end
+            else
+              # too high, only ok for writers
+              w_hash[lang] = record['id'].to_i
+            end
+          elsif record['status'].to_i == Zena::Status[:pub]
+            # ok for readers
+            r_hash[lang] = record['id'].to_i
+            v_pub = DateTime.parse(record['publish_from']) rescue Time.now
+            if n_pub.nil? || v_pub < n_pub
+              n_pub = v_pub
+            end
+          end
+        end
+        {:publish_from => n_pub, :vhash => vhash}
+      end
+
       module InstanceMethods
 
         # VERSION
@@ -146,68 +184,11 @@ module Zena
           @vhash ||= JSON.parse(self[:vhash] || '{"r":{}, "w":{}}')
         end
 
-        def update_vhash(version)
-          # FIXME: should also update publish_from & old_publications...
-          # puts [@current_transition[:name], version.status, version.id, vhash].inspect
-          case @current_transition[:name]
-          when :edit
-            vhash['w'][version.lang] = version.id
-          when :redit
-            if old_redaction_id = vhash['w'][version.lang]
-              if old_redaction_id != vhash['r'][version.lang]
-                self.class.connection.execute "UPDATE #{version.class.table_name} SET status = '#{Zena::Status[:rem]}' WHERE id = #{old_redaction_id}"
-              end
-            end
-            vhash['w'][version.lang] = version.id
-          when :publish
-            if old_publication_id = vhash['r'][version.lang]
-              self.class.connection.execute "UPDATE #{version.class.table_name} SET status = '#{version.id > old_publication_id ? Zena::Status[:rep] : Zena::Status[:rem]}' WHERE id = #{old_publication_id}"
-            end
-            vhash['r'][version.lang] = vhash['w'][version.lang] = version.id
-          when :unpublish
-            vhash['r'].delete(version.lang)
-          when :remove
-            if v_id = vhash['r'][version.lang]
-              vhash['w'][version.lang] = v_id
-            end
-          end
-          # puts [@current_transition[:name], version.status, version.id, vhash].inspect
-          # puts "---------------------"
-          self[:vhash] = vhash.to_json
-        end
-
         def rebuild_vhash
-          r_hash, w_hash = {}, {}
-          vhash = {'r' => r_hash, 'w' => w_hash}
-          lang  = nil
-          self.publish_from = n_pub = nil
-          connection.select_all("SELECT id,lang,status,publish_from FROM #{Version.table_name} WHERE node_id = #{self.id} ORDER BY lang ASC, status DESC", "Version Load").each do |record|
-            if record['lang'] != lang
-              lang   = record['lang']
-              # highest status for this lang
-              if record['status'].to_i == Zena::Status[:pub]
-                # ok for readers & writers
-                w_hash[lang] = r_hash[lang] = record['id'].to_i
-                v_pub = DateTime.parse(record['publish_from']) rescue Time.now
-                if n_pub.nil? || v_pub < n_pub
-                  n_pub = v_pub
-                end
-              else
-                # too high, only ok for writers
-                w_hash[lang] = record['id'].to_i
-              end
-            elsif record['status'].to_i == Zena::Status[:pub]
-              # ok for readers
-              r_hash[lang] = record['id'].to_i
-              v_pub = DateTime.parse(record['publish_from']) rescue Time.now
-              if n_pub.nil? || v_pub < n_pub
-                n_pub = v_pub
-              end
-            end
-          end
-          self[:publish_from] = n_pub
-          self[:vhash] = vhash.to_json
-          @vhash = vhash
+          cached = Multiversion.cached_values_from_records(connection.select_all("SELECT id,lang,status,publish_from FROM #{Version.table_name} WHERE node_id = #{self.id} ORDER BY lang ASC, status DESC", "Version Load"))
+          self[:publish_from] = cached[:publish_from]
+          self[:vhash] = cached[:vhash].to_json
+          @vhash = cached[:vhash]
         end
 
         def version_id(force_pub = false)
@@ -362,18 +343,17 @@ module Zena
               self.destroy # will destroy last version
             else
               if version.destroy
+                @version = @redaction = nil
+
                 # remove from versions list
                 if self.versions.loaded?
                   self.versions -= [version]
                 end
-                true
+
+                rebuild_vhash
+                save
               end
             end
-          when :backup
-            # FIXME: this does not work !
-            version.status = Zena::Status[:rep]
-            @redaction = nil
-            redaction.save if version.save
           end
         end
 
@@ -384,12 +364,6 @@ module Zena
             return false
           end
           apply(:propose, prop_status)
-        end
-
-        # Backup a redaction (create a new version)
-        # TODO: test
-        def backup
-          apply(:backup)
         end
 
         # Refuse publication
@@ -438,8 +412,8 @@ module Zena
         end
 
         # Set +publish_from+ to the minimum publication time of all editions
-        def get_publish_from(ignore_current = true)
-          pub_string  = (self.class.connection.select_one("SELECT publish_from FROM #{version.class.table_name} WHERE node_id = '#{self[:id]}' AND status = #{Zena::Status[:pub]} #{ignore_current ? "AND id != '#{version.id}'" : ''} order by publish_from ASC LIMIT 1") || {})['publish_from']
+        def get_publish_from(ignore_id = nil)
+          pub_string  = (self.class.connection.select_one("SELECT publish_from FROM #{version.class.table_name} WHERE node_id = '#{self[:id]}' AND status = #{Zena::Status[:pub]} #{ignore_id ? "AND id != '#{ignore_id}'" : ''} order by publish_from ASC LIMIT 1") || {})['publish_from']
           ActiveRecord::ConnectionAdapters::Column.string_to_time(pub_string)
         end
 
@@ -485,51 +459,30 @@ module Zena
 
         # Creates a new redaction ready to be edited.
         def edit!(version_attributes = nil)
-          target_status = version_attributes ? version_attributes['status'] : nil
-          would_edit    = version_attributes ? version.would_edit?(version_attributes) : true
           @redaction ||= begin
+            target_status   = version_attributes ? version_attributes['status'] : nil
             target_status ||= current_site[:auto_publish] ? Zena::Status[:pub] : Zena::Status[:red]
+            would_edit    = version_attributes ? version.would_edit?(version_attributes) : true
+            version_attributes ||= {}
             v = self.version
             if new_record? || !would_edit
               # nothing to do
               @version
-            elsif v.lang != ((version_attributes || {})['lang'] || visitor.lang)
-              # clone
-              build_redaction(v, target_status)
-            elsif v.user_id == visitor.id
-              # author is editing
-              if v.status == Zena::Status[:red]
-                # use current version
-                @version
-              elsif v.status      == Zena::Status[:pub] &&
-                    target_status == Zena::Status[:pub] &&
-                    Time.now < v.updated_at_was + current_site[:redit_time].to_i && # redit time
-                    transition_allowed?(transition_for(50, 50))
-                # autopublish
-                @version
-              elsif v.status == Zena::Status[:pub]
-                # make a new redaction
-                build_redaction(v, target_status)
-              else
-                # other status, changes not allowed
-                # create dummy for error reporting
-                build_redaction(v, target_status)
-              end
+            elsif v.lang    == (version_attributes['lang'] || visitor.lang)   &&
+                  v.user_id == visitor.id                                     &&
+                  [Zena::Status[:red], Zena::Status[:pub]].include?(v.status) &&
+                  target_status == v.status                                   &&
+                  version_attributes['backup'] != 'true'                      &&
+                  Time.now  < v.created_at + current_site[:redit_time].to_i
+              # own redaction (same lang) in redit time or
+              # autopublish own publication (same lang) in redit time
+              @version
             else
-              # new author wants to edit
-              if v.status == Zena::Status[:pub]
-                # make a redaction out of this version
-                build_redaction(v, target_status)
-              elsif v.status == Zena::Status[:red]
-                @old_redaction_to_replace = v
-                build_redaction(v, target_status)
-              elsif v.status > Zena::Status[:pub]
-                # proposition: cannot edit here
+              if v.status >= Zena::Status[:pub] && v.status < Zena::Status[:red]
+                # no need to update status after save
                 build_redaction(v, target_status)
               else
-                @old_redaction_to_replace = v
-                # proposition, other status
-                # create dummy for error reporting
+                @update_status_after_save = { v.id => Zena::Status[:rep] }
                 build_redaction(v, target_status)
               end
             end
@@ -605,46 +558,81 @@ module Zena
             end
           end
 
-          def cache_version_status_before_create
+          def cache_version_attributes_before_create
             self.publish_from = version.publish_from
             true
           end
 
-          def cache_version_status_before_update
-            return true unless @version && (@version.status_changed? || @version.new_record?)
-            # current_transition cannot be nil here (verified in status_validation)
-            self.updated_at = Time.now
-            case current_transition[:name]
-            when :publish
-              if self.publish_from
-                self.publish_from = [self.publish_from, version.publish_from].min
-              else
-                self.publish_from = version.publish_from
-              end
-              @old_publication_to_replace = [Zena::Db.fetch_ids("SELECT id FROM versions WHERE node_id = '#{self[:id]}' AND lang = '#{version[:lang]}' AND status = '#{Zena::Status[:pub]}' AND id != '#{version.id}'"), (version.status_was == Zena::Status[:rep] ? Zena::Status[:rem] : Zena::Status[:rep])]
-            when :auto_publish
-              # publication time might have changed
-              if version.publish_from_changed?
-                # we need to compute new
-                self.publish_from = [get_publish_from, version.publish_from].min
-              end
-            else
-            end
-            true
+          def cache_version_attributes_after_create
+            @version.save
+            compute_cached_attributes(@version)
+            Zena::Db.set_attribute(self, :vhash, self[:vhash])
           end
 
-          def multiversion_before_save
-            @version_or_content_updated_but_not_saved = !changed? && (@version.changed? || (@version.content && @version.content.changed?))
+          def cache_version_attributes_before_update
+            # we can compute the new vhash before save
             if @redaction && @redaction.should_save?
               changes = @redaction.changes
               return false unless @redaction.save
-              update_vhash(@redaction)
+              compute_cached_attributes(@redaction, changes)
+              self.updated_at = Time.now unless changed? # force 'updated_at' sync
             end
             @redaction = nil
             true
           end
 
+          def compute_cached_attributes(version, changes = {})
+            # puts [@current_transition[:name], version.status, version.id, vhash].inspect
+            case @current_transition[:name]
+            when :edit
+              vhash['w'][version.lang] = version.id
+            when :redit
+              vhash['w'][version.lang] = version.id
+            when :publish
+              if old_v_id = vhash['r'][version.lang]
+                @update_status_after_save = { old_v_id => version.id > old_v_id ? Zena::Status[:rep] : Zena::Status[:rem] }
+              end
+              if self.publish_from.nil? || self.publish_from > version.publish_from
+                self.publish_from = version.publish_from
+              else
+                self.publish_from = get_publish_from(old_v_id)
+              end
+              vhash['r'][version.lang] = vhash['w'][version.lang] = version.id
+            when :auto_publish
+              # publication time might have changed
+              if changes['publish_from']
+                # we need to compute new
+                self.publish_from = get_publish_from
+              end
+            when :unpublish
+              vhash['r'].delete(version.lang)
+              if vhash['r'].empty?
+                self.publish_from = nil
+              else
+                self.publish_from = get_publish_from(version.id)
+              end
+            when :remove
+              if v_id = vhash['r'][version.lang]
+                vhash['w'][version.lang] = v_id
+              end
+            end
+            # puts [@current_transition[:name], version.status, version.id, vhash].inspect
+            # puts "---------------------"
+            self[:vhash] = vhash.to_json
+          end
+
+          def multiversion_before_save
+            true
+          end
+
           def multiversion_after_save
+
+            if @update_status_after_save
+              @update_status_after_save.each do |v_id, status|
+                self.class.connection.execute "UPDATE #{version.class.table_name} SET status = '#{status}' WHERE id = #{v_id}"
+              end
+              @update_status_after_save   = nil
+            end
 
             # What was the transition ?
             if @current_transition
@@ -653,23 +641,7 @@ module Zena
               @current_transition = nil
             end
 
-            if @old_publication_to_replace
-              self.class.connection.execute "UPDATE #{version.class.table_name} SET status = '#{@old_publication_to_replace[1]}' WHERE id IN (#{@old_publication_to_replace[0].join(', ')})" unless @old_publication_to_replace[0] == []
-            end
-
-            if @old_redaction_to_replace
-              self.class.connection.execute "UPDATE #{version.class.table_name} SET status = '#{Zena::Status[:rep]}' WHERE id = #{@old_redaction_to_replace.id}"
-            end
-
-            if @version_or_content_updated_but_not_saved
-              # not saved, set updated_at manually
-              Zena::Db.set_attribute(self, :updated_at, @version.updated_at)
-            end
-
-            @changed_before_save        = nil
             @allowed_transitions        = nil
-            @old_publication_to_replace = nil
-            @old_redaction_to_replace   = nil
             true
           end
 

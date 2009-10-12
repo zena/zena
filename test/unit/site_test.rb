@@ -230,7 +230,10 @@ class SiteTest < Zena::Unit::TestCase
     visitor.site.rebuild_vhash
     status  = secure(Node) { nodes(:status)  }
     opening = secure(Node) { nodes(:opening) }
-    assert_equal Hash[], status.vhash
-    assert_equal Hash[], opening.vhash
+    assert_equal Hash['w'=>{'fr' => versions_id(:status_fr),      'en' => versions_id(:status_en)},
+                      'r'=>{'fr' => versions_id(:status_fr),      'en' => versions_id(:status_en)}], status.vhash
+
+    assert_equal Hash['w'=>{'fr' => versions_id(:opening_red_fr), 'en' => versions_id(:opening_en)},
+                      'r'=>{'fr' => versions_id(:opening_fr),     'en' => versions_id(:opening_en)}], opening.vhash
   end
 end

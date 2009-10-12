@@ -7,7 +7,7 @@ zena:
   site_group:      workers
   authentication:  no
   auto_publish:    no
-  redit_time:      0
+  redit_time:      7200
   languages:       en,fr,de,es
   default_lang:    en
   formats_updated_at: 2008-05-01

@@ -125,6 +125,7 @@ class MultiVersionTest < Zena::Unit::TestCase
           login(:tiger)
           visitor.lang = 'fr'
           @node = secure!(Node) { nodes(:opening) }
+          @node.version.created_at = Time.now
         end
 
         should 'see own redaction' do
@@ -133,9 +134,22 @@ class MultiVersionTest < Zena::Unit::TestCase
           assert_equal visitor.id, @node.version.user_id
         end
 
-        should 'not create a new redaction when editing' do
+        should 'not create a new redaction when editing in redit time' do
           assert_difference('Version.count', 0) do
             assert @node.update_attributes(:v_title => 'Artificial Intelligence')
+          end
+        end
+
+        should 'create a new redaction when editing out of redit time' do
+          @node.version.created_at = Time.now.advance(:days => -1)
+          assert_difference('Version.count', 1) do
+            assert @node.update_attributes(:v_title => 'Einstein\'s brain mass is below average')
+          end
+        end
+
+        should 'create a new redaction when using backup attribute' do
+          assert_difference('Version.count', 1) do
+            assert @node.update_attributes(:v_title => 'Einstein\'s brain mass is below average', :v_backup => 'true')
           end
         end
 
@@ -211,7 +225,7 @@ class MultiVersionTest < Zena::Unit::TestCase
           assert @node.update_attributes(:v_title => 'The Technique Of Orchestration')
         end
       end
-
+      
       should 'be able to write new attributes using nested attributes alias' do
         assert_difference('Version.count', 1) do
           node = secure!(Node) { nodes(:lake) }
@@ -398,6 +412,47 @@ class MultiVersionTest < Zena::Unit::TestCase
         assert @node.remove
         assert_equal Zena::Status[:rem], @node.version.status
       end
+      
+      context 'that she owns' do
+        setup do
+          @node = secure!(Node) { nodes(:collections) }
+        end
+        
+        context 'on a site with autopublish' do
+          setup do
+            visitor.site.auto_publish = true
+          end
+          
+          should 'not create a new publication when autopublishing in redit time' do
+            assert_difference('Version.count', 0) do
+              @node.version.created_at = Time.now
+              assert @node.update_attributes(:v_title => 'We have no ideas if prehistoric women stayed at home.')
+            end
+          end
+
+          should 'create a new publication when autopublishing out of redit time' do
+            assert_difference('Version.count', 1) do
+              assert @node.update_attributes(:v_title => 'Larry Summers is a jerk.')
+            end
+          end
+        end
+        
+        context 'setting v_status to autopublish' do
+          
+          should 'not create a new publication in redit time' do
+            assert_difference('Version.count', 0) do
+              @node.version.created_at = Time.now
+              assert @node.update_attributes(:v_title => 'Flat brains.', :v_status => Zena::Status[:pub])
+            end
+          end
+
+          should 'create a new publication out of redit time' do
+            assert_difference('Version.count', 1) do
+              assert @node.update_attributes(:v_title => 'Equal.', :v_status => Zena::Status[:pub])
+            end
+          end
+        end
+      end
     end # A visitor with drive access on a publication
 
 
@@ -405,10 +460,11 @@ class MultiVersionTest < Zena::Unit::TestCase
     context 'on a proposition' do
       setup do
         login(:tiger)
-        visitor.lang = 'fr'
-        @node = secure!(Node) { nodes(:opening) }
+
+        @node = secure!(Node) { nodes(:status) }
+        @node.update_attributes(:v_title => 'Sambal Oelek')
         @node.propose
-        @node = secure!(Node) { nodes(:opening) } # reload
+        @node = secure!(Node) { nodes(:status) } # reload
       end
 
       should 'see a proposition' do
@@ -445,15 +501,16 @@ class MultiVersionTest < Zena::Unit::TestCase
 
       should 'replace old publication on publish' do
         @node.publish
-        assert_equal Zena::Status[:rep], versions(:opening_fr).status
+        assert_equal Zena::Status[:rep], versions(:status_en).status
       end
 
       should 'see an up-to-date versions list after publish' do
         @node.publish
+        pub_v_id = @node.version.id
         versions = @node.versions
-        assert_equal Zena::Status[:pub], versions.detect {|v| v.id == versions_id(:opening_en)}.status
-        assert_equal Zena::Status[:rep], versions.detect {|v| v.id == versions_id(:opening_fr)}.status
-        assert_equal Zena::Status[:pub], versions.detect {|v| v.id == versions_id(:opening_red_fr)}.status
+        assert_equal Zena::Status[:pub], versions.detect {|v| v.id == pub_v_id }.status
+        assert_equal Zena::Status[:rep], versions.detect {|v| v.id == versions_id(:status_en) }.status
+        assert_equal Zena::Status[:pub], versions.detect {|v| v.id == versions_id(:status_fr) }.status
       end
 
       should 'be allowed to refuse' do
@@ -475,8 +532,7 @@ class MultiVersionTest < Zena::Unit::TestCase
       context 'from another author' do
         setup do
           login(:lion)
-          visitor.lang = 'fr'
-          @node = secure!(Node) { nodes(:opening) } # reload
+          @node = secure!(Node) { nodes(:status) } # reload
         end
 
         should 'be allowed to publish with a custom date anterior to the first publication' do
@@ -499,8 +555,28 @@ class MultiVersionTest < Zena::Unit::TestCase
 
     end # A visitor with drive access on a proposition
 
-  end # A visitor with drive access
+    context 'on a removed version' do
+      setup do
+        login(:lion)
+        # status_en => removed
+        # status_fr => removed
+        Node.connection.execute "UPDATE versions SET publish_from = NULL, status = #{Zena::Status[:rem]} WHERE id IN (#{versions_id(:status_en)},#{versions_id(:status_fr)})"
+        vhash = {'r' => {}, 'w' => {'fr' => versions_id(:status_fr), 'en' => versions_id(:status_en)}}
+        Node.connection.execute "UPDATE nodes SET publish_from = NULL, vhash = '#{vhash.to_json}'"
+        @node = secure!(Node) { nodes(:status) }
+      end
 
+      should 'see any other version when destroying version' do
+        assert_difference('Version.count', -1) do
+          assert @node.destroy_version
+        end
+        assert_equal versions_id(:status_fr), @node.version_id
+        @node = secure!(Node) { nodes(:status) } # reload
+        assert_equal versions_id(:status_fr), @node.version_id
+      end
+    end # A visitor with drive access on a removed version
+
+  end # A visitor with drive access
 
   # =========== OLD TESTS TO REWRITE =============
 
@@ -548,24 +624,6 @@ class MultiVersionTest < Zena::Unit::TestCase
     assert_equal Zena::Status[:red], node.version.status
     assert !node.can_unpublish?
     assert node.can_unpublish?(pub_version)
-  end
-
-  def test_backup
-    login(:ant)
-    visitor.lang = 'en'
-    node = secure!(Node) { nodes(:lake) }
-    assert_equal Zena::Status[:red], node.version.status
-    assert_equal versions_id(:lake_red_en), node.version.id
-    assert node.backup, "Backup succeeds"
-    #new version
-    assert_not_equal versions_id(:lake_red_en), node.version.id
-    assert_equal Zena::Status[:red], node.version.status
-
-    #old version
-    old_version = versions(:lake_red_en)
-    assert_equal Zena::Status[:rep], old_version.status
-    node = secure!(Node) { nodes(:lake) }
-    assert_equal Zena::Status[:red], node.version.status
   end
 
   def test_redit
@@ -749,9 +807,9 @@ class MultiVersionTest < Zena::Unit::TestCase
 
   def test_auto_publish_in_redit_time_can_publish
     # set site.auto_publish      ===> publish
-    # now < updated + redit_time ===> update current publication
+    # now < created + redit_time ===> update current publication
     Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
-    Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE id = #{versions_id(:tiger_en)}"
+    Version.connection.execute "UPDATE versions set created_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE id = #{versions_id(:tiger_en)}"
     login(:tiger)
     visitor.lang = 'en'
     node = secure!(Node) { nodes(:tiger) }
@@ -759,8 +817,8 @@ class MultiVersionTest < Zena::Unit::TestCase
     assert_equal 'Tiger', node.version.title
     assert_equal 1, node.version.number
     assert_equal users_id(:tiger), node.version.user_id
-    assert node.version.updated_at < Time.now + 600
-    assert node.version.updated_at > Time.now - 600
+    assert node.version.created_at < Time.now + 600
+    assert node.version.created_at > Time.now - 600
     assert node.update_attributes(:v_title => "Puma")
     assert_equal Zena::Status[:pub], node.version.status
     assert_equal 1, node.version.number
@@ -772,7 +830,7 @@ class MultiVersionTest < Zena::Unit::TestCase
     # set site.auto_publish      ===> publish
     # now < updated + redit_time ===> update current publication
     Site.connection.execute "UPDATE sites set auto_publish = 0, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
-    Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE id = #{versions_id(:tiger_en)}"
+    Version.connection.execute "UPDATE versions set created_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE id = #{versions_id(:tiger_en)}"
     login(:tiger)
     visitor.lang = 'en'
     node = secure!(Node) { nodes(:tiger) }
@@ -780,8 +838,8 @@ class MultiVersionTest < Zena::Unit::TestCase
     assert_equal 'Tiger', node.version.title
     assert_equal 1, node.version.number
     assert_equal users_id(:tiger), node.version.user_id
-    assert node.version.updated_at < Time.now + 600
-    assert node.version.updated_at > Time.now - 600
+    assert node.version.created_at < Time.now + 600
+    assert node.version.created_at > Time.now - 600
     assert node.update_attributes(:v_title => "Puma", :v_status => Zena::Status[:pub])
     assert_equal Zena::Status[:pub], node.version.status
     assert_equal 1, node.version.number
@@ -789,33 +847,11 @@ class MultiVersionTest < Zena::Unit::TestCase
     assert_equal 'Puma', node.version.title
   end
 
-  def test_auto_publish_in_redit_time_new_redaction
-    # set site.auto_publish      ===> publish
-    # now < updated + redit_time ===> refuse
-    Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
-    Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE id = #{versions_id(:status_en)}"
-    login(:ant)
-    visitor.lang = 'en'
-    node = secure!(Node) { nodes(:status) }
-    assert_equal Zena::Status[:pub], node.version.status
-    assert_equal 'status title', node.version.title
-    assert_equal 1, node.version.number
-    assert_equal users_id(:ant), node.version.user_id
-    assert !node.can_publish?
-    assert node.version.updated_at < Time.now + 600
-    assert node.version.updated_at > Time.now - 600
-    assert node.update_attributes(:v_title => "Statues are better")
-    assert_equal Zena::Status[:red], node.version.status
-    assert_equal 3, node.version.number
-    assert_not_equal versions_id(:status_en), node.version.id
-    assert_equal 'Statues are better', node.version.title
-  end
-
   def test_auto_publish_in_redit_time_updates_proposition
     # set site.auto_publish      ===> publish
     # now < updated + redit_time ===> update current proposition
     Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
-    Version.connection.execute "UPDATE versions set status = #{Zena::Status[:prop]}, updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE id = #{versions_id(:status_en)}"
+    Version.connection.execute "UPDATE versions set status = #{Zena::Status[:prop]}, created_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE id = #{versions_id(:status_en)}"
     login(:ant)
     visitor.lang = 'en'
     node = secure!(Node) { nodes(:status) }
@@ -824,8 +860,8 @@ class MultiVersionTest < Zena::Unit::TestCase
     assert_equal 1, node.version.number
     assert_equal users_id(:ant), node.version.user_id
     assert !node.can_publish?
-    assert node.version.updated_at < Time.now + 600
-    assert node.version.updated_at > Time.now - 600
+    assert node.version.created_at < Time.now + 600
+    assert node.version.created_at > Time.now - 600
     assert !node.update_attributes(:v_title => "Statues are better")
     assert_not_equal "Statues are better", node.v_title
   end
