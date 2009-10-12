@@ -11,7 +11,11 @@ Zena.editor_preview = function(url, element, value) {
 
 // preview version.
 Zena.version_preview = function(url) {
-  window.location.href = url;
+  if (window.location.href.endsWith(url)) {
+    window.location.href = url.gsub(/\/versions\/.*$/,'');
+  } else {
+    window.location.href = url;
+  }
 }
 
 // version diff.

@@ -22,6 +22,7 @@ form .infos li { clear:none;}
 #messages { position:absolute; top:0; line-height:1.4em; width:70%; font-size:0.9em; }
 #form_errors ul { position:absolute; border:2px solid #B57B7C; top:50px; left:10px; width:400px; line-height:1.4em; width:70%; font-size:0.9em; padding:3px 5px;}
 #form_errors li { padding-left:1em; line-height:1em; list-style:none;}
+#number { position:absolute; top:20px; right:0; padding:5px; font-size:18px; font-weight:bold; color:#ccc;}
 
 #loader { visibility:hidden; position:absolute;}
 #loader img {float:left;}
@@ -86,7 +87,7 @@ ul.infos li { padding:0.4em 0.4em; list-style:none; display:block; }
 .document .preview { width:80px; padding:6px; border-right:1px solid grey; text-align:center;}
 .document .description { vertical-align:top; padding: 6px;}
 .document h3 { font: 1.2em Georgia, Times, serif; letter-spacing: 0; text-transform: none; margin-bottom: 0; color: #333; font-style:italic; color:#450009;}
-.document .description .doc_id {color:#333; font-size:80%;}
+.document .description .doc_id {color:#333; font-size:24px; font-weight:bold; padding-right:10px;}
 .document table { margin-bottom: 25px;}
 
 /* imported nodes */
@@ -168,7 +169,7 @@ ul.infos li { padding:0.4em 0.4em; list-style:none; display:block; }
 .inline_form ul { list-style:none; text-align:left;}
 #links label, #links select {float:left; width:70px; margin-right:5px;}
 
-
+#versions_list { max-height:230px; overflow:auto;}
 #versions .sign { width:20px; }
 #links_tab .diff .box { border-right-width:0; }
 #links_tab .diff .text { font-style:italic; text-align:left;}

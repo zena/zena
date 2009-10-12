@@ -190,7 +190,6 @@ class Version < ActiveRecord::Base
 
   def protected_attributes_on_clone
     { 'content_id' => (content_class ? (content_id || id) : nil),
-      'number'     => nil,
       'user_id'    => visitor.id,
       'node'       => self.node,
       'dyn'        => self.dyn,
