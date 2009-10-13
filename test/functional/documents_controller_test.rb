@@ -60,7 +60,7 @@ class DocumentsControllerTest < Zena::Controller::TestCase
   #
   #def test_remove_mode_images # test cached data is removed
   #  # make 'flower' owned by :ant and used by managers
-  #  Node.connection.execute "UPDATE nodes SET rgroup_id = 4, wgroup_id = 4, pgroup_id = 4, user_id=3 WHERE id = '#{nodes_id(:flower_jpg)}'"
+  #  Node.connection.execute "UPDATE nodes SET rgroup_id = 4, wgroup_id = 4, dgroup_id = 4, user_id=3 WHERE id = '#{nodes_id(:flower_jpg)}'"
   #  @perform_caching_bak = ApplicationController.perform_caching
   #  ApplicationController.perform_caching = true
   #  preserving_files('test.host/data/jpg') do

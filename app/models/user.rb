@@ -317,13 +317,13 @@ class User < ActiveRecord::Base
       secure(Comment) { Comment.find(:all, :conditions => ['status = ?', Zena::Status[:prop]]) }
     else
       secure(Comment) { Comment.find(:all, :select=>'comments.*, nodes.name', :from=>'comments, nodes, discussions',
-                   :conditions => ['comments.status = ? AND discussions.node_id = nodes.id AND comments.discussion_id = discussions.id AND nodes.pgroup_id IN (?)', Zena::Status[:prop], visitor.group_ids]) }
+                   :conditions => ['comments.status = ? AND discussions.node_id = nodes.id AND comments.discussion_id = discussions.id AND nodes.dgroup_id IN (?)', Zena::Status[:prop], visitor.group_ids]) }
     end
   end
 
   # List all versions proposed for publication that the user has the right to publish.
   def to_publish
-    secure(Version) { Version.find(:all, :conditions => ['status = ? AND nodes.pgroup_id IN (?)', Zena::Status[:prop], visitor.group_ids]) }
+    secure(Version) { Version.find(:all, :conditions => ['status = ? AND nodes.dgroup_id IN (?)', Zena::Status[:prop], visitor.group_ids]) }
   end
 
   # List all versions owned that are currently being written (status= +red+)

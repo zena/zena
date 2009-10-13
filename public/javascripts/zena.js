@@ -161,8 +161,8 @@ Zena.update_rwp = function(inherit_val,r_index,w_index,p_index,s_index) {
     $("node_wgroup_id").disabled = true;
     $("node_skin" ).disabled = false;
     if (p_index != '') {
-      $("node_pgroup_id").selectedIndex = 0;
-      $("node_pgroup_id").disabled = true;
+      $("node_dgroup_id").selectedIndex = 0;
+      $("node_dgroup_id").disabled = true;
     }
   } else if (inherit_val == "1") {
     $("node_rgroup_id").selectedIndex = r_index;
@@ -172,16 +172,16 @@ Zena.update_rwp = function(inherit_val,r_index,w_index,p_index,s_index) {
     $("node_wgroup_id").disabled = true;
     $("node_skin" ).disabled = true;
     if (p_index != '') {
-      $("node_pgroup_id").selectedIndex = p_index;
-      $("node_pgroup_id").disabled = true;
+      $("node_dgroup_id").selectedIndex = p_index;
+      $("node_dgroup_id").disabled = true;
     }
   } else {
     $("node_rgroup_id").disabled = false;
     $("node_wgroup_id").disabled = false;
-    $("node_pgroup_id").disabled = false;
+    $("node_dgroup_id").disabled = false;
     $("node_skin" ).disabled = false;
     if (p_index != '') {
-      $("node_pgroup_id").disabled = false;
+      $("node_dgroup_id").disabled = false;
     }
   }
 }

@@ -12,7 +12,7 @@ complex:
   inherit:         no
   rgroup:          public
   wgroup:          complex
-  pgroup:          admin
+  dgroup:          admin
   skin:            cskin
   v_title:         complex site
 

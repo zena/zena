@@ -12,7 +12,7 @@ ocean:
   inherit:         no
   rgroup:          public
   wgroup:          masters
-  pgroup:          masters
+  dgroup:          masters
   skin:            default
 
 incognito:

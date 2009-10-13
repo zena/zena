@@ -210,9 +210,9 @@ class UserTest < Zena::Unit::TestCase
 
   def test_comments_to_publish
     login(:tiger)
-    # status pgroup = managers
+    # status dgroup = managers
     node = nodes(:status)
-    assert_equal groups_id(:managers), node.pgroup_id
+    assert_equal groups_id(:managers), node.dgroup_id
     # tiger in managers
     to_publish = visitor.comments_to_publish
     assert_equal 1, to_publish.size

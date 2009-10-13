@@ -295,7 +295,7 @@ module Zena
           else
             names = []
             names |= [truncate(obj.rgroup.name, :length => 7)] if obj.rgroup
-            names |= [truncate(obj.pgroup.name, :length => 7)] if obj.pgroup
+            names |= [truncate(obj.dgroup.name, :length => 7)] if obj.dgroup
             names << obj.user.initials
             names.join(', ')
           end

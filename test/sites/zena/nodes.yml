@@ -12,7 +12,7 @@ zena:
   inherit:         no
   rgroup:          public
   wgroup:          workers
-  pgroup:          managers
+  dgroup:          managers
   skin:            default
 
 
@@ -60,7 +60,7 @@ myDreams:
   inherit:         no
   rgroup:          0
   wgroup:          0
-  pgroup:          0
+  dgroup:          0
 
 projects:
   zip:             18
@@ -74,7 +74,7 @@ secret:
   inherit:         no
   rgroup:          managers
   wgroup:          managers
-  pgroup:          managers
+  dgroup:          managers
   skin:            default
 
 proposition:
@@ -140,7 +140,7 @@ bananas:
   inherit:         no
   rgroup:          managers
   wgroup:          managers
-  pgroup:          managers
+  dgroup:          managers
   skin:            default
 
 wiki:
@@ -151,7 +151,7 @@ wiki:
   inherit:         no
   rgroup:          public
   wgroup:          public
-  pgroup:          public
+  dgroup:          public
   skin:            wikiSkin
 
 bird_jpg:
@@ -197,7 +197,7 @@ strange:
   inherit:         no
   rgroup:          admin
   wgroup:          managers
-  pgroup:          workers
+  dgroup:          workers
   skin:            default
 
 track:
@@ -212,7 +212,7 @@ talk:
   inherit:         no
   rgroup:          public
   wgroup:          workers
-  pgroup:          workers
+  dgroup:          workers
   skin:            default
 
 nature:

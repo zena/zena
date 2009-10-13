@@ -100,7 +100,7 @@ NodeQuery:
       - employees.vclass_id
       - employees.type
       - employees.rgroup_id
-      - employees.pgroup_id
+      - employees.dgroup_id
       - employees.ref_lang
       - employees.user_id
       # TODO: next_date = NULL if custom_a is null
@@ -136,7 +136,7 @@ NodeQuery:
       - courses.vclass_id
       - courses.type
       - courses.rgroup_id
-      - courses.pgroup_id
+      - courses.dgroup_id
       - courses.ref_lang
       - courses.user_id
       - courses.custom_a AS repeat_every

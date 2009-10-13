@@ -69,7 +69,7 @@ class Group < ActiveRecord::Base
                     :joins => "INNER JOIN groups_users ON users.id = groups_users.user_id INNER JOIN participations ON participations.user_id = users.id")
   end
 
-  # Replace all uses of the group (rgroup_id, wgroup_id, pgroup_id) by another group.
+  # Replace all uses of the group (rgroup_id, wgroup_id, dgroup_id) by another group.
   def replace_by=(group_id)
     @replace_by = group_id unless group_id.blank?
   end
@@ -79,7 +79,7 @@ class Group < ActiveRecord::Base
   end
 
   def can_destroy?
-    clause = [:rgroup_id, :wgroup_id, :pgroup_id].map{|g| "#{g} = '#{self[:id]}'"}.join(" OR ")
+    clause = [:rgroup_id, :wgroup_id, :dgroup_id].map{|g| "#{g} = '#{self[:id]}'"}.join(" OR ")
     if 0 == self.class.count_by_sql("SELECT COUNT(*) FROM #{Node.table_name} WHERE #{clause}")
       return true
     else
@@ -130,7 +130,7 @@ class Group < ActiveRecord::Base
     def do_replace_by
       if @replace_by
         if group = secure(Group) { Group.find(:first, :conditions => ["id = ? ", @replace_by]) }
-          [:rgroup_id, :wgroup_id, :pgroup_id].each do |key|
+          [:rgroup_id, :wgroup_id, :dgroup_id].each do |key|
             Node.connection.execute "UPDATE #{Node.table_name} SET #{key} = '#{group[:id]}' WHERE #{key} = '#{self[:id]}'"
           end
         else

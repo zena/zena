@@ -98,7 +98,7 @@ Just doing the above will filter all result according to the logged in user.
       def acts_as_secure_node
         belongs_to :rgroup, :class_name=>'Group', :foreign_key=>'rgroup_id'
         belongs_to :wgroup, :class_name=>'Group', :foreign_key=>'wgroup_id'
-        belongs_to :pgroup, :class_name=>'Group', :foreign_key=>'pgroup_id'
+        belongs_to :dgroup, :class_name=>'Group', :foreign_key=>'dgroup_id'
         belongs_to :user
         before_validation  :secure_reference_before_validation
         # we move all before_validation on update and create here so that it is triggered before multiversion's before_validation
@@ -177,25 +177,25 @@ Just doing the above will filter all result according to the logged in user.
         # * members of +drive_group+ if member status is at least 'user'
         def can_drive?(vis=visitor, ugps=visitor.group_ids)
           ( vis.is_su? ) || # super user
-          ( vis.user? && (ugps.include?(pgroup_id) || draft?) )
+          ( vis.user? && (ugps.include?(dgroup_id) || draft?) )
         end
 
         # 'can_drive?' before attribute change
         def can_drive_was_true?(vis=visitor, ugps=visitor.group_ids)
           ( vis.is_su? ) || # super user
-          ( vis.user? && (ugps.include?(pgroup_id_was) || draft_was_true?) )
+          ( vis.user? && (ugps.include?(dgroup_id_was) || draft_was_true?) )
         end
 
         # 'can_drive?' without draft? exceptions
         def full_drive?(vis=visitor, ugps=visitor.group_ids)
           ( vis.is_su? ) || # super user
-          ( vis.user? && ugps.include?(pgroup_id) )
+          ( vis.user? && ugps.include?(dgroup_id) )
         end
 
         # 'full_drive?' before attribute change
         def full_drive_was_true?(vis=visitor, ugps=visitor.group_ids)
           ( vis.is_su? ) || # super user
-          ( vis.user? && ugps.include?(pgroup_id_was) )
+          ( vis.user? && ugps.include?(dgroup_id_was) )
         end
 
         def secure_before_validation
@@ -212,13 +212,13 @@ Just doing the above will filter all result according to the logged in user.
           self[:user_id]  = visitor.id
           self[:ref_lang] = visitor.lang
 
-          [:rgroup_id, :wgroup_id, :pgroup_id, :skin].each do |sym|
+          [:rgroup_id, :wgroup_id, :dgroup_id, :skin].each do |sym|
             # not defined => inherit
             self[sym] ||= ref[sym]
           end
 
           if inherit.nil?
-            if rgroup_id == ref.rgroup_id && wgroup_id == ref.wgroup_id && pgroup_id == ref.pgroup_id
+            if rgroup_id == ref.rgroup_id && wgroup_id == ref.wgroup_id && dgroup_id == ref.dgroup_id
               self[:inherit] = 1
             else
               self[:inherit] = 0
@@ -254,19 +254,19 @@ Just doing the above will filter all result according to the logged in user.
             # force inheritance
             self[:rgroup_id] = ref.rgroup_id
             self[:wgroup_id] = ref.wgroup_id
-            self[:pgroup_id] = ref.pgroup_id
+            self[:dgroup_id] = ref.dgroup_id
             self[:skin     ] = ref.skin
           when 0
             # custom access rights
             if ref.full_drive?
               errors.add('rgroup_id', "unknown group") unless visitor.group_ids.include?(rgroup_id)
               errors.add('wgroup_id', "unknown group") unless visitor.group_ids.include?(wgroup_id)
-              errors.add('pgroup_id', "unknown group") unless visitor.group_ids.include?(pgroup_id)
+              errors.add('dgroup_id', "unknown group") unless visitor.group_ids.include?(dgroup_id)
             else
               errors.add('inherit', "custom access rights not allowed")
               errors.add('rgroup_id', "you cannot change this") unless rgroup_id == ref.rgroup_id
               errors.add('wgroup_id', "you cannot change this") unless wgroup_id == ref.wgroup_id
-              errors.add('pgroup_id', "you cannot change this") unless pgroup_id == ref.pgroup_id
+              errors.add('dgroup_id', "you cannot change this") unless dgroup_id == ref.dgroup_id
               errors.add('skin' , "you cannot change this") unless skin  == ref.skin
             end
           else
@@ -274,7 +274,7 @@ Just doing the above will filter all result according to the logged in user.
           end
         end
 
-        # 1. if pgroup changed from old, make sure user could do this and new group is valid
+        # 1. if dgroup changed from old, make sure user could do this and new group is valid
         # 2. if owner changed from old, make sure only a user in 'admin' can do this
         # 3. error if user cannot publish nor manage
         # 4. parent/project changed ? verify 'publish access to new *and* old'
@@ -310,7 +310,7 @@ Just doing the above will filter all result according to the logged in user.
             case inherit
             when 1
               # inherit rights
-              [:rgroup_id, :wgroup_id, :pgroup_id, :skin].each do |sym|
+              [:rgroup_id, :wgroup_id, :dgroup_id, :skin].each do |sym|
                 if self.send("#{sym}_changed?") && self[sym] != ref[sym]
                   # manual change of value not allowed without changing inherit mode
                   if !full_drive_was_true?
@@ -325,7 +325,7 @@ Just doing the above will filter all result according to the logged in user.
               end
             when 0
               # custom rights
-              [:rgroup_id, :wgroup_id, :pgroup_id].each do |sym|
+              [:rgroup_id, :wgroup_id, :dgroup_id].each do |sym|
                 if self.send("#{sym}_changed?") && !visitor.group_ids.include?(self[sym])
                   errors.add(sym.to_s, 'unknown group')
                 end
@@ -338,7 +338,7 @@ Just doing the above will filter all result according to the logged in user.
 
         # Prepare after save callbacks
         def secure_before_save
-          @needs_inheritance_spread = !new_record? && (rgroup_id_changed? || wgroup_id_changed? || pgroup_id_changed? || skin_changed?)
+          @needs_inheritance_spread = !new_record? && (rgroup_id_changed? || wgroup_id_changed? || dgroup_id_changed? || skin_changed?)
           true
         end
 
@@ -430,7 +430,7 @@ Just doing the above will filter all result according to the logged in user.
         # FIXME: make a single pass for spread_inheritance and update section_id and project_id ?
         # FIXME: should also remove cached pages...
         def spread_inheritance(i = self[:id])
-          base_class.connection.execute "UPDATE nodes SET rgroup_id='#{rgroup_id}', wgroup_id='#{wgroup_id}', pgroup_id='#{pgroup_id}', skin='#{skin}' WHERE #{ref_field(false)}='#{i}' AND inherit='1'"
+          base_class.connection.execute "UPDATE nodes SET rgroup_id='#{rgroup_id}', wgroup_id='#{wgroup_id}', dgroup_id='#{dgroup_id}', skin='#{skin}' WHERE #{ref_field(false)}='#{i}' AND inherit='1'"
           ids = nil
           # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
           base_class.send(:with_exclusive_scope) do
@@ -726,7 +726,7 @@ Just doing the above will filter all result according to the logged in user.
           scope = if visitor.is_su? # super user
             "site_id = #{visitor.site.id}"
           else
-            "site_id = #{visitor.site.id} AND pgroup_id IN (#{visitor.group_ids.join(',')})"
+            "site_id = #{visitor.site.id} AND dgroup_id IN (#{visitor.group_ids.join(',')})"
           end
           secure_with_scope(obj, scope, &block)
         rescue ActiveRecord::RecordNotFound

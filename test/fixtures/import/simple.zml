@@ -5,4 +5,4 @@ log_at: 2007-04-30 23:50
 inherit: no
 rgroup: managers
 wgroup: managers
-pgroup: managers
+dgroup: managers

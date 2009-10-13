@@ -46,7 +46,7 @@ Node (manages access and publication cycle)
 The +nodes+ table only holds columns to secure the access. This table does not hold every possible data for every sub-class of Node. The text data is stored into the +versions+ table and any other specific content goes in its own table (+document_contents+ for example). This is an example of how an Image is stored :
 
 Node         o-----------   Version   o---------  Content
-pgroup_id                   title                 width
+dgroup_id                   title                 width
 wgroup_id                   text                  height
 user_id                     summary               content_type
 ...                         ...                   ...
@@ -84,7 +84,7 @@ Attributes inherited from the parent:
 section_id:: reference project (cannot be overwritten even if inheritance mode is custom).
 rgroup_id:: id of the readers group.
 wgroup_id:: id of the writers group.
-pgroup_id:: id of the publishers group.
+dgroup_id:: id of the publishers group.
 skin:: name of theSkin to use when rendering the pate ('theme').
 
 Attributes used internally:
@@ -128,7 +128,7 @@ class Node < ActiveRecord::Base
   safe_method   :name => String, :kpath => String, :user_zip => Number, :parent_zip => Number,
                 :project_zip => Number, :section_zip => Number, :skin => String, :ref_lang => String,
                 :fullpath => String, :rootpath => String, :position => Number, :rgroup_id => Number,
-                :wgroup_id => Number, :pgroup_id => Number, :custom_base => Boolean, :klass => String,
+                :wgroup_id => Number, :dgroup_id => Number, :custom_base => Boolean, :klass => String,
                 :score => Number, :comments_count => Number,
                 :custom_a => Number, :custom_b => Number,
                 :m_text => String, :m_title => String, :m_author => String,
@@ -703,9 +703,9 @@ class Node < ActiveRecord::Base
       attributes.keys.each do |key|
         next if ['_parent_id', 'parent_id'].include?(key)
 
-        if ['rgroup_id', 'wgroup_id', 'pgroup_id'].include?(key)
+        if ['rgroup_id', 'wgroup_id', 'dgroup_id'].include?(key)
           res[key] = Group.translate_pseudo_id(attributes[key], :id) || attributes[key]
-        elsif ['rgroup', 'wgroup', 'pgroup'].include?(key)
+        elsif ['rgroup', 'wgroup', 'dgroup'].include?(key)
           res["#{key}_id"] = Group.translate_pseudo_id(attributes[key], :id) || attributes[key]
         elsif ['user_id'].include?(key)
           res[key] = User.translate_pseudo_id(attributes[key], :id) || attributes[key]
@@ -1073,7 +1073,7 @@ class Node < ActiveRecord::Base
     c.inherit = 1
     c.rgroup_id  = self.rgroup_id
     c.wgroup_id  = self.wgroup_id
-    c.pgroup_id  = self.pgroup_id
+    c.dgroup_id  = self.dgroup_id
 
     c.section_id = self.get_section_id
     c.project_id = self.get_project_id
@@ -1301,7 +1301,7 @@ class Node < ActiveRecord::Base
     CachedPage.expire_with(self) if self.kind_of?(Template)
 
     # Clear element cache
-    Cache.sweep(:visitor_id=>self[:user_id], :visitor_groups=>[rgroup_id, wgroup_id, pgroup_id], :kpath=>self.vclass.kpath)
+    Cache.sweep(:visitor_id=>self[:user_id], :visitor_groups=>[rgroup_id, wgroup_id, dgroup_id], :kpath=>self.vclass.kpath)
 
     # Clear full result cache
 

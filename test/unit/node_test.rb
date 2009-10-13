@@ -6,7 +6,7 @@ class NodeTest < Zena::Unit::TestCase
     :name       => 'hello',
     :rgroup_id  => Zena::FoxyParser::id('zena', 'public'),
     :wgroup_id  => Zena::FoxyParser::id('zena', 'workers'),
-    :pgroup_id  => Zena::FoxyParser::id('zena', 'managers'),
+    :dgroup_id  => Zena::FoxyParser::id('zena', 'managers'),
     :parent_id  => Zena::FoxyParser::id('zena', 'cleanWater'),
   }.freeze
 
@@ -357,7 +357,7 @@ class NodeTest < Zena::Unit::TestCase
     assert child.save , "Save succeeds"
     assert_equal Zena::Status[:red],  child.version.status
     assert_equal child[:user_id], users_id(:ant)
-    assert_equal node[:pgroup_id], child[:pgroup_id]
+    assert_equal node[:dgroup_id], child[:dgroup_id]
     assert_equal node[:rgroup_id], child[:rgroup_id]
     assert_equal node[:wgroup_id], child[:wgroup_id]
     assert_equal node[:section_id], child[:section_id]
@@ -444,7 +444,7 @@ class NodeTest < Zena::Unit::TestCase
     should 'be allowed to change groups' do
       # root nodes do not have a parent_id !!
       # reference = self
-      @node[:pgroup_id] = groups_id(:public)
+      @node[:dgroup_id] = groups_id(:public)
       assert @node.save
     end
 
@@ -780,14 +780,14 @@ class NodeTest < Zena::Unit::TestCase
 
   def test_other_site_id
     login(:whale)
-    node = secure!(Node) { Node.create(:parent_id=>nodes_id(:ocean), :rgroup_id=>groups_id(:aqua), :wgroup_id=>groups_id(:masters), :pgroup_id=>groups_id(:masters), :name=>"fish") }
+    node = secure!(Node) { Node.create(:parent_id=>nodes_id(:ocean), :rgroup_id=>groups_id(:aqua), :wgroup_id=>groups_id(:masters), :dgroup_id=>groups_id(:masters), :name=>"fish") }
     assert !node.new_record?, "Not a new record"
     assert_equal sites_id(:ocean), node[:site_id]
   end
 
   def test_other_site_id_fool_id
     login(:whale)
-    node = secure!(Node) { Node.create(:parent_id=>nodes_id(:ocean), :rgroup_id=>groups_id(:aqua), :wgroup_id=>groups_id(:masters), :pgroup_id=>groups_id(:masters), :name=>"fish", :site_id=>sites_id(:zena)) }
+    node = secure!(Node) { Node.create(:parent_id=>nodes_id(:ocean), :rgroup_id=>groups_id(:aqua), :wgroup_id=>groups_id(:masters), :dgroup_id=>groups_id(:masters), :name=>"fish", :site_id=>sites_id(:zena)) }
     assert !node.new_record?, "Not a new record"
     assert_equal sites_id(:ocean), node[:site_id]
   end
@@ -957,13 +957,13 @@ done: \"I am done\""
     assert_equal 1, bird[:inherit]
     assert_equal groups_id(:public), bird[:rgroup_id]
     assert_equal groups_id(:workers), bird[:wgroup_id]
-    assert_equal groups_id(:managers), bird[:pgroup_id]
+    assert_equal groups_id(:managers), bird[:dgroup_id]
 
     simple = secure!(Node) { Node.find_by_parent_id_and_name(nodes_id(:zena), 'simple') }
     assert_equal 0, simple[:inherit]
     assert_equal groups_id(:managers), simple[:rgroup_id]
     assert_equal groups_id(:managers), simple[:wgroup_id]
-    assert_equal groups_id(:managers), simple[:pgroup_id]
+    assert_equal groups_id(:managers), simple[:dgroup_id]
   end
 
   def test_create_nodes_from_zip_archive

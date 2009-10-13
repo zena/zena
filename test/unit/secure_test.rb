@@ -151,7 +151,7 @@ class SecureTest < Zena::Unit::TestCase
     setup do
       login(:ant)
       ids = [:bananas, :crocodiles].map {|r| nodes_id(r)}.join(',')
-      Node.connection.execute "UPDATE nodes SET rgroup_id = #{groups_id(:managers)}, wgroup_id = #{groups_id(:workers)}, pgroup_id = #{groups_id(:managers)} WHERE id IN (#{ids})"
+      Node.connection.execute "UPDATE nodes SET rgroup_id = #{groups_id(:managers)}, wgroup_id = #{groups_id(:workers)}, dgroup_id = #{groups_id(:managers)} WHERE id IN (#{ids})"
     end
 
     should 'see a node that is not published yet' do
@@ -203,7 +203,7 @@ class SecureTest < Zena::Unit::TestCase
     setup do
       login(:ant)
       ids = [:bananas, :crocodiles].map {|r| nodes_id(r)}.join(',')
-      Node.connection.execute "UPDATE nodes SET rgroup_id = #{groups_id(:managers)}, wgroup_id = #{groups_id(:managers)}, pgroup_id = #{groups_id(:workers)} WHERE id IN (#{ids})"
+      Node.connection.execute "UPDATE nodes SET rgroup_id = #{groups_id(:managers)}, wgroup_id = #{groups_id(:managers)}, dgroup_id = #{groups_id(:workers)} WHERE id IN (#{ids})"
     end
 
     should 'not see a node that is not published yet' do
@@ -219,7 +219,7 @@ class SecureTest < Zena::Unit::TestCase
     setup do
       login(:ant)
       ids = [:bananas, :crocodiles].map {|r| nodes_id(r)}.join(',')
-      Node.connection.execute "UPDATE nodes SET rgroup_id = #{groups_id(:workers)}, wgroup_id = #{groups_id(:managers)}, pgroup_id = #{groups_id(:workers)} WHERE id IN (#{ids})"
+      Node.connection.execute "UPDATE nodes SET rgroup_id = #{groups_id(:workers)}, wgroup_id = #{groups_id(:managers)}, dgroup_id = #{groups_id(:workers)} WHERE id IN (#{ids})"
     end
 
     should 'not be allowed to write' do
@@ -364,7 +364,7 @@ class SecureTest < Zena::Unit::TestCase
     should 'be allowed to change groups even if she has no rights in the parent' do
       login(:ant) # does not have any rights on talk's parent node (secret)
       node = secure!(Node) { nodes(:talk) }
-      node.update_attributes(:pgroup_id => groups_id(:public))
+      node.update_attributes(:dgroup_id => groups_id(:public))
     end
 
     should 'be allowed to create with custom groups' do
@@ -411,8 +411,8 @@ class SecureTest < Zena::Unit::TestCase
 
     should 'not be allowed to set a drive group she is not in' do
       node = secure!(Node) { nodes(:status) }
-      assert !node.update_attributes(:inherit => 0, :pgroup_id => groups_id(:admin))
-      assert_equal 'unknown group', node.errors[:pgroup_id]
+      assert !node.update_attributes(:inherit => 0, :dgroup_id => groups_id(:admin))
+      assert_equal 'unknown group', node.errors[:dgroup_id]
     end
 
     should 'not change group without explicitely changing inherit mode' do
@@ -463,7 +463,7 @@ class SecureTest < Zena::Unit::TestCase
     end
 
     should 'not be allowed to change groups' do
-      @node.pgroup_id = groups_id(:public)
+      @node.dgroup_id = groups_id(:public)
       assert !@node.save
       assert_equal 'You do not have the rights to do this.', @node.errors[:base]
     end
@@ -625,7 +625,7 @@ class SecureTest < Zena::Unit::TestCase
       # grandchildren
       assert_equal groups_id(:public), nodes(:lake_jpg).rgroup_id
       assert_equal groups_id(:public), nodes(:lake_jpg).wgroup_id
-      assert_equal groups_id(:public), nodes(:lake_jpg).pgroup_id
+      assert_equal groups_id(:public), nodes(:lake_jpg).dgroup_id
       # not inherited
       assert_equal groups_id(:managers), nodes(:bananas).rgroup_id
     end
@@ -764,7 +764,7 @@ class SecureTest < Zena::Unit::TestCase
 
     context 'with secure_drive' do
       should 'only return versions where visitor can drive' do
-        Node.connection.execute "UPDATE nodes SET pgroup_id = #{groups_id(:workers)} WHERE id = #{nodes_id(:status)}"
+        Node.connection.execute "UPDATE nodes SET dgroup_id = #{groups_id(:workers)} WHERE id = #{nodes_id(:status)}"
         versions = secure_drive(Version) { Version.find(:all, :conditions => "title like 's%'")}
         assert_equal 2, versions.count
         assert_equal ['Stranger in the night', 'status title'],

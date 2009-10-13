@@ -85,7 +85,7 @@ module Zena
     class << self
       def id(site, key)
         return nil if key.blank?
-        if key == 0 # special rgroup, wgroup, pgroup values...
+        if key == 0 # special rgroup, wgroup, dgroup values...
           key
         else
           Fixtures.identify("#{site}_#{key}")
@@ -449,7 +449,7 @@ module Zena
          ['section',"nil", "parent['type'].kpath =~ /^\#{Section.kpath}/", "current['parent']"],
          ['rgroup' ,"node['inherit'] == 'no'", "parent['inherit'] == 'no'", "parent['rgroup']"],
          ['wgroup' ,"node['inherit'] == 'no'", "parent['inherit'] == 'no'", "parent['wgroup']"],
-         ['pgroup' ,"node['inherit'] == 'no'", "parent['inherit'] == 'no'", "parent['pgroup']"],
+         ['dgroup' ,"node['inherit'] == 'no'", "parent['inherit'] == 'no'", "parent['dgroup']"],
          ['skin' ,"node['inherit'] == 'no'", "parent['inherit'] == 'no'", "parent['skin']"],
          ].each do |key, next_if, parent_test, value|
           elements.each do |k,node|
@@ -543,7 +543,7 @@ module Zena
         end
 
         ['type','vclass_id','kpath', 'zip', 'publish_from', 'vhash', 'inherit',
-         'rgroup_id', 'wgroup_id', 'pgroup_id', 'skin', 'fullpath', 'basepath'].each do |k|
+         'rgroup_id', 'wgroup_id', 'dgroup_id', 'skin', 'fullpath', 'basepath'].each do |k|
           out_pair(k, node[k])
         end
       end
