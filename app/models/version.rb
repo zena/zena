@@ -163,10 +163,9 @@ class Version < ActiveRecord::Base
   end
 
   # Return a new redaction from this version
-  def clone(new_attrs)
+  def clone
     ignore_attributes = self.attributes_to_ignore_on_clone
     attrs = attributes.dup.reject {|k,v| ignore_attributes.include?(k.to_s) }
-    attrs = attrs.merge(new_attrs)
 
     new_clone = self.class.new(attrs)
     protected_attributes_on_clone.each do |k,v|
@@ -195,6 +194,16 @@ class Version < ActiveRecord::Base
       'dyn'        => self.dyn,
       'status'     => Zena::Status[:red],
       'lang'       => visitor.lang }
+  end
+
+  # Return true if the version can be updated by the current visitor without creating
+  # a new redaction.
+  def reusable?(lang, target_status)
+    self.lang    == lang                                        &&
+    user_id      == visitor.id                                  &&
+    [Zena::Status[:red], Zena::Status[:pub]].include?(status)   &&
+    target_status == status                                     &&
+    Time.now  < created_at + current_site[:redit_time].to_i
   end
 
   # Return true if we would need to create a new version or re-edit depending

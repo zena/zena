@@ -165,7 +165,7 @@ class HtmlTagsTest < Zena::View::TestCase
     res = node_actions(:actions=>:all)
     assert_match %r{/nodes/21/versions/0/edit}, res
     assert_match %r{/nodes/21/edit}, res
-    @node.edit!
+    @node.build_redaction
     assert @node.save
     res = node_actions(:actions=>:all)
     assert_match %r{/nodes/21/versions/0/edit}, res

@@ -5,7 +5,7 @@ class ContactVersionTest < Zena::Unit::TestCase
   def test_set_name
     login(:tiger)
     node = secure!(Node) { nodes(:tiger) }
-    node.edit!
+    node.build_redaction
     node.version.content.first_name = 'King'
     node.version.title = ''
     assert node.save

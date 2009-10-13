@@ -63,7 +63,7 @@ class VersionsController < ApplicationController
       end
       render :action=>'update'
     else
-      if !@node.edit!
+      if !@node.build_redaction
         flash[:error] = _("Could not edit version.")
         render_or_redir 404
       else

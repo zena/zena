@@ -4,7 +4,7 @@ module NodesHelper
   # If you want this tab to be used only for a certain skin, use the name '_skinName_className.rhtml'.
   # Return a list in the form [name, filename], [name, ...], ...
   def form_tabs
-    tabs = ['drive','links']
+    tabs = ['links','drive']
     klass = nil
     @node.class.ancestors.map { |a| a.to_s.downcase }.each do |k|
       if File.exists?(File.join(Zena::ROOT, 'app', 'views', 'templates', 'drive_tabs', '_' + k + '.rhtml'))

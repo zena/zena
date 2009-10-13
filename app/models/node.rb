@@ -1474,7 +1474,7 @@ class Node < ActiveRecord::Base
 
       self.name ||= (version.title || '').url_name
 
-      if ref_lang == version.lang && version.status == Zena::Status[:pub]
+      if ref_lang == version.lang && full_drive? && version.status == Zena::Status[:pub]
         if name_changed? && !name.blank?
           version.title = self.name.gsub(/([A-Z])/) { " #{$1.downcase}" }
         elsif !version.title.blank?
@@ -1541,7 +1541,7 @@ class Node < ActiveRecord::Base
         errors.add("parent_id", "root should not have a parent") unless self[:parent_id].blank?
       end
 
-      errors.add('comment', 'You do not have the rights to do this.') if @add_comment && !can_comment?
+      errors.add(:base, 'You do not have the rights to post comments.') if @add_comment && !can_comment?
 
       if @new_klass
         if !can_drive? || !self[:parent_id]

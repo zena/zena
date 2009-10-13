@@ -286,7 +286,7 @@ Just doing the above will filter all result according to the logged in user.
         def secure_on_update
           return true unless changed?
           if !can_drive_was_true?
-            errors.add(:base, 'You do not have the rights to do this.')
+            errors.add(:base, 'You do not have the rights to do this.') unless errors[:base]
             return false
           end
 

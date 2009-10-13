@@ -98,16 +98,16 @@ class Comment < ActiveRecord::Base
 
     def valid_comment
       if new_record?
-        errors.add('base', 'you cannot comment here') unless visitor.commentator? && discussion && discussion.open?
+        errors.add('base', 'You cannot comment here.') unless visitor.commentator? && discussion && discussion.open?
       else
         if discussion.node.can_drive?
           # OK
           # can edit/delete comments
           # TODO: should be restricted to 'delete' or 'erase text'...
         elsif is_author?
-          errors.add('base', 'discussion closed, comment cannot be updated') if !can_write?
+          errors.add('base', 'Discussion closed, comments cannot be updated.') unless can_write?
         else
-          errors.add('base', 'You do not have the rights to do this.')
+          errors.add('base', 'You do not have the rights to modify comments.')
         end
       end
       errors.add('text', "can't be blank") if self[:text].blank?

@@ -30,7 +30,6 @@ module Zena
                  :conditions=>"publish_from <= #{Zena::Db::NOW} AND status = #{Zena::Status[:pub]}", :order=>'lang' #, :inverse_of => :node
 
         before_validation :set_status_before_validation
-        validate      :lock_validation
         validate      :status_validation
         validate      :version_validation
 
@@ -46,47 +45,62 @@ module Zena
         # List of allowed *version* transitions with their validation rules. This list
         # concerns the life and death of *a single version*, not the corresponding Node.
 
-        add_transition(:update_attributes, :from => :red, :to => :red) do |r|
-          r.can_write?
-        end
-                                      # new
-        add_transition(:edit, :from => -1, :to => :red) do |r|
+        add_transition(:edit, :from => :red, :to => :red) do |r, v|
           r.can_write?
         end
 
-        add_transition(:auto_publish, :from => :pub, :to => :pub) do |r|
-          r.can_drive?
+        add_transition(:edit, :from => -1, :to => :red) do |r, v|
+          # create a new node
+          r.can_write?
         end
-                                          # not pub
-        add_transition(:publish, :from => ((-1..70).to_a - [50]), :to => :pub) do |r|
+
+        add_transition(:edit, :from => :pub, :to => :red) do |r, v|
+          r.can_write? && v.new_record?
+        end
+
+        add_transition(:auto_publish, :from => :pub, :to => :pub) do |r, v|
           r.full_drive?
         end
 
-        add_transition(:propose, :from => :red, :to => :prop) do |r|
-          r.can_write?
-        end
-
-        add_transition(:propose, :from => :red, :to => :prop_with) do |r|
-          r.can_write?
-        end
-
-        add_transition(:refuse,  :from => [:prop, :prop_with], :to => :red) do |r|
+        add_transition(:publish, :from => [-1, :red], :to => :pub) do |r, v|
           r.full_drive?
         end
 
-        add_transition(:unpublish,  :from => :pub, :to => :rem) do |r|
+        add_transition(:publish, :from => [:prop, :prop_with], :to => :pub) do |r, v|
+          # editing content when publishing a proposition is not allowed
+          r.full_drive? && !v.new_record?
+        end
+
+        add_transition(:publish, :from => (10..49), :to => :pub) do |r, v|
+          r.full_drive?
+        end
+
+        add_transition(:propose, :from => :red, :to => :prop) do |r, v|
+          r.can_write?
+        end
+
+        add_transition(:propose, :from => :red, :to => :prop_with) do |r, v|
+          r.can_write?
+        end
+
+        add_transition(:refuse,  :from => [:prop, :prop_with], :to => :red) do |r, v|
+          # refuse and change attributes not allowed
+          r.full_drive? && !v.new_record?
+        end
+
+        add_transition(:unpublish,  :from => :pub, :to => :rem) do |r, v|
           r.can_drive?
         end
 
-        add_transition(:remove,  :from => ((21..49).to_a + [70]), :to => :rem) do |r|
+        add_transition(:remove,  :from => ((21..49).to_a + [70]), :to => :rem) do |r, v|
           r.can_drive?
         end
 
-        add_transition(:destroy_version,  :from => (-1..20), :to => -1) do |r|
+        add_transition(:destroy_version,  :from => (-1..20), :to => -1) do |r, v|
           r.can_drive? && !visitor.is_anon? && (r.versions.count > 1 || r.empty?)
         end
 
-        add_transition(:redit, :from => (10..49), :to => :red) do |r|
+        add_transition(:redit, :from => (10..49), :to => :red) do |r, v|
           r.can_drive?
         end
       end
@@ -197,7 +211,7 @@ module Zena
           access[visitor.lang] || access[ref_lang] || access.values.first
         end
 
-        # FIXME: merge this with the logic in edit!
+        # FIXME: merge this with the logic in build_redaction
         def can_edit?(lang=nil)
           # Has the visitor write access to the node & node is not a proposition ?
           can_write? && !(Zena::Status[:prop]..Zena::Status[:prop_with]).include?(version.status)
@@ -273,7 +287,7 @@ module Zena
         end
 
         def transition_for(prev, curr)
-          prev ||= version.new_record? ? -1 : version.status_was.to_i
+          prev ||= version.new_record? ? (@original_version ? @original_version.status : -1) : version.status_was.to_i
           curr ||= version.status.to_i
 
           self.class.transitions.each do |t|
@@ -290,7 +304,7 @@ module Zena
             prev_status = v.new_record? ? -1 : v.status_was.to_i
             transition = self.class.transitions.detect { |t| t[:name] == transition && t[:from].include?(prev_status) }
           end
-          transition && (transition[:validate].nil? || transition[:validate].call(self))
+          transition && (transition[:validate].nil? || transition[:validate].call(self, v))
         end
 
         def allowed_transitions
@@ -422,19 +436,7 @@ module Zena
         # :v_... or :c_... keys, then only the version will be saved. If the attributes does not contain any :v_... or :c_...
         # attributes, only the node is saved, without creating a new version.
         def update_attributes(new_attributes)
-          if can_write? && !(Zena::Status[:prop] .. Zena::Status[:prop_with]).include?(version.status)
-            apply(:update_attributes,new_attributes)
-          elsif can_drive?
-            # FIXME: this will not work if we write "versions_attributes => {'status' => 50}"
-            # FIXME: string vs symbols (keys are always strings from the web)
-            # FIXME: this should go into the validation, not here...
-            unvalid_keys = new_attributes.keys - [:v_status, :v_publish_from]
-            unvalid_keys.empty? ? apply(:update_attributes, new_attributes ) : false
-          else
-            # FIXME: move this into validation when we have vhash
-            errors.add('You are not allowed to write.')
-            false
-          end
+          apply(:update_attributes, new_attributes)
         end
 
         # Return the current version. If @version was not set, this is a normal find or a new record.
@@ -454,55 +456,41 @@ module Zena
 
         # Define attributes for the current redaction.
         def version_attributes=(attrs)
-          edit!(attrs)
+          build_redaction(attrs)
           version.attributes = attrs
         end
 
+        def target_status(version_attributes)
+          version_attributes['status'] ||
+          (current_site[:auto_publish] && (full_drive? || new_record?)) ? Zena::Status[:pub] : Zena::Status[:red]
+        end
+
         # Creates a new redaction ready to be edited.
-        def edit!(version_attributes = nil)
+        def build_redaction(version_attributes = nil)
           @redaction ||= begin
-            target_status   = version_attributes ? version_attributes['status'] : nil
-            target_status ||= current_site[:auto_publish] ? Zena::Status[:pub] : Zena::Status[:red]
-            would_edit    = version_attributes ? version.would_edit?(version_attributes) : true
+            would_edit           = version_attributes ? version.would_edit?(version_attributes) : true
             version_attributes ||= {}
+            target_status        = self.target_status(version_attributes)
             v = self.version
-            if new_record? || !would_edit
+
+            redaction = if new_record? || !would_edit
               # nothing to do
               @version
-            elsif v.lang    == (version_attributes['lang'] || visitor.lang)   &&
-                  v.user_id == visitor.id                                     &&
-                  [Zena::Status[:red], Zena::Status[:pub]].include?(v.status) &&
-                  target_status == v.status                                   &&
-                  version_attributes['backup'] != 'true'                      &&
-                  Time.now  < v.created_at + current_site[:redit_time].to_i
+            elsif v.reusable?(version_attributes['lang'] || visitor.lang, target_status) &&
+                  version_attributes['backup'] != 'true'
               # own redaction (same lang) in redit time or
               # autopublish own publication (same lang) in redit time
               @version
             else
-              if v.status >= Zena::Status[:pub] && v.status < Zena::Status[:red]
-                # no need to update status after save
-                build_redaction(v, target_status)
-              else
-                @update_status_after_save = { v.id => Zena::Status[:rep] }
-                build_redaction(v, target_status)
-              end
+              @original_version = v
+              @version = v.clone
             end
+            redaction.status = target_status
+            redaction
           end
         end
 
-        alias redaction edit!
-
-        def build_redaction(version, status)
-          @version = version.clone('status' => status)
-        end
-
-        # Returns a lock (responds to 'user') for the specified lang or nil when
-        # a redaction or proposition for the given lang exists and we try to create
-        # a redaction or proposition.
-        def lang_locked?(l = visitor.lang, v = self.version)
-          return false if v.status < Zena::Status[:red] || v.status == Zena::Status[:pub]
-          versions.find(:first, :select => 'user_id', :conditions => ["lang = ? AND status >= #{Zena::Status[:red]} AND status < #{Zena::Status[:pub]} AND id <> ?", l, v.id.to_i])
-        end
+        alias redaction build_redaction
 
         private
           def set_status_before_validation
@@ -510,14 +498,13 @@ module Zena
             multiversion_before_validation_on_create if new_record?
 
             if v = @redaction
-              v.status ||= Zena::Status[:red]
-              if current_site[:auto_publish]
-                v.status = Zena::Status[:pub] if v.status == Zena::Status[:red]
-              end
-
-              if v.edited? && v.status == Zena::Status[:pub] && !transition_allowed?
-                # remove auto publish
+              if v.status == Zena::Status[:pub] &&
+                 (v.changes.keys - ['status', 'publish_from'] != []) &&
+                 !full_drive?
+                # We silently revert to 'red' only if status change to 'pub' is part of an edit.
                 v.status = Zena::Status[:red]
+              else
+                v.status ||= Zena::Status[:red]
               end
               v.publish_from = v.status.to_i == Zena::Status[:pub] ? (v.publish_from || Time.now) : v.publish_from
             end
@@ -526,24 +513,28 @@ module Zena
           # Called before create validations, this method is responsible for setting up
           # the initial redaction.
           def multiversion_before_validation_on_create
-            self.edit! unless @redaction
+            self.build_redaction unless @redaction
             self.publish_from = version.publish_from
-          end
-
-          def lock_validation
-            if @redaction && @redaction.should_save? && l = lang_locked?(@redaction.lang, @redaction)
-              if l.user_id == visitor.id
-                errors.add(:base, 'You cannot edit while you have a proposition waiting for approval.')
-              else
-                errors.add(:base, "(#{l.user.login}) is editing this node")
-              end
-            end
           end
 
           def status_validation
             return true unless @redaction && @redaction.should_save?
             if @current_transition = self.current_transition
-              errors.add(:base, "You do not have the rights to #{@current_transition[:name].to_s.gsub('_', ' ')}.") unless transition_allowed?(@current_transition)
+              unless transition_allowed?(@current_transition)
+                if @original_version && transition_allowed?(@current_transition, @original_version)
+                  if [Zena::Status[:prop], Zena::Status[:prop_with]].include?(@original_version.status)
+                    errors.add(:base, "You do not have the rights to change a proposition's attributes.")
+                  else
+                    errors.add(:base, "You do not have the rights to #{@current_transition[:name].to_s.gsub('_', ' ')} and change attributes.")
+                  end
+                elsif @original_version &&
+                     (Zena::Status[:prop]..Zena::Status[:prop_with]).include?(@original_version.status) &&
+                     (version.changes.keys - ['status', 'publish_from'] != [])
+                  errors.add(:base, "You cannot edit while a proposition is beeing reviewed.")
+                else
+                  errors.add(:base, "You do not have the rights to #{@current_transition[:name].to_s.gsub('_', ' ')}.")
+                end
+              end
             else
               errors.add(:base, 'This transition is not allowed.')
             end
@@ -583,16 +574,36 @@ module Zena
           end
 
           def compute_cached_attributes(version, changes = {})
+
             # puts [@current_transition[:name], version.status, version.id, vhash].inspect
+            if @original_version && @original_version.status != Zena::Status[:pub]
+              # We were looking at another version. It must be replaced.
+              @update_status_after_save = { @original_version.id => Zena::Status[:rep] }
+              @original_version = nil
+            end
+
             case @current_transition[:name]
             when :edit
               vhash['w'][version.lang] = version.id
             when :redit
+              if old_v_id = vhash['w'][version.lang]
+                if old_v_id != vhash['r'][version.lang]
+                  @update_status_after_save = { old_v_id => Zena::Status[:rep] }
+                end
+              end
               vhash['w'][version.lang] = version.id
             when :publish
               if old_v_id = vhash['r'][version.lang]
-                @update_status_after_save = { old_v_id => version.id > old_v_id ? Zena::Status[:rep] : Zena::Status[:rem] }
+                if old_v_id != version.id
+                  @update_status_after_save = { old_v_id => version.id > old_v_id ? Zena::Status[:rep] : Zena::Status[:rem] }
+                end
               end
+              old_w_id = vhash['w'][version.lang]
+              if old_w_id != old_v_id && old_w_id != version.id
+                @update_status_after_save ||= {}
+                @update_status_after_save[old_w_id] = Zena::Status[:rep]
+              end
+
               if self.publish_from.nil? || self.publish_from > version.publish_from
                 self.publish_from = version.publish_from
               else
@@ -605,6 +616,7 @@ module Zena
                 # we need to compute new
                 self.publish_from = get_publish_from
               end
+              vhash['r'][version.lang] = vhash['w'][version.lang] = version.id
             when :unpublish
               vhash['r'].delete(version.lang)
               if vhash['r'].empty?
@@ -627,7 +639,6 @@ module Zena
           end
 
           def multiversion_after_save
-
             if @update_status_after_save
               @update_status_after_save.each do |v_id, status|
                 self.class.connection.execute "UPDATE #{version.class.table_name} SET status = '#{status}' WHERE id = #{v_id}"

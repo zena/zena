@@ -226,7 +226,7 @@ class SecureTest < Zena::Unit::TestCase
       node = secure!(Node) { nodes(:bananas) }
       assert !node.can_write?
       assert !node.update_attributes(:v_title => 'Banana republic')
-      assert_not_equal "Banana republic", node.v_title
+      assert_equal 'You do not have the rights to edit.', node.errors[:base]
     end
 
     should 'not be allowed to create sub-nodes' do
@@ -235,7 +235,7 @@ class SecureTest < Zena::Unit::TestCase
       assert_equal 'You do not have the rights to edit.', node.errors[:base]
     end
 
-    should_eventually 'be allowed to drive' do
+    should 'be allowed to drive' do
       node = secure!(Node) { nodes(:bananas) }
       assert node.can_drive?
       assert node.update_attributes(:name => 'NamWa')
@@ -844,17 +844,17 @@ class SecureTest < Zena::Unit::TestCase
       @node = secure!(Node) { nodes(:status) }
     end
 
-    should_eventually 'not be allowed to drive' do
-      assert @node.update_attributes(:parent_id => nodes_id(:wiki))
+    should 'not be allowed to drive' do
+      assert !@node.update_attributes(:parent_id => nodes_id(:wiki))
       assert_equal 'You do not have the rights to do this.', @node.errors[:base]
     end
 
-    should_eventually 'not be allowed to write' do
+    should 'not be allowed to write' do
       assert !@node.update_attributes(:v_title => 'Drosophila')
       assert_equal 'You do not have the rights to edit.', @node.errors[:base]
     end
 
-    should_eventually 'be allowed to post comments' do
+    should 'be allowed to post comments' do
       assert_difference('Comment.count', 1) do
         assert @node.update_attributes(:m_title => 'changed icon', :m_text => 'new icon is "flower"')
         comment = @node.comments.last
@@ -871,20 +871,28 @@ class SecureTest < Zena::Unit::TestCase
       @node = secure!(Node) { nodes(:status) }
     end
 
-    should_eventually 'not be allowed to drive' do
+    should 'be a commentator' do
+      visitor.commentator?
+    end
+
+    should 'have moderated comments' do
+      visitor.moderated?
+    end
+
+    should 'not be allowed to drive' do
       assert !@node.update_attributes(:parent_id => nodes_id(:wiki))
       assert_equal 'You do not have the rights to do this.', @node.errors[:base]
     end
 
-    should_eventually 'not be allowed to write' do
+    should 'not be allowed to write' do
       assert !@node.update_attributes(:v_title => 'Drosophila')
       assert_equal 'You do not have the rights to edit.', @node.errors[:base]
     end
 
-    should_eventually 'be allowed to post moderated comments' do
+    should 'be allowed to post moderated comments' do
       assert_difference('Comment.count', 1) do
         assert @node.update_attributes(:m_title => 'changed icon', :m_text => 'new icon is "flower"')
-        comment = @node.comments.last
+        comment = @node.discussion.comments(:with_prop => true).last
         assert_equal 'changed icon', comment.title
         assert_equal Zena::Status[:prop], comment.status
       end
@@ -898,17 +906,17 @@ class SecureTest < Zena::Unit::TestCase
       @node = secure!(Node) { nodes(:status) }
     end
 
-    should_eventually 'not be allowed to drive' do
+    should 'not be allowed to drive' do
       assert !@node.update_attributes(:parent_id => nodes_id(:wiki))
       assert_equal 'You do not have the rights to do this.', @node.errors[:base]
     end
 
-    should_eventually 'not be allowed to write' do
+    should 'not be allowed to write' do
       assert !@node.update_attributes(:v_title => 'Drosophila')
       assert_equal 'You do not have the rights to edit.', @node.errors[:base]
     end
 
-    should_eventually 'not be allowed to post comments' do
+    should 'not be allowed to post comments' do
       assert !@node.update_attributes(:m_title => 'changed icon', :m_text => 'new icon is "flower"')
       assert_equal 'You do not have the rights to post comments.', @node.errors[:base]
     end
