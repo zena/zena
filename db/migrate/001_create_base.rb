@@ -67,6 +67,7 @@ class CreateBase < ActiveRecord::Migration
       t.column "wgroup_id", :integer
       t.column "pgroup_id", :integer
       t.column "publish_from", :datetime
+      t.column "max_status", :integer, :default => 30
       t.column "log_at", :datetime
       t.column "ref_lang", :string, :limit => 10, :default => "", :null => false
       t.column "alias", :string, :limit => 400

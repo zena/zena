@@ -1106,13 +1106,18 @@ class Node < ActiveRecord::Base
     list == [] ? nil : list
   end
 
-  # Find data entries through a specific slot (node_a, node_b). "data_entries_a" finds all data entries link through 'node_a_id'.
-  DataEntry::NodeLinkSymbols.each do |sym|
-    class_eval "def #{sym.to_s.gsub('node', 'data')}
-      return nil if new_record?
-      list = DataEntry.find(:all, :conditions=>\"#{sym}_id = '\#{self[:id]}'\")
-      list == [] ? nil : list
-    end"
+  if Node.connection.tables.include?('data_entries')
+    # We need this guard during initial migration (Node loaded before data entries table is created).
+    # FIXME: remove in [1.1] when we 'squash' all migrations
+
+    DataEntry::NodeLinkSymbols.each do |sym|
+      # Find data entries through a specific slot (node_a, node_b). "data_entries_a" finds all data entries link through 'node_a_id'.
+      class_eval "def #{sym.to_s.gsub('node', 'data')}
+        return nil if new_record?
+        list = DataEntry.find(:all, :conditions=>\"#{sym}_id = '\#{self[:id]}'\")
+        list == [] ? nil : list
+      end"
+    end
   end
 
   def ext
