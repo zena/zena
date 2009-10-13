@@ -12,3 +12,5 @@ REVISION
 sites/*
 test/fixtures/*.yml
 tmp/*
+db/*.sqlite3
+coverage
