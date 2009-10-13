@@ -5,7 +5,7 @@ default:
     visitor: 'ant'
   src: ""
   sql: "[\"SELECT nodes.* FROM nodes WHERE nodes.parent_id = ? AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC\", @node.id]"
-  res: "lake, lakeAddress, opening, status, track, water"
+  res: "crocodiles, lake, lakeAddress, opening, status, track, water"
 
 nodes:
   src: "nodes"
@@ -14,7 +14,7 @@ nodes:
 pages:
   src: "pages"
   sql: "[\"SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NP%' AND nodes.parent_id = ? AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC\", @node.id]"
-  res: "status, track"
+  res: "crocodiles, status, track"
 
 letters:
   src: "letters"
@@ -85,7 +85,7 @@ vlcass_or_pages:
   src:
     - "posts in project"
     - "pages"
-  res: "opening, status, track"
+  res: "crocodiles, opening, status, track"
 
 find_relation:
   context:
@@ -124,7 +124,7 @@ news_or_notes:
 order_dynattr:
   src: "nodes order by d_assigned ASC, name ASC"
   sql: "[\"SELECT nodes.* FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'assigned' WHERE nodes.id = versions.node_id AND nodes.parent_id = ? AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY dyn_attributes.value ASC, nodes.name ASC\", @node.id]"
-  res: "lake, lakeAddress, opening, track, water, status"
+  res: "crocodiles, lake, lakeAddress, opening, track, water, status"
 
 order_l_status:
   context:

@@ -402,8 +402,8 @@ class RelationProxyTest < Zena::Unit::TestCase
   end
 
   def test_attr_public
-    assert Node.attr_public?('l_status')
-    assert Node.attr_public?('l_comment')
-    assert Node.attr_public?('l_date')
+    assert Node.safe_method_type(['l_status'])
+    assert Node.safe_method_type(['l_comment'])
+    assert Node.safe_method_type(['l_date'])
   end
 end

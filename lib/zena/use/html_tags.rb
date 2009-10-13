@@ -238,9 +238,18 @@ module Zena
         # in this class are not too many, a select menu is shown instead (nodes in the menu are found using secure_write scope).
         # 'Sym' is the field to select the id for (parent_id, ...).
         def select_id(obj, sym, opt={})
-          if ['Project', 'Tag', 'Contact'].include?(opt[:class].to_s)
-            klass = opt[:class].kind_of?(Class) ? opt[:class] : Module::const_get(opt[:class].to_sym)
-            return select(obj,sym,  secure_write!(klass) { klass.find(:all, :select=>'zip,name', :order=>'name ASC') }.map{|r| [r[:name], r[:zip]]}, { :include_blank => opt[:include_blank] })
+          unless kpath = opt[:kpath]
+            klass = opt[:class].kind_of?(Class) ? opt[:class] : Node.get_class(opt[:class] || 'Node')
+            kpath = klass.kpath
+          end
+
+          count = secure_write(Node) { Node.count(:all, :conditions => ['kpath LIKE ?', "#{kpath}%"]) }
+          if count < 30
+            sql = "SELECT zip, name FROM nodes WHERE kpath LIKE '#{kpath}%' AND #{secure_write_scope} ORDER BY name ASC"
+            values = Node.connection.select_all(sql, "Node Load").map do |record|
+              [record['name'], record['zip']]
+            end
+            return select(obj, sym, values, { :include_blank => opt[:include_blank] })
           end
 
           if obj == 'link'

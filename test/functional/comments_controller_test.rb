@@ -31,7 +31,7 @@ class CommentsControllerTest < Zena::Controller::TestCase
     assert_redirected_to zen_path(nodes(:status))
     comment = assigns['comment']
     assert !comment.new_record?
-    assert_equal 'You do not have the rights to do this.', comment.errors[:base]
+    assert_equal 'You do not have the rights to modify comments.', comment.errors[:base]
     comment = comments(:tiger_says_inside)
     assert_equal 'We could not do better then this. I *really* mean that. Look at the "":20.', comment[:text]
   end

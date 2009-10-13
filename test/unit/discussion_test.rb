@@ -36,21 +36,24 @@ class DiscussionTest < Zena::Unit::TestCase
     assert_equal sites_id(:zena), disc.site_id
   end
 
-  def test_discussion_in_sync_with_version_lang
-    # should be found even if nav in fr
-    login(:anon)
-    visitor.lang = 'fr'
-    node = secure!(Node) { nodes(:status) }
-    assert_equal 'fr', node.v_lang
-    assert discussion = node.discussion
-    assert discussion.new_record?
+  context 'A visitor without write access' do
+    setup do
+      login(:anon)
+    end
 
-    # unpublish version
-    Node.connection.execute "UPDATE versions SET status = #{Zena::Status[:red]} WHERE id = #{node.v_id}"
-    node = secure!(Node) { nodes(:status) }
-    assert_equal 'en', node.v_lang
-    assert discussion = node.discussion
-    assert_equal 'en', discussion.lang
-    assert_equal discussions_id(:outside_discussion_on_status_en), discussion.id
+    context 'on a node without a publication in the current lang' do
+      setup do
+        login(:lion)
+        visitor.lang = 'fr'
+        node = secure!(Node) { nodes(:status) }
+        node.unpublish
+        login(:anon)
+        @node = secure!(Node) { nodes(:status) }
+      end
+
+      should 'see the discussion related to the seen version' do
+        assert_equal discussions_id(:outside_discussion_on_status_en), @node.discussion.id
+      end
+    end
   end
 end

@@ -471,22 +471,25 @@ module Zena
             would_edit           = version_attributes ? version.would_edit?(version_attributes) : true
             version_attributes ||= {}
             target_status        = self.target_status(version_attributes)
+
             v = self.version
 
-            redaction = if new_record? || !would_edit
+            redaction = if new_record?
+              # autopublish
+              @version.status = target_status
+            elsif !would_edit
               # nothing to do
-              @version
             elsif v.reusable?(version_attributes['lang'] || visitor.lang, target_status) &&
                   version_attributes['backup'] != 'true'
               # own redaction (same lang) in redit time or
               # autopublish own publication (same lang) in redit time
-              @version
+              @version.status = target_status
             else
               @original_version = v
               @version = v.clone
+              @version.status = target_status
             end
-            redaction.status = target_status
-            redaction
+            @version
           end
         end
 
@@ -576,7 +579,9 @@ module Zena
           def compute_cached_attributes(version, changes = {})
 
             # puts [@current_transition[:name], version.status, version.id, vhash].inspect
-            if @original_version && @original_version.status != Zena::Status[:pub]
+            if @original_version                         &&
+               @original_version.lang   == version.lang  &&
+               @original_version.status != Zena::Status[:pub]
               # We were looking at another version. It must be replaced.
               @update_status_after_save = { @original_version.id => Zena::Status[:rep] }
               @original_version = nil

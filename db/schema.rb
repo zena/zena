@@ -159,7 +159,7 @@ ActiveRecord::Schema.define(:version => 20091013100351) do
     t.integer  "inherit"
     t.integer  "rgroup_id"
     t.integer  "wgroup_id"
-    t.integer  "pgroup_id"
+    t.integer  "dgroup_id"
     t.datetime "publish_from"
     t.datetime "log_at"
     t.string   "ref_lang",     :limit => 10,  :default => "",    :null => false

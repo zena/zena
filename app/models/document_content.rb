@@ -18,7 +18,7 @@ class DocumentContent < ActiveRecord::Base
   safe_method           :size => Number, :name => String, :content_type => String, :ext => String, :file => File
 
   # writable
-  attr_accessible       :content_type, :file
+  attr_accessible       :content_type, :file, :ext
 
   belongs_to            :site
   validate              :valid_file

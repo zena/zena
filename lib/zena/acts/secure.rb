@@ -566,6 +566,14 @@ Just doing the above will filter all result according to the logged in user.
         end
       end
 
+      def secure_write_scope
+        if visitor.is_su? # super user
+          "site_id = #{visitor.site.id}"
+        else
+          "site_id = #{visitor.site.id} AND wgroup_id IN (#{visitor.group_ids.join(',')})"
+        end
+      end
+
       # these methods are not actions that can be called from the web !!
       protected
         # secure find with scope (for read/write or publish access).
@@ -622,17 +630,17 @@ Just doing the above will filter all result according to the logged in user.
 
         def secure_result(klass,result)
           if result && result != []
-            if klass.ancestors.include?(Node)
-              if result.kind_of? Array
+            if result.kind_of?(Array)
+              if result.first.kind_of?(Node)
                 id_map, ids = construct_id_map(result)
                 Version.find(ids).each do |v|
                   if r = id_map[v.id]
                     r.version = v
                   end
                 end
-              else
-                visitor.visit(result)
               end
+            elsif result.kind_of?(Node)
+              visitor.visit(result)
             end
             result
           else
@@ -692,12 +700,7 @@ Just doing the above will filter all result according to the logged in user.
         # * owner
         # * members of +write_group+ if node is published and the current date is greater or equal to the publication date
         def secure_write(obj, &block)
-          scope = if visitor.is_su? # super user
-            "site_id = #{visitor.site.id}"
-          else
-            "site_id = #{visitor.site.id} AND wgroup_id IN (#{visitor.group_ids.join(',')})"
-          end
-          secure_with_scope(obj, scope, &block)
+          secure_with_scope(obj, secure_write_scope, &block)
         rescue ActiveRecord::RecordNotFound
           # Rails generated exceptions
           # TODO: monitor how often this happens and replace the finders concerned

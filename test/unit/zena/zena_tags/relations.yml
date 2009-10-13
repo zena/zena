@@ -408,4 +408,4 @@ comments_previous_node:
 
 comments_in_site_node:
   src: "<r:comments from='nodes in site' order='created_at desc' limit='2' do='each' join=', '><r:node do='[name]'/>: <r:show attr='title'/></r:comments>"
-  res: "myLife: I want to become queen, status: re: What about rivers ?"
+  res: "status: re: What about rivers ?, status: What about rivers ?"

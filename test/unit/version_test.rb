@@ -87,7 +87,7 @@ class VersionTest < Zena::Unit::TestCase
     node.attributes = {:v_title => 'new title'}
     version = node.version
     assert version.new_record?
-    assert_nil version.number
+    assert_equal 1, version.number # same as original
     # save
     assert node.save, "Node can be saved"
     # version number changed
@@ -125,7 +125,8 @@ class VersionTest < Zena::Unit::TestCase
       assert_equal Zena::Status[:red], node.version.status
       assert_equal versions_id(:forest_pdf_en), node.version.content.version_id
       assert_equal 63569, node.version.content.size
-      # single redaction: ok
+      # single redaction in redit time
+      node.version.created_at = Time.now
       assert node.update_attributes(:c_file=>uploaded_pdf('water.pdf')), 'Can edit node'
       # version and content object are the same
       assert_equal versions_id(:forest_pdf_en), node.version.content.version_id
@@ -166,7 +167,8 @@ class VersionTest < Zena::Unit::TestCase
       assert_equal old_vers_id, node.version.id
 
       # edit content (should move content's master_version to other version and create a new content)
-      assert node.update_attributes(:c_file=>uploaded_pdf('water.pdf')), "Cannot be changed"
+      node.version.created_at = Time.now # force redit time
+      assert node.update_attributes(:c_file=>uploaded_pdf('water.pdf'))
       assert_nil node.version.content_id # we have our own content
       assert_equal node.version.id, node.version.content.version_id
       # this is still the original (english) version

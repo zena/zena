@@ -328,17 +328,20 @@ class Node < ActiveRecord::Base
         node.errors.add('parent_id', "can't be blank") unless attributes['parent_id']
         return node
       end
+
       begin
         klass = Node.get_class(attributes['klass'] || 'Node')
         klass = klass.real_class if klass.kind_of?(VirtualClass)
       rescue NameError
         klass = Node
       end
+
       # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
       node = klass.send(:with_exclusive_scope) do
         klass.find(:first, :conditions => ['site_id = ? AND name = ? AND parent_id = ?',
                                           current_site[:id], attributes['name'].url_name, attributes['parent_id']])
       end
+
       if node
         visitor.visit(node) # secure
         # TODO: class ignored (could be used to transform from one class to another...)
@@ -346,6 +349,7 @@ class Node < ActiveRecord::Base
         attributes.delete('klass')
         updated_date = node.updated_at
         node.update_attributes(attributes)
+
         if updated_date != node.updated_at
           node[:create_or_update] = 'updated'
         else
@@ -355,6 +359,7 @@ class Node < ActiveRecord::Base
         node = create_node(new_attributes)
         node[:create_or_update] = 'new'
       end
+
       node
     end
 
@@ -474,10 +479,10 @@ class Node < ActiveRecord::Base
           type   = :document
           name   = $1
           attrs  = defaults.dup
-          lang = $4.blank? ? nil : $4[1..-1]
+          lang   = $4.blank? ? nil : $4[1..-1]
           attrs['v_lang'] = lang || attrs['v_lang'] || visitor.lang
-          attrs['c_ext'] = $3
-          document_path = path
+          attrs['c_ext']  = $3
+          document_path   = path
         end
 
         index += 1
@@ -558,6 +563,7 @@ class Node < ActiveRecord::Base
           new_object = new_object || current_obj.instance_variable_get(:@new_record_before_save)
         end
         current_obj.instance_variable_set(:@new_record_before_save, new_object)
+
         current_obj.instance_variable_set(:@versions_count, versions.size)
         res[current_obj[:id].to_i] = current_obj
 
@@ -1474,7 +1480,9 @@ class Node < ActiveRecord::Base
 
       self.name ||= (version.title || '').url_name
 
-      if ref_lang == version.lang && full_drive? && version.status == Zena::Status[:pub]
+      if ref_lang == version.lang &&
+         ((full_drive? && version.status == Zena::Status[:pub]) ||
+          (can_drive?  && vhash['r'][ref_lang].nil?))
         if name_changed? && !name.blank?
           version.title = self.name.gsub(/([A-Z])/) { " #{$1.downcase}" }
         elsif !version.title.blank?

@@ -8,15 +8,49 @@ class VersionsControllerTest < Zena::Controller::TestCase
     {:id => number, :node_id => version.node.zip}
   end
 
-  def test_show
-    test_site('zena')
-    v = versions(:lake_red_en)
-    get 'show', version_hash(:lake_red_en)
-    assert_redirected_to version_hash(:lake_en)
-    login(:ant)
-    get 'show', version_hash(:lake_red_en)
-    assert_response :success
-    assert_match %r{default/Node/fr/_main.erb$}, @response.rendered[:template].to_s
+  context 'A visitor without write access' do
+    setup do
+      login(:anon)
+    end
+
+    should 'receive a missing response when getting a version' do
+      get 'show', version_hash(:lake_en)
+      assert_response :missing
+    end
+  end
+
+  context 'A visitor with write access' do
+    setup do
+      login(:ant)
+    end
+
+    should 'get a page rendered with zafu when getting a version' do
+      get 'show', version_hash(:lake_red_en)
+      assert_response :success
+      assert_match %r{default/Node/fr/_main.erb$}, @response.rendered[:template].to_s
+    end
+  end
+
+  context 'A visitor with drive access' do
+    setup do
+      login(:lion)
+      @node = secure!(Node) { nodes(:status) }
+    end
+
+    context 'on a node with removed versions and data' do
+      setup do
+        put 'remove', :node_id => @node.zip, :id => 1
+        put 'remove', :node_id => @node.zip, :id => 2
+      end
+
+      should 'get an ajax replace and see a warning on version destroy' do
+        assert_difference('Version.count', -1) do
+          delete 'destroy', :node_id => @node.zip, :id => 1, :drive => true, :format => 'js'
+        end
+        assert_match %r{Element\.replace\(.versions},  @response.body
+        assert_match %r{This node contains sub-nodes}, @response.body
+      end
+    end
   end
 
   def test_can_edit
@@ -31,14 +65,6 @@ class VersionsControllerTest < Zena::Controller::TestCase
     assert_css "form[@action='/nodes/#{nodes_zip(:status)}']"
     get 'edit', version_hash(:lake_red_en)
     assert_css "form[@action='/nodes/#{nodes_zip(:lake)}']"
-  end
-
-  def test_cannot_edit
-    login(:anon)
-    get 'edit', version_hash(:status_en)
-    assert_response :missing
-    get 'edit', version_hash(:status_en, 0)
-    assert_response :missing
   end
 
   def test_parse_assets
@@ -71,21 +97,6 @@ class VersionsControllerTest < Zena::Controller::TestCase
     assert_equal start, version.text
   end
 
-  def test_destroy_version_with_ajax_should_send_a_dom_remove_and_warning
-    login(:lion)
-    node = secure!(Node) { nodes(:status) }
-    assert_equal 2, node.versions.count
-    put 'remove', :node_id => node.zip, :id => 1, :drive => true, :format => 'js'
-    assert_response :success
-    assert_match %r{Element\.replace\(.versions}, @response.body
-    assert_no_match %r{This node contains sub-nodes}, @response.body
-    assert_equal 2, assigns(:node).versions.count
-    delete 'destroy', :node_id => node.zip, :id => 1, :drive => true, :format => 'js'
-    assert_response :success
-    assert_equal 1, assigns(:node).versions.count
-    assert_match %r{Element\.replace\(.versions}, @response.body
-    assert_match %r{This node contains sub-nodes}, @response.body
-  end
 
 =begin
 

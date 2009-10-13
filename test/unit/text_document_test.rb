@@ -121,7 +121,7 @@ class TextDocumentTest < Zena::Unit::TestCase
     login(:tiger)
     textdoc = secure(TextDocument) { TextDocument.create(:parent_id=>nodes_id(:cleanWater), :c_file => uploaded_text('some.txt'), :v_status => Zena::Status[:pub])}
     assert_equal uploaded_text('some.txt').size, textdoc.version.content.size
-    Db.set_attribute(textdoc, :updated_at, Time.gm(2006,04,11))
+    Zena::Db.set_attribute(textdoc, :updated_at, Time.gm(2006,04,11))
     assert_equal Zena::Status[:pub], textdoc.version.status
     textdoc = secure(Node) { Node.find(textdoc[:id]) }
     assert_equal '21a6948e0aec6de825009d8fda44f7e4', Digest::MD5.hexdigest(uploaded_text('some.txt').read)

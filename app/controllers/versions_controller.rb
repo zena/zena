@@ -256,7 +256,7 @@ class VersionsController < ApplicationController
       # make the flash available to rjs helpers
       @flash = flash
       respond_to do |format|
-        format.html { redirect_to @redirect_url || request.env['HTTP_REFERER'] }
+        format.html { redirect_to @redirect_url || request.env['HTTP_REFERER'] || {:id => 0}}
         # js = call from 'drive' popup
         format.js   { render :action => 'update' }
       end

@@ -15,7 +15,7 @@ version_filter_title_like:
   sql: "\"SELECT nodes.* FROM nodes,versions WHERE versions.title LIKE 'P%' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.zip ASC\""
   # we avoid sorting by name here because of collation issues when using different
   # databases, and that's not what we are testing here
-  res: "people, projects, proposition, opening, Project-changes-xml, Page-changes"
+  res: "people, projects, opening, Project-changes-xml, Page-changes"
 
 dynattr_filter:
   src: "nodes where d_assigned = 'gaspard' in site"
@@ -38,7 +38,7 @@ version_filter_comment:
     visitor: 'lion'
   src: pages where v_comment = "no comment yet" in project
   sql: "[\"SELECT nodes.* FROM nodes,versions WHERE nodes.kpath LIKE 'NP%' AND nodes.project_id = ? AND versions.comment = 'no comment yet' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC\", @node.get_project_id]"
-  res: "bananas"
+  res: "bananas, crocodiles"
 
 year_function:
   context:
@@ -88,7 +88,7 @@ param_filter_tag:
 
 pages_group_by_name:
   sql: "[\"SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NP%' AND nodes.parent_id = ? AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.name ORDER BY nodes.position ASC, nodes.name ASC\", @node.id]"
-  res: "status, track"
+  res: "crocodiles, status, track"
 
 nodes_group_by_year:
   src: "nodes in site group by log_at:year order by log_at:year asc, name asc"

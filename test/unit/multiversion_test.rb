@@ -213,6 +213,21 @@ class MultiVersionTest < Zena::Unit::TestCase
         end
       end # A visitor with write access on a redaction from another author
 
+      context 'in another lang' do
+        setup do
+          login(:ant)
+          visitor.lang = 'fr'
+          @node = secure!(Node) { nodes(:crocodiles) }
+        end
+
+        should 'create a new redaction without altering original on edit' do
+          assert_difference('Version.count', 1) do
+            assert @node.update_attributes(:v_title => 'Alligators')
+          end
+          assert_equal Zena::Status[:red], versions(:crocodiles_en).status
+        end
+      end
+
     end # A visitor with write access on a redaction
 
     # -------------------- ON A PUBLICATION
@@ -237,7 +252,7 @@ class MultiVersionTest < Zena::Unit::TestCase
           assert @node.update_attributes(:v_title => 'The Technique Of Orchestration')
         end
       end
-      
+
       should 'not alter current publication when editing' do
         visitor.lang = 'en'
         assert @node.update_attributes(:v_title => 'AI magazine')

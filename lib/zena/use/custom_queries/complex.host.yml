@@ -99,9 +99,10 @@ NodeQuery:
       - employees.zip
       - employees.vclass_id
       - employees.type
-      - employees.rgroup_id
+      - employees.wgroup_id
       - employees.dgroup_id
       - employees.ref_lang
+      - employees.vhash
       - employees.user_id
       # TODO: next_date = NULL if custom_a is null
       - form.last_date AS last_date
@@ -135,9 +136,10 @@ NodeQuery:
       - courses.zip
       - courses.vclass_id
       - courses.type
-      - courses.rgroup_id
+      - courses.wgroup_id
       - courses.dgroup_id
       - courses.ref_lang
+      - courses.vhash
       - courses.user_id
       - courses.custom_a AS repeat_every
       - courses.priority

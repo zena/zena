@@ -1454,25 +1454,23 @@ done: \"I am done\""
   end
 
   def test_sync_name_before_publish_if_single_version
+    login(:ant)
     node = secure!(Node) { Node.create(:v_title => 'Eve', :parent_id => nodes_id(:people)) }
     assert_equal Zena::Status[:red], node.version.status
     assert_equal 'Eve', node.name
     node.update_attributes(:v_title => 'Lilith')
     assert_equal Zena::Status[:red], node.version.status
-    print 'P'
-    # FIXME: uncomment line bellow when we store version info as json node
-    #
-    # assert_equal 'Lilith', node.name
+    assert_equal 'Lilith', node.name
   end
 
   def test_sync_name_on_v_title_change_auto_pub_no_sync
     Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 3600 WHERE id = #{sites_id(:zena)}"
     Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE node_id IN (#{nodes_id(:status)},#{nodes_id(:people)})"
     login(:tiger)
-    # was not in sync
+    
     node = secure!(Node) { nodes(:status) }
     assert node.update_attributes(:v_title => 'simply different')
-    assert_equal 'status', node.name
+    assert_equal 'simplyDifferent', node.name
     visitor.lang = 'fr'
     # not ref lang
     node = secure!(Node) { nodes(:people) }

@@ -131,7 +131,7 @@ END:VCALENDAR
   def test_cache_css_auto_publish
     test_site('zena')
     Site.connection.execute    "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
-    Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE id = #{versions_id(:style_css_en)}"
+    Version.connection.execute "UPDATE versions set created_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE id = #{versions_id(:style_css_en)}"
     login(:tiger)
     node = secure!(Node) { nodes(:style_css) }
     without_files('/test.host/public') do
@@ -146,8 +146,8 @@ END:VCALENDAR
         put 'save_text', :id => nodes_zip(:style_css), :node => {'v_text' => '/* empty */'}
         node = assigns['node']
         assert node.errors.empty?
-        assert_equal Zena::Status[:pub], node.v_status
-        assert_equal versions_id(:style_css_en), node.v_id # auto publish
+        assert_equal Zena::Status[:pub], node.version.status
+        assert_equal versions_id(:style_css_en), node.version.id # auto publish
         assert !File.exist?(filename) # cached page removed
         get 'show', :prefix => 'en', :path => [name], :cachestamp => node.updated_at.to_i
         assert_response :success
@@ -236,6 +236,7 @@ END:VCALENDAR
 
       assert_equal bird[:id], in_photos[0][:id]
       assert_equal doc[:id], in_photos[1][:id]
+      doc = secure!(Node) { Node.find(doc.id) }
       doc_versions = doc.versions.sort { |a,b| a[:lang] <=> b[:lang]}
       assert_equal 2, doc_versions.size
       assert_match %r{two}, doc_versions[0].text

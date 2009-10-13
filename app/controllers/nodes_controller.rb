@@ -549,13 +549,14 @@ class NodesController < ApplicationController
         n.parse_keys.each do |k|
           orig  = n.send(k)
           trans = n.parse_assets(orig, self, k)
-          if trans != orig
+          if trans && trans != orig
             attrs[k] = trans
           end
         end
 
         if attrs != {}
-          attrs['v_status'] = n.v_status
+          attrs['v_status'] = n.version.status
+          attrs['v_lang']   = n.version.lang
           n.update_attributes(attrs)
         end
       end

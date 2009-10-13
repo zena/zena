@@ -154,14 +154,14 @@ class CommentTest < Zena::Unit::TestCase
     comment = comments(:public_spam_in_en)
     assert_equal comment.ip, visitor.ip
     assert !comment.update_attributes(:text => 'up')
-    assert_equal 'discussion closed, comment cannot be updated', comment.errors.on(:base)
+    assert_equal 'Discussion closed, comments cannot be updated.', comment.errors.on(:base)
   end
 
   def test_cannot_update_not_author
     login(:ant)
     comment = comments(:public_spam_in_en)
     assert !comment.update_attributes(:text => 'up')
-    assert_equal 'You do not have the rights to do this.', comment.errors[:base]
+    assert_equal 'You do not have the rights to modify comments.', comment.errors[:base]
   end
 
   # FIXME: should also fail (delete = ok, edit = not ok)
@@ -169,7 +169,7 @@ class CommentTest < Zena::Unit::TestCase
   #  login(:lion)
   #  comment = comments(:public_spam_in_en)
   #  assert !comment.update_attributes(:text => 'up')
-  #  assert_equal 'You do not have the rights to do this.', comment.errors[:base]
+  #  assert_equal 'You do not have the rights to modify comments.', comment.errors[:base]
   #end
 
   def test_update
