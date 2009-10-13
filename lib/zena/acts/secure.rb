@@ -624,7 +624,12 @@ Just doing the above will filter all result according to the logged in user.
           if result && result != []
             if klass.ancestors.include?(Node)
               if result.kind_of? Array
-                result.each {|r| visitor.visit(r) }
+                id_map, ids = construct_id_map(result)
+                Version.find(ids).each do |v|
+                  if r = id_map[v.id]
+                    r.version = v
+                  end
+                end
               else
                 visitor.visit(result)
               end
@@ -633,6 +638,21 @@ Just doing the above will filter all result according to the logged in user.
           else
             nil
           end
+        end
+
+        # Take an array of records and return a 2-tuple: a hash of
+        # version_id to record and a list of version ids. This method also
+        # secures the node by calling visitor.visit(node).
+        def construct_id_map(records)
+          map   = {}
+          v_ids = []
+          records.each do |r|
+            visitor.visit(r)
+            v_id = r.version_id
+            map[v_id] = r
+            v_ids << v_id
+          end
+          [map, v_ids]
         end
 
         # Secure for read/create.

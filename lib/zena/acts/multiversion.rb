@@ -176,6 +176,7 @@ module Zena
         # VERSION
         def version=(v)
           if v.kind_of?(Version)
+            v.node = self
             @version = v
           end
         end
