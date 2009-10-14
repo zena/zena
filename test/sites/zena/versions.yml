@@ -392,7 +392,6 @@ wiki_project_changes_xml_en:
   node:            wiki_Project_changes_xml_zafu
   user:            tiger
   comment:         layout for wiki
-  title:           Project - changes (xml)
   summary:         Layout for the wiki skin.
   text:            |
     <?xml version="1.0" encoding="UTF-8"?>
@@ -411,7 +410,6 @@ wiki_page_changes_en:
   node:            wiki_Page_changes_zafu
   user:            tiger
   comment:         layout for wiki
-  title:           Page - changes
   summary:         Layout for the wiki skin.
   text:            |
     <r:include template='layout.html'>

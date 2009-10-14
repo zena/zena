@@ -173,7 +173,7 @@ module Zena
       end
 
       def parse_fixtures
-        return unless get_content(site, table)
+        return unless content = get_content(site, table)
 
         # build simple hash to set/get defaults and other special values
         @elements[site] = elements = YAML::load(content.gsub(/<%.*?%>/m,''))
@@ -232,19 +232,19 @@ module Zena
           unless v
             v = elements[n] = {}
           end
-          v[:defaults_keys] = []
+          v[:header_keys] ||= []
           column_names.each do |k|
             if k =~ /^(\w+)_id/
               k = $1
             end
             if !v.has_key?(k) && @defaults.has_key?(k)
-              v[:defaults_keys] << k # so we know what to write out
+              v[:header_keys] << k # so we know what to write out
               v[k] = @defaults[k]
             end
           end
           if column_names.include?('name') && !v.has_key?('name')
             v['name'] = n
-            v[:defaults_keys] << 'name'
+            v[:header_keys] << 'name'
           end
         end
       end
@@ -253,13 +253,14 @@ module Zena
         return if name == 'DEFAULTS'
         @name = name
 
+        header_keys = elements[name][:header_keys]
         insert_headers
 
         definitions.each do |l|
           if l =~ /^\s+([\w\_]+):\s*([^\s].*)$/
             k, v = $1, $2
             v = nil if v =~ /^\s*$/
-            unless ignore_key?(k)
+            if !header_keys.include?(k)
               out_pair(k,v)
             end
           else
@@ -298,8 +299,7 @@ module Zena
           insert_multi_site_id(k)
         end
 
-        element[:defaults_keys].each do |k|
-          next if ignore_key?(k)
+        element[:header_keys].each do |k|
           out_pair(k, element[k])
         end
       end
@@ -316,6 +316,7 @@ module Zena
       end
 
       def out_pair(k,v)
+        return if ignore_key?(k)
         return if v.nil?
         out sprintf('  %-16s %s', "#{k}:", v.to_s =~ /^\s*$/ ? v.inspect : v.to_s)
       end
@@ -344,25 +345,13 @@ module Zena
   end
 
   class FoxyUsersParser < FoxyParser
-
-    def insert_headers
-      user  = elements[name]
-      super
-      out_pair('groups', user['groups']) if user['groups']
-    end
-
     private
-
-      def ignore_key?(k)
-                 # use our built default
-        super || ['groups'].include?(k)
-      end
-
       def set_defaults
         super
-        elements.each do |name,values|
-          if groups = values['groups']
-            values['groups'] = groups.split(',').map {|g| "#{site}_#{g.strip}"}.join(', ')
+        elements.each do |k, v|
+          if groups = v['groups']
+            v['groups'] = groups.split(',').map {|g| "#{site}_#{g.strip}"}.join(', ')
+            v[:header_keys] << 'groups'
           end
         end
       end
@@ -396,6 +385,9 @@ module Zena
               break
             end
           end
+
+          node[:header_keys] += ['type','vclass_id','kpath', 'zip', 'publish_from', 'vhash', 'inherit',
+           'rgroup_id', 'wgroup_id', 'dgroup_id', 'skin', 'fullpath', 'basepath']
 
           klass = node['class']
           if virtual_classes[site] && vc = virtual_classes[site][klass]
@@ -531,7 +523,6 @@ module Zena
       end
 
       def insert_headers
-        super
         node  = elements[name]
         # we compute 'zip' here so that the order of the file is kept
         @zip_counter[site] ||= 0
@@ -543,15 +534,12 @@ module Zena
           @zip_counter[site] += 1
           node['zip'] = @zip_counter[site]
         end
-
-        ['type','vclass_id','kpath', 'zip', 'publish_from', 'vhash', 'inherit',
-         'rgroup_id', 'wgroup_id', 'dgroup_id', 'skin', 'fullpath', 'basepath'].each do |k|
-          out_pair(k, node[k])
-        end
+        super
       end
 
+
       def ignore_key?(k)
-        super || ['class', 'skin', 'inherit', 'zip', 'fullpath', 'basepath'].include?(k)
+        super || ['class'].include?(k)
       end
 
       def out_pair(k,v)
@@ -676,7 +664,6 @@ module Zena
 
     def initialize(table_name, opts = {})
       super
-      @raw_nodes = YAML::load(get_content(site, 'nodes').gsub(/<%.*?%>/m,''))
       @versions = {}
     end
 
@@ -684,30 +671,20 @@ module Zena
       def set_defaults
         super
         site_versions = @versions[site] = {}
+        raw_nodes = YAML::load(get_content(site, 'nodes').gsub(/<%.*?%>/m,''))
 
         elements.each do |k,v|
           # set status
+          v[:header_keys] << 'status'
           v['status'] = Zena::Status[v['status'].to_sym]
-          %W{summary text comment}.each do |txt_field|
-            v[txt_field] ||= ''
-          end
 
-          v['title'] ||= @raw_nodes[v['node']]['name']
+          v[:header_keys] << 'title'
+          v['title'] ||= raw_nodes[v['node']]['name'] || v['node']
+
           node_versions = site_versions[v['node']] ||= []
           node_versions << v
         end
-
       end
-
-      def insert_headers
-        super
-        out_pair('status', elements[name]['status']) if elements[name]['status']
-      end
-
-      def ignore_key?(k)
-        super || ['status'].include?(k)
-      end
-
   end
 
   class FoxySitesParser < FoxyParser
@@ -725,23 +702,12 @@ module Zena
       @virtual_classes = opts[:virtual_classes].all_elements
     end
 
-    def insert_headers
-      super
-      ['source_kpath', 'target_kpath'].each do |k|
-        out_pair(k, elements[name][k])
-      end
-    end
-
-    def ignore_key?(k)
-      super || ['source_kpath', 'target_kpath', 'source', 'target'].include?(k)
-    end
-
-
     private
       def set_defaults
         super
 
         elements.each do |name,rel|
+          rel[:header_keys] += ['source_kpath', 'target_kpath', 'source', 'target']
           src = rel['source']
           trg = rel['target']
           if !src && !trg
@@ -835,51 +801,54 @@ module Zena
 
   class FoxyIformatsParser < FoxyParser
     private
-      def insert_headers
+      def set_defaults
         super
-        out_pair('size', Iformat::SIZES.index(elements[name]['size'])) if elements[name]['size']
-        out_pair('gravity', Iformat::GRAVITY.index(elements[name]['gravity'])) if elements[name]['gravity']
-      end
+        elements.each do |k, v|
+          if v['size']
+            v[:header_keys] << 'size'
+            v['size'] = Iformat::SIZES.index(v['size'])
+          end
 
-      def ignore_key?(k)
-        super || ['size', 'gravity'].include?(k)
+          if v['gravity']
+            v[:header_keys] << 'gravity'
+            v['gravity'] = Iformat::GRAVITY.index(v['gravity'])
+          end
+        end
       end
   end
 
   class FoxyCommentsParser < FoxyParser
     private
-      def insert_headers
+      def set_defaults
         super
-        out_pair('status', Zena::Status[elements[name]['status'].to_sym]) if elements[name]['status']
-        out_pair('reply_to', Zena::FoxyParser::id(site,elements[name]['reply_to'])) if elements[name]['reply_to']
-      end
+        elements.each do |k, v|
+          if v['status']
+            v[:header_keys] << 'status'
+            v['status'] = Zena::Status[v['status'].to_sym]
+          end
 
-      def ignore_key?(k)
-        super || ['status', 'reply_to'].include?(k)
+          if v['reply_to']
+            v[:header_keys] << 'reply_to'
+            v['reply_to'] =  Zena::FoxyParser::id(site, v['reply_to'])
+          end
+        end
       end
-
   end
 
   class FoxyParticipationsParser < FoxyParser
     private
-      def insert_headers
-        super
-        out_pair('status', User::Status[elements[name]['status'].to_sym]) if elements[name]['status']
-      end
-
-      def ignore_key?(k)
-        super || ['status'].include?(k)
-      end
-
       def set_defaults
         super
-
         elements.each do |name,part|
           if !part['user'] && !part['site']
             part['user'], part['site'] = name.split('_in_')
             part['site'] ||= site
           end
           part['contact'] ||= part['user']
+          if part['status']
+            part[:header_keys] << 'status'
+            part['status'] = User::Status[part['status'].to_sym]
+          end
         end
       end
   end

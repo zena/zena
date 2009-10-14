@@ -15,7 +15,7 @@ version_filter_title_like:
   sql: "\"SELECT nodes.* FROM nodes,versions WHERE versions.title LIKE 'P%' AND nodes.id = versions.node_id AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.zip ASC\""
   # we avoid sorting by name here because of collation issues when using different
   # databases, and that's not what we are testing here
-  res: "people, projects, opening, Project-changes-xml, Page-changes"
+  res: "people, projects, opening, Project-changes-xml, Page-changes, Project"
 
 dynattr_filter:
   src: "nodes where d_assigned = 'gaspard' in site"

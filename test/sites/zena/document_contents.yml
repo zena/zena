@@ -58,3 +58,19 @@ style_css:
   name:            style
   ext:             css
   size:            5262
+
+translations_de:
+  version:         translations_de
+  type:            TextDocumentContent
+  content_type:    text/yaml
+  name:            translations
+  ext:             yml
+  size:            50
+
+translations_fr:
+  version:         translations_fr
+  type:            TextDocumentContent
+  content_type:    text/yaml
+  name:            translations
+  ext:             yml
+  size:            50
