@@ -486,6 +486,11 @@ class MultiVersionTest < Zena::Unit::TestCase
               assert @node.update_attributes(:v_title => 'Larry Summers is a jerk.')
             end
           end
+          
+          should 'replace old publication autopublishing' do
+            @node.update_attributes(:v_title => 'Is not very apt at the high end.')
+            assert_equal Zena::Status[:rep], versions(:collections_en).status
+          end
         end
 
         context 'setting v_status to autopublish' do

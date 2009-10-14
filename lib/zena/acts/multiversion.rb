@@ -616,6 +616,11 @@ module Zena
               end
               vhash['r'][version.lang] = vhash['w'][version.lang] = version.id
             when :auto_publish
+              if old_v_id = vhash['r'][version.lang]
+                if old_v_id != version.id
+                  @update_status_after_save = { old_v_id => version.id > old_v_id ? Zena::Status[:rep] : Zena::Status[:rem] }
+                end
+              end
               # publication time might have changed
               if changes['publish_from']
                 # we need to compute new
