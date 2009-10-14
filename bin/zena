@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'zena/root'
+
+exec "rails -m #{File.join(Zena::ROOT, 'config', 'zena.rb').inspect} #{ARGV.first}"

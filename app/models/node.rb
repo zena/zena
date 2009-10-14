@@ -642,13 +642,14 @@ class Node < ActiveRecord::Base
           :conditions => ["parent_id = ?",node[:id]],
           :order  => 'name ASC' )
       elsif !query.blank?
-        if RAILS_ENV == 'test'
-          match = sanitize_sql(["nodes.name LIKE ?", "#{query}%"])
-          select = "nodes.*, #{match} AS score"
-        else
+        if Zena::Db.adapter == 'mysql' && RAILS_ENV != 'test'
           match  = sanitize_sql(["MATCH (vs.title,vs.text,vs.summary) AGAINST (?) OR nodes.name LIKE ?", query, "#{opts[:name_query] || query.url_name}%"])
           select = sanitize_sql(["nodes.*, MATCH (vs.title,vs.text,vs.summary) AGAINST (?) + (5 * (nodes.name LIKE ?)) AS score", query, "#{query}%"])
+        else
+          match = sanitize_sql(["nodes.name LIKE ?", "#{query}%"])
+          select = "nodes.*, #{match} AS score"
         end
+
         return opts.merge(
           :select => select,
           :joins  => "INNER JOIN versions AS vs ON vs.node_id = nodes.id AND vs.status >= #{Zena::Status[:pub]}",

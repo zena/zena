@@ -37,7 +37,7 @@ PROJ.rubyforge.name = 'zena'
 PROJ.spec.opts << '--color'
 PROJ.gem.files = (
   ['History.txt', 'README.txt', 'db/schema.rb'] +
-  ['app', 'bricks', 'config', 'db', 'lib', 'locale', 'public', 'rails', 'vendor', 'test'].map do |d|
+  ['app', 'bin', 'bricks', 'config', 'db', 'lib', 'locale', 'public', 'rails', 'vendor', 'test'].map do |d|
     Dir.glob("#{d}/**/*").reject {|path| File.basename(path) =~ /^\./ }
   end
 ).flatten

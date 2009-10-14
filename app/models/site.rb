@@ -1,3 +1,6 @@
+# make sure tehse two libraries are loaded or mksite rake task will fail.
+require 'zena/use/dates'
+
 =begin rdoc
 A zena installation supports many sites. Each site is uniquely identified by it's host name.
 The #Site model holds configuration information for a site:
@@ -40,7 +43,7 @@ class Site < ActiveRecord::Base
       params = {
         :name            => host.split('.').first,
         :authentication  => false,
-        :auto_publish    => true,
+        :auto_publish    => false,
         :redit_time      => '2h',
         :languages       => '',
         :default_lang    => "en",
@@ -69,6 +72,11 @@ class Site < ActiveRecord::Base
         :first_name => "Super", :name => "User", :lang => site.default_lang, :status => User::Status[:su])
       su.site = site
 
+      unless Thread.current.respond_to?(:visitor)
+        class << Thread.current
+          attr_accessor :visitor
+        end
+      end
       Thread.current.visitor = su
 
       unless su.save
@@ -79,11 +87,6 @@ class Site < ActiveRecord::Base
       end
 
       site[:su_id] = su[:id]
-      unless Thread.current.respond_to?(:visitor)
-        class << Thread.current
-          attr_accessor :visitor
-        end
-      end
 
 
       # =========== CREATE PUBLIC, ADMIN, SITE GROUPS ===========
@@ -133,14 +136,14 @@ class Site < ActiveRecord::Base
       # make admin the current visitor
       Thread.current.visitor = admin_user
 
-      root = site.send(:secure,Project) { Project.create( :name => site.name, :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :dgroup_id => admin[:id], :v_title => site.name) }
+      root = site.send(:secure,Project) { Project.create( :name => site.name, :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :dgroup_id => admin[:id], :v_title => site.name, :v_status => Zena::Status[:pub]) }
       raise Exception.new("Could not create root node for site [#{host}] (site#{site[:id]})\n#{root.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if root.new_record?
 
       Node.connection.execute "UPDATE nodes SET section_id = id, project_id = id WHERE id = '#{root[:id]}'"
 
       raise Exception.new("Could not publish root node for site [#{host}] (site#{site[:id]})\n#{root.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless (root.v_status == Zena::Status[:pub] || root.publish)
 
-      site.root_id         = root[:id]
+      site.root_id = root[:id]
 
       # =========== UPDATE SITE =================================
       # save site definition
