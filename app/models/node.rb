@@ -122,7 +122,7 @@ Setting 'custom_base' on a node should be done with caution as the node's zip is
 class Node < ActiveRecord::Base
 
   include RubyLess::SafeClass
-  safe_attribute :created_at, :updated_at, :event_at, :log_at, :publish_from, :basepath
+  safe_attribute :created_at, :updated_at, :event_at, :log_at, :publish_from, :basepath, :inherit
 
   # we use safe_method because the columns can be null, but the values are never null
   safe_method   :name => String, :kpath => String, :user_zip => Number, :parent_zip => Number,
@@ -785,7 +785,8 @@ class Node < ActiveRecord::Base
           end
         when 'c_'
           method = method[2..-1]
-          if klass = version_class.content_class && type = klass.safe_method_type([method])
+          klass = version_class.content_class
+          if klass && type = klass.safe_method_type([method])
             type.merge(:method => "version.content.#{type[:method]}")
           else
             {:method => "version.safe_content_read(#{method.inspect})", :nil => true, :class => String}
@@ -793,7 +794,7 @@ class Node < ActiveRecord::Base
         when 'd_'
           {:method => "version.dyn[#{method[2..-1].inspect}]", :nil => true, :class => String}
         else
-          if method =~ /^(.+)_((id|zip)(s?))\Z/ && !instance_methods.include?(method)
+          if method =~ /^(.+)_((id|zip|status|comment)(s?))\Z/ && !instance_methods.include?(method)
             {:method => "rel[#{$1.inspect}].try(:other_#{$2})", :nil => true, :class => ($4.blank? ? Number : [Number])}
           else
             RubyLess::SafeClass.safe_method_type_for(self, signature)

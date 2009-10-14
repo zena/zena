@@ -14,13 +14,11 @@ height(format)::  image height in pixel using the given format
 ImageContent also provides a +crop+ pseudo attribute to crop an image. See crop=.
 =end
 class ImageContent < DocumentContent
+  safe_method      :width => Number, :height => Number, :exif => 'ExifData'
+  attr_accessible  :content_type, :file, :crop
+  
   before_validation_on_create :convert_file
 
-
-  include RubyLess::SafeClass
-  safe_method      :width => Number, :height => Number, :exif => 'ExifData'
-
-  attr_accessible  :content_type, :file, :crop
 
   def would_edit?(new_attrs)
     super || (new_attrs['crop'] && can_crop?(new_attrs['crop']))

@@ -450,16 +450,17 @@ class MultiVersionTest < Zena::Unit::TestCase
       should 'replace a redaction when re editing a removed version' do
         @node = secure!(Node) { nodes(:opening) }
         @node.version = versions(:opening_fr)
+        visitor.lang = 'fr'
         assert @node.remove
         assert @node.redit
-        assert_equal Zena::Status[:red], @node.version.status
+        assert_equal Zena::Status[:red], Version.find(@node.version_id).status
         assert_equal Zena::Status[:rep], versions(:opening_red_fr).status
       end
 
       should 'not see that she can remove' do
         assert !@node.can_remove?
         assert @node.remove
-        assert_equal Zena::Status[:rem], @node.version.status
+        assert_equal Zena::Status[:rem], Version.find(@node.version_id).status
       end
 
       context 'that she owns' do

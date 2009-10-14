@@ -459,6 +459,89 @@ class NodeTest < Zena::Unit::TestCase
     end
   end
 
+  context 'A visitor with drive access' do
+    setup do
+      login(:tiger)
+      @node = secure!(Node) { nodes(:wiki) }
+    end
+
+    context 'on a published node with documents' do
+
+      should 'see a published node with published documents' do
+        assert_equal Zena::Status[:pub], @node.version.status
+        assert_equal Zena::Status[:pub], versions(:bird_jpg_en).status
+        assert_equal Zena::Status[:pub], versions(:flower_jpg_en).status
+      end
+
+      should 'unpublish documents when unpublishing node' do
+        assert @node.unpublish
+        assert_equal Zena::Status[:rem], versions(:bird_jpg_en).status
+        assert_equal Zena::Status[:rem], versions(:flower_jpg_en).status
+      end
+    end
+
+    context 'on a removed node with removed documents' do
+      setup do
+        @node.unpublish
+        @node = secure!(Node) { nodes(:wiki) }
+      end
+
+      should 'see a removed node with removed documents' do
+        assert_equal Zena::Status[:rem], @node.version.status
+        assert_equal Zena::Status[:rem], versions(:bird_jpg_en).status
+        assert_equal Zena::Status[:rem], versions(:flower_jpg_en).status
+      end
+
+      should 'publish documents when publishing node' do
+        assert @node.publish
+        assert_equal Zena::Status[:pub], versions(:bird_jpg_en).status
+        assert_equal Zena::Status[:pub], versions(:flower_jpg_en).status
+      end
+    end
+
+    context 'on a redaction node with documents in redaction status' do
+      setup do
+        @node.unpublish
+        @node.redit
+        @node = secure!(Node) { nodes(:wiki) }
+      end
+
+      should 'see redactions' do
+        assert_equal Zena::Status[:red], @node.version.status
+        assert_equal Zena::Status[:red], versions(:bird_jpg_en).status
+        assert_equal Zena::Status[:red], versions(:flower_jpg_en).status
+      end
+
+      should 'propose documents when proposing node' do
+        assert @node.propose
+        assert_equal Zena::Status[:prop_with], versions(:bird_jpg_en).status
+        assert_equal Zena::Status[:prop_with], versions(:flower_jpg_en).status
+      end
+    end
+
+    context 'on a proposition with proposed documents' do
+      setup do
+        @node.unpublish
+        @node.redit
+        @node.propose
+        @node = secure!(Node) { nodes(:wiki) }
+      end
+
+      should 'see propositions' do
+        assert_equal Zena::Status[:prop], @node.version.status
+        assert_equal Zena::Status[:prop_with], versions(:bird_jpg_en).status
+        assert_equal Zena::Status[:prop_with], versions(:flower_jpg_en).status
+      end
+
+      should 'refuse documents when refusing node' do
+        assert @node.refuse
+        assert_equal Zena::Status[:red], versions(:bird_jpg_en).status
+        assert_equal Zena::Status[:red], versions(:flower_jpg_en).status
+      end
+    end
+  end
+
+
   def test_change_section_to_project
     login(:lion)
     node = secure!(Node) { nodes(:people)  }
@@ -513,91 +596,6 @@ class NodeTest < Zena::Unit::TestCase
     assert_equal nodes_id(:cleanWater), nodes(:people)[:project_id]
     assert_equal nodes_id(:people), node.get_section_id
     assert_equal nodes_id(:zena), nodes(:people)[:section_id]
-  end
-
-  def test_after_unpublish
-    print 'P'
-    # Version.connection.execute "UPDATE versions SET user_id=#{users_id(:tiger)} WHERE node_id IN (#{[:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')})"
-    # Node.connection.execute "UPDATE nodes SET user_id=#{users_id(:tiger)} WHERE id IN (#{[:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')})"
-    # login(:tiger)
-    # wiki   = secure!(Node) { nodes(:wiki)       }
-    # bird   = secure!(Node) { nodes(:bird_jpg)   }
-    # flower = secure!(Node) { nodes(:flower_jpg) }
-    # assert_equal Zena::Status[:pub], wiki.version.status
-    # assert_equal Zena::Status[:pub], bird.version.status
-    # assert_equal Zena::Status[:pub], flower.version.status
-    # assert wiki.unpublish, 'Can unpublish publication'
-    # assert_equal 10, wiki.version.status
-    # bird = secure!(Node) { nodes(:bird_jpg) }
-    # flower = secure!(Node) { nodes(:flower_jpg) }
-    # assert_equal 10, bird.version.status
-    # assert_equal 10, flower.version.status
-    # assert wiki.publish, 'Can publish'
-    # bird = secure!(Node) { nodes(:bird_jpg) }
-    # flower = secure!(Node) { nodes(:flower_jpg) }
-    # assert_equal Zena::Status[:pub], bird.version.status
-    # assert_equal Zena::Status[:pub], bird.max_status
-    # assert_equal Zena::Status[:pub], flower.version.status
-  end
-
-  def test_after_propose
-    test_site('zena')
-    node_ids = [:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')
-    # transform wiki and children into redactions for tiger
-    Version.connection.execute "UPDATE versions SET status = #{Zena::Status[:red]}, user_id=#{users_id(:tiger)} WHERE node_id IN (#{node_ids})"
-    Node.connection.execute "UPDATE nodes SET publish_from = NULL WHERE id IN (#{node_ids})"
-    login(:tiger)
-    wiki = secure!(Node) { nodes(:wiki) }
-    bird = secure!(Node) { nodes(:bird_jpg) }
-    flower = secure!(Node) { nodes(:flower_jpg) }
-    assert_equal Zena::Status[:red], wiki.version.status
-    assert_equal Zena::Status[:red], bird.version.status
-    assert_equal Zena::Status[:red], flower.version.status
-    assert_equal wiki.id, bird.parent_id
-    assert_equal wiki.id, flower.parent_id
-    assert wiki.propose, 'Can propose for publication'
-    assert_equal Zena::Status[:prop], wiki.version.status
-    bird = secure!(Node) { nodes(:bird_jpg) }
-    flower = secure!(Node) { nodes(:flower_jpg) }
-    doc = flower
-    assert_equal Zena::Status[:prop_with], bird.version.status
-    assert_equal Zena::Status[:prop_with], flower.version.status
-    assert wiki.publish
-    bird   = secure!(Node) { nodes(:bird_jpg) }
-    flower = secure!(Node) { nodes(:flower_jpg) }
-    assert_equal Zena::Status[:pub], bird.version.status
-    assert_equal Zena::Status[:pub], flower.version.status
-  end
-
-  def test_after_refuse
-    print 'P'
-    # login(:tiger)
-    # wiki = secure!(Node) { nodes(:wiki) }
-    # assert wiki.propose, 'Can propose for publication'
-    # assert_equal Zena::Status[:prop], wiki.version.status
-    # bird = secure!(Node) { nodes(:bird_jpg) }
-    # flower = secure!(Node) { nodes(:flower_jpg) }
-    # assert_equal Zena::Status[:prop_with], bird.version.status
-    # assert_equal Zena::Status[:prop_with], flower.version.status
-    # assert wiki.refuse, 'Can refuse'
-    # bird = secure!(Node) { nodes(:bird_jpg) }
-    # flower = secure!(Node) { nodes(:flower_jpg) }
-    # assert_equal Zena::Status[:red], bird.version.status
-    # assert_equal Zena::Status[:red], bird.version.status
-    # assert_equal Zena::Status[:red], bird.max_status
-    # assert_equal Zena::Status[:red], flower.version.status
-  end
-
-  def test_after_publish
-    print 'P'
-    # login(:tiger)
-    # wiki = secure!(Node) { nodes(:wiki) }
-    # assert wiki.publish, 'Can publish'
-    # assert_equal Zena::Status[:pub], wiki.version.status
-    # bird = secure!(Node) { nodes(:bird_jpg) }
-    # flower = secure!(Node) { nodes(:flower_jpg) }
-    # assert_equal Zena::Status[:pub], bird.version.status
-    # assert_equal Zena::Status[:pub], flower.version.status
   end
 
   def test_all_children
@@ -1405,24 +1403,76 @@ done: \"I am done\""
     assert_equal "Hello this is \"art\":#{nodes_zip(:art)}.", @node.parse_assets(@node.version.text, self, 'v_text')
   end
 
-  def test_attr_public
-    print 'P'
-    return
-    # This test should be merged into the future RubyLess testing and it should pass.
-    # Until then, attr_public? is using the generic classes "Version", "Content" which
-    # do not respond properly.
-
-    login(:ant)
-    ['v_puts', 'c_file', :raise, :blah, 'c_blah', 'c_system', 'system', 'v_system'].each do |k|
-      assert !Contact.attr_public?(k), "#{k} should not be readable"
+  context 'Finding safe method type' do
+    context 'for safe methods in class' do
+      should 'return method name' do
+        ['m_text', 'inherit', 'l_status', 'l_comment', 'm_text', 'inherit'].each do |k|
+          assert_equal k, Contact.safe_method_type([k])[:method]
+        end
+      end
     end
 
-    ['v_status', 'id', :c_first_name, :c_name, 'parent_id', :m_text, :inherit, :v_title, 'd_blah', 'l_status', 'l_comment', 'hot_status', 'blah_comment', 'blah_zips', 'blah_id', 'blah_ids'].each do |k|
-      assert Contact.attr_public?(k), "#{k} should be safe"
+    context 'for methods not declared as safe in the class' do
+      should 'return nil' do
+        ['puts', 'raise', 'blah', 'system', 'id'].each do |k|
+          assert_nil Contact.safe_method_type([k])
+        end
+      end
     end
+
+    context 'for relation pseudo-methods' do
+      should 'use rel and try' do
+        ['hot_status', 'blah_comment', 'blah_zips', 'blah_id', 'blah_ids'].each do |k|
+          assert_match %r{rel\[.#{k.gsub(/_.+/,'')}.\]\.try}, Contact.safe_method_type([k])[:method]
+        end
+      end
+    end
+
+    context 'for safe methods in version using nested alias' do
+      should 'return version and method name when safe' do
+        ['v_status', 'v_title'].each do |k|
+          assert_equal "version.#{k[2..-1]}", Contact.safe_method_type([k])[:method]
+        end
+      end
+
+      should 'return version and safe_read when unsafe' do
+        ['v_foo'].each do |k|
+          assert_equal "version.safe_read(\"#{k[2..-1]}\")", Contact.safe_method_type([k])[:method]
+        end
+      end
+    end
+
+    context 'for dynattributes using nested alias' do
+      should 'return dyn access' do
+        ['d_something', 'd_foo'].each do |k|
+          assert_equal "version.dyn[\"#{k[2..-1]}\"]", Contact.safe_method_type([k])[:method]
+        end
+      end
+    end
+
+    context 'for methods in content using nested alias' do
+      should 'use safe_content_read when method not declared' do
+        ['c_first_name', 'c_name', 'c_system'].each do |k|
+          assert_equal "version.safe_content_read(\"#{k[2..-1]}\")", Node.safe_method_type([k])[:method]
+        end
+      end
+
+      should 'use method name when safe' do
+        ['c_first_name', 'c_name'].each do |k|
+          assert_equal "version.content.#{k[2..-1]}", Contact.safe_method_type([k])[:method]
+        end
+      end
+    end
+  end
+
+  def test_safe_
+    ['c_file', 'c_blah', 'c_system'].each do |k|
+      assert_match %r{safe_content_read\(.#{k.gsub(/^.+_/,'')}.\)}, Contact.safe_method_type([k])[:method], "#{k} should use safe_read"
+    end
+
 
     ['c_file'].each do |k|
-      assert Image.attr_public?(k), "#{k} should be safe"
+      assert Image.safe_method_type([k]), "#{k} should be safe"
     end
   end
 
@@ -1467,7 +1517,7 @@ done: \"I am done\""
     Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 3600 WHERE id = #{sites_id(:zena)}"
     Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE node_id IN (#{nodes_id(:status)},#{nodes_id(:people)})"
     login(:tiger)
-    
+
     node = secure!(Node) { nodes(:status) }
     assert node.update_attributes(:v_title => 'simply different')
     assert_equal 'simplyDifferent', node.name

@@ -12,17 +12,14 @@ class SiteTest < Zena::Unit::TestCase
 
     assert_equal 3, admin.group_ids.size
     root = secure!(Node) { Node.find(site[:root_id]) }
+    assert_kind_of Project, root
     assert_equal Zena::Status[:pub], root.version.status
-    assert_equal Zena::Status[:pub], root.max_status
     assert_equal 'default', root.skin
 
     assert Time.now >= root.publish_from
     User.make_visitor(:host => 'super.host') # anonymous
 
-    root = secure!(Node) { Node.find(site[:root_id]) }
-    assert_kind_of Project, root
-    assert_equal 'super', root.version.title
-    assert_equal Zena::Status[:pub], root.max_status
+    assert secure!(Node) { Node.find(site[:root_id]) }
     assert_nothing_raised { Zena::Db.next_zip(site[:id]) }
 
     admin = secure!(User) { User.find(admin[:id]) }

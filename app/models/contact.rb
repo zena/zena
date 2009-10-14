@@ -1,6 +1,4 @@
 class Contact < Reference
-  include RubyLess::SafeClass
-
   safe_method :fullname => String, :initials => String
 
   class << self

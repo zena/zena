@@ -33,7 +33,6 @@ c_content_type:: file content-type
 =end
 # should be a sub-class of Node, not Page (#184). Write a migration, fix fixtures and test.
 class Document < Node
-  include RubyLess::SafeClass
   safe_method :filename => String
 
   before_validation :document_before_validation

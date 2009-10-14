@@ -592,7 +592,7 @@ module Zena
               vhash['w'][version.lang] = version.id
             when :redit
               if old_v_id = vhash['w'][version.lang]
-                if old_v_id != vhash['r'][version.lang]
+                if old_v_id != vhash['r'][version.lang] && old_v_id != version.id
                   @update_status_after_save = { old_v_id => Zena::Status[:rep] }
                 end
               end
