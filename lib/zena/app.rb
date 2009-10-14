@@ -1,6 +1,7 @@
 module Zena
   module App
     def self.included(base)
+      base.prepend_view_path SITES_ROOT
       base.class_eval do
         include Zena::Use::Authentification::ControllerMethods
         include Zena::Use::Dates::ControllerMethods

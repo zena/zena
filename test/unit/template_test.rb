@@ -25,7 +25,7 @@ class TemplateTest < Zena::Unit::TestCase
 
   def test_create_empty_name
     login(:tiger)
-    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :c_klass=>'Section') }
+    doc = secure!(Template) { Template.create(:parent_id => nodes_id(:default), :c_klass=>'Section') }
     assert !doc.new_record?, "Not a new record"
     assert_equal 'text/zafu', doc.version.content.content_type
     assert_nil doc.version.content.mode
@@ -243,11 +243,14 @@ class TemplateTest < Zena::Unit::TestCase
 
   def test_update_text
     login(:lion)
-    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'v_text'=>"hey", 'c_mode' => '', 'c_klass' => 'Contact', 'name' => '')}
-    assert_kind_of Template, doc
-    assert !doc.new_record?, "Saved"
-    assert_nil doc.version.content.mode
-    assert doc.update_attributes('v_text'=>"ho", 'c_format'=>'html', 'c_klass'=>'Node', 'c_mode' => '')
+    doc = secure!(Template) { nodes(:Project_zafu) }
+    assert doc.update_attributes('v_text'=>'DUMMY')
+    content = template_contents(:Project_zafu)
+    assert_equal 'default', content.skin_name
+    assert_equal 'Project', content.klass
+    assert_equal 'html', content.format
+    assert_nil content.mode
+    assert_equal 'NPP', content.tkpath
   end
 
   def test_default_text
@@ -317,4 +320,38 @@ class TemplateTest < Zena::Unit::TestCase
     assert_equal 2, tmpt.versions.count
     assert_not_equal '2006-04-11 00:00', tmpt.updated_at.strftime('%Y-%m-%d %H:%M')
   end
+
+  context 'A visitor with drive access' do
+    setup do
+      login(:lion)
+    end
+
+    context 'on a template with a removed version' do
+      setup do
+        @node = secure(Node) { nodes(:Project_zafu) }
+        @node.update_attributes('v_text' => 'fuzy')
+        @node.remove
+      end
+
+      should 'be able to destroy version' do
+        assert_difference('Version.count', -1) do
+          assert @node.destroy_version
+        end
+      end
+    end
+
+    context 'on a template with a redaction' do
+      setup do
+        @node = secure(Node) { nodes(:Project_zafu) }
+        @node.update_attributes('v_text' => 'fuzy')
+        @node = secure(Node) { nodes(:Project_zafu) }
+      end
+
+      should 'see the redaction when rendering zafu' do
+
+      end
+    end
+
+  end
+
 end

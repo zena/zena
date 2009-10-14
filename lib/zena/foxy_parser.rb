@@ -147,7 +147,7 @@ module Zena
     end
 
     private
-      def parse_fixtures
+      def get_content(site, table)
         fixtures_paths  = {'zena' => File.join("#{Zena::ROOT}/test/sites",site,"#{table}.yml")}
         fixtures_bricks = ['zena']
         Bricks::Patcher.foreach_brick do |brick_path|
@@ -168,10 +168,12 @@ module Zena
           content << File.read(fixtures_path)
         end
 
-        return if content == []
+        return nil if content == []
+        content.join("\n") + "\n"
+      end
 
-
-        content = content.join("\n") + "\n"
+      def parse_fixtures
+        return unless get_content(site, table)
 
         # build simple hash to set/get defaults and other special values
         @elements[site] = elements = YAML::load(content.gsub(/<%.*?%>/m,''))
@@ -674,6 +676,7 @@ module Zena
 
     def initialize(table_name, opts = {})
       super
+      @raw_nodes = YAML::load(get_content(site, 'nodes').gsub(/<%.*?%>/m,''))
       @versions = {}
     end
 
@@ -685,10 +688,11 @@ module Zena
         elements.each do |k,v|
           # set status
           v['status'] = Zena::Status[v['status'].to_sym]
-          %W{title summary text comment}.each do |txt_field|
+          %W{summary text comment}.each do |txt_field|
             v[txt_field] ||= ''
           end
 
+          v['title'] ||= @raw_nodes[v['node']]['name']
           node_versions = site_versions[v['node']] ||= []
           node_versions << v
         end

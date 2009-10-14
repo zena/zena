@@ -12,7 +12,7 @@ module Zena
           doc, url = *res
           # TODO: could we use this for caching or will we loose dynamic context based loading ?
           self.expire_with_nodes[url] = doc
-          text = session[:dev] ? doc.version.text : doc.version(true).text
+          text = dev_mode? ? doc.version.text : doc.version(true).text
           return text, url, doc
         end
 
@@ -90,7 +90,7 @@ module Zena
           end
 
           template_url = template_url[1..-1].split('/')
-          path = "/#{template_url[0]}/#{template_url[1]}/#{session[:dev] ? "dev_#{lang}" : lang}/#{template_url[2..-1].join('/')}"
+          path = "/#{template_url[0]}/#{template_url[1]}/#{dev_mode? ? "dev_#{lang}" : lang}/#{template_url[2..-1].join('/')}"
 
           "#{SITES_ROOT}/#{current_site.host}/zafu#{path}"
         end
@@ -175,6 +175,7 @@ module Zena
 
         def self.included(base)
           base.send(:helper_attr, :skin_names, :expire_with_nodes, :renamed_assets)
+          base.send(:helper_method, :dev_mode?)
           base.send(:attr_accessor, :skin_names, :expire_with_nodes, :renamed_assets)
         end
 
@@ -212,17 +213,18 @@ module Zena
           # FIXME use a default fixed template.
           raise ActiveRecord::RecordNotFound unless template
 
-          lang_path = session[:dev] ? "dev_#{lang}" : lang
+          lang_path = dev_mode? ? "dev_#{lang}" : lang
 
           skin_path = "/#{@skin_name}/#{template[:name]}"
           fullpath  = skin_path + "/#{lang_path}/_main.erb"
-          url       = SITES_ROOT + current_site.zafu_path + fullpath  # absolute path
+          rel_path  = current_site.zafu_path + fullpath
+          path      = SITES_ROOT + rel_path
 
-          if !File.exists?(url) || params[:rebuild]
+          if !File.exists?(path) || params[:rebuild]
             # no template ---> render
             # clear :
             # TODO: we should remove info in cached_page for _main
-            FileUtils::rmtree(File.dirname(url))
+            FileUtils::rmtree(File.dirname(path))
 
             # set the places to search for the included templates
             # FIXME: there might be a better way to do this. In a hurry, fix later.
@@ -237,14 +239,14 @@ module Zena
             self.expire_with_nodes = {}
             self.renamed_assets    = {}
 
-            res = ZafuParser.new_with_url(skin_path, :helper => zafu_helper).render(:dev => session[:dev])
+            res = ZafuParser.new_with_url(skin_path, :helper => zafu_helper).render(:dev => dev_mode?)
 
             unless valid_template?(res, opts)
               # problem during rendering, use default zafu
-              res = ZafuParser.new(default_zafu_template(mode), :helper => zafu_helper).render(:dev => session[:dev])
+              res = ZafuParser.new(default_zafu_template(mode), :helper => zafu_helper).render(:dev => dev_mode?)
             end
 
-            if session[:dev] && mode != '+popupLayout'
+            if dev_mode? && mode != '+popupLayout'
               # add template edit buttons
               used_nodes  = []
               zafu_nodes  = []
@@ -281,18 +283,22 @@ module Zena
               dev_box << "      <li><a href='/users/#{visitor[:id]}/swap_dev'>#{_('turn dev off')}</a></li>\n"
               dev_box << "      <li>skins used: #{skin_names.join(', ')}</li>\n"
               dev_box << "    </ul>\n  </li>\n</ul></div>"
-              res.sub!('</body>', "#{dev_box}</body>")
+              if res =~ /<\/body>/
+                res.sub!('</body>', "#{dev_box}</body>")
+              else
+                res << dev_box
+              end
             end
 
             secure!(CachedPage) { CachedPage.create(
-              :path            => (current_site.zafu_path + fullpath),
+              :path            => rel_path,
               :expire_after    => nil,
               :expire_with_ids => self.expire_with_nodes.values.map{|n| n[:id]},
               :node_id         => template[:id],
               :content_data    => res) }
           end
 
-          return url
+          return rel_path
         end
 
         def zafu_helper
@@ -305,6 +311,9 @@ module Zena
           end
         end
 
+        def dev_mode?
+          session[:dev]
+        end
       end # ControllerMethods
 
       module ViewMethods

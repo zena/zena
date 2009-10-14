@@ -30,7 +30,6 @@ class Template < TextDocument
   private
 
     def rewrite_klass_mode_format
-      content = redaction.redaction_content
 
       # only set name from version title on creation
       if name_changed?
@@ -41,34 +40,40 @@ class Template < TextDocument
         new_name = nil
       end
 
-      if new_name && new_name =~ /^([A-Z][a-zA-Z]+?)(-(([a-zA-Z_\+]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/
-        content.klass  = $1 unless content.klass_changed?
-        content.mode   = $4 unless content.mode_changed?
-        content.format = ($6 || 'html') unless content.format_changed?
-      elsif new_name && !content.klass_changed?
-        # name set but it is not a master template name
-        content.klass = nil
+      if new_name && !new_name.blank?
+        if new_name =~ /^([A-Z][a-zA-Z]+?)(-(([a-zA-Z_\+]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/
+          # name/title changed force template_content update
+          content = redaction.redaction_content
+          content.klass  = $1                   unless content.klass_changed?
+          content.mode   = ($4 || '').url_name  unless content.mode_changed?
+          content.format = ($6 || 'html')       unless content.format_changed?
+        else
+          # name set but it is not a master template name
+          content = redaction.redaction_content
+          content.klass  = nil
+          content.mode   = nil
+          content.format = nil
+          if new_name =~ /(.*)\.zafu$/
+            self.name = $1
+          end
+        end
       end
-    end
 
-    # Overwrite document behaviour.
-    def document_before_validation
-      rewrite_klass_mode_format
-      content = version.content
+      if version.content.changed?
+        content = version.content
+        content.mode = content.mode.url_name if content.mode
 
-      content.mode = content.mode.url_name if content.mode
+        if content.klass
+          # update name
+          content.format = 'html' if content.format.blank?
+          self[:name] = name_from_content(:format => content.format, :mode => content.mode, :klass => content.klass)
+          version.title = self[:name]
 
-      if content.klass
-        # update name
-        content.format = 'html' if content.format.blank?
-        self[:name] = name_from_content(:format => content.format, :mode => content.mode, :klass => content.klass)
-        version.title = self[:name]
+          if version.text.blank? && content.format == 'html' && content.mode != '+edit'
+            # set a default text
 
-        if version.text.blank? && content.format == 'html' && content.mode != '+edit'
-          # set a default text
-
-          if content.klass == 'Node'
-            version.text = <<END_TXT
+            if content.klass == 'Node'
+              version.text = <<END_TXT
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="en" set_lang='[v_lang]' xml:lang='en'>
@@ -85,16 +90,24 @@ class Template < TextDocument
   <r:uses_datebox/>
 </head>
 <body>
+
+
+
 </body>
 </html>
 END_TXT
-          else
-            version.text = "<r:include template='Node'/>\n"
+            else
+              version.text = "<r:include template='Node'/>\n"
+            end
           end
         end
-      elsif self.name =~ /(.*)\.zafu$/
-        self.name = $1
       end
+    end
+
+    # Overwrite document behaviour.
+    def document_before_validation
+      rewrite_klass_mode_format
+      content = version.content
     end
 
     def valid_section
