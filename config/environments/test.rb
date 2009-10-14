@@ -12,6 +12,9 @@ config.whiny_nils = true
 # Show full error reports and disable caching
 config.action_controller.consider_all_requests_local = true
 config.action_controller.perform_caching             = false
+# If we cache_template_loading, the EagerPath loader will glob *ALL* content
+# in sites directory and try to use it as a template !!!
+config.action_view.cache_template_loading            = false
 
 # Tell ActionMailer not to deliver emails to the real world.
 # The :test delivery method accumulates sent emails in the

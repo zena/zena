@@ -175,7 +175,7 @@ module Zena
 
         def self.included(base)
           base.send(:helper_attr, :skin_names, :expire_with_nodes, :renamed_assets)
-          base.send(:helper_method, :dev_mode?)
+          base.send(:helper_method, :dev_mode?) if base.respond_to?(:helper_method)
           base.send(:attr_accessor, :skin_names, :expire_with_nodes, :renamed_assets)
         end
 
@@ -235,7 +235,6 @@ module Zena
               next if s.name == @skin_name # do not add it twice
               skin_names << s.name
             end
-            @skin_link  = zen_path(@skin[@skin_name]) # used to link from <r:design/> zafu tag
             self.expire_with_nodes = {}
             self.renamed_assets    = {}
 

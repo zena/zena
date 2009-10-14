@@ -474,7 +474,7 @@ module Zena
         # Actions that appear on the web page
         def node_actions(opts={})
           actions = (opts[:actions] || 'all').to_s
-          actions = 'edit,propose,publish,refuse,drive' if actions == 'all'
+          actions = 'edit,propose,refuse,publish,drive' if actions == 'all'
 
           node = opts[:node] || @node
           return '' if node.new_record?

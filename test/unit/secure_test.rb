@@ -750,7 +750,9 @@ class SecureTest < Zena::Unit::TestCase
     context 'with secure' do
       should 'only return versions where visitor can read or write' do
         versions = secure(Version) { Version.find(:all, :conditions => "title like 's%'")}
-        assert_equal 4, versions.count
+        # not ["Stranger in the night", "Secret"]
+        assert_equal ["super ouverture", "Skins (layout themes)", "status title", "style", "Solenopsis Invicta"],
+                     versions.map{|v| v.title}
       end
     end
 
@@ -758,7 +760,9 @@ class SecureTest < Zena::Unit::TestCase
       should 'only return versions where visitor can write' do
         Node.connection.execute "UPDATE nodes SET wgroup_id = #{groups_id(:admin)} WHERE id = #{nodes_id(:status)}"
         versions = secure_write(Version) { Version.find(:all, :conditions => "title like 's%'")}
-        assert_equal 3, versions.size
+        # not ["Stranger in the night", "Secret", "status title"]
+        assert_equal ["super ouverture", "Skins (layout themes)", "style", "Solenopsis Invicta"],
+                     versions.map{|v| v.title}
       end
     end
 

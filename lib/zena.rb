@@ -23,7 +23,7 @@ UPLOAD_KEY     = defined?(Mongrel) ? 'upload_id' : "X-Progress-ID"
 require 'bricks/patcher'
 
 module Zena
-  VERSION = '0.14.1'
+  VERSION = '0.15.0'
   REVISION = 1336
   ROOT    = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 
