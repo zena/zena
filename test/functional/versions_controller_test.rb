@@ -55,7 +55,7 @@ class VersionsControllerTest < Zena::Controller::TestCase
 
   def test_can_edit
     # make :anon a user (so she can access the versions)
-    Participation.connection.execute "UPDATE participations SET status = #{User::Status[:user]} WHERE user_id = #{users_id(:anon)} AND site_id = #{sites_id(:zena)}"
+    User.connection.execute "UPDATE users SET status = #{User::Status[:user]} WHERE id = #{users_id(:anon)}"
     login(:anon)
     get 'edit', version_hash(:wiki_en)
     assert_response :success

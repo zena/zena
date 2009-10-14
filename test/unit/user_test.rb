@@ -42,9 +42,10 @@ class UserTest < Zena::Unit::TestCase
   end
 
   def test_create
-    login(:whale)
-    User.connection.execute "UPDATE participations SET lang='ru' WHERE user_id=#{users_id(:incognito)}"
+    User.connection.execute "UPDATE users SET lang='ru' WHERE id IN (#{users_id(:incognito)},#{users_id(:whale)})"
+    User.connection.execute "UPDATE sites SET languages='fr,ru' WHERE id=#{sites_id(:ocean)}"
     User.connection.execute "UPDATE users SET time_zone='US/Hawaii' WHERE id=#{users_id(:incognito)}"
+    login(:whale)
 
     user = secure!(User) { User.create("login"=>"john", "password"=>"isjjna78a9h") }
 
@@ -52,7 +53,7 @@ class UserTest < Zena::Unit::TestCase
     assert !user.contact.new_record?, "Users's contact node is not a new record"
 
     user = secure!(User) { User.find(user[:id]) } # reload
-    assert user.sites.include?(sites(:ocean))
+    assert_equal sites_id(:ocean), user.site_id
     assert_equal 2, user.groups.size
     assert user.groups.include?(groups(:public)), "Is in the public group"
     assert user.groups.include?(groups(:aqua)), "Is in the 'site' group"
@@ -64,7 +65,6 @@ class UserTest < Zena::Unit::TestCase
 
     contact = user.contact
     assert_equal "john", contact.version.title
-    assert_equal user[:id], contact.user_id
   end
 
   def test_only_admin_can_create
@@ -163,7 +163,7 @@ class UserTest < Zena::Unit::TestCase
 
   def test_cannot_login_if_deleted
     assert User.login('ant', 'ant', 'test.host')
-    User.connection.execute("UPDATE participations SET status=#{User::Status[:deleted]} WHERE user_id=#{users_id(:ant)}")
+    User.connection.execute("UPDATE users SET status=#{User::Status[:deleted]} WHERE id=#{users_id(:ant)}")
     assert !User.login('ant', 'ant', 'test.host')
   end
 
@@ -224,13 +224,6 @@ class UserTest < Zena::Unit::TestCase
     assert_nil to_publish
   end
 
-  def test_site_participation
-    login(:tiger)
-    ant = secure!(User) { users(:ant) }
-    assert_equal participations_id(:ant), ant.site_participation[:id]
-    assert_equal 50, ant.status
-  end
-
   def test_is_admin
     login(:ant)
     user = secure!(User) { users(:lion) }
@@ -243,32 +236,6 @@ class UserTest < Zena::Unit::TestCase
     assert_equal [groups_id(:managers), groups_id(:public), groups_id(:workers)], user.group_ids
     user = secure!(User) { users(:lion) }
     assert_equal [groups_id(:admin), groups_id(:managers), groups_id(:public), groups_id(:workers)], user.group_ids
-  end
-
-  def test_add_to_site
-    login(:lion)
-    user = secure!(User) { User.new(:login=>'joe', :password=>'secret', :site_ids=>['1','2'])}
-    assert !user.save
-    assert user.errors[:site] #.any?
-
-    # make lion a user of ocean
-    Group.connection.execute "INSERT INTO participations (site_id, user_id, status, lang) VALUES (#{sites_id(:ocean)}, #{users_id(:lion)}, 50, 'en')"
-    login(:lion)
-    user = secure!(User) { User.new(:login=>'joe', :password=>'secret', :site_ids=>[sites_id(:zena),sites_id(:ocean)])}
-    assert !user.save
-    assert user.errors[:site] #.any?
-
-    # make lion an admin in ocean
-    Participation.connection.execute "UPDATE participations SET status = #{User::Status[:admin]} WHERE site_id = #{sites_id(:ocean)} AND user_id=#{users_id(:lion)}"
-
-    login(:lion)
-    user = secure!(User) { User.new(:login=>'joe', :password=>'secret', :site_ids=>[sites_id(:zena),sites_id(:ocean)])}
-
-    assert user.send(:visitor).is_admin?
-    assert user.save
-
-    assert user.sites.find(sites_id(:zena))
-    assert user.sites.find(sites_id(:ocean))
   end
 
   def test_status_name
@@ -297,7 +264,7 @@ class UserTest < Zena::Unit::TestCase
 
   def test_new_defaults
     login(:lion)
-    User.connection.execute "UPDATE participations SET lang='fr' WHERE user_id = #{users_id(:anon)}"
+    User.connection.execute "UPDATE users SET lang='fr' WHERE id = #{users_id(:anon)}"
     User.connection.execute "UPDATE users SET time_zone = 'Europe/Berlin' WHERE id = #{users_id(:anon)}"
 
     user = secure!(User) { User.create("login"=>"john", "password"=>"isjjna78a9h") }

@@ -1,17 +1,22 @@
 DEFAULTS:
   created_at:      2006-04-11
   updated_at:      2006-04-11
+  lang:            en
 
 anon:
   first_name:      Anonymous
   name:            User
   groups:          public
+  status:          moderated
+  contact:         anonymous
 
 su:
   login:           su
   password:        <%= User.hash_password('su') %>
   first_name:      Super
   name:            User
+  status:          su
+  contact:         anonymous
 
 ant:
   first_name:      Solenopsis
@@ -21,6 +26,8 @@ ant:
   password:        <%= User.hash_password('ant') %>
   time_zone:       Europe/Zurich
   groups:          public, workers
+  status:          user
+  lang:            fr
 
 tiger:
   first_name:      Panther
@@ -29,6 +36,7 @@ tiger:
   login:           tiger
   password:        <%= User.hash_password('tiger') %>
   groups:          public, workers, managers
+  status:          user
 
 lion:
   first_name:      Panthera
@@ -37,3 +45,4 @@ lion:
   login:           lion
   password:        <%= User.hash_password('lion') %>
   groups:          public, workers, admin
+  status:          admin

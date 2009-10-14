@@ -22,8 +22,7 @@ class Site < ActiveRecord::Base
   attr_accessible :dyn_attributes, :name, :languages, :default_lang, :authentication, :http_auth, :auto_publish, :redit_time
   has_many :groups, :order => "name"
   has_many :nodes
-  has_many :participations, :dependent => :destroy
-  has_many :users, :through => :participations
+  has_many :users
 
   include Zena::Use::DynAttributes::ModelMethods
   dynamic_attributes_setup :table_name => 'site_attributes', :nested_alias => {%r{^d_(\w+)} => ['dyn']}
@@ -67,8 +66,10 @@ class Site < ActiveRecord::Base
       # =========== CREATE Super User ===========================
       # create su user
       su = User.new_no_defaults( :login => host, :password => su_password,
-        :first_name => "Super", :name => "User")
+        :first_name => "Super", :name => "User", :lang => site.default_lang, :status => User::Status[:su])
       su.site = site
+
+      Thread.current.visitor = su
 
       unless su.save
         # rollback
@@ -84,12 +85,6 @@ class Site < ActiveRecord::Base
         end
       end
 
-      class << su
-        # until participation is created
-        def lang; site.default_lang; end
-      end
-
-      Thread.current.visitor = su
 
       # =========== CREATE PUBLIC, ADMIN, SITE GROUPS ===========
       # create public group
@@ -112,14 +107,14 @@ class Site < ActiveRecord::Base
       # create anon user
       # FIXME: make sure user_id = admin user
       anon = site.send(:secure,User) { User.new_no_defaults( :login => nil, :password => nil,
-        :first_name => "Anonymous", :name => "User") }
+        :first_name => "Anonymous", :name => "User", :lang => site.default_lang, :status => User::Status[:moderated]) }
       anon.site = site
       raise Exception.new("Could not create anonymous user for site [#{host}] (site#{site[:id]})\n#{anon.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless anon.save
       site[:anon_id] = anon[:id]
 
       # create admin user
       admin_user = site.send(:secure,User) { User.new_no_defaults( :login => 'admin', :password => su_password,
-        :first_name => "Admin", :name => "User") }
+        :first_name => "Admin", :name => "User", :lang => site.default_lang, :status => User::Status[:admin]) }
       admin_user.site = site
       raise Exception.new("Could not create admin user for site [#{host}] (site#{site[:id]})\n#{admin_user.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless admin_user.save
       class << admin_user
@@ -151,9 +146,10 @@ class Site < ActiveRecord::Base
       # save site definition
       raise Exception.new("Could not save site definition for site [#{host}] (site#{site[:id]})\n#{site.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless site.save
 
-      # =========== CREATE PARTICIPATIONS FOR USERS ==============
-      [[su, :su], [anon, :moderated], [admin_user, :admin]].each do |user,status|
-        raise Exception.new("Could not create participation to site #{site[:id]} for user #{user[:id]} (#{status})") unless Participation.new( :user => user, :site => site, :status => User::Status[status], :lang=>site.default_lang).save
+      # =========== CREATE CONTACT PAGES ==============
+      [su, admin_user, anon].each do |user|
+        user.send(:create_contact)
+        user.save
       end
 
       # =========== LOAD INITIAL DATA (default skin) =============

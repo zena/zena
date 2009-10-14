@@ -202,7 +202,7 @@ class NavigationTest < ActionController::IntegrationTest
     assert_equal 'fr', session[:lang]
 
     # update visitor lang (as if changed through preferences)
-    User.connection.execute "UPDATE participations SET lang = 'en' WHERE user_id = #{users_id(:ant)} and site_id = #{sites_id(:zena)}"
+    User.connection.execute "UPDATE users SET lang = 'en' WHERE id = #{users_id(:ant)} and site_id = #{sites_id(:zena)}"
     get 'http://test.host/oo'
     assert_equal 'en', session[:lang]
 

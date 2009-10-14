@@ -2,14 +2,19 @@ DEFAULTS:
   created_at:      2003-02-01
   updated_at:      2003-02-01
   time_zone:       Europe/Zurich
+  lang:            fr
 
 complex_anon:
   first_name:      Anonymous
   name:            User
+  status:          moderated
+  contact:         anonymous
 
 complex_admin:
   login:           admin
   first_name:      admin
   password:        <%= User.hash_password('admin') %>
+  status:          admin
+  contact:         admin
 
 

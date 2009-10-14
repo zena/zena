@@ -178,7 +178,7 @@ module Zena
           session[:lang] = l
 
           if visitor.lang != l && !visitor.is_anon?
-            visitor.site_participation.update_attribute('lang', l)
+            visitor.update_attribute('lang', l)
           else
             visitor.lang = l
           end

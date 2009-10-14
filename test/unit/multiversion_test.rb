@@ -113,7 +113,35 @@ class MultiVersionTest < Zena::Unit::TestCase
     end # A visitor with write access in a language not supported
   end # A visitor with write access
 
+  context 'A moderated visitor in write group' do
+    setup do
+      login(:ant)
+      visitor.status = User::Status[:moderated]
+    end
+    
+    context 'on an unpublished node' do
+      setup do
+        @node = secure!(Node) { nodes(:nature) }
+      end
 
+      should 'see the redaction' do
+        assert_equal versions_id(:nature_red_en), @node.version.id
+      end
+    end
+    
+    context 'on a published node with a redaction' do
+      setup do
+        visitor.lang = 'fr'
+        @node = secure(Node) { nodes(:opening) }
+      end
+
+      should 'see a redaction' do
+        assert_equal versions_id(:opening_red_fr), @node.version.id
+      end
+    end
+    
+    
+  end
   # =========== UPDATE VERSION TESTS =============
 
   context 'A visitor with write access' do

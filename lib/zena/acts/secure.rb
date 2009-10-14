@@ -156,6 +156,10 @@ Just doing the above will filter all result according to the logged in user.
           ( ugps.include?(wgroup_id) && visitor.user?)  # write group
         end
 
+        def can_see_redactions?(ugps = visitor.group_ids)
+          visitor.group_ids.include?(wgroup_id)
+        end
+
         # The node has just been created so the creator can still delete it
         # or move it around.
         def draft?(vis=visitor)
@@ -587,11 +591,6 @@ Just doing the above will filter all result according to the logged in user.
           find = scope[:find] ||= {}
           if klass.ancestors.include?(Zena::Acts::SecureNode::InstanceMethods)
             find[:conditions] = node_find_scope
-          elsif klass.ancestors.include?(User)
-            ptbl = Participation.table_name
-            find[:joins] = "INNER JOIN #{ptbl} ON #{klass.table_name}.id = #{ptbl}.user_id AND #{ptbl}.site_id = #{visitor.site[:id]}"
-            find[:readonly]   = false
-            find[:select]     = "#{User.table_name}.*"
           elsif klass.ancestors.include?(Version)
             ntbl = Node.table_name
             find[:joins] = "INNER JOIN #{ntbl} ON #{klass.table_name}.node_id = #{ntbl}.id"
@@ -606,10 +605,7 @@ Just doing the above will filter all result according to the logged in user.
           elsif klass.column_names.include?('site_id')
             find[:conditions] = "#{klass.table_name}.site_id = #{visitor.site[:id]}"
           elsif klass.ancestors.include?(Site)
-            ptbl = Participation.table_name
-            find[:joins] = "INNER JOIN #{ptbl} ON #{klass.table_name}.id = #{ptbl}.site_id AND #{ptbl}.user_id = #{visitor[:id]}"
-            find[:readonly]   = false
-            find[:select]     = "#{Site.table_name}.*"
+            find[:conditions] = "#{klass.table_name}.id = #{visitor.site[:id]}"
           end
 
           # FIXME: 'with_scope' is protected now. Can we live with something cleaner like this ?

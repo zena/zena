@@ -377,7 +377,7 @@ class NodeTest < Zena::Unit::TestCase
   def test_author
     login(:tiger)
     node = secure!(Node) { nodes(:cleanWater) }
-    assert_equal node.user.site_participation[:contact_id], node.author[:id]
+    assert_equal node.user.contact_id, node.author[:id]
     assert_equal 'Panther Tigris Sumatran', node.author.fullname
     login(:anon)
     node = secure!(Node) { nodes(:status) }

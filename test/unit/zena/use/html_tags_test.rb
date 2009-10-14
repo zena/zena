@@ -142,7 +142,7 @@ class HtmlTagsTest < Zena::View::TestCase
   end
 
   def test_node_actions_wiki_public
-    Participation.connection.execute "UPDATE participations SET status = #{User::Status[:user]} WHERE site_id = #{sites_id(:zena)} AND user_id=#{users_id(:anon)}"
+    User.connection.execute "UPDATE users SET status = #{User::Status[:user]} WHERE id = #{users_id(:anon)}"
     login(:anon)
     @node = secure!(Node) { nodes(:wiki) }
     assert @node.can_edit?, "Node can be edited by the public"

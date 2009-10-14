@@ -13,8 +13,8 @@ module Zena
           @visitor = User.make_visitor(:user => name.to_s, :pass => name.to_s, :host => sites_host(site_name))
         else
           # find first matching site
-          site = Site.find(:first, :select=>"sites.*, sites.name = '#{site_name}' AS site_ok", :from => "sites, participations",
-                         :conditions=>["participations.site_id = sites.id AND participations.user_id = ?", users_id(name)], :order => "site_ok DESC")
+          site = Site.find(:first, :select=>"sites.*, sites.name = '#{site_name}' AS site_ok", :from => "sites, users",
+                         :conditions=>["users.site_id = sites.id AND users.id = ?", users_id(name)], :order => "site_ok DESC")
           @visitor = User.make_visitor(:site => site, :id => users_id(name))
         end
 

@@ -65,8 +65,8 @@ class Group < ActiveRecord::Base
   end
 
   def active_users
-    User.find(:all, :conditions => "groups_users.group_id = #{self[:id]} AND participations.status > #{User::Status[:deleted]}",
-                    :joins => "INNER JOIN groups_users ON users.id = groups_users.user_id INNER JOIN participations ON participations.user_id = users.id")
+    User.find(:all, :conditions => ['groups_users.group_id = ? AND status > ?', self.id, User::Status[:deleted]],
+                    :joins => 'INNER JOIN groups_users ON users.id = groups_users.user_id')
   end
 
   # Replace all uses of the group (rgroup_id, wgroup_id, dgroup_id) by another group.
@@ -115,8 +115,7 @@ class Group < ActiveRecord::Base
         self.users    = []
         visitor_added = false
         @defined_user_ids.each do |id|
-          user = secure(User) { User.find(:first, :conditions => ["users.id = ?", id]) }
-          unless user && user.site_ids.include?(self[:site_id])
+          unless user = secure(User) { User.find(:first, :conditions => ['users.id = ?', id]) }
             errors.add('user', 'not found')
             next
           end

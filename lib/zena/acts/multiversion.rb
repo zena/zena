@@ -207,7 +207,7 @@ module Zena
         end
 
         def version_id(force_pub = false)
-          access = (!force_pub && can_write?) ? vhash['w'] : vhash['r']
+          access = (!force_pub && can_see_redactions?) ? vhash['w'] : vhash['r']
           access[visitor.lang] || access[ref_lang] || access.values.first
         end
 
@@ -215,15 +215,6 @@ module Zena
         def can_edit?(lang=nil)
           # Has the visitor write access to the node & node is not a proposition ?
           can_write? && !(Zena::Status[:prop]..Zena::Status[:prop_with]).include?(version.status)
-
-            # It can be only one readation per lang.
-              # v = versions.find(:first, :select => 'id', :conditions=>["status > #{Zena::Status[:pub]} AND status < #{Zena::Status[:red]} AND lang=?", lang])
-              # v == nil
-            #
-              # can we create a new redaction in the current context ?
-              # there can only be one redaction/proposition per lang per node. Only the owner of the red can edit
-              # v = versions.find(:first, :select => 'id,status,user_id', :conditions=>["status > #{Zena::Status[:pub]} AND status < #{Zena::Status[:red]} AND lang=?", visitor.lang])
-              # v == nil || (v.status == Zena::Status[:red] && v.user_id == visitor[:id])
         end
 
         def can_update?

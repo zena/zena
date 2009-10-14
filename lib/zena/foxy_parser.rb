@@ -353,6 +353,14 @@ module Zena
             v['groups'] = groups.split(',').map {|g| "#{site}_#{g.strip}"}.join(', ')
             v[:header_keys] << 'groups'
           end
+
+          v[:header_keys] << 'contact'
+          v['contact'] ||= k
+
+          if v['status']
+            v[:header_keys] << 'status'
+            v['status'] = User::Status[v['status'].to_sym]
+          end
         end
       end
   end
@@ -830,24 +838,6 @@ module Zena
           if v['reply_to']
             v[:header_keys] << 'reply_to'
             v['reply_to'] =  Zena::FoxyParser::id(site, v['reply_to'])
-          end
-        end
-      end
-  end
-
-  class FoxyParticipationsParser < FoxyParser
-    private
-      def set_defaults
-        super
-        elements.each do |name,part|
-          if !part['user'] && !part['site']
-            part['user'], part['site'] = name.split('_in_')
-            part['site'] ||= site
-          end
-          part['contact'] ||= part['user']
-          if part['status']
-            part[:header_keys] << 'status'
-            part['status'] = User::Status[part['status'].to_sym]
           end
         end
       end

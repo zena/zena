@@ -28,21 +28,27 @@ class User < ActiveRecord::Base
   zafu_context            :contact => "Contact"
   attr_accessible         :login, :password, :lang, :first_name, :name, :email, :time_zone, :status, :group_ids, :site_ids
   attr_accessor           :visited_node_ids
-  attr_accessor           :site, :ip
+  attr_accessor           :ip
+
+  belongs_to              :site
+  belongs_to              :contact, :dependent => :destroy
   has_and_belongs_to_many :groups
   has_many                :nodes
   has_many                :versions
-  has_many                :participations, :dependent => :destroy
-  has_many                :sites, :through => :participations
+
   before_validation       :user_before_validation
-  validate                :valid_sites
   validate                :valid_groups
-
   validate                :valid_user
-
-  after_save              :update_participations
+  validates_uniqueness_of :login, :scope => :site_id
 
   before_destroy          :dont_destroy_protected_users
+  validates_presence_of   :site_id
+  before_create           :create_contact
+
+  def contact_with_secure
+    @contact ||= secure(Contact) { contact_without_secure }
+  end
+  alias_method_chain :contact, :secure
 
   Status = {
     :su          => 80,
@@ -61,19 +67,6 @@ class User < ActiveRecord::Base
     def login(login, password, host)
       make_visitor :login => login, :password => password, :host => host
     end
-
-    # Needs proper testing
-    # def translate_pseudo_id(id,sym=:id)
-    #   str = id.to_s
-    #   if str =~ /\A\d+\Z/
-    #     # id
-    #     Zena::Db.fetch_row( "SELECT users.#{sym} FROM users INNER JOIN participations ON users.id = participations.user_id AND participations.site_id = #{current_site[:id]} WHERE id = '#{str}'")
-    #   elsif str =~ /\A([a-zA-Z ]+)(\+*)\Z/
-    #     Zena::Db.fetch_row( "SELECT users.#{sym} FROM users INNER JOIN participations ON users.id = participations.user_id AND participations.site_id = #{current_site[:id]} WHERE login LIKE #{self.connection.quote("#{$1}%")} LIMIT #{$2.size}, 1")
-    #   else
-    #     nil
-    #   end
-    # end
 
     # Return the logged in visitor from the session[:user] or the anonymous user if id is nil or does not match
     def make_visitor(opts)
@@ -137,14 +130,6 @@ class User < ActiveRecord::Base
     end
   end
 
-  def contact
-    site_participation.contact
-  end
-
-  def contact_id
-    site_participation.contact_id
-  end
-
   # Each time a node is found using secure (Zena::Acts::Secure or Zena::Acts::SecureNode), this method is
   # called to set the visitor in the found object. This is also used to keep track of the opened nodes
   # when rendering a page for the cache so we can know when to expire the cache.
@@ -194,33 +179,8 @@ class User < ActiveRecord::Base
     self[:password] == User.hash_password(str)
   end
 
-  def lang=(l)
-    if current_site.lang_list.include?(l)
-      @defined_lang = l
-    else
-      errors.add('lang', 'not available in this site')
-    end
-  end
-
-  def lang
-    @defined_lang || (new_record? ? visitor.lang : site_participation.lang)
-  end
-
-  # TODO: test
-  def site_participation
-    @site_participation ||= participations.find_by_site_id(current_site[:id])
-  end
-
-  def status
-    @defined_status || site_participation.status.to_i
-  end
-
   def status_name
     Num_to_status[status].to_s
-  end
-
-  def status=(v)
-    @defined_status = v if v.to_i < User::Status[:su]
   end
 
   # Return true if the user is in the admin group or if the user is the super user.
@@ -283,16 +243,6 @@ class User < ActiveRecord::Base
     @defined_group_ids = list
   end
 
-  def site_ids
-    return @defined_site_ids || [] if new_record?
-    @defined_site_ids || (@site_ids ||= sites.map {|r| r[:id]})
-  end
-
-  # Change the sites a user has access to.
-  def site_ids=(list)
-    @defined_site_ids = list
-  end
-
   def time_zone=(tz)
     self[:time_zone] = tz.blank? ? nil : tz
     @tz = nil
@@ -337,21 +287,53 @@ class User < ActiveRecord::Base
   end
 
   private
+    def create_contact
+      return unless visitor.site[:root_id] # do not try to create a contact if the root node is not created yet
+
+      @contact = secure!(Contact) { Contact.new(
+        # owner is the user except for anonymous and super user.
+        # TODO: not sure this is a good idea...
+        :user_id       => (self[:id] == current_site[:anon_id] || self[:id] == current_site[:su_id]) ? visitor[:id] : self[:id],
+        :v_title       => (name.blank? || first_name.blank?) ? login : fullname,
+        :c_first_name  => first_name,
+        :c_name        => (name || login ),
+        :c_email       => email,
+        :v_status      => Zena::Status[:pub]
+      )}
+      @contact[:parent_id] = current_site[:root_id]
+
+      unless @contact.save
+        # What do we do with this error ?
+        raise Zena::InvalidRecord, "Could not create contact node for user #{self.id} in site #{site_id} (#{@contact.errors.map{|k,v| [k,v]}.join(', ')})"
+      end
+
+      unless @contact.publish_from
+        raise Zena::InvalidRecord, "Could not publish contact node for user #{user_id} in site #{site_id} (#{@contact.errors.map{|k,v| [k,v]}.join(', ')})"
+      end
+
+      self[:contact_id] = @contact[:id]
+    end
+
     # Set user defaults.
     def user_before_validation
       return true if current_site.being_created?
+
+      self[:site_id] = visitor.site[:id]
+
       if new_record?
-        @defined_status ||= current_site.anon.status
-        @defined_lang   ||= current_site.anon.lang
+        self.status = current_site.anon.status if status.blank?
+        self.lang   = current_site.anon.lang   if lang.blank?
       elsif status.blank?
-        status = current_site.anon.status
+        self.status   = current_site.anon.status
       end
-      if self[:login].blank? && !is_anon?
-        self[:login] = self[:name]
+
+      if login.blank? && !is_anon?
+        self.login = name
       end
     end
 
     # Returns the current site (self = visitor) or the visitor's site
+    # FIXME: remove and use 'site'
     def current_site
       @site || visitor.site
     end
@@ -359,11 +341,14 @@ class User < ActiveRecord::Base
     # Validates that anon user does not have a login, that other users have a password
     # and that the login is unique for the sites the user belongs to.
     def valid_user
+      self[:site_id] = visitor.site[:id]
 
-      unless current_site.being_created? || visitor.is_admin? || visitor[:id] == self[:id]
+      if !current_site.being_created? && !visitor.is_admin? && visitor[:id] != self[:id]
         errors.add('base', 'You do not have the rights to do this.')
         return false
       end
+
+      errors.add('lang', 'not available') unless current_site.lang_list.include?(lang)
 
       if is_anon?
         # Anonymous user *must* have an empty login
@@ -372,22 +357,11 @@ class User < ActiveRecord::Base
       else
         if new_record?
           # Refuse to add a user in a site if already a user with same login.
-          # validate uniqueness of 'login'
-
-          # TODO: maybe current_site.users.find_by_login(...) is better, but then we need to change 'secure_with_scope'
-          errors.add(:login, 'has already been taken') if secure(User) { User.find_by_login(self[:login]) }
-
           errors.add(:password, "can't be blank") if self[:password].nil? || self[:password] == ""
         else
           # get old password
           old = User.find(self[:id])
           self[:password] = old[:password] if self[:password].nil? || self[:password] == ""
-          # validate uniqueness of 'login' through all sites
-          sites.find(:all).each do |site|
-            if site.users.find(:first, :conditions=>["#{User.table_name}.login = ? AND #{User.table_name}.id <> ?", self[:login], self[:id]])
-              errors.add(:login, 'has already been taken')
-            end
-          end
           errors.add(:login, "can't be blank") if self[:login].blank?
           errors.add(:status, 'You do not have the rights to do this.') if self[:id] == visitor[:id] && old.is_admin? && self.status.to_i != old.status
         end
@@ -407,45 +381,9 @@ class User < ActiveRecord::Base
       end
     end
 
-    # Make sure admin visitor is allowed to set the site ids
-    # for the user (he must be admin in all the sites)
-    # FIXME: removing a user from a site ===> remove contact !
-    def valid_sites #:doc:
-      if current_site.being_created?
-        @added_sites = @removed_sites = nil
-        return true
-      end
-      if new_record?
-        if @defined_site_ids
-          @defined_site_ids << current_site[:id].to_s
-        else
-          @defined_site_ids = [current_site[:id].to_s]
-        end
-      end
-
-      if @defined_site_ids
-        @defined_site_ids = @defined_site_ids.map{|i| i.to_i}.uniq
-
-        site_ids = new_record? ? [] : sites.map {|s| s[:id]}
-        changes  = @added_sites   = @defined_site_ids - site_ids
-        changes += @removed_sites = site_ids - @defined_site_ids
-
-        changes.uniq.each do |i|
-          unless site = Site.find(:first, :conditions => ["id = ?",i])
-            errors.add('site', 'not found')
-          end
-
-          unless Participation.find(:first, :conditions=>['status >= ? AND site_id = ? AND user_id = ?',User::Status[:admin], i, visitor[:id]])
-            errors.add('site', 'not found')
-          end
-        end
-      end
-    end
-
     # Make sure all users are in the _public_ and _site_ groups. Make sure
-    # the user only belongs to groups from sites he/she is in.
+    # the user only belongs to groups in the same site.
     def valid_groups #:doc:
-      s_ids = site_ids.map {|i| i.to_i}
       g_ids = @defined_group_ids || (new_record? ? [] : group_set_ids)
       g_ids.reject! { |g| g.blank? }
       g_ids << current_site.public_group_id
@@ -455,41 +393,11 @@ class User < ActiveRecord::Base
       self.groups = []
       g_ids.each do |id|
         group = Group.find(id)
-        unless current_site.being_created? || s_ids.include?(group[:site_id])
+        unless current_site.being_created? || group.site_id == self.site_id
           errors.add('group', 'not found')
           next
         end
         self.groups << group
-      end
-    end
-
-    def update_participations
-      if add = @added_sites
-        remove_instance_variable(:@added_sites)
-        add.each do |site_id|
-          participations.create(:user => self, :site_id => site_id)
-        end
-      end
-
-      if del = @removed_sites
-        remove_instance_variable(:@removed_sites)
-        participations.find(del).each do |p|
-          p.destroy!
-        end
-      end
-
-      if (@defined_status || @defined_lang) && site_participation
-        if @defined_status
-          site_participation.status = @defined_status
-          remove_instance_variable(:@defined_status)
-        end
-
-        if @defined_lang
-          site_participation.lang = @defined_lang
-          remove_instance_variable(:@defined_lang)
-        end
-
-        site_participation.save
       end
     end
 

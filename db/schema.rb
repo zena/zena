@@ -1,4 +1,4 @@
-# This file is auto-generated from the current state of the database. Instead of editing this file,
+# This file is auto-generated from the current state of the database. Instead of editing this file, 
 # please use the migrations feature of Active Record to incrementally modify your database, and
 # then regenerate this schema definition.
 #
@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20091013100351) do
+ActiveRecord::Schema.define(:version => 20091014183726) do
 
   create_table "cached_pages", :force => true do |t|
     t.text     "path"
@@ -177,16 +177,6 @@ ActiveRecord::Schema.define(:version => 20091013100351) do
     t.text     "vhash"
   end
 
-  create_table "participations", :force => true do |t|
-    t.integer "user_id"
-    t.integer "site_id"
-    t.integer "status"
-    t.integer "contact_id"
-    t.string  "lang",       :limit => 10, :default => "", :null => false
-  end
-
-  add_index "participations", ["user_id", "site_id"], :name => "user_id", :unique => true
-
   create_table "relations", :force => true do |t|
     t.string  "source_role",   :limit => 32
     t.string  "source_kpath",  :limit => 16
@@ -243,6 +233,10 @@ ActiveRecord::Schema.define(:version => 20091013100351) do
     t.string   "name",       :limit => 60
     t.string   "email",      :limit => 60
     t.string   "time_zone"
+    t.integer  "site_id"
+    t.integer  "status"
+    t.integer  "contact_id"
+    t.string   "lang",       :limit => 10, :default => "", :null => false
   end
 
   create_table "versions", :force => true do |t|

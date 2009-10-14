@@ -843,7 +843,7 @@ class SecureTest < Zena::Unit::TestCase
 
   context 'A visitor with commentator status' do
     setup do
-      Participation.connection.execute "UPDATE participations SET status = #{User::Status[:commentator]} WHERE user_id = #{users_id(:tiger)} AND site_id = #{sites_id(:zena)}"
+      User.connection.execute "UPDATE users SET status = #{User::Status[:commentator]} WHERE id = #{users_id(:tiger)} AND site_id = #{sites_id(:zena)}"
       login(:tiger)
       @node = secure!(Node) { nodes(:status) }
     end
@@ -870,7 +870,7 @@ class SecureTest < Zena::Unit::TestCase
 
   context 'A visitor with moderated status' do
     setup do
-      Participation.connection.execute "UPDATE participations SET status = #{User::Status[:moderated]} WHERE user_id = #{users_id(:tiger)} AND site_id = #{sites_id(:zena)}"
+      User.connection.execute "UPDATE users SET status = #{User::Status[:moderated]} WHERE id = #{users_id(:tiger)} AND site_id = #{sites_id(:zena)}"
       login(:tiger)
       @node = secure!(Node) { nodes(:status) }
     end
@@ -905,7 +905,7 @@ class SecureTest < Zena::Unit::TestCase
 
   context 'A visitor with reader status' do
     setup do
-      Participation.connection.execute "UPDATE participations SET status = #{User::Status[:reader]} WHERE user_id = #{users_id(:tiger)} AND site_id = #{sites_id(:zena)}"
+      User.connection.execute "UPDATE users SET status = #{User::Status[:reader]} WHERE id = #{users_id(:tiger)} AND site_id = #{sites_id(:zena)}"
       login(:tiger)
       @node = secure!(Node) { nodes(:status) }
     end
@@ -928,7 +928,7 @@ class SecureTest < Zena::Unit::TestCase
 
   context 'A visitor with deleted status' do
     setup do
-      Participation.connection.execute "UPDATE participations SET status = #{User::Status[:deleted]} WHERE user_id = #{users_id(:tiger)} AND site_id = #{sites_id(:zena)}"
+      User.connection.execute "UPDATE users SET status = #{User::Status[:deleted]} WHERE id = #{users_id(:tiger)} AND site_id = #{sites_id(:zena)}"
     end
 
     should 'not be able to login' do
