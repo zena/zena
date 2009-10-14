@@ -299,6 +299,7 @@ module Zena
           @zafu_helper ||= begin
             # FIXME rails 3.0.pre: zafu_helper = ActionView::Base.for_controller(self)
             helper = ActionView::Base.new([], {}, self)
+            helper.send(:_evaluate_assigns_and_ivars)
             helper.helpers.send :include, self.class.master_helper_module
             helper
           end

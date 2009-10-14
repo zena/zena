@@ -633,7 +633,7 @@ Just doing the above will filter all result according to the logged in user.
             if result.kind_of?(Array)
               if result.first.kind_of?(Node)
                 id_map, ids = construct_id_map(result)
-                Version.find(ids).each do |v|
+                ::Version.find(ids).each do |v|
                   if r = id_map[v.id]
                     r.version = v
                   end
