@@ -1,33 +1,27 @@
 == DESCRIPTION:
 
-CMS based on Ruby on Rails, (c) Gaspard Bucher, teti.ch 2007-2009, licenced under MIT
+CMS with super natural powers, based on Ruby on Rails
 
-This version of zena is *TOTALLY UNUSABLE* for the moment. It is the result of the slow migration from Rails 1.2.3 to Rails 2.x. You will need the latest rails edge with some patches which you can find here: http://github.com/gaspard/rails/tree/master.
+website: http://zenadmin.org
+licence: MIT
 
-== Creating the database
-You need to set collation and charset to utf8 when creating the database. Example :
-# create database zena DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+== Getting started
 
-== Development/testing
-1. Create the database using a mysql client
-   create database zena_dev DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+ # sudo gem sources -a http://gems.github.com
+ # sudo gem install zena
+ # zena myapp
 
-2. Rename 'config/database_example.yml' to 'config/database.yml' and update it's content
+== Details
 
-3. Migrate the database and add initialize db (from within zena directory)
-   rake zena:migrate
+Have a look at the generator used by 'zena' command:
 
-4. Create a first site or load fixtures
-   rake zena:mksite HOST=localhost PASSWORD=secret LANG=en
-
-5. Start server
-   script/server
-
-6. Connect to site 'http://localhost:3000'
-
-7. Login with 'admin' and 'secret'
+http://github.com/zena/zena/blob/master/config/zena.rb
 
 == Production
+
+THE INSTRUCTIONS BELOW NO LONGER APPLY (they need an update since the way to go is
+to use zena as a gem).
+
 You should use capistrano to ease deployment. See 'config/delploy.rb'.
 
 Manual deployment is done with the following commands:
