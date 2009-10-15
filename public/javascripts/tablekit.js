@@ -779,8 +779,9 @@ TableKit.Editable = {
 		data.active = true;
 	},
 	getCellEditor : function(cell, table, head, event) {
+	  // cannot use cell.select('p'). Why ???
 	  var head = head ? head : $(TableKit.getHeaderCells(table, cell)[TableKit.getCellIndex(cell)]);
-	  var ftype = (head !== cell && event && (event.shiftKey || cell.select('p')[0])) ? TableKit.Editable.types['multi-line-input'] : TableKit.Editable.types['text-input'];
+	  var ftype = (head !== cell && event && (event.shiftKey || cell.getElementsByTagName('p')[0])) ? TableKit.Editable.types['multi-line-input'] : TableKit.Editable.types['text-input'];
 		if(head.id && TableKit.Editable.types[head.id]) {
 			ftype = TableKit.Editable.types[head.id];
 		} else {

@@ -21,8 +21,8 @@ module Zena
         :collection => { :asearch => :get, :search => :get },
         :member =>     { :import => :post, :export => :get, :save_text => :put,
                          :order => :any, :clear_order => :any,
-                         :zafu => :get, :drop => :put, :attribute => :get,
-                         :cell_update => :post, :table_update => :post, :cell_edit => :get } do |nodes|
+                         :zafu => :get, :drop => :put, :attribute => :get
+                       }.merge(Zena::Use::Grid::Routes) do |nodes|
         nodes.resources :versions,
                         :member => { :edit    => :get,
                                      :diff    => :get,
