@@ -1,4 +1,4 @@
-require 'RedCloth'
+require 'redcloth'
 
 module Zena
   module Parser
