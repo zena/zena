@@ -1,13 +1,25 @@
 hpricot:
-RedCloth:       '= 3.0.4'
 gettext:        '= 1.93.0'
-querybuilder:   '= 0.5.5'
-rubyless:       '= 0.3.1'
+querybuilder:   '= 0.5.6'
+rubyless:       '= 0.3.2'
 ruby-recaptcha: '= 1.0.0'
 syntax:         '= 1.0.0'
 tzinfo:         '= 0.3.12'
 uuidtools:      '= 2.0.0'
-rmagick:        '= 2.11.1'
+rails:          '= 2.3.4'
+json:           '>= 1.1.9'
+
+RedCloth:
+  lib:          'redcloth'
+  version:      '= 3.0.4'
+
+#rmagick:
+#  lib:          'RMagick'
+#  version:      '= 2.11.1'
+
+sqlite3-ruby:
+  lib:          'sqlite3'
+  version:      '>= 1.2.4'
 
 yamltest:
   development_only:  yes
@@ -29,7 +41,6 @@ pvande-differ:
   source:     'http://gems.github.com'
 
 thoughtbot-shoulda:
-  development_only: yes
   version:    '= 2.10.2'
   lib:        'shoulda'
   source:     'http://gems.github.com'

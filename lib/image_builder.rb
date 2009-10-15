@@ -242,7 +242,15 @@ class ImageBuilder
     end
 
     pw,ph = @width, @height
-    raise StandardError, "image size or thumb size is null" if [w,h,pw,ph].include?(nil) || [w,h,pw,ph].min <= 0
+    if [w,h,pw,ph].include?(nil) || [w,h,pw,ph].min <= 0
+      # image size or thumb size is null (no image processing tool used, no idea on image size)
+      if format[:size] == :keep
+        @height, @width = nil, nil
+      else
+        @height, @width = h, w
+      end
+      return self
+    end
 
     case format[:size]
     when :force

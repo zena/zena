@@ -16,7 +16,7 @@ ImageContent also provides a +crop+ pseudo attribute to crop an image. See crop=
 class ImageContent < DocumentContent
   safe_method      :width => Number, :height => Number, :exif => 'ExifData'
   attr_accessible  :content_type, :file, :crop
-  
+
   before_validation_on_create :convert_file
 
 
@@ -99,11 +99,12 @@ class ImageContent < DocumentContent
     if format.nil? || format.size == :keep
       self[:width]
     else
-      image_with_format(format).width
+      if img = image_with_format(format)
+        img.width
+      else
+        nil
+      end
     end
-  rescue StandardError
-    # something went wrong (could not find file)
-    0
   end
 
   # Return the height in pixels for an image at the given format.
