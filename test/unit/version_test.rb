@@ -289,4 +289,24 @@ class VersionTest < Zena::Unit::TestCase
     v = Version.new('publish_from' => '9-9-2009 15:17')
     assert_equal Time.utc(2009,9,9,8,17), v.publish_from
   end
+
+  context 'A visitor with write access on a redaction with dyn attributes' do
+    setup do
+      login(:tiger)
+      node = secure(Node) { nodes(:nature) }
+      node.update_attributes(:d_foo => 'bar')
+      @node = secure(Node) { nodes(:nature) } # reload
+    end
+
+    should 'see dyn attribute' do
+      assert_equal 'bar', @node.version.dyn['foo']
+    end
+
+    should 'see be able to update dyn attribute' do
+      assert @node.version.dyn.would_edit?('foo' => 'max')
+      assert @node.update_attributes(:d_foo => 'max')
+      @node = secure(Node) { nodes(:nature) }
+      assert_equal 'max', @node.version.dyn['foo']
+    end
+  end
 end

@@ -46,6 +46,10 @@ module Zena
           false
         end
 
+        def changed?
+          @original != @hash
+        end
+
         def [](key)
           return nil unless valid_key?(key)
           hash[key.to_s]
@@ -109,7 +113,7 @@ module Zena
           end
 
           # clear hash so it will be reloaded if needed
-          @hash = nil
+          @hash = @original = nil
         end
 
         def clone_for(obj, opts={})
@@ -166,6 +170,7 @@ module Zena
                   @keys[record['key']] = record['id'].to_i
                 end
               end
+              @original = @hash.dup
               @hash
             end
           end

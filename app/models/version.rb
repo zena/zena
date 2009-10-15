@@ -237,7 +237,7 @@ class Version < ActiveRecord::Base
   end
 
   def should_save?
-    new_record? || changed? || (@redaction_content && @redaction_content.changed?)
+    new_record? || changed? || dyn.changed? || (@redaction_content && @redaction_content.changed?)
   end
 
   def attributes_with_defaults=(attrs)

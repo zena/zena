@@ -203,10 +203,27 @@ class DynAttributesTest < Test::Unit::TestCase
   end
 
   def test_would_edit
-   assert record = DynDummy.create(:title => 'this is my title', :text=>'', :comment=>'', :summary=>'', :d_bio=>'biography', :d_hell => 'blind love')
+   record = DynDummy.create(:title => 'this is my title', :text=>'', :comment=>'', :summary=>'', :d_bio=>'biography', :d_hell => 'blind love')
    assert !record.dyn.would_edit?('hell' => 'blind love', 'bio' => 'biography')
    assert  record.dyn.would_edit?('hell' => 'blind love', 'bio' => '')
    assert  record.dyn.would_edit?('hell' => 'blind love', 'fox' => 'hop')
    assert !record.dyn.would_edit?('hell' => 'blind love', 'fox' => '', 'fly' => nil)
+  end
+
+  def test_changed
+    record = DynDummy.create(:title => 'this is my title', :text=>'', :comment=>'', :summary=>'', :d_bio=>'biography', :d_hell => 'blind love')
+    record = DynDummy.find(record.id) # reload
+    dyn = record.dyn
+    assert !dyn.changed?
+    dyn['bio'] = 'biography'
+    assert !dyn.changed?
+    dyn['bio'] = 'Gemüse'
+    assert dyn.changed?
+
+    record = DynDummy.find(record.id) # reload
+    dyn = record.dyn
+
+    dyn['title'] = nil
+    assert dyn.changed?
   end
 end
