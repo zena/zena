@@ -1,3 +1,17 @@
+== 0.15.0 2009-10-16
+
+* 5 major enhancements:
+  * running rails 2.3.4
+  * installable as gem without RMagick
+  * usable as gem with config.gem
+  * supports sqlite3
+  * 'zena' command to create app
+
+* 3 minor enhancemnts:
+  * huge speed improvement in version loading
+  * massive code cleanup
+  * better team workflow (reworked access rights)
+
 == 0.11.1 2009-04-03
 
 * minor enhancements:

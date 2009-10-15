@@ -21,24 +21,3 @@ my_app
   +-- config
   +-- sites
   +-- vendor
-
-List of things that need special caring when moving an existing zena application (0.12 branch) to 1.0
-=====================================================================================================
-
-TODO: write a rake task that runs all the transition steps...
-
-Migrations
-----------
-
-They used to live in 'bricks_info', they now live in a specialized schema_migrations_table with a 'brick' parameter alongside 'version'.
-
-TODO: let rails make it a 'schema_migrations' table ===> 'brick' column becomes NULL and that's what we want for the main migrations.
-
-- new gem: hpricot for testing
-
-Some tips and tricks that could help
-====================================
-
-Error                                          Solution
-------------------------------------------+-----------------------------
-Malformed version number string 3.0.pre   |    sudo gem update --system
