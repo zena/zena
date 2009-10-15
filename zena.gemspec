@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2009-10-15}
+  s.date = %q{2009-10-16}
   s.default_executable = %q{zena}
   s.description = %q{CMS based on Ruby on Rails, (c) Gaspard Bucher, teti.ch 2007-2009, licenced under MIT
 

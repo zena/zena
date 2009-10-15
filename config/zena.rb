@@ -35,5 +35,5 @@ inside('.') do
   run 'rake zena:migrate RAILS_ENV=production'
   run "rake zena:mksite HOST='localhost' PASSWORD='admin' LANG='en' RAILS_ENV=production"
   run "#{Gem.win_platform? ? 'start' : 'open'} #{File.join(Zena::ROOT, 'config', 'start.html')}"
-  exec "script/server -e production"
+  exec "script/server -e production -p 3211"
 end
