@@ -2,6 +2,7 @@
 require 'yaml'
 require 'date'
 require 'fileutils'
+require File.join(File.dirname(__FILE__), 'zena', 'info')
 
 AUTHENTICATED_PREFIX = "oo"
 SITES_ROOT = "#{RAILS_ROOT}/sites"
@@ -23,10 +24,7 @@ UPLOAD_KEY     = defined?(Mongrel) ? 'upload_id' : "X-Progress-ID"
 require 'bricks/patcher'
 
 module Zena
-  VERSION = '0.15.0'
-  REVISION = 1336
-  ROOT    = File.expand_path(File.join(File.dirname(__FILE__), '..'))
-
+  # VERSION is defined in root.rb
   class << self
     attr_accessor :tools_enabled
     def add_load_paths(config = nil)
@@ -180,7 +178,7 @@ end
 
 
 # test if DRB started
-unless RAILS_ENV == 'test' || File.exist?(File.join(File.dirname(__FILE__), '..', 'log', 'upload_progress_drb.pid'))
+if RAILS_ENV == 'production' && !File.exist?(File.join(File.dirname(__FILE__), '..', 'log', 'upload_progress_drb.pid'))
   puts "\n** WARNING: drb server not running. Upload progress will not work."
   puts " * WARNING: you should start the drb server with 'lib/upload_progress_server.rb start'\n\n"
 end

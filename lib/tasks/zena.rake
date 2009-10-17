@@ -1,47 +1,37 @@
 require 'yaml'
 require 'fileutils'
 
-require File.join(File.dirname(__FILE__), '..', 'zena.rb') # to have Zena::ROOT
-
-def symlink_assets(from, to)
-  from = File.expand_path(from)
-  to = File.expand_path(to)
-  return if from == to
-  # FIXME: how do we keep favicon.ico and robots.txt in the root dir of a site ?
-  # FIXME: ln should be to 'current' release, not calendar -> /var/zena/releases/20070511195642/public/calendar
-  #        we could create a symlink in the sites dir to 'shared' -> /var/zena/current/public
-  #        and then symlink with "#{host_path}/public/#{dir}" -> "../shared/public/#{dir}"
-  #        OR we could symlink /var/zena/current/...
-  ['calendar', 'images', 'javascripts', 'stylesheets', 'icons'].each do |dir|
-    File.unlink("#{to}/public/#{dir}") if File.symlink?("#{to}/public/#{dir}")
-    if File.exist?("#{to}/public/#{dir}")
-      if File.directory?("#{to}/public/#{dir}")
-        # replace each file
-        Dir.foreach("#{from}/public/#{dir}") do |f|
-          src, trg = "#{from}/public/#{dir}/#{f}", "#{to}/public/#{dir}/#{f}"
-          next if f =~ /\A\./
-          if File.exist?(trg) || File.symlink?(trg)
-            File.unlink(trg)
-          end
-          FileUtils.ln_s(src, trg)
-        end
-      else
-        # ignore
-        puts "Cannot install assets in #{to}/public/#{dir} (not a directory)"
-      end
-    else
-      FileUtils.ln_s("#{from}/public/#{dir}", "#{to}/public/#{dir}")
-    end
-  end
-end
+require File.join(File.dirname(__FILE__), '..', 'zena', 'info') # to have Zena::ROOT
 
 def copy_assets(from, to)
   from = File.expand_path(from)
   to = File.expand_path(to)
   return if from == to
+  ['config/mongrel_upload_progress.conf', 'lib/upload_progress_server.rb', 'config/deploy.rb', 'db/migrate/*.rb', 'public/**/*'].each do |base_path|
+    if base_path =~ /\*/
+      Dir["#{from}/#{base_path}"].each do |path|
+        path = path[(from.length + 1)..-1]
+        next if File.directory?(path)
+        copy_files("#{from}/#{path}", "#{to}/#{path}")
+      end
+    else
+      copy_files("#{from}/#{base_path}", "#{to}/#{base_path}")
+    end
+  end
+end
 
-  ['config/mongrel_upload_progress.conf', 'lib/upload_progress_server.rb'].each do |path|
-    FileUtils.cp("#{from}/#{path}", "#{to}/#{path}") unless File.exist?("#{to}/#{path}")
+def copy_files(from, to)
+  base = File.dirname(to)
+  unless File.exist?(base)
+    FileUtils.mkpath(base)
+  end
+  if File.directory?(from)
+    Dir.foreach(from) do |f|
+      next if f =~ /\A./
+      copy_files("#{from}/#{f}", "#{to}/#{f}")
+    end
+  else
+    FileUtils.cp(from, base)
   end
 end
 
@@ -52,8 +42,6 @@ namespace :zena do
     if Zena::ROOT == RAILS_ROOT
       puts "Copy assets should only be used when zena is loaded externally (via gem for example)."
     else
-      symlink_assets(Zena::ROOT, RAILS_ROOT)
-      puts "* symlinked assets"
       copy_assets(Zena::ROOT, RAILS_ROOT)
       puts "* copied assets"
     end
@@ -210,7 +198,7 @@ namespace :zena do
       end
     else
       # migrate all to latest
-      paths  = {'zena' => "#{Zena::ROOT}/db/migrate"}
+      paths  = {'zena' => "#{RAILS_ROOT}/db/migrate"}
       bricks = ['zena']
 
       Bricks::Patcher.foreach_brick do |brick_path|

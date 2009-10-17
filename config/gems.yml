@@ -17,12 +17,7 @@ RedCloth:
 #  lib:          'RMagick'
 #  version:      '= 2.11.1'
 
-sqlite3-ruby:
-  lib:          'sqlite3'
-  version:      '>= 1.2.4'
-
 yamltest:
-  development_only:  yes
   version: '= 0.5.3'
 
 grosser-fast_gettext:

@@ -1,3 +1,9 @@
+== 0.15.1 2009-10-17
+
+* 2 minor enhancements:
+  * fixed deployment using capistrano
+  * fixed zena:setup task to copy files instead of symlink
+
 == 0.15.0 2009-10-16
 
 * 5 major enhancements:

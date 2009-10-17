@@ -33,10 +33,11 @@ PROJ.email = 'gaspard@teti.ch'
 PROJ.url = 'http://zenadmin.org'
 PROJ.version = Zena::VERSION
 PROJ.rubyforge.name = 'zena'
+PROJ.readme_file = 'README.rdoc'
 
 PROJ.spec.opts << '--color'
 PROJ.gem.files = (
-  ['History.txt', 'README.txt', 'db/schema.rb'] +
+  ['History.txt', 'README.rdoc', 'db/schema.rb'] +
   ['app', 'bin', 'bricks', 'config', 'db', 'lib', 'locale', 'public', 'rails', 'vendor', 'test'].map do |d|
     Dir.glob("#{d}/**/*").reject {|path| File.basename(path) =~ /^\./ }
   end

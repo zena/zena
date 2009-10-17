@@ -1,10 +1,10 @@
 require 'digest/sha1'
-require 'zena/root'
+require 'zena/info'
 # This is a rails template to generate a basic zena application
 
 run 'rm public/index.html'
 
-gem 'zena'
+gem 'zena', :version => Zena::VERSION
 route 'map.zen_routes'
 
 rakefile("zena_tasks.rake") do
@@ -34,6 +34,6 @@ rake "zena:mksite HOST='localhost' PASSWORD='admin' LANG='en'"
 inside('.') do
   run 'rake zena:migrate RAILS_ENV=production'
   run "rake zena:mksite HOST='localhost' PASSWORD='admin' LANG='en' RAILS_ENV=production"
-  run "#{Gem.win_platform? ? 'start' : 'open'} #{File.join(Zena::ROOT, 'config', 'start.html')}"
+  run "#{Gem.win_platform? ? 'start' : 'open'} #{File.join(Zena::ROOT, 'lib/zena/deploy/start.html')}"
   exec "script/server -e production -p 3211"
 end
