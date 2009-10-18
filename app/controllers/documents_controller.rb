@@ -55,7 +55,12 @@ class DocumentsController < ApplicationController
   end
 
   def upload_progress
-    # mimic apache2 mod_upload_progress
+    # When using the mod_upload_progress module, this is never hit:
+    # <Location /upload_progress>
+    #   ReportUploads On
+    # </Location>
+    #
+    # When using Mongrel: mimic apache2 mod_upload_progress
     #
     # if (!found) {
     #   response = apr_psprintf(r->pool, "new Object({ 'state' : 'starting' })");

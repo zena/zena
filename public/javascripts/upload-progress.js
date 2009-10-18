@@ -1,3 +1,6 @@
+// This progress bar JS comes from Piotr Sarnacki (I think)
+// the code has been adapted for zena for a nicer progression (Morph)
+// and to fix some strange Safari bugs.
 
 function submitUploadForm(form, uuid) {
   if ($('progress_bar' + uuid)) return;
@@ -7,10 +10,11 @@ function submitUploadForm(form, uuid) {
     $(document.body).insert('<iframe id="UploadIFrame" name="UploadIFrame" src="about:blank"></iframe>');
   }
   $(form).target = 'UploadIFrame';
-  $(form).submit();
   if (need_progress) {
-    UploadProgress.monitor(uuid) ;
+    // make sure the POST occurs before (Safari Bug)
+    UploadProgress.monitor(uuid, form);
 	}
+  $(form).submit();
 }
 
 //
@@ -34,8 +38,9 @@ var UploadProgress = {
   period: 1.0,
   morphPeriod: 1.2,
   uuid: '',
+  submitted: false,
 
-  monitor: function(uuid) {
+  monitor: function(uuid, form) {
     this.uuid = uuid;
     this.buildProgressBar();
     this.setAsStarting();
@@ -49,6 +54,11 @@ var UploadProgress = {
             UploadProgress.update(upload.size, upload.received);
           } else if (upload.state == 'done') {
             UploadProgress.setAsFinished();
+          } else if (upload.state == 'starting' && !this.submitted) {
+            // This is to solve a bug in Safari where the form is sometimes not
+            // submitted before the monitoring occurs. We just resubmit the form.
+            this.submitted = true;
+            $(form).submit();
           } else {
             UploadProgress.message(upload.state);
           }

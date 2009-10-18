@@ -178,8 +178,8 @@ end
 
 
 # test if DRB started
-if RAILS_ENV == 'production' && !File.exist?(File.join(File.dirname(__FILE__), '..', 'log', 'upload_progress_drb.pid'))
-  puts "\n** WARNING: drb server not running. Upload progress will not work."
+if RAILS_ENV == 'production' && defined?(Mongrel) && !File.exist?(File.join(File.dirname(__FILE__), '..', 'log', 'upload_progress_drb.pid'))
+  puts "\n** WARNING: drb server not running. Upload progress will not work using Mongrel."
   puts " * WARNING: you should start the drb server with 'lib/upload_progress_server.rb start'\n\n"
 end
 

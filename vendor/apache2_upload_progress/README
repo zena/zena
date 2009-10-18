@@ -1,0 +1,53 @@
+Apache upload progress module. Works with mod_passenger (aka mod_rails). It's MIT license.
+
+More info here: http://drogomir.com/blog/2008/6/18/upload-progress-bar-with-mod_passenger-and-apache
+
+Tutorials showing how to use apache upload progress module:
+http://www.drogomir.com/blog/2008/7/3/tweaking-rails-app-with-jquery-part-i (using jQuery)
+http://www.railsillustrated.com/screencast-file-uploads-progress-in-rails-passenger.html (tutorial with screencast using prototype)
+
+To install and activate module:
+apxs2 -c -i -a mod_upload_progress.c
+
+-c -> compile
+-i -> install (copy upload_progress_module.so to apache lib folder)
+-a -> activate (add LoadModule line to httpd.conf)
+
+To compile it on mac you may need to:
+sudo apxs -c -i -Wc,-arch -Wc,ppc7400 -Wl,-arch -Wl,ppc7400 -Wc,-arch -Wc,ppc64 -Wl,-arch -Wl,ppc64 -Wc,-arch -Wc,x86_64 -Wl,-arch -Wl,x86_64 -Wc,-arch -Wc,i386 -Wl,-arch -Wl,i386 mod_upload_progress.c
+
+on an Intel mac: sudo apxs -c -i -a -Wc,-arch -Wc,x86_64 -Wl,-arch -Wl,x86_64 -Wc,-arch -Wc,i386 -Wl,-arch -Wl,i386 mod_upload_progress.c
+
+Global config:
+  you can define maximum size for shared memory (default is 50kB):
+  UploadProgressSharedMemorySize 1024000 # sets memory size to 1MB
+
+Note:
+If you get "(12)Cannot allocate memory: Upload Progress cache: could not create shared memory segment Configuration Failed"
+error you should try to set memory size to smaller value.
+
+Config for vhost:
+<Location />
+    # enable tracking uploads in /
+    TrackUploads On
+</Location>
+
+<Location /progress>
+    # enable upload progress reports in /progress
+    ReportUploads On
+</Location>
+
+- JSON-P Support
+You can also request progress updates by using JSON-P, if you are uploading the file from a different domain or subdomain than the web server that is handling your original request. Adding a "callback=yourCallbackFunction" parameter to your request to the progress server will activate this functionality.
+
+For example, a request like:
+  http://uploads.yourdomain.com/progress?callback=jsonp123&X-Progress-ID=1234
+
+Would return the JSON-P function:
+  jsonp123(new Object({ 'state' : 'uploading', 'received' : 35587, 'size' : 716595, 'speed' : 35587 }));
+
+The normal JSON request:
+  http://www.yourdomain.com/progress?X-Progress-ID=1234
+
+Would return the JSON data:
+  new Object({ 'state' : 'uploading', 'received' : 35587, 'size' : 716595, 'speed' : 35587 })

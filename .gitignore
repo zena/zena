@@ -14,3 +14,4 @@ test/fixtures/*.yml
 tmp/*
 db/*.sqlite3
 coverage
+vendor/apache2_upload_progress/*
