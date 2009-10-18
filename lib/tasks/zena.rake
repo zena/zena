@@ -34,7 +34,7 @@ def symlink_assets(from, to)
     end
   end
 end
- 
+
 def copy_assets(from, to)
   from = File.expand_path(from)
   to = File.expand_path(to)
@@ -68,14 +68,12 @@ def copy_files(from, to)
 end
 
 namespace :zena do
-  desc "Setup a new zena application (symlink static assets, check routes, etc)"
-  task :setup => :zena_config do
-    puts "zena:setup"
+  desc "Copy latest assets from zena gem to application (images, stylesheets, javascripts)."
+  task :assets => :zena_config do
     if Zena::ROOT == RAILS_ROOT
       puts "Copy assets should only be used when zena is loaded externally (via gem for example)."
     else
       copy_assets(Zena::ROOT, RAILS_ROOT)
-      puts "* copied assets"
     end
   end
 

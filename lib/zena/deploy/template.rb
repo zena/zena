@@ -32,7 +32,7 @@ inside('app/controllers') do
   end
 end
 
-rake "zena:setup"
+rake 'zena:assets'
 rake 'db:create'
 rake 'zena:migrate'
 rake "zena:mksite HOST='localhost' PASSWORD='admin' LANG='en'"
