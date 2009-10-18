@@ -16,7 +16,7 @@ class IformatTest < Zena::Unit::TestCase
     login(:lion)
     fmt = Iformat['med']
     assert_not_equal ImageBuilder::DEFAULT_FORMATS['med'], fmt
-    assert_equal ({:name => 'med', :width=>300, :height=>200, :gravity=>Magick::CenterGravity, :size=>:limit, :hash_id => 389519063846}), fmt
+    assert_equal ({:name => 'med', :width=>300, :height=>200, :gravity=>Magick::CenterGravity, :size=>:limit, :hash_id => 389519063846, :popup => {:show=> %w{navigation v_title v_summary}, :name=>'std', :options=>{'v_title'=>'link'}}}), fmt
   end
 
   def test_format_hash_id
@@ -186,5 +186,57 @@ class IformatTest < Zena::Unit::TestCase
     assert_equal 70, imf[:height]
     assert_equal 70, imf[:width]
     assert_equal 2, imf[:size]
+  end
+
+  context 'An image format with popup' do
+    setup do
+      login(:lion)
+    end
+
+    context 'defined with name' do
+      setup do
+        Iformat.create(:name => 'header', :height=>'34', :width => '500', :size => 'force', :popup => "pop")
+        @imf = Iformat['header']
+      end
+
+      should 'use default fields and navigation' do
+        assert_equal({:show=>%w{navigation v_title v_summary}, :name=>"pop", :options=>{'v_title' => 'link'}}, @imf[:popup])
+      end
+    end
+
+    context 'defined with name and json' do
+      setup do
+        Iformat.create(:name  => 'header', :height=>'34', :width => '500', :size => 'force',
+                       :popup => 'pop {"v_title":"link", "a":true}')
+        @imf = Iformat['header']
+      end
+
+      should 'respect key order' do
+        assert_equal({:show=>%w{v_title a}, :name=>"pop", :options=>{'v_title' => 'link'}}, @imf[:popup])
+      end
+    end
+
+    context 'defined with name and list' do
+      setup do
+        Iformat.create(:name => 'header', :height=>'34', :width => '500', :size => 'force', :popup => "pop (link,navigation,created_at)")
+        @imf = Iformat['header']
+      end
+
+      should 'respect key order' do
+        assert_equal({:show=>%w{v_title navigation created_at}, :name=>"pop", :options=>{'v_title' => 'link'}}, @imf[:popup])
+      end
+    end
+
+    context 'defined with name and empty list' do
+      setup do
+        Iformat.create(:name => 'header', :height=>'34', :width => '500', :size => 'force', :popup => "pop ()")
+        @imf = Iformat['header']
+      end
+
+      should 'show image alone' do
+        assert_equal({:show=>[], :name=>"pop", :options=>{}}, @imf[:popup])
+      end
+    end
+
   end
 end

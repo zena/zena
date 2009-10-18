@@ -28,6 +28,7 @@ module Zena
         helper  Zena::Use::I18n::ViewMethods
         helper  Zena::Use::NestedAttributesAlias::ViewMethods
         helper  Zena::Use::Refactor::ViewMethods
+        helper  Zena::Use::Rendering::ViewMethods
         helper  Zena::Use::Urls::ViewMethods
         helper  Zena::Use::Zafu::ViewMethods
         helper  Zena::Use::Zazen::ViewMethods

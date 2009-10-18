@@ -37,19 +37,6 @@ module Zena
         include Common
 
         # TODO: use Rails native helper.
-        def javascript( string )
-          javascript_start +
-          string +
-          javascript_end
-        end
-
-        def javascript_start
-          "<script type=\"text/javascript\" charset=\"utf-8\">\n// <![CDATA[\n"
-        end
-
-        def javascript_end
-          "\n// ]]>\n</script>"
-        end
 
         # Quote for html values (input tag, alt attribute, etc)
         def fquote(text)

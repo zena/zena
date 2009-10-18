@@ -76,3 +76,12 @@ padding:5px; border:1px solid #714D3D; text-align:left; color:#444; z-index:9999
 /* diff */
 del.differ, del.differ * { background:#fcc; padding:1px 2px;}
 ins.differ, ins.differ * { background:#cfc; text-decoration:none; padding:1px 2px;}
+
+/* popup gallery */
+#pg_mask { position:fixed; top:0; left:0; width:100%; height:100%; background:black; opacity:0.8; z-index:9999;}
+#pg_info { z-index:10000; background:white; border:1px solid grey;}
+#pg_info .v_title {text-align:center; font-weight:bold;}
+#pg_info .v_summary {clear:both; padding:3px 10px 10px;}
+#pg_info a { width:100px; height:40px;}
+#pg_next {position:absolute; right:0; background:url('/images/popup_next.png') no-repeat right top;}
+#pg_prev {position:absolute; left:0; background:url('/images/popup_prev.png') no-repeat left top;}

@@ -31,7 +31,7 @@
 </div>
 
 <%#= css_edit %>
-<%= javascript_start %>
+<% javascript_tag do -%>
 var current_sel = $('<%= partial[0] %>_sel');
 var current_tab = $('<%= partial[0] %>_tab');
 Event.observe(window, 'resize', function() { Zena.resizeElement('node_v_text'); } );
@@ -51,5 +51,5 @@ $('node_form').getElements().each(function(input, index) {
     });
 });
 
-<%= javascript_end %>
+<% end -%>
 <iframe id="UploadIFrame" name="UploadIFrame" src="about:blank"></iframe>

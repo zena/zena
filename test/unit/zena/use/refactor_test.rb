@@ -26,10 +26,6 @@ class RefactorTest < Zena::View::TestCase
     assert ((Time.now.to_i-1 <= rnd) && (rnd <= Time.now.to_i+2))
   end
 
-  def test_javascript
-    assert_nothing_raised { javascript('test') }
-  end
-
   def test_change_lang
     assert_equal ({:overwrite_params=>{:prefix=>'io'}}), change_lang('io')
     login(:ant)

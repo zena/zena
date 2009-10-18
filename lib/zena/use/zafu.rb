@@ -283,10 +283,12 @@ module Zena
               dev_box << "      <li>skins used: #{skin_names.join(', ')}</li>\n"
               dev_box << "    </ul>\n  </li>\n</ul></div>"
               if res =~ /<\/body>/
-                res.sub!('</body>', "#{dev_box}</body>")
+                res.sub!('</body>', "#{dev_box}<%= render_js %></body>")
               else
                 res << dev_box
               end
+            else
+              res.sub!('</body>', "<%= render_js %></body>")
             end
 
             secure!(CachedPage) { CachedPage.create(

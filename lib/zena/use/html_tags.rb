@@ -43,7 +43,7 @@ module Zena
 
           if res.kind_of?(Hash)
             out = "<img"
-            [:src, :width, :height, :alt, :id, :class, :style, :border].each do |k|
+            [:src, :width, :height, :alt, :id, :class, :style, :border, :onclick].each do |k|
               next unless v = res[k]
               out << " #{k}='#{v}'"
             end
@@ -73,6 +73,43 @@ module Zena
             # compute image size
             res[:width]  = content.width(format)
             res[:height] = content.height(format)
+            if popup = format[:popup]
+
+              if popup_fmt = Iformat[popup[:name]]
+                options = popup[:options]
+                keys    = popup[:show]
+                res[:onclick] = 'Zena.popup(this)'
+                res[:id]    ||= unique_id
+                data = {}
+                data['src'] = data_path(obj, :mode => (popup[:size] == :keep ? nil : popup[:name]), :host => opts[:host])
+                data['width']   = content.width(popup_fmt)
+                data['height']  = content.height(popup_fmt)
+
+                data['fields'] = fields = {}
+                data['keys']   = field_keys = []
+                keys.each do |k|
+                  case k
+                  when 'navigation'
+                    field_keys << k
+                    data[k] = true
+                  else
+                    if v = obj.safe_read(k)
+                      field_keys << k
+                      case options[k]
+                      when 'raw'
+                        fields[k] = v
+                      when 'link'
+                        fields[k] = link_to(v, zen_path(obj))
+                      else
+                        fields[k] = zazen(v)
+                      end
+                    end
+                  end
+                end
+
+                self.js_data << "$('#{res[:id]}')._popup = #{data.to_json};"
+              end
+            end
             res
           elsif obj.kind_of?(Document) && obj.version.content.ext == 'mp3' && (opts[:mode].nil? || opts[:mode] == 'std' || opts[:mode] == 'button')
             # rough wrap to use the 'button'
@@ -171,10 +208,10 @@ module Zena
           <script src="/calendar/calendar-setup.js" type="text/javascript"></script>
           <script src="/calendar/lang/calendar-#{l}-utf8.js" type="text/javascript"></script>
           <link href="/calendar/calendar-brown.css" media="screen" rel="Stylesheet" type="text/css" />
-          #{javascript_start}
+          <% javascript_tag do -%>
           Calendar._TT["DEF_DATE_FORMAT"] = "#{_('datetime')}";
           Calendar._TT["FIRST_DAY"] = #{_('week_start_day')};
-          #{javascript_end}
+          <% end -%>
           EOL
         end
 

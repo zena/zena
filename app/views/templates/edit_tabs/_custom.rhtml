@@ -1,6 +1,6 @@
-<%= javascript_start %>
+<% javascript_tag do -%>
 var custom_loaded = false;
 function load_custom_tab() {
   new Ajax.Updater('custom_tab', '/nodes/<%= @node.zip %>/versions/0/custom_tab', {asynchronous:true, evalScripts:true, method:'get'});
 }
-<%= javascript_end %>
+<% end -%>

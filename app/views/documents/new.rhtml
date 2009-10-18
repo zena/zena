@@ -12,7 +12,7 @@
 </div>
 
 <%#= css_edit %>
-<%= javascript_start %>
+<% javascript_tag do -%>
 var current_tab = $('<%= partial[0] %>_tab');
 var current_sel = $('<%= partial[0] %>_sel');
-<%= javascript_end %>
+<% end -%>

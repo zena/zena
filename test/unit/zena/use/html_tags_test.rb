@@ -32,6 +32,15 @@ class HtmlTagsTest < Zena::View::TestCase
     @controller.send(:flash)
   end
 
+  # ============ stubs ============
+  def js_data
+    @js_data ||= []
+  end
+  def zazen(txt)
+    txt
+  end
+  # ===============================
+
   def test_img_tag
     login(:ant)
     img = secure!(Node) { nodes(:bird_jpg) }
@@ -67,8 +76,8 @@ class HtmlTagsTest < Zena::View::TestCase
                   img_tag(img, :mode=>nil, :id=>'yo')
     assert_equal "<img src='/en/image30_pv.jpg?967816914293' width='70' height='70' alt='bird' id='yo' class='super'/>",
                   img_tag(img, :mode=>'pv', :id=>'yo', :class=>'super')
-    assert_equal "<img src='/en/image30_med.jpg?390663777446' width='220' height='200' alt='super man' class='med'/>",
-                  img_tag(img, :mode=>'med', :alt=>'super man')
+    assert_equal "<img src='/en/image30_side.jpg?100321116926' width='220' height='500' alt='super man' class='side'/>",
+                  img_tag(img, :mode=>'side', :alt=>'super man')
   end
 
   def test_img_tag_other
@@ -240,5 +249,18 @@ class HtmlTagsTest < Zena::View::TestCase
     login(:lion)
     node = secure!(Node) { nodes(:status) }
     assert_match %r{opener.Zena.version_preview\('/nodes/#{node.zip}/versions/#{node.version.number}'\)}, version_actions(node.version, :actions => :view)
+  end
+
+  def test_popup_images
+    login(:anon)
+    img = secure!(Node) { nodes(:bird_jpg) }
+    @js_data = nil
+    img_tag(img)
+    assert_nil @js_data
+    img_tag(img, :mode => 'med', :id => 'flop') # med has a popup setting
+    popup_data = JSON.load(@js_data[0][%r{\A.*?(\{.*\}).*\Z},1])
+    assert_equal '/en/image30_std.jpg?929831698949', popup_data['src']
+    assert_equal 400, popup_data['height']
+    assert_equal 440, popup_data['width']
   end
 end

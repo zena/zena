@@ -1,6 +1,7 @@
 
 med:
   size:            limit
+  popup:           std
   width:           300
   height:          200
   updated_at:      2008-05-01

@@ -11,6 +11,9 @@ class ZazenTest < Zena::View::TestCase
   def _(str)
     ApplicationController.send(:_, str)
   end
+  def js_data
+    @js_data ||= []
+  end
   # ===============================
 
   def assert_zazen_match(css, code)
@@ -179,12 +182,12 @@ class ZazenTest < Zena::View::TestCase
 
     @node = secure!(Node) { nodes(:people) }
     assert_equal '<p>Read <a href="/oo/projects/cleanWater/page22.html">projects/cleanWater/status</a></p>', zazen('Read "":(/projects/cleanWater/status)')
-    assert_equal "<p>See <img src='/en/image30_med.jpg?390663777446' width='220' height='200' alt='bird' class='med'/></p>", zazen('See !:(/projects/wiki/bird)_med!')
-    assert_equal "<p>See <a href=\"/oo/contact15.html\"><img src='/en/image30_med.jpg?390663777446' width='220' height='200' alt='bird' class='med'/></a></p>", zazen('See !:(/projects/wiki/bird)_med!:(status)')
+    assert_equal "<p>See <img src='/en/image30_side.jpg?100321116926' width='220' height='500' alt='bird' class='side'/></p>", zazen('See !:(/projects/wiki/bird)_side!')
+    assert_equal "<p>See <a href=\"/oo/contact15.html\"><img src='/en/image30_side.jpg?100321116926' width='220' height='500' alt='bird' class='side'/></a></p>", zazen('See !:(/projects/wiki/bird)_side!:(status)')
     assert_equal '<p>Read <a href="/oo/contact15.html">people/status</a></p>', zazen('Read "":(status)')
 
     @node = secure!(Node) { nodes(:wiki) }
-    assert_equal "<p>See <a href=\"/oo/projects/cleanWater\"><img src='/en/image30_med.jpg?390663777446' width='220' height='200' alt='bird' class='med'/></a></p>", zazen('See !:(bird)_med!:(/projects/cleanWater)')
+    assert_equal "<p>See <a href=\"/oo/projects/cleanWater\"><img src='/en/image30_side.jpg?100321116926' width='220' height='500' alt='bird' class='side'/></a></p>", zazen('See !:(bird)_side!:(/projects/cleanWater)')
   end
 
   def test_bad_pseudo_path

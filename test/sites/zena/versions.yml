@@ -375,7 +375,9 @@ letter_en:
   comment:         letter for testing
   title:           zena enhancements
   summary:         This page is a *Letter*.
-  text:            letter content
+  text:            "letter content
+
+  !30_med! !31_med! !24_med!"
 
 wiki_skin_en:
   type:            Version

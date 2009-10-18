@@ -71,6 +71,45 @@ class Iformat < ActiveRecord::Base
 
   # :size=>:force, :width=>280, :height=>120, :gravity=>Magick::NorthGravity
   def as_hash
+    if self[:popup]
+      if self[:popup] =~ /^(\w+?)\s*\((.*)\)/
+        popup = {:name => $1}
+        show = $2.split(',').map(&:strip)
+        options = {}
+        popup[:show] = show.map do |k|
+          if k == 'link'
+            options['v_title'] = 'link'
+            'v_title'
+          else
+            k
+          end
+        end
+        popup[:options] = options
+      elsif self[:popup] =~ /^(\w+?)\s*(\{.*\})\s*$/
+        popup = {:name => $1}
+        options = JSON.load($2) rescue {}
+        unless popup[:show] = options.delete('show')
+          popup[:show] = options.keys.sort do |a,b|
+            # keep sort order
+            self[:popup].index(a) <=> self[:popup].index(b)
+          end
+          popup[:options] = {}
+          options.each do |k,v|
+            next if v == true
+            popup[:options][k] = v
+          end
+        end
+      else
+        popup = {
+          :name    => self[:popup],
+          :options => {'v_title' => 'link'},
+          :show    => ['navigation','v_title','v_summary']
+        }
+      end
+    else
+      popup = nil
+    end
+
     h = {
       :name    => self[:name],
       :size    => size.to_sym,
@@ -78,7 +117,9 @@ class Iformat < ActiveRecord::Base
       :height  => height,
       :gravity => eval("Magick::#{gravity}"),
     }
-    h.merge(:hash_id => ImageBuilder.hash_id(h))
+    h.merge!(:hash_id => ImageBuilder.hash_id(h))
+    h.merge!(:popup => popup) if popup
+    h
   end
 
   # This is a unique identifier used to cache images with format:
@@ -128,6 +169,7 @@ class Iformat < ActiveRecord::Base
 
     def iformat_before_validation
       self[:site_id] = visitor.site[:id]
+      self[:popup] = nil if self[:popup].blank?
       if self.size == SIZES.index('keep')
         self[:width] = nil
         self[:height] = nil

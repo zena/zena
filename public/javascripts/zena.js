@@ -503,3 +503,154 @@ Zena.select_tab = function(name) {
   current_sel.className = 'selected';
   current_tab.style.display = '';
 }
+
+Zena.popup_gallery = null;
+
+// <img onclick="Zena.popup(this, '/en/image65_std.jpg?929942867419', 600, 375, 'lala lala');" src='/en/image65_med.jpg?390774945916' width='300' height='188' alt='field' class='med'/>
+Zena.popup = function(elem) {
+  var offsets = elem.positionedOffset();
+  var e_left    = offsets[0];
+  var e_top     = offsets[1];
+  var e_width   = elem.clientWidth;
+  var e_height  = elem.clientHeight;
+  var config    = elem._popup;
+
+  var cont = $('pg_cont');
+  // FIXME copy border style from 'elem'
+  var border_width = 1;
+
+  if (!cont) {
+    // open popup
+    var html_img = "<img onclick='Zena.popup_close();' id='pg_img' style='position:absolute; z-index:10001; border:" + border_width + "px solid grey; top:"+e_top+"px; left:"+e_left+"px; width:"+e_width+"px;height:"+e_height+"px;' src='" + config.src + "'/>"
+    Element.insert(document.body, "<div id='pg_cont' style='position:absolute; top:0; left:0;'><div id='pg_mask' onclick='Zena.popup_close();'>&nbsp;</div>" + html_img + "</div>");
+    img = $('pg_img');
+  } else {
+    // next, previous image
+    img = $('pg_img');
+    img.src = config.src;
+  }
+
+  // used when closing
+  img._elem_top    = e_top;
+  img._elem_left   = e_left;
+  img._elem_width  = e_width;
+  img._elem_height = e_height;
+
+  var view   = document.viewport.getDimensions();
+  var offset = document.viewport.getScrollOffsets();
+  config.left = (view.width  -  config.width)/2 + offset[0];
+  config.top  = (view.height - config.height)/2 + offset[1];
+  config.class = elem.className;
+
+  // get next/previous elements
+  if (config.navigation) {
+    var gallery;
+    if (!this.popup_gallery) {
+      document.observe('keydown', function(e, el) {
+        if (!$('pg_info')) {
+          e.stop();
+          this.popup_gallery = null;
+        } else if (e.keyCode == 37) {
+          if (gallery.prev) {
+            Zena.popup(gallery.prev);
+          } else {
+            Zena.popup(gallery.list[gallery.list.size()-1]);
+          }
+        } else if (e.keyCode == 39) {
+          if (gallery.next) {
+            Zena.popup(gallery.next);
+          } else {
+            Zena.popup(gallery.list[0]);
+          }
+        } else {
+          e.stop();
+          this.popup_gallery = null;
+          Zena.popup_close();
+        }
+      });
+    }
+    if (!this.popup_gallery || this.popup_gallery.class != config.class) {
+      this.popup_gallery = {
+        class: config.class,
+        list: elem.up('div').select('img.' + config.class)
+      };
+    }
+    this.popup_gallery.current = elem;
+    this.popup_gallery.index = this.popup_gallery.list.indexOf(elem);
+    gallery = this.popup_gallery;
+  }
+
+  if (!config.pg_info_style) {
+    config.pg_info_style = 'top:' + (config.top-10) + 'px; left:' + (config.left-10) + 'px; width:' + (config.width+20) + 'px; padding-top:' + (config.height+20) + 'px;';
+    if (config.keys.size() == 0 && config.navigation) {
+      config.pg_info_style += ' min-height:30px;';
+    }
+  }
+
+  if ($('pg_info')) {
+    Zena.popup_wrap(img, config);
+    new Effect.Morph(img, {
+      style: 'width:'+config.width+'px; height:'+config.height+'px; top:'+config.top+'px; left:'+config.left+'px;',
+      duration: 0.2
+      });
+    new Effect.Morph('pg_info', {
+      style: config.pg_info_style,
+      duration: 0.2
+      });
+    $(img).appear();
+  } else {
+    new Effect.Morph(img, {
+      style: 'width:'+config.width+'px; height:'+config.height+'px; top:'+config.top+'px; left:'+config.left+'px;',
+      duration: 0.5,
+      afterFinishInternal: function(effect) {
+        Zena.popup_wrap(img, config);
+      }
+    });
+  }
+}
+
+Zena.popup_wrap = function(img, config) {
+  cont = $('pg_cont');
+  var content = '';
+  var border_width = 1;
+  gallery = this.popup_gallery;
+
+  config.keys.each(function(key, index) {
+    if (key == 'navigation') {
+      var index = gallery.index;
+      gallery.prev  = gallery.list[index - 1];
+      gallery.next  = gallery.list[index + 1];
+
+      if (gallery.prev) content += "<a id='pg_prev' href='#' onclick='Zena.popup($(\""+gallery.prev.id+"\"));return false;' title='previous image'>&nbsp;</a>";
+      if (gallery.next) content += "<a id='pg_next' href='#' onclick='Zena.popup($(\""+gallery.next.id+"\"));return false;' title='next image'>&nbsp;</a>";
+    } else {
+      content += "<div class='"+key+"'>" + config.fields[key] + "</div>";
+    }
+  });
+
+  if ($('pg_info')) {
+    if (content != '') {
+      $('pg_info').update(content);
+    } else {
+      $('pg_info').remove();
+    }
+  } else if (content != '') {
+    cont.insert("<div id='pg_info' class='" + config.class + "' style='position:absolute; " + config.pg_info_style + "'>" + content + "</div>");
+  }
+}
+
+Zena.popup_close = function() {
+  var cont = $('pg_cont');
+  if (cont) {
+    var img = $('pg_img');
+    var pg_info = $('pg_info');
+    if (pg_info) pg_info.remove();
+    new Effect.Morph(img, {
+      style: 'width:'+(img._elem_width)+'px; height:'+(img._elem_height)+'px; top:'+img._elem_top+'px; left:'+img._elem_left+'px;',
+      duration: 0.5,
+      afterFinishInternal: function(effect) {
+        cont.remove();
+      }
+    });
+  }
+}

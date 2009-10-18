@@ -421,7 +421,7 @@ show_path_options:
 
 uses_datebox:
   src: "<r:uses_datebox/>"
-  tem: "/<script.*calendar.js.*calendar-setup.js.*calendar-en-utf8.js.*calendar-brown.css.*CDATA.*DEF_DATE_FORMAT.*%Y-%m-%d %H:%M.*FIRST_DAY.*0/"
+  tem: "/<script.*calendar.js.*calendar-setup.js.*calendar-en-utf8.js.*calendar-brown.css.*DEF_DATE_FORMAT.*%Y-%m-%d %H:%M.*FIRST_DAY.*0/"
 
 calendar:
   context:
@@ -776,14 +776,14 @@ img_image:
   context:
     node: 'bird_jpg'
   src: "<r:img/><r:img mode='med'/>"
-  res: "<img src='/en/image30_std.jpg?929831698949' width='440' height='400' alt='bird' class='std'/><img src='/en/image30_med.jpg?390663777446' width='220' height='200' alt='bird' class='med'/>"
+  res: "/<img src='/en/image30_std.jpg\?929831698949' width='440' height='400' alt='bird' class='std'/><img src='/en/image30_med.jpg\?390663777446' width='220' height='200' alt='bird' id='.*' class='med' onclick='Zena.popup\(this\)'/>/"
 
 img_image_not_public:
   context:
     visitor: 'ant'
     node: 'tree_jpg'
   src: "<r:img/><r:img mode='med'/>"
-  res: "<img src='/oo/image40_std.jpg?929831698949' width='600' height='399' alt='Autumn Tree' class='std'/><img src='/oo/image40_med.jpg?390663777446' width='300' height='200' alt='Autumn Tree' class='med'/>"
+  res: "/<img src='/oo/image40_std.jpg\?929831698949' width='600' height='399' alt='Autumn Tree' class='std'/><img src='/oo/image40_med.jpg\?390663777446' width='300' height='200' alt='Autumn Tree' id='.*' class='med' onclick='Zena.popup\(this\)'/>/"
 
 img_href:
   context:

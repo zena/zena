@@ -3,8 +3,21 @@ require 'tempfile'
 module Zena
   module Use
     module Rendering
-      module ControllerMethods
+      module ViewMethods
+        def render_js
+          return '' unless self.js_data
+          javascript_tag(self.js_data.join("\n"))
+        end
+      end
 
+      module ControllerMethods
+        def self.included(base)
+          base.send(:helper_attr, :js_data)
+        end
+
+        def js_data
+          @js_data ||= []
+        end
 
         # TODO: test
         # Our own handling of exceptions
