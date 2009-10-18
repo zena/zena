@@ -191,6 +191,7 @@ class Version < ActiveRecord::Base
     { 'content_id' => (content_class ? (content_id || id) : nil),
       'user_id'    => visitor.id,
       'node'       => self.node,
+      'number'     => self.number,
       'dyn'        => self.dyn,
       'status'     => Zena::Status[:red],
       'lang'       => visitor.lang }

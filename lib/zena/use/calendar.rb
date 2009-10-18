@@ -114,7 +114,8 @@ module Zena
           if state == 'used' && remove_used.nil?
             res << title
           else
-            opts = {:url => "/nodes/#{node.zip}?node[rel][#{role}][date]=#{date.strftime("%Y-%m-%d+%H")}&node[rel][#{role}][other_id]=#{state == 'free' ? target_zip : ''}&s=#{target_zip}&dom_id=#{full_dom_id}&t_url=#{CGI.escape(template_url)}&date=#{date.strftime("%Y-%m-%d+%H")}", :method => :put}
+            date_format = "%Y-%m-%d+%H"
+            opts = {:url => "/nodes/#{node.zip}?node[rel][#{role}][date]=#{date.strftime(date_format)}&node[rel][#{role}][other_id]=#{state == 'free' ? target_zip : ''}&s=#{target_zip}&dom_id=#{full_dom_id}&t_url=#{CGI.escape(template_url)}&date=#{date.strftime(date_format)}", :method => :put}
             if state == 'used' && remove_used == 'warn'
               opts[:confirm] = _("Delete relation '%{role}' between '%{source}' and '%{target}' ?") % {:role => role, :source => node.version.title, :target => node.linked_node.version.title}
             end

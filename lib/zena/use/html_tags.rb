@@ -534,7 +534,9 @@ module Zena
         def version_action_link(action,version)
           if action == 'view'
             # FIXME
-            link_to_function(_('btn_view'), "opener.Zena.version_preview('/nodes/#{version.node.zip}/versions/#{version.number}');")
+            link_to_function(
+            _("status_#{version.status}_img"),
+            "opener.Zena.version_preview('/nodes/#{version.node.zip}/versions/#{version.number}');", :title => _("status_#{version.status}"))
           else
             if action == 'destroy_version'
               action = 'destroy'

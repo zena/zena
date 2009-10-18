@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 0.9.0\n"
 "POT-Creation-Date: 2008-09-26 20:39-0000\n"
-"PO-Revision-Date: 2008-09-26 23:22+0100\n"
+"PO-Revision-Date: 2009-10-17 21:32+0100\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: fr <gaspard@teti.ch>\n"
 "MIME-Version: 1.0\n"
@@ -1809,6 +1809,34 @@ msgstr "enlevé"
 #: lib/gettext_strings.rb:92
 msgid "status_0"
 msgstr "effacé"
+
+#: lib/gettext_strings.rb:92
+msgid "status_50_img"
+msgstr "<img src='/images/weather_sun.png'/>"
+
+#: lib/gettext_strings.rb:93
+msgid "status_60_img"
+msgstr "<img src='/images/magnifier.png'/>"
+
+#: lib/gettext_strings.rb:94
+msgid "status_65_img"
+msgstr "<img src='/images/magnifier.png'/>"
+
+#: lib/gettext_strings.rb:95
+msgid "status_70_img"
+msgstr "<img src='/images/pencil.png'/>"
+
+#: lib/gettext_strings.rb:96
+msgid "status_20_img"
+msgstr "<img src='/images/weather_clouds.png'/>"
+
+#: lib/gettext_strings.rb:97
+msgid "status_10_img"
+msgstr "<img src='/images/weather_rain.png'/>"
+
+#: lib/gettext_strings.rb:98
+msgid "status_0_img"
+msgstr "<img src='/images/weather_lightning.png'/>"
 
 #: lib/gettext_strings.rb:94
 msgid "en"

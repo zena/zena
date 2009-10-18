@@ -145,7 +145,7 @@ ul.infos li { padding:0.4em 0.4em; list-style:none; display:block; }
 #links_tab .add { text-align:left;}
 #links_tab .date { width:95px; }
 #links_tab .status { width:70px; }
-#links_tab .box { width:18px;}
+#links_tab .box { width:15px;}
 #links_tab .comment { font-style:italic; width:auto; text-align:left;}
 #links_tab .actions { width:100px;}
 
@@ -171,8 +171,8 @@ ul.infos li { padding:0.4em 0.4em; list-style:none; display:block; }
 
 #versions_list { max-height:230px; overflow:auto;}
 #versions .sign { width:20px; }
-#links_tab .diff .box { border-right-width:0; }
-#links_tab .diff .text { font-style:italic; text-align:left;}
+#versions .number { width:25px; font-size:13px; padding:0 5px; font-weight:bold; cursor:pointer;}
+#versions .actions { width:100px; }
 
 #discussions .inline_form div { float: left; padding:0 8px; }
 #discussions .inline_form .inside { margin-top:2px; }

@@ -1,10 +1,9 @@
 <tr class="v<%= tr.status %>">
-  <td class="box"><%= version_actions( tr, :actions => 'view') %></td>
-  <td class="box" style='cursor:pointer;' onclick="Zena.diff_select(this);"><%= tr.number %></td>
+  <td class="box"><%= version_actions(tr, :actions => 'view') %></td>
+  <td class="number" onclick="Zena.diff_select(this);"><%= tr.number %></td>
   <td class="box"><%= tr.lang %></td>
-  <td class="status"><%= _("status_#{tr.status}") %></td>
-  <td class="sign"><%= tr.user.initials %></td>
-  <td class="comment"><%= tr.comment %></td>
-  <td class="date"><%= tformat_date(tr.created_at, 'datetime') %></td>
   <td class="actions"><%= version_actions(tr) %></td>
+  <td class="sign"><%= tr.user.initials %></td>
+  <td class="date"><%= format_date(tr.created_at, 'age') %></td>
+  <td class="comment"><%= tr.comment %></td>
 </tr>

@@ -8,10 +8,15 @@ gem 'zena', :version => Zena::VERSION
 route 'map.zen_routes'
 
 rakefile("zena_tasks.rake") do
-  <<-TASK
-    require 'zena'
-    require 'tasks/zena'
-  TASK
+<<-TASK
+# sync zena tasks to gem version
+env = File.read(File.join(File.dirname(__FILE__), '..', '..', 'config', 'environment.rb'))
+if env =~ /config.gem.*zena.*version.*'(.*?)'/
+  gem 'zena', "= \#{$1}"
+end
+require 'zena'
+require 'tasks/zena'
+TASK
 end
 
 ['development', 'test', 'production'].each do |env|

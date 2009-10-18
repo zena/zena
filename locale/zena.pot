@@ -1665,6 +1665,34 @@ msgstr ""
 msgid "status_0"
 msgstr ""
 
+#: lib/gettext_strings.rb:92
+msgid "status_50_img"
+msgstr ""
+
+#: lib/gettext_strings.rb:93
+msgid "status_60_img"
+msgstr ""
+
+#: lib/gettext_strings.rb:94
+msgid "status_65_img"
+msgstr ""
+
+#: lib/gettext_strings.rb:95
+msgid "status_70_img"
+msgstr ""
+
+#: lib/gettext_strings.rb:96
+msgid "status_20_img"
+msgstr ""
+
+#: lib/gettext_strings.rb:97
+msgid "status_10_img"
+msgstr ""
+
+#: lib/gettext_strings.rb:98
+msgid "status_0_img"
+msgstr ""
+
 #: lib/gettext_strings.rb:94
 msgid "en"
 msgstr ""

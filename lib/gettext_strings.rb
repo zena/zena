@@ -89,6 +89,14 @@ module Zena
     N_('status_10')         # removed
     N_('status_0')          # deleted
 
+    N_('status_50_img')         # published
+    N_('status_60_img')         # proposed
+    N_('status_65_img')         # proposed with
+    N_('status_70_img')         # redaction
+    N_('status_20_img')         # replaced
+    N_('status_10_img')         # removed
+    N_('status_0_img')          # deleted
+
     N_('en')
     N_('fr')
     N_('de')

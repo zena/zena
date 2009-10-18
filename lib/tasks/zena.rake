@@ -3,6 +3,38 @@ require 'fileutils'
 
 require File.join(File.dirname(__FILE__), '..', 'zena', 'info') # to have Zena::ROOT
 
+def symlink_assets(from, to)
+  from = File.expand_path(from)
+  to = File.expand_path(to)
+  return if from == to
+  # FIXME: how do we keep favicon.ico and robots.txt in the root dir of a site ?
+  # FIXME: ln should be to 'current' release, not calendar -> /var/zena/releases/20070511195642/public/calendar
+  #        we could create a symlink in the sites dir to 'shared' -> /var/zena/current/public
+  #        and then symlink with "#{host_path}/public/#{dir}" -> "../shared/public/#{dir}"
+  #        OR we could symlink /var/zena/current/...
+  ['calendar', 'images', 'javascripts', 'stylesheets', 'icons'].each do |dir|
+    File.unlink("#{to}/public/#{dir}") if File.symlink?("#{to}/public/#{dir}")
+    if File.exist?("#{to}/public/#{dir}")
+      if File.directory?("#{to}/public/#{dir}")
+        # replace each file
+        Dir.foreach("#{from}/public/#{dir}") do |f|
+          src, trg = "#{from}/public/#{dir}/#{f}", "#{to}/public/#{dir}/#{f}"
+          next if f =~ /\A\./
+          if File.exist?(trg) || File.symlink?(trg)
+            File.unlink(trg)
+          end
+          FileUtils.ln_s(src, trg)
+        end
+      else
+        # ignore
+        puts "Cannot install assets in #{to}/public/#{dir} (not a directory)"
+      end
+    else
+      FileUtils.ln_s("#{from}/public/#{dir}", "#{to}/public/#{dir}")
+    end
+  end
+end
+ 
 def copy_assets(from, to)
   from = File.expand_path(from)
   to = File.expand_path(to)
@@ -91,7 +123,7 @@ namespace :zena do
         FileUtils.mkpath("#{host_path}/#{dir}")
       end
 
-      symlink_assets(Zena::ROOT, host_path)
+      symlink_assets(RAILS_ROOT, host_path)
     end
   end
 

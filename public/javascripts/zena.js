@@ -39,38 +39,42 @@ Zena.save = function(url, form, close_on_complete) {
   }
 }
 
-var diff_from = '';
-var diff_to = '';
-var diff_next_sel = 'from';
+var diff_from = false;
+var diff_to   = false;
 
 Zena.diff_select = function(tag) {
-  if (diff_next_sel == 'from') {
-    if (diff_from != '') {
-      diff_from.style.background = 'none';
-    }
-    diff_from = tag;
-    diff_next_sel = 'to';
-  } else {
-    if (diff_to != '') {
+  tag_number = parseInt(tag.innerHTML);
+  if (tag == diff_from || tag == diff_to) {
+    // reset
+    if (diff_from) diff_from.style.background = 'none';
+    if (diff_to  ) diff_to.style.background   = 'none';
+    diff_from = false;
+    diff_to   = false;
+    opener.window.location.href = '/nodes/' + $('node_zip').innerHTML;
+    return;
+  } else if (diff_to && diff_from) {
+    // update
+    if (parseInt(diff_to.innerHTML) - tag_number < tag_number - parseInt(diff_from.innerHTML)) {
       diff_to.style.background = 'none';
-    }
-    diff_to = tag;
-    diff_next_sel = 'from';
-  }
-  if (diff_from != '' && diff_to != '' && parseInt(diff_from.innerHTML) > parseInt(diff_to.innerHTML)) {
-    var tmp = diff_from;
-    diff_from = diff_to;
-    diff_to = tmp;
-    if (diff_next_sel == 'from') {
-      diff_next_sel = 'to';
+      diff_to = tag;
     } else {
-      diff_next_sel = 'from';
+      diff_from.style.background = 'none';
+      diff_from = tag;
+    }
+  } else if (!diff_to) {
+    diff_to = tag;
+  } else {
+    if (tag_number > parseInt(diff_to.innerHTML)) {
+      diff_from = diff_to;
+      diff_to   = tag;
+    } else {
+      diff_from = tag;
     }
   }
 
-  diff_from.style.background = '#7A6414';
-  diff_to.style.background = '#FAD12A';
-  if (diff_from != '' && diff_to != '') {
+  if (diff_from) diff_from.style.background = '#7A6414';
+  if (diff_to)   diff_to.style.background   = '#FAD12A';
+  if (diff_from && diff_to) {
     opener.Zena.version_diff($('node_zip').innerHTML, diff_from, diff_to);
   }
 }
