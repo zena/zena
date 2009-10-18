@@ -12,7 +12,7 @@ def symlink_assets(from, to)
   #        we could create a symlink in the sites dir to 'shared' -> /var/zena/current/public
   #        and then symlink with "#{host_path}/public/#{dir}" -> "../shared/public/#{dir}"
   #        OR we could symlink /var/zena/current/...
-  ['calendar', 'images', 'javascripts', 'stylesheets', 'icons'].each do |dir|
+  ['calendar', 'images', 'javascripts', 'stylesheets'].each do |dir|
     File.unlink("#{to}/public/#{dir}") if File.symlink?("#{to}/public/#{dir}")
     if File.exist?("#{to}/public/#{dir}")
       if File.directory?("#{to}/public/#{dir}")

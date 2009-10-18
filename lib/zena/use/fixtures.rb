@@ -127,6 +127,15 @@ module Zena
             end
           end
         end
+
+        unless File.exist?("#{SITES_ROOT}/test.host/public")
+          FileUtils::mkpath("#{SITES_ROOT}/test.host/public")
+          ['images', 'calendar', 'stylesheets', 'javascripts'].each do |dir|
+            FileUtils.ln_s("../../../public/#{dir}", "#{SITES_ROOT}/test.host/public/#{dir}")
+          end
+        end
+
+        FileUtils::mkpath("#{SITES_ROOT}/test.host/log") unless File.exist?("#{SITES_ROOT}/test.host/log")
       end
     end # Fixtures
   end # use
