@@ -1,14 +1,19 @@
-# zena apache2 setup for <%= balancer %>
+# zena apache2 setup for <%= config[:balancer] %>
 # automatically generated file
 
 NameVirtualHost *
+<% case config[:app_type] %>
+<% when :passenger %>
+LoadModule upload_progress_module <%= config[:app_root] %>/vendor/apache2_upload_progress/mod_upload_progress.so
+<% when :mongrel %>
 <Proxy *>
   Order allow,deny
   Allow from all
 </Proxy>
-<Proxy balancer://<%= balancer %>><% ports.each do |port| %>
+<Proxy balancer://<%= config[:balancer] %>><% config[:ports].each do |port| %>
   BalancerMember http://127.0.0.1:<%= port %><% end %>
 </Proxy>
+<% end %>
 
 <ifmodule mode_expires.c>
   <filesmatch "\.(jpg|gif|png|css|js)$">

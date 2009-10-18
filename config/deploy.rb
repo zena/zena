@@ -10,12 +10,12 @@ if self[:server_ip]
   #================= ADVANCED SETTINGS =============#
 
   set :deploy_to,    "/var/zena"
-  set :zena_sites,   "/var/www/zena"
-  set :apache2_vhost_root, "/etc/apache2/sites-available"
-  set :apache2_deflate,       true
-  set :apache2_debug_deflate, false
-  set :apache2_debug_rewrite, false
-  set :apache2_static,        []
+  set :sites_root,   "/var/www/zena"
+  set :vhost_root,   "/etc/apache2/sites-available"
+  set :deflate,       true
+  set :debug_deflate, false
+  set :debug_rewrite, false
+  set :static,        []
   set :apache2_reload_cmd, "/etc/init.d/apache2 reload"
   set :debian_host,           true
   set :ssh_user,              "root"

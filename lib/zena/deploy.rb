@@ -26,6 +26,10 @@ require 'erb'
 Capistrano::Configuration.instance(:must_exist).load do
 
   set :templates, File.join(File.dirname(__FILE__), 'deploy')
+  self[:app_type]   ||= :mongrel
+  self[:app_root]   ||= '/var/zena/current'
+  self[:sites_root] ||= '/var/www/zena'
+  self[:balancer]   ||= db_name
 
   set :in_current, "cd #{deploy_to}/current &&"
   class RenderClass
@@ -84,7 +88,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   desc "update symlink to 'sites' directory"
   task :app_update_symlinks, :roles => :app do
     run "test ! -e #{deploy_to}/current/sites || rm #{deploy_to}/current/sites"
-    run "ln -sf #{zena_sites} #{deploy_to}/current/sites"
+    run "ln -sf #{sites_root} #{deploy_to}/current/sites"
     set_permissions
   end
 
@@ -97,7 +101,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   task :app_setup, :roles => :app do
     gem_update
     run "test -e #{deploy_to}  || mkdir #{deploy_to}"
-    run "test -e #{zena_sites} || mkdir #{zena_sites}"
+    run "test -e #{sites_root} || mkdir #{sites_root}"
     deploy::setup
   end
 
@@ -107,7 +111,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     run "#{in_current} rake zena:mksite HOST='#{self[:host]}' PASSWORD='#{self[:pass]}' RAILS_ENV='production' LANG='#{self[:lang] || 'en'}'"
     create_vhost
     create_awstats
-    run "chown -R www-data:www-data #{zena_sites}/#{self[:host]}"
+    run "chown -R www-data:www-data #{sites_root}/#{self[:host]}"
   end
 
   desc "update code in the current version"
@@ -174,15 +178,8 @@ Capistrano::Configuration.instance(:must_exist).load do
     unless self[:host]
       puts "HOST not set (use -s host=...)"
     else
-      vhost = render("#{templates}/vhost.rhtml",
-                    :host        => self[:host],
-                    :static      => apache2_static,
-                    :deflate       => apache2_deflate,
-                    :debug_deflate => apache2_debug_deflate,
-                    :debug_rewrite => apache2_debug_rewrite,
-                    :balancer    => db_name
-                    )
-      put(vhost, "#{apache2_vhost_root}/#{self[:host]}")
+      vhost = render("#{templates}/vhost.rhtml", :config => self)
+      put(vhost, "#{vhost_root}/#{self[:host]}")
 
       run "test -e /etc/apache2/sites-enabled/#{self[:host]} || a2ensite #{self[:host]}" if debian_host
 
@@ -190,7 +187,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         vhost_www = render("#{templates}/vhost_www.rhtml",
                       :host        => self[:host]
                       )
-        put(vhost_www, "#{apache2_vhost_root}/www.#{self[:host]}")
+        put(vhost_www, "#{vhost_root}/www.#{self[:host]}")
         run "test -e /etc/apache2/sites-enabled/www.#{self[:host]} || a2ensite www.#{self[:host]}" if debian_host
       end
       run apache2_reload_cmd
@@ -214,22 +211,22 @@ Capistrano::Configuration.instance(:must_exist).load do
 
         # create stats vhost
         stats_vhost = render("#{templates}/stats.vhost.rhtml", :host => self[:host] )
-        put(stats_vhost, "#{apache2_vhost_root}/stats.#{self[:host]}")
+        put(stats_vhost, "#{vhost_root}/stats.#{self[:host]}")
         run "test -e /etc/apache2/sites-enabled/stats.#{self[:host]} || a2ensite stats.#{self[:host]}"
 
         # directory setup for stats
-        run "test -e #{zena_sites}/#{self[:host]}/log/awstats || mkdir #{zena_sites}/#{self[:host]}/log/awstats"
-        run "chown www-data:www-data #{zena_sites}/#{self[:host]}/log/awstats"
+        run "test -e #{sites_root}/#{self[:host]}/log/awstats || mkdir #{sites_root}/#{self[:host]}/log/awstats"
+        run "chown www-data:www-data #{sites_root}/#{self[:host]}/log/awstats"
 
         # setup cron task for awstats
-        run "cat /etc/cron.d/awstats | grep \"#{self[:host]}\" || echo \"0,10,20,30,40,50 * * * * www-data [ -x /usr/lib/cgi-bin/awstats.pl -a -f /etc/awstats/awstats.#{self[:host]}.conf -a -r #{zena_sites}/#{self[:host]}/log/apache2.access.log ] && /usr/lib/cgi-bin/awstats.pl -config=#{self[:host]} -update >/dev/null\n\" >> /etc/cron.d/awstats"
+        run "cat /etc/cron.d/awstats | grep \"#{self[:host]}\" || echo \"0,10,20,30,40,50 * * * * www-data [ -x /usr/lib/cgi-bin/awstats.pl -a -f /etc/awstats/awstats.#{self[:host]}.conf -a -r #{sites_root}/#{self[:host]}/log/apache2.access.log ] && /usr/lib/cgi-bin/awstats.pl -config=#{self[:host]} -update >/dev/null\n\" >> /etc/cron.d/awstats"
 
         # create .htpasswd file
-        run "test ! -e #{zena_sites}/#{self[:host]}/log/.awstatspw || rm #{zena_sites}/#{self[:host]}/log/.awstatspw"
-        run "htpasswd -c -b #{zena_sites}/#{self[:host]}/log/.awstatspw 'admin' '#{self[:pass]}'"
+        run "test ! -e #{sites_root}/#{self[:host]}/log/.awstatspw || rm #{sites_root}/#{self[:host]}/log/.awstatspw"
+        run "htpasswd -c -b #{sites_root}/#{self[:host]}/log/.awstatspw 'admin' '#{self[:pass]}'"
 
         # reload apache
-        run "/etc/init.d/apache2 reload"
+        apache2_reload_cmd
       end
     end
   end
@@ -240,7 +237,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       puts "host or old_host not set (use -s host=... -s old_host=...)"
     else
       run "#{in_current} rake zena:rename_host OLD_HOST='#{self[:old_host]}' HOST='#{self[:host]}' RAILS_ENV='production'"
-      old_vhost_path = "#{apache2_vhost_root}/#{self[:old_host]}"
+      old_vhost_path = "#{vhost_root}/#{self[:old_host]}"
       run "a2dissite #{self[:old_host]}"
       run "test -e #{old_vhost_path} && rm #{old_vhost_path}"
       # FIXME: remove old awstats vhost !!
@@ -255,7 +252,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   desc "Apache2 initial setup"
   task :apache2_setup, :roles => :web do
     ports = (mongrel_port.to_i...(mongrel_port.to_i + mongrel_count.to_i)).to_a
-    httpd_conf = render("#{templates}/httpd.rhtml", :balancer => db_name, :ports => ports)
+    httpd_conf = render("#{templates}/httpd.rhtml", :balancer => self[:balancer], :ports => ports)
     if debian_host
       put(httpd_conf, "/etc/apache2/conf.d/#{db_name}")
     else

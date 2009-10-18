@@ -1,21 +1,21 @@
-# zena apache2 vhost for <%= host %>
+# zena apache2 vhost for <%= config[:host] %>
 # automatically generated file
 
 <VirtualHost *>
-  ServerName <%= host %>
+  ServerName <%= config[:host] %>
 
-  DocumentRoot /var/www/zena/<%= host %>/public
-  ErrorLog     /var/www/zena/<%= host %>/log/apache2.error.log
-  CustomLog    /var/www/zena/<%= host %>/log/apache2.access.log combined
+  DocumentRoot <%= config[:sites_root] %>/<%= config[:host] %>/public
+  ErrorLog     <%= config[:sites_root] %>/<%= config[:host] %>/log/apache2.error.log
+  CustomLog    <%= config[:sites_root] %>/<%= config[:host] %>/log/apache2.access.log combined
 
-  <Directory "/var/www/zena/<%= host %>/public">
+  <Directory "<%= config[:sites_root] %>/<%= config[:host] %>/public">
     Options FollowSymLinks
     AllowOverride None
     Order allow,deny
     Allow from all
   </Directory>
 
-  <% if static.include?('cgi-bin') %>
+  <% if config[:static].include?('cgi-bin') %>
   ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
   <Directory "/usr/lib/cgi-bin">
     AllowOverride None
@@ -24,7 +24,7 @@
     Allow from all
   </Directory>
   <% end %>
-  <% if static.include?('awstats-icon') %>
+  <% if config[:static].include?('awstats-icon') %>
   Alias /awstats-icon/ /usr/share/awstats/icon/
   <Directory "/usr/share/awstats/icon">
     Options None
@@ -42,10 +42,12 @@
     Satisfy All
   </DirectoryMatch>
 
+<% case config[:app_type] %>
+<% when :mongrel %>
   RewriteEngine On
-  <% if debug_rewrite %>
+  <% if config[:debug_rewrite] %>
   # rewrite debugging
-  RewriteLog /var/www/zena/<%= host %>/log/rewrite.log
+  RewriteLog <%= config[:sites_root] %>/<%= config[:host] %>/log/rewrite.log
   RewriteLogLevel 9
 
   <% end %>
@@ -63,9 +65,22 @@
 
   # Redirect all non-static requests to cluster
   RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME}%{QUERY_STRING} !-f
-  RewriteRule ^/(.*)$ balancer://<%= balancer %>%{REQUEST_URI} [P,QSA,L]
+  RewriteRule ^/(.*)$ balancer://<%= config[:balancer] %>%{REQUEST_URI} [P,QSA,L]
+<% when :passenger %>
+  PassengerAppRoot <% config[:app_root] %>
 
-  <% if deflate %>
+  <Location />
+    # enable tracking uploads in /
+    TrackUploads On
+  </Location>
+
+  <Location /upload_progress>
+    # enable upload progress reports
+    ReportUploads On
+  </Location>
+<% end %>
+
+  <% if config[:deflate] %>
   # Deflate (compress data before sending to browser)
   AddOutputFilterByType DEFLATE text/html text/plain text/xml application/xml application/xhtml+xml text/javascript text/css
   BrowserMatch ^Mozilla/4 gzip-only-text/html
@@ -73,12 +88,12 @@
   BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
   <% end %>
 
-  <% if debug_deflate && deflate %>
+  <% if config[:debug_deflate] && config[:deflate] %>
   # Deflate debugging
   DeflateFilterNote Input input_info
   DeflateFilterNote Output output_info
   DeflateFilterNote Ratio ratio_info
   LogFormat '"%r" %{output_info}n/%{input_info}n (%{ratio_info}n%%)' deflate
-  CustomLog /var/www/zena/<%= host %>/log/deflate.log deflate
+  CustomLog <%= config[:sites_root] %>/<%= config[:host] %>/log/deflate.log deflate
   <% end %>
 </VirtualHost>

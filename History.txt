@@ -1,5 +1,8 @@
 == 0.15.1 2009-10-17
 
+* 1 major enhancement:
+  * Passenger support (deploy, upload progress)
+
 * 3 minor enhancements:
   * fixed deployment using capistrano
   * fixed zena:setup task to copy files instead of symlink
