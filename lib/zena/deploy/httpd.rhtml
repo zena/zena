@@ -2,10 +2,9 @@
 # automatically generated file
 
 NameVirtualHost *
-<% case config[:app_type] %>
-<% when :passenger %>
+<% if config[:app_type] == :passenger  %>
 LoadModule upload_progress_module <%= config[:app_root] %>/vendor/apache2_upload_progress/mod_upload_progress.so
-<% when :mongrel %>
+<% elsif config[:app_type] == :mongrel %>
 <Proxy *>
   Order allow,deny
   Allow from all

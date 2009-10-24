@@ -251,8 +251,8 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   desc "Apache2 initial setup"
   task :apache2_setup, :roles => :web do
-    ports = (mongrel_port.to_i...(mongrel_port.to_i + mongrel_count.to_i)).to_a
-    httpd_conf = render("#{templates}/httpd.rhtml", :balancer => self[:balancer], :ports => ports)
+    self[:ports] = (mongrel_port.to_i...(mongrel_port.to_i + mongrel_count.to_i)).to_a
+    httpd_conf = render("#{templates}/httpd.rhtml", :config => self)
     if debian_host
       put(httpd_conf, "/etc/apache2/conf.d/#{db_name}")
     else
