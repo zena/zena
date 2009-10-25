@@ -14,7 +14,7 @@ module Bricks
 
       def r_mail_hide
         text = get_text_for_erb
-        "<%= visitor.is_anon? ? mail_hide(#{text},:mh_pub => #{visitor.site.d_mail_hide_pub.inspect}, :mh_priv => #{visitor.site.d_mail_hide_priv.inspect}#{get_recaptcha_params}) : #{text} %>"
+        "<%= visitor.is_anon? ? mail_hide(#{text},:mh_pub => #{visitor.site.dyn['mail_hide_pub'].inspect}, :mh_priv => #{visitor.site.dyn['mail_hide_priv'].inspect}#{get_recaptcha_params}) : #{text} %>"
       end
 
       def get_recaptcha_params
