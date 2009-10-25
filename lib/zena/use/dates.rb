@@ -170,7 +170,12 @@ module Zena
             hash['%S'] ||= 0
             if hash['%Y'] && hash['%m'] && hash['%d']
               res = Time.utc(hash['%Y'], hash['%m'], hash['%d'], hash['%H'], hash['%M'], hash['%S'])
-              timezone ? timezone.local_to_utc(res) : res
+              begin
+                timezone ? timezone.local_to_utc(res, true) : res
+              rescue TZInfo::AmbiguousTime
+                # Better a bad date then nothing
+                res
+              end
             else
               nil
             end
