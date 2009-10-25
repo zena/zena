@@ -506,7 +506,6 @@ Zena.select_tab = function(name) {
 
 Zena.popup_gallery = null;
 
-// <img onclick="Zena.popup(this, '/en/image65_std.jpg?929942867419', 600, 375, 'lala lala');" src='/en/image65_med.jpg?390774945916' width='300' height='188' alt='field' class='med'/>
 Zena.popup = function(elem) {
   var offsets = elem.positionedOffset();
   var e_left    = offsets[0];
@@ -538,14 +537,14 @@ Zena.popup = function(elem) {
 
   var view   = document.viewport.getDimensions();
   var offset = document.viewport.getScrollOffsets();
-  config.left = (view.width  -  config.width)/2 + offset[0];
-  config.top  = (view.height - config.height)/2 + offset[1];
-  config.class = elem.className;
+  config.left  = (view.width  -  config.width)/2 + offset[0];
+  config.top   = (view.height - config.height)/2 + offset[1];
+  config.klass = elem.className;
 
   // get next/previous elements
   if (config.navigation) {
     var gallery;
-    if (!this.popup_gallery) {
+    if (false && !this.popup_gallery) {
       document.observe('keydown', function(e, el) {
         if (!$('pg_info')) {
           e.stop();
@@ -569,10 +568,10 @@ Zena.popup = function(elem) {
         }
       });
     }
-    if (!this.popup_gallery || this.popup_gallery.class != config.class) {
+    if (!this.popup_gallery || this.popup_gallery.klass != config.klass) {
       this.popup_gallery = {
-        class: config.class,
-        list: elem.up('div').select('img.' + config.class)
+        klass: config.klass,
+        list: elem.up('div').select('img.' + config.klass)
       };
     }
     this.popup_gallery.current = elem;
@@ -635,7 +634,7 @@ Zena.popup_wrap = function(img, config) {
       $('pg_info').remove();
     }
   } else if (content != '') {
-    cont.insert("<div id='pg_info' class='" + config.class + "' style='position:absolute; " + config.pg_info_style + "'>" + content + "</div>");
+    cont.insert("<div id='pg_info' class='" + config.klass + "' style='position:absolute; " + config.pg_info_style + "'>" + content + "</div>");
   }
 }
 
