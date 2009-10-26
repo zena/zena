@@ -116,7 +116,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   desc "update code in the current version"
   task :up, :roles => :app do
-    run "cd #{deploy_to}/current && svn up && (echo #{strategy.configuration[:real_revision]} > #{deploy_to}/current/REVISION)"
+    run "cd #{deploy_to}/current && #{self[:scm] == 'git' ? "git pull origin #{self[:branch] || 'master'}" : 'svn up'} && (echo #{strategy.configuration[:real_revision]} > #{deploy_to}/current/REVISION)"
     db_update_config
     clear_zafu
     clear_cache
@@ -126,7 +126,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   desc "light update code (no migration, no clear)"
   task :lightup, :roles => :app do
-    run "cd #{deploy_to}/current && svn up"
+    run "cd #{deploy_to}/current && #{self[:scm] == 'git' ? "git pull origin #{self[:branch] || 'master'}" : 'svn up'}"
     restart
   end
 
