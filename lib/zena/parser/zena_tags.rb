@@ -41,6 +41,7 @@ require 'yaml'
 
 module Zena
   module Parser
+    include RubyLess::SafeClass
     # Zafu tags used to display / edit nodes and versions
     module ZenaTags
       PSEUDO_ATTRIBUTES = {
@@ -3029,6 +3030,8 @@ module Zena
             params[:mode]   = @params[:mode]   if @params[:mode]
             params[:format] = @params[:format] if @params[:format]
             "zen_#{real_attribute}(#{node}#{params_to_erb(params)})"
+          elsif type = safe_method_type([real_attribute])
+            type[:method]
           elsif type = klass.safe_method_type([real_attribute])
             "#{att_node}.#{type[:method]}"
           else

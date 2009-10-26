@@ -1,7 +1,7 @@
 hpricot:
 gettext:        '= 1.93.0'
 querybuilder:   '= 0.5.6'
-rubyless:       '= 0.3.2'
+rubyless:       '= 0.3.3'
 ruby-recaptcha: '= 1.0.0'
 syntax:         '= 1.0.0'
 tzinfo:         '= 0.3.12'

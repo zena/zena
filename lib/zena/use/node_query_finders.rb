@@ -8,8 +8,7 @@ class NodeQuery < QueryBuilder
   set_main_class 'Node'
   @@filter_fields = {'id' => {:key => 'zip'}}
 
-  # TODO: should glob SITES_ROOT/**/custom_queries...
-  load_custom_queries File.join(File.dirname(__FILE__), 'custom_queries')
+  load_custom_queries ["#{RAILS_ROOT}/bricks/*/queries"]
 
   def self.insert_zero_link(link_class)
     return if link_class.find_by_id(0)
