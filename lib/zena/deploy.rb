@@ -233,14 +233,22 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   desc "Rename a webhost"
   task :rename_host, :roles => :web do
-    unless self[:host] && self[:old_host]
-      puts "host or old_host not set (use -s host=... -s old_host=...)"
+    unless self[:host] && self[:old_host] && self[:pass]
+      puts "host or old_host not set (use -s host=... -s pass=... -s old_host=...)"
     else
       run "#{in_current} rake zena:rename_host OLD_HOST='#{self[:old_host]}' HOST='#{self[:host]}' RAILS_ENV='production'"
-      old_vhost_path = "#{vhost_root}/#{self[:old_host]}"
-      run "a2dissite #{self[:old_host]}"
-      run "test -e #{old_vhost_path} && rm #{old_vhost_path}"
-      # FIXME: remove old awstats vhost !!
+      old_vhosts = ["#{self[:old_host]}",
+                    "stats.#{self[:old_host]}",
+                    "www.#{self[:old_host]}"]
+      old_vhosts.each do |vhost|
+        run "test -e /etc/apache2/sites-enabled/#{vhost} && a2dissite #{vhost} || true"
+        vhost_path = "#{vhost_root}/#{vhost}"
+        run "test -e #{vhost_path} && rm #{vhost_path} || true"
+      end
+
+      awstat_conf = "/etc/awstats/awstats.#{self[:old_host]}.conf"
+      run "test -e#{awstat_conf} && rm #{awstat_conf} || true"
+
       create_vhost
       create_awstats
       clear_zafu
