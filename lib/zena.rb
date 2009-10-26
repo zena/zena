@@ -4,10 +4,6 @@ require 'date'
 require 'fileutils'
 require File.join(File.dirname(__FILE__), 'zena', 'info')
 
-AUTHENTICATED_PREFIX = "oo"
-SITES_ROOT = "#{RAILS_ROOT}/sites"
-PASSWORD_SALT = "jf93jfnvnas09093nas0923" # type anything here (but change this line !)
-ZENA_CALENDAR_LANGS = ["en", "fr"] # FIXME: build this dynamically from existing files
 def has_executable(*list)
   list.inject(true) do |s,e|
     s && !(`which #{e} || echo 'no #{e}'` =~ /^no #{e}/)
@@ -17,7 +13,6 @@ ENABLE_LATEX   = true  && has_executable('pdflatex') # enable LateX post-renderi
 ENABLE_FOP     = true  && has_executable('fop', 'xsltproc') # enable xsl-fo post-rendering
 ENABLE_MATH    = true  && has_executable('latex', 'dvips', 'convert', 'gs')
 ENABLE_ZENA_UP = false && has_executable('zena_up')
-ENABLE_XSENDFILE = false
 
 UPLOAD_KEY     = defined?(Mongrel) ? 'upload_id' : "X-Progress-ID"
 

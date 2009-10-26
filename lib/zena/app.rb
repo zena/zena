@@ -1,3 +1,4 @@
+require File.join(File.dirname(__FILE__), 'info')
 module Zena
   module App
     def self.included(base)
