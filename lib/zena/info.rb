@@ -1,4 +1,6 @@
-SITES_ROOT = "#{RAILS_ROOT}/sites"
+if defined?(RAILS_ROOT)
+  SITES_ROOT = "#{RAILS_ROOT}/sites"
+end
 AUTHENTICATED_PREFIX = "oo"
 PASSWORD_SALT = "jf93jfnvnas09093nas0923" # type anything here (but change this line !)
 ZENA_CALENDAR_LANGS = ["en", "fr"] # FIXME: build this dynamically from existing files
