@@ -210,6 +210,9 @@ class NodesController < ApplicationController
   def import
     defaults = params[:node]
     klass = defaults.delete(:klass)
+    if klass == 'Skin' && !defaults.has_key?('v_status')
+      defaults['v_status'] = Zena::Status[:pub]
+    end
     @nodes = secure!(Node) { Node.create_nodes_from_folder(
       :klass    => klass,
       :archive  => params[:attachment],
@@ -471,6 +474,7 @@ class NodesController < ApplicationController
     # Transform pseudo id into absolute paths (used after import)
     def parse_assets(nodes)
       nodes.each do |n|
+        n.errors.instance_variable_get(:@errors).delete('asset')
         next unless n.errors.empty?
         attrs = {}
 

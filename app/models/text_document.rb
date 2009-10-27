@@ -69,7 +69,7 @@ class TextDocument < Document
           if new_src = helper.send(:template_url_for_asset, :src => src, :current_folder=>current_folder, :parse_assets => true)
             "url(#{quote}#{new_src}#{quote})"
           else
-            errors.add('base', "could not find asset {{asset}}", :asset => src.inspect)
+            errors.add('asset', '{{asset}} not found', :asset => src.inspect)
             "url(#{quote}#{src}#{quote})"
           end
         end
@@ -96,7 +96,7 @@ class TextDocument < Document
           if url =~ /\A\/\w\w.*?(\d+)(_\w+|)\./
             zip, mode = $1, $2
             unless asset = secure(Node) { Node.find_by_zip(zip) }
-              errors.add('base', "could not find asset node #{zip}")
+              errors.add('asset', '{{zip}} not found', :zip => zip)
               "url(#{quote}#{url}#{quote})"
             end
             if asset.fullpath =~ /\A#{current_folder}\/(.+)/
