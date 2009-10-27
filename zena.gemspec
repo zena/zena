@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2009-10-26}
+  s.date = %q{2009-10-27}
   s.default_executable = %q{zena}
   s.description = %q{CMS with super natural powers, based on Ruby on Rails
 
@@ -30,7 +30,7 @@ licence: MIT}
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
-      s.add_runtime_dependency(%q<tzinfo>, ["= 0.3.12"])
+      s.add_runtime_dependency(%q<tzinfo>, [">= 0.3.12"])
       s.add_runtime_dependency(%q<rubyless>, ["= 0.3.3"])
       s.add_runtime_dependency(%q<rails>, ["= 2.3.4"])
       s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
@@ -48,7 +48,7 @@ licence: MIT}
       s.add_development_dependency(%q<bones>, [">= 2.5.1"])
     else
       s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
-      s.add_dependency(%q<tzinfo>, ["= 0.3.12"])
+      s.add_dependency(%q<tzinfo>, [">= 0.3.12"])
       s.add_dependency(%q<rubyless>, ["= 0.3.3"])
       s.add_dependency(%q<rails>, ["= 2.3.4"])
       s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
@@ -67,7 +67,7 @@ licence: MIT}
     end
   else
     s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
-    s.add_dependency(%q<tzinfo>, ["= 0.3.12"])
+    s.add_dependency(%q<tzinfo>, [">= 0.3.12"])
     s.add_dependency(%q<rubyless>, ["= 0.3.3"])
     s.add_dependency(%q<rails>, ["= 2.3.4"])
     s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
