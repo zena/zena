@@ -1,15 +1,16 @@
-== 0.15.1 2009-10-17
+== 0.15.1 2009-10-27
 
-* 2 major enhancement:
+* 2 major enhancements:
   * Passenger support (deploy, upload progress)
   * JS popup & gallery support (setting in image formats)
 
-* 5 minor enhancements:
-  * fixed deployment using capistrano
+* 6 minor enhancements:
+  * fixed some deployment tasks (capistrano)
   * fixed zena:setup task to copy files instead of symlink
   * better versions list and diff select
   * internal 'js_data' hook to insert javascript at end of page
   * custom queries are loaded from bricks (bricks/brick_name/queries/test.host.yml)
+  * Fixed skin importation from zipped xhtml template
 
 == 0.15.0 2009-10-16
 
