@@ -94,7 +94,7 @@ class DocumentsController < ApplicationController
   # TODO: test
   # display an upload field.
   def file_form
-    render :inline=>"<%= link_to_function(_('cancel'), \"['file', 'file_form'].each(Element.toggle);$('file_form').innerHTML = '';\")%><input id='attachment#{params[:uuid]}' name='attachment' class='file' type='file' />"
+    render :inline=>"<%= link_to_function(_('cancel'), \"['file', 'file_form'].each(Element.toggle);$('file_form').innerHTML = '';\")%><input id='attachment#{params[:uuid]}' name='attachment' onchange=\"Zena.get_filename('attachment#{params[:uuid]}','node_v_title'); $('node_v_title').focus(); $('node_v_title').select();\" class='file' type='file' />"
   end
 
   # TODO: test

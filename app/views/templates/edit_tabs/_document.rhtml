@@ -1,8 +1,8 @@
 <label for="node_c_file"><%= _("document file")  %></label>
-<div id="file"><%= link_to_remote(_("change document"), :update=>'file_form', :url=>file_form_documents_path, :method => :get, :complete=>"['file', 'file_form'].each(Element.toggle);") %></div>
+<div id="file" class='toggle_div'><%= link_to_remote(_("change"), :update=>'file_form', :url=>file_form_documents_path(:uuid => @uuid), :method => :get, :complete=>"['file', 'file_form'].each(Element.toggle);$('attachment#{@uuid}').click();") %></div>
+<div id="file_form" class='toggle_div' style='display:none;'></div>
+
 <label for='node_c_content_type'><%= _('content type') %></label>
 <input  id='node_c_content_type' type='text' name='node[c_content_type]' value='<%= @node.c_content_type %>'/><br/>
-
-<div id="file_form" style='display:none;'></div>
 
 <%= @node.c_version_id == @node.v_id ? "<b id='original_caution'>#{_('you are editing the original')}</b>" : "" %>
