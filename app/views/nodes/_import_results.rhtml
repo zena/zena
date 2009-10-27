@@ -12,7 +12,7 @@
         <% else -%>
         <td><%= node.errors.empty? ? (node[:create_or_update]) : 'error' %></td>
         <td><%= _('%{count} versions') % {:count => node.instance_variable_get(:@versions_count)} %></td>
-        <td><%= !node.errors.empty? ? node.errors.map {|k,v| "[#{k}] #{v}"}.join(', ') : 'ok' %></td>
+        <td><%= !node.errors.empty? ? error_messages_for(node) : 'ok' %></td>
         <% end -%>
       </tr>
     <% end -%>

@@ -34,20 +34,30 @@ module Zena
               src2, mode2 = $1, $2
             end
 
+            paths = []
             if src[0..0] == '/'
-              path1 = src[1..-1]
-              path2 = src2[1..-1] if src2
+              paths << src[1..-1]
+              paths << src2[1..-1] if src2
             else
-              path1 = current_folder + '/' + src
-              path2 = current_folder + '/' + src2 if src2
+              paths << (current_folder + '/' + src)
+              paths << (current_folder + '/' + src2) if src2
             end
 
             # make sure path elements are url_names
-            path1 = path1.split('/').map {|s| s.url_name!}.join('/')
-            path2 = path2.split('/').map {|s| s.url_name!}.join('/') if src2
+            paths.map! do |path|
+              res = []
+              path.split('/').each do |e|
+                if e == '..'
+                  res.pop
+                else
+                  res << e.url_name
+                end
+              end
+              res.join('/')
+            end
 
-            if asset = secure(Document) { Document.find_by_path(path1) }
-            elsif src2 && (asset = secure(Document) { Document.find_by_path(path2) })
+            if asset = secure(Document) { Document.find_by_path(paths[0]) }
+            elsif src2 && (asset = secure(Document) { Document.find_by_path(paths[1]) })
               mode = mode2
             else
               return nil

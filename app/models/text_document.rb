@@ -69,7 +69,7 @@ class TextDocument < Document
           if new_src = helper.send(:template_url_for_asset, :src => src, :current_folder=>current_folder, :parse_assets => true)
             "url(#{quote}#{new_src}#{quote})"
           else
-            errors.add('base', "could not find asset #{src.inspect}")
+            errors.add('base', "could not find asset {{asset}}", :asset => src.inspect)
             "url(#{quote}#{src}#{quote})"
           end
         end

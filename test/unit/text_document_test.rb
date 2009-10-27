@@ -58,6 +58,7 @@ class TextDocumentTest < Zena::Unit::TestCase
     #header { background:url('bird.jpg') }
     #pv     { background:url('bird_pv.jpg') }
     #footer { background:url('/projects/wiki/flower.jpg') }
+    #back   { background:url('../../projects/wiki/flower.jpg') }
     #no_stamp { background:url('/en/image30_pv.jpg') }
     END_CSS
     node.version.text = start.dup
@@ -71,6 +72,7 @@ class TextDocumentTest < Zena::Unit::TestCase
     #header { background:url('/en/image30.jpg?1144713600') }
     #pv     { background:url('/en/image30_pv.jpg?967816914293') }
     #footer { background:url('/en/image31.jpg?1144713600') }
+    #back   { background:url('/en/image31.jpg?1144713600') }
     #no_stamp { background:url('/en/image30_pv.jpg?967816914293') }
     END_CSS
     assert_equal res, text
@@ -82,6 +84,7 @@ class TextDocumentTest < Zena::Unit::TestCase
     #header { background:url('bird.jpg') }
     #pv     { background:url('bird_pv.jpg') }
     #footer { background:url('/projects/wiki/flower.jpg') }
+    #back   { background:url('/projects/wiki/flower.jpg') }
     #no_stamp { background:url('bird_pv.jpg') }
     END_CSS
     assert_equal unparsed, text

@@ -174,6 +174,8 @@ ul.infos li { padding:0.4em 0.4em; list-style:none; display:block; }
 #versions .number { width:25px; font-size:13px; padding:0 5px; font-weight:bold; cursor:pointer;}
 #versions .actions { width:100px; }
 
+.import { max-height:400px; overflow:auto;}
+
 #discussions .inline_form div { float: left; padding:0 8px; }
 #discussions .inline_form .inside { margin-top:2px; }
 #discussions .inline_form .open   { margin-top:2px; border-left: 1px dashed black; }
