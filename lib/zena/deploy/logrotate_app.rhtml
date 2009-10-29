@@ -1,0 +1,9 @@
+<%= config[:app_root] %>/log/production.log {
+	weekly
+	missingok
+	rotate 9
+	compress
+	delaycompress
+	notifempty
+	copytruncate
+}

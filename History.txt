@@ -3,6 +3,9 @@
 * 1 major enhancement:
   * attachments can now be provided with an url
 
+* 1 minor enhancment
+  * logrotate setup support with capistrano
+
 == 0.15.1 2009-10-27
 
 * 2 major enhancements:

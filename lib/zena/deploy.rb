@@ -111,6 +111,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     run "#{in_current} rake zena:mksite HOST='#{self[:host]}' PASSWORD='#{self[:pass]}' RAILS_ENV='production' LANG='#{self[:lang] || 'en'}'"
     create_vhost
     create_awstats
+    logrotate
     run "chown -R www-data:www-data #{sites_root}/#{self[:host]}"
   end
 
@@ -198,7 +199,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   desc "Update awstats configuration file"
   task :create_awstats, :roles => :web do
     unless debian_host
-      puts "skipping debian specific awstats"
+      puts "skipping 'create_awstats' (debian specific)"
     else
       unless self[:host] && self[:pass]
         puts "host or password not set (use -s host=... -s pass=...)"
@@ -224,9 +225,26 @@ Capistrano::Configuration.instance(:must_exist).load do
         # create .htpasswd file
         run "test ! -e #{sites_root}/#{self[:host]}/log/.awstatspw || rm #{sites_root}/#{self[:host]}/log/.awstatspw"
         run "htpasswd -c -b #{sites_root}/#{self[:host]}/log/.awstatspw 'admin' '#{self[:pass]}'"
+        run "chmod 600 #{sites_root}/#{self[:host]}/log/.awstatspw"
+        run "chown www-data:www-data #{sites_root}/#{self[:host]}/log/.awstatspw"
 
         # reload apache
         apache2_reload_cmd
+      end
+    end
+  end
+
+  desc "Setup log rotation for a given host"
+  task :logrotate, :roles => :web do
+    unless debian_host
+      puts "skipping 'logrotate' (debian specific)"
+    else
+      unless self[:host]
+        puts "host not set (use -s host=...)"
+      else
+        # create awstats config file
+        logrotate_conf = render("#{templates}/logrotate_host.rhtml", :config => self )
+        put(logrotate_conf, "/etc/logrotate.d/#{self[:host]}")
       end
     end
   end
@@ -264,8 +282,10 @@ Capistrano::Configuration.instance(:must_exist).load do
   task :apache2_setup, :roles => :web do
     self[:ports] = (mongrel_port.to_i...(mongrel_port.to_i + mongrel_count.to_i)).to_a
     httpd_conf = render("#{templates}/httpd.rhtml", :config => self)
+    log_rotate = render("#{templates}/logrotate_app.rhtml", :config => self)
     if debian_host
       put(httpd_conf, "/etc/apache2/conf.d/#{db_name}")
+      put(log_rotate, "/etc/logrotate.d/#{db_name}")
     else
       put(httpd_conf, "/etc/apache2/conf.d/#{db_name}")
     end

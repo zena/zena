@@ -1,0 +1,34 @@
+<%= config[:sites_root] %>/<%= config[:host] %>/log/apache2.access.log {
+	weekly
+	missingok
+	rotate 52
+	compress
+	delaycompress
+	notifempty
+	create 640 www-data www-data
+	sharedscripts
+  prerotate
+  /usr/lib/cgi-bin/awstats.pl -update -config=<%= config[:host] %>
+  endscript
+	postrotate
+		if [ -f "`. /etc/apache2/envvars ; echo ${APACHE_PID_FILE:-/var/run/apache2.pid}`" ]; then
+			/etc/init.d/apache2 reload > /dev/null
+		fi
+	endscript
+}
+
+<%= config[:sites_root] %>/<%= config[:host] %>/log/apache2.error.log {
+	weekly
+	missingok
+	rotate 52
+	compress
+	delaycompress
+	notifempty
+	create 640 www-data www-data
+	sharedscripts
+	postrotate
+		if [ -f "`. /etc/apache2/envvars ; echo ${APACHE_PID_FILE:-/var/run/apache2.pid}`" ]; then
+			/etc/init.d/apache2 reload > /dev/null
+		fi
+	endscript
+}
