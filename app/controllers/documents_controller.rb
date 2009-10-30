@@ -93,7 +93,7 @@ class DocumentsController < ApplicationController
       if attrs['c_file'].kind_of?(String)
         attrs['c_file'] = StringIO.new(attrs['c_file'])
         # StringIO
-        if attrs['name'] =~ /^.*\.(\w+)$/ && types = EXT_TO_TYPE[$1]
+        if attrs['name'] =~ /^.*\.(\w+)$/ && types = Zena::EXT_TO_TYPE[$1]
           content_type = types[0]
         else
           content_type = ''

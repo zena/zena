@@ -94,7 +94,7 @@ module Zena
           params.delete(:mode)
 
           if opts[:format] != 'html'
-            content_type  = (EXT_TO_TYPE[opts[:format]] || ['application/octet-stream'])[0]
+            content_type  = (Zena::EXT_TO_TYPE[opts[:format]] || ['application/octet-stream'])[0]
             template_path = template_url(opts)
             data = render_to_string(:file => template_path, :layout=>false)
             # TODO: use plugins...

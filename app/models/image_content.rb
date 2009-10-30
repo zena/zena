@@ -49,7 +49,7 @@ class ImageContent < DocumentContent
   def cropped_file(format)
     original   = format['original'] || @loaded_file || self.file
     x, y, w, h = format['x'].to_f, format['y'].to_f, format['w'].to_f, format['h'].to_f
-    new_type   = format['format'] ? EXT_TO_TYPE[format['format'].downcase][0] : nil
+    new_type   = format['format'] ? Zena::EXT_TO_TYPE[format['format'].downcase][0] : nil
     max        = format['max_value'].to_f * (format['max_unit'] == 'Mb' ? 1024 : 1) * 1024
 
     # crop image
@@ -61,8 +61,8 @@ class ImageContent < DocumentContent
     file = Tempfile.new(name)
     File.open(file.path, "wb") { |f| f.syswrite(img.read) }
 
-    ctype = EXT_TO_TYPE[img.format.downcase][0]
-    fname = "#{name}.#{TYPE_TO_EXT[ctype][0]}"
+    ctype = Zena::EXT_TO_TYPE[img.format.downcase][0]
+    fname = "#{name}.#{Zena::TYPE_TO_EXT[ctype][0]}"
     (class << file; self; end;).class_eval do
       alias local_path path if defined?(:path)
       define_method(:original_filename) { fname }

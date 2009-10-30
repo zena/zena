@@ -14,8 +14,6 @@ ENABLE_FOP     = true  && has_executable('fop', 'xsltproc') # enable xsl-fo post
 ENABLE_MATH    = true  && has_executable('latex', 'dvips', 'convert', 'gs')
 ENABLE_ZENA_UP = false && has_executable('zena_up')
 
-UPLOAD_KEY     = defined?(Mongrel) ? 'upload_id' : "X-Progress-ID"
-
 require 'bricks/patcher'
 
 module Zena
@@ -385,7 +383,7 @@ def make_hashes(h)
   [keys_to_val, val_to_keys]
 end
 
-EXT_TO_TYPE, TYPE_TO_EXT = make_hashes(EXT_TYPE)
+Zena::EXT_TO_TYPE, Zena::TYPE_TO_EXT = make_hashes(EXT_TYPE)
 Zena.add_load_paths
 Zena.gems_setup
 require 'rubyless'

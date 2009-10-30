@@ -118,7 +118,7 @@ class NodesController < ApplicationController
           # math rendered as png, ...
           filename     = "#{asset}.#{params[:format]}"
           content_path = @node.asset_path(filename)
-          content_type = (EXT_TO_TYPE[params[:format]] || ['application/octet-stream'])[0]
+          content_type = (Zena::EXT_TO_TYPE[params[:format]] || ['application/octet-stream'])[0]
           send_file(content_path, :filename=>filename, :type => content_type, :disposition=>'inline', :x_sendfile => ENABLE_XSENDFILE)
           cache_page(:content_path => content_path, :authenticated => @node.public?) # content_path is used to cache by creating a symlink
         elsif @node.kind_of?(Document) && params[:format] == @node.c_ext

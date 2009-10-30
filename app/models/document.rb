@@ -56,7 +56,7 @@ class Document < Node
         content_type = file.content_type
       elsif ct = attrs['c_content_type'] || ((attrs['version_attributes'] || {})['content_attributes'] || {})['content_type']
         content_type = ct
-      elsif attrs['name'] =~ /^.*\.(\w+)$/ && types = EXT_TO_TYPE[$1.downcase]
+      elsif attrs['name'] =~ /^.*\.(\w+)$/ && types = Zena::EXT_TO_TYPE[$1.downcase]
         content_type = types[0]
       end
 

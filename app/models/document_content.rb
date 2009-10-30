@@ -120,13 +120,13 @@ class DocumentContent < ActiveRecord::Base
           self[:size] = @new_file.stat.size
         end
 
-        if EXT_TO_TYPE[self.ext].nil? || !EXT_TO_TYPE[self.ext].include?(self.content_type)
+        if Zena::EXT_TO_TYPE[self.ext].nil? || !Zena::EXT_TO_TYPE[self.ext].include?(self.content_type)
           self.ext = @new_file.original_filename.split('.').last
         end
       end
 
       # is this extension valid ?
-      extensions = TYPE_TO_EXT[content_type]
+      extensions = Zena::TYPE_TO_EXT[content_type]
       if extensions && content_type != 'application/octet-stream' # use 'bin' extension only if we do not have any other ext.
         self[:ext] = extensions.include?(self.ext.downcase) ? self.ext.downcase : extensions[0]
       else

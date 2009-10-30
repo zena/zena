@@ -531,7 +531,7 @@ class Node < ActiveRecord::Base
                 insert_zafu_headings = true
               end
 
-              ctype = EXT_TO_TYPE[attrs['c_ext']]
+              ctype = Zena::EXT_TO_TYPE[attrs['c_ext']]
               ctype = ctype ? ctype[0] : "application/octet-stream"
               attrs['c_content_type'] = ctype
 
