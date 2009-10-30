@@ -2,8 +2,7 @@
 <%= hidden_field 'node', 'parent_id', :value=>@node.parent_zip  %>
 <p class="btn_validate"><input type="submit" value='<%= _('validate') %>'/></p>
 
-<label for='attachment'><%= _('file') %></label>
-<input id="attachment<%= @uuid %>" name="attachment" onchange="Zena.get_filename('attachment<%= @uuid %>','node_v_title'); $('node_v_title').focus(); $('node_v_title').select();" class='file' type="file" />
+<%= upload_field %>
 
 <label for='node_name'><%= _('title') %></label>
 <input id='node_v_title' type='text' name='node[v_title]'/><br/>

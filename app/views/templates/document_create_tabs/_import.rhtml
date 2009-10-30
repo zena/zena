@@ -1,8 +1,7 @@
 <%= upload_form_tag( :controller => 'nodes', :action => 'import', :id => @node.parent_zip ) %>
 <p class="btn_validate"><input type="submit" value='<%= _('validate') %>'/></p>
 
-<label for='attachment'><%= _('file') %></label>
-<input id="attachment<%= @uuid %>" name="attachment" class='file' type="file" />
+<%= upload_field %>
 
 <label for='node_klass'><%= _('class of first element') %></label>
 <%= select('node', 'klass', Node.classes_for_form, :selected => 'Page' ) %><br/>

@@ -10,6 +10,7 @@ module Zena
         include Zena::Use::I18n::ControllerMethods
         include Zena::Use::Refactor::ControllerMethods
         include Zena::Use::Rendering::ControllerMethods
+        include Zena::Use::Upload::ControllerMethods
         include Zena::Use::Urls::ControllerMethods
         include Zena::Use::Zafu::ControllerMethods
 
@@ -30,6 +31,7 @@ module Zena
         helper  Zena::Use::NestedAttributesAlias::ViewMethods
         helper  Zena::Use::Refactor::ViewMethods
         helper  Zena::Use::Rendering::ViewMethods
+        helper  Zena::Use::Upload::ViewMethods
         helper  Zena::Use::Urls::ViewMethods
         helper  Zena::Use::Zafu::ViewMethods
         helper  Zena::Use::Zazen::ViewMethods

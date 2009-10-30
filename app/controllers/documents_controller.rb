@@ -1,5 +1,5 @@
 class DocumentsController < ApplicationController
-  before_filter :find_node, :except => [ :file_form, :upload_progress ]
+  before_filter :find_node, :except => [ :get_uf, :upload_progress ]
 
   skip_before_filter :set_lang,      :only => :upload_progress
   skip_before_filter :authorize,     :only => :upload_progress
@@ -55,46 +55,13 @@ class DocumentsController < ApplicationController
   end
 
   def upload_progress
-    # When using the mod_upload_progress module, this is never hit:
-    # <Location /upload_progress>
-    #   ReportUploads On
-    # </Location>
-    #
-    # When using Mongrel: mimic apache2 mod_upload_progress
-    #
-    # if (!found) {
-    #   response = apr_psprintf(r->pool, "new Object({ 'state' : 'starting' })");
-    # } else if (err_status >= HTTP_BAD_REQUEST  ) {
-    #   response = apr_psprintf(r->pool, "new Object({ 'state' : 'error', 'status' : %d })", err_status);
-    # } else if (done) {
-    #   response = apr_psprintf(r->pool, "new Object({ 'state' : 'done' })");
-    # } else if ( length == 0 && received == 0 ) {
-    #   response = apr_psprintf(r->pool, "new Object({ 'state' : 'starting' })");
-    # } else {
-    #   response = apr_psprintf(r->pool, "new Object({ 'state' : 'uploading', 'received' : %d, 'size' : %d, 'speed' : %d  })", received, length, speed);
-    # }
-    render :update do |page|
-      begin
-        @status = Mongrel::Uploads.check(params[:"X-Progress-ID"])
-        if @status
-          if @status[:received] != @status[:size]
-            page << "new Object({ 'state' : 'uploading', 'received' : #{@status[:received]}, 'size' : #{@status[:size]} })"
-          else
-            page << "new Object({ 'state' : 'done' })"
-          end
-        else
-          #page << "new Object({ 'state' : 'done' })"
-        end
-      rescue NameError
-        page << "new Object({ 'state' : 'upload in progress..' })"
-      end
-    end
+    render_upload_progress
   end
 
   # TODO: test
   # display an upload field.
-  def file_form
-    render :inline=>"<%= link_to_function(_('cancel'), \"['file', 'file_form'].each(Element.toggle);$('file_form').innerHTML = '';\")%><input id='attachment#{params[:uuid]}' name='attachment' onchange=\"Zena.get_filename('attachment#{params[:uuid]}','node_v_title'); $('node_v_title').focus(); $('node_v_title').select();\" class='file' type='file' />"
+  def get_uf
+    render_get_uf
   end
 
   # TODO: test
@@ -120,7 +87,8 @@ class DocumentsController < ApplicationController
 
     def create_document
       attrs = params['node']
-      attrs['c_file'] = params['attachment'] if params['attachment']
+      file, error = get_attachment
+      attrs['c_file'] = file if file
       attrs[:klass] ||= 'Document'
       if attrs['c_file'].kind_of?(String)
         attrs['c_file'] = StringIO.new(attrs['c_file'])
@@ -136,6 +104,7 @@ class DocumentsController < ApplicationController
         end
       end
       @node = secure!(Document) { Document.create_node(attrs) }
+      @node.errors.add('c_file', error) if error
     end
 
 end

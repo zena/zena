@@ -1,6 +1,4 @@
-<label for="node_c_file"><%= _("document file")  %></label>
-<div id="file" class='toggle_div'><%= link_to_remote(_("change"), :update=>'file_form', :url=>file_form_documents_path(:uuid => @uuid), :method => :get, :complete=>"['file', 'file_form'].each(Element.toggle);$('attachment#{@uuid}').click();") %></div>
-<div id="file_form" class='toggle_div' style='display:none;'></div>
+<%= upload_field(:type => :onclick) %>
 
 <%= @node.c_version_id == @node.v_id ? "<b id='original_caution'>#{_('you are editing the original')}</b>" : "" %>
 

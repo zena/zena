@@ -47,7 +47,7 @@ module Zena
       end
 
       # FIXME: merge 'documents' controller into 'nodes' (keep module for clarity)
-      resources :documents, :collection => { :upload    => :post, :file_form => :get },
+      resources :documents, :collection => { :upload    => :post, :get_uf => :get },
                                 :member     => { :crop_form => :get }
 
       resources :relations

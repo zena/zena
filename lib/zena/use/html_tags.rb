@@ -1,5 +1,4 @@
 require 'will_paginate'
-require 'uuidtools'
 
 module Zena
   module Use
@@ -225,23 +224,6 @@ module Zena
         # Return the list of possible templates
         def form_skins
           @form_skins ||= secure!(Skin) { Skin.find(:all, :order=>'name ASC') }.map {|r| r[:name]}
-        end
-
-
-        def upload_form_tag(url_opts, html_opts = {})
-          @uuid = UUIDTools::UUID.random_create.to_s.gsub('-','')
-          html_opts.reverse_merge!(:multipart => true, :id => "UploadForm#{@uuid}")
-          if html_opts[:multipart]
-            html_opts[:onsubmit] = "submitUploadForm('#{html_opts[:id]}', '#{@uuid}');"
-            url_opts[UPLOAD_KEY] = @uuid
-          end
-          if block_given?
-            form_tag( url_opts, html_opts ) do |f|
-              yield(f)
-            end
-          else
-            form_tag( url_opts, html_opts )
-          end
         end
 
         # Date selection tool

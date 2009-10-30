@@ -313,6 +313,19 @@ END:VCALENDAR
     get 'show', 'prefix'=>'oo', 'path'=>["page#{nodes_zip(:projects)}_test.html"]
     assert_response :success
   end
+
+  def test_create_from_url
+    login(:tiger)
+    preserving_files('test.host/data') do
+      assert_difference('Node.count', 1) do
+        post 'create', 'attachment_url' => 'http://zenadmin.org/fr/blog/image5.jpg', 'node' => {'parent_id' => nodes_zip(:zena)}
+      end
+      document = assigns(:node)
+      assert_equal 73633, document.version.content.size
+      assert_equal 298, document.version.content.width
+      assert_equal 243, document.version.content.height
+    end
+  end
 end
 
 =begin

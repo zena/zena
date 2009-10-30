@@ -160,7 +160,14 @@ class NodesController < ApplicationController
 
   def create
     attrs = params['node']
+    file, file_error = get_attachment
+    if file
+      attrs['c_file'] = file
+      attrs['klass'] = 'Document'
+    end
+
     @node = secure!(Node) { Node.create_node(attrs) }
+    @node.errors.add('c_file', file_error) if file_error
 
     respond_to do |format|
       if @node.errors.empty?
@@ -215,7 +222,7 @@ class NodesController < ApplicationController
     end
     @nodes = secure!(Node) { Node.create_nodes_from_folder(
       :klass    => klass,
-      :archive  => params[:attachment],
+      :archive  => get_attachment,
       :parent   => @node,
       :defaults => defaults
     )}.values
@@ -237,9 +244,12 @@ class NodesController < ApplicationController
   end
 
   def update
-    params['node']['c_file'] = params['attachment'] if params['attachment']
+    file, file_error = get_attachment
+    params['node']['c_file'] = file if file
+
     @v_status_before_update = @node.v_status
     @node.update_attributes_with_transformation(params['node'])
+    @node.errors.add('c_file', file_error) if file_error
 
     if @node.errors.empty?
       flash.now[:notice] = _('node updated')

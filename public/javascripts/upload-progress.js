@@ -4,7 +4,7 @@
 
 function submitUploadForm(form, uuid) {
   if ($('progress_bar' + uuid)) return;
-  var need_progress = /\w/.exec($('attachment' + uuid).value);
+  var need_progress = $('attachment' + uuid);
   // create iframe and alter form to submit to an iframe
   if (!$('UploadIFrame')) {
     $(document.body).insert('<iframe id="UploadIFrame" name="UploadIFrame" src="about:blank"></iframe>');
