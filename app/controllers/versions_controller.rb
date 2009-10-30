@@ -23,29 +23,29 @@ class VersionsController < ApplicationController
 
       format.all  do
         # Get document data (inline if possible)
-        if params[:format] != @node.c_ext
-          return redirect_to(params.merge(:format => @node.c_ext))
+        if params[:format] != @node.safe_content_read('ext')
+          return redirect_to(params.merge(:format => (@node.safe_content_read('ext') || 'html')))
         end
 
         if @node.kind_of?(Image) && !ImageBuilder.dummy?
           img_format = Iformat[params[:mode]]
-          data = @node.c_file(img_format)
+          data = @node.version.content.file(img_format)
           content_path = @node.version.content.filepath(img_format)
           disposition  = 'inline'
 
         elsif @node.kind_of?(TextDocument)
-          data = StringIO.new(@node.v_text)
+          data = StringIO.new(@node.version.text)
           content_path = nil
           disposition  = 'attachment'
 
         else
-          data         = @node.c_file
+          data         = @node.version.content.file
           content_path = @node.version.content.filepath
           disposition  = 'inline'
         end
         raise ActiveRecord::RecordNotFound unless data
 
-        send_data( data.read , :filename=>@node.filename, :type=>@node.c_content_type, :disposition=>disposition)
+        send_data( data.read , :filename=>@node.filename, :type=>@node.version.content.content_type, :disposition=>disposition)
         data.close
 
         # should we cache the page ?
@@ -131,7 +131,7 @@ class VersionsController < ApplicationController
       # elsif @node.kind_of?(Image)
       #   # view image version
       #   # TODO: how to show the image data of a version ? 'nodes/3/versions/4.jpg' ?
-      #   @node.version.text = "<img src='#{url_for(:controller=>'versions', :node_id=>@node[:zip], :id=>@node.v_number, :format=>@node.c_ext)}'/>"
+      #   @node.version.text = "<img src='#{url_for(:controller=>'versions', :node_id=>@node[:zip], :id=>@node.v_number, :format=>@node.version.content.ext)}'/>"
       # elsif @node.kind_of?(TextDocument)
       #   lang = @node.content_lang
       #   lang = lang ? " lang='#{lang}'" : ""

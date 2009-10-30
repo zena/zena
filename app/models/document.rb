@@ -35,8 +35,6 @@ c_content_type:: file content-type
 class Document < Node
   safe_method :filename => String
 
-  before_validation :document_before_validation
-
   class << self
 
     def version_class
@@ -106,7 +104,7 @@ class Document < Node
   private
 
     # Make sure name is unique
-    def document_before_validation
+    def node_before_validation
       base = self[:name]
       base = version.title if base.blank?
       if base.blank? && file = version.content.file
@@ -125,6 +123,8 @@ class Document < Node
         end
       end
 
+      super
+
       # we are in a scope, we cannot just use the normal validates_...
       # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
       Node.send(:with_exclusive_scope) do
@@ -137,9 +137,12 @@ class Document < Node
         if taken_name = taken_name[0]
           if taken_name =~ /^#{self[:name]}-(\d)/
             self[:name] = "#{self[:name]}-#{$1.to_i + 1}"
+            i = $1.to_i + 1
           else
             self[:name] = "#{self[:name]}-1"
+            i = 1
           end
+          version.title = "#{version.title}-#{i}" unless version.title.blank?
         end
       end
     end

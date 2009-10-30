@@ -121,7 +121,7 @@ class NodesController < ApplicationController
           content_type = (Zena::EXT_TO_TYPE[params[:format]] || ['application/octet-stream'])[0]
           send_file(content_path, :filename=>filename, :type => content_type, :disposition=>'inline', :x_sendfile => ENABLE_XSENDFILE)
           cache_page(:content_path => content_path, :authenticated => @node.public?) # content_path is used to cache by creating a symlink
-        elsif @node.kind_of?(Document) && params[:format] == @node.c_ext
+        elsif @node.kind_of?(Document) && params[:format] == @node.version.content.ext
           # Get document data (inline if possible)
           content_path = nil
 
@@ -478,7 +478,7 @@ class NodesController < ApplicationController
 
     # Document data do not change session[:lang] and can point at cached content (no nee to redirect to AUTHENTICATED_PREFIX).
     def avoid_prefix_redirect
-      @node.kind_of?(Document) && params[:format] == @node.c_ext
+      @node.kind_of?(Document) && params[:format] == @node.version.content.ext
     end
 
     # Transform pseudo id into absolute paths (used after import)

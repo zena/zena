@@ -151,11 +151,11 @@ TXT
           else
             onchange = %Q{onchange="Zena.get_filename(this,'node_v_title'); $('node_v_title').focus(); $('node_v_title').select();"}
             <<-TXT
-<label for='attachment'>#{_('file')}</label>
-<input id="attachment#{@uuid}" name="attachment" #{onchange} class='file' type="file" />
+<div id='attach_file'><label for='attachment' onclick=\"['attach_file', 'attach_url'].each(Element.toggle);\">#{_('file')} / <span class='off'>#{_('url')}</span></label>
+<input  style='line-height:1.5em;' id="attachment#{@uuid}" name="attachment" #{onchange} class='file' type="file" /></div>
 
-<label for='url'>#{_('url')}</label>
-<input id='attachment_url' type='text' #{onchange} name='attachment_url'/><br/>
+<div id='attach_url' style='display:none;'><label for='url' onclick=\"['attach_file', 'attach_url'].each(Element.toggle);\"><span class='off'>#{_('file')}</span> / #{_('url')}</label>
+<input  style='line-height:1.5em;' size='30' id='attachment_url' type='text' #{onchange} name='attachment_url'/><br/></div>
 TXT
           end
         end

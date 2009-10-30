@@ -7,19 +7,31 @@ class DocumentTest < Zena::Unit::TestCase
     without_files('/test.host/data') do
       login(:ant)
       doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
-                                                :name=>'report',
-                                                :c_file => uploaded_pdf('water.pdf') ) }
+                                                :c_file => uploaded_pdf('water.pdf', 'report.pdf') ) }
       assert_kind_of Document , doc
-      assert ! doc.new_record? , "Not a new record"
-      assert_equal "report", doc.name
-      assert_equal "report", doc.version.title
-      assert_equal "report.pdf", doc.filename
+      assert ! doc.new_record?
+      assert_equal 'report', doc.name
+      assert_equal 'projects/cleanWater/report', doc.fullpath
+      assert_equal 'report', doc.version.title
+      assert_equal 'report.pdf', doc.filename
       assert_equal 'pdf', doc.version.content.ext
-      assert ! doc.version.new_record? , "Version is not a new record"
-      assert_not_nil doc.version.content.id , "Content id is set"
-      assert_kind_of DocumentContent , doc.version.content
+      assert ! doc.version.new_record?
+      assert_not_nil doc.version.content.id
+      assert_kind_of DocumentContent, doc.version.content
       assert File.exist?(doc.version.content.filepath)
       assert_equal File.stat(doc.version.content.filepath).size, doc.version.content.size
+    end
+  end
+
+  def test_create_same_name
+    without_files('/test.host/data') do
+      login(:tiger)
+      node = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
+                                                 :v_title => 'float',
+                                                 :c_file  => uploaded_pdf('water.pdf') ) }
+      assert !node.new_record?
+      assert_equal 'float-1', node.name
+      assert_equal 'float-1', node.version.title
     end
   end
 
