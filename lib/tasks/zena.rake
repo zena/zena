@@ -125,8 +125,8 @@ namespace :zena do
     end
   end
 
-  desc "Rename a host"
-  task :rename_host => :environment do
+  desc "Rename a site"
+  task :rename_site => :environment do
     # 0. set host name
     unless host = ENV['HOST']
       puts "Please set HOST to the hostname for the new site name. Aborting."
