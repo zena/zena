@@ -57,7 +57,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   desc "set permissions to www-data"
   task :set_permissions, :roles => :app do
-    run "chown -R www-data:www-data #{deploy_to}/current/public #{deploy_to}/current/log"
+    run "chown -R www-data:www-data #{deploy_to}/current/public #{deploy_to}/current/log #{deploy_to}/current/tmp"
   end
 
   "Update the currently released version of the software directly via an SCM update operation"
@@ -248,6 +248,9 @@ Capistrano::Configuration.instance(:must_exist).load do
 
       awstat_conf = "/etc/awstats/awstats.#{self[:old_host]}.conf"
       run "test -e#{awstat_conf} && rm #{awstat_conf} || true"
+
+      #logrotate_conf = "/etc/awstats/awstats.#{self[:old_host]}.conf"
+      #run "test -e#{logrotate_conf} && rm #{logrotate_conf} || true"
 
       create_vhost
       create_awstats

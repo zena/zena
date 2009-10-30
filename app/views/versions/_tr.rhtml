@@ -3,7 +3,7 @@
   <td class="number" onclick="Zena.diff_select(this);"><%= tr.number %></td>
   <td class="box"><%= tr.lang %></td>
   <td class="actions"><%= version_actions(tr) %></td>
-  <td class="sign"><%= tr.user.initials %></td>
+  <td class="sign"><%= tr.user.login %></td>
   <td class="date"><%= format_date(tr.created_at, 'age') %></td>
   <td class="comment"><%= tr.comment %></td>
 </tr>
