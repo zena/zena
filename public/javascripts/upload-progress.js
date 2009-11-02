@@ -69,8 +69,8 @@ var UploadProgress = {
 
 
   buildProgressBar: function() {
-    $('attach_url').hide();
-    $('attach_file').show();
+    $('au' + this.uuid).hide();
+    $('af' + this.uuid).show();
     $('attachment' + this.uuid).insert({after:'<div class ="progress_shell" id="progress_shell' + this.uuid + '"><div class="progress_text" id="progress_text' + this.uuid + '">&nbsp;</div><div class="progress_bar" id="progress_bar' + this.uuid + '" style="width:0%;">&nbsp;</div></div>'});
     $('attachment' + this.uuid).hide();
   },
@@ -96,6 +96,11 @@ var UploadProgress = {
     this.uploading = true ;
     this.processing = false;
 	  Effect.Appear('progress_shell' + this.uuid) ;
+  },
+
+  setAsError: function() {
+    $('progress_shell' + this.uuid).remove();
+    $('attachment' + this.uuid).show();
   },
 
   setAsFinished: function() {

@@ -52,7 +52,7 @@ class TemplateTest < Zena::Unit::TestCase
   def test_create_with_file
     login(:tiger)
     doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:default), :name=>'skiny',
-      :c_file=>uploaded_file('some.txt', content_type="text/zafu", 'smoke'))}
+      :c_file=>uploaded_fixture('some.txt', content_type="text/zafu", 'smoke'))}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Not a new record"
     assert_equal 'skiny.zafu', doc.version.content.filename
@@ -299,7 +299,7 @@ class TemplateTest < Zena::Unit::TestCase
   def test_update_same_text
     login(:tiger)
     tmpt = secure(Template) { Template.create(:parent_id=>nodes_id(:default), 'c_format' => 'vcard', 'c_klass' => 'Node', 'name' => '', 'v_status' => Zena::Status[:pub], 'c_file' =>
-      uploaded_file('some.txt', 'text/zafu')) }
+      uploaded_fixture('some.txt', 'text/zafu')) }
     assert_kind_of Template, tmpt
     Zena::Db.set_attribute(tmpt, :updated_at, Time.gm(2006,04,11))
     assert_equal Zena::Status[:pub], tmpt.version.status

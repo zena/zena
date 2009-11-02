@@ -171,6 +171,9 @@ END:VCALENDAR
 
       assert zafu = nodes['Node']
       assert_kind_of Template, zafu
+      assert_equal 'html', zafu.version.content.format
+      assert_equal 'Node', zafu.version.content.klass
+      assert_equal 'N', zafu.version.content.tkpath
       assert style = nodes['style']
       assert_kind_of TextDocument, style
       assert navBar = nodes['navBar']
@@ -316,14 +319,16 @@ END:VCALENDAR
 
   def test_create_from_url
     login(:tiger)
-    preserving_files('test.host/data') do
-      assert_difference('Node.count', 1) do
-        post 'create', 'attachment_url' => 'http://zenadmin.org/fr/blog/image5.jpg', 'node' => {'parent_id' => nodes_zip(:zena)}
+    if Zena::Use::Upload.has_network?
+      preserving_files('test.host/data') do
+        assert_difference('Node.count', 1) do
+          post 'create', 'attachment_url' => 'http://zenadmin.org/fr/blog/image5.jpg', 'node' => {'parent_id' => nodes_zip(:zena)}
+        end
+        document = assigns(:node)
+        assert_equal 73633, document.version.content.size
+        assert_equal 298, document.version.content.width
+        assert_equal 243, document.version.content.height
       end
-      document = assigns(:node)
-      assert_equal 73633, document.version.content.size
-      assert_equal 298, document.version.content.width
-      assert_equal 243, document.version.content.height
     end
   end
 end

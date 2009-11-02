@@ -66,7 +66,7 @@ ul.link_box { float:left; display:block; margin:2px; padding:2px;}
 
 #image_tab .toggle_div, #document_tab .toggle_div { margin-top: 1em; margin-bottom:0.5em;}
 #file, #file_form { height:2em;}
-#attach_url .off, #attach_file .off { color:grey; }
+.attach .off { color:grey; }
 #image_tab img {border:1px solid #333; margin-top:4px;}
 #image_tab, #document_tab { padding-left:3em; padding-top:3em; }
 #document_tab a { width:80px; display:block; float:left;}

@@ -1245,7 +1245,7 @@ done: \"I am done\""
 
     # position has different scopes depending on first two letters of kpath: 'ND', 'NN', 'NP', 'NR'
     doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
-                                              :c_file  => uploaded_file('water.pdf', 'application/pdf', 'wat'), :v_title => "lazy waters.pdf") }
+                                              :c_file  => uploaded_fixture('water.pdf', 'application/pdf', 'wat'), :v_title => "lazy waters.pdf") }
     assert !doc.new_record?
     assert_equal 0.0, doc.position
 

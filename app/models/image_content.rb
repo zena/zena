@@ -14,6 +14,8 @@ height(format)::  image height in pixel using the given format
 ImageContent also provides a +crop+ pseudo attribute to crop an image. See crop=.
 =end
 class ImageContent < DocumentContent
+  include Zena::Use::Upload::UploadedFile
+
   safe_method      :width => Number, :height => Number, :exif => 'ExifData'
   attr_accessible  :content_type, :file, :crop
 
@@ -63,12 +65,7 @@ class ImageContent < DocumentContent
 
     ctype = Zena::EXT_TO_TYPE[img.format.downcase][0]
     fname = "#{name}.#{Zena::TYPE_TO_EXT[ctype][0]}"
-    (class << file; self; end;).class_eval do
-      alias local_path path if defined?(:path)
-      define_method(:original_filename) { fname }
-      define_method(:content_type) { ctype }
-    end
-    file
+    uploaded_file(file, fname, ctype)
   end
 
   # Set content file, will refuse to accept the file if it is not an image.

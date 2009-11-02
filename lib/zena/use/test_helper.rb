@@ -2,6 +2,8 @@ require 'hpricot'
 module Zena
   module Use
     module TestHelper
+      include Zena::Use::Upload::UploadedFile
+
       # Set the current site used for testing (mostly to generate ids)
       def test_site(site_name)
         $_test_site = site_name
@@ -83,7 +85,7 @@ module Zena
       end
 
       # taken from http://manuals.rubyonrails.com/read/chapter/28#page237 with some modifications
-      def uploaded_file(fname, content_type="application/octet-stream", filename=nil)
+      def uploaded_fixture(fname, content_type="application/octet-stream", filename=nil)
         path = File.join(FILE_FIXTURES_PATH, fname)
         filename ||= File.basename(path)
         # simulate small files with StringIO
@@ -94,42 +96,37 @@ module Zena
           t = Tempfile.new(fname)
           FileUtils.copy_file(path, t.path)
         end
-        (class << t; self; end;).class_eval do
-          alias local_path path if defined?(:path)
-          define_method(:original_filename) { filename }
-          define_method(:content_type) { content_type }
-        end
-        return t
+        uploaded_file(t, filename, content_type)
       end
 
       # JPEG helper
       def uploaded_jpg(fname, filename=nil)
-        uploaded_file(fname, 'image/jpeg', filename)
+        uploaded_fixture(fname, 'image/jpeg', filename)
       end
 
       # PDF helper
       def uploaded_pdf(fname, filename=nil)
-        uploaded_file(fname, 'application/pdf', filename)
+        uploaded_fixture(fname, 'application/pdf', filename)
       end
 
       # TEXT helper
       def uploaded_text(fname, filename=nil)
-        uploaded_file(fname, 'text/plain', filename)
+        uploaded_fixture(fname, 'text/plain', filename)
       end
 
       # PNG helper
       def uploaded_png(fname, filename=nil)
-        uploaded_file(fname, 'image/png', filename)
+        uploaded_fixture(fname, 'image/png', filename)
       end
 
       # TGZ helper
       def uploaded_archive(fname, filename=nil)
-        uploaded_file(fname, 'application/x-gzip', filename)
+        uploaded_fixture(fname, 'application/x-gzip', filename)
       end
 
       # ZIP helper
       def uploaded_zip(fname, filename=nil)
-        uploaded_file(fname, 'application/zip', filename)
+        uploaded_fixture(fname, 'application/zip', filename)
       end
 
       def file_path(filename, mode = 'full', content_id = nil)

@@ -120,6 +120,7 @@ and the 'photos' url is now in the worldTour project's basepath:
 Setting 'custom_base' on a node should be done with caution as the node's zip is on longer in the url and when you move the node around, there is no way to find the new location from the old url. Custom_base should therefore only be used for nodes that are not going to move.
 =end
 class Node < ActiveRecord::Base
+  extend Zena::Use::Upload::UploadedFile
 
   include RubyLess::SafeClass
   safe_attribute :created_at, :updated_at, :event_at, :log_at, :publish_from, :basepath, :inherit
@@ -367,9 +368,6 @@ class Node < ActiveRecord::Base
     def create_node(new_attributes)
       attributes = transform_attributes(new_attributes)
 
-      # the way this works here and in do_update_attributes is not good
-      publish_after_save = (attributes.delete('v_status').to_i == Zena::Status[:pub])
-
       # TODO: replace this hack with a proper class method 'secure' behaving like the
       # instance method. It would get the visitor and scope from the same hack below.
       scope   = self.scoped_methods[0] || {}
@@ -392,7 +390,6 @@ class Node < ActiveRecord::Base
         self.create_instance(attributes)
       end
 
-      node.publish if publish_after_save
       node
     end
 
@@ -526,8 +523,8 @@ class Node < ActiveRecord::Base
               # file
               insert_zafu_headings = false
               if opts[:parent_class] == 'Skin' && ['html','xhtml'].include?(attrs['c_ext']) && attrs['name'] == 'index'
-                attrs['c_ext'] = 'zafu'
-                attrs['name']  = 'Node'
+                attrs['c_ext']    = 'zafu'
+                attrs['name']     = 'Node'
                 insert_zafu_headings = true
               end
 
@@ -536,12 +533,10 @@ class Node < ActiveRecord::Base
               attrs['c_content_type'] = ctype
 
 
-              File.open(document_path) do |file|
+              File.open(document_path) do |f|
+                file = uploaded_file(f, filename, ctype)
                 (class << file; self; end;).class_eval do
-                  alias local_path path if defined?(:path)
                   alias o_read read
-                  define_method(:original_filename) { filename }
-                  define_method(:content_type) { ctype }
                   define_method(:read) do
                     if insert_zafu_headings
                       o_read.sub(%r{</head>},"  <r:stylesheets/>\n  <r:javascripts/>\n  <r:uses_datebox/>\n</head>")
@@ -1486,7 +1481,7 @@ class Node < ActiveRecord::Base
          ((full_drive? && version.status == Zena::Status[:pub]) ||
           (can_drive?  && vhash['r'][ref_lang].nil?))
         if name_changed? && !name.blank?
-          version.title = self.name.gsub(/([A-Z])/) { " #{$1.downcase}" }
+          version.title = self.name
         elsif !version.title.blank?
           self.name = version.title.url_name
         end

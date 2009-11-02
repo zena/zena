@@ -133,8 +133,8 @@ class Document < Node
         else
           cond = ["name = ? AND parent_id = ? AND kpath LIKE 'ND%' AND id != ? ", self[:name], self[:parent_id], self[:id]]
         end
-        taken_name = Node.find(:all, :conditions=>cond, :order=>"LENGTH(name) DESC", :limit => 1)
-        if taken_name = taken_name[0]
+
+        if taken_name = Node.find(:first, :select => 'name', :conditions => cond, :order => "LENGTH(name) DESC")
           if taken_name =~ /^#{self[:name]}-(\d)/
             self[:name] = "#{self[:name]}-#{$1.to_i + 1}"
             i = $1.to_i + 1

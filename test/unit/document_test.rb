@@ -26,12 +26,12 @@ class DocumentTest < Zena::Unit::TestCase
   def test_create_same_name
     without_files('/test.host/data') do
       login(:tiger)
-      node = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
-                                                 :v_title => 'float',
+      node = secure!(Document) { Document.create( :parent_id => nodes_id(:cleanWater),
+                                                 :v_title => 'lake',
                                                  :c_file  => uploaded_pdf('water.pdf') ) }
       assert !node.new_record?
-      assert_equal 'float-1', node.name
-      assert_equal 'float-1', node.version.title
+      assert_equal 'lake-1', node.name
+      assert_equal 'lake-1', node.version.title
     end
   end
 
@@ -188,7 +188,7 @@ class DocumentTest < Zena::Unit::TestCase
     without_files('/test.host/data') do
       login(:ant)
       doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
-                                                :c_file  => uploaded_file("some.txt", 'application/octet-stream', "super.zz") ) }
+                                                :c_file  => uploaded_fixture("some.txt", 'application/octet-stream', "super.zz") ) }
       assert_kind_of Document , doc
       assert ! doc.new_record? , "Not a new record"
       assert_equal "super", doc.name
@@ -231,7 +231,7 @@ class DocumentTest < Zena::Unit::TestCase
     without_files('/test.host/data') do
       login(:ant)
       doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
-                                                :c_file  => uploaded_file('water.pdf', 'application/pdf', 'wat'), :v_title => "lazy waters.pdf") }
+                                                :c_file  => uploaded_fixture('water.pdf', 'application/pdf', 'wat'), :v_title => "lazy waters.pdf") }
       assert_kind_of Document , doc
       assert ! doc.new_record? , "Not a new record"
       assert_equal "lazyWaters", doc.name

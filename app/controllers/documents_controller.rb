@@ -44,11 +44,16 @@ class DocumentsController < ApplicationController
   def upload
     create_document
 
-    responds_to_parent do # execute the redirect in the main window
+    responds_to_parent do # execute the redirect in the iframe's parent window
       render :update do |page|
-        page.call "UploadProgress.setAsFinished"
-        page.delay(1) do # allow the progress bar fade to complete
-          page.redirect_to document_url(@node[:zip])
+        if @node.new_record?
+          page.replace_html 'form_errors', error_messages_for(@node)
+          page.call 'UploadProgress.setAsError'
+        else
+          page.call 'UploadProgress.setAsFinished'
+          page.delay(1) do # allow the progress bar fade to complete
+            page.redirect_to document_url(@node[:zip])
+          end
         end
       end
     end
@@ -89,22 +94,14 @@ class DocumentsController < ApplicationController
       attrs = params['node']
       file, error = get_attachment
       attrs['c_file'] = file if file
-      attrs[:klass] ||= 'Document'
-      if attrs['c_file'].kind_of?(String)
-        attrs['c_file'] = StringIO.new(attrs['c_file'])
-        # StringIO
-        if attrs['name'] =~ /^.*\.(\w+)$/ && types = Zena::EXT_TO_TYPE[$1]
-          content_type = types[0]
-        else
-          content_type = ''
-        end
-        (class << attrs['c_file']; self; end;).class_eval do
-          define_method(:content_type) { content_type }
-          define_method(:original_filename) { attrs['name'] || 'file.txt' }
-        end
+      attrs['klass'] ||= 'Document'
+      if error
+        @node = secure!(Document) { Document.new }
+        @node.attributes = attrs
+        @node.errors.add('c_file', error)
+      else
+        @node = secure!(Document) { Document.create_node(attrs) }
       end
-      @node = secure!(Document) { Document.create_node(attrs) }
-      @node.errors.add('c_file', error) if error
     end
 
 end

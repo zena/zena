@@ -105,9 +105,9 @@ END_TXT
     end
 
     # Overwrite document behaviour.
-    def document_before_validation
+    def node_before_validation
       rewrite_klass_mode_format
-      content = version.content
+      super
     end
 
     def valid_section

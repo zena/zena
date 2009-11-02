@@ -13,7 +13,6 @@ content_type::    file content_type
 class DocumentContent < ActiveRecord::Base
 
   # readable
-
   include RubyLess::SafeClass
   safe_method           :size => Number, :name => String, :content_type => String, :ext => String, :file => File
 
@@ -79,8 +78,7 @@ class DocumentContent < ActiveRecord::Base
     digest = Digest::SHA1.hexdigest(self[:id].to_s)
     # make sure name is not corrupted
     fname = name.gsub(/[^a-zA-Z\-_0-9]/,'')
-    # TODO: could we replace site by current_site ?
-    "#{SITES_ROOT}#{site.data_path}/#{mode}/#{digest[0..0]}/#{digest[1..1]}/#{digest[2..2]}/#{fname}"
+    "#{SITES_ROOT}#{current_site.data_path}/#{mode}/#{digest[0..0]}/#{digest[1..1]}/#{digest[2..2]}/#{fname}"
   end
 
   # Return true if this content is not used by any version.
@@ -128,7 +126,7 @@ class DocumentContent < ActiveRecord::Base
       # is this extension valid ?
       extensions = Zena::TYPE_TO_EXT[content_type]
       if extensions && content_type != 'application/octet-stream' # use 'bin' extension only if we do not have any other ext.
-        self[:ext] = extensions.include?(self.ext.downcase) ? self.ext.downcase : extensions[0]
+        self[:ext] = (self.ext && extensions.include?(self.ext.downcase)) ? self.ext.downcase : extensions[0]
       else
         # unknown content_type or 'application/octet-stream' , just keep the extension we have
         self[:ext] ||= 'bin'

@@ -5,7 +5,30 @@ require 'uuidtools'
 module Zena
   module Use
     module Upload
+      def self.has_network?
+        response = nil
+        Net::HTTP.new('example.com', '80').start do |http|
+          response = http.head('/')
+        end
+        response.kind_of? Net::HTTPSuccess
+      rescue
+        false
+      end
+
+      module UploadedFile
+        protected
+          def uploaded_file(file, filename = nil, content_type = nil)
+            (class << file; self; end;).class_eval do
+              alias local_path path if respond_to?(:path)  # FIXME: do we need this ?
+              define_method(:original_filename) { filename }
+              define_method(:content_type) { content_type }
+            end
+            file
+          end
+      end # UploadedFile
+
       module ControllerMethods
+        include UploadedFile
         protected
           include ActionView::Helpers::NumberHelper # number_to_human_size
           def get_attachment
@@ -45,12 +68,8 @@ module Zena
             else
               original_filename = uri_str.split('/').last
             end
-            (class << tmpf; self; end;).class_eval do
-              alias local_path path if defined?(:path)
-              define_method(:original_filename) { original_filename }
-              define_method(:content_type) { response['Content-Type'] }
-            end
-            return [tmpf]
+
+            [uploaded_file(tmpf, original_filename, response['Content-Type'])]
           end
 
           def fetch_response(uri_str, type = :body, limit = 10)
@@ -70,7 +89,10 @@ module Zena
             when Net::HTTPSuccess
               response
             when Net::HTTPRedirection
-              fetch_response(response['location'], type, limit - 1)
+              redirect = response['location']
+              port = (uri.scheme == 'http' && uri.port == 80) ? '' : ":#{uri.port}"
+              redirect = "#{uri.scheme}://#{uri.host}#{port}/#{redirect}" unless redirect =~ /\A\w+:\/\//
+              fetch_response(redirect, type, limit - 1)
             else
               [nil, 'not found']
             end
@@ -149,12 +171,13 @@ module Zena
 <div id="upload_field" class='toggle_div' style='display:none;'></div>
 TXT
           else
+            attach_file_id, attach_url_id = "af#{@uuid}", "au#{@uuid}"
             onchange = %Q{onchange="Zena.get_filename(this,'node_v_title'); $('node_v_title').focus(); $('node_v_title').select();"}
             <<-TXT
-<div id='attach_file'><label for='attachment' onclick=\"['attach_file', 'attach_url'].each(Element.toggle);\">#{_('file')} / <span class='off'>#{_('url')}</span></label>
+<div id='#{attach_file_id}' class='attach'><label for='attachment' onclick=\"['#{attach_file_id}', '#{attach_url_id}'].each(Element.toggle);\">#{_('file')} / <span class='off'>#{_('url')}</span></label>
 <input  style='line-height:1.5em;' id="attachment#{@uuid}" name="attachment" #{onchange} class='file' type="file" /></div>
 
-<div id='attach_url' style='display:none;'><label for='url' onclick=\"['attach_file', 'attach_url'].each(Element.toggle);\"><span class='off'>#{_('file')}</span> / #{_('url')}</label>
+<div id='#{attach_url_id}' class='attach' style='display:none;'><label for='url' onclick=\"['#{attach_file_id}', '#{attach_url_id}'].each(Element.toggle);\"><span class='off'>#{_('file')}</span> / #{_('url')}</label>
 <input  style='line-height:1.5em;' size='30' id='attachment_url' type='text' #{onchange} name='attachment_url'/><br/></div>
 TXT
           end

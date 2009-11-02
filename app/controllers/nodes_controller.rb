@@ -220,20 +220,28 @@ class NodesController < ApplicationController
     if klass == 'Skin' && !defaults.has_key?('v_status')
       defaults['v_status'] = Zena::Status[:pub]
     end
-    @nodes = secure!(Node) { Node.create_nodes_from_folder(
-      :klass    => klass,
-      :archive  => get_attachment,
-      :parent   => @node,
-      :defaults => defaults
-    )}.values
-    # parse pseudo_ids
-    parse_assets(@nodes)
+    attachment, error = get_attachment
+    if error
+      responds_to_parent do
+        page.replace 'form_errors', error
+      end
+    else
+      # TODO: UploadProgress.setAsProcessing..... would be nice...
+      @nodes = secure!(Node) { Node.create_nodes_from_folder(
+        :klass    => klass,
+        :archive  => attachment,
+        :parent   => @node,
+        :defaults => defaults
+      )}.values
+      # parse pseudo_ids
+      parse_assets(@nodes)
 
-    responds_to_parent do # execute the redirect in the main window
-      render :update do |page|
-        page.call "UploadProgress.setAsFinished"
-        page.delay(1) do # allow the progress bar fade to complete
-          page.replace_html 'import_tab', :partial => 'import_results'
+      responds_to_parent do # execute the redirect in the main window
+        render :update do |page|
+          page.call 'UploadProgress.setAsFinished'
+          page.delay(1) do # allow the progress bar fade to complete
+            page.replace_html 'import_tab', :partial => 'import_results'
+          end
         end
       end
     end

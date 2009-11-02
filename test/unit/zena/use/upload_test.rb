@@ -4,18 +4,8 @@ class UploadTest < Zena::View::TestCase
   include Zena::Use::Upload::ControllerMethods
   attr_reader :params
 
-  def self.has_network?
-    response = nil
-    Net::HTTP.new('example.com', '80').start do |http|
-      response = http.head('/')
-    end
-    response.kind_of? Net::HTTPSuccess
-  rescue
-    false
-  end
-
   # only run these tests if network is available
-  if has_network?
+  if Zena::Use::Upload.has_network?
     context 'Uploading with an attachment url' do
       setup do
         @params = {'attachment_url' => 'http://zenadmin.org/fr/blog/image5.jpg'}
