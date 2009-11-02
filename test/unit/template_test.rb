@@ -335,7 +335,24 @@ class TemplateTest < Zena::Unit::TestCase
 
       should 'be able to destroy version' do
         assert_difference('Version.count', -1) do
-          assert @node.destroy_version
+          assert_difference('Node.count', -1) do
+            assert @node.destroy_version
+          end
+        end
+      end
+    end
+
+    context 'on a template with just one removed version' do
+      setup do
+        @node = secure(Node) { nodes(:Project_zafu) }
+        @node.remove
+      end
+      
+      should 'be able to destroy template' do
+        assert_difference('Version.count', -1) do
+          assert_difference('Node.count', -1) do
+            assert @node.destroy_version
+          end
         end
       end
     end

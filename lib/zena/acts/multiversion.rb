@@ -189,7 +189,7 @@ module Zena
 
         # VERSION
         def version=(v)
-          if v.kind_of?(Version)
+          if v.kind_of?(Version) && !v.frozen? # TODO: remove !v.frozen? and find why this is loaded during template destroy
             v.node = self
             @version = v
           end
