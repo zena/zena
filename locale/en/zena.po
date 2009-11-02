@@ -199,7 +199,7 @@ msgstr "<img src='/images/lock.png' alt='closed'/>"
 
 #: app/helpers/application_helper.rb:1073
 msgid "btn_title_open_discussion"
-msgstr "Open the edition window to edit the node's text, title, etc."
+msgstr "Open the edition window to edit the node"
 
 #: app/helpers/application_helper.rb:1076
 #: app/views/comments/_li.rhtml:3
@@ -1661,11 +1661,11 @@ msgstr "<img src='/images/add.png' alt='add'/>"
 
 #: lib/gettext_strings.rb:26
 msgid "btn_title_edit"
-msgstr "Open the edition window to edit the node's text, title, etc."
+msgstr "Open the edition window to edit the node."
 
 #: lib/gettext_strings.rb:27
 msgid "btn_title_drive"
-msgstr "Open the drive window to change the node's location, links, etc."
+msgstr "Open the drive window to change the location, links, etc."
 
 #: lib/gettext_strings.rb:33
 msgid "btn_site_add"

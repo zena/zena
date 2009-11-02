@@ -265,8 +265,8 @@ class NodesController < ApplicationController
       flash.now[:error]  = _('could not update')
     end
 
-    if params[:attachment]
-      responds_to_parent do # execute the redirect in the main window
+    if params[:iframe]
+      responds_to_parent do # execute the redirect in the iframe's parent window
         render :update do |page|
           page.call "UploadProgress.setAsFinished"
           page.delay(1) do # allow the progress bar fade to complete
@@ -283,7 +283,7 @@ class NodesController < ApplicationController
             redirect_to zen_path(@node, :mode => params[:mode])
           end
         end
-        format.js   { @flash = flash }
+        format.js { @flash = flash }
       end
     end
   end

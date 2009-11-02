@@ -3,17 +3,19 @@
 // and to fix some strange Safari bugs.
 
 function submitUploadForm(form, uuid) {
+  if (!$('attachment' + uuid)) return;
   if ($('progress_bar' + uuid)) return;
-  var need_progress = $('attachment' + uuid);
+
   // create iframe and alter form to submit to an iframe
-  if (!$('UploadIFrame')) {
-    $(document.body).insert('<iframe id="UploadIFrame" name="UploadIFrame" src="about:blank"></iframe>');
+  if (!$('using_iframe')) {
+    if (!$('UploadIFrame')) {
+      $(document.body).insert('<iframe id="UploadIFrame" name="UploadIFrame" src="about:blank"></iframe>');
+    }
+    $(form).insert("<input id='using_iframe' type='hidden' name='iframe' value='true'/>");
+    $(form).target = 'UploadIFrame';
   }
-  $(form).target = 'UploadIFrame';
-  if (need_progress) {
-    // make sure the POST occurs before (Safari Bug)
-    UploadProgress.monitor(uuid, form);
-	}
+  // make sure the POST occurs before (Safari Bug)
+  UploadProgress.monitor(uuid, form);
   $(form).submit();
 }
 

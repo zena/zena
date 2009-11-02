@@ -9,26 +9,11 @@
 
   <r:stylesheets list='popup,zena,search,upload-progress'/>
   <r:javascripts list='prototype,effects,dragdrop,zena,upload-progress'/>
-<script type="text/javascript" charset="utf-8">
-// <![CDATA[
-  // for popup windows (do not reload page)
-  var is_editor = true;
-  function popup_loaded() {
-    ; // dummy
-  }
-// ]]>
-</script>
   <r:uses_datebox/>
 </head>
 
-<body onload='popup_loaded();'>
+<body>
   <div id='loader'><img src='/images/ajax-loader.gif'/> <r:trans text='uploading'/></div>
-  <div id="ProgressBarContainer">
-  	<div id="ProgressBarShell" style="display:none;">
-			<div id="ProgressBarText">&nbsp;</div>
-  		<div id="ProgressBar">&nbsp;</div>
-  	</div>
-  </div>
 
   <div id='messages'>
   </div>

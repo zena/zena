@@ -252,6 +252,7 @@ module Zena
 
         # TODO: test
         def popup_layout
+          js_data << "var is_editor = true;"
           template_url(:mode=>'+popupLayout')
         end
 

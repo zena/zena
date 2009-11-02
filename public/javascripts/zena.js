@@ -27,7 +27,7 @@ Zena.version_diff = function(id, from, to) {
 Zena.save = function(url, form, close_on_complete) {
   if ($(form).select('[name="attachment"]')[0]) {
     // do not use ajax call
-    eval(form.onsubmit().getAttribute('onsubmit'));
+    eval(form.getAttribute('onsubmit'));
     return true;
   } else {
     if (close_on_complete) {
@@ -504,6 +504,12 @@ Zena.select_tab = function(name) {
   current_tab.style.display = '';
 }
 
+Zena.reloadAndClose = function() {
+  opener.window.location.href = opener.window.location.href;
+  window.close();
+}
+
+// POPUP GALLERY
 Zena.popup_gallery = null;
 
 Zena.popup = function(elem) {

@@ -13,10 +13,10 @@
   </div>
   <div class='validate'>
     <div>
-      <input name="validate" type="submit" value="<%= _('validate') %>" />
+      <input name='validate' type='submit' value='<%= _('validate') %>' />
     </div>
     <div>
-      <input name="save" onclick="return Zena.save('<%= save_text_node_path(:id => @node[:zip]) %>',this.form,false);" type="button" value="<%= _('save') %>" />
+      <input name='save' onclick="return Zena.save('<%= save_text_node_path(:id => @node[:zip]) %>',this.form,false);" type='button' value='<%= _('save') %>' />
     </div>
     <div><a href='#' onclick='uploader=window.open("<%= new_document_path(:parent_id=>@node[:zip])%>", "uploader", "location=1,width=400,height=300");uploader.opener = opener;return false;'><%= _('btn_add_document')%></a></div>
     <% if @node.can_publish? && !visitor.site.auto_publish? %><div><small><input type='checkbox' name='node[v_backup]' value='true'/> <%= _('bak') %></small> <small><input type='checkbox' name='node[v_status]' value='50'<%= params[:pub] ? " checked='checked'" : '' %>/> <%= _('pub') %></small></div><% end -%>
@@ -29,27 +29,3 @@
 
 </form>
 </div>
-
-<%#= css_edit %>
-<% javascript_tag do -%>
-var current_sel = $('<%= partial[0] %>_sel');
-var current_tab = $('<%= partial[0] %>_tab');
-Event.observe(window, 'resize', function() { Zena.resizeElement('node_v_text'); } );
-Event.observe(window, 'resize', function() { Zena.resizeElement('node_v_text'); } );
-function popup_loaded() {
-<% if params[:close] == 'true' %>
-  opener.window.location.href = opener.window.location.href;
-  window.close();
-<% else -%>
-  Zena.resizeElement('node_v_text');
-<% end -%>
-}
-
-$('node_form').getElements().each(function(input, index) {
-    new Form.Element.Observer(input, 3, function(element, value) {
-      <%= "opener.Zena.editor_preview('#{preview_node_version_path(:node_id=>@node[:zip], :id=>(@node.v_number || 0), :escape => false)}',element,value);" %>
-    });
-});
-
-<% end -%>
-<iframe id="UploadIFrame" name="UploadIFrame" src="about:blank"></iframe>
