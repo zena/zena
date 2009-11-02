@@ -5,7 +5,7 @@ class RelationsController < ApplicationController
   layout :admin_layout
 
   def index
-    secure!(Relation) do
+    secure(Relation) do
       @relations = Relation.paginate(:all, :order => 'source_role', :per_page => 20, :page => params[:page])
     end
     @relation  = Relation.new
@@ -13,6 +13,10 @@ class RelationsController < ApplicationController
       format.html # index.erb
       format.xml  { render :xml => @relations }
     end
+  rescue ActiveRecord::RecordNotFound => err
+    Node.logger.warn "NotFound: #{err.message}"
+    Node.logger.warn err.backtrace.join("\n")
+    raise err
   end
 
   def show

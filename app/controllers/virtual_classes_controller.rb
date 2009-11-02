@@ -5,7 +5,7 @@ class VirtualClassesController < ApplicationController
   layout :admin_layout
 
   def index
-    secure!(VirtualClass) do
+    secure(VirtualClass) do
       @virtual_classes = VirtualClass.paginate(:all, :order => 'name', :per_page => 20, :page => params[:page])
     end
     @virtual_class  = VirtualClass.new
