@@ -591,8 +591,8 @@ Just doing the above will filter all result according to the logged in user.
           find = scope[:find] ||= {}
           if klass.ancestors.include?(Zena::Acts::SecureNode::InstanceMethods)
             find[:conditions] = node_find_scope
-          elsif klass.ancestors.include?(Version)
-            ntbl = Node.table_name
+          elsif klass.ancestors.include?(::Version)
+            ntbl = ::Node.table_name
             find[:joins] = "INNER JOIN #{ntbl} ON #{klass.table_name}.node_id = #{ntbl}.id"
             find[:readonly] = false
             if node_find_scope =~ /publish_from/
@@ -604,7 +604,7 @@ Just doing the above will filter all result according to the logged in user.
             end
           elsif klass.column_names.include?('site_id')
             find[:conditions] = "#{klass.table_name}.site_id = #{visitor.site[:id]}"
-          elsif klass.ancestors.include?(Site)
+          elsif klass.ancestors.include?(::Site)
             find[:conditions] = "#{klass.table_name}.id = #{visitor.site[:id]}"
           end
 
@@ -627,7 +627,7 @@ Just doing the above will filter all result according to the logged in user.
         def secure_result(klass,result)
           if result && result != []
             if result.kind_of?(Array)
-              if result.first.kind_of?(Node)
+              if result.first.kind_of?(::Node)
                 id_map, ids = construct_id_map(result)
                 ::Version.find(ids).each do |v|
                   if r = id_map[v.id]
@@ -635,7 +635,7 @@ Just doing the above will filter all result according to the logged in user.
                   end
                 end
               end
-            elsif result.kind_of?(Node)
+            elsif result.kind_of?(::Node)
               visitor.visit(result)
             end
             result

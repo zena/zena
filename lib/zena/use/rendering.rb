@@ -98,7 +98,7 @@ module Zena
             template_path = template_url(opts)
             data = render_to_string(:file => template_path, :layout=>false)
             # TODO: use plugins...
-            if opts[:format] == 'pdf' && ((ENABLE_LATEX && data =~ /\A% (latex)\n/) || (ENABLE_FOP && data =~ /\A<\?(xml)/))
+            if opts[:format] == 'pdf' && ((Zena::ENABLE_LATEX && data =~ /\A% (latex)\n/) || (Zena::ENABLE_FOP && data =~ /\A<\?(xml)/))
               rendering_egine = $1 == 'xml' ? 'fop' : $1
               # 1. find cached PDF. If found, send data.
               if @node[:user_id] == visitor[:id]

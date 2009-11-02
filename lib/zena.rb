@@ -9,14 +9,14 @@ def has_executable(*list)
     s && !(`which #{e} || echo 'no #{e}'` =~ /^no #{e}/)
   end
 end
-ENABLE_LATEX   = true  && has_executable('pdflatex') # enable LateX post-rendering
-ENABLE_FOP     = true  && has_executable('fop', 'xsltproc') # enable xsl-fo post-rendering
-ENABLE_MATH    = true  && has_executable('latex', 'dvips', 'convert', 'gs')
-ENABLE_ZENA_UP = false && has_executable('zena_up')
 
 require 'bricks/patcher'
 
 module Zena
+  ENABLE_LATEX   = true  && has_executable('pdflatex') # enable LateX post-rendering
+  ENABLE_FOP     = true  && has_executable('fop', 'xsltproc') # enable xsl-fo post-rendering
+  ENABLE_MATH    = true  && has_executable('latex', 'dvips', 'convert', 'gs')
+
   # VERSION is defined in root.rb
   class << self
     attr_accessor :tools_enabled
@@ -37,7 +37,7 @@ module Zena
 
     def enable_tools
       # TODO: move all code from environment.rb here...
-      @tools_enabled ||= {:Latex => ENABLE_LATEX, :fop => ENABLE_FOP, :math => ENABLE_MATH, :zena_up => ENABLE_ZENA_UP}.map{|k,v| v ? k : nil}.compact
+      @tools_enabled ||= {:Latex => Zena::ENABLE_LATEX, :fop => Zena::ENABLE_FOP, :math => Zena::ENABLE_MATH}.map{|k,v| v ? k : nil}.compact
     end
 
     def include_modules

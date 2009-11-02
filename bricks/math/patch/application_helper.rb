@@ -19,7 +19,7 @@ module Bricks
 
         if opts[:output] == 'latex'
           "#{pre}#{content}#{post}"
-        elsif ENABLE_MATH
+        elsif Zena::ENABLE_MATH
           # Create PNG image
           # 1. get image path
           math_id  = Digest::SHA1.hexdigest(content)[0..4]
