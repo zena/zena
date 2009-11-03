@@ -85,7 +85,7 @@ module Zena
       raise StandardError.new("This database does not yet support migrations") unless ActiveRecord::Base.connection.supports_migrations?
       self.class.init_bricks_migration_table
       @direction, @migrations_path, @brick_name, @target_version = direction, migrations_path, brick_name, target_version
-      @brick_name = nil if @brick_name = 'zena' # use NULL so that rails migrations work the same
+      @brick_name = nil if @brick_name == 'zena' # use NULL so that rails migrations work the same
     end
 
     def migrated
