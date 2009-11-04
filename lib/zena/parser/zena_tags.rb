@@ -340,7 +340,14 @@ module Zena
 
       # TODO: test, rename ?
       def r_search_results
-        do_list("@nodes")
+        pagination_key = 'page'
+        out "<% set_#{pagination_key}_nodes = @search_count; set_#{pagination_key}_count = (set_#{pagination_key}_nodes / @search_per_page).ceil; set_#{pagination_key} = [1,params[:page].to_i].max -%>"
+        @context[:vars] ||= []
+        @context[:vars] << "#{pagination_key}_nodes"
+        @context[:vars] << "#{pagination_key}_count"
+        @context[:vars] << pagination_key
+        @context[:paginate] = pagination_key
+        do_list('@nodes')
       end
 
 
@@ -1660,7 +1667,7 @@ module Zena
       # <r:link update='dom_id'/>
       # <r:link page='next'/> <r:link page='previous'/> <r:link page='list'/>
       def r_link
-        if @params[:page]
+        if @params[:page] && @params[:page] != '[page_page]' # lets users use 'page' as pagination key
           pagination_links
         else
           make_link
@@ -1670,7 +1677,11 @@ module Zena
       def make_link(options = {})
         query_params = options[:query_params] || {}
         default_text = options[:default_text]
-        params = @params.dup
+        params = {}
+        (options[:params] || @params).each do |k,v|
+          next if v.nil?
+          params[k] = v
+        end
 
         opts = {}
         if upd = params.delete(:update)
@@ -1731,7 +1742,7 @@ module Zena
           @html_tag_done = true
         end
 
-        (params.keys - [:style, :class, :id, :rel, :name, :anchor, :attr, :tattr, :trans, :text, :page]).each do |k|
+        (params.keys - [:style, :class, :id, :rel, :name, :anchor, :attr, :tattr, :trans, :text]).each do |k|
           next if k.to_s =~ /if_|set_/
           query_params[k] = params[k]
         end
@@ -1795,12 +1806,13 @@ module Zena
       # <r:link page='next'/> <r:link page='previous'/> <r:link page='list'/>
       def pagination_links
         return parser_error("not in pagination scope") unless pagination_key = @context[:paginate]
+
         case @params[:page]
         when 'previous'
           out "<% if set_#{pagination_key}_previous = (set_#{pagination_key} > 1 ? set_#{pagination_key} - 1 : nil) -%>"
           @context[:vars] ||= []
           @context[:vars] << "#{pagination_key}_previous"
-          out make_link(:default_text => "<%= set_#{pagination_key}_previous %>", :query_params => {pagination_key => "[#{pagination_key}_previous]"})
+          out make_link(:default_text => "<%= set_#{pagination_key}_previous %>", :query_params => {pagination_key => "[#{pagination_key}_previous]"}, :params => @params.merge(:page => nil))
           if descendant('else')
             out expand_with(:in_if => true, :only => ['else', 'elsif'])
           end
@@ -1809,7 +1821,7 @@ module Zena
           out "<% if set_#{pagination_key}_next = (set_#{pagination_key}_count - set_#{pagination_key} > 0 ? set_#{pagination_key} + 1 : nil) -%>"
           @context[:vars] ||= []
           @context[:vars] << "#{pagination_key}_next"
-          out make_link(:default_text => "<%= set_#{pagination_key}_next %>", :query_params => {pagination_key => "[#{pagination_key}_next]"})
+          out make_link(:default_text => "<%= set_#{pagination_key}_next %>", :query_params => {pagination_key => "[#{pagination_key}_next]"}, :params => @params.merge(:page => nil))
           if descendant('else')
             out expand_with(:in_if => true, :only => ['else', 'elsif'])
           end
@@ -1846,7 +1858,7 @@ module Zena
           out expand_with(:in_if => true)
           out "<% end; end -%>"
         else
-          parser_error("unkown 'page' option #{@params[:page].inspect} should be ('previous', 'next' or 'list')")
+          parser_error("unkown option for 'page' #{@params[:page].inspect} should be ('previous', 'next' or 'list')")
         end
       end
 
@@ -2481,7 +2493,7 @@ module Zena
             @context[:vars] ||= []
             @context[:vars] << "#{pagination_key}_nodes"
             @context[:vars] << "#{pagination_key}_count"
-            @context[:vars] << "#{pagination_key}"
+            @context[:vars] << pagination_key
           end
 
           # should we publish ?
