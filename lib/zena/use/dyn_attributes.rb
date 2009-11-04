@@ -186,6 +186,9 @@ module Zena
             nested_attributes_alias nested_alias
           end
 
+          # This is used by Sphinx brick or other 'rails association crawlers'.
+          self.has_many :dynamic_attributes, :foreign_key => 'owner_id', :table_name => options[:table_name], :class_name => 'DynAttribute'
+
           class_eval <<-END
             def self.dyn_attribute_options
               #{options.inspect}
@@ -200,6 +203,8 @@ module Zena
           # add all methods from the module "AddActsAsMethod" to the 'base' module
           base.extend  Zena::Use::DynAttributes::ClassMethods
 
+          # This is used by Sphinx brick or other 'rails association crawlers'.
+          base.has_many      :dynamic_attributes, :foreign_key => 'owner_id', :table_name => 'dyn_attributes', :class_name => 'DynAttribute'
           base.after_save    :save_dynamic_attributes
           base.after_destroy :destroy_attributes
           base.class_eval <<-END

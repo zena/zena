@@ -1,11 +1,18 @@
 test:
   tags:     ON
   captcha:  ON
+  sphinx:   OFF
 
 development:
   tags:     ON
   captcha:  ON
+  sphinx:
+    switch: ON
+    if_gem: 'thinking_sphinx'
 
 production:
   tags:     ON
   captcha:  ON
+  sphinx:
+    switch: ON
+    if_gem: 'thinking_sphinx'

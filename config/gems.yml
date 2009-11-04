@@ -18,6 +18,12 @@ rmagick:
   lib:          'RMagick'
   version:      '>= 2.11.1'
 
+thinking-sphinx:
+  optional:     yes
+  source:       'http://gemcutter.org'
+  lib:          'thinking_sphinx'
+  version:      '>= 1.2.12'
+
 yamltest:
   version: '= 0.5.3'
 

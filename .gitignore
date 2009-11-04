@@ -1,6 +1,8 @@
 .DS_Store
 config/deploy_config.rb
 config/database.yml
+config/*.sphinx.conf
+db/sphinx
 doc/coverage
 log/
 pkg/*
@@ -9,6 +11,7 @@ public/images/ext/*_std.png
 public/images/ext/*_tiny.png
 public/images/ext/*_mini.png
 REVISION
+sandbox
 sites/*
 test/fixtures/*.yml
 tmp/*
