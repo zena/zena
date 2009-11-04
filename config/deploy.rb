@@ -1,5 +1,5 @@
 set :db_name,             "zena"   # If you change this: no dots in this name !
-set :server_ip,           nil      # FIXME: set this to your remote server IP in the form: "215.0.0.1"
+set :server_ip,           3333      # FIXME: set this to your remote server IP in the form: "215.0.0.1"
 set :mongrel_port,        "8000"
 set :mongrel_count,       "3"
 set :db_password,         nil      # FIXME: set password (can be anything).
@@ -25,7 +25,11 @@ if self[:server_ip]
   role :db,          "#{ssh_user}@#{server_ip}", :primary => true
 
   #================= END ADVANCED SETTINGS ==========#
-  require 'zena/deploy'
+  # We need to set RAILS_ROOT and RAILS_ENV to know which bricks we need to load, activate
+  ::RAILS_ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+  ::RAILS_ENV  = 'production'
+  require File.join(File.dirname(__FILE__), '..', 'lib', 'zena', 'deploy')
+  #require 'zena/deploy'
 
 else
   puts <<-TXT

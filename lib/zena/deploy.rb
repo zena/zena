@@ -23,8 +23,10 @@ And yes, 'pass' is not as intuitive as 'password' but we cannot use the latter b
 
 =end
 require 'erb'
-Capistrano::Configuration.instance(:must_exist).load do
+require File.join(File.dirname(__FILE__), 'info')
+require File.join(File.dirname(__FILE__), '..', 'bricks', 'patcher')
 
+Capistrano::Configuration.instance(:must_exist).load do
   set :templates, File.join(File.dirname(__FILE__), 'deploy')
   self[:app_type]   ||= :mongrel
   self[:app_root]   ||= '/var/zena/current'
@@ -397,4 +399,6 @@ Capistrano::Configuration.instance(:must_exist).load do
     run "#{in_current} tar czf #{db_name}_data.tgz #{db_name}.sql.tgz sites_data.tgz zena_version.txt"
     get_backup
   end
+
+  Bricks::Patcher.load_deploy
 end

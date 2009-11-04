@@ -64,10 +64,6 @@ module Bricks
         bricks.map {|f| Dir["#{f}/lib"] }.flatten
       end
 
-      def rake_paths
-        bricks.map {|f| Dir["#{f}/tasks"] }.flatten
-      end
-
       def foreach_brick(&block)
         bricks.each do |path|
           block.call(path)
@@ -103,11 +99,16 @@ module Bricks
       end
 
       def load_rake_tasks
-        rake_paths.each do |rake_path|
-          Dir.foreach(rake_path) do |f|
-            next unless f =~ /\.rb\Z/
-            require File.join(rake_path, f)
-          end
+        bricks.map {|f| Dir["#{f}/misc/tasks.rb"] }.flatten.each do |tasks_file|
+          require tasks_file
+        end
+      end
+
+      def load_deploy
+        puts 'load_deploy'
+        bricks.map {|f| Dir["#{f}/misc/deploy.rb"] }.flatten.each do |deploy_file|
+          puts deploy_file
+          require deploy_file
         end
       end
 
