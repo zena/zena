@@ -53,7 +53,6 @@ module Zena
       resources :relations
       resources :virtual_classes
       resources :sites,
-        :collection => { :zena_up => :get },
         :member     => { :clear_cache => :post }
       resources :comments,
                     :collection => { :empty_bin => :delete },

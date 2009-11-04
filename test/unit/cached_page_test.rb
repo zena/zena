@@ -24,7 +24,7 @@ class CachedPageTest < Zena::Unit::TestCase
           assert File.exists?(path), "Cache file created"
           data = File.open(path) {|f| f.read }
           assert_equal "this is the cached content", data
-          assert_equal [nodes_id(:status).to_s, nodes_id(:bird_jpg).to_s], cache.node_ids
+          assert_equal [nodes_id(:status), nodes_id(:bird_jpg)], cache.node_ids
           # test expire
           login(:tiger)
           node = secure!(Node) { nodes(:status) }
@@ -88,7 +88,7 @@ class CachedPageTest < Zena::Unit::TestCase
         assert File.exists?(path), "Cache file created"
         data = File.open(path) {|f| f.read }
         assert_equal "this is the cached content", data
-        assert_equal [nodes_id(:status).to_s, nodes_id(:bird_jpg).to_s], cache.node_ids
+        assert_equal [nodes_id(:status), nodes_id(:bird_jpg)], cache.node_ids
         # test expire
         CachedPage.expire_old
         assert !File.exists?(path), "Cache file removed"

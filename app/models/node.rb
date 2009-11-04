@@ -121,6 +121,7 @@ Setting 'custom_base' on a node should be done with caution as the node's zip is
 =end
 class Node < ActiveRecord::Base
   extend Zena::Use::Upload::UploadedFile
+  extend Zena::Use::Search::NodeClassMethods
 
   include RubyLess::SafeClass
   safe_attribute :created_at, :updated_at, :event_at, :log_at, :publish_from, :basepath, :inherit
@@ -301,7 +302,7 @@ class Node < ActiveRecord::Base
         find_by_zip(str)
       elsif str =~ /\A:?([0-9a-zA-Z ]+)(\+*)\Z/
         offset = $2.to_s.size
-        find(:first, Node.match_query($1.gsub('-',' '), :offset => offset))
+        Node.search_records($1.gsub('-',' '), :offset => offset, :limit => 1).first
       elsif path = str[/\A\(([^\)]*)\)\Z/,1]
         if path[0..0] == '/'
           find_by_path(path[1..-1])
@@ -596,66 +597,6 @@ class Node < ActiveRecord::Base
         Node.connection.execute "UPDATE #{Node.table_name} SET fullpath='#{path.join('/').gsub("'",'"')}' WHERE id='#{node[:id]}'"
       end
       node
-    end
-
-    # Paginate found results. Returns [previous_page, collection, next_page]. You can specify page and items per page in the query hash :
-    #  :page => 1, :per_page => 20. This should be wrapped into a secure scope.
-    def find_with_pagination(count, opts)
-      previous_page, collection, next_page, count_all = nil, [], nil, nil
-      per_page = (opts.delete(:per_page) || 20).to_i
-      page     = opts.delete(:page) || 1
-      page     = page > 0 ? page.to_i : 1
-      offset   = (page - 1) * per_page
-
-      if opts[:group]
-        count_select  = "DISTINCT #{opts[:group]}"
-      else
-        count_select  = opts.delete(:count) || 'nodes.id'
-      end
-
-      # FIXME: why do we need 'exclusive scope' here ?
-      with_exclusive_scope(self.scoped_methods[0] || {}) do
-        count_all = count(opts.merge( :select  => count_select, :order => nil, :group => nil ))
-        if count_all > offset
-          collection = find(count, opts.merge(:offset => offset, :limit => per_page))
-          if count_all > (offset + per_page)
-            next_page = page + 1
-          end
-          previous_page = page > 1 ? (page - 1) : nil
-        else
-          # offset too big, previous page = last page
-          previous_page = page > 1 ? ((count_all + per_page - 1) / per_page) : nil
-        end
-      end
-      [previous_page, collection, next_page, count_all]
-    end
-
-    # Return a hash to do a fulltext query.
-    def match_query(query, opts={})
-      node = opts.delete(:node)
-      if query == '.' && node
-        return opts.merge(
-          :conditions => ["parent_id = ?",node[:id]],
-          :order  => 'name ASC' )
-      elsif !query.blank?
-        if Zena::Db.adapter == 'mysql' && RAILS_ENV != 'test'
-          match  = sanitize_sql(["MATCH (vs.title,vs.text,vs.summary) AGAINST (?) OR nodes.name LIKE ?", query, "#{opts[:name_query] || query.url_name}%"])
-          select = sanitize_sql(["nodes.*, MATCH (vs.title,vs.text,vs.summary) AGAINST (?) + (5 * (nodes.name LIKE ?)) AS score", query, "#{query}%"])
-        else
-          match = sanitize_sql(["nodes.name LIKE ?", "#{query}%"])
-          select = "nodes.*, #{match} AS score"
-        end
-
-        return opts.merge(
-          :select => select,
-          :joins  => "INNER JOIN versions AS vs ON vs.node_id = nodes.id AND vs.status >= #{Zena::Status[:pub]}",
-          :conditions => match,
-          :group      => "nodes.id",
-          :order  => "score DESC, zip ASC")
-      else
-        # error
-        return opts.merge(:conditions => '0')
-      end
     end
 
     # FIXME: Where is this used ?

@@ -106,7 +106,15 @@ module Zena
         if gem_config
           conf = gem_config.symbolize_keys
           conf[:version].gsub!(/\A=\s*/,'')
-          config.gem gem_name, conf
+          if conf[:optional]
+            begin
+              config.gem gem_name, conf
+            rescue LoadError
+              # ignore
+            end
+          else
+            config.gem gem_name, conf
+          end
         else
           config.gem gem_name
         end

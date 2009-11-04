@@ -133,7 +133,7 @@ module Zena
 
     def fetch_ids(sql, attr_name='id')
       connection.select_all(sql, "#{name} Load").map! do |record|
-        record[attr_name]
+        record[attr_name].to_i
       end
     end
 

@@ -476,12 +476,9 @@ class NodesController < ApplicationController
 
     def do_search
       @node = current_site.root_node
-      query = Node.match_query(params[:q], :node => @node)
-
-      @nodes = secure(Node) do
-        @nodes_previous_page, @nodes, @nodes_next_page = Node.find_with_pagination(:all,query.merge(:per_page => 10, :page => params[:page]))
-        @nodes # important: this is the 'secure' yield return, it is used to secure found nodes
-      end
+      @search_per_page = params[:per_page] ? params[:per_page].to_i : 20
+      @nodes = secure(Node) { Node.search_records(params[:q], :node => @node, :page => params[:page], :per_page => @search_per_page) }
+      @search_count = 100 # FIXME: @nodes ? @nodes.total_entries : 0
     end
 
     # Document data do not change session[:lang] and can point at cached content (no nee to redirect to AUTHENTICATED_PREFIX).
