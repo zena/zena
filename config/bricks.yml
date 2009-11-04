@@ -1,0 +1,11 @@
+test:
+  tags:     ON
+  captcha:  ON
+
+development:
+  tags:     ON
+  captcha:  ON
+
+production:
+  tags:     ON
+  captcha:  ON

@@ -86,13 +86,19 @@ module Zena
     def gems_setup
       gem_configuration.each do |gem_name, gem_config|
         if gem_config
-          gem gem_name, gem_config['version']
+          if gem_config['optional']
+            begin
+              gem gem_name, gem_config['version']
+            rescue LoadError
+              # ignore
+            end
+          else
+            gem gem_name, gem_config['version']
+          end
         else
           gem gem_name
         end
       end
-    rescue LoadError
-      # ignore (we need this to pass in rake tasks)
     end
 
     def config_gems(config)

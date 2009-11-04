@@ -1,25 +1,72 @@
+require 'yaml'
+
 module Bricks
+  if File.exist?("#{RAILS_ROOT}/config/bricks.yml")
+    raw_config = YAML.load_file("#{RAILS_ROOT}/config/bricks.yml")[RAILS_ENV] || {}
+  else
+    raw_config = YAML.load_file("#{Zena::ROOT}/config/bricks.yml")[RAILS_ENV] || {}
+  end
+  config = {}
+
+  raw_config.each do |brick, opts|
+    if opts.kind_of?(Hash)
+      next unless opts['switch'] == true
+      ok = true
+      if required_gems = opts.delete('if_gem')
+        required_gems.split(',').each do |name|
+          begin
+            require name
+          rescue LoadError => err
+            ok = false
+            break
+          end
+        end
+      end
+      config[brick] = opts if ok
+    else
+      if opts == true
+        config[brick] = {}
+      end
+    end
+  end
+
+  CONFIG = config
+
   class Patcher
     class << self
       def bricks_folders
-        @bricks_folders ||= [File.join(Zena::ROOT, 'bricks'), File.join(RAILS_ROOT, 'bricks')].uniq.reject {|f| !File.exist?(f)}
+        @bricks_folders ||= [File.join(Zena::ROOT, 'bricks'), File.join(RAILS_ROOT, 'bricks')].uniq.reject do |f|
+          !File.exist?(f)
+        end
+      end
+
+      def bricks
+        @@bricks ||= bricks_folders.map do |bricks_folder|
+          if File.exist?(bricks_folder)
+            Dir.entries(bricks_folder).sort.map do |brick|
+              if Bricks::CONFIG[brick]
+                File.join(bricks_folder, brick)
+              else
+                nil
+              end
+            end
+          else
+            nil
+          end
+        end.flatten.compact.uniq
       end
 
       def models_paths
-        bricks_folders.map {|f| Dir["#{f}/**/models"] }.flatten
+        bricks.map {|f| Dir["#{f}/models"] }.flatten
       end
 
       def libs_paths
-        bricks_folders.map {|f| Dir["#{f}/**/lib"] }.flatten
+        bricks.map {|f| Dir["#{f}/lib"] }.flatten
       end
 
       def foreach_brick(&block)
-        bricks_folders.each do |bricks_folder|
-          next unless File.exist?(bricks_folder)
-          Dir.entries(bricks_folder).sort.each do |brick|
-            next if brick =~ /\A\./
-            block.call(File.join(bricks_folder, brick))
-          end
+        bricks.each do |path|
+          block.call(path)
         end
       end
 

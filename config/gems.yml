@@ -13,9 +13,10 @@ RedCloth:
   lib:          'redcloth'
   version:      '= 3.0.4'
 
-#rmagick:
-#  lib:          'RMagick'
-#  version:      '= 2.11.1'
+rmagick:
+  optional:     yes
+  lib:          'RMagick'
+  version:      '>= 2.11.1'
 
 yamltest:
   version: '= 0.5.3'
