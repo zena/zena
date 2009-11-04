@@ -2,6 +2,9 @@ require 'yaml'
 require 'fileutils'
 
 require File.join(File.dirname(__FILE__), '..', 'zena', 'info') # to have Zena::ROOT
+require File.join(File.dirname(__FILE__), '..', 'bricks', 'patcher') # to have Bricks::Patcher
+
+Bricks::Patcher.load_rake_tasks
 
 def symlink_assets(from, to)
   from = File.expand_path(from)
