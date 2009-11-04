@@ -29,8 +29,7 @@ class Template < TextDocument
 
   private
 
-    def rewrite_klass_mode_format
-
+    def set_defaults
       # only set name from version title on creation
       if name_changed?
         new_name = self.name
@@ -63,7 +62,7 @@ class Template < TextDocument
         content = version.content
         content.mode = content.mode.url_name if content.mode
 
-        if content.klass
+        if !content.klass.blank?
           # update name
           content.format = 'html' if content.format.blank?
           self[:name] = name_from_content(:format => content.format, :mode => content.mode, :klass => content.klass)
@@ -102,11 +101,7 @@ END_TXT
           end
         end
       end
-    end
 
-    # Overwrite document behaviour.
-    def node_before_validation
-      rewrite_klass_mode_format
       super
     end
 

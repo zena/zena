@@ -102,10 +102,8 @@ class Document < Node
   end
 
   private
-
-    # Make sure name is unique
-    def node_before_validation
-      base = self[:name]
+    def set_defaults
+      base = name
       base = version.title if base.blank?
       if base.blank? && file = version.content.file
         base = file.original_filename
@@ -122,14 +120,16 @@ class Document < Node
           version.title = $1
         end
       end
-
       super
+    end
 
+    # Make sure name is unique
+    def node_before_validation
       # we are in a scope, we cannot just use the normal validates_...
       # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
       Node.send(:with_exclusive_scope) do
         if new_record?
-          cond = ["name = ? AND parent_id = ? AND kpath LIKE 'ND%'",              self[:name], self[:parent_id]]
+          cond = ["name = ? AND parent_id = ? AND kpath LIKE 'ND%'", self[:name], self[:parent_id]]
         else
           cond = ["name = ? AND parent_id = ? AND kpath LIKE 'ND%' AND id != ? ", self[:name], self[:parent_id], self[:id]]
         end
@@ -145,5 +145,6 @@ class Document < Node
           version.title = "#{version.title}-#{i}" unless version.title.blank?
         end
       end
+      super
     end
 end

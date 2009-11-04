@@ -143,7 +143,8 @@ class Node < ActiveRecord::Base
   has_and_belongs_to_many :cached_pages
   belongs_to         :virtual_class, :foreign_key => 'vclass_id'
   belongs_to         :site
-  before_validation  :node_before_validation  # run our 'before_validation' after 'secure'
+  before_validation  :set_defaults
+  before_validation  :node_before_validation
   validates_presence_of :name
   validate           :validate_node
   before_create      :node_before_create
@@ -1472,11 +1473,8 @@ class Node < ActiveRecord::Base
     end
 
   private
-    def node_before_validation
-      self[:kpath] = self.vclass.kpath
-
-      self.name ||= (version.title || '').url_name
-
+    def set_defaults
+      # sync version title and name
       if ref_lang == version.lang &&
          ((full_drive? && version.status == Zena::Status[:pub]) ||
           (can_drive?  && vhash['r'][ref_lang].nil?))
@@ -1486,6 +1484,12 @@ class Node < ActiveRecord::Base
           self.name = version.title.url_name
         end
       end
+    end
+
+    def node_before_validation
+      self[:kpath] = self.vclass.kpath
+
+      self.name ||= (version.title || '').url_name
 
       unless name.blank?
         # update cached fullpath
@@ -1505,7 +1509,7 @@ class Node < ActiveRecord::Base
         # root node
         self[:section_id] = self[:id]
         self[:project_id] = self[:id]
-      elsif parent
+      elsif ref = parent
         self[:section_id] = ref.get_section_id
         self[:project_id] = ref.get_project_id
       else

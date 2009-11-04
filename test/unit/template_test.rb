@@ -335,7 +335,7 @@ class TemplateTest < Zena::Unit::TestCase
 
       should 'be able to destroy version' do
         assert_difference('Version.count', -1) do
-          assert_difference('Node.count', -1) do
+          assert_difference('Node.count', 0) do
             assert @node.destroy_version
           end
         end
@@ -347,7 +347,7 @@ class TemplateTest < Zena::Unit::TestCase
         @node = secure(Node) { nodes(:Project_zafu) }
         @node.remove
       end
-      
+
       should 'be able to destroy template' do
         assert_difference('Version.count', -1) do
           assert_difference('Node.count', -1) do
@@ -367,6 +367,31 @@ class TemplateTest < Zena::Unit::TestCase
       should 'see the redaction when rendering zafu' do
 
       end
+    end
+
+    should 'be able to create a template with no format, mode or klass' do
+      assert_difference('Node.count', 1) do
+        @node = secure(Document) { Document.create(:parent_id => nodes_id(:default), :name=>'foo.zafu') }
+      end
+      content = @node.version.content
+      assert_nil content.format
+      assert_nil content.mode
+      assert_nil content.klass
+      assert_equal 'foo', @node.name
+      assert_equal 'foo', @node.version.title
+    end
+
+    should 'be able to update a template with blank format, mode or klass' do
+      @node = secure(Node) { nodes(:notes_zafu) }
+      assert @node.update_attributes('v_text' => 'hello', 'c_klass' => '', 'c_format' => '', 'c_mode' => '')
+      @node = secure(Node) { nodes(:notes_zafu) } # reload
+      content = @node.version.content
+
+      assert_nil content.format
+      assert_nil content.mode
+      assert_nil content.klass
+
+      assert_equal 'hello', @node.version.text
     end
 
   end

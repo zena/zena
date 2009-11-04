@@ -3,6 +3,12 @@
 
 <%= upload_field %>
 
+
 <label for='node_klass'><%= _('class of first element') %></label>
 <%= select('node', 'klass', Node.classes_for_form, :selected => 'Page' ) %><br/>
+
+<% if @node.can_publish? && !visitor.site.auto_publish? %>
+<label for='node_v_status'><%= _('publish nodes') %></label>
+<small><input type='checkbox' name='node[v_status]' value='50'/> <%= _('pub') %></small><br/>
+<% end -%>
 </form>
