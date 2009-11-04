@@ -2,6 +2,7 @@ test:
   tags:     ON
   captcha:  ON
   sphinx:   OFF
+  delayed_job: OFF
 
 development:
   tags:     ON
@@ -9,6 +10,9 @@ development:
   sphinx:
     switch: ON
     if_gem: 'thinking_sphinx'
+  delayed_job:
+    switch:  ON
+    if_gem: 'delayed_job'
 
 production:
   tags:     ON
@@ -16,3 +20,6 @@ production:
   sphinx:
     switch: ON
     if_gem: 'thinking_sphinx'
+  delayed_job:
+    switch:  ON
+    if_gem: 'delayed_job'

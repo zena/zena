@@ -1,0 +1,18 @@
+== Presentation
+
+Provides delayed jobs: long running tasks can be processed offline,
+without halting the visitor's browser. If you enable sphinx, this is
+a must-have once your site grows bigger and you have lots of deltas
+between index rebuilds.
+
+== Install
+
+Drop the folder into the "bricks" folder and install the delayed_job gem:
+
+# install delayed_job gem:
+> sudo gem install delayed_job --source http://gemcutter.org
+
+# if you want to use this with sphinx you also need
+> sudo gem install ts-delayed-delta --source http://gemcutter.org
+
+# enable brick in config/bricks.yml

@@ -1,4 +1,12 @@
+require 'thinking_sphinx'
 require 'thinking_sphinx/tasks'
+
+begin
+  require 'thinking_sphinx/deltas/delayed_delta/tasks'
+  require 'thinking_sphinx/deltas/delayed_delta' # we need this line for the ts:dd job runner
+rescue LoadError
+  # no delayed_delta
+end
 
 namespace :sphinx do
 

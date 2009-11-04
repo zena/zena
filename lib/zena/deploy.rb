@@ -400,5 +400,5 @@ Capistrano::Configuration.instance(:must_exist).load do
     get_backup
   end
 
-  Bricks::Patcher.load_deploy
+  Bricks::Patcher.load_misc('deploy')
 end

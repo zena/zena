@@ -4,7 +4,6 @@ test:
 production:
   enable_star: 1
   min_infix_len: 2
-  sql_range_step: 10000000
 
 development:
   enable_star: 1

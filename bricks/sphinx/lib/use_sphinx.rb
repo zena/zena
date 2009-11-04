@@ -10,14 +10,15 @@ module Bricks
         if offset = opts[:offset]
           limit = opts[:limit] || 20
           ids = search_for_ids(query, :with => with, :limit => (offset + limit) * [limit,20].max)
+          return [] if ids.empty?
           # 1. filter with secure
           secure_ids = Zena::Db.fetch_ids("SELECT id FROM nodes WHERE id IN (#{ids.join(',')}) AND #{secure_scope('nodes')}")
           # 2. reorder and apply offset
-          if secure_ids = (ids & secure_ids)[offset..(offset + limit - 1)]
+          if offset_ids = (ids & secure_ids)[offset..(offset + limit - 1)]
             # 3. populate
-            records = Node.find(:all, :conditions => {:id => secure_ids})
+            records = Node.find(:all, :conditions => {:id => offset_ids})
             # 4. reorder
-            secure_ids.map {|id| records.detect {|r| r.id == id }}
+            offset_ids.map {|id| records.detect {|r| r.id == id }}
           else
             []
           end
@@ -37,6 +38,15 @@ module Bricks
     module NodeSearch
       def self.included(klass)
         klass.extend NodeClassMethods
+
+        begin
+          require 'thinking_sphinx/deltas/delayed_delta'
+          ThinkingSphinx::Deltas::DelayedDelta
+          has_dd = Bricks::CONFIG['delayed_job']
+        rescue LoadError
+          has_dd = false
+        end
+
         klass.class_eval do
           define_index do
             indexes name
@@ -52,7 +62,7 @@ module Bricks
 
             set_property :field_weights => { :title => 5, :summary => 3, :text => 2, :attribute => 1 }
             set_property :group_concat_max_len => 30000 # FIXME: articles can easily have a length of 17000 chars...
-            set_property :delta => true
+            set_property :delta => (has_dd ? :delayed : true)
           end
         end
 

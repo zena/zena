@@ -13,4 +13,7 @@ follow instructions: http://freelancing-god.github.com/ts/en/installing_sphinx.h
 # install thinking sphinx gem:
 > sudo gem install thinking-sphinx --source http://gemcutter.org
 
+# if you want to use the delayed delta feature (you should on a big website), you also need
+> sudo gem install ts-delayed-delta --source http://gemcutter.org
+
 # enable brick in config/bricks.yml

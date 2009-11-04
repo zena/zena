@@ -179,6 +179,7 @@ module Zena
       set_default_timezone(config)
       add_inflections
       initialize_gettext
+      Bricks::Patcher.load_misc('init')
     end
   end
 end

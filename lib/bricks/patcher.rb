@@ -15,7 +15,7 @@ module Bricks
       if required_gems = opts.delete('if_gem')
         required_gems.split(',').each do |name|
           begin
-            require name
+            require name.strip
           rescue LoadError => err
             ok = false
             break
@@ -98,17 +98,9 @@ module Bricks
         end
       end
 
-      def load_rake_tasks
-        bricks.map {|f| Dir["#{f}/misc/tasks.rb"] }.flatten.each do |tasks_file|
-          require tasks_file
-        end
-      end
-
-      def load_deploy
-        puts 'load_deploy'
-        bricks.map {|f| Dir["#{f}/misc/deploy.rb"] }.flatten.each do |deploy_file|
-          puts deploy_file
-          require deploy_file
+      def load_misc(filename)
+        bricks.map {|f| Dir["#{f}/misc/#{filename}.rb"] }.flatten.each do |file|
+          require file
         end
       end
 
