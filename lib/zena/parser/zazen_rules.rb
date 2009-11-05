@@ -187,10 +187,10 @@ module Zena
             # link inside the cms "":34
             title, id = $1, $2
             if id =~ /(.*?)#(.*)/
-              id, sharp = $1, $2
-              sharp = 'true' if sharp == ''
+              id, anchor = $1, $2
+              anchor = 'true' if anchor == ''
             end
-            store @helper.make_link(:title=>title,:id=>id,:sharp=>sharp)
+            store @helper.make_link(:title=>title,:id=>id,:anchor=>anchor)
           end
         elsif @text =~ /\A"([^"]*)":(#{PSEUDO_ID_REGEXP})((_[a-z]+|)(\.[a-z]+|)(#[a-z_\/\[\]]*|))/m
           #puts "SHORTCUT_LINK:[#{$&}]"
@@ -209,10 +209,10 @@ module Zena
                 title = "#{node.fullpath}#{mode_format}"
               end
               if id =~ /(.*?)#(.*)/
-                id, sharp = $1, $2
-                sharp = 'true' if sharp == ''
+                id, anchor = $1, $2
+                anchor = 'true' if anchor == ''
               end
-              store @helper.make_link(:title=>title,:id=>id,:sharp=>sharp,:node=>node)
+              store @helper.make_link(:title=>title,:id=>id,:anchor=>anchor,:node=>node)
             end
           elsif @translate_ids
             store $&

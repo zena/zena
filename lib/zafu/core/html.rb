@@ -18,6 +18,9 @@ module Zafu
               end
             end
             res[key.to_sym] = value
+          elsif tag_type == :link && k == :_name
+            # :_name set by r_anchor
+            res[:name] ||= v
           elsif tag_type == :link && ![:style, :class, :id, :title].include?(k)
             # bad html parameter for links (some keys for link tags are used as query parameters)
             # filter out
@@ -26,10 +29,10 @@ module Zafu
           end
         end
 
-        if params[:anchor]
-          @anchor_param = nil
-          res[:name] = anchor_name(params[:anchor], node)
-        end
+        #if params[:anchor]
+        #  @anchor_param = nil
+        #  res[:name] = anchor_name(params[:anchor], node)
+        #end
 
         res
       end

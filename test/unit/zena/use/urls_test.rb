@@ -65,6 +65,10 @@ class UrlsTest < Zena::View::TestCase
     assert_equal "/en/image30_pv.jpg?#{node.updated_at.to_i + Iformat['pv'][:hash_id]}", zen_path(node, :format => 'jpg', :mode => 'pv')
   end
 
+  def test_zen_path_with_anchor
+    assert_equal '/en/section12.html#comments', zen_path(nodes(:people), :anchor => 'comments')
+  end
+
   def test_zen_path_asset
     login(:ant)
     node = secure!(Node) { nodes(:zena) }

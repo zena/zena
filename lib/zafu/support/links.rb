@@ -64,15 +64,15 @@ module Zafu
           opts[:mode] = mode.inspect
         end
 
-        if sharp = params.delete(:sharp)
-          opts[:sharp] = sharp.inspect
+        if anchor = params.delete(:anchor)
+          opts[:anchor] = anchor.inspect
         end
 
-        if sharp_in = params.delete(:in)
-          finder, klass = build_finder_for(:first, sharp_in, {})
+        if anchor_in = params.delete(:in)
+          finder, klass = build_finder_for(:first, anchor_in, {})
           return unless finder
           return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
-          opts[:sharp_in] = finder
+          opts[:anchor_in] = finder
         end
 
         if @html_tag && @html_tag != 'a'
@@ -87,7 +87,7 @@ module Zafu
         end
 
         (params.keys - [:style, :class, :id, :rel, :name, :anchor, :attr, :tattr, :trans, :text]).each do |k|
-          next if k.to_s =~ /if_|set_/
+          next if k.to_s =~ /if_|set_|\A_/
           query_params[k] = params[k]
         end
 
@@ -207,7 +207,13 @@ module Zafu
       end
 
       def r_anchor(obj=node)
-        "<a name='#{anchor_name(@anchor_param, obj)}'></a>"
+        if single_child_method == 'link'
+          link = @blocks[0]
+          link.params.merge!(:_name => anchor_name(params[:type] || 'true', obj))
+          expand_block(link)
+        else
+          "<a name='#{anchor_name(@anchor_param, obj)}'></a>"
+        end
       end
 
       def r_check_lang
@@ -226,7 +232,7 @@ module Zafu
           "#{base_class.to_s.underscore}#{erb_node_id(obj)}"
         end
       end
-      
+
       def link_to_update(target, opts = {})
         method = opts[:method] || :get
 

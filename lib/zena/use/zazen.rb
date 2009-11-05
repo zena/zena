@@ -77,16 +77,16 @@ module Zena
         def make_link(opts)
           # for latex refs, see http://www.tug.org/applications/hyperref/manual.html
           link_opts = {}
-          if sharp = opts[:sharp]
-            if sharp =~ /\[(.+?)\/(.*)\]/
-              sharp_in, sharp = $1, $2
-              sharp = sharp == '' ? 'true' : "[#{sharp}]"
-              link_opts[:sharp_in] = sharp_in
+          if anchor = opts[:anchor]
+            if anchor =~ /\[(.+?)\/(.*)\]/
+              anchor_in, anchor = $1, $2
+              anchor = anchor == '' ? 'true' : "[#{anchor}]"
+              link_opts[:anchor_in] = anchor_in
             end
-            if ['[id]', '[zip]'].include?(sharp)
-              link_opts[:sharp] = 'true'
+            if ['[id]', '[zip]'].include?(anchor)
+              link_opts[:anchor] = 'true'
             else
-              link_opts[:sharp] = sharp
+              link_opts[:anchor] = anchor
             end
           end
           if opts[:id] =~ /(\d+)(_\w+|)(\.\w+|)/

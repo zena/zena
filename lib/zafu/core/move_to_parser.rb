@@ -14,7 +14,9 @@ module Zafu
         if key = @params[:store_date]
           set_stored(Date, key, current_date)
         end
-        @anchor_param = @params[:anchor]
+        if @method != 'link'
+          @anchor_param = @params[:anchor]
+        end
 
         true
       end
@@ -23,11 +25,10 @@ module Zafu
       def after_render(text)
         if @anchor_param
           @params[:anchor] = @anchor_param # set back in case of double rendering so it is computed again
-          res = r_anchor + super
+          r_anchor + super
         else
-          res = super
+          super
         end
-        res
       end
 
       # Our special version of r_expand_with tag with "set_" parsing.

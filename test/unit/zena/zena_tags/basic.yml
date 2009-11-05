@@ -260,20 +260,20 @@ link_root:
   tem: "<a href='<%= zen_path((secure(Node) { Node.find(_ID(zena))})) %>'><%= @node.version.title %></a>"
   res: "<a href='/oo'>status title</a>"
 
-link_sharp:
-  src: "<r:link sharp='true'/>"
+link_anchor:
+  src: "<r:link anchor='true'/>"
   res: "<a href='#node22'>status title</a>"
 
-link_sharp_name:
-  src: "<r:link sharp='[name]'/>"
+link_anchor_name:
+  src: "<r:link anchor='[name]'/>"
   res: "<a href='#status'>status title</a>"
 
-link_sharp_in:
-  src: "<r:link sharp='true' in='project' mode='tree'/>"
+link_anchor_in:
+  src: "<r:link anchor='true' in='project' mode='tree'/>"
   res: "<a href='/oo/projects/cleanWater_tree#node22'>status title</a>"
 
-link_sharp_name_in:
-  src: "<r:link sharp='[name]' in='parent'/>"
+link_anchor_name_in:
+  src: "<r:link anchor='[name]' in='parent'/>"
   res: "<a href='/oo/projects/cleanWater#status'>status title</a>"
 
 link_stored:
@@ -300,7 +300,7 @@ anchor:
   res: "<a name='node22'></a><a name='status'></a> <p>22</p>"
 
 anchor_in_link:
-  src: "<r:link anchor='true'/>"
+  src: "<r:anchor do='link'/>"
   res: "<a name='node22' href='/oo/projects/cleanWater/page22.html'>status title</a>"
 
 show_title_anchor:
@@ -320,7 +320,7 @@ link_version:
 version_anchor:
   context:
     node: 'opening'
-  src: "<r:traductions><r:each join=', '><r:link tattr='lang' anchor='true'/></r:each></r:traductions>"
+  src: "<r:traductions><r:each join=', '><r:anchor do='link' tattr='lang'/></r:each></r:traductions>"
   res: "<a name='version27.2' href='/oo/projects/cleanWater/post27.html?lang=en'>english</a>, <a name='version27.1' href='/oo/projects/cleanWater/post27.html?lang=fr'>french</a>"
 
 title:

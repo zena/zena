@@ -3,11 +3,27 @@ CHANGESET1:
   to:   '0.14.1'
 
   CHANGES:
-    basic:
-      if_or: "<r:if can='write' or_test='[d_foo]'>hello</r:if>"
-      if_or: "<r:if can='write' or_test='d_foo'>hello</r:if>"
+    if_or:
+      old: "<r:if can='write' or_test='[d_foo]'>hello</r:if>"
+      new: "<r:if can='write' or_test='d_foo'>hello</r:if>"
 
 SHOULD_CHANGE:
   basic:
-    link_sharp_name: "<r:link sharp='[name]'/>"
-    link_sharp_name: "<r:link sharp='#{name}'/>"
+    link_anchor_name:
+      old: "<r:link anchor='[name]'/>"
+      new: "<r:link anchor='#{name}'/>"
+
+CHANGESET2:
+  from: '0.15.1'
+  to:   '0.15.2'
+
+  CHANGES:
+    basic:
+      link_sharp:
+        old: "<r:link sharp='true'/>"
+        new: "<r:link anchor='true'/>"
+      anchor_with_link:
+        old: "<r:link anchor='true'/>"
+        new: "<r:anchor do='link'/>"
+
+

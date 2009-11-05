@@ -17,20 +17,22 @@ module Zena
 
           return '#' unless node
 
-
-          if sharp = options.delete(:sharp)
-            if sharp =~ /\[(.+)\]/
-              sharp_value = node.safe_read($1)
-            elsif sharp == 'true'
-              sharp_value = "node#{node[:zip]}"
+          if anchor = options.delete(:anchor)
+            if anchor =~ /\[(.+)\]/
+              anchor_value = node.safe_read($1)
+            elsif anchor == 'true'
+              anchor_value = "node#{node[:zip]}"
             else
-              sharp_value = sharp
+              fixed = true
+              anchor_value = anchor
             end
-            if sharp_in = options.delete(:sharp_in)
-              sharp_node = sharp_in.kind_of?(Node) ? sharp_in : (node.find(:first, [sharp_in]) || node)
-              return "#{zen_path(sharp_node, options)}##{sharp_value}"
+            if anchor_in = options.delete(:anchor_in)
+              anchor_node = anchor_in.kind_of?(Node) ? anchor_in : (node.find(:first, [anchor_in]) || node)
+              return "#{zen_path(anchor_node, options)}##{anchor_value}"
+            elsif fixed
+              return "#{zen_path(node, options)}##{anchor_value}"
             else
-              return "##{sharp_value}"
+              return "##{anchor_value}"
             end
           end
 

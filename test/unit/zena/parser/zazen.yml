@@ -157,13 +157,13 @@ link_no_title:
   src: '"":23'
   res: '<p>[make_link id:|23| title:||]</p>'
 
-link_sharp:
+link_anchor:
   src: '"hello":23#world of fame'
-  res: "<p>[make_link id:|23| sharp:|world| title:|hello|] of fame</p>"
+  res: "<p>[make_link anchor:|world| id:|23| title:|hello|] of fame</p>"
 
-link_sharp_same_as_title:
+link_anchor_same_as_title:
   src: '"hello":23# I love you'
-  res: "<p>[make_link id:|23| sharp:|true| title:|hello|] I love you</p>"
+  res: "<p>[make_link anchor:|true| id:|23| title:|hello|] I love you</p>"
 
 link_with_ending_punct:
   src: "I love \"\":20."
