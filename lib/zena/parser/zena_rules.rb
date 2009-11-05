@@ -1,6 +1,7 @@
 module Zena
   module Parser
     module ZenaRules
+      # FIXME: remove all this when rubyless is in place !
       def start(mode)
         super
         if @method =~ /^\[(.*)\]$/
@@ -13,13 +14,6 @@ module Zena
           @params[:attr] = $1
         elsif @method =~ /\A(\w+)\s+(\w+)\s+(.+)$/
           # 'pages where name ...'
-          @params[:select] = @method
-          @method = 'context'
-        end
-
-        if @method == 'with' || self.respond_to?("r_#{@method}")
-          # ok
-        else
           @params[:select] = @method
           @method = 'context'
         end

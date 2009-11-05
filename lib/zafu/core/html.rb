@@ -63,7 +63,7 @@ module Zafu
             node_name = node
           elsif (@method == 'each' || @method == 'each_group') && @context[:list]
             node_name = var
-          elsif @method == 'context'
+          elsif @method == 'context' || !respond_to?("r_#{@method}".to_sym)
             node_name = @var || node
           else
             node_name = node

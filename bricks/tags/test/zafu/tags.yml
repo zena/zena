@@ -26,3 +26,15 @@ tagged_query:
 images_tagged_blue:
   src: "<r:images where='tag=\"blue\"' in='site' do='each' join=', ' do='[name]'/>"
   res: "bird"
+
+tagged_keys_rubyless:
+  context:
+    node: 'status'
+  src: "<r:tagged do='keys'><r:each join=', ' do='show'/></r:tagged>"
+  res: "sky, blue"
+
+tag_names:
+  context:
+    node: 'status'
+  src: "<r:tag_names><r:each join=', ' do='show'/></r:tagged>"
+  res: "sky, blue"

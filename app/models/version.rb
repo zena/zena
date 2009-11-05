@@ -38,7 +38,7 @@ class Version < ActiveRecord::Base
                      :zip => Number, :user_zip => Number # FIXME: replace by 'id'....
   # writable
   attr_accessible    :title, :text, :summary, :comment, :publish_from, :lang, :status, :content_attributes, :dyn_attributes
-  zafu_context       :author => "Contact", :user => "User", :node => "Node"
+  safe_context       :author => 'Contact', :user => 'User', :node => 'Node'
 
   belongs_to            :user
   before_validation     :version_before_validation

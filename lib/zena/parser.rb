@@ -147,10 +147,11 @@ module Zena
         return @result unless before_render
         @pass    = {} # used to pass information to the parent
         res = nil
-        if self.respond_to?("r_#{@method}".to_sym)
-          res = self.do_method("r_#{@method}".to_sym)
+
+        if respond_to?("r_#{@method}".to_sym)
+          res = do_method("r_#{@method}".to_sym)
         else
-          res = self.do_method(:r_unknown)
+          res = do_method(:r_unknown)
         end
 
         after_render(res + @text)
@@ -286,7 +287,7 @@ module Zena
         @blocks = included_blocks + not_found
       end
 
-      # Return a has of all descendants. Find a specific descendant with descendant['form'] for example.
+      # Return a hash of all descendants. Find a specific descendant with descendant['form'] for example.
       def all_descendants
         @all_descendants ||= begin
           d = {}
@@ -302,6 +303,13 @@ module Zena
           end
           d
         end
+      end
+
+      # Find a direct child with +child[method]+.
+      def child
+        Hash[*@blocks.map do |b|
+          b.kind_of?(String) ? nil : [b.method, b]
+        end.compact.flatten]
       end
 
       def descendants(key)

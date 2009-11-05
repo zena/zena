@@ -9,8 +9,10 @@ module Zafu
         case what
         when 'params'
           out "<pre><%= params.inspect %></pre>"
+        when 'class'
+          out "<pre>expected: #{node_class} / got: <%= #{node}.class %></pre>"
         else
-          parser_error("invalid element to show. Options are ['params'].")
+          parser_error("invalid element to show. Options are ['params', 'class'].")
         end
       end
       out expand_with

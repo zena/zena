@@ -637,7 +637,7 @@ class NodeTest < Zena::Unit::TestCase
     login(:lion)
     node = secure!(Node) { nodes(:art) }
     assert node.update_attributes('tagged_ids' => [nodes_id(:status), nodes_id(:people)])
-    assert_equal 2, node.find(:all, 'tagged').size
+    assert_equal 2, node.find(:all, 'tagged', :skip_rubyless => true).size
     stat = secure!(Node) { nodes(:status) }
     peop = secure!(Node) { nodes(:people) }
     assert_equal node[:id], stat.find(:first, 'set_tags')[:id]

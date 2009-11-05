@@ -49,7 +49,6 @@ module Zena
       end
 
       # FIXME: make this explicit in models
-      ActiveRecord::Base.send :include, Zena::Use::Zafu::ModelMethods
       ActiveRecord::Base.send :include, Zena::Use::NodeQueryFinders::AddUseNodeQueryMethod
       ActiveRecord::Base.send :include, Zena::Acts::Secure
       ActionController::Base.send :include, Zena::Acts::Secure

@@ -2,6 +2,49 @@ module Zafu
   module Support
     module Context
 
+      # use all other tags as rubyless or relations
+      def r_unknown
+        context = change_context(@method)
+        open_context(context)
+      end
+
+
+      # Enter a new context (<r:context find='all' select='pages'>). This is the same as '<r:pages>...</r:pages>'). It is
+      # considered better style to use '<r:pages>...</r:pages>' instead of the more general '<r:context>' because the tags
+      # give a clue on the context at start and end. Another way to open a context is the 'do' syntax: "<div do='pages'>...</div>".
+      # FIXME: 'else' clause has been removed, find a solution to put it back.
+      def r_context
+        # DRY ! (build_finder_for, block)
+        return parser_error("missing 'select' parameter") unless method = @params[:select]
+        context = change_context(method, :skip_rubyless => true)
+        open_context(context)
+
+        #context = RubyLess::SafeClass.safe_method_type_for(node_class, [method]) if use_rubyless
+        #if context && @params.keys == [:select]
+        #  open_context("#{node}.#{context[:method]}", context.dup)
+        #elsif node_kind_of?(Node)
+        #  count   = ['first','all','count'].include?(@params[:find]) ? @params[:find].to_sym : nil
+        #  count ||= Node.plural_relation?(method) ? :all : :first
+        #  finder, klass, query = build_finder_for(count, method, @params)
+        #  return unless finder
+        #  if node_kind_of?(Node) && !klass.ancestors.include?(Node)
+        #    # moving out of node: store last Node
+        #    @context[:previous_node] = node
+        #  end
+        #  if count == :all
+        #    # plural
+        #    do_list( finder, query, :node_class => klass)
+        #  # elsif count == :count
+        #  #   "<%= #{build_finder_for(count, method, @params)} %>"
+        #  else
+        #    # singular
+        #    do_var(  finder, :node_class => klass)
+        #  end
+        #else
+        #  "unknown relation (#{method}) for #{node_class} class"
+        #end
+      end
+
       # Group elements in a list. Use :order to specify order.
       def r_group
         return parser_error("cannot be used outside of a list") unless list_var = @context[:list]
@@ -103,16 +146,21 @@ module Zafu
           @context["#{klass}_#{key}"] = obj
         end
 
-        def open_context(finder, context)
-          klass = context[:node_class]
+        def open_context(context)
+          return nil unless context
+          klass = context.delete(:class)
+          if klass.kind_of?(Class) && klass.ancestors.include?(String) && (@blocks.empty? || @blocks.size == 1 && @blocks[0].kind_of?(String))
+            out "<%= #{context[:method]} %>"
+            return
+          end
           # hack to store last 'Node' context until we fix node(Node) stuff:
           previous_node = node_kind_of?(Node) ? node : @context[:previous_node]
           if klass.kind_of?(Array)
             # plural
-            do_list( finder, nil, context.merge(:node_class => klass[0], :previous_node => previous_node) )
+            do_list( context[:method], context.merge(:node_class => klass[0], :previous_node => previous_node) )
           else
             # singular
-            do_var(  finder, context.merge(:previous_node => previous_node) )
+            do_var(  context[:method], context.merge(:node_class => klass, :previous_node => previous_node) )
           end
         end
 
@@ -139,10 +187,11 @@ module Zafu
           out "<% end -%>" if var_finder
         end
 
-        def do_list(list_finder, query = nil, opts={})
+        def do_list(list_finder, opts={})
           clear_dom_scope
+          query = opts[:query]
 
-          @context.merge!(opts)          # pass options from 'zafu_known_contexts' to @context
+          @context.merge!(opts)          # pass options from 'safe_method_type_for' to @context
 
           if (each_block = descendant('each')) && (each_block.descendant('edit') || descendant('add') || descendant('add_document') || (descendant('swap') && descendant('swap').parent.method != 'block') || ['block', 'drop'].include?(each_block.single_child_method))
             new_dom_scope

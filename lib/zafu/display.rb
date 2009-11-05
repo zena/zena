@@ -107,7 +107,7 @@ module Zafu
         # error
         return "no attribute for 'show'".inspect
       else
-        return parser_error("missing attribute")
+        attribute_method = node_class.ancestors.include?(String) ? node : node_attribute('to_s')
       end
 
       if !@params[:date] && fmt = @params[:format]

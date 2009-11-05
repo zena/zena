@@ -470,11 +470,12 @@ module Zena
 
         # Find related nodes.
         # See Node#build_find for details on the options available.
-        def find(count, rel)
+        # TODO: replace with rubyless translate ? Is this thing really used anyway ?
+        def find(count, rel, opts = {})
           rel = [rel] if rel.kind_of?(String)
 
-          if rel.size == 1 && self.class.zafu_known_contexts[rel.first]
-            self.send(rel.first)
+          if !opts[:skip_rubyless] && rel.size == 1 && type = RubyLess::SafeClass.safe_method_type_for(self.class, [rel.first])
+            self.send(type[:method])
           else
             query = Node.build_find(count, rel, :node_name => 'self')
             if query.valid?

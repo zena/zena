@@ -12,7 +12,8 @@ class Comment < ActiveRecord::Base
   safe_method       :text => String, :author_name => {:class => String, :nil => true},
                     :discussion_zip => Number
 
-  zafu_context       :replies => ["Comment"], :node => "Node"
+  safe_context      :replies => ['Comment'], :node => 'Node'
+
   attr_accessible    :title, :text, :author_name, :discussion_id, :reply_to, :status
 
   belongs_to :discussion

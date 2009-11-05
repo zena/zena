@@ -57,7 +57,7 @@ class NodeQueryTest < Zena::Unit::TestCase
     node = secure!(Node) { Node.new }
     assert_equal nil, node.find(:all,'set_tags')
     node = secure!(Node) { Node.get_class('Tag').new_instance }
-    assert_equal nil, node.find(:all,'tagged')
+    assert_equal nil, node.find(:all,'tagged', :skip_rubyless => true)
   end
 
   def test_do_find_in_new_node
@@ -85,7 +85,7 @@ class NodeQueryTest < Zena::Unit::TestCase
   def test_l_status
     login(:lion)
     node = secure!(Node) { nodes(:art) }
-    tagged = node.find(:all, 'tagged')
+    tagged = node.find(:all, 'tagged', :skip_rubyless => true)
     # cleanWater, opening
     assert_equal [10, 5], tagged.map{|t| t.l_status}
   end
@@ -101,7 +101,7 @@ class NodeQueryTest < Zena::Unit::TestCase
   def test_l_comment_empty
     login(:lion)
     node = secure!(Node) { nodes(:art) }
-    tagged = node.find(:all, 'tagged')
+    tagged = node.find(:all, 'tagged', :skip_rubyless => true)
     # cleanWater, opening
     assert_equal [nil, "cold"], tagged.map{|t| t.l_comment}
   end

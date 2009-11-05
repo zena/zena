@@ -2,7 +2,9 @@ module Bricks
   module Tags
     class StringHash
       include RubyLess::SafeClass
-      safe_method [:[], String] => {:class => String, :nil => true}
+      safe_context [:[], String] => String
+      safe_method :keys => [String]
+      undef_method(:safe_read) # FIXME: use 'disable_safe_read' when new rubyless gem is published
     end
 
     module HasTags
@@ -15,8 +17,8 @@ module Bricks
     module TriggerClassMethod
       def has_tags
         after_save    :update_tags
-        zafu_context  :tags => ["Link"]
-        safe_method   :tag_list => String, :tag => String, :tagged => StringHash
+        safe_context  :tags => ['Link']
+        safe_method   :tag_list => String, :tag => String, :tagged => StringHash, :tag_names => [String]
 
         class_eval <<-END
           include Bricks::Tags::InstanceMethods

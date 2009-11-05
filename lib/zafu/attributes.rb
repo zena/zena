@@ -31,25 +31,28 @@ module Zafu
 
       real_attribute = attribute =~ /\Ad_/ ? attribute : attribute.gsub(/\A(|[\w_]+)id(s?)\Z/, '\1zip\2')
 
-      res = if klass.ancestors.include?(Node)
+      if klass.ancestors.include?(Node)
         if ['url','path'].include?(real_attribute)
           # pseudo attribute 'url'
           params = {}
           params[:mode]   = @params[:mode]   if @params[:mode]
           params[:format] = @params[:format] if @params[:format]
-          "zen_#{real_attribute}(#{node}#{params_to_erb(params)})"
+          res = "zen_#{real_attribute}(#{node}#{params_to_erb(params)})"
         elsif type = safe_method_type([real_attribute])
-          type[:method]
+          res = type[:method]
         elsif type = klass.safe_method_type([real_attribute])
-          "#{att_node}.#{type[:method]}"
+          res = "#{att_node}.#{type[:method]}"
         else
-          "#{att_node}.safe_read(#{real_attribute.inspect})"
+          res = "#{att_node}.safe_read(#{real_attribute.inspect})"
         end
-      elsif type = klass.safe_method_type([real_attribute])
-        "#{att_node}.#{type[:method]}"
+      elsif type = RubyLess::SafeClass.safe_method_type_for(klass, [real_attribute])
+        res = "#{att_node}.#{type[:method]}"
+      elsif klass.instance_methods.include?('safe_read')
+        # Unknown method but safe class: can resolve at runtime
+        res = "#{att_node}.safe_read(#{real_attribute.inspect})"
       else
-        # unknown class, resolve at runtime
-        "#{att_node}.safe_read(#{real_attribute.inspect})"
+        out parser_error("#{klass} does not respond to #{real_attribute.inspect}")
+        return 'nil'
       end
 
       res = "(#{res} || #{node_attribute(opts[:else])})" if opts[:else]

@@ -164,16 +164,15 @@ class Node < ActiveRecord::Base
   nested_attributes_alias %r{^c_(\w+)} => ['version', 'content']
   nested_attributes_alias %r{^d_(\w+)} => ['version', 'dyn']
 
-  zafu_context       :author => "Contact", :parent => "Node",
-                     :project => "Project", :section => "Section",
-                     :real_project => "Project", :real_section => "Section",
-                     :user => "User",
-                     :version => "Version", :comments => ["Comment"],
-                     :data   => {:node_class => ["DataEntry"], :data_root => 'node_a'},
-                     :data_a => {:node_class => ["DataEntry"], :data_root => 'node_a'},
-                     :data_b => {:node_class => ["DataEntry"], :data_root => 'node_b'},
-                     :data_c => {:node_class => ["DataEntry"], :data_root => 'node_c'},
-                     :data_d => {:node_class => ["DataEntry"], :data_root => 'node_d'}
+  safe_context       :author => 'Contact', :parent => 'Node',
+                     :project => 'Project', :section => 'Section',
+                     :real_project => 'Project', :real_section => 'Section',
+                     :user => 'User', :version => 'Version', :comments => ['Comment'],
+                     :data   => {:class => ['DataEntry'], :data_root => 'node_a'},
+                     :data_a => {:class => ['DataEntry'], :data_root => 'node_a'},
+                     :data_b => {:class => ['DataEntry'], :data_root => 'node_b'},
+                     :data_c => {:class => ['DataEntry'], :data_root => 'node_c'},
+                     :data_d => {:class => ['DataEntry'], :data_root => 'node_d'}
 
   extend  Zena::Acts::SecureNode
   extend  Zena::Acts::Multiversion

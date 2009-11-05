@@ -1,8 +1,37 @@
 require 'test_helper'
 
+
+
 class ZenaTagsTest < Zena::Controller::TestCase
   yamltest :directories => [:default, "#{Zena::ROOT}/bricks/**/test/zafu"]
   Section # make sure we load Section links before trying relations
+
+  class ZafuDummy
+    include RubyLess::SafeClass
+    safe_method [:hello, {:lang => String}] => String
+
+    def hello(opts)
+      case opts[:lang]
+      when 'en'
+        'Hi there!'
+      when 'fr'
+        'Salut poilu!'
+      when 'de'
+        'Grützi!'
+      else
+        "Sorry, I don't speak #{opts[:lang]}..."
+      end
+    end
+  end
+
+  class ::Node
+    def dummy
+      ZafuDummy.new
+    end
+  end
+
+  RubyLess::SafeClass.safe_method_for Node, [:dummy] => ZafuDummy
+
 
   def setup
     @controller = Zena::TestController.new

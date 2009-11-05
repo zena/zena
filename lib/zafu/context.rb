@@ -12,69 +12,133 @@ module Zafu
       do_list('@nodes')
     end
 
-    # use all other tags as relations
-    def r_unknown
-      @params[:select] = @method
-      r_context
-    end
-
-
-    # Enter a new context (<r:context find='all' method='pages'>). This is the same as '<r:pages>...</r:pages>'). It is
-    # considered better style to use '<r:pages>...</r:pages>' instead of the more general '<r:context>' because the tags
-    # give a clue on the context at start and end. Another way to open a context is the 'do' syntax: "<div do='pages'>...</div>".
-    # FIXME: 'else' clause has been removed, find a solution to put it back.
-    def r_context
-      # DRY ! (build_finder_for, block)
-      return parser_error("missing 'method' parameter") unless method = @params[:select]
-
-      context = node_class.zafu_known_contexts[method]
-      if context && @params.keys == [:select]
-        open_context("#{node}.#{method}", context)
-      elsif node_kind_of?(Node)
-        count   = ['first','all','count'].include?(@params[:find]) ? @params[:find].to_sym : nil
-        count ||= Node.plural_relation?(method) ? :all : :first
-        finder, klass, query = build_finder_for(count, method, @params)
-        return unless finder
-        if node_kind_of?(Node) && !klass.ancestors.include?(Node)
-          # moving out of node: store last Node
-          @context[:previous_node] = node
-        end
-        if count == :all
-          # plural
-          do_list( finder, query, :node_class => klass)
-        # elsif count == :count
-        #   "<%= #{build_finder_for(count, method, @params)} %>"
-        else
-          # singular
-          do_var(  finder, :node_class => klass)
-        end
-      else
-        "unknown relation (#{method}) for #{node_class} class"
-      end
-    end
-
+    # FIXME: replace by rubyless declarations
     def r_comments_to_publish
-      open_context("visitor.comments_to_publish", :node_class => [Comment])
+      open_context(:method => 'visitor.comments_to_publish', :class => [Comment])
     end
 
     def r_to_publish
-      open_context("visitor.to_publish", :node_class => [Version])
+      open_context(:method => 'visitor.to_publish', :class => [Version])
     end
 
     def r_proposed
-      open_context("visitor.proposed", :node_class => [Version])
+      open_context(:method => 'visitor.proposed', :class => [Version])
     end
 
     def r_redactions
-      open_context("visitor.redactions", :node_class => [Version])
+      open_context(:method => 'visitor.redactions', :class => [Version])
     end
 
     protected
 
+      # FIXME: we should replace this with @context.find_context(finder) and move it into Zafu core.
+      def change_context(rel, opts = {})
+        # FIXME: replace with RubyLess.translate(rel)
+        raw_filters = opts[:raw_filters] || []
+
+        signature = [rel]
+        unless params.empty?
+          signature += [Hash[*params.map{|k,v| [k,String]}.flatten]]
+        end
+
+        if !opts[:skip_rubyless] && context = RubyLess::SafeClass.safe_method_type_for(node_class, signature)
+          if params.empty?
+            return context.merge(:method => "#{node}.#{context[:method]}")
+          else
+            return context.merge(:method => "#{node}.#{context[:method]}(#{params.inspect})")
+          end
+        end
+
+        rel ||= 'self'
+
+        # TODO: simplify !
+        count   = opts[:find] || (['first','all','count'].include?(@params[:find]) ? @params[:find].to_sym : nil)
+
+        # count ||= Node.plural_relation?(method) ? :all : :first
+        unless count
+          if params[:paginate] || child['each'] || child['group'] || Node.plural_relation?(rel)
+            count = :all
+          else
+            count = :first
+          end
+        end
+
+
+        if (count == :first)
+          if rel == 'self'
+            return {:method => node, :class => node_class}
+          elsif rel == 'main'
+            return {:method => '@node', :class => Node}
+          elsif rel == 'root'
+            return {:method => "(secure(Node) { Node.find(#{current_site[:root_id]})})", :class => Node}
+          elsif rel == 'start'
+            return {:method => 'start_node', :class => Node}
+          elsif rel == 'visitor'
+            return {:method => 'visitor.contact', :class => Contact}
+          elsif rel =~ /^\d+$/
+            return {:method => "(secure(Node) { Node.find_by_zip(#{rel.inspect})})", :class => Node}
+          elsif node_name = find_stored(Node, rel)
+            return {:method => node_name, :class => Node}
+          elsif rel[0..0] == '/'
+            rel = rel[1..-1]
+            return {:method => "(secure(Node) { Node.find_by_path(#{rel.inspect})})", :class => Node}
+          end
+        end
+
+        pseudo_sql, add_raw_filters = make_pseudo_sql(rel, params)
+        raw_filters += add_raw_filters if add_raw_filters
+
+        # FIXME: stored should be clarified and managed in a single way through links and contexts.
+        # <r:void store='foo'>...
+        # <r:link href='foo'/>
+        # <r:pages from='foo'/> <-- this is just a matter of changing node parameter
+        # <r:pages from='site' project='foo'/>
+        # <r:img link='foo'/>
+        # ...
+
+        if node_kind_of?(Node)
+          node_name = @context[:parent_node] || node
+        else
+          node_name = @context[:previous_node]
+        end
+
+        # make sure we do not use a new record in a find query:
+        query = Node.build_find(count, pseudo_sql, :node_name => node_name, :raw_filters => raw_filters, :ref_date => "\#{#{current_date}}")
+
+        unless query.valid?
+          out parser_error(query.errors.join(' '), pseudo_sql.join(', '))
+          return nil
+        end
+
+
+        if count == :count
+          out "<%= #{query.finder(:count)} %>"
+          return nil
+        end
+
+        klass = query.main_class
+
+        if params[:else]
+          # FIXME: else not working with safe_method_type ?
+          finder, else_class, else_query = build_finder_for(count, params[:else], {})
+          if finder && (else_query.nil? || else_query.valid?) && (else_class == klass || klass.ancestors.include?(else_class) || else_class.ancestors.include?(klass))
+            klass = [klass] if count == :all
+            {:method => "(#{query.finder(count)} || #{finder})", :class => klass, :query => query}
+          else
+            klass = count == :all ? [query.main_class] : query.main_class
+            {:method => query.finder(count), :class => klass, :query => query}
+          end
+        else
+          # FIXME: query_builder should respond to safe_type ===> {:method => ..., :class => ...}
+          klass = count == :all ? [query.main_class] : query.main_class
+          {:method => query.finder(count), :class => klass, :query => query}
+        end
+      end
+
       # Create an sql query to open a new context (passes its arguments to HasRelations#build_find)
       def build_finder_for(count, rel, params=@params, raw_filters = [])
-        if (context = node_class.zafu_known_contexts[rel]) && !params[:in] && !params[:where] && !params[:from] && !params[:order] && raw_filters == []
-          klass = context[:node_class]
+        if (context = RubyLess::SafeClass.safe_method_type_for(node_class, [rel])) && !params[:in] && !params[:where] && !params[:from] && !params[:order] && raw_filters == []
+          klass = context[:class]
 
           if klass.kind_of?(Array) && count == :all
             return ["#{node}.#{rel}", klass[0]]
@@ -139,7 +203,7 @@ module Zafu
         klass = query.main_class
 
         if params[:else]
-          # FIXME: else not working with zafu_known_contexts
+          # FIXME: else not working with safe_method_type ?
           finder, else_class, else_query = build_finder_for(count, params[:else], {})
           if finder && (else_query.nil? || else_query.valid?) && (else_class == klass || klass.ancestors.include?(else_class) || else_class.ancestors.include?(klass))
             ["(#{query.finder(count)} || #{finder})", klass, query]

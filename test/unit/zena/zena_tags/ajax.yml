@@ -156,20 +156,20 @@ draggable_do_syntax:
 unlink:
   context:
     node: 'art'
-  src: "<r:tagged do='each' do='unlink'/>"
+  src: "<r:context select='tagged' do='each' do='unlink'/>"
   res: "/<div id='list1_21'><a .*onclick=.*Ajax.Request.*_ID(cleanWater_in_art)\?dom_id=list1_21.*class=.unlink.*bullet_delete.png.*<\/div><div id='list1_27'/"
 
 unlink_ignored_in_form:
   context:
     node: 'art'
-  src: "<r:tagged><r:each do='unlink'/><r:add/></r:tagged>"
+  src: "<r:context select='tagged'><r:each do='unlink'/><r:add/></r:context>"
   res: "!/<form.*bullet_delete.png/"
 
 edit_link:
   context:
     node: 'art'
     lang: 'fr'
-  src: "<r:tagged><r:each><r:show attr='name'/>: <r:show attr='l_status'/> <r:edit/></r:each></r:tagged>"
+  src: "<r:context select='tagged'><r:each><r:show attr='name'/>: <r:show attr='l_status'/> <r:edit/></r:each></r:context>"
   res: "/link_id.*éditer/"
   'edit/link/fr/list1_form.erb': "/<input type='hidden' name='link_id' value=.<%= @node.link_id %>./>/"
   'edit/link/fr/list1.erb': "/\#\{@node.link_id\}/"
@@ -183,7 +183,7 @@ each_in_each_dom_id:
     <ul class='tags' do='tags in site'>
       <li do='each'><b do='link'/>
         <div do='drop' set='set_tag'>
-          <ul class='tagged' do='tagged'>
+          <ul class='tagged' do='context' select='tagged'>
             <li do='each' draggable='true' do='link'/>
           </ul>
         </div>
