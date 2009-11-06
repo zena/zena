@@ -116,6 +116,20 @@ module Bricks
           mod.send(:include, eval("Bricks::#{brick_name.capitalize}::Zafu"))
         end
       end
+
+      def setup_valid?(brick_name)
+        return "#{brick_name} was not activated." unless opts = Bricks::CONFIG[brick_name]
+        error = nil
+        if required_files = opts.delete('if_file')
+          required_files.split(',').each do |name|
+            unless File.exist?("#{RAILS_ROOT}/#{name}")
+              error = "'#{name}' missing"
+              break
+            end
+          end
+        end
+        error
+      end
     end
   end
 end

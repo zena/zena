@@ -10,6 +10,7 @@ development:
   sphinx:
     switch: ON
     if_gem: 'thinking_sphinx'
+    if_file: 'log/searchd.development.pid'
   delayed_job:
     switch:  ON
     if_gem: 'delayed_job'
@@ -20,6 +21,7 @@ production:
   sphinx:
     switch: ON
     if_gem: 'thinking_sphinx'
+    if_file: 'log/searchd.production.pid'
   delayed_job:
     switch:  ON
     if_gem: 'delayed_job'

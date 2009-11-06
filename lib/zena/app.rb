@@ -38,6 +38,7 @@ module Zena
       end
       Bricks::Patcher.apply_patches('application_controller.rb')
       Bricks::Patcher.apply_patches('application_helper.rb')
+      puts "** Bricks: #{Bricks::CONFIG.map{|k,v| k}.sort.join(', ')}"
     end
   end
 end

@@ -331,6 +331,13 @@ END:VCALENDAR
       end
     end
   end
+
+  def test_search
+    login(:anon)
+    get 'search', 'q' => 'bird'
+    assert nodes = assigns(:nodes)
+    assert_equal [nodes_id(:bird_jpg)], nodes.map {|r| r.id}
+  end
 end
 
 =begin
