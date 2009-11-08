@@ -2,9 +2,9 @@ require 'yaml'
 require 'fileutils'
 
 require File.join(File.dirname(__FILE__), '..', 'zena', 'info') # to have Zena::ROOT
-require File.join(File.dirname(__FILE__), '..', 'bricks', 'patcher') # to have Bricks::Patcher
+require File.join(File.dirname(__FILE__), '..', 'bricks') # to have Bricks
 
-Bricks::Patcher.load_misc('tasks')
+Bricks.load_misc('tasks')
 
 def symlink_assets(from, to)
   from = File.expand_path(from)
@@ -234,7 +234,7 @@ namespace :zena do
       paths  = {'zena' => "#{RAILS_ROOT}/db/migrate"}
       bricks = ['zena']
 
-      Bricks::Patcher.foreach_brick do |brick_path|
+      Bricks.foreach_brick do |brick_path|
         brick_name = brick_path.split('/').last
         migration_path = File.join(brick_path, 'migrate')
         next unless File.exist?(migration_path) && File.directory?(migration_path)

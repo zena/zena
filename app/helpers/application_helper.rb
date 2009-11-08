@@ -1,4 +1,4 @@
 module ApplicationHelper
 end
 
-Bricks::Patcher.apply_patches
+Bricks.apply_patches

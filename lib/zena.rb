@@ -10,7 +10,7 @@ def has_executable(*list)
   end
 end
 
-require 'bricks/patcher'
+require 'bricks'
 
 module Zena
   ENABLE_LATEX   = true  && has_executable('pdflatex') # enable LateX post-rendering
@@ -24,7 +24,7 @@ module Zena
       paths_to_add = (
         Dir["#{Zena::ROOT}/vendor/gems/*/lib"] +
         Dir["#{Zena::ROOT}/vendor/plugins/*/lib"] +
-        Bricks::Patcher.models_paths
+        Bricks.models_paths
       )
       if config
         config.load_paths += ["#{Zena::ROOT}/vendor"]
@@ -148,7 +148,7 @@ module Zena
     end
 
     def load_bricks
-      Bricks::Patcher.load_bricks
+      Bricks.load_bricks
     end
 
     def add_inflections
@@ -168,6 +168,7 @@ module Zena
       config = Rails.configuration
       enable_tools
       puts "** zena #{Zena::VERSION} #{tools_enabled == [] ? '' : '('+tools_enabled.join(', ')+') '}starting"
+      puts "** Bricks: #{Bricks::CONFIG.map{|k,v| k}.sort.join(', ')}"
 
       add_load_paths(config)
       config_gems(config)
@@ -178,7 +179,7 @@ module Zena
       set_default_timezone(config)
       add_inflections
       initialize_gettext
-      Bricks::Patcher.load_misc('init')
+      Bricks.load_misc('init')
     end
   end
 end

@@ -1688,4 +1688,4 @@ class Node < ActiveRecord::Base
 
 end
 
-Bricks::Patcher.apply_patches
+Bricks.apply_patches

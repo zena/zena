@@ -150,7 +150,7 @@ module Zena
       def get_content(site, table)
         fixtures_paths  = {'zena' => File.join("#{Zena::ROOT}/test/sites",site,"#{table}.yml")}
         fixtures_bricks = ['zena']
-        Bricks::Patcher.foreach_brick do |brick_path|
+        Bricks.foreach_brick do |brick_path|
           brick_name = brick_path.split('/').last
           fixtures_paths[brick_name] = File.join(brick_path,'test','sites',site,"#{table}.yml")
           fixtures_bricks << brick_name

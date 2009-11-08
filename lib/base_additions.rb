@@ -4,4 +4,4 @@ module Zena
   end
 end
 
-Bricks::Patcher.apply_patches
+Bricks.apply_patches
