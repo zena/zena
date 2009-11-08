@@ -1,7 +1,8 @@
 == 0.15.2
 
-* 1 major enhancement:
+* 2 major enhancements:
   * attachments can now be provided with an url
+  * Sphinx search support
 
 * 1 minor enhancment
   * logrotate setup support with capistrano

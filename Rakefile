@@ -36,10 +36,16 @@ PROJ.rubyforge.name = 'zena'
 PROJ.readme_file = 'README.rdoc'
 
 PROJ.spec.opts << '--color'
+reject_paths = File.read(File.join(File.dirname(__FILE__),'.gitignore')).map do |git_ignore_path|
+  %r{#{git_ignore_path.chomp.gsub('.', '\\.').gsub('*', '.*')}}
+end
+
 PROJ.gem.files = (
   ['History.txt', 'README.rdoc', 'db/schema.rb'] +
   ['app', 'bin', 'bricks', 'config', 'db', 'lib', 'locale', 'public', 'rails', 'vendor', 'test'].map do |d|
-    Dir.glob("#{d}/**/*").reject {|path| File.basename(path) =~ /^\./ }
+    Dir.glob("#{d}/**/*").reject do |path|
+      File.basename(path) =~ /^\./ || !reject_paths.map { |regexp| regexp =~ path ? true : nil}.compact.empty?
+    end
   end
 ).flatten
 
