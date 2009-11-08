@@ -16,7 +16,8 @@ development:
       file: 'log/searchd.development.pid'
   delayed_job:
     switch:  ON
-    if_gem: 'delayed_job'
+    activate_if:
+      gem: 'delayed_job'
 
 production:
   tags:     ON

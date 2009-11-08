@@ -190,7 +190,7 @@ This filter updates the "distant filter block test"
 <ul do='tags in site'>
   <li style='border:1px solid #400; min_width:100px; min_height:100px;' do='each' do='drop' set='set_tag'>
     <b do='[v_title]'/>
-    <ul do='tagged'><li do='each' do='unlink' do='img' mode='tiny'/></ul>
+    <ul do='context' select='tagged'><li do='each' do='unlink' do='img' mode='tiny'/></ul>
   </li>
 </ul>
 
