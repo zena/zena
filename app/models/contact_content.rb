@@ -18,8 +18,8 @@ birthday::   birthday (date)
 class ContactContent < ActiveRecord::Base
   include RubyLess::SafeClass
   safe_method    :created_at => Time, :updated_at => Time, :fullname => String, :initials => String,
-                 :address => String, :zip => {:class => Number, :method => 'id'}
-  safe_attribute :name, :first_name, :city, :country, :telephone, :mobile, :email
+                 :address => String
+  safe_attribute :name, :first_name, :city, :country, :telephone, :mobile, :email, :zip
 
   attr_protected     :site_id
 
