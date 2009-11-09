@@ -68,6 +68,8 @@ class TextDocument < Document
         else
           if new_src = helper.send(:template_url_for_asset, :src => src, :current_folder=>current_folder, :parse_assets => true)
             "url(#{quote}#{new_src}#{quote})"
+          elsif !(src =~ /\.\./) && File.exist?(File.join(SITES_ROOT, current_site.public_path, src))
+            "url(#{quote}#{src}?#{File.mtime(File.join(SITES_ROOT, current_site.public_path, src)).to_i}#{quote})"
           else
             errors.add('asset', '{{asset}} not found', :asset => src.inspect)
             "url(#{quote}#{src}#{quote})"
@@ -93,17 +95,20 @@ class TextDocument < Document
           $&
         else
           quote, url   = $1, $2
-          if url =~ /\A\/\w\w.*?(\d+)(_\w+|)\./
+          if url =~ /\A\/\w\w\/.*?(\d+)(_\w+|)\./
             zip, mode = $1, $2
-            unless asset = secure(Node) { Node.find_by_zip(zip) }
+            if asset = secure(Node) { Node.find_by_zip(zip) }
+              if asset.fullpath =~ /\A#{current_folder}\/(.+)/
+                "url(#{quote}#{$1}#{mode}.#{asset.version.content.ext}#{quote})"
+              else
+                "url(#{quote}/#{asset.fullpath}#{mode}.#{asset.version.content.ext}#{quote})"
+              end
+            else
               errors.add('asset', '{{zip}} not found', :zip => zip)
               "url(#{quote}#{url}#{quote})"
             end
-            if asset.fullpath =~ /\A#{current_folder}\/(.+)/
-              "url(#{quote}#{$1}#{mode}.#{asset.version.content.ext}#{quote})"
-            else
-              "url(#{quote}/#{asset.fullpath}#{mode}.#{asset.version.content.ext}#{quote})"
-            end
+          elsif File.exist?(File.join(SITES_ROOT, current_site.public_path, url.sub(/\?\d+\Z/,'')))
+            "url(#{quote}#{url.sub(/\?\d+\Z/,'')}#{quote})"
           else
             # bad format
             errors.add('base', "cannot unparse asset url #{url.inspect}")

@@ -54,7 +54,7 @@ class TextDocumentTest < Zena::Unit::TestCase
     assert bird.update_attributes(:parent_id => node[:parent_id])
     Zena::Db.set_attribute(bird, :updated_at, b_at)
     start =<<-END_CSS
-    body { font-size:10px; }
+    body { font-size:10px; behavior:url("/stylesheets/csshover2.htc"); }
     #header { background:url('bird.jpg') }
     #pv     { background:url('bird_pv.jpg') }
     #footer { background:url('/projects/wiki/flower.jpg') }
@@ -68,7 +68,7 @@ class TextDocumentTest < Zena::Unit::TestCase
     text = node.parse_assets(start, helper, 'v_text')
     assert node.errors.empty?
     res =<<-END_CSS
-    body { font-size:10px; }
+    body { font-size:10px; behavior:url("/stylesheets/csshover2.htc?1256556568"); }
     #header { background:url('/en/image30.jpg?1144713600') }
     #pv     { background:url('/en/image30_pv.jpg?967816914293') }
     #footer { background:url('/en/image31.jpg?1144713600') }
@@ -80,7 +80,7 @@ class TextDocumentTest < Zena::Unit::TestCase
     assert_equal res, text
     text = node.unparse_assets(text, helper, 'v_text')
     unparsed =<<-END_CSS
-    body { font-size:10px; }
+    body { font-size:10px; behavior:url("/stylesheets/csshover2.htc"); }
     #header { background:url('bird.jpg') }
     #pv     { background:url('bird_pv.jpg') }
     #footer { background:url('/projects/wiki/flower.jpg') }
