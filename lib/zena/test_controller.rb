@@ -41,7 +41,7 @@ module Zena
     end
 
     def set_context
-      @visitor = Thread.current[:visitor] = User.first(:conditions => ["id= ?", params[:user_id]])
+      Zena::Use::Authlogic.make_visitor(params[:user_id])
       set_visitor_lang(params[:prefix])
       @node = secure!(Node) { Node.find(params[:node_id])}
       @text = params[:text]
