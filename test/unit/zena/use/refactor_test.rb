@@ -1,7 +1,8 @@
 require 'test_helper'
 
 class RefactorTest < Zena::View::TestCase
-  include Zena::Use::Refactor::ViewMethods # fquote
+  tests Zena::Use::Refactor::ViewMethods # fquote
+
   def _(k)
     k
   end
@@ -11,7 +12,7 @@ class RefactorTest < Zena::View::TestCase
   end
 
   def test_render_to_string
-    assert_match 'stupid test 25', render_to_string(:inline=>'stupid <%= "test" %> <%= 5*5 %>')
+    assert_match 'stupid test 25',  render_to_string(:inline=>'stupid <%= "test" %> <%= 5*5 %>')
   end
 
   def test_fsize
@@ -33,7 +34,7 @@ class RefactorTest < Zena::View::TestCase
   end
 
   def test_traductions
-    session[:lang] = 'en'
+    visitor.lang = 'en'
     # we must initialize an url for url_rewriting in 'traductions'
     @controller.instance_eval { @url = ActionController::UrlRewriter.new( @request, {:controller=>'nodes', :action=>'index'} ) }
     @node = secure!(Node) { Node.find(nodes_id(:status)) } # en,fr

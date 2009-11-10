@@ -13,7 +13,7 @@ complex_anon:
 complex_admin:
   login:           admin
   first_name:      admin
-  password:        <%= User.hash_password('admin') %>
+  crypted_password:        <%= Zena::CryptoProvider::Initial.encrypt('admin') %>
   status:          admin
   contact:         admin
 

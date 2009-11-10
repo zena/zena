@@ -43,7 +43,7 @@ class DatesViewMethodsTest < Zena::View::TestCase
   def test_full_date
     atime = visitor.tz.utc_to_local(Time.gm(2006,11,10))
     assert_equal "Friday, November 10 2006", full_date(atime)
-    I18n.locale = 'fr'
+    ::I18n.locale = 'fr'
     assert_equal "vendredi, 10 novembre 2006", full_date(atime)
   end
 

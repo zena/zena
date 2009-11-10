@@ -4,7 +4,7 @@ module Zena
     def self.included(base)
       base.prepend_view_path SITES_ROOT
       base.class_eval do
-        include Zena::Use::Authentification::ControllerMethods
+        include Zena::Use::Authlogic::ControllerMethods
         include Zena::Use::Dates::ControllerMethods
         include Zena::Use::ErrorRendering::ControllerMethods
         include Zena::Use::I18n::ControllerMethods
@@ -15,12 +15,15 @@ module Zena
         include Zena::Use::Zafu::ControllerMethods
 
         # FIXME: could we move these into their modules ?
-        before_filter :set_lang
-        before_filter :authorize
-        before_filter :check_lang
+        before_filter :set_visitor, :set_after_login
+        before_filter :set_lang, :check_lang
         after_filter  :set_encoding
         layout        false
 
+        FastGettext.add_text_domain 'zena', :path => "#{Zena::ROOT}/locale" #File.dirname(__FILE__) + '/../../locale'
+        FastGettext.text_domain = 'zena'
+
+        helper  Zena::Use::Authlogic::ViewMethods
         helper  Zena::Acts::Secure
         helper  Zena::Use::Ajax::ViewMethods
         helper  Zena::Use::Calendar::ViewMethods
@@ -35,6 +38,7 @@ module Zena
         helper  Zena::Use::Urls::ViewMethods
         helper  Zena::Use::Zafu::ViewMethods
         helper  Zena::Use::Zazen::ViewMethods
+        helper_method :render_to_string
       end
       Bricks.apply_patches('application_controller.rb')
       Bricks.apply_patches('application_helper.rb')

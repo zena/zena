@@ -2,34 +2,28 @@ require 'test_helper'
 
 class SiteTest < Zena::Unit::TestCase
 
-  def test_create_site
-    site = nil
-    assert_nothing_raised { site = Site.create_for_host('super.host', 'secret') }
-    site = Site.find(site[:id]) # reload
-    assert_equal "Anonymous User", site.anon.fullname
-    assert_not_equal users(:anon), site.anon[:id]
-    assert admin = User.login('admin', 'secret', 'super.host'), "Admin user can login"
+  context 'on site creation' do
+    setup do
+      @site = Site.create_for_host('super.host', 'secret')
+    end
 
-    assert_equal 3, admin.group_ids.size
-    root = secure!(Node) { Node.find(site[:root_id]) }
-    assert_kind_of Project, root
-    assert_equal Zena::Status[:pub], root.version.status
-    assert_equal 'default', root.skin
+    should 'populate super user' do
+      assert_equal "Super User", @site.su.fullname
+      assert_not_equal users(:su), @site.su[:id]
+    end
 
-    assert Time.now >= root.publish_from
-    User.make_visitor(:host => 'super.host') # anonymous
+    should 'populate anonymous user' do
+      assert_equal "Anonymous User", @site.anon.fullname
+      assert_not_equal users(:anon), @site.anon[:id]
+    end
 
-    assert secure!(Node) { Node.find(site[:root_id]) }
-    assert_nothing_raised { Zena::Db.next_zip(site[:id]) }
+    should 'populate 2 admin users' do
+      assert_equal 2, @site.admin_user_ids.size
+    end
 
-    admin = secure!(User) { User.find(admin[:id]) }
-    assert_kind_of Contact, admin.contact
-    anon  = secure!(User) { User.find(site.anon[:id]) }
-    assert_kind_of Contact, anon.contact
-
-    skin  = secure!(Skin) { Skin.find_by_name('default') }
-    assert_kind_of Skin, skin
-    assert_equal 'default', skin.skin
+    should 'return a new project as root node' do
+      assert_kind_of Project, @site.root_node
+    end
   end
 
   def test_create_site_with_opts

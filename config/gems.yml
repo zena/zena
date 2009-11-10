@@ -8,6 +8,7 @@ tzinfo:         '>= 0.3.12'
 uuidtools:      '= 2.0.0'
 rails:          '= 2.3.4'
 json:           '>= 1.1.9'
+authlogic:
 
 RedCloth:
   lib:          'redcloth'

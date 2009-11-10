@@ -1,4 +1,4 @@
-# This file is auto-generated from the current state of the database. Instead of editing this file, 
+# This file is auto-generated from the current state of the database. Instead of editing this file,
 # please use the migrations feature of Active Record to incrementally modify your database, and
 # then regenerate this schema definition.
 #
@@ -8,6 +8,7 @@
 # you'll amass, the slower it'll run and the greater likelihood for issues).
 #
 # It's strongly recommended to check this file into your version control system.
+
 
 ActiveRecord::Schema.define(:version => 20091124161608) do
 
@@ -204,6 +205,16 @@ ActiveRecord::Schema.define(:version => 20091124161608) do
     t.integer "site_id",                      :null => false
   end
 
+  create_table "sessions", :force => true do |t|
+    t.string   "session_id", :null => false
+    t.text     "data"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "sessions", ["session_id"], :name => "index_sessions_on_session_id"
+  add_index "sessions", ["updated_at"], :name => "index_sessions_on_updated_at"
+
   create_table "site_attributes", :force => true do |t|
     t.integer "owner_id"
     t.string  "key"
@@ -242,16 +253,18 @@ ActiveRecord::Schema.define(:version => 20091124161608) do
   create_table "users", :force => true do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "login",      :limit => 20
-    t.string   "password",   :limit => 40
-    t.string   "first_name", :limit => 60
-    t.string   "name",       :limit => 60
-    t.string   "email",      :limit => 60
+    t.string   "login",             :limit => 20
+    t.string   "crypted_password",  :limit => 40
+    t.string   "first_name",        :limit => 60
+    t.string   "name",              :limit => 60
+    t.string   "email",             :limit => 60
     t.string   "time_zone"
     t.integer  "site_id"
     t.integer  "status"
     t.integer  "contact_id"
-    t.string   "lang",       :limit => 10, :default => "", :null => false
+    t.string   "lang",              :limit => 10, :default => "", :null => false
+    t.string   "persistence_token"
+    t.string   "password_salt"
   end
 
   create_table "versions", :force => true do |t|

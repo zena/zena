@@ -3,12 +3,12 @@ module Zena
     def zen_routes
       home       ':prefix',  :controller => 'nodes',    :action => 'index',  :prefix => /[a-zA-Z]{0,2}/
       not_found  ':prefix/404.html',  :controller => 'nodes',    :action => 'not_found', :prefix => /\w\w/
-      login      'login',  :controller => 'sessions',  :action => 'new',    :requirements => { :method => :get  }
-      logout     'logout',  :controller => 'sessions',  :action => 'destroy'
+      login      'login',  :controller => 'user_sessions',  :action => 'new',    :requirements => { :method => :get  }
+      logout     'logout',  :controller => 'user_sessions',  :action => 'destroy'
 
       upload_progress 'upload_progress', :controller => 'documents', :action => 'upload_progress'
 
-      resource  :session   # singleton resource
+      resource  :user_session   # singleton resource
       resources :users, :member => { :preferences => :get, :swap_dev => :get }
       resources :groups
       resources :iformats

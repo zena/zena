@@ -39,7 +39,7 @@ class MultipleHostsTest < ActionController::IntegrationTest
         node = nodes(:zena_status)
         assert_equal 1, CachedPage.count(:conditions => "path like '%page#{status_zip}%'")
         assert_not_equal 0, Zena::Db.fetch_row("SELECT COUNT(*) as count_all FROM cached_pages_nodes WHERE node_id = #{node[:id]}").to_i
-        node.visitor = Thread.current.visitor
+        node.visitor = Thread.current[:visitor]
         node.sweep_cache
         assert_equal 0, CachedPage.count(:conditions => "path like '%page#{status_zip}%'")
         assert_equal 0, Zena::Db.fetch_row("SELECT COUNT(*) as count_all FROM cached_pages_nodes WHERE node_id = #{node[:id]}").to_i

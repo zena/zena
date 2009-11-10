@@ -197,8 +197,8 @@ module Zena
 
         # date_box seizure setup
         def uses_datebox(opt={})
-          if ZENA_CALENDAR_LANGS.include?(lang)
-            l = lang
+          if ZENA_CALENDAR_LANGS.include?(visitor.lang)
+            l = visitor.lang
           else
             l = visitor.site[:default_lang]
           end
@@ -264,8 +264,7 @@ module Zena
 
           count = secure_write(Node) { Node.count(:all, :conditions => ['kpath LIKE ?', "#{kpath}%"]) }
           if count < 30
-            sql = "SELECT zip, name FROM nodes WHERE kpath LIKE '#{kpath}%' AND #{secure_write_scope} ORDER BY name ASC"
-            values = Node.connection.select_all(sql, "Node Load").map do |record|
+            values = secure_write(Node) { Node.all(:order=>:name, :conditions=>["kpath LIKE ?", kpath]) }.map do |record|
               [record['name'], record['zip']]
             end
             return select(obj, sym, values, { :include_blank => opt[:include_blank] })
@@ -371,13 +370,15 @@ module Zena
         # Shows 'login' or 'logout' button.
         def login_link(opts={})
           if visitor.is_anon?
-            if params[:prefix]
-              link_to _('login'), :overwrite_params => { :prefix => AUTHENTICATED_PREFIX }
-            else
-              "<a href='/login'>#{_('login')}</a>"
-            end
+            # if params[:prefix]
+            #    link_to _('login'), :overwrite_params => { :prefix => AUTHENTICATED_PREFIX }
+            #  else
+            #    "<a href='/login'>#{_('login')}</a>"
+            #  end
+            link_to "login", login_url
           else
-            "<a href='/logout'>#{_('logout')}</a>"
+            # "<a href='/logout'>#{_('logout')}</a>"
+            link_to "logout", logout_url
           end
         end
 
@@ -445,7 +446,7 @@ module Zena
           end
           res = []
           visitor.site.lang_list.each do |l|
-            if l == lang
+            if l == visitor.lang
               if opts[:wrap]
                 res << "<#{opts[:wrap]} class='on'>#{l}" + tag_out
               else

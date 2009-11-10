@@ -9,12 +9,12 @@ class Iformat < ActiveRecord::Base
 
   class << self
     def [](fmt)
-      Thread.current.visitor.site.iformats[fmt]
+      Thread.current[:visitor].site.iformats[fmt]
     end
 
     def list
       res = []
-      Thread.current.visitor.site.iformats.merge(formats_for_site(visitor.site.id, false)).each do |k,v|
+      Thread.current[:visitor].site.iformats.merge(formats_for_site(visitor.site.id, false)).each do |k,v|
         next if k == :updated_at || k.nil?
         if v.kind_of?(Iformat)
           res << v

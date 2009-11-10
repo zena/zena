@@ -72,12 +72,7 @@ class Site < ActiveRecord::Base
         :first_name => "Super", :name => "User", :lang => site.default_lang, :status => User::Status[:su])
       su.site = site
 
-      unless Thread.current.respond_to?(:visitor)
-        class << Thread.current
-          attr_accessor :visitor
-        end
-      end
-      Thread.current.visitor = su
+      Thread.current[:visitor] = su
 
       unless su.save
         # rollback
@@ -109,8 +104,10 @@ class Site < ActiveRecord::Base
       # =========== CREATE Anonymous, admin =====================
       # create anon user
       # FIXME: make sure user_id = admin user
-      anon = site.send(:secure,User) { User.new_no_defaults( :login => nil, :password => nil,
-        :first_name => "Anonymous", :name => "User", :lang => site.default_lang, :status => User::Status[:moderated]) }
+
+      anon = site.send(:secure, User) {User.new_no_defaults( :login => nil, :password => nil,
+        :first_name => "Anonymous", :name => "User", :lang => site.default_lang, :status => User::Status[:moderated])}
+
       anon.site = site
       raise Exception.new("Could not create anonymous user for site [#{host}] (site#{site[:id]})\n#{anon.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless anon.save
       site[:anon_id] = anon[:id]
@@ -134,7 +131,7 @@ class Site < ActiveRecord::Base
       #admin_user = site.send(:secure, User) { User.find(admin_user[:id]) }
 
       # make admin the current visitor
-      Thread.current.visitor = admin_user
+      Thread.current[:visitor] = admin_user
 
       root = site.send(:secure,Project) { Project.create( :name => site.name, :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :dgroup_id => admin[:id], :v_title => site.name, :v_status => Zena::Status[:pub]) }
       raise Exception.new("Could not create root node for site [#{host}] (site#{site[:id]})\n#{root.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if root.new_record?

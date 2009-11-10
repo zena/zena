@@ -256,7 +256,7 @@ class SecureTest < Zena::Unit::TestCase
     context 'without secure' do
       should 'not be allowed to build new children' do
         node = Node.new(defaults)
-        assert !node.save
+        assert_raise ActiveRecord::RecordInvalid do node.save! end
         assert_equal 'record not secured', node.errors[:base]
       end
 
@@ -926,14 +926,4 @@ class SecureTest < Zena::Unit::TestCase
     end
   end # A visitor with reader status
 
-  context 'A visitor with deleted status' do
-    setup do
-      User.connection.execute "UPDATE users SET status = #{User::Status[:deleted]} WHERE id = #{users_id(:tiger)} AND site_id = #{sites_id(:zena)}"
-    end
-
-    should 'not be able to login' do
-      login(:tiger)
-      assert_equal users(:anon), visitor
-    end
-  end # A visitor with deleted status
 end

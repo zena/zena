@@ -41,16 +41,20 @@ class MultiVersionTest < Zena::Unit::TestCase
     context 'when there is only a redaction for the current language' do
       setup do
         login(:tiger)
-        version = secure!(Version) { versions(:opening_fr) }
-        node = version.node
-        assert node.destroy_version
-        assert_equal [:opening_red_fr, :opening_en].map{|s| versions_id(s)}.sort, node.versions.map{|v| v.id}.sort
-        login(:anon)
+        version = secure!(Version) { versions(:opening_en) }
+        @node = version.node
+        @node.destroy_version
       end
 
       should 'see a default publication' do
+        login(:anon)
         node = secure!(Node) { nodes(:opening) }
-        assert_equal versions_id(:opening_en), node.version.id
+        assert_equal versions_id(:opening_fr), node.version.id
+      end
+
+      should 'see other redaction an publication in another language ' do
+        login(:tiger)
+        assert_equal [:opening_red_fr, :opening_fr].map{|s| versions_id(s)}.sort, @node.versions.map{|v| v.id}.sort
       end
     end
   end # A visitor without write access
@@ -81,17 +85,21 @@ class MultiVersionTest < Zena::Unit::TestCase
     context 'in a language not supported' do
       setup do
         login(:tiger)
-        version = secure!(Version) { versions(:opening_fr) }
-        node = version.node
-        assert node.destroy_version
-        assert_equal [:opening_red_fr, :opening_en].map{|s| versions_id(s)}.sort, node.versions.map{|v| v.id}.sort
-        login(:ant)
+        version = secure!(Version) { versions(:opening_en) }
+        @node = version.node
+        @node.destroy_version
       end
 
       should 'see redaction from another language' do
+        login(:ant)
         visitor.lang = 'de'
         node = secure!(Node) { nodes(:opening) }
         assert_equal versions_id(:opening_red_fr), node.version.id
+      end
+
+      should 'see redaction and publication from another language' do
+        login(:tiger)
+        assert_equal [:opening_red_fr, :opening_fr].map{|s| versions_id(s)}.sort, @node.versions.map{|v| v.id}.sort
       end
     end
 
@@ -118,7 +126,7 @@ class MultiVersionTest < Zena::Unit::TestCase
       login(:ant)
       visitor.status = User::Status[:moderated]
     end
-    
+
     context 'on an unpublished node' do
       setup do
         @node = secure!(Node) { nodes(:nature) }
@@ -128,7 +136,7 @@ class MultiVersionTest < Zena::Unit::TestCase
         assert_equal versions_id(:nature_red_en), @node.version.id
       end
     end
-    
+
     context 'on a published node with a redaction' do
       setup do
         visitor.lang = 'fr'
@@ -139,8 +147,8 @@ class MultiVersionTest < Zena::Unit::TestCase
         assert_equal versions_id(:opening_red_fr), @node.version.id
       end
     end
-    
-    
+
+
   end
   # =========== UPDATE VERSION TESTS =============
 
@@ -514,7 +522,7 @@ class MultiVersionTest < Zena::Unit::TestCase
               assert @node.update_attributes(:v_title => 'Larry Summers is a jerk.')
             end
           end
-          
+
           should 'replace old publication autopublishing' do
             @node.update_attributes(:v_title => 'Is not very apt at the high end.')
             assert_equal Zena::Status[:rep], versions(:collections_en).status

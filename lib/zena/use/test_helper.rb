@@ -1,28 +1,45 @@
+require "authlogic/test_case"
 require 'hpricot'
+
 module Zena
   module Use
     module TestHelper
       include Zena::Use::Upload::UploadedFile
 
-      # Set the current site used for testing (mostly to generate ids)
-      def test_site(site_name)
-        $_test_site = site_name
+      def controller
+        @controller ||= ::Authlogic::TestCase::MockController.new
+      end
+
+      # call this method once in test if login method is use
+      def setup_authlogic
+        ::Authlogic::Session::Base.controller = (@request && ::Authlogic::TestCase::RailsRequestAdapter.new(@request)) || controller
       end
 
       # Set visitor for unit testing
-      def login(name='anon', site_name = nil)
-        if site_name
-          @visitor = User.make_visitor(:user => name.to_s, :pass => name.to_s, :host => sites_host(site_name))
+      def login(fixture)
+        user =  users(fixture)
+        @session = UserSession.create(user)
+        if @session.persisting?
+          user.ip = '10.0.0.44'
+          @visitor = user
+          $_test_site = user.site.name
+          Thread.current[:visitor] = user
+          ::I18n.locale = user.lang
         else
-          # find first matching site
-          site = Site.find(:first, :select=>"sites.*, sites.name = '#{site_name}' AS site_ok", :from => "sites, users",
-                         :conditions=>["users.site_id = sites.id AND users.id = ?", users_id(name)], :order => "site_ok DESC")
-          @visitor = User.make_visitor(:site => site, :id => users_id(name))
+          p 'login failed'
         end
+      end
 
-        $_test_site = visitor.site.name
-        @visitor.ip = '10.0.0.127'
-        ::I18n.locale = @visitor.lang
+      # Show object's errors
+      def err(obj)
+        obj.errors.each_error do |er,msg|
+          puts "[#{er}] #{msg}"
+        end
+      end
+
+      # Set the current site used for testing (mostly to generate ids)
+      def test_site(site_name)
+        $_test_site = site_name
       end
 
       def set_date(node_syms, opts = {})

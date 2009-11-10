@@ -2,6 +2,21 @@ require 'test_helper'
 
 class UserTest < Zena::Unit::TestCase
 
+  def test_find_allowed_user_by_login
+    assert_equal 'su', User.find_allowed_user_by_login('su').login
+  end
+
+  def test_deleted_user_should_not_be_allowed
+    User.connection.execute "UPDATE users SET status = #{User::Status[:deleted]} WHERE id = #{users_id(:tiger)} AND site_id = #{sites_id(:zena)}"
+    assert_nil User.find_allowed_user_by_login('tiger')
+  end
+
+  def test_user_from_other_site_should_not_be_allowed
+    # default login zena site
+    # whale is user form ocean site
+    assert_nil User.find_allowed_user_by_login('whale')
+  end
+
   def test_visited_node_ids
     login(:tiger)
     secure!(Node) { nodes(:status) }
@@ -55,8 +70,8 @@ class UserTest < Zena::Unit::TestCase
     user = secure!(User) { User.find(user[:id]) } # reload
     assert_equal sites_id(:ocean), user.site_id
     assert_equal 2, user.groups.size
-    assert user.groups.include?(groups(:public)), "Is in the public group"
-    assert user.groups.include?(groups(:aqua)), "Is in the 'site' group"
+    assert user.groups.map{|g| g.name}.include?('public'), "Is in the public group"
+    assert user.groups.map{|g| g.name}.include?('aqua'), "Is in the 'site' group"
     assert_equal User::Status[:moderated], user.status
     assert_equal 'ru', user.lang
     assert_equal 'US/Hawaii', user[:time_zone]
@@ -91,7 +106,7 @@ class UserTest < Zena::Unit::TestCase
 
   def test_create_admin_with_groups
     login(:lion)
-    user = secure!(User) { User.new("login"=>"john", "password"=>"isjjna78a9h", "group_ids"=>[groups_id(:admin)]) }
+    user = secure!(User) { User.new("login"=>"john", "password"=>"isjjna78a9h", "group_ids"=>[1329663069]) }
     assert user.save
     user = secure!(User) { User.find(user[:id])}
     assert_equal 3, user.groups.size
@@ -152,35 +167,6 @@ class UserTest < Zena::Unit::TestCase
     user.reload
     assert_equal User::Status[:user], user.status
     assert !user.is_admin?
-  end
-
-  def test_login
-    assert user = User.login('ant', 'ant', 'test.host'), "Login  ok."
-    assert_equal user[:id], users_id(:ant)
-    assert_nil User.login('ant', 'bad', 'test.host')
-    assert_nil User.login('ant', 'ant', 'ocean.host')
-  end
-
-  def test_cannot_login_if_deleted
-    assert User.login('ant', 'ant', 'test.host')
-    User.connection.execute("UPDATE users SET status=#{User::Status[:deleted]} WHERE id=#{users_id(:ant)}")
-    assert !User.login('ant', 'ant', 'test.host')
-  end
-
-  def test_anon_cannot_login
-    assert_nil User.login('anon', '', 'test.host')
-  end
-
-  def test_unique_login
-    login(:lion)
-    bob = secure!(User) { User.create(:login=>'tiger', :password=>'anypassword') }
-    assert bob.new_record?
-    assert bob.errors[:login] #.any?
-
-    login(:whale)
-    bob = secure!(User) { User.create(:login=>'tiger', :password=>'anypassword') }
-    assert !bob.new_record?
-    assert_nil bob.errors[:login] #.empty?
   end
 
   def test_empty_password
@@ -252,7 +238,7 @@ class UserTest < Zena::Unit::TestCase
     login(:lion)
     user = secure!(User) { User.create("login"=>"john", "password"=>"isjjna78a9h", 'time_zone' => 'Zurich') }
     assert user.new_record?
-    assert_equal 'is invalid', user.errors['time_zone']
+    assert_not_nil user.errors['time_zone']
 
     user = secure!(User) { User.create("login"=>"john", "password"=>"isjjna78a9h", 'time_zone' => 'Mexico/General') }
     assert !user.new_record?

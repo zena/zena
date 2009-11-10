@@ -1,5 +1,7 @@
 require 'digest/sha1'
 require 'tzinfo'
+require 'authlogic/crypto_providers/bcrypt'
+
 =begin rdoc
 There are two special users in each site :
 [anon] Anonymous user. Used to set defaults for newly created users.
@@ -21,12 +23,24 @@ things they can/cannot do :
 TODO: when a user is 'destroyed', pass everything he owns to another user or just mark the user as 'deleted'...
 =end
 class User < ActiveRecord::Base
+
+  acts_as_authentic do |c|
+    #c.transition_from_crypto_providers = Zena::InitialCryptoProvider
+    #c.crypto_provider = Authlogic::CryptoProviders::BCrypt
+    c.crypto_provider = Zena::CryptoProvider::Initial
+    c.validate_email_field = false
+    c.validate_login_field = false
+    c.require_password_confirmation = false
+    c.validate_password_field = false
+  end
+
   include RubyLess::SafeClass
+
   safe_attribute          :login, :name, :first_name, :email, :time_zone, :created_at, :updated_at
   safe_method             :initials => String, :fullname => String, :status => Number, :status_name => String
 
   safe_context            :contact => 'Contact'
-  attr_accessible         :login, :password, :lang, :first_name, :name, :email, :time_zone, :status, :group_ids, :site_ids
+  attr_accessible         :login, :lang, :first_name, :name, :email, :time_zone, :status, :group_ids, :site_ids, :crypted_password, :password
   attr_accessor           :visited_node_ids
   attr_accessor           :ip
 
@@ -45,11 +59,6 @@ class User < ActiveRecord::Base
   validates_presence_of   :site_id
   before_create           :create_contact
 
-  def contact_with_secure
-    @contact ||= secure(Contact) { contact_without_secure }
-  end
-  alias_method_chain :contact, :secure
-
   Status = {
     :su          => 80,
     :admin       => 60,  # can create other users, manage site, etc
@@ -63,54 +72,9 @@ class User < ActiveRecord::Base
 
 
   class << self
-    # Returns the logged in user or nil if login and password do not match or if the user has no login access to the given host.
-    def login(login, password, host)
-      make_visitor :login => login, :password => password, :host => host
-    end
 
-    # Return the logged in visitor from the session[:user] or the anonymous user if id is nil or does not match
-    def make_visitor(opts)
-      raise ActiveRecord::RecordNotFound.new("host not found #{opts[:host]}") unless
-            site = opts[:site] || Site.find_by_host(opts[:host])
-
-      if opts[:id]        # session[:user]
-        conditions = ['users.id = ?', opts[:id]]
-      elsif opts[:login]  # login
-        return nil if opts[:password].blank?
-        conditions = ['login = ? AND password = ?',opts[:login], hash_password(opts[:password])]
-      else                # anonymous
-        conditions = ['users.id = ?', site[:anon_id]]
-      end
-
-      user = site.users.find(:first, :conditions => conditions)
-
-      if !user && opts[:id]
-        return make_visitor(:site => site) # anonymous user
-      end
-      return nil unless user
-      user.site = site
-      user.visit(site)
-      user.visit(user)
-
-      if user.reader?
-        unless Thread.current.respond_to?(:visitor)
-          class << Thread.current
-            attr_accessor :visitor
-          end
-        end
-        Thread.current.visitor = user
-      elsif !user.is_anon? && opts[:id]
-        # not a reader, refuse login
-        return make_visitor(:site => site)
-      else
-        # anon is not a reader, refuse anonymous user
-        nil
-      end
-    end
-
-    # Do not store clear passwords in the database (salted hash) :
-    def hash_password(string)
-      Digest::SHA1.hexdigest((string || '') + PASSWORD_SALT)
+    def find_allowed_user_by_login(login)
+      User.find(:first, :conditions=>["login = ? and status > 0 and site_id = ?", login, current_site.id])
     end
 
     # Creates a new user without setting the defaults (used to create the first users of the site). Use
@@ -128,7 +92,15 @@ class User < ActiveRecord::Base
       end
       super(new_attrs)
     end
+
   end
+
+
+  def contact_with_secure
+    @contact ||= secure(Contact) { contact_without_secure }
+  end
+  alias_method_chain :contact, :secure
+
 
   # Each time a node is found using secure (Zena::Acts::Secure or Zena::Acts::SecureNode), this method is
   # called to set the visitor in the found object. This is also used to keep track of the opened nodes
@@ -159,25 +131,20 @@ class User < ActiveRecord::Base
 
   # Store the password, using SHA1. You should change the default value of PASSWORD_SALT (in Zena::ROOT/lib/zena.rb). This makes it harder to use
   # rainbow tables to find clear passwords from hashed values.
-  def password=(string)
-    if string.blank?
-      self[:password] = nil
-    elsif string && string.length > 4
-      self[:password] = User.hash_password(string)
-    else
-      @password_too_short = true
-    end
-  end
-
-  # Never display the password (even the hash) outside.
-  def password
-    ""
-  end
-
-  # Test password
-  def password_is?(str)
-    self[:password] == User.hash_password(str)
-  end
+  # def password=(string)
+  #   if string.blank?
+  #     self[:password] = nil
+  #   elsif string && string.length > 4
+  #     self[:password] = User.hash_password(string)
+  #   else
+  #     @password_too_short = true
+  #   end
+  # end
+  #
+  # # Test password
+  # def password_is?(str)
+  #   self[:password] == User.hash_password(str)
+  # end
 
   def status_name
     Num_to_status[status].to_s
@@ -335,7 +302,7 @@ class User < ActiveRecord::Base
     # Returns the current site (self = visitor) or the visitor's site
     # FIXME: remove and use 'site'
     def current_site
-      @site || visitor.site
+      self.site || visitor.site
     end
 
     # Validates that anon user does not have a login, that other users have a password
@@ -353,15 +320,15 @@ class User < ActiveRecord::Base
       if is_anon?
         # Anonymous user *must* have an empty login
         self[:login]    = nil
-        self[:password] = nil
+        self[:crypted_password] = nil
       else
         if new_record?
           # Refuse to add a user in a site if already a user with same login.
-          errors.add(:password, "can't be blank") if self[:password].nil? || self[:password] == ""
+          errors.add(:password, "can't be blank") if self[:crypted_password].nil? || self[:crypted_password] == ""
         else
           # get old password
           old = User.find(self[:id])
-          self[:password] = old[:password] if self[:password].nil? || self[:password] == ""
+          self[:crypted_password] = old[:crypted_password] if self[:crypted_password].nil? || self[:crypted_password] == ""
           errors.add(:login, "can't be blank") if self[:login].blank?
           errors.add(:status, 'You do not have the rights to do this.') if self[:id] == visitor[:id] && old.is_admin? && self.status.to_i != old.status
         end

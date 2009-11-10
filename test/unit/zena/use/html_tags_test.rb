@@ -191,16 +191,16 @@ class HtmlTagsTest < Zena::View::TestCase
   end
 
   def test_login_link
-    assert_equal "<a href=\"http://test.host/oo/projects/cleanWater\">login</a>", login_link
+    assert_equal "<a href=\"http://test.host/login\">login</a>", login_link
     login(:ant)
-    assert_equal "<a href='/logout'>logout</a>", login_link
+    assert_equal "<a href=\"http://test.host/logout\">logout</a>", login_link
   end
 
   def test_login_link_without_prefix
     overwrite_params(:prefix => nil, :controller => 'comments', :action => 'index')
-    assert_equal "<a href='/login'>login</a>", login_link
+    assert_equal "<a href=\"http://test.host/login\">login</a>", login_link
     login(:ant)
-    assert_equal "<a href='/logout'>logout</a>", login_link
+    assert_equal "<a href=\"http://test.host/logout\">logout</a>", login_link
   end
 
   def test_show_path_root

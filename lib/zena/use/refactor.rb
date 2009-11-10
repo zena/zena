@@ -1,29 +1,16 @@
 module Zena
   module Use
     module Refactor
-      module Common
 
+      module Common
         # TODO: test
         def lang
-          visitor.lang
+          @lang ||= visitor.lang
         end
       end # Common
 
       module ControllerMethods
         include Common
-
-        # TODO: test
-        def visitor
-          @visitor ||= returning(User.make_visitor(:host => request.host, :id => session[:user])) do |user|
-            if session[:user] != user[:id]
-              # changed user (login/logout)
-              session[:user] = user[:id]
-            end
-            if user.is_anon?
-              user.ip = request.headers['REMOTE_ADDR']
-            end
-          end
-        end
 
         # Read the parameters and add errors to the object if it is considered spam. Save it otherwize.
         def save_if_not_spam(obj, params)
@@ -34,9 +21,8 @@ module Zena
       end # ControllerMethods
 
       module ViewMethods
-        include Common
 
-        # TODO: use Rails native helper.
+        include Common
 
         # Quote for html values (input tag, alt attribute, etc)
         def fquote(text)
@@ -175,7 +161,7 @@ ENDTXT
           obj = opts[:node] || @node
           trad_list = []
           (obj.traductions || []).each do |ed|
-            trad_list << "<span#{ ed.lang == lang ? " class='current'" : ''}>" + link_to( _(ed[:lang]), zen_path(obj,:lang=>ed[:lang])) + "</span>"
+            trad_list << "<span#{ ed.lang == visitor.lang ? " class='current'" : ''}>" + link_to( _(ed[:lang]), zen_path(obj,:lang=>ed[:lang])) + "</span>"
           end
           trad_list
         end
@@ -190,11 +176,13 @@ ENDTXT
 
         # This lets helpers render partials
         # TODO: make sure this is the best way to handle this problem.
+
         def render_to_string(*args)
-          @controller ||= begin
+          controller ||= begin
              # ==> this means render_to_string uses a view with everything ApplicationController has...
             ApplicationController.new.instance_eval do
               class << self
+                public :render, :render_to_string
                 attr_accessor :request, :response, :params
               end
 
@@ -209,7 +197,7 @@ ENDTXT
             end
           end
 
-          @controller.send(:render_to_string, *args)
+          controller.render(*args)
         end
 
       end # ViewMethods

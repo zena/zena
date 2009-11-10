@@ -7,43 +7,43 @@ module Zena
   module Test
 
     # functional tests
-    module TestController
-      include Zena::Use::Fixtures
-      include Zena::Use::TestHelper
-
-      def init_controller
-        $_test_site ||= 'zena'
-        @request    ||= ActionController::TestRequest.new
-        @response   ||= ActionController::TestResponse.new
-        @request.host = sites_host($_test_site)
-        @controller.instance_eval { @params = {}; @url = ActionController::UrlRewriter.new( @request, {} )}
-        @controller.instance_variable_set(:@response, @response)
-        @controller.send(:request=, @request)
-        @controller.instance_variable_set(:@session, @request.session)
-      end
-
-      def logout
-        reset_session
-      end
-
-      def session
-        @controller.send(:session)
-      end
-
-      def flash
-        session['flash']
-      end
-
-      def err(obj)
-        obj.errors.each_error do |er,msg|
-          puts "[#{er}] #{msg}"
-        end
-      end
-
-      def method_missing(meth,*args, &block)
-        @controller.send(meth, *args, &block)
-      end
-    end
+    # module TestController
+    #       include Zena::Use::Fixtures
+    #       include Zena::Use::TestHelper
+    #
+    #       def init_controller
+    #         $_test_site ||= 'zena'
+    #         @request    ||= ActionController::TestRequest.new
+    #         @response   ||= ActionController::TestResponse.new
+    #         @request.host = sites_host($_test_site)
+    #         @controller.instance_eval { @params = {}; @url = ActionController::UrlRewriter.new( @request, {} )}
+    #         @controller.instance_variable_set(:@response, @response)
+    #         @controller.send(:request=, @request)
+    #         @controller.instance_variable_set(:@session, @request.session)
+    #       end
+    #
+    #       def logout
+    #         reset_session
+    #       end
+    #
+    #       def session
+    #         @controller.send(:session)
+    #       end
+    #
+    #       def flash
+    #         session['flash']
+    #       end
+    #
+    #       def err(obj)
+    #         obj.errors.each_error do |er,msg|
+    #           puts "[#{er}] #{msg}"
+    #         end
+    #       end
+    #
+    #       def method_missing(meth,*args, &block)
+    #         @controller.send(meth, *args, &block)
+    #       end
+    #     end
 
     module Integration
       include Zena::Acts::Secure
@@ -132,7 +132,7 @@ class ZenaTestHelper < ActionView::TestCase
 end
 
 class ZenaTestController < ActionController::TestCase
-  include Zena::Test::TestController
+  #include Zena::Test::TestController
 end
 
 NodeQuery.insert_zero_link(Link)

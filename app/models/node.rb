@@ -756,10 +756,11 @@ class Node < ActiveRecord::Base
   # Additional security so that unsecure finders explode when trying to update/save or follow relations.
   def visitor
     return @visitor if @visitor
+    @visitor = Thread.current[:visitor] || Zena::RecordNotSecured.new("Visitor not set, record not secured.")
     # We need to be more tolerant during object creation since 'v_foo' can be
     # set before 'visitor' and we need visitor.lang when creating versions.
-    return Thread.current.visitor if new_record?
-    raise Zena::RecordNotSecured.new("Visitor not set, record not secured.")
+    #return Thread.current[:visitor] #if new_record?
+    #raise Zena::RecordNotSecured.new("Visitor not set, record not secured.")
   end
 
   # Return an attribute if it is safe (RubyLess allowed). Return nil otherwise.

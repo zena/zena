@@ -10,6 +10,7 @@ def has_executable(*list)
   end
 end
 
+
 require 'bricks'
 
 module Zena
@@ -164,6 +165,10 @@ module Zena
       FastGettext.text_domain = 'zena'
     end
 
+    def initialize_authlogic
+      require "authlogic"
+    end
+
     def init
       config = Rails.configuration
       enable_tools
@@ -178,6 +183,7 @@ module Zena
       load_bricks
       set_default_timezone(config)
       add_inflections
+      initialize_authlogic
       initialize_gettext
       Bricks.load_misc('init')
     end

@@ -4,16 +4,12 @@ module Zena
       include Zena::Use::Fixtures
       include Zena::Use::TestHelper
       include Zena::Acts::Secure
+      include ::Authlogic::TestCase
 
-      def logout
-        reset_session
-      end
+      setup :activate_authlogic
 
-      alias login_without_controller login
-
-      def login(*args)
-        login_without_controller(*args)
-        @controller.instance_eval { @visitor = Thread.current.visitor }
+      def setup
+        login(:anon)
       end
 
       def assert_css(match)

@@ -124,7 +124,6 @@ class CommentTest < Zena::Unit::TestCase
     comment = comments(:public_says_in_en)
     prop_reply = secure!(Comment) { Comment.create(:discussion_id => comment[:discussion_id], :reply_to=>comment[:id], :title=>'bob', :author_name=>'any', :text=>'blah') }
 
-    err prop_reply
     assert !prop_reply.new_record?, "Not a new record"
     assert_equal Zena::Status[:prop], prop_reply[:status]
 

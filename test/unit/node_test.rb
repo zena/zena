@@ -984,9 +984,9 @@ done: \"I am done\""
   end
 
   def test_to_yaml
-    test_site('zena')
-    User.connection.execute "UPDATE users SET time_zone = 'Asia/Jakarta' WHERE id = #{users_id(:tiger)}"
+    #test_site('zena')
     login(:tiger)
+    visitor.time_zone = 'Asia/Jakarta'
     assert_equal 'Asia/Jakarta', visitor.time_zone
     status = secure!(Node) { nodes(:status) }
     assert status.update_attributes_with_transformation(:v_status => Zena::Status[:pub], :v_text => "This is a \"link\":#{nodes_zip(:projects)}.", :d_foo => "A picture: !#{nodes_zip(:bird_jpg)}!")
@@ -994,7 +994,11 @@ done: \"I am done\""
     assert_match %r{v_text:\s+\"?This is a "link":\(\.\./\.\.\)\.}, yaml
     assert_match %r{d_foo:\s+\"?A picture: !\(\.\./\.\./wiki/bird\)!}, yaml
     assert_no_match %r{log_at}, yaml
+  end
 
+  def test_to_yaml_with_change_log_at
+    login(:tiger)
+    visitor.time_zone = 'Asia/Jakarta'
     prop = secure!(Node) { nodes(:proposition) }
     assert prop.update_attributes_with_transformation(:v_status => Zena::Status[:pub], :v_text => "This is a \"link\":#{nodes_zip(:projects)}.", :d_foo => "A picture: !#{nodes_zip(:bird_jpg)}!", :log_at => "2008-10-20 14:53")
     assert_equal Time.gm(2008,10,20,7,53), prop.log_at

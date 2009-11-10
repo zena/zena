@@ -104,7 +104,6 @@ Just doing the above will filter all result according to the logged in user.
         # we move all before_validation on update and create here so that it is triggered before multiversion's before_validation
         before_validation  :secure_before_validation
 
-        validate {|r| r.errors.add(:base, 'record not secured') unless r.instance_variable_get(:@visitor) }
         validate_on_update {|r| r.errors.add('site_id', 'cannot change') if r.site_id_changed? }
 
         validate_on_create :secure_on_create
@@ -276,6 +275,7 @@ Just doing the above will filter all result according to the logged in user.
           else
             errors.add(:inherit, "bad inheritance mode")
           end
+
         end
 
         # 1. if dgroup changed from old, make sure user could do this and new group is valid
@@ -571,17 +571,16 @@ Just doing the above will filter all result according to the logged in user.
       end
 
       def secure_write_scope
-        if visitor.is_su? # super user
-          "site_id = #{visitor.site.id}"
-        else
-          "site_id = #{visitor.site.id} AND wgroup_id IN (#{visitor.group_ids.join(',')})"
-        end
+        scope = {:nodes => {:site_id => visitor.site[:id]}}
+        scope[:nodes] = {:wgroup_id => visitor.group_ids} unless visitor.is_su?
+        scope
       end
 
       # these methods are not actions that can be called from the web !!
       protected
         # secure find with scope (for read/write or publish access).
         def secure_with_scope(klass, node_find_scope)
+
           if ((klass.send(:scoped_methods)[0] || {})[:create] || {})[:visitor]
             # we are already in secure scope: this scope is the new 'exclusive' scope.
             last_scope = klass.send(:scoped_methods).shift
@@ -593,19 +592,18 @@ Just doing the above will filter all result according to the logged in user.
             find[:conditions] = node_find_scope
           elsif klass.ancestors.include?(::Version)
             ntbl = ::Node.table_name
-            find[:joins] = "INNER JOIN #{ntbl} ON #{klass.table_name}.node_id = #{ntbl}.id"
+            find[:joins] = :node
             find[:readonly] = false
             if node_find_scope =~ /publish_from/
               # read, we need to rewrite with node's table name
               find[:conditions] = secure_scope(ntbl)
             else
-              # secure write or drive
-              find[:conditions] = node_find_scope.sub('site_id', "#{ntbl}.site_id")
+              find[:conditions] = node_find_scope
             end
           elsif klass.column_names.include?('site_id')
-            find[:conditions] = "#{klass.table_name}.site_id = #{visitor.site[:id]}"
+            find[:conditions] = {klass.table_name => {:site_id => visitor.site[:id]}}
           elsif klass.ancestors.include?(::Site)
-            find[:conditions] = "#{klass.table_name}.id = #{visitor.site[:id]}"
+            find[:conditions] = {klass.table_name => {:id => visitor.site[:id]}}
           end
 
           # FIXME: 'with_scope' is protected now. Can we live with something cleaner like this ?
@@ -696,7 +694,9 @@ Just doing the above will filter all result according to the logged in user.
         # * owner
         # * members of +write_group+ if node is published and the current date is greater or equal to the publication date
         def secure_write(obj, &block)
-          secure_with_scope(obj, secure_write_scope, &block)
+          scope = {:nodes => {:site_id => visitor.site[:id]}}
+          scope[:nodes] = {:wgroup_id => visitor.group_ids} unless visitor.is_su?
+          secure_with_scope(obj, scope, &block)
         rescue ActiveRecord::RecordNotFound
           # Rails generated exceptions
           # TODO: monitor how often this happens and replace the finders concerned
@@ -722,11 +722,13 @@ Just doing the above will filter all result according to the logged in user.
         # * owner if +max_status+ <= red
         # * owner if private
         def secure_drive(obj, &block)
-          scope = if visitor.is_su? # super user
-            "site_id = #{visitor.site.id}"
-          else
-            "site_id = #{visitor.site.id} AND dgroup_id IN (#{visitor.group_ids.join(',')})"
-          end
+          # scope = if visitor.is_su? # super user
+          #   "site_id = #{visitor.site.id}"
+          # else
+          #   "site_id = #{visitor.site.id} AND dgroup_id IN (#{visitor.group_ids.join(',')})"
+          # end
+          scope = { :nodes => {:site_id => visitor.site.id } }
+          scope[:nodes][:dgroup_id] = visitor.group_ids unless visitor.is_su?
           secure_with_scope(obj, scope, &block)
         rescue ActiveRecord::RecordNotFound
           # Rails generated exceptions
@@ -741,6 +743,10 @@ Just doing the above will filter all result according to the logged in user.
           else
             raise ActiveRecord::RecordNotFound
           end
+        end
+
+        def driveable?
+          respond_to?(:dgroup_id)
         end
     end
   end
@@ -761,14 +767,11 @@ end
 # Return the current visitor. Raise an error if the visitor is not set.
 # For controllers, this method must be redefined in Application
 def visitor
-  Thread.current.visitor
-rescue NoMethodError
-  raise Zena::RecordNotSecured.new("Visitor not set, record not secured.")
+  Thread.current[:visitor] || Zena::RecordNotSecured.new("Visitor not set, record not secured.")
 end
 
 # Return the current site. Raise an error if the visitor is not set.
 def current_site
-  visitor.site
+  @current_site||=visitor.site
 end
-
 
