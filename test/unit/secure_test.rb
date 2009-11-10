@@ -74,7 +74,7 @@ class SecureTest < Zena::Unit::TestCase
     context 'loaded without secure' do
       setup do
         @node = nodes(:secret)
-        @visitor.visit(@node)
+        #@visitor.visit(@node)
       end
 
       should 'receive false when asking can_read?' do

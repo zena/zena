@@ -104,6 +104,8 @@ Just doing the above will filter all result according to the logged in user.
         # we move all before_validation on update and create here so that it is triggered before multiversion's before_validation
         before_validation  :secure_before_validation
 
+        validate :record_must_be_secured
+        #validate {|r| r.errors.add(:base, 'record not secured') unless r.instance_variable_get(:@visitor)}
         validate_on_update {|r| r.errors.add('site_id', 'cannot change') if r.site_id_changed? }
 
         validate_on_create :secure_on_create
@@ -119,6 +121,10 @@ Just doing the above will filter all result according to the logged in user.
       end
 
       module InstanceMethods
+
+        def record_must_be_secured
+          errors.add(:base, 'record not secured') unless @visitor == Thread.current[:visitor]
+        end
 
         # Store visitor to produce scope when needed and to retrieve correct editions.
         def visitor=(visitor)
@@ -553,7 +559,7 @@ Just doing the above will filter all result according to the logged in user.
 
       # Set current visitor
       def visitor=(visitor)
-        @visitor = visitor
+        Thread.current[:visitor] = visitor
       end
 
       # Secure scope for read access

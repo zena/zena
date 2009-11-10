@@ -21,7 +21,7 @@ module Zena
         @session = UserSession.create(user)
         if @session.persisting?
           user.ip = '10.0.0.44'
-          @visitor = user
+          #@visitor = user
           $_test_site = user.site.name
           Thread.current[:visitor] = user
           ::I18n.locale = user.lang
