@@ -7,8 +7,7 @@
 	<key>command</key>
 	<string># Assumes the current file is a yaml test file
 # Runs with the currently-focused method as the test name
-
-args=$(${TM_RUBY:=ruby} <<"EOF"
+args=$(${TM_RUBY:=ruby} &lt;&lt;"EOF"
 
 n = ENV['TM_LINE_NUMBER'].to_i
 
@@ -36,7 +35,7 @@ exit_show_tool_tip
 fi
 
 export RUBYLIB="$TM_BUNDLE_SUPPORT/RubyMate${RUBYLIB:+:$RUBYLIB}"
-"${TM_RUBY:-ruby}" -- "$TM_BUNDLE_SUPPORT/RubyMate/run_script.rb" $args</string>
+"${TM_RUBY:-ruby}" -- "$TM_BUNDLE_SUPPORT/RubyMate/run_script.rb" $args	</string>
 	<key>input</key>
 	<string>document</string>
 	<key>keyEquivalent</key>
