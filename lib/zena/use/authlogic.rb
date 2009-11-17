@@ -2,9 +2,9 @@ module Zena
   module Use
     module Authlogic
 
-      def self.make_visitor(id)
-        Thread.current[:visitor] = User.find(id)
-      end
+      # def self.make_visitor(id)
+      #   Thread.current[:visitor] = User.find(id)
+      # end
 
       module Common
 
@@ -43,7 +43,7 @@ module Zena
           end
 
           def current_site
-            host = request ? request.domain : visitor.site.host
+            host = request ? request.host : visitor.site.host
             @current_site ||= Site.find_by_host(host)
           end
 

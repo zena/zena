@@ -6,9 +6,8 @@ module Zena
       include Zena::Acts::Secure
       include ::Authlogic::TestCase
 
-      setup :activate_authlogic
-
       def setup
+        activate_authlogic
         login(:anon)
       end
 

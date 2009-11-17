@@ -6,20 +6,11 @@ module Zena
     module TestHelper
       include Zena::Use::Upload::UploadedFile
 
-      def controller
-        @controller ||= ::Authlogic::TestCase::MockController.new
-      end
-
-      # call this method once in test if login method is use
-      def setup_authlogic
-        ::Authlogic::Session::Base.controller = (@request && ::Authlogic::TestCase::RailsRequestAdapter.new(@request)) || controller
-      end
-
       # Set visitor for unit testing
       def login(fixture)
         user =  users(fixture)
-        @session = UserSession.create(user)
-        if @session.persisting?
+        session = UserSession.new(user)
+        if session.save
           user.ip = '10.0.0.44'
           #@visitor = user
           $_test_site = user.site.name

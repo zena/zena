@@ -2,6 +2,8 @@ ActionController::Routing::Routes.add_route '----/test/:action', :controller => 
 
 module Zena
   class TestController < ApplicationController
+    include Zena::Use::Fixtures
+    include Zena::Use::TestHelper
     helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url
     before_filter :set_context
 
@@ -41,13 +43,15 @@ module Zena
     end
 
     def set_context
-      Zena::Use::Authlogic.make_visitor(params[:user_id])
+      #Zena::Use::Authlogic.make_visitor(params[:user_id])
+      login(params[:user])
       set_visitor_lang(params[:prefix])
       @node = secure!(Node) { Node.find(params[:node_id])}
       @text = params[:text]
       @test_url  = params[:url]
       @date = Date.parse(params[:date]) if params[:date]
       params.delete(:user_id)
+      params.delete(:user)
       params.delete(:prefix)
       params.delete(:node_id)
       params.delete(:text)

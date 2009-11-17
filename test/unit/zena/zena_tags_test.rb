@@ -3,6 +3,8 @@ require 'test_helper'
 
 
 class ZenaTagsTest < Zena::Controller::TestCase
+
+
   yamltest :directories => [:default, "#{Zena::ROOT}/bricks/**/test/zafu"]
   Section # make sure we load Section links before trying relations
 
@@ -32,12 +34,10 @@ class ZenaTagsTest < Zena::Controller::TestCase
 
   RubyLess::SafeClass.safe_method_for Node, [:dummy] => ZafuDummy
 
-
   def setup
     @controller = Zena::TestController.new
     @request    = ActionController::TestRequest.new
     @response   = ActionController::TestResponse.new
-    $_test_site = 'zena'
     super
   end
 
@@ -51,11 +51,13 @@ class ZenaTagsTest < Zena::Controller::TestCase
       compiled_files[k] = v
     end
     context = yt_get('context', file, test)
+    site = sites(context.delete('site') || 'zena')
+    $_test_site = site.name
+    @request.host = site.host
     # set context
     params = {}
-    $_test_site = context.delete('site') || 'zena'
-    @request.host = sites_host($_test_site)
-    params[:user_id] = users_id(context.delete('visitor').to_sym)
+    #params[:user_id] = users_id(context.delete('visitor').to_sym)
+    params[:user] = context.delete 'visitor'
     params[:node_id] = nodes_id(context.delete('node').to_sym)
     params[:prefix]  = context.delete('lang')
     params[:date]    = context['ref_date'] ? context.delete('ref_date').to_s : nil
@@ -104,6 +106,7 @@ class ZenaTagsTest < Zena::Controller::TestCase
 
       cont = {
         :user_id => users_id(:anon),
+        :user => 'anon',
         :node_id => nodes_id(:status),
         :prefix  => 'en',
         :url  => '/cache/part',
