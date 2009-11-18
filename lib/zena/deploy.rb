@@ -244,7 +244,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       unless self[:host]
         puts "host not set (use -s host=...)"
       else
-        # create awstats config file
+        # create logrotate config file
         logrotate_conf = render("#{templates}/logrotate_host.rhtml", :config => self )
         put(logrotate_conf, "/etc/logrotate.d/#{self[:host]}")
       end
@@ -269,11 +269,12 @@ Capistrano::Configuration.instance(:must_exist).load do
       awstat_conf = "/etc/awstats/awstats.#{self[:old_host]}.conf"
       run "test -e#{awstat_conf} && rm #{awstat_conf} || true"
 
-      #logrotate_conf = "/etc/awstats/awstats.#{self[:old_host]}.conf"
-      #run "test -e#{logrotate_conf} && rm #{logrotate_conf} || true"
+      logrotate_conf = "/etc/logrotate.d/#{self[:old_host]}"
+      run "test -e #{logrotate_conf} && rm #{logrotate_conf} || true"
 
       create_vhost
       create_awstats
+      logrotate
       clear_zafu
       clear_cache
       set_permissions
