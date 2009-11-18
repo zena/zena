@@ -778,6 +778,6 @@ end
 
 # Return the current site. Raise an error if the visitor is not set.
 def current_site
-  @current_site||=visitor.site
+  visitor.site
 end
 
