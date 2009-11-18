@@ -117,7 +117,7 @@ module Zena
           mode = opts[:mode]
           case mode
           when '+login'
-            content =~ %r{<form[^>]* action\s*=\s*./session}
+            content =~ %r{<form[^>]* action\s*=\s*./user_session}
           when '+adminLayout'
             content =~ %r{<%= content_for_layout %>} && %r{show_link(:admin_links)}
           else

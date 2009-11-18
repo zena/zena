@@ -11,7 +11,7 @@
 <body>
   <!-- There was a problem with the rendering of the original zafu code. Using default '+login' template. -->
   <div id='login_form'><div>
-    <form action="/session" method="post">    <table>
+    <form action="/user_ession" method="post">    <table>
         <tr>
           <td><label for='user_login' do='trans'>User name:</label></td>
           <td><input name="login" size="20" type="text" /></td>

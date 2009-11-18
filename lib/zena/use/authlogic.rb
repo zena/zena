@@ -2,10 +2,6 @@ module Zena
   module Use
     module Authlogic
 
-      # def self.make_visitor(id)
-      #   Thread.current[:visitor] = User.find(id)
-      # end
-
       module Common
 
         def visitor
