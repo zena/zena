@@ -24,7 +24,7 @@ And yes, 'pass' is not as intuitive as 'password' but we cannot use the latter b
 =end
 require 'erb'
 require File.join(File.dirname(__FILE__), 'info')
-require File.join(File.dirname(__FILE__), '..', 'bricks', 'patcher')
+require File.join(File.dirname(__FILE__), '..', 'bricks')
 
 Capistrano::Configuration.instance(:must_exist).load do
   set :templates, File.join(File.dirname(__FILE__), 'deploy')

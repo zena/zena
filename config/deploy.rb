@@ -26,10 +26,13 @@ if self[:server_ip]
 
   #================= END ADVANCED SETTINGS ==========#
   # We need to set RAILS_ROOT and RAILS_ENV to know which bricks we need to load, activate
-  ::RAILS_ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))
-  ::RAILS_ENV  = 'production'
-  require File.join(File.dirname(__FILE__), '..', 'lib', 'zena', 'deploy')
-  #require 'zena/deploy'
+  if !defined?(::RAILS_ROOT)
+    ::RAILS_ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+  end
+  if !defined?(::RAILS_ENV)
+    ::RAILS_ENV = 'production'
+  end
+  require 'zena/deploy'
 
 else
   puts <<-TXT
