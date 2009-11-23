@@ -4,8 +4,9 @@
   * attachments can now be provided with an url
   * Sphinx search support
 
-* 1 minor enhancment
+* 2 minor enhancement
   * logrotate setup support with capistrano
+  * 1 minor enhancement
 
 == 0.15.1 2009-10-27
 
