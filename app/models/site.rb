@@ -344,6 +344,39 @@ class Site < ActiveRecord::Base
     end
   end
 
+  def rebuild_fullpath(parent_id = nil, parent_fullpath = "", parent_basepath = "")
+    i = 0
+    batch_size = 100
+    children = []
+    while true
+      rec = Zena::Db.fetch_attributes(['id', 'fullpath', 'basepath', 'custom_base', 'name'], 'nodes', "parent_id #{parent_id ? "= #{parent_id}" : "IS NULL"} AND site_id = #{self.id} ORDER BY id ASC LIMIT #{batch_size} OFFSET #{i * batch_size}")
+      break if rec.empty?
+      rec.each do |rec|
+        if parent_id
+          rec['fullpath'] = parent_fullpath == '' ? rec['name'] : "#{parent_fullpath}/#{rec['name']}"
+        else
+          # root node
+          rec['fullpath'] = ''
+        end
+
+        if rec['custom_base'].to_i == 1
+          rec['basepath'] = rec['fullpath']
+        else
+          rec['basepath'] = parent_basepath
+        end
+
+        id = rec.delete('id')
+        children << [id, rec['fullpath'], rec['basepath']]
+        Zena::Db.execute "UPDATE nodes SET #{rec.map {|k,v| "#{Zena::Db.connection.quote_column_name(k)}=#{Zena::Db.quote(v)}"}.join(', ')} WHERE id = #{id}"
+      end
+      # 50 more
+      i += 1
+    end
+    children.each do |child|
+      rebuild_fullpath(*child)
+    end
+  end
+
   private
     def valid_site
       errors.add(:host, 'invalid') if self[:host].nil? || (self[:host] =~ /^\./) || (self[:host] =~ /[^\w\.\-]/)

@@ -66,9 +66,10 @@ class TextDocumentTest < Zena::Unit::TestCase
     helper = ApplicationController.new
     helper.instance_variable_set(:@visitor, visitor)
     text = node.parse_assets(start, helper, 'v_text')
+    err node
     assert node.errors.empty?
     res =<<-END_CSS
-    body { font-size:10px; behavior:url("/stylesheets/csshover2.htc?1256556568"); }
+    body { font-size:10px; behavior:url("/stylesheets/csshover2.htc?1252241876"); }
     #header { background:url('/en/image30.jpg?1144713600') }
     #pv     { background:url('/en/image30_pv.jpg?967816914293') }
     #footer { background:url('/en/image31.jpg?1144713600') }

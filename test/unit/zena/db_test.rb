@@ -36,6 +36,14 @@ class DbTest < Zena::Unit::TestCase
     assert_nil Zena::Db.fetch_row("SELECT name FROM nodes WHERE 0")
   end
 
+  def test_fetch_attributes
+    assert_equal [{"name"=>"secret", "zip"=>"19"},
+     {"name"=>"status", "zip"=>"22"},
+     {"name"=>"strange", "zip"=>"36"},
+     {"name"=>"skins", "zip"=>"51"},
+     {"name"=>"style", "zip"=>"53"}], Zena::Db.fetch_attributes(['zip','name'], 'nodes', "name like 's%' and site_id = #{sites_id(:zena)} ORDER BY zip")
+  end
+
   context 'A node that needs attribute changes without validations or side effects' do
     setup do
       login(:anon)

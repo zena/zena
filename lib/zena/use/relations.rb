@@ -80,6 +80,7 @@ module Zena
 
         # Return an array of accessor methods for the matched relation alias.
         def relation_alias(match)
+          return nil if match[0] == 'parent_id'
           role     = match[1]
           field    = match[2]
 

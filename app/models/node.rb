@@ -151,7 +151,7 @@ class Node < ActiveRecord::Base
   before_create      :node_before_create
   before_save        :change_klass
   after_save         :spread_project_and_section
-  after_save         :clear_children_fullpath
+  after_save         :rebuild_children_fullpath
   after_create       :node_after_create
   attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from
   attr_protected     :site_id
@@ -882,36 +882,11 @@ class Node < ActiveRecord::Base
   end
 
 
-  # Return the same basepath as the parent. Is overwriten by 'Page' class.
-  def basepath(rebuild=false, update= true)
-    if !self[:basepath] || rebuild
-      if self[:parent_id]
-        parent = parent(false)
-        path = parent ? parent.basepath(rebuild) : ''
-      else
-        path = ''
-      end
-      self.connection.execute "UPDATE #{self.class.table_name} SET basepath='#{path}' WHERE id='#{self[:id]}'" if path != self[:basepath] && update
-      self[:basepath] = path
-    end
+  # url base path. If a node is in 'projects' and projects has custom_base set, the
+  # node's basepath becomes 'projects', so the url will be 'projects/node34.html'.
+  # The basepath is cached. If rebuild is set to true, the cache is updated.
+  def basepath
     self[:basepath]
-  end
-
-  # Return the full path as an array if it is cached or build it when asked for.
-  def fullpath(rebuild=false, update = true, loop_ids = [])
-    return "" if loop_ids.include?(self.id)
-    loop_ids << self.id
-    if !self[:fullpath] || rebuild
-      if parent = parent(false)
-        path = parent.fullpath(rebuild,true,loop_ids).split('/') + [name.gsub("'",'')]
-      else
-        path = []
-      end
-      path = path.join('/')
-      self.connection.execute "UPDATE #{self.class.table_name} SET fullpath='#{path}' WHERE id='#{self[:id]}'" if path != self[:fullpath] && update
-      self[:fullpath] = path
-    end
-    self[:fullpath]
   end
 
   # Same as fullpath, but the path includes the root node.
@@ -1413,6 +1388,28 @@ class Node < ActiveRecord::Base
     end
 
   private
+
+    def rebuild_fullpath
+      return unless new_record? || name_changed? || parent_id_changed? || fullpath.nil?
+      if parent = parent(false)
+        path = parent.fullpath.split('/') + [name]
+      else
+        path = []
+      end
+      self[:fullpath] = path.join('/')
+    end
+
+    def rebuild_basepath
+      return unless new_record? || name_changed? || parent_id_changed? || custom_base_changed? || basepath.nil?
+      if custom_base
+        self[:basepath] = self.fullpath
+      elsif parent = parent(false)
+        self[:basepath] = parent.basepath
+      else
+        self[:basepath] = ""
+      end
+    end
+
     def set_defaults
       # sync version title and name
       if ref_lang == version.lang &&
@@ -1424,6 +1421,9 @@ class Node < ActiveRecord::Base
           self.name = version.title.url_name
         end
       end
+
+      self[:custom_base] = false unless kind_of?(Page)
+      true
     end
 
     def node_before_validation
@@ -1432,16 +1432,12 @@ class Node < ActiveRecord::Base
       self.name ||= (version.title || '').url_name
 
       unless name.blank?
-        # update cached fullpath
-        if new_record? || name_changed? || parent_id_changed?
-          self[:fullpath] = self.fullpath(true,false)
-        elsif !new_record? && custom_base_changed?
-          self[:basepath] = self.basepath(true,false)
-        end
-        if !new_record? && fullpath_changed?
-          # FIXME: update children's cached fullpaths
-          @clear_children_fullpath = true
-        end
+        # rebuild cached fullpath / basepath
+        rebuild_fullpath
+        rebuild_basepath
+        # we should use a full rebuild when there are corrupt values,
+        # if fullpath was blank, we have no way to find all children
+        @need_rebuild_children_fullpath = !new_record? && (fullpath_changed? || basepath_changed?) && !fullpath_was.blank?
       end
 
       # make sure section is the same as the parent
@@ -1654,16 +1650,38 @@ class Node < ActiveRecord::Base
       end
     end
 
-    def clear_children_fullpath(i = self[:id])
-      return true unless @clear_children_fullpath
-      base_class.connection.execute "UPDATE nodes SET fullpath = NULL WHERE #{ref_field(false)}='#{i}'"
-      ids = nil
-      # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
-      base_class.send(:with_exclusive_scope) do
-        ids = Zena::Db.fetch_ids("SELECT id FROM #{base_class.table_name} WHERE #{ref_field(true)} = '#{i.to_i}' AND inherit='1'")
-      end
+    def rebuild_children_fullpath
+      return true unless @need_rebuild_children_fullpath
 
-      ids.each { |i| clear_children_fullpath(i) }
+      # Update descendants
+      fullpath_new = self.fullpath
+      fullpath_new = "#{fullpath_new}/" if fullpath_was == ''
+      fullpath_re  = fullpath_changed? ? %r{\A#{self.fullpath_was}} : nil
+
+      bases = [self.basepath]
+
+      i = 0
+      batch_size = 100
+      while true
+        list  = Zena::Db.fetch_attributes(['id', 'fullpath', 'basepath', 'custom_base'], 'nodes', "fullpath LIKE #{Zena::Db.quote("#{fullpath_was}%")} AND site_id = #{current_site.id} ORDER BY fullpath ASC LIMIT #{batch_size} OFFSET #{i * batch_size}")
+        break if list.empty?
+        list.each do |rec|
+          rec['fullpath'].sub!(fullpath_re, fullpath_new) if fullpath_re
+          if rec['custom_base'].to_i == 1
+            rec['basepath'] = rec['fullpath']
+            bases << rec['basepath']
+          else
+            while rec['fullpath'].size <= bases.last.size
+              bases.pop
+            end
+            rec['basepath'] = bases.last
+          end
+          id = rec.delete('id')
+          Zena::Db.execute "UPDATE nodes SET #{rec.map {|k,v| "#{Zena::Db.connection.quote_column_name(k)}=#{Zena::Db.quote(v)}"}.join(', ')} WHERE id = #{id}"
+        end
+        # 50 more
+        i += 1
+      end
       true
     end
 

@@ -233,4 +233,29 @@ class SiteTest < Zena::Unit::TestCase
     assert_equal Hash['w'=>{'fr' => versions_id(:opening_red_fr), 'en' => versions_id(:opening_en)},
                       'r'=>{'fr' => versions_id(:opening_fr),     'en' => versions_id(:opening_en)}], opening.vhash
   end
+  
+  def test_rebuild_fullpath
+    login(:tiger)
+    Node.connection.execute "UPDATE nodes SET fullpath = NULL"
+    visitor.site.rebuild_fullpath
+    status  = secure(Node) { nodes(:status)  }
+    opening = secure(Node) { nodes(:opening) }
+    cleanWater = secure(Node) { nodes(:cleanWater) }
+    art = secure(Node) { nodes(:art) }
+    assert_equal 'projects/cleanWater/status', status.fullpath
+    assert_equal 'projects/cleanWater', status.basepath
+    assert_equal false, status.custom_base
+    
+    assert_equal 'projects/cleanWater/opening', opening.fullpath
+    assert_equal 'projects/cleanWater', opening.basepath
+    assert_equal false, opening.custom_base
+    
+    assert_equal 'projects/cleanWater', cleanWater.fullpath
+    assert_equal 'projects/cleanWater', cleanWater.basepath
+    assert_equal true, cleanWater.custom_base
+    
+    assert_equal 'collections/art', art.fullpath
+    assert_equal '', art.basepath
+    assert_equal false, art.custom_base
+  end
 end

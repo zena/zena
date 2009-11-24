@@ -676,7 +676,7 @@ module Zena
                     redaction_error(meth.to_s[0..-2], "could not be set (no redaction)")
                     return
                   end
-
+          
                   case target
                   when 'c_'
                     if recipient.content_class && recipient = recipient.redaction_content

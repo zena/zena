@@ -136,6 +136,11 @@ module Zena
         record[attr_name].to_i
       end
     end
+    
+    def fetch_attributes(attributes, table_name, sql)
+      sql = "SELECT #{attributes.map{|a| connection.quote_column_name(a)}.join(',')} FROM #{table_name} WHERE #{sql}"
+      connection.select_all(sql)
+    end
 
     def fetch_attribute(attribute, sql)
       unless sql =~ /SELECT/i

@@ -1,6 +1,15 @@
 require 'test_helper'
 
 class NoteTest < Zena::Unit::TestCase
+  
+  def test_create_simplest
+    login(:ant)
+    test_page = secure!(Note) { Note.create(:name=>"yoba", :parent_id => nodes_id(:cleanWater), :inherit=>1 ) }
+    assert ! test_page.new_record? , "Not a new record"
+    assert_equal nodes_id(:cleanWater), test_page.parent[:id]
+    assert_equal 'projects/cleanWater/yoba', test_page.fullpath
+    assert_equal 'projects/cleanWater', test_page.basepath
+  end
 
   def test_create_with_name
     login(:tiger)

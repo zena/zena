@@ -10,15 +10,28 @@ class NodeTest < Zena::Unit::TestCase
     :parent_id  => Zena::FoxyParser::id('zena', 'cleanWater'),
   }.freeze
 
-  def test_find_by_path
+  def test_rebuild_fullpath
     Node.connection.execute "UPDATE nodes SET fullpath = NULL, basepath = NULL WHERE id = #{nodes_id(:wiki)}"
     login(:ant)
     node = nodes(:wiki)
     assert_nil node[:fullpath]
-    node = secure!(Node) { Node.find_by_path('projects/wiki') }
+    node.send(:rebuild_fullpath)
     assert_equal 'projects/wiki', node.fullpath
+  end
+  
+  def test_rebuild_fullpath_in_custom_base
+    Node.connection.execute "UPDATE nodes SET fullpath = NULL, basepath = NULL WHERE id = #{nodes_id(:status)}"
+    login(:ant)
+    node = nodes(:status)
+    assert_nil node[:fullpath]
+    node.send(:rebuild_fullpath)
+    assert_equal 'projects/cleanWater/status', node.fullpath
+  end
+
+  def test_find_by_path
+    login(:ant)
     node = secure!(Node) { Node.find_by_path('projects/wiki') }
-    assert_equal 'projects/wiki', node[:fullpath]
+    assert_equal nodes_id(:wiki), node.id
   end
 
   def test_match_query
@@ -73,28 +86,12 @@ class NodeTest < Zena::Unit::TestCase
     end
   end
 
-  def test_get_fullpath
-    Node.connection.execute "UPDATE nodes SET fullpath = NULL, basepath = NULL WHERE id IN (#{nodes_id(:lake)},#{nodes_id(:cleanWater)})"
-    login(:ant)
-    node = secure!(Node) { nodes(:lake)  }
-    parent = node.parent
-    assert_nil parent[:fullpath]
-    assert_nil node[:fullpath]
-    assert_equal 'projects/cleanWater/lakeAddress', node.fullpath
-    node.reload
-    assert_equal 'projects/cleanWater/lakeAddress', node[:fullpath]
-    parent.reload
-    assert_equal 'projects/cleanWater', parent[:fullpath]
-  end
-
   def test_get_fullpath_rebuild
-    login(:ant)
+    login(:lion)
     node = secure!(Node) { nodes(:lake)  }
     assert_equal 'projects/cleanWater/lakeAddress', node.fullpath
-    Node.connection.execute "UPDATE nodes SET parent_id = #{nodes_id(:collections)} WHERE id = #{node[:id]}"
-    node.reload
-    assert_equal 'projects/cleanWater/lakeAddress', node.fullpath
-    assert_equal 'collections/lakeAddress', node.fullpath(true)
+    assert node.update_attributes(:parent_id => nodes_id(:collections))
+    assert_equal 'collections/lakeAddress', node.fullpath
   end
 
   def test_get_fullpath_after_private
@@ -119,8 +116,7 @@ class NodeTest < Zena::Unit::TestCase
     assert node.publish
     assert_equal 'nicePeople', node.name # sync name
     node = secure!(Node) { nodes(:tiger) }
-    assert_nil node[:fullpath] # cache empty
-    assert_equal 'nicePeople/tiger', node.fullpath
+    assert_equal 'nicePeople/tiger', node[:fullpath]
   end
 
   def test_rootpath
@@ -174,6 +170,10 @@ class NodeTest < Zena::Unit::TestCase
     test_page = secure!(Node) { Node.create(:name=>"yoba", :parent_id => nodes_id(:cleanWater), :inherit=>1 ) }
     assert ! test_page.new_record? , "Not a new record"
     assert_equal nodes_id(:cleanWater), test_page.parent[:id]
+    assert_equal 'projects/cleanWater/yoba', test_page.fullpath
+    assert_equal 'projects/cleanWater', test_page.basepath
+    parent = secure!(Node) { nodes(:cleanWater) }
+    assert_equal 'projects/cleanWater', parent.fullpath
   end
 
   def test_cannot_update_v_status

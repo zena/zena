@@ -162,16 +162,14 @@ module Zena
               skin_names_list << name unless skin_names_list.include?(name)
             end
           end
+
           document = skin_name = nil
-          [false, true].each do |rebuild_path|
-            # try to find using cached fullpath first.
-            skin_names_list.each do |skin_name|
-              next unless skin = @skin[skin_name] ||= secure(Skin) { Skin.find_by_name(skin_name) }
-              path = (skin.fullpath(rebuild_path).split('/') + url).join('/')
-              break if document = secure(Document) { Document.find_by_path(path) }
-            end
-            break if document
+          skin_names_list.each do |skin_name|
+            next unless skin = @skin[skin_name] ||= secure(Skin) { Skin.find_by_name(skin_name) }
+            path = (skin.fullpath.split('/') + url).join('/')
+            break if document = secure(Document) { Document.find_by_path(path) }
           end
+
           if format == 'data' && document
             format = document.c_ext
           end
