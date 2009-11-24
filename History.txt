@@ -1,12 +1,14 @@
 == 0.15.2
 
-* 2 major enhancements:
+* 3 major enhancements:
   * attachments can now be provided with an url
   * Sphinx search support
+  * added [node:attribute_name] to use in querybuilder
 
-* 2 minor enhancement
+* 3 minor enhancement
   * logrotate setup support with capistrano
-  * 1 minor enhancement
+  * fixed contact content zip bug
+  * fixed fullpath set to NULL instead of kept in sync
 
 == 0.15.1 2009-10-27
 

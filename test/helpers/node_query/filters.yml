@@ -103,3 +103,8 @@ filter_through_links:
   src: "nodes where (set_tag_id eq 33 and hot_id eq 22) in site"
   sql: "/jnode\.zip = 33 AND jn1\.zip = 22/"
   res: "cleanWater"
+
+filter_with_fullpath:
+  src: "nodes where fullpath like '[node:fullpath]/%' in site order by fullpath"
+  sql: "[\"SELECT nodes.* FROM nodes WHERE nodes.fullpath LIKE ? AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.fullpath ASC\", @node.safe_read(\"fullpath\").to_s+ \"/%\"]"
+  res: 'crocodiles, lake, lakeAddress, opening, status, track, water'

@@ -193,7 +193,7 @@ class NodeQuery < QueryBuilder
     end
 
     def map_literal(value, env = :sql)
-      if value =~ /(.*?)\[(visitor|param):(\w+)\](.*)/
+      if value =~ /(.*?)\[(visitor|param|node):(\w+)\](.*)/
         val_start = $1 == '' ? '' : "#{$1.inspect} +"
         val_end   = $4 == '' ? '' : "+ #{$4.inspect}"
         case $2
@@ -201,6 +201,9 @@ class NodeQuery < QueryBuilder
           value = env == :sql ? insert_bind("#{val_start}Node.zafu_attribute(visitor.contact, #{$3.inspect})#{val_end}") : nil
         when 'param'
           value = env == :sql ? insert_bind("#{val_start}params[:#{$3}].to_s#{val_end}") : "params[:#{$3}]"
+        when 'node'
+          @uses_node_name = true
+          value = env == :sql ? insert_bind("#{val_start}#{@node_name}.safe_read(#{$3.inspect}).to_s#{val_end}") : "#{@node_name}.safe_read(#{$3.inspect})"
         end
       else
         value = env == :sql ? quote(value) : nil
