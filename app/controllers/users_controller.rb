@@ -16,6 +16,7 @@ class UsersController < ApplicationController
     secure!(User) do
       @users = User.paginate(:all, :order => 'status DESC, login ASC', :page => params[:page], :per_page => 20)
     end
+
     get_groups_list
     @user   = User.new
     respond_to do |format|
