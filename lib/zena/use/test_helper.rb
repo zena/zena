@@ -12,9 +12,9 @@ module Zena
         session = UserSession.new(user)
         if session.save
           user.ip = '10.0.0.44'
-          #@visitor = user
           $_test_site = user.site.name
           Thread.current[:visitor] = user
+          Thread.current[:site] = user.site
           ::I18n.locale = user.lang
         else
           p 'login failed'
