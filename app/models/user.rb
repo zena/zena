@@ -73,8 +73,17 @@ class User < ActiveRecord::Base
 
   class << self
 
-    def find_allowed_user_by_login(login)
-      User.find(:first, :conditions=>["login = ? and status > 0 and site_id = ?", login, current_site.id])
+    def find_allowed_user_by_login(login, site_id=current_site.id)
+      User.find(:first, :conditions=>["login = ? and status > 0 and site_id = ?", login, site_id])
+    end
+
+    def find_anonymous(site_id)
+      User.find(:first, :conditions=>["login is null and crypted_password is null and status > 0 and site_id = ?", site_id])
+    end
+
+    def authenticate(login, password, site_id)
+      user = User.find_allowed_user_by_login(login, site_id)
+      user if (user && user.valid_password?(password))
     end
 
     # Creates a new user without setting the defaults (used to create the first users of the site). Use
@@ -94,7 +103,6 @@ class User < ActiveRecord::Base
     end
 
   end
-
 
   def contact_with_secure
     @contact ||= secure(Contact) { contact_without_secure }
@@ -129,23 +137,6 @@ class User < ActiveRecord::Base
     self[:email] || ""
   end
 
-  # Store the password, using SHA1. You should change the default value of PASSWORD_SALT (in Zena::ROOT/lib/zena.rb). This makes it harder to use
-  # rainbow tables to find clear passwords from hashed values.
-  # def password=(string)
-  #   if string.blank?
-  #     self[:password] = nil
-  #   elsif string && string.length > 4
-  #     self[:password] = User.hash_password(string)
-  #   else
-  #     @password_too_short = true
-  #   end
-  # end
-  #
-  # # Test password
-  # def password_is?(str)
-  #   self[:password] == User.hash_password(str)
-  # end
-
   def status_name
     Num_to_status[status].to_s
   end
@@ -158,13 +149,13 @@ class User < ActiveRecord::Base
   # Return true if the user is the anonymous user for the current visited site
   def is_anon?
     # tested in site_test
-    current_site.anon_id == self[:id] && (!new_record? || self[:login].nil?) # (when creating a new site, anon_id == nil)
+    user_site.anon_id == self[:id] && (!new_record? || self[:login].nil?) # (when creating a new site, anon_id == nil)
   end
 
   # Return true if the user is the super user for the current visited site
   def is_su?
     # tested in site_test
-    current_site.su_id == self[:id]
+    user_site.su_id == self[:id]
   end
 
   # Return true if the user's status is high enough to start editing nodes.
@@ -198,7 +189,7 @@ class User < ActiveRecord::Base
   # Returns a list of the group ids separated by commas for the user (this is used mainly in SQL clauses).
   def group_ids
     @group_ids ||= if is_admin?
-      current_site.groups.map{|g| g[:id]}
+      site.groups.map{|g| g[:id]}
     else
       groups.find(:all, :order=>'name').map{ |g| g[:id] }
     end
@@ -254,20 +245,25 @@ class User < ActiveRecord::Base
   end
 
   private
+
+    def user_site
+      self.site || Thread.current[:site]
+    end
+
     def create_contact
       return unless visitor.site[:root_id] # do not try to create a contact if the root node is not created yet
 
       @contact = secure!(Contact) { Contact.new(
         # owner is the user except for anonymous and super user.
         # TODO: not sure this is a good idea...
-        :user_id       => (self[:id] == current_site[:anon_id] || self[:id] == current_site[:su_id]) ? visitor[:id] : self[:id],
+        :user_id       => (self[:id] == site[:anon_id] || self[:id] == site[:su_id]) ? visitor[:id] : self[:id],
         :v_title       => (name.blank? || first_name.blank?) ? login : fullname,
         :c_first_name  => first_name,
         :c_name        => (name || login ),
         :c_email       => email,
         :v_status      => Zena::Status[:pub]
       )}
-      @contact[:parent_id] = current_site[:root_id]
+      @contact[:parent_id] = site[:root_id]
 
       unless @contact.save
         # What do we do with this error ?
@@ -288,10 +284,10 @@ class User < ActiveRecord::Base
       self[:site_id] = visitor.site[:id]
 
       if new_record?
-        self.status = current_site.anon.status if status.blank?
-        self.lang   = current_site.anon.lang   if lang.blank?
+        self.status = site.anon.status if status.blank?
+        self.lang   = site.anon.lang   if lang.blank?
       elsif status.blank?
-        self.status   = current_site.anon.status
+        self.status   = site.anon.status
       end
 
       if login.blank? && !is_anon?
@@ -299,23 +295,17 @@ class User < ActiveRecord::Base
       end
     end
 
-    # Returns the current site (self = visitor) or the visitor's site
-    # FIXME: remove and use 'site'
-    def current_site
-      self.site || visitor.site
-    end
-
     # Validates that anon user does not have a login, that other users have a password
     # and that the login is unique for the sites the user belongs to.
     def valid_user
       self[:site_id] = visitor.site[:id]
 
-      if !current_site.being_created? && !visitor.is_admin? && visitor[:id] != self[:id]
+      if !site.being_created? && !visitor.is_admin? && visitor[:id] != self[:id]
         errors.add('base', 'You do not have the rights to do this.')
         return false
       end
 
-      errors.add('lang', 'not available') unless current_site.lang_list.include?(lang)
+      errors.add('lang', 'not available') unless site.lang_list.include?(lang)
 
       if is_anon?
         # Anonymous user *must* have an empty login
@@ -353,14 +343,14 @@ class User < ActiveRecord::Base
     def valid_groups #:doc:
       g_ids = @defined_group_ids || (new_record? ? [] : group_set_ids)
       g_ids.reject! { |g| g.blank? }
-      g_ids << current_site.public_group_id
-      g_ids << current_site.site_group_id unless is_anon?
+      g_ids << site.public_group_id
+      g_ids << site.site_group_id unless is_anon?
       g_ids.uniq!
       g_ids.compact!
       self.groups = []
       g_ids.each do |id|
         group = Group.find(id)
-        unless current_site.being_created? || group.site_id == self.site_id
+        unless site.being_created? || group.site_id == self.site_id
           errors.add('group', 'not found')
           next
         end
@@ -370,7 +360,7 @@ class User < ActiveRecord::Base
 
     # Do not allow destruction of the site's special users.
     def dont_destroy_protected_users #:doc:
-      raise Zena::AccessViolation, "su and Anonymous users cannot be destroyed !" if current_site.protected_user_ids.include?(id)
+      raise Zena::AccessViolation, "su and Anonymous users cannot be destroyed !" if site.protected_user_ids.include?(id)
     end
 
     def old
