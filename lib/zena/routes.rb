@@ -8,7 +8,8 @@ module Zena
 
       upload_progress 'upload_progress', :controller => 'documents', :action => 'upload_progress'
 
-      resource  :user_session   # singleton resource
+      resource  :session, :controller => "user_sessions"   # singleton resource
+      resources :pings
       resources :users, :member => { :preferences => :get, :swap_dev => :get }
       resources :groups
       resources :iformats
