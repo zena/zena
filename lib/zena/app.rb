@@ -15,7 +15,7 @@ module Zena
         include Zena::Use::Zafu::ControllerMethods
 
         # FIXME: could we move these into their modules ?
-        before_filter :set_visitor, :set_after_login
+        before_filter :set_after_login, :set_site, :set_visitor, :force_authentication? # in Zena::Use::Authlogic
         before_filter :set_lang, :check_lang
         after_filter  :set_encoding
         layout        false
