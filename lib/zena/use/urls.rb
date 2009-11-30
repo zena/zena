@@ -45,7 +45,7 @@ module Zena
           abs_url_prefix = host ? "http://#{host}" : ''
 
           if node.kind_of?(Document) && format == node.version.content.ext
-            if node.public? && !current_site.authentication?
+            if node.public? && !visitor.site.authentication?
               # force the use of a cacheable path for the data, even when navigating in '/oo'
               pre = node.version.lang
             end
@@ -62,7 +62,7 @@ module Zena
             opts.delete(:cachestamp) # cachestamp
           end
 
-          path = if !asset && node[:id] == current_site[:root_id] && mode.nil? && format == 'html'
+          path = if !asset && node[:id] == visitor.site[:root_id] && mode.nil? && format == 'html'
             "#{abs_url_prefix}/#{pre}" # index page
           elsif node[:custom_base]
             "#{abs_url_prefix}/#{pre}/" +
@@ -111,7 +111,7 @@ module Zena
         # Url for a node. Options are 'mode' and 'format'
         # ex 'http://test.host/en/document34_print.html'
         def zen_url(node, opts={})
-          zen_path(node,opts.merge(:host => current_site[:host]))
+          zen_path(node,opts.merge(:host => visitor.site[:host]))
         end
 
         # Return the path to a document's data
