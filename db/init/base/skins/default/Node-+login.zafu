@@ -4,7 +4,7 @@
   <r:with part='search'/>
   <r:with part='container'>
     <div id='login_form'>
-      <form action="/user_session" method="post">    <table>
+      <form action="/session" method="post">    <table>
           <tr>
             <td><label for='user_login' do='trans'>User name:</label></td>
             <td><input id='user_login' name="login" size="20" type="text" /></td>
