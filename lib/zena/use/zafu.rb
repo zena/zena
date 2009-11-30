@@ -114,10 +114,11 @@ module Zena
 
         # Make sure some vital templates never get broken
         def valid_template?(content, opts)
+          #puts content
           mode = opts[:mode]
           case mode
           when '+login'
-            content =~ %r{<form[^>]* action\s*=\s*./user_session}
+            content =~ %r{<form[^>]* action\s*=\s*./session}
           when '+adminLayout'
             content =~ %r{<%= content_for_layout %>} && %r{show_link(:admin_links)}
           else
