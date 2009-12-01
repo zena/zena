@@ -9,8 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-
-ActiveRecord::Schema.define(:version => 20091124161608) do
+ActiveRecord::Schema.define(:version => 20091123175137) do
 
   create_table "cached_pages", :force => true do |t|
     t.text     "path"
@@ -253,18 +252,19 @@ ActiveRecord::Schema.define(:version => 20091124161608) do
   create_table "users", :force => true do |t|
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "login",             :limit => 20
-    t.string   "crypted_password",  :limit => 40
-    t.string   "first_name",        :limit => 60
-    t.string   "name",              :limit => 60
-    t.string   "email",             :limit => 60
+    t.string   "login",               :limit => 20
+    t.string   "crypted_password",    :limit => 40
+    t.string   "first_name",          :limit => 60
+    t.string   "name",                :limit => 60
+    t.string   "email",               :limit => 60
     t.string   "time_zone"
     t.integer  "site_id"
     t.integer  "status"
     t.integer  "contact_id"
-    t.string   "lang",              :limit => 10, :default => "", :null => false
+    t.string   "lang",                :limit => 10, :default => "", :null => false
     t.string   "persistence_token"
     t.string   "password_salt"
+    t.string   "single_access_token"
   end
 
   create_table "versions", :force => true do |t|
@@ -283,11 +283,6 @@ ActiveRecord::Schema.define(:version => 20091124161608) do
     t.integer  "number",                     :default => 1,  :null => false
     t.integer  "content_id"
     t.integer  "site_id"
-  end
-
-  if Zena::Db.adapter == 'mysql'
-    execute "ALTER TABLE versions ENGINE = MyISAM"
-    execute "CREATE FULLTEXT INDEX index_versions_on_title_and_text_and_summary ON versions (title,text,summary)"
   end
 
   create_table "virtual_classes", :force => true do |t|
