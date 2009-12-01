@@ -3,18 +3,38 @@ require 'test_helper'
 class UserTest < Zena::Unit::TestCase
 
   def test_find_allowed_user_by_login
-    assert_equal 'su', User.find_allowed_user_by_login('su').login
+    assert_equal 'su', User.find_allowed_user_by_login('su', sites_id(:zena)).login
+  end
+
+  def test_authenticate
+    assert_equal 'su', User.authenticate('su','su',sites_id(:zena)).login
+  end
+
+  def test_authenticate_with_wrong_password
+    assert_nil User.authenticate('su', 'boom',sites_id(:zena) )
+  end
+
+  def test_authenticate_with_wrong_user
+    assert_nil User.authenticate('boom', nil ,sites_id(:zena) )
+  end
+
+  def test_authenticate_with_password_nil
+    assert_nil User.authenticate('su', nil,sites_id(:zena) )
+  end
+
+  def test_authenticate_with_wrong_site
+    assert_nil User.authenticate('su', 'su', 0 )
   end
 
   def test_deleted_user_should_not_be_allowed
     User.connection.execute "UPDATE users SET status = #{User::Status[:deleted]} WHERE id = #{users_id(:tiger)} AND site_id = #{sites_id(:zena)}"
-    assert_nil User.find_allowed_user_by_login('tiger')
+    assert_nil User.find_allowed_user_by_login('tiger', sites_id(:zena))
   end
 
   def test_user_from_other_site_should_not_be_allowed
     # default login zena site
     # whale is user form ocean site
-    assert_nil User.find_allowed_user_by_login('whale')
+    assert_nil User.find_allowed_user_by_login('whale', sites_id(:zena))
   end
 
   def test_visited_node_ids

@@ -10,7 +10,6 @@ class UserSessionsControllerTest < Zena::Controller::TestCase
     end
 
     should "create a session" do
-      #Site.connection.execute "UPDATE sites SET authentication = 1 WHERE id = #{sites_id(:zena)}"
       post 'create', :login=>'ant', :password=>'ant'
       assert assigns(:user_session).persisting?
       assert_response 302

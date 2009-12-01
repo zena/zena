@@ -17,6 +17,7 @@ su:
   name:            User
   status:          su
   contact:         anonymous
+  single_access_token: HORIZONS
 
 ant:
   first_name:      Solenopsis

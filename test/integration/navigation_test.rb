@@ -1,7 +1,7 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
 
 class NavigationTest < ActionController::IntegrationTest
-  include Zena::Test::Base
+  #include Zena::Test::Base
 
   def test_authorize
     get 'http://test.host/'

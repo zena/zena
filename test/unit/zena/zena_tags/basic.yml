@@ -1089,6 +1089,7 @@ translate_id_to_zip:
 
 date:
   context:
+    visitor: ant
     node: 'letter'
     lang: 'fr'
   src: "<r:date select='[log_at]'>nouvelles de <r:trans do='[current_date]' format='%B'/> <r:show date='current_date' format='%Y'/>: <r:notes in='site' log='month' do='each' join=', ' do='[name]'/></r:date>"
@@ -1173,9 +1174,10 @@ captcha:
 
 date_fr:
   context:
+    visitor: ant
     lang: 'fr'
   src: "<r:show date='created_at' format='%a'/>"
-  res: "ven"
+  res: "Ven"
 
 date_fr_lang:
   context:
