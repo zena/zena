@@ -93,8 +93,15 @@ module Zena
           ""
         end
 
-        # TODO: test
+        # Return the full path from a template's url.
+        # The expected url is of the form '/skin/Klass-mode/partial'
         def fullpath_from_template_url(template_url=params[:t_url])
+          "#{SITES_ROOT}#{template_path_from_template_url(template_url)}"
+        end
+
+        # Return the template path without '.erb' extension in case we need to append '_form'
+        # from a template's url. The expected url is of the form '/skin/Klass-mode/partial'
+        def template_path_from_template_url(template_url=params[:t_url])
           if template_url =~ /\A\.|[^\w\+\._\-\/]/
             raise Zena::AccessViolation.new("'template_url' contains illegal characters : #{template_url.inspect}")
           end
@@ -102,7 +109,7 @@ module Zena
           template_url = template_url[1..-1].split('/')
           path = "/#{template_url[0]}/#{template_url[1]}/#{dev_mode? ? "dev_#{lang}" : lang}/#{template_url[2..-1].join('/')}"
 
-          "#{SITES_ROOT}/#{current_site.host}/zafu#{path}"
+          "/#{current_site.host}/zafu#{path}"
         end
 
         # Make sure some vital templates never get broken

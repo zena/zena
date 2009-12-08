@@ -30,4 +30,12 @@ class ZafuTest < Zena::View::TestCase
     compiled_template = template_url
     assert_match %r{<%= render_js %></body>}, File.read(File.join(SITES_ROOT, compiled_template))
   end
+  
+  def test_template_path_from_template_url
+    assert_equal "/test.host/zafu/default/Node-test/en/pagir", template_path_from_template_url('/default/Node-test/pagir')
+  end
+  
+  def test_fullpath_from_template_url
+    assert_equal "#{SITES_ROOT}/test.host/zafu/default/Node-test/en/pagir", fullpath_from_template_url('/default/Node-test/pagir')
+  end
 end
