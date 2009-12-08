@@ -574,28 +574,12 @@ class Node < ActiveRecord::Base
       node
     end
 
-    # Find a node by it's full path. Cache 'fullpath' if found.
+    # Find a node by it's full path. Cache 'fullpath' if found. This is useless now
+    # that fullpath is properly cached. REMOVE !
     def find_by_path(path)
       return nil unless scope = scoped_methods[0]
       return nil unless scope[:find]   # not secured find. refuse.
-      node = self.find_by_fullpath(path)
-      if node.nil?
-        path = path.split('/')
-        last = path.pop
-        # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
-        Node.send(:with_exclusive_scope) do
-          node = Node.find(current_site[:root_id])
-          path.each do |p|
-            raise ActiveRecord::RecordNotFound unless node = Node.find_by_name_and_parent_id(p, node[:id])
-          end
-        end
-        raise ActiveRecord::RecordNotFound unless node = self.find_by_name_and_parent_id(last, node[:id])
-        path << last
-        node.fullpath = path.join('/')
-        # bypass callbacks here
-        Node.connection.execute "UPDATE #{Node.table_name} SET fullpath='#{path.join('/').gsub("'",'"')}' WHERE id='#{node[:id]}'"
-      end
-      node
+      self.find_by_fullpath(path)
     end
 
     # FIXME: Where is this used ?

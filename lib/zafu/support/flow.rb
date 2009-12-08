@@ -125,7 +125,10 @@ module Zafu
           return expand_with(:in_if => false)
         elsif cond == 'false'
           if descendant('else') || descendant('elsif')
-            return expand_with(:in_if=>true, :only=>['elsif', 'else'])
+            out "<% if false -%>"
+            out expand_with(:in_if=>true, :only=>['elsif', 'else'])
+            out "<% end -%>"
+            return
           else
             @html_tag_done = true
             return ''

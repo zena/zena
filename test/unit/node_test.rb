@@ -18,7 +18,7 @@ class NodeTest < Zena::Unit::TestCase
     node.send(:rebuild_fullpath)
     assert_equal 'projects/wiki', node.fullpath
   end
-  
+
   def test_rebuild_fullpath_in_custom_base
     Node.connection.execute "UPDATE nodes SET fullpath = NULL, basepath = NULL WHERE id = #{nodes_id(:status)}"
     login(:ant)
@@ -92,16 +92,6 @@ class NodeTest < Zena::Unit::TestCase
     assert_equal 'projects/cleanWater/lakeAddress', node.fullpath
     assert node.update_attributes(:parent_id => nodes_id(:collections))
     assert_equal 'collections/lakeAddress', node.fullpath
-  end
-
-  def test_get_fullpath_after_private
-    Node.connection.execute "UPDATE nodes SET parent_id = #{nodes_id(:ant)} WHERE id = #{nodes_id(:status)}" # put 'status' page inside private 'ant' page
-    node = nil
-    login(:tiger)
-    assert_nothing_raised { node = secure!(Node) { nodes(:status) } }
-    assert_kind_of Node, node
-    assert_nothing_raised { node = secure!(Node) { Node.find_by_path('people/ant') } }
-    assert_nothing_raised { node = secure!(Node) { Node.find_by_path('people/ant/status')}}
   end
 
   def test_fullpath_updated_on_parent_rename

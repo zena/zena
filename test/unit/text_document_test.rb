@@ -69,7 +69,7 @@ class TextDocumentTest < Zena::Unit::TestCase
     err node
     assert node.errors.empty?
     res =<<-END_CSS
-    body { font-size:10px; behavior:url("/stylesheets/csshover2.htc?1252241876"); }
+    body { font-size:10px; behavior:url("/stylesheets/csshover2.htc?#{File.mtime(File.join(RAILS_ROOT, 'public/stylesheets/csshover2.htc')).to_i}"); }
     #header { background:url('/en/image30.jpg?1144713600') }
     #pv     { background:url('/en/image30_pv.jpg?967816914293') }
     #footer { background:url('/en/image31.jpg?1144713600') }
