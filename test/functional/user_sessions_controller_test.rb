@@ -15,7 +15,7 @@ class UserSessionsControllerTest < Zena::Controller::TestCase
       assert_response 302
     end
 
-    should "redirect to login page in login failed" do
+    should "redirect to login page if login failed" do
       post 'create', :login=>'ant', :password=>'boom'
       assert !assigns(:user_session).persisting?
       assert_redirected_to login_url
@@ -41,6 +41,18 @@ class UserSessionsControllerTest < Zena::Controller::TestCase
       assert visitor.is_admin?
     end
 
+  end
+
+  context 'a visitor on the wrong site' do
+    setup do
+      @request.host = 'ocean.host'
+    end
+
+    should 'not be allowed to login' do
+      post 'create', :login => 'ant', :password => 'ant'
+      assert !assigns(:user_session).persisting?
+      assert_redirected_to login_url
+    end
   end
 
 end

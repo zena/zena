@@ -136,7 +136,10 @@ module Zena
         include Common
 
         def self.included(base)
-          base.before_filter { FastGettext.text_domain = 'zena' }
+          FastGettext.add_text_domain 'zena', :path => "#{Zena::ROOT}/locale"
+          base.prepend_before_filter { FastGettext.text_domain = 'zena' }
+          base.before_filter :set_lang, :check_lang
+          base.after_filter  :set_encoding
         end
 
         # Choose best language to display content.

@@ -14,15 +14,6 @@ module Zena
         include Zena::Use::Urls::ControllerMethods
         include Zena::Use::Zafu::ControllerMethods
 
-        # FIXME: could we move these into their modules ?
-        before_filter :set_after_login, :set_site, :set_visitor, :force_authentication? # in Zena::Use::Authlogic
-        before_filter :set_lang, :check_lang
-        after_filter  :set_encoding
-        layout        false
-
-        FastGettext.add_text_domain 'zena', :path => "#{Zena::ROOT}/locale" #File.dirname(__FILE__) + '/../../locale'
-        FastGettext.text_domain = 'zena'
-
         helper  Zena::Use::Authlogic::ViewMethods
         helper  Zena::Acts::Secure
         helper  Zena::Use::Ajax::ViewMethods

@@ -266,7 +266,7 @@ module Zena
           if count == 0
             return select(obj, sym, [], {:include_blank => opt[:include_blank]})
           elsif count < 30
-            values = secure_write(Node) { Node.all(:order=>:name, :conditions=>["kpath LIKE ?", kpath]) }.map do |record|
+            values = secure_write(Node) { Node.all(:order=>:name, :conditions=>["kpath LIKE ?", "#{kpath}%"]) }.map do |record|
               [record['name'], record['zip']]
             end
             return select(obj, sym, values, { :include_blank => opt[:include_blank] })

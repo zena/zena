@@ -9,16 +9,10 @@ module Zena
       # Set visitor for unit testing
       def login(fixture)
         user =  users(fixture)
-        session = UserSession.new(user)
-        if session.save
-          user.ip = '10.0.0.44'
-          $_test_site = user.site.name
-          Thread.current[:visitor] = user
-          Thread.current[:site] = user.site
-          ::I18n.locale = user.lang
-        else
-          p 'login failed'
-        end
+        Thread.current[:visitor] = user = users(fixture)
+        user.ip = '10.0.0.44'
+        $_test_site = user.site.name
+        ::I18n.locale = user.lang
       end
 
       # Show object's errors

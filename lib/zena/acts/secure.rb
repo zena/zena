@@ -770,14 +770,16 @@ Just doing the above will filter all result according to the logged in user.
 end
 
 ### ============== GLOBAL METHODS ACCESSIBLE TO ALL OBJECTS ============== ######
+
+# Return the current site. Raise an error if the visitor is not set.
+def current_site
+  visitor.site
+end
+
 # Return the current visitor. Raise an error if the visitor is not set.
 # For controllers, this method must be redefined in Application
 def visitor
   Thread.current[:visitor] || Zena::RecordNotSecured.new("Visitor not set, record not secured.")
 end
 
-# Return the current site. Raise an error if the visitor is not set.
-def current_site
-  visitor.site
-end
 

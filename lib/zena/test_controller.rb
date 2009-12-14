@@ -5,7 +5,8 @@ module Zena
     include Zena::Use::Fixtures
     include Zena::Use::TestHelper
     helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url
-    before_filter :set_context
+    skip_before_filter :set_visitor
+    prepend_before_filter :set_context
 
     class << self
       def templates=(templates)
@@ -42,8 +43,8 @@ module Zena
     def set_lang
     end
 
+    # We skip authlogic
     def set_context
-      #Zena::Use::Authlogic.make_visitor(params[:user_id])
       login(params[:user])
       set_visitor_lang(params[:prefix])
       @node = secure!(Node) { Node.find(params[:node_id])}

@@ -13,6 +13,7 @@ module Zena
       module ControllerMethods
         def self.included(base)
           base.send(:helper_attr, :js_data)
+          base.send(:layout, false)
         end
 
         def js_data

@@ -1,6 +1,7 @@
 require 'test_helper'
 
 class RenderingTest < Zena::View::TestCase
+  def self.layout(*args); ''; end # Called by Rendering::ControllerMethods
   include Zena::Use::Rendering::ControllerMethods
   include Zena::Use::Zafu::ControllerMethods # template_url
   include Zena::Acts::Secure # secure

@@ -8,7 +8,17 @@ module Zena
 
       def setup
         activate_authlogic
-        login(:anon)
+      end
+
+      def login(fixture)
+        super
+        if defined?(@controller)
+          @controller.class_eval do
+            def set_visitor
+              # do nothing
+            end
+          end
+        end
       end
 
       def assert_css(match)

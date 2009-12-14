@@ -1177,7 +1177,7 @@ date_fr:
     visitor: ant
     lang: 'fr'
   src: "<r:show date='created_at' format='%a'/>"
-  res: "Ven"
+  res: "ven"
 
 date_fr_lang:
   context:

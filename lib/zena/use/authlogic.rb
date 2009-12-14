@@ -11,25 +11,32 @@ module Zena
 
       module ControllerMethods
 
+        def self.included(base)
+          base.before_filter :set_after_login, :set_visitor, :force_authentication?
+        end
+
         include Common
 
         private
-
-          def set_visitor
-            return Thread.current[:visitor] unless Thread.current[:visitor].nil?
-            Thread.current[:visitor] =  registred_visitor || http_visitor || token_visitor || anonymous_visitor
-          end
-
-          def set_site
-            return Thread.current[:site] unless Thread.current[:site].nil?
-            Thread.current[:site] = Site.find_by_host(request.host)
-          end
 
           def set_after_login
             Thread.current[:after_login_url] = request.parameters
           end
 
-          def registred_visitor
+          def set_visitor
+            unless site = Site.find_by_host(request.host)
+              raise ActiveRecord::RecordNotFound.new("host not found #{request.host}")
+            end
+
+            # We temporarily set the locale so that any error message raised during authentification can be properly shown
+            ::I18n.locale = site.default_lang
+
+            User.send(:with_scope, :find => {:conditions => ['site_id = ?', site.id]}) do
+              Thread.current[:visitor] = registered_visitor || http_visitor(site) || token_visitor || anonymous_visitor(site)
+            end
+          end
+
+          def registered_visitor
             visitor_session && visitor_session.user
           end
 
@@ -37,14 +44,10 @@ module Zena
             UserSession.find
           end
 
-          def anonymous_visitor
-            @anonymous_visitor ||=  User.find_anonymous(current_site.id).tap do |v|
-                                      v.ip = request.headers['REMOTE_ADDR']
-                                    end
-          end
-
-          def current_site
-            Thread.current[:site]
+          def anonymous_visitor(site)
+            site.anon.tap do |v|
+              v.ip = request.headers['REMOTE_ADDR']
+            end
           end
 
           def check_is_admin
@@ -62,10 +65,11 @@ module Zena
             end
           end
 
-          def http_visitor
-            if current_site.http_auth && request.format == Mime::XML
+          def http_visitor(site)
+            if site.http_auth && request.format == Mime::XML
               authenticate_or_request_with_http_basic do |login, password|
-                User.authenticate(login, password, current_site.id)
+                user = User.find_allowed_user_by_login(login)
+                user if (user && user.valid_password?(password))
               end
             end
           end

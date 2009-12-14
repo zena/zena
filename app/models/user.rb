@@ -72,18 +72,8 @@ class User < ActiveRecord::Base
 
 
   class << self
-
-    def find_allowed_user_by_login(login, site_id=current_site.id)
-      User.find(:first, :conditions=>["login = ? and status > 0 and site_id = ?", login, site_id])
-    end
-
-    def find_anonymous(site_id)
-      User.find(:first, :conditions=>["login is null and crypted_password is null and status > 0 and site_id = ?", site_id])
-    end
-
-    def authenticate(login, password, site_id)
-      user = User.find_allowed_user_by_login(login, site_id)
-      user if (user && user.valid_password?(password))
+    def find_allowed_user_by_login(login)
+      first(:conditions=>["login = ? and status > 0", login])
     end
 
     # Creates a new user without setting the defaults (used to create the first users of the site). Use
@@ -247,7 +237,7 @@ class User < ActiveRecord::Base
   private
 
     def user_site
-      self.site || Thread.current[:site]
+      self.site || visitor.site # site when User is new
     end
 
     def create_contact
