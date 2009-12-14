@@ -1,4 +1,4 @@
-# This file is auto-generated from the current state of the database. Instead of editing this file,
+# This file is auto-generated from the current state of the database. Instead of editing this file, 
 # please use the migrations feature of Active Record to incrementally modify your database, and
 # then regenerate this schema definition.
 #
@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20091123175137) do
+ActiveRecord::Schema.define(:version => 20091124161608) do
 
   create_table "cached_pages", :force => true do |t|
     t.text     "path"
@@ -283,6 +283,11 @@ ActiveRecord::Schema.define(:version => 20091123175137) do
     t.integer  "number",                     :default => 1,  :null => false
     t.integer  "content_id"
     t.integer  "site_id"
+  end
+
+  if Zena::Db.adapter == 'mysql'
+    execute "ALTER TABLE versions ENGINE = MyISAM"
+    execute "CREATE FULLTEXT INDEX index_versions_on_title_and_text_and_summary ON versions (title,text,summary)"
   end
 
   create_table "virtual_classes", :force => true do |t|

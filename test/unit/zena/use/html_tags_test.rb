@@ -106,6 +106,14 @@ class HtmlTagsTest < Zena::View::TestCase
     assert_match %r{input type='text'.*name.*node\[icon_id\]}m, select_id('node', :icon_id)
   end
 
+  def test_select_id_with_empty_value
+    login(:lion)
+    vclass = VirtualClass.create(:superclass => 'Post', :name => 'Foo', :create_group_id =>  groups_id(:public))
+    @node = secure!(Node) { nodes(:status) }
+    select = select_id('node', :parent_id, :class=>'Foo')
+    assert_match %r{<select[^>]*></select>}, select
+  end
+
   def test_uses_datebox_with_lang
     res = uses_datebox
     assert_match %r{/calendar/lang/calendar-en-utf8.js}, res
