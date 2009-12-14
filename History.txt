@@ -1,8 +1,9 @@
-== 0.15.2
+== 0.16.0
 
 * 3 major enhancements:
-  * attachments can now be provided with an url
   * Sphinx search support
+  * Authlogic authentification
+  * attachments can now be provided with an url
   * added [node:attribute_name] to use in querybuilder
 
 * 4 minor enhancement
