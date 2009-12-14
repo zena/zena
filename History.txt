@@ -5,10 +5,11 @@
   * Sphinx search support
   * added [node:attribute_name] to use in querybuilder
 
-* 3 minor enhancement
+* 4 minor enhancement
   * logrotate setup support with capistrano
   * fixed contact content zip bug
   * fixed fullpath set to NULL instead of kept in sync
+  * fixed zafu generated partials not reloaded bug
 
 == 0.15.1 2009-10-27
 
