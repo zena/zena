@@ -18,7 +18,7 @@ namespace :gettext do
 
     if GetText.respond_to? :update_pofiles_org
       GetText.update_pofiles_org(
-        "app",
+        "zena",
         Dir.glob("{app,lib,config,locale}/**/*.{rb,erb,haml}"),
         "version 0.0.1",
         :po_root => 'locale',
@@ -37,8 +37,8 @@ namespace :gettext do
 
       #parse files.. (models are simply parsed as ruby files)
       GetText.update_pofiles(
-        "app",
-        Dir.glob("{app,lib,config,locale}/**/*.{rb,erb,haml}"),
+        "zena",
+        Dir.glob("{app,lib,config,locale}/**/*.{rb,erb,haml,rhtml}"),
         "version 0.0.1",
         'locale'
       )

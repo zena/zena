@@ -35,6 +35,7 @@ module Zena
     N_('site group')
     N_('btn_relation_add')
     N_('virtual_class_img')
+    N_('virtual_class_error_img')
     N_('btn_virtual_class_add')
 
     N_('posted by')
