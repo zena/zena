@@ -59,4 +59,14 @@ class VirtualClassesControllerTest < Zena::Controller::TestCase
     end
     assert_redirected_to virtual_classes_path
   end
+  
+  context 'importing virtual class definitions' do
+    should 'create virtual_classes' do
+      assert_difference('VirtualClass.count', 3) do
+        post :import, :attachment => uploaded_fixture('vclasses.yml', 'text/yaml')
+      end
+      list = assigns(:virtual_classes)
+      deb list
+    end
+  end
 end

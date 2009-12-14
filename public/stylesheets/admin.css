@@ -17,6 +17,8 @@
 
 table.admin, table.admin table { border-collapse:separate; border-width:0; margin:auto; border-color:#666; border-style:solid; }
 table.admin { width:500px; }
+.admin_group { display:table; margin:1em auto; width:500px; border:1px solid grey; padding:5px; background:#eee;}
+.admin_group .btn_validate { float:right;}
 table.admin table { width:90%; }
 table.admin table td { text-align:left; }
 table.admin td:first-child { border-left: 1px solid #666; }
@@ -38,7 +40,6 @@ table.admin td:first-child { border-left: 1px solid #666; }
 .admin .adm_add table { border: 0; margin:10px;}
 .admin .adm_add table td { border: 0; font-size:inherit; padding: 2px; }
 .admin .btn_validate { float:right; margin-right:30px; }
-.btn_validate input { background:#C8D8C7; border:1px outset black;}
 .admin .label {width:150px; line-height:1.9em;}
 .admin th { color:#450009; }
 .admin .source, .admin .source_role { background:#DBBFBF;}

@@ -1,0 +1,12 @@
+Foo:
+  superclass: Bar
+
+Bar:
+  superclass: Note
+
+Baz:
+  superclass: Node
+
+# this one will fail
+Post:
+  superclass: Page

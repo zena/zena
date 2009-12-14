@@ -1,17 +1,44 @@
 class VirtualClassesController < ApplicationController
   before_filter :visitor_node
-  before_filter :find_virtual_class, :except => [:index, :create, :new]
+  before_filter :find_virtual_class, :except => [:index, :create, :new, :import]
   before_filter :check_is_admin
   layout :admin_layout
 
   def index
     secure(VirtualClass) do
-      @virtual_classes = VirtualClass.paginate(:all, :order => 'name', :per_page => 20, :page => params[:page])
+      @virtual_classes = VirtualClass.paginate(:all, :order => 'kpath', :per_page => 20, :page => params[:page])
     end
     @virtual_class  = VirtualClass.new
     respond_to do |format|
       format.html # index.erb
       format.xml  { render :xml => @virtual_classes }
+    end
+  end
+
+  def export
+    secure(VirtualClass) do
+      @virtual_classes = VirtualClass.all
+    end
+    ###
+  end
+
+  def import
+    attachment = params[:attachment]
+    if attachment.nil?
+      flass[:error] = "Upload failure: no definitions."
+      redirect_to :action => :index
+    else
+      data = YAML.load(attachment.read) rescue nil
+      if data.nil?
+        flash[:error] = "Could not parse yaml document"
+        redirect_to :action => :index
+      else
+        @virtual_classes = secure(VirtualClass) { VirtualClass.import(data) }.paginate(:per_page => 200)
+        @virtual_class  = VirtualClass.new
+        respond_to do |format|
+          format.html { render :action => 'index' }
+        end
+      end
     end
   end
 

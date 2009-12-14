@@ -52,7 +52,7 @@ module Zena
                                 :member     => { :crop_form => :get }
 
       resources :relations
-      resources :virtual_classes
+      resources :virtual_classes, :collection => {:import => :post}
       resources :sites,
         :member     => { :clear_cache => :post }
       resources :comments,

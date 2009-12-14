@@ -1,7 +1,53 @@
 class VirtualClass < ActiveRecord::Base
+  attr_accessor :import_result
   belongs_to    :create_group, :class_name => 'Group', :foreign_key => 'create_group_id'
   validate      :valid_virtual_class
   include Zena::Use::Relations::ClassMethods
+
+  # Import a hash of virtual class definitions and try to build the virtual classes.
+  def self.import(data)
+    data.keys.map do |klass|
+      build_virtual_class(klass, data)
+    end
+  end
+
+  # Build a virtual class from a name and a hash of virtual class definitions. If
+  # the superclass is in the data hash, it is built first.
+  def self.build_virtual_class(klass, data)
+    return data[klass]['result'] if data[klass].has_key?('result')
+    if virtual_class = Node.get_class(klass)
+      if virtual_class.superclass.to_s == data[klass]['superclass']
+        virtual_class.import_result = 'same'
+        return data[klass]['result'] = virtual_class
+      else
+        virtual_class.errors.add(:base, 'conflict')
+        return data[klass]['result'] = virtual_class
+      end
+    else
+      superclass_name = data[klass]['superclass']
+      if data[superclass_name]
+        superclass = build_virtual_class(superclass_name, data)
+        unless superclass.errors.empty?
+          virtual_class = VirtualClass.new(:name => klass, :superclass => superclass_name, :create_group_id => current_site.public_group_id)
+          virtual_class.errors.add(:base, 'conflict in superclass')
+          return data[klass]['result'] = virtual_class
+        end
+      elsif superclass = Node.get_class(superclass_name)
+        # ok
+      else
+        virtual_class = VirtualClass.new(:name => klass, :superclass => superclass_name, :create_group_id => current_site.public_group_id)
+        virtual_class.errors.add(:base, 'missing superclass')
+        return data[klass]['result'] = virtual_class
+      end
+
+      # build
+      create_group_id = superclass.kind_of?(VirtualClass) ? superclass.create_group_id : current_site.public_group_id
+      virtual_class = create(data[klass].merge(:name => klass, :create_group_id => create_group_id))
+      virtual_class.import_result = 'new'
+      return data[klass]['result'] = virtual_class
+    end
+  end
+
 
   def to_s
     name
@@ -82,6 +128,10 @@ class VirtualClass < ActiveRecord::Base
       obj.save
       obj
     end
+  end
+
+  def import_result
+    @import_result || errors[:base]
   end
 
   private

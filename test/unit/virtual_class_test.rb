@@ -239,4 +239,110 @@ class VirtualClassTest < Zena::Unit::TestCase
     assert post.update_attributes(:d_foo => 'bar', :d_book => 'Alice In Wonderland')
     assert_equal ["book", "foo", "reading"], post.dyn_attribute_keys
   end
+
+  context 'importing virtual class definitions' do
+    setup do
+      login(:lion)
+    end
+
+    context 'with an existing superclass' do
+      setup do
+        @data = {"Foo" => {'superclass' => 'Page'}}
+      end
+
+      should 'create a new virtual class with the given name' do
+        res = nil
+        assert_difference('VirtualClass.count', 1) do
+          res = secure(VirtualClass) { VirtualClass.import(@data) }
+        end
+        assert_equal 'Foo', res.first.name
+        assert_equal 'new', res.first.import_result
+        assert_equal 'NPF', res.first.kpath
+      end
+
+      context 'and an existing virtual class' do
+        setup do
+          @data = {'Post' => {'superclass' => 'Note'}}
+        end
+
+        should 'update the virtual class if the superclass match' do
+          res = nil
+          assert_difference('VirtualClass.count', 0) do
+            res = secure(VirtualClass) { VirtualClass.import(@data) }
+          end
+          assert_equal 'Post', res.first.name
+          assert_equal 'same', res.first.import_result
+          assert_equal 'NNP', res.first.kpath
+        end
+
+        context 'if the superclasses do not match' do
+          setup do
+            @data['Post']['superclass'] = 'Page'
+          end
+
+          should 'return a conflict error' do
+            res = nil
+            assert_difference('VirtualClass.count', 0) do
+              res = secure(VirtualClass) { VirtualClass.import(@data) }
+            end
+            assert_equal 'Post', res.first.name
+            assert_equal 'conflict', res.first.import_result
+          end
+
+          should 'propagate the conflict error to subclasses in the definitions' do
+            @data['Foo'] = {'superclass' => 'Post'}
+            @data['Bar'] = {'superclass' => 'Foo'}
+            res = nil
+            assert_difference('VirtualClass.count', 0) do
+              res = secure(VirtualClass) { VirtualClass.import(@data) }
+            end
+            post = res.detect {|r| r.name == 'Post'}
+            foo  = res.detect {|r| r.name == 'Foo'}
+            bar  = res.detect {|r| r.name == 'Bar'}
+            assert foo.new_record?
+            assert_equal 'Foo', foo.name
+            assert_equal 'conflict in superclass', foo.import_result
+            assert_equal 'Post', post.name
+            assert_equal 'conflict', post.import_result
+            assert bar.new_record?
+            assert_equal 'Bar', bar.name
+            assert_equal 'conflict in superclass', bar.import_result
+          end
+        end
+      end
+    end # with an existing superclass
+
+    context 'without an existing superclass' do
+      setup do
+        @data = {'Foo' => {'superclass' => 'Baz'}, 'Baz' => {'superclass' => 'Post'}}
+      end
+
+      should 'create the superclass first if it is in the definitions' do
+        res = nil
+        assert_difference('VirtualClass.count', 2) do
+          res = secure(VirtualClass) { VirtualClass.import(@data) }
+        end
+        foo = res.detect {|r| r.name == 'Foo'}
+        baz = res.detect {|r| r.name == 'Baz'}
+        assert_equal 'Foo', foo.name
+        assert_equal 'new', foo.import_result
+        assert_equal 'NNPBF', foo.kpath
+        assert_equal 'Baz', baz.name
+        assert_equal 'new', baz.import_result
+        assert_equal 'NNPB', baz.kpath
+      end
+
+      should 'return an error if the superclass is not in the definitions' do
+        @data.delete('Baz')
+        res = nil
+        assert_difference('VirtualClass.count', 0) do
+          res = secure(VirtualClass) { VirtualClass.import(@data) }
+        end
+        foo = res.first
+        assert_equal 'Foo', foo.name
+        assert_equal 'missing superclass', foo.import_result
+      end
+    end # without an existing superclass
+  end # importing virtual class definitions
+
 end

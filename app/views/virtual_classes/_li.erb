@@ -1,9 +1,9 @@
 <tr id='virtual_class<%= li[:id] %>'>
-  <td class="adm_icon"><%= link_to_remote( _('virtual_class_img'),
+  <td class="adm_icon"><%= (li.new_record? || !li.errors.empty?) ? _('virtual_class_error_img') : link_to_remote( _('virtual_class_img'),
           :update =>"virtual_class#{li[:id]}",
           :url    => edit_virtual_class_path(li),
           :method => :get) %></td>
-  <td><%= li.name %></td>
+  <td style='font-size:90%;'><span style='font-family:monospace;color:white;'><%= li.kpath[1..-1] + li.kpath[1..-1] %></span><%= li.name %><%= li.import_result ? " (#{li.import_result})" : ''%></td>
   <td class="adm_icon" ><%= !li.icon.blank? ? "<img src='#{li.icon}'/>" : "" %></td>
   <td class="auto_create_discussion" ><%= li.auto_create_discussion ? _('auto discussion') : '' %></td>
   <td class="create_group"><%= li.create_group.name %></td>

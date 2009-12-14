@@ -5,3 +5,11 @@
   <%= render :partial=>'virtual_classes/li',  :collection=>@virtual_classes %>
   <%= render :partial=>'virtual_classes/add' %>
 </table>
+
+<div class='admin_group'><h3><%= _('import definitions') %></h3>
+
+<%= form_tag({ :controller => 'virtual_classes', :action => 'import'}, {:multipart => true} ) %>
+<input style='line-height:1.5em;' name="attachment" class='file' type="file" />
+<p class="btn_validate"><input type="submit" value='<%= _('import') %>'/></p>
+</form>
+</div>
