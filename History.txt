@@ -1,3 +1,8 @@
+== 0.15.2 2010-01-06
+
+* 1 minor enhancement
+  * fixed app generation when rails >= 2.3.4 is installed
+
 == 0.15.1 2009-10-27
 
 * 2 major enhancements:
@@ -10,7 +15,7 @@
   * better versions list and diff select
   * internal 'js_data' hook to insert javascript at end of page
   * custom queries are loaded from bricks (bricks/brick_name/queries/test.host.yml)
-  * Fixed skin importation from zipped xhtml template
+  * fixed skin importation from zipped xhtml template
 
 == 0.15.0 2009-10-16
 
