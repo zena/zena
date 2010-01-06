@@ -12,6 +12,11 @@
   * fixed fullpath set to NULL instead of kept in sync
   * fixed zafu generated partials not reloaded bug
 
+== 0.15.2 2010-01-06
+
+* 1 minor enhancement
+  * fixed app generation when rails >= 2.3.4 is installed
+
 == 0.15.1 2009-10-27
 
 * 2 major enhancements:
