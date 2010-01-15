@@ -1,5 +1,3 @@
-#require 'thinking_sphinx/deploy/capistrano'
-#
 #Capistrano::Configuration.instance(:must_exist).load do
 #
 #  # FIXME: we should find a way to write a clean 'before' hook
@@ -21,6 +19,5 @@
 
 
 # This is what we want:
-# run "#{in_current} script/sphinx RAILS_ENV=production stop"
-# run "#{in_current} script/sphinx RAILS_ENV=production index"
-# run "#{in_current} script/sphinx RAILS_ENV=production start"
+# run "#{in_current} script/worker RAILS_ENV=production stop"
+# run "#{in_current} script/worker RAILS_ENV=production start"

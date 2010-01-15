@@ -1,0 +1,39 @@
+#!/usr/bin/env ruby
+
+# Simply wrap rake
+
+env, cmd = 'development', nil
+ARGV.each do |arg|
+  if arg =~ /RAILS_ENV\s*=\s*(\w+)/
+    env = $1
+  else
+    cmd = arg
+  end
+end
+
+def execute_cmd(cmd, env)
+  if system("rake RAILS_ENV=#{env} ts:#{cmd}")
+    true
+  else
+    puts "Could not run: rake RAILS_ENV=#{env} ts:#{cmd}"
+    false
+  end
+end
+
+if %w{index start stop restart}.include?(cmd)
+  if cmd == 'restart'
+    execute_cmd('stop', env)
+    if !execute_cmd('start', env)
+      exit -1
+    end
+  else
+    if !execute_cmd(cmd, env)
+      exit -1
+    end
+  end
+else
+  puts "Usage: script/sphinx RAILS_ENV=production [index|start|stop|restart]"
+  exit -1
+end
+
+exit 0

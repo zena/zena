@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'daemons'
+
+# Simply wrap rake
+
+env, cmd = 'development', nil
+ARGV.each do |arg|
+  if arg =~ /RAILS_ENV\s*=\s*(\w+)/
+    env = $1
+  else
+    cmd = arg
+  end
+end
+
+unless %w{index start stop restart}.include?(cmd)
+  puts "Usage: script/sphinx RAILS_ENV=production [index|start|stop|restart]"
+  exit -1
+end
+
+dir = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+
+daemon_options = {
+  :multiple   => false,
+  :dir_mode   => :normal,
+  :dir        => File.join(dir, 'log'),
+  :backtrace  => true
+}
+
+ARGV.clear
+ARGV << cmd
+Daemons.run_proc('job_runner', daemon_options) do
+  ARGV.clear
+
+  Dir.chdir dir
+  RAILS_ENV = env
+  require File.join('config', 'environment')
+
+  Delayed::Worker.new.start
+end
