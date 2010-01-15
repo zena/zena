@@ -315,7 +315,6 @@ class Site < ActiveRecord::Base
       Site.connection.execute "DELETE FROM caches WHERE site_id = #{self[:id]}"
       Site.connection.execute "DELETE FROM cached_pages_nodes WHERE cached_pages_nodes.node_id IN (SELECT nodes.id FROM nodes WHERE nodes.site_id = #{self[:id]})"
       Site.connection.execute "DELETE FROM cached_pages WHERE site_id = #{self[:id]}"
-      Node.connection.execute "UPDATE nodes SET fullpath = NULL, basepath = NULL WHERE site_id = #{self[:id]}"
     end
 
     if clear_zafu
