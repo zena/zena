@@ -395,18 +395,26 @@ namespace :zena do
     end
   end
 
-  desc "Create the database, migrate, create 'localhost' site and start application"
+  desc "Create the database, migrate, create 'localhost' site and start application (in production environment by default)"
   task :init do
     # FIXME: how to run sub-task
-    [
-      "rake zena:migrate RAILS_ENV=production",
-      "rake zena:mksite HOST='localhost' PASSWORD='admin' LANG='en' RAILS_ENV=production",
-      "#{Gem.win_platform? ? 'start' : 'open'} #{File.join(Zena::ROOT, 'lib/zena/deploy/start.html')}"
-    ].each do |cmd|
-      puts cmd
-      system(cmd)
-    end
-    cmd = "script/server -e production -p 3211"
+    ENV['RAILS_ENV'] = RAILS_ENV || 'production'
+    ENV['HOST']      ||= 'localhost'
+    ENV['LANG']      ||= 'en'
+    ENV['PASSWORD']  ||= 'admin'
+
+    Rake::Task["db:create"].invoke
+    Rake::Task["zena:migrate"].invoke
+
+    # We cannot use 'invoke' here because the User class needs to be reloaded
+    env = %w{RAILS_ENV HOST LANG PASSWORD}.map{|e| "#{e}=#{ENV[e]}"}.join(' ')
+    cmd = "rake zena:mksite #{env}"
+    puts cmd
+    system(cmd)
+
+    system("#{Gem.win_platform? ? 'start' : 'open'} #{File.join(Zena::ROOT, 'lib/zena/deploy/start.html')}")
+
+    cmd = "script/server -e #{ENV['RAILS_ENV']} -p 3211"
     puts cmd
     exec cmd
   end
