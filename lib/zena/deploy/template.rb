@@ -33,12 +33,4 @@ inside('app/controllers') do
 end
 
 rake 'zena:assets'
-rake 'db:create'
-rake 'zena:migrate'
-rake "zena:mksite HOST='localhost' PASSWORD='admin' LANG='en'"
-inside('.') do
-  run 'rake zena:migrate RAILS_ENV=production'
-  run "rake zena:mksite HOST='localhost' PASSWORD='admin' LANG='en' RAILS_ENV=production"
-  run "#{Gem.win_platform? ? 'start' : 'open'} #{File.join(Zena::ROOT, 'lib/zena/deploy/start.html')}"
-  exec "script/server -e production -p 3211"
-end
+

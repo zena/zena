@@ -58,3 +58,7 @@ thoughtbot-shoulda:
   version:    '= 2.10.2'
   lib:        'shoulda'
   source:     'http://gems.github.com'
+
+jeweler:
+  version:    '>= 1.4.0'
+  development_only: true

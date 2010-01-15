@@ -395,4 +395,20 @@ namespace :zena do
     end
   end
 
+  desc "Create the database, migrate, create 'localhost' site and start application"
+  task :init do
+    # FIXME: how to run sub-task
+    [
+      "rake zena:migrate RAILS_ENV=production",
+      "rake zena:mksite HOST='localhost' PASSWORD='admin' LANG='en' RAILS_ENV=production",
+      "#{Gem.win_platform? ? 'start' : 'open'} #{File.join(Zena::ROOT, 'lib/zena/deploy/start.html')}"
+    ].each do |cmd|
+      puts cmd
+      system(cmd)
+    end
+    cmd = "script/server -e production -p 3211"
+    puts cmd
+    exec cmd
+  end
+
 end

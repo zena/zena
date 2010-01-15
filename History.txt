@@ -1,4 +1,4 @@
-== 0.16.0
+== 0.16.0 2010-01-15
 
 * 3 major enhancements:
   * Sphinx search support
@@ -6,11 +6,12 @@
   * attachments can now be provided with an url
   * added [node:attribute_name] to use in querybuilder
 
-* 4 minor enhancement
+* 5 minor enhancement
   * logrotate setup support with capistrano
   * fixed contact content zip bug
   * fixed fullpath set to NULL instead of kept in sync
   * fixed zafu generated partials not reloaded bug
+  * using jeweler instead of bones for gem management
 
 == 0.15.2 2010-01-06
 

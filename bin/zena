@@ -1,10 +1,15 @@
 #!/usr/bin/env ruby
 require 'rubygems'
 require 'zena/info'
+
+if %w(--version -v).include? ARGV.first
+  puts "zena #{Zena::VERSION}"
+  exit(0)
+end
+
 require 'rails/version'
 require 'rails_generator'
 require 'rails_generator/scripts/generate'
-
 template_path = File.join(Zena::ROOT, 'lib', 'zena', 'deploy', 'template.rb')
 args = ["-m", template_path]
 args << ARGV.first

@@ -9,55 +9,36 @@ require 'rake/rdoctask'
 
 require 'tasks/rails'
 
-# BONES gem management
-
-begin
-  require 'bones'
-  Bones.setup
-rescue LoadError
-  begin
-    load 'tasks/setup.rb'
-  rescue LoadError
-    raise RuntimeError, '### please install the "bones" gem ###'
-  end
-end
-
-ensure_in_path 'lib'
-require 'zena'
-
 task :default => 'zena:test'
 
-PROJ.name = 'zena'
-PROJ.authors = 'Gaspard Bucher'
-PROJ.email = 'gaspard@teti.ch'
-PROJ.url = 'http://zenadmin.org'
-PROJ.version = Zena::VERSION
-PROJ.rubyforge.name = 'zena'
-PROJ.readme_file = 'README.rdoc'
+require 'zena'
 
-PROJ.spec.opts << '--color'
-reject_paths = File.read(File.join(File.dirname(__FILE__),'.gitignore')).map do |git_ignore_path|
-  %r{#{git_ignore_path.chomp.gsub('.', '\\.').gsub('*', '.*')}}
-end
+# GEM management
+begin
+  require 'jeweler'
+  Jeweler::Tasks.new do |gemspec|
+    gemspec.name = 'zena'
+    gemspec.summary = 'CMS with super natural powers, based on Ruby on Rails'
+    gemspec.description = "zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour)."
+    gemspec.email = "gaspard@teti.ch"
+    gemspec.homepage = "http://zenadmin.org"
+    gemspec.authors = ['Gaspard Bucher']
+    gemspec.version = Zena::VERSION
+    gemspec.rubyforge_project = 'zena'
 
-PROJ.gem.files = (
-  ['History.txt', 'README.rdoc', 'db/schema.rb'] +
-  ['app', 'bin', 'bricks', 'config', 'db', 'lib', 'locale', 'public', 'rails', 'vendor', 'test'].map do |d|
-    Dir.glob("#{d}/**/*").reject do |path|
-      File.basename(path) =~ /^\./ || !reject_paths.map { |regexp| regexp =~ path ? true : nil}.compact.empty?
+    # Gem dependecies
+    Zena.gem_configuration.each do |gem_name, gem_config|
+      if gem_config
+        if gem_config['development_only']
+          gemspec.add_development_dependency(gem_name, gem_config['version'])
+        else
+          gemspec.add_dependency(gem_name, gem_config['version'])
+        end
+      else
+        gemspec.add_dependency(gem_name)
+      end
     end
   end
-).flatten
-
-Zena.gem_configuration.each do |gem_name, gem_config|
-  if gem_config
-    if gem_config['development_only']
-      PROJ.gem.development_dependencies << [gem_name, [gem_config['version']]]
-    else
-      PROJ.gem.dependencies << [gem_name, [gem_config['version']]]
-    end
-  else
-    PROJ.gem.dependencies << [gem_name]
-  end
+rescue LoadError
+  puts "Jeweler not available. Gem packaging tasks not available."
 end
-# EOF
