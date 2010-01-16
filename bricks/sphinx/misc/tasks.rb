@@ -27,7 +27,7 @@ namespace :sphinx do
     Rake::Task['sphinx:setup'].invoke if !setup_done
 
     if ThinkingSphinx.sphinx_running?
-      puts "Sphinx searchd: already running."
+      puts "Sphinx searchd: already started (pid #{ThinkingSphinx.sphinx_pid})"
     else
       Dir["#{sphinx_conf.searchd_file_path}/*.spl"].each { |file| File.delete(file) }
 

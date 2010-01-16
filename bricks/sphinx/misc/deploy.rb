@@ -1,26 +1,36 @@
-#require 'thinking_sphinx/deploy/capistrano'
-#
-#Capistrano::Configuration.instance(:must_exist).load do
-#
-#  # FIXME: we should find a way to write a clean 'before' hook
-#  # so that this is simply appended to existing rules !!
-#  task :before_update_code, :roles => [:app] do
-#    thinking_sphinx.stop
-#  end
-#
-#  task :after_update_code, :roles => [:app] do
-#    symlink_sphinx_indexes
-#    thinking_sphinx.configure
-#    thinking_sphinx.start
-#  end
-#
-#  task :symlink_sphinx_indexes, :roles => [:app] do
-#    run "ln -nfs #{shared_path}/db/sphinx #{current_path}/db/sphinx"
-#  end
-#end
+require 'thinking_sphinx/deploy/capistrano'
 
+Capistrano::Configuration.instance(:must_exist).load do
+  task :sphinx_stop, :roles => [:app] do
+    # stop sphinx search daemon
+    run "#{in_current} rake sphinx:stop RAILS_ENV=production"
+  end
 
-# This is what we want:
-# run "#{in_current} script/sphinx RAILS_ENV=production stop"
-# run "#{in_current} script/sphinx RAILS_ENV=production index"
-# run "#{in_current} script/sphinx RAILS_ENV=production start"
+  task :sphinx_start, :roles => [:app] do
+    # make sure sphinx can access the indexes
+    sphinx_symlink_indexes
+    # make sure a cron indexer is in place
+    sphinx_setup_indexer
+    # start search daemon
+    run "#{in_current} rake sphinx:start RAILS_ENV=production"
+  end
+
+  task :sphinx_symlink_indexes, :roles => [:app] do
+    run "ln -nfs #{shared_path}/db/sphinx #{current_path}/db/sphinx"
+  end
+
+  task :sphinx_setup_indexer, :roles => [:app] do
+    # install cron job to rebuild indexes
+
+  end
+
+  # Hook start/stop methods into app start/stop/restart
+
+  on_stop do
+    sphinx_stop
+  end
+
+  on_start do
+    sphinx_start
+  end
+end

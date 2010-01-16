@@ -2,8 +2,6 @@
 require 'rubygems'
 require 'daemons'
 
-# Simply wrap rake
-
 env, cmd = 'development', nil
 ARGV.each do |arg|
   if arg =~ /RAILS_ENV\s*=\s*(\w+)/
@@ -18,7 +16,7 @@ unless %w{index start stop restart}.include?(cmd)
   exit -1
 end
 
-dir = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+dir = File.expand_path('.')
 
 daemon_options = {
   :multiple   => false,
@@ -29,12 +27,14 @@ daemon_options = {
 
 ARGV.clear
 ARGV << cmd
-Daemons.run_proc('job_runner', daemon_options) do
+
+Daemons.run_proc('worker', daemon_options) do
   ARGV.clear
 
   Dir.chdir dir
-  RAILS_ENV = env
+  ENV['RAILS_ENV'] = RAILS_ENV = env
   require File.join('config', 'environment')
+  require 'delayed_job'
 
   Delayed::Worker.new.start
 end

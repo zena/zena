@@ -42,7 +42,7 @@ module Bricks
         begin
           require 'thinking_sphinx/deltas/delayed_delta'
           ThinkingSphinx::Deltas::DelayedDelta
-          has_dd = Bricks::CONFIG['delayed_job']
+          has_dd = Bricks::CONFIG['worker']
         rescue LoadError
           has_dd = false
         end

@@ -2,7 +2,7 @@ test:
   tags:     ON
   captcha:  ON
   sphinx:   OFF
-  delayed_job: OFF
+  worker:   OFF
 
 development:
   tags:     ON
@@ -14,7 +14,7 @@ development:
       adapter: 'mysql,postgresql'
     run_if:
       file: 'log/searchd.development.pid'
-  delayed_job:
+  worker:
     switch:  OFF
     activate_if:
       gem: 'delayed_job'
@@ -29,7 +29,7 @@ production:
       adapter: 'mysql,postgresql'
     run_if:
       file: 'log/searchd.production.pid'
-  delayed_job:
+  worker:
     switch:  ON
     activate_if:
       gem: 'delayed_job'
