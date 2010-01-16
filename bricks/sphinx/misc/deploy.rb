@@ -3,7 +3,7 @@ require 'thinking_sphinx/deploy/capistrano'
 Capistrano::Configuration.instance(:must_exist).load do
   task :sphinx_stop, :roles => [:app] do
     # stop sphinx search daemon
-    run "#{in_current} rake sphinx:stop RAILS_ENV=production"
+    run "#{in_current} rake RAILS_ENV=production sphinx:stop"
   end
 
   task :sphinx_start, :roles => [:app] do
@@ -12,7 +12,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     # make sure a cron indexer is in place
     sphinx_setup_indexer
     # start search daemon
-    run "#{in_current} rake sphinx:start RAILS_ENV=production"
+    run "#{in_current} rake RAILS_ENV=production sphinx:start"
   end
 
   task :sphinx_symlink_indexes, :roles => [:app] do
@@ -21,7 +21,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   task :sphinx_setup_indexer, :roles => [:app] do
     # install cron job to rebuild indexes
-
+    run "#{in_current} rake RAILS_ENV=production sphinx:setup_indexer"
   end
 
   # Hook start/stop methods into app start/stop/restart

@@ -1,5 +1,7 @@
 # The ThinkingSphinx::Configuration needs RAILS_ROOT and RAILS_ENV in order to function. Only 'setup' needs the
 # environment since it needs to get configuration settings from the classes in zena.
+require 'tempfile'
+require 'yaml'
 
 namespace :sphinx do
   setup_done = File.exist?("#{RAILS_ROOT}/config/#{RAILS_ENV}.sphinx.conf")
@@ -18,6 +20,52 @@ namespace :sphinx do
     FileUtils.mkdir_p sphinx_conf.searchd_file_path
     sphinx_conf.build
     puts "Sphinx searchd: created Sphinx configuration (#{sphinx_conf.config_file})"
+  end
+
+  desc "Create a crontab entry to run the indexer every 30 minutes"
+  task :setup_indexer do
+    Rake::Task['sphinx:setup'].invoke if !setup_done
+
+    config = YAML.load_file(File.join(RAILS_ROOT, 'config', 'sphinx.yml'))[RAILS_ENV]
+    every  = config['run_indexer_at']
+    res = `crontab -l 2>&1`
+    if $? != 0 || res =~ /crontab/
+      puts "Sphinx indexer: could not access crontab (#{res.chomp})"
+    else
+      crontab = res.chomp.split("\n")
+      res = []
+      job = "#{every} *  *   *   *     /usr/bin/rake RAILS_ENV=production sphinx:index >> /root/cron.log 2>&1"
+      job_inserted = false
+      job_action   = 'install'
+      crontab.each do |line|
+        if line =~ /sphinx:index/
+          if !job_inserted
+            # update
+            res << job
+            job_inserted = true
+            job_action   = 'update'
+          end
+        else
+          res << job
+        end
+      end
+
+      if !job_inserted
+        # new entry in crontab
+        res << job
+      end
+
+      tmpf = Tempfile.new('crontab')
+      File.open(tmpf.path, 'wb') do |file|
+        file.puts res.join("\n")
+      end
+      res = `crontab -u #{tmpf.path}`
+      if $? == 0
+        puts "Sphinx indexer: cron job #{job_action} successful"
+      else
+        puts "Sphinx indexer: could not #{job_action} cron job\n#{res}"
+      end
+    end
   end
 
   desc "Start a Sphinx searchd daemon using Thinking Sphinx's settings"

@@ -81,12 +81,12 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   desc "clear all zafu compiled templates"
   task :clear_zafu, :roles => :app do
-    run "#{in_current} rake zena:clear_zafu RAILS_ENV=production"
+    run "#{in_current} rake RAILS_ENV=production zena:clear_zafu"
   end
 
   desc "clear all cache compiled templates"
   task :clear_cache, :roles => :app do
-    run "#{in_current} rake zena:clear_cache RAILS_ENV=production"
+    run "#{in_current} rake RAILS_ENV=production zena:clear_cache"
   end
 
   desc "after code update"
@@ -108,7 +108,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   desc "migrate database (zena version)"
   task :migrate, :roles => :db do
-    run "#{in_current} rake zena:migrate RAILS_ENV=production"
+    run "#{in_current} rake RAILS_ENV=production zena:migrate"
   end
 
   desc "initial app setup"
@@ -171,7 +171,10 @@ Capistrano::Configuration.instance(:must_exist).load do
   end
 
   desc "Restart the upload_progress server"
-  task :upload_progress_restart => [:upload_progress_stop, :upload_progress_start]
+  task :upload_progress_restart, :roles => :app do
+    upload_progress_stop
+    upload_progress_start
+  end
 
   desc "Start application"
   task :start, :roles => :app do
@@ -192,7 +195,10 @@ Capistrano::Configuration.instance(:must_exist).load do
   end
 
   desc "Restart application"
-  task :restart => [:stop, :start]
+  task :restart, :roles => :app do
+    stop
+    start
+  end
 
   #========================== APACHE2 ===============================#
   desc "Update vhost configuration file"
