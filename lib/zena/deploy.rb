@@ -146,37 +146,6 @@ Capistrano::Configuration.instance(:must_exist).load do
     restart
   end
 
-  #========================== MONGREL ===============================#
-  desc "configure mongrel"
-  task :mongrel_setup, :roles => :app do
-    run "#{in_current} mongrel_rails cluster::configure -e production -p #{mongrel_port} -N #{mongrel_count} -c #{deploy_to}/current -P log/mongrel.pid -l log/mongrel.log -a 127.0.0.1 --user www-data --group www-data"
-    run "#{in_current} echo 'config_script: config/mongrel_upload_progress.conf' >> config/mongrel_cluster.yml"
-  end
-
-  desc "Stop the drb upload_progress server"
-  task :upload_progress_stop , :roles => :app do
-    run "#{in_current} ruby lib/upload_progress_server.rb stop"
-  end
-
-  on_stop do
-    upload_progress_stop
-  end
-
-  desc "Start the drb upload_progress server"
-  task :upload_progress_start , :roles => :app do
-    run "#{in_current} lib/upload_progress_server.rb start"
-  end
-
-  on_start do
-    upload_progress_start
-  end
-
-  desc "Restart the upload_progress server"
-  task :upload_progress_restart, :roles => :app do
-    upload_progress_stop
-    upload_progress_start
-  end
-
   desc "Restart application"
   task :restart, :roles => :app do
     deploy.restart
@@ -378,8 +347,6 @@ Capistrano::Configuration.instance(:must_exist).load do
 
       deploy::update
 
-      mongrel_setup
-
       apache2_setup
 
       set_permissions
@@ -421,7 +388,30 @@ Capistrano::Configuration.instance(:must_exist).load do
   Bricks.load_misc('deploy')
 
 
+  #========================== MONGREL ===============================#
   namespace :mongrel do
+
+    desc "configure mongrel"
+    task :configure, :roles => :app do
+      run "#{in_current} mongrel_rails cluster::configure -e production -p #{mongrel_port} -N #{mongrel_count} -c #{deploy_to}/current -P log/mongrel.pid -l log/mongrel.log -a 127.0.0.1 --user www-data --group www-data"
+      run "#{in_current} echo 'config_script: config/mongrel_upload_progress.conf' >> config/mongrel_cluster.yml"
+    end
+
+    desc "Stop the drb upload_progress server"
+    task :upload_progress_stop , :roles => :app do
+      run "#{in_current} ruby lib/upload_progress_server.rb stop"
+    end
+
+    desc "Start the drb upload_progress server"
+    task :upload_progress_start , :roles => :app do
+      run "#{in_current} lib/upload_progress_server.rb start"
+    end
+
+    desc "Restart the upload_progress server"
+    task :upload_progress_restart, :roles => :app do
+      upload_progress_stop
+      upload_progress_start
+    end
 
     desc "Restart mongrels"
     task :restart, :roles => :app do
@@ -431,11 +421,15 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     desc "Start mongrels"
     task :start, :roles => :app do
+      configure
+      upload_progress_start
       run "#{in_current} mongrel_rails cluster::start"
     end
 
     desc "Stop mongrels"
     task :stop, :roles => :app do
+      configure
+      upload_progress_stop
       run "#{in_current} mongrel_rails cluster::stop"
     end
   end

@@ -8,6 +8,9 @@ namespace :sphinx do
 
   desc "Create a default configuration file and generate sphinx query"
   task :setup => :environment do
+    # TODO: find another way to make sure the models are loaded:
+    [Node, Version]
+
     if File.exist?("#{RAILS_ROOT}/config/sphinx.yml")
       puts "Sphinx searchd: config/sphinx.yml exists, not copying"
     else
@@ -20,7 +23,11 @@ namespace :sphinx do
     # We need this mess because mkdir_p does not properly resolve symlinks
     db_path = sphinx_conf.searchd_file_path
     base = File.dirname(db_path)
-    base = `readlink #{base.inspect}`
+    sym_base = `readlink #{base.inspect}`
+    if sym_base != '' && $? == 0
+      base = sym_base
+    end
+
     db_path = File.join(base, File.basename(db_path))
 
     FileUtils.mkdir_p db_path
