@@ -59,6 +59,8 @@ def copy_assets(from, to)
   end
 end
 
+COPY_FILE_OVERWRITE_ALL = {}
+
 def copy_files(from, to)
   base = File.dirname(to)
   unless File.exist?(base)
@@ -68,6 +70,32 @@ def copy_files(from, to)
     Dir.foreach(from) do |f|
       next if f =~ /\A./
       copy_files("#{from}/#{f}", "#{to}/#{f}")
+    end
+  elsif File.exist?(to)
+    if COPY_FILE_OVERWRITE_ALL.has_key?(base)
+      if COPY_FILE_OVERWRITE_ALL[base]
+        FileUtils.cp(from, base)
+      else
+        # skip
+      end
+    elsif File.read(from) != File.read(to)
+      # ask
+      puts "\n## exists: #{to}\n   (a= overwrite all in same destination, s= overwrite none in same destination)"
+      print "   overwrite (ayNs) ? "
+      answer = STDIN.gets.chomp.downcase
+      case answer
+      when 'y'
+        FileUtils.cp(from, base)
+      when 'a'
+        COPY_FILE_OVERWRITE_ALL[base] = true
+        puts "overwrite all in #{base}"
+        FileUtils.cp(from, base)
+      when 's'
+        COPY_FILE_OVERWRITE_ALL[base] = false
+        puts "overwrite none in #{base}"
+      else
+        puts "skip #{to}"
+      end
     end
   else
     FileUtils.cp(from, base)

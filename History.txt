@@ -1,8 +1,9 @@
 == 0.16.1
 
-* 2 minor enhancements
+* 3 minor enhancements
   * rewrite of rake and capistrano tasks for sphinx brick
   * rewrite of rake and capistrano tasks for worker brick
+  * fixed asset copying (should not overwrite without asking)
 
 == 0.16.0 2010-01-15
 
