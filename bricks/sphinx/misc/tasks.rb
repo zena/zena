@@ -17,7 +17,14 @@ namespace :sphinx do
 
     sphinx_conf = ThinkingSphinx::Configuration.instance
 
-    FileUtils.mkdir_p sphinx_conf.searchd_file_path
+    # We need this mess because mkdir_p does not properly resolve symlinks
+    db_path = sphinx_conf.searchd_file_path
+    base = File.dirname(db_path)
+    base = `readlink #{base.inspect}`
+    db_path = File.join(base, File.basename(db_path))
+
+    FileUtils.mkdir_p db_path
+
     sphinx_conf.build
     puts "Sphinx searchd: created Sphinx configuration (#{sphinx_conf.config_file})"
   end
@@ -62,7 +69,7 @@ namespace :sphinx do
       user = `whoami`
       res = `crontab -u #{user.chomp} #{tmpf.path}`
       if $? == 0
-        puts "Sphinx indexer: cron job #{job_action} successful"
+        puts "Sphinx indexer: cron job #{job_action} ok"
       else
         puts "Sphinx indexer: could not #{job_action} cron job\n#{res}"
       end
