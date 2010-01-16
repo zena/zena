@@ -272,4 +272,26 @@ class UserTest < Zena::Unit::TestCase
     login(:lion)
     assert_equal ['hello'], visitor.to_publish.map {|r| r.node.name}
   end
+
+  context 'Creating a new user' do
+    setup do
+      login(:lion)
+    end
+
+    context 'with new' do
+      should 'accept a password attribute' do
+        user = nil
+        assert_nothing_raised { user = User.new('name' => 'R2D2', 'password' => 'Artoo') }
+        assert_equal Zena::CryptoProvider::Initial.encrypt('Artoo'), user.crypted_password
+      end
+    end
+
+    context 'with new_no_defaults' do
+      should 'accept a password attribute' do
+        user = nil
+        assert_nothing_raised { user = User.new_no_defaults('name' => 'R2D2', 'password' => 'Artoo') }
+        assert_equal Zena::CryptoProvider::Initial.encrypt('Artoo'), user.crypted_password
+      end
+    end
+  end
 end
