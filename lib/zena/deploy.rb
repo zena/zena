@@ -33,6 +33,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   self[:app_root]   ||= '/var/zena/current'
   self[:sites_root] ||= '/var/www/zena'
   self[:balancer]   ||= db_name
+  self[:runner]     ||= 'root'
   self[:on_stop]    = []
   self[:on_start]   = []
 
@@ -176,28 +177,19 @@ Capistrano::Configuration.instance(:must_exist).load do
     upload_progress_start
   end
 
+  desc "Restart application"
+  task :restart, :roles => :app do
+    deploy.restart
+  end
+
   desc "Start application"
   task :start, :roles => :app do
-    self[:on_start].each do |block|
-      block.call
-    end
-
-    run "#{in_current} mongrel_rails cluster::start"
+    deploy.start
   end
 
   desc "Stop application"
   task :stop, :roles => :app do
-    self[:on_stop].each do |block|
-      block.call
-    end
-
-    run "#{in_current} mongrel_rails cluster::stop"
-  end
-
-  desc "Restart application"
-  task :restart, :roles => :app do
-    stop
-    start
+    deploy.stop
   end
 
   #========================== APACHE2 ===============================#
@@ -427,4 +419,77 @@ Capistrano::Configuration.instance(:must_exist).load do
   end
 
   Bricks.load_misc('deploy')
+
+
+  namespace :mongrel do
+
+    desc "Restart mongrels"
+    task :restart, :roles => :app do
+      stop
+      start
+    end
+
+    desc "Start mongrels"
+    task :start, :roles => :app do
+      run "#{in_current} mongrel_rails cluster::start"
+    end
+
+    desc "Stop mongrels"
+    task :stop, :roles => :app do
+      run "#{in_current} mongrel_rails cluster::stop"
+    end
+  end
+
+  namespace :deploy do
+
+    desc "Restart application"
+    task :restart, :roles => :app do
+
+      self[:on_stop].each do |block|
+        block.call
+      end
+
+      self[:on_start].each do |block|
+        block.call
+      end
+      case self[:app_type]
+      when :mongrel
+        mongrel.restart
+      else
+        puts "'#{self[:app_type]}' not supported."
+      end
+    end
+
+    desc "Start application"
+    task :start, :roles => :app do
+
+      self[:on_start].each do |block|
+        block.call
+      end
+
+      case self[:app_type]
+      when :mongrel
+        mongrel.start
+      else
+        puts "'#{self[:app_type]}' not supported."
+      end
+    end
+
+    desc "Stop application"
+    task :stop, :roles => :app do
+
+      self[:on_stop].each do |block|
+        block.call
+      end
+
+      case self[:app_type]
+      when :mongrel
+        mongrel.stop
+      else
+        puts "'#{self[:app_type]}' not supported."
+      end
+    end
+
+  end
+
 end
