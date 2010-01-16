@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{zena}
-  s.version = "0.16.0"
+  s.version = "0.16.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2010-01-15}
+  s.date = %q{2010-01-16}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -250,10 +250,6 @@ Gem::Specification.new do |s|
      "bricks/captcha/patch/application_helper.rb",
      "bricks/captcha/patch/site.rb",
      "bricks/captcha/zafu/captcha.rb",
-     "bricks/delayed_job/README",
-     "bricks/delayed_job/migrate/20091104191643_create_delayed_jobs_table.rb",
-     "bricks/delayed_job/misc/init.rb",
-     "bricks/delayed_job/misc/tasks.rb",
      "bricks/math/patch/application_helper.rb",
      "bricks/sphinx/MIT-LICENSE",
      "bricks/sphinx/README",
@@ -270,6 +266,12 @@ Gem::Specification.new do |s|
      "bricks/tags/test/unit/tags_test.rb",
      "bricks/tags/test/zafu/tags.yml",
      "bricks/toto.zip",
+     "bricks/worker/README",
+     "bricks/worker/migrate/20091104191643_create_delayed_jobs_table.rb",
+     "bricks/worker/misc/deploy.rb",
+     "bricks/worker/misc/init.rb",
+     "bricks/worker/misc/tasks.rb",
+     "bricks/worker/misc/worker",
      "config/boot.rb",
      "config/bricks.yml",
      "config/database_example.yml",
@@ -367,6 +369,7 @@ Gem::Specification.new do |s|
      "db/migrate/20091101184952_add_session_table.rb",
      "db/migrate/20091123175137_add_single_access_token.rb",
      "db/migrate/20091124161608_rebuild_fullpath.rb",
+     "db/migrate/20100115134729_rebuild_fullpath_after_fix.rb",
      "db/schema.rb",
      "doc/README_FOR_APP",
      "doc/fixtures.graffle",
@@ -2017,17 +2020,17 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<rails>, ["= 2.3.4"])
       s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_runtime_dependency(%q<authlogic>, [">= 0"])
-      s.add_runtime_dependency(%q<ts-delayed-delta>, [">= 1.0.0"])
+      s.add_runtime_dependency(%q<ts-delayed-delta>, [">= 1.0.2"])
       s.add_runtime_dependency(%q<pvande-differ>, ["= 0.1.1"])
       s.add_runtime_dependency(%q<mislav-will_paginate>, ["~> 2.2.3"])
       s.add_runtime_dependency(%q<delayed_job>, [">= 1.8.4"])
       s.add_runtime_dependency(%q<syntax>, ["= 1.0.0"])
-      s.add_runtime_dependency(%q<thinking-sphinx>, [">= 1.3.1"])
+      s.add_runtime_dependency(%q<thinking-sphinx>, [">= 1.3.14"])
       s.add_runtime_dependency(%q<yamltest>, ["= 0.5.3"])
       s.add_runtime_dependency(%q<json>, [">= 1.1.9"])
       s.add_runtime_dependency(%q<gettext>, ["= 1.93.0"])
       s.add_runtime_dependency(%q<rmagick>, [">= 2.11.1"])
-      s.add_development_dependency(%q<jeweler>, [">= 1.4.0"])
+      s.add_runtime_dependency(%q<jeweler>, [">= 1.4.0"])
       s.add_runtime_dependency(%q<grosser-fast_gettext>, ["~> 0.4.16"])
       s.add_runtime_dependency(%q<thoughtbot-shoulda>, ["= 2.10.2"])
       s.add_runtime_dependency(%q<hpricot>, [">= 0"])
@@ -2040,12 +2043,12 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<rails>, ["= 2.3.4"])
       s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_dependency(%q<authlogic>, [">= 0"])
-      s.add_dependency(%q<ts-delayed-delta>, [">= 1.0.0"])
+      s.add_dependency(%q<ts-delayed-delta>, [">= 1.0.2"])
       s.add_dependency(%q<pvande-differ>, ["= 0.1.1"])
       s.add_dependency(%q<mislav-will_paginate>, ["~> 2.2.3"])
       s.add_dependency(%q<delayed_job>, [">= 1.8.4"])
       s.add_dependency(%q<syntax>, ["= 1.0.0"])
-      s.add_dependency(%q<thinking-sphinx>, [">= 1.3.1"])
+      s.add_dependency(%q<thinking-sphinx>, [">= 1.3.14"])
       s.add_dependency(%q<yamltest>, ["= 0.5.3"])
       s.add_dependency(%q<json>, [">= 1.1.9"])
       s.add_dependency(%q<gettext>, ["= 1.93.0"])
@@ -2064,12 +2067,12 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<rails>, ["= 2.3.4"])
     s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
     s.add_dependency(%q<authlogic>, [">= 0"])
-    s.add_dependency(%q<ts-delayed-delta>, [">= 1.0.0"])
+    s.add_dependency(%q<ts-delayed-delta>, [">= 1.0.2"])
     s.add_dependency(%q<pvande-differ>, ["= 0.1.1"])
     s.add_dependency(%q<mislav-will_paginate>, ["~> 2.2.3"])
     s.add_dependency(%q<delayed_job>, [">= 1.8.4"])
     s.add_dependency(%q<syntax>, ["= 1.0.0"])
-    s.add_dependency(%q<thinking-sphinx>, [">= 1.3.1"])
+    s.add_dependency(%q<thinking-sphinx>, [">= 1.3.14"])
     s.add_dependency(%q<yamltest>, ["= 0.5.3"])
     s.add_dependency(%q<json>, [">= 1.1.9"])
     s.add_dependency(%q<gettext>, ["= 1.93.0"])

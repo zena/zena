@@ -27,7 +27,7 @@ namespace :sphinx do
     Rake::Task['sphinx:setup'].invoke if !setup_done
 
     config = YAML.load_file(File.join(RAILS_ROOT, 'config', 'sphinx.yml'))[RAILS_ENV]
-    every  = config['run_indexer_at']
+    every  = config['run_indexer_at'] || '10,40'
     res = `crontab -l 2>&1`
     if $? != 0 || res =~ /crontab/
       puts "Sphinx indexer: could not access crontab (#{res.chomp})"
@@ -46,7 +46,7 @@ namespace :sphinx do
             job_action   = 'update'
           end
         else
-          res << job
+          res << line
         end
       end
 
@@ -59,7 +59,8 @@ namespace :sphinx do
       File.open(tmpf.path, 'wb') do |file|
         file.puts res.join("\n")
       end
-      res = `crontab -u #{tmpf.path}`
+      user = `whoami`
+      res = `crontab -u #{user.chomp} #{tmpf.path}`
       if $? == 0
         puts "Sphinx indexer: cron job #{job_action} successful"
       else

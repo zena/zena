@@ -6,6 +6,7 @@ production:
   min_infix_len: 2
   pid_file: /var/zena/shared/tmp/searchd.pid
   searchd_files: /var/zena/shared/db/sphinx
+  run_indexer_at: "10,40"
 
 development:
   enable_star: 1

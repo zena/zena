@@ -61,4 +61,3 @@ thoughtbot-shoulda:
 
 jeweler:
   version:    '>= 1.4.0'
-  development_only: true
