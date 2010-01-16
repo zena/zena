@@ -26,6 +26,11 @@ Capistrano::Configuration.instance(:must_exist).load do
     run "#{in_current} rake RAILS_ENV=production sphinx:setup"
   end
 
+  task :sphinx_index, :roles => [:app] do
+    # rebuild sphinx index now
+    run "#{in_current} rake RAILS_ENV=production sphinx:index"
+  end
+
   task :sphinx_setup_indexer, :roles => [:app] do
     # install cron job to rebuild indexes
     run "#{in_current} rake RAILS_ENV=production sphinx:setup_indexer"
