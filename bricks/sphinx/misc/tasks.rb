@@ -2,10 +2,9 @@
 # environment since it needs to get configuration settings from the classes in zena.
 
 namespace :sphinx do
-  desc "Create a default configuration file and generate sphinx query"
-
   setup_done = File.exist?("#{RAILS_ROOT}/config/#{RAILS_ENV}.sphinx.conf")
 
+  desc "Create a default configuration file and generate sphinx query"
   task :setup => :environment do
     if File.exist?("#{RAILS_ROOT}/config/sphinx.yml")
       puts "Sphinx searchd: config/sphinx.yml exists, not copying"
