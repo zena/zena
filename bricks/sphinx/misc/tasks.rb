@@ -25,7 +25,7 @@ namespace :sphinx do
     base = File.dirname(db_path)
     sym_base = `readlink #{base.inspect}`
     if sym_base != '' && $? == 0
-      base = sym_base
+      base = sym_base.chomp
     end
 
     db_path = File.join(base, File.basename(db_path))

@@ -16,7 +16,14 @@ Capistrano::Configuration.instance(:must_exist).load do
   end
 
   task :sphinx_symlink_indexes, :roles => [:app] do
+    run "test -e #{shared_path}/db || mkdir #{shared_path}/db"
+    run "test -e #{shared_path}/db/sphinx || mkdir #{shared_path}/db/sphinx"
     run "ln -nfs #{shared_path}/db/sphinx #{current_path}/db/sphinx"
+  end
+
+  task :sphinx_setup, :roles => [:app] do
+    # setup sphinx
+    run "#{in_current} rake RAILS_ENV=production sphinx:setup"
   end
 
   task :sphinx_setup_indexer, :roles => [:app] do
