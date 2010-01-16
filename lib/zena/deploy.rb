@@ -27,13 +27,17 @@ require File.join(File.dirname(__FILE__), 'info')
 require File.join(File.dirname(__FILE__), '..', 'bricks')
 
 Capistrano::Configuration.instance(:must_exist).load do
+
   set :templates, File.join(File.dirname(__FILE__), 'deploy')
   self[:app_type]   ||= :mongrel
   self[:app_root]   ||= '/var/zena/current'
   self[:sites_root] ||= '/var/www/zena'
   self[:balancer]   ||= db_name
+  self[:on_stop]    = []
+  self[:on_start]   = []
 
   set :in_current, "cd #{deploy_to}/current &&"
+
   class RenderClass
     def initialize(path)
       @text = File.read(path)
@@ -52,6 +56,14 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   def render(file, hash)
     RenderClass.new(file).render(hash)
+  end
+
+  def on_stop(&block)
+    self[:on_stop] << block
+  end
+
+  def on_start(&block)
+    self[:on_start] << block
   end
 
   #========================== SOURCE CODE   =========================#
@@ -141,39 +153,46 @@ Capistrano::Configuration.instance(:must_exist).load do
   end
 
   desc "Stop the drb upload_progress server"
-  task :stop_upload_progress , :roles => :app do
+  task :upload_progress_stop , :roles => :app do
     run "#{in_current} ruby lib/upload_progress_server.rb stop"
   end
 
+  on_stop do
+    upload_progress_stop
+  end
+
   desc "Start the drb upload_progress server"
-  task :start_upload_progress , :roles => :app do
+  task :upload_progress_start , :roles => :app do
     run "#{in_current} lib/upload_progress_server.rb start"
   end
 
-  desc "Restart the upload_progress server"
-  task :restart_upload_progress, :roles => :app do
-    stop_upload_progress
-    start_upload_progress
+  on_start do
+    upload_progress_start
   end
 
-  desc "Start mongrel"
+  desc "Restart the upload_progress server"
+  task :upload_progress_restart => [:upload_progress_stop, :upload_progress_start]
+
+  desc "Start application"
   task :start, :roles => :app do
-    restart_upload_progress
+    self[:on_start].each do |block|
+      block.call
+    end
+
     run "#{in_current} mongrel_rails cluster::start"
   end
 
-  desc "Stop mongrel"
+  desc "Stop application"
   task :stop, :roles => :app do
-    stop_upload_progress
+    self[:on_stop].each do |block|
+      block.call
+    end
+
     run "#{in_current} mongrel_rails cluster::stop"
   end
 
-  desc "Restart mongrel"
-  task :restart, :roles => :app do
-    stop
-    restart_upload_progress
-    start
-  end
+  desc "Restart application"
+  task :restart => [:stop, :start]
 
   #========================== APACHE2 ===============================#
   desc "Update vhost configuration file"

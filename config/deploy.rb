@@ -32,7 +32,16 @@ if self[:server_ip]
   if !defined?(::RAILS_ENV)
     ::RAILS_ENV = 'production'
   end
-  require 'zena/deploy'
+
+  # This file is copied into zena applications.
+  deploy_path = "#{RAILS_ROOT}/lib/zena/deploy"
+  if File.exist?("#{deploy_path}.rb")
+    # We are running directly inside zena
+    require deploy_path
+  else
+    # Zena app, using zena as gem
+    require 'zena/deploy'
+  end
 
 else
   puts <<-TXT
