@@ -1,3 +1,8 @@
+== 0.16.2 2010-01-17
+
+* 1 minor enhancement
+  * fixed zena:assets task when used from 'zena' command
+
 == 0.16.1 2010-01-16
 
 * 3 minor enhancements

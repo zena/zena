@@ -71,7 +71,7 @@ def copy_files(from, to)
       next if f =~ /\A./
       copy_files("#{from}/#{f}", "#{to}/#{f}")
     end
-  elsif File.exist?(to)
+  elsif !ENV['OVERWRITE_ASSETS'] && File.exist?(to)
     if COPY_FILE_OVERWRITE_ALL.has_key?(base)
       if COPY_FILE_OVERWRITE_ALL[base]
         FileUtils.cp(from, base)
