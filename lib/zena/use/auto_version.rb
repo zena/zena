@@ -19,7 +19,6 @@ module Zena
 
       def prepare_save_or_clone
         if !new_record? && should_clone?
-          puts "CLONE!"
           @previous_id = self[:id]
           self[:id] = nil
           self[:created_at] = nil

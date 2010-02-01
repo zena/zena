@@ -23,29 +23,23 @@ module Zena
 
         def self.included(base)
           base.before_update :store_publish_from_changed
-          base.before_validation_on_create :set_workflow_defaults
         end
 
         def should_clone?
           would_edit = (self.changes.keys - ['publish_from', 'status']) != []
-          would_edit && (
-            @backup ||
+          would_edit &&
+          ( @backup ||
             lang_changed? ||
             user_id != visitor.id ||
-            Time.now > created_at + current_site[:redit_time].to_i
-          )
+            Time.now > created_at + current_site[:redit_time].to_i )
         end
 
         def cloned
-          self[:user_id] = visitor.id
+          set_defaults
+          self[:number] += 1
         end
 
         private
-          def set_workflow_defaults
-            self[:lang]  ||= visitor.lang
-            self[:user_id] = visitor.id
-          end
-
           # Version owner needs to know if the publication date has changed, after the
           # version has been saved.
           def store_publish_from_changed
@@ -94,7 +88,7 @@ module Zena
         # TODO: remove for Observers.
         #after_save    :after_all
 
-        base.before_validation :set_status_before_validation
+        base.before_validation :set_workflow_defaults
         base.validate      :workflow_validation
 
         base.before_create :cache_version_attributes_before_create
@@ -176,18 +170,7 @@ module Zena
       #   })
       #
       #   belongs_to :node,  :class_name => opts[:class_name] #, :inverse_of => :versions
-      #   class_eval do
-      #     def node_with_secure
-      #       @node ||= begin
-      #         if n = node_without_secure
-      #           visitor.visit(n)
-      #           n.version = self
-      #         end
-      #         n
-      #       end
-      #     end
-      #     alias_method_chain :node, :secure
-      #   end
+      #
       # end
 
       # FIXME: remove !
@@ -279,7 +262,6 @@ module Zena
         can_apply?(:remove, v)
       end
 
-
       # Can destroy current version ? (only logged in user can destroy)
       def can_destroy_version?(v=version)
         can_apply?(:destroy_version, v)
@@ -290,8 +272,9 @@ module Zena
       end
 
       def transition_for(prev, curr)
-        prev ||= version.new_record? ? (@original_version ? @original_version.status : -1) : version.status_was.to_i
-        curr ||= version.status.to_i
+        version = self.version
+        prev ||= new_record? ? -1 : version.status_was
+        curr ||= version.status
 
         self.class.transitions.each do |t|
           from, to = t[:from], t[:to]
@@ -344,13 +327,7 @@ module Zena
         res = case method
         when :update_attributes
           self.attributes = args.first
-          begin
-            save
-          rescue => err
-            puts err.backtrace.join("\n")
-            raise err
-          end
-
+          save
         when :propose
           self.version_attributes = {'status' => args[0] || Zena::Status[:prop]}
           save
@@ -368,7 +345,7 @@ module Zena
             self.destroy # will destroy last version
           else
             if version.destroy
-              @version = @redaction = nil
+              @version = nil
 
               # remove from versions list
               if self.versions.loaded?
@@ -450,45 +427,48 @@ module Zena
       end
 
       private
-        def set_status_before_validation
-          multiversion_before_validation_on_create if new_record?
-
-          if v = @version
+        def set_workflow_defaults
+          if v = version
             if v.status == Zena::Status[:pub] &&
                (v.changes.keys - ['status', 'publish_from'] != []) &&
                !full_drive?
               # We silently revert to 'red' only if status change to 'pub' is part of an edit.
               v.status = Zena::Status[:red]
             else
+              # Set default version status
               v.status ||= (current_site[:auto_publish] && (full_drive? || new_record?)) ? Zena::Status[:pub] : Zena::Status[:red]
             end
+            # Set default version's publish_from date
             v.publish_from = v.status.to_i == Zena::Status[:pub] ? (v.publish_from || Time.now) : v.publish_from
           end
         end
 
         def workflow_validation
-          # FIXME: Rewrite !!
+          if transition = self.current_transition
+            if transition_allowed?(transition)
+              # ok
+            else
+              errors.add(:base, "You do not have the rights to #{transition[:name].to_s.gsub('_', ' ')}.")
+            end
 
-          ## return true unless @version && @version.changed?
-          ## if @current_transition = self.current_transition
-          ##   unless transition_allowed?(@current_transition)
-          ##     if @original_version && transition_allowed?(@current_transition, @original_version)
-          ##       if [Zena::Status[:prop], Zena::Status[:prop_with]].include?(@original_version.status)
-          ##         errors.add(:base, "You do not have the rights to change a proposition's attributes.")
-          ##       else
-          ##         errors.add(:base, "You do not have the rights to #{@current_transition[:name].to_s.gsub('_', ' ')} and change attributes.")
-          ##       end
-          ##     elsif @original_version &&
-          ##          (Zena::Status[:prop]..Zena::Status[:prop_with]).include?(@original_version.status) &&
-          ##          (version.changes.keys - ['status', 'publish_from'] != [])
-          ##       errors.add(:base, "You cannot edit while a proposition is beeing reviewed.")
-          ##     else
-          ##       errors.add(:base, "You do not have the rights to #{@current_transition[:name].to_s.gsub('_', ' ')}.")
-          ##     end
-          ##   end
-          ## else
-          ##   errors.add(:base, 'This transition is not allowed.')
-          ## end
+            #unless transition_allowed?(transition)
+            #  if transition_allowed?(transition)
+            #    if [Zena::Status[:prop], Zena::Status[:prop_with]].include?(@original_version.status)
+            #      errors.add(:base, "You do not have the rights to change a proposition's attributes.")
+            #    else
+            #      errors.add(:base, "You do not have the rights to #{transition[:name].to_s.gsub('_', ' ')} and change attributes.")
+            #    end
+            #  elsif @original_version &&
+            #       (Zena::Status[:prop]..Zena::Status[:prop_with]).include?(@original_version.status) &&
+            #       (version.changes.keys - ['status', 'publish_from'] != [])
+            #    errors.add(:base, "You cannot edit while a proposition is beeing reviewed.")
+            #  else
+            #    errors.add(:base, "You do not have the rights to #{transition[:name].to_s.gsub('_', ' ')}.")
+            #  end
+            #end
+          else
+            errors.add(:base, 'This transition is not allowed.')
+          end
         end
 
         def cache_version_attributes_before_create

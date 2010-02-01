@@ -321,7 +321,7 @@ class IntegratedMultiVersionTest < Zena::Unit::TestCase
 
       should 'create versions in the current language' do
         visitor.lang = 'de'
-        @node.version_attributes = {'title' => 'Sein und Zeit'}
+        @node.update_attributes('v_title' => 'Sein und Zeit')
         assert_equal 'de', @node.version.lang
       end
 
@@ -882,7 +882,6 @@ class IntegratedMultiVersionTest < Zena::Unit::TestCase
     node = secure!(Node) { Node.create( :parent_id => nodes_id(:zena), :v_title => "This one should auto publish" ) }
     node = secure!(Node) { Node.find(node.id) } # reload
     node.update_attributes(:v_title => "This one should not be gone",  :v_publish_from => "")
-    assert_equal Zena::Status[:pub], node.version.status
     assert_equal 'This one should not be gone', node.version.title
     assert_equal Zena::Status[:pub], node.version.status
     assert_not_nil node.publish_from

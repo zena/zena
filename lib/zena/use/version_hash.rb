@@ -61,14 +61,22 @@ module Zena
         # We also rebuild publish_from here: yes, that's a leak with Workflow.
         self[:publish_from] = cached[:publish_from]
         self[:vhash] = cached[:vhash].to_json
-        @vhash = nil
+        @vhash = cached[:vhash]
       end
 
       private
         def update_vhash
           version = self.version
 
-          case current_transition[:name]
+          if @new_record_before_save
+            # after_create
+            transition = transition_for(-1, version.status)[:name]
+          else
+            # before_update
+            transition = current_transition[:name]
+          end
+
+          case transition
           when :edit, :redit
             vhash['w'][version.lang] = version.id
           when :publish, :auto_publish

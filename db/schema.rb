@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20100115134729) do
+ActiveRecord::Schema.define(:version => 20100201133242) do
 
   create_table "cached_pages", :force => true do |t|
     t.text     "path"
@@ -265,7 +265,7 @@ ActiveRecord::Schema.define(:version => 20100115134729) do
     t.text     "title"
     t.text     "summary"
     t.text     "text"
-    t.integer  "status",                     :default => 70, :null => false
+    t.integer  "status",                                     :null => false
     t.integer  "number",                     :default => 1,  :null => false
     t.integer  "content_id"
     t.integer  "site_id"

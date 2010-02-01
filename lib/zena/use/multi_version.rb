@@ -7,6 +7,24 @@ module Zena
       module Version
         def self.included(base)
           base.belongs_to :node
+
+          base.class_eval do
+            def node_with_secure
+              @node ||= begin
+                if n = node_without_secure
+                  visitor.visit(n)
+                  n.version = self
+                end
+                n
+              end
+            end
+            alias_method_chain :node, :secure
+          end
+        end
+
+        def set_defaults
+          self[:user_id] = visitor.id
+          self[:lang]    = visitor.lang
         end
       end
 
@@ -22,13 +40,21 @@ module Zena
         version.attributes = attributes
       end
 
-      # We have to declare this here so that it is called instead of the relation proxy's version.
       def version
         @version ||= begin
-          v = version_id ? ::Version.find(version_id) : ::Version.new
-          v.node = self
-          v
+          if v_id = version_id
+            version = ::Version.find(v_id)
+          else
+            version = ::Version.new
+            version.set_defaults
+          end
+          version.node = self
+          version
         end
+      end
+
+      def version=(v)
+        @version = v
       end
 
       private
@@ -44,7 +70,6 @@ module Zena
         end
 
         def save_version_before_update
-          puts "Saving (before_update) #{@version.object_id} node_id = #{@version.node_id}..."
           if !@version.save_with_validation(false)
             errors.add('version', 'could not be saved')
           else
@@ -53,7 +78,6 @@ module Zena
         end
 
         def save_version_after_create
-          puts "Saving (after_create) #{@version.object_id} node_id = #{@version.node_id}..."
           version.node_id = self[:id]
           if !@version.save_with_validation(false)
             errors.add('version', 'could not be saved')
