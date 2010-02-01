@@ -377,10 +377,10 @@ module Zena
             #  else
             #    "<a href='/login'>#{_('login')}</a>"
             #  end
-            link_to "login", login_url
+            link_to _("login"), login_url
           else
             # "<a href='/logout'>#{_('logout')}</a>"
-            link_to "logout", logout_url
+            link_to _("logout"), logout_url
           end
         end
 
