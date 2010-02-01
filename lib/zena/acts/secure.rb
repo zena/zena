@@ -161,6 +161,8 @@ Just doing the above will filter all result according to the logged in user.
           ( ugps.include?(wgroup_id) && visitor.user?)  # write group
         end
 
+        # Returns true if the current visitor can see redactions (unpublished versions)
+        # of the node.
         def can_see_redactions?(ugps = visitor.group_ids)
           visitor.group_ids.include?(wgroup_id)
         end

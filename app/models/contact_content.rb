@@ -26,8 +26,8 @@ class ContactContent < ActiveRecord::Base
   after_initialize   :set_contact_content_defaults
   before_validation  :content_before_validation
 
-  extend  Zena::Acts::Multiversion
-  act_as_content
+  #extend  Zena::Use::Multiversion
+  #act_as_content
 
   # Full contact name to show in views.
   def fullname(first_name = self.first_name, name = self.name)

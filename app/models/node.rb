@@ -175,11 +175,16 @@ class Node < ActiveRecord::Base
                      :data_d => {:class => ['DataEntry'], :data_root => 'node_d'}
 
   extend  Zena::Acts::SecureNode
-  extend  Zena::Acts::Multiversion
+  acts_as_secure_node
+
+  include Zena::Use::Workflow
+  include Zena::Use::MultiVersion
+  include Zena::Use::VersionHash
+  # not yet...
+  # include Zena::Use::TransparentVersion
+
   include Zena::Use::Relations::ModelMethods
 
-  acts_as_secure_node
-  acts_as_multiversioned
   use_node_query
 
   @@native_node_classes = {'N' => self}

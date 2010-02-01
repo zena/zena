@@ -29,8 +29,8 @@ class DocumentContent < ActiveRecord::Base
   after_save            :content_after_save
   before_destroy        :destroy_file
 
-  extend  Zena::Acts::Multiversion
-  act_as_content
+  # extend  Zena::Acts::Multiversion
+  # act_as_content
 
   # protect access to size.
   def size=(s)

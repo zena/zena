@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class MultiVersionTest < Zena::Unit::TestCase
+class IntegratedMultiVersionTest < Zena::Unit::TestCase
 
   def defaults
     { :name => 'hello',
