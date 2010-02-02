@@ -1,16 +1,14 @@
 module Dynamo
+  # Dynamo::Property Class is used to hold variables about a Dynamo declaration,
+  # such as name, data_type and options.
   class Property
-
-    # Dynamo::Property Class is used to hold variables about a Dynamo declaration,
-    # such as name, data_type and options.
-
     attr_accessor :name, :data_type, :options, :default, :indexed
 
     def initialize(name, type, options={})
       @name, @data_type = name, type
-      self.default = options.delete(:default)
-      self.indexed = options.delete(:indexed)
-      self.options = options
+      @default = options.delete(:default)
+      @indexed = options.delete(:indexed)
+      @options = options
     end
 
     def ==(other)

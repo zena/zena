@@ -79,7 +79,7 @@ class DynAttributesTest < Test::Unit::TestCase
       assert_nil subject.dyn[:shoes]
     end
 
-    should 'each itarate on object dynamos' do
+    should 'iterate on dynamic attributes with each' do
       subject.update_attributes(:color=>'blue', :life=>'fun', :shoes=>'worn')
       subject.dyn.each do |k,v|
         case k
@@ -115,32 +115,47 @@ class DynAttributesTest < Test::Unit::TestCase
 
     should 'destroy object with dynamos' do
       record = DynDummy.create(:title => 'lolipop', :text=>'', :comment=>'', :summary=>'', :life=>'fun')
-      n = DynDummy.count
-      assert record.destroy
-      assert record.frozen?
-      assert_equal n-1, DynDummy.count
+      assert_difference('DynDummy.count', -1) do
+        assert record.destroy
+        assert record.frozen?
+      end
     end
+    context 'changing dynamic attributes' do
+      setup do
+        @record = DynDummy.create(:title => 'this is my title', :text=>'', :comment=>'', :summary=>'', :color=>'red', :life => 'in love')
+        @record.attributes = {:color => 'black'}
+      end
 
-    should 'change object' do
-      record = DynDummy.create(:title => 'this is my title', :text=>'', :comment=>'', :summary=>'', :color=>'red', :life => 'in love')
-       assert !record.changed?
-       record.update_attributes(:color=>'black')
-       assert !record.changed?
-       record.dyn[:life] = 'in depression'
-       assert record.changed?
+      should 'mark object as changed before save' do
+        assert record.changed?
+      end
+
+      should 'not mark object as changed after save' do
+        @record.save
+        assert !record.changed?
+      end
     end
   end
 
-  context 'With inheritence' do
-    should 'child class be able to create parent dynamos' do
-      assert record = ChildDummy.create(:title => 'this is my title', :text=>'', :comment=>'', :summary=>'', :color=>'red', :life => 'in love')
+  context 'An object from a sub-class' do
+
+    should 'inherit dynamic attributes definitions from super class' do
+      record = ChildDummy.new(:title => 'this is my title', :text=>'', :comment=>'', :summary=>'', :color=>'red', :life => 'in love')
+      assert record.save
       assert_equal 'red', record.dyn[:color]
     end
 
-    should 'child class be able to own dynamos' do
-      assert record = ChildDummy.create(:title => 'this is my title', :text=>'', :comment=>'', :summary=>'', :color=>'red', :age => 10)
+    should 'be able to have her own dynamic attributes definitions' do
+      record = ChildDummy.new(:title => 'this is my title', :text=>'', :comment=>'', :summary=>'', :color=>'red', :age => 10)
+      assert record.save
       assert_equal 'red', record.dyn[:color]
       assert_equal 10, record.dyn[:age]
+    end
+
+    should 'not propagate her dynamic attribute definitions to the parent' do
+      record = DynDummy.new(:title => 'this is my title', :text=>'', :comment=>'', :summary=>'', :color=>'red', :age => 10)
+      assert !record.save
+      assert record.errors[:age]
     end
   end
 

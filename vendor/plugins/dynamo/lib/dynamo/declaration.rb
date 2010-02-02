@@ -1,8 +1,17 @@
 module Dynamo
+
+  # Dynamo::Declaration module is used to declare Dynamos in a Class. It manage also
+  # inheritency of Dynamos.
   module Declaration
 
-    # Dynamo::Declaration module is used to declare Dynamos in a Class. It manage also
-    # inheritency of Dynamos.
+    def self.included(base)
+      base.class_eval do
+        extend  ClassMethods
+        include InstanceMethods
+
+        validate :dynamo_property_validation, :if=>:dynamo
+      end
+    end
 
     module ClassMethods
       def dynamo(name, type, options={})
@@ -55,12 +64,5 @@ module Dynamo
           end
         end
     end # InsanceMethods
-
-    def self.included(receiver)
-      receiver.extend         ClassMethods
-      receiver.send :include, InstanceMethods
-      receiver.send :validate, :dynamo_property_validation, :if=>:dynamo
-    end
-
   end # Declaration
 end # Dynamo

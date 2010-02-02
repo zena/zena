@@ -23,10 +23,12 @@ module Dynamo
 
     private
 
-      def self.included(receiver)
-        receiver.send :alias_method_chain, :changed?, :dynamo
-        receiver.send :alias_method_chain, :changed,  :dynamo
-        receiver.send :alias_method_chain, :changes,  :dynamo
+      def self.included(base)
+        base.class_eval do
+          alias_method_chain :changed?, :dynamo
+          alias_method_chain :changed,  :dynamo
+          alias_method_chain :changes,  :dynamo
+        end
       end
 
       def changed_with_dynamo?
