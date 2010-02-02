@@ -203,29 +203,7 @@ module Zena
       #
       # end
 
-      # FIXME: remove !
-      # def act_as_content
-      #   class_eval do
-      #     def preload_version(v)
-      #       @version = v
-      #     end
-      #
-      #     # FIXME: replace by belongs_to :version ?
-      #     def version
-      #       @version ||= Version.find(self[:version_id])
-      #     end
-      #
-      #     # Return true if the version would be edited by the attributes
-      #     def would_edit?(new_attrs)
-      #       new_attrs.each do |k,v|
-      #         if type = self.class.safe_method_type([k])
-      #           return true if field_changed?(k, self.send(type[:method]), v)
-      #         end
-      #       end
-      #       false
-      #     end
-      #   end
-      # end
+
 
       # VERSION
       # FIXME: remove !

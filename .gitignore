@@ -18,3 +18,6 @@ tmp/*
 db/*.sqlite3
 coverage
 vendor/apache2_upload_progress/*
+db/schema.rb
+db/development_structure.sql
+zena_console.rb

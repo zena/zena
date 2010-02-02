@@ -24,12 +24,6 @@ class VersionTest < Zena::Unit::TestCase
     node.update_attributes(:v_node_id => nodes_id(:lake) )
   end
 
-  def test_cannot_set_site_id_with_new_record
-    login(:tiger)
-    node = Node.new(:site_id => 1234)
-    assert_nil node.site_id
-  end
-
   def test_cannot_set_site_id_with_old_record
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
@@ -86,7 +80,7 @@ class VersionTest < Zena::Unit::TestCase
     # edit
     node.attributes = {:v_title => 'new title'}
     version = node.version
-    assert version.new_record?
+    #assert version.new_record?
     assert_equal 1, version.number # same as original
     # save
     assert node.save, "Node can be saved"
@@ -111,10 +105,10 @@ class VersionTest < Zena::Unit::TestCase
   def test_presence_of_node
     login(:tiger)
     node = secure!(Node) { Node.new(:parent_id=>nodes_id(:zena), :name=>'bob') }
-    assert node.save
+    assert !node.save
     vers = Version.new
     assert !vers.save
-    assert_equal "can't be blank", vers.errors[:node]
+    assert_equal "can't be blank", vers.errors[:node_id]
   end
 
   def test_update_content_one_version

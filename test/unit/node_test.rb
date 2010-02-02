@@ -788,6 +788,12 @@ class NodeTest < Zena::Unit::TestCase
     assert_equal original_site_id, node.site_id
   end
 
+  def test_cannot_set_site_id_with_new_record
+    login(:tiger)
+    node = Node.new(:site_id => 1234)
+    assert_nil node.site_id
+  end
+
   def test_zip
     next_zip = Zena::Db.fetch_row("SELECT zip FROM zips WHERE site_id = #{sites_id(:zena)}").to_i
     login(:tiger)

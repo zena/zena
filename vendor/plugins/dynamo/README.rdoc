@@ -1,0 +1,10 @@
+== DESCRIPTION:
+
+Wrap model attributes into a binary blob. Used with multiple models using STI within rails.
+
+website: http://zenadmin.org/635
+license: MIT
+
+== Pre-alpha
+
+The project is currently in alpha stage. You can have a look at the sample application in 'test/rails_app'.
