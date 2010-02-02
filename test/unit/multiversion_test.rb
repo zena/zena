@@ -165,7 +165,6 @@ class IntegratedMultiVersionTest < Zena::Unit::TestCase
           login(:tiger)
           visitor.lang = 'fr'
           @node = secure!(Node) { nodes(:opening) }
-          @node.version.created_at = Time.now
         end
 
         should 'see own redaction' do
@@ -175,6 +174,7 @@ class IntegratedMultiVersionTest < Zena::Unit::TestCase
         end
 
         should 'not create a new redaction when editing in redit time' do
+          @node.version.created_at = Time.now
           assert_difference('Version.count', 0) do
             assert @node.update_attributes(:v_title => 'Artificial Intelligence')
           end

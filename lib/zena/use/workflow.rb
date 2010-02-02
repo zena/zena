@@ -18,12 +18,12 @@ module Zena
       WORKFLOW_ATTRIBUTES = ['status', 'publish_from']
       # The Workflow::Version module should be included in the model used as version.
       module Version
-        attr_reader   :stored_workflow
+        attr_reader   :stored_workflow, :status_set
         # Enable the use of version.backup = 'true' to force clone
         attr_accessor :backup
 
         def self.included(base)
-          base.before_update :store_workflow_changes
+          base.before_save :store_workflow_changes
         end
 
         # Return stored values before save
@@ -31,12 +31,24 @@ module Zena
           @stored_workflow ||= {}
         end
 
+        def status=(status)
+          self[:status] = status
+          # We need this to know if the status was set, even if the value was the same
+          # as the current value (force published state while editing published version).
+          @status_set = true
+        end
+
+        # Return true if the 'status' value was set.
+        def status_set?
+          @status_set
+        end
+
         # Return true if the version should clone itself before save
         def should_clone?
           edited? &&
           ( @backup ||
-            lang_changed? ||
-            user_id != visitor.id ||
+            (lang   != visitor.lang) ||
+            user_id != visitor.id   ||
             Time.now > created_at + current_site[:redit_time].to_i )
         end
 
@@ -52,8 +64,8 @@ module Zena
           def store_workflow_changes
             @stored_workflow = {}
             @stored_workflow[:publish_from_changed] = publish_from_changed?
-            @stored_workflow[:lang_changed]         = lang_changed?
-            @stored_workflow[:status_was]           = status_was
+            @stored_workflow[:lang_was]             = lang_was
+            @status_set = nil
             true
           end
 
@@ -112,6 +124,8 @@ module Zena
           # List of allowed *version* transitions with their validation rules. This list
           # concerns the life and death of *a single version*, not the corresponding Node.
 
+          # FIXME: we should not use the same name for 'edit'
+          # We could use 'edit', 'create', 'update'
           add_transition(:edit, :from => :red, :to => :red) do |node, version|
             node.can_write?
           end
@@ -168,7 +182,13 @@ module Zena
           end
 
           add_transition(:unpublish,  :from => :pub, :to => :rem) do |node, version|
-            node.can_drive? && !version.edited?
+            if node.can_drive? && !version.edited?
+              true
+            elsif version.edited?
+              [false, "You cannot unpublish and edit at the same time."]
+            else
+              false
+            end
           end
 
           add_transition(:remove,  :from => ((21..49).to_a + [70]), :to => :rem) do |node, version|
@@ -424,13 +444,13 @@ module Zena
           version = self.version
 
           # Alter version status or set default value
-          if version.edited?
-            if version.status_changed?
+          if version.edited? || version.new_record?
+            if version.status_set?
               if version.status == Zena::Status[:pub] &&
                  version.edited? && !full_drive?
                 # We silently revert to redaction: refuse auto_publish by setting version status.
-                 version.status = Zena::Status[:red]
-               end
+                version.status = Zena::Status[:red]
+              end
             else
               # Set default version status
               version.status = (current_site[:auto_publish] && full_drive?) ? Zena::Status[:pub] : Zena::Status[:red]
@@ -479,13 +499,13 @@ module Zena
         end
 
         # Compute cached 'publish_from' and prepare to update other version status (replace, remove). This
-        # method must be called *BEFORE* VersionHash::update_vhash.
+        # method is called before VersionHash::update_vhash but after version was saved.
         def current_version_before_update
           version = self.version
 
           case @current_transition[:name]
           when :edit
-            if version.cloned?
+            if version.cloned? && @current_transition[:from] == [Zena::Status[:red]] && version.lang == version.stored_workflow[:lang_was]
               @update_status_after_save = {version.previous_id => Zena::Status[:rep]}
             end
           when :redit

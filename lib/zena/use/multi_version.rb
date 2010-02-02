@@ -10,7 +10,6 @@ module Zena
           base.class_eval do
             attr_accessor :__destroy
             belongs_to :node
-            before_validation :set_lang
             before_create :setup_version_on_create
             attr_protected :number, :user_id
 
@@ -41,13 +40,7 @@ module Zena
           end
         end
 
-
         private
-          # This must be done before validation so that cloning occurs if this value changes
-          def set_lang
-            self[:lang] = visitor.lang
-          end
-
           def setup_version_on_create
             # set number
             last_record = self[:node_id] ? self.connection.select_one("select number from #{self.class.table_name} where node_id = '#{node[:id]}' ORDER BY number DESC LIMIT 1") : nil
@@ -55,6 +48,7 @@ module Zena
 
             # set author
             self[:user_id] = visitor.id
+            self[:lang]    = visitor.lang unless lang_changed?
           end
       end
 

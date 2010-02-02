@@ -15,6 +15,7 @@ class Version < ActiveRecord::Base
 
   attr_protected :node_id, :site_id, :content_id
 
+  before_validation_on_create :set_defaults
   before_create :set_site_id
 
   def author
@@ -24,5 +25,9 @@ class Version < ActiveRecord::Base
   private
     def set_site_id
       self[:site_id] = current_site.id
+    end
+
+    def set_defaults
+      self[:title] ||= node.name
     end
 end
