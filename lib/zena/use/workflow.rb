@@ -15,36 +15,54 @@ module Zena
     # The workflow module manages the different versions' status and transitions. This module depends on MultiVersion and VersionHash
     # and it should be included *before* these two modules.
     module Workflow
+      WORKFLOW_ATTRIBUTES = ['status', 'publish_from']
       # The Workflow::Version module should be included in the model used as version.
       module Version
-        attr_reader   :stored_publish_from_changed
+        attr_reader   :stored_workflow
         # Enable the use of version.backup = 'true' to force clone
         attr_accessor :backup
 
         def self.included(base)
-          base.before_update :store_publish_from_changed
+          base.before_update :store_workflow_changes
         end
 
+        # Return stored values before save
+        def stored_workflow
+          @stored_workflow ||= {}
+        end
+
+        # Return true if the version should clone itself before save
         def should_clone?
-          would_edit = (self.changes.keys - ['publish_from', 'status']) != []
-          would_edit &&
+          edited? &&
           ( @backup ||
             lang_changed? ||
             user_id != visitor.id ||
             Time.now > created_at + current_site[:redit_time].to_i )
         end
 
+        # Returns true if the version has been edited (not just a status change)
+        def edited?
+          changes.keys - WORKFLOW_ATTRIBUTES != []
+        end
+
         def cloned
-          set_defaults
-          self[:number] += 1
+          # After a cloning operation, we start with 'redaction' status ?
+          # Can we remove this ?
+          self[:status] = 70
         end
 
         private
           # Version owner needs to know if the publication date has changed, after the
-          # version has been saved.
-          def store_publish_from_changed
-            @stored_publish_from_changed = publish_from_changed?
+          # version has been saved. Workflow needs to know about the lang changed and
+          # previous status.
+          def store_workflow_changes
+            @stored_workflow = {}
+            @stored_workflow[:publish_from_changed] = publish_from_changed?
+            @stored_workflow[:lang_changed]         = lang_changed?
+            @stored_workflow[:status_was]           = status_was
+            true
           end
+
       end
 
       module ClassMethods
@@ -90,9 +108,7 @@ module Zena
 
         base.before_validation :set_workflow_defaults
         base.validate      :workflow_validation
-
-        base.before_create :cache_version_attributes_before_create
-        base.before_update :cache_version_attributes_before_update
+        base.before_create :workflow_before_create
 
         base.after_save    :update_status_after_save
 
@@ -102,63 +118,69 @@ module Zena
           # List of allowed *version* transitions with their validation rules. This list
           # concerns the life and death of *a single version*, not the corresponding Node.
 
-          add_transition(:edit, :from => :red, :to => :red) do |r, v|
-            r.can_write?
+          add_transition(:edit, :from => :red, :to => :red) do |node, version|
+            node.can_write?
           end
 
-          add_transition(:edit, :from => -1, :to => :red) do |r, v|
+          add_transition(:edit, :from => -1, :to => :red) do |node, version|
             # create a new node
-            r.can_write?
+            node.can_write?
           end
 
-          add_transition(:edit, :from => :pub, :to => :red) do |r, v|
-            r.can_write? && v.new_record?
+          add_transition(:edit, :from => :pub, :to => :red) do |node, version|
+            node.can_write? && version.new_record?
           end
 
-          add_transition(:auto_publish, :from => :pub, :to => :pub) do |r, v|
-            r.full_drive?
+          add_transition(:auto_publish, :from => :pub, :to => :pub) do |node, version|
+            node.full_drive?
           end
 
-          add_transition(:publish, :from => [-1, :red], :to => :pub) do |r, v|
-            r.full_drive?
+          add_transition(:publish, :from => [-1, :red], :to => :pub) do |node, version|
+            node.full_drive?
           end
 
-          add_transition(:publish, :from => [:prop, :prop_with], :to => :pub) do |r, v|
+          add_transition(:publish, :from => [:prop, :prop_with], :to => :pub) do |node, version|
             # editing content when publishing a proposition is not allowed
-            r.full_drive? && !v.new_record?
+            if node.full_drive? && !version.edited?
+              true
+            elsif node.full_drive?
+              [false, "You do not have the rights to change a proposition's attributes."]
+            else
+              false
+            end
           end
 
-          add_transition(:publish, :from => (10..49), :to => :pub) do |r, v|
-            r.full_drive?
+          add_transition(:publish, :from => (10..49), :to => :pub) do |node, version|
+            node.full_drive?
           end
 
-          add_transition(:propose, :from => :red, :to => :prop) do |r, v|
-            r.can_write?
+          add_transition(:propose, :from => :red, :to => :prop) do |node, version|
+            node.can_write?
           end
 
-          add_transition(:propose, :from => :red, :to => :prop_with) do |r, v|
-            r.can_write?
+          add_transition(:propose, :from => :red, :to => :prop_with) do |node, version|
+            node.can_write?
           end
 
-          add_transition(:refuse,  :from => [:prop, :prop_with], :to => :red) do |r, v|
+          add_transition(:refuse,  :from => [:prop, :prop_with], :to => :red) do |node, version|
             # refuse and change attributes not allowed
-            r.full_drive? && !v.new_record?
+            node.full_drive? && !version.edited?
           end
 
-          add_transition(:unpublish,  :from => :pub, :to => :rem) do |r, v|
-            r.can_drive?
+          add_transition(:unpublish,  :from => :pub, :to => :rem) do |node, version|
+            node.can_drive? && !version.edited?
           end
 
-          add_transition(:remove,  :from => ((21..49).to_a + [70]), :to => :rem) do |r, v|
-            r.can_drive?
+          add_transition(:remove,  :from => ((21..49).to_a + [70]), :to => :rem) do |node, version|
+            node.can_drive? && !version.edited?
           end
 
-          add_transition(:destroy_version,  :from => (-1..20), :to => -1) do |r, v|
-            r.can_drive? && !visitor.is_anon? && (r.versions.count > 1 || r.empty?)
+          add_transition(:destroy_version,  :from => (-1..20), :to => -1) do |node, version|
+            node.can_drive? && !visitor.is_anon? && (node.versions.count > 1 || node.empty?)
           end
 
-          add_transition(:redit, :from => (10..49), :to => :red) do |r, v|
-            r.can_drive?
+          add_transition(:redit, :from => (10..49), :to => :red) do |node, version|
+            node.can_drive? && !version.edited?
           end
         end
       end
@@ -230,52 +252,51 @@ module Zena
         can_write? && version.status == Zena::Status[:red]
       end
 
-
+      # FIXME: remove !
       def edit_content!
         redaction && redaction.redaction_content
       end
 
       # can propose for validation
       def can_propose?
-        can_apply?(:propose)
+        can_apply? :propose
       end
 
       # people who can publish:
       # * people who #can_drive? if +status+ >= prop or owner
       # * people who #can_drive? if node is private
       def can_publish?
-        can_apply?(:publish)
+        can_apply? :publish
       end
 
       # Can refuse a publication. Same rights as can_publish? if the current version is a redaction.
       def can_refuse?
-        can_apply?(:refuse)
+        can_apply? :refuse
       end
 
       # Can remove publication
-      def can_unpublish?(v=version)
-        can_apply?(:unpublish, v)
+      def can_unpublish?
+        can_apply? :unpublish
       end
 
       # Can remove any other version
-      def can_remove?(v=version)
-        can_apply?(:remove, v)
+      def can_remove?
+        can_apply? :remove
       end
 
       # Can destroy current version ? (only logged in user can destroy)
-      def can_destroy_version?(v=version)
-        can_apply?(:destroy_version, v)
+      def can_destroy_version?
+        can_apply? :destroy_version
       end
 
-      def current_transition
-        transition_for(nil, nil)
+      def set_current_transition
+        version = self.version
+        prev = new_record? ? -1 : version.status_was
+        curr = version.status
+        @current_transition = transition_for(prev, curr)
       end
 
       def transition_for(prev, curr)
-        version = self.version
-        prev ||= new_record? ? -1 : version.status_was
-        curr ||= version.status
-
         self.class.transitions.each do |t|
           from, to = t[:from], t[:to]
           if curr == to && from.include?(prev)
@@ -285,32 +306,30 @@ module Zena
         return nil
       end
 
-      def transition_allowed?(transition = self.current_transition)
-        v = self.version
+      def transition_allowed?(transition)
+        from_status = self.version.status
         if transition.kind_of?(Symbol)
-          prev_status = v.new_record? ? -1 : v.status_was.to_i
-          transition = self.class.transitions.detect { |t| t[:name] == transition && t[:from].include?(prev_status) }
+          transition = self.class.transitions.detect { |t| t[:name] == transition && t[:from].include?(from_status) }
         end
-        transition && (transition[:validate].nil? || transition[:validate].call(self, v))
+        transition && (transition[:validate].nil? || transition[:validate].call(self, version))
       end
 
-      def allowed_transitions
-        @allowed_transitions ||= begin
-          prev_status = version.status_was.to_i
-          allowed = []
-          self.class.transitions.each do |t|
-            if t[:from].include?(prev_status)
-              allowed << t if transition_allowed?(t)
-            end
-          end
-          allowed
-        end
-      end
+      #def allowed_transitions
+      #  @allowed_transitions ||= begin
+      #    prev_status = version.status_was.to_i
+      #    allowed = []
+      #    self.class.transitions.each do |t|
+      #      if t[:from].include?(prev_status)
+      #        allowed << t if transition_allowed?(t)
+      #      end
+      #    end
+      #    allowed
+      #  end
+      #end
 
       # Returns false is the current visitor does not have enough rights to perform the action.
-      def can_apply?(method, v=version)
+      def can_apply?(method)
         return true  if visitor.is_su?
-        prev_status = v.status_was.to_i
         case method
         when :edit
           can_edit?
@@ -428,29 +447,28 @@ module Zena
 
       private
         def set_workflow_defaults
-          if v = version
-            if v.status == Zena::Status[:pub] &&
-               (v.changes.keys - ['status', 'publish_from'] != []) &&
-               !full_drive?
+          if version = self.version
+            if version.status == Zena::Status[:pub] &&
+               version.edited? && !full_drive?
               # We silently revert to 'red' only if status change to 'pub' is part of an edit.
-              v.status = Zena::Status[:red]
+              version.status = Zena::Status[:red]
             else
               # Set default version status
-              v.status ||= (current_site[:auto_publish] && (full_drive? || new_record?)) ? Zena::Status[:pub] : Zena::Status[:red]
+              version.status ||= (current_site[:auto_publish] && (full_drive? || new_record?)) ? Zena::Status[:pub] : Zena::Status[:red]
             end
             # Set default version's publish_from date
-            v.publish_from = v.status.to_i == Zena::Status[:pub] ? (v.publish_from || Time.now) : v.publish_from
+            version.publish_from = version.status.to_i == Zena::Status[:pub] ? (version.publish_from || Time.now) : version.publish_from
           end
+          # Store transition before any validation takes place
+          set_current_transition
         end
 
         def workflow_validation
-          if transition = self.current_transition
-            if transition_allowed?(transition)
-              # ok
-            else
-              errors.add(:base, "You do not have the rights to #{transition[:name].to_s.gsub('_', ' ')}.")
+          if transition = @current_transition
+            allowed, message = transition_allowed?(transition)
+            unless allowed
+              errors.add(:base, message || "You do not have the rights to #{transition[:name].to_s.gsub('_', ' ')}.")
             end
-
             #unless transition_allowed?(transition)
             #  if transition_allowed?(transition)
             #    if [Zena::Status[:prop], Zena::Status[:prop_with]].include?(@original_version.status)
@@ -460,37 +478,37 @@ module Zena
             #    end
             #  elsif @original_version &&
             #       (Zena::Status[:prop]..Zena::Status[:prop_with]).include?(@original_version.status) &&
-            #       (version.changes.keys - ['status', 'publish_from'] != [])
+            #       version.edited?
             #    errors.add(:base, "You cannot edit while a proposition is beeing reviewed.")
             #  else
             #    errors.add(:base, "You do not have the rights to #{transition[:name].to_s.gsub('_', ' ')}.")
             #  end
             #end
+          elsif version.edited? && (Zena::Status[:prop]..Zena::Status[:prop_with]).include?(version.status_was)
+            errors.add(:base, 'You cannot edit while a proposition is beeing reviewed.')
           else
             errors.add(:base, 'This transition is not allowed.')
           end
         end
 
-        def cache_version_attributes_before_create
+        def workflow_before_create
           self.publish_from = version.publish_from
-          true
         end
 
         # Compute cached 'publish_from' and prepare to update other version status (replace, remove). This
         # method must be called *BEFORE* VersionHash::update_vhash.
-        def cache_version_attributes_before_update
+        def current_version_before_update
           version = self.version
 
           # puts [@current_transition[:name], version.status, version.id, vhash].inspect
-          if @original_version                         &&
-             @original_version.lang   == version.lang  &&
-             @original_version.status != Zena::Status[:pub]
+          if version.cloned? &&
+            !version.stored_workflow[:lang_changed] &&
+             version.stored_workflow[:status_was] != Zena::Status[:pub]
             # We were looking at another version. It must be replaced.
-            @update_status_after_save = { @original_version.id => Zena::Status[:rep] }
-            @original_version = nil
+            @update_status_after_save = { version.previous_id => Zena::Status[:rep] }
           end
 
-          case current_transition[:name]
+          case @current_transition[:name]
           when :redit
             if old_v_id = vhash['w'][version.lang]
               if old_v_id != vhash['r'][version.lang] && old_v_id != version.id
@@ -521,7 +539,7 @@ module Zena
               end
             end
             # publication time might have changed
-            if version.stored_publish_from_changed
+            if version.stored_workflow[:publish_from_changed]
               # we need to compute new
               self.publish_from = get_publish_from
             end
@@ -550,18 +568,18 @@ module Zena
         end
 
         # FIXME: do we need these after_xxxx hooks ? Are they used ?
-        def after_save_xxxxx
-
-          # What was the transition ?
-          if @current_transition
-            method = "after_#{@current_transition[:name]}"
-            send(method) if respond_to?(method, true)
-            @current_transition = nil
-          end
-
-          @allowed_transitions        = nil
-          true
-        end
+        # def after_save_xxxxx
+        #
+        #   # What was the transition ?
+        #   if @current_transition
+        #     method = "after_#{@current_transition[:name]}"
+        #     send(method) if respond_to?(method, true)
+        #     @current_transition = nil
+        #   end
+        #
+        #   @allowed_transitions        = nil
+        #   true
+        # end
 
 
         def version_class

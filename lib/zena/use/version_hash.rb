@@ -68,15 +68,7 @@ module Zena
         def update_vhash
           version = self.version
 
-          if @new_record_before_save
-            # after_create
-            transition = transition_for(-1, version.status)[:name]
-          else
-            # before_update
-            transition = current_transition[:name]
-          end
-
-          case transition
+          case @current_transition[:name]
           when :edit, :redit
             vhash['w'][version.lang] = version.id
           when :publish, :auto_publish
@@ -92,12 +84,13 @@ module Zena
         end
 
         # Overwrite MultiVersion. This is called before update.
-        def set_current_version(version)
+        def current_version_before_update
+          super
           update_vhash
         end
 
         # Overwrite MultiVersion. This is called after create.
-        def update_current_version(version)
+        def current_version_after_create
           update_vhash
           Zena::Db.set_attribute(self, :vhash, self[:vhash])
         end

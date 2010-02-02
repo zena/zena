@@ -523,7 +523,7 @@ class IntegratedMultiVersionTest < Zena::Unit::TestCase
             end
           end
 
-          should 'replace old publication autopublishing' do
+          should 'replace old publication when autopublishing' do
             @node.update_attributes(:v_title => 'Is not very apt at the high end.')
             assert_equal Zena::Status[:rep], versions(:collections_en).status
           end
@@ -552,10 +552,9 @@ class IntegratedMultiVersionTest < Zena::Unit::TestCase
     context 'on a proposition' do
       setup do
         login(:tiger)
-
         @node = secure!(Node) { nodes(:status) }
         @node.update_attributes(:v_title => 'Sambal Oelek')
-        @node.propose
+        assert @node.propose
         @node = secure!(Node) { nodes(:status) } # reload
       end
 
@@ -748,7 +747,6 @@ class IntegratedMultiVersionTest < Zena::Unit::TestCase
     assert node.update_attributes(:v_title=>'leopard')
     assert_equal Zena::Status[:red], node.version.status
     assert !node.can_unpublish?
-    assert node.can_unpublish?(pub_version)
   end
 
   def test_remove_redaction

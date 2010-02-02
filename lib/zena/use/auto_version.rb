@@ -17,6 +17,11 @@ module Zena
       def cloned
       end
 
+      # Return true if the record was cloned just before the last save
+      def cloned?
+        !@previous_id.nil?
+      end
+
       def prepare_save_or_clone
         if !new_record? && should_clone?
           @previous_id = self[:id]
@@ -25,7 +30,10 @@ module Zena
           self[:updated_at] = nil
           @new_record = true
           cloned
+        else
+          @previous_id = nil
         end
+        true
       end
     end
   end

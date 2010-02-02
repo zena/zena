@@ -177,8 +177,9 @@ class Node < ActiveRecord::Base
   extend  Zena::Acts::SecureNode
   acts_as_secure_node
 
-  include Zena::Use::Workflow
+  # These *must* be included in this order
   include Zena::Use::MultiVersion
+  include Zena::Use::Workflow
   include Zena::Use::VersionHash
   # not yet...
   # include Zena::Use::TransparentVersion
