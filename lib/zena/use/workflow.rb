@@ -45,12 +45,6 @@ module Zena
           changes.keys - WORKFLOW_ATTRIBUTES != []
         end
 
-        def cloned
-          # After a cloning operation, we start with 'redaction' status ?
-          # Can we remove this ?
-          self[:status] = 70
-        end
-
         private
           # Version owner needs to know if the publication date has changed, after the
           # version has been saved. Workflow needs to know about the lang changed and
@@ -128,7 +122,7 @@ module Zena
           end
 
           add_transition(:edit, :from => :pub, :to => :red) do |node, version|
-            node.can_write? && version.new_record?
+            node.can_write? && version.edited?
           end
 
           add_transition(:auto_publish, :from => :pub, :to => :pub) do |node, version|
@@ -164,7 +158,13 @@ module Zena
 
           add_transition(:refuse,  :from => [:prop, :prop_with], :to => :red) do |node, version|
             # refuse and change attributes not allowed
-            node.full_drive? && !version.edited?
+            if node.full_drive? && !version.edited?
+              true
+            elsif version.edited?
+              [false, 'You cannot edit while a proposition is beeing reviewed.']
+            else
+              false
+            end
           end
 
           add_transition(:unpublish,  :from => :pub, :to => :rem) do |node, version|
@@ -176,7 +176,15 @@ module Zena
           end
 
           add_transition(:destroy_version,  :from => (-1..20), :to => -1) do |node, version|
-            node.can_drive? && !visitor.is_anon? && (node.versions.count > 1 || node.empty?)
+            if node.can_drive? && !visitor.is_anon? && (node.versions.count > 1 || node.empty?)
+              true
+            elsif visitor.is_anon?
+              [false, "Anonymous users are not allowed to destroy versions."]
+            elsif node.versions.count > 1 || node.empty?
+              [false, "Cannot destroy last version: node is not empty."]
+            else
+              false
+            end
           end
 
           add_transition(:redit, :from => (10..49), :to => :red) do |node, version|
@@ -348,6 +356,7 @@ module Zena
           self.attributes = args.first
           save
         when :propose
+          # TODO: replace with version.status = ...
           self.version_attributes = {'status' => args[0] || Zena::Status[:prop]}
           save
         when :publish
@@ -360,21 +369,8 @@ module Zena
           self.version_attributes = {'status' => Zena::Status[:rem]}
           save
         when :destroy_version
-          if versions.count == 1
-            self.destroy # will destroy last version
-          else
-            if version.destroy
-              @version = nil
-
-              # remove from versions list
-              if self.versions.loaded?
-                self.versions -= [version]
-              end
-
-              rebuild_vhash
-              save
-            end
-          end
+          self.version_attributes = {'status' => -1, :__destroy => true}
+          save
         end
       end
 
@@ -447,18 +443,27 @@ module Zena
 
       private
         def set_workflow_defaults
-          if version = self.version
-            if version.status == Zena::Status[:pub] &&
-               version.edited? && !full_drive?
-              # We silently revert to 'red' only if status change to 'pub' is part of an edit.
-              version.status = Zena::Status[:red]
+          version = self.version
+
+          # Alter version status or set default value
+          if version.edited?
+            if version.status_changed?
+              if version.status == Zena::Status[:pub] &&
+                 version.edited? && !full_drive?
+                # We silently revert to redaction: refuse auto_publish by setting version status.
+                 version.status = Zena::Status[:red]
+               end
             else
               # Set default version status
-              version.status ||= (current_site[:auto_publish] && (full_drive? || new_record?)) ? Zena::Status[:pub] : Zena::Status[:red]
+              version.status = (current_site[:auto_publish] && full_drive?) ? Zena::Status[:pub] : Zena::Status[:red]
             end
-            # Set default version's publish_from date
-            version.publish_from = version.status.to_i == Zena::Status[:pub] ? (version.publish_from || Time.now) : version.publish_from
+          else
+            # keep status value set
           end
+
+          # Set default version's publish_from date
+          version.publish_from = version.status.to_i == Zena::Status[:pub] ? (version.publish_from || Time.now) : version.publish_from
+
           # Store transition before any validation takes place
           set_current_transition
         end
@@ -500,15 +505,11 @@ module Zena
         def current_version_before_update
           version = self.version
 
-          # puts [@current_transition[:name], version.status, version.id, vhash].inspect
-          if version.cloned? &&
-            !version.stored_workflow[:lang_changed] &&
-             version.stored_workflow[:status_was] != Zena::Status[:pub]
-            # We were looking at another version. It must be replaced.
-            @update_status_after_save = { version.previous_id => Zena::Status[:rep] }
-          end
-
           case @current_transition[:name]
+          when :edit
+            if version.cloned?
+              @update_status_after_save = {version.previous_id => Zena::Status[:rep]}
+            end
           when :redit
             if old_v_id = vhash['w'][version.lang]
               if old_v_id != vhash['r'][version.lang] && old_v_id != version.id

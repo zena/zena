@@ -43,7 +43,8 @@ class IntegratedMultiVersionTest < Zena::Unit::TestCase
         login(:tiger)
         version = secure!(Version) { versions(:opening_en) }
         @node = version.node
-        @node.destroy_version
+        assert @node.remove
+        assert @node.destroy_version
       end
 
       should 'see a default publication' do
@@ -52,8 +53,9 @@ class IntegratedMultiVersionTest < Zena::Unit::TestCase
         assert_equal versions_id(:opening_fr), node.version.id
       end
 
-      should 'see other redaction an publication in another language ' do
+      should 'see other redaction and publication in another language ' do
         login(:tiger)
+        # This test should live with destroy_version testing (relation reload test)
         assert_equal [:opening_red_fr, :opening_fr].map{|s| versions_id(s)}.sort, @node.versions.map{|v| v.id}.sort
       end
     end
@@ -87,10 +89,11 @@ class IntegratedMultiVersionTest < Zena::Unit::TestCase
         login(:tiger)
         version = secure!(Version) { versions(:opening_en) }
         @node = version.node
-        @node.destroy_version
+        assert @node.remove
+        assert @node.destroy_version
       end
 
-      should 'see redaction from another language' do
+      should 'see a redaction from another language' do
         login(:ant)
         visitor.lang = 'de'
         node = secure!(Node) { nodes(:opening) }
@@ -99,6 +102,7 @@ class IntegratedMultiVersionTest < Zena::Unit::TestCase
 
       should 'see redaction and publication from another language' do
         login(:tiger)
+        # This test should live with destroy_version testing (relation reload test)
         assert_equal [:opening_red_fr, :opening_fr].map{|s| versions_id(s)}.sort, @node.versions.map{|v| v.id}.sort
       end
     end
@@ -313,9 +317,9 @@ class IntegratedMultiVersionTest < Zena::Unit::TestCase
       should 'create a new redaction when setting version_attributes' do
         @node.version_attributes = {'title' => 'labias'}
         assert_equal 'labias', @node.version.title
-        assert @node.version.new_record?
         assert_difference('Version.count', 1) do
           assert @node.save
+          assert @node.version.cloned?
         end
       end
 
@@ -657,6 +661,11 @@ class IntegratedMultiVersionTest < Zena::Unit::TestCase
         @node = secure!(Node) { nodes(:status) }
       end
 
+      should 'see a removed version' do
+        # Just to make sure our setup is ok
+        assert_equal Zena::Status[:rem], @node.version.status
+      end
+
       should 'see any other version when destroying version' do
         assert_difference('Version.count', -1) do
           assert @node.destroy_version
@@ -674,7 +683,8 @@ class IntegratedMultiVersionTest < Zena::Unit::TestCase
 
       context 'with a publication in same lang' do
         setup do
-          rem_version = @node.version
+          rem_version   = @node.version
+          @node.version = nil
           @node.update_attributes(:v_status => Zena::Status[:pub], :v_title => 'publication in en')
           @v_pub_id = @node.version.id
           @node.version = rem_version
@@ -913,7 +923,7 @@ class IntegratedMultiVersionTest < Zena::Unit::TestCase
   def test_publish_after_save_in_redit_time_can_publish
     # set site.auto_publish      ===> publish
     # now < updated + redit_time ===> update current publication
-    Site.connection.execute "UPDATE sites set auto_publish = 0, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
+    Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
     Version.connection.execute "UPDATE versions set created_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE id = #{versions_id(:tiger_en)}"
     login(:tiger)
     visitor.lang = 'en'
@@ -978,18 +988,18 @@ class IntegratedMultiVersionTest < Zena::Unit::TestCase
     login(:tiger)
     node = secure!(Node) { Node.new(defaults) }
 
-    assert node.save, "Node saved"
+    assert node.save
     assert_equal Zena::Status[:red], node.version.status
-    assert node.propose, "Can propose node"
+    assert node.propose
     assert_equal Zena::Status[:prop], node.version.status
-    assert node.publish, "Can publish node"
+    assert node.publish
     assert_equal Zena::Status[:pub], node.version.status
-    assert node.publish_from <= Time.now, "node publish_from is smaller the Time.now"
+    assert node.publish_from <= Time.now, 'node publish_from is smaller the Time.now'
     login(:ant)
     assert_nothing_raised { node = secure!(Node) { Node.find(node.id) } }
     assert node.update_attributes(:v_summary=>'hello my friends'), "Can create a new edition"
     assert_equal Zena::Status[:red], node.version.status
-    assert node.propose, "Can propose edition"
+    assert node.propose
     assert_equal Zena::Status[:prop], node.version.status
     # WE CAN USE THIS TO TEST vhash (version hash cache) when it's implemented
   end
@@ -997,7 +1007,7 @@ class IntegratedMultiVersionTest < Zena::Unit::TestCase
   def test_publish_with_v_status
     login(:tiger)
     node = secure!(Node) { nodes(:cleanWater)  }
-    assert node.update_attributes(:v_title => "dirty")
+    assert node.update_attributes(:v_title => 'dirty')
     node = secure!(Node) { nodes(:cleanWater)  }
     assert_equal Zena::Status[:red], node.version.status
     assert node.update_attributes(:v_status => Zena::Status[:pub])

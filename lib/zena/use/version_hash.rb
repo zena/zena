@@ -94,6 +94,12 @@ module Zena
           update_vhash
           Zena::Db.set_attribute(self, :vhash, self[:vhash])
         end
+
+        # Overwrite MultiVersion. This is called after a version is destroyed.
+        def version_destroyed
+          super
+          rebuild_vhash
+        end
     end
   end
 end

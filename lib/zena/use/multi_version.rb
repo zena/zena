@@ -8,6 +8,7 @@ module Zena
         def self.included(base)
 
           base.class_eval do
+            attr_accessor :__destroy
             belongs_to :node
             before_validation :set_lang
             before_create :setup_version_on_create
@@ -23,6 +24,20 @@ module Zena
               end
             end
             alias_method_chain :node, :secure
+
+            def save_with_destroy
+              if @__destroy
+                node = self.node
+                if destroy
+                  # reset @version
+                  node.send(:version_destroyed)
+                  true
+                end
+              else
+                save_without_destroy
+              end
+            end
+            alias_method_chain :save, :destroy
           end
         end
 
@@ -49,7 +64,20 @@ module Zena
         base.before_update :save_version_before_update
         base.after_create  :save_version_after_create
         #base.accepts_nested_attributes_for :version
+
+        base.class_eval do
+          def save_with_destroy
+            version = self.version
+            if version.__destroy && versions.count == 1
+              self.destroy # will destroy last version
+            else
+              save_without_destroy
+            end
+          end
+          alias_method_chain :save, :destroy
+        end
       end
+
 
       def version_attributes=(attributes)
         version.attributes = attributes
@@ -111,6 +139,14 @@ module Zena
         # The role of this method is typically to do things like:
         #   update_attribute(:version_id, version.id)
         def current_version_after_create
+        end
+
+        # This is called after a version is destroyed
+        def version_destroyed
+          # remove from versions list
+          if versions.loaded?
+            node.versions -= [@version]
+          end
         end
 
         def merge_version_errors
