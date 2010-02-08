@@ -992,7 +992,7 @@ msgstr ""
 
 #: lib/gettext_strings.rb:4
 msgid "help_tab"
-msgstr "Hife"
+msgstr "Hilfe"
 
 #: lib/gettext_strings.rb:6
 msgid "drive_tab"
