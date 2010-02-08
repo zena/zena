@@ -4,7 +4,9 @@ class Version < ActiveRecord::Base
   include Zena::Refactor::ContentCalling
 
   include Zena::Use::AutoVersion
-  include Zena::Use::Attachment
+  include Zena::Use::SharedAttachment
+  set_attachment_class 'Zena::Attachment'
+
   include Zena::Use::MultiVersion::Version
   include Zena::Use::Workflow::Version
   include Dynamo::Attribute

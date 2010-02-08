@@ -1,4 +1,4 @@
-require "authlogic/test_case"
+require 'authlogic/test_case'
 require 'hpricot'
 
 module Zena

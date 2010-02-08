@@ -2,6 +2,10 @@
 config/deploy_config.rb
 config/database.yml
 config/*.sphinx.conf
+coverage
+db/*.sqlite3
+db/development_structure.sql
+db/schema
 db/sphinx
 doc/coverage
 log/
@@ -15,9 +19,5 @@ sandbox
 sites/*
 test/fixtures/*.yml
 tmp/*
-db/*.sqlite3
-coverage
 vendor/apache2_upload_progress/*
-db/schema.rb
-db/development_structure.sql
 zena_console.rb

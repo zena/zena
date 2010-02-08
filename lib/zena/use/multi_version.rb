@@ -13,80 +13,68 @@ module Zena
             before_create :setup_version_on_create
             attr_protected :number, :user_id
 
-            def node_with_secure
-              @node ||= begin
-                if n = node_without_secure
-                  visitor.visit(n)
-                  n.version = self
-                end
-                n
-              end
-            end
             alias_method_chain :node, :secure
-
-            def save_with_destroy
-              if @__destroy
-                node = self.node
-                if destroy
-                  # reset @version
-                  node.send(:version_destroyed)
-                  true
-                end
-              else
-                save_without_destroy
-              end
-            end
             alias_method_chain :save, :destroy
+          end
+        end
+
+        def node_with_secure
+          @node ||= begin
+            if n = node_without_secure
+              visitor.visit(n)
+              n.version = self
+            end
+            n
+          end
+        end
+
+        def save_with_destroy(*args)
+          if @__destroy
+            node = self.node
+            if destroy
+              # reset @version
+              node.send(:version_destroyed)
+              true
+            end
+          else
+            save_without_destroy(*args)
           end
         end
 
         private
           def setup_version_on_create
-            # set number
-            last_record = self[:node_id] ? self.connection.select_one("select number from #{self.class.table_name} where node_id = '#{node[:id]}' ORDER BY number DESC LIMIT 1") : nil
-            self[:number] = (last_record || {})['number'].to_i + 1
-
-            # set author
-            self[:user_id] = visitor.id
-            self[:lang]    = visitor.lang unless lang_changed?
+            raise "You should define 'setup_version_on_create' method in '#{self.class}' class."
           end
       end
 
       def self.included(base)
-        base.has_many   :versions, :order=>"number DESC", :dependent => :destroy  #, :inverse_of => :node
+        base.has_many      :versions, :order=>"number DESC", :dependent => :destroy  #, :inverse_of => :node
         base.validate      :validate_version
         base.before_update :save_version_before_update
         base.after_create  :save_version_after_create
         #base.accepts_nested_attributes_for :version
 
-        base.class_eval do
-          def save_with_destroy
-            version = self.version
-            if version.__destroy && versions.count == 1
-              self.destroy # will destroy last version
-            else
-              save_without_destroy
-            end
-          end
-          alias_method_chain :save, :destroy
-        end
+        base.alias_method_chain :save, :destroy
       end
 
+      def save_with_destroy(*args)
+        version = self.version
+        # TODO: we could use 'version.mark_for_destruction' instead of __destroy...
+        if version.__destroy && versions.count == 1
+          self.destroy # will destroy last version
+        else
+          self.save_without_destroy(*args)
+        end
+      end
 
       def version_attributes=(attributes)
         version.attributes = attributes
       end
 
+      # The logic to get the 'current' version should be
+      # rewritten in class including MultiVersion.
       def version
-        @version ||= begin
-          if v_id = version_id
-            version = ::Version.find(v_id)
-          else
-            version = ::Version.new
-          end
-          version.node = self
-          version
-        end
+        raise "You should define 'version' method in '#{self.class}' class."
       end
 
       def version=(v)

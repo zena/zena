@@ -101,7 +101,7 @@ module Zena
         # Default version class (should usually be overwritten)
         # FIXME: remove !
         def version_class
-          ::Version
+          Version
         end
       end # ClassMethods
 

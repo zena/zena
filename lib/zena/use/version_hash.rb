@@ -47,6 +47,18 @@ module Zena
         end
       end
 
+      def version
+        @version ||= begin
+          if v_id = version_id
+            version = ::Version.find(v_id)
+          else
+            version = ::Version.new
+          end
+          version.node = self
+          version
+        end
+      end
+
       def version_id
         access = can_see_redactions? ? vhash['w'] : vhash['r']
         access[visitor.lang] || access[ref_lang] || access.values.first
