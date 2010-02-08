@@ -436,7 +436,7 @@ module Zena
             ]
           end
 
-          cached = Zena::Acts::Multiversion.cached_values_from_records(records)
+          cached = Zena::Use::VersionHash.cached_values_from_records(records)
           node['publish_from'] = cached[:publish_from]
           node['vhash'] = "'#{cached[:vhash].to_json}'"
 

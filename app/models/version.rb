@@ -8,6 +8,7 @@ class Version < ActiveRecord::Base
   include Zena::Use::MultiVersion::Version
   include Zena::Use::Workflow::Version
   include Dynamo::Attribute
+  include Zena::Refactor::Version
 
   belongs_to :user
 
