@@ -49,20 +49,18 @@ module Dynamo
 
       private
 
-        def attributes_with_dynamo=(new_attributes, guard_protected_attributes = true)
-          column_attributes, dynamo_attributes = {}, {}
+        def attributes_with_dynamo=(attributes, guard_protected_attributes = true)
           columns = self.class.column_names
+          properties = {}
 
-          new_attributes.each do |k,v|
-            if columns.include?(k.to_s)
-              column_attributes[k] = v
-            else
-              dynamo_attributes[k] = v
+          attributes.keys.each do |k|
+            if !respond_to?("#{k}=") && !columns.include?(k)
+              properties[k] = attributes.delete(k)
             end
           end
-          self.attributes_without_dynamo=(column_attributes) unless column_attributes.empty?
 
-          merge_dynamo(dynamo_attributes)
+          merge_dynamo(properties)
+          self.attributes_without_dynamo = attributes
         end
 
         def decode_dynamo

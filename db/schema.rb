@@ -1,4 +1,4 @@
-# This file is auto-generated from the current state of the database. Instead of editing this file,
+# This file is auto-generated from the current state of the database. Instead of editing this file, 
 # please use the migrations feature of Active Record to incrementally modify your database, and
 # then regenerate this schema definition.
 #
@@ -9,11 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-<<<<<<< HEAD
 ActiveRecord::Schema.define(:version => 20100201133242) do
-=======
-ActiveRecord::Schema.define(:version => 20100125062254) do
->>>>>>> ccd7dce... Add dynamo plugins.
 
   create_table "cached_pages", :force => true do |t|
     t.text     "path"
@@ -227,7 +223,6 @@ ActiveRecord::Schema.define(:version => 20100125062254) do
     t.boolean  "auto_publish"
     t.integer  "redit_time"
     t.datetime "formats_updated_at"
-    t.text     "serialization"
   end
 
   create_table "template_contents", :force => true do |t|
@@ -259,23 +254,21 @@ ActiveRecord::Schema.define(:version => 20100125062254) do
   end
 
   create_table "versions", :force => true do |t|
-    t.string   "type",          :limit => 32
+    t.string   "type",         :limit => 32
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "node_id",                                     :null => false
-    t.integer  "user_id",                                     :null => false
-    t.string   "lang",          :limit => 10, :default => "", :null => false
+    t.integer  "node_id",                                    :null => false
+    t.integer  "user_id",                                    :null => false
+    t.string   "lang",         :limit => 10, :default => "", :null => false
     t.datetime "publish_from"
     t.text     "comment"
     t.text     "title"
     t.text     "summary"
     t.text     "text"
-    t.integer  "status",                      :default => 70, :null => false
-    t.integer  "number",                      :default => 1,  :null => false
+    t.integer  "status",                                     :null => false
+    t.integer  "number",                     :default => 1,  :null => false
     t.integer  "content_id"
     t.integer  "site_id"
-    t.text     "serialization"
-    t.text     "full_text"
     t.text     "dynamo"
   end
 

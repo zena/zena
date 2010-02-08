@@ -17,7 +17,6 @@ module Zena
               end
             end
             version.attributes = version_attributes
-            puts attributes.inspect
             self.attributes_without_multi_version = attributes
           end
 

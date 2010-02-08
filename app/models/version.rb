@@ -11,8 +11,6 @@ class Version < ActiveRecord::Base
 
   belongs_to :user
 
-  validates_presence_of :node_id
-
   attr_protected :node_id, :site_id, :content_id
 
   before_validation_on_create :set_defaults
