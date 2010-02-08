@@ -2,7 +2,7 @@
 
 <%= @node.c_version_id == @node.v_id ? "<b id='original_caution'>#{_('you are editing the original')}</b>" : "" %>
 
-<% if !ImageBuilder.dummy? %>
+<% if !Zena::Use::ImageBuilder.dummy? %>
 <label for="c_crop_x"><%= _("image")  %></label>
 <div id="crop" class='toggle_div'>
   <div class='img_left'><%= link_to_remote(img_tag(@node,:mode=>'pv'), :url => crop_form_document_path(@node[:zip]), :method => :get) %></div>

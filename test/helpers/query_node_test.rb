@@ -1,9 +1,8 @@
 require 'test_helper'
 require 'yamltest'
 
-class NodeQueryTest < Zena::Unit::TestCase
+class QueryNodeTest < Zena::Unit::TestCase
   yamltest
-
   def yt_do_test(file, test)
     context = Hash[*(yt_get('context', file, test).map{|k,v| [k.to_sym, v]}.flatten)]
 

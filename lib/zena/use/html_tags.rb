@@ -163,7 +163,7 @@ module Zena
 
           if opts[:mode] && (format = Iformat[opts[:mode]]) && format[:size] != :keep
             # resize image
-            img = ImageBuilder.new(:path=>"#{RAILS_ROOT}/public#{res[:src]}", :width=>32, :height=>32)
+            img = Zena::Use::ImageBuilder.new(:path=>"#{RAILS_ROOT}/public#{res[:src]}", :width=>32, :height=>32)
             img.transform!(format)
             if (img.width == res[:width] && img.height == res[:height])
               # ignore mode

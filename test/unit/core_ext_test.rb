@@ -2,9 +2,9 @@ require 'rubygems'
 require 'tzinfo'
 require 'test/unit'
 require 'fileutils'
-require File.join(File.dirname(__FILE__), '../../lib/core_ext/string')
-require File.join(File.dirname(__FILE__), '../../lib/core_ext/fixnum')
-require File.join(File.dirname(__FILE__), '../../lib/core_ext/dir')
+require File.join(File.dirname(__FILE__), '../../lib/zena/core_ext/string')
+require File.join(File.dirname(__FILE__), '../../lib/zena/core_ext/fixnum')
+require File.join(File.dirname(__FILE__), '../../lib/zena/core_ext/dir')
 
 class StringExtTest < Test::Unit::TestCase
   def test_abs_rel_path

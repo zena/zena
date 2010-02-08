@@ -3,6 +3,7 @@ config/deploy_config.rb
 config/database.yml
 config/*.sphinx.conf
 db/sphinx
+db/development_structure.sql
 doc/coverage
 log/
 pkg/*

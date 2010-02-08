@@ -125,7 +125,7 @@ class NodesController < ApplicationController
           # Get document data (inline if possible)
           content_path = nil
 
-          if @node.kind_of?(Image) && !ImageBuilder.dummy?
+          if @node.kind_of?(Image) && !Zena::Use::ImageBuilder.dummy?
             if img_format = Iformat[params[:mode]]
               content_path = @node.version.content.filepath(img_format)
               # force creation of image data

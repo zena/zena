@@ -52,7 +52,7 @@
 # roger 5  tinformation[~12] / 2002-05-05
 # roger 1  radio[~24]
 
-NodeQuery:
+'Zena::Use::QueryNode':
   # find all courses that an employee must follow
   emp_form_date:
     # find courses assigned_to pages in job assigned_to CURRENT_NODE (employee)

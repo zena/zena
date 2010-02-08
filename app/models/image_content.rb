@@ -55,7 +55,7 @@ class ImageContent < DocumentContent
     max        = format['max_value'].to_f * (format['max_unit'] == 'Mb' ? 1024 : 1) * 1024
 
     # crop image
-    img = ImageBuilder.new(:file=>original)
+    img = Zena::Use::ImageBuilder.new(:file=>original)
     img.crop!(x, y, w, h) if x && y && w && h
     img.format       = format['format'] if new_type && new_type != content_type
     img.max_filesize = max if format['max_value'] && max
@@ -71,7 +71,7 @@ class ImageContent < DocumentContent
   # Set content file, will refuse to accept the file if it is not an image.
   def file=(file)
     super
-    return unless ImageBuilder.image_content_type?(file.content_type)
+    return unless Zena::Use::ImageBuilder.image_content_type?(file.content_type)
     img = image_with_format(nil)
     self[:width ] = img.width
     self[:height] = img.height
@@ -132,11 +132,11 @@ class ImageContent < DocumentContent
 
   def image_with_format(format=nil)
     if @new_file
-      ImageBuilder.new(:file => @new_file).transform!(format)
+      Zena::Use::ImageBuilder.new(:file => @new_file).transform!(format)
     elsif !new_record?
       format   ||= Iformat['full']
       @formats ||= {}
-      @formats[format[:name]] ||= ImageBuilder.new(:path => filepath,
+      @formats[format[:name]] ||= Zena::Use::ImageBuilder.new(:path => filepath,
               :width => self[:width], :height => self[:height]).transform!(format)
     else
       raise StandardError, "No image to work on"
@@ -170,7 +170,7 @@ class ImageContent < DocumentContent
 
     def valid_file
       return false unless super
-      if @new_file && !ImageBuilder.image_content_type?(@new_file.content_type)
+      if @new_file && !Zena::Use::ImageBuilder.image_content_type?(@new_file.content_type)
         errors.add('file', 'must be an image')
         return false
       else

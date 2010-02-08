@@ -1,6 +1,6 @@
 class InsertZeroLink < ActiveRecord::Migration
   def self.up
-    NodeQuery.insert_zero_link(Link)
+    Zena::Use::QueryNode.insert_zero_link(Link)
   end
 
   def self.down
