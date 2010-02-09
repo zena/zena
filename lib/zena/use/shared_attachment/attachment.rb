@@ -3,7 +3,7 @@ module Zena
     module SharedAttachment
       class Attachment < ActiveRecord::Base
         set_table_name 'attachments'
-        after_destroy :remove_file
+        after_destroy :destroy_file
         after_save    :write_file
 
         def unlink(model)
@@ -27,17 +27,15 @@ module Zena
 
         private
         def write_file
-          # FIXME: implement the after_commit hook
-          #current_transaction.after_commit do
-          make_file(filepath, @file)
-          #end
+          after_commit do
+            make_file(filepath, @file)
+          end
         end
 
         def destroy_file
-          # FIXME: implement the after_commit hook
-          #current_transaction.after_commit do
-          remove_file
-          #end
+          after_commit do
+            remove_file
+          end
         end
 
         def make_file(path, data)

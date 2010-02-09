@@ -1,6 +1,8 @@
 require 'test_helper'
 
 class SharedAttachmentTest < Zena::Unit::TestCase
+  self.use_transactional_fixtures = false
+
   Attachment = Class.new(Zena::Use::SharedAttachment::Attachment) do
     def filepath
       File.join(RAILS_ROOT, 'tmp', 'attachments', super)
@@ -52,6 +54,10 @@ class SharedAttachmentTest < Zena::Unit::TestCase
       end
   end
 
+  def setup
+    FileUtils.rmtree(File.join(RAILS_ROOT, 'tmp', 'attachments'))
+  end
+
   context 'When creating a new owner' do
     setup do
       @owner = Version.create(:file => uploaded_jpg('bird.jpg'))
@@ -65,6 +71,36 @@ class SharedAttachmentTest < Zena::Unit::TestCase
     should 'restore the filepath from the database' do
       attachment = Attachment.find(@owner.attachment_id)
       assert_equal @owner.filepath, attachment.filepath
+    end
+  end
+
+  context 'When the transaction fails' do
+    should 'not write file on create' do
+      owner    = nil
+      filepath = nil
+      assert_difference('Attachment.count', 0) do
+        Version.transaction do
+          owner = Version.create(:file => uploaded_jpg('bird.jpg'))
+          filepath = owner.filepath
+          assert !File.exist?(filepath)
+          raise ActiveRecord::Rollback
+        end
+      end
+      assert !File.exist?(filepath)
+    end
+
+    should 'not remove file on destroy' do
+      @owner   = Version.create(:file => uploaded_jpg('bird.jpg'))
+      filepath = @owner.filepath
+      assert File.exist?(filepath)
+      assert_difference('Attachment.count', 0) do
+        Version.transaction do
+          @owner.destroy
+          assert File.exist?(filepath)
+          raise ActiveRecord::Rollback
+        end
+      end
+      assert File.exist?(filepath)
     end
   end
 
