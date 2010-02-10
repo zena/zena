@@ -10,7 +10,7 @@ class TestDirty < Test::Unit::TestCase
 
     subject { @version }
 
-    should 'check if object has changed his dynamo' do
+    should 'check if object has changed his properties' do
       assert !subject.changed?
       subject.dyn=({'foo'=>'barre', 'tic'=>'taaac'})
       assert subject.changed?
@@ -29,21 +29,21 @@ class TestDirty < Test::Unit::TestCase
       assert_equal 'test', subject.title_was
     end
 
-    should 'check if record was changed with dynamo=' do
-      subject.dynamo={'foo'=>'barre'}
+    should 'check if record was changed with properties=' do
+      subject.properties={'foo'=>'barre'}
       assert subject.changed?
-      assert subject.dynamo_changed?
+      assert subject.properties_changed?
     end
 
     should 'check if record was changed with dyn' do
-      subject.dyn['foo'] = 'barre'
+      subject.prop['foo'] = 'barre'
       assert subject.changed?
-      assert subject.dynamo_changed?
+      assert subject.properties_changed?
     end
   end
 
 
-  context 'Dynamos changes' do
+  context 'Propertys changes' do
     setup do
       @version = Version.create({'title'=>'test', 'foo'=>'bar', 'tic'=>'tac'})
     end
@@ -68,7 +68,7 @@ class TestDirty < Test::Unit::TestCase
     end
 
     should 'be returned when creating a new value' do
-      @version.dyn['hi'] = 'hello'
+      @version.prop['hi'] = 'hello'
       assert_equal Hash["hi"=>[nil, "hello"]], @version.changes
     end
 

@@ -1,13 +1,12 @@
 require "test_helper"
+require 'property/serialization/yaml'
 
 class MyYAML
-  include Dynamo::Serialization::YAML
+  include Property::Serialization::YAML
 end
 
 class MyYAMLTest < Test::Unit::TestCase
 
-  should_serialization_encode
-
-  should_serialization_decode
+  should_encode_and_decode_properties
 
 end

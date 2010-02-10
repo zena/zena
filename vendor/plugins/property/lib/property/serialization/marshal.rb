@@ -1,17 +1,33 @@
-module Dynamo
+module Property
   module Serialization
+    # Use Marhsal to encode properties. Unless you have very good reasons
+    # to use Marshal, you should use the JSON serialization instead:
+    #  * it's faster at reading text/date based objects
+    #  * it's human readable
+    #  * no corruption risk if the version of Marshal changes
+    #  * it can be accessed by other languages then ruby
     module Marshal
-
-      def encode(data)
-        ActiveSupport::Base64.encode64(::Marshal.dump(data)) if data
-        #::Marshal.dump(data) if data
+      module ClassMethods
+        # Returns true if the given class can be serialized with Marshal
+        def validate_property_class(klass)
+          true
+        end
       end
 
-      def decode(data)
-        ::Marshal.load(ActiveSupport::Base64.decode64(data)) if data
-        #::Marshal.load(data) if data
+      def self.included(base)
+        base.extend ClassMethods
+      end
+
+      # Encode properties with Marhsal
+      def encode_properties(properties)
+        [::Marshal::dump(properties)].pack('m*')
+      end
+
+      # Decode Marshal encoded properties
+      def decode_properties(string)
+        ::Marshal::load(string.unpack('m')[0])
       end
 
     end # Marshal
   end # Serialization
-end # Dynamo
+end # Property

@@ -1,7 +1,7 @@
 class PropretyGenerator < MigrationGenerator
 
   def initialize(runtime_args, runtime_options={})
-    super(["dynamo=rety_migration"])
+    super(["property=rety_migration"])
   end
 
   def manifest

@@ -1,37 +1,60 @@
 class Test::Unit::TestCase
 
-  def self.should_serialization_encode
+  def self.should_encode_and_decode_properties
     klass = self.name.gsub(/Test$/,'').constantize
-    context "Instance of #{klass}" do
-      setup do
-        @obj = klass.new
+    context klass do
+      should 'respond to validate_property_class' do
+        assert klass.respond_to? :validate_property_class
       end
-      should "respond to :encode" do
-        assert @obj.respond_to? :encode
-      end
-      should "encode Hash in string" do
-        assert_kind_of String, @obj.encode({:foo=>:bar})
-      end
-      should "encode Array in sring" do
-        assert @obj.encode([:foo, :bar])
+
+      [Property::Properties, String, Integer, Float].each do |a_class|
+        should "accept to serialize #{a_class}" do
+          assert klass.validate_property_class(a_class)
+        end
       end
     end
-  end
 
-
-  def self.should_serialization_decode
-    klass = self.name.gsub(/Test$/,'').constantize
     context "Instance of #{klass}" do
       setup do
         @obj = klass.new
-        @hash = {:foo=>:bar}
       end
-      should "respond to :decode" do
-        assert @obj.respond_to? :decode
+
+      should 'respond to :encode_properties' do
+        assert @obj.respond_to? :encode_properties
       end
-      should "decode return initial data" do
-        encoding = @obj.encode(@hash)
-        assert_equal @hash, @obj.decode(encoding)
+
+      should 'respond to :decode_properties' do
+        assert @obj.respond_to? :decode_properties
+      end
+
+      context 'with Properties' do
+        setup do
+          @properties = Property::Properties[:foo=>:bar]
+        end
+
+        should 'encode Properties in string' do
+          assert_kind_of String, @obj.encode_properties(@properties)
+        end
+
+        should 'restore Properties from string' do
+          string = @obj.encode_properties(@properties)
+          properties = @obj.decode_properties(string)
+          assert_equal Property::Properties, properties.class
+          assert_equal @properties, properties
+        end
+      end
+
+      context 'with empty Properties' do
+        setup do
+          @properties = Property::Properties.new
+        end
+
+        should 'encode and decode' do
+          string = @obj.encode_properties(@properties)
+          properties = @obj.decode_properties(string)
+          assert_equal Property::Properties, properties.class
+          assert_equal @properties, properties
+        end
       end
     end
   end

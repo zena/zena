@@ -1,13 +1,13 @@
 
 class Employee < ActiveRecord::Base
-  include Dynamo::Attribute
-  dynamo :first_name, String, :indexed => true, :default=>''
-  dynamo :last_name, String, :indexed => true, :default=>''
-  dynamo :age, Float
+  include Property
+  property 'first_name', String, :indexed => true, :default=>''
+  property 'last_name', String, :indexed => true, :default=>''
+  property 'age', Float
 end
 
 class Developer < Employee
-  dynamo :language, String
+  property 'language', String
 end
 
 class WebDeveloper < Developer
@@ -15,14 +15,15 @@ class WebDeveloper < Developer
 end
 
 class Version < ActiveRecord::Base
-  include Dynamo::Attribute
-  dynamo 'foo', String
-  dynamo 'tic', String
-  dynamo 'comment', String
+  attr_accessor :backup
+  include Property
+  property 'foo', String
+  property 'tic', String
+  property 'comment', String
 end
 
 begin
-  class DynamoMigration < ActiveRecord::Migration
+  class PropertyMigration < ActiveRecord::Migration
     def self.down
       drop_table "employees"
       drop_table "versions"
@@ -30,25 +31,25 @@ begin
     def self.up
       create_table "employees" do |t|
         t.string "type"
-        t.text   "dynamo"
+        t.text   "properties"
       end
 
       create_table "versions" do |t|
-        t.string  "dynamo"
+        t.string  "properties"
         t.string  "title"
         t.string  "comment"
         t.timestamps
       end
 
       create_table "dummies" do |t|
-        t.text     "dynamo"
+        t.text    "properties"
       end
     end
   end
 
   ActiveRecord::Base.establish_connection(:adapter=>'sqlite3', :database=>':memory:')
   ActiveRecord::Migration.verbose = false
-  #DynamoMigration.migrate(:down)
-  DynamoMigration.migrate(:up)
+  #PropertyMigration.migrate(:down)
+  PropertyMigration.migrate(:up)
   ActiveRecord::Migration.verbose = true
 end

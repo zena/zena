@@ -1,12 +1,13 @@
-module Dynamo
-  # The Dynamo::Attribute module is included in ActiveRecord model for CRUD operations
-  # on the dynamics attributes (the dynamos). These ared stored in a table field called 'dynamo'
-  # and accessed with #dynamo and dynamo= methods.
+module Property
+  # The Property::Attribute module is included in ActiveRecord model for CRUD operations
+  # on properties. These ared stored in a table field called 'properties' and are accessed
+  # with #properties or #prop and properties= methods.
   #
-  # The dynamo are encoded et decode with a serialization tool than you need to specify seperatly (for instance
-  # Dynamo::Serialization::Marshal).
+  # The properties are encoded et decoded with a serialization tool than you can change by including
+  # a Serialization module that should implement 'encode_properties' and 'decode_properties'.
+  # The default is to use Marshal through Property::Serialization::Marshal.
   #
-  # The attributes= method filter columns attributes and dynamic attributes in order to store
+  # The attributes= method filters native attributes and properties in order to store
   # them apart.
   #
   module Attribute
@@ -14,42 +15,41 @@ module Dynamo
     def self.included(base)
       base.class_eval do
         include InstanceMethods
-        include ::Dynamo::Serialization::Marshal
-        include ::Dynamo::Declaration
-        include ::Dynamo::Dirty
+        include Serialization::JSON
+        include Declaration
+        include Dirty
 
-        before_save :encode_dynamo
+        before_save :dump_properties
 
-        alias_method_chain :attributes=,  :dynamo
+        alias_method_chain :attributes=,  :properties
       end
     end
 
     module InstanceMethods
-      def dynamo
-        @dynamo ||= decode_dynamo
+      def properties
+        @properties ||= load_properties
       end
 
-      alias_method :dyn, :dynamo
+      alias_method :prop, :properties
 
-      def dynamo=(value)
-        check_kind_of_hash(value)
-        @dynamo = value
+      # Define a set of properties. This acts like 'attributes=': it merges the current
+      # properties with the list of provided key/values. Note that unlike 'attributes=',
+      # the keys must be provided as strings, not symbols. For efficiency reasons and
+      # simplification of the API, we do not convert from symbols.
+      def properties=(new_properties)
+        return if new_properties.nil?
+        properties.merge!(new_properties)
       end
 
-      alias_method :dyn=, :dynamo=
+      alias_method :prop=, :properties=
 
-
-      def dynamo!
-         @dynamo = decode_dynamo
-      end
-
-      def dynamo?
-        self.respond_to(:dynamo)
+      # Force a reload of the properties from the ones stored in the database.
+      def reload_properties!
+        @properties = load_properties
       end
 
       private
-
-        def attributes_with_dynamo=(attributes, guard_protected_attributes = true)
+        def attributes_with_properties=(attributes, guard_protected_attributes = true)
           columns = self.class.column_names
           properties = {}
 
@@ -59,30 +59,31 @@ module Dynamo
             end
           end
 
-          merge_dynamo(properties)
-          self.attributes_without_dynamo = attributes
+          self.properties = properties
+          self.attributes_without_properties = attributes
         end
 
-        def decode_dynamo
-          decode(read_attribute('dynamo'))
+        def load_properties
+          raw_properties = read_attribute('properties')
+          raw_properties ? decode_properties(raw_properties) : Properties.new
         end
 
-        def encode_dynamo
-          write_attribute('dynamo', encode(@dynamo))
-        end
-
-        def check_kind_of_hash(data)
-          raise TypeError, 'Argument is not Hash' unless data.kind_of?(Hash)
-        end
-
-
-        def merge_dynamo(new_attributes)
-          if @dynamo && !@dynamo.nil? && @dynamo.kind_of?(Hash)
-            @dynamo.merge!(new_attributes)
+        def dump_properties
+          if @properties
+            @properties.compact!
+            # we clear before to make sure we do not store @original content
+            # in the database !
+            @properties.clear_changes!
+            if !@properties.empty?
+              write_attribute('properties', encode_properties(@properties))
+            else
+              write_attribute('properties', nil)
+            end
           else
-            @dynamo = new_attributes
+            write_attribute('properties', nil)
           end
+          true
         end
     end # InstanceMethods
   end # Attribute
-end # Dynamo
+end # Property

@@ -1,7 +1,7 @@
-module Dynamo
+module Property
 
-  # Dynamo::Declaration module is used to declare Dynamos in a Class. It manage also
-  # inheritency of Dynamos.
+  # Property::Declaration module is used to declare property definitions in a Class. The module
+  # also manages property inheritence in sub-classes.
   module Declaration
 
     def self.included(base)
@@ -9,60 +9,60 @@ module Dynamo
         extend  ClassMethods
         include InstanceMethods
 
-        validate :dynamo_property_validation, :if=>:dynamo
+        class << self
+          attr_accessor :own_property_definitions
+        end
+
+        validate :properties_validation, :if => :properties
       end
     end
 
     module ClassMethods
-      def dynamo(name, type, options={})
-        prop = Dynamo::Property.new(name, type, options)
-        if dynamos[name].blank?
-          dynamos[name] = prop
-        end
-      end
-
-      def dynamos
-        @dynamos ||= if parent = parent_model
-          parent.dynamos.dup
+      # Use this class method to declare properties that will be used in your models. Note
+      # that you must provide string keys. Example:
+      #  property 'phone', String
+      #
+      def property(name, type, options={})
+        if super_property_definitions[name.to_s]
+          raise TypeError.new("Property '#{name}' is already defined in a superclass.")
+        elsif !validate_property_class(type)
+          raise TypeError.new("Property type '#{type}' cannot be serialized.")
         else
-          HashWithIndifferentAccess.new
+          (self.own_property_definitions ||= {})[name] = PropertyDefinition.new(name, type, options)
         end
       end
 
-      def parent_model
-        (ancestors - [self, Dynamo::Attribute]).find do |parent|
-          parent.include?(Dynamo::Attribute)
+      # Return the list of all properties defined for the current class, including the properties
+      # defined in the parent class.
+      def property_definitions
+        super_property_definitions.merge(self.own_property_definitions || {})
+      end
+
+      def super_property_definitions
+        if superclass.respond_to?(:property_definitions)
+          superclass.property_definitions
+        else
+          {}
         end
       end
     end # ClassMethods
 
     module InstanceMethods
-      def dynamos_declared
-        @dynamos_declared ||= self.class.dynamos
-      end
 
       protected
+        def properties_validation
+          property_definitions = self.class.property_definitions
 
-        def dynamo_property_validation
-          dynamo.each do |dyn, value|
-            declaration_validation(dyn)
-            data_type_validation(dyn, value)
-          end
-        end
-
-        def declaration_validation(dyn)
-          unless dynamos_declared.has_key?(dyn)
-            errors.add("#{dyn}", "dynamo is not declared")
-          end
-        end
-
-        def data_type_validation(dyn, value)
-          if declared_dyn = dynamos_declared[dyn]
-            if !value.kind_of?( type = declared_dyn.data_type)
-              errors.add("#{dyn}", "dynamo has wrong data type. Received #{value.class}, expected #{type}")
+          properties.each do |key, value|
+            if property_definition = property_definitions[key]
+              if default = property_definition.validate(value, self)
+                properties[key] = default
+              end
+            else
+              errors.add("#{key}", 'property not declared.')
             end
           end
         end
     end # InsanceMethods
   end # Declaration
-end # Dynamo
+end # Property

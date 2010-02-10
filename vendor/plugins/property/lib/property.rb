@@ -1,9 +1,14 @@
-begin
-  dir = File.dirname(__FILE__)
-  require "#{dir}/dynamo/attribute"
-  require "#{dir}/dynamo/dirty"
-  require "#{dir}/dynamo/property"
-  require "#{dir}/dynamo/declaration"
-  require "#{dir}/serialization/yaml"
-  require "#{dir}/serialization/marshal"
+require 'property/attribute'
+require 'property/dirty'
+require 'property/properties'
+require 'property/property_definition'
+require 'property/declaration'
+require 'property/serialization/json'
+
+module Property
+  def self.included(base)
+    base.class_eval do
+      include ::Property::Attribute
+    end
+  end
 end

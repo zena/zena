@@ -3,205 +3,215 @@ require 'fixtures'
 
 class TestAttribute < Test::Unit::TestCase
 
-  context 'Module inclusion' do
-    should 'include Serialization::Marshal' do
-      assert Version.include?(Dynamo::Serialization::Marshal)
+  context 'When including Property' do
+    should 'include Property::Attribute' do
+      assert Version.include?(Property::Attribute)
     end
 
-    should 'include Dirty' do
-      assert Version.include?(Dynamo::Dirty)
+    should 'include Property::Serialization::JSON' do
+      assert Version.include?(Property::Serialization::JSON)
     end
 
-    should 'include Declaration' do
-      assert Version.include?(Dynamo::Declaration)
+    should 'include Property::Dirty' do
+      assert Version.include?(Property::Dirty)
+    end
+
+    should 'include Property::Declaration' do
+      assert Version.include?(Property::Declaration)
     end
   end
 
+  context 'When defining new properties' do
+    should 'not allow symbols as keys' do
+      assert_raise(ArgumentError) do
+        Class.new(ActiveRecord::Base) do
+          include Property
+          property :foo, String
+        end
+      end
+    end
+  end
 
-  context 'Write dynamic attributes with dynamo=' do
+  context 'When writing properties' do
     setup do
       @version = Version.new
-      @version.dynamo={'foo'=>'bar'}
+      @version.properties = {'foo'=>'bar'}
     end
 
-    subject { @version }
+    context 'with properties=' do
+      should 'merge hash in current content' do
+        @version.properties = {'other' => 'value'}
+        assert_equal Hash['foo' => 'bar', 'other' => 'value'], @version.properties
+      end
 
-    should 'use string or symbol in key' do
-      assert subject.dynamo={:foo=>'bar'}
-      assert_equal Hash[:foo=>'bar'], subject.dynamo
+      should 'replace current values' do
+        @version.properties = {'foo' => 'baz'}
+        assert_equal Hash['foo' => 'baz'], @version.properties
+      end
+
+      should 'raise TypeError if new dynamic attributes is not a Hash' do
+        assert_raise(TypeError) { @version.properties = 'this a string' }
+      end
     end
 
-    should 'raise TypeError if new dynamic attributes is not a Hash' do
-      assert_raise(TypeError) {subject.dynamo='this a string'}
-    end
-
-    should 'rewrite dynamic attributes' do
-      subject.dynamo={'tic'=>'tac'}
-      assert_equal 'tac', subject.dynamo['tic']
-      assert_nil subject.dynamo['foo']
-    end
-
-    should 'merge new attributes with merge!' do
-      subject.dynamo={'a'=>1, 'b'=>2}
-      assert subject.dynamo.merge!({'b'=>'bravo', 'c'=>'charlie'})
-      assert_equal 1, subject.dynamo['a']
-      assert_equal 'bravo', subject.dynamo['b']
-      assert_equal 'charlie', subject.dynamo['c']
+    should 'with merge! should merge new attributes' do
+      @version.properties.merge!({'b'=>'bravo', 'c'=>'charlie'})
+      assert_equal Hash['foo' => 'bar', 'b' => 'bravo', 'c' => 'charlie'], @version.properties
     end
   end
 
-  context 'Write attribute with dyn[]=' do
-    should 'write a dynamo before creation' do
-      subject = Version.new('foo'=>'bar')
-      subject.dyn['foo'] = 'babar'
-      assert_equal 'babar', subject.dyn['foo']
-      subject.save
-      assert_equal 'babar', subject.dyn['foo']
+  context 'When writing attributes with hash access' do
+    setup do
+      @version = Version.new('foo'=>'bar')
+      @version.properties['foo'] = 'babar'
     end
 
-    should 'write a dynamo after creation' do
-      subject = Version.create('foo'=>'bar')
-      subject.dyn['foo'] = 'babar'
-      assert_equal 'babar', subject.dyn['foo']
-      subject.save
-      assert_equal 'babar', subject.dyn['foo']
+    should 'write a property into properties' do
+      assert_equal Hash['foo' => 'babar'], @version.properties
+    end
+
+    should 'save property in properties' do
+      @version.save
+      version = Version.find(@version.id)
+      assert_equal Hash['foo' => 'babar'], version.properties
     end
   end
 
 
-  context 'Read dynamic attributes with dynamo' do
+  context 'Read dynamic attributes with properties' do
     setup do
       @version = Version.new
-      @version.dynamo={'foo'=>'bar', :tic=>:tac}
+      @version.properties={'foo'=>'bar', :tic=>:tac}
     end
 
-    subject { @version }
-
-    should 'be accessible with dynamo' do
-      assert_equal Hash['foo'=>'bar', :tic=>:tac], subject.dynamo
+    should 'be accessible with properties' do
+      assert_equal Hash['foo'=>'bar', :tic=>:tac], @version.properties
     end
 
     should 'be kind of Hash' do
-      assert_kind_of Hash, subject.dynamo
+      assert_kind_of Hash, @version.properties
     end
 
     should 'delete dynamic attribute' do
-      assert_equal 'bar', subject.dynamo.delete('foo')
-      assert_nil subject.dynamo['foo']
+      assert_equal 'bar', @version.properties.delete('foo')
+      assert_nil @version.properties['foo']
     end
 
   end
 
-  context 'Update attributes' do
+  context 'Setting attributes' do
     setup do
       @version = Version.new
-      @version.attributes={'foo'=>'bar', 'title'=>'test'}
+      @version.attributes = {'foo'=>'bar', 'title'=>'test', 'backup' => 'please'}
     end
 
-    subject { @version }
-
-    should 'update attributes without dynamo' do
-      version = Version.new
-      version.attributes_without_dynamo={'title'=>'test'}
-      assert_equal 'test', version.title
+    should 'set rails attributes' do
+      assert_equal 'test', @version.title
     end
 
-    should 'update column attributes' do
-      assert_equal 'test', subject.title
+    should 'set properties' do
+      assert_equal Hash['foo'=>'bar'], @version.properties
     end
 
-    should 'filter dynamic attributes with dynamo' do
-      assert_equal Hash['foo'=>'bar'], subject.dynamo
-    end
-
-    should 'updpate column attributes' do
-      subject.attributes=({'comment'=>'pourquoi'})
-      assert_equal 'pourquoi', subject.comment
-      assert_equal 'test', subject.title
-      assert_equal Hash['foo'=>'bar'], subject.dyn
+    should 'call native methods' do
+      assert_equal 'please', @version.backup
     end
   end
 
-  context 'Initialisation' do
-    should 'initialize columns attributes and dynamic attributes with hash' do
-      subject = Version.new('title'=>'test', 'foo' => 'bar')
-      assert_equal 'test', subject.title
-      assert_equal 'bar', subject.dynamo['foo']
-    end
-
-    should 'initialize columns attributes' do
-      subject = Version.new('title'=>'test')
-      assert_equal 'test', subject.title
-      assert_nil subject.dynamo['foo']
-    end
-
-    should 'initialize dynamic attributes' do
-      subject = Version.new('foo'=>'bar')
-      assert_nil subject.title
-      assert_equal 'bar', subject.dynamo['foo']
-    end
-  end
-
-  context 'Persistence' do
+  context 'Initializing an object' do
     setup do
-      @version = Version.new('title'=>'test', 'foo' => 'bar')
-      assert @version.save
+      @version = Version.new('foo'=>'bar', 'title'=>'test', 'backup' => 'please')
     end
 
-    subject { @version }
-
-    should 'save columns attributes and dynamic attributes' do
-      assert_equal 'test', subject.title
-      assert_equal 'bar', subject.dynamo['foo']
+    should 'set rails attributes' do
+      assert_equal 'test', @version.title
     end
 
-    should 'save columns attributes' do
-      version = Version.new('title'=>'test')
-      assert version.save
-      assert_equal 'test', version.title
-      assert_nil version.dynamo['foo']
+    should 'set properties' do
+      assert_equal Hash['foo'=>'bar'], @version.properties
     end
 
-    should 'save updated columns attributes' do
-      subject.attributes={'comment'=>'amazing'}
-      subject.save
-      assert_equal 'test', subject.title
-      assert_equal 'amazing', subject.comment
-      assert_equal Hash['foo'=>'bar'], subject.dyn
+    should 'call native methods' do
+      assert_equal 'please', @version.backup
+    end
+  end
+
+  context 'Updating attributes' do
+    setup do
+      version = Version.create('title' => 'first', 'tic' => 'tac')
+      @version = Version.find(version.id)
+      assert @version.update_attributes('foo'=>'bar', 'title'=>'test', 'backup' => 'please')
     end
 
-    should 'save dynamic attributes' do
-      version = Version.new('foo'=>'bar')
-      assert version.save
-      assert_equal 'bar', version.dynamo['foo']
+    should 'update rails attributes' do
+      assert_equal 'test', @version.title
     end
 
-    should 'encode dynamo with attributes' do
-      assert_equal "BAh7BiIIZm9vIghiYXI=\n", subject.attributes['dynamo']
+    should 'update properties' do
+      assert_equal Hash['tic' => 'tac', 'foo'=>'bar'], @version.properties
     end
 
-    should 'create object with columns ant dynamic attributes' do
-      assert version = Version.create('title'=>'test', 'foo' => 'bar')
-      assert_equal 'test', version.title
-      assert_equal 'bar', version.dynamo['foo']
+    should 'call native methods' do
+      assert_equal 'please', @version.backup
+    end
+  end
+
+  context 'Saving attributes' do
+    setup do
+      version  = Version.create('title'=>'test', 'foo' => 'bar', 'backup' => 'please')
+      @version = Version.find(version.id)
     end
 
-    should 'save updated dynamo' do
-      subject.dynamo=({'foo'=>'barre'})
-      subject.save
-      assert_equal 'barre', subject.dyn['foo']
+    should 'save rails attributes' do
+      assert_equal 'test', @version.title
+    end
+
+    should 'save properties' do
+      assert_equal 'bar', @version.prop['foo']
     end
 
     should 'destroy' do
-      assert subject.destroy
-      assert subject.destroyed?
-      assert subject.frozen?
+      assert @version.destroy
+      assert @version.frozen?
     end
 
     should 'delete' do
-      assert subject.delete
-      assert subject.destroyed?
-      assert subject.frozen?
+      assert @version.delete
+      assert @version.frozen?
+    end
+  end
+
+  context 'Saving empty attributes' do
+    setup do
+      @version = Version.new('foo' => 'bar')
+      @version.prop.delete('foo')
+      @version.save
+    end
+
+    should 'save nil in database' do
+      assert_nil @version['properties']
+    end
+
+    should 'save nil when last property is removed' do
+      @version = Version.create('foo' => 'bar', 'tic' => 'tac')
+      @version.attributes = {'foo' => nil}
+      @version.update_attributes('foo' => nil)
+      assert_equal ['tic'], @version.properties.keys
+      @version.properties.delete('tic')
+      @version.save
+      assert_nil @version['properties']
+    end
+  end
+
+  context 'Saving without changes to properties' do
+    setup do
+      version = Version.create('title' => 'test', 'foo' => 'bar')
+      @version = Version.find(version.id)
+      @version.update_attributes('title' => 'updated')
+    end
+
+    should 'not alter properties' do
+      assert_equal Hash['foo' => 'bar'], @version.properties
     end
   end
 
@@ -212,76 +222,97 @@ class TestAttribute < Test::Unit::TestCase
 
     should 'find by id' do
       version = Version.find(@version)
-      assert_equal 'bar', version.dyn['foo']
+      assert_equal 'bar', version.prop['foo']
     end
   end
 
-  context 'Reload' do
-    should 'return dynamo stored in database' do
-      subject=Version.create('title'=>'find me', 'foo' => 'bar')
-      subject.dyn['foo'] = 'barab'
-      assert_equal 'barab', subject.dyn['foo']
-      subject.dynamo!
-      assert_equal 'bar', subject.dyn['foo']
+  context 'A modified version receiving :reload_properties' do
+    should 'return properties stored in database' do
+      @version = Version.create('title'=>'find me', 'foo' => 'bar')
+      @version.prop['foo'] = 'Babar'
+      assert_equal 'Babar', @version.prop['foo']
+      @version.reload_properties!
+      assert_equal 'bar', @version.prop['foo']
     end
   end
 
   context 'Type cast' do
     DataType = Class.new(ActiveRecord::Base) do
       set_table_name 'dummies'
-      include Dynamo::Attribute
-      dynamo 'mystring', String
-      dynamo 'myarray', Array
-      dynamo 'myinteger', Integer
-      dynamo 'myfloat', Float
-      dynamo 'myhash', Hash
-      dynamo 'myrange', Range
-      dynamo 'mysymbol', Symbol
+      include Property
+      property 'mystring', String
+      property 'myarray', Array
+      property 'myinteger', Integer
+      property 'myfloat', Float
+      property 'myhash', Hash
+
+      # Range and Symbol are not supported by JSON and are hard to read/write
+      # from the web.
+      # property 'myrange', Range
+      # property 'mysymbol', Symbol
     end
 
-    should 'save & read String' do
-      assert subject = DataType.create('mystring'=>'some string')
+    should 'save and read String' do
+      assert subject = DataType.create('mystring' => 'some string')
       subject.reload
-      assert_kind_of String, subject.dyn['mystring']
+      assert_kind_of String, subject.prop['mystring']
     end
 
-    should 'save & read Array' do
-      assert subject = DataType.create('myarray'=>[1,:a,'3'])
+    should 'save and read Array' do
+      assert subject = DataType.create('myarray' => [1,:a,'3'])
       subject.reload
-      assert_kind_of Array, subject.dyn['myarray']
+      assert_kind_of Array, subject.prop['myarray']
     end
 
-    should 'save & read Integer' do
-      assert subject = DataType.create('myinteger'=>123)
+    should 'save and read Integer' do
+      assert subject = DataType.create('myinteger' => 123)
       subject.reload
-      assert_kind_of Integer, subject.dyn['myinteger']
+      assert_kind_of Integer, subject.prop['myinteger']
     end
 
-    should 'save & read Float' do
-      assert subject = DataType.create('myfloat'=>12.3)
+    should 'save and read Float' do
+      assert subject = DataType.create('myfloat' => 12.3)
       subject.reload
-      assert_kind_of Float, subject.dyn['myfloat']
+      assert_kind_of Float, subject.prop['myfloat']
     end
 
-    should 'save & read Hash' do
-      assert subject = DataType.create('myhash'=>{:a=>'a', :b=>2})
+    should 'save and read Hash' do
+      assert subject = DataType.create('myhash' => {:a=>'a', :b=>2})
       subject.reload
-      assert_kind_of Hash, subject.dyn['myhash']
+      assert_kind_of Hash, subject.prop['myhash']
     end
 
-    should 'save & read Range' do
-      assert subject = DataType.create('myrange'=>(-1..-5))
-      subject.reload
-      assert_kind_of Range, subject.dyn['myrange']
+    context 'from a String' do
+      should 'parse integer values' do
+        assert subject = DataType.create('myinteger' => '123')
+        subject.reload
+        assert_kind_of Integer, subject.prop['myinteger']
+      end
+
+      should 'save and read Float' do
+        assert subject = DataType.create('myfloat' => '12.3')
+        subject.reload
+        assert_kind_of Float, subject.prop['myfloat']
+      end
+
+      should 'save and read Hash' do
+        assert subject = DataType.create('myhash' => {:a=>'a', :b=>2})
+        subject.reload
+        assert_kind_of Hash, subject.prop['myhash']
+      end
     end
 
-    should 'save & read Symbol' do
-      assert subject = DataType.create('mysymbol'=>:abc)
-      subject.reload
-      assert_kind_of Symbol, subject.dyn['mysymbol']
-    end
-
-
+    # should 'save & read Range' do
+    #   assert subject = DataType.create('myrange'=>(-1..-5))
+    #   subject.reload
+    #   assert_kind_of Range, subject.prop['myrange']
+    # end
+    #
+    # should 'save & read Symbol' do
+    #   assert subject = DataType.create('mysymbol'=>:abc)
+    #   subject.reload
+    #   assert_kind_of Symbol, subject.prop['mysymbol']
+    # end
   end
 
 
