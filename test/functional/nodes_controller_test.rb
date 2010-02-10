@@ -233,7 +233,7 @@ END:VCALENDAR
       assert_match %r{Here are some photos.*!\[\]!}m, photos.version.text
       assert_match %r{!#{bird.zip}_med!}m,     photos.version.text
       assert_match %r{"links":#{simple.zip}}m, photos.version.text
-      assert_equal "A simple \"test\":#{simple.zip}", photos.version.dyn['foo']
+      assert_equal "A simple \"test\":#{simple.zip}", photos.version.prop['foo']
       in_photos = photos.find(:all, 'children')
       assert_equal 2, in_photos.size
 

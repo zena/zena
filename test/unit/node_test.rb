@@ -1390,7 +1390,7 @@ done: \"I am done\""
     context 'for dynattributes using nested alias' do
       should 'return dyn access' do
         ['d_something', 'd_foo'].each do |k|
-          assert_equal "version.dyn[\"#{k[2..-1]}\"]", Contact.safe_method_type([k])[:method]
+          assert_equal "version.prop[\"#{k[2..-1]}\"]", Contact.safe_method_type([k])[:method]
         end
       end
     end

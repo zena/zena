@@ -246,10 +246,10 @@ module Zena
             if sym.to_s =~ /^d_(.*?)(=|)$/
               if $2 == '='
                 # set
-                self.dyn[$1] = args[0]
+                self.prop[$1] = args[0]
               else
                 # get
-                self.dyn[$1]
+                self.prop[$1]
               end
             else
               super

@@ -136,7 +136,7 @@ show_path:
 
 show_dyn_attribute:
   src: "<r:show attr='d_assigned'/>"
-  tem: "<%= @node.version.dyn[\"assigned\"] %>"
+  tem: "<%= @node.version.prop[\"assigned\"] %>"
   res: "gaspard"
 
 trans:
@@ -648,12 +648,12 @@ if_in_tag_else:
 
 if_or:
   src: "<r:if can='write' or_test='d_foo'>hello</r:if>"
-  tem: "/<% if @node.can_write? || !@node.version.dyn[\"foo\"].blank? -%>hello<% end -%>|<% if !@node.version.dyn[\"foo\"].blank? || @node.can_write? -%>hello<% end -%>/"
+  tem: "/<% if @node.can_write? || !@node.version.prop[\"foo\"].blank? -%>hello<% end -%>|<% if !@node.version.prop[\"foo\"].blank? || @node.can_write? -%>hello<% end -%>/"
   res: "hello"
 
 if_or_same:
   src: "<r:if test='d_foo' test='d_bar'>hello</r:if>"
-  tem: "/<% if !@node.version.dyn[\"foo\"].blank? || !@node.version.dyn[\"bar\"].blank? -%>hello<% end -%>|<% if !@node.version.dyn[\"bar\"].blank? || !@node.version.dyn[\"foo\"].blank? -%>hello<% end -%>/"
+  tem: "/<% if !@node.version.prop[\"foo\"].blank? || !@node.version.prop[\"bar\"].blank? -%>hello<% end -%>|<% if !@node.version.prop[\"bar\"].blank? || !@node.version.prop[\"foo\"].blank? -%>hello<% end -%>/"
   res: ""
 
 if_now:
@@ -1085,7 +1085,7 @@ read_bad_attribute:
 
 translate_id_to_zip:
   src: "<b do='[d_empid]'/><i do='[parent_id]'/>"
-  tem: "<b><%= @node.version.dyn[\"empid\"] %></b><i><%= @node.parent_zip %></i>"
+  tem: "<b><%= @node.version.prop[\"empid\"] %></b><i><%= @node.parent_zip %></i>"
 
 date:
   context:

@@ -6,15 +6,15 @@ module Bricks
   module Captcha
     module Zafu
       def r_captcha
-        return parser_error("recaptcha keys not set") unless current_site.dyn['recaptcha_pub'] && current_site.dyn['recaptcha_priv']
-        res = "<%= get_captcha(:rcc_pub => #{visitor.site.dyn['recaptcha_pub'].inspect}, :rcc_priv => #{visitor.site.dyn['recaptcha_priv'].inspect}#{get_recaptcha_params}) %>"
+        return parser_error("recaptcha keys not set") unless current_site.prop['recaptcha_pub'] && current_site.prop['recaptcha_priv']
+        res = "<%= get_captcha(:rcc_pub => #{visitor.site.prop['recaptcha_pub'].inspect}, :rcc_priv => #{visitor.site.prop['recaptcha_priv'].inspect}#{get_recaptcha_params}) %>"
         res += expand_with
         "<% if visitor.is_anon? -%>#{render_html_tag(res)}<% end -%>"
       end
 
       def r_mail_hide
         text = get_text_for_erb
-        "<%= visitor.is_anon? ? mail_hide(#{text},:mh_pub => #{visitor.site.dyn['mail_hide_pub'].inspect}, :mh_priv => #{visitor.site.dyn['mail_hide_priv'].inspect}#{get_recaptcha_params}) : #{text} %>"
+        "<%= visitor.is_anon? ? mail_hide(#{text},:mh_pub => #{visitor.site.prop['mail_hide_pub'].inspect}, :mh_priv => #{visitor.site.prop['mail_hide_priv'].inspect}#{get_recaptcha_params}) : #{text} %>"
       end
 
       def get_recaptcha_params

@@ -183,21 +183,21 @@ class VersionTest < Zena::Unit::TestCase
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
     version = node.send(:redaction)
-    assert_nothing_raised { version.dyn['zucchini'] = 'courgettes' }
+    assert_nothing_raised { version.prop['zucchini'] = 'courgettes' }
     assert_nothing_raised { version.dyn_attributes = {'zucchini' => 'courgettes' }}
-    assert_equal 'courgettes', version.dyn['zucchini']
+    assert_equal 'courgettes', version.prop['zucchini']
     assert node.save
 
     node = secure!(Node) { nodes(:status) }
     version = node.version
-    assert_equal 'courgettes', version.dyn['zucchini']
+    assert_equal 'courgettes', version.prop['zucchini']
   end
 
   def test_clone
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
     assert node.update_attributes(:d_whatever => 'no idea')
-    assert_equal 'no idea', node.version.dyn['whatever']
+    assert_equal 'no idea', node.version.prop['whatever']
     version1_id = node.version[:id]
     assert node.publish
     version1_publish_from = node.version.publish_from
@@ -206,8 +206,8 @@ class VersionTest < Zena::Unit::TestCase
     assert node.update_attributes(:d_other => 'funny')
     version2_id = node.version[:id]
     assert_not_equal version1_id, version2_id
-    assert_equal 'no idea', node.version.dyn['whatever']
-    assert_equal 'funny', node.version.dyn['other']
+    assert_equal 'no idea', node.version.prop['whatever']
+    assert_equal 'funny', node.version.prop['other']
     assert_equal version1_publish_from, node.version.publish_from
   end
 
@@ -293,14 +293,14 @@ class VersionTest < Zena::Unit::TestCase
     end
 
     should 'see dyn attribute' do
-      assert_equal 'bar', @node.version.dyn['foo']
+      assert_equal 'bar', @node.version.prop['foo']
     end
 
     should 'see be able to update dyn attribute' do
       assert @node.version.dyn.would_edit?('foo' => 'max')
       assert @node.update_attributes(:d_foo => 'max')
       @node = secure(Node) { nodes(:nature) }
-      assert_equal 'max', @node.version.dyn['foo']
+      assert_equal 'max', @node.version.prop['foo']
     end
   end
 end

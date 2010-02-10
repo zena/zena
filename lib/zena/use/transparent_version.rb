@@ -34,7 +34,7 @@ module Zena
           elsif version.respond_to?(meth)
             version.send(meth)
           else
-            #version.dyn[meth.to_s]
+            #version.prop[meth.to_s]
             super
           end
         end
@@ -66,7 +66,7 @@ module Zena
         #             redaction_error(meth.to_s[0..-2], "cannot be set") # remove trailing '='
         #           end
         #         when 'd_'
-        #           recipient.dyn[method[0..-2]] = args[0]
+        #           recipient.prop[method[0..-2]] = args[0]
         #         else
         #           recipient.send(method,*args)
         #         end
@@ -77,7 +77,7 @@ module Zena
         #       # read
         #       recipient = version
         #       if target == 'd_'
-        #         version.dyn[method]
+        #         version.prop[method]
         #       else
         #         recipient = recipient.content if target == 'c_'
         #         return nil unless recipient

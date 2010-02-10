@@ -17,8 +17,8 @@ module Bricks
 
       def email_asset(opts)
         content = opts[:content]
-        if current_site.dyn['mail_hide_priv'] && current_site.dyn['mail_hide_pub']
-          mail_hide(content, :mh_priv => current_site.dyn['mail_hide_priv'], :mh_pub => current_site.dyn['mail_hide_pub'])
+        if current_site.prop['mail_hide_priv'] && current_site.prop['mail_hide_pub']
+          mail_hide(content, :mh_priv => current_site.prop['mail_hide_priv'], :mh_pub => current_site.prop['mail_hide_pub'])
         else
           "<a href='mailto:#{content}'>#{content}</a>"
         end

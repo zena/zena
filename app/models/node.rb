@@ -61,7 +61,7 @@ TODO: DOC removed (was out of sync)
 
 The Version class uses dynamic attributes. These let you add any attribute you like to the versions (see DynAttribute for details). These attributes can be accessed by using the +d_+ prefix :
 
- @node.d_whatever  ===> @node.version.dyn[:whatever]
+ @node.d_whatever  ===> @node.version.prop[:whatever]
 
 === Attributes
 
@@ -719,7 +719,7 @@ class Node < ActiveRecord::Base
             {:method => "version.safe_content_read(#{method.inspect})", :nil => true, :class => String}
           end
         when 'd_'
-          {:method => "version.dyn[#{method[2..-1].inspect}]", :nil => true, :class => String}
+          {:method => "version.prop[#{method[2..-1].inspect}]", :nil => true, :class => String}
         else
           if method =~ /^(.+)_((id|zip|status|comment)(s?))\Z/ && !instance_methods.include?(method)
             {:method => "rel[#{$1.inspect}].try(:other_#{$2})", :nil => true, :class => ($4.blank? ? Number : [Number])}
@@ -778,7 +778,7 @@ class Node < ActiveRecord::Base
     when 'c_'
       version.safe_content_read(attribute[2..-1])
     when 'd_'
-      version.dyn[attribute[2..-1]]
+      version.prop[attribute[2..-1]]
     else
       if @attributes.has_key?(attribute)             &&
          !self.class.column_names.include?(attribute) &&

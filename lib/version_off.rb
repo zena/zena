@@ -21,7 +21,7 @@ text:: The text is the full content of a version. The text usually contains zaze
 
 === Dynamic attributes
 
-Any attribute written using version.dyn[:blah] = 'some text' is stored as a dynamic attribute. See DynAttributes for details.
+Any attribute written using version.prop[:blah] = 'some text' is stored as a dynamic attribute. See DynAttributes for details.
 
 == Content
 If a we need to create a more sophisticated version class, all the required fields go in a 'content' class, like
