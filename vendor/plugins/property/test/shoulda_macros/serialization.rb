@@ -29,7 +29,7 @@ class Test::Unit::TestCase
 
       context 'with Properties' do
         setup do
-          @properties = Property::Properties[:foo=>:bar]
+          @properties = Property::Properties['foo' => 'bar']
         end
 
         should 'encode Properties in string' do
@@ -46,12 +46,11 @@ class Test::Unit::TestCase
         should 'not include instance variables' do
           @properties.instance_eval do
             @baz   = 'some data'
-            @owner = Version.new
+            @owner = klass.new
           end
-          @obj.decode_properties(encode_properties(@properties)).instance_eval do
-            assert_nil @baz
-            assert_nil @owner
-          end
+          prop = @obj.decode_properties(@obj.encode_properties(@properties))
+          assert_nil prop.instance_variable_get(:@baz)
+          assert_nil prop.instance_variable_get(:@owner)
         end
       end
 

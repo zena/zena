@@ -2,7 +2,7 @@ require 'test_helper'
 require 'fixtures'
 require 'benchmark'
 
-class TestAttribute < Test::Unit::TestCase
+class AttributeTest < Test::Unit::TestCase
 
   ActiveRecord::Base.default_timezone = :utc
   ENV['TZ'] = 'UTC'

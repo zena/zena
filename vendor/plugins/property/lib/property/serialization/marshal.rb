@@ -20,7 +20,9 @@ module Property
 
       # Encode properties with Marhsal
       def encode_properties(properties)
-        [::Marshal::dump(properties)].pack('m*')
+        # we limit dump depth to 0 (object only: no instance variables)
+        # we have to protect Marshal from serializing instance variables by making a copy
+        [::Marshal::dump(Properties[properties])].pack('m*')
       end
 
       # Decode Marshal encoded properties

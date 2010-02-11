@@ -85,10 +85,10 @@ module Property
       remove_instance_variable(:@original_hash) if defined?(@original_hash)
     end
 
-    def method_missing(meth, *args)
+    def method_missing(method, *args)
       if method.to_s =~ CHANGED_REGEXP
         !changes[$1].nil?
-      elsif method =~ WAS_REGEXP
+      elsif method.to_s =~ WAS_REGEXP
         (@original_hash || self)[$1]
       else
         super

@@ -1,7 +1,7 @@
 require 'test_helper'
 require 'fixtures'
 
-class DeclarationDirty < Test::Unit::TestCase
+class ValidationTest < Test::Unit::TestCase
 
   context 'When setting a property' do
     Pirate = Class.new(ActiveRecord::Base) do

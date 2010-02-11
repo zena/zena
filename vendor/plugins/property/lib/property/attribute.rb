@@ -75,9 +75,6 @@ module Property
         def dump_properties
           if @properties
             @properties.compact!
-            # we clear before to make sure we do not store @original content
-            # in the database !
-            @properties.clear_changes!
             if !@properties.empty?
               write_attribute('properties', encode_properties(@properties))
             else
@@ -86,6 +83,7 @@ module Property
           else
             write_attribute('properties', nil)
           end
+          @properties.clear_changes!
           true
         end
     end # InstanceMethods
