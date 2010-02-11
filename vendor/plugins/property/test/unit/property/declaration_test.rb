@@ -1,127 +1,109 @@
 require 'test_helper'
 require 'fixtures'
 
+class DeclarationTest < Test::Unit::TestCase
 
+  context 'A sub-class' do
+    context 'from a class with property columns' do
+      setup do
+        @klass = Developer
+      end
 
-class DeclarationDirty < Test::Unit::TestCase
+      should 'inherit property columsn from parent class' do
+        assert_equal %w{age first_name language last_name}, @klass.property_column_names.sort
+      end
 
-  context 'Parent model' do
-    should 'return parent class' do
-      assert_equal 'Employee', Developer.parent_model.name
-      assert_equal 'Developer', WebDeveloper.parent_model.name
-    end
+      should 'not back-propagate definitions to parent' do
+        assert !@klass.superclass.property_columns.include?('language')
+      end
 
-    should 'be nil if parents doesnt include Property' do
-      assert_nil Employee.parent_model
-    end
+      should 'inherit current definitions from parent' do
+        class ParentClass < ActiveRecord::Base
+          include Property
+          property.string 'name'
+        end
+        @klass = Class.new(ParentClass) do
+          property.integer 'age'
+        end
+        assert_equal %w{age name}, @klass.property_column_names.sort
 
-    should 'include Dynama::Attribute' do
-      assert Developer.parent_model.include?(Property::Attribute)
+        ParentClass.class_eval do
+          property.string 'first_name'
+        end
+
+        assert_equal %w{age first_name name}, @klass.property_column_names.sort
+      end
     end
   end
 
   context 'Property declaration' do
     Superhero = Class.new(ActiveRecord::Base) do
-      include Property::Attribute
+      include Property
     end
 
-    should 'create Property::Proprety object' do
-      subject = Superhero.properties('weapon', String)
-      assert_kind_of PropertyDefinition, subject
-      assert_equal 'weapon', subject.name
-      assert_equal String, subject.data_type
+    should 'create Property::Column definitions' do
+      Superhero.property.string('weapon')
+      assert_kind_of Property::Column, Superhero.property_columns['weapon']
+    end
+
+    should 'allow string columns' do
+      Superhero.property.string('weapon')
+      column = Superhero.property_columns['weapon']
+      assert_equal 'weapon', column.name
+      assert_equal String, column.klass
+      assert_equal :string, column.type
+    end
+
+    should 'allow integer columns' do
+      Superhero.property.integer('indestructible')
+      column = Superhero.property_columns['indestructible']
+      assert_equal 'indestructible', column.name
+      assert_equal Fixnum, column.klass
+      assert_equal :integer, column.type
+    end
+
+    should 'allow float columns' do
+      Superhero.property.float('boat')
+      column = Superhero.property_columns['boat']
+      assert_equal 'boat', column.name
+      assert_equal Float, column.klass
+      assert_equal :float, column.type
+    end
+
+    should 'allow datetime columns' do
+      Superhero.property.datetime('time_weapon')
+      column = Superhero.property_columns['time_weapon']
+      assert_equal 'time_weapon', column.name
+      assert_equal Time, column.klass
+      assert_equal :datetime, column.type
     end
 
     should 'allow default value option' do
-      subject = Superhero.properties('force', Numeric, :default=> 10)
-      assert_equal 10, subject.default
+      Superhero.property.integer('force', :default => 10)
+      column = Superhero.property_columns['force']
+      assert_equal 10, column.default
     end
 
     should 'allow indexed option' do
-      subject = Superhero.properties('name', String, :indexed=> true)
-      assert subject.indexed
+      Superhero.property.string('rolodex', :indexed => true)
+      column = Superhero.property_columns['rolodex']
+      assert column.indexed?
     end
   end
 
-  context 'Declared property_definitions' do
+  context 'Property columns' do
     Dummy = Class.new(ActiveRecord::Base) do
       set_table_name 'dummies'
-      include Property::Attribute
+      include Property
     end
 
-    should 'return empty Hash if no property_definitions declared' do
-      assert_equal Hash[], Dummy.property_definitions
-      assert_equal Hash[], Dummy.new.property_definitions_declared
+    should 'return empty Hash if no property columsn are declared' do
+      assert_equal Hash[], Dummy.property_columns
     end
 
-    should 'return list of PropertyDefinition object from class' do
-      assert_kind_of Hash, Employee.property_definitions
-      assert_kind_of PropertyDefinition, Employee.property_definitions[:first_name]
-    end
-
-    should 'return list of PropertyDefinition object from instance' do
-      assert_kind_of Hash, Employee.new.property_definitions_declared
-      assert_kind_of PropertyDefinition, Employee.new.property_definitions_declared[:first_name]
+    should 'return list of property columns from class' do
+      assert_kind_of Hash, Employee.property_columns
+      assert_kind_of Property::Column, Employee.property_columns['first_name']
     end
   end
-
-  context 'Property declaration missing' do
-    Pirate = Class.new(ActiveRecord::Base) do
-      set_table_name 'dummies'
-      include Property::Attribute
-    end
-
-    subject { Pirate.create(:foo=>'bar')}
-
-    should 'render object invalid ' do
-      assert subject.invalid?
-    end
-
-    should 'return message error' do
-      assert_contains subject.errors.full_messages, 'Foo properties is not declared'
-    end
-
-  end
-
-  context 'Wrong data type' do
-    Duck = Class.new(ActiveRecord::Base) do
-      set_table_name 'dummies'
-      include Property::Attribute
-      properties :cack, String
-    end
-
-    subject { Duck.create(:cack=>10)}
-
-    should 'render object invalid' do
-      assert subject.invalid?
-    end
-
-    should 'return message error' do
-      assert_does_not_contain subject.errors.full_messages, 'Cack properties is not declared'
-      assert_contains subject.errors.full_messages, 'Cack properties has wrong data type. Received Fixnum, expected String'
-    end
-  end
-
-  context 'Setting nil' do
-    should 'accept new value' do
-      assert false # TODO
-    end
-  end
-
-  context 'Default value' do
-    Cat = Class.new(ActiveRecord::Base) do
-      set_table_name 'dummies'
-      include Property::Attribute
-      properties :eat, String, :default=>'mouse'
-      properties :name, String
-    end
-
-    should 'should create properties' do
-
-    end
-  end
-
-
-
-
 end

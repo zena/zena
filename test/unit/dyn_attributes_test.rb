@@ -113,7 +113,7 @@ class DynAttributesTest < Test::Unit::TestCase
       assert_nil record.prop[:shoes]
     end
 
-    should 'destroy object with property_definitions' do
+    should 'destroy object with property_columns' do
       record = DynDummy.create(:title => 'lolipop', :text=>'', :comment=>'', :summary=>'', :life=>'fun')
       assert_difference('DynDummy.count', -1) do
         assert record.destroy

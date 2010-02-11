@@ -10,7 +10,7 @@ module Property
         include InstanceMethods
 
         class << self
-          attr_accessor :own_property_definitions
+          attr_accessor :own_property_columns
           attr_accessor :property_definition_proxy
         end
 
@@ -24,11 +24,11 @@ module Property
           @klass = klass
         end
 
-        def column(name, type, options)
-          if @klass.super_property_definitions[name.to_s]
+        def column(name, default, type, options)
+          if @klass.super_property_columns[name.to_s]
             raise TypeError.new("Property '#{name}' is already defined in a superclass.")
           else
-            (@klass.own_property_definitions ||= {})[name] = PropertyDefinition.new(name, type, options)
+            (@klass.own_property_columns ||= {})[name] = Property::Column.new(name, default, type, options)
           end
         end
 
@@ -36,24 +36,30 @@ module Property
         # could use this:
         # p.serialize MyClass, xxx, xxx
         # def serialize(klass, name, options={})
-        #   if @klass.super_property_definitions[name.to_s]
+        #   if @klass.super_property_columns[name.to_s]
         #     raise TypeError.new("Property '#{name}' is already defined in a superclass.")
         #   elsif !@klass.validate_property_class(type)
         #     raise TypeError.new("Custom type '#{type}' cannot be serialized.")
         #   else
         #     # Find a way to insert the type (maybe with 'serialize'...)
-        #     # (@klass.own_property_definitions ||= {})[name] = PropertyDefinition.new(name, type, options)
+        #     # (@klass.own_property_columns ||= {})[name] = Property::Column.new(name, type, options)
         #   end
         # end
 
+        # def string(*args)
+        #   options = args.extract_options!
+        #   column_names = args
+        #   default = options.delete(:default)
+        #   column_names.each { |name| column(name, default, 'string', options) }
+        # end
         %w( string text integer float decimal datetime timestamp time date binary boolean ).each do |column_type|
           class_eval <<-EOV
-            def #{column_type}(*args)                                               # def string(*args)
-              options = args.extract_options!                                       #   options = args.extract_options!
-              column_names = args                                                   #   column_names = args
-                                                                                    #
-              column_names.each { |name| column(name, '#{column_type}', options) }  #   column_names.each { |name| column(name, 'string', options) }
-            end                                                                     # end
+            def #{column_type}(*args)
+              options = args.extract_options!
+              column_names = args
+              default = options.delete(:default)
+              column_names.each { |name| column(name, default, '#{column_type}', options) }
+            end
           EOV
         end
       end
@@ -76,13 +82,17 @@ module Property
 
       # Return the list of all properties defined for the current class, including the properties
       # defined in the parent class.
-      def property_definitions
-        super_property_definitions.merge(self.own_property_definitions || {})
+      def property_columns
+        super_property_columns.merge(self.own_property_columns || {})
       end
 
-      def super_property_definitions
-        if superclass.respond_to?(:property_definitions)
-          superclass.property_definitions
+      def property_column_names
+        property_columns.keys
+      end
+
+      def super_property_columns
+        if superclass.respond_to?(:property_columns)
+          superclass.property_columns
         else
           {}
         end
@@ -93,7 +103,6 @@ module Property
 
       protected
         def properties_validation
-          properties.owner = self
           properties.validate
         end
     end # InsanceMethods

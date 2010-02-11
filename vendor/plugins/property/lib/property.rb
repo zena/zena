@@ -1,7 +1,7 @@
 require 'property/attribute'
 require 'property/dirty'
 require 'property/properties'
-require 'property/property_definition'
+require 'property/column'
 require 'property/declaration'
 require 'property/serialization/json'
 

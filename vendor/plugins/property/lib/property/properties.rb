@@ -15,8 +15,16 @@ module Property
     end
 
     def []=(key, value)
-      if value.kind_of?(String) && column = columns[key]
-        super(key, column.type_cast(value))
+      if column = columns[key]
+        if value.blank?
+          if default = column.default
+            super(key, default)
+          else
+            delete(key)
+          end
+        else
+          super(key, column.type_cast(value.to_s))
+        end
       else
         super
       end
@@ -31,29 +39,34 @@ module Property
     end
 
     def validate
-      property_definitions = @owner.class.property_definitions
+      columns = @owner.class.property_columns
+      column_names = @owner.class.property_column_names
       errors = @owner.errors
       no_errors = true
 
-      each do |key, value|
-        if property_definition = property_definitions[key]
-          if default = property_definition.validate(value, errors)
-            self[key] = default
-          end
-        else
-          no_errors = false
-          errors.add("#{key}", 'property not declared.')
+      bad_keys     = keys - column_names
+      missing_keys = column_names - keys
+
+      bad_keys.each do |key|
+        errors.add("#{key}", 'property is not declared')
+      end
+
+      missing_keys.each do |key|
+        column = columns[key]
+        if column.has_default?
+          self[key] = column.default
         end
       end
-      no_errors
+
+      bad_keys.empty?
     end
 
     def compact!
-      keys.each do |key|
-        if self[key].nil?
-          delete(key)
-        end
-      end
+      #keys.each do |key|
+      #  if self[key].nil?
+      #    delete(key)
+      #  end
+      #end
     end
 
     private
@@ -61,7 +74,7 @@ module Property
       end
 
       def columns
-        @columns ||= @owner.class.property_definitions
+        @columns ||= @owner.class.property_columns
       end
   end
 end

@@ -37,106 +37,108 @@ class TestAttribute < Test::Unit::TestCase
   end
 
   context 'When writing properties' do
+    subject { Version.new }
+
     setup do
-      @version = Version.new
-      @version.properties = {'foo'=>'bar'}
+      subject.properties = {'foo'=>'bar'}
     end
 
     context 'with properties=' do
       should 'merge hash in current content' do
-        @version.properties = {'other' => 'value'}
-        assert_equal Hash['foo' => 'bar', 'other' => 'value'], @version.properties
+        subject.properties = {'other' => 'value'}
+        assert_equal Hash['foo' => 'bar', 'other' => 'value'], subject.properties
       end
 
       should 'replace current values' do
-        @version.properties = {'foo' => 'baz'}
-        assert_equal Hash['foo' => 'baz'], @version.properties
+        subject.properties = {'foo' => 'baz'}
+        assert_equal Hash['foo' => 'baz'], subject.properties
       end
 
       should 'raise TypeError if new attributes is not a Hash' do
-        assert_raise(TypeError) { @version.properties = 'this a string' }
+        assert_raise(TypeError) { subject.properties = 'this a string' }
       end
     end
 
     should 'with merge! should merge new attributes' do
-      @version.properties.merge!({'b'=>'bravo', 'c'=>'charlie'})
-      assert_equal Hash['foo' => 'bar', 'b' => 'bravo', 'c' => 'charlie'], @version.properties
+      subject.properties.merge!({'b'=>'bravo', 'c'=>'charlie'})
+      assert_equal Hash['foo' => 'bar', 'b' => 'bravo', 'c' => 'charlie'], subject.properties
     end
   end
 
   context 'When writing attributes with hash access' do
+    subject { Version.new('foo' => 'bar') }
+
     setup do
-      @version = Version.new('foo'=>'bar')
-      @version.properties['foo'] = 'babar'
+      subject.properties['foo'] = 'babar'
     end
 
     should 'write a property into properties' do
-      assert_equal Hash['foo' => 'babar'], @version.properties
+      assert_equal Hash['foo' => 'babar'], subject.properties
     end
 
     should 'save property in properties' do
-      @version.save
-      version = Version.find(@version.id)
+      subject.save
+      version = Version.find(subject.id)
       assert_equal Hash['foo' => 'babar'], version.properties
     end
   end
 
 
-  context 'Read dynamic attributes with properties' do
+  context 'The properties of an object' do
+    subject { Version.new }
+
     setup do
-      @version = Version.new
-      @version.properties={'foo'=>'bar', :tic=>:tac}
+      subject.properties={'foo'=>'bar', :tic=>:tac}
     end
 
-    should 'be accessible with properties' do
-      assert_equal Hash['foo'=>'bar', :tic=>:tac], @version.properties
+    should 'be accessible with :properties method' do
+      assert_equal Hash['foo'=>'bar', :tic=>:tac], subject.properties
     end
 
-    should 'be kind of Hash' do
-      assert_kind_of Hash, @version.properties
+    should 'be a kind of Hash' do
+      assert_kind_of Hash, subject.properties
     end
 
-    should 'delete dynamic attribute' do
-      assert_equal 'bar', @version.properties.delete('foo')
-      assert_nil @version.properties['foo']
+    should 'respond to delete' do
+      assert_equal 'bar', subject.properties.delete('foo')
+      assert_nil subject.properties['foo']
     end
 
   end
 
   context 'Setting attributes' do
+    subject { Version.new }
+
     setup do
-      @version = Version.new
-      @version.attributes = {'foo'=>'bar', 'title'=>'test', 'backup' => 'please'}
+      subject.attributes = {'foo'=>'bar', 'title'=>'test', 'backup' => 'please'}
     end
 
     should 'set rails attributes' do
-      assert_equal 'test', @version.title
+      assert_equal 'test', subject.title
     end
 
     should 'set properties' do
-      assert_equal Hash['foo'=>'bar'], @version.properties
+      assert_equal Hash['foo'=>'bar'], subject.properties
     end
 
     should 'call native methods' do
-      assert_equal 'please', @version.backup
+      assert_equal 'please', subject.backup
     end
   end
 
   context 'Initializing an object' do
-    setup do
-      @version = Version.new('foo'=>'bar', 'title'=>'test', 'backup' => 'please')
-    end
+    subject { Version.new('foo'=>'bar', 'title'=>'test', 'backup' => 'please') }
 
     should 'set rails attributes' do
-      assert_equal 'test', @version.title
+      assert_equal 'test', subject.title
     end
 
     should 'set properties' do
-      assert_equal Hash['foo'=>'bar'], @version.properties
+      assert_equal Hash['foo'=>'bar'], subject.properties
     end
 
     should 'call native methods' do
-      assert_equal 'please', @version.backup
+      assert_equal 'please', subject.backup
     end
   end
 
@@ -144,19 +146,21 @@ class TestAttribute < Test::Unit::TestCase
     setup do
       version = Version.create('title' => 'first', 'tic' => 'tac')
       @version = Version.find(version.id)
-      assert @version.update_attributes('foo'=>'bar', 'title'=>'test', 'backup' => 'please')
+      assert subject.update_attributes('foo'=>'bar', 'title'=>'test', 'backup' => 'please')
     end
 
+    subject { @version }
+
     should 'update rails attributes' do
-      assert_equal 'test', @version.title
+      assert_equal 'test', subject.title
     end
 
     should 'update properties' do
-      assert_equal Hash['tic' => 'tac', 'foo'=>'bar'], @version.properties
+      assert_equal Hash['tic' => 'tac', 'foo'=>'bar'], subject.properties
     end
 
     should 'call native methods' do
-      assert_equal 'please', @version.backup
+      assert_equal 'please', subject.backup
     end
   end
 
@@ -166,44 +170,47 @@ class TestAttribute < Test::Unit::TestCase
       @version = Version.find(version.id)
     end
 
+    subject { @version }
+
     should 'save rails attributes' do
-      assert_equal 'test', @version.title
+      assert_equal 'test', subject.title
     end
 
     should 'save properties' do
-      assert_equal 'bar', @version.prop['foo']
+      assert_equal 'bar', subject.prop['foo']
     end
 
     should 'destroy' do
-      assert @version.destroy
-      assert @version.frozen?
+      assert subject.destroy
+      assert subject.frozen?
     end
 
     should 'delete' do
-      assert @version.delete
-      assert @version.frozen?
+      assert subject.delete
+      assert subject.frozen?
     end
   end
 
   context 'Saving empty attributes' do
+    subject { Version.new('foo' => 'bar') }
+
     setup do
-      @version = Version.new('foo' => 'bar')
-      @version.prop.delete('foo')
-      @version.save
+      subject.prop.delete('foo')
+      subject.save
     end
 
     should 'save nil in database' do
-      assert_nil @version['properties']
+      assert_nil subject['properties']
     end
 
     should 'save nil when last property is removed' do
-      @version = Version.create('foo' => 'bar', 'tic' => 'tac')
-      @version.attributes = {'foo' => nil}
-      @version.update_attributes('foo' => nil)
-      assert_equal ['tic'], @version.properties.keys
-      @version.properties.delete('tic')
-      @version.save
-      assert_nil @version['properties']
+      subject = Version.create('foo' => 'bar', 'tic' => 'tac')
+      subject.attributes = {'foo' => nil}
+      subject.update_attributes('foo' => nil)
+      assert_equal ['tic'], subject.properties.keys
+      subject.properties.delete('tic')
+      subject.save
+      assert_nil subject['properties']
     end
   end
 
@@ -211,32 +218,32 @@ class TestAttribute < Test::Unit::TestCase
     setup do
       version = Version.create('title' => 'test', 'foo' => 'bar')
       @version = Version.find(version.id)
-      @version.update_attributes('title' => 'updated')
+      subject.update_attributes('title' => 'updated')
     end
 
+    subject { @version }
+
     should 'not alter properties' do
-      assert_equal Hash['foo' => 'bar'], @version.properties
+      assert_equal Hash['foo' => 'bar'], subject.properties
     end
   end
 
   context 'Find' do
-    setup do
-      @version = Version.create('title'=>'find me', 'foo' => 'bar')
-    end
+    subject { Version.create('title'=>'find me', 'foo' => 'bar') }
 
     should 'find by id' do
-      version = Version.find(@version)
+      version = Version.find(subject)
       assert_equal 'bar', version.prop['foo']
     end
   end
 
   context 'A modified version receiving :reload_properties' do
     should 'return properties stored in database' do
-      @version = Version.create('title'=>'find me', 'foo' => 'bar')
-      @version.prop['foo'] = 'Babar'
-      assert_equal 'Babar', @version.prop['foo']
-      @version.reload_properties!
-      assert_equal 'bar', @version.prop['foo']
+      subject = Version.create('title'=>'find me', 'foo' => 'bar')
+      subject.prop['foo'] = 'Babar'
+      assert_equal 'Babar', subject.prop['foo']
+      subject.reload_properties!
+      assert_equal 'bar', subject.prop['foo']
     end
   end
 
