@@ -42,6 +42,17 @@ class Test::Unit::TestCase
           assert_equal Property::Properties, properties.class
           assert_equal @properties, properties
         end
+
+        should 'not include instance variables' do
+          @properties.instance_eval do
+            @baz   = 'some data'
+            @owner = Version.new
+          end
+          @obj.decode_properties(encode_properties(@properties)).instance_eval do
+            assert_nil @baz
+            assert_nil @owner
+          end
+        end
       end
 
       context 'with empty Properties' do

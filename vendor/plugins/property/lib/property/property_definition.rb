@@ -1,38 +1,31 @@
+require 'active_record'
+ActiveRecord.load_all!
+
 module Property
   # The PropertyDefinition class is used to hold variables about a Property declaration,
   # such as name, data_type and options.
-  class PropertyDefinition
-    attr_accessor :name, :data_type, :options, :default, :indexed
+  class PropertyDefinition < ::ActiveRecord::ConnectionAdapters::Column
 
     def initialize(name, type, options={})
-      raise ArgumentError.new("You cannot use symbols as property keys (#{name.inspect})") unless name.kind_of?(String)
-      @name, @data_type = name, type
-      @default = options.delete(:default)
-      @indexed = options.delete(:indexed)
-      @options = options
+      name = name.to_s
+      extract_property_options(options)
+      super(name, @default, type, options)
     end
 
-    def ==(other)
-      @name == other.name && @type == other.type
-    end
-
-    def validate(value, model)
-      if !value.kind_of?(data_type)
+    def validate(value, errors)
+      if !value.kind_of?(klass)
         if value.nil?
-          @default
+          default
         else
-          model.errors.add("#{name}", "invalid data type. Received #{value.class}, expected #{data_type}.")
+          errors.add("#{name}", "invalid data type. Received #{value.class}, expected #{klass}.")
           nil
         end
       end
     end
 
-    # def get(value)
-    #   if value.nil? && !default_value.nil?
-    #     return default_value
-    #   end
-    #
-    #   type_cast(value)
-    # end
-  end # Property
+    def extract_property_options(options)
+      @indexed = options.delete(:indexed)
+      @default = options.delete(:default)
+    end
+  end # PropertyDefinition
 end # Property

@@ -1,13 +1,13 @@
 
 class Employee < ActiveRecord::Base
   include Property
-  property 'first_name', String, :indexed => true, :default=>''
-  property 'last_name', String, :indexed => true, :default=>''
-  property 'age', Float
+  property.string 'first_name', :default => '', :indexed => true
+  property.string 'last_name',  :default => '', :indexed => true
+  property.float  'age'
 end
 
 class Developer < Employee
-  property 'language', String
+  property.string 'language'
 end
 
 class WebDeveloper < Developer
@@ -17,9 +17,11 @@ end
 class Version < ActiveRecord::Base
   attr_accessor :backup
   include Property
-  property 'foo', String
-  property 'tic', String
-  property 'comment', String
+  property.string 'foo'
+  # Other way to declare a string
+  property do |p|
+    p.string 'tic', 'comment'
+  end
 end
 
 begin

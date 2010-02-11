@@ -1,7 +1,11 @@
 require 'test_helper'
 require 'fixtures'
+require 'benchmark'
 
 class TestAttribute < Test::Unit::TestCase
+
+  ActiveRecord::Base.default_timezone = :utc
+  ENV['TZ'] = 'UTC'
 
   context 'When including Property' do
     should 'include Property::Attribute' do
@@ -49,7 +53,7 @@ class TestAttribute < Test::Unit::TestCase
         assert_equal Hash['foo' => 'baz'], @version.properties
       end
 
-      should 'raise TypeError if new dynamic attributes is not a Hash' do
+      should 'raise TypeError if new attributes is not a Hash' do
         assert_raise(TypeError) { @version.properties = 'this a string' }
       end
     end
@@ -240,79 +244,83 @@ class TestAttribute < Test::Unit::TestCase
     DataType = Class.new(ActiveRecord::Base) do
       set_table_name 'dummies'
       include Property
-      property 'mystring', String
-      property 'myarray', Array
-      property 'myinteger', Integer
-      property 'myfloat', Float
-      property 'myhash', Hash
-
-      # Range and Symbol are not supported by JSON and are hard to read/write
-      # from the web.
-      # property 'myrange', Range
-      # property 'mysymbol', Symbol
+      property do |p|
+        p.string 'mystring'
+        p.integer 'myinteger'
+        p.float 'myfloat'
+        p.datetime 'mytime'
+      end
     end
 
     should 'save and read String' do
-      assert subject = DataType.create('mystring' => 'some string')
+      subject = DataType.create('mystring' => 'some string')
       subject.reload
       assert_kind_of String, subject.prop['mystring']
     end
 
-    should 'save and read Array' do
-      assert subject = DataType.create('myarray' => [1,:a,'3'])
-      subject.reload
-      assert_kind_of Array, subject.prop['myarray']
-    end
-
     should 'save and read Integer' do
-      assert subject = DataType.create('myinteger' => 123)
+      subject = DataType.create('myinteger' => 123)
       subject.reload
       assert_kind_of Integer, subject.prop['myinteger']
     end
 
     should 'save and read Float' do
-      assert subject = DataType.create('myfloat' => 12.3)
+      subject = DataType.create('myfloat' => 12.3)
       subject.reload
       assert_kind_of Float, subject.prop['myfloat']
     end
 
-    should 'save and read Hash' do
-      assert subject = DataType.create('myhash' => {:a=>'a', :b=>2})
+    should 'save and read Time' do
+      subject = DataType.create('mytime' => Time.new)
       subject.reload
-      assert_kind_of Hash, subject.prop['myhash']
+      assert_kind_of Time, subject.prop['mytime']
     end
 
     context 'from a String' do
       should 'parse integer values' do
-        assert subject = DataType.create('myinteger' => '123')
+        subject = DataType.create('myinteger' => '123')
         subject.reload
         assert_kind_of Integer, subject.prop['myinteger']
+        assert_equal 123, subject.prop['myinteger']
       end
 
-      should 'save and read Float' do
-        assert subject = DataType.create('myfloat' => '12.3')
+      should 'parse float values' do
+        subject = DataType.create('myfloat' => '12.3')
         subject.reload
         assert_kind_of Float, subject.prop['myfloat']
+        assert_equal 12.3, subject.prop['myfloat']
       end
 
-      should 'save and read Hash' do
-        assert subject = DataType.create('myhash' => {:a=>'a', :b=>2})
+      should 'parse time values' do
+        subject = DataType.create('mytime' => '2010-02-10 21:21')
         subject.reload
-        assert_kind_of Hash, subject.prop['myhash']
+        assert_kind_of Time, subject.prop['mytime']
+        assert_equal Time.utc(2010,02,10,21,21), subject.prop['mytime']
+      end
+
+      context 'in the model' do
+        should 'parse integer values' do
+          subject = DataType.new
+          subject.prop['myinteger'] = '123'
+          assert_kind_of Integer, subject.prop['myinteger']
+          assert_equal 123, subject.prop['myinteger']
+        end
+
+        should 'parse float values' do
+          subject = DataType.new
+          subject.prop['myfloat'] = '12.3'
+          assert_kind_of Float, subject.prop['myfloat']
+          assert_equal 12.3, subject.prop['myfloat']
+        end
+
+        should 'parse time values' do
+          subject = DataType.new
+          subject.prop['mytime'] = '2010-02-10 21:21'
+          assert_kind_of Time, subject.prop['mytime']
+          assert_equal Time.utc(2010,02,10,21,21), subject.prop['mytime']
+        end
       end
     end
-
-    # should 'save & read Range' do
-    #   assert subject = DataType.create('myrange'=>(-1..-5))
-    #   subject.reload
-    #   assert_kind_of Range, subject.prop['myrange']
-    # end
-    #
-    # should 'save & read Symbol' do
-    #   assert subject = DataType.create('mysymbol'=>:abc)
-    #   subject.reload
-    #   assert_kind_of Symbol, subject.prop['mysymbol']
-    # end
   end
 
 

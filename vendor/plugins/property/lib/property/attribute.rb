@@ -64,8 +64,12 @@ module Property
         end
 
         def load_properties
-          raw_properties = read_attribute('properties')
-          raw_properties ? decode_properties(raw_properties) : Properties.new
+          raw_data = read_attribute('properties')
+          prop = raw_data ? decode_properties(raw_data) : Properties.new
+          # We need to set the owner to access property definitions and enable
+          # type casting on write.
+          prop.owner = self
+          prop
         end
 
         def dump_properties

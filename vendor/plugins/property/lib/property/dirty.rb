@@ -82,7 +82,7 @@ module Property
 
     # This method should be called to reset dirty information before dump
     def clear_changes!
-      remove_instance_variable(:@original_hash)
+      remove_instance_variable(:@original_hash) if defined?(@original_hash)
     end
 
     def method_missing(meth, *args)
