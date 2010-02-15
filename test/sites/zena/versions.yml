@@ -26,12 +26,22 @@ people_en:
 
 
 ant_en:
-  type:            ContactVersion
+  type:            Version
   node:            ant
   user:            ant
   title:           Solenopsis Invicta
   summary:         I am an ant
   text:            Ants work hard
+  prop:
+    first_name: Solenopsis
+    name:       Invicta
+    address:    Deep Hole 54
+    zip:        2001
+    city:       Anthill
+    telephone:  +12 345 67 89 01
+    mobile:     +23 456 78 90 10
+    email:      ant@zenadmin.info
+    birthday:   2005-07-12
 
 
 myLife_en:
@@ -42,18 +52,37 @@ myLife_en:
 
 
 tiger_en:
-  type:            ContactVersion
+  type:            Version
   node:            tiger
   user:            tiger
   title:           Tiger
   summary:         "\"panthera tigris on wikipedia\":http://en.wikipedia.org/wiki/Image:Panthera_tigris_sumatran_subspecies.jpg"
-
+  prop:
+    first_name: Panther
+    name:       Tigris Sumatran
+    address:    "Small Island\nIn the Wild"
+    zip:        1998
+    city:       Sumatra
+    telephone:  +34 567 89 01 23
+    mobile:     +45 678 90 12 34
+    email:      tiger@zenadmin.info
+    birthday:   2002-07-12
 
 lion_en:
-  type:            ContactVersion
+  type:            Version
   node:            lion
   user:            lion
   title:           Lion
+  prop:
+    first_name: Panthera
+    name:       Leo Verneyi
+    address:    Kalahari Desert
+    zip:        2036
+    city:       Africa
+    telephone:  +56 789 01 23 45
+    mobile:     +67 890 12 34 56
+    email:      lion@zenadmin.info
+    birthday:   2002-03-04
 
 
 myDreams_en:
@@ -163,12 +192,18 @@ status_en:
 
 
 lake_en:
-  type:            ContactVersion
+  type:            Version
   node:            lake
   user:            ant
   title:           Tanganyika
   summary:         "More information on \"wikipedia\":http://en.wikipedia.org/wiki/Lake_Tanganyika."
   text:            "!014!"
+  prop:
+    first_name: Lake
+    name:       Tanganyika
+    address:    Between Tanzania, Congo and Zambia
+    zip:        848
+    city:       Africa
 
 lake_jpg_en:
   type:            ImageVersion
@@ -260,7 +295,7 @@ menu_en:
   title:           Top menu
 
 lake_red_en:
-  type:            ContactVersion
+  type:            Version
   node:            lake
   user:            ant
   comment:         this is a new redaction for lake
@@ -421,13 +456,19 @@ wiki_page_changes_en:
     </r:include>
 
 anonymous_en:
-  type:            ContactVersion
+  type:            Version
   node:            anonymous
   user:            tiger
   comment:         The Invisible Man
   title:           Mr nobody
   summary:         ""
   text:            ""
+  prop:
+    first_name: The Invisble
+    name:       Man
+    address:    Iping
+    zip:        848
+    city:       West Sussex
 
 wiki_node_en:
   type:            TemplateVersion
