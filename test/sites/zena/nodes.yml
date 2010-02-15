@@ -24,7 +24,7 @@ people:
 
 ant:
   zip:             13
-  class:           Contact
+  class:           Zena::Contact
   parent:          people
   user:            ant
 
@@ -37,18 +37,18 @@ myLife:
 
 anonymous:
   zip:             47
-  class:           Contact
+  class:           Zena::Contact
   parent:          people
   user:            lion
 
 tiger:
   zip:             14
-  class:           Contact
+  class:           Zena::Contact
   parent:          people
 
 lion:
   zip:             15
-  class:           Contact
+  class:           Zena::Contact
   parent:          people
   user:            lion
 
@@ -99,7 +99,7 @@ status:
 
 lake:
   zip:             23
-  class:           Contact
+  class:           Zena::Contact
   name:            lakeAddress
   parent:          cleanWater
   user:            ant

@@ -4,7 +4,7 @@ DEFAULTS:
 
 Employee:
   kpath:           NRCE
-  real_class:      Contact
+  real_class:      Zena::Contact
 
 Job:
   kpath:           NPPJ

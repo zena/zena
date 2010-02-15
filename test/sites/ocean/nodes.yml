@@ -16,12 +16,12 @@ ocean:
   skin:            default
 
 incognito:
-  class:           Contact
+  class:           Zena::Contact
   parent:          ocean
   skin:            default
 
 whale:
-  class:           Contact
+  class:           Zena::Contact
   name:            whale
   parent:          ocean
   skin:            default
