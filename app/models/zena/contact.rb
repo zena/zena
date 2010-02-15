@@ -19,10 +19,6 @@ class Zena::Contact < Reference
 
   class << self
 
-    # def version_class
-    #   ContactVersion
-    # end
-
     # Class list to which this class can change to
     def change_to_classes_for_form
       classes_for_form(:class => 'Contact')
@@ -38,11 +34,15 @@ class Zena::Contact < Reference
     end
   end
 
-  def fullname
-    version.content.fullname
+  def fullname(first_name = self.first_name, name = self.name)
+    (!first_name.blank? && !name.blank?) ? (first_name + " " + name) : (first_name.blank? ? name : first_name)
+  end
+
+  def fullname_changed?
+    self.properties.first_name_changed? || self.properties.name_changed?
   end
 
   def initials
-    version.content.initials
+    fullname.split(" ").map {|w| w[0..0].capitalize}.join("")
   end
 end
