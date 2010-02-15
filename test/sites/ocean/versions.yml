@@ -21,19 +21,30 @@ ocean_en:
 
 
 incognito_en:
-  type:            ContactVersion
+  type:            Version
   node:            incognito
   user:            whale
   comment:         anonymous user
   title:           Miss incognito
-
+  prop:
+    first_name: Miss
+    name:       Incognito
+    address:    c/o Lilith
+    zip:        804
+    city:       Somewhere
 
 whale_en:
-  type:            ContactVersion
+  type:            Version
   node:            whale
   user:            whale
   comment:         admin user
   title:           Miss Whale
+  prop:
+    first_name: Humpback
+    name:       Whale
+    address:    Anywhere Left Alone
+    zip:        903
+    city:       Ocean
 
 skin_en:
   type:            TemplateVersion
