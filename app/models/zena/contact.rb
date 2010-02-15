@@ -1,6 +1,22 @@
 class Zena::Contact < Reference
   safe_method :fullname => String, :initials => String
 
+  # Minimal contact's properties.
+  include Property
+  property do |t|
+    t.string   "first_name"
+    t.string   "name"
+    t.text     "address"
+    t.string   "zip"
+    t.string   "city"
+    t.string   "telephone"
+    t.string   "mobile"
+    t.string   "email"
+    t.date     "birthday"
+    t.integer  "site_id"
+    t.string   "country"
+  end
+
   class << self
 
     # def version_class
