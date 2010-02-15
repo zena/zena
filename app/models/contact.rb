@@ -1,4 +1,4 @@
-class Zena::Contact < Reference
+class Contact < Reference
   safe_method :fullname => String, :initials => String
 
   # Minimal contact's properties.

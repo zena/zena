@@ -101,7 +101,7 @@ module Zafu
         elsif node_name == 'main'
           return [node_attr, '@node', Node]
         elsif node_name == 'visitor'
-          return [node_attr, 'visitor.contact', Zena::Contact]
+          return [node_attr, 'visitor.contact', Contact]
         elsif node_name == 'site'
           return [node_attr, 'current_site', Site]
         else
