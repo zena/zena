@@ -42,6 +42,10 @@ class Contact < Reference
     self.properties.first_name_changed? || self.properties.name_changed?
   end
 
+  def fullname_was
+    fullname(self.properties.first_name_was, self.properties.name_was)
+  end
+
   def initials
     fullname.split(" ").map {|w| w[0..0].capitalize}.join("")
   end

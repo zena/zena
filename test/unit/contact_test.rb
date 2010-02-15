@@ -3,16 +3,23 @@ require 'test_helper'
 class ContactTest < Zena::Unit::TestCase
 
   context 'On create' do
-
-    should 'save' do
+    setup do
       login(:tiger)
+    end
+
+    should 'save with parent_id' do
+      contact = secure!(Contact) {Contact.create('name'=>'Meyer', :parent_id => nodes_id(:zena))}
+      assert !contact.new_record?
+    end
+
+    should 'not save without parent_id' do
       contact = secure!(Contact) {Contact.create('name'=>'Meyer')}
+      assert contact.new_record?
     end
   end
 
 
   context 'When looking for class' do
-
     setup   {@contact = Contact.new}
     subject {@contact}
 
@@ -76,7 +83,40 @@ class ContactTest < Zena::Unit::TestCase
       assert_equal 'Eric', contact.fullname
     end
 
-  end
+    context 'on dirty object' do
+      setup do
+        login(:tiger)
+        @contact = secure!(Contact) {Contact.create('name'=>'Meyer', 'first_name'=>'Eric', :parent_id => nodes_id(:zena))}
+      end
+      subject {@contact}
+
+        context 'without changes' do
+          should 'return false with fullname_changed?' do
+            assert !subject.fullname_changed?
+          end
+
+          should 'actual fullname nil with fullname_was' do
+            assert_equal 'Eric Meyer', subject.fullname_was
+          end
+        end # without changes
+
+        context 'with changes' do
+          setup do
+            subject.name='Reyer'
+            subject.first_name = 'Cire'
+          end
+
+          should 'return true with fullname_changed?' do
+            assert subject.fullname_changed?
+          end
+
+          should 'return previous fullname with fullname was' do
+            assert_equal 'Eric Meyer', subject.fullname_was
+          end
+        end
+
+    end # on dirty object
+  end # With fullname
 
   context 'When calling intials' do
     setup do
@@ -88,6 +128,8 @@ class ContactTest < Zena::Unit::TestCase
       assert_equal 'EM', subject.initials
     end
   end
+
+
 
 
   def test_update_content
