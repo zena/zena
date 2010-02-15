@@ -136,7 +136,7 @@ class ContactTest < Zena::Unit::TestCase
     should 'save a new version of contact' do
       login(:lion)
       contact = secure!(Contact) {Contact.find(@original)}
-      contact.name = 'Reyem'
+      contact.first_name = 'Cire'
       assert contact.save
       assert_not_equal contact.id, @original.id
     end
