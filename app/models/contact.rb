@@ -1,7 +1,6 @@
 class Contact < Reference
   safe_method :fullname => String, :initials => String
 
-  # Minimal contact's properties.
   include Property
   property do |t|
     t.string   "first_name"

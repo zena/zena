@@ -18,7 +18,6 @@ class ContactTest < Zena::Unit::TestCase
     end
   end
 
-
   context 'When looking for class' do
     setup   {@contact = Contact.new}
     subject {@contact}
@@ -35,7 +34,6 @@ class ContactTest < Zena::Unit::TestCase
       assert_equal 'Contact', subject.type
     end
   end
-
 
   context 'When using Proprety' do
     setup {@contact = Contact.new}
@@ -113,7 +111,7 @@ class ContactTest < Zena::Unit::TestCase
           should 'return previous fullname with fullname was' do
             assert_equal 'Eric Meyer', subject.fullname_was
           end
-        end
+        end # with changes
 
     end # on dirty object
   end # With fullname
@@ -129,33 +127,18 @@ class ContactTest < Zena::Unit::TestCase
     end
   end
 
+  context 'When author changes' do
+    setup do
+      login(:tiger)
+      @original = secure!(Contact) {Contact.create('name'=>'Meyer', 'first_name'=>'Eric', :parent_id => nodes_id(:zena))}
+    end
 
-
-
-  def test_update_content
-    login(:tiger)
-    contact = secure!(Node) { nodes(:tiger) }
-    assert_equal 'Panther', contact.c_first_name
-    assert_equal 'Tigris Sumatran', contact.c_name
-    c_id = contact.c_id
-    v_id = contact.v_id
-    assert contact.update_attributes(:c_first_name => 'Roger', :c_name => 'Rabbit', :v_status => Zena::Status[:pub])
-
-    contact = secure!(Node) { nodes(:tiger) }
-    assert_not_equal c_id, contact.c_id # new contact record
-    assert_not_equal v_id, contact.v_id # new version record
-    assert_equal 'Roger', contact.c_first_name
-    assert_equal 'Rabbit', contact.c_name
-    c_id = contact.c_id
-    v_id = contact.v_id
-
-    assert contact.update_attributes(:v_text => 'foo')
-
-    contact = secure!(Node) { nodes(:tiger) }
-    assert_equal c_id, contact.c_id # not a new contact record
-    assert_not_equal v_id, contact.v_id # new version record
-    assert_equal v_id, contact.v_content_id
-    assert_equal 'Roger', contact.c_first_name
-    assert_equal 'Rabbit', contact.c_name
+    should 'save a new version of contact' do
+      login(:lion)
+      contact = secure!(Contact) {Contact.find(@original)}
+      contact.name = 'Reyem'
+      assert contact.save
+      assert_not_equal contact.id, @original.id
+    end
   end
 end
