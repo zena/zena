@@ -19,7 +19,7 @@ class DataEntry < ActiveRecord::Base
                  :node_a_zip => Number, :node_b_zip => Number,
                  :node_c_zip => Number, :node_d_zip => Number,
                  :node_a => 'Node', :node_b => 'Node', :node_c => 'Node',
-                 :node_d => 'Node', :nodes => ['Node'], :author => 'Contact', :user => 'User'
+                 :node_d => 'Node', :nodes => ['Node'], :author => 'Zena::Contact', :user => 'User'
 
   attr_protected :site_id
 

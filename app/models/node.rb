@@ -42,7 +42,7 @@ Node (manages access and publication cycle)
   |
   +-- Reference
         |
-        +-- Contact (address, name, phone)
+        +-- Zena::Contact (address, name, phone)
 
 === Node, Version and Content
 
@@ -167,7 +167,7 @@ class Node < ActiveRecord::Base
   nested_attributes_alias %r{^c_(\w+)} => ['version', 'content']
   nested_attributes_alias %r{^d_(\w+)} => ['version', 'dyn']
 
-  safe_context       :author => 'Contact', :parent => 'Node',
+  safe_context       :author => 'Zena::Contact', :parent => 'Node',
                      :project => 'Project', :section => 'Section',
                      :real_project => 'Project', :real_section => 'Section',
                      :user => 'User', :version => 'Version', :comments => ['Comment'],
@@ -207,7 +207,7 @@ class Node < ActiveRecord::Base
     # Return the list of (kpath,subclasses) for the current class.
     def native_classes
       # this is to make sure subclasses are loaded before the first call
-      [Note,Page,Project,Section,Reference,Contact,Document,Image,TextDocument,Skin,Template]
+      [Note,Page,Project,Section,Reference,Zena::Contact,Document,Image,TextDocument,Skin,Template]
       while child = @@unhandled_children.pop
         @@native_node_classes[child.kpath] = child
       end
@@ -221,7 +221,7 @@ class Node < ActiveRecord::Base
 
     # Class list to which this class can change to
     def change_to_classes_for_form
-      classes_for_form(:class => 'Node', :without => 'Document, Contact')
+      classes_for_form(:class => 'Node', :without => 'Document, Zena::Contact')
     end
 
     # List of classes that a node can change to.

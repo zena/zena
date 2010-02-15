@@ -39,7 +39,7 @@ class User < ActiveRecord::Base
   safe_attribute          :login, :name, :first_name, :email, :time_zone, :created_at, :updated_at
   safe_method             :initials => String, :fullname => String, :status => Number, :status_name => String
 
-  safe_context            :contact => 'Contact'
+  safe_context            :contact => 'Zena::Contact'
   attr_accessible         :login, :lang, :first_name, :name, :email, :time_zone, :status, :group_ids, :site_ids, :crypted_password, :password
   attr_accessor           :visited_node_ids
   attr_accessor           :ip
@@ -95,7 +95,7 @@ class User < ActiveRecord::Base
   end
 
   def contact_with_secure
-    @contact ||= secure(Contact) { contact_without_secure }
+    @contact ||= secure(Zena::Contact) { contact_without_secure }
   end
   alias_method_chain :contact, :secure
 
@@ -243,7 +243,7 @@ class User < ActiveRecord::Base
     def create_contact
       return unless visitor.site[:root_id] # do not try to create a contact if the root node is not created yet
 
-      @contact = secure!(Contact) { Contact.new(
+      @contact = secure!(Zena::Contact) { Zena::Contact.new(
         # owner is the user except for anonymous and super user.
         # TODO: not sure this is a good idea...
         :user_id       => (self[:id] == site[:anon_id] || self[:id] == site[:su_id]) ? visitor[:id] : self[:id],

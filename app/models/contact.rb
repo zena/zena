@@ -1,11 +1,11 @@
-class Contact < Reference
+class Zena::Contact < Reference
   safe_method :fullname => String, :initials => String
 
   class << self
 
-    def version_class
-      ContactVersion
-    end
+    # def version_class
+    #   ContactVersion
+    # end
 
     # Class list to which this class can change to
     def change_to_classes_for_form

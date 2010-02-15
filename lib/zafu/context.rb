@@ -74,7 +74,7 @@ module Zafu
           elsif rel == 'start'
             return {:method => 'start_node', :class => Node}
           elsif rel == 'visitor'
-            return {:method => 'visitor.contact', :class => Contact}
+            return {:method => 'visitor.contact', :class => Zena::Contact}
           elsif rel =~ /^\d+$/
             return {:method => "(secure(Node) { Node.find_by_zip(#{rel.inspect})})", :class => Node}
           elsif node_name = find_stored(Node, rel)

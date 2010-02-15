@@ -5,7 +5,7 @@ A reference can only be created in a Section. It can be linked from anywhere.
 
 === subclasses
 
-Contact:: every User has a unique contact page to store address, name, phone, etc.
+Zena::Contact:: every User has a unique contact page to store address, name, phone, etc.
 Book::    used to add a bibliography and/or by the 'Reading' class (not implemented yet).
 
 === links
