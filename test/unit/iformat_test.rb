@@ -15,7 +15,7 @@ class IformatTest < Zena::Unit::TestCase
   def test_redefined_format
     login(:lion)
     fmt = Iformat['med']
-    assert_not_equal ImageBuilder::DEFAULT_FORMATS['med'], fmt
+    assert_not_equal Zena::Use::ImageBuilder::DEFAULT_FORMATS['med'], fmt
     assert_equal ({:name => 'med', :width=>300, :height=>200, :gravity=>Magick::CenterGravity, :size=>:limit, :hash_id => 389519063846, :popup => {:show=> %w{navigation v_title v_summary}, :name=>'std', :options=>{'v_title'=>'link'}}}), fmt
   end
 
@@ -35,7 +35,7 @@ class IformatTest < Zena::Unit::TestCase
 
   def test_other_site
     login(:whale)
-    assert_equal ImageBuilder::DEFAULT_FORMATS['med'], Iformat['med']
+    assert_equal Zena::Use::ImageBuilder::DEFAULT_FORMATS['med'], Iformat['med']
   end
 
   def test_defined_format
@@ -182,7 +182,7 @@ class IformatTest < Zena::Unit::TestCase
   def test_new_from_default
     login(:lion)
     imf = Iformat.new_from_default('pv')
-    assert_equal ImageBuilder::DEFAULT_FORMATS['pv'], imf.as_hash
+    assert_equal Zena::Use::ImageBuilder::DEFAULT_FORMATS['pv'], imf.as_hash
     assert_equal 70, imf[:height]
     assert_equal 70, imf[:width]
     assert_equal 2, imf[:size]

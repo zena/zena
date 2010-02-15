@@ -27,7 +27,7 @@ class VersionsController < ApplicationController
           return redirect_to(params.merge(:format => (@node.safe_content_read('ext') || 'html')))
         end
 
-        if @node.kind_of?(Image) && !ImageBuilder.dummy?
+        if @node.kind_of?(Image) && !Zena::Use::ImageBuilder.dummy?
           img_format = Iformat[params[:mode]]
           data = @node.version.content.file(img_format)
           content_path = @node.version.content.filepath(img_format)

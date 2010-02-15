@@ -3,7 +3,7 @@
 class ChangeDefaultLinkIdToZero < ActiveRecord::Migration
   def self.up
     Link.connection.execute "UPDATE #{Link.table_name} SET id = 0 WHERE id = -1"
-    NodeQuery.insert_zero_link(Link)
+    Zena::Use::QueryNode.insert_zero_link(Link)
   end
 
   def self.down

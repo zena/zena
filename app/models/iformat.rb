@@ -39,7 +39,7 @@ class Iformat < ActiveRecord::Base
     end
 
     def formats_for_site(site_id, as_hash = true)
-      formats = ::ImageBuilder::DEFAULT_FORMATS.dup
+      formats = Zena::Use::ImageBuilder::DEFAULT_FORMATS.dup
 
       site_formats = {}
       last_update = nil
@@ -59,7 +59,7 @@ class Iformat < ActiveRecord::Base
     end
 
     def new_from_default(key)
-      return nil unless default = ImageBuilder::DEFAULT_FORMATS[key]
+      return nil unless default = Zena::Use::ImageBuilder::DEFAULT_FORMATS[key]
       obj = self.new
       default.each do |k,v|
         next if k == :hash_id
@@ -117,7 +117,7 @@ class Iformat < ActiveRecord::Base
       :height  => height,
       :gravity => eval("Magick::#{gravity}"),
     }
-    h.merge!(:hash_id => ImageBuilder.hash_id(h))
+    h.merge!(:hash_id => Zena::Use::ImageBuilder.hash_id(h))
     h.merge!(:popup => popup) if popup
     h
   end
@@ -125,7 +125,7 @@ class Iformat < ActiveRecord::Base
   # This is a unique identifier used to cache images with format:
   # image30_pv.jpg#{node.updated_at.to_i + format.hash_id}
   def hash_id
-    ImageBuilder.hash_id(self.as_hash)
+    Zena::Use::ImageBuilder.hash_id(self.as_hash)
   end
 
   def size

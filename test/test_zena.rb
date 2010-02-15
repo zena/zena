@@ -135,4 +135,4 @@ class ZenaTestController < ActionController::TestCase
   #include Zena::Test::TestController
 end
 
-NodeQuery.insert_zero_link(Link)
+Zena::Use::QueryNode.insert_zero_link(Link)

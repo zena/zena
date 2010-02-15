@@ -57,7 +57,7 @@ class Image < Document
 
   class << self
     def accept_content_type?(content_type)
-      ImageBuilder.image_content_type?(content_type)
+      Zena::Use::ImageBuilder.image_content_type?(content_type)
     end
 
     # This is a callback from acts_as_multiversioned

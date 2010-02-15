@@ -7,6 +7,7 @@ db/*.sqlite3
 db/development_structure.sql
 db/schema.rb
 db/sphinx
+db/development_structure.sql
 doc/coverage
 log/
 pkg/*
