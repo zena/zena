@@ -500,7 +500,7 @@ module Zena
 
         # Compute cached 'publish_from' and prepare to update other version status (replace, remove). This
         # method is called before VersionHash::update_vhash but after version was saved.
-        def current_version_before_update
+        def set_current_version_before_update
           version = self.version
 
           case @current_transition[:name]

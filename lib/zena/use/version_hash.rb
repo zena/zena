@@ -96,13 +96,13 @@ module Zena
         end
 
         # Overwrite MultiVersion. This is called before update.
-        def current_version_before_update
+        def set_current_version_before_update
           super
           update_vhash
         end
 
         # Overwrite MultiVersion. This is called after create.
-        def current_version_after_create
+        def set_current_version_after_create
           update_vhash
           Zena::Db.set_attribute(self, :vhash, self[:vhash])
         end

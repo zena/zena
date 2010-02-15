@@ -1,3 +1,6 @@
+require 'property'
+require 'versions'
+
 =begin rdoc
 A Node is the root class of all elements in the zena application. Class inheritance diagram:
 
@@ -178,11 +181,11 @@ class Node < ActiveRecord::Base
   acts_as_secure_node
 
   # These *must* be included in this order
-  include Zena::Use::MultiVersion
+  include Versions::Multi
+  has_multiple :versions, :as => 'node'
+
   include Zena::Use::Workflow
   include Zena::Use::VersionHash
-  # not yet...
-  # include Zena::Use::TransparentVersion
 
   include Zena::Use::Relations::ModelMethods
 

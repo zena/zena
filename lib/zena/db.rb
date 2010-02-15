@@ -24,6 +24,7 @@ module Zena
     def set_attribute(obj, key, value)
       obj.send("#{key}=", value)
       execute "UPDATE #{obj.class.table_name} SET #{key}=#{quote(value)} WHERE id=#{obj[:id]}"
+      obj.send(:changed_attributes).delete(key)
     end
 
     def quote(value)
@@ -136,7 +137,7 @@ module Zena
         record[attr_name].to_i
       end
     end
-    
+
     def fetch_attributes(attributes, table_name, sql)
       sql = "SELECT #{attributes.map{|a| connection.quote_column_name(a)}.join(',')} FROM #{table_name} WHERE #{sql}"
       connection.select_all(sql)

@@ -62,6 +62,11 @@ class DbTest < Zena::Unit::TestCase
       assert_equal 'flop', @node.name
     end
 
+    should 'not mark as dirty' do
+      Zena::Db.set_attribute(@node, :name, 'flop')
+      assert !@node.changed?
+    end
+
     should 'set attribute in db' do
       Zena::Db.set_attribute(@node, :name, 'flop')
       @node = secure!(Node) { nodes(:status) } # reload
