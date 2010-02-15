@@ -11,7 +11,6 @@ class Version < ActiveRecord::Base
   set_attachment_class 'Zena::Attachment'
 
   include Zena::Use::Workflow::Version
-  include Property::Attribute
   include Zena::Refactor::Version
 
   belongs_to :user
