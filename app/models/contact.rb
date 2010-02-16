@@ -1,5 +1,4 @@
 class Contact < Reference
-  safe_method :fullname => String, :initials => String
 
   include Property
   store_properties_in :version
@@ -17,6 +16,12 @@ class Contact < Reference
     t.integer  "site_id"
     t.string   "country"
   end
+
+  safe_method :fullname => String, :initials => String
+  safe_method    :created_at => Time, :updated_at => Time, :fullname => String, :initials => String,
+                 :address => String
+
+  attr_protected     :site_id
 
   class << self
 
