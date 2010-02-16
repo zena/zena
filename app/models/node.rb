@@ -182,7 +182,7 @@ class Node < ActiveRecord::Base
 
   # These *must* be included in this order
   include Versions::Multi
-  has_multiple :versions, :as => 'node'
+  has_multiple :versions, :inverse => 'node'
 
   include Zena::Use::Workflow
   include Zena::Use::VersionHash
