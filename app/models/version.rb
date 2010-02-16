@@ -7,8 +7,8 @@ class Version < ActiveRecord::Base
   # FIXME: Refactor
   include Zena::Refactor::ContentCalling
 
-  include Zena::Use::SharedAttachment
-  set_attachment_class 'Zena::Attachment'
+  #include Zena::Use::SharedAttachment
+  #set_attachment_class 'Zena::Attachment'
 
   include Zena::Use::Workflow::Version
   include Zena::Refactor::Version
@@ -22,8 +22,8 @@ class Version < ActiveRecord::Base
 
   def cloned
     # set number
-    last_record = self[:node_id] ? self.connection.select_one("select number from #{self.class.table_name} where node_id = '#{node[:id]}' ORDER BY number DESC LIMIT 1") : nil
-    self[:number] = (last_record || {})['number'].to_i + 1
+    # last_record = self[:node_id] ? self.connection.select_one("select number from #{self.class.table_name} where node_id = '#{node[:id]}' ORDER BY number DESC LIMIT 1") : nil
+    # self[:number] = (last_record || {})['number'].to_i + 1
 
     set_defaults
   end
