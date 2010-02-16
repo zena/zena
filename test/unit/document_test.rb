@@ -100,44 +100,35 @@ class DocumentTest < Zena::Unit::TestCase
     end
   end
 
-
-
-  def test_create_with_content_type
-    login(:tiger)
-    doc = secure!(Document) { Document.create("content_type"=>"text/css", "parent_id"=>nodes_id(:cleanWater),
-                                                :file  => uploaded_pdf('some.txt') )}
-    puts doc.errors.inspect
-    assert !doc.new_record?, "Not a new record"
-    assert_equal 'text/css', doc.content_type
-    assert_equal 'css', doc.ext
-  end
-
-  def test_create_with_duplicate_name
-    preserving_files('/test.host/data') do
+  context 'On create with bad file name' do
+    setup do
       login(:ant)
-      doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:wiki),
-        :v_title => 'bird.jpg',
-        :c_file => uploaded_pdf('bird.jpg') ) }
-        assert_kind_of Document , doc
-        assert_equal 'bird-1', doc.name
-        assert !doc.new_record? , "Saved"
-        assert_equal "bird-1", doc.name
-      end
-  end
-
-  def test_create_with_bad_filename
-    preserving_files('/test.host/data') do
-      login(:ant)
-      doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
+    end
+    subject do
+      secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
         :name => 'stupid.jpg',
-        :c_file => uploaded_pdf('water.pdf') ) }
-      assert_kind_of Document , doc
-      assert ! doc.new_record? , "Not a new record"
-      assert_equal "stupid", doc.name
-      assert_equal "stupid", doc.version.title
-      assert_equal "stupid.pdf", doc.filename
+        :file => uploaded_pdf('water.pdf') ) }
+    end
+
+    should 'save with the given name' do
+      assert !subject.new_record?
+      assert_equal "stupid", subject.name
+      assert_equal "stupid", subject.version.title
+      assert_equal "stupid.jpg", subject.filename
     end
   end
+
+  context 'Find by path' do
+    setup do
+      login(:tiger)
+    end
+
+    should 'return correct document' do
+      doc = secure!(Document) { Document.find_by_path("/projects/cleanWater/water.pdf") }
+      assert_equal "/projects/cleanWater/water.pdf", doc.fullpath
+    end
+  end
+
 
   def get_with_full_path
     login(:tiger)
