@@ -33,7 +33,29 @@ c_content_type:: file content-type
 =end
 # should be a sub-class of Node, not Page (#184). Write a migration, fix fixtures and test.
 class Document < Node
+
+  include Versions::Attachment
+  store_attachments_in :version,  :attachment_class=>'Attachment'
+
+  property do |t|
+    t.string  "type"
+    t.string  "content_type"
+    t.string  "ext"
+    t.integer "size"
+    t.integer "width"
+    t.integer "height"
+    t.text    "exif_json"
+  end
+
   safe_method :filename => String
+
+  def title
+    version.title
+  end
+
+  def title=(t)
+    version.title = t
+  end
 
   class << self
 
@@ -49,10 +71,10 @@ class Document < Node
       scope = self.scoped_methods[0] || {}
       klass = self
       attrs = attrs.stringify_keys
-      file  = attrs['c_file'] || ((attrs['version_attributes'] || {})['content_attributes'] || {})['file']
+      file  = attrs['file'] || ((attrs['version_attributes'] || {})['content_attributes'] || {})['file']
       if file && file.respond_to?(:content_type)
         content_type = file.content_type
-      elsif ct = attrs['c_content_type'] || ((attrs['version_attributes'] || {})['content_attributes'] || {})['content_type']
+      elsif ct = attrs['content_type'] || ((attrs['version_attributes'] || {})['content_attributes'] || {})['content_type']
         content_type = ct
       elsif attrs['name'] =~ /^.*\.(\w+)$/ && types = Zena::EXT_TO_TYPE[$1.downcase]
         content_type = types[0]
@@ -72,7 +94,7 @@ class Document < Node
         klass = TextDocument
       end
 
-      attrs['c_content_type'] = content_type
+      attrs['content_type'] = content_type
 
       if klass != self
         klass.with_scope(scope) { klass.o_new(attrs) }
@@ -105,18 +127,18 @@ class Document < Node
     def set_defaults
       base = name
       base = version.title if base.blank?
-      if base.blank? && file = version.content.file
+      if base.blank? && file = self.file #version.content.file
         base = file.original_filename
       end
 
       if base
         if base =~ /(.*)\.(\w+)$/
           self.name = $1 if new_record?
-          self.version.content.ext ||= $2
+          self.properties['ext'] ||= $2
         else
           self.name = base if new_record?
         end
-        if version.title.to_s =~ /\A(.*)\.#{version.content.ext}$/i
+        if version.title.to_s =~ /\A(.*)\.#{self.properties['ext']}$/i
           version.title = $1
         end
       end
