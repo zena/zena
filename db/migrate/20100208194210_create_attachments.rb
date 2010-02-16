@@ -3,9 +3,9 @@ class CreateAttachments < ActiveRecord::Migration
     add_column :versions, :attachment_id, :integer
 
     create_table :attachments do |t|
-      t.string :owner_table
-      t.string :filename
-
+      t.string    :filename
+      t.integer   :site_id
+      t.integer   :user_id
       t.timestamps
     end
   end
