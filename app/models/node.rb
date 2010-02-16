@@ -189,6 +189,9 @@ class Node < ActiveRecord::Base
 
   include Zena::Use::Relations::ModelMethods
 
+  include Property
+  store_properties_in :version
+
   use_node_query
 
   @@native_node_classes = {'N' => self}
