@@ -3,37 +3,66 @@ require 'fileutils'
 
 class DocumentTest < Zena::Unit::TestCase
 
-  def test_create_with_file
-    without_files('/test.host/data') do
-      login(:ant)
-      doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
-                                                :c_file => uploaded_pdf('water.pdf', 'report.pdf') ) }
-      assert_kind_of Document , doc
-      assert ! doc.new_record?
-      assert_equal 'report', doc.name
-      assert_equal 'projects/cleanWater/report', doc.fullpath
-      assert_equal 'report', doc.version.title
-      assert_equal 'report.pdf', doc.filename
-      assert_equal 'pdf', doc.version.content.ext
-      assert ! doc.version.new_record?
-      assert_not_nil doc.version.content.id
-      assert_kind_of DocumentContent, doc.version.content
-      assert File.exist?(doc.version.content.filepath)
-      assert_equal File.stat(doc.version.content.filepath).size, doc.version.content.size
+  self.use_transactional_fixtures = false
+
+  context 'On create a document' do
+    setup { login(:ant) }
+    subject do
+        @doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
+                                                  :file => uploaded_pdf('water.pdf') ) }
+    end
+
+    should 'save object in database' do
+      assert !subject.new_record?
+    end
+
+    should 'save file in file system' do
+      assert File.exist?(subject.version.filepath)
+    end
+
+    should 'save content type in properties' do
+      assert_equal 'application/pdf', subject.prop['content_type']
+    end
+
+    should 'save extension in properties' do
+      assert_equal 'pdf', subject.prop['ext']
+    end
+
+    should 'save title in version' do
+      assert_not_nil subject.version.title
+    end
+
+    should 'save name in document' do
+      assert_not_nil subject.name
+    end
+
+    should 'save visitor id in attachment' do
+      assert_equal users_id(:ant), subject.version.attachment.user_id
+    end
+
+    should 'save site id in attachment' do
+      assert_equal sites_id(:zena), subject.version.attachment.site_id
     end
   end
 
-  def test_create_same_name
-    without_files('/test.host/data') do
+  context 'On create with same name' do
+    setup do
       login(:tiger)
-      node = secure!(Document) { Document.create( :parent_id => nodes_id(:cleanWater),
-                                                 :v_title => 'lake',
-                                                 :c_file  => uploaded_pdf('water.pdf') ) }
-      assert !node.new_record?
-      assert_equal 'lake-1', node.name
-      assert_equal 'lake-1', node.version.title
+      @doc = secure!(Document) { Document.create( :parent_id => nodes_id(:cleanWater),
+                                                 :title => 'lake',
+                                                 :file  => uploaded_pdf('water.pdf') ) }
+    end
+
+    should 'save name with increment' do
+      assert_equal 'lake-1', @doc.name
+    end
+
+    should 'save version title with increment' do
+      assert_equal 'lake-1', @doc.version.title
     end
   end
+
+
 
   def test_create_with_bad_filename
     preserving_files('/test.host/data') do
