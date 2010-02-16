@@ -72,7 +72,9 @@ class Document < Node
       klass = self
       attrs = attrs.stringify_keys
       file  = attrs['file'] || ((attrs['version_attributes'] || {})['content_attributes'] || {})['file']
-      if file && file.respond_to?(:content_type)
+      if attrs['content_type']
+        content_type = attrs['content_type']
+      elsif file && file.respond_to?(:content_type)
         content_type = file.content_type
       elsif ct = attrs['content_type'] || ((attrs['version_attributes'] || {})['content_attributes'] || {})['content_type']
         content_type = ct
@@ -116,11 +118,11 @@ class Document < Node
 
   # Return the document's public filename using the name and the file extension.
   def filename
-    "#{name}.#{version.content.ext}"
+    "#{version.title}.#{prop['ext']}"
   end
 
   def rootpath
-    super + ".#{version.content.ext}"
+    super + ".#{prop['ext']}"
   end
 
   private
