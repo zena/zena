@@ -41,10 +41,6 @@ class SharedAttachmentTest < Zena::Unit::TestCase
     set_attachment_class 'SharedAttachmentTest::Attachment'
     set_table_name :versions
 
-    def should_clone?
-      true
-    end
-
     private
       def setup_version_on_create
         # Dummy values when testing Version without a Document
