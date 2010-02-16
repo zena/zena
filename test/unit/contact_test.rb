@@ -7,14 +7,55 @@ class ContactTest < Zena::Unit::TestCase
       login(:tiger)
     end
 
-    should 'save with parent_id' do
-      contact = secure!(Contact) {Contact.create('name'=>'Meyer', :parent_id => nodes_id(:zena))}
-      assert !contact.new_record?
+    context 'with a parent_id' do
+      subject do
+        secure!(Contact) {Contact.create('name'=>'Meyer', :parent_id => nodes_id(:zena))}
+      end
+
+      should 'save record' do
+        assert_difference('Node.count', 1) do
+          assert !subject.new_record?
+        end
+      end
+
+      should 'create a first version' do
+        assert_difference('Version.count', 1) do
+          assert !subject.version.new_record?
+        end
+      end
+
+      should 'be clean after save' do
+        assert !subject.changed?
+        assert !subject.version.changed?
+      end
     end
 
     should 'not save without parent_id' do
       contact = secure!(Contact) {Contact.create('name'=>'Meyer')}
       assert contact.new_record?
+    end
+  end
+
+  context 'On update' do
+    subject do
+      login(:tiger)
+      @contact = secure!(Contact) {Contact.create('name'=>'Meyer', :parent_id => nodes_id(:zena))}
+    end
+
+    should 'save changes' do
+      subject.attributes = {'first_name'=>'Eric'}
+      assert subject.save
+      subject.reload
+      assert_equal 'Eric', subject.first_name
+    end
+
+    should 'create a new version if backup required' do
+      subject.version.backup = true
+      assert_difference('Version.count', 1) do
+        subject.attributes = {'first_name'=>'Eric'}
+        assert subject.save
+      end
+      assert_equal 2, subject.versions.size
     end
   end
 
@@ -138,7 +179,7 @@ class ContactTest < Zena::Unit::TestCase
       contact = secure!(Contact) {Contact.find(@original)}
       contact.first_name = 'Cire'
       assert contact.save
-      assert_not_equal contact.id, @original.id
+      assert_not_equal contact.version.id, @original.version.id
     end
   end
 end

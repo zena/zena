@@ -2,6 +2,8 @@ class Contact < Reference
   safe_method :fullname => String, :initials => String
 
   include Property
+  store_properties_in :version
+
   property do |t|
     t.string   "first_name"
     t.string   "name"
