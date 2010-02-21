@@ -125,26 +125,7 @@ class Document < Node
 
     # Make sure name is unique
     def node_before_validation
-      # we are in a scope, we cannot just use the normal validates_...
-      # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
-      Node.send(:with_exclusive_scope) do
-        if new_record?
-          cond = ["name = ? AND parent_id = ? AND kpath LIKE 'ND%'", self[:name], self[:parent_id]]
-        else
-          cond = ["name = ? AND parent_id = ? AND kpath LIKE 'ND%' AND id != ? ", self[:name], self[:parent_id], self[:id]]
-        end
-
-        if taken_name = Node.find(:first, :select => 'name', :conditions => cond, :order => "LENGTH(name) DESC")
-          if taken_name =~ /^#{self[:name]}-(\d)/
-            self[:name] = "#{self[:name]}-#{$1.to_i + 1}"
-            i = $1.to_i + 1
-          else
-            self[:name] = "#{self[:name]}-1"
-            i = 1
-          end
-          version.title = "#{version.title}-#{i}" unless version.title.blank?
-        end
-      end
+      get_unique_name_in_scope('ND%')
       super
     end
 end
