@@ -43,7 +43,7 @@ module Zena
 
         # TODO: test
         def render_404(exception)
-          if Thread.current.respond_to?(:visitor) && Thread.current.visitor
+          if Thread.current[:visitor]
             # page not found
             @node = current_site.root_node
             respond_to do |format|
@@ -59,7 +59,7 @@ module Zena
           else
             # site not found
             respond_to do |format|
-              format.html { render :file    => "#{Zena::ROOT}/app/views/nodes/404.html", :status => '404 Not Found' }
+              format.html { render :file    => "#{Zena::ROOT}/app/views/sites/404.html", :status => '404 Not Found' }
               format.all  { render :nothing => true, :status => "404 Not Found" }
             end
           end

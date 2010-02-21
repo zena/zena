@@ -189,6 +189,8 @@ class NavigationTest < ActionController::IntegrationTest
     assert_redirected_to 'http://test.host/en/1'
     follow_redirect!
     assert_response :missing
+    assert Thread.current[:visitor]
+    assert_match %r{Node-\+notFound}, @response.rendered[:template].to_s
   end
 
   def test_change_session_lang_on_login
