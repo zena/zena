@@ -1,5 +1,7 @@
 <table cellspacing="0" id='versions'>
-  <% if @node.versions.count == 1 && @node.version.status == Zena::Status[:rem] && !@node.can_destroy_version? %><tr><td class='warn' colspan='8'><%= _('This node contains sub-nodes: it cannot be destroyed.') %></td></tr><% end -%>
+  <% if !@node.errors.empty? -%>
+    <tr><td class='warn' colspan='8'><%= error_messages_for(@node) %></td></tr>
+  <% elsif @node.versions.count == 1 && @node.version.status == Zena::Status[:rem] && !@node.can_destroy_version? %><tr><td class='warn' colspan='8'><%= _('This node contains sub-nodes: it cannot be destroyed.') %></td></tr><% end -%>
   <%= render :partial=>'versions/tr', :collection => @node.versions %>
 </table>
 <div class='hidden' id='node_zip'><%= @node.zip %></div>
