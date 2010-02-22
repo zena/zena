@@ -340,7 +340,7 @@ class NodeTest < Zena::Unit::TestCase
     login(:ant)
     node = secure!(Node) { nodes(:cleanWater)  }
     child = node.new_child( :name => 'status', :class => Page )
-    assert ! child.save , "Save fails"
+    assert !child.save, "Save fails"
     assert child.errors[:name].any?
 
     child = node.new_child( :name => 'new_name', :class => Page )
@@ -1446,6 +1446,20 @@ done: \"I am done\""
     assert_equal Zena::Status[:red], node.version.status
     assert node.publish
     assert_equal 'nicePeople', node.name
+  end
+
+  def test_sync_name_should_result_on_duplicates
+    login(:tiger)
+    # was in sync, correct lang
+    people = secure!(Node) { nodes(:people) }
+    node = secure!(Page) { Page.create(:v_title => 'nice people', :parent_id => people.parent_id)}
+    assert !node.new_record?
+    assert_equal 'nicePeople', node.name
+    # would sync to 'nicePeople'
+    assert people.update_attributes(:v_title => 'nice people')
+    assert_equal 'people', people.name
+    assert people.publish
+    assert_equal 'nicePeople-1', people.name
   end
 
   def test_sync_name_before_publish_if_single_version
