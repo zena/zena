@@ -1,4 +1,3 @@
-require 'bricks/raw_config'
 require 'bricks/requirements_validation'
 require 'bricks/loader'
 
