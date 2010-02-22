@@ -3,17 +3,20 @@ require 'yaml'
 module Bricks
   module RequirementsValidation
     def requirement_errors(brick, requirements)
+      current_stderr = $stderr
+      $stderr = StringIO.new
       errors = []
       requirements.each do |k,v|
         case k
-        when 'gem'
-          v.split(',').each do |name|
-            begin
-              require name.strip
-            rescue LoadError => err
-              errors << "'#{name}' missing"
-            end
-          end
+        # bad idea, this is run before gem version configuration
+        # when 'gem'
+        #   v.split(',').each do |name|
+        #     begin
+        #       require name.strip
+        #     rescue LoadError => err
+        #       errors << "'#{name}' missing"
+        #     end
+        #   end
         when 'file'
           v.split(',').each do |name|
             unless File.exist?("#{RAILS_ROOT}/#{name}")
@@ -28,6 +31,7 @@ module Bricks
           end
         end
       end
+      $stderr = current_stderr
       errors.empty? ? nil : errors
     end
 
@@ -37,6 +41,7 @@ module Bricks
       else
         raw_config = YAML.load_file("#{Zena::ROOT}/config/bricks.yml")[RAILS_ENV] || {}
       end
+
       config = {}
 
       raw_config.each do |brick, opts|

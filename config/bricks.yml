@@ -23,7 +23,7 @@ production:
   tags:     ON
   captcha:  ON
   sphinx:
-    switch: ON
+    switch: OFF
     activate_if:
       gem: 'thinking_sphinx'
       adapter: 'mysql,postgresql'

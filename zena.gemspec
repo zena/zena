@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{zena}
-  s.version = "0.16.3"
+  s.version = "0.16.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
@@ -444,6 +444,7 @@ Gem::Specification.new do |s|
      "lib/zena/controller/test_case.rb",
      "lib/zena/core_ext/date_time.rb",
      "lib/zena/core_ext/dir.rb",
+     "lib/zena/core_ext/file_utils.rb",
      "lib/zena/core_ext/fixnum.rb",
      "lib/zena/core_ext/string.rb",
      "lib/zena/crypto_provider/initial.rb",
@@ -2063,7 +2064,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<gettext>, ["= 1.93.0"])
       s.add_runtime_dependency(%q<versions>, [">= 0.2.1"])
       s.add_runtime_dependency(%q<jeweler>, [">= 0"])
-      s.add_runtime_dependency(%q<rmagick>, [">= 2.11.1"])
+      s.add_runtime_dependency(%q<rmagick>, [">= 2.10.0"])
       s.add_runtime_dependency(%q<hpricot>, [">= 0"])
       s.add_runtime_dependency(%q<differ>, [">= 0.1.1"])
       s.add_runtime_dependency(%q<RedCloth>, ["= 3.0.4"])
@@ -2088,7 +2089,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<gettext>, ["= 1.93.0"])
       s.add_dependency(%q<versions>, [">= 0.2.1"])
       s.add_dependency(%q<jeweler>, [">= 0"])
-      s.add_dependency(%q<rmagick>, [">= 2.11.1"])
+      s.add_dependency(%q<rmagick>, [">= 2.10.0"])
       s.add_dependency(%q<hpricot>, [">= 0"])
       s.add_dependency(%q<differ>, [">= 0.1.1"])
       s.add_dependency(%q<RedCloth>, ["= 3.0.4"])
@@ -2114,7 +2115,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<gettext>, ["= 1.93.0"])
     s.add_dependency(%q<versions>, [">= 0.2.1"])
     s.add_dependency(%q<jeweler>, [">= 0"])
-    s.add_dependency(%q<rmagick>, [">= 2.11.1"])
+    s.add_dependency(%q<rmagick>, [">= 2.10.0"])
     s.add_dependency(%q<hpricot>, [">= 0"])
     s.add_dependency(%q<differ>, [">= 0.1.1"])
     s.add_dependency(%q<RedCloth>, ["= 3.0.4"])

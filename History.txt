@@ -1,3 +1,14 @@
+== 0.16.4 2010-02-22
+
+* 3 major enhancements
+  * fixed installation and runtime bugs on Windows
+  * moved ruby files in 'lib' into their Zena namespace
+  * german translations [Lars Kanis]
+
+* 2 minor enhancements
+  * fixed edgy bug with name duplicates
+  * fixed bug that would show a 'site not found' error instead of a 404
+
 == 0.16.3 2010-01-19
 
 * 1 major enhancement
@@ -17,13 +28,13 @@
 
 == 0.16.0 2010-01-15
 
-* 3 major enhancements:
+* 3 major enhancements
   * Sphinx search support
   * Authlogic authentification
   * attachments can now be provided with an url
   * added [node:attribute_name] to use in querybuilder
 
-* 5 minor enhancement
+* 5 minor enhancements
   * logrotate setup support with capistrano
   * fixed contact content zip bug
   * fixed fullpath set to NULL instead of kept in sync
@@ -37,11 +48,11 @@
 
 == 0.15.1 2009-10-27
 
-* 2 major enhancements:
+* 2 major enhancements
   * Passenger support (deploy, upload progress)
   * JS popup & gallery support (setting in image formats)
 
-* 6 minor enhancements:
+* 6 minor enhancements
   * fixed some deployment tasks (capistrano)
   * fixed zena:setup task to copy files instead of symlink
   * better versions list and diff select
@@ -51,19 +62,19 @@
 
 == 0.15.0 2009-10-16
 
-* 5 major enhancements:
+* 5 major enhancements
   * running rails 2.3.4
   * installable as gem without RMagick
   * usable as gem with config.gem
   * supports sqlite3
   * 'zena' command to create app
 
-* 3 minor enhancemnts:
+* 3 minor enhancemnts
   * huge speed improvement in version loading
   * massive code cleanup
   * better team workflow (reworked access rights)
 
 == 0.11.1 2009-04-03
 
-* minor enhancements:
+* minor enhancements
   * Better testing of custom queries using latest querybuilder (0.5.2)

@@ -30,14 +30,14 @@ def symlink_assets(from, to)
           if File.exist?(trg) || File.symlink?(trg)
             File.unlink(trg)
           end
-          FileUtils.ln_s(src, trg)
+          FileUtils.symlink_or_copy(src, trg)
         end
       else
         # ignore
         puts "Cannot install assets in #{to}/public/#{dir} (not a directory)"
       end
     else
-      FileUtils.ln_s("#{from}/public/#{dir}", "#{to}/public/#{dir}")
+      FileUtils.symlink_or_copy("#{from}/public/#{dir}", "#{to}/public/#{dir}")
     end
   end
 end
@@ -440,11 +440,20 @@ namespace :zena do
     puts cmd
     system(cmd)
 
-    system("#{Gem.win_platform? ? 'start' : 'open'} #{File.join(Zena::ROOT, 'lib/zena/deploy/start.html')}")
+    if RUBY_PLATFORM =~ /mswin32/
+      puts "\n\nOnce the server has started, you can open your web browser at:\n\n\n           ====> http://localhost:3000 <====\n\n\n"
+      cmd = "ruby script/server -e #{ENV['RAILS_ENV']} -p 3000"
+      puts cmd
+      system cmd
+    else
+      cmd = "open #{File.join(Zena::ROOT, 'lib/zena/deploy/start.html').inspect}"
+      puts cmd
+      system(cmd)
 
-    cmd = "script/server -e #{ENV['RAILS_ENV']} -p 3211"
-    puts cmd
-    exec cmd
+      cmd = "ruby script/server -e #{ENV['RAILS_ENV']} -p 3000"
+      puts cmd
+      exec cmd
+    end
   end
 
 end

@@ -131,7 +131,7 @@ module Zena
         unless File.exist?("#{SITES_ROOT}/test.host/public")
           FileUtils::mkpath("#{SITES_ROOT}/test.host/public")
           ['images', 'calendar', 'stylesheets', 'javascripts'].each do |dir|
-            FileUtils.ln_s("../../../public/#{dir}", "#{SITES_ROOT}/test.host/public/#{dir}")
+            FileUtils.symlink_or_copy("../../../public/#{dir}", "#{SITES_ROOT}/test.host/public/#{dir}")
           end
         end
 
