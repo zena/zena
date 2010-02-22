@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2010-02-15}
+  s.date = %q{2010-02-22}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -50,6 +50,7 @@ Gem::Specification.new do |s|
      "app/helpers/documents_helper.rb",
      "app/helpers/nodes_helper.rb",
      "app/helpers/versions_helper.rb",
+     "app/models/attachment.rb",
      "app/models/book.rb",
      "app/models/cache.rb",
      "app/models/cached_page.rb",
@@ -152,7 +153,6 @@ Gem::Specification.new do |s|
      "app/views/links/create.rjs",
      "app/views/links/destroy.rjs",
      "app/views/links/show.rjs",
-     "app/views/nodes/404.html",
      "app/views/nodes/500.html",
      "app/views/nodes/_dates.rhtml",
      "app/views/nodes/_edit_attribute.rhtml",
@@ -189,6 +189,7 @@ Gem::Specification.new do |s|
      "app/views/relations/show.rjs",
      "app/views/relations/update.rjs",
      "app/views/search/_form.rhtml",
+     "app/views/sites/404.html",
      "app/views/sites/_form.erb",
      "app/views/sites/_li.erb",
      "app/views/sites/clear_cache.rjs",
@@ -399,19 +400,12 @@ Gem::Specification.new do |s|
      "doc/template/cache/STYLE",
      "doc/template/cache/URL",
      "doc/zafu_changes.yml",
-     "lib/base_additions.rb",
+     "generate",
      "lib/bricks.rb",
      "lib/bricks/loader.rb",
      "lib/bricks/requirements_validation.rb",
-     "lib/comment_query.rb",
-     "lib/core_ext/date_time.rb",
-     "lib/core_ext/dir.rb",
-     "lib/core_ext/fixnum.rb",
-     "lib/core_ext/string.rb",
      "lib/exif_data.rb",
-     "lib/fix_rails_layouts.rb",
      "lib/gettext_strings.rb",
-     "lib/image_builder.rb",
      "lib/log_recorder/lib/log_recorder.rb",
      "lib/log_recorder/test/log_recorder_test.rb",
      "lib/parser.rb",
@@ -420,7 +414,6 @@ Gem::Specification.new do |s|
      "lib/tasks/zena.rb",
      "lib/upload_progress_server.rb",
      "lib/version_off.rb",
-     "lib/webdav_adapter.rb",
      "lib/zafu/action.rb",
      "lib/zafu/ajax.rb",
      "lib/zafu/attributes.rb",
@@ -446,8 +439,13 @@ Gem::Specification.new do |s|
      "lib/zena.rb",
      "lib/zena/acts/secure.rb",
      "lib/zena/app.rb",
+     "lib/zena/base_additions.rb",
      "lib/zena/code_syntax.rb",
      "lib/zena/controller/test_case.rb",
+     "lib/zena/core_ext/date_time.rb",
+     "lib/zena/core_ext/dir.rb",
+     "lib/zena/core_ext/fixnum.rb",
+     "lib/zena/core_ext/string.rb",
      "lib/zena/crypto_provider/initial.rb",
      "lib/zena/db.rb",
      "lib/zena/deploy.rb",
@@ -462,6 +460,7 @@ Gem::Specification.new do |s|
      "lib/zena/deploy/vhost.rhtml",
      "lib/zena/deploy/vhost_www.rhtml",
      "lib/zena/fix/mysql_connection.rb",
+     "lib/zena/fix_rails_layouts.rb",
      "lib/zena/foxy_parser.rb",
      "lib/zena/info.rb",
      "lib/zena/migrator.rb",
@@ -487,8 +486,11 @@ Gem::Specification.new do |s|
      "lib/zena/use/grid.rb",
      "lib/zena/use/html_tags.rb",
      "lib/zena/use/i18n.rb",
+     "lib/zena/use/image_builder.rb",
      "lib/zena/use/nested_attributes_alias.rb",
-     "lib/zena/use/node_query_finders.rb",
+     "lib/zena/use/query_comment.rb",
+     "lib/zena/use/query_node.rb",
+     "lib/zena/use/query_node_finders.rb",
      "lib/zena/use/refactor.rb",
      "lib/zena/use/relations.rb",
      "lib/zena/use/rendering.rb",
@@ -504,6 +506,9 @@ Gem::Specification.new do |s|
      "lib/zena/use/zafu.rb",
      "lib/zena/use/zazen.rb",
      "lib/zena/view/test_case.rb",
+     "lib/zena/webdav_adapter.rb",
+     "locale/de/LC_MESSAGES/zena.mo",
+     "locale/de/zena.po",
      "locale/en/LC_MESSAGES/zena.mo",
      "locale/en/zena.po",
      "locale/fr/LC_MESSAGES/zena.mo",
@@ -514,9 +519,11 @@ Gem::Specification.new do |s|
      "public/calendar/calendar-setup.js",
      "public/calendar/calendar.js",
      "public/calendar/iconCalendar.gif",
+     "public/calendar/lang/calendar-de-utf8.js",
      "public/calendar/lang/calendar-en-utf8.js",
      "public/calendar/lang/calendar-fr-utf8.js",
      "public/calendar/lang/lang.zip",
+     "public/calendar/menuarrow.gif",
      "public/dispatch.cgi",
      "public/dispatch.fcgi",
      "public/dispatch.rb",
@@ -1670,12 +1677,12 @@ Gem::Specification.new do |s|
      "test/functional/users_controller_test.rb",
      "test/functional/versions_controller_test.rb",
      "test/functional/virtual_classes_controller_test.rb",
-     "test/helpers/node_query/basic.yml",
-     "test/helpers/node_query/comments.yml",
-     "test/helpers/node_query/complex.yml",
-     "test/helpers/node_query/filters.yml",
-     "test/helpers/node_query/relations.yml",
-     "test/helpers/node_query_test.rb",
+     "test/helpers/query_node/basic.yml",
+     "test/helpers/query_node/comments.yml",
+     "test/helpers/query_node/complex.yml",
+     "test/helpers/query_node/filters.yml",
+     "test/helpers/query_node/relations.yml",
+     "test/helpers/query_node_test.rb",
      "test/integration/multiple_hosts_test.rb",
      "test/integration/multiversion_test.rb",
      "test/integration/navigation_test.rb",
@@ -1689,7 +1696,6 @@ Gem::Specification.new do |s|
      "test/sites/complex/users.yml",
      "test/sites/complex/versions.yml",
      "test/sites/complex/virtual_classes.yml",
-     "test/sites/ocean/contact_contents.yml",
      "test/sites/ocean/groups.yml",
      "test/sites/ocean/iformats.yml",
      "test/sites/ocean/nodes.yml",
@@ -1698,11 +1704,8 @@ Gem::Specification.new do |s|
      "test/sites/ocean/users.yml",
      "test/sites/ocean/versions.yml",
      "test/sites/zena/comments.yml",
-     "test/sites/zena/contact_contents.yml",
      "test/sites/zena/data_entries.yml",
      "test/sites/zena/discussions.yml",
-     "test/sites/zena/document_contents.yml",
-     "test/sites/zena/dyn_attributes.yml",
      "test/sites/zena/groups.yml",
      "test/sites/zena/iformats.yml",
      "test/sites/zena/links.yml",
@@ -1892,7 +1895,6 @@ Gem::Specification.new do |s|
      "vendor/apache2_upload_progress/README",
      "vendor/apache2_upload_progress/mod_upload_progress.c",
      "vendor/apache_upload/mod_upload_progress.c",
-     "vendor/bricks/20070122-172926.txt",
      "vendor/plugins/after_commit/MIT-LICENSE",
      "vendor/plugins/after_commit/README.rdoc",
      "vendor/plugins/after_commit/init.rb",
@@ -1929,7 +1931,8 @@ Gem::Specification.new do |s|
      "vendor/plugins/rjs-assertions/init.rb",
      "vendor/plugins/rjs-assertions/lib/rjs-assertions.rb",
      "vendor/rails_patches/support_for_inverse_relationships_on_active_record_objects.diff",
-     "zena.gemspec"
+     "zena.gemspec",
+     "zena_console.rb"
   ]
   s.homepage = %q{http://zenadmin.org}
   s.rdoc_options = ["--charset=UTF-8"]
@@ -1959,7 +1962,7 @@ Gem::Specification.new do |s|
      "test/functional/users_controller_test.rb",
      "test/functional/versions_controller_test.rb",
      "test/functional/virtual_classes_controller_test.rb",
-     "test/helpers/node_query_test.rb",
+     "test/helpers/query_node_test.rb",
      "test/integration/multiple_hosts_test.rb",
      "test/integration/multiversion_test.rb",
      "test/integration/navigation_test.rb",
@@ -2045,7 +2048,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<tzinfo>, [">= 0.3.12"])
       s.add_runtime_dependency(%q<rails>, ["= 2.3.4"])
       s.add_runtime_dependency(%q<rubyless>, [">= 0.3.5"])
-      s.add_runtime_dependency(%q<property>, [">= 0.8.1"])
+      s.add_runtime_dependency(%q<property>, [">= 0.8.2"])
       s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_runtime_dependency(%q<authlogic>, ["= 2.1.3"])
       s.add_runtime_dependency(%q<ts-delayed-delta>, [">= 1.0.2"])
@@ -2058,6 +2061,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<json>, [">= 1.1.9"])
       s.add_runtime_dependency(%q<will_paginate>, ["~> 2.3.12"])
       s.add_runtime_dependency(%q<gettext>, ["= 1.93.0"])
+      s.add_runtime_dependency(%q<versions>, [">= 0.2.1"])
       s.add_runtime_dependency(%q<jeweler>, [">= 0"])
       s.add_runtime_dependency(%q<rmagick>, [">= 2.11.1"])
       s.add_runtime_dependency(%q<hpricot>, [">= 0"])
@@ -2069,7 +2073,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<tzinfo>, [">= 0.3.12"])
       s.add_dependency(%q<rails>, ["= 2.3.4"])
       s.add_dependency(%q<rubyless>, [">= 0.3.5"])
-      s.add_dependency(%q<property>, [">= 0.8.1"])
+      s.add_dependency(%q<property>, [">= 0.8.2"])
       s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_dependency(%q<authlogic>, ["= 2.1.3"])
       s.add_dependency(%q<ts-delayed-delta>, [">= 1.0.2"])
@@ -2082,6 +2086,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<json>, [">= 1.1.9"])
       s.add_dependency(%q<will_paginate>, ["~> 2.3.12"])
       s.add_dependency(%q<gettext>, ["= 1.93.0"])
+      s.add_dependency(%q<versions>, [">= 0.2.1"])
       s.add_dependency(%q<jeweler>, [">= 0"])
       s.add_dependency(%q<rmagick>, [">= 2.11.1"])
       s.add_dependency(%q<hpricot>, [">= 0"])
@@ -2094,7 +2099,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<tzinfo>, [">= 0.3.12"])
     s.add_dependency(%q<rails>, ["= 2.3.4"])
     s.add_dependency(%q<rubyless>, [">= 0.3.5"])
-    s.add_dependency(%q<property>, [">= 0.8.1"])
+    s.add_dependency(%q<property>, [">= 0.8.2"])
     s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
     s.add_dependency(%q<authlogic>, ["= 2.1.3"])
     s.add_dependency(%q<ts-delayed-delta>, [">= 1.0.2"])
@@ -2107,6 +2112,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<json>, [">= 1.1.9"])
     s.add_dependency(%q<will_paginate>, ["~> 2.3.12"])
     s.add_dependency(%q<gettext>, ["= 1.93.0"])
+    s.add_dependency(%q<versions>, [">= 0.2.1"])
     s.add_dependency(%q<jeweler>, [">= 0"])
     s.add_dependency(%q<rmagick>, [">= 2.11.1"])
     s.add_dependency(%q<hpricot>, [">= 0"])

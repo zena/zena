@@ -2,7 +2,7 @@ require 'versions'
 
 class Attachment < Versions::SharedAttachment
 
-  before_save :save_visitor_id, :save_site_id
+  before_save :set_visitor_id, :set_site_id
 
   def filepath(format=nil)
     mode   = format ? (format[:size] == :keep ? 'full' : format[:name]) : 'full'
@@ -10,11 +10,11 @@ class Attachment < Versions::SharedAttachment
   end
 
   private
-    def save_visitor_id
+    def set_visitor_id
       self['user_id'] = visitor.id
     end
 
-    def save_site_id
+    def set_site_id
       self['site_id'] = current_site.id
     end
 

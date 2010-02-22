@@ -5,8 +5,8 @@ class DocumentTest < Zena::Unit::TestCase
 
   self.use_transactional_fixtures = false
 
-  context 'On create' do
-    context 'a Document' do
+  context 'A newly created' do
+    context 'valid Document' do
       setup { login(:ant) }
       subject do
           secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater), :title=>'life',
@@ -17,11 +17,11 @@ class DocumentTest < Zena::Unit::TestCase
         assert subject.valid?
       end
 
-      should 'save object in database' do
+      should 'be saved in database' do
         assert !subject.new_record?
       end
 
-      should 'save file in file system' do
+      should 'save file in the filesystem' do
         assert File.exist?(subject.version.filepath)
       end
 
@@ -52,9 +52,9 @@ class DocumentTest < Zena::Unit::TestCase
       should 'save site_id in attachment' do
         assert_equal sites_id(:zena), subject.version.attachment.site_id
       end
-    end # a Document
+    end # Document
 
-    context 'with same name' do
+    context 'Document with same name' do
       setup do
         login(:tiger)
       end
@@ -81,16 +81,16 @@ class DocumentTest < Zena::Unit::TestCase
         secure!(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :name=>'lalala') }
       end
 
-      should 'save record on database' do
+      should 'save record in the database' do
         assert !subject.new_record?
       end
 
-      should 'save text/plain as content type' do
+      should 'save text/plain as content_type' do
         assert_equal 'text/plain', subject.content_type
       end
     end # without file
 
-    context 'with content type specified' do
+    context 'Document with content_type specified' do
       setup do
         login(:tiger)
       end
@@ -100,16 +100,16 @@ class DocumentTest < Zena::Unit::TestCase
                                             :file => uploaded_text('some.txt') )}
       end
 
-      should 'save record on database' do
+      should 'save record in the database' do
         assert !subject.new_record?
       end
 
-      should 'save specific content type' do
+      should 'save the specified content_type' do
         assert_equal 'text/css', subject.content_type
       end
     end # with content type specified
 
-    context 'with bad file name' do
+    context 'Document with a bad filename' do
       setup do
         login(:ant)
       end
@@ -119,7 +119,7 @@ class DocumentTest < Zena::Unit::TestCase
           :file => uploaded_pdf('water.pdf') ) }
       end
 
-      should 'save name and version title with given name' do
+      should 'save name and version title with the given name' do
         assert !subject.new_record?
         assert_equal "stupid", subject.name
         assert_equal "stupid", subject.version.title
@@ -128,8 +128,8 @@ class DocumentTest < Zena::Unit::TestCase
       should 'save filename with the name of the file' do
         assert_equal "water.pdf", subject.filename
       end
-    end # with bad file name
-  end # On create a document
+    end # Document with a bad file name
+  end # A newly created
 
 
   context 'On reading' do
@@ -172,11 +172,11 @@ class DocumentTest < Zena::Unit::TestCase
         assert !subject.image?
       end
 
-      should 'get content type' do
+      should 'get content_type' do
         assert_equal 'application/pdf', subject.content_type
       end
 
-      should 'get ext (extension)' do
+      should 'get file extension' do
         assert_equal 'pdf', subject.ext
       end
 
@@ -201,7 +201,7 @@ class DocumentTest < Zena::Unit::TestCase
 
   end
 
-  context 'Find by path' do
+  context 'Finding a Document by path' do
     setup do
       login(:tiger)
       @doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater), :title=>'SkyWater',

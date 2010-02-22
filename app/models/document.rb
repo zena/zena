@@ -34,10 +34,10 @@ c_content_type:: file content-type
 # should be a sub-class of Node, not Page (#184). Write a migration, fix fixtures and test.
 class Document < Node
 
-  before_validation :content_before_validation
+  before_validation :set_document_properties
 
   include Versions::Attachment
-  store_attachments_in :version,  :attachment_class=>'Attachment'
+  store_attachments_in :version,  :attachment_class => 'Attachment'
 
   property do |t|
     t.string  "type"
@@ -138,13 +138,13 @@ class Document < Node
 
   # Get the size of the attachment file in byte.
   def size(mode=nil)
-     return prop['size'] if prop['size']
-     if !new_record? && File.exist?(version.filepath)
-       prop['size'] = File.stat(version.filepath).size
-       self.save
-     end
-     prop['size']
-   end
+    return prop['size'] if prop['size']
+    if !new_record? && File.exist?(version.filepath)
+      prop['size'] = File.stat(version.filepath).size
+      self.save
+    end
+    prop['size']
+  end
 
   private
 
@@ -159,7 +159,7 @@ class Document < Node
       if base
         if base =~ /(.*)\.(\w+)$/
           self.name = $1 if new_record?
-          self.properties['ext'] ||= $2
+          prop['ext'] ||= $2
         else
           self.name = base if new_record?
         end
@@ -176,7 +176,7 @@ class Document < Node
       super
     end
 
-    def content_before_validation
+    def set_document_properties
       if @new_file
         prop['content_type'] = @new_file['content_type'].chomp
         if @new_file.kind_of?(StringIO)
