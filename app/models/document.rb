@@ -125,6 +125,15 @@ class Document < Node
     super + ".#{prop['ext']}"
   end
 
+  def size(mode=nil)
+     return prop[:size] if prop[:size]
+     if !new_record? && File.exist?(version.filepath)
+       prop[:size] = File.stat(version.filepath).size
+       self.save
+     end
+     prop[:size]
+   end
+
   private
     def set_defaults
       base = name

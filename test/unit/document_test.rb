@@ -33,8 +33,12 @@ class DocumentTest < Zena::Unit::TestCase
         assert_not_nil subject.version.title
       end
 
-      should 'save name in document' do
-        assert_not_nil subject.name
+      should 'save name in document (node)' do
+        assert_not_nil subject[:name]
+      end
+
+      should 'save fullpath in document (node)' do
+        assert_not_nil subject[:fullpath]
       end
 
       should 'save user_id in attachment' do
@@ -43,10 +47,6 @@ class DocumentTest < Zena::Unit::TestCase
 
       should 'save site_id in attachment' do
         assert_equal sites_id(:zena), subject.version.attachment.site_id
-      end
-
-      should 'save fullpath in node' do
-        assert_equal 'projects/cleanWater/water-1', subject.fullpath
       end
     end # a Document
 
@@ -122,22 +122,54 @@ class DocumentTest < Zena::Unit::TestCase
         assert_equal "stupid.jpg", subject.filename
       end
     end # with bad file name
-
   end # On create a document
 
 
-  context 'On reading a document' do
+  context 'On reading' do
     setup do
       login(:tiger)
     end
 
-    subject do
-      secure!(Document) { Document.find( nodes_id(:water_pdf) ) }
+    context 'a document' do
+      subject do
+        secure!(Document) { Document.find( nodes_id(:water_pdf) ) }
+      end
+
+      should 'get filename' do
+        assert_equal 'water.pdf', subject.filename
+      end
+
+      should 'know if it is an image' do
+        assert !subject.image?
+      end
+
+      should 'get fullpath' do
+        assert_equal 'project/clean/water', subject.fullpath
+      end
+
+      should 'get the file size' do
+        assert_equal 0, subject.size
+      end
+
+      should 'have a version' do
+        assert_not_nil subject.version
+      end
+
+      should 'have a a version with attachment' do
+        assert_not_nil subject.version.attachment
+      end
+    end # a document
+
+    context 'an image' do
+      subject do
+        secure!(Document) { Document.find( nodes_id(:bird_jpg) )  }
+      end
+
+      should 'know if it is an image' do
+        assert subject.image?
+      end
     end
 
-    should 'get filename' do
-      assert_equal 'water.pdf', subject.filename
-    end
   end
 
 
@@ -162,43 +194,9 @@ class DocumentTest < Zena::Unit::TestCase
     assert_equal "/projects/cleanWater/water.pdf", doc.fullpath
   end
 
-  def test_image
-    login(:tiger)
-    doc = secure!(Document) { Document.find( nodes_id(:water_pdf) ) }
-    assert ! doc.image?, 'Not an image'
-    doc = secure!(Document) { Document.find( nodes_id(:bird_jpg) )  }
-    assert doc.image?, 'Is an image'
-  end
 
-  def test_filename
-    login(:tiger)
-    doc = secure!(Node) { nodes(:lake_jpg) }
-    assert_equal 'lake.jpg', doc.filename
-    doc.name = 'test'
-    assert_equal 'test.jpg', doc.filename
-    doc.update_attributes('c_ext' => 'pdf')
-    assert_equal 'test.jpg', doc.filename
-  end
 
-  def test_filesize
-    login(:tiger)
-    doc = secure!(Document) { Document.find( nodes_id(:water_pdf) ) }
-    assert_nothing_raised { doc.version.content.size }
-  end
 
-  def test_create_with_text_file
-    preserving_files('/test.host/data/txt') do
-      login(:ant)
-      doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
-        :name => 'stupid.jpg',
-        :c_file => uploaded_text('some.txt') ) }
-      assert_kind_of Document , doc
-      assert ! doc.new_record? , "Not a new record"
-      assert_equal "stupid", doc.name
-      assert_equal "stupid", doc.version.title
-      assert_equal 'txt', doc.version.content.ext
-    end
-  end
 
   def test_change_file
     preserving_files('/test.host/data') do
