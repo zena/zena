@@ -49,14 +49,6 @@ class Document < Node
 
   safe_method :filename => String
 
-  def title
-    version.title
-  end
-
-  def title=(t)
-    version.title = t
-  end
-
   class << self
 
     def version_class
@@ -109,6 +101,14 @@ class Document < Node
     def change_to_classes_for_form
       classes_for_form(:class => 'Document', :without => 'Image')
     end
+  end
+
+  def title
+    version.title
+  end
+
+  def title=(t)
+    version.title = t
   end
 
   # Return true if the document is an image.

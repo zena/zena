@@ -5,118 +5,141 @@ class DocumentTest < Zena::Unit::TestCase
 
   self.use_transactional_fixtures = false
 
-  context 'On create a document' do
-    setup { login(:ant) }
-    subject do
-        @doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
-                                                  :file => uploaded_pdf('water.pdf') ) }
-    end
+  context 'On create' do
+    context 'a Document' do
+      setup { login(:ant) }
+      subject do
+          @doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
+                                                    :file => uploaded_pdf('water.pdf') ) }
+      end
 
-    should 'save object in database' do
-      assert !subject.new_record?
-    end
+      should 'save object in database' do
+        assert !subject.new_record?
+      end
 
-    should 'save file in file system' do
-      assert File.exist?(subject.version.filepath)
-    end
+      should 'save file in file system' do
+        assert File.exist?(subject.version.filepath)
+      end
 
-    should 'save content type in properties' do
-      assert_equal 'application/pdf', subject.prop['content_type']
-    end
+      should 'save content type in properties' do
+        assert_equal 'application/pdf', subject.prop['content_type']
+      end
 
-    should 'save extension in properties' do
-      assert_equal 'pdf', subject.prop['ext']
-    end
+      should 'save extension in properties' do
+        assert_equal 'pdf', subject.prop['ext']
+      end
 
-    should 'save title in version' do
-      assert_not_nil subject.version.title
-    end
+      should 'save title in version' do
+        assert_not_nil subject.version.title
+      end
 
-    should 'save name in document' do
-      assert_not_nil subject.name
-    end
+      should 'save name in document' do
+        assert_not_nil subject.name
+      end
 
-    should 'save visitor id in attachment' do
-      assert_equal users_id(:ant), subject.version.attachment.user_id
-    end
+      should 'save user_id in attachment' do
+        assert_equal users_id(:ant), subject.version.attachment.user_id
+      end
 
-    should 'save site id in attachment' do
-      assert_equal sites_id(:zena), subject.version.attachment.site_id
-    end
-  end
+      should 'save site_id in attachment' do
+        assert_equal sites_id(:zena), subject.version.attachment.site_id
+      end
 
-  context 'On create with same name' do
+      should 'save fullpath in node' do
+        assert_equal 'projects/cleanWater/water-1', subject.fullpath
+      end
+    end # a Document
+
+    context 'with same name' do
+      setup do
+        login(:tiger)
+      end
+      subject do
+        secure!(Document) { Document.create( :parent_id => nodes_id(:cleanWater),
+                                                   :title => 'lake',
+                                                   :file  => uploaded_pdf('water.pdf') ) }
+      end
+
+      should 'save name with increment' do
+        assert_equal 'lake-1', subject.name
+      end
+
+      should 'save version title with increment' do
+        assert_equal 'lake-1', subject.version.title
+      end
+    end # with same name
+
+    context 'without file' do
+      setup do
+        login(:ant)
+      end
+      subject do
+        secure!(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :name=>'lalala') }
+      end
+
+      should 'save record on database' do
+        assert !subject.new_record?
+      end
+
+      should 'save text/plain as content type' do
+        assert_equal 'text/plain', subject.content_type
+      end
+    end # without file
+
+    context 'with content type specified' do
+      setup do
+        login(:tiger)
+      end
+      subject do
+        secure!(Document) { Document.create("content_type"=>"text/css",
+                                            "parent_id"=>nodes_id(:cleanWater),
+                                            :file => uploaded_text('some.txt') )}
+      end
+
+      should 'save record on database' do
+        assert !subject.new_record?
+      end
+
+      should 'save specific content type' do
+        assert_equal 'text/css', subject.content_type
+      end
+    end # with content type specified
+
+    context 'with bad file name' do
+      setup do
+        login(:ant)
+      end
+      subject do
+        secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
+          :name => 'stupid.jpg',
+          :file => uploaded_pdf('water.pdf') ) }
+      end
+
+      should 'save with the given name' do
+        assert !subject.new_record?
+        assert_equal "stupid", subject.name
+        assert_equal "stupid", subject.version.title
+        assert_equal "stupid.jpg", subject.filename
+      end
+    end # with bad file name
+
+  end # On create a document
+
+
+  context 'On reading a document' do
     setup do
       login(:tiger)
     end
+
     subject do
-      secure!(Document) { Document.create( :parent_id => nodes_id(:cleanWater),
-                                                 :title => 'lake',
-                                                 :file  => uploaded_pdf('water.pdf') ) }
+      secure!(Document) { Document.find( nodes_id(:water_pdf) ) }
     end
 
-    should 'save name with increment' do
-      assert_equal 'lake-1', subject.name
-    end
-
-    should 'save version title with increment' do
-      assert_equal 'lake-1', subject.version.title
+    should 'get filename' do
+      assert_equal 'water.pdf', subject.filename
     end
   end
 
-  context 'On create without file' do
-    setup do
-      login(:ant)
-    end
-    subject do
-      secure!(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :name=>'lalala') }
-    end
-
-    should 'save record on database' do
-      assert !subject.new_record?
-    end
-
-    should 'save text/plain as content type' do
-      assert_equal 'text/plain', subject.content_type
-    end
-  end
-
-  context 'On create with content type' do
-    setup do
-      login(:tiger)
-    end
-    subject do
-      secure!(Document) { Document.create("content_type"=>"text/css",
-                                          "parent_id"=>nodes_id(:cleanWater),
-                                          :file => uploaded_text('some.txt') )}
-    end
-
-    should 'save record on database' do
-      assert !subject.new_record?
-    end
-
-    should 'save specific content type' do
-      assert_equal 'text/css', subject.content_type
-    end
-  end
-
-  context 'On create with bad file name' do
-    setup do
-      login(:ant)
-    end
-    subject do
-      secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
-        :name => 'stupid.jpg',
-        :file => uploaded_pdf('water.pdf') ) }
-    end
-
-    should 'save with the given name' do
-      assert !subject.new_record?
-      assert_equal "stupid", subject.name
-      assert_equal "stupid", subject.version.title
-      assert_equal "stupid.jpg", subject.filename
-    end
-  end
 
   context 'Find by path' do
     setup do
@@ -128,6 +151,8 @@ class DocumentTest < Zena::Unit::TestCase
       assert_equal "/projects/cleanWater/water.pdf", doc.fullpath
     end
   end
+
+
 
 
   def get_with_full_path
