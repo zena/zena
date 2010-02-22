@@ -1,3 +1,14 @@
+== 0.16.4 2010-02-22
+
+* 3 major enhancement
+  * fixed installation and runtime bugs on Windows
+  * moved ruby files in 'lib' into their Zena namespace
+  * german translations [Lars Kanis]
+
+* 2 minor enhancments
+  * fixed edgy bug with name duplicates
+  * fixed bug that would show a 'site not found' error instead of a 404
+
 == 0.16.3 2010-01-19
 
 * 1 major enhancement

@@ -111,8 +111,8 @@ class CachedPage < ActiveRecord::Base
       filepath = "#{SITES_ROOT}#{path}"
       FileUtils.mkpath(File.dirname(filepath))
       if content_path
-        FileUtils::rm(filepath) if File.exist?(filepath)
-        File.symlink(content_path, filepath)
+        FileUtils.rm(filepath) if File.exist?(filepath)
+        FileUtils.symlink_or_copy(content_path, filepath)
       else
         File.open(filepath, "wb+") { |f| f.write(content_data) }
       end
@@ -128,7 +128,7 @@ class CachedPage < ActiveRecord::Base
     def cached_page_on_destroy
       filepath = "#{SITES_ROOT}#{path.gsub('..','')}" # just in case...
       CachedPage.logger.info "remove #{filepath}"
-      FileUtils::rm(filepath) if File.exist?(filepath)
+      FileUtils.rm(filepath) if File.exist?(filepath)
       CachedPage.connection.execute "DELETE FROM cached_pages_nodes WHERE cached_page_id = '#{id}'"
     end
 end

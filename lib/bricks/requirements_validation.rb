@@ -3,6 +3,8 @@ require 'yaml'
 module Bricks
   module RequirementsValidation
     def requirement_errors(brick, requirements)
+      current_stderr = $stderr
+      $stderr = StringIO.new
       errors = []
       requirements.each do |k,v|
         case k
@@ -28,6 +30,7 @@ module Bricks
           end
         end
       end
+      $stderr = current_stderr
       errors.empty? ? nil : errors
     end
 

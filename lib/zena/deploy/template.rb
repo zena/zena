@@ -2,7 +2,11 @@ require 'digest/sha1'
 require 'zena/info'
 # This is a rails template to generate a basic zena application
 
-run 'rm public/index.html'
+if RUBY_PLATFORM =~ /mswin32/
+  run "del public\\index.html"
+else
+  run "rm public/index.html"
+end
 
 gem 'zena', :version => Zena::VERSION
 route 'map.zen_routes'

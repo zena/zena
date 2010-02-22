@@ -5,6 +5,7 @@ require 'fileutils'
 require File.join(File.dirname(__FILE__), 'zena', 'info')
 
 def has_executable(*list)
+  return false if RUBY_PLATFORM =~ /mswin32/
   list.inject(true) do |s,e|
     s && !(`which #{e} || echo 'no #{e}'` =~ /^no #{e}/)
   end
@@ -178,7 +179,6 @@ module Zena
       add_load_paths(config)
       config_gems(config)
       load_plugins if RAILS_ROOT != Zena::ROOT
-      load_custom_extensions
       include_modules
       load_bricks
       set_default_timezone(config)
@@ -407,4 +407,5 @@ end
 Zena::EXT_TO_TYPE, Zena::TYPE_TO_EXT = make_hashes(EXT_TYPE)
 Zena.add_load_paths
 Zena.gems_setup
+Zena.load_custom_extensions
 require 'rubyless'
