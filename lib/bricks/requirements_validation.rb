@@ -35,14 +35,9 @@ module Bricks
     end
 
     def config_for_active_bricks
-      if File.exist?("#{RAILS_ROOT}/config/bricks.yml")
-        raw_config = YAML.load_file("#{RAILS_ROOT}/config/bricks.yml")[RAILS_ENV] || {}
-      else
-        raw_config = YAML.load_file("#{Zena::ROOT}/config/bricks.yml")[RAILS_ENV] || {}
-      end
       config = {}
 
-      raw_config.each do |brick, opts|
+      RAW_CONFIG.each do |brick, opts|
         if opts.kind_of?(Hash)
           next unless opts['switch'] == true
           if activation = opts.delete('activate_if')

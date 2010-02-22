@@ -12,7 +12,7 @@ def has_executable(*list)
 end
 
 
-require 'bricks'
+require 'bricks/raw_config'
 
 module Zena
   ENABLE_LATEX   = true  && has_executable('pdflatex') # enable LateX post-rendering
@@ -88,6 +88,13 @@ module Zena
       gem_configuration.each do |gem_name, gem_config|
         if gem_config
           if gem_config['optional']
+            if brick_name = gem_config['brick']
+              # We use configuration before activation since the activation step
+              # tries to load gems
+              if Bricks::RAW_CONFIG[brick_name]['switch'] == false
+                next
+              end
+            end
             begin
               gem gem_name, gem_config['version']
             rescue LoadError
