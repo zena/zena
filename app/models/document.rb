@@ -34,6 +34,8 @@ c_content_type:: file content-type
 # should be a sub-class of Node, not Page (#184). Write a migration, fix fixtures and test.
 class Document < Node
 
+  before_validation :content_before_validation
+
   include Versions::Attachment
   store_attachments_in :version,  :attachment_class=>'Attachment'
 
@@ -48,6 +50,7 @@ class Document < Node
   end
 
   safe_method :filename => String
+  safe_method :filepath => String
 
   class << self
 
@@ -103,10 +106,12 @@ class Document < Node
     end
   end
 
+  # Get version title
   def title
     version.title
   end
 
+  # Set version title name
   def title=(t)
     version.title = t
   end
@@ -116,25 +121,34 @@ class Document < Node
     kind_of?(Image)
   end
 
-  # Return the document's public filename using the name and the file extension.
+  # Get the document's public filename using the name and the file extension.
   def filename
-    "#{version.title}.#{prop['ext']}"
+   version.attachment.filename
   end
 
+  # Get the file path defined in attachment.
+  def filepath
+    version.attachment.filepath
+  end
+
+  # Get the node's rootpath with the file's extention.
   def rootpath
     super + ".#{prop['ext']}"
   end
 
+  # Get the size of the attachment file in byte.
   def size(mode=nil)
-     return prop[:size] if prop[:size]
+     return prop['size'] if prop['size']
      if !new_record? && File.exist?(version.filepath)
-       prop[:size] = File.stat(version.filepath).size
+       prop['size'] = File.stat(version.filepath).size
        self.save
      end
-     prop[:size]
+     prop['size']
    end
 
   private
+
+    # run before validation
     def set_defaults
       base = name
       base = version.title if base.blank?
@@ -160,5 +174,32 @@ class Document < Node
     def node_before_validation
       get_unique_name_in_scope('ND%')
       super
+    end
+
+    def content_before_validation
+      if @new_file
+        prop['content_type'] = @new_file['content_type'].chomp
+        if @new_file.kind_of?(StringIO)
+          prop['size'] = @new_file.size
+        else
+          prop['size'] = @new_file.stat.size
+        end
+
+        if Zena::EXT_TO_TYPE[prop['ext']].nil? || !Zena::EXT_TO_TYPE[prop['ext']].include?(prop['content_type'])
+          prop['ext'] = @new_file.original_filename.split('.').last
+        end
+      end
+
+      # is this extension valid ?
+      extensions = Zena::TYPE_TO_EXT[prop['content_type']]
+      if extensions && content_type != 'application/octet-stream' # use 'bin' extension only if we do not have any other ext.
+        prop['ext'] = (prop['ext'] && extensions.include?(prop['ext'].downcase)) ? self.prop['ext'].downcase : extensions[0]
+      else
+        # unknown content_type or 'application/octet-stream' , just keep the extension we have
+        prop['ext'] ||= 'bin'
+      end
+
+      # set initial name from node
+      self[:name] = version.node[:name].gsub('.','') if self[:name].blank?
     end
 end
