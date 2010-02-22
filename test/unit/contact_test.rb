@@ -2,6 +2,24 @@ require 'test_helper'
 
 class ContactTest < Zena::Unit::TestCase
 
+  context 'On initialize' do
+    setup do
+      login(:tiger)
+    end
+    subject do
+      secure!(Contact) {Contact.new('name'=>'Meyer', :parent_id => nodes_id(:zena))}
+    end
+
+    should 'have a parent' do
+      assert_equal nodes_id(:zena), subject.parent(false).id
+    end
+
+    should 'have a parent with fullpath' do
+      assert_equal '', subject.parent(false).fullpath
+    end
+  end
+
+
   context 'On create' do
     setup do
       login(:tiger)
