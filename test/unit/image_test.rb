@@ -2,67 +2,186 @@ require 'test_helper'
 
 class ImageTest < Zena::Unit::TestCase
 
-  def test_create_with_file
-    without_files('test.host/data/jpg') do
-      login(:ant)
-      img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
-                                          :inherit => 1,
+  # don't use transaction fixtures so that after_commit (implemented in Versions gem) works.
+  self.use_transactional_fixtures = false
+
+  context 'On create an image' do
+    setup do
+      login(:tiger)
+    end
+
+    teardown do
+      FileUtils.rm(subject.filepath) if subject && subject.version.attachment
+    end
+
+    subject do
+      secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
                                           :name=>'birdy',
-                                          :c_file => uploaded_jpg('bird.jpg')) }
-      assert_kind_of Image , img
-      assert ! img.new_record? , "Not a new record"
-      assert_equal "birdy", img.name
-      assert ! img.version.new_record? , "Version is not a new record"
-      assert_nil img.version.content_id , "content_id is nil"
-      assert_kind_of ImageVersion , img.version
-      assert_equal 'jpg', img.c_ext
-      assert_equal "660x600", "#{img.version.content.width}x#{img.version.content.height}"
-      assert_equal file_path("birdy.jpg", 'full', img.version.content.id), img.version.content.filepath
-      assert File.exist?(img.version.content.filepath)
-      assert_equal File.stat(img.version.content.filepath).size, img.version.content.size
+                                          :file => uploaded_jpg('bird.jpg')) }
+    end
+
+    should 'record be valid' do
+      subject.valid?
+    end
+
+    should 'record be saved in database' do
+      assert !subject.new_record?
+    end
+
+    should 'save image in File System' do
+      assert File.exist?(subject.filepath)
+    end
+
+    should 'save original filename' do
+      assert_equal 'bird.jpg', subject.file.original_filename
+    end
+
+    should 'be kind of Image' do
+      assert_kind_of Image , subject
+    end
+
+    should 'save ext (extension)' do
+      assert_equal 'jpg', subject.ext
+    end
+
+    should 'save content type' do
+      assert_equal 'image/jpeg', subject.content_type
+    end
+
+    should 'save width with full format' do
+      assert_equal 660, subject.width
+    end
+
+    should 'save height with full format' do
+      assert_equal 600, subject.height
+    end
+
+    should 'create a version' do
+      assert_not_nil subject.version.id
+    end
+
+    should 'create an attachment' do
+      assert_not_nil subject.version.attachment.id
     end
   end
 
-  def test_resize_image
-    pv_format = Iformat['pv']
-    without_files('test.host/data/jpg') do
+  context 'On resize image' do
+    setup do
+      @pv_format = Iformat['pv']
       login(:ant)
-      img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
-                                          :inherit => 1,
-                                          :name=>'birdy', :c_file => uploaded_jpg('bird.jpg')) }
-      assert !img.new_record?, "Not a new record"
-      assert  File.exist?( img.version.content.filepath       ), "File exist"
-      assert_equal "70x70", "#{img.version.content.width(pv_format)}x#{img.version.content.height(pv_format)}"
-      assert !File.exist?( img.version.content.filepath(pv_format) ), "File does not exist"
-      assert  img.c_file(pv_format), "Can make 'pv' image"
-      assert  File.exist?( img.version.content.filepath(pv_format) ), "File exist"
-      assert_equal file_path('birdy.jpg', 'pv', img.version.content.id), img.version.content.filepath(pv_format)
+    end
+
+    teardown do
+      FileUtils.rm(subject.filepath) if subject && subject.version.attachment
+    end
+
+    subject do
+      secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
+                                          :name=>'birdy', :file => uploaded_jpg('bird.jpg')) }
+    end
+
+    should 'return resolution widthxheight' do
+      assert_equal "70x70", "#{subject.width(@pv_format)}x#{subject.height(@pv_format)}"
+    end
+
+    should 'create a new file corresponding to the new format' do
+      assert !File.exist?( subject.filepath(@pv_format) )
+    end
+
+    should 'return file corresponding to the new format' do
+      assert_not_nil subject.file(@pv_format)
     end
   end
 
-  def test_image_content_type
-    assert Image.accept_content_type?('image/jpeg')
-    assert !Image.accept_content_type?('application/pdf')
-  end
+  context 'On accept content type' do
 
-  def test_change_image
-    preserving_files('test.host/data') do
-      login(:ant)
-      img = secure!(Node) { nodes(:bird_jpg) }
-      flo = secure!(Node) { nodes(:flower_jpg)}
-      assert_equal 660, img.version.content.width
-      assert_equal 600, img.version.content.height
-      assert_equal 56243, img.version.content.size
-      assert_equal 800, flo.version.content.width
-      assert_equal 600, flo.version.content.height
-      assert_equal 96648,  flo.version.content.size
-      assert img.update_attributes(:c_file=>uploaded_jpg('flower.jpg'))
-      assert_equal flo.version.content.size,   img.version.content.size
-      assert_equal flo.version.content.width,  img.version.content.width
-      assert_equal flo.version.content.height, img.version.content.height
-      # make sure old formated images are destroyed
+    should 'Image accept jpeg' do
+      assert Image.accept_content_type?('image/jpeg')
+    end
+
+    should 'not accepect pdf' do
+      assert !Image.accept_content_type?('application/pdf')
     end
   end
+
+  context 'On update image file' do
+    setup do
+      login(:tiger)
+      @img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
+                                          :title=>'birdy', :file => uploaded_jpg('bird.jpg')) }
+      @img.update_attributes(:file=>uploaded_jpg('flower.jpg'))
+    end
+
+    teardown do
+      FileUtils.rm(subject.filepath) if subject.version.attachment
+    end
+
+    subject do
+      @img
+    end
+
+    should 'record be valid' do
+      assert subject.valid?
+    end
+
+    should 'record be saved' do
+      assert !subject.new_record?
+    end
+
+    should 'change file name' do
+      assert_equal 'flower.jpg', subject.filename
+    end
+
+    should 'change filepath' do
+      assert_match /flower.jpg/, subject.filepath
+    end
+
+    should 'change image width' do
+      assert_equal 800, subject.width
+    end
+
+    should 'change image height' do
+      assert_equal 800, subject.width
+    end
+
+    should 'change image size' do
+      assert_equal 96648, subject.size
+    end
+  end
+
+  context 'On update non image file' do
+    setup do
+      login(:tiger)
+      @img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
+                                          :title=>'spring', :file => uploaded_jpg('flower.jpg')) }
+      @img.update_attributes(:file=>uploaded_text('some.txt'))
+    end
+
+    teardown do
+      FileUtils.rm(subject.filepath) if File.exist?(subject.filepath)
+    end
+
+    subject do
+      @img
+    end
+
+    should 'not change content type' do
+      assert 'image/jpeg', subject.content_type
+    end
+
+    should 'not change file name' do
+      assert 'flower.jpg', subject.filename
+    end
+
+    should 'not change file path' do
+      assert_match /flower.jpg/, subject.filepath
+    end
+
+    should 'not create a version' do
+      assert 1, subject.versions.size
+    end
+  end
+
 
   def test_change_image_bad_file
     preserving_files('test.host/data') do

@@ -71,17 +71,72 @@ class Image < Document
     end
   end
 
+  # Return the width in pixels for an image at the given format.
+  def width(format=nil)
+    if format.nil? || format.size == :keep
+      prop['width']
+    else
+      if img = image_with_format(format)
+        img.width
+      else
+        nil
+      end
+    end
+  end
+
+  # Return the height in pixels for an image at the given format.
+  def height(format=nil)
+    if format.nil? || format.size == :keep
+      prop['height']
+    else
+      if img = image_with_format(format)
+        img.height
+      else
+        nil
+      end
+    end
+  end
+
+  def exif
+    @exif ||= ExifData.new(prop['exif_json'])
+  end
+
   # filter attributes so there is no 'crop' with a new file
   def filter_attributes(attributes)
     attrs = super
-    attrs.delete('c_crop') if attributes['c_file'] && attributes['c_crop']
+    attrs.delete('crop') if attributes['file'] && attributes['crop']
     attrs
   end
 
-  # Return the image file for the given format (see Image for information on format)
-  def file(format=nil)
-    version.file(format)
+  # Set content file, will refuse to accept the file if it is not an image.
+  def file=(file)
+    transaction do
+      @new_image = super
+      raise ::ActiveRecord::Rollback unless Zena::Use::ImageBuilder.image_content_type?(@new_image.content_type)
+      img = image_with_format(nil)
+      prop['width' ] = img.width
+      prop['height'] = img.height
+      prop['exif_json'] = img.exif.to_json rescue nil
+    end
   end
+
+  # Return a file with the data for the given format. It is the receiver's responsability to close the file.
+  def file(format=nil)
+    if format.nil? || format.size == :keep
+      super()
+    else
+      if File.exist?(self.filepath(format)) || make_image(format)
+        File.new(self.filepath(format))
+      else
+        nil
+      end
+    end
+  end
+
+  # # Return the image file for the given format (see Image for information on format)
+  # def file(format=nil)
+  #   version.file(format)
+  # end
 
   # Return the size of the image for the given format (see Image for information on format)
   def filesize(format=nil)
@@ -89,8 +144,35 @@ class Image < Document
   end
 
   private
+
+    # Set image event date to when the photo was taken
     def image_before_validation
-      # Set image event date to when the photo was taken
-      self[:event_at] ||= version.content.exif.date_time
+      self[:event_at] ||= self.exif.date_time
     end
+
+    # Create a new image in File System with the new format
+    def image_with_format(format=nil)
+      if @new_image
+        Zena::Use::ImageBuilder.new(:file => @new_image).transform!(format)
+      elsif !new_record?
+        format   ||= Iformat['full']
+        @formats ||= {}
+        @formats[format[:name]] ||= Zena::Use::ImageBuilder.new(:path => filepath,
+                :width => prop['width'], :height => prop['height']).transform!(format)
+      else
+        raise StandardError, "No image to work on"
+      end
+    end
+
+    def make_image(format)
+      return nil unless img = image_with_format(format)
+      return nil if img.dummy?
+      make_file(filepath(format),img)
+    end
+
+    def make_file(path, data)
+      FileUtils::mkpath(File.dirname(path)) unless File.exist?(File.dirname(path))
+      File.open(path, "wb") { |f| f.syswrite(data.read) }
+    end
+
 end

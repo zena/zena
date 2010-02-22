@@ -5,6 +5,7 @@ class DocumentTest < Zena::Unit::TestCase
 
   self.use_transactional_fixtures = false
 
+
   context 'A newly created' do
     context 'valid Document' do
       setup { login(:ant) }
@@ -137,11 +138,16 @@ class DocumentTest < Zena::Unit::TestCase
       login(:tiger)
     end
 
+    teardown do
+      FileUtils.rm(subject.filepath) if subject && subject.filepath
+    end
+
     context 'a document' do
 
       setup do
         @doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater), :title=>'life',
-                                                   :file => uploaded_pdf('water.pdf') ) }
+                                                    :file => uploaded_pdf('water.pdf') ) }
+
       end
 
       subject do
@@ -190,22 +196,29 @@ class DocumentTest < Zena::Unit::TestCase
     end # a document
 
     context 'an image' do
-      subject do
-        secure!(Document) { Document.find( nodes_id(:bird_jpg) )  }
+
+      setup do
+        @img = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater), :title=>'life',
+                                                    :file => uploaded_jpg('bird.jpg') ) }
       end
+
+      subject{ @img }
 
       should 'know if it is an image' do
-        assert subject.image?
+        assert @img.image?
       end
     end
-
-  end
+  end # On reading
 
   context 'Finding a Document by path' do
     setup do
       login(:tiger)
       @doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater), :title=>'SkyWater',
                                                  :file => uploaded_pdf('water.pdf') ) }
+    end
+
+    teardown do
+      FileUtils.rm(@doc.filepath)
     end
 
     should 'return correct document' do
@@ -219,6 +232,10 @@ class DocumentTest < Zena::Unit::TestCase
       login(:tiger)
       @doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater), :title=>'life',
                                                  :file => uploaded_pdf('water.pdf') ) }
+    end
+
+    teardown do
+      FileUtils.rm(@doc.filepath)
     end
 
      context 'document attributes' do

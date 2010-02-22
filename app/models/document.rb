@@ -127,8 +127,8 @@ class Document < Node
   end
 
   # Get the file path defined in attachment.
-  def filepath
-    version.attachment.filepath
+  def filepath(format=nil)
+    version.attachment.filepath(format)
   end
 
   # Get the node's rootpath with the file's extention.
@@ -176,6 +176,7 @@ class Document < Node
       super
     end
 
+
     def set_document_properties
       if @new_file
         prop['content_type'] = @new_file['content_type'].chomp
@@ -189,6 +190,7 @@ class Document < Node
           prop['ext'] = @new_file.original_filename.split('.').last
         end
       end
+
 
       # is this extension valid ?
       extensions = Zena::TYPE_TO_EXT[prop['content_type']]
