@@ -34,7 +34,11 @@ class DocumentTest < Zena::Unit::TestCase
         assert_equal 'pdf', subject.prop['ext']
       end
 
-      should 'save title in version' do
+      should 'save name as title if no name given' do
+        assert_equal 'life', subject.name
+      end
+
+      should 'save version title in version' do
         assert_equal 'life', subject.version.title
       end
 
@@ -147,7 +151,6 @@ class DocumentTest < Zena::Unit::TestCase
       setup do
         @doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater), :title=>'life',
                                                     :file => uploaded_pdf('water.pdf') ) }
-
       end
 
       subject do
@@ -210,6 +213,8 @@ class DocumentTest < Zena::Unit::TestCase
     end
   end # On reading
 
+
+
   context 'Finding a Document by path' do
     setup do
       login(:tiger)
@@ -239,7 +244,6 @@ class DocumentTest < Zena::Unit::TestCase
     end
 
      context 'document attributes' do
-
        should 'save changes' do
          assert @doc.update_attributes(:title => 'hopla')
          assert_equal 'hopla', @doc.version.title
@@ -252,14 +256,25 @@ class DocumentTest < Zena::Unit::TestCase
        end
      end # document attribute
 
-     context 'the document file' do
-
+     context 'document file' do
        should 'save change' do
          assert @doc.update_attributes(:file => uploaded_pdf('forest.pdf'))
        end
 
-       should 'not create a new attachment' do
-         assert_difference('Attachment.count', 0) do
+       should 'keep the orginal file' do
+         original_file = @doc.filepath
+         @doc.update_attributes(:file => uploaded_pdf('forest.pdf'))
+         assert File.exist?(original_file)
+       end
+
+       should 'create a new version' do
+         assert_difference('Version.count', 1) do
+           @doc.update_attributes(:file => uploaded_pdf('forest.pdf'))
+         end
+       end
+
+       should 'create a new attachment' do
+         assert_difference('Attachment.count', 1) do
            @doc.update_attributes(:file => uploaded_pdf('forest.pdf'))
          end
        end
@@ -274,6 +289,27 @@ class DocumentTest < Zena::Unit::TestCase
          @doc.update_attributes(:file => uploaded_pdf('forest.pdf'))
          assert_not_equal original_filepath, @doc.filepath
        end
+
+       context 'with different content-type' do
+         setup{  @doc.update_attributes(:file => uploaded_text('some.txt'), :content_type=>'text/plain') }
+         subject{ @doc }
+
+         should 'change content type' do
+           assert_equal 'text/plain', subject.content_type
+         end
+
+         should 'change filename' do
+           assert_equal 'some.txt', subject.filename
+         end
+
+         should 'change filepath' do
+           assert_match /some.txt/, subject.filepath
+         end
+
+         should 'change size' do
+           assert_equal subject.size, File.size(subject.filepath)
+         end
+       end # with different content-type
      end # document file
   end # on updating
 
@@ -295,7 +331,7 @@ class DocumentTest < Zena::Unit::TestCase
         end
       end
 
-      should 'destory attachment from database' do
+      should 'destroy attachment from database' do
         assert_difference('Attachment.count', -1) do
           subject.destroy
         end
@@ -306,7 +342,20 @@ class DocumentTest < Zena::Unit::TestCase
         subject.destroy
         assert !File.exist?(filepath)
       end
-    end
+    end # a document
+
+    context 'an updated file' do
+      setup do
+        subject.update_attributes(:file=>uploaded_text('some.txt'))
+        assert_equal 'some.txt', subject.filename
+        assert_match /some.txt/, subject.filepath
+      end
+
+      should 'destroy the second file' do
+
+      end
+    end # an updated file
+
 
     context 'with many version' do
       setup do
@@ -327,9 +376,8 @@ class DocumentTest < Zena::Unit::TestCase
           subject.versions.first.destroy
         end
       end
-    end
-
-  end
+    end # with many versions
+  end # On destroy
 
 
 
@@ -358,7 +406,7 @@ class DocumentTest < Zena::Unit::TestCase
       assert_equal "super", doc.name
       assert_equal "super", doc.version.title
       assert_equal "super.zz", doc.filename
-      assert_equal 'zz', doc.ext
+      assert_equal 'bin', doc.ext
       assert_equal 'application/octet-stream', doc.content_type
     end
   end

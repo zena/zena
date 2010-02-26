@@ -34,8 +34,6 @@ c_content_type:: file content-type
 # should be a sub-class of Node, not Page (#184). Write a migration, fix fixtures and test.
 class Document < Node
 
-  before_validation :set_document_properties
-
   include Versions::Attachment
   store_attachments_in :version,  :attachment_class => 'Attachment'
 
@@ -104,6 +102,18 @@ class Document < Node
     def change_to_classes_for_form
       classes_for_form(:class => 'Document', :without => 'Image')
     end
+  end # class << self
+
+  # Create an attachment with a file in file system. Create a new version if file is updated.
+  def file=(new_file)
+    self.version.backup = true
+    if version_file = super(new_file)
+      prop['content_type'] ||= version_file.content_type
+      prop['size'] = version.file.size
+      prop['ext'] = set_extension(new_file)
+      self.set_name_and_title(version_file)
+      version_file
+    end
   end
 
   # Get version title
@@ -136,30 +146,12 @@ class Document < Node
     super + ".#{prop['ext']}"
   end
 
-  # Get the size of the attachment file in byte.
-  def size(mode=nil)
-    return prop['size'] if prop['size']
-    if !new_record? && File.exist?(version.filepath)
-      prop['size'] = File.stat(version.filepath).size
-      self.save
-    end
-    prop['size']
-  end
+  protected
 
-  private
-
-    # run before validation
-    def set_defaults
-      base = name
-      base = version.title if base.blank?
-      if base.blank? && file = self.file #version.content.file
-        base = file.original_filename
-      end
-
-      if base
+    def set_name_and_title(file)
+      if base = self.name || version.title || file.original_filename
         if base =~ /(.*)\.(\w+)$/
           self.name = $1 if new_record?
-          prop['ext'] ||= $2
         else
           self.name = base if new_record?
         end
@@ -167,7 +159,6 @@ class Document < Node
           version.title = $1
         end
       end
-      super
     end
 
     # Make sure name is unique
@@ -176,32 +167,15 @@ class Document < Node
       super
     end
 
-
-    def set_document_properties
-      if @new_file
-        prop['content_type'] = @new_file['content_type'].chomp
-        if @new_file.kind_of?(StringIO)
-          prop['size'] = @new_file.size
-        else
-          prop['size'] = @new_file.stat.size
-        end
-
-        if Zena::EXT_TO_TYPE[prop['ext']].nil? || !Zena::EXT_TO_TYPE[prop['ext']].include?(prop['content_type'])
-          prop['ext'] = @new_file.original_filename.split('.').last
-        end
-      end
-
-
-      # is this extension valid ?
+    def set_extension(new_file)
       extensions = Zena::TYPE_TO_EXT[prop['content_type']]
       if extensions && content_type != 'application/octet-stream' # use 'bin' extension only if we do not have any other ext.
-        prop['ext'] = (prop['ext'] && extensions.include?(prop['ext'].downcase)) ? self.prop['ext'].downcase : extensions[0]
+        (prop['ext'] && extensions.include?(prop['ext'].downcase)) ? self.prop['ext'].downcase : extensions[0]
+        #new_file.original_filename.split('.').last.downcase
       else
         # unknown content_type or 'application/octet-stream' , just keep the extension we have
-        prop['ext'] ||= 'bin'
+        'bin'
       end
-
-      # set initial name from node
-      self[:name] = version.node[:name].gsub('.','') if self[:name].blank?
     end
+
 end
