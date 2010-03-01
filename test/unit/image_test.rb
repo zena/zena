@@ -352,7 +352,6 @@ class ImageTest < Zena::Unit::TestCase
         assert_equal 96648,  subject.size
       end
     end
-  end
 
   context 'Destroying' do
     setup do
@@ -402,6 +401,7 @@ class ImageTest < Zena::Unit::TestCase
           subject.destroy
         end
       end
+    end
 
       should 'destroy attachment from database' do
         assert_difference('Attachment.count', -1) do

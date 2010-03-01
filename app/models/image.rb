@@ -192,6 +192,48 @@ class Image < Document
     uploaded_file(file, filename, ctype)
   end
 
+  def can_crop?(format)
+    x, y, w, h = [format['x'].to_i, 0].max, [format['y'].to_i, 0].max, [format['w'].to_i, width].min, [format['h'].to_i, height].min
+    (format['max_value'] && (format['max_value'].to_f * (format['max_unit'] == 'Mb' ? 1024 : 1) * 1024) < prop['size']) ||
+    (format['format'] && format['format'] != prop['ext']) ||
+    ((x < width && y < height && w > 0 && h > 0) && !(x==0 && y==0 && w == width && h == height))
+  end
+
+  # Crop the image using the 'crop' hash with the top left corner position (:x, :y) and the width and height (:width, :heigt). Example:
+  #   @node.crop = {:x=>10, :y=>10, :width=>30, :height=>60}
+  # Be carefull as this method changes the current file. So you should make a backup version before croping the image (the popup editor displays a warning).
+  def crop=(format)
+    if can_crop?(format)
+      # do crop
+      if file = self.cropped_file(format)
+        # crop can return nil, check first.
+        self.file = file
+      end
+    end
+  end
+
+
+  # Return a cropped image using the 'crop' hash with the top left corner position (:x, :y) and the width and height (:width, :heigt).
+  def cropped_file(format)
+    original   = format['original'] || @loaded_file || self.file
+    x, y, w, h = format['x'].to_f, format['y'].to_f, format['w'].to_f, format['h'].to_f
+    new_type   = format['format'] ? Zena::EXT_TO_TYPE[format['format'].downcase][0] : nil
+    max        = format['max_value'].to_f * (format['max_unit'] == 'Mb' ? 1024 : 1) * 1024
+
+    # crop image
+    img = Zena::Use::ImageBuilder.new(:file=>original)
+    img.crop!(x, y, w, h) if x && y && w && h
+    img.format       = format['format'] if new_type && new_type != content_type
+    img.max_filesize = max if format['max_value'] && max
+
+    file = Tempfile.new(filename)
+    File.open(file.path, "wb") { |f| f.syswrite(img.read) }
+
+    ctype = Zena::EXT_TO_TYPE[img.format.downcase][0]
+    fname = "#{filename}.#{Zena::TYPE_TO_EXT[ctype][0]}"
+    uploaded_file(file, filename, ctype)
+  end
+
   private
 
     # Set image event date to when the photo was taken
