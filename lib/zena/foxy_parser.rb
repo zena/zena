@@ -434,7 +434,7 @@ module Zena
 
           cached = Zena::Use::VersionHash.cached_values_from_records(records)
           node['publish_from'] = cached[:publish_from]
-          node['vhash'] = "'#{cached[:vhash].to_json}'"
+          node['vhash'] = cached[:vhash].to_json
 
           node['inherit'] = node['inherit'] ? 'yes' : 'no'
         end
