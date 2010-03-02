@@ -44,7 +44,7 @@ module Zena
           host   = opts.delete(:host)
           abs_url_prefix = host ? "http://#{host}" : ''
 
-          if node.kind_of?(Document) && format == node.version.content.ext
+          if node.kind_of?(Document) && format == node.prop['ext']
             if node.public? && !visitor.site.authentication?
               # force the use of a cacheable path for the data, even when navigating in '/oo'
               pre = node.version.lang
@@ -56,7 +56,7 @@ module Zena
           end
 
 
-          if cachestamp_format?(format) && ((node.kind_of?(Document) && node.version.content.ext == format) || asset)
+          if cachestamp_format?(format) && ((node.kind_of?(Document) && node.prop['ext'] == format) || asset)
             opts[:cachestamp] = make_cachestamp(node, mode)
           else
             opts.delete(:cachestamp) # cachestamp
@@ -72,14 +72,13 @@ module Zena
             (format == 'html' ? '' : ".#{format}")
           else
             "#{abs_url_prefix}/#{pre}/" +
-            (node.basepath != '' ? "#{node.basepath}/"    : '') +
+            ((node.basepath != '' && !node.basepath.nil? )? "#{node.basepath}/"    : '') +
             (node.klass.downcase   ) +
             (node[:zip].to_s       ) +
             (mode  ? "_#{mode}"  : '') +
             (asset ? ".#{asset}" : '') +
             ".#{format}"
           end
-
           append_query_params(path, opts)
         end
 
@@ -99,9 +98,9 @@ module Zena
                 nil
               end
             end.compact
-
             if cachestamp
-              path + "?#{cachestamp}" + (list.empty? ? '' : "&#{list.sort.join('&')}")
+              result = path + "?#{cachestamp}" + (list.empty? ? '' : "&#{list.sort.join('&')}")
+              result
             else
               path + (list.empty? ? '' : "?#{list.sort.join('&')}")
             end
@@ -117,7 +116,7 @@ module Zena
         # Return the path to a document's data
         def data_path(node, opts={})
           if node.kind_of?(Document)
-            zen_path(node, opts.merge(:format => node.version.content.ext))
+            zen_path(node, opts.merge(:format => node.prop['ext']))
           else
             zen_path(node, opts)
           end

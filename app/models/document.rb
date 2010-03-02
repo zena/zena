@@ -47,8 +47,7 @@ class Document < Node
     t.text    "exif_json"
   end
 
-  safe_method :filename => String
-  safe_method :filepath => String
+  safe_method :filename => String, :size => Number, :name => String, :content_type => String, :ext => String, :file => File, :filepath => String
 
   class << self
 
@@ -106,7 +105,8 @@ class Document < Node
 
   def update_attributes(attributes)
     # Release content_type to nil before update, so that the execution is not influenced by existing file.
-    prop['content_type'] = nil if attributes['file'] || attributes[:file]
+    attributes.stringify_keys!
+    prop['content_type'] = nil if attributes['file'] || attributes['crop']
     super
   end
 

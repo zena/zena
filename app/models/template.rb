@@ -14,9 +14,22 @@ Other templates have a name built from the given name, just like any other node.
 
 =end
 class Template < TextDocument
-  validate :valid_section
-  after_save :update_content
 
+  safe_method       :tkpath=>String, :skin_name=> String, :mode=>String, :klass=>String, :format=>String
+
+  property do |t|
+    t.string  "klass"
+    t.string  "format"
+    t.string  "mode"
+    t.string  "tkpath"
+    t.string  "skin_name"
+  end
+
+  attr_protected    :tkpath
+  validate          :validate_section, :validate_klass
+  before_validation :template_content_before_validation
+
+  # Class Methods
   class << self
     def accept_content_type?(content_type)
       content_type =~ /text\/(html|zafu)/
@@ -25,6 +38,29 @@ class Template < TextDocument
     def version_class
       TemplateVersion
     end
+  end # Class Methods
+
+  # Force template content-type to 'text/zafu'
+  def content_type
+    "text/zafu"
+  end
+
+  # Force template extension to zafu
+  def ext
+    'zafu'
+  end
+
+  # Ignore ext assignation
+  def ext=(ext)
+    'zafu'
+  end
+
+  def filename
+    "#{name}.zafu"
+  end
+
+  def skin_name
+    prop['skin_name'] ||= self.section.name
   end
 
   private
@@ -41,37 +77,34 @@ class Template < TextDocument
 
       if new_name && !new_name.blank?
         if new_name =~ /^([A-Z][a-zA-Z]+?)(-(([a-zA-Z_\+]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/
-          # name/title changed force template_content update
-          content = redaction.redaction_content
-          content.klass  = $1                   unless content.klass_changed?
-          content.mode   = ($4 || '').url_name  unless content.mode_changed?
-          content.format = ($6 || 'html')       unless content.format_changed?
+          # name/title changed force  update
+          prop['klass']  = $1                   unless prop.klass_changed?
+          prop['mode']   = ($4 || '').url_name  unless prop.mode_changed?
+          prop['format'] = ($6 || 'html')       unless prop.format_changed?
         else
           # name set but it is not a master template name
-          content = redaction.redaction_content
-          content.klass  = nil
-          content.mode   = nil
-          content.format = nil
+          prop['klass']  = nil
+          prop['mode']   = nil
+          prop['format'] = nil
           if new_name =~ /(.*)\.zafu$/
             self.name = $1
           end
         end
       end
 
-      if version.content.changed?
-        content = version.content
-        content.mode = content.mode.url_name if content.mode
+      if version.changed? || self.properties.changed? || self.new_record?
+         prop['mode'] = prop['mode'].url_name if prop['mode']
 
-        if !content.klass.blank?
+        if !prop['klass'].blank?
           # update name
-          content.format = 'html' if content.format.blank?
-          self[:name] = name_from_content(:format => content.format, :mode => content.mode, :klass => content.klass)
+          prop['format'] = 'html' if prop['format'].blank?
+          self[:name] = name_from_content(:format => prop['format'], :mode => prop['mode'], :klass => prop['klass'])
           version.title = self[:name]
 
-          if version.text.blank? && content.format == 'html' && content.mode != '+edit'
+          if version.text.blank? && prop['format'] == 'html' && prop['mode'] != '+edit'
             # set a default text
 
-            if content.klass == 'Node'
+            if prop['klass'] == 'Node'
               version.text = <<END_TXT
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -105,25 +138,41 @@ END_TXT
       super
     end
 
-    def valid_section
-      @need_skin_name_update = !new_record? && section_id_changed?
-      errors.add('parent_id', 'Invalid parent (section is not a Skin)') unless section.kind_of?(Skin)
-    end
-
     def name_from_content(opts={})
-      opts[:format]  ||= version.content.format
-      opts[:mode  ]  ||= version.content.mode
-      opts[:klass ]  ||= version.content.klass
+      opts[:format]  ||= prop['format']
+      opts[:mode  ]  ||= prop['mode']
+      opts[:klass ]  ||= prop['klass']
       format = opts[:format] == 'html' ? '' : "-#{opts[:format]}"
       mode   = (!opts[:mode].blank? || format != '') ? "-#{opts[:mode]}" : ''
       "#{opts[:klass]}#{mode}#{format}"
     end
 
-    def update_content
-      if @need_skin_name_update
-        Template.connection.execute "UPDATE template_contents SET skin_name = #{Template.connection.quote(section[:name])} WHERE node_id = #{Template.connection.quote(self[:id])}"
-        @need_skin_name_update = nil
+    def validate_section
+      @need_skin_name_update = !new_record? && section_id_changed?
+      errors.add('parent_id', 'Invalid parent (section is not a Skin)') unless section.kind_of?(Skin)
+    end
+
+    def validate_klass
+      if prop.klass_changed? && prop['klass']
+        errors.add('format', "can't be blank") unless prop['format']
+        # this is a master template (found when choosing the template for rendering)
+        if klass = Node.get_class(prop['klass'])
+          prop['tkpath'] = klass.kpath
+        else
+          errors.add('klass', 'invalid')
+        end
       end
     end
 
+    def template_content_before_validation
+      prop['skin_name'] = self.section.name
+      prop['mode']  = nil if prop['mode' ].blank?
+      prop['klass'] = nil if prop['klass'].blank?
+      unless prop['klass']
+        # this template is not meant to be accessed directly (partial used for inclusion)
+        prop['tkpath'] = nil
+        prop['mode']   = nil
+        prop['format'] = nil
+      end
+    end
 end

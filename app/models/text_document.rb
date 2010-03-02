@@ -10,6 +10,8 @@ The version class used by text documents is the TextDocumentVersion.
 Content (file data) is stored in the TextDocumentVersion. The content class (TextDocumentContent) is responsible for faking the exitence of a real file.
 =end
 class TextDocument < Document
+
+  # Class Methods
   class << self
     # Return true if a new text document can be created with the content_type. Used by the superclass Document to choose the corret subclass when creating a new object.
     def accept_content_type?(content_type)
@@ -19,7 +21,7 @@ class TextDocument < Document
     def version_class
       TextDocumentVersion
     end
-  end
+  end # Class Methods
 
 
   def can_parse_assets?
@@ -28,7 +30,7 @@ class TextDocument < Document
 
   # Parse text content and replace all reference to relative urls ('img/footer.png') by their zen_path ('/en/image34.png')
   def parse_assets(text, helper, key)
-    if key == 'v_text' && version.content.content_type == 'text/css'
+    if key == 'text' && prop['content_type'] == 'text/css'
       res = text.dup
       # use skin as root
       skin = section
@@ -83,9 +85,28 @@ class TextDocument < Document
     res
   end
 
+  def file=(file)
+    @new_file = super
+    version.text = @new_file.read
+  end
+
+  def file(format=nil)
+    @loaded_file ||= @new_file || StringIO.new(version.text)
+  end
+
+  # Return document file size (= version's text size).
+  def size(format=nil)
+    (version.text || '').size
+  end
+
+  def text=(text)
+    version.text = text if text.kind_of? String
+  end
+
+
   # Parse text and replace absolute urls ('/en/image30.jpg') by their relative value in the current skin ('img/bird.jpg')
   def unparse_assets(text, helper, key)
-    if key == 'v_text' && version.content.content_type == 'text/css'
+    if key == 'text' && prop['content_type'] == 'text/css'
       res = text.dup
       # use parent as relative root
       current_folder = parent.fullpath
@@ -99,9 +120,9 @@ class TextDocument < Document
             zip, mode = $1, $2
             if asset = secure(Node) { Node.find_by_zip(zip) }
               if asset.fullpath =~ /\A#{current_folder}\/(.+)/
-                "url(#{quote}#{$1}#{mode}.#{asset.version.content.ext}#{quote})"
+                "url(#{quote}#{$1}#{mode}.#{asset.prop['ext']}#{quote})"
               else
-                "url(#{quote}/#{asset.fullpath}#{mode}.#{asset.version.content.ext}#{quote})"
+                "url(#{quote}/#{asset.fullpath}#{mode}.#{asset.prop['ext']}#{quote})"
               end
             else
               errors.add('asset', '{{zip}} not found', :zip => zip)
@@ -136,7 +157,7 @@ class TextDocument < Document
 
   # Return the code language used for syntax highlighting.
   def content_lang
-    ctype = version.content.content_type
+    ctype = prop['content_type']
     if ctype =~ /^text\/(.*)/
       case $1
       when 'x-ruby-script'

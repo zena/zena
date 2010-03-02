@@ -1401,7 +1401,7 @@ class Node < ActiveRecord::Base
       if custom_base
         self[:basepath] = self.fullpath
       elsif parent = parent(false)
-        self[:basepath] = parent.basepath
+        self[:basepath] = parent.basepath || ""
       else
         self[:basepath] = ""
       end
