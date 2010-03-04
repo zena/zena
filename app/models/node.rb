@@ -1,3 +1,4 @@
+# encoding: utf-8
 =begin rdoc
 A Node is the root class of all elements in the zena application. Class inheritance diagram:
 

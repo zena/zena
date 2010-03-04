@@ -1,3 +1,4 @@
+# encoding: utf-8
 # FIXME: do we really need to monkey patch String ?
 
 # Avoid incompatibility with rails 'chars' version in Ruby 1.8.7

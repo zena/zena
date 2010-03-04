@@ -1,3 +1,4 @@
+# encoding: utf-8
 class VirtualClass < ActiveRecord::Base
   attr_accessor :import_result
   belongs_to    :create_group, :class_name => 'Group', :foreign_key => 'create_group_id'
