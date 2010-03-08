@@ -1,17 +1,18 @@
-== DESCRIPTION:
+=== DESCRIPTION:
 
 CMS with super natural powers, based on Ruby on Rails
 
 website: http://zenadmin.org
 licence: MIT
 
-== Getting started
+=== Getting started
 
  # sudo gem install zena
  # zena myapp
  # cd myapp
  # rake zena:init RAILS_ENV=production
- # ==> Visis http://localhost:3000 (user = admin, password = admin)
+
+You can now visit http://localhost:3000 (user = admin, password = admin)
 
 These commands do the following:
 
@@ -29,7 +30,7 @@ The 'zena:init' rake task does the following:
 
 Read-more: http://zenadmin.org/documentation
 
-== Details
+=== Details
 
 Have a look at the generator used by 'zena' command:
 
