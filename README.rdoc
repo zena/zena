@@ -1,11 +1,11 @@
-=== DESCRIPTION:
+= DESCRIPTION:
 
 CMS with super natural powers, based on Ruby on Rails
 
 website: http://zenadmin.org
 licence: MIT
 
-=== Getting started
+= Getting started
 
  # sudo gem install zena
  # zena myapp
@@ -30,32 +30,32 @@ The 'zena:init' rake task does the following:
 
 Read-more: http://zenadmin.org/documentation
 
-=== Details
+== Details
 
 Have a look at the generator used by 'zena' command:
 
 http://github.com/zena/zena/blob/master/config/zena.rb
 
-== Production
+=== Production
 
 You should use capistrano to ease deployment. See 'config/delploy.rb'.
 
-== Create a new site
+=== Create a new site
 # rake zena:mksite HOST=example.com PASSWORD=secret RAILS_ENV=production
 
-== Start
+=== Start
 # ruby lib/upload_progress_server.rb start
 # script/server -S config/mongrel_upload_progress.conf
 
-== Stop
+=== Stop
 # ^C  (interrupt)
 # ruby lib/upload_progress_server.rb stop
 
 
-== Login
+=== Login
 You can now login with 'admin' and the password you used to make the site.
 
-== Dependencies
+=== Dependencies
 
 === 1. Original in debian etch (might need to replace jpeg by libjpeg62)
   # aptitude install build-essential apache2 mysql-server libmagick9-dev gs-gpl libssl-dev gettext libgettext-ruby libreadline5 libreadline5-dev zlib1g-dev libncurses5 libncurses5-dev unzip liburi-perl libjpeg-dev subversion ssh sudo awstats
@@ -108,7 +108,7 @@ Versions:
 monit (debian package to monitor your mongrel processes)
 
 
-== Very experimental webDAV
+=== Very experimental webDAV
 Should not be used for production.
 
 add this to nodes_controller macros:
