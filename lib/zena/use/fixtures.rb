@@ -11,10 +11,18 @@ module Zena
       end
 
       # Could DRY with file_path defined in Base
-      def self.file_path(filename, content_id)
-        digest = Digest::SHA1.hexdigest(content_id.to_s)
-        fname = filename.split('.').first
-        "#{SITES_ROOT}/test.host/data/full/#{digest[0..0]}/#{digest[1..1]}/#{digest[2..2]}/#{fname}"
+      # def self.file_path(filename, content_id)
+      #   digest = Digest::SHA1.hexdigest(content_id.to_s)
+      #   fname = filename.split('.').first
+      #   "#{SITES_ROOT}/test.host/data/full/#{digest[0..0]}/#{digest[1..1]}/#{digest[2..2]}/#{fname}"
+      # end
+
+      def self.dest_filepath(filename, id, format='full')
+        #mode    = format ? (format[:size] == :keep ? 'full' : format[:name]) : 'full'
+        digest  = ::Digest::SHA1.hexdigest(id.to_s)
+        subpath = "#{digest[0..0]}/#{digest[1..1]}/#{filename}"
+
+        "#{SITES_ROOT}/test.host/data/#{format}/#{subpath}"
       end
 
       def self.load_fixtures
@@ -117,16 +125,25 @@ module Zena
           end
         end
 
-        unless File.exist?("#{SITES_ROOT}/test.host/data")
-          @@loaded_fixtures['document_contents'].each do |name,fixture|
-            fname, content_id = fixture.instance_eval { [@fixture['name']+"."+@fixture['ext'], @fixture['id'].to_s] }
-            path = file_path(fname, content_id)
-            FileUtils::mkpath(File.dirname(path))
-            if File.exist?(File.join(FILE_FIXTURES_PATH,fname))
-              FileUtils::cp(File.join(FILE_FIXTURES_PATH,fname),path)
-            end
+        attachments = YAML.load_file("#{RAILS_ROOT}/test/fixtures/attachments.yml")
+        attachments.each do |attachment_name, attachment_attributes|
+          filename  = attachment_attributes['filename']
+          dest_path = dest_filepath(filename, attachment_attributes['id'],'full')
+          if File.exist?("#{RAILS_ROOT}/test/fixtures/files/#{filename}")
+            FileUtils::mkdir_p(File.dirname(dest_path))
+            FileUtils::cp("#{RAILS_ROOT}/test/fixtures/files/#{filename}",dest_path)
           end
         end
+        # unless File.exist?("#{SITES_ROOT}/test.host/data")
+        #   @@loaded_fixtures['document_contents'].each do |name,fixture|
+        #     fname, content_id = fixture.instance_eval { [@fixture['name']+"."+@fixture['ext'], @fixture['id'].to_s] }
+        #     path = file_path(fname, content_id)
+        #     FileUtils::mkpath(File.dirname(path))
+        #     if File.exist?(File.join(FILE_FIXTURES_PATH,fname))
+        #       FileUtils::cp(File.join(FILE_FIXTURES_PATH,fname),path)
+        #     end
+        #   end
+        # end
 
         unless File.exist?("#{SITES_ROOT}/test.host/public")
           FileUtils::mkpath("#{SITES_ROOT}/test.host/public")
