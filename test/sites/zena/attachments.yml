@@ -1,0 +1,16 @@
+bird:
+  filename: bird.jpg
+  version: bird_jpg_en
+
+flower:
+  filename: flower.jpg
+  version: flower_jpg_en
+
+water:
+  filename: water.pdf
+  version: water_pdf_en
+
+forest:
+  filename: forest.pdf
+  version: forest_pdf_en
+
