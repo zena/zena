@@ -14,6 +14,10 @@ class DocumentTest < Zena::Unit::TestCase
                                                     :file => uploaded_pdf('water.pdf') ) }
       end
 
+      teardown do
+        FileUtils.rm(subject.filepath) if subject && subject.filepath
+      end
+
       should 'be valid' do
         assert subject.valid?
       end
@@ -142,19 +146,10 @@ class DocumentTest < Zena::Unit::TestCase
       login(:tiger)
     end
 
-    teardown do
-      FileUtils.rm(subject.filepath) if subject && subject.filepath
-    end
-
     context 'a document' do
 
-      setup do
-        @doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater), :title=>'life',
-                                                    :file => uploaded_pdf('water.pdf') ) }
-      end
-
       subject do
-        secure!(Document) { Document.find( @doc ) }
+        secure!(Document) {Document.find(nodes(:water_pdf))}
       end
 
       should 'get filename' do
@@ -162,7 +157,7 @@ class DocumentTest < Zena::Unit::TestCase
       end
 
       should 'get fullpath' do
-        assert_equal 'projects/cleanWater/life', subject.fullpath
+        assert_equal 'projects/cleanWater/water', subject.fullpath
       end
 
       should 'get filepath' do
@@ -170,7 +165,7 @@ class DocumentTest < Zena::Unit::TestCase
       end
 
       should 'get rootpath' do
-          assert_equal 'zena/projects/cleanWater/life.pdf', subject.rootpath
+          assert_equal 'zena/projects/cleanWater/water.pdf', subject.rootpath
       end
 
       should 'get the file size' do
@@ -200,15 +195,10 @@ class DocumentTest < Zena::Unit::TestCase
 
     context 'an image' do
 
-      setup do
-        @img = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater), :title=>'life',
-                                                    :file => uploaded_jpg('bird.jpg') ) }
-      end
-
-      subject{ @img }
+      subject{ secure!(Document){ Document.find(nodes(:bird_jpg))} }
 
       should 'know if it is an image' do
-        assert @img.image?
+        assert subject.image?
       end
     end
   end # On reading
@@ -246,7 +236,7 @@ class DocumentTest < Zena::Unit::TestCase
          assert @doc.update_attributes(:title => 'hopla')
          assert_equal 'hopla', @doc.version.title
        end
-       
+
        should 'not alter content_type' do
          @doc.update_attributes(:title => "New title")
          assert_equal 'application/pdf', @doc.content_type
