@@ -286,7 +286,7 @@ namespace :zena do
   task :build_fixtures => :environment do
     tables = Node.connection.tables
              # 0.    # 1.                # need vc   # vers.  # nodes  # need vc.   # need nodes
-    ordered_tables = ['virtual_classes', 'versions', 'nodes', 'zips', 'relations', 'links']
+    ordered_tables = ['virtual_classes', 'versions', 'nodes', 'attachments', 'zips', 'relations', 'links']
     tables -= ordered_tables
     tables += ordered_tables
     virtual_classes, versions, nodes = nil, nil, nil
@@ -301,6 +301,9 @@ namespace :zena do
       when 'nodes'
         nodes = Zena::FoxyParser.new(table, :versions => versions, :virtual_classes => virtual_classes)
         nodes.run
+      when 'attachments'
+        attachments = Zena::FoxyParser.new(table)
+        attachments.run
       when 'zips'
         Zena::FoxyParser.new(table, :nodes => nodes).run
       when 'relations'
