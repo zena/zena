@@ -45,6 +45,7 @@ class Document < Node
     t.integer "width"
     t.integer "height"
     t.text    "exif_json"
+    #t.string  "name"
   end
 
   safe_method :filename => String, :size => Number, :name => String, :content_type => String, :ext => String, :file => File, :filepath => String
@@ -165,11 +166,11 @@ class Document < Node
   protected
 
     def set_name_and_title(file)
-      if base = self.name || version.title || file.original_filename
+      if base = self['name'] || version.title || file.original_filename
         if base =~ /(.*)\.(\w+)$/
-          self.name = $1 if new_record?
+          self['name'] = $1 if new_record?
         else
-          self.name = base if new_record?
+          self['name'] = base if new_record?
         end
         if version.title.to_s =~ /\A(.*)\.#{self.properties['ext']}$/i
           version.title = $1
