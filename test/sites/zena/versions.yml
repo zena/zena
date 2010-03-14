@@ -201,7 +201,6 @@ lake_en:
   text:            "!014!"
   prop:
     first_name: Lake
-    name:       Tanganyika
     address:    Between Tanzania, Congo and Zambia
     zip:        848
     city:       Africa
@@ -228,7 +227,6 @@ water_pdf_en:
   text:            ""
   prop:
     content_type:    application/pdf
-    name:            water
     ext:             pdf
     size:            29279
   attachment:     water
@@ -414,7 +412,6 @@ forest_pdf_en:
   number:          1
   prop:
     content_type:    application/pdf
-    name:            forest
     ext:             pdf
     size:            63569
   attachment:       forest
