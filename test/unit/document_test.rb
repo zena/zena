@@ -67,18 +67,19 @@ class DocumentTest < Zena::Unit::TestCase
       setup do
         login(:tiger)
       end
+
       subject do
         secure!(Document) { Document.create( :parent_id => nodes_id(:cleanWater),
-                                                   :title => 'lake',
+                                                   :name => 'water',
                                                    :file  => uploaded_pdf('water.pdf') ) }
       end
 
       should 'save name with increment' do
-        assert_equal 'lake-1', subject.name
+        assert_equal 'water-1', subject.name
       end
 
-      should 'save version title with increment' do
-        assert_equal 'lake-1', subject.version.title
+      should 'save title with increment' do
+        assert_equal 'water-1', subject.title
       end
     end # with same name
 
@@ -152,6 +153,19 @@ class DocumentTest < Zena::Unit::TestCase
         secure!(Document) {Document.find(nodes(:water_pdf))}
       end
 
+      should 'be valid' do
+        err subject
+        assert  subject.valid?
+      end
+
+      should 'get document name' do
+        assert_equal 'water', subject.name
+      end
+
+      should 'get document title' do
+        assert_equal 'water', subject.title
+      end
+
       should 'get filename' do
         assert_equal 'water.pdf', subject.filename
       end
@@ -206,40 +220,39 @@ class DocumentTest < Zena::Unit::TestCase
   context 'Finding a Document by path' do
     setup do
       login(:tiger)
-      @doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater), :title=>'SkyWater',
-                                                 :file => uploaded_pdf('water.pdf') ) }
     end
 
-    teardown do
-      FileUtils.rm(@doc.filepath)
-    end
 
     should 'return correct document' do
-      doc = secure!(Document) { Document.find_by_path("projects/cleanWater/SkyWater") }
-      assert_equal "projects/cleanWater/SkyWater", doc.fullpath
+      doc = secure!(Document) { Document.find_by_path("projects/cleanWater/water") }
+      assert_equal "projects/cleanWater/water", doc.fullpath
     end
   end
 
   context 'On updating' do
     setup do
       login(:tiger)
-      @doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater), :title=>'life',
-                                                 :file => uploaded_pdf('water.pdf') ) }
     end
 
-    teardown do
-      FileUtils.rm(@doc.filepath) if File.exist?(@doc.filepath)
+    subject do
+      secure!(Document){ Document.find(nodes(:water_pdf))}
     end
+
 
      context 'document attributes' do
-       should 'save changes' do
-         assert @doc.update_attributes(:title => 'hopla')
-         assert_equal 'hopla', @doc.version.title
+       should 'save title changes' do
+         assert subject.update_attributes(:title => 'hopla')
+         assert_equal 'hopla', subject.title
+       end
+
+       should 'change document name when title change' do
+         subject.update_attributes(:title => 'hopla')
+         assert_equal 'hopla', subject.name
        end
 
        should 'not alter content_type' do
-         @doc.update_attributes(:title => "New title")
-         assert_equal 'application/pdf', @doc.content_type
+         subject.update_attributes(:title => "New title")
+         assert_equal 'application/pdf', subject.content_type
        end
 
        should 'not alter content_type' do
@@ -249,14 +262,14 @@ class DocumentTest < Zena::Unit::TestCase
 
        should 'not create a new attachment' do
          assert_difference('Attachment.count', 0) do
-           @doc.update_attributes(:title => 'hopla')
+           subject.update_attributes(:title => 'hopla')
          end
        end
      end # document attribute
 
      context 'document file' do
        should 'save change' do
-         assert @doc.update_attributes(:file => uploaded_pdf('forest.pdf'))
+         assert subject.update_attributes(:file => uploaded_pdf('forest.pdf'))
        end
 
        should 'keep the orginal file' do
@@ -278,19 +291,18 @@ class DocumentTest < Zena::Unit::TestCase
        end
 
        should 'change filename' do
-         @doc.update_attributes(:file => uploaded_pdf('forest.pdf'))
-         assert_equal 'forest.pdf', @doc.filename
+         subject.update_attributes(:file => uploaded_pdf('forest.pdf'))
+         assert_equal 'forest.pdf', subject.filename
        end
 
        should 'change filepath' do
-         original_filepath = @doc.filepath
-         @doc.update_attributes(:file => uploaded_pdf('forest.pdf'))
-         assert_not_equal original_filepath, @doc.filepath
+         original_filepath = subject.filepath
+         subject.update_attributes(:file => uploaded_pdf('forest.pdf'))
+         assert_not_equal original_filepath, subject.filepath
        end
 
        context 'with different content-type' do
-         setup{  @doc.update_attributes(:file => uploaded_text('some.txt')) }
-         subject{ @doc }
+         setup{  subject.update_attributes(:file => uploaded_text('some.txt')) }
 
          should 'change content type' do
            assert_equal 'text/plain', subject.content_type
@@ -316,12 +328,8 @@ class DocumentTest < Zena::Unit::TestCase
       login(:tiger)
     end
     context 'a document' do
-      setup do
-        @doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater), :title=>'Shower',
-                                                   :file => uploaded_pdf('water.pdf') ) }
-      end
 
-      subject{ @doc}
+      subject{ secure!(Document){ Document.find(nodes(:water_pdf))} }
 
       should 'destroy version from database' do
         assert_difference('Version.count', -1) do
@@ -336,7 +344,7 @@ class DocumentTest < Zena::Unit::TestCase
       end
 
       should 'destroy file from file system' do
-        filepath = @doc.filepath
+        filepath = subject.filepath
         subject.destroy
         assert !File.exist?(filepath)
       end
@@ -357,19 +365,19 @@ class DocumentTest < Zena::Unit::TestCase
 
     context 'with many version' do
       setup do
-        @doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater), :title=>'Shower',
-                                                   :file => uploaded_pdf('water.pdf') ) }
+        @doc = secure!(Document){ Document.find(nodes(:water_pdf))}
         @doc.version.backup = true
         @doc.update_attributes(:title=>'Bath')
         assert_equal 2, @doc.version.number
       end
+
       subject{ @doc }
 
       should 'share attachment' do
         assert_equal subject.versions.first.attachment.id, subject.versions.last.attachment.id
       end
 
-      should 'not destroy attachment if delete a version' do
+      should 'not destroy attachment if it delete a version' do
         assert_difference('Attachment.count', 0) do
           subject.versions.first.destroy
         end
@@ -416,7 +424,7 @@ class DocumentTest < Zena::Unit::TestCase
                                                 :file  => uploaded_fixture('water.pdf', 'application/pdf', 'wat'), :title => "lazy waters.pdf") }
       assert_kind_of Document , doc
       assert ! doc.new_record? , "Not a new record"
-      assert_equal "lazyWaters", doc.name
+      assert_equal "lazy waters", doc.name
       assert_equal "lazy waters", doc.version.title
       assert_equal "wat", doc.filename
       assert_equal 'pdf', doc.ext
