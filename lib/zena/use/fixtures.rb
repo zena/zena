@@ -17,6 +17,7 @@ module Zena
       #   "#{SITES_ROOT}/test.host/data/full/#{digest[0..0]}/#{digest[1..1]}/#{digest[2..2]}/#{fname}"
       # end
 
+      # TODO: Use Attachment filepath class methods.
       def self.dest_filepath(filename, id, format='full')
         #mode    = format ? (format[:size] == :keep ? 'full' : format[:name]) : 'full'
         digest  = ::Digest::SHA1.hexdigest(id.to_s)
