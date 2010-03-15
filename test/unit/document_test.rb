@@ -18,49 +18,61 @@ class DocumentTest < Zena::Unit::TestCase
         FileUtils.rm(subject.filepath) if subject && subject.filepath
       end
 
-      should 'be valid' do
+      should 'behave nicely' do
         assert subject.valid?
-      end
-
-      should 'be saved in database' do
         assert !subject.new_record?
-      end
-
-      should 'save file in the filesystem' do
-        assert File.exist?(subject.version.filepath)
-      end
-
-      should 'save content type in properties' do
         assert_equal 'application/pdf', subject.prop['content_type']
-      end
-
-      should 'save extension in properties' do
         assert_equal 'pdf', subject.prop['ext']
-      end
-
-      should 'save name as title if no name given' do
         assert_equal 'life', subject.name
-      end
-
-      should 'save version title in version' do
-        assert_equal 'life', subject.version.title
-      end
-
-      should 'save filename in attachment' do
-        assert_equal 'water.pdf', subject.version.attachment[:filename]
-      end
-
-      should 'save fullpath in document (node)' do
-        assert_not_nil subject[:fullpath]
-      end
-
-      should 'save user_id in attachment' do
+        assert_equal 'life', subject.title
+        assert_equal 29279, subject.size
         assert_equal users_id(:ant), subject.version.attachment.user_id
-      end
-
-      should 'save site_id in attachment' do
         assert_equal sites_id(:zena), subject.version.attachment.site_id
       end
+
+      # should 'be valid' do
+      #   assert subject.valid?
+      # end
+      #
+      # should 'be saved in database' do
+      #   assert !subject.new_record?
+      # end
+      #
+      # should 'save file in the filesystem' do
+      #   assert File.exist?(subject.version.filepath)
+      # end
+      #
+      # should 'save content type in properties' do
+      #   assert_equal 'application/pdf', subject.prop['content_type']
+      # end
+      #
+      # should 'save extension in properties' do
+      #   assert_equal 'pdf', subject.prop['ext']
+      # end
+      #
+      # should 'save name as title if no name given' do
+      #   assert_equal 'life', subject.name
+      # end
+      #
+      # should 'save version title in version' do
+      #   assert_equal 'life', subject.version.title
+      # end
+      #
+      # should 'save filename in attachment' do
+      #   assert_equal 'water.pdf', subject.version.attachment[:filename]
+      # end
+      #
+      # should 'save fullpath in document (node)' do
+      #   assert_not_nil subject[:fullpath]
+      # end
+      #
+      # should 'save user_id in attachment' do
+      #   assert_equal users_id(:ant), subject.version.attachment.user_id
+      # end
+      #
+      # should 'save site_id in attachment' do
+      #   assert_equal sites_id(:zena), subject.version.attachment.site_id
+      # end
     end # Document
 
     context 'Document with same name' do
@@ -74,11 +86,8 @@ class DocumentTest < Zena::Unit::TestCase
                                                    :file  => uploaded_pdf('water.pdf') ) }
       end
 
-      should 'save name with increment' do
+      should 'save name & title with increment' do
         assert_equal 'water-1', subject.name
-      end
-
-      should 'save title with increment' do
         assert_equal 'water-1', subject.title
       end
     end # with same name
@@ -91,11 +100,8 @@ class DocumentTest < Zena::Unit::TestCase
         secure!(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :name=>'lalala') }
       end
 
-      should 'save record in the database' do
-        assert !subject.new_record?
-      end
-
       should 'save text/plain as content_type' do
+        assert !subject.new_record?
         assert_equal 'text/plain', subject.content_type
       end
     end # without file
@@ -110,11 +116,8 @@ class DocumentTest < Zena::Unit::TestCase
                                             :file => uploaded_text('some.txt') )}
       end
 
-      should 'save record in the database' do
-        assert !subject.new_record?
-      end
-
       should 'save the specified content_type' do
+        assert !subject.new_record?
         assert_equal 'text/css', subject.content_type
       end
     end # with content type specified
@@ -132,12 +135,10 @@ class DocumentTest < Zena::Unit::TestCase
       should 'save name and version title with the given name' do
         assert !subject.new_record?
         assert_equal "stupid", subject.name
-        assert_equal "stupid", subject.version.title
-      end
-
-      should 'save filename with the name of the file' do
+        assert_equal "stupid", subject.title
         assert_equal "water.pdf", subject.filename
       end
+
     end # Document with a bad file name
   end # A newly created
 
@@ -154,7 +155,6 @@ class DocumentTest < Zena::Unit::TestCase
       end
 
       should 'be valid' do
-        err subject
         assert  subject.valid?
       end
 
