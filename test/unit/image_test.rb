@@ -6,7 +6,7 @@ class ImageTest < Zena::Unit::TestCase
   # FIXME: remove and move dependent tests to attachment_test
   self.use_transactional_fixtures = false
 
-  context 'Creating an image' do
+  context 'Create an image' do
     setup do
       login(:tiger)
     end
@@ -21,52 +21,19 @@ class ImageTest < Zena::Unit::TestCase
                                           :file => uploaded_jpg('bird.jpg')) }
     end
 
-    should 'record be valid' do
+    should 'behave nicley' do
       subject.valid?
-    end
-
-    should 'record be saved in database' do
       assert !subject.new_record?
-    end
-
-    should 'save image in File System' do
       # FIXME: move to attachment test
       assert File.exist?(subject.filepath)
-    end
-
-    should 'save original filename' do
       assert_equal 'bird.jpg', subject.file.original_filename
-    end
-
-    should 'be kind of Image' do
       assert_kind_of Image , subject
-    end
-
-    should 'save ext (extension)' do
       assert_equal 'jpg', subject.ext
-    end
-
-    should 'save content type' do
       assert_equal 'image/jpeg', subject.content_type
-    end
-
-    should 'save width with full format' do
       assert_equal 660, subject.width
-    end
-
-    should 'save height with full format' do
       assert_equal 600, subject.height
-    end
-
-    should 'create a version' do
       assert_not_nil subject.version.id
-    end
-
-    should 'create an attachment' do
       assert_not_nil subject.version.attachment.id
-    end
-
-    should 'build filepath with file name' do
       assert_match /bird.jpg/, subject.filepath
     end
 
@@ -82,21 +49,18 @@ class ImageTest < Zena::Unit::TestCase
       should 'build filepath with file name' do
         assert_match /bird.jpg/, subject.filepath
       end
-    end
+    end # with specific title
+  end # Create an image
 
-  end
 
   context 'Resizing an image with a new format' do
     setup do
       @pv_format = Iformat['pv']
       login(:ant)
       @img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
-                                          :name=>'birdy', :file => uploaded_jpg('bird.jpg')) }
+                                          :title=>'crow',
+                                          :file => uploaded_jpg('bird.jpg')) }
       @img.file(@pv_format)
-    end
-
-    teardown do
-      FileUtils.rm(subject.filepath) if subject && subject.version.attachment
     end
 
     subject do
@@ -143,12 +107,10 @@ class ImageTest < Zena::Unit::TestCase
       should 'return the original path by default' do
         assert_match /full/, subject.filepath
       end
-    end
-
-  end
+    end  # and updating name
+  end # Resizin an image with iformat
 
   context 'Accepting content type' do
-
     should 'Image accept jpeg' do
       assert Image.accept_content_type?('image/jpeg')
     end
@@ -156,17 +118,14 @@ class ImageTest < Zena::Unit::TestCase
     should 'not accepect pdf' do
       assert !Image.accept_content_type?('application/pdf')
     end
-  end
+  end # Accepting content type
+
 
   context 'Updating' do
     setup do
       login(:tiger)
-      @img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
-                                          :title=>'birdy', :file => uploaded_jpg('bird.jpg')) }
-    end
+      @img = secure!(Image){ Image.find(nodes(:bird_jpg))}
 
-    teardown do
-      FileUtils.rm(subject.filepath) if subject.version.attachment
     end
 
     subject do
@@ -227,131 +186,85 @@ class ImageTest < Zena::Unit::TestCase
       should 'not create a version' do
         assert 1, subject.versions.size
       end
-    end
-  end
+    end # non image file
+  end # Updating
+
 
   context 'Croping image' do
     setup do
       login(:tiger)
-      @img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
-                                          :title=>'goeland', :file => uploaded_jpg('bird.jpg')) }
     end
 
-    teardown do
-      FileUtils.rm(subject.filepath) if File.exist?(subject.filepath)
-    end
-
-    subject{ @img }
-
-    should 'build filepath with file name' do
-      assert_match /bird.jpg/, subject.filepath
-    end
+    subject{ secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
+                                        :title=>'CROP',
+                                        :file => uploaded_jpg('bird.jpg')) } }
 
     context 'with x, y, w, h' do
       setup do
-        @img.update_attributes(:crop=>{:x=>'500',:y=>30,:w=>'200',:h=>80})
+        subject.update_attributes(:crop=>{:x=>'500',:y=>30,:w=>'200',:h=>80})
       end
 
-      should 'keep image valid' do
+      should 'crop nicely' do
         assert subject.valid?
-      end
-
-      should 'return new size' do
         assert_equal 2010, subject.size
-      end
-
-      should 'return new width' do
         assert_equal 160, subject.width
-      end
-
-      should 'return new height' do
         assert_equal 80, subject.height
-      end
-
-      should 'keep filepath with file name' do
         assert_match /bird.jpg/, subject.filepath
       end
-    end
+    end # with x,y,w,h
 
     context 'with limitation' do
+
       setup do
-        @img.update_attributes(:crop=>{:max_value=>'30', :max_unit=>'Kb'})
+        subject.update_attributes(:crop=>{:max_value=>'30', :max_unit=>'Kb'})
       end
 
-      should 'keep image valid' do
-        err subject
+
+      should 'crop nicely' do
         assert subject.valid?
-      end
-
-      should 'keep size under limitation' do
         assert subject.size < 30 * 1024 * 1.2
-      end
-
-      should 'keep filepath with file name' do
         assert_match /bird.jpg/, subject.filepath
       end
-    end
+    end # with limitation
 
     context 'with iformat' do
       setup do
-        @img.update_attributes(:crop=>{:format=>'png'})
+        subject.update_attributes(:crop=>{:format=>'png'})
       end
 
-      should 'keep image valid' do
-        err subject
+      should 'crop nicely' do
         assert subject.valid?
-      end
-
-      should 'change image extension' do
         assert_equal 'png', subject.ext
-      end
-
-      should 'change content_type' do
         assert_equal 'image/png', subject.content_type
       end
-    end
+    end # with iformat
 
     context 'with same size' do
       setup do
-        @img.update_attributes(:crop=>{:x=>'0',:y=>0,:w=>'660',:h=>600})
+        subject.update_attributes(:crop=>{:x=>'0',:y=>0,:w=>'660',:h=>600})
       end
 
-      should 'keep image valid' do
-        err subject
+      should 'crop nicely' do
         assert subject.valid?
-      end
-
-      should 'keep original width' do
         assert_equal 660, subject.width
-      end
-
-      should 'keep original height' do
         assert_equal 600, subject.height
       end
-    end
+    end # with same size
 
     context 'with new file' do
       setup do
-        @img.update_attributes(:file=>uploaded_jpg('flower.jpg'), :crop=>{:x=>'500',:y=>30,:w=>'200',:h=>80})
+        subject.update_attributes(:file=>uploaded_jpg('flower.jpg'), :crop=>{:x=>'500',:y=>30,:w=>'200',:h=>80})
       end
 
-      should 'keep image valid' do
-        err subject
+      should 'crop nicely' do
         assert subject.valid?
-      end
-
-      should 'return new width' do
         assert_equal 800, subject.width
-      end
-
-      should 'return new height' do
         assert_equal 600, subject.height
-      end
-
-      should 'return new size' do
         assert_equal 96648,  subject.size
       end
-    end
+    end # with new file
+  end # Croping
+
 
   context 'Destroying' do
     setup do
@@ -361,10 +274,11 @@ class ImageTest < Zena::Unit::TestCase
     context 'an image with no iformats' do
       setup do
         @img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
-                                            :title=>'albatros', :file => uploaded_jpg('bird.jpg')) }
+                                             :title=>'albatros', :file => uploaded_jpg('bird.jpg')) }
       end
 
-      subject{ @img}
+
+      subject{ @img }
 
       should 'destroy version from database' do
         assert_difference('Version.count', -1) do
@@ -379,11 +293,11 @@ class ImageTest < Zena::Unit::TestCase
       end
 
       should 'destroy file from file system' do
-        filepath = @img.filepath
+        filepath = subject.filepath
         subject.destroy
         assert !File.exist?(filepath)
       end
-    end # a document
+    end # an image with no iformats
 
     context 'an image with iformats' do
       setup do
@@ -395,35 +309,33 @@ class ImageTest < Zena::Unit::TestCase
 
       subject{ @img}
 
-
       should 'destroy version from database' do
         assert_difference('Version.count', -1) do
           subject.destroy
         end
       end
-    end
 
-      should 'destroy attachment from database' do
+      should 'not destroy attachment from database' do
         assert_difference('Attachment.count', -1) do
           subject.destroy
         end
       end
 
       should 'destroy file from file system' do
-        full_path = @img.filepath
+        full_path = subject.filepath
         subject.destroy
         assert !File.exist?(full_path)
       end
 
       should 'destroy iformat file' do
-        pv_path = @img.filepath(Iformat['pv'])
-        med_path = @img.filepath(Iformat['med'])
+        pv_path = subject.filepath(Iformat['pv'])
+        med_path = subject.filepath(Iformat['med'])
         subject.destroy
         assert !File.exist?(pv_path)
         assert !File.exist?(med_path)
       end
-    end # a document
-  end
+    end # an image with iformats
+  end # Destroying
 
 
   def test_set_event_at_from_exif_tags
@@ -444,4 +356,5 @@ class ImageTest < Zena::Unit::TestCase
     end
   end
 
-end
+end # ImageTest
+
