@@ -7,8 +7,8 @@ module Zena
         # first element with the current skin_name and if it does not work, we try with the full url. If the url
         # start with a '/' we use the full url directly.
         # tested in MainControllerTest
-        def get_template_text(opts)
-          return nil unless res = find_document_for_template(opts)
+        def get_template_text(path, base_path)
+          return nil unless res = find_document_for_template(:src => path, :current_folder => base_path)
           doc, url = *res
           # TODO: could we use this for caching or will we loose dynamic context based loading ?
           self.expire_with_nodes[url] = doc
@@ -135,15 +135,7 @@ module Zena
         end
 
 
-        # opts should contain :current_template and :src. The source is a path like 'default/Node-+index'
-        # ('skin/template/path'). If the path starts with a slash, the skin_name in the path is searched first. Otherwise,
-        # the current skin is searched first.
-        # <r:include template='Node'/>
-        #   find: #{skin_path(main_skin)}/Node
-        #
-        # <r:include template='/default/Node'/>
-        #   find: #{skin_path('default')}/Node
-        #
+        # Return a document for a given path (opts[:src]) and folder (opts[:current_folder])
         def find_document_for_template(opts)
           src    = opts[:src]
           if src =~ /\A(.*)\.(\w+)\Z/
@@ -193,11 +185,10 @@ module Zena
           base.send(:helper_attr, :skin_names, :expire_with_nodes, :renamed_assets)
           base.send(:helper_method, :dev_mode?) if base.respond_to?(:helper_method)
           base.send(:attr_accessor, :skin_names, :expire_with_nodes, :renamed_assets)
+          base.send(:include, ::Zafu::ControllerMethods)
         end
 
-        # Find the best template for the current node's skin, node's class, format and mode. The template
-        # files are searched first into 'sites/shared/views/templates/fixed'. If the templates are not found
-        # there, they are searched in the database and compiled into 'app/views/templates/compiled'.
+        # Return the path of a template for the given skin, mode and format. Compiles the zafu template if needed.
         def template_url(opts={})
           @skin_name = opts[:skin]   || (@node ? @node[:skin] : nil) || 'default'
           @skin_name = @skin_name.url_name # security
@@ -237,6 +228,46 @@ module Zena
           path      = SITES_ROOT + rel_path
 
           if !File.exists?(path) || params[:rebuild]
+            rebuild_template(path, opts)
+          end
+
+          return rel_path
+        end
+
+        def zafu_helper
+          @zafu_helper ||= begin
+            # FIXME rails 3.0.pre: zafu_helper = ActionView::Base.for_controller(self)
+            helper = ActionView::Base.new([], {}, self)
+            helper.send(:_evaluate_assigns_and_ivars)
+            helper.helpers.send :include, self.class.master_helper_module
+            helper
+          end
+        end
+
+        def dev_mode?
+          session[:dev]
+        end
+
+        private
+          # Return the node_context to use in zafu compilation from the current controller and action
+          def get_node_context
+            if self.class.to_s =~ /\A([A-Z]\w+?)s?[A-Z]/
+              ivar = "@#{$1.downcase}"
+              if var = self.instance_variable_get(ivar.to_sym)
+                name  = ivar
+                klass = var.class
+              elsif var = self.instance_variable_get(ivar + 's')
+                name = ivar + 's'
+                klass = [var.first.class]
+              end
+              return Zafu::NodeContext.new(name, klass) if name
+            end
+
+            raise Exception.new("Could not guess node context from request parameters, please add something like \"zafu_node('@var_name', Page)\" in your action.")
+          end
+
+          def rebuild_template(path, opts)
+
             # no template ---> render
             # clear :
             # TODO: we should remove info in cached_page for _main
@@ -254,8 +285,8 @@ module Zena
             self.expire_with_nodes = {}
             self.renamed_assets    = {}
 
-            res = ZafuParser.new_with_url(skin_path, :helper => zafu_helper).render(:dev => dev_mode?)
-
+            #res = ZafuParser.new_with_url(skin_path, :helper => zafu_helper).render(:dev => dev_mode?)
+            res = Zafu::Compiler.new_with_url(skin_path, :helper => zafu_helper).to_erb(:dev => dev_mode?, :node => get_node_context)
             unless valid_template?(res, opts)
               # problem during rendering, use default zafu
               res = ZafuParser.new(default_zafu_template(mode), :helper => zafu_helper).render(:dev => dev_mode?)
@@ -314,23 +345,6 @@ module Zena
               :node_id         => template[:id],
               :content_data    => res) }
           end
-
-          return rel_path
-        end
-
-        def zafu_helper
-          @zafu_helper ||= begin
-            # FIXME rails 3.0.pre: zafu_helper = ActionView::Base.for_controller(self)
-            helper = ActionView::Base.new([], {}, self)
-            helper.send(:_evaluate_assigns_and_ivars)
-            helper.helpers.send :include, self.class.master_helper_module
-            helper
-          end
-        end
-
-        def dev_mode?
-          session[:dev]
-        end
       end # ControllerMethods
 
       module ViewMethods

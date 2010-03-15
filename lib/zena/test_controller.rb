@@ -24,7 +24,8 @@ module Zena
 
 
     def test_compile
-      render :text => ZafuParser.new_with_url(@test_url, :helper => zafu_helper).render(:dev => params['dev'])
+      # zafu_helper ?
+      render :text => Zafu::Compiler.new_with_url(@test_url, :helper => self).to_erb(:dev => params['dev'], :node => Zafu::NodeContext.new('@node', @node.class))
     end
 
     def test_render
@@ -59,14 +60,13 @@ module Zena
       params.delete(:url)
     end
 
-    def get_template_text(opts={})
-      src    = opts[:src]
-      folder = (opts[:current_folder] && opts[:current_folder] != '') ? opts[:current_folder][1..-1].split('/') : []
-      src = src[1..-1] if src[0..0] == '/' # just ignore the 'relative' or 'absolute' tricks.
-      url = (folder + src.split('/')).join('_')
+    def get_template_text(path, base_path)
+      folder = base_path.blank? ? [] : base_path[1..-1].split('/')
+      path = path[1..-1] if path[0..0] == '/' # just ignore the 'relative' or 'absolute' tricks.
+      url = (folder + path.split('/')).join('_')
 
       if test = @@templates[url]
-        [test['src'], src]
+        [test['src'], path]
       else
         # 'normal' include
         @expire_with_nodes = {}

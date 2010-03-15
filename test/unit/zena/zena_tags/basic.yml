@@ -34,8 +34,9 @@ cache_part:
   tem: "<% cache1 = Cache.with(visitor.id, visitor.group_ids, \"NP\", \"en\", \"/cache/part/list1\") do capture do %><%= @node.name %><% end; end %><%= cache1 %>"
 
 show_title:
-  src: "<r:show attr='v_title'/>"
-  tem: "<%= @node.version.title %>"
+  old: "<r:show attr='v_title'/>"
+  src: "<r:title/>"
+  tem: "<%= @node.prop['title'] %>"
   res: "status title"
 
 show_title_with_opts:
