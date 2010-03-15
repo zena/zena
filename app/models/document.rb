@@ -134,12 +134,12 @@ class Document < Node
 
   # Return the file size.
   def size(mode=nil)
-    if prop[:size]
-      prop[:size]
+    if prop['size']
+      prop['size']
     elsif !new_record? && File.exist?(self.filepath)
-      size = prop[:size] = File.stat(self.filepath).size
+      prop['size'] = File.size(self.filepath)
       self.save
-      size
+      prop['size']
     end
   end
 
