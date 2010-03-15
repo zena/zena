@@ -213,8 +213,6 @@ class DocumentTest < Zena::Unit::TestCase
     end
   end # On reading
 
-
-
   context 'Finding a Document by path' do
     setup do
       login(:tiger)
@@ -248,7 +246,7 @@ class DocumentTest < Zena::Unit::TestCase
          assert @doc.update_attributes(:title => 'hopla')
          assert_equal 'hopla', @doc.version.title
        end
-       
+
        should 'not alter content_type' do
          @doc.update_attributes(:title => "New title")
          assert_equal 'application/pdf', @doc.content_type
