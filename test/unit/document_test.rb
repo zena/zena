@@ -29,50 +29,6 @@ class DocumentTest < Zena::Unit::TestCase
         assert_equal users_id(:ant), subject.version.attachment.user_id
         assert_equal sites_id(:zena), subject.version.attachment.site_id
       end
-
-      # should 'be valid' do
-      #   assert subject.valid?
-      # end
-      #
-      # should 'be saved in database' do
-      #   assert !subject.new_record?
-      # end
-      #
-      # should 'save file in the filesystem' do
-      #   assert File.exist?(subject.version.filepath)
-      # end
-      #
-      # should 'save content type in properties' do
-      #   assert_equal 'application/pdf', subject.prop['content_type']
-      # end
-      #
-      # should 'save extension in properties' do
-      #   assert_equal 'pdf', subject.prop['ext']
-      # end
-      #
-      # should 'save name as title if no name given' do
-      #   assert_equal 'life', subject.name
-      # end
-      #
-      # should 'save version title in version' do
-      #   assert_equal 'life', subject.version.title
-      # end
-      #
-      # should 'save filename in attachment' do
-      #   assert_equal 'water.pdf', subject.version.attachment[:filename]
-      # end
-      #
-      # should 'save fullpath in document (node)' do
-      #   assert_not_nil subject[:fullpath]
-      # end
-      #
-      # should 'save user_id in attachment' do
-      #   assert_equal users_id(:ant), subject.version.attachment.user_id
-      # end
-      #
-      # should 'save site_id in attachment' do
-      #   assert_equal sites_id(:zena), subject.version.attachment.site_id
-      # end
     end # Document
 
     context 'Document with same name' do
@@ -255,11 +211,6 @@ class DocumentTest < Zena::Unit::TestCase
          assert_equal 'application/pdf', subject.content_type
        end
 
-       should 'not alter content_type' do
-         @doc.update_attributes(:title => "New title")
-         assert_equal 'application/pdf', @doc.content_type
-       end
-
        should 'not create a new attachment' do
          assert_difference('Attachment.count', 0) do
            subject.update_attributes(:title => 'hopla')
@@ -270,24 +221,6 @@ class DocumentTest < Zena::Unit::TestCase
      context 'document file' do
        should 'save change' do
          assert subject.update_attributes(:file => uploaded_pdf('forest.pdf'))
-       end
-
-       should 'keep the orginal file' do
-         # original_file = @doc.filepath
-         # @doc.update_attributes(:file => uploaded_pdf('forest.pdf'))
-         # assert File.exist?(original_file)
-       end
-
-       should 'create a new version' do
-         # assert_difference('Version.count', 1) do
-         #   @doc.update_attributes(:file => uploaded_pdf('forest.pdf'))
-         # end
-       end
-
-       should 'create a new attachment' do
-         # assert_difference('Attachment.count', 1) do
-         #   @doc.update_attributes(:file => uploaded_pdf('forest.pdf'))
-         # end
        end
 
        should 'change filename' do
