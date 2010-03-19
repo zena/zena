@@ -45,26 +45,8 @@ show_title_with_opts:
   old_tem: "/<h1 class='s<%= @node.version.status %>'><%= show_title\(:node=>@node\) \+ node_actions\(:node=>@node, .*:actions=>\"all\"/"
   src: "<h1 do='title' prefix='status' actions='all' live='true'>this is the title</h1>"
   tem: "<h1 class='s<%= @node.version.status %>'><span id='_title<%= @node.zip %>'><%= @node.prop['title'] %></span> <%= node_actions(@node, :actions => \"all\") %></h1>"
+  old_res: "/<h1 class='s50'><span id='v_title22'.*class='actions'>/"
   res: "/<h1 class='s50'><span id='_title22'.*class='actions'>/"
-
-show_title_with_actions_without_prefix:
-  src: "<h1 do='title' actions='all'/>"
-  tem: "/class='s<%= @node.version.status/"
-
-show_title_with_actions_and_false_status_prefix:
-  src: "<h1 do='title' actions='all' status='false'/>"
-  tem: "!/class='s<%= @node.version.status/"
-
-title_text:
-  src: "<h1 do='title' text='hello world'>this is the title</h1>"
-  res: "<h1><span id='v_title22'>hello world</span></h1>"
-
-show_title_check_lang:
-  context:
-    node: 'cleanWater'
-    lang: 'fr'
-  src: "<r:title/> AND NOW <r:title check_lang='false'/>"
-  res: "<span id='v_title21'>Clean Water project<span class='wrong_lang'>[en]</span></span> AND NOW <span id='v_title21'>Clean Water project</span>"
 
 show_title_link_http:
   src: "<r:title link='http://example.com'/>"

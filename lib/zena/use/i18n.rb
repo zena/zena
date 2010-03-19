@@ -218,6 +218,9 @@ module Zena
       end
 
       module ViewMethods
+        include RubyLess::SafeClass
+        safe_method [:trans] => String
+
         def self.included(base)
           base.send(:alias_method_chain, :will_paginate, :i18n) if base.respond_to?(:will_paginate)
         end
@@ -236,15 +239,24 @@ module Zena
           ApplicationController.send(:_, str)
         end
 
-        # Show a little [xx] next to the title if the desired language could not be found. You can
-        # use a :text => '(lang)' option. The word 'lang' will be replaced by the real value.
-        def check_lang(obj, opts={})
-          wlang = (opts[:text] || '[#LANG]').sub('#LANG', obj.version.lang).sub('_LANG', _(obj.version.lang))
-          obj.version.lang != lang ? "<#{opts[:wrap] || 'span'} class='#{opts[:class] || 'wrong_lang'}'>#{wlang}</#{opts[:wrap] || 'span'}>" : ""
+        def trans(str)
+          ApplicationController.send(:_, str)
         end
-
       end # ViewMethods
 
+      module ZafuMethods
+
+        # Show a little [xx] next to the title if the desired language could not be found. You can
+        # use a :text => '(lang)' option. The word 'lang' will be replaced by the real value.
+        def r_wrong_lang(params = @params)
+          if @blocks.empty?
+            text = params[:text] || '[#{v.lang}]'
+            "<%=  #{node}.version.lang == lang ? '' : #{rubyless_attr(text)} %>"
+          else
+            "<% if #{node}.version.lang != lang -%>#{expand_with(:in_if => true)}<% end -%>"
+          end
+        end
+      end
     end # I18n
   end # Use
 end # Zena

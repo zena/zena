@@ -216,15 +216,6 @@ module Zafu
         end
       end
 
-      def r_check_lang
-        text = @params[:text]   || expand_with
-        klass = @params[:class] || @html_tag_params[:class]
-        text = nil if text.blank?
-        klas = nil if klass.blank?
-        @html_tag_done = true
-        "#{@space_before}<%= check_lang(#{node},:text=>#{text.inspect},:class=>#{klass.inspect},:wrap=>#{@html_tag.inspect}) %>"
-      end
-
       def anchor_name(p, obj=node)
         if p =~ /\[(.+)\]/
           "<%= #{node_attribute($1)} %>"

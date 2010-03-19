@@ -35,3 +35,26 @@ prefix_project_show_no_tag:
 prefix_project_show_with_tag:
   src: "<r:root><p do='void' prefix='project'>hop</p></r:root>"
   res: "<p>hop</p>"
+
+show_title_with_actions_without_prefix:
+  src: "<h1 do='title' actions='all'/>"
+  tem: "/class='s<%= @node.version.status/"
+
+node_actions_status_prefix_false:
+  src: "<h1 do='title' actions='all' status='false'/>"
+  tem: "!/class='s<%= @node.version.status/"
+
+node_actions_publish:
+  src: "<h1 do='title' actions='all' publish='true'/>"
+  tem: "/node_actions.*publish_after_save\s*=>\s*.true./"
+
+prefix_lang_no_show:
+  src: "<div do='void' prefix='lang'>hop</div>"
+  res: "<div>hop</div>"
+
+prefix_lang_show:
+  context:
+    lang: 'de'
+  old_src: "<r:title/> AND NOW <r:title check_lang='false'/>"
+  src: "<div do='void' prefix='lang'>hop</div>"
+  res: "<div><span class='wrong_lang'>[en]</span> hop</div>"

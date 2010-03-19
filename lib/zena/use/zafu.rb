@@ -1,3 +1,5 @@
+require 'zafu/controller_methods'
+
 module Zena
   module Use
     module Zafu

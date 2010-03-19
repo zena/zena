@@ -10,9 +10,9 @@ between index rebuilds.
 Drop the folder into the "bricks" folder and install the delayed_job gem:
 
 # install delayed_job gem:
-> sudo gem install delayed_job --source http://gemcutter.org
+> sudo gem install delayed_job
 
 # if you want to use this with sphinx you also need
-> sudo gem install ts-delayed-delta --source http://gemcutter.org
+> sudo gem install ts-delayed-delta
 
 # enable brick in config/bricks.yml

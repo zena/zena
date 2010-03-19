@@ -1,0 +1,29 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'status'
+
+wrong_lang_no_show:
+  src: '<r:wrong_lang/>'
+  res: ''
+
+wrong_lang_show:
+  context:
+    lang: 'de'
+  src: '<r:wrong_lang/> hop'
+  res: '[en] hop'
+
+wrong_lang_block_no_show:
+  src: "<r:wrong_lang>this is not in <r:v do='lang'/></r:wrong_lang>"
+  res: ""
+
+wrong_lang_block_show:
+  context:
+    lang: 'de'
+  src: "<r:wrong_lang>this is not in <r:v do='lang'/></r:wrong_lang>"
+  res: "this is not in en"
+
+wrong_lang_else_block:
+  src: "<r:wrong_lang do='else'>good</r:wrong_lang>"
+  res: "good"

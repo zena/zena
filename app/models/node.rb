@@ -190,6 +190,7 @@ class Node < ActiveRecord::Base
                      :data_b => {:class => ['DataEntry'], :data_root => 'node_b'},
                      :data_c => {:class => ['DataEntry'], :data_root => 'node_c'},
                      :data_d => {:class => ['DataEntry'], :data_root => 'node_d'}
+  safe_method        :v => {:class => 'Version', :method => 'version'}
 
   extend  Zena::Acts::SecureNode
   acts_as_secure_node

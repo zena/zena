@@ -33,11 +33,7 @@ module Zena
                     out "<%= prefix_project(#{node}) %>"
                   end
                 when 'lang'
-                  if node.will_be? Version
-                    out "<%= prefix_lang(#{node}) %>"
-                  elsif node.will_be? Node
-                    out "<%= check_lang(#{node}) %>"
-                  end
+                  out r_wrong_lang(:text => '[#{v.lang}] ')
                 else
                   # parser error
                 end

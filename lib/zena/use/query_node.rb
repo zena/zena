@@ -5,13 +5,14 @@ require 'query_builder'
 
 module Zena
   module Use
-    class QueryNode < QueryBuilder
+    class QueryNode < QueryBuilder::Processor
       attr_reader :context, :uses_node_name, :node_name
-      set_main_table 'nodes'
-      set_main_class 'Node'
+      self.main_table = 'nodes'
+      self.main_class = 'Node'
+      self.load_custom_queries ["#{RAILS_ROOT}/bricks/*/queries"]
+
       @@filter_fields = {'id' => {:key => 'zip'}}
 
-      load_custom_queries ["#{RAILS_ROOT}/bricks/*/queries"]
 
       def self.insert_zero_link(link_class)
         return if link_class.find_by_id(0)

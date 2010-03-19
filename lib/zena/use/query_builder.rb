@@ -11,16 +11,16 @@ module Zena
       # 3. helper (view) tries to resolve safe_method_type as RubyLess or PseudoSQL
       module ZafuMethods
         def safe_method_type(signature)
-          super || build_query(signature)
+          super || pseudo_sql_method(signature)
         end
 
         private
-          def build_query(signature)
+          def pseudo_sql_method(signature)
             rel, params = signature
             params ||= {}
             return nil unless params.kind_of?(Hash)
 
-            count = get_count(params)
+            count = get_count(rel, params)
             build_query(count, rel, params)
           end
 
@@ -46,8 +46,8 @@ module Zena
                 return {:method => 'visitor.contact', :class => Contact}
               elsif rel =~ /^\d+$/
                 return {:method => "(secure(Node) { Node.find_by_zip(#{rel.inspect})})", :class => Node}
-              elsif node.name = find_stored(Node, rel)
-                return {:method => node.name, :class => Node}
+              # FIXME: elsif node.name = find_stored(Node, rel)
+              # FIXME:   return {:method => node.name, :class => Node}
               elsif rel[0..0] == '/'
                 rel = rel[1..-1]
                 return {:method => "(secure(Node) { Node.find_by_path(#{rel.inspect})})", :class => Node}
@@ -87,7 +87,7 @@ module Zena
 
             # if params['else']
             #   # FIXME: else not working with safe_method_type ?
-            #   finder, else_class, else_query = build_query(count, params['else'], {}, node)
+            #   finder, else_class, else_query = build_query(count, params['else'], {})
             #   if finder && (else_query.nil? || else_query.valid?) && (else_class == klass || klass.ancestors.include?(else_class) || else_class.ancestors.include?(klass))
             #     klass = [klass] if count == :all
             #     {:method => "(#{query.finder(count)} || #{finder})", :class => klass, :query => query}
@@ -102,9 +102,9 @@ module Zena
           end
 
           # Returns :all, :first or :count depending on the parameters and some introspection in the zafu tree
-          def get_count(params)
+          def get_count(method, params)
             (%w{first all count}.include?(params[:find]) ? params[:find].to_sym : nil) ||
-            (params[:paginate] || child['each'] || child['group'] || Node.plural_relation?(rel)) ? :all : :first
+            (params[:paginate] || child['each'] || child['group'] || Node.plural_relation?(method)) ? :all : :first
           end
 
           # Build pseudo sql from the parameters
