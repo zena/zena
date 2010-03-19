@@ -110,8 +110,22 @@ class ContactTest < Zena::Unit::TestCase
       assert_equal 'Meyer', subject.name
     end
 
-    should 'create contact' do
-      assert Contact.create('first_name'=>'Eric', 'name'=>'Meyer')
+    context 'creating a contact' do
+      subject do
+        Contact.create('first_name'=>'Eric', 'name'=>'Meyer')
+      end
+
+      should 'create contact' do
+        assert !subject.new_record?
+      end
+
+      should 'set name property' do
+        assert_equal 'Meyer', subject.prop['name']
+      end
+
+      should 'build node_name from fullname' do
+        assert_equal 'MeyerEric', subject[:name]
+      end
     end
   end
 

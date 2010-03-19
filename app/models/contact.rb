@@ -52,4 +52,10 @@ class Contact < Reference
   def initials
     fullname.split(" ").map {|w| w[0..0].capitalize}.join("")
   end
+
+  private
+    def set_defaults
+      self[:name] = fullname(name, first_name) if name.blank?
+      super
+    end
 end
