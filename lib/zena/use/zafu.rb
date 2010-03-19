@@ -286,10 +286,10 @@ module Zena
             self.renamed_assets    = {}
 
             #res = ZafuParser.new_with_url(skin_path, :helper => zafu_helper).render(:dev => dev_mode?)
-            res = Zafu::Compiler.new_with_url(skin_path, :helper => zafu_helper).to_erb(:dev => dev_mode?, :node => get_node_context)
+            res = ZafuCompiler.new_with_url(skin_path, :helper => zafu_helper).to_erb(:dev => dev_mode?, :node => get_node_context)
             unless valid_template?(res, opts)
               # problem during rendering, use default zafu
-              res = ZafuParser.new(default_zafu_template(mode), :helper => zafu_helper).render(:dev => dev_mode?)
+              res = ZafuCompiler.new(default_zafu_template(mode), :helper => zafu_helper).render(:dev => dev_mode?)
             end
 
             if dev_mode? && mode != '+popupLayout'
@@ -458,68 +458,6 @@ module Zena
             else
               0
             end
-          end
-        end
-
-        # TODO: test
-        # display the title with necessary id and checks for 'lang'. Options :
-        # * :link if true, the title is a link to the object's page
-        #   default = true if obj is not the current node '@node'
-        # * :project if true , the project name is added before the object title as 'project / .....'
-        #   default = obj project is different from current node project
-        # if no options are provided show the current object title
-        def show_title(opts={})
-          obj = opts[:node] || @node
-
-          unless opts.include?(:link)
-            # we show the link if the object is not the current node or when it is being created by zafu ajax.
-            opts[:link] = (obj[:id] != @node[:id] || params[:t_url]) ? 'true' : nil
-          end
-
-          unless opts.include?(:project)
-            opts[:project] = (obj.get_project_id != @node.get_project_id && obj[:id] != @node[:id])
-          end
-
-          title = opts[:text] || obj.version.title
-          if opts[:project] && project = obj.project
-            title = "#{project.name} / #{title}"
-          end
-
-          title += check_lang(obj) unless opts[:check_lang] == 'false'
-          title  = "<span id='v_title#{obj.zip}'>#{title}</span>"
-
-          if (link = opts[:link]) && opts[:link] != 'false'
-            if link =~ /\A(\d+)/
-              zip = $1
-              obj = secure(Node) { Node.find_by_zip(zip) }
-              link = link[(zip.length)..-1]
-              if link[0..0] == '_'
-                link = link[1..-1]
-              end
-            end
-            if link =~ /\Ahttp/
-              "<a href='#{link}'>#{title}</a>"
-            else
-              link_opts = {}
-              if link == 'true'
-                # nothing special for the link format
-              elsif link =~ /(\w+\.|)data$/
-                link_opts[:mode] = $1[0..-2] if $1 != ''
-                if obj.kind_of?(Document)
-                  link_opts[:format] = obj.c_ext
-                else
-                  link_opts[:format] = 'html'
-                end
-              elsif link =~ /(\w+)\.(\w+)/
-                link_opts[:mode]   = $1
-                link_opts[:format] = $2
-              elsif !link.blank?
-                link_opts[:mode]   = link
-              end
-              "<a href='#{zen_path(obj, link_opts)}'>#{title}</a>"
-            end
-          else
-            title
           end
         end
       end # ViewMethods

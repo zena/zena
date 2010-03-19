@@ -15,7 +15,7 @@ module Zafu
       end
 
       def erb_node_id(obj = node)
-        if node_kind_of?(Version)
+        if node.will_be?(Version)
           "<%= #{obj}.node.zip %>.<%= #{obj}.number %>"
         else
           "<%= #{node_id(obj)} %>"

@@ -1,3 +1,5 @@
+# TODO: on cleanup only (all tests ok): remove this page
+
 ZafuParser  = Zena::Parser.parser_with_rules(
   Zena::Parser::ZafuRules,
   Zena::Parser::ZenaRules,

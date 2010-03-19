@@ -96,7 +96,7 @@ module Zafu
         # <r:img link='foo'/>
         # ...
 
-        if node_kind_of?(Node)
+        if node.will_be?(Node)
           node_name = @context[:parent_node] || node
         else
           node_name = @context[:previous_node]
@@ -180,7 +180,7 @@ module Zafu
         # <r:img link='foo'/>
         # ...
 
-        if node_kind_of?(Node)
+        if node.will_be?(Node)
           node_name = @context[:parent_node] || node
         else
           node_name = @context[:previous_node]

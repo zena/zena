@@ -1,6 +1,9 @@
 require 'versions'
 
 class Version < ActiveRecord::Base
+  include RubyLess::SafeClass
+  safe_attribute     :created_at, :updated_at, :publish_from, :status, :lang
+
   include Versions::Auto
   # include Versions::Destroy
 

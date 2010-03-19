@@ -6,9 +6,9 @@ module Zafu
     end
 
     def base_class
-      if node_kind_of?(Node)
+      if node.will_be?(Node)
         Node
-      elsif node_kind_of?(Version)
+      elsif node.will_be?(Version)
         Version
       else
         node_class

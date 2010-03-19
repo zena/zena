@@ -150,7 +150,7 @@ module Zafu
               hidden_fields['u_id']    = "<%= #{@context[:parent_node]}.zip %>" if @context[:in_add]
               hidden_fields['s']       = start_node_s_param(:value)
             end
-          elsif (block = ancestor('block')) && node_kind_of?(DataEntry)
+          elsif (block = ancestor('block')) && node.will_be?(DataEntry)
             # updates template url
             hidden_fields['u_url']   = block.template_url
             hidden_fields['udom_id'] = block.erb_dom_id
@@ -165,12 +165,12 @@ module Zafu
 
           hidden_fields['dom_id'] = erb_dom_id
 
-          if node_kind_of?(Node)
+          if node.will_be?(Node)
             hidden_fields['node[parent_id]'] = "<%= #{@context[:in_add] ? "#{@context[:parent_node]}.zip" : "#{node}.parent_zip"} %>"
-          elsif node_kind_of?(Comment)
+          elsif node.will_be?(Comment)
             # FIXME: the "... || '@node'" is a hack and I don't understand why it's needed...
             hidden_fields['node_id'] = "<%= #{@context[:parent_node] || '@node'}.zip %>"
-          elsif node_kind_of?(DataEntry)
+          elsif node.will_be?(DataEntry)
             hidden_fields["data_entry[#{@context[:data_root]}_id]"] = "<%= #{@context[:in_add] ? @context[:parent_node] : "#{node}.#{@context[:data_root]}"}.zip %>"
           end
 
@@ -211,11 +211,11 @@ module Zafu
           form = "<form method='post' action='/nodes/#{erb_node_id}'><div style='margin:0;padding:0'><input name='_method' type='hidden' value='put' /></div>"
         end
 
-        if node_kind_of?(Node) && (@params[:klass] || @context[:klass])
+        if node.will_be?(Node) && (@params[:klass] || @context[:klass])
           hidden_fields['node[klass]']    = @params[:klass] || @context[:klass]
         end
 
-        if node_kind_of?(Node) && @params[:mode]
+        if node.will_be?(Node) && @params[:mode]
           hidden_fields['mode'] = @params[:mode]
         end
 
@@ -450,7 +450,7 @@ module Zafu
             field = input_fields.first.params[:name]
           elsif (show_fields = descendants('show')) != []
             field = show_fields.first.params[:attr]
-          elsif node_kind_of?(Node)
+          elsif node.will_be?(Node)
             field = 'v_title'
           else
             field = 'text'

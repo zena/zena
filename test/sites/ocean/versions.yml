@@ -5,55 +5,59 @@ DEFAULTS:
   publish_from:    2006-03-10
   status:          pub
   lang:            en
-  comment:         ""
-  summary:         ""
-  text:            ""
   number:          1
+#  prop:
+#    comment:       ""
+#    summary:       ""
+#    text:          ""
 
 ocean_en:
   type:            Version
   node:            ocean
   user:            whale
-  comment:         new site
-  title:           Deep Ocean
-  summary:         The deep sound of peace
-  text:            Our oceans, when kept full of life, are full of animals
+  prop:
+    comment:       new site
+    title:         Deep Ocean
+    summary:       The deep sound of peace
+    text:          Our oceans, when kept full of life, are full of animals
 
 
 incognito_en:
   type:            Version
   node:            incognito
   user:            whale
-  comment:         anonymous user
-  title:           Miss incognito
   prop:
-    first_name: Miss
-    name:       Incognito
-    address:    c/o Lilith
-    zip:        804
-    city:       Somewhere
+    comment:       anonymous user
+    title:         Miss incognito
+    first_name:    Miss
+    name:          Incognito
+    address:       c/o Lilith
+    zip:           804
+    city:          Somewhere
 
 whale_en:
   type:            Version
   node:            whale
   user:            whale
-  comment:         admin user
-  title:           Miss Whale
   prop:
-    first_name: Humpback
-    name:       Whale
-    address:    Anywhere Left Alone
-    zip:        903
-    city:       Ocean
+    comment:       admin user
+    title:         Miss Whale
+    first_name:    Humpback
+    name:          Whale
+    address:       Anywhere Left Alone
+    zip:           903
+    city:          Ocean
 
 skin_en:
   type:            TemplateVersion
   node:            skin
   user:            whale
-  title:           skin
+  prop:
+    title:         skin
 
 Node_en:
   type:            TemplateVersion
   node:            Node
   user:            whale
-  text:            "<html><body><h1 do='[v_title]'/></body></html>"
+  prop:
+    text:          "<html><body><h1 do='[v_title]'/></body></html>"

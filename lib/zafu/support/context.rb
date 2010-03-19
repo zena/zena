@@ -22,12 +22,12 @@ module Zafu
         #context = RubyLess::SafeClass.safe_method_type_for(node_class, [method]) if use_rubyless
         #if context && @params.keys == [:select]
         #  open_context("#{node}.#{context[:method]}", context.dup)
-        #elsif node_kind_of?(Node)
+        #elsif node.will_be?(Node)
         #  count   = ['first','all','count'].include?(@params[:find]) ? @params[:find].to_sym : nil
         #  count ||= Node.plural_relation?(method) ? :all : :first
         #  finder, klass, query = build_finder_for(count, method, @params)
         #  return unless finder
-        #  if node_kind_of?(Node) && !klass.ancestors.include?(Node)
+        #  if node.will_be?(Node) && !klass.ancestors.include?(Node)
         #    # moving out of node: store last Node
         #    @context[:previous_node] = node
         #  end
@@ -51,11 +51,11 @@ module Zafu
         return parser_error("missing 'by' clause") unless key = @params[:by]
 
         sort_key = @params[:sort] || 'name'
-        if node_kind_of?(DataEntry) && DataEntry::NodeLinkSymbols.include?(key.to_sym)
+        if node.will_be?(DataEntry) && DataEntry::NodeLinkSymbols.include?(key.to_sym)
           key = "#{key}_id"
           sort_block = "{|e| (e.#{key} || {})[#{sort_key.to_sym.inspect}]}"
           group_array = "group_array(#{list_var}) {|e| e.#{key}}"
-        elsif node_kind_of?(Node)
+        elsif node.will_be?(Node)
           if ['project', 'parent', 'section'].include?(key)
             sort_block  = "{|e| (e.#{key} || {})[#{sort_key.to_sym.inspect}]}"
             group_array = "group_array(#{list_var}) {|e| e.#{key}_id}"
@@ -116,7 +116,7 @@ module Zafu
           @context[:node_class] || Node
         end
 
-        def node_kind_of?(ancestor)
+        def node.will_be?(ancestor)
           node_class.ancestors.include?(ancestor)
         end
 
@@ -154,7 +154,7 @@ module Zafu
             return
           end
           # hack to store last 'Node' context until we fix node(Node) stuff:
-          previous_node = node_kind_of?(Node) ? node : @context[:previous_node]
+          previous_node = node.will_be?(Node) ? node : @context[:previous_node]
           if klass.kind_of?(Array)
             # plural
             do_list( context[:method], context.merge(:node_class => klass[0], :previous_node => previous_node) )
@@ -201,7 +201,7 @@ module Zafu
 
             @context[:need_link_id] = form_block.need_link_id
 
-            out "<% if (#{list_var} = #{list_finder}) || (#{node}.#{node_kind_of?(Comment) ? "can_comment?" : "can_write?"} && #{list_var}=[]) -%>"
+            out "<% if (#{list_var} = #{list_finder}) || (#{node}.#{node.will_be?(Comment) ? "can_comment?" : "can_write?"} && #{list_var}=[]) -%>"
             if query && (pagination_key = query.pagination_key)
               out "<% set_#{pagination_key}_nodes = #{query.finder(:count)}; set_#{pagination_key}_count = (set_#{pagination_key}_nodes / #{query.page_size.to_f}).ceil; set_#{pagination_key} = [1,params[:#{pagination_key}].to_i].max -%>"
               @context[:paginate] = pagination_key
@@ -239,7 +239,7 @@ module Zafu
           else
             # no form, render, edit and add are not ajax
             if descendant('add') || descendant('add_document')
-              out "<% if (#{list_var} = #{list_finder}) || (#{node}.#{node_kind_of?(Comment) ? "can_comment?" : "can_write?"} && #{list_var}=[]) -%>"
+              out "<% if (#{list_var} = #{list_finder}) || (#{node}.#{node.will_be?(Comment) ? "can_comment?" : "can_write?"} && #{list_var}=[]) -%>"
             elsif list_finder != 'nil'
               out "<% if #{list_var} = #{list_finder} -%>"
             else

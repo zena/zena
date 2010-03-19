@@ -246,9 +246,30 @@ module Zafu
     end
 
     def r_title
-      if node_kind_of?(Version)
+      # 1. extract / compile options
+      # 1.1 extract 'status', node_actions ===> rubyless "title(xxx, xxx) + actions('all')" ==> title helper && node_actions helper
+      # 2. render_as_rubyless("title", opts)
+      
+      common [
+        prefix
+        status
+        actions...publish
+      ]
+      <h1 do='title' project='true' check_lang='false'.../>
+      <h1 do='prefix(:project, :lang) + title + actions'/>
+      <h1 do='title' prefix='project,lang' actions='all' status='true'/>
+
+
+
+
+
+
+
+
+
+      if node.will_be?(Version)
         node = "#{self.node}.node"
-      elsif node_kind_of?(Node)
+      elsif node.will_be?(Node)
         node = self.node
       else
         return parser_error('title','only works with nodes')
@@ -393,7 +414,7 @@ module Zafu
     end
 
     def r_img
-      return unless node_kind_of?(Node)
+      return unless node.will_be?(Node)
       if @params[:src]
         finder, klass = build_finder_for(:first, @params[:src])
         return unless finder

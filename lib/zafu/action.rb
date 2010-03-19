@@ -59,10 +59,10 @@ module Zafu
 
       # why is node = @node (which we need) but we are supposed to have Comments ?
       # FIXME: during rewrite, replace 'node' by 'node(klass = node_class)' so the ugly lines below would be
-      # if node_kind_of?(Comment)
+      # if node.will_be?(Comment)
       #   out "<% if #{node(Node)}.can_comment? -%>"
       # Refs #198.
-      if node_kind_of?(Comment)
+      if node.will_be?(Comment)
         out "<% if #{node}.can_comment? -%>"
       else
         out "<% if #{node}.can_write? -%>"
@@ -90,7 +90,7 @@ module Zafu
 
         out render_html_tag("#{expand_with(:onclick=>"[\"#{erb_dom_id}_add\", \"#{erb_dom_id}_form\"].each(Element.toggle);#{focus}return false;")}")
 
-        if node_kind_of?(Node)
+        if node.will_be?(Node)
           # FIXME: BUG if we set <r:form klass='Post'/> the user cannot select class with menu...
           klass = @context[:klass] || 'Node'
           # FIXME: inspect '@context[:form]' to see if it contains v_klass ?
@@ -134,7 +134,7 @@ module Zafu
     # Show html to add open a popup window to add a document.
     # TODO: inline ajax for upload ?
     def r_add_document
-      return parser_error("only works with nodes (not with #{node_class})") unless node_kind_of?(Node)
+      return parser_error("only works with nodes (not with #{node_class})") unless node.will_be?(Node)
       @html_tag_params[:class] ||= 'btn_add'
       res = "<a href='/documents/new?parent_id=#{erb_node_id}' onclick='uploader=window.open(\"/documents/new?parent_id=#{erb_node_id}\", \"upload\", \"width=400,height=300\");return false;'>#{_('btn_add_doc')}</a>"
       "<% if #{node}.can_write? -%>#{render_html_tag(res)}<% end -%>"
@@ -228,10 +228,10 @@ module Zafu
         target = self
       end
 
-      if node_kind_of?(Node)
+      if node.will_be?(Node)
         opts[:cond] = "#{node}.can_write? && #{node}.link_id"
         opts[:url] = "/nodes/\#{#{node_id}}/links/\#{#{node}.link_id}"
-      elsif node_kind_of?(Link)
+      elsif node.will_be?(Link)
         opts[:url] = "/nodes/\#{#{node}.this_zip}/links/\#{#{node}.zip}"
       end
 
@@ -250,7 +250,7 @@ module Zafu
      #    inner = _('btn_tiny_del')
      #  end
      #  out "#{inner}</a><% else -%>#{inner}<% end -%>"
-     #elsif node_kind_of?(DataEntry)
+     #elsif node.will_be?(DataEntry)
      #  text = get_text_for_erb
      #  if text.blank?
      #    text = _('btn_tiny_del')

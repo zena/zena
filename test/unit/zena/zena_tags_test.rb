@@ -47,7 +47,7 @@ class ZenaTagsTest < Zena::Controller::TestCase
     res = yt_get('res', file, test)
     compiled_files = {}
     @@test_strings[file][test].each do |k,v|
-      next if ['src','tem','res','context'].include?(k)
+      next if ['src','tem','res','context'].include?(k) || k =~ /^old/
       compiled_files[k] = v
     end
     context = yt_get('context', file, test)

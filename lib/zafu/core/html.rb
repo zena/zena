@@ -57,7 +57,7 @@ module Zafu
           end
         end
         tag_class = @html_tag_params[:class] || @params[:class]
-        if node_kind_of?(Node)
+        if node.will_be?(Node)
 
           if @context[:make_form]
             node_name = node

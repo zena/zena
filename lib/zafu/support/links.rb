@@ -45,7 +45,7 @@ module Zafu
           if node_class == Version
             lnode = "#{node}.node"
             opts[:lang] = "#{node}.lang"
-          elsif node_kind_of?(Node)
+          elsif node.will_be?(Node)
             lnode = node
           else
             lnode = @context[:previous_node]
@@ -265,7 +265,7 @@ module Zafu
           end
         end
 
-        query_params << "link_id=\#{#{node}.link_id}" if @context[:need_link_id] && node_kind_of?(Node)
+        query_params << "link_id=\#{#{node}.link_id}" if @context[:need_link_id] && node.will_be?(Node)
         query_params << "node[v_status]=#{Zena::Status[:pub]}" if @params[:publish] # FIXME: this acts like publish = 'force'
         query_params << start_node_s_param(:string)
 
@@ -291,11 +291,11 @@ module Zafu
           default
         elsif erb_text = get_text_for_erb(@params, false, :string)
           erb_text
-        elsif node_kind_of?(Node)
+        elsif node.will_be?(Node)
           "<%= #{node}.version.title %>"
-        elsif node_kind_of?(Version)
+        elsif node.will_be?(Version)
           "<%= #{node}.title %>"
-        elsif node_kind_of?(Link)
+        elsif node.will_be?(Link)
           "<%= #{node}.name %>"
         else
           _('edit')

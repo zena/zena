@@ -8,6 +8,8 @@ module Zena
     skip_before_filter :set_visitor
     prepend_before_filter :set_context
 
+    include  Zena::Use::HtmlTags::ViewMethods
+
     class << self
       def templates=(templates)
         @@templates = templates
@@ -22,10 +24,8 @@ module Zena
       render :text => exception.message + "\n#{exception.backtrace.join("\n")}"
     end
 
-
     def test_compile
-      # zafu_helper ?
-      render :text => Zafu::Compiler.new_with_url(@test_url, :helper => self).to_erb(:dev => params['dev'], :node => Zafu::NodeContext.new('@node', @node.class))
+      render :text => Zena::ZafuCompiler.new_with_url(@test_url, :helper => zafu_helper).to_erb(:dev => params['dev'], :node => Zafu::NodeContext.new('@node', @node.class))
     end
 
     def test_render

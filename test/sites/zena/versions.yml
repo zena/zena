@@ -5,172 +5,179 @@ DEFAULTS:
   publish_from:    2006-03-10
   status:          pub
   lang:            en
-  comment:         no comment yet
-  summary:         no summary yet
-  text:            nothing written yet
+#   comment:       no comment yet
+#     summary:     no summary yet
+#     text:        nothing written yet
 
 zena_en:
   node:            zena
   user:            tiger
-  title:           Zena the wild CMS
-  summary:         ''
-  text:            This is the root of your peaceful tests.
+  prop:
+    title:         Zena the wild CMS
+    summary:       ''
+    text:          This is the root of your peaceful tests.
 
 people_en:
   node:            people
   user:            tiger
-  title:           people
   prop:
+    title:         people
     assigned:      gaspard
 
 
 ant_en:
   node:            ant
   user:            ant
-  title:           Solenopsis Invicta
-  summary:         I am an ant
-  text:            Ants work hard
   prop:
-    first_name: Solenopsis
-    name:       Invicta
-    address:    Deep Hole 54
-    zip:        2001
-    city:       Anthill
-    telephone:  +12 345 67 89 01
-    mobile:     +23 456 78 90 10
-    email:      ant@zenadmin.info
-    birthday:   2005-07-12
+    title:         Solenopsis Invicta
+    summary:       I am an ant
+    text:          Ant works hard
+    first_name:    Solenopsis
+    name:          Invicta
+    address:       Deep Hole 54
+    zip:           2001
+    city:          Anthill
+    telephone:     +12 345 67 89 01
+    mobile:        +23 456 78 90 10
+    email:         ant@zenadmin.info
+    birthday:      2005-07-12
 
 
 myLife_en:
   node:            myLife
   user:            ant
-  title:           My Life
+  prop:
+    title:         My Life
 
 
 tiger_en:
   node:            tiger
   user:            tiger
-  title:           Tiger
-  summary:         "\"panthera tigris on wikipedia\":http://en.wikipedia.org/wiki/Image:Panthera_tigris_sumatran_subspecies.jpg"
   prop:
-    first_name: Panther
-    name:       Tigris Sumatran
-    address:    "Small Island\nIn the Wild"
-    zip:        1998
-    city:       Sumatra
-    telephone:  +34 567 89 01 23
-    mobile:     +45 678 90 12 34
-    email:      tiger@zenadmin.info
-    birthday:   2002-07-12
+    title:         Tiger
+    summary:       "\"panthera tigris on wikipedia\":http://en.wikipedia.org/wiki/Image:Panthera_tigris_sumatran_subspecies.jpg"
+    first_name:    Panther
+    name:          Tigris Sumatran
+    address:       "Small Island\nIn the Wild"
+    zip:           1998
+    city:          Sumatra
+    telephone:     +34 567 89 01 23
+    mobile:        +45 678 90 12 34
+    email:         tiger@zenadmin.info
+    birthday:      2002-07-12
 
 lion_en:
   node:            lion
   user:            lion
-  title:           Lion
   prop:
-    first_name: Panthera
-    name:       Leo Verneyi
-    address:    Kalahari Desert
-    zip:        2036
-    city:       Africa
-    telephone:  +56 789 01 23 45
-    mobile:     +67 890 12 34 56
-    email:      lion@zenadmin.info
-    birthday:   2002-03-04
+    title:         Lion
+    first_name:    Panthera
+    name:          Leo Verneyi
+    address:       Kalahari Desert
+    zip:           2036
+    city:          Africa
+    telephone:     +56 789 01 23 45
+    mobile:        +67 890 12 34 56
+    email:         lion@zenadmin.info
+    birthday:      2002-03-04
 
 
 myDreams_en:
   node:            myDreams
   user:            lion
-  title:           My Dreams
+  prop:
+    title:         My Dreams
 
 
 projects_en:
   node:            projects
   user:            tiger
-  title:           projects list
-  text:            |
-    Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Mauris facilisis felis in lacus. In sollicitudin turpis nec tellus. Nam ut nibh nec nulla aliquam vehicula. Integer diam tortor, *bibendum non*, eleifend a, auctor nec, dolor. Fusce consequat elit et purus. Vivamus ornare lectus vel ligula. Quisque blandit. Nam ut odio. Sed scelerisque vulputate ipsum. Nam in eros. Sed neque mauris, aliquet sed, convallis ultrices, imperdiet rutrum, odio. Donec eros. In sagittis. Quisque rutrum facilisis mauris. Suspendisse potenti. Suspendisse congue.
+  prop:
+    title:         projects list
+    text:          |
+      Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Mauris facilisis felis in lacus. In sollicitudin turpis nec tellus. Nam ut nibh nec nulla aliquam vehicula. Integer diam tortor, *bibendum non*, eleifend a, auctor nec, dolor. Fusce consequat elit et purus. Vivamus ornare lectus vel ligula. Quisque blandit. Nam ut odio. Sed scelerisque vulputate ipsum. Nam in eros. Sed neque mauris, aliquet sed, convallis ultrices, imperdiet rutrum, odio. Donec eros. In sagittis. Quisque rutrum facilisis mauris. Suspendisse potenti. Suspendisse congue.
     
-    h1. h1 title
+      h1. h1 title
     
-    Maecenas at est. Morbi sem enim, posuere in, commodo vel, imperdiet non, augue. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Phasellus consequat pharetra elit. Pellentesque purus ante, ornare ac, tristique vitae, congue sit amet, pede. Curabitur eu nibh at lorem luctus lacinia. Proin lobortis. Nullam leo. Fusce fermentum facilisis erat. Nam dolor.
+      Maecenas at est. Morbi sem enim, posuere in, commodo vel, imperdiet non, augue. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Phasellus consequat pharetra elit. Pellentesque purus ante, ornare ac, tristique vitae, congue sit amet, pede. Curabitur eu nibh at lorem luctus lacinia. Proin lobortis. Nullam leo. Fusce fermentum facilisis erat. Nam dolor.
     
-    Fusce erat erat, nonummy non, facilisis ut, tristique quis, risus. Vestibulum libero sem, aliquet id, varius at, pellentesque in, diam. Fusce in diam. Quisque congue eros pellentesque leo. Phasellus tortor odio, cursus sed, ullamcorper sed, luctus et, velit. Etiam consectetuer. In luctus, quam eget dictum euismod, mi dui sollicitudin ante, nec nonummy erat dui nec tellus. Quisque quam. Curabitur in orci. Vivamus eu turpis.
+      Fusce erat erat, nonummy non, facilisis ut, tristique quis, risus. Vestibulum libero sem, aliquet id, varius at, pellentesque in, diam. Fusce in diam. Quisque congue eros pellentesque leo. Phasellus tortor odio, cursus sed, ullamcorper sed, luctus et, velit. Etiam consectetuer. In luctus, quam eget dictum euismod, mi dui sollicitudin ante, nec nonummy erat dui nec tellus. Quisque quam. Curabitur in orci. Vivamus eu turpis.
     
-    !<.31_med!
+      !<.31_med!
     
-    Maecenas at est. Morbi sem enim, posuere in, commodo vel, imperdiet non, augue. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Phasellus consequat pharetra elit. Pellentesque purus ante, ornare ac, tristique vitae, congue sit amet, pede. Curabitur eu nibh at lorem luctus lacinia. Proin lobortis. Nullam leo. Fusce fermentum facilisis erat. Nam dolor.
+      Maecenas at est. Morbi sem enim, posuere in, commodo vel, imperdiet non, augue. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Phasellus consequat pharetra elit. Pellentesque purus ante, ornare ac, tristique vitae, congue sit amet, pede. Curabitur eu nibh at lorem luctus lacinia. Proin lobortis. Nullam leo. Fusce fermentum facilisis erat. Nam dolor.
     
-    p(clear). Fusce erat erat, nonummy non, facilisis ut, tristique quis, risus. Vestibulum libero sem, aliquet id, varius at, pellentesque in, diam. Fusce in diam. Quisque congue eros pellentesque leo. Phasellus tortor odio, cursus sed, ullamcorper sed, luctus et, velit. Etiam consectetuer. In luctus, quam eget dictum euismod, mi dui sollicitudin ante, nec nonummy erat dui nec tellus. Quisque quam. Curabitur in orci. Vivamus eu turpis.
+      p(clear). Fusce erat erat, nonummy non, facilisis ut, tristique quis, risus. Vestibulum libero sem, aliquet id, varius at, pellentesque in, diam. Fusce in diam. Quisque congue eros pellentesque leo. Phasellus tortor odio, cursus sed, ullamcorper sed, luctus et, velit. Etiam consectetuer. In luctus, quam eget dictum euismod, mi dui sollicitudin ante, nec nonummy erat dui nec tellus. Quisque quam. Curabitur in orci. Vivamus eu turpis.
     
-    h2. h2 title
+      h2. h2 title
     
-    Sed aliquam accumsan sapien. Cras adipiscing euismod orci. Aliquam magna risus, vestibulum eget, interdum ac, hendrerit sit amet, leo. Proin mi diam, rutrum ac, rhoncus adipiscing, sollicitudin rhoncus, elit. Vivamus metus nunc, mollis congue, ullamcorper ac, euismod varius, nunc. Morbi quis velit dapibus sem mattis pharetra. Mauris at augue quis dolor dignissim nonummy. Nam rutrum ante suscipit urna dignissim aliquet. Curabitur ut tortor ac dui nonummy blandit. Nam malesuada enim in nulla. Nunc cursus, orci eu venenatis tincidunt, nunc elit accumsan magna, in cursus erat augue eu erat. Etiam ac neque. Proin tellus nunc, semper ac, consectetuer at, dictum in, nulla.
+      Sed aliquam accumsan sapien. Cras adipiscing euismod orci. Aliquam magna risus, vestibulum eget, interdum ac, hendrerit sit amet, leo. Proin mi diam, rutrum ac, rhoncus adipiscing, sollicitudin rhoncus, elit. Vivamus metus nunc, mollis congue, ullamcorper ac, euismod varius, nunc. Morbi quis velit dapibus sem mattis pharetra. Mauris at augue quis dolor dignissim nonummy. Nam rutrum ante suscipit urna dignissim aliquet. Curabitur ut tortor ac dui nonummy blandit. Nam malesuada enim in nulla. Nunc cursus, orci eu venenatis tincidunt, nunc elit accumsan magna, in cursus erat augue eu erat. Etiam ac neque. Proin tellus nunc, semper ac, consectetuer at, dictum in, nulla.
     
-    h3. h3 title
+      h3. h3 title
     
-    Nam cursus orci vitae leo fermentum sodales. Morbi eu justo id erat vulputate mattis. Quisque sed leo eu elit faucibus convallis. Quisque laoreet dignissim nisl. Quisque dictum felis a ligula. Nullam consequat. Quisque vulputate sapien quis leo. Mauris ornare massa et ligula. Nulla malesuada. Sed erat. Fusce sit amet urna a enim adipiscing dapibus. Aliquam semper. Proin ac nisi. Mauris in elit non nisi gravida dapibus. Quisque felis metus, eleifend et, pharetra eu, vestibulum ac, urna. Ut pharetra convallis augue. Maecenas augue. Quisque cursus, nunc sed lacinia tincidunt, eros elit luctus ante, eu elementum metus magna dapibus felis. Cras sed elit. Vestibulum aliquam quam sit amet augue.
+      Nam cursus orci vitae leo fermentum sodales. Morbi eu justo id erat vulputate mattis. Quisque sed leo eu elit faucibus convallis. Quisque laoreet dignissim nisl. Quisque dictum felis a ligula. Nullam consequat. Quisque vulputate sapien quis leo. Mauris ornare massa et ligula. Nulla malesuada. Sed erat. Fusce sit amet urna a enim adipiscing dapibus. Aliquam semper. Proin ac nisi. Mauris in elit non nisi gravida dapibus. Quisque felis metus, eleifend et, pharetra eu, vestibulum ac, urna. Ut pharetra convallis augue. Maecenas augue. Quisque cursus, nunc sed lacinia tincidunt, eros elit luctus ante, eu elementum metus magna dapibus felis. Cras sed elit. Vestibulum aliquam quam sit amet augue.
     
-    h4. h4 title
+      h4. h4 title
     
-    Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Mauris facilisis felis in lacus. In sollicitudin turpis nec tellus. Nam ut nibh nec nulla aliquam vehicula. Integer diam tortor, bibendum non, eleifend a, auctor nec, dolor. Fusce consequat elit et purus. Vivamus ornare lectus vel ligula. Quisque blandit. Nam ut odio. Sed scelerisque vulputate ipsum. Nam in eros. Sed neque mauris, aliquet sed, convallis ultrices, imperdiet rutrum, odio. Donec eros. In sagittis. Quisque rutrum facilisis mauris. Suspendisse potenti. Suspendisse congue.
+      Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Mauris facilisis felis in lacus. In sollicitudin turpis nec tellus. Nam ut nibh nec nulla aliquam vehicula. Integer diam tortor, bibendum non, eleifend a, auctor nec, dolor. Fusce consequat elit et purus. Vivamus ornare lectus vel ligula. Quisque blandit. Nam ut odio. Sed scelerisque vulputate ipsum. Nam in eros. Sed neque mauris, aliquet sed, convallis ultrices, imperdiet rutrum, odio. Donec eros. In sagittis. Quisque rutrum facilisis mauris. Suspendisse potenti. Suspendisse congue.
     
-    * this is
-    * a simple
-    ** list with
-    ** sub items
-    * like this
+      * this is
+      * a simple
+      ** list with
+      ** sub items
+      * like this
     
-    # this is
-    # a simple
-    ## list with
-    ## sub items
-    # like this
+      # this is
+      # a simple
+      ## list with
+      ## sub items
+      # like this
     
-    Maecenas at est. Morbi sem enim, posuere in, commodo vel, imperdiet non, augue. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Phasellus consequat pharetra elit. Pellentesque purus ante, ornare ac, tristique vitae, congue sit amet, pede. Curabitur eu nibh at lorem luctus lacinia. Proin lobortis. Nullam leo. Fusce fermentum facilisis erat. Nam dolor.
+      Maecenas at est. Morbi sem enim, posuere in, commodo vel, imperdiet non, augue. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Phasellus consequat pharetra elit. Pellentesque purus ante, ornare ac, tristique vitae, congue sit amet, pede. Curabitur eu nibh at lorem luctus lacinia. Proin lobortis. Nullam leo. Fusce fermentum facilisis erat. Nam dolor.
     
-    |_. name |_. color |
-    | gaspard | blue |
-    | zacharie | yellow |
+      |_. name |_. color |
+      | gaspard | blue |
+      | zacharie | yellow |
     
-    Fusce erat erat, nonummy non, facilisis ut, tristique quis, risus. Vestibulum libero sem, aliquet id, varius at, pellentesque in, diam. Fusce in diam. Quisque congue eros pellentesque leo. Phasellus tortor odio, cursus sed, ullamcorper sed, luctus et, velit. Etiam consectetuer. In luctus, quam eget dictum euismod, mi dui sollicitudin ante, nec nonummy erat dui nec tellus. Quisque quam. Curabitur in orci. Vivamus eu turpis.
+      Fusce erat erat, nonummy non, facilisis ut, tristique quis, risus. Vestibulum libero sem, aliquet id, varius at, pellentesque in, diam. Fusce in diam. Quisque congue eros pellentesque leo. Phasellus tortor odio, cursus sed, ullamcorper sed, luctus et, velit. Etiam consectetuer. In luctus, quam eget dictum euismod, mi dui sollicitudin ante, nec nonummy erat dui nec tellus. Quisque quam. Curabitur in orci. Vivamus eu turpis.
     
-    Sed aliquam accumsan sapien. Cras adipiscing euismod orci. Aliquam magna risus, vestibulum eget, interdum ac, hendrerit sit amet, leo. Proin mi diam, rutrum ac, rhoncus adipiscing, sollicitudin rhoncus, elit. Vivamus metus nunc, mollis congue, ullamcorper ac, euismod varius, nunc. Morbi quis velit dapibus sem mattis pharetra. Mauris at augue quis dolor dignissim nonummy. Nam rutrum ante suscipit urna dignissim aliquet. Curabitur ut tortor ac dui nonummy blandit. Nam malesuada enim in nulla. Nunc cursus, orci eu venenatis tincidunt, nunc elit accumsan magna, in cursus erat augue eu erat. Etiam ac neque. Proin tellus nunc, semper ac, consectetuer at, dictum in, nulla.
+      Sed aliquam accumsan sapien. Cras adipiscing euismod orci. Aliquam magna risus, vestibulum eget, interdum ac, hendrerit sit amet, leo. Proin mi diam, rutrum ac, rhoncus adipiscing, sollicitudin rhoncus, elit. Vivamus metus nunc, mollis congue, ullamcorper ac, euismod varius, nunc. Morbi quis velit dapibus sem mattis pharetra. Mauris at augue quis dolor dignissim nonummy. Nam rutrum ante suscipit urna dignissim aliquet. Curabitur ut tortor ac dui nonummy blandit. Nam malesuada enim in nulla. Nunc cursus, orci eu venenatis tincidunt, nunc elit accumsan magna, in cursus erat augue eu erat. Etiam ac neque. Proin tellus nunc, semper ac, consectetuer at, dictum in, nulla.
     
-    Nam cursus orci vitae leo fermentum sodales. Morbi eu justo id erat vulputate mattis. Quisque sed leo eu elit faucibus convallis. Quisque laoreet dignissim nisl. Quisque dictum felis a ligula. Nullam consequat. Quisque vulputate sapien quis leo. Mauris ornare massa et ligula. Nulla malesuada. Sed erat. Fusce sit amet urna a enim adipiscing dapibus. Aliquam semper. Proin ac nisi. Mauris in elit non nisi gravida dapibus. Quisque felis metus, eleifend et, pharetra eu, vestibulum ac, urna. Ut pharetra convallis augue. Maecenas augue. Quisque cursus, nunc sed lacinia tincidunt, eros elit luctus ante, eu elementum metus magna dapibus felis. Cras sed elit. Vestibulum aliquam quam sit amet augue.
+      Nam cursus orci vitae leo fermentum sodales. Morbi eu justo id erat vulputate mattis. Quisque sed leo eu elit faucibus convallis. Quisque laoreet dignissim nisl. Quisque dictum felis a ligula. Nullam consequat. Quisque vulputate sapien quis leo. Mauris ornare massa et ligula. Nulla malesuada. Sed erat. Fusce sit amet urna a enim adipiscing dapibus. Aliquam semper. Proin ac nisi. Mauris in elit non nisi gravida dapibus. Quisque felis metus, eleifend et, pharetra eu, vestibulum ac, urna. Ut pharetra convallis augue. Maecenas augue. Quisque cursus, nunc sed lacinia tincidunt, eros elit luctus ante, eu elementum metus magna dapibus felis. Cras sed elit. Vestibulum aliquam quam sit amet augue.
 
 
 secret_en:
   node:            secret
   user:            tiger
-  title:           Secret
+  prop:
+    title:         Secret
 
 
 proposition_en:
   node:            proposition
   user:            tiger
-  title:           Proposition
   number:          1
   created_at:      2008-08-10
+  prop:
+    title:         Proposition
 
 proposition_rep_en:
   node:            proposition
   user:            tiger
-  title:           I propose we go to sleep
   status:          rep
   number:          2
   created_at:      2009-10-01
+  prop:
+    title:         I propose we go to sleep
 
 
 cleanWater_en:
   node:            cleanWater
   user:            tiger
-  title:           Clean Water project
   prop:
     assigned:      gaspard
     tz:            Asia/Jakarta
+    title:         Clean Water project
 
 
 
@@ -178,10 +185,10 @@ status_en:
   node:            status
   user:            ant
   comment:         status comment
-  title:           status title
-  summary:         status summary
-  text:            status text
   prop:
+    title:         status title
+    summary:       status summary
+    text:          status text
     archive:       LZNB34
     assigned:      gaspard
     problems: |
@@ -196,36 +203,37 @@ status_en:
 lake_en:
   node:            lake
   user:            ant
-  title:           Tanganyika
-  summary:         "More information on \"wikipedia\":http://en.wikipedia.org/wiki/Lake_Tanganyika."
-  text:            "!014!"
   prop:
-    first_name: Lake
-    address:    Between Tanzania, Congo and Zambia
-    zip:        848
-    city:       Africa
+    title:         Tanganyika
+    summary:       "More information on \"wikipedia\":http://en.wikipedia.org/wiki/Lake_Tanganyika."
+    text:          "!014!"
+    first_name:    Lake
+    name:          Tanganyika
+    address:       Between Tanzania, Congo and Zambia
+    zip:           848
+    city:          Africa
 
 lake_jpg_en:
   node:            lake_jpg
   user:            ant
-  comment:         ""
-  title:           it's a lake
-  summary:         "Photo taken from \"wildchimpanzees.org\":http://www.wildchimpanzees.org/press/photo02.php."
-  text:            ""
   prop:
-    content_type:    image/jpeg
-    ext:             jpg
-    width:           600
-    height:          440
-    exif_json:       '{"GPSLatitude":"-6/1, -30/1, 0/1", "GPSLongitude":"29/1, 30/1, 0/1"}'
+    comment:         ""
+    title:         it's a lake
+    summary:       "Photo taken from \"wildchimpanzees.org\":http://www.wildchimpanzees.org/press/photo02.php."
+    text:          ""
+    content_type:  image/jpeg
+    ext:           jpg
+    width:         600
+    height:        440
+    exif_json:     '{"GPSLatitude":"-6/1, -30/1, 0/1", "GPSLongitude":"29/1, 30/1, 0/1"}'
 
 water_pdf_en:
   node:            water_pdf
   user:            tiger
-  title:           water
-  summary:         just a stupid pdf
-  text:            ""
   prop:
+    title:           water
+    summary:         just a stupid pdf
+    text:            ""
     content_type:    application/pdf
     ext:             pdf
     size:            29279
@@ -240,353 +248,380 @@ crocodiles_en:
 opening_fr:
   node:            opening
   user:            ant
-  comment:         french opening
-  title:           ouverture du parc
   lang:            fr
+  prop:
+    comment:       french opening
+    title:         ouverture du parc
 
 bananas_en:
   node:            bananas
   user:            lion
-  title:           Nice Bananas
   created_at:      2007-03-10
   updated_at:      2007-04-11
   publish_from:    2007-03-10
+  prop:
+    title:         Nice Bananas
 
 wiki_en:
   node:            wiki
   user:            lion
-  title:           a wiki with zena
+  prop:
+    title:         a wiki with zena
 
 bird_jpg_en:
   node:            bird_jpg
   user:            anon
-  comment:         a pretty little bird
-  title:           bird
-  summary:         "Photo taken from \"wikimedia\":http://commons.wikimedia.org/wiki/Image:Blue_Tit_aka.jpg."
-  text:            ""
   prop:
-    content_type:    image/jpeg
-    ext:             jpg
-    width:           660
-    height:          600
-    size:            56243
-  attachment:       bird
+    comment:       a pretty little bird
+    title:         bird
+    summary:       "Photo taken from \"wikimedia\":http://commons.wikimedia.org/wiki/Image:Blue_Tit_aka.jpg."
+    text:          ""
+    content_type:  image/jpeg
+    ext:           jpg
+    width:         660
+    height:        600
 
 flower_jpg_en:
   node:            flower_jpg
   user:            anon
-  comment:         "Photo taken from \"wikimedia\":http://commons.wikimedia.org/wiki/Image:Flor_GDFL_660eue.jpg."
-  title:           flower
-  summary:         a pretty little flower
-  text:            ""
   prop:
-    content_type:    image/jpeg
-    ext:             jpg
-    width:           800
-    height:          600
-    size:            96648
-  attachment:       flower
+    comment:       "Photo taken from \"wikimedia\":http://commons.wikimedia.org/wiki/Image:Flor_GDFL_660eue.jpg."
+    title:         flower
+    summary:       a pretty little flower
+    text:          ""
+    content_type:  image/jpeg
+    ext:           jpg
+    width:         800
+    height:        600
 
 collections_en:
   node:            collections
   user:            tiger
-  title:           Collections
+  prop:
+    title:         Collections
 
 art_en:
   node:            art
   user:            tiger
-  title:           Art
+  prop:
+    title:         Art
 
 news_en:
   node:            news
   user:            tiger
-  title:           News list
+  prop:
+    title:         News list
 
 menu_en:
   node:            menu
   user:            tiger
-  title:           Top menu
+  prop:
+    title:         Top menu
 
 lake_red_en:
   node:            lake
   user:            ant
   comment:         this is a new redaction for lake
-  title:           The lake we love
   publish_from:
   status:          red
   content:         lake_en
   number:          2
+  prop:
+    title:         The lake we love
 
 opening_en:
   node:            opening
   user:            tiger
   comment:         english opening
-  title:           parc opening
-  text:            |
-    We are glad to announce the opening of our new project !
-    
-    You are all invited to *Romanel* for a great party this weekend.
   number:          2
+  prop:
+    title:         parc opening
+    text:          |
+      We are glad to announce the opening of our new project !
+    
+      You are all invited to *Romanel* for a great party this weekend.
 
 opening_red_fr:
   node:            opening
   user:            tiger
-  comment:         new redaction for opening
-  title:           super ouverture
   publish_from:
   lang:            fr
   status:          red
   number:          3
+  prop:
+    comment:       new redaction for opening
+    title:         super ouverture
 
 status_fr:
   node:            status
   user:            ant
-  comment:         status comment
-  title:           Etat des travaux
-  summary:         status summary
-  text:            status text
   lang:            fr
   number:          2
   prop:
+    comment:       status comment
+    title:         Etat des travaux
+    summary:       status summary
+    text:          status text
     assigned:      gaspard
 
 track_en:
   node:            track
   user:            tiger
-  comment:         small presentation
-  title:           Keeping things clean !
-  summary:         This page is a *Tracker*. It stores open Bugs, tasks and actions.
+  prop:
+    comment:       small presentation
+    title:         Keeping things clean !
+    summary:       This page is a *Tracker*. It stores open Bugs, tasks and actions.
 
 strange_en_red:
   node:            strange
   user:            lion
-  comment:         strange configuration. Proposed
-  title:           Stranger in the night
-  summary:         ""
-  text:            ""
   status:          red
   number:          2
+  prop:
+    comment:       strange configuration. Proposed
+    title:         Stranger in the night
+    summary:       ""
+    text:          ""
 
 talk_en:
   node:            talk
   user:            tiger
-  comment:         Please read all this.
-  title:           Talk
-  summary:         Talks for 'workers' in the secret project.
-  text:            You can talk here.
+  prop:
+    comment:       Please read all this.
+    title:         Talk
+    summary:       Talks for 'workers' in the secret project.
+    text:          You can talk here.
 
 nature_red_en:
   node:            nature
   user:            ant
-  comment:         Beauty of nature
-  title:           Nature
-  summary:         "Ant's redaction on Nature"
-  text:            "![]!"
   publish_from:
   status:          red
   number:          1
+  prop:
+    comment:       Beauty of nature
+    title:         Nature
+    summary:       "Ant's redaction on Nature"
+    text:          "![]!"
 
 tree_jpg_en:
   node:            tree_jpg
   user:            ant
-  comment:         a tree
-  title:           Autumn Tree
-  summary:         "photography © André Karwath 2004"
-  text:            ""
   publish_from:
   status:          red
   number:          1
   prop:
-    content_type:    image/jpeg
-    ext:             jpg
-    width:           800
-    height:          532
+    comment:       a tree
+    title:         Autumn Tree
+    summary:       "photography © André Karwath 2004"
+    text:          ""
+    content_type:  image/jpeg
+    ext:           jpg
+    width:         800
+    height:        532
 
 forest_pdf_en:
   node:            forest_pdf
   user:            ant
-  comment:         a forest
-  title:           Forest
-  summary:         ""
-  text:            ""
   publish_from:
   status:          red
   number:          1
   prop:
-    content_type:    application/pdf
-    ext:             pdf
-    size:            63569
-  attachment:       forest
+    comment:       a forest
+    title:         Forest
+    summary:       ""
+    text:          ""
+    content_type:  application/pdf
+    name:          forest
+    ext:           pdf
+    size:          63569
 
 letter_en:
   node:            letter
   user:            tiger
-  comment:         letter for testing
-  title:           zena enhancements
-  summary:         This page is a *Letter*.
-  text:            "letter content\n\n!30_med! !31_med! !24_med!"
+  prop:
+    comment:       letter for testing
+    title:         zena enhancements
+    summary:       This page is a *Letter*.
+    text:          "letter content\n\n!30_med! !31_med! !24_med!"
 
 wiki_skin_en:
   node:            wiki_skin
   user:            tiger
-  comment:         very simple skin for wiki
-  title:           wiki skin
-  summary:         Very simple skin.
-  text:            lorem ipsum blah dolor.
+  prop:
+    comment:       very simple skin for wiki
+    title:         wiki skin
+    summary:       Very simple skin.
+    text:          lorem ipsum blah dolor.
 
 
 wiki_project_changes_xml_en:
   node:            wiki_Project_changes_xml_zafu
   user:            tiger
-  comment:         layout for wiki
-  summary:         Layout for the wiki skin.
-  text:            |
-    <?xml version="1.0" encoding="UTF-8"?>
-    <name><r:show attr='name'/></name>
-    <changes do='nodes' in='project' order='updated_at DESC' limit='10'>
-      <node do='each'>
-        <type><r:show attr='type'/></type>
-        <name><r:show attr='name'/></name>
-        <id><r:show attr='id'/></id>
-      </note>
-    </notes>
+  prop:
+    comment:       layout for wiki
+    summary:       Layout for the wiki skin.
+    text:          |
+      <?xml version="1.0" encoding="UTF-8"?>
+      <name><r:show attr='name'/></name>
+      <changes do='nodes' in='project' order='updated_at DESC' limit='10'>
+        <node do='each'>
+          <type><r:show attr='type'/></type>
+          <name><r:show attr='name'/></name>
+          <id><r:show attr='id'/></id>
+        </note>
+      </notes>
 
 
 wiki_page_changes_en:
   node:            wiki_Page_changes_zafu
   user:            tiger
-  comment:         layout for wiki
-  summary:         Layout for the wiki skin.
-  text:            |
-    <r:include template='layout.html'>
-      <r:with part='body/content/main'>
-        page changes
-      </r:with>
-    </r:include>
+  prop:
+    comment:       layout for wiki
+    summary:       Layout for the wiki skin.
+    text:          |
+      <r:include template='layout.html'>
+        <r:with part='body/content/main'>
+          page changes
+        </r:with>
+      </r:include>
 
 anonymous_en:
   node:            anonymous
   user:            tiger
-  comment:         The Invisible Man
-  title:           Mr nobody
-  summary:         ""
-  text:            ""
   prop:
-    first_name: The Invisble
-    name:       Man
-    address:    Iping
-    zip:        848
-    city:       West Sussex
+    comment:       The Invisible Man
+    title:         Mr nobody
+    summary:       ""
+    text:          ""
+    first_name:    The Invisble
+    name:          Man
+    address:       Iping
+    zip:           848
+    city:          West Sussex
 
 wiki_node_en:
   node:            wiki_Node_zafu
   user:            tiger
-  comment:         master template for wiki
-  title:           main template
-  summary:         master template for wiki skin.
-  text:            |
-    <r:include template='/default/Node'>
-      <r:with part='main'>
-        WIKI
-      </r:with>
-    </r:include>
+  prop:
+    comment:       master template for wiki
+    title:         main template
+    summary:       master template for wiki skin.
+    text:          |
+      <r:include template='/default/Node'>
+        <r:with part='main'>
+          WIKI
+        </r:with>
+      </r:include>
 
 skins_en:
   node:            skins
   user:            tiger
-  comment:         ""
-  title:           Skins (layout themes)
-  summary:         List of skins used by this website
-  text:            This page contains the skins used by this website.
+  prop:
+    comment:       ""
+    title:         Skins (layout themes)
+    summary:       List of skins used by this website
+    text:          This page contains the skins used by this website.
 
 default_en:
   node:            default
   user:            tiger
-  comment:         "version 0.8"
-  title:           Default skin
-  summary:         official default skin
-  text:            |
-    This is the default skin for zena. You should be *very careful* if you change this skin:  it is used to display/edit itself.
-    
-    When creating your own skins, you should *always avoid* to display your skins with themselves. This is tempting but will put you in trouble if you need to edit a broken template.
-    
-    By the way, have a look at the designer documentation for "zafu":http://zenadmin.org/en/documentation/page44.html for ideas on how to create a new skin with very few lines of zafu (using clever include tricks).
+  prop:
+    comment:       "version 0.8"
+    title:         Default skin
+    summary:       official default skin
+    text:          |
+      This is the default skin for zena. You should be *very careful* if you change this skin:  it is used to display/edit itself.
+      
+      When creating your own skins, you should *always avoid* to display your skins with themselves. This is tempting but will put you in trouble if you need to edit a broken template.
+      
+      By the way, have a look at the designer documentation for "zafu":http://zenadmin.org/en/documentation/page44.html for ideas on how to create a new skin with very few lines of zafu (using clever include tricks).
 
 Node_search_zafu_en:
   node:            Node_search_zafu
   user:            tiger
-  text:            "[FILE:db/init/base/skins/default/Node-+search.zafu]"
+  prop:
+    text:          "[FILE:db/init/base/skins/default/Node-+search.zafu]"
 
 style_css_en:
   node:            style_css
   user:            tiger
-  text:            "[FILE:db/init/base/skins/default/style.css]"
   prop:
-    content_type:    text/css
-    ext:             css
-    size:            5262
+    text:          "[FILE:db/init/base/skins/default/style.css]"
+    content_type:  text/css
+    ext:           css
+    size:          5262
 
 Node_zafu_en:
   node:            Node_zafu
   user:            tiger
-  text:            "[FILE:db/init/base/skins/default/Node.zafu]"
+  prop:
+    text:          "[FILE:db/init/base/skins/default/Node.zafu]"
 
 Node_admin_layout_zafu_en:
   node:            Node_admin_layout_zafu
   user:            tiger
-  text:            "[FILE:db/init/base/skins/default/Node-+adminLayout.zafu]"
+  prop:
+    text:          "[FILE:db/init/base/skins/default/Node-+adminLayout.zafu]"
 
 Node_index_zafu_en:
   node:            Node_index_zafu
   user:            tiger
-  text:            "[FILE:db/init/base/skins/default/Node-+index.zafu]"
+  prop:
+    text:          "[FILE:db/init/base/skins/default/Node-+index.zafu]"
 
 Node_not_found_zafu_en:
   node:            Node_not_found_zafu
   user:            tiger
-  text:            "[FILE:db/init/base/skins/default/Node-+notFound.zafu]"
+  prop:
+    text:          "[FILE:db/init/base/skins/default/Node-+notFound.zafu]"
 
 Node_popup_layout_zafu_en:
   node:            Node_popup_layout_zafu
   user:            tiger
-  text:            "[FILE:db/init/base/skins/default/Node-+popupLayout.zafu]"
+  prop:
+    text:          "[FILE:db/init/base/skins/default/Node-+popupLayout.zafu]"
 
 Node_test_en:
   node:            Node_test_zafu
   user:            tiger
-  text:            "[FILE:test/fixtures/files/Node-test.zafu]"
+  prop:
+    text:          "[FILE:test/fixtures/files/Node-test.zafu]"
 
 notes_zafu_en:
   node:            notes_zafu
   user:            tiger
-  text:            "[FILE:db/init/base/skins/default/notes.zafu]"
+  prop:
+    text:          "[FILE:db/init/base/skins/default/notes.zafu]"
 
 Project_zafu_en:
   node:            Project_zafu
   user:            tiger
-  text:            "[FILE:db/init/base/skins/default/Project.zafu]"
+  prop:
+    text:          "[FILE:db/init/base/skins/default/Project.zafu]"
 
 Node_login_zafu_en:
   node:            Node_login_zafu
   user:            tiger
-  text:            "[FILE:db/init/base/skins/default/Node-+login.zafu]"
+  prop:
+    text:          "[FILE:db/init/base/skins/default/Node-+login.zafu]"
 
 translations_de:
   node:            translations
   user:            tiger
   lang:            de
-  text:            "[FILE:test/fixtures/files/translations_de.yml]"
   prop:
-    content_type:    text/yaml
-    ext:             yml
-    size:            50
+    text:          "[FILE:test/fixtures/files/translations_de.yml]"
+    content_type:  text/yaml
+    ext:           yml
+    size:          50
 
 translations_fr:
   node:            translations
   user:            tiger
   lang:            fr
-  text:            "[FILE:test/fixtures/files/translations_fr.yml]"
   prop:
-    content_type:    text/yaml
-    ext:             yml
-    size:            50
+    text:          "[FILE:test/fixtures/files/translations_fr.yml]"
+    content_type:  text/yaml
+    ext:           yml
+    size:          50

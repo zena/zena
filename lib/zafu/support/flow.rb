@@ -227,7 +227,7 @@ module Zafu
             when :attribute
               '!' + node_attribute(value, :node => node) + '.blank?'
             when :node
-              if node_kind_of?(Node)
+              if node.will_be?(Node)
                 value, node_name = get_attribute_and_node(value)
                 node_name ||= '@node'
                 if value

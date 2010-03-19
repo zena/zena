@@ -29,7 +29,11 @@ module Zena
         helper  Zena::Use::Upload::ViewMethods
         helper  Zena::Use::Urls::ViewMethods
         helper  Zena::Use::Zafu::ViewMethods
+        helper  Zena::Use::ZafuAttributes::ViewMethods
+        helper  Zena::Use::Display::ViewMethods
+
         helper  Zena::Use::Zazen::ViewMethods
+
         helper_method :render_to_string
       end
       Bricks.apply_patches('application_controller.rb')

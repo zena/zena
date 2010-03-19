@@ -222,9 +222,13 @@ module Zena
         return if value.nil?
         @inserted_keys << key
         res = sprintf('  %-16s ', "#{key}:")
-        if value =~ %r{\[FILE:(.*?)\]}
-          res += "|\n<% File.foreach(\"\#{Zena::ROOT}/#{$1}\") do |l| %>    <%= l %><% end %>"
-        elsif value =~ /\n/
+        if value.kind_of?(String)
+          value.gsub!(%r{\[FILE:(.*?)\]}) do
+            File.read("#{Zena::ROOT}/#{$1}")
+          end
+        end
+
+        if value =~ /\n/
           res += "|\n    #{value.gsub("\n", "\n    ")}"
         elsif value.to_s =~ /[\{\[:]/
           res += value.inspect
@@ -503,9 +507,6 @@ module Zena
           version['lang']   ||= elements[name]['ref_lang']
           version['site_id']  = Zena::FoxyParser::multi_site_id(site)
           version['number'] ||= 1
-          %W{title summary text comment}.each do |txt_field|
-            version[txt_field] ||= ''
-          end
         end
         if key == 'status'
           value = Zena::Status[key.to_sym]
@@ -594,7 +595,8 @@ module Zena
 
           version['status'] = Zena::Status[version['status'].to_sym]
 
-          version['title'] ||= raw_nodes[version['node']]['name'] || version['node']
+          version['prop'] ||= {}
+          version['prop']['title'] ||= raw_nodes[version['node']]['name'] || version['node']
 
           if prop = version.delete('prop')
             version['properties'] = Property::Properties[prop].to_json unless prop.blank?

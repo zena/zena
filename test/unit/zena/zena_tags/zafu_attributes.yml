@@ -1,0 +1,37 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'status'
+
+status_on_void:
+  context:
+    node: 'crocodiles' # redaction
+  src: "<p do='void' status='true'>hello</p>"
+  tem: "<p class='s<%= @node.version.status %>'>hello</p>"
+  res: "<p class='s70'>hello</p>"
+
+status_without_tag:
+  context:
+    node: 'crocodiles' # redaction
+  src: "<r:void status='true'>hello</r:void>"
+  tem: "<span class='s<%= @node.version.status %>'>hello</span>"
+  res: "<span class='s70'>hello</span>"
+
+prefix_project_no_show_no_tag:
+  src: "<r:void prefix='project'>hop</r:void>"
+  tem: "<%= prefix_project(@node) %>hop"
+  res: "hop"
+
+prefix_project_no_show_with_tag:
+  src: "<p do='void' prefix='project'>hop</p>"
+  res: "<p>hop</p>"
+
+prefix_project_show_no_tag:
+  src: "<r:root><r:void prefix='project'>hop</r:void></r:root>"
+  tem: "<%= prefix_project(@node) %>hop"
+  res: "hop"
+
+prefix_project_show_with_tag:
+  src: "<r:root><p do='void' prefix='project'>hop</p></r:root>"
+  res: "<p>hop</p>"

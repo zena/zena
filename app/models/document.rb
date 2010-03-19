@@ -38,14 +38,13 @@ class Document < Node
   store_attachments_in :version,  :attachment_class => 'Attachment'
 
   property do |t|
-    t.string  "type"
-    t.string  "content_type"
-    t.string  "ext"
-    t.integer "size"
-    t.integer "width"
-    t.integer "height"
-    t.text    "exif_json"
-    #t.string  "name"
+    t.string  'type'
+    t.string  'content_type'
+    t.string  'ext'
+    t.integer 'size'
+    t.integer 'width'
+    t.integer 'height'
+    t.text    'exif_json'
   end
 
   safe_method :filename => String, :size => Number, :name => String, :content_type => String, :ext => String, :file => File, :filepath => String

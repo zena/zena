@@ -489,13 +489,11 @@ module Zena
       end # LinkTags
 
       module ActionTags
-
-        # Actions that appear on the web page
-        def node_actions(opts={})
+        # Node actions that appear on the web page
+        def node_actions(node, opts={})
           actions = (opts[:actions] || 'all').to_s
           actions = 'edit,propose,refuse,publish,drive' if actions == 'all'
 
-          node = opts[:node] || @node
           return '' if node.new_record?
           publish_after_save = opts[:publish_after_save]
           res = actions.split(',').reject do |action|

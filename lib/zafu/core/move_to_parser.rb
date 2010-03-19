@@ -92,7 +92,7 @@ module Zafu
           when :r_zazen
             make_textarea(:name => @params[:attr])
           else
-            if node_kind_of?(DataEntry) && @method.to_s =~ /node_/
+            if node.will_be?(DataEntry) && @method.to_s =~ /node_/
               # select node_id
               "<%= select_id('#{base_class.to_s.underscore}', '#{@method}_id') %>"
             end

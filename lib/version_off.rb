@@ -33,9 +33,6 @@ class VersionOff < ActiveRecord::Base
 
   # readable
   include RubyLess::SafeClass
-  safe_attribute     :created_at, :updated_at, :publish_from, :status, :lang
-  safe_method        :title => String, :text => String, :summary => String, :comment => String,
-                     :zip => Number, :user_zip => Number # FIXME: replace by 'id'....
   # writable
   attr_accessible    :title, :text, :summary, :comment, :publish_from, :lang, :status, :content_attributes, :dyn_attributes
   safe_context       :author => 'Contact', :user => 'User', :node => 'Node'

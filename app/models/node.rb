@@ -126,7 +126,21 @@ class Node < ActiveRecord::Base
   extend Zena::Use::Upload::UploadedFile
   extend Zena::Use::Search::NodeClassMethods
 
+  include Property
+  store_properties_in :version
+
+  property do |t|
+    t.string  'title'
+    t.string  'text'
+    t.string  'summary'
+    t.integer 'comment'
+  end
+
   include RubyLess::SafeClass
+
+
+  safe_property  :title, :text, :summary, :comment
+
   safe_attribute :created_at, :updated_at, :event_at, :log_at, :publish_from, :basepath, :inherit
 
   # we use safe_method because the columns can be null, but the values are never null
@@ -188,9 +202,6 @@ class Node < ActiveRecord::Base
   include Zena::Use::VersionHash
 
   include Zena::Use::Relations::ModelMethods
-
-  include Property
-  store_properties_in :version
 
   use_node_query
 
