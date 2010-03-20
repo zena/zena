@@ -1,7 +1,25 @@
 require 'test_helper'
 
 class TemplateTest < Zena::Unit::TestCase
-
+  
+  context 'Creating a template' do
+    setup do
+      login(:tiger)
+    end
+    
+    should 'create a new node' do
+      assert_difference('Node.count', 1) do
+        secure(Template) { Template.create(:parent_id => nodes_id(:default), :name => 'Project.zafu') }
+      end
+    end
+    
+    should 'create a new template index entry' do
+      assert_difference('TemplateIndex.count', 1) do
+        secure(Template) { Template.create(:parent_id => nodes_id(:default), :name => 'Project.zafu') }
+      end
+    end
+  end
+  
   def test_create_simplest
     login(:tiger)
     doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :name=>'super.zafu')}

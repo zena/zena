@@ -517,7 +517,7 @@ module Zena
       def after_parse
         super
         write_versions
-        write_templates
+        write_template_indices
       end
 
       def write_versions
@@ -550,18 +550,20 @@ module Zena
         @file = node_file
       end
 
-      def write_templates
+      def write_template_indices
         #
         node_file = @file
-          File.open("#{RAILS_ROOT}/test/fixtures/template_contents.yml", 'ab') do |file|
+          File.open("#{RAILS_ROOT}/test/fixtures/template_indices.yml", 'ab') do |file|
             @file = file
 
             if templates = @inline_templates[site]
               out "\n# ========== #{site} (generated from 'nodes.yml') ==========="
               out ""
               templates.each do |name, template|
-                template['id'] = Zena::FoxyParser::id(site, name)
-                template['node_id'] = Zena::FoxyParser::id(site, name)
+                template['id'] = Zena::FoxyParser.id(site, name)
+                template['node_id'] = Zena::FoxyParser.id(site, name)
+                version = @inline_versions[site][name]
+                template['version_id'] = Zena::FoxyParser.id(site, "#{name}_#{version['lang']}")
                 out ""
                 out "#{site}_#{name}:"
                 @inserted_keys = []
@@ -590,7 +592,7 @@ module Zena
         site_versions = @versions[site] = {}
         raw_nodes = YAML::load(get_content(site, 'nodes'))
 
-        elements.each do |k, version|
+        elements.each do |name, version|
           version[:header_keys] += %w{number lang status}
 
           version['status'] = Zena::Status[version['status'].to_sym]

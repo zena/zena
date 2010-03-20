@@ -96,53 +96,53 @@ projects_en:
     title:         projects list
     text:          |
       Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Mauris facilisis felis in lacus. In sollicitudin turpis nec tellus. Nam ut nibh nec nulla aliquam vehicula. Integer diam tortor, *bibendum non*, eleifend a, auctor nec, dolor. Fusce consequat elit et purus. Vivamus ornare lectus vel ligula. Quisque blandit. Nam ut odio. Sed scelerisque vulputate ipsum. Nam in eros. Sed neque mauris, aliquet sed, convallis ultrices, imperdiet rutrum, odio. Donec eros. In sagittis. Quisque rutrum facilisis mauris. Suspendisse potenti. Suspendisse congue.
-    
+      
       h1. h1 title
-    
+      
       Maecenas at est. Morbi sem enim, posuere in, commodo vel, imperdiet non, augue. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Phasellus consequat pharetra elit. Pellentesque purus ante, ornare ac, tristique vitae, congue sit amet, pede. Curabitur eu nibh at lorem luctus lacinia. Proin lobortis. Nullam leo. Fusce fermentum facilisis erat. Nam dolor.
-    
+      
       Fusce erat erat, nonummy non, facilisis ut, tristique quis, risus. Vestibulum libero sem, aliquet id, varius at, pellentesque in, diam. Fusce in diam. Quisque congue eros pellentesque leo. Phasellus tortor odio, cursus sed, ullamcorper sed, luctus et, velit. Etiam consectetuer. In luctus, quam eget dictum euismod, mi dui sollicitudin ante, nec nonummy erat dui nec tellus. Quisque quam. Curabitur in orci. Vivamus eu turpis.
-    
+      
       !<.31_med!
-    
+      
       Maecenas at est. Morbi sem enim, posuere in, commodo vel, imperdiet non, augue. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Phasellus consequat pharetra elit. Pellentesque purus ante, ornare ac, tristique vitae, congue sit amet, pede. Curabitur eu nibh at lorem luctus lacinia. Proin lobortis. Nullam leo. Fusce fermentum facilisis erat. Nam dolor.
-    
+      
       p(clear). Fusce erat erat, nonummy non, facilisis ut, tristique quis, risus. Vestibulum libero sem, aliquet id, varius at, pellentesque in, diam. Fusce in diam. Quisque congue eros pellentesque leo. Phasellus tortor odio, cursus sed, ullamcorper sed, luctus et, velit. Etiam consectetuer. In luctus, quam eget dictum euismod, mi dui sollicitudin ante, nec nonummy erat dui nec tellus. Quisque quam. Curabitur in orci. Vivamus eu turpis.
-    
+      
       h2. h2 title
-    
+      
       Sed aliquam accumsan sapien. Cras adipiscing euismod orci. Aliquam magna risus, vestibulum eget, interdum ac, hendrerit sit amet, leo. Proin mi diam, rutrum ac, rhoncus adipiscing, sollicitudin rhoncus, elit. Vivamus metus nunc, mollis congue, ullamcorper ac, euismod varius, nunc. Morbi quis velit dapibus sem mattis pharetra. Mauris at augue quis dolor dignissim nonummy. Nam rutrum ante suscipit urna dignissim aliquet. Curabitur ut tortor ac dui nonummy blandit. Nam malesuada enim in nulla. Nunc cursus, orci eu venenatis tincidunt, nunc elit accumsan magna, in cursus erat augue eu erat. Etiam ac neque. Proin tellus nunc, semper ac, consectetuer at, dictum in, nulla.
-    
+      
       h3. h3 title
-    
+      
       Nam cursus orci vitae leo fermentum sodales. Morbi eu justo id erat vulputate mattis. Quisque sed leo eu elit faucibus convallis. Quisque laoreet dignissim nisl. Quisque dictum felis a ligula. Nullam consequat. Quisque vulputate sapien quis leo. Mauris ornare massa et ligula. Nulla malesuada. Sed erat. Fusce sit amet urna a enim adipiscing dapibus. Aliquam semper. Proin ac nisi. Mauris in elit non nisi gravida dapibus. Quisque felis metus, eleifend et, pharetra eu, vestibulum ac, urna. Ut pharetra convallis augue. Maecenas augue. Quisque cursus, nunc sed lacinia tincidunt, eros elit luctus ante, eu elementum metus magna dapibus felis. Cras sed elit. Vestibulum aliquam quam sit amet augue.
-    
+      
       h4. h4 title
-    
+      
       Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Mauris facilisis felis in lacus. In sollicitudin turpis nec tellus. Nam ut nibh nec nulla aliquam vehicula. Integer diam tortor, bibendum non, eleifend a, auctor nec, dolor. Fusce consequat elit et purus. Vivamus ornare lectus vel ligula. Quisque blandit. Nam ut odio. Sed scelerisque vulputate ipsum. Nam in eros. Sed neque mauris, aliquet sed, convallis ultrices, imperdiet rutrum, odio. Donec eros. In sagittis. Quisque rutrum facilisis mauris. Suspendisse potenti. Suspendisse congue.
-    
+      
       * this is
       * a simple
       ** list with
       ** sub items
       * like this
-    
+      
       # this is
       # a simple
       ## list with
       ## sub items
       # like this
-    
+      
       Maecenas at est. Morbi sem enim, posuere in, commodo vel, imperdiet non, augue. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Phasellus consequat pharetra elit. Pellentesque purus ante, ornare ac, tristique vitae, congue sit amet, pede. Curabitur eu nibh at lorem luctus lacinia. Proin lobortis. Nullam leo. Fusce fermentum facilisis erat. Nam dolor.
-    
+      
       |_. name |_. color |
       | gaspard | blue |
       | zacharie | yellow |
-    
+      
       Fusce erat erat, nonummy non, facilisis ut, tristique quis, risus. Vestibulum libero sem, aliquet id, varius at, pellentesque in, diam. Fusce in diam. Quisque congue eros pellentesque leo. Phasellus tortor odio, cursus sed, ullamcorper sed, luctus et, velit. Etiam consectetuer. In luctus, quam eget dictum euismod, mi dui sollicitudin ante, nec nonummy erat dui nec tellus. Quisque quam. Curabitur in orci. Vivamus eu turpis.
-    
+      
       Sed aliquam accumsan sapien. Cras adipiscing euismod orci. Aliquam magna risus, vestibulum eget, interdum ac, hendrerit sit amet, leo. Proin mi diam, rutrum ac, rhoncus adipiscing, sollicitudin rhoncus, elit. Vivamus metus nunc, mollis congue, ullamcorper ac, euismod varius, nunc. Morbi quis velit dapibus sem mattis pharetra. Mauris at augue quis dolor dignissim nonummy. Nam rutrum ante suscipit urna dignissim aliquet. Curabitur ut tortor ac dui nonummy blandit. Nam malesuada enim in nulla. Nunc cursus, orci eu venenatis tincidunt, nunc elit accumsan magna, in cursus erat augue eu erat. Etiam ac neque. Proin tellus nunc, semper ac, consectetuer at, dictum in, nulla.
-    
+      
       Nam cursus orci vitae leo fermentum sodales. Morbi eu justo id erat vulputate mattis. Quisque sed leo eu elit faucibus convallis. Quisque laoreet dignissim nisl. Quisque dictum felis a ligula. Nullam consequat. Quisque vulputate sapien quis leo. Mauris ornare massa et ligula. Nulla malesuada. Sed erat. Fusce sit amet urna a enim adipiscing dapibus. Aliquam semper. Proin ac nisi. Mauris in elit non nisi gravida dapibus. Quisque felis metus, eleifend et, pharetra eu, vestibulum ac, urna. Ut pharetra convallis augue. Maecenas augue. Quisque cursus, nunc sed lacinia tincidunt, eros elit luctus ante, eu elementum metus magna dapibus felis. Cras sed elit. Vestibulum aliquam quam sit amet augue.
 
 
@@ -338,7 +338,7 @@ opening_en:
     title:         parc opening
     text:          |
       We are glad to announce the opening of our new project !
-    
+      
       You are all invited to *Romanel* for a great party this weekend.
 
 opening_red_fr:
@@ -471,7 +471,11 @@ wiki_project_changes_xml_en:
           <id><r:show attr='id'/></id>
         </note>
       </notes>
-
+    skin_name:     wikiSkin
+    format:        xml
+    tkpath:        NPP
+    mode:          changes
+    klass:         Project
 
 wiki_page_changes_en:
   node:            wiki_Page_changes_zafu
@@ -485,6 +489,11 @@ wiki_page_changes_en:
           page changes
         </r:with>
       </r:include>
+    skin_name:     wikiSkin
+    format:        html
+    tkpath:        NP
+    mode:          changes
+    klass:         Page
 
 anonymous_en:
   node:            anonymous
@@ -513,6 +522,10 @@ wiki_node_en:
           WIKI
         </r:with>
       </r:include>
+    skin_name:       wikiSkin
+    format:          html
+    tkpath:          N
+    klass:           Node
 
 skins_en:
   node:            skins
@@ -542,6 +555,11 @@ Node_search_zafu_en:
   user:            tiger
   prop:
     text:          "[FILE:db/init/base/skins/default/Node-+search.zafu]"
+    skin_name:     default
+    format:        html
+    tkpath:        N
+    mode:          "+search"
+    klass:         Node
 
 style_css_en:
   node:            style_css
@@ -557,54 +575,94 @@ Node_zafu_en:
   user:            tiger
   prop:
     text:          "[FILE:db/init/base/skins/default/Node.zafu]"
+    skin_name:     default
+    format:        html
+    tkpath:        N
+    klass:         Node
 
 Node_admin_layout_zafu_en:
   node:            Node_admin_layout_zafu
   user:            tiger
   prop:
     text:          "[FILE:db/init/base/skins/default/Node-+adminLayout.zafu]"
+    skin_name:     default
+    format:        html
+    tkpath:        N
+    mode:          "+adminLayout"
+    klass:         Node
 
 Node_index_zafu_en:
   node:            Node_index_zafu
   user:            tiger
   prop:
     text:          "[FILE:db/init/base/skins/default/Node-+index.zafu]"
+    skin_name:     default
+    format:        html
+    tkpath:        N
+    mode:          "+index"
+    klass:         Node
 
 Node_not_found_zafu_en:
   node:            Node_not_found_zafu
   user:            tiger
   prop:
     text:          "[FILE:db/init/base/skins/default/Node-+notFound.zafu]"
+    skin_name:     default
+    format:        html
+    tkpath:        N
+    mode:          "+notFound"
+    klass:         Node
 
 Node_popup_layout_zafu_en:
   node:            Node_popup_layout_zafu
   user:            tiger
   prop:
     text:          "[FILE:db/init/base/skins/default/Node-+popupLayout.zafu]"
+    skin_name:     default
+    format:        html
+    tkpath:        N
+    mode:          "+popupLayout"
+    klass:         Node
 
 Node_test_en:
   node:            Node_test_zafu
   user:            tiger
   prop:
     text:          "[FILE:test/fixtures/files/Node-test.zafu]"
+    skin_name:     default
+    format:        html
+    tkpath:        N
+    mode:          test
+    klass:         Node
 
 notes_zafu_en:
   node:            notes_zafu
   user:            tiger
   prop:
     text:          "[FILE:db/init/base/skins/default/notes.zafu]"
+    skin_name:     default
+    format:        html
 
 Project_zafu_en:
   node:            Project_zafu
   user:            tiger
   prop:
     text:          "[FILE:db/init/base/skins/default/Project.zafu]"
+    skin_name:     default
+    format:        html
+    tkpath:        NPP
+    klass:         Project
 
 Node_login_zafu_en:
   node:            Node_login_zafu
   user:            tiger
   prop:
     text:          "[FILE:db/init/base/skins/default/Node-+login.zafu]"
+    skin_name:     default
+    format:        html
+    tkpath:        N
+    mode:          "+login"
+    klass:         Node
 
 translations_de:
   node:            translations

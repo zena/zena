@@ -4,15 +4,12 @@ Node_search_zafu:
   format:          html
   tkpath:          N
   mode:            "+search"
-  klass:           Node
 
 Node_zafu:
   node:            Node_zafu
   skin_name:       default
   format:          html
   tkpath:          N
-  mode:
-  klass:           Node
 
 Node_admin_layout_zafu:
   node:            Node_admin_layout_zafu
@@ -20,7 +17,6 @@ Node_admin_layout_zafu:
   format:          html
   tkpath:          N
   mode:            "+adminLayout"
-  klass:           Node
 
 Node_index_zafu:
   node:            Node_index_zafu
@@ -28,7 +24,6 @@ Node_index_zafu:
   format:          html
   tkpath:          N
   mode:            "+index"
-  klass:           Node
 
 Node_not_found_zafu:
   node:            Node_not_found_zafu
@@ -36,7 +31,6 @@ Node_not_found_zafu:
   format:          html
   tkpath:          N
   mode:            "+notFound"
-  klass:           Node
 
 Node_popup_layout_zafu:
   node:            Node_popup_layout_zafu
@@ -44,31 +38,18 @@ Node_popup_layout_zafu:
   format:          html
   tkpath:          N
   mode:            "+popupLayout"
-  klass:           Node
-
-notes_zafu:
-  node:            notes_zafu
-  skin_name:       default
-  format:          html
-  tkpath:
-  mode:
-  klass:
 
 Project_zafu:
   node:            Project_zafu
   skin_name:       default
   format:          html
   tkpath:          NPP
-  mode:
-  klass:           Project
 
 wiki_Node_zafu:
   node:            wiki_Node_zafu
   skin_name:       wikiSkin
   format:          html
   tkpath:          N
-  mode:
-  klass:           Node
 
 wiki_Project_changes_xml_zafu:
   node:            wiki_Project_changes_xml_zafu
@@ -76,7 +57,6 @@ wiki_Project_changes_xml_zafu:
   format:          xml
   tkpath:          NPP
   mode:            changes
-  klass:           Project
 
 wiki_Page_changes_zafu:
   node:            wiki_Page_changes_zafu
@@ -84,7 +64,6 @@ wiki_Page_changes_zafu:
   format:          html
   tkpath:          NP
   mode:            changes
-  klass:           Page
 
 Node_login_zafu:
   node:            Node_login_zafu
@@ -92,7 +71,6 @@ Node_login_zafu:
   format:          html
   tkpath:          N
   mode:            "+login"
-  klass:           Node
 
 Node_test_zafu:
   node:            Node_test_zafu
@@ -100,4 +78,3 @@ Node_test_zafu:
   format:          html
   tkpath:          N
   mode:            test
-  klass:           Node

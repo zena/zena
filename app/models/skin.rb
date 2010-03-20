@@ -14,6 +14,7 @@ class Skin < Section
     def update_skin_name
       return unless @need_skin_name_update
       # FIXME: when moving a template or a page that is a parent of a template: we must sync skin_name after spread_project_and_section.
+      # FIXME: AIE AIE AIE (cannot update properties like this): store id instead ?
       Skin.connection.execute "UPDATE template_contents SET skin_name = #{Zena::Db.quote(name)} WHERE template_contents.node_id IN (SELECT id FROM nodes WHERE nodes.section_id = #{Zena::Db.quote(self[:id])}) AND template_contents.site_id = #{Zena::Db.quote(self[:site_id])}"
     end
 end

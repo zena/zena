@@ -203,6 +203,7 @@ module Zena
           klass.kpath.split(//).each_index { |i| klasses << klass.kpath[0..i] }
 
           # FIXME: is searching in all skins a good idea ? I think not. Only searching for special modes '+popupLayout', '+login', etc.
+          # FIXME: we should use skin id, not name for searching
           if mode && mode[0..0] == '+'
             template = secure(Template) { Template.find(:first,
               :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ? AND template_contents.node_id = nodes.id", klasses, format, mode],

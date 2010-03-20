@@ -30,7 +30,6 @@ Node_zafu:
     skin_name:     cskin
     format:        html
     tkpath:        N
-    klass:         Node
 
 # ------------- EMPLOYEES
 employees:

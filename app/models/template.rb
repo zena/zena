@@ -15,14 +15,23 @@ Other templates have a name built from the given name, just like any other node.
 =end
 class Template < TextDocument
 
-  safe_method       :tkpath=>String, :skin_name=> String, :mode=>String, :klass=>String, :format=>String
-
   property do |t|
-    t.string  "klass"
-    t.string  "format"
-    t.string  "mode"
-    t.string  "tkpath"
-    t.string  "skin_name"
+    t.string  'klass'
+    t.string  'format'
+    t.string  'mode'
+    t.string  'tkpath'
+    t.string  'skin_name'
+
+    t.index(TemplateIndex) do |rec|
+      {
+        'format'    => rec.format,
+        'mode'      => rec.mode,
+        'tkpath'    => rec.tkpath,
+        'skin_name' => rec.skin_name, # FIXME: replace with skin id !!!
+      }
+    end
+
+    safe_property :tkpath, :skin_name, :mode, :klass, :format
   end
 
   attr_protected    :tkpath
@@ -33,10 +42,6 @@ class Template < TextDocument
   class << self
     def accept_content_type?(content_type)
       content_type =~ /text\/(html|zafu)/
-    end
-
-    def version_class
-      TemplateVersion
     end
   end # Class Methods
 

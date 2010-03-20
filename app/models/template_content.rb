@@ -1,3 +1,6 @@
+=begin
+TODO: cleanup
+
 class TemplateContent < ActiveRecord::Base
   include Zena::Use::Upload::UploadedFile
 
@@ -112,3 +115,4 @@ class TemplateContent < ActiveRecord::Base
       end
     end
 end
+=end

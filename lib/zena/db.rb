@@ -103,7 +103,8 @@ module Zena
       end
     end
 
-    # Escape a list of values for multicolumn insert.
+    # Insert a list of values (multicolumn insert). The values should be properly escaped before
+    # being passed to this method.
     def insert_many(table, columns, values)
       values = values.compact.uniq
       case adapter
