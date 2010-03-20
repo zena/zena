@@ -49,12 +49,17 @@ show_title_with_opts:
   res: "/<h1 class='s50'><span id='_title22'.*class='actions'>/"
 
 show_title_link_http:
-  src: "<r:title link='http://example.com'/>"
-  res: "<a href='http://example.com'><span id='v_title22'>status title</span></a>"
+  old_src: "<r:title link='http://example.com'/>"
+  src: "<a href='http://example.com' do='title'/>"
+  old_res: "<a href='http://example.com'><span id='v_title22'>status title</span></a>"
+  res: "<a href='http://example.com'>status title</a>"
 
 show_title_link_attribute:
-  src: "<r:title link='http://[name].com'/>"
-  res: "<a href='http://status.com'><span id='v_title22'>status title</span></a>"
+  old_src: "<r:title link='http://[name].com'/>"
+  src: "<a href='http://#{name}.com' do='title'/>"
+  res: "<a href='http://status.com'>status title</a>"
+
+#----------- fixed up to here
 
 show_title_link_id:
   src: "<r:title link='32'/>"

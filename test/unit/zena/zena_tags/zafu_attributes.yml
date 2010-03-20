@@ -38,11 +38,11 @@ prefix_project_show_with_tag:
 
 show_title_with_actions_without_prefix:
   src: "<h1 do='title' actions='all'/>"
-  tem: "/class='s<%= @node.version.status/"
+  tem: "/class='s<%= @node.version.status %>/"
 
 node_actions_status_prefix_false:
   src: "<h1 do='title' actions='all' status='false'/>"
-  tem: "!/class='s<%= @node.version.status/"
+  tem: "!/class='s<%= @node.version.status %>/"
 
 node_actions_publish:
   src: "<h1 do='title' actions='all' publish='true'/>"
@@ -58,3 +58,8 @@ prefix_lang_show:
   old_src: "<r:title/> AND NOW <r:title check_lang='false'/>"
   src: "<div do='void' prefix='lang'>hop</div>"
   res: "<div><span class='wrong_lang'>[en]</span> hop</div>"
+
+set_attribute:
+  old_src: "<div do='void' set_class='[name]'>hop</div>"
+  src: "<div class='#{name}'>hop</div>"
+  res: "<div class='status'>hop</div>"
