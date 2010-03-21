@@ -59,11 +59,12 @@ show_title_link_attribute:
   src: "<a href='http://#{name}.com' do='title'/>"
   res: "<a href='http://status.com'>status title</a>"
 
-#----------- fixed up to here
-
 show_title_link_id:
-  src: "<r:title link='32'/>"
-  res: "<a href='/oo/page32.html'><span id='v_title22'>status title</span></a>"
+  old_src: "<r:title link='32'/>"
+  src: "<r:link href='32' do='title' live='true'/>"
+  res: "<a href='/oo/page32.html'><span id='_title22'>status title</span></a>"
+
+#----------- fixed up to here
 
 show_title_link_id_from_stored:
   src: "<r:parent><r:title link='[main.id]'/></r:parent>"

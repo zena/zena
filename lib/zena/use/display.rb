@@ -102,6 +102,8 @@ module Zena
       end # ViewMethods
 
       module ZafuMethods
+        include Zena::Use::Display::Links::ZafuMethods
+        
         def r_show
           return parser_error("Unknown attribute '#{@params[:attr]}'") unless type = node.klass.safe_method_type([@params[:attr]])
           klass = type[:class]
