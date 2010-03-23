@@ -151,7 +151,8 @@ class Node < ActiveRecord::Base
                 :score => Number, :comments_count => Number,
                 :custom_a => Number, :custom_b => Number,
                 :m_text => String, :m_title => String, :m_author => String,
-                :zip => Number
+                :id => {:class => Number, :method => 'zip'},
+                :version => Version
   # FIXME: remove 'zip' and use :id => {:class => Number, :method => 'zip'}
   # same with parent_zip, section_zip, etc...
 

@@ -1,3 +1,5 @@
+class TemplateContent < ActiveRecord::Base
+end
 =begin
 TODO: cleanup
 

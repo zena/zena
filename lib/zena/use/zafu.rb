@@ -369,11 +369,6 @@ module Zena
           @main_date ||= params[:date] ? DateTime.parse(params[:date]) : DateTime.now
         end
 
-        # Return sprintf formated entry. Return '' for values eq to zero.
-        def sprintf_unless_zero(fmt, value)
-          value.to_f == 0.0 ? '' : sprintf(fmt, value)
-        end
-
         # list of page numbers links
         def page_numbers(current, count, join_string = nil, max_count = nil)
           max_count ||= 10

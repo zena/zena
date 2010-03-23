@@ -110,28 +110,6 @@ module Zafu
         attribute_method = node_class.ancestors.include?(String) ? node : node_attribute('to_s')
       end
 
-      if !@params[:date] && fmt = @params[:format]
-        begin
-          # test argument
-          sprintf(fmt, 123.45)
-        rescue ArgumentError
-          return parser_error("incorect format #{fmt.inspect}")
-        end
-        if fmt =~ /%[\d\.]*f/
-          modifier = ".to_f"
-        elsif fmt =~ /%[\d\.]*i/
-          modifier = ".to_i"
-        else
-          modifier = ''
-        end
-
-        if @params[:zero] == 'hide'
-          attribute_method = "sprintf_unless_zero(#{fmt.inspect}, #{attribute_method}#{modifier})"
-        else
-          attribute_method = "sprintf(#{fmt.inspect}, #{attribute_method}#{modifier})"
-        end
-      end
-
 
       if @context[:trans]
         # TODO: what do we do here with gsubs, url ?
@@ -249,7 +227,7 @@ module Zafu
       # 1. extract / compile options
       # 1.1 extract 'status', node_actions ===> rubyless "title(xxx, xxx) + actions('all')" ==> title helper && node_actions helper
       # 2. render_as_rubyless("title", opts)
-      
+
       common [
         prefix
         status

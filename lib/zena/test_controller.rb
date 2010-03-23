@@ -25,7 +25,7 @@ module Zena
     end
 
     def test_compile
-      render :text => Zena::ZafuCompiler.new_with_url(@test_url, :helper => zafu_helper).to_erb(:dev => params['dev'], :node => Zafu::NodeContext.new('@node', @node.class))
+      render :text => Zena::ZafuCompiler.new_with_url(@test_url, :helper => zafu_helper).to_erb(:dev => params['dev'], :node => Zafu::NodeContext.new('@node', Node))
     end
 
     def test_render

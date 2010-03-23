@@ -32,7 +32,7 @@ module Zena::Use::Display
           end
 
           @markup.set_dyn_params(:href => "<%= zen_path(#{node}) %>")
-          expand_with
+          text_for_link
 =begin
           query_params = options[:query_params] || {}
           default_text = options[:default_text]

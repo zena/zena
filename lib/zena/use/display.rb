@@ -2,8 +2,14 @@ module Zena
   module Use
     module Display
       module ViewMethods
+
         include RubyLess::SafeClass
-        safe_method [:title, Node, {'actions' => String,'class' => String, 'status' => String}] => String
+        safe_method [:sprintf, String, Number] => {:class => String, :method => 'sprintf'}
+
+        # Return sprintf formated entry. Return '' for values eq to zero.
+        def sprintf_unless_zero(fmt, value)
+          value.to_f == 0.0 ? '' : sprintf(fmt, value)
+        end
 =begin
         def title(node, opts = {})
           if node.kind_of?(Version)
@@ -103,27 +109,72 @@ module Zena
 
       module ZafuMethods
         include Zena::Use::Display::Links::ZafuMethods
-        
+
         def r_show
-          return parser_error("Unknown attribute '#{@params[:attr]}'") unless type = node.klass.safe_method_type([@params[:attr]])
-          klass = type[:class]
-          method = "#{node}.#{type[:method]}"
-          if klass.ancestors.include?(String)
-            show_string(method)
-          elsif klass.ancestors.include?(Time)
-            show_time(method)
+          if attribute = @params[:attr]
+            type = node.klass.safe_method_type([attribute])
+            return parser_error("Unknown attribute '#{attribute}'.") unless type
+            klass = type[:class]
+            method = "#{node}.#{type[:method]}"
+          elsif code = @params[:eval]
+            res = RubyLess.translate(code, self)
+            method, klass = res, res.klass
           else
-            parser_error("Invalid type: #{type[:class]}")
+            return parser_error("Missing attribute/eval parameter") unless type = node.klass.safe_method_type([@params[:attr]])
+          end
+
+          if klass.ancestors.include?(String)
+            res = show_string(method)
+          elsif klass.ancestors.include?(Number)
+            res = show_number(method)
+          elsif klass.ancestors.include?(Time)
+            res = show_time(method)
+          else
+            return parser_error("Invalid type: #{type[:class]}")
+          end
+
+
+          if @params[:live] == 'true'
+            erb_id = "_#{@params[:attr]}<%= #{node}.zip %>"
+            if @markup.has_param?(:id) || @out_post != ''
+              # Do not overwrite id or use span if we have post content (actions) that would disappear on live update.
+              res = "<span id='#{erb_id}'>#{res}</span>"
+            else
+              @markup.set_dyn_params(:id => erb_id)
+            end
+          end
+          res
+        end
+
+        def show_number(method)
+          if fmt = @params[:format]
+            begin
+              # test argument
+              sprintf(fmt, 123.45)
+            rescue ArgumentError
+              return parser_error("incorect format #{fmt.inspect}")
+            end
+
+            if fmt =~ /%[\d\.]*f/
+              modifier = ".to_f"
+            elsif fmt =~ /%[\d\.]*i/
+              modifier = ".to_i"
+            else
+              modifier = ''
+            end
+
+            if @params[:zero] == 'hide'
+              "<%= sprintf_unless_zero(#{fmt.inspect}, #{method}#{modifier}) %>"
+            else
+              "<%= sprintf(#{fmt.inspect}, #{method}#{modifier}) %>"
+            end
+          else
+            "<%= #{method} %>"
           end
         end
 
         def show_string(method)
-          display = "<%= #{method} %>"
-          if @params[:live] == 'true'
-            "<span id='_#{@params[:attr]}<%= #{node}.zip %>'>#{display}</span>"
-          else
-            display
-          end
+          "<%= #{method} %>"
         end
       end
     end # Display

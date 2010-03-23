@@ -1,0 +1,13 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'status'
+  src: "simple text"
+  tem: "simple text"
+  res: "simple text"
+
+class_conditional:
+  old_src: "<r:if kind_of='Image'><b do='#{size}' format='%.2f'/></r:if>"
+  src: "<r:Image><b do='#{size}' format='%.2f'/></r:Image>"
+  tem: "/@node.kpath_match\?\('NDI'\)/"

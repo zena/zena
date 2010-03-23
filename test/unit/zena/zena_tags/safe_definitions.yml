@@ -1,0 +1,16 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'status'
+  src: "simple text"
+  tem: "simple text"
+  res: "simple text"
+
+params:
+  context:
+    d: 'hello ladies'
+  old_src: "<i do='show' param='d'/>"
+  src: "<i do='#{params[:d]}'/>"
+  tem: "<i><%= params[:d] %></i>"
+  res: "<i>hello ladies</i>"

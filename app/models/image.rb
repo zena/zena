@@ -53,6 +53,11 @@ or to create a link to the article using the icon:
 
 =end
 class Image < Document
+  property do |t|
+    t.integer 'width'
+    t.integer 'height'
+    t.text    'exif_json'
+  end
 
   safe_method           :width => Number, :height => Number, :exif => 'ExifData'
 
