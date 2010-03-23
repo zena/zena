@@ -111,16 +111,26 @@ module Zena
         include RubyLess::SafeClass
         include Zena::Use::Display::Links::ZafuMethods
 
-        safe_method [:zazen, String] => :make_zazen
+        safe_method [:zazen, String] => :r_zazen
 
-        def make_zazen(signature)
+        def r_zazen(signature = nil)
           @markup.prepend_param(:class, 'zazen')
-          {
-            :class  => String,
-            :method => 'zazen',
-            :accept_nil => true,
-            :append_hash => {:node => ::RubyLess::TypedString.new(node.to_s, :class => node.klass)}
-          }
+          node = node(Node)
+          if signature
+            {
+              :class  => String,
+              :method => 'zazen',
+              :accept_nil => true,
+              :append_hash => {:node => ::RubyLess::TypedString.new(node.to_s, :class => node.klass)}
+            }
+          elsif attribute = @params[:attr]
+            type = node.klass.safe_method_type([attribute])
+            return parser_error("Unknown attribute '#{attribute}'.") unless type
+            klass = type[:class]
+            "<%= zazen(#{node}.#{type[:method]}, :node => #{node}) %>"
+          else
+            return parser_error("Missing attribute parameter")
+          end
         end
 
         def r_show
@@ -133,7 +143,7 @@ module Zena
             res = RubyLess.translate(code, self)
             method, klass = res, res.klass
           else
-            return parser_error("Missing attribute/eval parameter") unless type = node.klass.safe_method_type([@params[:attr]])
+            return parser_error("Missing attribute/eval parameter")
           end
 
           if klass.ancestors.include?(String)
