@@ -1,5 +1,4 @@
 dom_id = "#{@node.zip}_#{params[:attr]}"
-puts @table.inspect
 if @node.errors.empty?
   page.replace dom_id, :partial => "table", :locals =>{:table => @table, :node => @node, :attribute => params[:attr]}
   page << "TableKit.reloadTable('#{dom_id}');"

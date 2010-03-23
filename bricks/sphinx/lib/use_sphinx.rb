@@ -28,7 +28,6 @@ module Bricks
             page = 1 if page < 1
             search_records(query, :offset => (page - 1) * per_page, :limit => per_page)
           else
-            puts opts.inspect
             search(query, opts).compact
           end
         end

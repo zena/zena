@@ -44,13 +44,29 @@ module Zena
           def filter_status
             status = @params.delete(:status)
             if status == 'true' || (@params[:actions] && status != 'false')
+
+              if node.will_be? Node
+                accessor = "#{node}.version"
+              elsif node.will_be? Version
+                accessor = node
+              else
+                accessor = "#{node(Node)}.version"
+              end
+
               @markup.tag ||= 'span'
-              @markup.append_dyn_param(:class, "s<%= #{node(Node)}.version.status %>")
+              @markup.append_dyn_param(:class, "s<%= #{accessor}.status %>")
             end
           end
 
           def filter_actions
             if actions = @params.delete(:actions)
+              if node.will_be? Node
+              elsif node.will_be? Version
+                node = "#{self.node}.node"
+              else
+                return parser_error("Invalid option 'actions' for #{node.klass}.")
+              end
+
               if publish = @params.delete(:publish)
                 out_post " <%= node_actions(#{node}, :actions => #{actions.inspect}, :publish_after_save => #{publish.inspect}) %>"
               else

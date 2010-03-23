@@ -108,7 +108,20 @@ module Zena
       end # ViewMethods
 
       module ZafuMethods
+        include RubyLess::SafeClass
         include Zena::Use::Display::Links::ZafuMethods
+
+        safe_method [:zazen, String] => :make_zazen
+
+        def make_zazen(signature)
+          @markup.prepend_param(:class, 'zazen')
+          {
+            :class  => String,
+            :method => 'zazen',
+            :accept_nil => true,
+            :append_hash => {:node => ::RubyLess::TypedString.new(node.to_s, :class => node.klass)}
+          }
+        end
 
         def r_show
           if attribute = @params[:attr]

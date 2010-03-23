@@ -100,28 +100,23 @@ show_edit_preview:
   src: "<b do='summary' live='true'/>"
   res: "<b id='_summary22'>status summary</b>"
 
-#----------- fixed up to here
-
 title_in_version_context:
   src: "<r:version><r:title actions='all'/></r:version>"
-  res: "/s50.*v_title22.*status title.*edit/"
-
-check_lang:
-  context:
-    lang: 'fr'
-    node: 'people'
-  src: "<r:check_lang/> <r:check_lang text='(#LANG)'/> <p class='bad_lang' do='check_lang'>article en '_LANG'</p>"
-  res: "<span class='wrong_lang'>[en]</span> <span class='wrong_lang'>(en)</span> <p class='bad_lang'>article en 'anglais'</p>"
+  res: "/s50.*status title.*edit/"
 
 show_shortcut:
-  src: "<p do='[v_title]'>hello</p>"
-  tem: "<p><%= @node.version.title %></p>"
+  old_src: "<p do='[v_title]'>hello</p>"
+  src: "<p do='#{title}'>hello</p>"
+  tem: "<p><%= @node.prop['title'] %></p>"
   res: "<p>status title</p>"
 
 zazen_shortcut:
-  src: "<div class='foo' do='{v_title}'>hello</div>"
-  tem: "<div class='zazen foo'><%= zazen(@node.version.title, :node=>@node) %></div>"
+  old_src: "<div class='foo' do='{v_title}'>hello</div>"
+  src: "<div class='foo' do='zazen(title)'>hello</div>"
+  tem: "<div class='zazen foo'><%= zazen(@node.prop['title'], {:node => @node}) %></div>"
   res: "<div class='zazen foo'><p>status title</p></div>"
+
+#----------- fixed up to here
 
 show_url:
   src: "<a do='void' set_href='[url]'>blah</a>"

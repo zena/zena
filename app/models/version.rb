@@ -4,6 +4,16 @@ class Version < ActiveRecord::Base
   include RubyLess::SafeClass
   safe_attribute     :created_at, :updated_at, :publish_from, :status, :lang
 
+  # We need to include Property::Base so that we can read the properties that
+  # we store (useful when listing versions or comparing them).
+  include Property::Base
+  property do |p|
+    p.string 'title'
+    p.string 'summary'
+    p.string 'text'
+  end
+  safe_property :title, :summary, :text
+
   include Versions::Auto
   # include Versions::Destroy
 
