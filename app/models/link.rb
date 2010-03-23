@@ -1,5 +1,5 @@
 class Link < ActiveRecord::Base
-  include RubyLess::SafeClass
+  include RubyLess
   safe_attribute :status, :comment, :date
 
   attr_reader :relation

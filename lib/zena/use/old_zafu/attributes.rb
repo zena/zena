@@ -1,7 +1,7 @@
 module Zafu
   # All this should be replaced by RubyLess
   module Attributes
-    include RubyLess::SafeClass
+    include RubyLess
 
     PSEUDO_ATTRIBUTES = {
       'now'      => 'Time.now',

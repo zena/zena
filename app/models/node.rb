@@ -136,7 +136,7 @@ class Node < ActiveRecord::Base
     t.integer 'comment'
   end
 
-  include RubyLess::SafeClass
+  include RubyLess
 
 
   safe_property  :title, :text, :summary, :comment
@@ -151,8 +151,7 @@ class Node < ActiveRecord::Base
                 :score => Number, :comments_count => Number,
                 :custom_a => Number, :custom_b => Number,
                 :m_text => String, :m_title => String, :m_author => String,
-                :id => {:class => Number, :method => 'zip'},
-                :version => ::Version
+                :id => {:class => Number, :method => 'zip'}
   # FIXME: remove 'zip' and use :id => {:class => Number, :method => 'zip'}
   # same with parent_zip, section_zip, etc...
 
@@ -185,13 +184,14 @@ class Node < ActiveRecord::Base
   safe_context       :author => 'Contact', :parent => 'Node',
                      :project => 'Project', :section => 'Section',
                      :real_project => 'Project', :real_section => 'Section',
-                     :user => 'User', :version => 'Version', :comments => ['Comment'],
+                     :user => 'User', :comments => ['Comment'],
                      :data   => {:class => ['DataEntry'], :data_root => 'node_a'},
                      :data_a => {:class => ['DataEntry'], :data_root => 'node_a'},
                      :data_b => {:class => ['DataEntry'], :data_root => 'node_b'},
                      :data_c => {:class => ['DataEntry'], :data_root => 'node_c'},
                      :data_d => {:class => ['DataEntry'], :data_root => 'node_d'}
-  safe_method        :v => {:class => 'Version', :method => 'version'}
+  safe_method        :v => {:class => 'Version', :method => 'version'},
+                     :version => 'Version'
 
   extend  Zena::Acts::SecureNode
   acts_as_secure_node

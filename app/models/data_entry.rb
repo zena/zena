@@ -13,7 +13,7 @@ A visitor needs write access in all nodes the data should link to. A visitor als
 A visitor can edit a data entry if he/she has write access to the reference node (node_a).
 =end
 class DataEntry < ActiveRecord::Base
-  include RubyLess::SafeClass
+  include RubyLess
   safe_attribute :created_at, :updated_at, :date, :text, :value_a, :value_b
   safe_context   :value => {:class => Number, :method => 'value_a'},
                  :node_a_zip => Number, :node_b_zip => Number,

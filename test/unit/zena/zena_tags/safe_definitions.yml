@@ -14,3 +14,23 @@ params:
   src: "<i do='#{params[:d]}'/>"
   tem: "<i><%= params[:d] %></i>"
   res: "<i>hello ladies</i>"
+
+gsub:
+  context:
+    node: 'tiger'
+  old_src: "<r:Contact do='addres.gsub(/\\n/,\";\";')'/>"
+  src: "<r:Contact do='eval'>address.gsub(/\\n/, ';')</r:Contact>"
+  tem: "<% if @node.kpath_match?('NRC') %><%= @node.address.gsub(/\\n/, \";\") %><% end -%>"
+  res: "Small Island;In the Wild"
+
+gsub_static:
+  context:
+    lang: 'fr'
+  src: "<r:eval>trans('fr').gsub(/\\Af/, 'F')</r:eval>"
+  tem: "Français"
+  
+gsub_newline:
+  context:
+    node: 'tiger'
+  src: "<r:Contact do='address.gsub(/\\n/, \"\\\\n\")'/>"
+  res: 'Small Island\nIn the Wild'

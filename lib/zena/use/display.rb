@@ -3,7 +3,7 @@ module Zena
     module Display
       module ViewMethods
 
-        include RubyLess::SafeClass
+        include RubyLess
         safe_method [:sprintf, String, Number] => {:class => String, :method => 'sprintf'}
 
         # Return sprintf formated entry. Return '' for values eq to zero.
@@ -108,8 +108,7 @@ module Zena
       end # ViewMethods
 
       module ZafuMethods
-        include RubyLess::SafeClass
-        include Zena::Use::Display::Links::ZafuMethods
+        include RubyLess
 
         safe_method [:zazen, String] => :r_zazen
 
@@ -133,18 +132,30 @@ module Zena
           end
         end
 
-        def r_show
+        def get_attribute_or_eval(use_string_block = true)
           if attribute = @params[:attr]
-            type = node.klass.safe_method_type([attribute])
-            return parser_error("Unknown attribute '#{attribute}'.") unless type
-            klass = type[:class]
-            method = "#{node}.#{type[:method]}"
+            if type = node.klass.safe_method_type([attribute])
+              ["#{node}.#{type[:method]}", type[:class]]
+            else
+              [parser_error("Unknown attribute '#{attribute}'."), nil]
+            end
           elsif code = @params[:eval]
             res = RubyLess.translate(code, self)
-            method, klass = res, res.klass
+            [res, res.klass]
+          elsif text = @params[:text]
+            res = RubyLess.translate_string(text, self)
+            [res, res.klass]
+          elsif use_string_block && @blocks.size == 1 && @blocks.first.kind_of?(String)
+            res = RubyLess::TypedString.new(@blocks.first.inspect, :class => String, :literal => @blocks.first)
+            [res, res.klass]
           else
-            return parser_error("Missing attribute/eval parameter")
+            [parser_error("Missing attribute/eval parameter"), nil]
           end
+        end
+
+        def r_show
+          method, klass = get_attribute_or_eval
+          return method unless klass # method contains the error message
 
           if klass.ancestors.include?(String)
             res = show_string(method)

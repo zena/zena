@@ -6,7 +6,7 @@ TODO: cleanup
 class TemplateContent < ActiveRecord::Base
   include Zena::Use::Upload::UploadedFile
 
-  include RubyLess::SafeClass
+  include RubyLess
   safe_attribute  :tkpath, :skin_name, :mode, :klass
   safe_method     :ext => String, :format => String, :content_type => String, :filename => String
   #attr_public  :file ?

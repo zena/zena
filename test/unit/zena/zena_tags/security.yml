@@ -1,0 +1,23 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'status'
+  src: "simple text"
+  tem: "simple text"
+  res: "simple text"
+
+show_mean_gsub:
+  src: "<r:void do='text.gsub(/#{puts \"I AM MEAN\"}/, \"\")'/>"
+  tem: "<span class='parser_error'><span class='method'>text.gsub(/\#{puts \"I AM MEAN\"}/, \"\")</span> 'dregx' not available in RubyLess.</span>"
+
+#----------- fixed up to here
+
+mean_error:
+  src: "<r:date select='<% puts \"mean\" %>'/>"
+  res: "<span class='parser_error'>[date] bad parameter '&lt;% puts \"mean\" %&gt;'</span>"
+
+mean_eval:
+  src: "<r:show eval='puts \"bad\"'/>"
+  tem: "<span class='parser_error'>[show] var \"puts\" not set in eval</span>"
+

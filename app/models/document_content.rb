@@ -15,7 +15,7 @@ class DocumentContent < ActiveRecord::Base
   include Zena::Refactor::ActAsContent
 
   # readable
-  include RubyLess::SafeClass
+  include RubyLess
   safe_method           :size => Number, :name => String, :content_type => String, :ext => String, :file => File
 
   # writable

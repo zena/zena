@@ -32,7 +32,7 @@ class VersionOff < ActiveRecord::Base
   parse_date_attribute :publish_from
 
   # readable
-  include RubyLess::SafeClass
+  include RubyLess
   # writable
   attr_accessible    :title, :text, :summary, :comment, :publish_from, :lang, :status, :content_attributes, :dyn_attributes
   safe_context       :author => 'Contact', :user => 'User', :node => 'Node'

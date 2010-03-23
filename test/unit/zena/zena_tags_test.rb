@@ -9,7 +9,7 @@ class ZenaTagsTest < Zena::Controller::TestCase
   Section # make sure we load Section links before trying relations
 
   class ZafuDummy
-    include RubyLess::SafeClass
+    include RubyLess
     safe_method [:hello, {:lang => String}] => String
 
     def hello(opts)

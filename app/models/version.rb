@@ -1,7 +1,7 @@
 require 'versions'
 
 class Version < ActiveRecord::Base
-  include RubyLess::SafeClass
+  include RubyLess
   safe_attribute     :created_at, :updated_at, :publish_from, :status, :lang
 
   # We need to include Property::Base so that we can read the properties that

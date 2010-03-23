@@ -74,6 +74,18 @@ module Zena
               end
             end
           end
+
+          def steal_and_eval_html_params_for(markup, params)
+            ::Zafu::Markup::STEAL_PARAMS.each do |k|
+              next unless value = params.delete(k)
+              value = ::RubyLess.translate_string(value, self)
+              if value.literal
+                markup.set_params k => value.literal
+              else
+                markup.set_dyn_params k => "<%= #{value} %>"
+              end
+            end
+          end
       end # ZafuMethods
     end # ZafuAttributes
   end # Use

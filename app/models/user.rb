@@ -34,7 +34,7 @@ class User < ActiveRecord::Base
     c.validate_password_field = false
   end
 
-  include RubyLess::SafeClass
+  include RubyLess
 
   safe_attribute          :login, :name, :first_name, :email, :time_zone, :created_at, :updated_at
   safe_method             :initials => String, :fullname => String, :status => Number, :status_name => String

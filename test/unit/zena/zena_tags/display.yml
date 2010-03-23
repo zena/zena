@@ -1,0 +1,87 @@
+show_title:
+  old_src: "<r:show attr='v_title'/>"
+  old_tem: "<%= @node.version.title %>"
+  src: "<r:title/>"
+  tem: "<%= @node.prop['title'] %>"
+  res: "status title"
+
+show_title_with_opts:
+  old_src: "<h1 do='title' class='s70' status='true' actions='all'>this is the title</h1>"
+  old_tem: "/<h1 class='s<%= @node.version.status %>'><%= show_title\(:node=>@node\) \+ node_actions\(:node=>@node, .*:actions=>\"all\"/"
+  src: "<h1 do='title' prefix='status' actions='all' live='true'>this is the title</h1>"
+  tem: "<h1 class='s<%= @node.version.status %>'><span id='_title<%= @node.zip %>'><%= @node.prop['title'] %></span> <%= node_actions(@node, :actions => \"all\") %></h1>"
+  old_res: "/<h1 class='s50'><span id='v_title22'.*class='actions'>/"
+  res: "/<h1 class='s50'><span id='_title22'.*class='actions'>/"
+
+show_title_link_http:
+  old_src: "<r:title link='http://example.com'/>"
+  src: "<a href='http://example.com' do='title'/>"
+  old_res: "<a href='http://example.com'><span id='v_title22'>status title</span></a>"
+  res: "<a href='http://example.com'>status title</a>"
+
+show_title_link_attribute:
+  old_src: "<r:title link='http://[name].com'/>"
+  src: "<a href='http://#{name}.com' do='title'/>"
+  res: "<a href='http://status.com'>status title</a>"
+
+show_title_link_id:
+  old_src: "<r:title link='32'/>"
+  src: "<r:link href='32' do='title' live='true'/>"
+  res: "<a href='/oo/page32.html'><span id='_title22'>status title</span></a>"
+
+show_title_link_id_from_stored:
+  # disabled
+  old_src: "<r:parent><r:title link='[main.id]'/></r:parent>"
+  old_res: "<a href='/oo/projects/cleanWater/page22.html'><span id='v_title21'>Clean Water project</span></a>"
+
+show_title_link_id_from_stored_mode_and_format:
+  # disabled
+  old_src: "<r:parent><r:title link='[main.id]_blog.rss'/></r:parent>"
+  old_res: "<a href='/oo/projects/cleanWater/page22_blog.rss'><span id='_title21'>Clean Water project</span></a>"
+
+show_format:
+  old_src: "<b do='[id]' format='%.2f'/>"
+  src: "<b do='#{id}' format='%.2f'/>"
+  res: "<b>22.00</b>"
+
+show_format_nil:
+  context:
+    node: 'bird_jpg'
+  old_src: "<b do='[d_id]' format='%.2f'/>"
+  src: "<r:Image><b do='#{size}' format='%.2f'/></r:Image>"
+  res: "<b>0.00</b>"
+
+show_format_hide_zero:
+  context:
+    node: 'bird_jpg'
+  old_src: "<b do='[d_id]' format='%.2f' zero='hide'/>"
+  src: "<r:Image><b do='#{size}' format='%.2f' zero='hide'/></r:Image>"
+  res: "<b></b>"
+
+show_edit_preview:
+  context:
+    node: 'status'
+  old_src: "<b do='[d_assigned]' edit_preview='true'/>"
+  src: "<b do='summary' live='true'/>"
+  res: "<b id='_summary22'>status summary</b>"
+
+title_in_version_context:
+  src: "<r:version><r:title actions='all'/></r:version>"
+  res: "/s50.*status title.*edit/"
+
+show_shortcut:
+  old_src: "<p do='[v_title]'>hello</p>"
+  src: "<p do='#{title}'>hello</p>"
+  tem: "<p><%= @node.prop['title'] %></p>"
+  res: "<p>status title</p>"
+
+zazen_shortcut:
+  old_src: "<div class='foo' do='{v_title}'>hello</div>"
+  src: "<div class='foo' do='zazen(title)'>hello</div>"
+  tem: "<div class='zazen foo'><%= zazen(@node.prop['title'], {:node => @node}) %></div>"
+  res: "<div class='zazen foo'><p>status title</p></div>"
+
+zazen:
+  src: "<r:zazen attr='title'/>"
+  tem: "<%= zazen(@node.prop['title'], :node => @node) %>"
+  res: "<p>status title</p>"

@@ -1,0 +1,11 @@
+
+cache_part:
+  src: "<r:cache><r:show attr='name'/></r:cache>"
+  tem: "<% cache1 = Cache.with(visitor.id, visitor.group_ids, \"NP\", \"en\", \"/cache/part/list1\") do capture do %><%= @node.name %><% end; end %><%= cache1 %>"
+
+trans_show:
+  context:
+    lang: 'fr'
+  src: "<r:trans><r:show attr='ref_lang'/></r:trans>"
+  tem: "<%= _(@node.ref_lang) %>"
+  res: "anglais"

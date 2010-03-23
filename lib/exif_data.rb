@@ -2,7 +2,7 @@ require 'json'
 require 'rational'
 
 class ExifData < Hash
-  include RubyLess::SafeClass
+  include RubyLess
 
   # You can create new ExifData objects with either a json representation (String), a
   # hash of key => value or an array of key,value pairs.

@@ -49,7 +49,7 @@ module Zena
     end # DummyHelper
 
     class Processor
-      include RubyLess::SafeClass
+      include RubyLess
       attr_accessor :text, :method, :pass, :options, :blocks, :params, :ids, :defined_ids, :parent
 
       class << self

@@ -218,8 +218,13 @@ module Zena
       end
 
       module ViewMethods
-        include RubyLess::SafeClass
-        safe_method [:trans] => String
+        include RubyLess
+        translate = { :class  => String,
+                      :method => 'trans',
+                      :pre_processor => Proc.new {|str| self.rubyless_translate(str)}
+                    }
+        safe_method [:trans, String] => translate
+        safe_method [:t,     String] => translate
 
         def self.included(base)
           base.send(:alias_method_chain, :will_paginate, :i18n) if base.respond_to?(:will_paginate)
@@ -231,6 +236,11 @@ module Zena
         # Enable translations for will_paginate
         def will_paginate_with_i18n(collection, options = {})
           will_paginate_without_i18n(collection, options.merge(:prev_label => _('img_prev_page'), :next_label => _('img_next_page')))
+        end
+
+        def self.rubyless_translate(str)
+          str = str.kind_of?(Hash) ? str['text'] : str
+          ApplicationController.send(:_, str)
         end
 
         # translation of static text using gettext
@@ -256,6 +266,78 @@ module Zena
             "<% if #{node}.version.lang != lang -%>#{expand_with(:in_if => true)}<% end -%>"
           end
         end
+
+        def r_load
+          if dict = @params[:dictionary]
+            dict_content, absolute_url, doc = self.class.get_template_text(dict, @options[:helper], @options[:current_folder])
+            return parser_error("dictionary #{dict.inspect} not found") unless doc
+            @context[:dict] ||= {}
+            begin
+              definitions = YAML::load(dict_content)
+              definitions['translations'].each do |elem|
+                @context[:dict][elem[0]] = elem[1]
+              end
+            rescue
+              return parser_error("invalid dictionary content #{dict.inspect}")
+            end
+          else
+            return parser_error("missing 'dictionary'")
+          end
+          expand_with
+        end
+
+        def _(text)
+          if @context[:dict]
+            @context[:dict][text] || helper.send(:_,text)
+          else
+            helper.send(:_,text)
+          end
+        end
+
+        def r_trans
+          # _1 ==> insert this param ==> trans(@params[:text])
+          method, klass = get_attribute_or_eval
+          return method unless klass # method contains the error message
+          return parser_error("Cannot translate a '#{klass}'.") unless klass.ancestors.include?(String)
+          if method.kind_of?(::RubyLess::TypedString) && method.literal
+            helper.send(:_, method.literal)
+          else
+            "<%= trans(#{method}) %>"
+          end
+        end
+
+        alias r_t r_trans
+        #def r_trans
+        #  static = true
+        #  if @params[:text]
+        #    text = @params[:text]
+        #  elsif @params[:attr]
+        #    text = "#{node_attribute(@params[:attr])}"
+        #    static = false
+        #  else
+        #    res  = []
+        #    text = ""
+        #    @blocks.each do |b|
+        #      if b.kind_of?(String)
+        #        res  << b.inspect
+        #        text << b
+        #      elsif ['show', 'current_date'].include?(b.method)
+        #        res << expand_block(b, :trans=>true)
+        #        static = false
+        #      else
+        #        # ignore
+        #      end
+        #    end
+        #    unless static
+        #      text = res.join(' + ')
+        #    end
+        #  end
+        #  if static
+        #    _(text)
+        #  else
+        #    "<%= _(#{text}) %>"
+        #  end
+        #end
       end
     end # I18n
   end # Use

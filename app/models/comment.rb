@@ -6,7 +6,7 @@ belong to the user _anon_ (see #User) and must have the 'athor_name' field set.
 If anonymous is moderated (User#moderated?), all public comments are set to 'prop' and are not directly seen on the site.
 =end
 class Comment < ActiveRecord::Base
-  include RubyLess::SafeClass
+  include RubyLess
 
   safe_attribute    :title, :created_at, :updated_at, :status
   safe_method       :text => String, :author_name => {:class => String, :nil => true},

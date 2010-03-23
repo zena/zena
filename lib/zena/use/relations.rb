@@ -5,7 +5,7 @@ module Zena
       # The ProxyLoader is used so that nested_attributes_alias resolution through node.send('link').send('friend')
       # makes it to the 'friend' relation proxy.
       class ProxyLoader
-        include RubyLess::SafeClass
+        include RubyLess
         safe_method [:[], String] => {:class => 'RelationProxy', :nil => true}
 
         def initialize(node)

@@ -31,10 +31,6 @@ bad_order_clause:
   src: "<r:images order='l_status ASC' do='each' join=',' do='[name]'/>"
   res: "<span class='parser_error'>[images order by l_status ASC] cannot use link field 'l_status' in this query</span>"
 
-mean_error:
-  src: "<r:date select='<% puts \"mean\" %>'/>"
-  res: "<span class='parser_error'>[date] bad parameter '&lt;% puts \"mean\" %&gt;'</span>"
-
 show_var:
   src: "<r:show var='boo'/>"
   tem: "<span class='parser_error'>[show] var \"boo\" not set</span>"
@@ -58,10 +54,6 @@ bad_argument_list_in_eval:
 nil_value:
   src: "<r:show eval='4 * [d_bob]'/>"
   res: "0.0"
-
-mean_eval:
-  src: "<r:show eval='puts \"bad\"'/>"
-  tem: "<span class='parser_error'>[show] var \"puts\" not set in eval</span>"
 
 not_finished_block:
   src: "<r:if kind_of='Document'><r:link format='data'><r:img mode='tiny'/> <r:show attr='name'/>.<r:show attr='c_ext'/></r:link><r:else do='link'/></r:if>"

@@ -28,3 +28,64 @@ wrong_lang_block_show:
 wrong_lang_else_block:
   src: "<r:wrong_lang do='else'>good</r:wrong_lang>"
   res: "good"
+
+trans:
+  context:
+    lang: 'fr'
+  src: "<r:trans>Monday</r:trans>"
+  tem: "lundi"
+  res: "lundi"
+
+translate_text:
+  context:
+    lang: 'fr'
+  src: "<r:t text='Monday'/>"
+  tem: "lundi"
+  res: "lundi"
+
+translate_attr:
+  context:
+    lang: 'fr'
+  src: "<r:t attr='title'/>"
+  tem: "<%= trans(@node.prop['title']) %>"
+  res: "Etat des travaux" # no translation
+
+translate_eval:
+  context:
+    lang: 'fr'
+  src: "<r:t eval='version.lang'/>"
+  tem: "<%= trans(@node.version.lang) %>"
+  res: "français"
+
+trans_rubyless:
+  context:
+    lang: 'fr'
+  src: "<p do=\"trans('Monday')\"/>"
+  tem: "<p>lundi</p>"
+
+trans_rubyless_attr:
+  context:
+    lang: 'fr'
+  src: "<p do=\"trans(v.lang)\"/>"
+  tem: "<p><%= trans(@node.version.lang) %></p>"
+  res: "<p>français</p>"
+
+trans_attr:
+  context:
+    lang: 'en'
+  src: "<r:trans attr='ref_lang'/>"
+  tem: "<%= trans(@node.ref_lang) %>"
+  res: "english"
+
+trans_text_dyn_string:
+  src: "<r:trans text='lang_#{ref_lang}'/>"
+  tem: "<%= trans(\"lang_#{@node.ref_lang}\") %>"
+  res: "lang_en"
+
+trans_literal_string:
+  src: "<r:trans text='e#{\"\"}n'/>"
+  tem: "english"
+
+trans_block:
+  src: "<r:t>en</r:t>"
+  tem: "english"

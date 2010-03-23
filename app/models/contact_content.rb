@@ -16,7 +16,7 @@ email::      email address
 birthday::   birthday (date)
 =end
 class ContactContent < ActiveRecord::Base
-  include RubyLess::SafeClass
+  include RubyLess
   safe_method    :created_at => Time, :updated_at => Time, :fullname => String, :initials => String,
                  :address => String
   safe_attribute :name, :first_name, :city, :country, :telephone, :mobile, :email, :zip
