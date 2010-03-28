@@ -27,27 +27,6 @@ module Zafu
     inline_methods :login_link, :visitor_link, :search_box, :show_menu, :show_path, :lang_links
     direct_methods :uses_datebox
 
-    def r_javascripts
-      if @params[:list].nil?
-        list = %w{ prototype effects tablekit zena }
-      elsif @params[:list] == 'all'
-        list = %w{ prototype effects dragdrop tablekit zena }
-      else
-        list = @params[:list].split(',').map{|e| e.strip}
-      end
-      helper.javascript_include_tag(*list)
-    end
-
-    def r_stylesheets
-      if @params[:list] == 'all' || @params[:list].nil?
-        list = %w{ zena code }
-      else
-        list = @params[:list].split(',').map{|e| e.strip}
-      end
-      list << {:media => @params[:media]} if @params[:media]
-      helper.stylesheet_link_tag(*list)
-    end
-
     def r_show
       if attr_or_date = @params[:attr_or_date]
         # using [var] shortcut. Can be either a date or an attribute/var

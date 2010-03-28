@@ -225,6 +225,7 @@ module Zena
                     }
         safe_method [:trans, String] => translate
         safe_method [:t,     String] => translate
+        safe_method [:lang_links, {:wrap => String, :join => String}] => String
 
         def self.included(base)
           base.send(:alias_method_chain, :will_paginate, :i18n) if base.respond_to?(:will_paginate)
@@ -251,6 +252,34 @@ module Zena
 
         def trans(str)
           ApplicationController.send(:_, str)
+        end
+
+
+        # show language selector
+        def lang_links(opts={})
+          if opts[:wrap]
+            tag_in  = "<#{opts[:wrap]}>"
+            tag_out = "</#{opts[:wrap]}>"
+          else
+            tag_in = tag_out = ''
+          end
+          res = []
+          visitor.site.lang_list.each do |l|
+            if l == visitor.lang
+              if opts[:wrap]
+                res << "<#{opts[:wrap]} class='on'>#{l}" + tag_out
+              else
+                res << "<em>#{l}</em>"
+              end
+            else
+              if visitor.is_anon? && params[:prefix]
+                res << tag_in + link_to(l, :overwrite_params => {:prefix => l}) + tag_out
+              else
+                res << tag_in + link_to(l, :overwrite_params => {:lang   => l}) + tag_out
+              end
+            end
+          end
+          res.join(opts[:join] || '')
         end
       end # ViewMethods
 
@@ -337,6 +366,35 @@ module Zena
         #  else
         #    "<%= _(#{text}) %>"
         #  end
+        #end
+
+
+        # show language selector
+        #def r_lang_links
+        #  if wrap_tag = @params[:wrap]
+        #    wrap_tag = ::Zafu::Markup.new(wrap_tag)
+        #    tag_in  = "<#{opts[:wrap]}>"
+        #    tag_out = "</#{opts[:wrap]}>"
+        #  else
+        #    tag_in = tag_out = ''
+        #  end
+        #  res = []
+        #  visitor.site.lang_list.each do |l|
+        #    if l == visitor.lang
+        #      if opts[:wrap]
+        #        res << "<#{opts[:wrap]} class='on'>#{l}" + tag_out
+        #      else
+        #        res << "<em>#{l}</em>"
+        #      end
+        #    else
+        #      if visitor.is_anon? && params[:prefix]
+        #        res << tag_in + link_to(l, :overwrite_params => {:prefix => l}) + tag_out
+        #      else
+        #        res << tag_in + link_to(l, :overwrite_params => {:lang   => l}) + tag_out
+        #      end
+        #    end
+        #  end
+        #  res.join(opts[:join] || '')
         #end
       end
     end # I18n

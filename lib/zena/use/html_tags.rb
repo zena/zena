@@ -438,32 +438,6 @@ module Zena
           end
         end
 
-        # show language selector
-        def lang_links(opts={})
-          if opts[:wrap]
-            tag_in  = "<#{opts[:wrap]}>"
-            tag_out = "</#{opts[:wrap]}>"
-          else
-            tag_in = tag_out = ''
-          end
-          res = []
-          visitor.site.lang_list.each do |l|
-            if l == visitor.lang
-              if opts[:wrap]
-                res << "<#{opts[:wrap]} class='on'>#{l}" + tag_out
-              else
-                res << "<em>#{l}</em>"
-              end
-            else
-              if visitor.is_anon? && params[:prefix]
-                res << tag_in + link_to(l, :overwrite_params => {:prefix => l}) + tag_out
-              else
-                res << tag_in + link_to(l, :overwrite_params => {:lang   => l}) + tag_out
-              end
-            end
-          end
-          res.join(opts[:join] || '')
-        end
 
         # show current path with links to ancestors
         def show_path(opts={})

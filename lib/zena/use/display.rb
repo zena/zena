@@ -112,6 +112,7 @@ module Zena
 
         safe_method [:zazen, String] => :r_zazen
 
+        # Parse text with zazen helper
         def r_zazen(signature = nil)
           @markup.prepend_param(:class, 'zazen')
           node = node(Node)
@@ -153,6 +154,7 @@ module Zena
           end
         end
 
+        # Display an attribute or RubyLess code
         def r_show
           method, klass = get_attribute_or_eval
           return method unless klass # method contains the error message
@@ -164,7 +166,7 @@ module Zena
           elsif klass.ancestors.include?(Time)
             res = show_time(method)
           else
-            return parser_error("Invalid type: #{type[:class]}")
+            res = show_string("#{method}.to_s")
           end
 
 
@@ -180,6 +182,30 @@ module Zena
 
           res
         end
+
+        # Insert javascript asset tags
+        def r_javascripts
+          if @params[:list].nil?
+            list = %w{ prototype effects tablekit zena }
+          elsif @params[:list] == 'all'
+            list = %w{ prototype effects dragdrop tablekit zena }
+          else
+            list = @params[:list].split(',').map{|e| e.strip}
+          end
+          helper.javascript_include_tag(*list)
+        end
+
+        # Insert stylesheet asset tags
+        def r_stylesheets
+          if @params[:list] == 'all' || @params[:list].nil?
+            list = %w{ zena code }
+          else
+            list = @params[:list].split(',').map{|e| e.strip}
+          end
+          list << {:media => @params[:media]} if @params[:media]
+          helper.stylesheet_link_tag(*list)
+        end
+
 
         def show_number(method)
           if fmt = @params[:format]

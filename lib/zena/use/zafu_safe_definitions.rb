@@ -11,6 +11,8 @@ module Zena
         safe_method [:params] => ParamsDictionary
         safe_method_for String, [:gsub, Regexp, String] => {:class => String, :pre_processor => true}
         safe_method_for String, :upcase => {:class => String, :pre_processor => true}
+        safe_method :visitor => User
+        safe_method :site => {:class => Site, :method => 'visitor.site'}
       end
     end
   end

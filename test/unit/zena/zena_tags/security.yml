@@ -11,6 +11,10 @@ show_mean_gsub:
   src: "<r:void do='text.gsub(/#{puts \"I AM MEAN\"}/, \"\")'/>"
   tem: "<span class='parser_error'><span class='method'>text.gsub(/\#{puts \"I AM MEAN\"}/, \"\")</span> 'dregx' not available in RubyLess.</span>"
 
+erb:
+  src: "<% puts 'mean' %>"
+  tem: "&lt;% puts 'mean' %&gt;"
+
 #----------- fixed up to here
 
 mean_error:

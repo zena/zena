@@ -1,0 +1,18 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'status'
+  src: "simple text"
+  tem: "simple text"
+  res: "simple text"
+
+
+login:
+  src: "<r:visitor do='login'/>"
+  tem: "<% var1 = visitor -%><%= var1.login %>"
+  res: "ant"
+
+lang:
+  src: "<r:eval>visitor.lang</r:eval>"
+  res: "en"

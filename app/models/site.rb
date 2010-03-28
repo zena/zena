@@ -18,7 +18,7 @@ The #Site model holds configuration information for a site:
 =end
 class Site < ActiveRecord::Base
   include RubyLess
-  safe_method :host => String
+  safe_method :host => String, :lang_list => [String]
 
   validate :valid_site
   validates_uniqueness_of :host

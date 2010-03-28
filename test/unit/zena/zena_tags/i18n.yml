@@ -89,3 +89,19 @@ trans_literal_string:
 trans_block:
   src: "<r:t>en</r:t>"
   tem: "english"
+
+lang_links:
+  src: "<div id='lang' do='lang_links'><a>en</a> | <b>fr</b></div>"
+  tem: "<div id='lang'><%= lang_links %></div>"
+  res: "/<div id='lang'><em>en.*test_render.*=fr/"
+
+lang_links_options:
+  src: "<div id='lang' do='lang_links' join=' | ' wrap='p'><a>en</a> | <b>fr</b></div>"
+  res: "/<div id='lang'><p class='on'>en.*\|.*test_render.*=fr/"
+
+complex_lang_list:
+  src: |
+    <ul do='site.lang_list'>
+      <li do='each' class='#{this == visitor.lang ? "on" : "off"}' do='zen_path(@node, :lang =&gt; this)'/>
+    </ul>
+  res: "/li class='on'>/oo/projects/cleanWater/page22.html\?lang=en</"

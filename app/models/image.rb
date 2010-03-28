@@ -58,8 +58,8 @@ class Image < Document
     t.integer 'height'
     t.text    'exif_json'
   end
-
-  safe_method           :width => Number, :height => Number, :exif => 'ExifData'
+  safe_property         :width, :height
+  safe_method           :exif => 'ExifData'
 
   before_validation     :image_before_validation
 

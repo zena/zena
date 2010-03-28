@@ -39,7 +39,7 @@ module Zena
           opts   = options.dup
           format = opts.delete(:format)
           format = 'html' if format.blank?
-          pre    = opts.delete(:prefix) || prefix
+          pre    = opts.delete(:prefix) || (visitor.is_anon? ? opts.delete(:lang) : prefix)
           mode   = opts.delete(:mode)
           host   = opts.delete(:host)
           abs_url_prefix = host ? "http://#{host}" : ''
@@ -178,7 +178,7 @@ module Zena
         safe_method [:url,  Node]     => {:class => String, :method => 'zen_url'}
         safe_method [:path, Node]     => {:class => String, :method => 'zen_path'}
         safe_method [:zen_path, Node] => String
-        safe_method [:zen_path, Node, {:mode => String, :format => String}] => String
+        safe_method [:zen_path, Node, {:mode => String, :format => String, :lang => String}] => String
       end # ViewMethods
 
       module ZafuMethods

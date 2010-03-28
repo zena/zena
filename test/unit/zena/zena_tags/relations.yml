@@ -147,6 +147,11 @@ node_root:
   src: "<r:node select='root'><r:show attr='name'/></r:node>"
   res: "zena"
 
+parent:
+  src: "<r:parent do='name'/>"
+  tem: "<% if var1 = @node.parent -%><h1><%= show_title(:node=>var1, :text=>var1.version.title)%></h1><% end -%>"
+  res: "<h1><a href='/oo/projects/cleanWater'><span id='v_title21'>Clean Water project</span></a></h1>"
+
 parent_no_parent:
   src: "result=<r:node select='root'><r:parent><r:show attr='name'/></r:parent></r:node>="
   res: "result=="

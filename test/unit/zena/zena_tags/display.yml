@@ -121,3 +121,45 @@ zazen:
   src: "<r:zazen attr='title'/>"
   tem: "<%= zazen(@node.prop['title'], :node => @node) %>"
   res: "<p>status title</p>"
+
+show_bad_attr:
+  src: "my <r:show attr=':name'/>"
+  tem: "my <span class='parser_error'><span class='method'>show</span> Unknown attribute ':name'.</span>"
+
+show_name:
+  src: "my <r:show attr='name'/>"
+  res: "my status"
+
+show_text:
+  old_src: "my <r:show attr='v_text'/>"
+  src: "my <r:show attr='text'/>"
+  res: "my status text"
+
+show_width:
+  context:
+    node: "bird_jpg"
+  src: "width = <r:Image do='width'/>"
+  tem: "/@node.prop\['width'\]/"
+  res: "width = 660"
+
+show_else:
+  old_src: "<r:show attr='v_comment' else='name'/>"
+  src: "<r:show eval='comment || name'/>"
+  tem: "<%= (@node.prop['comment'] or @node.name).to_s %>"
+  res: "status"
+
+show_default:
+  old_src: "<r:show attr='d_foo' default='baz'/>"
+  src: "<r:show eval='comment || \"baz\"'/>"
+  tem: "<%= (@node.prop['comment'] or \"baz\").to_s %>"
+  res: "baz"
+
+javascripts:
+  src: "<r:javascripts list='prototype,effects,zena'/>"
+  tem: "/<script src.*/javascripts/prototype.js.*script src=.*effects.js.*zena.js/"
+
+stylesheets:
+  src: "<r:stylesheets list='zena,code,search'/>"
+  tem: "/link href.*/stylesheets/zena.css.*text/css.*code.css.*text/css.*search.css.*stylesheet/"
+
+# ---- fixed to here
