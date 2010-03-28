@@ -170,13 +170,14 @@ module Zena
 
           if @params[:live] == 'true'
             erb_id = "_#{@params[:attr]}<%= #{node}.zip %>"
-            if @markup.has_param?(:id) || @out_post != ''
+            if !@markup.tag || @markup.has_param?(:id) || @out_post != ''
               # Do not overwrite id or use span if we have post content (actions) that would disappear on live update.
               res = "<span id='#{erb_id}'>#{res}</span>"
             else
               @markup.set_dyn_params(:id => erb_id)
             end
           end
+
           res
         end
 

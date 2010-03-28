@@ -175,8 +175,10 @@ module Zena
       module ViewMethods
         include Common
         include RubyLess
-        safe_method [:url,  Node] => {:class => String, :method => 'zen_url'}
-        safe_method [:path, Node] => {:class => String, :method => 'zen_path'}
+        safe_method [:url,  Node]     => {:class => String, :method => 'zen_url'}
+        safe_method [:path, Node]     => {:class => String, :method => 'zen_path'}
+        safe_method [:zen_path, Node] => String
+        safe_method [:zen_path, Node, {:mode => String, :format => String}] => String
       end # ViewMethods
 
       module ZafuMethods
@@ -200,16 +202,13 @@ module Zena
         private
           def make_link(options = {})
             @markup.tag ||= 'a'
+            method      = 'zen_path'
+            method_args = []
 
             if href = @params[:href]
-              type = build_query(:first, href, {})
-              if type && type[:class].ancestors.include?(Node)
-                node = type[:method]
-              else
-                return parser_error("Invalid href parameter #{href.inspect}")
-              end
+              method_args << href
             else
-              node = node(Node)
+              method_args << 'this'
             end
 
             if @markup.tag == 'a'
@@ -218,8 +217,24 @@ module Zena
               markup = ::Zafu::Markup.new('a')
             end
 
+            hash_params = []
+            [:mode, :format].each do |link_param|
+              if value = @params[link_param]
+                hash_params << ":#{link_param} => %Q{#{value}}"
+              end
+            end
+
+            unless hash_params.empty?
+              method_args << hash_params.join(', ')
+            end
+
+            method = "#{method}(#{method_args.join(', ')})"
+
+            link = ::RubyLess.translate(method, self)
+
             steal_and_eval_html_params_for(markup, @params)
-            markup.set_dyn_params(:href => "<%= zen_path(#{node}) %>")
+
+            markup.set_dyn_params(:href => "<%= #{link} %>")
             markup.wrap text_for_link
 =begin
             query_params = options[:query_params] || {}

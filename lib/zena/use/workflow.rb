@@ -16,8 +16,8 @@ module Zena
     # and it should be included *before* these two modules.
     module Workflow
       WORKFLOW_ATTRIBUTES = ['status', 'publish_from']
-      # The Workflow::Version module should be included in the model used as version.
-      module Version
+      # The Workflow::VersionMethods module should be included in the model used as version.
+      module VersionMethods
         attr_reader   :stored_workflow, :status_set
         # Enable the use of version.backup = 'true' to force clone
         attr_accessor :backup

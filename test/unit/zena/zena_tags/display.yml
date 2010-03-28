@@ -1,3 +1,12 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'status'
+  src: "simple text"
+  tem: "simple text"
+  res: "simple text"
+
 show_title:
   old_src: "<r:show attr='v_title'/>"
   old_tem: "<%= @node.version.title %>"
@@ -29,6 +38,29 @@ show_title_link_id:
   src: "<r:link href='32' do='title' live='true'/>"
   res: "<a href='/oo/page32.html'><span id='_title22'>status title</span></a>"
 
+
+do_title:
+  src: "<h2 do='title'/>"
+  tem: "<h2><%= @node.prop['title'] %></h2>"
+  res: "<h2>status title</h2>"
+
+title_link_format:
+  src: "<h2 do='title' link='details.xml'/>"
+  tem: "<h2><%= show_title(:node=>@node, :link=>\"details.xml\")%></h2>"
+  res: "<h2><a href='/oo/projects/cleanWater/page22_details.xml'><span id='v_title22'>status title</span></a></h2>"
+
+title_link_data:
+  context:
+    node: 'bird_jpg'
+  src: "<h2 do='title' link='data' attr='v_title'>super titre</h2>"
+  res: "<h2><a href='/en/image30.jpg?1144713600'><span id='v_title30'>bird</span></a></h2>"
+
+title_link_data_mode:
+  context:
+    node: 'bird_jpg'
+  src: "<h2 do='title' link='pv.data'>super title</h2>"
+  res: "<h2><a href='/en/image30_pv.jpg?967816914293'><span id='v_title30'>bird</span></a></h2>"
+
 show_title_link_id_from_stored:
   # disabled
   old_src: "<r:parent><r:title link='[main.id]'/></r:parent>"
@@ -38,6 +70,10 @@ show_title_link_id_from_stored_mode_and_format:
   # disabled
   old_src: "<r:parent><r:title link='[main.id]_blog.rss'/></r:parent>"
   old_res: "<a href='/oo/projects/cleanWater/page22_blog.rss'><span id='_title21'>Clean Water project</span></a>"
+
+show_live_no_tag:
+  src: "<r:show attr='title' live='true'/>"
+  res: "<span id='_title22'>status title</span>"
 
 show_format:
   old_src: "<b do='[id]' format='%.2f'/>"

@@ -151,17 +151,6 @@ module Zafu
           all
         end
       end
-
-      def single_child_method
-        return @single_child_method if defined?(@single_child_method)
-        @single_child_method = if @blocks.size == 1
-          single_child = @blocks[0]
-          return nil if single_child.kind_of?(String)
-          single_child.html_tag ? nil : single_child.method
-        else
-          nil
-        end
-      end
     end # MoveToParser
   end # Core
 end # Zafu

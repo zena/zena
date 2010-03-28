@@ -129,3 +129,12 @@ link_url_params:
 link_url_params_parsed_values:
   src: "<r:link plob='haha [name]'/>"
   res: "<a href='/oo/projects/cleanWater/page22.html?plob=haha+status'>status title</a>"
+
+link_in_anchor:
+  src: "<r:anchor do='link'/>"
+  res: "<a class='anchor' name='node22' href='/oo/projects/cleanWater/page22.html'>status title</a>"
+
+title_link_mode:
+  old_src: "<h2 do='title' link='details'/>"
+  src: "<h2 do='link' mode='details' do='title' live='true'/>"
+  res: "<h2><a href='/oo/projects/cleanWater/page22_details.html'><span id='_title22'>status title</span></a></h2>"

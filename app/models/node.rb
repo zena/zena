@@ -189,7 +189,8 @@ class Node < ActiveRecord::Base
                      :data_a => {:class => ['DataEntry'], :data_root => 'node_a'},
                      :data_b => {:class => ['DataEntry'], :data_root => 'node_b'},
                      :data_c => {:class => ['DataEntry'], :data_root => 'node_c'},
-                     :data_d => {:class => ['DataEntry'], :data_root => 'node_d'}
+                     :data_d => {:class => ['DataEntry'], :data_root => 'node_d'},
+                     :traductions => ['Version']
   safe_method        :v => {:class => 'Version', :method => 'version'},
                      :version => 'Version'
 
@@ -777,6 +778,10 @@ class Node < ActiveRecord::Base
     proxy
   end
   alias_method_chain :versions, :secure
+
+  def traductions
+    @traductions ||= secure(Version) { versions.all(:conditions => "status = #{Zena::Status[:pub]}") }
+  end
 
   # Additional security so that unsecure finders explode when trying to update/save or follow relations.
   # def visitor

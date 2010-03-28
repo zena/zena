@@ -1,0 +1,19 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'status'
+
+link_version:
+  context:
+    node: 'opening'
+  src: "<r:traductions><r:each join=', '><r:link eval='trans(lang)'/></r:each></r:traductions>"
+  res: "<a href='/oo/projects/cleanWater/post27.html?lang=en'>english</a>, <a href='/oo/projects/cleanWater/post27.html?lang=fr'>french</a>"
+
+version_anchor:
+  context:
+    node: 'opening'
+  src: "<r:traductions><r:each join=', '><r:anchor do='link' eval='trans(lang)'/></r:each></r:traductions>"
+  res: "<a class='anchor' name='version27_2' href='/oo/projects/cleanWater/post27.html?lang=en'>english</a>, <a class='anchor' name='version27_1' href='/oo/projects/cleanWater/post27.html?lang=fr'>french</a>"
+
+# ------ fix to here

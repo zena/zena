@@ -10,9 +10,9 @@ module Zena
       #
       # 3. helper (view) tries to resolve safe_method_type as RubyLess or PseudoSQL
       module ZafuMethods
-        def safe_method_type(signature)
-          super || pseudo_sql_method(signature)
-        end
+        #def safe_method_type(signature)
+        #  super || pseudo_sql_method(signature)
+        #end
 
         private
           def pseudo_sql_method(signature)

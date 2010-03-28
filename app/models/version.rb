@@ -3,6 +3,7 @@ require 'versions'
 class Version < ActiveRecord::Base
   include RubyLess
   safe_attribute     :created_at, :updated_at, :publish_from, :status, :lang
+  safe_method        :node => 'Node', :id => {:class => Number, :method => 'number'}, :number => Number
 
   # We need to include Property::Base so that we can read the properties that
   # we store (useful when listing versions or comparing them).
@@ -17,16 +18,10 @@ class Version < ActiveRecord::Base
   include Versions::Auto
   # include Versions::Destroy
 
-  # FIXME: Refactor
-  include Zena::Refactor::ContentCalling
-
-  #include Zena::Use::SharedAttachment
-  #set_attachment_class 'Zena::Attachment'
-
-  include Zena::Use::Workflow::Version
-  include Zena::Refactor::Version
+  include Zena::Use::Workflow::VersionMethods
 
   belongs_to :user
+  belongs_to :node
 
   attr_protected :node_id, :site_id, :content_id
 

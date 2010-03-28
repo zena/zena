@@ -9,22 +9,6 @@ default:
 
 #----------- fixed up to here
 
-anchor:
-  src: "<r:anchor/> <p do='[id]' anchor='[name]'>hello</p>"
-  res: "<a name='node22'></a><a name='status'></a> <p>22</p>"
-
-anchor_in_link:
-  src: "<r:anchor do='link'/>"
-  res: "<a name='node22' href='/oo/projects/cleanWater/page22.html'>status title</a>"
-
-show_title_anchor:
-  src: "<r:title anchor='true'/>"
-  res: "<a name='node22'></a><span id='v_title22'>status title</span>"
-
-show_attr_anchor:
-  src: "<r:show attr='name' anchor='true'/>"
-  res: "<a name='node22'></a>status"
-
 link_version:
   context:
     node: 'opening'
