@@ -245,13 +245,13 @@ module Zena
       def insert_id(key)
         return unless column_names.include?("#{key}_id")
         @inserted_keys << key
-        out_pair("#{key}_id", Zena::FoxyParser::id(site, elements[@name][key]))
+        out_pair("#{key}_id", FoxyParser.id(site, elements[@name][key]))
       end
 
       def insert_multi_site_id(key)
         return unless column_names.include?("#{key}_id")
         @inserted_keys << key
-        out_pair("#{key}_id", Zena::FoxyParser::multi_site_id(elements[@name][key]))
+        out_pair("#{key}_id", FoxyParser.multi_site_id(elements[@name][key]))
       end
 
       def id_keys
@@ -260,6 +260,18 @@ module Zena
 
       def multi_site_id_keys
         ['user']
+      end
+
+      def make_prop(prop)
+        prop.each do |key, value|
+          if value.kind_of?(String)
+            value.gsub!(%r{\[FILE:(.*?)\]}) do
+              File.read("#{Zena::ROOT}/#{$1}")
+            end
+          end
+        end
+
+        Property::Properties[prop].to_json
       end
   end
 
@@ -318,7 +330,7 @@ module Zena
           end
 
           node[:header_keys] += ['type','vclass_id','kpath', 'zip', 'publish_from', 'vhash', 'inherit',
-           'rgroup_id', 'wgroup_id', 'dgroup_id', 'skin', 'fullpath', 'basepath']
+           'rgroup_id', 'wgroup_id', 'dgroup_id', 'skin_id', 'fullpath', 'basepath']
 
           klass = node['class']
           if virtual_classes[site] && vc = virtual_classes[site][klass]
@@ -535,7 +547,7 @@ module Zena
                 version['lang'] ||= node['ref_lang']
                 version['user_id'] ||= Zena::FoxyParser::multi_site_id(node['user'])
                 if prop = version.delete('prop')
-                  version['properties'] = Property::Properties[prop].to_json unless prop.blank?
+                  version['properties'] = make_prop(prop) unless prop.blank?
                 end
 
                 out ""
@@ -560,10 +572,12 @@ module Zena
               out "\n# ========== #{site} (generated from 'nodes.yml') ==========="
               out ""
               templates.each do |name, template|
-                template['id'] = Zena::FoxyParser.id(site, name)
-                template['node_id'] = Zena::FoxyParser.id(site, name)
+                template['id'] = FoxyParser.id(site, name)
+                template['node_id'] = FoxyParser.id(site, name)
+                template['skin_id'] = FoxyParser.id(site, elements[name]['section'])
+                template['site_id'] = FoxyParser.multi_site_id(site)
                 version = @inline_versions[site][name]
-                template['version_id'] = Zena::FoxyParser.id(site, "#{name}_#{version['lang']}")
+                template['version_id'] = FoxyParser.id(site, "#{name}_#{version['lang']}")
                 out ""
                 out "#{site}_#{name}:"
                 @inserted_keys = []
@@ -601,7 +615,7 @@ module Zena
           version['prop']['title'] ||= raw_nodes[version['node']]['name'] || version['node']
 
           if prop = version.delete('prop')
-            version['properties'] = Property::Properties[prop].to_json unless prop.blank?
+            version['properties'] = make_prop(prop) unless prop.blank?
           end
           node_versions = site_versions[version['node']] ||= []
           node_versions << version

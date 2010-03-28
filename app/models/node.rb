@@ -151,7 +151,8 @@ class Node < ActiveRecord::Base
                 :score => Number, :comments_count => Number,
                 :custom_a => Number, :custom_b => Number,
                 :m_text => String, :m_title => String, :m_author => String,
-                :id => {:class => Number, :method => 'zip'}
+                :id => {:class => Number, :method => 'zip'},
+                :skin => Skin
   # FIXME: remove 'zip' and use :id => {:class => Number, :method => 'zip'}
   # same with parent_zip, section_zip, etc...
 
@@ -161,6 +162,7 @@ class Node < ActiveRecord::Base
   has_and_belongs_to_many :cached_pages
   belongs_to         :virtual_class, :foreign_key => 'vclass_id'
   belongs_to         :site
+  belongs_to         :skin
   before_validation  :set_defaults
   before_validation  :node_before_validation
   validates_presence_of :name
@@ -993,6 +995,11 @@ class Node < ActiveRecord::Base
     else
       secure(Node, :secure => false) { Project.find(self[:project_id]) }
     end
+  end
+
+  alias o_skin skin
+  def skin
+    @skin ||= secure(Skin) { o_skin }
   end
 
   # Create a child and let him inherit from rwp groups and section_id

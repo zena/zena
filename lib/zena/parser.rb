@@ -14,11 +14,10 @@ module Zena
         @strings = strings
       end
 
-      def get_template_text(opts)
-        src    = opts[:src]
-        folder = (opts[:current_folder] && opts[:current_folder] != '') ? opts[:current_folder][1..-1].split('/') : []
+      def get_template_text(src, current_dir)
+        current_dir = (current_dir && current_dir != '') ? current_dir[1..-1].split('/') : []
         src = src[1..-1] if src[0..0] == '/' # just ignore the 'relative' or 'absolute' tricks.
-        url = (folder + src.split('/')).join('_')
+        url = (current_dir + src.split('/')).join('_')
         if test = @strings[url]
           return [test['src'], url.split('_').join('/')]
         else
@@ -55,20 +54,20 @@ module Zena
       class << self
         def new_with_url(url, opts={})
           helper = opts[:helper] || ParserModule::DummyHelper.new
-          text, absolute_url = self.get_template_text(url,helper)
-          current_folder     = absolute_url ? absolute_url.split('/')[1..-2].join('/') : nil
-          self.new(text, :helper=>helper, :current_folder=>current_folder, :included_history=>[absolute_url], :root => url)
+          text, absolute_url = self.get_template_text(url, helper)
+          current_dir     = absolute_url ? absolute_url.split('/')[1..-2].join('/') : nil
+          self.new(text, :helper=>helper, :current_dir=>current_dir, :included_history=>[absolute_url], :root => url)
         end
 
         # Retrieve the template text in the current folder or as an absolute path.
         # This method is used when 'including' text
-        def get_template_text(url, helper, current_folder=nil)
+        def get_template_text(url, helper, current_dir=nil)
 
-          if (url[0..0] != '/') && current_folder
-            url = "#{current_folder}/#{url}"
+          if (url[0..0] != '/') && current_dir
+            url = "#{current_dir}/#{url}"
           end
 
-          res = helper.send(:get_template_text, :src=>url, :current_folder=>'')
+          res = helper.send(:get_template_text, url, nil)
           return ["<span class='parser_error'>[include] template '#{url}' not found</span>", nil, nil] unless res
           text, url, node = *res
           url = "/#{url}" unless url[0..0] == '/' # has to be an absolute path
@@ -238,7 +237,7 @@ module Zena
         # fetch text
         @options[:included_history] ||= []
 
-        included_text, absolute_url = self.class.get_template_text(@params[:template], @options[:helper], @options[:current_folder])
+        included_text, absolute_url = self.class.get_template_text(@params[:template], @options[:helper], @options[:current_dir])
 
         if absolute_url
           absolute_url += "::#{@params[:part].gsub('/','_')}" if @params[:part]
@@ -247,10 +246,10 @@ module Zena
             included_text = "<span class='parser_error'>[include] infinity loop: #{(@options[:included_history] + [absolute_url]).join(' --&gt; ')}</span>"
           else
             included_history  = @options[:included_history] + [absolute_url]
-            current_folder    = absolute_url.split('/')[1..-2].join('/')
+            current_dir    = absolute_url.split('/')[1..-2].join('/')
           end
         end
-        res = self.class.new(included_text, :helper=>@options[:helper], :current_folder=>current_folder, :included_history=>included_history, :part => @params[:part], :root=>@options[:root]) # we set :part to avoid loop failure when doing self inclusion
+        res = self.class.new(included_text, :helper=>@options[:helper], :current_dir=>current_dir, :included_history=>included_history, :part => @params[:part], :root=>@options[:root]) # we set :part to avoid loop failure when doing self inclusion
 
         if @params[:part]
           if iblock = res.ids[@params[:part]]

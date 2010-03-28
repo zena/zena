@@ -152,7 +152,7 @@ wiki:
   rgroup:          public
   wgroup:          public
   dgroup:          public
-  skin:            wikiSkin
+  skin:            wiki_skin
 
 bird_jpg:
   zip:             30

@@ -20,18 +20,17 @@ class Template < TextDocument
     t.string  'format'
     t.string  'mode'
     t.string  'tkpath'
-    t.string  'skin_name'
 
     t.index(TemplateIndex) do |rec|
       {
         'format'    => rec.format,
         'mode'      => rec.mode,
         'tkpath'    => rec.tkpath,
-        'skin_name' => rec.skin_name, # FIXME: replace with skin id !!!
+        'skin_id'   => rec[:section_id],
       }
     end
 
-    safe_property :tkpath, :skin_name, :mode, :klass, :format
+    safe_property :tkpath, :mode, :klass, :format
   end
 
   attr_protected    :tkpath

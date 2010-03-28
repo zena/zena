@@ -27,7 +27,6 @@ Node_zafu:
   name:            Node
   v_title:         Node
   template:
-    skin_name:     cskin
     format:        html
     tkpath:        N
 

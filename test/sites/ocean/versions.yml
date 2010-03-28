@@ -50,7 +50,7 @@ whale_en:
 
 skin_en:
   type:            TemplateVersion
-  node:            skin
+  node:            default
   user:            whale
   prop:
     title:         skin

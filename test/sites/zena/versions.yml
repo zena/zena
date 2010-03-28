@@ -471,7 +471,6 @@ wiki_project_changes_xml_en:
           <id><r:show attr='id'/></id>
         </note>
       </notes>
-    skin_name:     wikiSkin
     format:        xml
     tkpath:        NPP
     mode:          changes
@@ -489,7 +488,6 @@ wiki_page_changes_en:
           page changes
         </r:with>
       </r:include>
-    skin_name:     wikiSkin
     format:        html
     tkpath:        NP
     mode:          changes
@@ -522,10 +520,9 @@ wiki_node_en:
           WIKI
         </r:with>
       </r:include>
-    skin_name:       wikiSkin
-    format:          html
-    tkpath:          N
-    klass:           Node
+    format:        html
+    tkpath:        N
+    klass:         Node
 
 skins_en:
   node:            skins
@@ -555,7 +552,6 @@ Node_search_zafu_en:
   user:            tiger
   prop:
     text:          "[FILE:db/init/base/skins/default/Node-+search.zafu]"
-    skin_name:     default
     format:        html
     tkpath:        N
     mode:          "+search"
@@ -575,7 +571,6 @@ Node_zafu_en:
   user:            tiger
   prop:
     text:          "[FILE:db/init/base/skins/default/Node.zafu]"
-    skin_name:     default
     format:        html
     tkpath:        N
     klass:         Node
@@ -585,7 +580,6 @@ Node_admin_layout_zafu_en:
   user:            tiger
   prop:
     text:          "[FILE:db/init/base/skins/default/Node-+adminLayout.zafu]"
-    skin_name:     default
     format:        html
     tkpath:        N
     mode:          "+adminLayout"
@@ -596,7 +590,6 @@ Node_index_zafu_en:
   user:            tiger
   prop:
     text:          "[FILE:db/init/base/skins/default/Node-+index.zafu]"
-    skin_name:     default
     format:        html
     tkpath:        N
     mode:          "+index"
@@ -607,7 +600,6 @@ Node_not_found_zafu_en:
   user:            tiger
   prop:
     text:          "[FILE:db/init/base/skins/default/Node-+notFound.zafu]"
-    skin_name:     default
     format:        html
     tkpath:        N
     mode:          "+notFound"
@@ -618,7 +610,6 @@ Node_popup_layout_zafu_en:
   user:            tiger
   prop:
     text:          "[FILE:db/init/base/skins/default/Node-+popupLayout.zafu]"
-    skin_name:     default
     format:        html
     tkpath:        N
     mode:          "+popupLayout"
@@ -629,7 +620,6 @@ Node_test_en:
   user:            tiger
   prop:
     text:          "[FILE:test/fixtures/files/Node-test.zafu]"
-    skin_name:     default
     format:        html
     tkpath:        N
     mode:          test
@@ -640,7 +630,6 @@ notes_zafu_en:
   user:            tiger
   prop:
     text:          "[FILE:db/init/base/skins/default/notes.zafu]"
-    skin_name:     default
     format:        html
 
 Project_zafu_en:
@@ -648,7 +637,6 @@ Project_zafu_en:
   user:            tiger
   prop:
     text:          "[FILE:db/init/base/skins/default/Project.zafu]"
-    skin_name:     default
     format:        html
     tkpath:        NPP
     klass:         Project
@@ -658,7 +646,6 @@ Node_login_zafu_en:
   user:            tiger
   prop:
     text:          "[FILE:db/init/base/skins/default/Node-+login.zafu]"
-    skin_name:     default
     format:        html
     tkpath:        N
     mode:          "+login"

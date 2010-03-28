@@ -42,7 +42,7 @@ class TextDocument < Document
         return text
       end
 
-      current_folder = parent.fullpath
+      current_dir = parent.fullpath
 
       res.gsub!(/url\(\s*(.*?)\s*\)/) do
         match, src = $&, $1
@@ -68,7 +68,7 @@ class TextDocument < Document
             "url(#{quote}#{src}#{quote})"
           end
         else
-          if new_src = helper.send(:template_url_for_asset, :src => src, :current_folder=>current_folder, :parse_assets => true)
+          if new_src = helper.send(:template_url_for_asset, :src => src, :current_dir=>current_dir, :parse_assets => true)
             "url(#{quote}#{new_src}#{quote})"
           elsif !(src =~ /\.\./) && File.exist?(File.join(SITES_ROOT, current_site.public_path, src))
             "url(#{quote}#{src}?#{File.mtime(File.join(SITES_ROOT, current_site.public_path, src)).to_i}#{quote})"
@@ -109,7 +109,7 @@ class TextDocument < Document
     if key == 'text' && prop['content_type'] == 'text/css'
       res = text.dup
       # use parent as relative root
-      current_folder = parent.fullpath
+      current_dir = parent.fullpath
 
       res.gsub!(/url\(('|")(.*?)\1\)/) do
         if $2[0..6] == 'http://'
@@ -119,7 +119,7 @@ class TextDocument < Document
           if url =~ /\A\/\w\w\/.*?(\d+)(_\w+|)\./
             zip, mode = $1, $2
             if asset = secure(Node) { Node.find_by_zip(zip) }
-              if asset.fullpath =~ /\A#{current_folder}\/(.+)/
+              if asset.fullpath =~ /\A#{current_dir}\/(.+)/
                 "url(#{quote}#{$1}#{mode}.#{asset.prop['ext']}#{quote})"
               else
                 "url(#{quote}/#{asset.fullpath}#{mode}.#{asset.prop['ext']}#{quote})"

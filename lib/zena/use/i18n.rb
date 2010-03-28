@@ -298,7 +298,7 @@ module Zena
 
         def r_load
           if dict = @params[:dictionary]
-            dict_content, absolute_url, doc = self.class.get_template_text(dict, @options[:helper], @options[:current_folder])
+            dict_content, absolute_url, doc = self.class.get_template_text(dict, @options[:helper], @options[:current_dir])
             return parser_error("dictionary #{dict.inspect} not found") unless doc
             @context[:dict] ||= {}
             begin

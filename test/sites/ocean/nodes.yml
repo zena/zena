@@ -26,11 +26,11 @@ whale:
   parent:          ocean
   skin:            default
 
-skin:
+default:
   class:           Skin
   name:            default
   parent:          ocean
 
 Node:
   class:           Template
-  parent:          skin
+  parent:          default

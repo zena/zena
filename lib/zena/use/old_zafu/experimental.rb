@@ -38,7 +38,7 @@ module Zafu
     def r_fop
       return parser_error("missing 'stylesheet' argument") unless @params[:stylesheet]
       # get stylesheet text
-      xsl_content, absolute_url, doc = self.class.get_template_text(@params[:stylesheet], @options[:helper], @options[:current_folder])
+      xsl_content, absolute_url, doc = self.class.get_template_text(@params[:stylesheet], @options[:helper], @options[:current_dir])
       return parser_error("stylesheet #{@params[:stylesheet].inspect} not found") unless doc
 
       template_url = (self.template_url.split('/')[0..-2] + ['_main.xsl']).join('/')
