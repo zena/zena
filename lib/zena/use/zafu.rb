@@ -296,10 +296,10 @@ module Zena
 
             begin
               res = ZafuCompiler.new_with_url(zafu_url, :helper => zafu_helper).to_erb(:dev => dev_mode?, :node => get_node_context)
-            rescue => err
-              puts err.message
-              puts err.backtrace.join("\n")
-              return nil
+           #rescue => err
+           #  puts err.message
+           #  puts err.backtrace.join("\n")
+           #  return nil
             end
 
             # unless valid_template?(res, opts)

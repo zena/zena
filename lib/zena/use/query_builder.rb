@@ -10,30 +10,35 @@ module Zena
       #
       # 3. helper (view) tries to resolve safe_method_type as RubyLess or PseudoSQL
       module ZafuMethods
-        #def safe_method_type(signature)
-        #  super || pseudo_sql_method(signature)
-        #end
+
+        def self.included(base)
+          base.process_unknown :querybuilder_eval
+        end
+
+        # Resolve unknown methods by trying to build a pseudo-sql query with QueryBuilder.
+        def querybuilder_eval
+          count  = get_count(@method, @params)
+          finder = build_finder(count, @method, @params)
+
+          out "<% if #{var} = #{finder[:method]} -%>"
+          out @markup.wrap(expand_with_node(var, finder[:class], :in_if => true))
+          out "<% end -%>"
+          true
+        rescue ::QueryBuilder::QueryException => err
+          parser_error(err.message)
+        end
 
         private
-          def pseudo_sql_method(signature)
-            rel, params = signature
-            params ||= {}
-            return nil unless params.kind_of?(Hash)
-
-            count = get_count(rel, params)
-            build_query(count, rel, params)
-          end
-
-          def build_query(count, rel, params)
+          def build_finder(count, rel, params)
 
             if !node.klass.respond_to?(:build_find)
-              raise QueryException.new("No query builder for class #{node.klass}")
+              raise ::QueryBuilder::QueryException.new("No query builder for class #{node.klass}")
             end
 
 
             raw_filters = []
 
-            if (count == :first)
+            if count == :first
               if rel == 'self'
                 return {:method => node.name, :class => node.klass}
               elsif rel == 'main'
@@ -72,22 +77,27 @@ module Zena
             end
 
             current_date = context[:date] || 'main_date'
-            query = Node.build_find(count.to_sym, pseudo_sql, :node_name => node_name, :raw_filters => raw_filters, :ref_date => "\#{#{current_date}}")
+            query_node = Node.build_find(count.to_sym, pseudo_sql, :node_name => node_name, :raw_filters => raw_filters, :ref_date => "\#{#{current_date}}")
+            query = query_node.query
+            klass = query.main_class
 
-            unless query.valid?
-              raise QueryException.new(query.errors.join(' '), pseudo_sql.join(', '))
-            end
+
+            #unless query.valid?
+            #  raise QueryException.new(query.errors.join(' '), pseudo_sql.join(', '))
+            #end
 
 
             if count == :count
-              return {:method => query.finder(:count), :class => Number, :query => query}
+              {:method => query_node.finder(:count), :class => Number,  :query => query}
+            elsif count == :all
+              {:method => query_node.finder(:all),   :class => [klass], :query => query}
+            else
+              {:method => query_node.finder(:first), :class => klass,   :query => query}
             end
-
-            klass = query.main_class
 
             # if params['else']
             #   # FIXME: else not working with safe_method_type ?
-            #   finder, else_class, else_query = build_query(count, params['else'], {})
+            #   finder, else_class, else_query = build_finder(count, params['else'], {})
             #   if finder && (else_query.nil? || else_query.valid?) && (else_class == klass || klass.ancestors.include?(else_class) || else_class.ancestors.include?(klass))
             #     klass = [klass] if count == :all
             #     {:method => "(#{query.finder(count)} || #{finder})", :class => klass, :query => query}
@@ -96,8 +106,6 @@ module Zena
             #     {:method => query.finder(count), :class => klass, :query => query}
             #   end
             # else
-            klass = count == :all ? [query.main_class] : query.main_class
-            {:method => query.finder(count), :class => klass, :query => query}
             # end
           end
 

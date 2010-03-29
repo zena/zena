@@ -159,7 +159,7 @@ module Zena
           js_data << "var is_editor = true;"
           template_url(:mode=>'+popupLayout')
         end
-        
+
         def render_pdf(rendering_egine)
           # 1. find cached PDF. If found, send data.
           if @node[:user_id] == visitor[:id]

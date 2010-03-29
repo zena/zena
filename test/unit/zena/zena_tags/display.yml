@@ -162,4 +162,7 @@ stylesheets:
   src: "<r:stylesheets list='zena,code,search'/>"
   tem: "/link href.*/stylesheets/zena.css.*text/css.*code.css.*text/css.*search.css.*stylesheet/"
 
+uses_datebox:
+  src: "<r:uses_datebox/>"
+  tem: "/<script.*calendar.js.*calendar-setup.js.*calendar-en-utf8.js.*calendar-brown.css.*DEF_DATE_FORMAT.*%Y-%m-%d %H:%M.*FIRST_DAY.*0/"
 # ---- fixed to here

@@ -133,7 +133,7 @@ class Node < ActiveRecord::Base
     t.string  'title'
     t.string  'text'
     t.string  'summary'
-    t.integer 'comment'
+    t.string  'comment'
   end
 
   include RubyLess
@@ -722,32 +722,10 @@ class Node < ActiveRecord::Base
         # if model_names = nested_model_names_for_alias(method)
         #   # ...
         # end
-        case method[0..1]
-        when 'v_'
-          method = method[2..-1]
-          if type = version_class.safe_method_type([method])
-            type.merge(:method => "version.#{type[:method]}")
-          else
-            # might be readable by sub-classes
-            # what is the expected return type ?
-            {:method => "version.safe_read(#{method.inspect})", :nil => true, :class => String}
-          end
-        when 'c_'
-          method = method[2..-1]
-          klass = version_class.content_class
-          if klass && type = klass.safe_method_type([method])
-            type.merge(:method => "version.content.#{type[:method]}")
-          else
-            {:method => "version.safe_content_read(#{method.inspect})", :nil => true, :class => String}
-          end
-        when 'd_'
-          {:method => "version.prop[#{method[2..-1].inspect}]", :nil => true, :class => String}
+        if method =~ /^(.+)_((id|zip|status|comment)(s?))\Z/ && !instance_methods.include?(method)
+          {:method => "rel[#{$1.inspect}].try(:other_#{$2})", :nil => true, :class => ($4.blank? ? Number : [Number])}
         else
-          if method =~ /^(.+)_((id|zip|status|comment)(s?))\Z/ && !instance_methods.include?(method)
-            {:method => "rel[#{$1.inspect}].try(:other_#{$2})", :nil => true, :class => ($4.blank? ? Number : [Number])}
-          else
-            RubyLess::SafeClass.safe_method_type_for(self, signature)
-          end
+          RubyLess::SafeClass.safe_method_type_for(self, signature)
         end
       end
     end
@@ -1059,10 +1037,6 @@ class Node < ActiveRecord::Base
         list == [] ? nil : list
       end"
     end
-  end
-
-  def ext
-    (name && name != '' && name =~ /\./ ) ? name.split('.').last : ''
   end
 
   # set name: remove all accents and camelize

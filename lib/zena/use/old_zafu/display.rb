@@ -264,18 +264,6 @@ module Zafu
       res
     end
 
-    def r_content_for_layout
-      "<% if content_for_layout = yield -%><%= content_for_layout %><% else -%>" +
-      expand_with +
-      "<% end -%>"
-    end
-
-    def r_title_for_layout
-      "<% if @title_for_layout -%><%= @title_for_layout %><% elsif @node && !@node.new_record? -%><%= @node.rootpath %><% elsif @node.parent -%><%= @node.parent.rootpath %><% else -%>" +
-      expand_with +
-      "<% end -%>"
-    end
-
     # TODO: replace with a more general 'zazen' or 'show' with id ?
     def r_summary
       limit  = @params[:limit] ? ", :limit=>#{@params[:limit].to_i}" : ""

@@ -71,6 +71,11 @@ module Zena
             (asset ? ".#{asset}" : '') +
             (format == 'html' ? '' : ".#{format}")
           else
+            if node.klass.nil?
+              node.instance_eval do
+                puts [@new_klass, @set_klass, vclass.to_s].inspect
+              end
+            end
             "#{abs_url_prefix}/#{pre}/" +
             ((node.basepath != '' && !node.basepath.nil? )? "#{node.basepath}/"    : '') +
             (node.klass.downcase   ) +
@@ -177,7 +182,6 @@ module Zena
         include RubyLess
         safe_method [:url,  Node]     => {:class => String, :method => 'zen_url'}
         safe_method [:path, Node]     => {:class => String, :method => 'zen_path'}
-        safe_method [:zen_path, Node] => String
         safe_method [:zen_path, Node, {:mode => String, :format => String, :lang => String}] => String
       end # ViewMethods
 

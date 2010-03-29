@@ -194,26 +194,6 @@ module Zena
       end # ImageTags
 
       module FormTags
-
-        # date_box seizure setup
-        def uses_datebox(opt={})
-          if ZENA_CALENDAR_LANGS.include?(visitor.lang)
-            l = visitor.lang
-          else
-            l = visitor.site[:default_lang]
-          end
-          <<-EOL
-          <script src="/calendar/calendar.js" type="text/javascript"></script>
-          <script src="/calendar/calendar-setup.js" type="text/javascript"></script>
-          <script src="/calendar/lang/calendar-#{l}-utf8.js" type="text/javascript"></script>
-          <link href="/calendar/calendar-brown.css" media="screen" rel="Stylesheet" type="text/css" />
-          <% javascript_tag do -%>
-          Calendar._TT["DEF_DATE_FORMAT"] = "#{_('datetime')}";
-          Calendar._TT["FIRST_DAY"] = #{_('week_start_day')};
-          <% end -%>
-          EOL
-        end
-
         #TODO: test
       	# Return the list of groups from the visitor for forms
       	def form_groups

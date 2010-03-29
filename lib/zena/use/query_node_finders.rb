@@ -57,10 +57,10 @@ module Zena
           case count
           when :all
             res = klass.find_by_sql(query)
-            secure_result(Node,res)
+            secure_result(Node, res) if res
           when :first
             res = klass.find_by_sql(query).first
-            secure_result(Node,res)
+            secure_result(Node, res) if res
           when :count
             klass.count_by_sql(query)
           else

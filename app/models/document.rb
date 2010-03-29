@@ -37,10 +37,11 @@ class Document < Node
   include Versions::Attachment
   store_attachments_in :version,  :attachment_class => 'Attachment'
 
-  property do |t|
-    t.integer 'size'
-    t.string  'content_type'
-    t.string  'ext'
+  property do |p|
+    puts "Load 1"
+    p.integer 'size'
+    p.string  'content_type'
+    p.string  'ext'
   end
 
   safe_property :size, :content_type, :ext

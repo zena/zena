@@ -1,12 +1,12 @@
 =begin rdoc
 Definitions:
 
-* master template: used to render a node. It is used depending on it's 'klass' filter.
+* master template: used to render a node. It is used depending on it's 'target_klass' filter.
 * helper template: included into another template.
 
 Render ---> Master template --include--> helper template --include--> ...
 
-For master templates, the name is build from the different filters (klass, mode, format):
+For master templates, the name is build from the different filters (target_klass, mode, format):
 
 Klass-mode-format. Examples: Node-index, Node--xml, Project-info. Note how the format is omitted when it is 'html'.
 
@@ -15,26 +15,26 @@ Other templates have a name built from the given name, just like any other node.
 =end
 class Template < TextDocument
 
-  property do |t|
-    t.string  'klass'
-    t.string  'format'
-    t.string  'mode'
-    t.string  'tkpath'
+  property do |p|
+    p.string  'target_klass'
+    p.string  'format'
+    p.string  'mode'
+    p.string  'tkpath'
 
-    t.index(TemplateIndex) do |rec|
+    p.index(TemplateIndex) do |record|
       {
-        'format'    => rec.format,
-        'mode'      => rec.mode,
-        'tkpath'    => rec.tkpath,
-        'skin_id'   => rec[:section_id],
+        'format'    => record.format,
+        'mode'      => record.mode,
+        'tkpath'    => record.tkpath,
+        'skin_id'   => record[:section_id],
       }
     end
 
-    safe_property :tkpath, :mode, :klass, :format
+    safe_property :tkpath, :mode, :target_klass, :format
   end
 
   attr_protected    :tkpath
-  validate          :validate_section, :validate_klass
+  validate          :validate_section, :validate_target_klass
   before_validation :template_content_before_validation
 
   # Class Methods
@@ -82,12 +82,12 @@ class Template < TextDocument
       if new_name && !new_name.blank?
         if new_name =~ /^([A-Z][a-zA-Z]+?)(-(([a-zA-Z_\+]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/
           # name/title changed force  update
-          prop['klass']  = $1                   unless prop.klass_changed?
+          prop['target_klass']  = $1                   unless prop.target_klass_changed?
           prop['mode']   = ($4 || '').url_name  unless prop.mode_changed?
           prop['format'] = ($6 || 'html')       unless prop.format_changed?
         else
           # name set but it is not a master template name
-          prop['klass']  = nil
+          prop['target_klass']  = nil
           prop['mode']   = nil
           prop['format'] = nil
           if new_name =~ /(.*)\.zafu$/
@@ -99,16 +99,16 @@ class Template < TextDocument
       if version.changed? || self.properties.changed? || self.new_record?
          prop['mode'] = prop['mode'].url_name if prop['mode']
 
-        if !prop['klass'].blank?
+        if !prop['target_klass'].blank?
           # update name
           prop['format'] = 'html' if prop['format'].blank?
-          self[:name] = name_from_content(:format => prop['format'], :mode => prop['mode'], :klass => prop['klass'])
+          self[:name] = name_from_content
           version.title = self[:name]
 
           if version.text.blank? && prop['format'] == 'html' && prop['mode'] != '+edit'
             # set a default text
 
-            if prop['klass'] == 'Node'
+            if prop['target_klass'] == 'Node'
               version.text = <<END_TXT
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -145,10 +145,10 @@ END_TXT
     def name_from_content(opts={})
       opts[:format]  ||= prop['format']
       opts[:mode  ]  ||= prop['mode']
-      opts[:klass ]  ||= prop['klass']
+      opts[:target_klass ]  ||= prop['target_klass']
       format = opts[:format] == 'html' ? '' : "-#{opts[:format]}"
       mode   = (!opts[:mode].blank? || format != '') ? "-#{opts[:mode]}" : ''
-      "#{opts[:klass]}#{mode}#{format}"
+      "#{opts[:target_klass]}#{mode}#{format}"
     end
 
     def validate_section
@@ -156,14 +156,14 @@ END_TXT
       errors.add('parent_id', 'Invalid parent (section is not a Skin)') unless section.kind_of?(Skin)
     end
 
-    def validate_klass
-      if prop.klass_changed? && prop['klass']
+    def validate_target_klass
+      if prop.target_klass_changed? && prop['target_klass']
         errors.add('format', "can't be blank") unless prop['format']
         # this is a master template (found when choosing the template for rendering)
-        if klass = Node.get_class(prop['klass'])
-          prop['tkpath'] = klass.kpath
+        if target_klass = Node.get_class(prop['target_klass'])
+          prop['tkpath'] = target_klass.kpath
         else
-          errors.add('klass', 'invalid')
+          errors.add('target_klass', 'invalid')
         end
       end
     end
@@ -171,8 +171,8 @@ END_TXT
     def template_content_before_validation
       prop['skin_name'] = self.section.name
       prop['mode']  = nil if prop['mode' ].blank?
-      prop['klass'] = nil if prop['klass'].blank?
-      unless prop['klass']
+      prop['target_klass'] = nil if prop['target_klass'].blank?
+      unless prop['target_klass']
         # this template is not meant to be accessed directly (partial used for inclusion)
         prop['tkpath'] = nil
         prop['mode']   = nil

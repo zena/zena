@@ -61,7 +61,7 @@ module Zena
 
       def version_id
         access = can_see_redactions? ? vhash['w'] : vhash['r']
-        access[visitor.lang] || access[ref_lang] || access.values.first
+        access[visitor.lang] || access[self[:ref_lang]] || access.values.first
       end
 
       def vhash

@@ -31,7 +31,8 @@
 .input_radio span, .input_checkbox span { display:table; float:left; margin:3px;}
 
 /* errors */
-.parser_error { border:1px solid red; background:#f88; padding:2px;}
+.parser_error {border:1px solid red; background:#fee; color:#333;}
+.parser_error .method { background:#faa; padding:0 2px;}
 table.errors { background:#DDC8C8; margin:0 0 5px; border-bottom:1px solid #5A3231; display:block;}
 table.errors td { padding:2px 5px; background:inherit; border:none;}
 

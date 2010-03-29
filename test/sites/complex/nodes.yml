@@ -29,6 +29,7 @@ Node_zafu:
   template:
     format:        html
     tkpath:        N
+    target_klass:  Node
 
 # ------------- EMPLOYEES
 employees:

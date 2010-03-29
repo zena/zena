@@ -1,0 +1,14 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'status'
+  src: "simple text"
+  tem: "simple text"
+  res: "simple text"
+
+host:
+  src: "<r:eval>site.host</r:eval>"
+  tem: "<%= visitor.site.host %>"
+  res: "test.host"
+
