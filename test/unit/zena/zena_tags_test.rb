@@ -42,12 +42,18 @@ class ZenaTagsTest < Zena::Controller::TestCase
   end
 
   def yt_do_test(file, test)
-    src = yt_get('src', file, test) if @@test_strings[file][test].keys.include?('src') # we do not want src built from title
+    if @@test_strings[file][test].keys.include?('src')
+      # we do not want src built from title
+      src = yt_get('src', file, test)
+    elsif src = yt_get('eval', file, test)
+      src = @@test_strings[file][test]['src'] = "<r:eval>#{src}</r:eval>"
+    end
+
     tem = yt_get('tem', file, test)
     res = yt_get('res', file, test)
     compiled_files = {}
     @@test_strings[file][test].each do |k,v|
-      next if ['src','tem','res','context'].include?(k) || k =~ /^old/
+      next if ['src','tem','res','context','eval'].include?(k) || k =~ /^old/
       compiled_files[k] = v
     end
     context = yt_get('context', file, test)

@@ -254,6 +254,18 @@ module Zena
       else
         raise Exception.new("Database Adapter #{adapter.inspect} not supported yet (you can probably fix this).")
       end
+
+    end # date_condition
+
+    # Insert a dummy (empty) link to use when mixing queries (QueryNode) with links and without.
+    def self.insert_zero_link(link_class)
+      return if link_class.find_by_id(0)
+      link_class.connection.execute "INSERT INTO #{link_class.table_name} (id,target_id,source_id,status,comment) VALUES (0,0,0,NULL,NULL)"
+      unless link_class.find_by_id(0)
+        # the zero id is replaced by auto-increment value
+        last_id = link_class.find(:first, :order => 'id DESC').id
+        link_class.connection.execute "UPDATE #{link_class.table_name} SET id = 0 WHERE id = #{last_id}"
+      end
     end
   end # Db
 end # Zena

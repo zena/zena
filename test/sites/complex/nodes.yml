@@ -26,10 +26,12 @@ Node_zafu:
   parent:          cskin
   name:            Node
   v_title:         Node
+  v_prop:
+    target_klass:  Node
+    
   template:
     format:        html
     tkpath:        N
-    target_klass:  Node
 
 # ------------- EMPLOYEES
 employees:

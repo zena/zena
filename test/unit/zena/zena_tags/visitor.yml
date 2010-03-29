@@ -14,5 +14,9 @@ login:
   res: "ant"
 
 lang:
-  src: "<r:eval>visitor.lang</r:eval>"
+  eval: "visitor.lang"
   res: "en"
+
+is_anon:
+  eval: "visitor.is_anon?"
+  res: "false"

@@ -10,5 +10,6 @@ module Zena
     Zena::Use::ZafuEval::ZafuMethods,
     Zena::Use::QueryBuilder::ZafuMethods,
     Zena::Use::I18n::ZafuMethods,
+    Zena::Use::Action::ZafuMethods,
   ])
 end

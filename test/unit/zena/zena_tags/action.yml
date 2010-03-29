@@ -1,0 +1,28 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'status'
+  src: "simple text"
+  tem: "simple text"
+  res: "simple text"
+
+login_link:
+  src: "<r:login_link/>"
+  res: '<a href="http://test.host/logout">logout</a>'
+
+login_link_not_logged_in:
+  context:
+    visitor: 'anon'
+  src: "<r:login_link/>"
+  res: '<a href="http://test.host/login">login</a>'
+
+login_link_with_blocks:
+  src: "<r:login_link>ONE ONE<r:else do='name'/></r:login_link>"
+  res: "<a href='http://test.host/logout'>status</a>"
+
+login_link_with_blocks_not_logged_in:
+  context:
+    visitor: 'anon'
+  src: "<r:login_link><r:title/><r:else do='name'/></r:login_link>"
+  res: "<a href='http://test.host/login'>status title</a>"

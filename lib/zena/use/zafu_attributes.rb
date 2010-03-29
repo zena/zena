@@ -9,7 +9,7 @@ module Zena
 
       module ZafuMethods
         def self.included(base)
-          base.before_process :filter_prefix, :filter_status, :filter_actions, :filter_property, :filter_anchor
+          base.before_process :filter_prefix, :filter_status, :filter_property, :filter_anchor
           base.before_wrap :add_anchor
         end
 
@@ -102,24 +102,6 @@ module Zena
 
               @markup.tag ||= 'span'
               @markup.append_dyn_param(:class, "s<%= #{accessor}.status %>")
-            end
-          end
-
-          def filter_actions
-            if actions = @params.delete(:actions)
-              node = self.node
-              if node.will_be? Node
-              elsif node.will_be? Version
-                node = "#{node}.node"
-              else
-                return parser_error("Invalid option 'actions' for #{node.klass}.")
-              end
-
-              if publish = @params.delete(:publish)
-                out_post " <%= node_actions(#{node}, :actions => #{actions.inspect}, :publish_after_save => #{publish.inspect}) %>"
-              else
-                out_post " <%= node_actions(#{node}, :actions => #{actions.inspect}) %>"
-              end
             end
           end
 

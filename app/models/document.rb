@@ -38,7 +38,6 @@ class Document < Node
   store_attachments_in :version,  :attachment_class => 'Attachment'
 
   property do |p|
-    puts "Load 1"
     p.integer 'size'
     p.string  'content_type'
     p.string  'ext'
@@ -147,7 +146,7 @@ class Document < Node
 
   # Get the document's public filename using the name and the file extension.
   def filename
-   version.attachment.filename
+    kind_of?(TextDocument) ? "#{title}.#{ext}" : version.attachment.filename
   end
 
   # Get the file path defined in attachment.

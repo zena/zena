@@ -138,7 +138,7 @@ module Zena
             if type = node.klass.safe_method_type([attribute])
               ["#{node}.#{type[:method]}", type[:class]]
             else
-              [parser_error("Unknown attribute '#{attribute}'."), nil]
+              return parser_error("Unknown attribute '#{attribute}'.")
             end
           elsif code = @params[:eval]
             res = RubyLess.translate(code, self)
@@ -150,14 +150,14 @@ module Zena
             res = RubyLess::TypedString.new(@blocks.first.inspect, :class => String, :literal => @blocks.first)
             [res, res.klass]
           else
-            [parser_error("Missing attribute/eval parameter"), nil]
+            return parser_error("Missing attribute/eval parameter")
           end
         end
 
         # Display an attribute or RubyLess code
         def r_show
           method, klass = get_attribute_or_eval
-          return method unless klass # method contains the error message
+          return nil unless method
 
           if klass.ancestors.include?(String)
             res = show_string(method)

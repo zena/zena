@@ -121,25 +121,25 @@ class NodesController < ApplicationController
           content_type = (Zena::EXT_TO_TYPE[params[:format]] || ['application/octet-stream'])[0]
           send_file(content_path, :filename=>filename, :type => content_type, :disposition=>'inline', :x_sendfile => ENABLE_XSENDFILE)
           cache_page(:content_path => content_path, :authenticated => @node.public?) # content_path is used to cache by creating a symlink
-        elsif @node.kind_of?(Document) && params[:format] == @node.version.content.ext
+        elsif @node.kind_of?(Document) && params[:format] == @node.ext
           # Get document data (inline if possible)
           content_path = nil
 
           if @node.kind_of?(Image) && !Zena::Use::ImageBuilder.dummy?
             if img_format = Iformat[params[:mode]]
-              content_path = @node.version.content.filepath(img_format)
+              content_path = @node.filepath(img_format)
               # force creation of image data
               @node.c_file(img_format)
             end
           elsif @node.kind_of?(TextDocument)
-            send_data(@node.v_text, :filename => @node.filename, :type => 'text/css', :disposition => 'inline')
+            send_data(@node.text, :filename => @node.filename, :type => 'text/css', :disposition => 'inline')
           else
-            content_path = @node.version.content.filepath
+            content_path = @node.filepath
           end
 
           if content_path
             # FIXME RAILS: remove 'stream => false' when rails streaming is fixed
-            send_file(content_path, :filename => @node.filename, :type => @node.c_content_type, :disposition => 'inline', :stream => false, :x_sendfile => ENABLE_XSENDFILE)
+            send_file(content_path, :filename => @node.filename, :type => @node.content_type, :disposition => 'inline', :stream => false, :x_sendfile => ENABLE_XSENDFILE)
           end
 
           cache_page(:content_path => content_path, :authenticated => @node.public?) # content_path is used to cache by creating a symlink

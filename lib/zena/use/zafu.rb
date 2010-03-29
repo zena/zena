@@ -25,8 +25,8 @@ module Zena
           end
 
           if opts[:parse_assets]
-            current_dir = opts[:current_dir] || ''
-            current_dir = current_dir[1..-1] if current_dir[0..0] == '/'
+            base_path = opts[:base_path] || ''
+            base_path = base_path[1..-1] if base_path[0..0] == '/'
 
             if src =~ /\A(.*)_(\w+)\Z/
               # if the element was not found, maybe it was not a name with underscore but it was an image mode
@@ -38,8 +38,8 @@ module Zena
               paths << src[1..-1]
               paths << src2[1..-1] if src2
             else
-              paths << (current_dir + '/' + src)
-              paths << (current_dir + '/' + src2) if src2
+              paths << (base_path + '/' + src)
+              paths << (base_path + '/' + src2) if src2
             end
 
             # make sure path elements are url_names
@@ -68,10 +68,10 @@ module Zena
 
             src2 = opts[:src].split('/').map {|s| s.url_name!}.join('/')
 
-            unless res = find_document_for_template(src, opts[:current_dir])
+            unless res = find_document_for_template(src, opts[:base_path])
               # '_...' did not mean mode but was an old name.
               mode = nil
-              return nil unless res = find_document_for_template(src2, opts[:current_dir])
+              return nil unless res = find_document_for_template(src2, opts[:base_path])
             end
 
             asset, base_path = res
@@ -143,17 +143,24 @@ module Zena
         # Without a leading slash "special/Node"
         # 1. Search for a Document with fullpath [current directory]/special/Node
         # 2. Search anywhere in the master skin for a document named 'Node'
-        def find_document_for_template(src, current_dir = nil)
+        def find_document_for_template(src, base_path = nil)
           if src =~ /^\//
             # Starts with '/' : first part of the path is a Skin
             url = src[1..-1].split('/')
           else
             # does not start with '/' : look in current directory
-            folder = current_dir.blank? ? [] : current_dir.split('/')
+            folder = base_path.blank? ? [] : base_path.split('/')
             url = folder + src.split('/')
           end
 
           skin_name = url.shift
+
+          puts [src, skin_name, base_path].inspect
+
+          # TODO: can we move this initialization somewhere else ?
+          @skins ||= {}
+          self.expire_with_nodes ||= {}
+          self.renamed_assets ||= {}
 
           skin = (@skins[skin_name] ||= secure(Skin) { Skin.find_by_name(skin_name) })
           return nil unless skin
@@ -163,9 +170,9 @@ module Zena
           unless document = self.expire_with_nodes[fullpath]
             unless document = secure(Document) { Document.find_by_path(fullpath) }
               document = secure(Document) { Document.first(:conditions => ['name = ? AND section_id = ?', url.last, skin.id]) }
-              self.expire_with_nodes[document.fullpath] = document
+              self.expire_with_nodes[document.fullpath] = document if document
             end
-            self.expire_with_nodes[fullpath] = document
+            self.expire_with_nodes[fullpath] = document if document
           end
 
           if document

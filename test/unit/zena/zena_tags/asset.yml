@@ -1,0 +1,13 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'status'
+  src: "simple text"
+  tem: "simple text"
+  res: "simple text"
+
+
+rename_asset:
+  src: "<link href='/default/style.css' rel='Stylesheet' type='text/css'/>"
+  tem: "<link href='/en/textdocument53.css?1144713600' rel='Stylesheet' type='text/css'/>"
