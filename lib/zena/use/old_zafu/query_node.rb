@@ -26,15 +26,6 @@ module Zena
         end
       end
 
-      # Default sort order
-      def default_order_clause
-        "position ASC, name ASC"
-      end
-
-      def default_context_filter
-        'self'
-      end
-
       def after_parse
         @where.unshift "(\#{#{@node_name}.secure_scope('#{table}')})"
         if @tables.include?('links')

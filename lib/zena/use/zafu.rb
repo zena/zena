@@ -155,8 +155,6 @@ module Zena
 
           skin_name = url.shift
 
-          puts [src, skin_name, base_path].inspect
-
           # TODO: can we move this initialization somewhere else ?
           @skins ||= {}
           self.expire_with_nodes ||= {}

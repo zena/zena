@@ -23,7 +23,7 @@ end
 class SubPagerDummy < PagerDummy
 end
 
-Zena::Use::QueryNode.load_custom_queries File.join(Zena::ROOT, 'test', 'custom_queries')
+Node.query_compiler.load_custom_queries File.join(Zena::ROOT, 'test', 'custom_queries')
 
 class ActiveSupport::TestCase
   # Transactional fixtures accelerate your tests by wrapping each test method

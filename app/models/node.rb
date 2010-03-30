@@ -141,7 +141,7 @@ class Node < ActiveRecord::Base
 
   safe_property  :title, :text, :summary, :comment
 
-  safe_attribute :created_at, :updated_at, :event_at, :log_at, :publish_from, :basepath, :inherit
+  safe_attribute :created_at, :updated_at, :event_at, :log_at, :publish_from, :basepath, :inherit, :position
 
   # we use safe_method because the columns can be null, but the values are never null
   safe_method   :name => String, :kpath => String, :user_zip => Number, :parent_zip => Number,
@@ -208,7 +208,7 @@ class Node < ActiveRecord::Base
 
   include Zena::Use::Relations::ModelMethods
 
-  use_node_query
+  include Zena::Use::QueryNode::ModelMethods
 
   @@native_node_classes = {'N' => self}
   @@unhandled_children  = []

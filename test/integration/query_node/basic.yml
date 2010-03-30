@@ -4,8 +4,10 @@ default:
     node: 'cleanWater'
     visitor: 'ant'
   src: ""
-  sql: "[\"SELECT nodes.* FROM nodes WHERE nodes.parent_id = ? AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC\", @node.id]"
+  sql: "[\"SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.parent_id = ? ORDER BY nodes.position ASC, nodes.name ASC\", @node.id]"
   res: "crocodiles, lake, lakeAddress, opening, status, track, water"
+
+# --- fixed up to here
 
 nodes:
   src: "nodes"

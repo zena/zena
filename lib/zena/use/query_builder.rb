@@ -24,7 +24,7 @@ module Zena
           out @markup.wrap(expand_with_node(var, finder[:class], :in_if => true))
           out "<% end -%>"
           true
-        rescue ::QueryBuilder::QueryException => err
+        rescue ::QueryBuilder::Error => err
           parser_error(err.message)
         end
 
@@ -32,7 +32,7 @@ module Zena
           def build_finder(count, rel, params)
 
             if !node.klass.respond_to?(:build_find)
-              raise ::QueryBuilder::QueryException.new("No query builder for class #{node.klass}")
+              raise ::QueryBuilder::Error.new("No query builder for class #{node.klass}")
             end
 
 
@@ -71,14 +71,14 @@ module Zena
             # ...
 
             if node.will_be?(Node)
-              node_name = node.name #@context[:parent_node] || node
+              @node_name = node.name #@context[:parent_node] || node
             else
-              node_name = node.get(Node).name
+              @node_name = node.get(Node).name
             end
 
             current_date = context[:date] || 'main_date'
-            query_node = Node.build_find(count.to_sym, pseudo_sql, :node_name => node_name, :raw_filters => raw_filters, :ref_date => "\#{#{current_date}}")
-            query = query_node.query
+
+            query = Node.build_query(count.to_sym, pseudo_sql, :node_name => @node_name, :raw_filters => raw_filters, :ref_date => "\#{#{current_date}}", :rubyless_helper => self)
             klass = query.main_class
 
 
@@ -87,12 +87,15 @@ module Zena
             #end
 
 
+            finder = get_finder(query, count)
+
             if count == :count
-              {:method => query_node.finder(:count), :class => Number,  :query => query}
+              finder =
+              {:method => finder, :class => Number,  :query => query}
             elsif count == :all
-              {:method => query_node.finder(:all),   :class => [klass], :query => query}
+              {:method => finder, :class => [klass], :query => query}
             else
-              {:method => query_node.finder(:first), :class => klass,   :query => query}
+              {:method => finder, :class => klass,   :query => query}
             end
 
             # if params['else']
@@ -107,6 +110,13 @@ module Zena
             #   end
             # else
             # end
+          end
+
+          # Return Ruby finder from a query
+          def get_finder(query, count)
+            query_string   = query.to_s(count == :count ? :count : :find)
+            uses_node_name = query_string =~ /#{@node_name}\./
+            "#{@node_name}.do_find(#{count.inspect}, #{query_string}, #{!uses_node_name}, #{query.main_class})"
           end
 
           # Returns :all, :first or :count depending on the parameters and some introspection in the zafu tree
