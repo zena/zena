@@ -215,24 +215,6 @@ module Zena
           true
         end
 
-        def map_attr(fld, env = :sql)
-          case fld
-          when 'project_id', 'section_id', 'discussion_id'
-            @uses_node_name = true
-            insert_bind("#{@node_name}.get_#{fld}")
-          when 'id', 'parent_id'
-            @uses_node_name = true
-            insert_bind("#{@node_name}.#{fld}")
-          else
-            # type = Node.safe_method_type([fld])
-            # type[:method] ?
-
-            # bad parameter
-            @errors << "invalid parameter '#{fld}'"
-            "0"
-          end
-        end
-
         def parse_paginate_clause(paginate)
           return @offset unless paginate
           if !@limit

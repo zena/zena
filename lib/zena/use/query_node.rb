@@ -15,9 +15,12 @@ module Zena
         end
 
         # Find a node and propagate visitor
-        def do_find(count, query, ignore_source = false, klass = Node)
+        def do_find(count, query, uses_source = true, klass = Node)
           return nil if query.empty?
-          return nil if (new_record? && !ignore_source) # do not run query (might contain nil id)
+          if new_record? && uses_source
+            # do not run query if it depends on the source and the source is not a proper Node
+            return nil
+          end
 
           case count
           when :all
@@ -42,12 +45,8 @@ module Zena
           if !opts[:skip_rubyless] && rel.size == 1 && type = RubyLess::SafeClass.safe_method_type_for(self.class, [rel.first])
             self.send(type[:method])
           else
-            query = self.class.build_find(count, rel, :node_name => 'self')
-            if query.valid?
-              do_find(count, eval(query.to_s))
-            else
-              nil
-            end
+            query = self.class.build_query(count, rel, :node_name => 'self')
+            do_find(count, eval(query.to_s))
           end
         end
       end # ModelMethods
@@ -87,46 +86,49 @@ module Zena
         #                          current         previous
         #  ['parent_id', 'id'] ==> no1.parent_id = nodes.id
         def scope_fields(scope)
-          deb 'scope_fields', scope
           case scope
           when 'self'
             ['parent_id', 'id']
-          when 'parent'
-            last? ? ['parent_id', 'parent_id'] : ['parent_id', 'id']
-          when 'project'
-            last? ? ['project_id', 'project_id'] : ['project_id', 'id']
-          when 'site'
+          when *CORE_CONTEXTS
+            last? ? %W{#{scope}_id #{scope}_id} : %W{#{scope}_id id}
+          when 'site', main_table
             # not an error, but do not scope
             []
           else
+            #if CORE_CONTEXTS.include?(scope)
             # error
             nil
           end
         end
 
-        def process_attr(fld_name)
-          if fld_name == 'id'
-            # Special case because 'id' is rewritten as 'zip' by RubyLess in Node
-            super.sub('zip', 'id')
+        def process_attr(attribute)
+          case attribute
+          when 'project_id', 'section_id', 'discussion_id'
+            # Special accessor
+            insert_bind "#{node_name}.get_#{attribute}"
+          when 'id', 'parent_id'
+            # Not RubyLess safe
+            insert_bind "#{node_name}.#{attribute}"
           else
+            # Use RubyLess
             super
           end
         end
 
         # Overwrite this and take car to check for valid fields.
-        def process_field(fld_name)
-          if map_def = self.class.filter_fields[fld_name]
+        def process_field(field_name)
+          if map_def = self.class.filter_fields[field_name]
             if table_def = map_def[:table]
               table_to_use = needs_join_table(*table_def)
             else
               table_to_use = main_table
             end
             "#{table_to_use}.#{map_def[:key]}"
-          elsif %w{id parent_id project_id section_id}.include?(fld_name) ||
-            (Node.safe_method_type([fld_name]) && Node.column_names.include?(fld_name))
-            "#{table}.#{fld_name}"
+          elsif %w{id parent_id project_id section_id}.include?(field_name) ||
+            (Node.safe_method_type([field_name]) && Node.column_names.include?(field_name))
+            "#{table}.#{field_name}"
           else
-          #elsif fld_name == 'REF_DATE'
+          #elsif field_name == 'REF_DATE'
           #  context[:ref_date] ? insert_bind(context[:ref_date]) : 'now()'
           #else
             super # raises an error
@@ -199,32 +201,26 @@ module Zena
               # PREVIOUS_GROUP.id = NEW_GROUP.project_id
               add_table(main_table)
               add_filter "#{field_or_attr('id')} = #{field_or_attr("#{relation}_id", table(main_table, -1))}"
-            elsif relation == main_table
-              nil
             else
-              # Not a core context, try to filter by class type
-              if klass = Node.get_class(relation)
-                add_table(main_table)
-                add_filter "#{field_or_attr('kpath')} LIKE '#{klass.kpath}%'"
-              else
-                # unknown class
-                nil
-              end
+              nil
             end
           end
 
           # Filtering of objects in scope
           def filter_relation(relation)
             case relation
-            when 'letters'
-              add_table(main_table)
-              add_filter "#{table}.kpath LIKE #{insert_bind("NNL%".inspect)}"
-            when 'clients'
-              add_table(main_table)
-              add_filter "#{table}.kpath LIKE #{insert_bind("NRCC%".inspect)}"
             when main_table, 'children'
               # no filter
               add_table(main_table)
+            else
+              # Not a core context, try to filter by class type
+              if klass = Node.get_class(relation)
+                add_table(main_table)
+                add_filter "#{table}.kpath LIKE #{quote("#{klass.kpath}%")}"
+              else
+                # unknown class
+                nil
+              end
             end
           end
 
@@ -243,6 +239,10 @@ module Zena
 
           def secure_query
             query.add_filter "\#{secure_scope('#{table}')}"
+          end
+
+          def node_name
+            @context[:node_name]
           end
       end # Compiler
     end # QueryNode

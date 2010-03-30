@@ -4,10 +4,10 @@ default:
     node: 'cleanWater'
     visitor: 'ant'
   src: ""
-  sql: "[\"SELECT nodes.* FROM nodes WHERE nodes.parent_id = ? AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC\", @node.id]"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.parent_id = ? ORDER BY nodes.position ASC, nodes.name ASC}, @node.id]"
 
 nodes_from_nodes_in_section:
-  sql: "[\"SELECT no1.* FROM nodes,nodes AS no1 WHERE no1.parent_id = nodes.id AND nodes.section_id = ? AND (#{@node.secure_scope('no1')}) GROUP BY no1.id ORDER BY no1.position ASC, no1.name ASC\", @node.get_section_id]"
+  sql: "[%Q{SELECT no1.* FROM nodes,nodes AS no1 WHERE no1.parent_id = nodes.id AND nodes.section_id = ? AND (#{@node.secure_scope('no1')}) GROUP BY no1.id ORDER BY no1.position ASC, no1.name ASC}, @node.get_section_id]"
 
 bad_relation:
   src: "categories in site"
@@ -15,24 +15,24 @@ bad_relation:
 
 overriden_relation:
   src: 'references'
-  sql: "[\"SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM nodes,links WHERE nodes.id = links.target_id AND links.relation_id = _ID(node_has_references) AND links.source_id = ? AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC\", @node.id]"
+  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM nodes,links WHERE #{secure_scope('nodes')} AND nodes.id = links.target_id AND links.relation_id = _ID(node_has_references) AND links.source_id = ? ORDER BY nodes.position ASC, nodes.name ASC}, @node.id]"
 
 link_selects_in_sub_query:
   src:
     - 'icons'
     - 'images'
-  sql: "[\"SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM nodes,links WHERE ((nodes.id = links.target_id AND links.relation_id = _ID(node_has_an_icon) AND links.source_id = ?) OR (nodes.kpath LIKE 'NDI%' AND nodes.parent_id = ? AND links.id = 0)) AND (#{@node.secure_scope('nodes')}) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC\", @node.id, @node.id]"
+  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM nodes,links WHERE #{secure_scope('nodes')} AND ((nodes.id = links.target_id AND links.relation_id = _ID(node_has_an_icon) AND links.source_id = ?) OR (nodes.kpath LIKE 'NDI%' AND nodes.parent_id = ? AND links.id = 0)) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC}, @node.id, @node.id]"
 
 projects_from_tags:
-  sql: "[\"SELECT no1.* FROM nodes,nodes AS no1 WHERE no1.id = nodes.project_id AND nodes.kpath LIKE 'NPT%' AND nodes.parent_id = ? AND (#{@node.secure_scope('no1')}) GROUP BY no1.id ORDER BY no1.position ASC, no1.name ASC\", @node.id]"
+  sql: "[%Q{SELECT no1.* FROM nodes,nodes AS no1 WHERE no1.id = nodes.project_id AND nodes.kpath LIKE 'NPT%' AND nodes.parent_id = ? AND (#{@node.secure_scope('no1')}) GROUP BY no1.id ORDER BY no1.position ASC, no1.name ASC}, @node.id]"
 
 projects_in_site:
-  sql: "\"SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NPP%' AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC\""
+  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NPP%' ORDER BY nodes.position ASC, nodes.name ASC}"
 
 nodes_in_section:
   context:
     node: 'people'
-  sql: "[\"SELECT nodes.* FROM nodes WHERE nodes.section_id = ? AND (#{@node.secure_scope('nodes')}) ORDER BY nodes.position ASC, nodes.name ASC\", @node.get_section_id]"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.section_id = ? ORDER BY nodes.position ASC, nodes.name ASC}, @node.get_section_id]"
   res: "anonymous, ant, lion, myLife, tiger"
 
 relation_from_class:

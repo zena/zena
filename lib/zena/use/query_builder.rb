@@ -31,7 +31,7 @@ module Zena
         private
           def build_finder(count, rel, params)
 
-            if !node.klass.respond_to?(:build_find)
+            if !node.klass.respond_to?(:build_query)
               raise ::QueryBuilder::Error.new("No query builder for class #{node.klass}")
             end
 
@@ -71,7 +71,7 @@ module Zena
             # ...
 
             if node.will_be?(Node)
-              @node_name = node.name #@context[:parent_node] || node
+              @node_name = node.name
             else
               @node_name = node.get(Node).name
             end
@@ -116,7 +116,7 @@ module Zena
           def get_finder(query, count)
             query_string   = query.to_s(count == :count ? :count : :find)
             uses_node_name = query_string =~ /#{@node_name}\./
-            "#{@node_name}.do_find(#{count.inspect}, #{query_string}, #{!uses_node_name}, #{query.main_class})"
+            "#{@node_name}.do_find(#{count.inspect}, #{query_string}, #{uses_node_name}, #{query.main_class})"
           end
 
           # Returns :all, :first or :count depending on the parameters and some introspection in the zafu tree

@@ -12,7 +12,7 @@ module Bricks
           ids = search_for_ids(query, :with => with, :limit => (offset + limit) * [limit,20].max)
           return [] if ids.empty?
           # 1. filter with secure
-          secure_ids = Zena::Db.fetch_ids("SELECT id FROM nodes WHERE id IN (#{ids.join(',')}) AND #{secure_scope('nodes')}")
+          secure_ids = Zena::Db.fetch_ids("SELECT id FROM nodes WHERE #{secure_scope('nodes')} AND id IN (#{ids.join(',')})")
           # 2. reorder and apply offset
           if offset_ids = (ids & secure_ids)[offset..(offset + limit - 1)]
             # 3. populate
