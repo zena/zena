@@ -1,0 +1,13 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'status'
+  src: "simple text"
+  tem: "simple text"
+  res: "simple text"
+
+
+date_in_link:
+  src: "<p do='date' select='log_at'><r:link href='main' y='#{date.year}'/></p>"
+  tem: "<p><% var1 = @node.log_at -%><a href='<%= zen_path(@node) %>'><%= @node.prop['title'] %></a></p>"

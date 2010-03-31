@@ -68,7 +68,8 @@ param_filter:
   res: "cleanWater"
 
 param_filter_no_string:
-  src: "notes where created_at gt REF_DATE - param:f in site"
+  old_src: "notes where created_at gt REF_DATE - param:f in site"
+  src: "notes where created_at gt now - #{params[:f]} in site"
   sql: "/nodes.created_at\ > now\(\) - \? /"
 
 filter_literal:
@@ -108,3 +109,8 @@ filter_with_fullpath:
   src: "nodes where fullpath like '[node:fullpath]/%' in site order by fullpath"
   sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.fullpath LIKE ? ORDER BY nodes.fullpath ASC\", @node.safe_read(\"fullpath\").to_s+ \"/%}]"
   res: 'crocodiles, lake, lakeAddress, opening, status, track, water'
+
+class_filter:
+  src: "nodes where class like Image or class = Project in site"
+  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND (nodes.kpath LIKE 'NDI%' OR nodes.kpath = 'NPP') ORDER BY nodes.position ASC, nodes.name ASC}"
+  res: 'bird, cleanWater, flower, lake, tree, wiki, zena'

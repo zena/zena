@@ -5,10 +5,16 @@ module Zena
 
         include RubyLess
         safe_method [:sprintf, String, Number] => {:class => String, :method => 'sprintf'}
+        safe_method [:search_box, {:ajax => String, :type => String}] => String
 
         # Return sprintf formated entry. Return '' for values eq to zero.
         def sprintf_unless_zero(fmt, value)
           value.to_f == 0.0 ? '' : sprintf(fmt, value)
+        end
+
+        # Display a search field
+        def search_box(opts={})
+          render_to_string(:partial=>'search/form', :locals => {:ajax => opts[:ajax], :type => opts[:type]})
         end
 =begin
         def title(node, opts = {})

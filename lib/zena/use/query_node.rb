@@ -80,6 +80,7 @@ module Zena
         end
 
         self.filter_fields = {'id' => {:key => 'zip'}}
+        add_filter_field 'now', Zena::Db::NOW
 
         # Scope current context with previous context.
         # For example:
@@ -118,7 +119,9 @@ module Zena
         # Overwrite this and take car to check for valid fields.
         def process_field(field_name)
           if map_def = self.class.filter_fields[field_name]
-            if table_def = map_def[:table]
+            if map_def.kind_of?(String)
+              return map_def
+            elsif table_def = map_def[:table]
               table_to_use = needs_join_table(*table_def)
             else
               table_to_use = main_table
@@ -135,20 +138,36 @@ module Zena
           end
         end
 
+        # Handle special case for 'class = '
         def process_equal(left, right)
-          if left == [:field, 'class'] && right[0] == :string
-            case right.last
-            when 'Client'
-              kpath = 'NRCC'
+          if left == [:field, 'class'] && right[0] == :field
+            if klass = Node.get_class(right[1])
+              "#{field_or_attr('kpath')} = #{quote(klass.kpath)}"
             else
               raise QueryBuilder::QueryException.new("Unknown class #{right.last.inspect}.")
             end
-            "#{field_or_attr('kpath')} LIKE #{insert_bind((kpath + '%').inspect)}"
           else
             super
           end
         end
 
+        # Handle special case for 'class like '
+        def process_like(left, right)
+          if left == [:field, 'class'] && right[0] == :field
+            if klass = Node.get_class(right[1])
+              "#{field_or_attr('kpath')} LIKE #{quote(klass.kpath + '%')}"
+            else
+              raise QueryBuilder::QueryException.new("Unknown class #{right.last.inspect}.")
+            end
+          else
+            super
+          end
+        end
+
+        def process_function(arg, method)
+          arg, method = process(arg), process(method)
+          Zena::Db.sql_function(method, arg)
+        end
 
         # ******** And maybe overwrite these **********
         def parse_custom_query_argument(key, value)

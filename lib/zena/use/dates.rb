@@ -227,6 +227,39 @@ module Zena
           res
         end
       end
+
+      module ZafuMethods
+        include RubyLess
+        safe_method :date => :get_date
+
+        def get_date(signature)
+          method = @context[:date] || 'main_date'
+          {:method => method, :class => Time}
+        end
+
+        # Select a date for the current context
+        def r_date
+          select = @params[:select]
+          case select
+          when 'main'
+            expand_with(:date=>'main_date')
+          when 'now'
+            expand_with(:date=>'Time.now')
+          else
+            if res = RubyLess.translate(select, self)
+              if res.klass.ancestors.include?(Time)
+                out "<% #{var} = #{res} -%>"
+                out expand_with(:date => var)
+              else
+                parser_error("'#{res}' is not a Time (found #{res.klass})")
+              end
+            else
+              parser_error("Invalid 'select' parameter '#{select}'")
+            end
+          end
+        end
+
+      end
     end # Dates
   end # Use
 end # Zena

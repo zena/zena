@@ -106,7 +106,7 @@ module Zena
           end
 
           def steal_and_eval_html_params_for(markup, params)
-            ::Zafu::Markup::STEAL_PARAMS.each do |key|
+            markup.steal_keys.each do |key|
               next unless value = params.delete(key)
               append_markup_attr(markup, key, value)
             end

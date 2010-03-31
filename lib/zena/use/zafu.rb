@@ -373,11 +373,13 @@ module Zena
 
       module ViewMethods
         include Common
+        include RubyLess
+        safe_method :start => {:method => 'start_node', :class => Node}
 
         # main node before ajax stuff (the one in browser url)
         def start_node
           @start_node ||= if params[:s]
-            secure!(Node) { Node.find_by_zip(params[:s]) }
+            secure(Node) { Node.find_by_zip(params[:s]) }
           else
             @node
           end

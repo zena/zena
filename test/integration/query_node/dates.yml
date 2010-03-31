@@ -1,0 +1,22 @@
+default:
+  context:
+    node_name: '@node'
+    node: 'cleanWater'
+    visitor: 'ant'
+  src: ''
+
+now:
+  src: "nodes where event_at < now"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.event_at < now() AND nodes.parent_id = ? ORDER BY nodes.position ASC, nodes.name ASC}, @node.id]"
+
+now_interval:
+  src: "nodes where created_at > now - 4 days"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.created_at > now() - INTERVAL 4 DAY AND nodes.parent_id = ? ORDER BY nodes.position ASC, nodes.name ASC}, @node.id]"
+
+year:
+  src: "nodes where event_at.year < now.year"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND year(nodes.event_at) < year(now()) AND nodes.parent_id = ? ORDER BY nodes.position ASC, nodes.name ASC}, @node.id]"
+
+year_on_whatever:
+  src: "nodes where id.year < now.year"
+  res: '' # no errors

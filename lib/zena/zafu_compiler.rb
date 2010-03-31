@@ -11,5 +11,6 @@ module Zena
     Zena::Use::QueryBuilder::ZafuMethods,
     Zena::Use::I18n::ZafuMethods,
     Zena::Use::Action::ZafuMethods,
+    Zena::Use::Dates::ZafuMethods,
   ])
 end

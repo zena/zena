@@ -448,13 +448,6 @@ module Zena
           end +
           "</div>"
         end
-
-        # TODO: test
-        def search_box(opts={})
-          render_to_string(:partial=>'search/form', :locals => {:ajax => opts[:ajax], :type => opts[:type]})
-        end
-
-
       end # ViewMethods
     end # HtmlTags
   end # Use

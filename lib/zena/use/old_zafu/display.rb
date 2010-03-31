@@ -24,7 +24,7 @@ module Zafu
       end
     end
 
-    inline_methods :login_link, :visitor_link, :search_box, :show_menu, :show_path, :lang_links
+    inline_methods :visitor_link, :show_menu, :show_path
     direct_methods :uses_datebox
 
     def r_show

@@ -37,28 +37,6 @@ module Zena
 
 
             raw_filters = []
-
-            if count == :first
-              if rel == 'self'
-                return {:method => node.name, :class => node.klass}
-              elsif rel == 'main'
-                return {:method => '@node', :class => Node}
-              elsif rel == 'root'
-                return {:method => "(secure(Node) { Node.find(#{current_site[:root_id]})})", :class => Node}
-              elsif rel == 'start'
-                return {:method => 'start_node', :class => Node}
-              elsif rel == 'visitor'
-                return {:method => 'visitor.contact', :class => Contact}
-              elsif rel =~ /^\d+$/
-                return {:method => "(secure(Node) { Node.find_by_zip(#{rel.inspect})})", :class => Node}
-              # FIXME: elsif node.name = find_stored(Node, rel)
-              # FIXME:   return {:method => node.name, :class => Node}
-              elsif rel[0..0] == '/'
-                rel = rel[1..-1]
-                return {:method => "(secure(Node) { Node.find_by_path(#{rel.inspect})})", :class => Node}
-              end
-            end
-
             pseudo_sql, add_raw_filters = get_pseudo_sql(rel, params)
             raw_filters += add_raw_filters if add_raw_filters
 
@@ -76,9 +54,7 @@ module Zena
               @node_name = node.get(Node).name
             end
 
-            current_date = context[:date] || 'main_date'
-
-            query = Node.build_query(count.to_sym, pseudo_sql, :node_name => @node_name, :raw_filters => raw_filters, :ref_date => "\#{#{current_date}}", :rubyless_helper => self)
+            query = Node.build_query(count.to_sym, pseudo_sql, :node_name => @node_name, :raw_filters => raw_filters, :rubyless_helper => self)
             klass = query.main_class
 
 

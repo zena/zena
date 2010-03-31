@@ -182,7 +182,8 @@ module Zena
         include RubyLess
         safe_method [:url,  Node]     => {:class => String, :method => 'zen_url'}
         safe_method [:path, Node]     => {:class => String, :method => 'zen_path'}
-        safe_method [:zen_path, Node, {:mode => String, :format => String, :lang => String}] => String
+        safe_method [:zen_path, Node, Hash] => String
+        safe_method [:zen_path, Node] => String
       end # ViewMethods
 
       module ZafuMethods
@@ -221,11 +222,12 @@ module Zena
               markup = ::Zafu::Markup.new('a')
             end
 
+            steal_and_eval_html_params_for(markup, @params)
+
             hash_params = []
-            [:mode, :format].each do |link_param|
-              if value = @params[link_param]
-                hash_params << ":#{link_param} => %Q{#{value}}"
-              end
+            @params.each do |key, value|
+              next if key == :href
+              hash_params << ":#{key} => %Q{#{value}}"
             end
 
             unless hash_params.empty?
@@ -233,10 +235,9 @@ module Zena
             end
 
             method = "#{method}(#{method_args.join(', ')})"
-
+deb method
             link = ::RubyLess.translate(method, self)
 
-            steal_and_eval_html_params_for(markup, @params)
 
             markup.set_dyn_params(:href => "<%= #{link} %>")
             markup.wrap text_for_link

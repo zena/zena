@@ -11,7 +11,10 @@ module Zena
         safe_method [:params] => ParamsDictionary
         safe_method_for String, [:gsub, Regexp, String] => {:class => String, :pre_processor => true}
         safe_method_for String, :upcase => {:class => String, :pre_processor => true}
+        safe_method_for Time, :year => {:class => Number, :pre_processor => true}
         safe_method :visitor => User
+        safe_method :main => {:method => '@node', :class => Node}
+        safe_method :root => {:method => 'visitor.site.root_node', :class => Node, :nil => true}
         safe_method :site => {:class => Site, :method => 'visitor.site'}
       end
     end

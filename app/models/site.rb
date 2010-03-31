@@ -18,7 +18,8 @@ The #Site model holds configuration information for a site:
 =end
 class Site < ActiveRecord::Base
   include RubyLess
-  safe_method :host => String, :lang_list => [String]
+  safe_method  :host => String, :lang_list => [String]
+  safe_context :root => {:class => Node, :method => 'root_node'}
 
   validate :valid_site
   validates_uniqueness_of :host
@@ -212,7 +213,7 @@ class Site < ActiveRecord::Base
 
   # TODO: test
   def root_node
-    secure!(Node) { Node.find(self[:root_id]) }
+    secure(Node) { Node.find(self[:root_id]) }
   end
 
   # Return the public group: the one in which every visitor belongs.

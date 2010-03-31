@@ -138,3 +138,10 @@ title_link_mode:
   old_src: "<h2 do='title' link='details'/>"
   src: "<h2 do='link' mode='details' do='title' live='true'/>"
   res: "<h2><a href='/oo/projects/cleanWater/page22_details.html'><span id='_title22'>status title</span></a></h2>"
+
+link_with_custom_params:
+  context:
+    year: 2010
+  src: "<r:link class='foo' href='main' y='#{params[:year]}'/>"
+  tem: "<a class='foo' href='<%= zen_path(@node, {:y => \"#{params[:year]}\"}) %>'><%= @node.prop['title'] %></a>"
+  res: "<a class='foo' href='/oo/projects/cleanWater/page22.html?y=2010'>status title</a>"

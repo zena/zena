@@ -2,11 +2,16 @@ require 'test_helper'
 require 'yamltest'
 
 class QueryNodeTest < Zena::Unit::TestCase
+  include RubyLess
+  safe_method :date => Time
+  safe_method :params => StringDictionary
 
   def safe_method_type(signature)
     # TODO: we could use the @context[:node] to get real class..
     if type = Node.safe_method_type(signature)
       type.merge(:method => "@node.#{type[:method]}")
+    else
+      super
     end
   end
 
