@@ -2,7 +2,7 @@ require 'zafu/controller_methods'
 
 module Zena
   module Use
-    module Zafu
+    module ZafuTemplates
       module Common
 
         # Return a template's content from an url. If the url does not start with a '/', we try by replacing the
@@ -383,13 +383,6 @@ module Zena
           else
             @node
           end
-        end
-
-        # default date used to filter events in templates
-        def main_date
-          # TODO: timezone for @date ?
-          # .to_utc(_('datetime'), visitor.tz)
-          @main_date ||= params[:date] ? DateTime.parse(params[:date]) : DateTime.now
         end
 
         # list of page numbers links

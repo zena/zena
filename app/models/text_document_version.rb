@@ -7,7 +7,7 @@ class TextDocumentVersion < DocumentVersion
     attr_accessor :visitor
     include Zena::Acts::Secure            # secure
     include Zena::Use::Zazen::ViewMethods # make_image, ...
-    include Zena::Use::Zafu::Common       # template_url_for_asset
+    include Zena::Use::ZafuTemplates::Common       # template_url_for_asset
     include Zena::Use::Urls::Common       # data_path
   end
 

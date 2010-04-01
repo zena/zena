@@ -39,7 +39,7 @@ module Zena
           opts   = options.dup
           format = opts.delete(:format)
           format = 'html' if format.blank?
-          pre    = opts.delete(:prefix) || (visitor.is_anon? ? opts.delete(:lang) : prefix)
+          pre    = opts.delete(:prefix) || (visitor.is_anon? && opts.delete(:lang)) || prefix
           mode   = opts.delete(:mode)
           host   = opts.delete(:host)
           abs_url_prefix = host ? "http://#{host}" : ''
@@ -219,7 +219,7 @@ module Zena
             if @markup.tag == 'a'
               markup = @markup
             else
-              markup = ::Zafu::Markup.new('a')
+              markup = Zafu::Markup.new('a')
             end
 
             steal_and_eval_html_params_for(markup, @params)
@@ -235,7 +235,7 @@ module Zena
             end
 
             method = "#{method}(#{method_args.join(', ')})"
-deb method
+
             link = ::RubyLess.translate(method, self)
 
 
@@ -431,10 +431,10 @@ deb method
           end
 
           def text_for_link(default = nil)
-            if @blocks.size > 1 || (@blocks.size == 1 && !(@blocks.first.kind_of?(String) || ['else','elsif'].include?(@blocks.first.method)))
+            if dynamic_blocks?
               expand_with
             else
-              method, klass = get_attribute_or_eval
+              method, klass = get_attribute_or_eval(false)
               if klass
                 "<%= #{method} %>"
               elsif default

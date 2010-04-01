@@ -9,20 +9,40 @@ default:
 
 login_link:
   src: "<r:login_link/>"
-  res: '<a href="http://test.host/logout">logout</a>'
+  res: '<a href="/logout">logout</a>'
 
 login_link_not_logged_in:
   context:
     visitor: 'anon'
   src: "<r:login_link/>"
-  res: '<a href="http://test.host/login">login</a>'
+  res: '<a href="/login">login</a>'
 
 login_link_with_blocks:
   src: "<r:login_link>ONE ONE<r:else do='name'/></r:login_link>"
-  res: "<a href='http://test.host/logout'>status</a>"
+  res: "<a href='/logout'>status</a>"
 
 login_link_with_blocks_not_logged_in:
   context:
     visitor: 'anon'
   src: "<r:login_link><r:title/><r:else do='name'/></r:login_link>"
-  res: "<a href='http://test.host/login'>status title</a>"
+  res: "<a href='/login'>status title</a>"
+
+visitor_link_not_logged_in:
+  context:
+    visitor: anon
+  src: "*<p do='visitor_link'/>*"
+  res: "**"
+
+visitor_link:
+  src: "<p do='visitor_link'/>"
+  res: "<p><a href=\"/users/440568585\">Solenopsis Invicta</a></p>"
+
+visitor_link_blocks_not_logged_in:
+  context:
+    visitor: anon
+  src: "*<p do='visitor_link'><r:visitor do='login'/></p>*"
+  res: "**"
+
+visitor_link_blocks:
+  src: "<p do='visitor_link'><r:visitor do='login'/><p>"
+  res: "<p><a href='/users/440568585'>ant<p></a></p>"

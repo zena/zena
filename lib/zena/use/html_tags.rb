@@ -349,15 +349,6 @@ module Zena
           res
         end
 
-        # Show visitor name if logged in
-        def visitor_link(opts={})
-          unless visitor.is_anon?
-            link_to( visitor.fullname, user_path(visitor) )
-          else
-            ""
-          end
-        end
-
         # TODO: rename 'admin_links' ?
         # shows links for site features
         def show_link(link, opt={})

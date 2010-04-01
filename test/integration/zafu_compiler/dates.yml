@@ -2,12 +2,31 @@ default:
   context:
     lang: 'en'
     visitor: 'ant'
-    node: 'status'
+    node: 'letter'
   src: "simple text"
   tem: "simple text"
   res: "simple text"
 
+select_date_attr:
+  src: "<p do='date' select='log_at'><span do='show' eval='date.year'/></p>"
+  tem: "<p><span><%= (@node.log_at ? @node.log_at.year : nil) %></span></p>"
+  res: '<p><span>2006</span></p>'
 
 date_in_link:
   src: "<p do='date' select='log_at'><r:link href='main' y='#{date.year}'/></p>"
-  tem: "<p><% var1 = @node.log_at -%><a href='<%= zen_path(@node) %>'><%= @node.prop['title'] %></a></p>"
+  tem: "<p><a href='<%= zen_path(@node, {:y => \"#{(@node.log_at ? @node.log_at.year : nil)}\"}) %>'><%= @node.prop['title'] %></a></p>"
+
+log_at:
+  context:
+    node: 'status'
+  eval: 'log_at.year'
+  tem: '<%= (@node.log_at ? @node.log_at.year : nil) %>'
+  res: '' # no errors
+
+# TypedString 'could_be_nil?' should propagate through 'date'
+could_be_nil:
+  context:
+    node: 'status'
+  src: "*<r:date select='log_at'><r:eval>date.year</r:eval></r:date>*"
+  tem: "*<%= (@node.log_at ? @node.log_at.year : nil) %>*"
+  res: '**' # no errors

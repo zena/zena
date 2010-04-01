@@ -131,12 +131,6 @@ class HtmlTagsTest < Zena::View::TestCase
     assert_match %r{span class="date_box".*img src="\/calendar\/iconCalendar.gif".*input id='datef.*' name='node\[updated_at\]' type='text' value='2006-04-11 00:00'}m, date_box('node', 'updated_at')
   end
 
-  def test_visitor_link
-    assert_equal '', visitor_link
-    login(:ant)
-    assert_match %r{users/#{users_id(:ant)}.*Solenopsis Invicta}, visitor_link
-  end
-
   def test_flash_messages
     login(:ant)
     assert_equal "<div id='messages'></div>", flash_messages(:show=>'both')

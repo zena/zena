@@ -107,6 +107,13 @@ module Zena
       module ViewMethods
         include Common
 
+        # default date used to filter events in templates
+        def main_date
+          # TODO: timezone for @date ?
+          # .to_utc(_('datetime'), visitor.tz)
+          @main_date ||= params[:date] ? DateTime.parse(params[:date]) : DateTime.now
+        end
+
         # display the time with the format provided by the translation of 'long_time'
         def long_time(atime)
           format_date(atime, _("long_time"))
@@ -233,8 +240,11 @@ module Zena
         safe_method :date => :get_date
 
         def get_date(signature)
-          method = @context[:date] || 'main_date'
-          {:method => method, :class => Time}
+          if method = @context[:date]
+            {:method => method, :class => Time, :nil => method.could_be_nil?}
+          else
+            {:method => 'main_date', :class => Time}
+          end
         end
 
         # Select a date for the current context
@@ -248,8 +258,7 @@ module Zena
           else
             if res = RubyLess.translate(select, self)
               if res.klass.ancestors.include?(Time)
-                out "<% #{var} = #{res} -%>"
-                out expand_with(:date => var)
+                out expand_with(:date => res)
               else
                 parser_error("'#{res}' is not a Time (found #{res.klass})")
               end

@@ -12,7 +12,7 @@ module Zena
         include Zena::Use::Rendering::ControllerMethods
         include Zena::Use::Upload::ControllerMethods
         include Zena::Use::Urls::ControllerMethods
-        include Zena::Use::Zafu::ControllerMethods
+        include Zena::Use::ZafuTemplates::ControllerMethods
         include RubyLess
 
         helper  Zena::Use::Authlogic::ViewMethods
@@ -28,7 +28,7 @@ module Zena
         helper  Zena::Use::Rendering::ViewMethods
         helper  Zena::Use::Upload::ViewMethods
         helper  Zena::Use::Urls::ViewMethods
-        helper  Zena::Use::Zafu::ViewMethods
+        helper  Zena::Use::ZafuTemplates::ViewMethods
         helper  Zena::Use::ZafuAttributes::ViewMethods
         helper  Zena::Use::ZafuSafeDefinitions::ViewMethods
         helper  Zena::Use::Display::ViewMethods

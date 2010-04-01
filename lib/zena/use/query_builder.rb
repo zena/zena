@@ -28,6 +28,10 @@ module Zena
           parser_error(err.message)
         end
 
+        def show_errors
+          @errors.detect {|e| e =~ /Syntax/} || @errors.last
+        end
+
         private
           def build_finder(count, rel, params)
 

@@ -45,7 +45,7 @@ module Zena
               if @markup.tag == 'a' || @method == 'link'
                 markup = @markup
               else
-                markup = @anchor_tag = ::Zafu::Markup.new('a')
+                markup = @anchor_tag = Zafu::Markup.new('a')
               end
               markup.append_param(:class, 'anchor')
               set_markup_attr(markup, :name, anchor_name)

@@ -3,8 +3,8 @@ module Zena
     module Action
       module ViewMethods
         include RubyLess
-        safe_method :login_url  => String
-        safe_method :logout_url => String
+        safe_method :login_path  => String
+        safe_method :logout_path => String
 
         # Shows 'login' or 'logout' button.
         # Is this used ? Or do we just use the zafu tag alone ?
@@ -137,12 +137,32 @@ module Zena
               out markup.wrap(else_block.expand_with)
             end
           else
-            out "<%= link_to #{_('login').inspect}, login_url %>"
+            out "<%= link_to #{_('login').inspect}, login_path %>"
             out "<% else -%>"
-            out "<%= link_to #{_('logout').inspect}, logout_url %>"
+            out "<%= link_to #{_('logout').inspect}, logout_path %>"
           end
           out "<% end -%>"
         end
+
+        def r_visitor_link
+          out "<% if !visitor.is_anon? -%>"
+          if dynamic_blocks?
+            @markup.tag ||= 'a'
+            link = '<%= user_path(visitor) %>'
+            if @markup.tag == 'a'
+              @markup.set_dyn_param(:href, link)
+              out @markup.wrap(expand_with)
+            else
+              markup = Zafu::Markup.new('a')
+              markup.set_dyn_param(:href, link)
+              out @markup.wrap(markup.wrap(expand_with))
+            end
+          else
+            out @markup.wrap("<%= link_to visitor.fullname, user_path(visitor) %>")
+          end
+          out "<% end -%>"
+        end
+
 
         def filter_actions
           if actions = @params.delete(:actions)

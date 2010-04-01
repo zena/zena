@@ -274,6 +274,25 @@ EOL
         def show_string(method)
           "<%= #{method} %>"
         end
+
+        def show_time(method)
+          if fmt = @params[:format]
+            begin
+              # test argument
+              Time.now.strftime(fmt)
+            rescue ArgumentError
+              return parser_error("Incorect Time format #{fmt.inspect}")
+            end
+
+            if method.could_be_nil?
+              "<%= #{method}.try(:strftime, #{fmt.inspect}) %>HOP"
+            else
+              "<%= #{method}.strftime(#{fmt.inspect}) %>"
+            end
+          else
+            "<%= #{method} %>"
+          end
+        end
       end
     end # Display
   end # Use

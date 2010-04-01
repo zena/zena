@@ -372,7 +372,7 @@ module Zena
         # show language selector
         #def r_lang_links
         #  if wrap_tag = @params[:wrap]
-        #    wrap_tag = ::Zafu::Markup.new(wrap_tag)
+        #    wrap_tag = Zafu::Markup.new(wrap_tag)
         #    tag_in  = "<#{opts[:wrap]}>"
         #    tag_out = "</#{opts[:wrap]}>"
         #  else
