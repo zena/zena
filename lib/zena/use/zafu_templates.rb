@@ -81,13 +81,12 @@ module Zena
           data_path(asset, :mode => mode)
         end
 
-
-
-        # TODO: test
+        # Callback to save an write an Ajax template to file.
         def save_erb_to_url(template, template_url)
           path = fullpath_from_template_url(template_url)
           path += ".erb" unless path =~ /\.\w+\Z/
           FileUtils.mkpath(File.dirname(path)) unless File.exists?(File.dirname(path))
+
           File.open(path, "wb") { |f| f.syswrite(template) }
           ""
         end

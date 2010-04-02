@@ -4,6 +4,13 @@ default:
     visitor: 'ant'
     node: 'status'
 
+skin_block:
+  src: "<r:parent><r:block name='foobar' do='name'/></r:parent>"
+  tem: "<% if var1 = @node.parent -%><div id='foobar_<%= var1.zip %>'><%= var1.name %></div><% end -%>"
+  'skin/block/en/foobar.erb': "<div id='foobar_<%= @node.zip %>'><%= @node.name %></div>"
+
+# -- fixed to here
+
 show_edit:
   src: "<r:show attr='name' edit='true'/>"
   tem: "<% if @node.can_write? -%><span class='show_edit' id='list1_name'><%= link_to_remote(@node.name, :url => edit_node_path(@node.zip) + \"?attribute=name&dom_id=list1_name\", :method => :get) %></span><% else -%><%= @node.name %><% end -%>"
