@@ -86,7 +86,6 @@ module Zena
           path = fullpath_from_template_url(template_url)
           path += ".erb" unless path =~ /\.\w+\Z/
           FileUtils.mkpath(File.dirname(path)) unless File.exists?(File.dirname(path))
-
           File.open(path, "wb") { |f| f.syswrite(template) }
           ""
         end
@@ -104,7 +103,7 @@ module Zena
             raise Zena::AccessViolation.new("'template_url' contains illegal characters : #{template_url.inspect}")
           end
 
-          template_url = template_url[1..-1].split('/')
+          template_url = template_url.split('/')
           path = "/#{template_url[0]}/#{template_url[1]}/#{dev_mode? ? "dev_#{lang}" : lang}/#{template_url[2..-1].join('/')}"
 
           "/#{current_site.host}/zafu#{path}"

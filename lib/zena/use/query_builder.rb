@@ -20,16 +20,29 @@ module Zena
           count  = get_count(@method, @params)
           finder = build_finder(count, @method, @params)
 
-          out "<% if #{var} = #{finder[:method]} -%>"
-          out @markup.wrap(expand_with_node(var, finder[:class], :in_if => true))
-          out "<% end -%>"
+          expand_with_finder(finder)
           true
         rescue ::QueryBuilder::Error => err
           parser_error(err.message)
         end
 
+        # Select the most pertinent error between RubyLess processing errors and QueryBuilder errors.
         def show_errors
           @errors.detect {|e| e =~ /Syntax/} || @errors.last
+        end
+        
+        # This method is called when we enter a new node context
+        def node_context_vars(finder)
+          sub_context = super
+          query = finder[:query]
+          if query && (pagination_key = query.pagination_key)
+            node_count = set_var(sub_context, "#{pagination_key}_nodes")
+            page_count = set_var(sub_context, "#{pagination_key}_count")
+            curr_page  = set_var(sub_context, pagination_key)
+            out "<% #{node_count} = #{query.to_s(:count)}; #{page_count} = (#{node_count} / #{query.page_size.to_f}).ceil; #{curr_page} = [1,params[:#{pagination_key}].to_i].max -%>"
+            sub_context[:paginate] = pagination_key
+          end
+          sub_context
         end
 
         private

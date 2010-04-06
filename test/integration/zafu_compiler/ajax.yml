@@ -4,10 +4,16 @@ default:
     visitor: 'ant'
     node: 'status'
 
-skin_block:
+block:
   src: "<r:parent><r:block name='foobar' do='name'/></r:parent>"
   tem: "<% if var1 = @node.parent -%><div id='foobar_<%= var1.zip %>'><%= var1.name %></div><% end -%>"
-  'skin/block/en/foobar.erb': "<div id='foobar_<%= @node.zip %>'><%= @node.name %></div>"
+  'ajax/block/en/foobar.erb': "<div id='foobar_<%= @node.zip %>'><%= @node.name %></div>"
+
+add:
+  src: "<ul id='children' do='nodes'><li do='each' do='link'/><li do='add'/></ul>"
+  tem: ".."
+  'ajax/add/en/children.erb': "..."
+  'ajax/add/en/children_form.erb': "..."
 
 # -- fixed to here
 

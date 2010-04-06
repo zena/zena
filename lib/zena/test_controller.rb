@@ -63,7 +63,7 @@ module Zena
     def get_template_text(path, base_path)
       folder = base_path.blank? ? [] : base_path[1..-1].split('/')
       path = path[1..-1] if path[0..0] == '/' # just ignore the 'relative' or 'absolute' tricks.
-      url = (folder + path.split('/')).join('_')
+      url = (folder + path.split('/')[1..-1]).join('_')
 
       if test = @@templates[url]
         [test['src'], path]
