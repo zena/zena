@@ -17,6 +17,8 @@ module Zena
 
         # Resolve unknown methods by trying to build a pseudo-sql query with QueryBuilder.
         def querybuilder_eval
+          return nil if node.klass.kind_of?(Array) # list context
+
           count  = get_count(@method, @params)
           finder = build_finder(count, @method, @params)
 
@@ -30,7 +32,7 @@ module Zena
         def show_errors
           @errors.detect {|e| e =~ /Syntax/} || @errors.last
         end
-        
+
         # This method is called when we enter a new node context
         def node_context_vars(finder)
           sub_context = super
