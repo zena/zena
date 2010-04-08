@@ -4,7 +4,7 @@ module Zena
       home       ':prefix',  :controller => 'nodes',    :action => 'index',  :prefix => /[a-zA-Z]{0,2}/
       not_found  ':prefix/404.html',  :controller => 'nodes',    :action => 'not_found', :prefix => /\w\w/
       login      'login',  :controller => 'user_sessions',  :action => 'new',    :requirements => { :method => :get  }
-      logout     'logout',  :controller => 'user_sessions',  :action => 'destroy'
+      logout     'logout', :controller => 'user_sessions',  :action => 'destroy'
 
       upload_progress 'upload_progress', :controller => 'documents', :action => 'upload_progress'
 

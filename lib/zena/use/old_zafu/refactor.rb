@@ -5,16 +5,6 @@ module Zafu
       r_unknown
     end
 
-    def base_class
-      if node.will_be?(Node)
-        Node
-      elsif node.will_be?(Version)
-        Version
-      else
-        node_class
-      end
-    end
-
     # get current output format
     def output_format
       @context[:output_format] || 'html'

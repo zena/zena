@@ -115,22 +115,6 @@ module Zafu
       @html_tag_done = true
     end
 
-    def r_add_btn
-      if @params[:text]
-        text = @params[:text]
-        text = "<div>#{text}</div>" unless @html_tag
-      elsif @params[:trans]
-        text = _(@params[:trans])
-        text = "<div>#{text}</div>" unless @html_tag
-      elsif @blocks != []
-        text = expand_with
-      else
-        text = node_class == Comment ? _("btn_add_comment") : _("btn_add")
-      end
-
-      out "<a href='#' onclick='#{@context[:onclick]}'>#{text}</a>"
-    end
-
     # Show html to add open a popup window to add a document.
     # TODO: inline ajax for upload ?
     def r_add_document

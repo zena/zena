@@ -483,7 +483,7 @@ class NodesController < ApplicationController
 
     # Document data do not change session[:lang] and can point at cached content (no nee to redirect to AUTHENTICATED_PREFIX).
     def avoid_prefix_redirect
-      @node.kind_of?(Document) && params[:format] == @node.version.content.ext
+      @node.kind_of?(Document) && params[:format] == @node.ext
     end
 
     # Transform pseudo id into absolute paths (used after import)

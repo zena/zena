@@ -12,5 +12,6 @@ module Zena
     Zena::Use::I18n::ZafuMethods,
     Zena::Use::Action::ZafuMethods,
     Zena::Use::Dates::ZafuMethods,
+    Zena::Use::Forms::ZafuMethods,
   ])
 end

@@ -77,29 +77,6 @@ module Zafu
           @context[:list] = 'list'
         end
 
-        if @context[:make_form]
-          res = case method
-          when :r_title
-            make_input(:name => 'v_title')
-          when :r_link
-            make_input(:name => (@params[:attr] || 'v_title'))
-          when :r_show
-            make_input(:name => (@params[:attr] || @params[:tattr]), :date => @params[:date])
-          when :r_text
-            make_textarea(:name => 'v_text')
-          when :r_summary
-            make_textarea(:name => 'v_summary')
-          when :r_zazen
-            make_textarea(:name => @params[:attr])
-          else
-            if node.will_be?(DataEntry) && @method.to_s =~ /node_/
-              # select node_id
-              "<%= select_id('#{base_class.to_s.underscore}', '#{@method}_id') %>"
-            end
-          end
-          res =  "<#{@html_tag || 'div'} class='zazen'>#{res}</#{@html_tag || 'div'}>" if [:r_summary, :r_text].include?(sym)
-        end
-
 
         res ||= super(method)
         "#{pre}#{res}#{post}"

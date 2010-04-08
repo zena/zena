@@ -21,7 +21,6 @@ module Zena
         end
 
         def method_missing(sym, *args)
-          deb sym, args
           nil
         end
       end

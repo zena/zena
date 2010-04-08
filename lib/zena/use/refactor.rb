@@ -24,10 +24,6 @@ module Zena
 
         include Common
 
-        # Quote for html values (input tag, alt attribute, etc)
-        def fquote(text)
-          text.to_s.gsub("'",'&apos;')
-        end
 
         # TODO: see if this is still needed. Creates a pseudo random string to avoid browser side ajax caching
         def rnd

@@ -273,10 +273,14 @@ module Zena
                 name = ivar + 's'
                 klass = [var.first.class]
               end
-              return ::Zafu::NodeContext.new(name, klass) if name
+              return Zafu::NodeContext.new(name, klass) if name
             end
 
-            raise Exception.new("Could not guess node context from request parameters, please add something like \"zafu_node('@var_name', Page)\" in your action.")
+            if defined?(@node)
+              return Zafu::NodeContext.new('@node', @node.class)
+            else
+              raise Exception.new("Could not guess node context from request parameters, please add something like \"zafu_node('@var_name', Page)\" in your action.")
+            end
           end
 
           # Build or rebuild a template based on a template, a zafu url ('/skin/path/to/template') and
@@ -299,10 +303,10 @@ module Zena
 
             begin
               res = ZafuCompiler.new_with_url(zafu_url, :helper => zafu_helper).to_erb(:dev => dev_mode?, :node => get_node_context)
-           #rescue => err
-           #  puts err.message
-           #  puts err.backtrace.join("\n")
-           #  return nil
+            #rescue => err
+            #  puts err.message
+            #  puts err.backtrace.join("\n")
+            #  return nil
             end
 
             # unless valid_template?(res, opts)
