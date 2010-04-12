@@ -1,30 +1,37 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
 <html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="en" set_lang='[v_lang]' xml:lang='en'>
-  <head>
-  <title do='title_for_layout' do='trans'>login</title>
-  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-  <meta http-equiv="Content-Language" do='void' content='fr-fr' tset_content='[v_lang]_content'/>
-
-  <r:stylesheets name='stylesheets' list='reset,zena,default'/>
+<head>
+  <title do='[v_title]' name='title'>Zena site</title>
+  <r:stylesheets list='reset'/>
+<style>
+body { color:#666; background: #ddd url('') no-repeat; font:13px Verdana, Helvetica, sans-serif; }
+a { color:#922; text-decoration:none;}
+.welcome { text-align:center; border-bottom:1px solid grey; padding:10px; background:#aaa; color:#333;}
+table { margin:20px;}
+td { padding:5px; }
+#login_form { border:1px solid grey; background:#eee; width:400px; margin:200px 0 0 200px; padding:0;}
+</style>
 </head>
-<body>
-  <!-- There was a problem with the rendering of the original zafu code. Using default '+login' template. -->
-  <div id='login_form'><div>
-    <form action="/session" method="post">    <table>
-        <tr>
-          <td><label for='user_login' do='trans'>User name:</label></td>
-          <td><input name="login" size="20" type="text" /></td>
-        </tr>
-        <tr>
-          <td><label for='user_password' do='trans'>Password:</label></td>
 
-          <td><input name="password" size="20" type="password" /></td>
-        </tr>
-        <tr><td></td><td><input name="commit" type="submit" value=" login " /></td></tr>
-      </table>
-    </form></div>
-  </div>
+<body do='void' name='body'>
+    <div id='login_form'>
+      <p class='welcome'><r:t>Login for</r:t> <b do='[v_title]'/></p>
+      <form action="/session" method="post">    <table>
+          <tr>
+            <td><label for='user_login' do='trans'>User name:</label></td>
+            <td><input id='user_login' name="login" size="20" type="text" /></td>
+          </tr>
+          <tr>
+            <td><label for='user_password' do='trans'>Password:</label></td>
+
+            <td><input name="password" size="20" type="password" /></td>
+          </tr>
+          <tr><td></td><td><input name="commit" type="submit" value=" login " /></td></tr>
+        </table>
+      </form>
+    </div>
 <script type="text/javascript">
 window.onload = document.getElementById('user_login').focus();
 </script>
