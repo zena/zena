@@ -441,7 +441,10 @@ module Zena
       def make_paths(node, name)
         if !node['fullpath']
           if node['parent'] && parent = elements[node['parent']]
-            node['fullpath'] = (make_paths(parent, node['parent']).split('/') + [node['name'] || name]).join('/')
+            parent_fullpath = make_paths(parent, node['parent'])
+            # Unquote content if it was an empty quoted string.
+            parent_fullpath = '' if parent_fullpath == "''"
+            node['fullpath'] = (parent_fullpath.split('/') + [node['name'] || name]).join('/')
             klass = if virtual_classes[site] && vc = virtual_classes[site][node['class']]
               vc['real_class']
             else
@@ -458,8 +461,9 @@ module Zena
               raise NameError.new("[#{site} #{table} #{name}] could not find class #{klass}.")
             end
           else
-            node['basepath'] = ""
-            node['fullpath'] = ""
+            # If we do not quote the content, FoxyParser will insert NULL.
+            node['basepath'] = "''"
+            node['fullpath'] = "''"
           end
         end
         node['fullpath']
