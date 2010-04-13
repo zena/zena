@@ -1,10 +1,5 @@
 <label for="v_title"><%= _("title")  %></label>
-<%= text_field 'node', 'v_title', :size=>nil, :class => 'full_width' %>
-
-<% @node.dyn_attribute_keys.each do |k| -%>
-<label for="d_<%= k %>"><%= _(k) %></label>
-<%= text_area 'node', "d_#{k}", :cols=>nil, :rows=>2, :class => 'full_width' %>
-<% end -%>
+<%= text_field 'node', 'title', :size => nil, :class => 'full_width' %>
 
 <label for='tag_list'><%= _("tags") %></label>
 <%= text_field 'node', 'tag_list', :size=>nil, :class => 'full_width' %>
@@ -20,8 +15,8 @@
 <% end -%>
 <label><%= _('publication date') %></label>
 <%= date_box('node', 'v_publish_from') %>
-<label for="v_summary"><%= _("summary")  %></label>
-<%= text_area 'node', 'v_summary', :cols=>nil, :rows=>6, :value=>@node.v_summary, :class => 'full_width' %>
+<label for="summary"><%= _("summary")  %></label>
+<%= text_area 'node', 'summary', :cols => nil, :rows => 6, :value => @node.summary, :class => 'full_width' %>
 
 <label for="v_comment"><%= _("comment") %></label>
-<%= text_area 'node', 'v_comment', :cols=>nil, :rows=>2, :class => 'full_width' %>
+<%= text_area 'node', 'comment', :cols => nil, :rows => 2, :class => 'full_width' %>

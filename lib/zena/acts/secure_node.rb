@@ -230,7 +230,7 @@ module Zena
             case inherit
             when 1
               # inherit rights
-              [:rgroup_id, :wgroup_id, :dgroup_id, :skin].each do |sym|
+              [:rgroup_id, :wgroup_id, :dgroup_id, :skin_id].each do |sym|
                 if self.send("#{sym}_changed?") && self[sym] != ref[sym]
                   # manual change of value not allowed without changing inherit mode
                   if !full_drive_was_true?
@@ -258,7 +258,7 @@ module Zena
 
         # Prepare after save callbacks
         def secure_before_save
-          @needs_inheritance_spread = !new_record? && (rgroup_id_changed? || wgroup_id_changed? || dgroup_id_changed? || skin_changed?)
+          @needs_inheritance_spread = !new_record? && (rgroup_id_changed? || wgroup_id_changed? || dgroup_id_changed? || skin_id_changed?)
           true
         end
 

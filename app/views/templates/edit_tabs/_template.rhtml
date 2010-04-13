@@ -1,8 +1,8 @@
-<label for='node_c_format'><%= _('format') %></label>
-<input  id='node_c_format' type='text' name='node[c_format]' value='<%= @node.c_format %>'/><br/>
+<label for='node_format'><%= _('format') %></label>
+<input  id='node_format' type='text' name='node[format]' value='<%= @node.format %>'/><br/>
 
-<label for='node_c_mode'><%= _('mode') %></label>
-<input  id='node_c_mode' type='text' name='node[c_mode]' value='<%= @node.c_mode %>'/><br/>
+<label for='node_mode'><%= _('mode') %></label>
+<input  id='node_mode' type='text' name='node[mode]' value='<%= @node.mode %>'/><br/>
 
-<label for='node_c_klass'><%= _('class scope') %></label>
-<%= select('node', 'c_klass', Node.classes_for_form, {:include_blank => true} ) %><br/>
+<label for='node_klass'><%= _('class scope') %></label>
+<%= select('node', 'klass', Node.classes_for_form, {:include_blank => true} ) %><br/>

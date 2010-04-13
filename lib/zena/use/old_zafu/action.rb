@@ -243,27 +243,5 @@ module Zafu
      #end
     end
 
-    protected
-      def auto_publish_param(in_string = false)
-        if in_string
-          ['true','force'].include?(@params[:publish]) ? "&publish=#{@params[:publish]}" : ''
-        else
-          @params[:publish]
-        end
-      end
-
-      # Returns true if a form/edit needs to keep track of link_id (l_status or l_comment used).
-      def need_link_id
-        if (input_fields = (descendants('input') + descendants('select'))) != []
-          input_fields.each do |f|
-            return true if f.params[:name] =~ /\Al_/
-          end
-        elsif (show_fields = descendants('show')) != []
-          show_fields.each do |f|
-            return true if f.params[:attr] =~ /\Al_/
-          end
-        end
-        return false
-      end
   end # Action
 end # Zafu

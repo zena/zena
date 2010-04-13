@@ -63,20 +63,15 @@ class VersionsController < ApplicationController
       end
       render :action=>'update'
     else
-      if !@node.build_redaction
-        flash[:error] = _("Could not edit version.")
-        render_or_redir 404
-      else
-        @title_for_layout = @node.rootpath
-        if @node.kind_of?(TextDocument)
-          if params['parse_assets']
-            @node.version.text = @node.parse_assets(@node.version.text, self, 'v_text')
-          elsif @node.kind_of?(TextDocument) && params['unparse_assets']
-            @node.version.text = @node.unparse_assets(@node.version.text, self, 'v_text')
-          end
+      @title_for_layout = @node.rootpath
+      if @node.kind_of?(TextDocument)
+        if params['parse_assets']
+          @node.version.text = @node.parse_assets(@node.version.text, self, 'text')
+        elsif @node.kind_of?(TextDocument) && params['unparse_assets']
+          @node.version.text = @node.unparse_assets(@node.version.text, self, 'text')
         end
-        @edit = true
       end
+      @edit = true
     end
     if params[:close] == 'true'
       js_data << "Zena.reloadAndClose();"
@@ -85,13 +80,13 @@ class VersionsController < ApplicationController
       var current_sel = $('text_sel');
       var current_tab = $('text_tab');
 
-      Event.observe(window, 'resize', function() { Zena.resizeElement('node_v_text'); } );
-      Event.observe(window, 'resize', function() { Zena.resizeElement('node_v_text'); } );
-      Zena.resizeElement('node_v_text');
+      Event.observe(window, 'resize', function() { Zena.resizeElement('node_text'); } );
+      Event.observe(window, 'resize', function() { Zena.resizeElement('node_text'); } );
+      Zena.resizeElement('node_text');
 
       $('node_form').getElements().each(function(input, index) {
           new Form.Element.Observer(input, 3, function(element, value) {
-            opener.Zena.editor_preview('#{preview_node_version_path(:node_id=>@node[:zip], :id=>(@node.v_number || 0), :escape => false)}',element,value);
+            opener.Zena.editor_preview('#{preview_node_version_path(:node_id=>@node[:zip], :id=>(@node.version.number || 0), :escape => false)}',element,value);
           });
       });
       END_TXT
@@ -138,7 +133,7 @@ class VersionsController < ApplicationController
     if @key = (params['key'] || params['amp;key'])
       if @node.can_write?
         @value = params[:content]
-        if @node.kind_of?(TextDocument) && @key == 'v_text'
+        if @node.kind_of?(TextDocument) && @key == 'text'
           l = @node.content_lang
           @value = "<code#{l ? " lang='#{l}'" : ''} class=\'full\'>#{@value}</code>"
         end
@@ -153,7 +148,7 @@ class VersionsController < ApplicationController
       # elsif @node.kind_of?(TextDocument)
       #   lang = @node.content_lang
       #   lang = lang ? " lang='#{lang}'" : ""
-      #   @node.version.text = "<code#{lang} class='full'>#{@v_text}</code>"
+      #   @node.version.text = "<code#{lang} class='full'>#{@text}</code>"
     end
 
 

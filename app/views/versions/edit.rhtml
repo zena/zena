@@ -1,5 +1,5 @@
 <div id='number'><%= @node.version.number %></div>
-<div id='form_errors' onclick='new Element.hide("form_errors")'><%= error_messages_for @node %></div>
+<div id='form_errors' onclick='new Element.hide("form_errors")'><%= error_messages_for 'node', :object => @node %></div>
 <div id='search'><%= search_box(:ajax=>true) %></div>
 
 <div class='selector'>

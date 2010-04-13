@@ -185,11 +185,11 @@ module Zena
       module ControllerMethods
 
         def self.included(base)
-          base.send(:helper_attr, :skin_names, :expire_with_nodes, :renamed_assets)
+          base.send(:helper_attr, :expire_with_nodes, :renamed_assets)
           if base.respond_to?(:helper_method)
             base.send(:helper_method, :dev_mode?, :get_template_text, :template_url_for_asset)
           end
-          base.send(:attr_accessor, :skin_names, :expire_with_nodes, :renamed_assets)
+          base.send(:attr_accessor, :expire_with_nodes, :renamed_assets)
           base.send(:include, ::Zafu::ControllerMethods)
           # Needs to be inserted after Zafu::ControllerMethods since we overwrite get_template_text and such
           base.send(:include, Common)
@@ -241,7 +241,7 @@ module Zena
           path      = SITES_ROOT + rel_path
 
           if !File.exists?(path) || params[:rebuild]
-            rebuild_template(template, zafu_url, rel_path)
+            rebuild_template(template, zafu_url, rel_path, dev_mode? && mode != '+popupLayout')
           end
 
           return rel_path
@@ -285,7 +285,7 @@ module Zena
 
           # Build or rebuild a template based on a template, a zafu url ('/skin/path/to/template') and
           # a filesystem path inside SITES_ROOT where the built template should be compiled.
-          def rebuild_template(template, zafu_url, rel_path)
+          def rebuild_template(template, zafu_url, rel_path, insert_dev = false)
             # clear :
             FileUtils::rmtree(File.dirname(SITES_ROOT + rel_path))
 
@@ -314,7 +314,7 @@ module Zena
             #   res = ZafuCompiler.new(default_zafu_template(mode), :helper => zafu_helper).render(:dev => dev_mode?)
             # end
 
-            if dev_mode? && mode != '+popupLayout'
+            if insert_dev
               # add template edit buttons
               if res =~ /<\/body>/
                 res.sub!('</body>', "#{dev_box}<%= render_js %></body>")
@@ -356,7 +356,7 @@ module Zena
               res << "  <li><a class='group' onclick='$(\"_dev_#{name}\").toggle();' href='#'>#{name}</a>\n"
               res << "  <table id='_dev_#{name}'#{name == 'images' ? " style='display:none;'" : ''}>\n"
               nodes.each do |k,n|
-                res << "    <tr><td class='actions'>#{zafu_helper.send(:node_actions, :node=>n)}</td><td>#{zafu_helper.send(:link_to,k,zen_path(n))}</td></tr>\n"
+                res << "    <tr><td class='actions'>#{zafu_helper.send(:node_actions, n)}</td><td>#{zafu_helper.send(:link_to,k,zen_path(n))}</td></tr>\n"
               end
               res << "  </table>\n"
               res << "  </li>\n"
@@ -367,7 +367,7 @@ module Zena
             res << "      <li><a href='?rebuild=true'>#{_('rebuild')}</a></li>\n"
             res << "<% if @node.kind_of?(Skin) -%>      <li><a href='<%= export_node_path(@node[:zip]) %>'>#{_('export')}</a></li>\n<% end -%>"
             res << "      <li><a href='/users/#{visitor[:id]}/swap_dev'>#{_('turn dev off')}</a></li>\n"
-            res << "      <li>skins used: #{skin_names.join(', ')}</li>\n"
+            res << "      <li>skins used: #{@skins.keys.join(', ')}</li>\n"
             res << "    </ul>\n  </li>\n</ul></div>"
             res
           end

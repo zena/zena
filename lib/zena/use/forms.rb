@@ -4,7 +4,7 @@ module Zena
 
       module ZafuMethods
         def make_form
-          return nil unless form_helper = @context[:form_helper]
+          return super unless form_helper = @context[:form_helper]
 
           case method
           when 'title', 'link'
@@ -29,6 +29,159 @@ module Zena
           #  end
           end
           #res = "<#{@html_tag || 'div'} class='zazen'>#{res}</#{@html_tag || 'div'}>" if [:r_summary, :r_text].include?(method)
+        end
+
+        def form_options
+          opts = super
+
+          dom_name = node.dom_prefix
+          opts[:form_helper] = 'f'
+
+          if template_url = @context[:template_url]
+            # Ajax
+
+            base_name = self.base_class.to_s.underscore
+
+            if @context[:in_add]
+              # Inline form used to create new elements: set values to '' and 'parent_id' from context
+              opts[:id]          = "#{node.dom_prefix}_form"
+              opts[:form_tag]    = "<% remote_form_for(:#{base_name}, #{node}, :url => #{base_name.pluralize}_path, :html => {:id => \"#{dom_name}_form_t\"}) do |f| %>"
+              opts[:form_cancel] = "<p class='btn_x'><a href='#' onclick='[\"#{dom_name}_add\", \"#{dom_name}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>\n"
+            else
+              # Saved form
+              opts[:id]          = "<%= dom_id(#{node}) %>"
+
+              opts[:form_tag]    = <<-END_TXT
+<% remote_form_for(:#{base_name}, #{node}, :url => #{node}.new_record? ? #{base_name.pluralize}_path : #{base_name}_path(#{node}), :method => #{node}.new_record? ? :post : :put, :html => {:id => \"#{dom_name}_form_t\"}) do |f| %>
+END_TXT
+
+              opts[:form_cancel] = <<-END_TXT
+<% if #{node}.new_record? -%>
+  <p class='btn_x'><a href='#' onclick='[\"<%= params[:dom_id] %>_add\", \"<%= params[:dom_id] %>_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
+<% else -%>
+  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{base_class.to_s.underscore}_path(#{node}.id) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}#{@context[:need_link_id] ? "&link_id=\#{#{node}.link_id}" : ''}\", :method => :get) %></p>
+<% end -%>
+END_TXT
+            end
+          end
+          opts
+        end
+
+        def form_hidden_fields(opts)
+          hidden_fields = super
+
+          set_fields = []
+          @markup.params[:class] ||= 'form'
+          var_name   = base_class.to_s.underscore
+          (descendants('input') + descendants('select')).each do |tag|
+            set_fields << "#{var_name}[#{tag.params[:name]}]"
+          end
+
+          if template_url = @context[:template_url] # @context[:dom_prefix] || @params[:update]
+            # Ajax
+
+            if (descendants('input') || []).detect {|elem| elem.params[:type] == 'submit'}
+              # has submit
+            else
+              # Hidden submit for Firefox compatibility
+              hidden_fields['submit'] = ["<input type='submit'/>"]
+            end
+
+            hidden_fields['link_id'] = "<%= #{node}.link_id %>" if @context[:need_link_id]
+
+            # if @params[:update] || (@context[:add] && @context[:add].params[:update])
+            #   upd = @params[:update] || @context[:add].params[:update]
+            #   if target = find_target(upd)
+            #     hidden_fields['u_url']   = target.template_url
+            #     hidden_fields['udom_id'] = target.erb_dom_id
+            #     hidden_fields['u_id']    = "<%= #{@context[:parent_node]}.zip %>" if @context[:in_add]
+            #     hidden_fields['s']       = start_node_s_param(:value)
+            #   end
+            # elsif (block = ancestor('block')) && node.will_be?(DataEntry)
+            #   # updates template url
+            #   hidden_fields['u_url']   = block.template_url
+            #   hidden_fields['udom_id'] = block.erb_dom_id
+            # end
+
+            hidden_fields['t_url'] = template_url
+
+            # if t_id = @params[:t_id]
+            #   hidden_fields['t_id']  = parse_attributes_in_value(t_id)
+            # end
+
+            # FIXME: replace 'dom_id' with 'dom_name' ?
+            erb_dom_id = @context[:saved_template] ? '<%= params[:dom_id] %>' : node.dom_prefix
+
+            hidden_fields['dom_id'] = erb_dom_id
+
+            if node.will_be?(Node)
+              # Nested contexts:
+              # 1. @node
+              # 2. var1 = @node.children
+              # 3. var1_new = Node.new
+              hidden_fields['node[parent_id]'] = "<%= #{@context[:in_add] ? "#{node.up.up}.zip" : "#{node}.parent_zip"} %>"
+            elsif node.will_be?(Comment)
+              # FIXME: the "... || '@node'" is a hack and I don't understand why it's needed...
+              hidden_fields['node_id'] = "<%= #{node.up || '@node'}.zip %>"
+            elsif node.will_be?(DataEntry)
+              hidden_fields["data_entry[#{@context[:data_root]}_id]"] = "<%= #{@context[:in_add] ? @context[:parent_node] : "#{node}.#{@context[:data_root]}"}.zip %>"
+            end
+
+            if add_block = @context[:add]
+              params = add_block.params
+              [:after, :before, :top, :bottom].each do |sym|
+                if params[sym]
+                  hidden_fields['position'] = sym.to_s
+                  if params[sym] == 'self'
+                    if sym == :before
+                      hidden_fields['reference'] = "#{erb_dom_id}_add"
+                    else
+                      hidden_fields['reference'] = "#{erb_dom_id}_form"
+                    end
+                  else
+                    hidden_fields['reference'] = params[sym]
+                  end
+                  break
+                end
+              end
+              if params[:done] == 'focus'
+                if params[:focus]
+                  hidden_fields['done'] = "'$(\"#{erb_dom_id}_#{@params[:focus]}\").focus();'"
+                else
+                  hidden_fields['done'] = "'$(\"#{erb_dom_id}_form_t\").focusFirstElement();'"
+                end
+              elsif params[:done]
+                hidden_fields['done'] = CGI.escape(params[:done]) # .gsub("NODE_ID", @node.zip).gsub("PARENT_ID", @node.parent_zip)
+              end
+            else
+              # ajax form, not in 'add'
+              hidden_fields['done'] = CGI.escape(@params[:done]) if @params[:done]
+            end
+          else
+            # no ajax
+            # FIXME
+            cancel = "" # link to normal node ?
+          end
+
+          if node.will_be?(Node) && (@params[:klass] || @context[:klass])
+            hidden_fields['node[klass]']    = @params[:klass] || @context[:klass]
+          end
+
+          if node.will_be?(Node) && @params[:mode]
+            hidden_fields['mode'] = @params[:mode]
+          end
+
+          hidden_fields['node[v_status]'] = Zena::Status[:pub] if @context[:publish_after_save] || auto_publish_param
+
+          # ===
+          # TODO: reject set_fields from hidden_fields
+          # ===
+
+          hidden_fields.reject! do |k,v|
+            set_fields.include?(k)
+          end
+
+          hidden_fields
         end
 
         # transform a 'show' tag into an input field.
@@ -120,158 +273,8 @@ module Zena
         # FIXME: use <r:form href='self'> or <r:form action='...'>
 
 =begin
-          hidden_fields = {}
-          set_fields = []
-          id_hash    = {:class => @html_tag_params[:class] || @params[:class] || 'form'}
-          var_name   = base_class.to_s.underscore
-          (descendants('input') + descendants('select')).each do |tag|
-            set_fields << "#{var_name}[#{tag.params[:name]}]"
-          end
-
-          if @context[:dom_prefix] || @params[:update]
-            # ajax
-            if @context[:in_add]
-              # inline form used to create new elements: set values to '' and 'parent_id' from context
-              id_hash[:id] = "#{erb_dom_id}_form"
-              id_hash[:style] = "display:none;"
-
-              cancel =  "<p class='btn_x'><a href='#' onclick='[\"#{erb_dom_id}_add\", \"#{erb_dom_id}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>\n"
-              form  =  "<%= form_remote_tag(:url => #{base_class.to_s.underscore.pluralize}_path, :html => {:id => \"#{dom_id}_form_t\"}) %>\n"
-            else
-              # saved form
-
-              id_hash[:id] = erb_dom_id
-
-              cancel = !@context[:dom_prefix] ? "" : <<-END_TXT
-  <% if #{node}.new_record? -%>
-    <p class='btn_x'><a href='#' onclick='[\"<%= params[:dom_id] %>_add\", \"<%= params[:dom_id] %>_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
-  <% else -%>
-    <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{base_class.to_s.underscore}_path(#{node_id}) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}#{@context[:need_link_id] ? "&link_id=\#{#{node}.link_id}" : ''}\", :method => :get) %></p>
-  <% end -%>
-  END_TXT
-              form =<<-END_TXT
-  <% if #{node}.new_record? -%>
-  <%= form_remote_tag(:url => #{base_class.to_s.underscore.pluralize}_path, :html => {:id => \"\#{params[:dom_id]}_form_t\"}) %>
-  <% else -%>
-  <%= form_remote_tag(:url => #{base_class.to_s.underscore}_path(#{node_id}), :method => :put, :html => {:id => \"#{dom_id}_form_t\"}) %>
-  <% end -%>
-  END_TXT
-            end
-
-            if (descendants('input') || []).select{|elem| elem.params[:type] == 'submit'} != []
-              # has submit
-            else
-              hidden_submit = "<input type='submit'/>" # hidden submit for Firefox compatibility
-            end
-
-            hidden_fields['link_id'] = "<%= #{node}.link_id %>" if @context[:need_link_id]
-
-            if @params[:update] || (@context[:add] && @context[:add].params[:update])
-              upd = @params[:update] || @context[:add].params[:update]
-              if target = find_target(upd)
-                hidden_fields['u_url']   = target.template_url
-                hidden_fields['udom_id'] = target.erb_dom_id
-                hidden_fields['u_id']    = "<%= #{@context[:parent_node]}.zip %>" if @context[:in_add]
-                hidden_fields['s']       = start_node_s_param(:value)
-              end
-            elsif (block = ancestor('block')) && node.will_be?(DataEntry)
-              # updates template url
-              hidden_fields['u_url']   = block.template_url
-              hidden_fields['udom_id'] = block.erb_dom_id
-            end
-
-            hidden_fields['t_url'] = template_url
-            if t_id = @params[:t_id]
-              hidden_fields['t_id']  = parse_attributes_in_value(t_id)
-            end
-
-            erb_dom_id = @context[:saved_template] ? '<%= params[:dom_id] %>' : self.erb_dom_id
-
-            hidden_fields['dom_id'] = erb_dom_id
-
-            if node.will_be?(Node)
-              hidden_fields['node[parent_id]'] = "<%= #{@context[:in_add] ? "#{@context[:parent_node]}.zip" : "#{node}.parent_zip"} %>"
-            elsif node.will_be?(Comment)
-              # FIXME: the "... || '@node'" is a hack and I don't understand why it's needed...
-              hidden_fields['node_id'] = "<%= #{@context[:parent_node] || '@node'}.zip %>"
-            elsif node.will_be?(DataEntry)
-              hidden_fields["data_entry[#{@context[:data_root]}_id]"] = "<%= #{@context[:in_add] ? @context[:parent_node] : "#{node}.#{@context[:data_root]}"}.zip %>"
-            end
-
-            if add_block = @context[:add]
-              params = add_block.params
-              [:after, :before, :top, :bottom].each do |sym|
-                if params[sym]
-                  hidden_fields['position'] = sym.to_s
-                  if params[sym] == 'self'
-                    if sym == :before
-                      hidden_fields['reference'] = "#{erb_dom_id}_add"
-                    else
-                      hidden_fields['reference'] = "#{erb_dom_id}_form"
-                    end
-                  else
-                    hidden_fields['reference'] = params[sym]
-                  end
-                  break
-                end
-              end
-              if params[:done] == 'focus'
-                if params[:focus]
-                  hidden_fields['done'] = "'$(\"#{erb_dom_id}_#{@params[:focus]}\").focus();'"
-                else
-                  hidden_fields['done'] = "'$(\"#{erb_dom_id}_form_t\").focusFirstElement();'"
-                end
-              elsif params[:done]
-                hidden_fields['done'] = CGI.escape(params[:done]) # .gsub("NODE_ID", @node.zip).gsub("PARENT_ID", @node.parent_zip)
-              end
-            else
-              # ajax form, not in 'add'
-              hidden_fields['done'] = CGI.escape(@params[:done]) if @params[:done]
-            end
-          else
-            # no ajax
-            # FIXME
-            cancel = "" # link to normal node ?
-          end
-
-          if node.will_be?(Node) && (@params[:klass] || @context[:klass])
-            hidden_fields['node[klass]']    = @params[:klass] || @context[:klass]
-          end
-
-          if node.will_be?(Node) && @params[:mode]
-            hidden_fields['mode'] = @params[:mode]
-          end
-
-          hidden_fields['node[v_status]'] = Zena::Status[:pub] if @context[:publish_after_save] || auto_publish_param
-
-          form << "<div class='hidden'>"
-          hidden_fields.each do |k,v|
-            next if set_fields.include?(k)
-            v = "'#{v}'" unless v.kind_of?(String) && ['"', "'"].include?(v[0..0])
-            form << "<input type='hidden' name='#{k}' value=#{v}/>\n"
-          end
-          form << hidden_submit << "\n" if hidden_submit
-          form << "</div>"
-
           form << "<%= error_messages_for(#{node}) %>"
 
-          if !descendant('cancel') && !descendant('edit')
-            if !descendant('form_tag')
-              # add a descendant before blocks.
-              blocks_bak = @blocks
-              @blocks = @blocks.dup
-              @blocks = [make(:void, :method=>'void', :text=>cancel)] + blocks_bak
-            else
-              form   = cancel + form
-              cancel = ''
-            end
-          end
-
-          if descendant('form_tag')
-            res = expand_with(:form_tag => form, :in_form => true, :form_cancel => cancel, :erb_dom_id => erb_dom_id, :dom_id => dom_id)
-          else
-            res = form + expand_with(:in_form => true, :form_cancel => cancel, :erb_dom_id => erb_dom_id, :dom_id => dom_id) + '</form>'
-          end
 
           @blocks = blocks_bak if blocks_bak
 
@@ -279,7 +282,29 @@ module Zena
           @html_tag_params.merge!(id_hash)
           out render_html_tag(res)
 =end
+      protected
 
+          def auto_publish_param(in_string = false)
+            if in_string
+              %w{true force}.include?(@params[:publish]) ? "&publish=#{@params[:publish]}" : ''
+            else
+              @params[:publish]
+            end
+          end
+
+          # Returns true if a form/edit needs to keep track of link_id (l_status or l_comment used).
+          def need_link_id
+            if (input_fields = (descendants('input') + descendants('select'))) != []
+              input_fields.each do |f|
+                return true if f.params[:name] =~ /\Al_/
+              end
+            elsif (show_fields = descendants('show')) != []
+              show_fields.each do |f|
+                return true if f.params[:attr] =~ /\Al_/
+              end
+            end
+            return false
+          end
       end
     end # Forms
   end # Use

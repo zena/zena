@@ -152,7 +152,8 @@ class Node < ActiveRecord::Base
                 :custom_a => Number, :custom_b => Number,
                 :m_text => String, :m_title => String, :m_author => String,
                 :id => {:class => Number, :method => 'zip'},
-                :skin => Skin
+                :skin => Skin, :lang => String
+
   # FIXME: remove 'zip' and use :id => {:class => Number, :method => 'zip'}
   # same with parent_zip, section_zip, etc...
 
@@ -172,7 +173,7 @@ class Node < ActiveRecord::Base
   after_save         :spread_project_and_section
   after_save         :rebuild_children_fullpath
   after_create       :node_after_create
-  attr_protected     :site_id, :zip, :id, :section_id, :project_id, :publish_from
+  attr_protected     :zip, :id, :section_id, :project_id, :publish_from
   attr_protected     :site_id
 
   include Zena::Use::Dates::ModelMethods
@@ -819,6 +820,24 @@ class Node < ActiveRecord::Base
     @new_klass = str
   end
 
+  # The following methods are used in forms and affect the version.
+
+  def v_lang
+    version.lang
+  end
+
+  def v_lang=(lang)
+    version.lang = lang
+  end
+
+  def v_publish_from
+    version.publish_from
+  end
+
+  def v_publish_from=(date)
+    version.publish_from = date
+  end
+
   # include virtual classes to check inheritance chain
   def vkind_of?(klass)
     if self.class.ancestors.map{|k| k.to_s}.include?(klass)
@@ -1412,9 +1431,9 @@ class Node < ActiveRecord::Base
          ((full_drive? && version.status == Zena::Status[:pub]) ||
           (can_drive?  && vhash['r'][ref_lang].nil?))
         if name_changed? && !name.blank?
-          version.title = self.name
-        elsif !version.title.blank?
-          self.name = version.title.url_name
+          self.title = self.name
+        elsif !title.blank?
+          self.name = title.url_name
           if !new_record? && kind_of?(Page) && name_changed?
             # we only rebuild Page names on update
             get_unique_name_in_scope('NP%')
@@ -1429,7 +1448,7 @@ class Node < ActiveRecord::Base
     def node_before_validation
       self[:kpath] = self.vclass.kpath
 
-      self.name ||= (version.title || '').url_name
+      self.name ||= (self.title || '').url_name
 
       unless name.blank?
         # rebuild cached fullpath / basepath
