@@ -251,7 +251,8 @@ class Node < ActiveRecord::Base
 
     # Return class or virtual class from name.
     def get_class(rel, opts={})
-      class_name = rel.singularize.camelize # mushroom_types ==> MushroomType
+      # mushroom_types ==> MushroomType
+      class_name = rel =~ /\A[a-z]/ ? rel.singularize.camelize : rel
       begin
         klass = Module.const_get(class_name)
         raise NameError unless klass.ancestors.include?(Node)
