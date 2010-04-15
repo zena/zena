@@ -307,9 +307,39 @@ module Zena
           end
           input_id = opt[:input_id] ? " id='#{params[:input_id]}'" : ''
           # we use both 'onChange' and 'onKeyup' for old javascript compatibility
-          update = "new Ajax.Updater('#{name_ref}', '/nodes/#{(node || @node).zip}/attribute?node=' + this.value + '&attr=#{attribute}', {method:'get', asynchronous:true, evalScripts:true});"
+          update = "new Ajax.Updater('#{name_ref}', '/nodes/#{(node || @node).zip}/attribute?pseudo_id=' + this.value + '&attr=#{attribute}', {method:'get', asynchronous:true, evalScripts:true});"
           "<div class='select_id'><input type='text' size='8'#{input_id} name='#{obj}[#{sym}]' value='#{zip}' onChange=\"#{update}\" onKeyup=\"#{update}\"/>"+
           "<span class='select_id_name' id='#{name_ref}'>#{current}</span></div>"
+        end
+
+        # TODO: select_id should use 'check_exists'
+        def check_exists(opts)
+          watch  = opts[:watch] || 'node_v_title'
+          name_ref = unique_id
+          params = []
+
+          # Filtering key
+          key = 'name'
+          params << "#{key}=' + this.value + '"
+
+          # Attribute to display
+          attribute = opts[:show] || 'short_path'
+          params << "attr=#{attribute}"
+
+          # Scoping
+          if kpath  = opts[:kpath]
+            params << "kpath=#{kpath}"
+          end
+
+          function_name = "check#{unique_id}"
+          js_data << "#{function_name} = function(event) {
+            new Ajax.Updater('#{name_ref}', '/nodes/#{(opts[:node] || @node).zip}/attribute?#{params.join('&')}', {method:'get', asynchronous:true, evalScripts:true});
+          };"
+
+          js_data << "Event.observe('#{watch}', 'change', #{function_name});"
+          js_data << "Event.observe('#{watch}', 'keydown', #{function_name});"
+
+          "<span class='select_id_name' id='#{name_ref}'>#{opts[:current]}</span>"
         end
 
         def unique_id
