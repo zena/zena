@@ -336,8 +336,9 @@ module Zena
             new Ajax.Updater('#{name_ref}', '/nodes/#{(opts[:node] || @node).zip}/attribute?#{params.join('&')}', {method:'get', asynchronous:true, evalScripts:true});
           };"
 
+          js_data << "$('#{watch}').check_exists = #{function_name};"
           js_data << "Event.observe('#{watch}', 'change', #{function_name});"
-          js_data << "Event.observe('#{watch}', 'keydown', #{function_name});"
+          js_data << "Event.observe('#{watch}', 'keyup', #{function_name});"
 
           "<span class='select_id_name' id='#{name_ref}'>#{opts[:current]}</span>"
         end

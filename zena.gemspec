@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{zena}
-  s.version = "0.16.4"
+  s.version = "0.16.5"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2010-02-22}
+  s.date = %q{2010-04-15}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -1918,7 +1918,7 @@ Gem::Specification.new do |s|
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{zena}
-  s.rubygems_version = %q{1.3.5}
+  s.rubygems_version = %q{1.3.6}
   s.summary = %q{CMS with super natural powers, based on Ruby on Rails}
   s.test_files = [
     "spec/controllers/versions_controller_spec.rb",
@@ -2024,18 +2024,14 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<rails>, ["= 2.3.4"])
       s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_runtime_dependency(%q<authlogic>, ["= 2.1.3"])
-      s.add_runtime_dependency(%q<ts-delayed-delta>, [">= 1.0.2"])
       s.add_runtime_dependency(%q<shoulda>, [">= 2.10.2"])
       s.add_runtime_dependency(%q<fast_gettext>, ["~> 0.4.16"])
-      s.add_runtime_dependency(%q<delayed_job>, [">= 1.8.4"])
       s.add_runtime_dependency(%q<syntax>, ["= 1.0.0"])
       s.add_runtime_dependency(%q<yamltest>, [">= 0.5.3"])
-      s.add_runtime_dependency(%q<thinking-sphinx>, [">= 1.3.14"])
       s.add_runtime_dependency(%q<json>, [">= 1.1.9"])
       s.add_runtime_dependency(%q<will_paginate>, ["~> 2.3.12"])
-      s.add_runtime_dependency(%q<gettext>, ["= 1.93.0"])
+      s.add_runtime_dependency(%q<gettext>, [">= 1.93.0"])
       s.add_runtime_dependency(%q<jeweler>, [">= 0"])
-      s.add_runtime_dependency(%q<rmagick>, [">= 2.10.0"])
       s.add_runtime_dependency(%q<hpricot>, [">= 0"])
       s.add_runtime_dependency(%q<differ>, [">= 0.1.1"])
       s.add_runtime_dependency(%q<RedCloth>, ["= 3.0.4"])
@@ -2047,18 +2043,14 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<rails>, ["= 2.3.4"])
       s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_dependency(%q<authlogic>, ["= 2.1.3"])
-      s.add_dependency(%q<ts-delayed-delta>, [">= 1.0.2"])
       s.add_dependency(%q<shoulda>, [">= 2.10.2"])
       s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
-      s.add_dependency(%q<delayed_job>, [">= 1.8.4"])
       s.add_dependency(%q<syntax>, ["= 1.0.0"])
       s.add_dependency(%q<yamltest>, [">= 0.5.3"])
-      s.add_dependency(%q<thinking-sphinx>, [">= 1.3.14"])
       s.add_dependency(%q<json>, [">= 1.1.9"])
       s.add_dependency(%q<will_paginate>, ["~> 2.3.12"])
-      s.add_dependency(%q<gettext>, ["= 1.93.0"])
+      s.add_dependency(%q<gettext>, [">= 1.93.0"])
       s.add_dependency(%q<jeweler>, [">= 0"])
-      s.add_dependency(%q<rmagick>, [">= 2.10.0"])
       s.add_dependency(%q<hpricot>, [">= 0"])
       s.add_dependency(%q<differ>, [">= 0.1.1"])
       s.add_dependency(%q<RedCloth>, ["= 3.0.4"])
@@ -2071,18 +2063,14 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<rails>, ["= 2.3.4"])
     s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
     s.add_dependency(%q<authlogic>, ["= 2.1.3"])
-    s.add_dependency(%q<ts-delayed-delta>, [">= 1.0.2"])
     s.add_dependency(%q<shoulda>, [">= 2.10.2"])
     s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
-    s.add_dependency(%q<delayed_job>, [">= 1.8.4"])
     s.add_dependency(%q<syntax>, ["= 1.0.0"])
     s.add_dependency(%q<yamltest>, [">= 0.5.3"])
-    s.add_dependency(%q<thinking-sphinx>, [">= 1.3.14"])
     s.add_dependency(%q<json>, [">= 1.1.9"])
     s.add_dependency(%q<will_paginate>, ["~> 2.3.12"])
-    s.add_dependency(%q<gettext>, ["= 1.93.0"])
+    s.add_dependency(%q<gettext>, [">= 1.93.0"])
     s.add_dependency(%q<jeweler>, [">= 0"])
-    s.add_dependency(%q<rmagick>, [">= 2.10.0"])
     s.add_dependency(%q<hpricot>, [">= 0"])
     s.add_dependency(%q<differ>, [">= 0.1.1"])
     s.add_dependency(%q<RedCloth>, ["= 3.0.4"])

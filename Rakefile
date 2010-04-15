@@ -29,6 +29,7 @@ begin
     # Gem dependecies
     Zena.gem_configuration.each do |gem_name, gem_config|
       if gem_config
+        next if gem_config['optional']
         if gem_config['development_only']
           gemspec.add_development_dependency(gem_name, gem_config['version'])
         else

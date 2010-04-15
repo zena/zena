@@ -12,7 +12,7 @@ ARGV.each do |arg|
 end
 
 unless %w{index start stop restart}.include?(cmd)
-  puts "Usage: script/sphinx RAILS_ENV=production [index|start|stop|restart]"
+  puts "Usage: script/worker RAILS_ENV=production [start|stop|restart]"
   exit -1
 end
 
@@ -22,7 +22,9 @@ daemon_options = {
   :multiple   => false,
   :dir_mode   => :normal,
   :dir        => File.join(dir, 'log'),
-  :backtrace  => true
+  :backtrace  => true,
+  # Create a worker.output to redirect STDOUT and STDERR
+  :log_output => true,
 }
 
 ARGV.clear
@@ -34,7 +36,15 @@ Daemons.run_proc('worker', daemon_options) do
   Dir.chdir dir
   ENV['RAILS_ENV'] = RAILS_ENV = env
   require File.join('config', 'environment')
-  require 'delayed_job'
+
+  require 'delayed/worker'
+  begin
+    require 'thinking_sphinx/deltas/delayed_delta'
+  rescue LoadError
+    # Ignore
+  end
+
+  puts "Starting worker..."
 
   Delayed::Worker.new.start
 end

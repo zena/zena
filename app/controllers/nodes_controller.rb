@@ -292,9 +292,9 @@ class NodesController < ApplicationController
   # TODO: test
   def attribute
     method = params[:attr]
-    unless %w{v_text v_summary name path short_path}.include?(method)
+    if (params[:pseudo_id] || params[:name]).blank? || !%w{v_title v_text v_summary name path short_path}.include?(method)
       # Error
-      render :text => method
+      render :text => ''
       return
     end
 
@@ -334,7 +334,7 @@ class NodesController < ApplicationController
       end
     end
   rescue ActiveRecord::RecordNotFound
-    render :text => params[:id] ? _('node not found') : _('new')
+    render :text => (params[:pseudo_id] ? _('node not found') : _('new'))
   end
 
   # TODO: test
