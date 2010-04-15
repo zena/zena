@@ -97,6 +97,8 @@ namespace :sphinx do
       sphinx_conf.controller.start
 
       if ThinkingSphinx.sphinx_running?
+        # We need to read the pid file from within Zena application (run under www-data user).
+        `chown www-data:www-data #{sphinx_conf.pid_file}`
         puts "Sphinx searchd: started successfully (pid #{ThinkingSphinx.sphinx_pid})."
       else
         tail = `tail -n 10 #{sphinx_conf.searchd_log_file.inspect}`
@@ -134,5 +136,4 @@ namespace :sphinx do
       puts "Sphinx searchd: indexing failed\n#{res}"
     end
   end
-
 end

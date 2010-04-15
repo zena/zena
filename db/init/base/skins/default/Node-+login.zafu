@@ -11,7 +11,7 @@ a { color:#922; text-decoration:none;}
 .welcome { text-align:center; border-bottom:1px solid grey; padding:10px; background:#aaa; color:#333;}
 table { margin:20px;}
 td { padding:5px; }
-#login_form { border:1px solid grey; background:#eee; width:400px; margin:200px 0 0 200px; padding:0;}
+#login_form { border:1px solid grey; background:#eee; width:400px; margin:200px auto; padding:0;}
 </style>
 </head>
 

@@ -1,3 +1,14 @@
+== 0.16.5 2010-04-15
+
+* 2 major enhancements
+  * added a way to easily check duplicate names when adding documents
+  * ruby 1.9 compatibility fixes
+
+* 3 minor enhancements
+  * better default +login mode
+  * fixed image cache stamp not always used
+  * some minor bug fixes
+
 == 0.16.4 2010-02-22
 
 * 3 major enhancements

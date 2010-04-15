@@ -8,15 +8,14 @@ module Bricks
       errors = []
       requirements.each do |k,v|
         case k
-        # bad idea, this is run before gem version configuration
-        # when 'gem'
-        #   v.split(',').each do |name|
-        #     begin
-        #       require name.strip
-        #     rescue LoadError => err
-        #       errors << "'#{name}' missing"
-        #     end
-        #   end
+        when 'gem'
+          v.split(',').each do |name|
+            begin
+              require name.strip
+            rescue LoadError => err
+              errors << "'#{name}' missing"
+            end
+          end
         when 'file'
           v.split(',').each do |name|
             unless File.exist?("#{RAILS_ROOT}/#{name}")
@@ -52,7 +51,7 @@ module Bricks
               if defined?(ActiveRecord::Base) && logger = ActiveRecord::Base.logger
                 ActiveRecord::Base.logger.warn "'#{brick}' not activated: #{errors.join(', ')}"
               end
-              puts "'#{brick}' not activated: #{errors.join(', ')}" if RAILS_ENV == 'development'
+              # puts "'#{brick}' not activated: #{errors.join(', ')}" if RAILS_ENV == 'development'
             end
           end
           config[brick] = opts unless errors

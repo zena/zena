@@ -65,4 +65,20 @@ namespace :worker do
     sleep(1)
     worker.start
   end
+
+  desc "Run worker jobs index requests (never returns)"
+  task :run => :environment do
+    require 'delayed/worker'
+    begin
+      require 'thinking_sphinx/deltas/delayed_delta'
+    rescue LoadError
+      # Ignore
+    end
+
+    Delayed::Worker.new(
+      :min_priority => ENV['MIN_PRIORITY'],
+      :max_priority => ENV['MAX_PRIORITY']
+    ).start
+  end
+
 end

@@ -132,6 +132,9 @@ Zena.get_filename = function(source, target) {
     var path = $(source).value;
     var elements = path.split(/[\\\/]+/g);
     $(target).value = elements[elements.length - 1];
+    if ($(target).check_exists) {
+      $(target).check_exists();
+    }
   }
 }
 

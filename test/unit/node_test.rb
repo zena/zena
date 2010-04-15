@@ -875,6 +875,12 @@ class NodeTest < Zena::Unit::TestCase
     assert_equal TextDocument, Node.get_class('TextDocument')
   end
 
+  def test_get_class_without_plural
+    login(:lion)
+    vclass = VirtualClass.create(:superclass => 'Project', :name => 'Process', :create_group_id =>  groups_id(:public))
+    assert_equal vclass, Node.get_class('Process')
+  end
+
   def test_get_attributes_from_yaml
     f = Tempfile.new('any.yml')
     path = f.path

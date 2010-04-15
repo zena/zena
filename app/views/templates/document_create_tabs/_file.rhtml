@@ -5,7 +5,7 @@
 <%= upload_field %>
 
 <label for='node_name'><%= _('title') %></label>
-<input id='node_v_title' type='text' name='node[v_title]'/><br/>
+<input id='node_v_title' type='text' name='node[v_title]' onchange="Zena.get_filename(this,'existing_doc');"/> <%= check_exists(:node => @parent, :watch => 'node_v_title', :kpath => 'ND', :show => 'short_path') %><br/>
 
 <label for='node_v_summary'><%= _('summary') %></label>
 <textarea id='node_v_summary' rows='3' name='node[v_summary]'></textarea><br/>

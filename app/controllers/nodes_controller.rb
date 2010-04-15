@@ -291,29 +291,50 @@ class NodesController < ApplicationController
   # AJAX HELPER
   # TODO: test
   def attribute
-    method = params[:attr].to_sym
-    if [:v_text, :v_summary, :name, :path, :short_path].include?(method)
-      # '+' are not escaped as they should in ajax query
-      params[:node].sub!(/ +$/) {|spaces| '+' * spaces.length} if params[:node]
-      node_id = secure!(Node) { Node.translate_pseudo_id(params[:node], :id, @node)}
-      @node = secure!(Node) { Node.find(node_id) }
+    method = params[:attr]
+    if (params[:pseudo_id] || params[:name]).blank? || !%w{v_title v_text v_summary name path short_path}.include?(method)
+      # Error
+      render :text => ''
+      return
+    end
 
-      if method == :path || method == :short_path
-        path = @node.send(method)
-        render :inline=> path.join('/ ')
-      else
-        @text = @node.send(method)
-        if [:v_text, :v_summary].include?(method)
-          render :inline=>"<%= zazen(@text) %>"
-        else
-          render :inline=>@text
-        end
+    if id_query = params[:pseudo_id]
+      # '+' are not escaped as they should in ajax query
+      id_query.sub!(/ +$/) {|spaces| '+' * spaces.length }
+      node_id = secure!(Node) { Node.translate_pseudo_id(id_query, :id, @node)}
+      @node = secure!(Node) { Node.find(node_id) }
+    elsif name_query = params[:name]
+      if name_query =~ /^(.*)\.[a-z]{2,3}$/
+        name_query = $1
       end
+
+      conditions = [[]]
+
+      if kpath = params[:kpath]
+        conditions[0] << "kpath LIKE ?"
+        conditions << "#{kpath}%"
+      end
+
+      conditions[0] << "name LIKE ?"
+      conditions << "#{name_query}%"
+
+      conditions[0] = conditions[0].join(' AND ')
+      @node = secure!(Node) { Node.find(:first, :conditions => conditions, :order => "zip DESC")}
+    end
+
+    if %w{path short_path}.include?(method)
+      path = @node.send(method)
+      render :text => path.join('/ ')
     else
-      render :inline=>method
+      @text = @node.send(method)
+      if %w{v_text v_summary}.include?(method)
+        render :text => "<%= zazen(@text) %>"
+      else
+        render :text => @text
+      end
     end
   rescue ActiveRecord::RecordNotFound
-    render :inline=>_('node not found')
+    render :text => (params[:pseudo_id] ? _('node not found') : _('new'))
   end
 
   # TODO: test
