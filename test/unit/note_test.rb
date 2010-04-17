@@ -22,7 +22,7 @@ class NoteTest < Zena::Unit::TestCase
   def test_create_with_title
     login(:tiger)
     note = nil
-    assert_nothing_raised { note = secure!(Note) { Note.create(:v_title=>"Monday is nice", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :set_tag_ids=>[nodes_id(:news)])} }
+    assert_nothing_raised { note = secure!(Note) { Note.create(:title=>"Monday is nice", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :set_tag_ids=>[nodes_id(:news)])} }
     assert note , "Note created"
     assert ! note.new_record? , "Not a new record"
     assert_equal "MondayIsNice", note[:name]

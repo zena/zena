@@ -154,7 +154,7 @@ module Zena
         # and then into default. This action is also responsible for setting a default @title_for_layout.
         def admin_layout
           @title_for_layout ||= "#{params[:controller]}/#{params[:action]}"
-          template_url(:mode=>'+adminLayout')
+          template_url(:mode => '+adminLayout')
         end
 
         # TODO: test
@@ -200,7 +200,7 @@ module Zena
                       format = Iformat[img_mode]
                       img_path = img.version.content.filepath(format)
                       if !File.exists?(img_path)
-                        img_file = img.c_file(format) # force rendering of image
+                        img_file = img.file(format) # force rendering of image
                         img_file.close
                       end
                     else

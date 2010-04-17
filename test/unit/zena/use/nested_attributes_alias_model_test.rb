@@ -47,12 +47,12 @@ class NestedAttributesAliasModelTest < Test::Unit::TestCase
 
   def test_should_move_attribute_to_group
     assert_equal({'name' => 'banana', 'version_attributes' => {'title' => 'yellow'}},
-                Foo.new.resolve_attributes_alias('v_title' => 'yellow', 'name' => 'banana'))
+                Foo.new.resolve_attributes_alias('title' => 'yellow', 'name' => 'banana'))
   end
 
   def test_should_move_attribute_to_inner_group
     assert_equal({'name' => 'banana', 'version_attributes' => {'title' => 'yellow', 'content_attributes' => {'width' => 45}}},
-                Foo.new.resolve_attributes_alias('v_title' => 'yellow', 'name' => 'banana', 'c_width' => 45))
+                Foo.new.resolve_attributes_alias('title' => 'yellow', 'name' => 'banana', 'c_width' => 45))
   end
 
   def test_should_be_able_to_parse_multiple_dynamic_attributes
@@ -78,7 +78,7 @@ class NestedAttributesAliasModelTest < Test::Unit::TestCase
   def test_many_options
     assert_equal({'name' => 'banana',
       'version_attributes' => {'content_attributes' => {'width' => 45}, 'title' => 'yellow', 'text' => 'home'}},
-                Foo.new.resolve_attributes_alias('v_title' => 'yellow', 'name' => 'banana', 'c_width' => 45,
+                Foo.new.resolve_attributes_alias('title' => 'yellow', 'name' => 'banana', 'c_width' => 45,
                 'version_attributes' => {'text' => 'home'}, 'new*log' => 'bazar'))
   end
 
@@ -86,19 +86,19 @@ class NestedAttributesAliasModelTest < Test::Unit::TestCase
     assert_equal({'name' => 'Joe'},
                 Foo.new.resolve_attributes_alias('name' => 'Joe'))
     assert_equal({'na_attributes' => {'me' => 'Joe'}, 'version_attributes' => {'title' => 'Plumber'}},
-                SubFoo.new.resolve_attributes_alias('name' => 'Joe', 'v_title' => 'Plumber'))
+                SubFoo.new.resolve_attributes_alias('name' => 'Joe', 'title' => 'Plumber'))
   end
 
   def test_set_attributes
     f = Foo.new
-    f.attributes = {'name' => 'Joe', 'v_title' => 'Plumber'}
+    f.attributes = {'name' => 'Joe', 'title' => 'Plumber'}
     assert_equal({'name'=>'Joe', 'version_attributes'=>{'title'=>'Plumber'}}, f.attributes)
   end
 
   def test_convert_keys_to_strings
     assert_equal({'name'=>'one',
      'version_attributes'=>{'title'=>{'one'=>'Joe', 'two'=>'Plumber'}}},
-                Foo.new.resolve_attributes_alias(:name => 'one', :v_title => {:one => 'Joe', :two => 'Plumber'}))
+                Foo.new.resolve_attributes_alias(:name => 'one', :title => {:one => 'Joe', :two => 'Plumber'}))
   end
 
 end

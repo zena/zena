@@ -57,7 +57,7 @@ class TemplateTest < Zena::Unit::TestCase
 
   def test_create_with_format
     login(:tiger)
-    doc = secure!(Template) { Template.create("name"=>"Node-tree", "format"=>"xml", "v_summary"=>"", "parent_id"=>nodes_id(:default))}
+    doc = secure!(Template) { Template.create("name"=>"Node-tree", "format"=>"xml", "summary"=>"", "parent_id"=>nodes_id(:default))}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Not a new record"
     assert_equal 'Node-tree-xml', doc.name
@@ -262,7 +262,7 @@ class TemplateTest < Zena::Unit::TestCase
   def test_update_text
     login(:lion)
     doc = secure!(Template) { nodes(:Project_zafu) }
-    assert doc.update_attributes('v_text'=>'DUMMY')
+    assert doc.update_attributes('text'=>'DUMMY')
     content = template_contents(:Project_zafu)
     assert_equal 'default', content.skin_name
     assert_equal 'Project', content.target_klass
@@ -374,7 +374,7 @@ class TemplateTest < Zena::Unit::TestCase
 
     should 'be able to update a template with blank format, mode or target_klass' do
       @node = secure(Node) { nodes(:notes_zafu) }
-      assert @node.update_attributes('v_text' => 'hello', 'target_klass' => '', 'format' => '', 'mode' => '')
+      assert @node.update_attributes('text' => 'hello', 'target_klass' => '', 'format' => '', 'mode' => '')
       @node = secure(Node) { nodes(:notes_zafu) } # reload
       content = @node
 

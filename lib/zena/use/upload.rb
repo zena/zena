@@ -172,7 +172,7 @@ module Zena
 TXT
           else
             attach_file_id, attach_url_id = "af#{@uuid}", "au#{@uuid}"
-            onchange = %Q{onchange="Zena.get_filename(this,'node_v_title'); $('node_v_title').focus(); $('node_v_title').select();"}
+            onchange = %Q{onchange="Zena.get_filename(this,'node_title'); $('node_title').focus(); $('node_title').select();"}
             <<-TXT
 <div id='#{attach_file_id}' class='attach'><label for='attachment' onclick=\"['#{attach_file_id}', '#{attach_url_id}'].each(Element.toggle);\">#{_('file')} / <span class='off'>#{_('url')}</span></label>
 <input  style='line-height:1.5em;' id="attachment#{@uuid}" name="attachment" #{onchange} class='file' type="file" /></div>

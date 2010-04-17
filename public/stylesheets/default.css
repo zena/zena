@@ -75,8 +75,8 @@ h2 { font-size:21px; line-height:42px;}
 .inline_form p, .inline_form .date_box { display:inline; float:none; }
 #notes .inline_form .btn_x { float:left; margin:3px 4px 0 0; }
 .inline_form select { width:8em; font:inherit;}
-.node_v_title input { font-weight:bold; width:90%;}
-#notes .node_v_title input { font-weight:bold; width:120px;}
+.node_title input { font-weight:bold; width:90%;}
+#notes .node_title input { font-weight:bold; width:120px;}
 .inline_form input { display:inline; }
 
 /* tables */

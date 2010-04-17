@@ -22,7 +22,7 @@ class TextDocumentVersionTest < Zena::Unit::TestCase
     #footer { background:url('/projects/wiki/flower.jpg') }
     #no_stamp { background:url('/en/image30_pv.jpg?100001001345') }
     END_CSS
-    node.update_attributes(:v_text => css)
+    node.update_attributes(:text => css)
     parsed_css =<<-END_CSS
     body { font-size:10px; }
     #header { background:url('/en/image30.jpg?1144713600') }

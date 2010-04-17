@@ -129,11 +129,11 @@ class Node < ActiveRecord::Base
   include Property
   store_properties_in :version
 
-  property do |t|
-    t.string  'title'
-    t.string  'text'
-    t.string  'summary'
-    t.string  'comment'
+  property do |p|
+    p.string  'title'
+    p.string  'text'
+    p.string  'summary'
+    p.string  'comment'
   end
 
   include RubyLess
@@ -179,10 +179,13 @@ class Node < ActiveRecord::Base
   include Zena::Use::Dates::ModelMethods
   parse_date_attribute :event_at, :log_at
 
+  # Until we find another way to write friend_ids, we need NestedAttributesAlias in Relations
+  # A possible solution could be to use the other syntax exclusively ('rel' => {'friend' => [4,5,6]})
   include Zena::Use::NestedAttributesAlias::ModelMethods
-  nested_attributes_alias %r{^v_(\w+)} => ['version']
-  nested_attributes_alias %r{^c_(\w+)} => ['version', 'content']
-  nested_attributes_alias %r{^d_(\w+)} => ['version', 'dyn']
+
+  #nested_attributes_alias %r{^v_(\w+)} => ['version']
+  #nested_attributes_alias %r{^c_(\w+)} => ['version', 'content']
+  #nested_attributes_alias %r{^d_(\w+)} => ['version', 'dyn']
 
   safe_context       :author => 'Contact', :parent => 'Node',
                      :project => 'Project', :section => 'Section',
@@ -206,6 +209,22 @@ class Node < ActiveRecord::Base
 
   include Zena::Use::Workflow
   include Zena::Use::VersionHash
+
+  # List of version attributes that should be accessed as proxies 'v_lang', 'v_status', etc
+  VERSION_ATTRIBUTES = %w{status lang publish_from}
+
+  # The following methods are used in forms and affect the version.
+  VERSION_ATTRIBUTES.each do |attribute|
+    class_eval %Q{
+      def v_#{attribute}
+        version.#{attribute}
+      end
+
+      def v_#{attribute}=(value)
+        version.#{attribute} = value
+      end
+    }
+  end
 
   include Zena::Use::Relations::ModelMethods
 
@@ -509,7 +528,7 @@ class Node < ActiveRecord::Base
           attrs  = defaults.dup
           lang   = $4.blank? ? nil : $4[1..-1]
           attrs['v_lang'] = lang || attrs['v_lang'] || visitor.lang
-          attrs['c_ext']  = $3
+          attrs['ext']  = $3
           document_path   = path
         end
 
@@ -550,18 +569,18 @@ class Node < ActiveRecord::Base
           if type == :document
             attrs['name' ] = attrs['name'].split('.')[0..-2].join('.')
             if document_path
-              attrs['c_ext'] ||= document_path.split('.').last
+              attrs['ext'] ||= document_path.split('.').last
               # file
               insert_zafu_headings = false
-              if opts[:parent_class] == 'Skin' && ['html','xhtml'].include?(attrs['c_ext']) && attrs['name'] == 'index'
-                attrs['c_ext']    = 'zafu'
-                attrs['name']     = 'Node'
+              if opts[:parent_class] == 'Skin' && ['html','xhtml'].include?(attrs['ext']) && attrs['name'] == 'index'
+                attrs['ext']  = 'zafu'
+                attrs['name'] = 'Node'
                 insert_zafu_headings = true
               end
 
-              ctype = Zena::EXT_TO_TYPE[attrs['c_ext']]
+              ctype = Zena::EXT_TO_TYPE[attrs['ext']]
               ctype = ctype ? ctype[0] : "application/octet-stream"
-              attrs['c_content_type'] = ctype
+              attrs['content_type'] = ctype
 
 
               File.open(document_path) do |f|
@@ -576,7 +595,7 @@ class Node < ActiveRecord::Base
                     end
                   end
                 end
-                current_obj = create_or_update_node(attrs.merge(:c_file => file, :klass => 'Document', :_parent_id => parent_id))
+                current_obj = create_or_update_node(attrs.merge(:file => file, :klass => 'Document', :_parent_id => parent_id))
               end
               document_path = nil
             else
@@ -699,7 +718,7 @@ class Node < ActiveRecord::Base
           # translate zazen
           value = attributes[key]
           if value.kind_of?(String)
-            # FIXME: ignore if 'v_text' of a TextDocument...
+            # FIXME: ignore if 'text' of a TextDocument...
             res[key] = ZazenParser.new(value,:helper=>self).render(:translate_ids=>:zip, :node=>base_node)
           else
             res[key] = value
@@ -821,24 +840,6 @@ class Node < ActiveRecord::Base
     @new_klass = str
   end
 
-  # The following methods are used in forms and affect the version.
-
-  def v_lang
-    version.lang
-  end
-
-  def v_lang=(lang)
-    version.lang = lang
-  end
-
-  def v_publish_from
-    version.publish_from
-  end
-
-  def v_publish_from=(date)
-    version.publish_from = date
-  end
-
   # include virtual classes to check inheritance chain
   def vkind_of?(klass)
     if self.class.ancestors.map{|k| k.to_s}.include?(klass)
@@ -853,7 +854,7 @@ class Node < ActiveRecord::Base
     update_attributes(secure(Node) {Node.transform_attributes(new_attributes, self)})
   end
 
-  # Replace [id], [v_title], etc in attributes values
+  # Replace [id], [title], etc in attributes values
   def replace_attributes_in_values(hash)
     hash.each do |k,v|
       v.gsub!(/\[([^\]]+)\]/) do

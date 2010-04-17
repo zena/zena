@@ -3,7 +3,7 @@ require 'test_helper'
 class VersionVhashTest < Zena::Unit::TestCase
   class Simple < ActiveRecord::Base
     set_table_name 'nodes'
-    include Zena::Use::MultiVersion
+    include Zena::Use::Workflow
     include Zena::Use::VersionHash
 
     def can_see_redactions?

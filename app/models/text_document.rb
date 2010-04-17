@@ -143,16 +143,16 @@ class TextDocument < Document
     end
   end
 
-  # List of keys to export in a zml file. "v_text" is ignored since it's exported in a separate file.
+  # List of keys to export in a zml file. "text" is ignored since it's exported in a separate file.
   def export_keys
     h = super
-    h[:zazen].delete('v_text')
+    h[:zazen].delete('text')
     h
   end
 
   # List of keys which need transformations
   def parse_keys
-    (super + (version.content.content_type == 'text/css' ? ['v_text'] : [])).uniq
+    (super + (version.content.content_type == 'text/css' ? ['text'] : [])).uniq
   end
 
   # Return the code language used for syntax highlighting.

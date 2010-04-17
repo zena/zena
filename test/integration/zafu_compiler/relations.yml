@@ -42,7 +42,7 @@ pages:
   res: "status, track"
 
 root:
-  src: "<r:root do='[v_title]'/>"
+  src: "<r:root do='[title]'/>"
   res: 'Zena the wild CMS'
 
 notes:
@@ -150,7 +150,7 @@ node_root:
 parent:
   src: "<r:parent do='name'/>"
   tem: "<% if var1 = @node.parent -%><h1><%= show_title(:node=>var1, :text=>var1.version.title)%></h1><% end -%>"
-  res: "<h1><a href='/oo/projects/cleanWater'><span id='v_title21'>Clean Water project</span></a></h1>"
+  res: "<h1><a href='/oo/projects/cleanWater'><span id='title21'>Clean Water project</span></a></h1>"
 
 parent_no_parent:
   src: "result=<r:node select='root'><r:parent><r:show attr='name'/></r:parent></r:node>="
@@ -295,7 +295,7 @@ direction_both_else:
   res: "cleanWater"
 
 visitor:
-  src: "<r:visitor><b do='[v_title]'/></r:visitor>"
+  src: "<r:visitor><b do='[title]'/></r:visitor>"
   res: "<b>Mr nobody</b>"
 
 relation_in_site:
@@ -356,7 +356,7 @@ node_in_version:
   res: "status"
 
 where_with_param:
-  src: "<r:nodes where='v_title like \"%[param:t]%\"' in='site'/>"
+  src: "<r:nodes where='title like \"%[param:t]%\"' in='site'/>"
   tem: "/versions.title LIKE \?.*\"%\" \+params\[:t\].to_s\+ \"%\"/"
 
 group_by_secret_project:

@@ -26,15 +26,17 @@ An image can be croped by changing the 'crop' pseudo attribute (see Image#crop= 
 
 The version class used by images is the ImageVersion.
 
-=== Content
+=== Storage
 
-Content (file data) is managed by the ImageContent. This class is responsible for storing the file and retrieving the data. It provides the following attributes to the Image :
+File data is managed by the Document Attachment. This class is responsible for storing the file and retrieving the data.
 
-c_size(format)::    file size for the image at the given format
-c_ext::             file extension
-c_content_type::    file content_type
-c_width(format)::   image width in pixel for the given format
-c_height(format)::  image height in pixel for the given format
+== Properties
+
+These properties are added to Images :
+
+ size(format)::    file size for the image at the given format
+ width(format)::   image width in pixel for the given format
+ height(format)::  image height in pixel for the given format
 
 === links
 

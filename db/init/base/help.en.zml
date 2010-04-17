@@ -1,6 +1,6 @@
 class: Page
-v_title: help
-v_summary: |
+title: help
+summary: |
   |_. markup |_. result |
   | @the *black* cat@ | the *black* cat |
   | @the _thin_ snake@ | the _thin_ snake |
@@ -40,7 +40,7 @@ v_summary: |
 
   For advanced topics (tables, classes, styles), please look at the documentation for "textile":http://hobix.com/textile/.
 
-v_text: |
+text: |
   h4. text and links
 
   |_. markup |_. result |

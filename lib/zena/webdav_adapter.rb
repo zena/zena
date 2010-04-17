@@ -11,12 +11,12 @@ module Zena
         puts "NODE_WRITE: #{node.name}"
         if node
           # update
-          node.update_attributes(:v_text => content)
+          node.update_attributes(:text => content)
         else
           # create
           parent_path = path.split('/')[0..-2]
           parent = secure!(Node) { Node.find_by_path(parent_path.join('/')) }
-          node   = secure!(Page) { Page.create(:parent_id => parent[:id], :name => path.split('/').last, :v_text => content ) }
+          node   = secure!(Page) { Page.create(:parent_id => parent[:id], :name => path.split('/').last, :text => content ) }
         end
       end
 
@@ -65,7 +65,7 @@ class ZenaNodeResource
     if @node.kind_of?(Note)
       @node.name + '.txt'
     elsif @node.kind_of?(Document)
-      @node.name + '.' + @node.c_ext
+      @node.name + '.' + @node.ext
     else
       @node.name
     end
@@ -148,9 +148,9 @@ class ZenaNodeResource
 
   def getcontentlength
     if @node.kind_of?(Note)
-      @node.v_text.length
+      @node.text.length
     elsif @node.kind_of?(Document)
-      s = @node.c_file.stat.size
+      s = @node.file.stat.size
       puts "SIZE #{@node.name} = #{s}"
       s
     else
@@ -160,9 +160,9 @@ class ZenaNodeResource
 
   def data
     if @node.kind_of?(Note)
-      @node.v_text
+      @node.text
     elsif @node.kind_of?(Document)
-      f = @node.c_file
+      f = @node.file
       puts f
       f
     else

@@ -1,4 +1,4 @@
-<label for="v_title"><%= _("title")  %></label>
+<label for="title"><%= _("title")  %></label>
 <%= text_field 'node', 'title', :size => nil, :class => 'full_width' %>
 
 <label for='tag_list'><%= _("tags") %></label>
@@ -18,5 +18,5 @@
 <label for="summary"><%= _("summary")  %></label>
 <%= text_area 'node', 'summary', :cols => nil, :rows => 6, :value => @node.summary, :class => 'full_width' %>
 
-<label for="v_comment"><%= _("comment") %></label>
+<label for="comment"><%= _("comment") %></label>
 <%= text_area 'node', 'comment', :cols => nil, :rows => 2, :class => 'full_width' %>

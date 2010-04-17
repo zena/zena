@@ -9,7 +9,7 @@ module Zena
         def crop_formats(obj)
           buttons = ['jpg', 'png']
           ext = Zena::TYPE_TO_EXT[obj.c_conten_type]
-          ext = ext ? ext[0] : obj.c_ext
+          ext = ext ? ext[0] : obj.ext
           buttons << ext unless buttons.include?(ext)
           buttons.map do |e|
             "<input type='radio' name='node[c_crop][format]' value='#{e}'#{e==ext ? " checked='checked'" : ''}/> #{e} "
@@ -57,7 +57,6 @@ module Zena
         def asset_img_tag(obj, opts)
           if obj.kind_of?(Image)
             res     = {}
-            content = obj.version.content
             format  = Iformat[opts[:mode]] || Iformat['std']
 
             [:id, :border].each do |k|
@@ -70,8 +69,8 @@ module Zena
             res[:class] = opts[:class] || format[:name]
 
             # compute image size
-            res[:width]  = content.width(format)
-            res[:height] = content.height(format)
+            res[:width]  = obj.width(format)
+            res[:height] = obj.height(format)
             if popup = format[:popup]
 
               if popup_fmt = Iformat[popup[:name]]
@@ -81,8 +80,8 @@ module Zena
                 res[:id]    ||= unique_id
                 data = {}
                 data['src'] = data_path(obj, :mode => (popup[:size] == :keep ? nil : popup[:name]), :host => opts[:host])
-                data['width']   = content.width(popup_fmt)
-                data['height']  = content.height(popup_fmt)
+                data['width']   = obj.width(popup_fmt)
+                data['height']  = obj.height(popup_fmt)
 
                 data['fields'] = fields = {}
                 data['keys']   = field_keys = []
@@ -110,7 +109,7 @@ module Zena
               end
             end
             res
-          elsif obj.kind_of?(Document) && obj.version.content.ext == 'mp3' && (opts[:mode].nil? || opts[:mode] == 'std' || opts[:mode] == 'button')
+          elsif obj.kind_of?(Document) && obj.ext == 'mp3' && (opts[:mode].nil? || opts[:mode] == 'std' || opts[:mode] == 'button')
             # rough wrap to use the 'button'
             # we differ '<object...>' by using a placeholder to avoid the RedCloth escaping.
             add_place_holder( %{ <object type="application/x-shockwave-flash"
@@ -146,7 +145,7 @@ module Zena
           res[:height] = 32
 
           if obj.kind_of?(Document)
-            name = obj.version.content.ext
+            name = obj.ext
             res[:alt] = opts[:alt] || (_('%{ext} document') % {:ext => name})
             res[:class] ||= 'doc'
           else
@@ -294,7 +293,7 @@ module Zena
 
         # TODO: select_id should use 'check_exists'
         def check_exists(opts)
-          watch  = opts[:watch] || 'node_v_title'
+          watch  = opts[:watch] || 'node_title'
           name_ref = unique_id
           params = []
 

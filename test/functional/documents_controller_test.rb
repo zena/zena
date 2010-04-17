@@ -5,7 +5,7 @@ class DocumentsControllerTest < Zena::Controller::TestCase
 
   def test_create_master_template
     login(:tiger)
-    post 'create', "node"=>{"klass"=>"Template", "name"=>"", "c_format"=>"", "c_mode"=>"tree", "c_klass"=>"Node", "v_summary"=>"", "parent_id"=>nodes_zip(:default)}
+    post 'create', "node"=>{"klass"=>"Template", "name"=>"", "c_format"=>"", "c_mode"=>"tree", "c_klass"=>"Node", "summary"=>"", "parent_id"=>nodes_zip(:default)}
     assert_redirected_to :action => 'show'
     assert_kind_of Template, assigns(:node)
     assert_equal 'Node-tree', assigns(:node).name
@@ -13,7 +13,7 @@ class DocumentsControllerTest < Zena::Controller::TestCase
 
   def test_create_template
     login(:tiger)
-    post 'create', "node"=>{"klass"=>"Template", "name"=>"lister", "c_format"=>"", "c_mode"=>"", "c_klass"=>"", "v_summary"=>"", "parent_id"=>nodes_zip(:default)}
+    post 'create', "node"=>{"klass"=>"Template", "name"=>"lister", "c_format"=>"", "c_mode"=>"", "c_klass"=>"", "summary"=>"", "parent_id"=>nodes_zip(:default)}
     assert_redirected_to :action => 'show'
     assert_kind_of Template, assigns(:node)
     assert_equal 'lister', assigns(:node).name
@@ -28,13 +28,13 @@ class DocumentsControllerTest < Zena::Controller::TestCase
   #  assert_response :success
   #  assert_template 'document/new'
   #  assert_tag :input, :attributes=>{:type=>'text', :id=>'document_name'}
-  #  assert_tag :input, :attributes=>{:type=>'file', :id=>'document_c_file'}
+  #  assert_tag :input, :attributes=>{:type=>'file', :id=>'document_file'}
   #end
   #
   #def test_create_pdf
   #  login(:tiger)
   #  preserving_files('/test.host/data/pdf') do
-  #    post 'create', :document=>{:parent_id=>nodes_id(:zena), :c_file=>uploaded_pdf('water.pdf')}
+  #    post 'create', :document=>{:parent_id=>nodes_id(:zena), :file=>uploaded_pdf('water.pdf')}
   #    assert_response :redirect
   #    assert_redirected_to :action=>'show', :id=>assigns(:document)[:id]
   #    zena = secure!(Node) { nodes(:zena) }
@@ -130,7 +130,7 @@ class DocumentsControllerTest < Zena::Controller::TestCase
   #
   #def test_create_jpg
   #  login(:tiger)
-  #  post 'create', :document=>{:parent_id=>nodes_id(:zena), :c_file=>uploaded_jpg('bird.jpg')}
+  #  post 'create', :document=>{:parent_id=>nodes_id(:zena), :file=>uploaded_jpg('bird.jpg')}
   #  assert_response :success
   #  assert_template 'document/create'
   #  zena = secure!(Node) { nodes(:zena) }

@@ -137,23 +137,23 @@ module Zena
 
         @defaults['site_id'] = Zena::FoxyParser::multi_site_id(site) if column_names.include?('site_id')
 
-        elements.each do |n,v|
-          unless v
-            v = elements[n] = {}
+        elements.each do |name, attributes|
+          unless attributes
+            attributes = elements[name] = {}
           end
-          v[:header_keys] ||= []
+          attributes[:header_keys] ||= []
           column_names.each do |k|
             if k =~ /^(\w+)_id/
               k = $1
             end
-            if !v.has_key?(k) && @defaults.has_key?(k)
-              v[:header_keys] << k # so we know what to write out
-              v[k] = @defaults[k]
+            if !attributes.has_key?(k) && @defaults.has_key?(k)
+              attributes[:header_keys] << k # so we know what to write out
+              attributes[k] = @defaults[k]
             end
           end
-          if column_names.include?('name') && !v.has_key?('name')
-            v['name'] = n
-            v[:header_keys] << 'name'
+          if column_names.include?('name') && !attributes.has_key?('name')
+            attributes['name'] = name
+            attributes[:header_keys] << 'name'
           end
         end
       end
@@ -313,24 +313,32 @@ module Zena
         super
 
         elements.each do |name, node|
+          has_template = node['template']
 
           if template = node.delete('template')
             add_template(template, name)
           end
 
-          node.keys.each do |k|
-            if k =~ /^v_/
-              # need version defaults
-              @defaults.each do |key,value|
-                next unless key =~ /^v_/
-                node[key] = value
-              end
-              break
+          if node.keys.include?('title') || node.keys.detect {|k| k =~ /^v_/}
+            # need version defaults
+            @defaults.each do |key,value|
+              next unless key =~ /^v_/
+              node[key] = value
             end
           end
 
-          node[:header_keys] += ['type','vclass_id','kpath', 'zip', 'publish_from', 'vhash', 'inherit',
-           'rgroup_id', 'wgroup_id', 'dgroup_id', 'skin_id', 'fullpath', 'basepath']
+          # FIXME: better filtering, in a hurry right now
+          prop_field = nil
+          %w{text title summary comment}.each do |k|
+            if value = node.delete(k)
+              unless prop_field
+                prop_field = node['v_prop'] ||= {}
+              end
+              prop_field[k] = value
+            end
+          end
+
+          node[:header_keys] += %w{type vclass_id kpath zip publish_from vhash inherit rgroup_id wgroup_id dgroup_id skin_id fullpath basepath}
 
           klass = node['class']
           if virtual_classes[site] && vc = virtual_classes[site][klass]
@@ -364,9 +372,10 @@ module Zena
           else
             # build vhash
             records = [
-              { 'id' => Zena::FoxyParser::id(site, "#{name}_#{node['v_lang'] || node['ref_lang']}"),
-                'publish_from' => node['v_publish_from'], 'status' => Zena::Status[node['v_status'].to_sym],
-                'lang' => node['v_lang'] || node['ref_lang']
+              { 'id'           => Zena::FoxyParser::id(site, "#{name}_#{node['v_lang'] || node['ref_lang']}"),
+                'publish_from' => node['v_publish_from'],
+                'status'       => Zena::Status[node['v_status'].to_sym],
+                'lang'         => node['v_lang'] || node['ref_lang']
               }
             ]
           end
@@ -378,10 +387,47 @@ module Zena
           node['inherit'] = node['inherit'] ? 'yes' : 'no'
         end
 
+        build_inherited_fields
 
+        # build fullpath
+        elements.each do |k, node|
+          make_paths(node, k)
+        end
+      end
 
-        # set project, section, read/write/publish groups
+      def make_paths(node, name)
+        if !node['fullpath']
+          if node['parent'] && parent = elements[node['parent']]
+            parent_fullpath = make_paths(parent, node['parent'])
+            # Unquote content if it was an empty quoted string.
+            parent_fullpath = '' if parent_fullpath == "''"
+            node['fullpath'] = (parent_fullpath.split('/') + [node['name'] || name]).join('/')
+            klass = if virtual_classes[site] && vc = virtual_classes[site][node['class']]
+              vc['real_class']
+            else
+              node['class']
+            end
+            begin
+              eval(klass).kpath =~ /^#{Page.kpath}/
+              if node['custom_base']
+                node['basepath'] = node['fullpath']
+              else
+                node['basepath'] = parent['basepath']
+              end
+            rescue NameError
+              raise NameError.new("[#{site} #{table} #{name}] could not find class #{klass}.")
+            end
+          else
+            # If we do not quote the content, FoxyParser will insert NULL.
+            node['basepath'] = "''"
+            node['fullpath'] = "''"
+          end
+        end
+        node['fullpath']
+      end
 
+      # set project, section, read/write/publish groups
+      def build_inherited_fields
         [['project',"nil", "parent['type'].kpath =~ /^\#{Project.kpath}/", "current['parent']"],
          ['section',"nil", "parent['type'].kpath =~ /^\#{Section.kpath}/", "current['parent']"],
          ['rgroup' ,"node['inherit'] == 'no'", "parent['inherit'] == 'no'", "parent['rgroup']"],
@@ -431,42 +477,6 @@ module Zena
             end
           end
         end
-
-        # build fullpath
-        elements.each do |k, node|
-          make_paths(node, k)
-        end
-      end
-
-      def make_paths(node, name)
-        if !node['fullpath']
-          if node['parent'] && parent = elements[node['parent']]
-            parent_fullpath = make_paths(parent, node['parent'])
-            # Unquote content if it was an empty quoted string.
-            parent_fullpath = '' if parent_fullpath == "''"
-            node['fullpath'] = (parent_fullpath.split('/') + [node['name'] || name]).join('/')
-            klass = if virtual_classes[site] && vc = virtual_classes[site][node['class']]
-              vc['real_class']
-            else
-              node['class']
-            end
-            begin
-              eval(klass).kpath =~ /^#{Page.kpath}/
-              if node['custom_base']
-                node['basepath'] = node['fullpath']
-              else
-                node['basepath'] = parent['basepath']
-              end
-            rescue NameError
-              raise NameError.new("[#{site} #{table} #{name}] could not find class #{klass}.")
-            end
-          else
-            # If we do not quote the content, FoxyParser will insert NULL.
-            node['basepath'] = "''"
-            node['fullpath'] = "''"
-          end
-        end
-        node['fullpath']
       end
 
       def insert_headers
@@ -601,7 +611,7 @@ module Zena
     def initialize(table_name, opts = {})
       super
       @versions = {}
-      @version_attachments = {}
+      @inline_attachments = {}
     end
 
     private
@@ -621,10 +631,47 @@ module Zena
           if prop = version.delete('prop')
             version['properties'] = make_prop(prop) unless prop.blank?
           end
+
+          if filename = version.delete('filename')
+            @inline_attachments[site] ||= {}
+            @inline_attachments[site][name] = {
+              'id' => FoxyParser::id(site, name),
+              'filename' => filename,
+              'user_id' => FoxyParser::id(site, version['user']),
+            }
+            version['attachment'] = name
+          end
+
           node_versions = site_versions[version['node']] ||= []
           node_versions << version
-
         end
+      end
+
+      def after_parse
+        super
+        write_attachments
+      end
+
+      def write_attachments
+        #
+        node_file = @file
+          File.open("#{RAILS_ROOT}/test/fixtures/attachments.yml", 'ab') do |file|
+            @file = file
+
+            if attachments = @inline_attachments[site]
+              out "\n# ========== #{site} (generated from 'versions.yml') ==========="
+              out ""
+              attachments.each do |name, attachment|
+                out ""
+                out "#{site}_#{name}:"
+                @inserted_keys = []
+                attachment.each do |k,v|
+                  out_pair(k, v)
+                end
+              end
+            end
+          end
+        @file = node_file
       end
   end
 

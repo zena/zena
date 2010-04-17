@@ -16,7 +16,7 @@ at_code_ruby:
 
 at_code_and_zazen:
   src: |
-    This @do='[v_title]'@ and "":332.
+    This @do='[title]'@ and "":332.
 
     <code>blah</code>
   res: "/\[make_link id:\|332\| title:\|\|\]/"

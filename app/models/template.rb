@@ -114,7 +114,7 @@ class Template < TextDocument
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="en" set_lang='[v_lang]' xml:lang='en'>
 <head do='void' name='head'>
-  <title do='title_for_layout' do='show' attr='v_title' name='page_title'>page title</title>
+  <title do='title_for_layout' do='show' attr='title' name='page_title'>page title</title>
   <!-- link href='favicon.png' rel='shortcut icon' type='image/png' / -->
   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
   <r:void name='stylesheets'>

@@ -67,7 +67,7 @@ class VersionTest < Zena::Unit::TestCase
 
   def test_new_site_id_set
     login(:ant)
-    node = secure!(Node) { Node.create(:v_title=>'super', :parent_id=>nodes_id(:wiki)) }
+    node = secure!(Node) { Node.create(:title=>'super', :parent_id=>nodes_id(:wiki)) }
     assert !node.new_record?, "Not a new record"
     assert_equal sites_id(:zena), node.version.site_id
   end
@@ -78,7 +78,7 @@ class VersionTest < Zena::Unit::TestCase
     version = node.version
     assert_equal 1, version.number
     # edit
-    node.attributes = {:v_title => 'new title'}
+    node.attributes = {:title => 'new title'}
     version = node.version
     #assert version.new_record?
     assert_equal 1, version.number # same as original
@@ -95,7 +95,7 @@ class VersionTest < Zena::Unit::TestCase
     version = node.version
     assert_equal 1, version.number
     # can edit
-    assert node.update_attributes(:v_title=>'new title')
+    assert node.update_attributes(:title=>'new title')
     # saved
     # version number changed
     version = node.version
@@ -121,7 +121,7 @@ class VersionTest < Zena::Unit::TestCase
       assert_equal 63569, node.version.content.size
       # single redaction in redit time
       node.version.created_at = Time.now
-      assert node.update_attributes(:c_file=>uploaded_pdf('water.pdf')), 'Can edit node'
+      assert node.update_attributes(:file=>uploaded_pdf('water.pdf')), 'Can edit node'
       # version and content object are the same
       assert_equal versions_id(:forest_pdf_en), node.version.content.version_id
       # content changed
@@ -142,7 +142,7 @@ class VersionTest < Zena::Unit::TestCase
       content_id_before_move = node.version.content.id
 
       # 1. Create a new version in french
-      assert node.update_attributes(:v_title=>'les arbres')
+      assert node.update_attributes(:title=>'les arbres')
 
       assert node.propose # only proposed/published versions block
       assert_equal 'fr', node.version.lang
@@ -162,7 +162,7 @@ class VersionTest < Zena::Unit::TestCase
 
       # edit content (should move content's master_version to other version and create a new content)
       node.version.created_at = Time.now # force redit time
-      assert node.update_attributes(:c_file=>uploaded_pdf('water.pdf'))
+      assert node.update_attributes(:file=>uploaded_pdf('water.pdf'))
       assert_nil node.version.content_id # we have our own content
       assert_equal node.version.id, node.version.content.version_id
       # this is still the original (english) version
@@ -253,7 +253,7 @@ class VersionTest < Zena::Unit::TestCase
 
   def test_bad_lang
     login(:tiger)
-    node = secure!(Page) { Page.create(:v_lang => 'io', :parent_id => nodes_id(:status), :name => 'hello', :v_title => '')}
+    node = secure!(Page) { Page.create(:v_lang => 'io', :parent_id => nodes_id(:status), :name => 'hello', :title => '')}
     assert node.new_record?
     assert node.errors[:version_lang].any?
   end
@@ -261,7 +261,7 @@ class VersionTest < Zena::Unit::TestCase
   def test_set_v_lang
     login(:tiger)
     assert_equal 'en', visitor.lang
-    node = secure!(Page) { Page.create(:v_lang => 'fr', :parent_id => nodes_id(:status), :name => 'hello', :v_title => '')}
+    node = secure!(Page) { Page.create(:v_lang => 'fr', :parent_id => nodes_id(:status), :name => 'hello', :title => '')}
     assert !node.new_record?
     assert_equal 'fr', node.version.lang
   end
@@ -271,7 +271,7 @@ class VersionTest < Zena::Unit::TestCase
     assert_equal 'en', visitor.lang
     node = secure!(Node) { nodes(:projects) }
     en_version = node.version
-    assert node.update_attributes(:v_lang => 'fr', :v_title => 'projets')
+    assert node.update_attributes(:v_lang => 'fr', :title => 'projets')
     assert !node.new_record?
     assert_equal 'fr', node.version.lang
     assert_not_equal en_version.id, node.version.id

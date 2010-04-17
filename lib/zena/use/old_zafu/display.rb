@@ -270,21 +270,21 @@ module Zafu
       @html_tag ||= 'div'
       if @html_tag_params[:id]
         # add a sub-div
-        pre  = "<div id='v_summary#{erb_node_id}'>"
+        pre  = "<div id='summary#{erb_node_id}'>"
         post = "</div>"
       else
         pre = post = ''
-        @html_tag_params[:id] = "v_summary#{erb_node_id}"
+        @html_tag_params[:id] = "summary#{erb_node_id}"
       end
 
       add_html_class('zazen')
 
       unless @params[:or]
-        text = @params[:text] ? @params[:text].inspect : node_attribute('v_summary')
+        text = @params[:text] ? @params[:text].inspect : node_attribute('summary')
         out "#{pre}<%= zazen(#{text}#{limit}, :node=>#{node(Node)}) %>#{post}"
       else
         limit ||= ', :limit => 2'
-        first_name = 'v_summary'
+        first_name = 'summary'
         first  = node_attribute(first_name)
 
         second_name = @params[:or].gsub(/[^a-z_]/,'') # FIXME: ist this still needed ? (ERB injection)
@@ -331,18 +331,18 @@ module Zafu
     end
 
     def r_text
-      text = @params[:text] ? @params[:text].inspect : "#{node_attribute('v_text')}"
+      text = @params[:text] ? @params[:text].inspect : "#{node_attribute('text')}"
       limit  = @params[:limit] ? ", :limit=>#{@params[:limit].to_i}" : ""
 
       @html_tag ||= 'div'
 
       if @html_tag_params[:id]
         # add a sub-div
-        pre  = "<div id='v_text#{erb_node_id}'>"
+        pre  = "<div id='text#{erb_node_id}'>"
         post = "</div>"
       else
         pre = post = ''
-        @html_tag_params[:id] = "v_text#{erb_node_id}"
+        @html_tag_params[:id] = "text#{erb_node_id}"
       end
 
       add_html_class('zazen')

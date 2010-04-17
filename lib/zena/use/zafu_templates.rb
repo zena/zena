@@ -235,7 +235,7 @@ module Zena
           lang_path = dev_mode? ? "dev_#{lang}" : lang
 
           # Path as seen from zafu:
-          zafu_url  = template.fullpath.gsub(/^#{@skin.fullpath}/,"/#{@skin.name}")
+          zafu_url  = template.fullpath.gsub(/^#{@skin.fullpath}/, @skin.name)
 
           rel_path  = current_site.zafu_path + "/#{zafu_url}/#{lang_path}/_main.erb"
           path      = SITES_ROOT + rel_path

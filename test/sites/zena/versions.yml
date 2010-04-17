@@ -216,6 +216,7 @@ lake_en:
 lake_jpg_en:
   node:            lake_jpg
   user:            ant
+  filename:        lake.jpg
   prop:
     comment:         ""
     title:         it's a lake
@@ -230,6 +231,7 @@ lake_jpg_en:
 water_pdf_en:
   node:            water_pdf
   user:            tiger
+  filename:        water.pdf
   prop:
     title:           water
     summary:         just a stupid pdf
@@ -271,6 +273,7 @@ wiki_en:
 bird_jpg_en:
   node:            bird_jpg
   user:            anon
+  filename:        bird.jpg
   prop:
     comment:       a pretty little bird
     title:         bird
@@ -284,6 +287,7 @@ bird_jpg_en:
 flower_jpg_en:
   node:            flower_jpg
   user:            anon
+  filename:        flower.jpg
   prop:
     comment:       "Photo taken from \"wikimedia\":http://commons.wikimedia.org/wiki/Image:Flor_GDFL_660eue.jpg."
     title:         flower
@@ -410,6 +414,7 @@ tree_jpg_en:
   publish_from:
   status:          red
   number:          1
+  filename:        tree.jpg
   prop:
     comment:       a tree
     title:         Autumn Tree
@@ -426,6 +431,7 @@ forest_pdf_en:
   publish_from:
   status:          red
   number:          1
+  filename:        forest.pdf
   prop:
     comment:       a forest
     title:         Forest

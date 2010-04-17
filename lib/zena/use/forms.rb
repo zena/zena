@@ -17,9 +17,9 @@ module Zena
           #when :r_show
           #  make_input(:name => (@params[:attr] || @params[:tattr]), :date => @params[:date])
           #when :r_text
-          #  make_textarea(:name => 'v_text')
+          #  make_textarea(:name => 'text')
           #when :r_summary
-          #  make_textarea(:name => 'v_summary')
+          #  make_textarea(:name => 'summary')
           #when :r_zazen
           #  make_textarea(:name => @params[:attr])
           #else

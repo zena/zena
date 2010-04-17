@@ -14,7 +14,7 @@ class DocumentContentTest < Zena::Unit::TestCase
       login(:ant)
       doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
                                                 :name=>'report',
-                                                :c_file => uploaded_pdf('water.pdf') ) }
+                                                :file => uploaded_pdf('water.pdf') ) }
       assert_kind_of Document , doc
       content = doc.v_content
       assert_kind_of DocumentContent, content
@@ -29,7 +29,7 @@ class DocumentContentTest < Zena::Unit::TestCase
       login(:ant)
       doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
                                                 :name=>'report',
-                                                :c_file => uploaded_pdf('water.pdf') ) }
+                                                :file => uploaded_pdf('water.pdf') ) }
 
 
       assert !doc.new_record?, "Not a new record"
@@ -96,7 +96,7 @@ class DocumentContentTest < Zena::Unit::TestCase
     preserving_files("/test.host/data/jpg/20") do
       login(:tiger)
       node = secure!(Node) { nodes(:bird_jpg) }
-      assert !node.update_attributes(:c_file=>uploaded_pdf('water.pdf'))
+      assert !node.update_attributes(:file=>uploaded_pdf('water.pdf'))
       assert node.errors[:version_content_file]
     end
   end

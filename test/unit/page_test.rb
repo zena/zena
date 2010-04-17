@@ -2,9 +2,9 @@ require 'test_helper'
 
 class PageTest < Zena::Unit::TestCase
 
-  def test_create_just_v_title
+  def test_create_just_title
     login(:tiger)
-    node = secure!(Page) { Page.create(:parent_id=>nodes_id(:projects), :v_title=>'lazy node')}
+    node = secure!(Page) { Page.create(:parent_id=>nodes_id(:projects), :title=>'lazy node')}
     err node
     assert !node.new_record?
     assert_equal 'lazyNode', node.name

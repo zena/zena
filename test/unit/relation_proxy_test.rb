@@ -136,7 +136,7 @@ class RelationProxyTest < Zena::Unit::TestCase
   def test_update_attributes_empty_value
     login(:lion)
     node = secure!(Node) { nodes(:proposition) }
-    assert node.update_attributes_with_transformation("klass"=>"Post", "icon_id"=>"", "v_title"=>"blah", "log_at"=>"2008-02-05 17:33", "parent_id"=>"11")
+    assert node.update_attributes_with_transformation("klass"=>"Post", "icon_id"=>"", "title"=>"blah", "log_at"=>"2008-02-05 17:33", "parent_id"=>"11")
   end
 
   def test_update_comment
@@ -291,13 +291,13 @@ class RelationProxyTest < Zena::Unit::TestCase
 
   def test_create_invalid_target_or_empty
     login(:lion)
-    node = assert_raises(ActiveRecord::UnknownAttributeError) {secure!(Node) { Node.create_node('parent_id' => nodes_zip(:cleanWater),'klass'=>'Page', 'foo_id'=>'342', 'v_title'=>'hello') }}
+    node = assert_raises(ActiveRecord::UnknownAttributeError) {secure!(Node) { Node.create_node('parent_id' => nodes_zip(:cleanWater),'klass'=>'Page', 'foo_id'=>'342', 'title'=>'hello') }}
     # invalid target
-    node = secure!(Node) { Node.create_node('parent_id' => nodes_zip(:cleanWater),'klass'=>'Page', 'icon_id'=>nodes_zip(:cleanWater), 'v_title'=>'two') }
+    node = secure!(Node) { Node.create_node('parent_id' => nodes_zip(:cleanWater),'klass'=>'Page', 'icon_id'=>nodes_zip(:cleanWater), 'title'=>'two') }
     assert node.errors['icon']
     assert node.new_record?
     # empty target
-    node = secure!(Node) { Node.create_node('parent_id' => nodes_zip(:cleanWater),'klass'=>'Page', 'icon_id'=>'', 'v_title'=>'two') }
+    node = secure!(Node) { Node.create_node('parent_id' => nodes_zip(:cleanWater),'klass'=>'Page', 'icon_id'=>'', 'title'=>'two') }
     assert_nil node.errors['icon']
     assert !node.new_record?
   end

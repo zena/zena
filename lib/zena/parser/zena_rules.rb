@@ -9,7 +9,7 @@ module Zena
           @method = 'show'
           @params[:attr_or_date] = $1
         elsif @method =~ /^\{(.*)\}$/
-          # do='{v_text}'
+          # do='{text}'
           @method = 'zazen'
           @params[:attr] = $1
         elsif @method =~ /\A(\w+)\s+(\w+)\s+(.+)$/

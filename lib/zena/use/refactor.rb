@@ -74,7 +74,7 @@ module Zena
 
         # TODO: is this still used ?
         def show(obj, sym, opt={})
-          return show_title(obj, opt) if sym == :v_title
+          return show_title(obj, opt) if sym == :title
           if opt[:as]
             key = "#{opt[:as]}#{obj.zip}.#{obj.version.number}"
             preview_for = opt[:as]
@@ -87,15 +87,15 @@ module Zena
             opt.delete(:text)
           else
             text = obj.send(sym)
-            if text.blank? && sym == :v_summary
+            if text.blank? && sym == :summary
               text = obj.version.text
               opt[:images] = false
             else
               opt.delete(:limit)
             end
           end
-          if [:v_text, :v_summary].include?(sym)
-            if obj.kind_of?(TextDocument) && sym == :v_text
+          if [:text, :summary].include?(sym)
+            if obj.kind_of?(TextDocument) && sym == :text
               lang = obj.content_lang
               lang = lang ? " lang='#{lang}'" : ""
               text = "<code#{lang} class='full'>#{text}</code>"

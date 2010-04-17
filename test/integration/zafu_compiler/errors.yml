@@ -56,7 +56,7 @@ nil_value:
   res: "0.0"
 
 not_finished_block:
-  src: "<r:if kind_of='Document'><r:link format='data'><r:img mode='tiny'/> <r:show attr='name'/>.<r:show attr='c_ext'/></r:link><r:else do='link'/></r:if>"
+  src: "<r:if kind_of='Document'><r:link format='data'><r:img mode='tiny'/> <r:show attr='name'/>.<r:show attr='ext'/></r:link><r:else do='link'/></r:if>"
 
 missing_template:
   src: "<r:include template='Foo'/>"

@@ -16,7 +16,7 @@ class IformatTest < Zena::Unit::TestCase
     login(:lion)
     fmt = Iformat['med']
     assert_not_equal Zena::Use::ImageBuilder::DEFAULT_FORMATS['med'], fmt
-    assert_equal ({:name => 'med', :width=>300, :height=>200, :gravity=>Magick::CenterGravity, :size=>:limit, :hash_id => 389519063846, :popup => {:show=> %w{navigation v_title v_summary}, :name=>'std', :options=>{'v_title'=>'link'}}}), fmt
+    assert_equal ({:name => 'med', :width=>300, :height=>200, :gravity=>Magick::CenterGravity, :size=>:limit, :hash_id => 389519063846, :popup => {:show=> %w{navigation title summary}, :name=>'std', :options=>{'title'=>'link'}}}), fmt
   end
 
   def test_format_hash_id
@@ -120,7 +120,7 @@ class IformatTest < Zena::Unit::TestCase
   def test_update_expire_cache_and_formated_images
     login(:lion)
     bird = secure(Node) { nodes(:bird_jpg) }
-    assert bird.c_file(Iformat['med']) # force creation of bird_med.jpg
+    assert bird.file(Iformat['med']) # force creation of bird_med.jpg
     assert File.exist?(bird.version.content.filepath(Iformat['med']))
     # Update format
     assert Iformat.update(iformats_id(:med), :width => 350)
@@ -200,19 +200,19 @@ class IformatTest < Zena::Unit::TestCase
       end
 
       should 'use default fields and navigation' do
-        assert_equal({:show=>%w{navigation v_title v_summary}, :name=>"pop", :options=>{'v_title' => 'link'}}, @imf[:popup])
+        assert_equal({:show=>%w{navigation title summary}, :name=>"pop", :options=>{'title' => 'link'}}, @imf[:popup])
       end
     end
 
     context 'defined with name and json' do
       setup do
         Iformat.create(:name  => 'header', :height=>'34', :width => '500', :size => 'force',
-                       :popup => 'pop {"v_title":"link", "a":true}')
+                       :popup => 'pop {"title":"link", "a":true}')
         @imf = Iformat['header']
       end
 
       should 'respect key order' do
-        assert_equal({:show=>%w{v_title a}, :name=>"pop", :options=>{'v_title' => 'link'}}, @imf[:popup])
+        assert_equal({:show=>%w{title a}, :name=>"pop", :options=>{'title' => 'link'}}, @imf[:popup])
       end
     end
 
@@ -223,7 +223,7 @@ class IformatTest < Zena::Unit::TestCase
       end
 
       should 'respect key order' do
-        assert_equal({:show=>%w{v_title navigation created_at}, :name=>"pop", :options=>{'v_title' => 'link'}}, @imf[:popup])
+        assert_equal({:show=>%w{title navigation created_at}, :name=>"pop", :options=>{'title' => 'link'}}, @imf[:popup])
       end
     end
 

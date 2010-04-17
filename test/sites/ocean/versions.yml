@@ -60,4 +60,4 @@ Node_en:
   node:            Node
   user:            whale
   prop:
-    text:          "<html><body><h1 do='[v_title]'/></body></html>"
+    text:          "<html><body><h1 do='[title]'/></body></html>"

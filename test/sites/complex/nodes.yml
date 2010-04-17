@@ -14,21 +14,20 @@ complex:
   wgroup:          complex
   dgroup:          admin
   skin:            cskin
-  v_title:         complex site
+  title:           complex site
 
 cskin:
   class:           Skin
   parent:          complex
-  v_title:         cskin
+  title:           cskin
 
 Node_zafu:
   class:           Template
   parent:          cskin
   name:            Node
-  v_title:         Node
+  title:           Node
   v_prop:
     target_klass:  Node
-    
   template:
     format:        html
     tkpath:        N
@@ -37,219 +36,219 @@ Node_zafu:
 employees:
   class:           Section
   parent:          complex
-  v_title:         list of employees
+  title:           list of employees
 
 roger:
   class:           Employee
   parent:          employees
-  v_title:         Roger Ubercool
+  title:           Roger Ubercool
 
 joe:
   class:           Employee
   parent:          employees
-  v_title:         Joe Friendly
+  title:           Joe Friendly
 
 mike:
   class:           Employee
   parent:          employees
-  v_title:         Mike Mean
+  title:           Mike Mean
 
 # ------------- JOBS
 jobs:
   class:           Section
   parent:          complex
-  v_title:         jobs
+  title:           jobs
 
 driver:
   class:           Job
   parent:          jobs
-  v_title:         driver
+  title:           driver
 
 driver_security:
   class:           Page
   parent:          driver
-  v_title:         security
+  title:           security
   custom_a:        10
 
 driver_team:
   class:           Page
   parent:          driver
-  v_title:         team work
+  title:           team work
 
 driver_mechanical:
   class:           Page
   parent:          driver
-  v_title:         mechanical
+  title:           mechanical
 
 technician:
   class:           Job
   parent:          jobs
-  v_title:         technician
+  title:           technician
 
 technician_security:
   class:           Page
   parent:          technician
-  v_title:         security
+  title:           security
   custom_a:        10
 
 technician_team:
   class:           Page
   parent:          technician
-  v_title:         team work
+  title:           team work
   custom_a:        1
 
 technician_fiber:
   class:           Page
   parent:          technician
-  v_title:         optical fiber
+  title:           optical fiber
 
 chief:
   class:           Job
   parent:          jobs
-  v_title:         chief
+  title:           chief
   name:            chief
 
 chief_motivation:
   class:           Page
   parent:          chief
-  v_title:         team motivation
+  title:           team motivation
   custom_a:        10
 
 chief_image:
   class:           Page
   parent:          chief
-  v_title:         corporate image
+  title:           corporate image
 
 # ------------- COURSES
 courses:
   class:           Page
   parent:          complex
-  v_title:         courses list
+  title:           courses list
 
 dangerous_transportations:
   class:           Course
   parent:          courses
   # 2 years = 2 * 12 months = 24
   custom_a:        24
-  v_title:         dangerous transportations
+  title:           dangerous transportations
 
 formulate_problems:
   class:           Course
   parent:          courses
-  v_title:         problem formulation
+  title:           problem formulation
 
 transmit_information:
   class:           Course
   parent:          courses
   custom_a:        12
-  v_title:         information transmission
+  title:           information transmission
 
 engine:
   class:           Course
   parent:          courses
   custom_a:        24
-  v_title:         engine maintenance
+  title:           engine maintenance
 
 secure_a_site:
   class:           Course
   parent:          courses
   custom_a:        24
-  v_title:         secure a site
+  title:           secure a site
 
 winch_usage:
   class:           Course
   parent:          courses
   custom_a:        24
-  v_title:         how to use the winch
+  title:           how to use the winch
 
 radio_usage:
   class:           Course
   parent:          courses
   custom_a:        24
-  v_title:         how to use the radio
+  title:           how to use the radio
 
 fiber_junction:
   class:           Course
   parent:          courses
   custom_a:        24
-  v_title:         fiber junction
+  title:           fiber junction
 
 resp_management:
   class:           Course
   parent:          courses
   custom_a:        24
-  v_title:         responsabilities management
+  title:           responsabilities management
 
 team_motivation:
   class:           Course
   parent:          courses
   custom_a:        24
-  v_title:         motivate your team
+  title:           motivate your team
 
 vision:
   class:           Course
   parent:          courses
   custom_a:        24
-  v_title:         our vision
+  title:           our vision
 
 # ------------- FORMATIONS
 
 transp2004:
   class:           Formation
   parent:          dangerous_transportations
-  v_title:         dtransp 2004
+  title:           dtransp 2004
   event_at:        2004-03-15
 
 transp2006:
   class:           Formation
   parent:          dangerous_transportations
-  v_title:         dtransp 2006
+  title:           dtransp 2006
   event_at:        2006-04-21
 
 fiber2002:
   class:           Formation
   parent:          fiber_junction
-  v_title:         fiber 2002
+  title:           fiber 2002
   event_at:        2002-02-02
 
 fiber2003:
   class:           Formation
   parent:          fiber_junction
-  v_title:         fiber 2003
+  title:           fiber 2003
   event_at:        2003-03-03
 
 form2005:
   class:           Formation
   parent:          formulate_problems
-  v_title:         formprobs 2005
+  title:           formprobs 2005
   event_at:        2005-03-20
 
 form2006:
   class:           Formation
   parent:          formulate_problems
-  v_title:         formprobs 2006
+  title:           formprobs 2006
   event_at:        2006-03-20
 
 transm2001:
   class:           Formation
   parent:          transmit_information
-  v_title:         transinfo 2001
+  title:           transinfo 2001
   event_at:        2001-06-15
 
 transm2002:
   class:           Formation
   parent:          transmit_information
-  v_title:         transinfo 2002
+  title:           transinfo 2002
   event_at:        2002-05-05
 
 transm2003:
   class:           Formation
   parent:          transmit_information
-  v_title:         transinfo 2003
+  title:           transinfo 2003
   event_at:        2003-03-20
 
 vision2003:
   class:           Formation
   parent:          vision
-  v_title:         vision 2003
+  title:           vision 2003
   event_at:        2003-04-05

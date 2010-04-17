@@ -8,7 +8,7 @@ default:
   res: "simple text"
 
 show_title:
-  old_src: "<r:show attr='v_title'/>"
+  old_src: "<r:show attr='title'/>"
   old_tem: "<%= @node.version.title %>"
   src: "<r:title/>"
   tem: "<%= @node.prop['title'] %>"
@@ -19,13 +19,13 @@ show_title_with_opts:
   old_tem: "/<h1 class='s<%= @node.version.status %>'><%= show_title\(:node=>@node\) \+ node_actions\(:node=>@node, .*:actions=>\"all\"/"
   src: "<h1 do='title' prefix='status' actions='all' live='true'>this is the title</h1>"
   tem: "<h1 class='s<%= @node.version.status %>'><span id='_title<%= @node.zip %>'><%= @node.prop['title'] %></span> <%= node_actions(@node, :actions => \"all\") %></h1>"
-  old_res: "/<h1 class='s50'><span id='v_title22'.*class='actions'>/"
+  old_res: "/<h1 class='s50'><span id='title22'.*class='actions'>/"
   res: "/<h1 class='s50'><span id='_title22'.*class='actions'>/"
 
 show_title_link_http:
   old_src: "<r:title link='http://example.com'/>"
   src: "<a href='http://example.com' do='title'/>"
-  old_res: "<a href='http://example.com'><span id='v_title22'>status title</span></a>"
+  old_res: "<a href='http://example.com'><span id='title22'>status title</span></a>"
   res: "<a href='http://example.com'>status title</a>"
 
 show_title_link_attribute:
@@ -47,24 +47,24 @@ do_title:
 title_link_format:
   src: "<h2 do='title' link='details.xml'/>"
   tem: "<h2><%= show_title(:node=>@node, :link=>\"details.xml\")%></h2>"
-  res: "<h2><a href='/oo/projects/cleanWater/page22_details.xml'><span id='v_title22'>status title</span></a></h2>"
+  res: "<h2><a href='/oo/projects/cleanWater/page22_details.xml'><span id='title22'>status title</span></a></h2>"
 
 title_link_data:
   context:
     node: 'bird_jpg'
-  src: "<h2 do='title' link='data' attr='v_title'>super titre</h2>"
-  res: "<h2><a href='/en/image30.jpg?1144713600'><span id='v_title30'>bird</span></a></h2>"
+  src: "<h2 do='title' link='data' attr='title'>super titre</h2>"
+  res: "<h2><a href='/en/image30.jpg?1144713600'><span id='title30'>bird</span></a></h2>"
 
 title_link_data_mode:
   context:
     node: 'bird_jpg'
   src: "<h2 do='title' link='pv.data'>super title</h2>"
-  res: "<h2><a href='/en/image30_pv.jpg?967816914293'><span id='v_title30'>bird</span></a></h2>"
+  res: "<h2><a href='/en/image30_pv.jpg?967816914293'><span id='title30'>bird</span></a></h2>"
 
 show_title_link_id_from_stored:
   # disabled
   old_src: "<r:parent><r:title link='[main.id]'/></r:parent>"
-  old_res: "<a href='/oo/projects/cleanWater/page22.html'><span id='v_title21'>Clean Water project</span></a>"
+  old_res: "<a href='/oo/projects/cleanWater/page22.html'><span id='title21'>Clean Water project</span></a>"
 
 show_title_link_id_from_stored_mode_and_format:
   # disabled
@@ -106,13 +106,13 @@ title_in_version_context:
   res: "/s50.*status title.*edit/"
 
 show_shortcut:
-  old_src: "<p do='[v_title]'>hello</p>"
+  old_src: "<p do='[title]'>hello</p>"
   src: "<p do='#{title}'>hello</p>"
   tem: "<p><%= @node.prop['title'] %></p>"
   res: "<p>status title</p>"
 
 zazen_shortcut:
-  old_src: "<div class='foo' do='{v_title}'>hello</div>"
+  old_src: "<div class='foo' do='{title}'>hello</div>"
   src: "<div class='foo' do='zazen(title)'>hello</div>"
   tem: "<div class='zazen foo'><%= zazen(@node.prop['title'], {:node => @node}) %></div>"
   res: "<div class='zazen foo'><p>status title</p></div>"
@@ -131,7 +131,7 @@ show_name:
   res: "my status"
 
 show_text:
-  old_src: "my <r:show attr='v_text'/>"
+  old_src: "my <r:show attr='text'/>"
   src: "my <r:show attr='text'/>"
   res: "my status text"
 
@@ -143,7 +143,7 @@ show_width:
   res: "width = 660"
 
 show_else:
-  old_src: "<r:show attr='v_comment' else='name'/>"
+  old_src: "<r:show attr='comment' else='name'/>"
   src: "<r:show eval='comment || name'/>"
   tem: "<%= (@node.prop['comment'] or @node.name).to_s %>"
   res: "status"

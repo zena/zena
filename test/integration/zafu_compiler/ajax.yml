@@ -48,8 +48,8 @@ add_each_no_form_date:
   res: "/<ul><li.*id='things_add'.*li.*id='things_form'.*form.*hidden.*I <p>.*date_box.*<input id='things_event_at' name='node\[event_at\]' type='text' value.*/m"
 
 add_each_no_form_focus:
-  src: "<ul do='children' id='test'><li do='each'>I <p do='[v_title]'>blah</p></li><li do='add' focus='v_title'/></ul>"
-  res: "/<ul><li.*id=.*_add.*onclick.*toggle.*test_v_title.*focus.*li.*id=.*_form.*form.*hidden.*I <p><input type='text' id='test_v_title' name='node\[v_title\]' value=''\/><\/p><\/form><\/li>/"
+  src: "<ul do='children' id='test'><li do='each'>I <p do='[title]'>blah</p></li><li do='add' focus='title'/></ul>"
+  res: "/<ul><li.*id=.*_add.*onclick.*toggle.*test_title.*focus.*li.*id=.*_form.*form.*hidden.*I <p><input type='text' id='test_title' name='node\[title\]' value=''\/><\/p><\/form><\/li>/"
 
 each_add_with_form:
   context:
@@ -58,7 +58,7 @@ each_add_with_form:
     <ol do='children'>
       <li do='each' do='[name]'>blah</li>
       <li do='add'>add new</li>
-      <li do='form'><input name='v_title'/> this is the form</li>
+      <li do='form'><input name='title'/> this is the form</li>
     </ol>
   res: "/<li>bird.*<li>flower.*<li.*list1_add.*list1_form.*toggle.*<li .*list1_form.*style.*none.*Ajax.Request.*input type='hidden' name='t_url' value=./each/add/with/form/list1.*input type='hidden' name='node\[parent_id\]' value=.29./"
 
@@ -70,7 +70,7 @@ each_add_with_form_in_sub_block:
     <ol do='void' name='boo'>
       <li do='each' do='[name]'>blah</li>
       <li do='add'>add new</li>
-      <li do='form'><input name='v_title'/> this is the form</li>
+      <li do='form'><input name='title'/> this is the form</li>
     </ol>
     </r:children>
   res: "!/<form.*<form/"
@@ -82,7 +82,7 @@ each_add_with_form_klass_set:
     <r:children>
       <li do='each' do='[name]'>blah</li>
       <li do='add'>add new</li>
-      <li do='form'><input name='v_title'/> <select name='klass' root_class='Note' selected='Post'/> this is the form</li>
+      <li do='form'><input name='title'/> <select name='klass' root_class='Note' selected='Post'/> this is the form</li>
     </r:children>
   res: "!/hidden.*node\[klass\].*Node.*select.*node\[klass\]/"
 

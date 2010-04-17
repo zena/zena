@@ -83,8 +83,8 @@ class HtmlTagsTest < Zena::View::TestCase
   def test_img_tag_other
     login(:tiger)
     doc = secure!(Node) { nodes(:water_pdf) }
-    doc.c_ext = 'bin'
-    assert_equal 'bin', doc.c_ext
+    doc.ext = 'bin'
+    assert_equal 'bin', doc.ext
     assert_equal "<img src='/images/ext/other.png' width='32' height='32' alt='bin document' class='doc'/>", img_tag(doc)
     assert_equal "<img src='/images/ext/other_pv.png' width='70' height='70' alt='bin document' class='doc'/>", img_tag(doc, :mode=>'pv')
     assert_equal "<img src='/images/ext/other.png' width='32' height='32' alt='bin document' class='doc'/>", img_tag(doc, :mode=>'std')
@@ -240,7 +240,7 @@ class HtmlTagsTest < Zena::View::TestCase
     login(:lion)
     node = secure!(Node) { nodes(:status) }
     assert_equal %w{ unpublish }, map_actions(node.version)
-    node.update_attributes('v_title' => 'meia lua de compasso')
+    node.update_attributes('title' => 'meia lua de compasso')
     node = secure!(Node) { nodes(:status) }
     assert_equal %w{ propose publish remove }, map_actions(node.version)
     node.propose

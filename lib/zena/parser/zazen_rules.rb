@@ -204,7 +204,7 @@ module Zena
             else
               id = "#{node.zip}#{mode_format}"
               if format == '.data'
-                title = "#{node.fullpath}#{mode}.#{node.c_ext}#{dash}"
+                title = "#{node.fullpath}#{mode}.#{node.ext}#{dash}"
               else
                 title = "#{node.fullpath}#{mode_format}"
               end

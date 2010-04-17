@@ -23,17 +23,16 @@ class Site < ActiveRecord::Base
 
   validate :valid_site
   validates_uniqueness_of :host
-  attr_accessible :dyn_attributes, :name, :languages, :default_lang, :authentication, :http_auth, :auto_publish, :redit_time
+  attr_accessible :name, :languages, :default_lang, :authentication, :http_auth, :auto_publish, :redit_time
   has_many :groups, :order => "name"
   has_many :nodes
   has_many :users
 
-  include Zena::Use::DynAttributes::ModelMethods
-  dynamic_attributes_setup :table_name => 'site_attributes', :nested_alias => {%r{^d_(\w+)} => ['dyn']}
+  include Property
 
   @@attributes_for_form = {
-    :bool => [:authentication, :http_auth, :auto_publish],
-    :text => [:name, :languages, :default_lang],
+    :bool => %w{authentication http_auth auto_publish},
+    :text => %w{name languages default_lang},
   }
 
   class << self
@@ -134,7 +133,7 @@ class Site < ActiveRecord::Base
       # make admin the current visitor
       Thread.current[:visitor] = admin_user
 
-      root = site.send(:secure,Project) { Project.create( :name => site.name, :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :dgroup_id => admin[:id], :v_title => site.name, :v_status => Zena::Status[:pub]) }
+      root = site.send(:secure,Project) { Project.create( :name => site.name, :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :dgroup_id => admin[:id], :title => site.name, :v_status => Zena::Status[:pub]) }
       raise Exception.new("Could not create root node for site [#{host}] (site#{site[:id]})\n#{root.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if root.new_record?
 
       Node.connection.execute "UPDATE nodes SET section_id = id, project_id = id WHERE id = '#{root[:id]}'"

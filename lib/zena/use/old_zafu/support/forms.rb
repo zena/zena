@@ -208,7 +208,7 @@ module Zafu
           elsif (show_fields = descendants('show')) != []
             field = show_fields.first.params[:attr]
           elsif node.will_be?(Node)
-            field = 'v_title'
+            field = 'title'
           else
             field = 'text'
           end

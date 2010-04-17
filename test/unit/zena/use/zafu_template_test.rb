@@ -1,8 +1,9 @@
 require 'test_helper'
 
 class ZafuTemplateTest < Zena::View::TestCase
-  include Zena::Use::Zafu::ViewMethods
-  include Zena::Use::Zafu::ControllerMethods
+  def self.helper_method(*args);end
+  include Zena::Use::ZafuTemplates::ViewMethods
+  include Zena::Use::ZafuTemplates::ControllerMethods
 
   # mocks
   def session; {} end
@@ -25,17 +26,4 @@ class ZafuTemplateTest < Zena::View::TestCase
     assert_equal "21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30", s
   end
 
-  def test_render_body_ends_with_js_render
-    @node = secure!(Node) { nodes(:status) }
-    compiled_template = template_url
-    assert_match %r{<%= render_js %></body>}, File.read(File.join(SITES_ROOT, compiled_template))
-  end
-
-  def test_template_path_from_template_url
-    assert_equal "/test.host/zafu/default/Node-test/en/pagir", template_path_from_template_url('/default/Node-test/pagir')
-  end
-
-  def test_fullpath_from_template_url
-    assert_equal "#{SITES_ROOT}/test.host/zafu/default/Node-test/en/pagir", fullpath_from_template_url('/default/Node-test/pagir')
-  end
 end

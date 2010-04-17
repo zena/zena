@@ -147,7 +147,7 @@ module Zafu
         query_params = ["node[#{role}_id]=[id]"]
       else
         query_params = []
-        # set='icon_for=[id], v_status='50', v_title='[v_title]'
+        # set='icon_for=[id], v_status='50', title='[title]'
         @params.each do |k, v|
           next if [:hover, :change, :done].include?(k)
           value, static = parse_attributes_in_value(v, :erb => false, :skip_node_attributes => true)

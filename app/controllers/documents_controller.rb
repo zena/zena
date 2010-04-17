@@ -93,12 +93,12 @@ class DocumentsController < ApplicationController
     def create_document
       attrs = params['node']
       file, error = get_attachment
-      attrs['c_file'] = file if file
+      attrs['file'] = file if file
       attrs['klass'] ||= 'Document'
       if error
         @node = secure!(Document) { Document.new }
         @node.attributes = attrs
-        @node.errors.add('c_file', error)
+        @node.errors.add('file', error)
       else
         @node = secure!(Document) { Document.create_node(attrs) }
       end

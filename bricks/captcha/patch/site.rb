@@ -1,2 +1,5 @@
 # set public and private keys
-Site.attributes_for_form[:text] += [:d_recaptcha_pub, :d_recaptcha_priv, :d_mail_hide_pub, :d_mail_hide_priv]
+properties = %w{recaptcha_pub, recaptcha_priv, mail_hide_pub, mail_hide_priv}
+Site.property.string properties
+Site.attributes_for_form[:text] += properties
+Site.send(:attr_accessible, *properties)

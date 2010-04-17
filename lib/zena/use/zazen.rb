@@ -100,7 +100,7 @@ module Zena
 
           title = (opts[:title] && opts[:title] != '') ? opts[:title] : node.version.title
 
-          link_opts[:format] = node.c_ext if link_opts[:format] == 'data'
+          link_opts[:format] = node.ext if link_opts[:format] == 'data'
           if opts[:id] && opts[:id][0..0] == '0'
             link_to title, zen_path(node, link_opts), :popup=>true
           else
@@ -133,14 +133,14 @@ module Zena
           if !opts[:images].nil? && !opts[:images]
             return "[#{_('image')}: #{img.version.title}]"
           end
-          title = img.v_summary if title == ""
+          title = img.summary if title == ""
 
           image = img_tag(img, :mode=>mode)
 
           unless link
             if id[0..0] == "0" || !img.kind_of?(Image)
               # if the id starts with '0' or it is not an Image, link to data
-              link = zen_path(img, :format => img.c_ext)
+              link = zen_path(img, :format => img.ext)
               link_tag = "<a class='popup' href='#{link}' target='_blank'>"
             end
           end

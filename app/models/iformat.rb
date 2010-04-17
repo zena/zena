@@ -78,8 +78,8 @@ class Iformat < ActiveRecord::Base
         options = {}
         popup[:show] = show.map do |k|
           if k == 'link'
-            options['v_title'] = 'link'
-            'v_title'
+            options['title'] = 'link'
+            'title'
           else
             k
           end
@@ -102,8 +102,8 @@ class Iformat < ActiveRecord::Base
       else
         popup = {
           :name    => self[:popup],
-          :options => {'v_title' => 'link'},
-          :show    => ['navigation','v_title','v_summary']
+          :options => {'title' => 'link'},
+          :show    => ['navigation','title','summary']
         }
       end
     else

@@ -55,7 +55,7 @@ div.readers { position:absolute; left:5px; top:55px;}
 .full_width { width:96%; font:inherit; font-size:0.9em; padding:2px;}
 #title_tab select, #title_tab input {font:inherit; font-size:0.86em;}
 .v_publish_from, .log_at, .event_at { padding:1px 2px; width:65%; text-align:center;}
-#node_v_title { font-weight:bold; font-size:1.2em;}
+#node_title { font-weight:bold; font-size:1.2em;}
 label { font-size:0.9em; font-weight:bold; display:block; color:#5C1515; margin:10px 0 5px; clear:both;}
 
 ul.link_box { float:left; display:block; margin:2px; padding:2px;}

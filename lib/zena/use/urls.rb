@@ -277,7 +277,7 @@ module Zena
 
             if fmt = params.delete(:format)
               if fmt == 'data'
-                opts[:format] = "#{node}.c_ext"
+                opts[:format] = "#{node}.ext"
               else
                 opts[:format] = fmt.inspect
               end

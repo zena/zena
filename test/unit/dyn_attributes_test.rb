@@ -4,10 +4,12 @@ class DynDummy < ActiveRecord::Base
   before_save :set_dummy_node_id
   set_table_name 'versions'
 
-  include Property::Attribute
-  properties :color, String
-  properties :life, String
-  properties :shoes, String
+  include Property
+  property do |p|
+    p.string :color
+    p.string :life
+    p.string :shoes
+  end
 
   def set_dummy_node_id
     self[:node_id] = 0
@@ -16,7 +18,7 @@ class DynDummy < ActiveRecord::Base
 end
 
 class ChildDummy < DynDummy
-  properties :age, Numeric
+  property.integer :age
 end
 
 class DynAttributesTest < Test::Unit::TestCase

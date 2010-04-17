@@ -1,8 +1,8 @@
 class: Skin
-v_title: default
-v_summary: official default skin
-v_comment: version 0.9
-v_text: |
+title: default
+summary: official default skin
+comment: version 0.9
+text: |
   This is the default skin for zena. You should be *very careful* if you change this skin: it is used to display/edit itself.
 
   When creating your own skins, you should *always avoid* to display your skins with themselves. This is tempting but will put you in trouble if you need to edit a broken template.

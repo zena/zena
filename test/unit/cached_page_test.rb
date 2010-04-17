@@ -28,7 +28,7 @@ class CachedPageTest < Zena::Unit::TestCase
           # test expire
           login(:tiger)
           node = secure!(Node) { nodes(:status) }
-          assert node.update_attributes(:v_title=>'hey'), "Can save"
+          assert node.update_attributes(:title=>'hey'), "Can save"
           assert !File.exists?(path), "Cache file removed"
           assert_equal [], cache.node_ids
         end
@@ -53,7 +53,7 @@ class CachedPageTest < Zena::Unit::TestCase
           # test expire
           login(:tiger)
           node = secure!(Node) { nodes(:bird_jpg) }
-          assert node.update_attributes(:v_title=>'hey'), "Can save"
+          assert node.update_attributes(:title=>'hey'), "Can save"
           assert !File.exists?(path), "Cache file removed"
           login(:anon)
           node = secure!(Node) { nodes(:bird_jpg) }
@@ -156,7 +156,7 @@ class CachedPageTest < Zena::Unit::TestCase
         # test expire
         login(:tiger)
         node = secure!(Node) { nodes(:Node_zafu) }
-        assert node.update_attributes(:v_title=>'hey'), "Can save"
+        assert node.update_attributes(:title=>'hey'), "Can save"
         assert !File.exists?(path), "Cache file removed"
         assert_equal [], cache.node_ids
       end

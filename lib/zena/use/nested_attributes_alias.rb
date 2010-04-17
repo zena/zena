@@ -2,7 +2,7 @@ module Zena
   module Use
     module NestedAttributesAlias
       # Lets you use nested_attributes_alias methods in forms:
-      # <%= text_field 'v_title' %>
+      # <%= text_field 'title' %>
       module ViewMethods
         class InstanceTag < ActionView::Helpers::InstanceTag
           def value(object)
@@ -177,7 +177,7 @@ module Zena
         end
 
         # Same as model method but will not take Proc type resolution. This
-        # could be used by RubyLess to resolve 'v_title' into ==> version ==> title
+        # could be used by RubyLess to resolve 'title' into ==> version ==> title
         # we will see...
         def nested_model_names_for_alias(attribute)
           attribute = attribute.to_s

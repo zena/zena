@@ -3,7 +3,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="en" set_lang='[v_lang]' xml:lang='en'>
 <head>
-  <title do='[v_title]' name='title'>Zena site</title>
+  <title do='[title]' name='title'>Zena site</title>
   <r:stylesheets list='reset'/>
 <style>
 body { color:#666; background: #ddd url('') no-repeat; font:13px Verdana, Helvetica, sans-serif; }
@@ -17,7 +17,7 @@ td { padding:5px; }
 
 <body do='void' name='body'>
     <div id='login_form'>
-      <p class='welcome'><r:t>Login for</r:t> <b do='[v_title]'/></p>
+      <p class='welcome'><r:t>Login for</r:t> <b do='[title]'/></p>
       <form action="/session" method="post">    <table>
           <tr>
             <td><label for='user_login' do='trans'>User name:</label></td>

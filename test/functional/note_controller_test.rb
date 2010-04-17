@@ -7,18 +7,18 @@ class NoteControllerTest < Zena::Controller::TestCase
     opening = secure!(Node) { nodes(:opening) }
     get 'day_list', :id=>opening.project_id, :find=>'news', :using=>'log_at', :date=>opening.log_at.strftime('%Y-%m-%d'), :selected=>opening[:id].to_s
     assert_response :success
-    assert_tag :li, :attributes=>{:class=>'note'}, :descendant=>{:tag=>'span', :attributes=>{:id=>"v_title#{opening.v_id}"}, :content=>'parc opening'}
+    assert_tag :li, :attributes=>{:class=>'note'}, :descendant=>{:tag=>'span', :attributes=>{:id=>"title#{opening.v_id}"}, :content=>'parc opening'}
   end
 
   def test_create_without_rights
-    post 'create', :note=>{:klass=>'Note', :log_at=>'2006-10-03 15:20', :parent_id=>nodes_id(:zena), :v_title=>'this is a test'}
+    post 'create', :note=>{:klass=>'Note', :log_at=>'2006-10-03 15:20', :parent_id=>nodes_id(:zena), :title=>'this is a test'}
     assert_response :success
     assert assigns['note'].new_record?
     assert_equal 'invalid reference', assigns['note'].errors[:parent_id]
   end
 
   def test_create_bad_parent
-    post 'create', :note=>{:klass=>'Note', :log_at=>'2006-10-03 15:20', :parent_id=>nodes_id(:status), :v_title=>'this is a test'}
+    post 'create', :note=>{:klass=>'Note', :log_at=>'2006-10-03 15:20', :parent_id=>nodes_id(:status), :title=>'this is a test'}
     assert_response :success
     assert assigns['note'].new_record?
     assert_equal 'invalid reference', assigns['note'].errors[:parent_id]
@@ -26,7 +26,7 @@ class NoteControllerTest < Zena::Controller::TestCase
 
   def test_create_bad_klass
     login(:tiger)
-    post 'create', :note=>{:klass=>'system "pwd"', :log_at=>'2006-10-03 15:20', :parent_id=>nodes_id(:zena), :v_title=>'this is a test'}
+    post 'create', :note=>{:klass=>'system "pwd"', :log_at=>'2006-10-03 15:20', :parent_id=>nodes_id(:zena), :title=>'this is a test'}
     assert_response :success
     note = assigns['note']
     assert_equal 'invalid', note.errors[:klass]
@@ -41,7 +41,7 @@ class NoteControllerTest < Zena::Controller::TestCase
 
   def test_create_ok
     login(:tiger)
-    post 'create', :note=>{:klass=>'Note', :log_at=>'2006-10-03 15:20', :parent_id=>nodes_id(:zena), :v_title=>'this is a test'}
+    post 'create', :note=>{:klass=>'Note', :log_at=>'2006-10-03 15:20', :parent_id=>nodes_id(:zena), :title=>'this is a test'}
     assert_response :success
     note = assigns['note']
     assert_kind_of Note, note

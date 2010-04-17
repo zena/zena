@@ -73,7 +73,7 @@ module Zena
             end
 
             title += check_lang(obj) unless opts[:check_lang] == 'false'
-            title  = "<span id='v_title#{obj.zip}'>#{title}</span>"
+            title  = "<span id='title#{obj.zip}'>#{title}</span>"
 
             if (link = opts[:link]) && opts[:link] != 'false'
               if link =~ /\A(\d+)/
@@ -93,7 +93,7 @@ module Zena
                 elsif link =~ /(\w+\.|)data$/
                   link_opts[:mode] = $1[0..-2] if $1 != ''
                   if obj.kind_of?(Document)
-                    link_opts[:format] = obj.c_ext
+                    link_opts[:format] = obj.ext
                   else
                     link_opts[:format] = 'html'
                   end

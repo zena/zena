@@ -14,6 +14,9 @@ class ZazenTest < Zena::View::TestCase
   def js_data
     @js_data ||= []
   end
+  def fquote(text)
+    text.to_s.gsub("'",'&apos;')
+  end
   # ===============================
 
   def assert_zazen_match(css, code)
@@ -163,31 +166,75 @@ class ZazenTest < Zena::View::TestCase
     assert_zazen_match "a[@href='/en/image30_pv.jpg?967816914293'][text()='projects/wiki/bird_pv.jpg']", 'This is a "link"::bir_pv.data.'
   end
 
+  context 'An absolute pseudo path' do
+    subject do
+      '(/projects/cleanWater/status)'
+    end
+
+    should 'resolve as link without using the current node' do
+      assert_equal '<p>Read <a href="/en/projects/cleanWater/page22.html">projects/cleanWater/status</a></p>', zazen(%Q{Read "":#{subject}})
+    end
+
+    should 'resolve as image without using the current node' do
+      assert_equal "", zazen(%Q{See !#{subject}!})
+    end
+
+
+    context 'with mode' do
+      subject do
+        '(/projects/wiki/bird)_side'
+      end
+
+      should 'resolve with mode in image tag' do
+        assert_equal "<p>See <img src='/en/image30_side.jpg?100321116926' width='220' height='500' alt='bird' class='side'/></p>", zazen(%Q{See !#{subject}!})
+      end
+
+      should 'resolve with mode as link' do
+        assert_match %r{/en/image30_side\.html}, zazen(%Q{Read "":#{subject}})
+      end
+
+      should 'resolve with mode as link to image' do
+        assert_equal "<p>Read <a href=\"/en/image30_side.html\"><img src='/en/image30_std.jpg?929831698949' width='440' height='400' alt='bird' class='std'/></a></p>", zazen(%Q{Read !30!:#{subject}})
+      end
+
+      should 'resolve with mode as link and image tag' do
+        assert_equal "<p>See <a href=\"/en/image30_side.html\"><img src='/en/image30_side.jpg?100321116926' width='220' height='500' alt='bird' class='side'/></a></p>", zazen(%Q{See !:#{subject}!:#{subject}})
+      end
+    end
+  end # An absolute pseudo path
+
+  context 'A relative pseudo path' do
+    setup do
+      login(:lion)
+    end
+
+    subject do
+      '(status)'
+    end
+
+    context 'with different current nodes' do
+      setup do
+        lion = secure!(Node) { nodes(:lion) }
+        lion.update_attributes(:name => 'status')
+        @people = secure!(Node) { nodes(:people) }
+        @cleanWater = secure!(Node) { nodes(:cleanWater) }
+      end
+
+      should 'resolve with current node' do
+        @node = @cleanWater
+        assert_equal '<p>Read <a href="/oo/projects/cleanWater/page22.html">projects/cleanWater/status</a></p>', zazen(%Q{Read "":#{subject}})
+        @node = @people
+        assert_equal '<p>Read <a href="/oo/contact15.html">people/status</a></p>', zazen(%Q{Read "":#{subject}})
+      end
+    end
+  end # A relative pseudo path
+
   def test_pseudo_id_numbers_only
     login(:lion)
     lion = secure!(Node) { nodes(:lion) }
     assert lion.update_attributes(:name => '1234')
     login(:anon)
     assert_equal '<p>This is a <a href="/en/contact15.html">people/1234</a>.</p>', zazen('This is a "link"::123.')
-  end
-
-  def test_pseudo_path
-    login(:lion)
-    lion = secure!(Node) { nodes(:lion) }
-    assert lion.update_attributes(:name => 'status')
-
-    @node = secure!(Node) { nodes(:cleanWater) }
-    assert_equal '<p>Read <a href="/oo/projects/cleanWater/page22.html">projects/cleanWater/status</a></p>', zazen('Read "":(/projects/cleanWater/status)')
-    assert_equal '<p>Read <a href="/oo/projects/cleanWater/page22.html">projects/cleanWater/status</a></p>', zazen('Read "":(status)')
-
-    @node = secure!(Node) { nodes(:people) }
-    assert_equal '<p>Read <a href="/oo/projects/cleanWater/page22.html">projects/cleanWater/status</a></p>', zazen('Read "":(/projects/cleanWater/status)')
-    assert_equal "<p>See <img src='/en/image30_side.jpg?100321116926' width='220' height='500' alt='bird' class='side'/></p>", zazen('See !:(/projects/wiki/bird)_side!')
-    assert_equal "<p>See <a href=\"/oo/contact15.html\"><img src='/en/image30_side.jpg?100321116926' width='220' height='500' alt='bird' class='side'/></a></p>", zazen('See !:(/projects/wiki/bird)_side!:(status)')
-    assert_equal '<p>Read <a href="/oo/contact15.html">people/status</a></p>', zazen('Read "":(status)')
-
-    @node = secure!(Node) { nodes(:wiki) }
-    assert_equal "<p>See <a href=\"/oo/projects/cleanWater\"><img src='/en/image30_side.jpg?100321116926' width='220' height='500' alt='bird' class='side'/></a></p>", zazen('See !:(bird)_side!:(/projects/cleanWater)')
   end
 
   def test_bad_pseudo_path
@@ -226,7 +273,7 @@ class ZazenTest < Zena::View::TestCase
   # only works if recaptcha plugin is installed
   def test_mail_hide
     login(:lion)
-    assert current_site.update_attributes(:d_mail_hide_priv => '1234', :d_mail_hide_pub => '3456')
+    assert current_site.update_attributes(:mail_hide_priv => '1234', :mail_hide_pub => '3456')
     @node = secure!(Node) { nodes(:status) }
     assert_match %r{<a href.*mailhide.recaptcha.net/d\?k=3456&.*window.open}m, zazen("This is an email [email]bob@example.com[/email].")
   end

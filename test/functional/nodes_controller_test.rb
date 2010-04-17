@@ -79,7 +79,7 @@ class NodesControllerTest < Zena::Controller::TestCase
       with_caching do
         assert !File.exist?("#{SITES_ROOT}/test.host/public/fr/#{name}")
         login(:lion)
-        doc = secure!(Template) { Template.create("name"=>"Node", "c_format"=>"xml", "v_summary"=>"", 'v_text' => '<?xml version="1.0" encoding="utf-8"?><node><name do="[name]"/></node>', "parent_id"=>nodes_id(:default))}
+        doc = secure!(Template) { Template.create("name"=>"Node", "c_format"=>"xml", "summary"=>"", 'text' => '<?xml version="1.0" encoding="utf-8"?><node><name do="[name]"/></node>', "parent_id"=>nodes_id(:default))}
         assert !doc.new_record?, "Not a new record"
         assert doc.publish
         login(:anon)
@@ -108,14 +108,14 @@ class NodesControllerTest < Zena::Controller::TestCase
   def test_ics_format_not_anon
     preserving_files('test.host/zafu') do
       login(:lion)
-      doc = secure!(Template) { Template.create("name"=>"Project", "c_format"=>"ics", "v_summary"=>"", 'v_text' => "<r:notes in='site' order='event_at asc'>
+      doc = secure!(Template) { Template.create("name"=>"Project", "c_format"=>"ics", "summary"=>"", 'text' => "<r:notes in='site' order='event_at asc'>
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//hacksw/handcal//NONSGML v1.0//EN
 <r:each>BEGIN:VEVENT
 DTSTART:<r:show date='log_at' format='%Y%m%dT%H%M%S'/>
 DTEND:<r:show date='event_at' format='%Y%m%dT%H%M%S'/>
-SUMMARY:<r:show attr='v_title'/>
+SUMMARY:<r:show attr='title'/>
 URL;VALUE=URI:<r:show attr='url'/>
 END:VEVENT</r:each>
 END:VCALENDAR
@@ -144,7 +144,7 @@ END:VCALENDAR
         assert_response :success
         assert File.exist?(filename) # cached page created
         assert_match %r[body \{ background: #eee; color:#444;], File.read(filename)
-        put 'save_text', :id => nodes_zip(:style_css), :node => {'v_text' => '/* empty */'}
+        put 'save_text', :id => nodes_zip(:style_css), :node => {'text' => '/* empty */'}
         node = assigns['node']
         assert node.errors.empty?
         assert_equal Zena::Status[:pub], node.version.status
@@ -189,8 +189,8 @@ END:VCALENDAR
         assert nodes[p]
         assert_kind_of Image, nodes[p]
       end
-      assert_match %r{#header ul\{\s*background:url\('/en/image#{navBar.zip}.gif\?#{navBar.updated_at.to_i}'\)}m, style.v_text
-      assert_match %r{a\.xht:hover\{\s*background:url\('/en/image#{xhtmlBgHover.zip}.gif\?#{xhtmlBgHover.updated_at.to_i}'\)}, style.v_text
+      assert_match %r{#header ul\{\s*background:url\('/en/image#{navBar.zip}.gif\?#{navBar.updated_at.to_i}'\)}m, style.text
+      assert_match %r{a\.xht:hover\{\s*background:url\('/en/image#{xhtmlBgHover.zip}.gif\?#{xhtmlBgHover.updated_at.to_i}'\)}, style.text
 
       # use this template
       status = secure(Node) { nodes(:status) }
@@ -225,7 +225,7 @@ END:VCALENDAR
       assert_equal 'bird', bird[:name]
       assert_equal 'simple', simple[:name]
       assert_equal 'The sky is blue', simple.version.title
-      assert_equal 'jpg', bird.c_ext
+      assert_equal 'jpg', bird.ext
       assert_equal 'Le septième ciel', bird.version.title
       versions = secure!(Node) { Node.find(bird[:id]) }.versions
       assert_equal 2, versions.size
@@ -270,7 +270,7 @@ END:VCALENDAR
   def test_update_change_v_status_reloads_page
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
-    node.update_attributes('v_title' => 'foobar')
+    node.update_attributes('title' => 'foobar')
     assert_equal Zena::Status[:red], node.v_status
     # ajax
     put 'update', :format => 'js', :id => node.zip, 'zazen' => 'true', 'dom_id' => 'foo', 'node' => {'d_philosopher' => 'Michel Serres', 'v_status' => '50'}

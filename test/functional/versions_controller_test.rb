@@ -80,7 +80,7 @@ class VersionsControllerTest < Zena::Controller::TestCase
     #footer { background:url('/projects/wiki/flower.jpg') }
     END_CSS
 
-    assert node.update_attributes(:v_text => start.dup)
+    assert node.update_attributes(:text => start.dup)
     get 'edit', :node_id => node.zip, :id => 0, :parse_assets => 'true'
     assert_response :success
     version = assigns(:node).version

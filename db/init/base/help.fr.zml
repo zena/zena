@@ -1,6 +1,6 @@
 class: Page
-v_title: aide
-v_summary: |
+title: aide
+summary: |
   |_. code |_. résultat |
   | @le chat *noir*@ | le chat *noir* |
   | @le _petit_ serpent@ | le _petit_ serpent |
@@ -38,7 +38,7 @@ v_summary: |
 
   For advanced topics (tables, classes, styles), please look at the documentation for "textile":http://hobix.com/textile/.
 
-v_text: |
+text: |
   h4. texte et liens
 
   |_. code |_. résultat |

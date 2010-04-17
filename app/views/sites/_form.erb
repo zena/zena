@@ -14,8 +14,8 @@
   <% end %>
   <table cellspacing='0' class='edit_site'>
     <tr><td class='label'><%= _('host') %></td><td><%= @site[:host] %></td></tr>
-    <% Site.attributes_for_form[:text].each do |sym| -%>
-    <tr><td class='label'><%= _(sym.to_s.sub(/\Ad_/,'').sub('_',' ')) %></td><td><%= text_field('site', sym, :size=>nil) %></td></tr>
+    <% Site.attributes_for_form[:text].each do |name| -%>
+    <tr><td class='label'><%= _(name) %></td><td><%= text_field('site', name, :size=>nil) %></td></tr>
     <% end -%>
     <tr><td class='label'><%= _('redit_time') %></td><td><%= text_field('site', :redit_time, :size=>15, :value => @site.redit_time) %></td></tr>
     <tr><td class='label'><%= _('public group') %></td><td><%= @site.public_group.name %></td></tr>

@@ -147,7 +147,7 @@ case_when_html_tag_else:
   res: "<div>four</div>"
 
 case_when_test_attribute:
-  src: "<r:case><r:when test='v_title'>one</r:when><r:else>two</r:else></r:case>"
+  src: "<r:case><r:when test='title'>one</r:when><r:else>two</r:else></r:case>"
   res: "one"
 
 case_when_evil_test:
@@ -214,7 +214,7 @@ test_ancestor_with_stored:
 on_if_kind_of:
   context:
     node: 'opening'
-  src: "<b do='[v_title]' doc_if_kind_of='Document' popo_if_kind_of='Post'/>"
+  src: "<b do='[title]' doc_if_kind_of='Document' popo_if_kind_of='Post'/>"
   res: "<b class='popo'>parc opening</b>"
 
 on_if_attribute:
@@ -485,7 +485,7 @@ tada:
   context:
     node: 'opening'
   src: |
-    <h1 id='main_title' do='show' attr='v_title'>Super project</h1>
+    <h1 id='main_title' do='show' attr='title'>Super project</h1>
 
     <ul do='set_tags'>
       <li do='each' do='link'>sample tag</li>
@@ -493,7 +493,7 @@ tada:
       <li do='ignore'>ruby</li>
     </ul>
 
-    <div id='text' do='zazen' attr='v_text'>
+    <div id='text' do='zazen' attr='text'>
       <p>Lorem ipsum dolor sit amet, consectetuer elit....</p>
       <h3>some title</h3>
     </div>
@@ -514,39 +514,39 @@ summary:
   context:
     node: 'zena'
   src: "<r:summary/>"
-  res: "<div class='zazen' id='v_summary11'></div>"
+  res: "<div class='zazen' id='summary11'></div>"
 
 summary_exists:
   src: "<r:summary/>"
-  res: "<div class='zazen' id='v_summary22'><p>status summary</p></div>"
+  res: "<div class='zazen' id='summary22'><p>status summary</p></div>"
 
 empty_summary:
   src: "<r:summary text=''/>"
-  res: "<div class='zazen' id='v_summary22'></div>"
+  res: "<div class='zazen' id='summary22'></div>"
 
 summary_or_text_has_summary:
-  src: "<td do='summary' or='v_text'/>"
-  res: "<td class='zazen' id='v_summary22'><p>status summary</p></td>"
+  src: "<td do='summary' or='text'/>"
+  res: "<td class='zazen' id='summary22'><p>status summary</p></td>"
 
 summary_or_text_no_summary:
   context:
     node: 'zena'
-  src: "<r:summary or='v_text'/>"
-  res: "<div class='zazen' id='v_summary11'><p>This is the root of your peaceful tests.</p></div>"
+  src: "<r:summary or='text'/>"
+  res: "<div class='zazen' id='summary11'><p>This is the root of your peaceful tests.</p></div>"
 
 summary_in_div_with_id:
   src: "<div id='foo' do='summary'/>"
-  res: "<div class='zazen' id='foo'><div id='v_summary22'><p>status summary</p></div></div>"
+  res: "<div class='zazen' id='foo'><div id='summary22'><p>status summary</p></div></div>"
 
 text:
   src: "<r:text/>"
-  res: "<div class='zazen' id='v_text22'><p>status text</p></div>"
+  res: "<div class='zazen' id='text22'><p>status text</p></div>"
 
 text_code:
   context:
     node: 'Project_zafu'
   src: "<td do='text'/>"
-  res: "/\\A<td class='zazen' id='v_text61'><pre class='full'><code class='zafu'>.*</code></pre></td>\\Z/"
+  res: "/\\A<td class='zazen' id='text61'><pre class='full'><code class='zafu'>.*</code></pre></td>\\Z/"
 
 ztag_in_do:
   src: "<ol do='parent'><r:children>no error</r:children></ol>"
@@ -575,7 +575,7 @@ select_nodes:
   res: "/name='node\[d_ref\]'><option value=\"\" selected=\"selected\"></option>\n<option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
 
 do_not_set_parent_id_if_form_contains_parent_id:
-  src: "<r:children><r:each do='[name]'/><r:add/><r:form><r:select name='parent_id' nodes='projects in site'/><input name='v_title'/></r:form></r:children>"
+  src: "<r:children><r:each do='[name]'/><r:add/><r:form><r:select name='parent_id' nodes='projects in site'/><input name='title'/></r:form></r:children>"
   res: "!/node\[parent_id\].\s+value/"
 
 select_nodes_selected:
@@ -587,7 +587,7 @@ select_nodes_in_ajax:
   res: "/name=.node\[d_ref\].><option value=\"\" selected=\"selected\"></option>\n<option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
 
 select_nodes_show_attr:
-  src: "<r:form><r:select name='d_ref' nodes='images in site' attr='c_ext' show='v_title'/></r:form>"
+  src: "<r:form><r:select name='d_ref' nodes='images in site' attr='ext' show='title'/></r:form>"
   res: "/name=.node\[d_ref\].>.*<option value=\"jpg\">flower</option>\n<option value=\"jpg\">it's a lake</option>/"
 
 select_nodes_data_list:
@@ -847,7 +847,7 @@ paginate_with_or_clause:
 paginate_with_where_clause:
   context:
     pak: 2
-  src: "<div do='pages' in='site' where='v_title like \"%[param:k]%\"'><r:stat find='count'/> nodes</div> // <div do='pages' in='site' where='v_title like \"%[param:k]%\"' limit='10' order='zip' paginate='pak'><r:show var='pak_count'/> pages (<r:show var='pak_nodes'/> nodes)</div>"
+  src: "<div do='pages' in='site' where='title like \"%[param:k]%\"'><r:stat find='count'/> nodes</div> // <div do='pages' in='site' where='title like \"%[param:k]%\"' limit='10' order='zip' paginate='pak'><r:show var='pak_count'/> pages (<r:show var='pak_nodes'/> nodes)</div>"
   res: "<div>18 nodes</div> // <div>2 pages (18 nodes)</div>"
 
 paginate_with_group_clause:

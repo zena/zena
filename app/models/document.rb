@@ -27,9 +27,9 @@ The version class used by documents is the DocumentVersion.
 
 Content (file data) is managed by the DocumentContent. This class is responsible for storing the file and retrieving the data. It provides the following attributes to the Document :
 
-c_size::  file size
-c_ext::   file extension
-c_content_type:: file content-type
+ size::  file size
+ ext::   file extension
+ content_type:: file content-type
 =end
 # should be a sub-class of Node, not Page (#184). Write a migration, fix fixtures and test.
 class Document < Node

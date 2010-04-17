@@ -129,7 +129,7 @@ class NodesController < ApplicationController
             if img_format = Iformat[params[:mode]]
               content_path = @node.filepath(img_format)
               # force creation of image data
-              @node.c_file(img_format)
+              @node.file(img_format)
             end
           elsif @node.kind_of?(TextDocument)
             send_data(@node.text, :filename => @node.filename, :type => 'text/css', :disposition => 'inline')
@@ -162,12 +162,12 @@ class NodesController < ApplicationController
     attrs = params['node']
     file, file_error = get_attachment
     if file
-      attrs['c_file'] = file
+      attrs['file'] = file
       attrs['klass'] = 'Document'
     end
 
     @node = secure!(Node) { Node.create_node(attrs) }
-    @node.errors.add('c_file', file_error) if file_error
+    @node.errors.add('file', file_error) if file_error
 
     respond_to do |format|
       if @node.errors.empty?
@@ -253,11 +253,11 @@ class NodesController < ApplicationController
 
   def update
     file, file_error = get_attachment
-    params['node']['c_file'] = file if file
+    params['node']['file'] = file if file
 
     @v_status_before_update = @node.v_status
     @node.update_attributes_with_transformation(params['node'])
-    @node.errors.add('c_file', file_error) if file_error
+    @node.errors.add('extfile', file_error) if file_error
 
     if @node.errors.empty?
       flash.now[:notice] = _('node updated')
@@ -292,7 +292,7 @@ class NodesController < ApplicationController
   # TODO: test
   def attribute
     method = params[:attr]
-    if (params[:pseudo_id] || params[:name]).blank? || !%w{v_title v_text v_summary name path short_path}.include?(method)
+    if (params[:pseudo_id] || params[:name]).blank? || !%w{title text summary name path short_path}.include?(method)
       # Error
       render :text => ''
       return
@@ -327,7 +327,7 @@ class NodesController < ApplicationController
       render :text => path.join('/ ')
     else
       @text = @node.send(method)
-      if %w{v_text v_summary}.include?(method)
+      if %w{text summary}.include?(method)
         render :text => "<%= zazen(@text) %>"
       else
         render :text => @text

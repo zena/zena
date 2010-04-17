@@ -22,7 +22,7 @@ class TextDocumentVersion < DocumentVersion
       if text_changed? && content.content_type == 'text/css'
         helper = AssetHelper.new
         helper.visitor = visitor
-        self.text = node.parse_assets(self.text, helper, 'v_text')
+        self.text = node.parse_assets(self.text, helper, 'text')
       end
     end
 

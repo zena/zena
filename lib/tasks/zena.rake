@@ -285,8 +285,14 @@ namespace :zena do
   desc 'Rebuild foxy fixtures for all sites'
   task :build_fixtures => :environment do
     tables = Node.connection.tables
-             # 0.    # 1.                # need vc   # vers.  # nodes  # need vc.   # need nodes
-    ordered_tables = ['virtual_classes', 'versions', 'nodes', 'attachments', 'zips', 'relations', 'links']
+
+    ordered_tables = %w{virtual_classes versions nodes attachments zips relations links}
+    ordered_tables.each do |table_name|
+      # We need to clear because some tables are only built by appending entries from inline
+      # definitions (attachments for example).
+      FileUtils.rm "#{RAILS_ROOT}/test/fixtures/#{table_name}.yml"
+    end
+
     tables -= ordered_tables
     tables += ordered_tables
     virtual_classes, versions, nodes = nil, nil, nil
@@ -301,9 +307,6 @@ namespace :zena do
       when 'nodes'
         nodes = Zena::FoxyParser.new(table, :versions => versions, :virtual_classes => virtual_classes)
         nodes.run
-      when 'attachments'
-        attachments = Zena::FoxyParser.new(table)
-        attachments.run
       when 'zips'
         Zena::FoxyParser.new(table, :nodes => nodes).run
       when 'relations'

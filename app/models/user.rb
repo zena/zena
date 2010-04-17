@@ -248,10 +248,10 @@ class User < ActiveRecord::Base
         # owner is the user except for anonymous and super user.
         # TODO: not sure this is a good idea...
         :user_id       => (self[:id] == site[:anon_id] || self[:id] == site[:su_id]) ? visitor[:id] : self[:id],
-        :v_title       => (name.blank? || first_name.blank?) ? login : fullname,
-        :c_first_name  => first_name,
-        :c_name        => (name || login ),
-        :c_email       => email,
+        :title       => (name.blank? || first_name.blank?) ? login : fullname,
+        :first_name  => first_name,
+        :name        => (name || login ),
+        :email       => email,
         :v_status      => Zena::Status[:pub]
       )}
       @contact[:parent_id] = site[:root_id]

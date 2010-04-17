@@ -166,7 +166,7 @@ class SecureTest < Zena::Unit::TestCase
       should 'be allowed to write redactions' do
         node = secure(Node) { nodes(:bananas) }
         assert node.can_write?
-        assert node.update_attributes(:v_title => 'max havelaar')
+        assert node.update_attributes(:title => 'max havelaar')
         node = secure(Node) { nodes(:bananas) } # reload
         assert_equal 'max havelaar', node.version.title
       end
@@ -180,7 +180,7 @@ class SecureTest < Zena::Unit::TestCase
       should 'not be allowed to write redactions' do
         node = secure(Node) { nodes(:bananas) }
         assert !node.can_write?
-        assert !node.update_attributes(:v_title => 'max havelaar')
+        assert !node.update_attributes(:title => 'max havelaar')
       end
 
       should 'see a node that is not published yet' do
@@ -225,7 +225,7 @@ class SecureTest < Zena::Unit::TestCase
     should 'not be allowed to write' do
       node = secure!(Node) { nodes(:bananas) }
       assert !node.can_write?
-      assert !node.update_attributes(:v_title => 'Banana republic')
+      assert !node.update_attributes(:title => 'Banana republic')
       assert_equal 'You do not have the rights to edit.', node.errors[:base]
     end
 
@@ -812,7 +812,7 @@ class SecureTest < Zena::Unit::TestCase
     end
 
     should 'be allowed to write' do
-      assert @node.update_attributes(:v_title => 'Drosophila')
+      assert @node.update_attributes(:title => 'Drosophila')
     end
   end # A visitor with admin status
 
@@ -827,7 +827,7 @@ class SecureTest < Zena::Unit::TestCase
     end
 
     should 'be allowed to write' do
-      assert @node.update_attributes(:v_title => 'Drosophila')
+      assert @node.update_attributes(:title => 'Drosophila')
     end
 
     should 'be allowed to post comments' do
@@ -854,7 +854,7 @@ class SecureTest < Zena::Unit::TestCase
     end
 
     should 'not be allowed to write' do
-      assert !@node.update_attributes(:v_title => 'Drosophila')
+      assert !@node.update_attributes(:title => 'Drosophila')
       assert_equal 'You do not have the rights to edit.', @node.errors[:base]
     end
 
@@ -889,7 +889,7 @@ class SecureTest < Zena::Unit::TestCase
     end
 
     should 'not be allowed to write' do
-      assert !@node.update_attributes(:v_title => 'Drosophila')
+      assert !@node.update_attributes(:title => 'Drosophila')
       assert_equal 'You do not have the rights to edit.', @node.errors[:base]
     end
 
@@ -916,7 +916,7 @@ class SecureTest < Zena::Unit::TestCase
     end
 
     should 'not be allowed to write' do
-      assert !@node.update_attributes(:v_title => 'Drosophila')
+      assert !@node.update_attributes(:title => 'Drosophila')
       assert_equal 'You do not have the rights to edit.', @node.errors[:base]
     end
 

@@ -1,6 +1,6 @@
 <r:include template='Node'>
   <r:with part='head'>
-    <title do='title_for_layout' do='show' attr='v_title' name='page_title'>page title</title>
+    <title do='title_for_layout' do='show' attr='title' name='page_title'>page title</title>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <r:void name='stylesheets'>
       <r:stylesheets media='all' list='reset,zena,code,calendar'/>
@@ -17,8 +17,8 @@
   <r:with part='content' class='project'>
 <div id='related'>
 <ul do='pages'>
-<li do='each'><p><b do='show' attr='v_title' edit='true' publish='true'/> <r:edit/></p>
-<r:zazen attr='v_summary' edit='true' publish='true'/>
+<li do='each'><p><b do='show' attr='title' edit='true' publish='true'/> <r:edit/></p>
+<r:zazen attr='summary' edit='true' publish='true'/>
 </li>
 </ul>
 This filter updates the "distant filter block test"
@@ -95,7 +95,7 @@ This filter updates the "distant filter block test"
 <h2>assign calendar</h2>
 <r:root>
   <div do='block' id='assign_cal'>
-    <h3><b><r:show attr='v_title'/></b> calendar</h3>
+    <h3><b><r:show attr='title'/></b> calendar</h3>
     <r:calendar assign_as='reference' used='warn' split_hours='12' />
   </div>
 </r:root>
@@ -189,7 +189,7 @@ This filter updates the "distant filter block test"
 
 <ul do='tags in site'>
   <li style='border:1px solid #400; min_width:100px; min_height:100px;' do='each' do='drop' set='set_tag'>
-    <b do='[v_title]'/>
+    <b do='[title]'/>
     <ul do='context' select='tagged'><li do='each' do='unlink' do='img' mode='tiny'/></ul>
   </li>
 </ul>
@@ -197,7 +197,7 @@ This filter updates the "distant filter block test"
 <h3>drop set attributes</h3>
 
 <ul do='projects in site'>
-  <li style='border:1px solid #400; min_width:100px; min_height:100px;' do='each'><r:drop d_foo='I am an icon for [v_title]' icon_for_id='[id]'><b do='title' actions='all'/><r:icon where='1'><r:unlink do='img' mode='pv'/> <r:show attr='d_foo'/> </r:icon></r:drop>
+  <li style='border:1px solid #400; min_width:100px; min_height:100px;' do='each'><r:drop d_foo='I am an icon for [title]' icon_for_id='[id]'><b do='title' actions='all'/><r:icon where='1'><r:unlink do='img' mode='pv'/> <r:show attr='d_foo'/> </r:icon></r:drop>
 </li>
 </ul>
 
@@ -256,7 +256,7 @@ This filter updates the "distant filter block test"
 <div id='add_and_update' do='block'>
   <h3 do='title'/>
   <ul do='pages'>
-    <li do='each' do='[v_title]'/>
+    <li do='each' do='[title]'/>
     <li do='add' klass='Page' update='add_and_update'/>
   </ul>
 </div>
@@ -272,7 +272,7 @@ This filter updates the "distant filter block test"
     <li do='add' after='self'/>
     <li class='inline_form' do='form'>
       <form>
-        <p class='node_v_title'><input type='text' name='v_title' size='25'/></p>
+        <p class='node_title'><input type='text' name='title' size='25'/></p>
         <p class='node_klass'>  <r:select name='klass' root_class='Note' selected='Post'/></p>
         <p class='node_log_at'> <input type='date_box' name='log_at'/> </p>
         <p class='validate'>    <input type="submit" value='validate' do='void' tset_value='validate'/></p>
