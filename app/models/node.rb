@@ -226,6 +226,14 @@ class Node < ActiveRecord::Base
     }
   end
 
+  # This is an adaptation of Versions::Multi code to use our special v_ shortcut
+  # to access version attributes.
+  def validate_version
+    unless version.valid?
+      merge_multi_errors('v', version)
+    end
+  end
+
   include Zena::Use::Relations::ModelMethods
 
   include Zena::Use::QueryNode::ModelMethods

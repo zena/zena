@@ -23,10 +23,11 @@ class Version < ActiveRecord::Base
   belongs_to :user
   belongs_to :node
 
-  attr_protected :node_id, :site_id, :content_id
+  attr_protected :node_id, :site_id, :attachment_id, :user_id
 
   before_validation_on_create :set_defaults
   before_create :set_site_id
+  validate :valid_version
 
   def cloned
     # set number
@@ -46,11 +47,14 @@ class Version < ActiveRecord::Base
     end
 
     def set_defaults
-      self[:title] ||= node.name
-
       # set author
       self[:user_id] = visitor.id
       self[:lang]    = visitor.lang unless lang_changed?
       self[:site_id] = current_site.id
+    end
+
+    def valid_version
+      errors.add('lang', 'invalid') unless visitor.site.lang_list.include?(self[:lang])
+      errors.add('node', "can't be blank") unless self[:node_id] || @node
     end
 end

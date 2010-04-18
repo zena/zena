@@ -1,114 +1,135 @@
 require 'test_helper'
 class VersionTest < Zena::Unit::TestCase
+  context 'With a logged in visitor' do
+    setup do
+      login(:tiger)
+    end
+
+    context 'a version' do
+      subject do
+        versions(:status_en)
+      end
+
+      context 'on author' do
+        should 'return a Contact' do
+          assert_kind_of Contact, subject.author
+        end
+
+        should 'return the contact node of the author' do
+          assert_equal nodes_id(:ant), subject.author[:id]
+        end
+      end # on author
+    end # a version
+
+
+    context 'a redaction' do
+      subject do
+        versions(:opening_red_fr)
+      end
+    end # a redaction
+
+    context 'setting v_lang' do
+      context 'on node creation' do
+        setup do
+          @node = secure!(Page) { Page.create(:v_lang => 'io', :parent_id => nodes_id(:status), :name => 'hello', :title => '')}
+        end
+
+        should 'not create record if lang is not allowed' do
+          assert @node.new_record?
+        end
+
+        should 'return an error on v_lang' do
+          assert @node.errors[:v_lang].any?
+        end
+      end
+    end # setting v_lang
+
+    context 'updating a version' do
+      setup do
+        @node = secure!(Node) { nodes(:status) }
+      end
+
+      subject do
+        @node.version
+      end
+
+      should 'not allow setting node_id' do
+        subject.update_attributes(:node_id => nodes_id(:lake))
+        assert_equal nodes_id(:status), subject.node_id
+      end
+
+      should 'not allow setting attachment_id' do
+        subject.update_attributes(:attachment_id => attachments_id(:bird_jpg_en))
+        assert_nil subject.attachment_id
+      end
+
+      should 'not allow setting site_id' do
+        subject.update_attributes(:site_id => sites_id(:ocean))
+        assert_equal sites_id(:zena), subject.site_id
+      end
+
+      should 'not allow setting number' do
+        subject.update_attributes(:number => 5)
+        assert_equal 1, subject.number
+      end
+    end # updating a version
+
+    context 'updating a node' do
+      subject do
+        secure!(Node) { nodes(:tiger) }
+      end
+
+      should 'increase version number' do
+        assert_difference('subject.version.number', 1) do
+          subject.update_attributes(:name => 'John')
+        end
+      end
+
+      should 'create a new version' do
+        assert_difference('Version.count', 1) do
+          subject.update_attributes(:first_name => 'Foobar')
+        end
+      end
+    end # updating a node
+  end # With a logged in visitor
+
+  context 'A new version' do
+    should 'not allow setting node_id' do
+      version = Version.new(:node_id => 1234)
+      assert_nil version.node_id
+    end
+
+    should 'not allow setting attachment_id' do
+      version = Version.new(:attachment_id => attachments_id(:bird_jpg_en))
+      assert_nil version.attachment_id
+    end
+
+    should 'not allow setting site_id' do
+      version = Version.new(:site_id => sites_id(:ocean))
+      assert_nil version.site_id
+    end
+
+    should 'not allow setting number' do
+      version = Version.new(:number => 5)
+      assert_equal 1, version.number
+    end
+
+    should 'set site_id on save' do
+      version = Version.new(:status => Zena::Status[:red])
+      version.node = secure!(Node) { nodes(:status) }
+      assert version.save
+      assert_equal sites_id(:zena), version.site_id
+    end
+
+    should 'not save if node is not set' do
+      version = Version.new(:status => Zena::Status[:red])
+      assert !version.save
+      assert_equal "can't be blank", version.errors[:node]
+    end
+  end # A new version
 
   def version(sym)
     secure!(Node) { nodes(sym) }.version
-  end
-
-  def test_author
-    login(:tiger)
-    v = versions(:opening_red_fr)
-    assert_equal nodes_id(:tiger), v.author[:id]
-  end
-
-  def test_cannot_set_node_id
-    login(:tiger)
-    node = Node.new(:v_node_id => 1234)
-    assert_nil node.version.node_id
-  end
-
-  def test_cannot_set_node_id_with_attributes
-    login(:tiger)
-    node = secure!(Node) { nodes(:status) }
-    original_node_id = node.version.node_id
-    node.update_attributes(:v_node_id => nodes_id(:lake) )
-  end
-
-  def test_cannot_set_site_id_with_old_record
-    login(:tiger)
-    node = secure!(Node) { nodes(:status) }
-    original_site_id = node.site_id
-    node.update_attributes(:v_site_id => 1234)
-    assert_equal original_site_id, node.site_id
-  end
-
-  def test_cannot_set_site_id_by_attribute
-    login(:tiger)
-    node = secure!(Node) { nodes(:status) }
-    original_site_id = node.site_id
-    node.update_attributes(:v_site_id=>sites_id(:ocean))
-    assert_equal original_site_id, node.site_id
-  end
-
-  def test_cannot_set_node_id_on_create
-    login(:tiger)
-    node = Node.create(:v_node_id=>nodes_id(:lake))
-    assert_nil node.version.node_id
-  end
-
-  def test_cannot_set_content_id
-    login(:tiger)
-    node = Node.new(:v_content_id => nodes_id(:lake))
-    assert_nil node.version.content_id
-  end
-
-  def test_cannot_set_content_id_by_attribute
-    login(:tiger)
-    node = secure!(Node) { nodes(:status) }
-    node.update_attributes(:v_content_id=>nodes_id(:lake))
-    assert_nil node.version.content_id
-  end
-
-  def test_cannot_set_content_id_on_create
-    login(:tiger)
-    node = Node.create(:v_content_id=>nodes_id(:lake))
-    assert_nil node.version.content_id
-  end
-
-  def test_new_site_id_set
-    login(:ant)
-    node = secure!(Node) { Node.create(:title=>'super', :parent_id=>nodes_id(:wiki)) }
-    assert !node.new_record?, "Not a new record"
-    assert_equal sites_id(:zena), node.version.site_id
-  end
-
-  def test_version_number_edit_by_attribute
-    login(:tiger)
-    node = secure!(Node) { nodes(:tiger) }
-    version = node.version
-    assert_equal 1, version.number
-    # edit
-    node.attributes = {:title => 'new title'}
-    version = node.version
-    #assert version.new_record?
-    assert_equal 1, version.number # same as original
-    # save
-    assert node.save, "Node can be saved"
-    # version number changed
-    version = node.version
-    assert_equal 2, version.number
-  end
-
-  def test_version_number_edit
-    login(:tiger)
-    node = secure!(Node) { nodes(:tiger) }
-    version = node.version
-    assert_equal 1, version.number
-    # can edit
-    assert node.update_attributes(:title=>'new title')
-    # saved
-    # version number changed
-    version = node.version
-    assert_equal 2, version.number
-  end
-
-  def test_presence_of_node
-    login(:tiger)
-    node = secure!(Node) { Node.new(:parent_id=>nodes_id(:zena), :name=>'bob') }
-    assert !node.save
-    vers = Version.new
-    assert !vers.save
-    assert_equal "can't be blank", vers.errors[:node_id]
   end
 
   def test_update_content_one_version
@@ -251,12 +272,6 @@ class VersionTest < Zena::Unit::TestCase
     assert v.edited?
   end
 
-  def test_bad_lang
-    login(:tiger)
-    node = secure!(Page) { Page.create(:v_lang => 'io', :parent_id => nodes_id(:status), :name => 'hello', :title => '')}
-    assert node.new_record?
-    assert node.errors[:version_lang].any?
-  end
 
   def test_set_v_lang
     login(:tiger)

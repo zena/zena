@@ -295,7 +295,6 @@ class VersionOff < ActiveRecord::Base
 
     # Make sure the version and it's related content are in a correct state.
     def valid_version
-      errors.add('lang', 'invalid') unless visitor.site.lang_list.include?(self[:lang])
       errors.add('node', "can't be blank") unless node
 
       # validate content
