@@ -174,9 +174,9 @@ END:VCALENDAR
 
       assert zafu = nodes['Node']
       assert_kind_of Template, zafu
-      assert_equal 'html', zafu.version.content.format
-      assert_equal 'Node', zafu.version.content.klass
-      assert_equal 'N', zafu.version.content.tkpath
+      assert_equal 'html', zafu.format
+      assert_equal 'Node', zafu.klass
+      assert_equal 'N', zafu.tkpath
       assert style = nodes['style']
       assert_kind_of TextDocument, style
       assert navBar = nodes['navBar']
@@ -296,10 +296,10 @@ END:VCALENDAR
       img = secure!(Node) { nodes(:bird_jpg) }
       assert_equal Zena::Status[:pub], img.version.status
       pub_version_id = img.version.id
-      pub_content_id = img.version.content.id
-      assert_equal 660, img.version.content.width
-      assert_equal 600, img.version.content.height
-      assert_equal 56243, img.version.content.size
+      pub_content_id = img.id
+      assert_equal 660, img.width
+      assert_equal 600, img.height
+      assert_equal 56243, img.size
 
       put 'update', :edit => 'popup', :node => {:c_crop=>{:x=>'500',:y=>30,:w=>'200',:h=>80}}, :id => nodes_zip(:bird_jpg)
       assert_redirected_to edit_node_version_path(:node_id => nodes_zip(:bird_jpg), :id => 0)
@@ -307,10 +307,10 @@ END:VCALENDAR
       err img
       img = secure!(Node) { nodes(:bird_jpg) }
       assert_not_equal pub_version_id, img.version.id
-      assert_not_equal pub_content_id, img.version.content.id
-      assert_equal 2010,   img.version.content.size
-      assert_equal 160,  img.version.content.width
-      assert_equal 80, img.version.content.height
+      assert_not_equal pub_content_id, img.id
+      assert_equal 2010,   img.size
+      assert_equal 160,  img.width
+      assert_equal 80, img.height
     end
   end
 
@@ -328,9 +328,9 @@ END:VCALENDAR
           post 'create', 'attachment_url' => 'http://zenadmin.org/fr/blog/image5.jpg', 'node' => {'parent_id' => nodes_zip(:zena)}
         end
         document = assigns(:node)
-        assert_equal 73633, document.version.content.size
-        assert_equal 298, document.version.content.width
-        assert_equal 243, document.version.content.height
+        assert_equal 73633, document.size
+        assert_equal 298, document.width
+        assert_equal 243, document.height
       end
     end
   end

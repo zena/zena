@@ -8,8 +8,8 @@
   <div class='img_left'><%= link_to_remote(img_tag(@node,:mode=>'pv'), :url => crop_form_document_path(@node[:zip]), :method => :get) %></div>
   <ul class='infos'>
     <li><%= link_to_remote(_("crop/resize"), :url => crop_form_document_path(@node[:zip]), :method => :get) %></li>
-    <li><%= _('original') %> <%= @node.version.content.width %>px / <%= @node.version.content.height %>px</li>
-    <li><%= _('size') %> <%= fsize(@node.version.content.size) %></li>
+    <li><%= _('original') %> <%= @node.width %>px / <%= @node.height %>px</li>
+    <li><%= _('size') %> <%= fsize(@node.size) %></li>
   </ul>
 </div>
 

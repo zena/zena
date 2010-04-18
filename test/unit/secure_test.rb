@@ -926,4 +926,17 @@ class SecureTest < Zena::Unit::TestCase
     end
   end # A visitor with reader status
 
+  context 'Outside of an IRB session' do
+    should 'not define login method' do
+      assert_raise(NoMethodError) do
+        Object.new.send(:login, 'lion')
+      end
+    end
+    
+    should 'not define secure method' do
+      assert_raise(NoMethodError) do
+        Object.new.send(:secure, Node)
+      end
+    end
+  end
 end

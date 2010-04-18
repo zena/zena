@@ -949,7 +949,7 @@ done: \"I am done\""
     assert_kind_of Section, photos
     bird = secure!(Node) { Node.find_by_parent_id_and_name(photos[:id], 'bird') }
     assert_kind_of Image, bird
-    assert_equal 56183, bird.version.content.size
+    assert_equal 56183, bird.size
     assert_equal 'Lucy in the sky', bird.version.title
     visitor.lang = 'fr'
     bird = secure!(Node) { Node.find_by_parent_id_and_name(photos[:id], 'bird') }

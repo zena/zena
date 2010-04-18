@@ -6,7 +6,7 @@ class ContactVersionTest < Zena::Unit::TestCase
     login(:tiger)
     node = secure!(Node) { nodes(:tiger) }
     node.build_redaction
-    node.version.content.first_name = 'King'
+    node.first_name = 'King'
     node.version.title = ''
     assert node.save
     assert_equal "tiger", node.name
@@ -18,8 +18,8 @@ class ContactVersionTest < Zena::Unit::TestCase
     assert node = secure!(Contact) { Contact.create(:title=>"Roger Rabbit", :parent_id => nodes_id(:people)) }
     assert !node.new_record?
     assert_equal "RogerRabbit", node.name
-    assert_equal "Roger", node.version.content.first_name
-    assert_equal "Rabbit", node.version.content.name
+    assert_equal "Roger", node.first_name
+    assert_equal "Rabbit", node.name
     assert_equal "Roger Rabbit", node.version.title
     assert_equal "Roger Rabbit", node.fullname
   end

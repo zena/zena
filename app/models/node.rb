@@ -215,7 +215,7 @@ class Node < ActiveRecord::Base
 
   # The following methods are used in forms and affect the version.
   VERSION_ATTRIBUTES.each do |attribute|
-    class_eval %Q{
+    eval %Q{
       def v_#{attribute}
         version.#{attribute}
       end
@@ -1296,7 +1296,7 @@ class Node < ActiveRecord::Base
     end
 
     if kind_of?(Document)
-      data = kind_of?(TextDocument) ? StringIO.new(version.text) : version.content.file
+      data = kind_of?(TextDocument) ? StringIO.new(text) : file
       File.open(File.join(path, filename), 'wb') { |f| f.syswrite(data.read) }
     end
 

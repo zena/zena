@@ -117,17 +117,17 @@ class VersionTest < Zena::Unit::TestCase
       visitor.lang = 'en'
       node = secure!(Node) { nodes(:forest_pdf) }
       assert_equal Zena::Status[:red], node.version.status
-      assert_equal versions_id(:forest_pdf_en), node.version.content.version_id
-      assert_equal 63569, node.version.content.size
+      assert_equal versions_id(:forest_pdf_en), node.version_id
+      assert_equal 63569, node.size
       # single redaction in redit time
       node.version.created_at = Time.now
       assert node.update_attributes(:file=>uploaded_pdf('water.pdf')), 'Can edit node'
       # version and content object are the same
-      assert_equal versions_id(:forest_pdf_en), node.version.content.version_id
+      assert_equal versions_id(:forest_pdf_en), node.version_id
       # content changed
-      assert_equal 29279, node.version.content.size
-      assert_kind_of File, node.version.content.file
-      assert_equal 29279, node.version.content.file.stat.size
+      assert_equal 29279, node.size
+      assert_kind_of File, node.file
+      assert_equal 29279, node.file.stat.size
     end
   end
 
@@ -139,7 +139,7 @@ class VersionTest < Zena::Unit::TestCase
       old_vers_id = node.version.id
       # ant's english redaction
       assert_equal 'en', node.version.lang
-      content_id_before_move = node.version.content.id
+      content_id_before_move = node.id
 
       # 1. Create a new version in french
       assert node.update_attributes(:title=>'les arbres')
@@ -164,7 +164,7 @@ class VersionTest < Zena::Unit::TestCase
       node.version.created_at = Time.now # force redit time
       assert node.update_attributes(:file=>uploaded_pdf('water.pdf'))
       assert_nil node.version.content_id # we have our own content
-      assert_equal node.version.id, node.version.content.version_id
+      assert_equal node.version.id, node.version_id
       # this is still the original (english) version
       assert_equal old_vers_id, node.version.id
 
@@ -173,9 +173,9 @@ class VersionTest < Zena::Unit::TestCase
       node = secure!(Node) { nodes(:forest_pdf) }
 
       # 4. The content has become our own
-      assert_equal content_id_before_move, node.version.content.id
+      assert_equal content_id_before_move, node.id
       assert_nil node.version.content_id
-      assert_equal node.version.id, node.version.content.version_id
+      assert_equal node.version.id, node.version_id
     end
   end
 

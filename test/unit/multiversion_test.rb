@@ -305,7 +305,7 @@ class IntegratedMultiVersionTest < Zena::Unit::TestCase
           assert node.update_attributes(:title => 'Mea Lua', :c_country => 'Brazil')
           node = secure!(Node) { nodes(:lake) } # reload
           assert_equal 'Mea Lua', node.version.title
-          assert_equal 'Brazil', node.version.content.country
+          assert_equal 'Brazil', node.country
         end
       end
 

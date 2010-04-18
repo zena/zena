@@ -325,4 +325,31 @@ def visitor
   Thread.current[:visitor] || Zena::RecordNotSecured.new("Visitor not set, record not secured.")
 end
 
+if defined?(IRB)
+  puts "IRB console: including Zena::Acts::Secure in main"
+  class << self
+    include Zena::Acts::Secure
 
+    def login(name, host = nil)
+      finder = {}
+      finder[:conditions] = cond = [[]]
+      if host
+        cond[:joins] = 'INNER JOIN sites ON sites.id = users.site_id'
+        cond.first << 'sites.host = ?'
+        cond << host
+      end
+
+      cond.first << 'users.login = ?'
+      cond << name.to_s
+      cond[0] = cond.first.join(' AND ')
+      if visitor = User.find(:first, finder)
+        Thread.current[:visitor] = visitor
+        puts "Logged #{visitor.fullname.inspect} (#{visitor.login}) in #{visitor.site.host}"
+      else
+        raise ActiveRecord::RecordNotFound
+      end
+    rescue ActiveRecord::RecordNotFound
+      puts "Could not login with user name: #{name}"
+    end
+  end
+end

@@ -121,11 +121,11 @@ class IformatTest < Zena::Unit::TestCase
     login(:lion)
     bird = secure(Node) { nodes(:bird_jpg) }
     assert bird.file(Iformat['med']) # force creation of bird_med.jpg
-    assert File.exist?(bird.version.content.filepath(Iformat['med']))
+    assert File.exist?(bird.filepath(Iformat['med']))
     # Update format
     assert Iformat.update(iformats_id(:med), :width => 350)
-    assert !File.exist?(bird.version.content.filepath(Iformat['med'])), "Calculated image removed"
-    assert File.exist?(bird.version.content.filepath), "Original not removed"
+    assert !File.exist?(bird.filepath(Iformat['med'])), "Calculated image removed"
+    assert File.exist?(bird.filepath), "Original not removed"
   end
 
   def test_create_first
