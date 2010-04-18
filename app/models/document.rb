@@ -111,7 +111,7 @@ class Document < Node
   def file=(new_file)
     if version_file = super(new_file)
       prop['content_type'] ||= version_file.content_type
-      prop['size'] = version.file.size
+      prop['size'] = new_file.kind_of?(StringIO) ? new_file.size : File.stat(new_file.path).size
       prop['ext'] = set_extension(new_file)
       self.set_name_and_title(version_file)
       version_file

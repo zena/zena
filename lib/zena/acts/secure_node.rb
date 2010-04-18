@@ -350,7 +350,7 @@ module Zena
         # FIXME: make a single pass for spread_inheritance and update section_id and project_id ?
         # FIXME: should also remove cached pages...
         def spread_inheritance(i = self[:id])
-          base_class.connection.execute "UPDATE nodes SET rgroup_id='#{rgroup_id}', wgroup_id='#{wgroup_id}', dgroup_id='#{dgroup_id}', skin='#{skin}' WHERE #{ref_field(false)}='#{i}' AND inherit='1'"
+          base_class.connection.execute "UPDATE nodes SET rgroup_id='#{rgroup_id}', wgroup_id='#{wgroup_id}', dgroup_id='#{dgroup_id}', skin_id='#{skin_id}' WHERE #{ref_field(false)}='#{i}' AND inherit='1'"
           ids = nil
           # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
           base_class.send(:with_exclusive_scope) do
