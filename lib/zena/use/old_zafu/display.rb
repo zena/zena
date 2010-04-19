@@ -433,9 +433,9 @@ module Zafu
         by = expand_with(:trans => true)
       end
       unless skin = @params[:skin]
-        skin = helper.instance_variable_get(:@controller).instance_variable_get(:@skin_name)
+        skin = helper.instance_variable_get(:@controller).instance_variable_get(:@skin)
       end
-      skin = "<i>#{skin}</i>" unless skin.blank?
+      skin = "<i>#{skin.title}</i>" unless skin.blank?
       _("%{skin}, design by %{name}") % {:name => by, :skin => skin}
     end
 

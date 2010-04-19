@@ -63,26 +63,19 @@ class Template < TextDocument
     "#{name}.zafu"
   end
 
-  def skin_name
-    prop['skin_name'] ||= self.section.name
+  def skin
+    @skin ||= secure(Skin) { Skin.find(prop['skin_id']) }
   end
 
   private
 
     def set_defaults
-      # only set name from version title on creation
-      if name_changed?
-        new_name = self.name
-      elsif version.title_changed?
-        new_name = version.title
-      else
-        new_name = nil
-      end
+      super
 
-      if new_name && !new_name.blank?
-        if new_name =~ /^([A-Z][a-zA-Z]+?)(-(([a-zA-Z_\+]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/
+      if name_changed?
+        if name =~ /^([A-Z][a-zA-Z]+?)(-(([a-zA-Z_\+]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/
           # name/title changed force  update
-          prop['target_klass']  = $1                   unless prop.target_klass_changed?
+          prop['target_klass']  = $1            unless prop.target_klass_changed?
           prop['mode']   = ($4 || '').url_name  unless prop.mode_changed?
           prop['format'] = ($6 || 'html')       unless prop.format_changed?
         else
@@ -90,9 +83,6 @@ class Template < TextDocument
           prop['target_klass']  = nil
           prop['mode']   = nil
           prop['format'] = nil
-          if new_name =~ /(.*)\.zafu$/
-            self.name = $1
-          end
         end
       end
 
@@ -138,8 +128,6 @@ END_TXT
           end
         end
       end
-
-      super
     end
 
     def name_from_content(opts={})
@@ -152,8 +140,7 @@ END_TXT
     end
 
     def validate_section
-      @need_skin_name_update = !new_record? && section_id_changed?
-      errors.add('parent_id', 'Invalid parent (section is not a Skin)') unless section.kind_of?(Skin)
+      errors.add('parent_id', 'invalid (section is not a Skin)') unless section.kind_of?(Skin)
     end
 
     def validate_target_klass
@@ -169,7 +156,6 @@ END_TXT
     end
 
     def template_content_before_validation
-      prop['skin_name'] = self.section.name
       prop['mode']  = nil if prop['mode' ].blank?
       prop['target_klass'] = nil if prop['target_klass'].blank?
       unless prop['target_klass']

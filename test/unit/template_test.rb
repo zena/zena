@@ -1,97 +1,278 @@
 require 'test_helper'
 
 class TemplateTest < Zena::Unit::TestCase
-  
-  context 'Creating a template' do
+
+  def self.should_set_target_class_mode_and_format
+    should 'create a Template' do
+      assert !subject.new_record?
+      assert_kind_of Template, subject
+    end
+
+    should 'extract mode' do
+      assert_equal 'collab', subject.mode
+    end
+
+    should 'extract format' do
+      assert_equal 'xml', subject.format
+    end
+
+    should 'extract target_klass' do
+      assert_equal 'NPP', subject.tkpath
+      assert_equal 'Project', subject.target_klass
+    end
+
+    should 'remove extension from name' do
+      assert_equal 'Project-collab-xml', subject.name
+    end
+  end
+
+  context 'A visitor with drive access' do
     setup do
-      login(:tiger)
+      login(:lion)
     end
-    
-    should 'create a new node' do
-      assert_difference('Node.count', 1) do
-        secure(Template) { Template.create(:parent_id => nodes_id(:default), :name => 'Project.zafu') }
+
+    context 'on a template with a removed version' do
+      setup do
+        @node = secure(Node) { nodes(:Project_zafu) }
+        @node.update_attributes('text' => 'fuzy')
+        @node.remove
+      end
+
+      should 'be able to destroy version' do
+        assert_difference('Version.count', -1) do
+          assert_difference('Node.count', 0) do
+            assert @node.version.destroy
+          end
+        end
       end
     end
-    
-    should 'create a new template index entry' do
-      assert_difference('TemplateIndex.count', 1) do
-        secure(Template) { Template.create(:parent_id => nodes_id(:default), :name => 'Project.zafu') }
+
+    context 'creating a template' do
+
+      context 'with a capitalized name' do
+        subject do
+          secure(Template) { Template.create(:parent_id => nodes_id(:default), :name => 'Project.zafu') }
+        end
+
+        should 'create a new Template' do
+          assert_difference('Node.count', 1) do
+            assert_kind_of Template, subject
+          end
+        end
+
+        should 'create a new template index entry' do
+          assert_difference('TemplateIndex.count', 1) do
+            subject
+          end
+        end
+
+        should 'use name as target class' do
+          assert_equal 'Project', subject.target_klass
+        end
+
+        should 'set content_type' do
+          assert_equal 'text/zafu', subject.content_type
+        end
       end
-    end
-  end
-  
-  def test_create_simplest
-    login(:tiger)
-    doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :name=>'super.zafu')}
-    assert_kind_of Template, doc
-    assert doc.new_record?
-    assert ['Invalid parent (section is not a skin)'], doc.errors[:parent_id]
-    doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:default), :name=>'super.zafu')}
-    assert !doc.new_record?, "Not a new record"
-    assert_equal 'text/zafu', doc.content_type
-    assert_equal 'zafu', doc.ext
-  end
 
-  def test_create_empty_mode
-    login(:tiger)
-    doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:default), :name=>'super.zafu', :mode => '')}
-    assert !doc.new_record?, "Not a new record"
-    assert_equal 'text/zafu', doc.content_type
-    assert_nil doc.mode
-    assert_equal 'zafu', doc.ext
-  end
+      context 'with minimal arguments' do
+        subject do
+          secure(Document) { Document.create(:parent_id => nodes_id(:default), :name => 'foo.zafu') }
+        end
 
-  def test_create_empty_name
-    login(:tiger)
-    doc = secure!(Template) { Template.create(:parent_id => nodes_id(:default), :target_klass=>'Section') }
-    err doc
-    assert !doc.new_record?, "Not a new record"
-    assert_equal 'text/zafu', doc.content_type
-    assert_nil doc.mode
-    assert_equal 'zafu', doc.ext
-    assert_equal 'Section', doc.target_klass
-    assert_equal 'Section', doc.name
-    assert_equal 'html', doc.format
-    assert_equal 'NPS', doc.tkpath
-  end
+        should 'create a new Template' do
+          assert_difference('Node.count', 1) do
+            assert !subject.new_record?
+            assert_kind_of Template, subject
+          end
+        end
 
-  def test_create_with_format
-    login(:tiger)
-    doc = secure!(Template) { Template.create("name"=>"Node-tree", "format"=>"xml", "summary"=>"", "parent_id"=>nodes_id(:default))}
-    assert_kind_of Template, doc
-    assert !doc.new_record?, "Not a new record"
-    assert_equal 'Node-tree-xml', doc.name
-    assert_equal 'tree', doc.mode
-    assert_equal 'xml', doc.format
-    assert_equal 'Node', doc.target_klass
-    assert_equal 'N', doc.tkpath
-    assert_equal 'zafu', doc.ext
-  end
+        should 'not create a new template index entry' do
+          assert_difference('TemplateIndex.count', 0) do
+            subject
+          end
+        end
 
-  def test_create_with_file
-    login(:tiger)
-    doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:default), :name=>'skiny',
-      :file=>uploaded_fixture('some.txt', content_type="text/zafu", 'smoke'))}
-    assert_kind_of Template, doc
-    assert !doc.new_record?, "Not a new record"
-    assert_equal 'skiny.zafu', doc.filename
+        should 'set content_type' do
+          assert_equal 'text/zafu', subject.content_type
+        end
 
-    sub = secure!(Document) { Document.create(:parent_id=>doc[:id], :name=>'sub.html')}
-    assert_kind_of Template, sub
-    assert !sub.new_record?, "Not a new record"
-  end
+        should 'remove extension from name' do
+          assert_equal 'foo', subject.title
+          assert_equal 'foo', subject.name
+        end
+      end
 
-  def test_set_by_name
-    login(:tiger)
-    doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:default), :name=>'Project-collab-xml.zafu')}
-    assert_kind_of Template, doc
-    assert !doc.new_record?, "Saved"
-    assert_equal 'collab', doc.mode
-    assert_equal 'xml', doc.format
-    assert_equal 'NPP', doc.tkpath
-    assert_equal 'Project', doc.target_klass
-    assert_equal 'Project-collab-xml', doc.name
-  end
+      context 'with a blank mode' do
+        subject do
+          secure(Document) { Document.create(:parent_id => nodes_id(:default), :name => 'super.zafu', :mode => '') }
+        end
+
+        should 'not complain' do
+          assert !subject.new_record?
+          assert_nil subject.mode
+        end
+      end # with a blank mode
+
+      context 'with a blank name' do
+        subject do
+          secure(Template) { Template.create(:parent_id=>nodes_id(:default), :target_klass => 'Section') }
+        end
+
+        should 'use target_klass as name' do
+          assert !subject.new_record?
+          assert_equal 'Section', subject.name
+        end
+      end # with a blank name
+
+      context 'with a format' do
+        subject do
+          secure(Template) { Template.create(:parent_id=>nodes_id(:default), :name => 'Node-tree', :format => 'xml') }
+        end
+
+        should 'use format in name' do
+          assert !subject.new_record?
+          assert_equal 'Node-tree-xml', subject.name
+        end
+      end # with a blank name
+
+      context 'with class format and mode in title' do
+        subject do
+          secure!(Document) { Document.create(:parent_id => nodes_id(:default), :title => 'Project-collab-xml.zafu')}
+        end # with class format and mode in title
+
+        should_set_target_class_mode_and_format
+      end
+
+      context 'with class format and mode in name' do
+        subject do
+          secure!(Document) { Document.create(:parent_id => nodes_id(:default), :name => 'Project-collab-xml.zafu')}
+        end
+
+        should_set_target_class_mode_and_format
+      end # with class format and mode in name
+
+      context 'with a file' do
+        subject do
+          secure!(Document) { Document.create(
+            :parent_id => nodes_id(:default),
+            :title     => 'skiny',
+            :file      => uploaded_fixture('some.txt', 'text/zafu', 'smoke'))}
+        end
+
+        should 'build a template from content_type' do
+          assert !subject.new_record?
+          assert_kind_of Template, subject
+        end
+
+        should 'use title for name' do
+          assert_equal 'skiny', subject.name
+        end
+      end # with a file
+
+      context 'with an html extension' do
+        subject do
+          secure!(Document) { Document.create(:parent_id => nodes_id(:default), :name => 'sub.html')}
+        end
+
+        should 'create a Template' do
+          assert !subject.new_record?
+          assert_kind_of Template, subject
+        end
+      end # with an html extension
+
+      context 'not in a Skin section' do
+        subject do
+          secure!(Document) { Document.create(:parent_id => nodes_id(:cleanWater), :name => 'super.zafu')}
+        end
+
+        should 'return an error on parent' do
+          assert subject.new_record?
+          assert_equal 'invalid (section is not a Skin)', subject.errors[:parent_id]
+        end
+      end # not in a Skin section
+    end # creating a template
+
+    context 'updating a template' do
+      context 'without mode format or target_klass' do
+        subject do
+          secure(Node) { nodes(:notes_zafu) }
+        end
+
+        should 'not alter type with blank format, mode or target_klass' do
+          assert subject.update_attributes('text' => 'hello', 'target_klass' => '', 'format' => '', 'mode' => '')
+          assert_nil subject.format
+          assert_nil subject.mode
+          assert_nil subject.target_klass
+          assert_equal 'hello', subject.text
+        end
+      end # without mode format or target_klass
+
+      context 'with target_klass' do
+        subject do
+          secure(Node) { nodes(:Project_zafu) }
+        end
+
+        should 'destroy index if target_klass is removed' do
+          assert_difference('TemplateIndex.count', -1) do
+            assert subject.update_attributes(:target_klass => '')
+          end
+        end
+      end # with target_klass
+
+      context 'by moving it' do
+        subject do
+          secure(Node) { nodes(:Project_zafu) }
+        end
+
+        should 'return an error on parent if section is not a Skin' do
+          assert !subject.update_attributes(:parent_id => nodes_id(:collections) )
+          assert_equal 'invalid (section is not a Skin)', subject.errors[:parent_id]
+        end
+
+        should 'update index' do
+          assert subject.update_attributes(:parent_id => nodes_id(:wiki_skin) )
+          assert_equal nodes_id(:wiki_skin), TemplateIndex.find_by_node_id(subject.id).skin_id
+        end
+      end # by moving it
+
+      context 'with a file' do
+        subject do
+          secure(Node) { nodes(:Project_zafu) }
+        end
+
+        should 'use file content as text' do
+          assert subject.update_attributes(:file => uploaded_fixture('some.txt', 'text/zafu'))
+          assert_equal '21a6948e0aec6de825009d8fda44f7e4', Digest::MD5.hexdigest(uploaded_text('some.txt').read)
+          assert_equal '21a6948e0aec6de825009d8fda44f7e4', Digest::MD5.hexdigest(subject.file.read)
+          assert_equal '21a6948e0aec6de825009d8fda44f7e4', Digest::MD5.hexdigest(subject.text)
+        end
+
+        should 'not create a new version on same text' do
+          assert subject.update_attributes(:file => uploaded_fixture('some.txt', 'text/zafu'), :v_status => Zena::Status[:pub])
+          assert_difference('Version.count', 0) do
+            assert subject.update_attributes(:file => uploaded_fixture('some.txt', 'text/zafu'), :v_status => Zena::Status[:pub])
+          end
+        end
+      end # with a file
+      
+      context 'by changing text' do
+        subject do
+          secure(Node) { nodes(:Project_zafu) }
+        end
+        
+        should 'not alter index' do
+          assert subject.update_attributes('text'=>'DUMMY')
+          index = TemplateIndex.find_by_node_id(subject.id)
+          assert_equal nodes_id(:default), index.skin_id
+          assert_equal 'html', index.format
+          assert_nil index.mode
+          assert_equal 'NPP', index.tkpath
+        end
+      end
+    end # updating a template
+  end # A visitor with drive access
+
 
   def test_set_by_name_without_mode
     login(:tiger)
@@ -105,17 +286,6 @@ class TemplateTest < Zena::Unit::TestCase
     assert_equal 'Project--xml', doc.name
   end
 
-  def test_set_name_with_title
-    login(:tiger)
-    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :title=>'Project-collab-xml.zafu')}
-    assert_kind_of Template, doc
-    assert !doc.new_record?, "Saved"
-    assert_equal 'collab', doc.mode
-    assert_equal 'xml', doc.format
-    assert_equal 'NPP', doc.tkpath
-    assert_equal 'Project', doc.target_klass
-    assert_equal 'Project-collab-xml', doc.name
-  end
 
   def test_set_blank_name
     login(:tiger)
@@ -196,18 +366,6 @@ class TemplateTest < Zena::Unit::TestCase
     assert_equal 'Project', doc.target_klass
   end
 
-  def test_set_name_not_master_template
-    login(:tiger)
-    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :name=>'foobar.zafu')}
-    assert_kind_of Template, doc
-    assert !doc.new_record?, "Saved"
-    assert_nil doc.mode
-    assert_nil doc.format
-    assert_nil doc.tkpath
-    assert_nil doc.target_klass
-    assert_equal 'foobar', doc.name
-  end
-
   def test_set_target_klass
     login(:tiger)
     doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :name=>'Spider-man-xml',
@@ -259,18 +417,6 @@ class TemplateTest < Zena::Unit::TestCase
     assert_equal 'Contact--vcf', doc.name
   end
 
-  def test_update_text
-    login(:lion)
-    doc = secure!(Template) { nodes(:Project_zafu) }
-    assert doc.update_attributes('text'=>'DUMMY')
-    content = template_contents(:Project_zafu)
-    assert_equal 'default', content.skin_name
-    assert_equal 'Project', content.target_klass
-    assert_equal 'html', content.format
-    assert_nil content.mode
-    assert_equal 'NPP', content.tkpath
-  end
-
   def test_default_text
     login(:lion)
     doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'target_klass' => 'Contact', 'name' => '')}
@@ -295,96 +441,6 @@ class TemplateTest < Zena::Unit::TestCase
     assert doc.version.text.blank?
   end
 
-  def test_move_bad_parent
-    login(:lion)
-    doc = secure!(Template) { nodes(:wiki_Project_changes_xml_zafu) }
-    assert !doc.update_attributes(:parent_id => nodes_id(:collections))
-    assert_equal 'Invalid parent (section is not a Skin)', doc.errors[:parent_id]
-  end
 
-  def test_move
-    login(:lion)
-    doc = secure!(Template) { nodes(:wiki_Project_changes_xml_zafu) }
-
-    assert_equal 'wikiSkin', doc.skin_name
-    assert doc.update_attributes(:parent_id => nodes_id(:default))
-
-    doc = secure!(Template) { nodes(:wiki_Project_changes_xml_zafu) }
-    assert_equal 'default', doc.skin_name
-  end
-
-  def test_update_same_text
-    login(:tiger)
-    tmpt = secure(Template) { Template.create(:parent_id=>nodes_id(:default), 'format' => 'vcard', 'target_klass' => 'Node', 'name' => '', 'v_status' => Zena::Status[:pub], 'file' =>
-      uploaded_fixture('some.txt', 'text/zafu')) }
-    assert_kind_of Template, tmpt
-    Zena::Db.set_attribute(tmpt, :updated_at, Time.gm(2006,04,11))
-    assert_equal Zena::Status[:pub], tmpt.version.status
-
-    tmpt = secure(Node) { Node.find(tmpt[:id]) } # reload
-
-    assert_equal '21a6948e0aec6de825009d8fda44f7e4', Digest::MD5.hexdigest(uploaded_text('some.txt').read)
-    assert_equal '21a6948e0aec6de825009d8fda44f7e4', Digest::MD5.hexdigest(tmpt.file.read)
-    tmpt.file.rewind
-    assert_equal 1, tmpt.versions.count
-    assert_equal '2006-04-11 00:00', tmpt.updated_at.strftime('%Y-%m-%d %H:%M')
-    assert tmpt.update_attributes(:file => uploaded_text('some.txt'))
-    assert_equal 1, tmpt.versions.count
-    assert_equal '2006-04-11 00:00', tmpt.updated_at.strftime('%Y-%m-%d %H:%M')
-
-    tmpt = secure(Node) { Node.find(tmpt[:id]) } # reload
-    tmpt.version.backup = true
-    assert tmpt.update_attributes(:file => uploaded_text('other.txt'))
-    assert_equal 2, tmpt.versions.count
-    assert_not_equal '2006-04-11 00:00', tmpt.updated_at.strftime('%Y-%m-%d %H:%M')
-  end
-
-  context 'A visitor with drive access' do
-    setup do
-      login(:lion)
-    end
-
-    context 'on a template with a removed version' do
-      setup do
-        @node = secure(Node) { nodes(:Project_zafu) }
-        @node.update_attributes('text' => 'fuzy')
-        @node.remove
-      end
-
-      should 'be able to destroy version' do
-        assert_difference('Version.count', -1) do
-          assert_difference('Node.count', 0) do
-            assert @node.version.destroy
-          end
-        end
-      end
-    end
-
-    should 'be able to create a template with no format, mode or target_klass' do
-      assert_difference('Node.count', 1) do
-        @node = secure(Document) { Document.create(:parent_id => nodes_id(:default), :name=>'foo.zafu') }
-      end
-      content = @node
-      assert_nil content.format
-      assert_nil content.mode
-      assert_nil content.target_klass
-      assert_equal 'foo', @node.name
-      assert_equal 'foo', @node.version.title
-    end
-
-    should 'be able to update a template with blank format, mode or target_klass' do
-      @node = secure(Node) { nodes(:notes_zafu) }
-      assert @node.update_attributes('text' => 'hello', 'target_klass' => '', 'format' => '', 'mode' => '')
-      @node = secure(Node) { nodes(:notes_zafu) } # reload
-      content = @node
-
-      assert_nil content.format
-      assert_nil content.mode
-      assert_nil content.target_klass
-
-      assert_equal 'hello', @node.version.text
-    end
-
-  end
 
 end

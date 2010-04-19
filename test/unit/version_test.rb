@@ -51,7 +51,7 @@ class VersionTest < Zena::Unit::TestCase
         versions(:opening_red_fr)
       end
     end # a redaction
-    
+
     context 'on node creation' do
       context 'setting an invalid v_lang' do
         setup do
@@ -66,24 +66,24 @@ class VersionTest < Zena::Unit::TestCase
           assert @node.errors[:v_lang].any?
         end
       end
-      
+
       context 'setting a valid v_lang' do
         subject do
           @node = secure!(Page) { Page.create(:v_lang => 'de', :parent_id => nodes_id(:status), :name => 'hello')}
         end
-        
+
         should 'create a single version' do
           assert_difference('Version.count', 1) do
             subject
           end
         end
-        
+
         should 'change visitor lang' do
           assert_equal 'en', visitor.lang
           subject
           assert_equal 'de', visitor.lang
         end
-        
+
         should 'set version lang' do
           assert_equal 'de', subject.version.lang
         end

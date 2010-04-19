@@ -25,7 +25,7 @@ class TextDocument < Document
 
 
   def can_parse_assets?
-    return ['text/css'].include?(version.content.content_type)
+    return ['text/css'].include?(content_type)
   end
 
   # Parse text content and replace all reference to relative urls ('img/footer.png') by their zen_path ('/en/image34.png')
@@ -87,22 +87,17 @@ class TextDocument < Document
 
   def file=(file)
     @new_file = super
-    version.text = @new_file.read
+    self.text = @new_file.read
   end
 
   def file(format=nil)
-    @loaded_file ||= @new_file || StringIO.new(version.text)
+    @loaded_file ||= @new_file || StringIO.new(text)
   end
 
   # Return document file size (= version's text size).
   def size(format=nil)
-    (version.text || '').size
+    (text || '').size
   end
-
-  def text=(text)
-    version.text = text if text.kind_of? String
-  end
-
 
   # Parse text and replace absolute urls ('/en/image30.jpg') by their relative value in the current skin ('img/bird.jpg')
   def unparse_assets(text, helper, key)
@@ -152,7 +147,7 @@ class TextDocument < Document
 
   # List of keys which need transformations
   def parse_keys
-    (super + (version.content.content_type == 'text/css' ? ['text'] : [])).uniq
+    (super + (content_type == 'text/css' ? ['text'] : [])).uniq
   end
 
   # Return the code language used for syntax highlighting.
@@ -181,8 +176,7 @@ class TextDocument < Document
 
     def document_before_validation
       super
-      content = version.content
-      content[:content_type] ||= 'text/plain'
-      content[:ext]  ||= 'txt'
+      self.content_type ||= 'text/plain'
+      self.ext  ||= 'txt'
     end
 end

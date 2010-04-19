@@ -65,9 +65,11 @@ class Document < Node
         content_type = attrs['content_type']
       elsif file && file.respond_to?(:content_type)
         content_type = file.content_type
-      elsif ct = attrs['content_type'] || ((attrs['version_attributes'] || {})['content_attributes'] || {})['content_type']
+      elsif ct = attrs['content_type']
         content_type = ct
       elsif attrs['name'] =~ /^.*\.(\w+)$/ && types = Zena::EXT_TO_TYPE[$1.downcase]
+        content_type = types[0]
+      elsif attrs['title'] =~ /^.*\.(\w+)$/ && types = Zena::EXT_TO_TYPE[$1.downcase]
         content_type = types[0]
       end
 
@@ -109,23 +111,12 @@ class Document < Node
 
   # Create an attachment with a file in file system. Create a new version if file is updated.
   def file=(new_file)
-    if version_file = super(new_file)
-      prop['content_type'] ||= version_file.content_type
+    if new_file = super(new_file)
+      prop['content_type'] ||= new_file.content_type
       prop['size'] = new_file.kind_of?(StringIO) ? new_file.size : new_file.stat.size
       prop['ext'] = set_extension(new_file)
-      self.set_name_and_title(version_file)
-      version_file
+      @new_file = new_file
     end
-  end
-
-  # Get version title
-  def title
-    @title ||= version.title
-  end
-
-  # Set version title name
-  def title=(t)
-    version.title = t
   end
 
   # Return the file size.
@@ -160,18 +151,30 @@ class Document < Node
   end
 
   protected
+    def set_defaults
+      set_name_from_file
 
-    def set_name_and_title(file)
-      if base = name || title || file.original_filename
+      if title.to_s =~ /\A(.*)\.#{self.ext}$/i
+        self.title = $1
+      end
+
+      if name.to_s =~ /\A(.*)\.#{self.ext}$/i
+        self.name = $1
+      end
+
+      super
+    end
+
+    def set_name_from_file
+      return unless @new_file
+      if base = name || title || @new_file.original_filename
         if base =~ /(.*)\.(\w+)$/
           self.name = $1 if new_record?
         else
           self.name = base if new_record?
         end
-        if title.to_s =~ /\A(.*)\.#{self.properties['ext']}$/i
-          self.title = $1
-        end
       end
+      @new_file = nil
     end
 
     # Make sure name is unique

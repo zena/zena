@@ -47,14 +47,15 @@ module Zena
         def should_clone?
           edited? &&
           ( @backup ||
-            (lang   != visitor.lang) ||
-            user_id != visitor.id   ||
+            user_id != visitor.id ||
+            status_changed?       ||
             Time.now > created_at + current_site[:redit_time].to_i )
         end
 
         # Returns true if the version has been edited (not just a status change)
         def edited?
-          new_record? || (changes.keys - WORKFLOW_ATTRIBUTES != [])
+          return true if new_record? || (changes.keys - WORKFLOW_ATTRIBUTES != [])
+          return true if node && node.prop.changed?
         end
 
         private

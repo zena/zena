@@ -1451,14 +1451,15 @@ class Node < ActiveRecord::Base
         end
       end
 
+      self.title ||= self.name
+      self.name  ||= self.title
+
       self[:custom_base] = false unless kind_of?(Page)
       true
     end
 
     def node_before_validation
       self[:kpath] = self.vclass.kpath
-
-      self.name ||= (self.title || '').url_name
 
       unless name.blank?
         # rebuild cached fullpath / basepath
@@ -1734,22 +1735,24 @@ class Node < ActiveRecord::Base
     end
 
     def get_unique_name_in_scope(kpath)
-      Node.send(:with_exclusive_scope) do
-        if new_record?
-          cond = ["name = ? AND parent_id = ? AND kpath LIKE ?", self[:name], self[:parent_id], kpath]
-        else
-          cond = ["name = ? AND parent_id = ? AND kpath LIKE ? AND id != ? ", self[:name], self[:parent_id], kpath, self[:id]]
-        end
-
-        if taken_name = Node.find(:first, :select => 'name', :conditions => cond, :order => "LENGTH(name) DESC")
-          if taken_name =~ /^#{self[:name]}-(\d)/
-            self[:name] = "#{self[:name]}-#{$1.to_i + 1}"
-            i = $1.to_i + 1
+      if name_changed? || parent_id_changed? || kpath_changed?
+        Node.send(:with_exclusive_scope) do
+          if new_record?
+            cond = ["name = ? AND parent_id = ? AND kpath LIKE ?", self[:name], self[:parent_id], kpath]
           else
-            self[:name] = "#{self[:name]}-1"
-            i = 1
+            cond = ["name = ? AND parent_id = ? AND kpath LIKE ? AND id != ? ", self[:name], self[:parent_id], kpath, self[:id]]
           end
-          version.title = "#{version.title}-#{i}" unless version.title.blank?
+
+          if taken_name = Node.find(:first, :select => 'name', :conditions => cond, :order => "LENGTH(name) DESC")
+            if taken_name =~ /^#{self[:name]}-(\d)/
+              self[:name] = "#{self[:name]}-#{$1.to_i + 1}"
+              i = $1.to_i + 1
+            else
+              self[:name] = "#{self[:name]}-1"
+              i = 1
+            end
+            version.title = "#{version.title}-#{i}" unless version.title.blank?
+          end
         end
       end
     end

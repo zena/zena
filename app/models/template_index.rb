@@ -7,16 +7,20 @@ class TemplateIndex < ActiveRecord::Base
   before_create :set_site_id
 
   def self.set_property_index(template, indices)
-    if template.version.status >= Zena::Status[:pub]
+    if (template.max_status || template.version.status) >= Zena::Status[:pub]
       # create or update index
-      if index = first(:conditions => ['version_id = ?', template.version.id])
-        index.update_attributes(indices)
-      else
+      if index = first(:conditions => ['node_id = ?', template.id])
+        if template.tkpath
+          index.update_attributes(indices)
+        else
+          index.destroy
+        end
+      elsif template.tkpath
         create(indices.merge(:node_id => template.id, :version_id => template.version.id))
       end
     else
       # remove index
-      delete_all(['version_id = ?', template.version.id])
+      delete_all(['node_id = ?', template.version.id])
     end
   end
 
