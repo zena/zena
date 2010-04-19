@@ -1,6 +1,9 @@
 require 'versions'
 
 class Version < ActiveRecord::Base
+  include Zena::Use::Dates::ModelMethods
+  parse_date_attribute :publish_from
+
   include RubyLess
   safe_attribute     :created_at, :updated_at, :publish_from, :status, :lang
   safe_method        :node => 'Node', :id => {:class => Number, :method => 'number'}, :number => Number

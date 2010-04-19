@@ -54,7 +54,7 @@ module Zena
 
         # Returns true if the version has been edited (not just a status change)
         def edited?
-          changes.keys - WORKFLOW_ATTRIBUTES != []
+          new_record? || (changes.keys - WORKFLOW_ATTRIBUTES != [])
         end
 
         private

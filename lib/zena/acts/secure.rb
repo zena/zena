@@ -334,9 +334,9 @@ if defined?(IRB)
       finder = {}
       finder[:conditions] = cond = [[]]
       if host
-        cond[:joins] = 'INNER JOIN sites ON sites.id = users.site_id'
+        finder[:joins] = 'INNER JOIN sites ON sites.id = users.site_id'
         cond.first << 'sites.host = ?'
-        cond << host
+        cond << host.to_s
       end
 
       cond.first << 'users.login = ?'

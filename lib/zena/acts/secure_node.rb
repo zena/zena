@@ -204,7 +204,11 @@ module Zena
         #     c. can change to 'custom' if can_drive?
         # 6. validate the rest
         def secure_on_update
-          return true unless changed?
+          if !changed_without_properties?
+            # Node hasn't been changed (only version edits)
+            return true
+          end
+
           if !can_drive_was_true?
             errors.add(:base, 'You do not have the rights to do this.') unless errors[:base]
             return false
@@ -317,7 +321,7 @@ module Zena
               true
             end
           else
-            errors.add(:base, 'You do not have the rights to do this.')
+            errors.add(:base, 'You do not have the rights to destroy.')
             false
           end
         end

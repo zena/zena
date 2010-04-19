@@ -162,6 +162,7 @@ module Zena
           chosen_lang = nil
           [
             params[:lang],
+            params[:node] ? params[:node][:v_lang] : nil,
             visitor.is_anon? ? session[:lang] : visitor.lang,
             (request.headers['HTTP_ACCEPT_LANGUAGE'] || '').split(',').sort {|a,b| (b.split(';q=')[1] || 1.0).to_f <=> (a.split(';q=')[1] || 1.0).to_f }.map {|l| l.split(';')[0].split('-')[0] },
             (visitor.is_anon? ? visitor.lang : nil), # anonymous user's lang comes last

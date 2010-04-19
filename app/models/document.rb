@@ -111,7 +111,7 @@ class Document < Node
   def file=(new_file)
     if version_file = super(new_file)
       prop['content_type'] ||= version_file.content_type
-      prop['size'] = new_file.kind_of?(StringIO) ? new_file.size : File.stat(new_file.path).size
+      prop['size'] = new_file.kind_of?(StringIO) ? new_file.size : new_file.stat.size
       prop['ext'] = set_extension(new_file)
       self.set_name_and_title(version_file)
       version_file
@@ -162,14 +162,14 @@ class Document < Node
   protected
 
     def set_name_and_title(file)
-      if base = self['name'] || version.title || file.original_filename
+      if base = name || title || file.original_filename
         if base =~ /(.*)\.(\w+)$/
-          self['name'] = $1 if new_record?
+          self.name = $1 if new_record?
         else
-          self['name'] = base if new_record?
+          self.name = base if new_record?
         end
-        if version.title.to_s =~ /\A(.*)\.#{self.properties['ext']}$/i
-          version.title = $1
+        if title.to_s =~ /\A(.*)\.#{self.properties['ext']}$/i
+          self.title = $1
         end
       end
     end

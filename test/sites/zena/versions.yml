@@ -239,7 +239,6 @@ water_pdf_en:
     content_type:    application/pdf
     ext:             pdf
     size:            29279
-  attachment:     water
 
 crocodiles_en:
   node:            crocodiles
@@ -438,7 +437,6 @@ forest_pdf_en:
     summary:       ""
     text:          ""
     content_type:  application/pdf
-    name:          forest
     ext:           pdf
     size:          63569
 

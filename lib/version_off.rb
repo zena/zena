@@ -28,8 +28,6 @@ If a we need to create a more sophisticated version class, all the required fiel
 #DocumentContent stores document type and size for #DocumentVersion. See #Document for the details on the relation between Version and Content.
 =end
 class VersionOff < ActiveRecord::Base
-  include Zena::Use::Dates::ModelMethods
-  parse_date_attribute :publish_from
 
   # readable
   include RubyLess

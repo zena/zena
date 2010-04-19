@@ -1443,7 +1443,7 @@ class Node < ActiveRecord::Base
         if name_changed? && !name.blank?
           self.title = self.name
         elsif !title.blank?
-          self.name = title.url_name
+          self[:name] = title.url_name
           if !new_record? && kind_of?(Page) && name_changed?
             # we only rebuild Page names on update
             get_unique_name_in_scope('NP%')
@@ -1519,7 +1519,7 @@ class Node < ActiveRecord::Base
 
       if @new_klass
         if !can_drive? || !self[:parent_id]
-          errors.add('klass', 'You do not have the rights to do this.')
+          errors.add('klass', 'You do not have the rights to change class.')
         else
           errors.add('klass', 'invalid') if !self.class.allowed_change_to_classes.include?(@new_klass)
         end
