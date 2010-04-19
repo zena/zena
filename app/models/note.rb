@@ -28,8 +28,6 @@ Bug::        (the class we most need!). subclass of Request.
 Milestone::  special event used when choosing a Request/Bug's parent.
 =end
 class Note < Node
-
-  before_validation :prepare_note
   class << self
 
     def select_classes
@@ -50,9 +48,9 @@ class Note < Node
 
   private
 
-  def prepare_note
+  def set_defaults
+    super
     self[:log_at]   ||= self[:event_at] || Time.now
     self[:event_at] ||= self[:log_at]
-    self.name = version.title unless self[:name]
   end
 end

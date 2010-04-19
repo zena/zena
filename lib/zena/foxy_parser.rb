@@ -151,6 +151,7 @@ module Zena
               attributes[k] = @defaults[k]
             end
           end
+
           if column_names.include?('name') && !attributes.has_key?('name')
             attributes['name'] = name
             attributes[:header_keys] << 'name'
@@ -317,6 +318,11 @@ module Zena
 
           if template = node.delete('template')
             add_template(template, name)
+          end
+
+          if !node.has_key?('node_name')
+            node['node_name'] = name
+            node[:header_keys] << 'node_name'
           end
 
           if node.keys.include?('title') || node.keys.detect {|k| k =~ /^v_/}

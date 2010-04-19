@@ -15,8 +15,8 @@ class Contact < Reference
   end
 
   safe_method :fullname => String, :initials => String
-  safe_method    :created_at => Time, :updated_at => Time, :fullname => String, :initials => String,
-                 :address => String
+  safe_method :created_at => Time, :updated_at => Time, :fullname => String, :initials => String,
+              :address => String
 
   attr_protected     :site_id
 
@@ -28,17 +28,8 @@ class Contact < Reference
     end
   end
 
-  def filter_attributes(new_attributes)
-    attributes = super
-    if self[:name].blank? && attributes['name'].blank? && (attributes['c_name'] || attributes['c_first_name'])
-      attributes.merge('name'    => (attributes['c_first_name'].to_s + ' ' + attributes['c_name'].to_s))
-    else
-      attributes
-    end
-  end
-
   def fullname(first_name = self.first_name, name = self.name)
-    (!first_name.blank? && !name.blank?) ? (first_name + " " + name) : (first_name.blank? ? name : first_name)
+    (!first_name.blank? && !name.blank?) ? (first_name + ' ' + name) : (first_name.blank? ? name : first_name)
   end
 
   def fullname_changed?
@@ -55,7 +46,12 @@ class Contact < Reference
 
   private
     def set_defaults
-      self[:name] = fullname(name, first_name) if name.blank?
+      self.title ||= fullname
+
+      if self.properties.title_was == fullname_was
+        self.title = fullname
+      end
+
       super
     end
 end

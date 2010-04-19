@@ -134,7 +134,7 @@ class VersionTest < Zena::Unit::TestCase
 
     context 'updating a node' do
       subject do
-        secure!(Node) { nodes(:tiger) }
+        secure!(Node) { nodes(:ant) }
       end
 
       should 'increase version number' do
@@ -151,13 +151,19 @@ class VersionTest < Zena::Unit::TestCase
 
       context 'in redit time' do
         setup do
-          subject.update_attributes(:first_name => 'Tigri')
+          subject.update_attributes(:first_name => 'Annette')
         end
 
         context 'in the same v_lang' do
           should 'not create a new version' do
             assert_difference('Version.count', 0) do
-              subject.update_attributes(:first_name => 'Hobbes')
+              subject.update_attributes(:first_name => 'Bug')
+            end
+          end
+
+          should 'create a new version if backup required' do
+            assert_difference('Version.count', 1) do
+              assert subject.update_attributes('first_name'=>'Eric', 'v_backup' => 'true')
             end
           end
         end
@@ -166,7 +172,7 @@ class VersionTest < Zena::Unit::TestCase
           should 'create a new redaction' do
             assert_difference('subject.versions.count', 1) do
               assert_difference('Version.count', 1) do
-                assert subject.update_attributes(:v_lang => 'fr', :title => 'Tigre')
+                assert subject.update_attributes(:v_lang => 'fr')
               end
               assert_equal 'fr', subject.v_lang
             end
@@ -215,6 +221,27 @@ class VersionTest < Zena::Unit::TestCase
     end
   end # A new version
 
+  context 'A visitor with write access on a redaction with dyn attributes' do
+    setup do
+      login(:tiger)
+      node = secure(Node) { nodes(:nature) }
+      node.update_attributes(:d_foo => 'bar')
+      @node = secure(Node) { nodes(:nature) } # reload
+    end
+
+    should 'see dyn attribute' do
+      assert_equal 'bar', @node.version.prop['foo']
+    end
+
+    should 'see be able to update dyn attribute' do
+      assert @node.version.dyn.would_edit?('foo' => 'max')
+      assert @node.update_attributes(:d_foo => 'max')
+      @node = secure(Node) { nodes(:nature) }
+      assert_equal 'max', @node.version.prop['foo']
+    end
+  end
+
+
   def test_dynamic_attributes
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
@@ -244,25 +271,5 @@ class VersionTest < Zena::Unit::TestCase
     assert_equal 'no idea', node.version.prop['whatever']
     assert_equal 'funny', node.version.prop['other']
     assert_equal version1_publish_from, node.version.publish_from
-  end
-
-  context 'A visitor with write access on a redaction with dyn attributes' do
-    setup do
-      login(:tiger)
-      node = secure(Node) { nodes(:nature) }
-      node.update_attributes(:d_foo => 'bar')
-      @node = secure(Node) { nodes(:nature) } # reload
-    end
-
-    should 'see dyn attribute' do
-      assert_equal 'bar', @node.version.prop['foo']
-    end
-
-    should 'see be able to update dyn attribute' do
-      assert @node.version.dyn.would_edit?('foo' => 'max')
-      assert @node.update_attributes(:d_foo => 'max')
-      @node = secure(Node) { nodes(:nature) }
-      assert_equal 'max', @node.version.prop['foo']
-    end
   end
 end

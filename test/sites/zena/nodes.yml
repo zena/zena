@@ -100,21 +100,21 @@ status:
 lake:
   zip:             23
   class:           Contact
-  name:            lakeAddress
+  node_name:       lakeAddress
   parent:          cleanWater
   user:            ant
 
 lake_jpg:
   zip:             24
   class:           Image
-  name:            lake
+  node_name:       lake
   parent:          cleanWater
   user:            ant
 
 water_pdf:
   zip:             25
   class:           Document
-  name:            water
+  node_name:       water
   parent:          cleanWater
 
 crocodiles:
@@ -157,14 +157,14 @@ wiki:
 bird_jpg:
   zip:             30
   class:           Image
-  name:            bird
+  node_name:       bird
   parent:          wiki
   user:            anon
 
 flower_jpg:
   zip:             31
   class:           Image
-  name:            flower
+  node_name:       flower
   parent:          wiki
   user:            anon
 
@@ -225,14 +225,14 @@ nature:
 tree_jpg:
   zip:             40
   class:           Image
-  name:            tree
+  node_name:       tree
   parent:          nature
   user:            ant
 
 forest_pdf:
   zip:             41
   class:           Document
-  name:            forest
+  node_name:       forest
   parent:          nature
   user:            ant
 
@@ -246,23 +246,23 @@ letter:
 wiki_skin:
   zip:             43
   class:           Skin
-  name:            wikiSkin
+  node_name:       wikiSkin
   # yes it's not good to have this here but changing it would mess up many tests.
   parent:          collections
 
 wiki_Project_changes_xml_zafu:
   class:           Template
-  name:            Project-changes-xml
+  node_name:       Project-changes-xml
   parent:          wiki_skin
 
 wiki_Page_changes_zafu:
   class:           Template
-  name:            Page-changes
+  node_name:       Page-changes
   parent:          wiki_skin
 
 wiki_Node_zafu:
   class:           Template
-  name:            Node
+  node_name:       Node
   parent:          wiki_skin
 
 
@@ -274,63 +274,63 @@ skins:
 
 default:
   class:           Skin
-  name:            default
+  node_name:       default
   parent:          skins
 
 Node_search_zafu:
   class:           Template
-  name:            Node-search
+  node_name:       Node-search
   parent:          default
 
 style_css:
   zip:             53
   class:           TextDocument
-  name:            style
+  node_name:       style
   parent:          default
 
 Node_zafu:
   class:           Template
-  name:            Node
+  node_name:       Node
   parent:          default
 
 Node_admin_layout_zafu:
   class:           Template
-  name:            Node-+adminLayout
+  node_name:       Node-+adminLayout
   parent:          default
 
 Node_index_zafu:
   class:           Template
-  name:            Node-+index
+  node_name:       Node-+index
   parent:          default
 
 Node_not_found_zafu:
   class:           Template
-  name:            Node-+notFound
+  node_name:       Node-+notFound
   parent:          default
 
 Node_popup_layout_zafu:
   class:           Template
-  name:            Node-+popupLayout
+  node_name:       Node-+popupLayout
   parent:          default
 
 notes_zafu:
   class:           Template
-  name:            notes
+  node_name:       notes
   parent:          default
 
 Node_test_zafu:
   class:           Template
-  name:            Node-test
+  node_name:       Node-test
   parent:          default
 
 Project_zafu:
   class:           Template
-  name:            Project
+  node_name:       Project
   parent:          default
 
 Node_login_zafu:
   class:           Template
-  name:            Node-+login
+  node_name:       Node-+login
   parent:          default
 
 translations:

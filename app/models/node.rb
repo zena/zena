@@ -73,7 +73,7 @@ Each node uses the following basic attributes:
 Base attributes:
 
 zip:: unique id (incremented in each site's scope).
-name:: used to build the node's url when 'custom_base' is set. Used for document names.
+node_name:: used to build the node's url when 'custom_base' is set.
 site_id:: site to which this node belongs to.
 parent_id:: parent node (every node except root is inserted in a unique place through this attribute).
 user_id:: owner of the node.
@@ -88,12 +88,12 @@ section_id:: reference project (cannot be overwritten even if inheritance mode i
 rgroup_id:: id of the readers group.
 wgroup_id:: id of the writers group.
 dgroup_id:: id of the publishers group.
-skin:: name of theSkin to use when rendering the pate ('theme').
+skin_id:: Skin to use when rendering the page ('theme').
 
 Attributes used internally:
 publish_from:: earliest publication date from all published versions.
 kpath:: inheritance hierarchy. For example an Image has 'NPDI' (Node, Page, Document, Image), a Letter would have 'NNTL' (Node, Note, Task. Letter). This is used to optimize sql queries.
-fullpath:: cached full path made of ancestors' names (<gdparent name>/<parent name>/<self name>).
+fullpath:: cached full path made of ancestors' node_names (<gdparent node_name>/<parent node_name>/<self node_name>).
 basepath:: cached base path (the base path is used to build the url depending on the 'custom_base' flag).
 
 === Node url
@@ -144,7 +144,7 @@ class Node < ActiveRecord::Base
   safe_attribute :created_at, :updated_at, :event_at, :log_at, :publish_from, :basepath, :inherit, :position
 
   # we use safe_method because the columns can be null, but the values are never null
-  safe_method   :name => String, :kpath => String, :user_zip => Number, :parent_zip => Number,
+  safe_method   :node_name => String, :kpath => String, :user_zip => Number, :parent_zip => Number,
                 :project_zip => Number, :section_zip => Number, :skin => String, :ref_lang => String,
                 :fullpath => String, :rootpath => String, :position => Number, :rgroup_id => Number,
                 :wgroup_id => Number, :dgroup_id => Number, :custom_base => Boolean, :klass => String,
@@ -166,7 +166,7 @@ class Node < ActiveRecord::Base
   belongs_to         :skin
   before_validation  :set_defaults
   before_validation  :node_before_validation
-  validates_presence_of :name
+  validates_presence_of :node_name
   validate           :validate_node
   before_create      :node_before_create
   before_save        :change_klass
@@ -211,7 +211,7 @@ class Node < ActiveRecord::Base
   include Zena::Use::VersionHash
 
   # List of version attributes that should be accessed as proxies 'v_lang', 'v_status', etc
-  VERSION_ATTRIBUTES = %w{status lang publish_from}
+  VERSION_ATTRIBUTES = %w{status lang publish_from backup}
 
   # The following methods are used in forms and affect the version.
   VERSION_ATTRIBUTES.each do |attribute|
@@ -381,9 +381,9 @@ class Node < ActiveRecord::Base
 
     def create_or_update_node(new_attributes)
       attributes = transform_attributes(new_attributes)
-      unless attributes['name'] && attributes['parent_id']
+      unless attributes['node_name'] && attributes['parent_id']
         node = Node.new
-        node.errors.add('name', "can't be blank") unless attributes['name']
+        node.errors.add('node_name', "can't be blank") unless attributes['node_name']
         node.errors.add('parent_id', "can't be blank") unless attributes['parent_id']
         return node
       end
@@ -397,8 +397,8 @@ class Node < ActiveRecord::Base
 
       # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
       node = klass.send(:with_exclusive_scope) do
-        klass.find(:first, :conditions => ['site_id = ? AND name = ? AND parent_id = ?',
-                                          current_site[:id], attributes['name'].url_name, attributes['parent_id']])
+        klass.find(:first, :conditions => ['site_id = ? AND node_name = ? AND parent_id = ?',
+                                          current_site[:id], attributes['node_name'].url_name, attributes['parent_id']])
       end
 
       if node
@@ -516,40 +516,40 @@ class Node < ActiveRecord::Base
 
         if File.stat(path).directory?
           type   = :folder
-          name   = filename
+          node_name  = filename
           sub_folder = path
           attrs = defaults.dup
         elsif filename =~ /^(.+?)(\.\w\w|)(\.\d+|)\.zml$/  # bird.jpg.en.zml
           # node content in yaml
-          type   = :node
-          name   = "#{$1}#{$4}"
-          lang   = $2.blank? ? nil : $2[1..-1]
+          type      = :node
+          node_name = "#{$1}#{$4}"
+          lang      = $2.blank? ? nil : $2[1..-1]
 
           # no need for base_node (this is done after all with parse_assets in the controller)
           attrs  = defaults.merge(get_attributes_from_yaml(path))
-          attrs['name']     = name
-          attrs['v_lang']   = lang || attrs['v_lang'] || visitor.lang
+          attrs['node_name'] = node_name
+          attrs['v_lang']    = lang || attrs['v_lang'] || visitor.lang
           versions << attrs
         elsif filename =~ /^((.+?)\.(.+?))(\.\w\w|)(\.\d+|)$/ # bird.jpg.en
-          type   = :document
-          name   = $1
-          attrs  = defaults.dup
-          lang   = $4.blank? ? nil : $4[1..-1]
+          type      = :document
+          node_name = $1
+          attrs     = defaults.dup
+          lang      = $4.blank? ? nil : $4[1..-1]
           attrs['v_lang'] = lang || attrs['v_lang'] || visitor.lang
           attrs['ext']  = $3
           document_path   = path
         end
 
         index += 1
-        while entries[index] =~ /^#{name}(\.\w\w|)(\.\d+|)\.zml$/ # bird.jpg.en.zml
+        while entries[index] =~ /^#{node_name}(\.\w\w|)(\.\d+|)\.zml$/ # bird.jpg.en.zml
           lang   = $1.blank? ? visitor.lang : $1[1..-1]
           path   = File.join(folder,entries[index])
 
           # we have a zml file. Create a version with this file
           # no need for base_node (this is done after all with parse_assets in the controller)
           attrs = defaults.merge(get_attributes_from_yaml(path))
-          attrs['name']     = name
-          attrs['v_lang'] ||= lang
+          attrs['node_name']   = node_name
+          attrs['v_lang']    ||= lang
           versions << attrs
 
           index += 1
@@ -558,14 +558,14 @@ class Node < ActiveRecord::Base
         if versions.empty?
           if type == :folder
             # minimal node for a folder
-            attrs['name']     = name
-            attrs['v_lang'] ||= lang
-            attrs['class']    = klass
+            attrs['node_name'] = node_name
+            attrs['v_lang']  ||= lang
+            attrs['class']     = klass
             versions << attrs
           elsif type == :document
             # minimal node for a document
-            attrs['name']     = name
-            attrs['v_lang'] ||= lang
+            attrs['node_name'] = node_name
+            attrs['v_lang']  ||= lang
             versions << attrs
           end
         end
@@ -575,14 +575,14 @@ class Node < ActiveRecord::Base
           # FIXME: same lang: remove before update current_obj.remove if current_obj.v_lang == attrs['v_lang'] && current_obj.v_status != Zena::Status[:red]
           # FIXME: current_obj.publish if attrs['v_status'].to_i == Zena::Status[:pub]
           if type == :document
-            attrs['name' ] = attrs['name'].split('.')[0..-2].join('.')
+            attrs['node_name' ] = attrs['node_name'].split('.')[0..-2].join('.')
             if document_path
               attrs['ext'] ||= document_path.split('.').last
               # file
               insert_zafu_headings = false
-              if opts[:parent_class] == 'Skin' && ['html','xhtml'].include?(attrs['ext']) && attrs['name'] == 'index'
-                attrs['ext']  = 'zafu'
-                attrs['name'] = 'Node'
+              if opts[:parent_class] == 'Skin' && ['html','xhtml'].include?(attrs['ext']) && attrs['node_name'] == 'index'
+                attrs['ext']       = 'zafu'
+                attrs['node_name'] = 'Node'
                 insert_zafu_headings = true
               end
 
@@ -1037,7 +1037,7 @@ class Node < ActiveRecord::Base
   def icon
     return nil if new_record?
     return @icon if defined? @icon
-    query = Node.build_find(:first, ['icon group by id,l_id order by l_id desc, position asc, name asc', 'image'], :node_name => 'self')
+    query = Node.build_find(:first, ['icon group by id,l_id order by l_id desc, position asc, node_name asc', 'image'], :node_name => 'self')
     sql_str, uses_node_name = query.to_s, query.uses_node_name
     @icon = sql_str ? do_find(:first, eval(sql_str), :ignore_source => !uses_node_name) : nil
   end
@@ -1068,10 +1068,10 @@ class Node < ActiveRecord::Base
     end
   end
 
-  # set name: remove all accents and camelize
-  def name=(str)
+  # set node_name: remove all accents and camelize
+  def node_name=(str)
     return unless str && str != ""
-    self[:name] = str.url_name
+    self[:node_name] = str.url_name
   end
 
   # Return current discussion id (used by query_builder)
@@ -1280,7 +1280,7 @@ class Node < ActiveRecord::Base
     begin
       FileUtils::mkpath(folder_path)
       export_to_folder(folder_path)
-      tempf = Tempfile.new(name)
+      tempf = Tempfile.new(node_name)
       `cd #{folder_path}; tar czf #{tempf.path} *`
     ensure
       FileUtils::rmtree(folder_path)
@@ -1292,13 +1292,13 @@ class Node < ActiveRecord::Base
   def export_to_folder(path)
     children = secure(Node) { Node.find(:all, :conditions=>['parent_id = ?', self[:id] ]) }
 
-    if kind_of?(Document) && version.title == name && (kind_of?(TextDocument) || version.text.blank? || version.text == "!#{zip}!")
+    if kind_of?(Document) && title == node_name && (kind_of?(TextDocument) || text.blank? || text == "!#{zip}!")
       # skip zml
       # TODO: this should better check that version content is really useless
-    elsif version.title == name && version.text.blank? && klass == 'Page' && children
+    elsif title == node_name && text.blank? && klass == 'Page' && children
       # skip zml
     else
-      File.open(File.join(path, name + '.zml'), 'wb') do |f|
+      File.open(File.join(path, node_name + '.zml'), 'wb') do |f|
         f.puts self.to_yaml
       end
     end
@@ -1309,7 +1309,7 @@ class Node < ActiveRecord::Base
     end
 
     if children
-      content_folder = File.join(path,name)
+      content_folder = File.join(path, node_name)
       FileUtils::mkpath(content_folder)
       children.each do |child|
         child.export_to_folder(content_folder)
@@ -1415,9 +1415,9 @@ class Node < ActiveRecord::Base
   private
 
     def rebuild_fullpath
-      return unless new_record? || name_changed? || parent_id_changed? || fullpath.nil?
+      return unless new_record? || node_name_changed? || parent_id_changed? || fullpath.nil?
       if parent = parent(false)
-        path = parent.fullpath.split('/') + [name]
+        path = parent.fullpath.split('/') + [node_name]
       else
         path = []
       end
@@ -1425,7 +1425,7 @@ class Node < ActiveRecord::Base
     end
 
     def rebuild_basepath
-      return unless new_record? || name_changed? || parent_id_changed? || custom_base_changed? || basepath.nil?
+      return unless new_record? || node_name_changed? || parent_id_changed? || custom_base_changed? || basepath.nil?
       if custom_base
         self[:basepath] = self.fullpath
       elsif parent = parent(false)
@@ -1436,23 +1436,23 @@ class Node < ActiveRecord::Base
     end
 
     def set_defaults
-      # sync version title and name
+      # sync version title and node_name
       if ref_lang == version.lang &&
          ((full_drive? && version.status == Zena::Status[:pub]) ||
           (can_drive?  && vhash['r'][ref_lang].nil?))
-        if name_changed? && !name.blank?
-          self.title = self.name
+        if node_name_changed? && !node_name.blank?
+          self.title = self.node_name
         elsif !title.blank?
-          self[:name] = title.url_name
-          if !new_record? && kind_of?(Page) && name_changed?
-            # we only rebuild Page names on update
-            get_unique_name_in_scope('NP%')
+          self[:node_name] = title.url_name
+          if !new_record? && kind_of?(Page) && node_name_changed?
+            # we only rebuild Page node_names on update
+            get_unique_node_name_in_scope('NP%')
           end
         end
       end
 
-      self.title ||= self.name
-      self.name  ||= self.title
+      self.title     ||= self.node_name
+      self.node_name ||= self.title
 
       self[:custom_base] = false unless kind_of?(Page)
       true
@@ -1461,7 +1461,7 @@ class Node < ActiveRecord::Base
     def node_before_validation
       self[:kpath] = self.vclass.kpath
 
-      unless name.blank?
+      unless node_name.blank?
         # rebuild cached fullpath / basepath
         rebuild_fullpath
         rebuild_basepath
@@ -1734,24 +1734,25 @@ class Node < ActiveRecord::Base
       end
     end
 
-    def get_unique_name_in_scope(kpath)
-      if name_changed? || parent_id_changed? || kpath_changed?
+    def get_unique_node_name_in_scope(kpath)
+      if node_name_changed? || parent_id_changed? || kpath_changed?
         Node.send(:with_exclusive_scope) do
           if new_record?
-            cond = ["name = ? AND parent_id = ? AND kpath LIKE ?", self[:name], self[:parent_id], kpath]
+            cond = ["node_name = ? AND parent_id = ? AND kpath LIKE ?", self[:node_name], self[:parent_id], kpath]
           else
-            cond = ["name = ? AND parent_id = ? AND kpath LIKE ? AND id != ? ", self[:name], self[:parent_id], kpath, self[:id]]
+            cond = ["node_name = ? AND parent_id = ? AND kpath LIKE ? AND id != ? ", self[:node_name], self[:parent_id], kpath, self[:id]]
           end
 
-          if taken_name = Node.find(:first, :select => 'name', :conditions => cond, :order => "LENGTH(name) DESC")
-            if taken_name =~ /^#{self[:name]}-(\d)/
-              self[:name] = "#{self[:name]}-#{$1.to_i + 1}"
+          if taken_name = Node.find(:first, :select => 'node_name', :conditions => cond, :order => "LENGTH(node_name) DESC")
+            if taken_name =~ /^#{self[:node_name]}-(\d)/
+              self[:node_name] = "#{self[:node_name]}-#{$1.to_i + 1}"
               i = $1.to_i + 1
             else
-              self[:name] = "#{self[:name]}-1"
+              self[:node_name] = "#{self[:node_name]}-1"
               i = 1
             end
-            version.title = "#{version.title}-#{i}" unless version.title.blank?
+
+            self.title = "#{title}-#{i}" unless title.blank?
           end
         end
       end

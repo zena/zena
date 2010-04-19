@@ -7,7 +7,7 @@ class ContactTest < Zena::Unit::TestCase
       login(:tiger)
     end
     subject do
-      secure!(Contact) {Contact.new('name'=>'Meyer', :parent_id => nodes_id(:zena))}
+      secure!(Contact) {Contact.new('name' => 'Meyer', :parent_id => nodes_id(:zena))}
     end
 
     should 'have a parent' do
@@ -19,15 +19,28 @@ class ContactTest < Zena::Unit::TestCase
     end
   end
 
-
-  context 'On create' do
+  context 'A logged in user' do
     setup do
       login(:tiger)
     end
 
-    context 'with a parent_id' do
+    context 'creating a contact by title' do
       subject do
-        secure!(Contact) {Contact.create('name'=>'Meyer', :parent_id => nodes_id(:zena))}
+        secure!(Contact) { Contact.create('title' => 'Eric Meyer', :parent_id => nodes_id(:zena))}
+      end
+
+      should 'extract name and first_name' do
+        assert_equal 'Meyer', subject.name
+      end
+
+      should 'extract first_name' do
+        assert_equal 'Eric', subject.first_name
+      end
+    end # creating a contact by title
+
+    context 'creating a contact' do
+      subject do
+        secure!(Contact) { Contact.create('name' => 'Meyer', :parent_id => nodes_id(:zena)) }
       end
 
       should 'save record' do
@@ -46,36 +59,108 @@ class ContactTest < Zena::Unit::TestCase
         assert !subject.changed?
         assert !subject.version.changed?
       end
-    end
 
-    should 'not save without parent_id' do
-      contact = secure!(Contact) {Contact.create('name'=>'Meyer')}
-      assert contact.new_record?
-    end
-  end
-
-  context 'On update' do
-    subject do
-      login(:tiger)
-      @contact = secure!(Contact) {Contact.create('name'=>'Meyer', :parent_id => nodes_id(:zena))}
-    end
-
-    should 'save changes' do
-      subject.attributes = {'first_name'=>'Eric'}
-      assert subject.save
-      subject.reload
-      assert_equal 'Eric', subject.first_name
-    end
-
-    should 'create a new version if backup required' do
-      subject.version.backup = true
-      assert_difference('Version.count', 1) do
-        subject.attributes = {'first_name'=>'Eric'}
-        assert subject.save
+      should 'write and read first_name like AR attributes' do
+        assert subject.prop['first_name'] = 'Eric'
+        assert_equal 'Eric', subject.prop['first_name']
+        assert_equal 'Eric', subject.first_name
       end
-      assert_equal 2, subject.versions.size
+
+      should 'write and read name like AR attributes' do
+        assert subject.prop['name'] = 'Meyer'
+        assert_equal 'Meyer', subject.prop['name']
+        assert_equal 'Meyer', subject.name
+      end
+
+      should 'build node_name from fullname' do
+        assert_equal 'EricMeyer', subject.node_name
+      end
     end
-  end
+
+    context 'creating a contact without parent_id' do
+      subject do
+        secure!(Contact) { Contact.create('name' => 'Meyer') }
+      end
+
+      should 'not save' do
+        assert subject.new_record?
+      end
+    end # creating a contact without parent_id
+  end # A logged in user
+
+  context 'A contact' do
+    subject do
+      secure(Node) { nodes(:tiger) }
+    end
+
+    context 'receiving initials' do
+      should ' first letters of the first_name and the name in capitals' do
+        assert_equal 'PTS', subject.initials
+      end
+    end # receiving initials
+  end # A contact
+
+  context 'Updating a contact' do
+    setup do
+      login(:tiger)
+    end
+
+    subject do
+      secure(Node) { nodes(:ant) }
+    end
+
+    context 'with a new name' do
+      setup do
+        assert subject.update_attributes('name' => 'Meyer')
+      end
+
+      should 'save changes' do
+        subject.reload
+        assert_equal 'Meyer', subject.name
+      end
+
+      should 'rebuild title if title was in sync' do
+        assert_equal 'Solenopsis Meyer', subject.title
+      end
+
+      context 'with a title not in sync' do
+        subject do
+          secure(Node) { nodes(:tiger) }
+        end
+
+        should 'not rebuild title' do
+          assert_equal 'Meyer', subject.name
+          assert_equal 'Tiger', subject.title
+        end
+      end
+    end
+
+    context 'with a new first_name' do
+      setup do
+        subject.update_attributes('first_name' => 'Eric')
+      end
+
+      should 'save changes' do
+        subject.reload
+        assert_equal 'Eric', subject.first_name
+      end
+
+      should 'rebuild title if title was in sync' do
+        assert_equal 'Eric Invicta', subject.title
+      end
+
+      context 'with a title not in sync' do
+        subject do
+          secure(Node) { nodes(:tiger) }
+        end
+
+        should 'not rebuild title' do
+          assert_equal 'Eric', subject.first_name
+          assert_equal 'Tiger', subject.title
+        end
+      end
+    end
+  end # Updating a contact
 
   context 'When looking for class' do
     setup   {@contact = Contact.new}
@@ -94,41 +179,6 @@ class ContactTest < Zena::Unit::TestCase
     end
   end
 
-  context 'When using Proprety' do
-    setup {@contact = Contact.new}
-    subject {@contact}
-
-    should 'write and read first_name like AR attributes' do
-      assert subject.prop['first_name'] = 'Eric'
-      assert_equal 'Eric', subject.prop['first_name']
-      assert_equal 'Eric', subject.first_name
-    end
-
-    should 'write and read name like AR attributes' do
-      assert subject.prop['name'] = 'Meyer'
-      assert_equal 'Meyer', subject.prop['name']
-      assert_equal 'Meyer', subject.name
-    end
-
-    context 'creating a contact' do
-      subject do
-        Contact.create('first_name'=>'Eric', 'name'=>'Meyer')
-      end
-
-      should 'create contact' do
-        assert !subject.new_record?
-      end
-
-      should 'set name property' do
-        assert_equal 'Meyer', subject.prop['name']
-      end
-
-      should 'build node_name from fullname' do
-        assert_equal 'MeyerEric', subject[:name]
-      end
-    end
-  end
-
   context 'When calling user' do
     should 'return the user who created the contact' do
       login(:anon)
@@ -140,78 +190,53 @@ class ContactTest < Zena::Unit::TestCase
 
   context 'With fullname' do
     should 'return first name and name if both exist' do
-      contact = Contact.new('first_name'=>'Eric', 'name'=>'Meyer')
+      contact = Contact.new('first_name' => 'Eric', 'name' => 'Meyer')
       assert_equal 'Eric Meyer', contact.fullname
     end
 
     should 'return name only if first name is null' do
-      contact = Contact.new('name'=>'Meyer')
+      contact = Contact.new('name' => 'Meyer')
       assert_equal 'Meyer', contact.fullname
     end
 
-    should 'return firs tname only if name is null' do
-      contact = Contact.new('first_name'=>'Eric')
+    should 'return first name only if name is null' do
+      contact = Contact.new('first_name' => 'Eric')
       assert_equal 'Eric', contact.fullname
     end
 
     context 'on dirty object' do
       setup do
         login(:tiger)
-        @contact = secure!(Contact) {Contact.create('name'=>'Meyer', 'first_name'=>'Eric', :parent_id => nodes_id(:zena))}
+        @contact = secure!(Contact) {Contact.create('name' => 'Meyer', 'first_name' => 'Eric', :parent_id => nodes_id(:zena))}
       end
       subject {@contact}
 
-        context 'without changes' do
-          should 'return false with fullname_changed?' do
-            assert !subject.fullname_changed?
-          end
+      context 'without changes' do
+        should 'return false with fullname_changed?' do
+          assert !subject.fullname_changed?
+        end
 
-          should 'actual fullname nil with fullname_was' do
-            assert_equal 'Eric Meyer', subject.fullname_was
-          end
-        end # without changes
+        should 'actual fullname nil with fullname_was' do
+          assert_equal 'Eric Meyer', subject.fullname_was
+        end
+      end # without changes
 
-        context 'with changes' do
-          setup do
-            subject.name='Reyer'
-            subject.first_name = 'Cire'
-          end
+      context 'with changes' do
+        setup do
+          subject.name='Reyer'
+          subject.first_name = 'Cire'
+        end
 
-          should 'return true with fullname_changed?' do
-            assert subject.fullname_changed?
-          end
+        should 'return true with fullname_changed?' do
+          assert subject.fullname_changed?
+        end
 
-          should 'return previous fullname with fullname was' do
-            assert_equal 'Eric Meyer', subject.fullname_was
-          end
-        end # with changes
+        should 'return previous fullname with fullname was' do
+          assert_equal 'Eric Meyer', subject.fullname_was
+        end
+      end # with changes
 
     end # on dirty object
   end # With fullname
 
-  context 'When calling intials' do
-    setup do
-      @contact = Contact.new('first_name'=>'Eric', 'name'=>'Meyer')
-    end
-    subject { @contact }
-
-    should 'retrun first letters of the first_name and the name in capitals' do
-      assert_equal 'EM', subject.initials
-    end
-  end
-
-  context 'When author changes' do
-    setup do
-      login(:tiger)
-      @original = secure!(Contact) {Contact.create('name'=>'Meyer', 'first_name'=>'Eric', :parent_id => nodes_id(:zena))}
-    end
-
-    should 'save a new version of contact' do
-      login(:lion)
-      contact = secure!(Contact) {Contact.find(@original)}
-      contact.first_name = 'Cire'
-      assert contact.save
-      assert_not_equal contact.version.id, @original.version.id
-    end
-  end
 end

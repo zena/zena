@@ -290,7 +290,8 @@ namespace :zena do
     ordered_tables.each do |table_name|
       # We need to clear because some tables are only built by appending entries from inline
       # definitions (attachments for example).
-      FileUtils.rm "#{RAILS_ROOT}/test/fixtures/#{table_name}.yml"
+      fixtures_file = "#{RAILS_ROOT}/test/fixtures/#{table_name}.yml"
+      FileUtils.rm fixtures_file if File.exist?(fixtures_file)
     end
 
     tables -= ordered_tables

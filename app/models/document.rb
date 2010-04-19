@@ -44,7 +44,7 @@ class Document < Node
   end
 
   safe_property :size, :content_type, :ext
-  safe_method   :filename => String, :name => String, :file => File, :filepath => String
+  safe_method   :filename => String, :file => File, :filepath => String
 
   class << self
 
@@ -67,7 +67,7 @@ class Document < Node
         content_type = file.content_type
       elsif ct = attrs['content_type']
         content_type = ct
-      elsif attrs['name'] =~ /^.*\.(\w+)$/ && types = Zena::EXT_TO_TYPE[$1.downcase]
+      elsif attrs['node_name'] =~ /^.*\.(\w+)$/ && types = Zena::EXT_TO_TYPE[$1.downcase]
         content_type = types[0]
       elsif attrs['title'] =~ /^.*\.(\w+)$/ && types = Zena::EXT_TO_TYPE[$1.downcase]
         content_type = types[0]
@@ -152,34 +152,34 @@ class Document < Node
 
   protected
     def set_defaults
-      set_name_from_file
+      set_node_name_from_file
 
       if title.to_s =~ /\A(.*)\.#{self.ext}$/i
         self.title = $1
       end
 
-      if name.to_s =~ /\A(.*)\.#{self.ext}$/i
-        self.name = $1
+      if node_name.to_s =~ /\A(.*)\.#{self.ext}$/i
+        self.node_name = $1
       end
 
       super
     end
 
-    def set_name_from_file
+    def set_node_name_from_file
       return unless @new_file
-      if base = name || title || @new_file.original_filename
+      if base = node_name || title || @new_file.original_filename
         if base =~ /(.*)\.(\w+)$/
-          self.name = $1 if new_record?
+          self.node_name = $1 if new_record?
         else
-          self.name = base if new_record?
+          self.node_name = base if new_record?
         end
       end
       @new_file = nil
     end
 
-    # Make sure name is unique
+    # Make sure node_name is unique
     def node_before_validation
-      get_unique_name_in_scope('ND%')
+      get_unique_node_name_in_scope('ND%')
       super
     end
 
