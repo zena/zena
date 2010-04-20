@@ -9,7 +9,7 @@ class AfterCommitTest < ActiveSupport::TestCase
     attr_accessor :actions
     before_save :do_action
     after_save  :raise_to_rollback
-    validates_presence_of :name
+    validates_presence_of :node_name
 
     def after_commit_actions
       @after_commit_actions ||= []
@@ -24,19 +24,19 @@ class AfterCommitTest < ActiveSupport::TestCase
       end
 
       def raise_to_rollback
-        raise ActiveRecord::Rollback if self[:name] == 'raise'
+        raise ActiveRecord::Rollback if self[:node_name] == 'raise'
       end
   end
 
   def test_after_commit_actions_should_be_executed_after_commit
-    page = Page.create(:name => 'hello')
+    page = Page.create(:node_name => 'hello')
     assert_equal ['executed'], page.after_commit_actions
   end
 
   def test_after_commit_actions_should_be_executed_after_last_transaction
     page = nil
     Page.transaction do
-      page = Page.create(:name => 'hello')
+      page = Page.create(:node_name => 'hello')
       assert_equal [], page.after_commit_actions
     end
     assert_equal ['executed'], page.after_commit_actions
@@ -49,7 +49,7 @@ class AfterCommitTest < ActiveSupport::TestCase
   end
 
   def test_after_commit_actions_should_not_be_executed_on_raise
-    page = Page.create(:name => 'raise')
+    page = Page.create(:node_name => 'raise')
     assert_equal [], page.after_commit_actions
   end
 
@@ -57,7 +57,7 @@ class AfterCommitTest < ActiveSupport::TestCase
     page = nil
     begin
       Page.transaction do
-        page = Page.create(:name => 'hello')
+        page = Page.create(:node_name => 'hello')
         assert_equal [], page.after_commit_actions
         raise 'Something went bad'
       end
@@ -69,7 +69,7 @@ class AfterCommitTest < ActiveSupport::TestCase
   def test_after_commit_actions_should_not_be_executed_when_a_rollback_is_raised
     page = nil
     Page.transaction do
-      page = Page.create(:name => 'hello')
+      page = Page.create(:node_name => 'hello')
       assert_equal [], page.after_commit_actions
       raise ActiveRecord::Rollback
     end

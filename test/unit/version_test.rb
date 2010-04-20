@@ -55,7 +55,7 @@ class VersionTest < Zena::Unit::TestCase
     context 'on node creation' do
       context 'setting an invalid v_lang' do
         setup do
-          @node = secure!(Page) { Page.create(:v_lang => 'io', :parent_id => nodes_id(:status), :name => 'hello')}
+          @node = secure!(Page) { Page.create(:v_lang => 'io', :parent_id => nodes_id(:status), :node_name => 'hello')}
         end
 
         should 'not create record if lang is not allowed' do
@@ -69,7 +69,7 @@ class VersionTest < Zena::Unit::TestCase
 
       context 'setting a valid v_lang' do
         subject do
-          @node = secure!(Page) { Page.create(:v_lang => 'de', :parent_id => nodes_id(:status), :name => 'hello')}
+          @node = secure!(Page) { Page.create(:v_lang => 'de', :parent_id => nodes_id(:status), :node_name => 'hello')}
         end
 
         should 'create a single version' do

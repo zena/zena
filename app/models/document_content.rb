@@ -22,7 +22,6 @@ class DocumentContent < ActiveRecord::Base
   attr_accessible       :content_type, :file, :ext
 
   belongs_to            :site
-  validate              :valid_file
   validate              :valid_content
   validates_presence_of :ext
   validates_presence_of :name
@@ -105,11 +104,6 @@ class DocumentContent < ActiveRecord::Base
   end
 
   private
-    def valid_file
-      return true if !new_record? || @new_file
-      errors.add('file', "can't be blank")
-      return false
-    end
 
     def content_before_validation
       if @new_file

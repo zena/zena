@@ -6,11 +6,11 @@ Definitions:
 
 Render ---> Master template --include--> helper template --include--> ...
 
-For master templates, the name is build from the different filters (target_klass, mode, format):
+For master templates, the node_name is build from the different filters (target_klass, mode, format):
 
 Klass-mode-format. Examples: Node-index, Node--xml, Project-info. Note how the format is omitted when it is 'html'.
 
-Other templates have a name built from the given name, just like any other node.
+Other templates have a node_name built from the given name, just like any other node.
 
 =end
 class Template < TextDocument
@@ -60,7 +60,7 @@ class Template < TextDocument
   end
 
   def filename
-    "#{name}.zafu"
+    "#{node_name}.zafu"
   end
 
   def skin
@@ -72,34 +72,34 @@ class Template < TextDocument
     def set_defaults
       super
 
-      if name_changed?
-        if name =~ /^([A-Z][a-zA-Z]+?)(-(([a-zA-Z_\+]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/
-          # name/title changed force  update
+      if node_name_changed?
+        if node_name =~ /^([A-Z][a-zA-Z]+?)(-(([a-zA-Z_\+]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/
+          # node_name/title changed force  update
           prop['target_klass']  = $1            unless prop.target_klass_changed?
           prop['mode']   = ($4 || '').url_name  unless prop.mode_changed?
           prop['format'] = ($6 || 'html')       unless prop.format_changed?
         else
-          # name set but it is not a master template name
+          # node_name set but it is not a master template name
           prop['target_klass']  = nil
           prop['mode']   = nil
           prop['format'] = nil
         end
       end
 
-      if version.changed? || self.properties.changed? || self.new_record?
+      if version.edited?
          prop['mode'] = prop['mode'].url_name if prop['mode']
 
         if !prop['target_klass'].blank?
-          # update name
+          # update node_name
           prop['format'] = 'html' if prop['format'].blank?
-          self[:name] = name_from_content
-          version.title = self[:name]
+          self.node_name = node_name_from_mode_and_format
+          self.title = self.node_name
 
-          if version.text.blank? && prop['format'] == 'html' && prop['mode'] != '+edit'
+          if text.blank? && prop['format'] == 'html' && prop['mode'] != '+edit'
             # set a default text
 
             if prop['target_klass'] == 'Node'
-              version.text = <<END_TXT
+              self.text = <<END_TXT
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="en" set_lang='[v_lang]' xml:lang='en'>
@@ -123,14 +123,14 @@ class Template < TextDocument
 </html>
 END_TXT
             else
-              version.text = "<r:include template='Node'/>\n"
+              self.text = "<r:include template='Node'/>\n"
             end
           end
         end
       end
     end
 
-    def name_from_content(opts={})
+    def node_name_from_mode_and_format(opts={})
       opts[:format]  ||= prop['format']
       opts[:mode  ]  ||= prop['mode']
       opts[:target_klass ]  ||= prop['target_klass']

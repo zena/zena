@@ -328,7 +328,7 @@ where_not:
 order_dyn_attr:
   context:
     node: 'cleanWater'
-  src: "<r:nodes order='d_assigned DESC, name ASC' do='each'><span do='[name]' assigned_if='d_assigned'/></r:nodes>"
+  src: "<r:nodes order='d_assigned DESC, node_name ASC' do='each'><span do='[name]' assigned_if='d_assigned'/></r:nodes>"
   res: "<span class='assigned'>status</span><span>lake</span><span>lakeAddress</span><span>opening</span><span>track</span><span>water</span>"
 
 # Bug #190 (hard to fix...)
@@ -362,27 +362,27 @@ where_with_param:
 group_by_secret_project:
   context:
     visitor: ant
-  src: "<r:pages where='name like \"t%\"' in='site' order='name ASC' do='group' by='project'><b do='project' do='[name]'/>: <r:each join=',' do='[name]'/></r:pages>"
+  src: "<r:pages where='name like \"t%\"' in='site' order='node_name ASC' do='group' by='project'><b do='project' do='[name]'/>: <r:each join=',' do='[name]'/></r:pages>"
   res: ": talk<b>cleanWater</b>: track"
 
 group_by_project:
   context:
     visitor: lion
-  src: "<r:notes in='site' order='name ASC' do='group' by='project'><b do='project' do='[name]'/>: <r:each join=',' do='[name]'/></r:notes>"
+  src: "<r:notes in='site' order='node_name ASC' do='group' by='project'><b do='project' do='[name]'/>: <r:each join=',' do='[name]'/></r:notes>"
   res: "<b>cleanWater</b>: opening<b>secret</b>: proposition<b>zena</b>: letter"
 
 group_by_project_sort_zip:
   context:
     visitor: ant
-  src: "<r:images in='site' order='name ASC' do='group' by='project' sort='zip'><b do='project' do='[name]'/>: <r:each join=',' do='[name]'/></r:images>"
+  src: "<r:images in='site' order='node_name ASC' do='group' by='project' sort='zip'><b do='project' do='[name]'/>: <r:each join=',' do='[name]'/></r:images>"
   res: "<b>zena</b>: tree<b>cleanWater</b>: lake<b>wiki</b>: bird,flower"
 
 group_by_parent_sort:
-  src: "<r:images in='site' order='name ASC' do='group' by='parent'><b do='parent' do='[name]'/>: <r:each join=',' do='[name]'/></r:images>"
+  src: "<r:images in='site' order='node_name ASC' do='group' by='parent'><b do='parent' do='[name]'/>: <r:each join=',' do='[name]'/></r:images>"
   res: "<b>cleanWater</b>: lake<b>wiki</b>: bird,flower"
 
 nodes_in_site_group_by_year:
-  src: "<r:nodes in='site' group='log_at:year' order='log_at:year asc, name asc' do='each' join=', '><r:show date='log_at' format='%Y'/></r:nodes>"
+  src: "<r:nodes in='site' group='log_at:year' order='log_at:year asc, node_name ASC' do='each' join=', '><r:show date='log_at' format='%Y'/></r:nodes>"
   res: ", 2006, 2007"
 
 comments_order_desc:

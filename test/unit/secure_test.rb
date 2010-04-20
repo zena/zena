@@ -787,7 +787,7 @@ class SecureTest < Zena::Unit::TestCase
 
   context 'Using clean_options to prepare queries' do
     should 'remove anything that might disturb ActiveRecord' do
-      assert_equal Hash[:conditions => ['id = ?', 3], :order => 'name ASC'], Node.clean_options(:conditions => ['id = ?', 3], :funky => 'bad', :order => 'name ASC', :from => 'users')
+      assert_equal Hash[:conditions => ['id = ?', 3], :order => 'node_name ASC'], Node.clean_options(:conditions => ['id = ?', 3], :funky => 'bad', :order => 'node_name ASC', :from => 'users')
     end
   end # Using clean_options to prepare queries
 

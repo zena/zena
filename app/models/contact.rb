@@ -46,9 +46,22 @@ class Contact < Reference
 
   private
     def set_defaults
-      self.title ||= fullname
 
-      if self.properties.title_was == fullname_was
+      if title.blank?
+        self.title = fullname
+      elsif fullname.blank?
+        if title =~ /^(\S+)\s+(.*)$/
+          self.first_name = $1
+          self.name       = $2
+        else
+          self.name = title
+        end
+      end
+
+      if properties.title_changed? && fullname_changed?
+        # Ignore if both title and fullname changed
+      elsif fullname_changed? && title == fullname_was
+        # Fullname changed and title was in sync
         self.title = fullname
       end
 

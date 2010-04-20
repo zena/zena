@@ -4,7 +4,7 @@ default:
     node: 'cleanWater'
     visitor: 'ant'
   src: "nodes where log_at = event_at in site"
-  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.log_at = nodes.event_at ORDER BY nodes.position ASC, nodes.name ASC}"
+  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.log_at = nodes.event_at ORDER BY nodes.position ASC, nodes.node_name ASC}"
 
 id_becomes_zip:
   src: "nodes where id ne 1"
@@ -19,44 +19,44 @@ version_filter_title_like:
 
 dynattr_filter:
   src: "nodes where d_assigned = 'gaspard' in site"
-  sql: "%Q{SELECT nodes.* FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'assigned' WHERE #{secure_scope('nodes')} AND dyn_attributes.value = 'gaspard' AND nodes.id = versions.node_id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC}"
+  sql: "%Q{SELECT nodes.* FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'assigned' WHERE #{secure_scope('nodes')} AND dyn_attributes.value = 'gaspard' AND nodes.id = versions.node_id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
   res: "cleanWater, people, status"
 
 # Results can be wrong if a node has many 'versions', some of which have d_assigned set and others not. See #190.
 dynattr_filter_is_null:
   src: "projects where d_assigned is null in site"
-  sql: "%Q{SELECT nodes.* FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'assigned' WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NPP%' AND dyn_attributes.value IS NULL AND nodes.id = versions.node_id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC}"
+  sql: "%Q{SELECT nodes.* FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'assigned' WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NPP%' AND dyn_attributes.value IS NULL AND nodes.id = versions.node_id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
   res: "wiki, zena"
 
 dynattr_filter_in_relation:
   src: "favorites where d_priority = 'important'"
-  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'priority',links WHERE #{secure_scope('nodes')} AND nodes.id = links.target_id AND links.relation_id = _ID(contact_has_favorites) AND links.source_id = ? AND dyn_attributes.value = 'important' AND nodes.id = versions.node_id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC}, @node.id]"
+  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'priority',links WHERE #{secure_scope('nodes')} AND nodes.id = links.target_id AND links.relation_id = _ID(contact_has_favorites) AND links.source_id = ? AND dyn_attributes.value = 'important' AND nodes.id = versions.node_id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id]"
   res: ""
 
 version_filter_comment:
   context:
     visitor: 'lion'
   src: pages where comment = "no comment yet" in project
-  sql: "[%Q{SELECT nodes.* FROM nodes,versions WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NP%' AND nodes.project_id = ? AND versions.comment = 'no comment yet' AND nodes.id = versions.node_id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC}, @node.get_project_id]"
+  sql: "[%Q{SELECT nodes.* FROM nodes,versions WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NP%' AND nodes.project_id = ? AND versions.comment = 'no comment yet' AND nodes.id = versions.node_id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.get_project_id]"
   res: "bananas, crocodiles"
 
 year_function:
   context:
     visitor: 'lion'
   src: "nodes where v_updated_at:year = 2007 in project"
-  sql: "[%Q{SELECT nodes.* FROM nodes,versions WHERE #{secure_scope('nodes')} AND nodes.project_id = ? AND year(versions.updated_at) = 2007 AND nodes.id = versions.node_id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC}, @node.get_project_id]"
-  sqlite3: "[%Q{SELECT nodes.* FROM nodes,versions WHERE #{secure_scope('nodes')} AND nodes.project_id = ? AND strftime('%Y', versions.updated_at)*1 = 2007 AND nodes.id = versions.node_id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.name ASC}, @node.get_project_id]"
+  sql: "[%Q{SELECT nodes.* FROM nodes,versions WHERE #{secure_scope('nodes')} AND nodes.project_id = ? AND year(versions.updated_at) = 2007 AND nodes.id = versions.node_id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.get_project_id]"
+  sqlite3: "[%Q{SELECT nodes.* FROM nodes,versions WHERE #{secure_scope('nodes')} AND nodes.project_id = ? AND strftime('%Y', versions.updated_at)*1 = 2007 AND nodes.id = versions.node_id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.get_project_id]"
   res: "bananas"
 
 two_fields:
   src: "notes where event_at = log_at in site"
-  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NN%' AND nodes.event_at = nodes.log_at ORDER BY nodes.position ASC, nodes.name ASC}"
+  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NN%' AND nodes.event_at = nodes.log_at ORDER BY nodes.position ASC, nodes.node_name ASC}"
 
 filter_l_status:
   context:
     node: art
   src: "tagged where l_status > 5"
-  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM nodes,links WHERE #{secure_scope('nodes')} AND nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags) AND links.target_id = ? AND links.status > 5 ORDER BY nodes.position ASC, nodes.name ASC}, @node.id]"
+  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM nodes,links WHERE #{secure_scope('nodes')} AND nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags) AND links.target_id = ? AND links.status > 5 ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id]"
   res: "cleanWater"
 
 param_filter:
@@ -88,17 +88,17 @@ param_filter_tag:
   res: "cleanWater, opening"
 
 pages_group_by_name:
-  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NP%' AND nodes.parent_id = ? GROUP BY nodes.name ORDER BY nodes.position ASC, nodes.name ASC}, @node.id]"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NP%' AND nodes.parent_id = ? GROUP BY nodes.name ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id]"
   res: "crocodiles, status, track"
 
 nodes_group_by_year:
-  src: "nodes in site group by log_at:year order by log_at:year asc, name asc"
-  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} GROUP BY year(nodes.log_at) ORDER BY year(nodes.log_at) ASC, nodes.name ASC}"
-  sqlite3: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} GROUP BY strftime('%Y', nodes.log_at)*1 ORDER BY strftime('%Y', nodes.log_at)*1 ASC, nodes.name ASC}"
+  src: "nodes in site group by log_at:year order by log_at:year asc, node_name ASC"
+  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} GROUP BY year(nodes.log_at) ORDER BY year(nodes.log_at) ASC, nodes.node_name ASC}"
+  sqlite3: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} GROUP BY strftime('%Y', nodes.log_at)*1 ORDER BY strftime('%Y', nodes.log_at)*1 ASC, nodes.node_name ASC}"
 
 negative_value:
   src: "notes where custom_a ne -10 in site"
-  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NN%' AND nodes.custom_a <> -10 ORDER BY nodes.position ASC, nodes.name ASC}"
+  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NN%' AND nodes.custom_a <> -10 ORDER BY nodes.position ASC, nodes.node_name ASC}"
 
 filter_through_links:
   src: "nodes where (set_tag_id eq 33 and hot_id eq 22) in site"
@@ -112,5 +112,5 @@ filter_with_fullpath:
 
 class_filter:
   src: "nodes where class like Image or class = Project in site"
-  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND (nodes.kpath LIKE 'NDI%' OR nodes.kpath = 'NPP') ORDER BY nodes.position ASC, nodes.name ASC}"
+  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND (nodes.kpath LIKE 'NDI%' OR nodes.kpath = 'NPP') ORDER BY nodes.position ASC, nodes.node_name ASC}"
   res: 'bird, cleanWater, flower, lake, tree, wiki, zena'

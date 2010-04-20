@@ -46,6 +46,8 @@ class Document < Node
   safe_property :size, :content_type, :ext
   safe_method   :filename => String, :file => File, :filepath => String
 
+  validate :valid_file
+
   class << self
 
     def version_class
@@ -111,11 +113,12 @@ class Document < Node
 
   # Create an attachment with a file in file system. Create a new version if file is updated.
   def file=(new_file)
-    if new_file = super(new_file)
-      prop['content_type'] ||= new_file.content_type
-      prop['size'] = new_file.kind_of?(StringIO) ? new_file.size : new_file.stat.size
-      prop['ext'] = set_extension(new_file)
+    if new_file =super(new_file)
+      self.content_type = new_file.content_type if content_type.blank?
+      self.size = new_file.kind_of?(StringIO) ? new_file.size : new_file.stat.size
+      self.ext  = set_extension(new_file)
       @new_file = new_file
+      deb @new_file
     end
   end
 
@@ -137,7 +140,7 @@ class Document < Node
 
   # Get the document's public filename using the name and the file extension.
   def filename
-    kind_of?(TextDocument) ? "#{title}.#{ext}" : version.attachment.filename
+    version.attachment.filename
   end
 
   # Get the file path defined in attachment.
@@ -163,9 +166,31 @@ class Document < Node
       end
 
       super
+
+      if @new_file
+        version.attachment.filename = "#{title}.#{ext}"
+      end
+
+      true
+    end
+
+    # Make sure we have a file.
+    def valid_file
+      if new_record?
+        if @new_file
+          @new_file = nil
+          true
+        else
+          errors.add('file', "can't be blank")
+          false
+        end
+      else
+        true
+      end
     end
 
     def set_node_name_from_file
+    deb @new_file
       return unless @new_file
       if base = node_name || title || @new_file.original_filename
         if base =~ /(.*)\.(\w+)$/
@@ -174,7 +199,6 @@ class Document < Node
           self.node_name = base if new_record?
         end
       end
-      @new_file = nil
     end
 
     # Make sure node_name is unique

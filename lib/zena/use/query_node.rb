@@ -63,7 +63,7 @@ module Zena
         set_main_table 'nodes'
         set_main_class 'Node'
         set_default :scope,   'self'
-        set_default :order,   'position ASC, node_name ASC'
+        set_default :order,   'position ASC, node_node_name ASC'
         set_default :context, 'self'
         after_process :secure_query
 

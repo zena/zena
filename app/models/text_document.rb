@@ -94,6 +94,10 @@ class TextDocument < Document
     @loaded_file ||= @new_file || StringIO.new(text)
   end
 
+  def filename
+    "#{title}.#{ext}"
+  end
+
   # Return document file size (= version's text size).
   def size(format=nil)
     (text || '').size
@@ -174,9 +178,24 @@ class TextDocument < Document
       return true
     end
 
-    def document_before_validation
+    def set_defaults
       super
-      self.content_type ||= 'text/plain'
-      self.ext  ||= 'txt'
+      self.content_type = 'text/plain' if content_type.blank?
+      self.ext          = 'txt'        if ext.blank?
+    end
+
+    # This is triggered after create (after the image has been saved but
+    # before the properties are saved with the version).
+    def save_version_after_create
+      parse_assets_before_save
+      super
+    end
+
+    def parse_assets_before_save
+      if can_parse_assets? && prop.text_changed?
+        helper = AssetHelper.new
+        helper.visitor = visitor
+        self.text = parse_assets(self.text, helper, 'text')
+      end
     end
 end

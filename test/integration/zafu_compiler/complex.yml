@@ -65,7 +65,7 @@ default:
 
 courses_in_the_next_6_months:
   # custom_a = repetition interval
-  src: "<r:emp_form_dates where='last_date is null or (repeat_every is not null and next_date lt REF_DATE + 6 month)' order='last_date asc, name asc' do='each' join=', '><r:show attr='name'/>: <r:show date='next_date' format='%Y-%m-%d'/></r:emp_form_dates>"
+  src: "<r:emp_form_dates where='last_date is null or (repeat_every is not null and next_date lt REF_DATE + 6 month)' order='last_date asc, node_name ASC' do='each' join=', '><r:show attr='name'/>: <r:show date='next_date' format='%Y-%m-%d'/></r:emp_form_dates>"
   res: "engine: , radio_usage: , secure_a_site: , winch_usage: , transmit_information: 2003-05-05"
 
 courses_in_the_next_6_months_do_syntax:
@@ -93,7 +93,7 @@ all_people_related_to_a_course_group_by_priority:
   context:
     node: transmit_information
   src: |
-    <ol do='course_emp_dates' where='last_date is null or (repeat_every is not null and next_date lt REF_DATE + 6 month)' order='priority desc, last_date asc, name asc' do='group' by='priority'>
+    <ol do='course_emp_dates' where='last_date is null or (repeat_every is not null and next_date lt REF_DATE + 6 month)' order='priority desc, last_date asc, node_name ASC' do='group' by='priority'>
       <li set_class='priority[priority]' do='each_group'>
         <ol>
           <li do='each'><r:show attr='name'/> (last:<r:show date='last_date'/>, next:<r:show date='next_date'/>)</li>
@@ -123,7 +123,7 @@ all_people_related_to_a_course_in_6_month:
 
 all_course_emp_date:
   src: |
-    <ol do='all_course_emp_dates order by priority desc, log_at asc, name asc'>
+    <ol do='all_course_emp_dates order by priority desc, log_at asc, node_name ASC'>
     <r:group by='priority'>
       <li do='each_group' set_class='priority[priority]'>
         <ol>
@@ -166,7 +166,7 @@ all_course_emp_dates_in_six_months:
     ref_date: 2003-09-01
     # in 6 months = before 2004-03-01
   src: |
-    <ol do='all_course_emp_dates where last_date is null or (repeat_every is not null and next_date lt REF_DATE + 6 month) order by priority desc, log_at asc, name asc'>
+    <ol do='all_course_emp_dates where last_date is null or (repeat_every is not null and next_date lt REF_DATE + 6 month) order by priority desc, log_at asc, node_name ASC'>
     <r:group by='priority'>
       <li do='each_group' set_class='priority[priority]'>
         <ol>
@@ -206,7 +206,7 @@ all_course_emp_dates_in_six_months_later:
     ref_date: 2004-03-01
     # in 6 months = before 2004-09-01
   src: |
-    <ol do='all_course_emp_dates where last_date is null or (repeat_every is not null and next_date lt REF_DATE + 6 month) order by priority desc, log_at asc, name asc'>
+    <ol do='all_course_emp_dates where last_date is null or (repeat_every is not null and next_date lt REF_DATE + 6 month) order by priority desc, log_at asc, node_name ASC'>
     <r:group by='priority'>
       <li do='each_group' set_class='priority[priority]'>
         <ol>
@@ -245,5 +245,5 @@ all_course_emp_dates_paginate:
   context:
     ref_date: 2004-03-01
     # in 6 months = before 2004-09-01
-  src: "<r:all_course_emp_dates where='last_date is null or (repeat_every is not null and next_date lt REF_DATE + 6 month)' order='priority desc, log_at asc, name asc' limit='3' paginate='p'><r:link page='list'/> <r:each join=',' do='[name]'/>"
+  src: "<r:all_course_emp_dates where='last_date is null or (repeat_every is not null and next_date lt REF_DATE + 6 month)' order='priority desc, log_at asc, node_name ASC' limit='3' paginate='p'><r:link page='list'/> <r:each join=',' do='[name]'/>"
   res: "/1 <a.*>2</a> <a.*>3</a> <a.*>4</a> resp_management, secure_a_site, team_motivation/"

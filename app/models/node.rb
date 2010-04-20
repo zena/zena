@@ -1437,13 +1437,15 @@ class Node < ActiveRecord::Base
 
     def set_defaults
       # sync version title and node_name
-      if ref_lang == version.lang &&
-         ((full_drive? && version.status == Zena::Status[:pub]) ||
+      if ref_lang == v_lang &&
+         ((full_drive? && v_status == Zena::Status[:pub]) ||
           (can_drive?  && vhash['r'][ref_lang].nil?))
-        if node_name_changed? && !node_name.blank?
+        if node_name_changed? && !properties.title_changed? &&
+          !node_name.blank? && properties.title_was == node_name_was
           self.title = self.node_name
-        elsif !title.blank?
-          self[:node_name] = title.url_name
+        elsif properties.title_changed? && !node_name_changed? &&
+          !title.blank? && node_name_was == properties.title_was.url_name
+          self.node_name = title
           if !new_record? && kind_of?(Page) && node_name_changed?
             # we only rebuild Page node_names on update
             get_unique_node_name_in_scope('NP%')
@@ -1451,8 +1453,8 @@ class Node < ActiveRecord::Base
         end
       end
 
-      self.title     ||= self.node_name
-      self.node_name ||= self.title
+      self.title     = self.node_name if title.blank?
+      self.node_name = self.title     if node_name.blank?
 
       self[:custom_base] = false unless kind_of?(Page)
       true

@@ -21,8 +21,8 @@ class TemplateTest < Zena::Unit::TestCase
       assert_equal 'Project', subject.target_klass
     end
 
-    should 'remove extension from name' do
-      assert_equal 'Project-collab-xml', subject.name
+    should 'remove extension from node_name' do
+      assert_equal 'Project-collab-xml', subject.node_name
     end
   end
 
@@ -48,10 +48,10 @@ class TemplateTest < Zena::Unit::TestCase
     end
 
     context 'creating a template' do
-
-      context 'with a capitalized name' do
+      
+      context 'with a capitalized node_name' do
         subject do
-          secure(Template) { Template.create(:parent_id => nodes_id(:default), :name => 'Project.zafu') }
+          secure(Template) { Template.create(:parent_id => nodes_id(:default), :node_name => 'Project.zafu') }
         end
 
         should 'create a new Template' do
@@ -66,18 +66,22 @@ class TemplateTest < Zena::Unit::TestCase
           end
         end
 
-        should 'use name as target class' do
+        should 'use node_name as target class' do
           assert_equal 'Project', subject.target_klass
         end
 
         should 'set content_type' do
           assert_equal 'text/zafu', subject.content_type
         end
+        
+        should 'set a default text' do
+          assert_match %r{include.*Node}, subject.text
+        end
       end
 
       context 'with minimal arguments' do
         subject do
-          secure(Document) { Document.create(:parent_id => nodes_id(:default), :name => 'foo.zafu') }
+          secure(Document) { Document.create(:parent_id => nodes_id(:default), :node_name => 'foo.zafu') }
         end
 
         should 'create a new Template' do
@@ -97,15 +101,15 @@ class TemplateTest < Zena::Unit::TestCase
           assert_equal 'text/zafu', subject.content_type
         end
 
-        should 'remove extension from name' do
+        should 'remove extension from node_name' do
           assert_equal 'foo', subject.title
-          assert_equal 'foo', subject.name
+          assert_equal 'foo', subject.node_name
         end
       end
 
       context 'with a blank mode' do
         subject do
-          secure(Document) { Document.create(:parent_id => nodes_id(:default), :name => 'super.zafu', :mode => '') }
+          secure(Document) { Document.create(:parent_id => nodes_id(:default), :node_name => 'super.zafu', :mode => '') }
         end
 
         should 'not complain' do
@@ -114,27 +118,27 @@ class TemplateTest < Zena::Unit::TestCase
         end
       end # with a blank mode
 
-      context 'with a blank name' do
+      context 'with a blank node_name' do
         subject do
           secure(Template) { Template.create(:parent_id=>nodes_id(:default), :target_klass => 'Section') }
         end
 
-        should 'use target_klass as name' do
+        should 'use target_klass as node_name' do
           assert !subject.new_record?
-          assert_equal 'Section', subject.name
+          assert_equal 'Section', subject.node_name
         end
-      end # with a blank name
+      end # with a blank node_name
 
       context 'with a format' do
         subject do
-          secure(Template) { Template.create(:parent_id=>nodes_id(:default), :name => 'Node-tree', :format => 'xml') }
+          secure(Template) { Template.create(:parent_id=>nodes_id(:default), :node_name => 'Node-tree', :format => 'xml') }
         end
 
-        should 'use format in name' do
+        should 'use format in node_name' do
           assert !subject.new_record?
-          assert_equal 'Node-tree-xml', subject.name
+          assert_equal 'Node-tree-xml', subject.node_name
         end
-      end # with a blank name
+      end # with a blank node_name
 
       context 'with class format and mode in title' do
         subject do
@@ -144,13 +148,13 @@ class TemplateTest < Zena::Unit::TestCase
         should_set_target_class_mode_and_format
       end
 
-      context 'with class format and mode in name' do
+      context 'with class format and mode in node_name' do
         subject do
-          secure!(Document) { Document.create(:parent_id => nodes_id(:default), :name => 'Project-collab-xml.zafu')}
+          secure!(Document) { Document.create(:parent_id => nodes_id(:default), :node_name => 'Project-collab-xml.zafu')}
         end
 
         should_set_target_class_mode_and_format
-      end # with class format and mode in name
+      end # with class format and mode in node_name
 
       context 'with a file' do
         subject do
@@ -165,14 +169,14 @@ class TemplateTest < Zena::Unit::TestCase
           assert_kind_of Template, subject
         end
 
-        should 'use title for name' do
-          assert_equal 'skiny', subject.name
+        should 'use title for node_name' do
+          assert_equal 'skiny', subject.node_name
         end
       end # with a file
 
       context 'with an html extension' do
         subject do
-          secure!(Document) { Document.create(:parent_id => nodes_id(:default), :name => 'sub.html')}
+          secure!(Document) { Document.create(:parent_id => nodes_id(:default), :node_name => 'sub.html')}
         end
 
         should 'create a Template' do
@@ -183,7 +187,7 @@ class TemplateTest < Zena::Unit::TestCase
 
       context 'not in a Skin section' do
         subject do
-          secure!(Document) { Document.create(:parent_id => nodes_id(:cleanWater), :name => 'super.zafu')}
+          secure!(Document) { Document.create(:parent_id => nodes_id(:cleanWater), :node_name => 'super.zafu')}
         end
 
         should 'return an error on parent' do
@@ -255,14 +259,14 @@ class TemplateTest < Zena::Unit::TestCase
           end
         end
       end # with a file
-      
+
       context 'by changing text' do
         subject do
           secure(Node) { nodes(:Project_zafu) }
         end
-        
+
         should 'not alter index' do
-          assert subject.update_attributes('text'=>'DUMMY')
+          assert subject.update_attributes('text' => 'God is just an abbreviation for Goddess')
           index = TemplateIndex.find_by_node_id(subject.id)
           assert_equal nodes_id(:default), index.skin_id
           assert_equal 'html', index.format
@@ -274,92 +278,92 @@ class TemplateTest < Zena::Unit::TestCase
   end # A visitor with drive access
 
 
-  def test_set_by_name_without_mode
+  def test_set_by_node_name_without_mode
     login(:tiger)
-    doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:default), :name=>'Project--xml.zafu')}
+    doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:default), :node_name => 'Project--xml.zafu')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     assert_nil doc.mode
     assert_equal 'xml', doc.format
     assert_equal 'NPP', doc.tkpath
     assert_equal 'Project', doc.target_klass
-    assert_equal 'Project--xml', doc.name
+    assert_equal 'Project--xml', doc.node_name
   end
 
 
-  def test_set_blank_name
+  def test_set_blank_node_name
     login(:tiger)
-    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'mode' => 'collab', 'target_klass' => 'Page', 'name' => '', 'format' => '')}
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'mode' => 'collab', 'target_klass' => 'Page', 'node_name' => '', 'format' => '')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     assert_equal 'collab', doc.mode
     assert_equal 'html', doc.format
     assert_equal 'NP', doc.tkpath
     assert_equal 'Page', doc.target_klass
-    assert_equal 'Page-collab', doc.name
+    assert_equal 'Page-collab', doc.node_name
   end
 
-  def test_change_name
+  def test_change_node_name
     login(:tiger)
-    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :name=>'Project-collab-xml.zafu')}
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :node_name => 'Project-collab-xml.zafu')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     doc = secure!(Node) { Node.find(doc[:id]) } # reload
-    assert doc.update_attributes(:name => "Page-super")
+    assert doc.update_attributes(:node_name => "Page-super")
     assert_equal 'super', doc.mode
     assert_equal 'html', doc.format
     assert_equal 'NP', doc.tkpath
     assert_equal 'Page', doc.target_klass
-    assert_equal 'Page-super', doc.name
+    assert_equal 'Page-super', doc.node_name
   end
 
   def test_update_title_blank_mode
     login(:tiger)
-    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :name=>'Project-collab-xml.zafu')}
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :node_name => 'Project-collab-xml.zafu')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     assert doc.update_attributes(:mode => "", :title=> "Project-collab-xml")
     assert_nil doc.mode
     assert_equal 'xml', doc.format
-    assert_equal 'Project--xml', doc.name
-    assert_equal 'Project--xml', doc.version.title
+    assert_equal 'Project--xml', doc.node_name
+    assert_equal 'Project--xml', doc.title
   end
 
   def test_update_blank_mode
     login(:tiger)
-    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :name=>'Project-collab-xml.zafu')}
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :node_name => 'Project-collab-xml.zafu')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     assert_equal 'collab', doc.mode
     doc = secure!(Node) { Node.find(doc[:id]) } # reload
-    assert doc.update_attributes(:mode => "", :name => "Project-collab-xml") # name does not change, only mode is updated
+    assert doc.update_attributes(:mode => "", :node_name => "Project-collab-xml") # name does not change, only mode is updated
     assert_nil doc.mode
     assert_equal 'xml', doc.format
     assert_equal 'Project', doc.target_klass
-    assert_equal 'Project--xml', doc.name
-    assert_equal 'Project--xml', doc.version.title
+    assert_equal 'Project--xml', doc.node_name
+    assert_equal 'Project--xml', doc.title
   end
 
-  def test_change_name_not_master
+  def test_change_node_name_not_master
     login(:tiger)
-    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :name=>'Project-collab-xml.zafu')}
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :node_name => 'Project-collab-xml.zafu')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     doc = secure!(Node) { Node.find(doc[:id]) } # reload
-    assert doc.update_attributes(:name => "simple-thing")
+    assert doc.update_attributes(:node_name => "simple-thing")
     assert_nil doc.target_klass
     assert_nil doc.mode
     assert_nil doc.format
     assert_nil doc.tkpath
-    assert_equal 'simple-thing', doc.name
+    assert_equal 'simple-thing', doc.node_name
   end
 
-  def test_set_name_no_extension
+  def test_set_node_name_no_extension
     login(:tiger)
-    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :name=>'Project-collab')}
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :node_name => 'Project-collab')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
-    assert_equal 'Project-collab', doc.name
+    assert_equal 'Project-collab', doc.node_name
     assert_equal 'collab', doc.mode
     assert_equal 'html', doc.format
     assert_equal 'NPP', doc.tkpath
@@ -368,77 +372,69 @@ class TemplateTest < Zena::Unit::TestCase
 
   def test_set_target_klass
     login(:tiger)
-    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :name=>'Spider-man-xml',
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :node_name => 'Spider-man-xml',
                                              :target_klass => 'Page',
                                              :format => 'ical')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
-    assert_equal 'Page-man-ical', doc.name
+    assert_equal 'Page-man-ical', doc.node_name
     assert_equal 'man', doc.mode
     assert_equal 'ical', doc.format
     assert_equal 'NP', doc.tkpath
     assert_equal 'Page', doc.target_klass
   end
 
-  def test_set_blank_name_not_unique
+  def test_set_blank_node_name_not_unique
     login(:tiger)
-    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'mode' => '', 'target_klass' => 'Contact', 'name' => '', 'format' => '')}
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'mode' => '', 'target_klass' => 'Contact', 'node_name' => '', 'format' => '')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     assert_nil doc.mode
     assert_equal 'html', doc.format
     assert_equal 'NRC', doc.tkpath
     assert_equal 'Contact', doc.target_klass
-    assert_equal 'Contact', doc.name
-    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'mode' => '', 'target_klass' => 'Contact', 'name' => '', 'format' => 'vcard')}
+    assert_equal 'Contact', doc.node_name
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'mode' => '', 'target_klass' => 'Contact', 'node_name' => '', 'format' => 'vcard')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     assert_nil doc.mode
     assert_equal 'vcard', doc.format
     assert_equal 'NRC', doc.tkpath
     assert_equal 'Contact', doc.target_klass
-    assert_equal 'Contact--vcard', doc.name
+    assert_equal 'Contact--vcard', doc.node_name
   end
 
-  def test_update_format_updates_name
+  def test_update_format_updates_node_name
     login(:lion)
-    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'mode' => '', 'target_klass' => 'Contact', 'name' => '', 'format' => 'vcard')}
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'mode' => '', 'target_klass' => 'Contact', 'node_name' => '', 'format' => 'vcard')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     assert_nil doc.mode
     assert_equal 'vcard', doc.format
     assert_equal 'NRC', doc.tkpath
     assert_equal 'Contact', doc.target_klass
-    assert_equal 'Contact--vcard', doc.name
+    assert_equal 'Contact--vcard', doc.node_name
     assert doc.update_attributes(:format => 'vcf')
     assert_equal 'vcf', doc.format
     assert_equal 'NRC', doc.tkpath
     assert_equal 'Contact', doc.target_klass
-    assert_equal 'Contact--vcf', doc.name
-  end
-
-  def test_default_text
-    login(:lion)
-    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'target_klass' => 'Contact', 'name' => '')}
-    assert_kind_of Template, doc
-    assert !doc.new_record?, "Saved"
-    assert_match %r{include.*Node}, doc.version.text
+    assert_equal 'Contact--vcf', doc.node_name
   end
 
   def test_default_text_Node
     login(:lion)
-    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'target_klass' => 'Node', 'name' => '')}
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'target_klass' => 'Node', 'node_name' => '')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
-    assert_match %r{xmlns.*www\.w3\.org.*body}m, doc.version.text
+    assert_match %r{xmlns.*www\.w3\.org.*body}m, doc.text
   end
 
   def test_default_text_other_format
     login(:lion)
-    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'format' => 'vcard', 'target_klass' => 'Node', 'name' => '')}
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'format' => 'vcard', 'target_klass' => 'Node', 'node_name' => '')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
-    assert doc.version.text.blank?
+    assert doc.text.blank?
   end
 
 

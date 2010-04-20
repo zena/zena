@@ -916,7 +916,7 @@ done: \"I am done\""
     result = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(Zena::ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}.values
     assert_equal 4, result.size
 
-    children = parent.find(:all, 'children order by name ASC')
+    children = parent.find(:all, 'children order by node_name ASC')
     assert_equal 2, children.size
     assert_equal 'photos', children[0].name
     assert_equal groups_id(:managers), children[0].rgroup_id
@@ -927,7 +927,7 @@ done: \"I am done\""
     result = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(Zena::ROOT, 'test', 'fixtures', 'import'), :parent_id => children[1][:id], :defaults => { :rgroup_id => groups_id(:public) } )}.values
     assert_equal 4, result.size
 
-    children = children[1].find(:all, 'children order by name ASC')
+    children = children[1].find(:all, 'children order by node_name ASC')
     assert_equal 2, children.size
     assert_equal 'photos', children[0].name
     assert_equal groups_id(:public), children[0].rgroup_id

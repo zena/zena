@@ -13,10 +13,46 @@ class AttachmentTest< ActiveSupport::TestCase
       login(:tiger)
     end
 
+    teardown do
+      FileUtils.rm(subject.filepath) if subject && subject.filepath
+    end
+
+    context 'creating a document' do
+      subject do
+        secure!(Document) { Document.create(
+          :parent_id => nodes_id(:cleanWater),
+          :title     => 'life',
+          :file      => uploaded_pdf('water.pdf'))
+        }
+      end
+
+      should 'stat file size' do
+        assert_equal 29279, subject.size
+      end
+
+      should 'create an attachment' do
+        assert_difference('Attachment.count', 1) do
+          subject
+        end
+      end
+
+      should 'use visitor as owner for attachment' do
+        assert_equal users_id(:ant), subject.version.attachment.user_id
+      end
+
+      should 'set site_id on attachment' do
+        assert_equal sites_id(:zena), subject.version.attachment.site_id
+      end
+    end # creating a document
+
     context 'updating a document' do
 
       subject do
         secure!(Node) { nodes(:forest_pdf) } # redaction for 'ant' in 'en'
+      end
+
+      teardown do
+        FileUtils.rm(subject.filepath) if subject && subject.filepath
       end
 
       context 'in redit time' do

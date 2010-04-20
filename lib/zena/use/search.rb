@@ -8,13 +8,13 @@ module Zena
           if query == '.' && node
             return opts.merge(
               :conditions => ["parent_id = ?",node[:id]],
-              :order  => 'name ASC' )
+              :order  => 'node_name ASC' )
           elsif !query.blank?
             if Zena::Db.adapter == 'mysql' && RAILS_ENV != 'test'
-              match  = sanitize_sql(["MATCH (vs.title,vs.text,vs.summary) AGAINST (?) OR nodes.name LIKE ?", query, "#{opts[:name_query] || query.url_name}%"])
-              select = sanitize_sql(["nodes.*, MATCH (vs.title,vs.text,vs.summary) AGAINST (?) + (5 * (nodes.name LIKE ?)) AS score", query, "#{query}%"])
+              match  = sanitize_sql(["MATCH (vs.title,vs.text,vs.summary) AGAINST (?) OR nodes.node_name LIKE ?", query, "#{opts[:name_query] || query.url_name}%"])
+              select = sanitize_sql(["nodes.*, MATCH (vs.title,vs.text,vs.summary) AGAINST (?) + (5 * (nodes.node_name LIKE ?)) AS score", query, "#{query}%"])
             else
-              match = sanitize_sql(["nodes.name LIKE ?", "#{query}%"])
+              match = sanitize_sql(["nodes.node_name LIKE ?", "#{query}%"])
               select = "nodes.*, #{match} AS score"
             end
 

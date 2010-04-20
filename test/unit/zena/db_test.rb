@@ -32,16 +32,16 @@ class DbTest < Zena::Unit::TestCase
   end
 
   def test_fetch_row
-    assert_equal "water", Zena::Db.fetch_row("SELECT name FROM nodes WHERE id = #{nodes_id(:water_pdf)}")
-    assert_nil Zena::Db.fetch_row("SELECT name FROM nodes WHERE 0")
+    assert_equal "water", Zena::Db.fetch_row("SELECT node_name FROM nodes WHERE id = #{nodes_id(:water_pdf)}")
+    assert_nil Zena::Db.fetch_row("SELECT node_name FROM nodes WHERE 0")
   end
 
   def test_fetch_attributes
-    assert_equal [{"name"=>"secret", "zip"=>"19"},
-     {"name"=>"status", "zip"=>"22"},
-     {"name"=>"strange", "zip"=>"36"},
-     {"name"=>"skins", "zip"=>"51"},
-     {"name"=>"style", "zip"=>"53"}], Zena::Db.fetch_attributes(['zip','name'], 'nodes', "name like 's%' and site_id = #{sites_id(:zena)} ORDER BY zip")
+    assert_equal [{"node_name"=>"secret", "zip"=>"19"},
+     {"node_name"=>"status", "zip"=>"22"},
+     {"node_name"=>"strange", "zip"=>"36"},
+     {"node_name"=>"skins", "zip"=>"51"},
+     {"node_name"=>"style", "zip"=>"53"}], Zena::Db.fetch_attributes(['zip','node_name'], 'nodes', "node_name like 's%' and site_id = #{sites_id(:zena)} ORDER BY zip")
   end
 
   context 'A node that needs attribute changes without validations or side effects' do
@@ -52,25 +52,25 @@ class DbTest < Zena::Unit::TestCase
 
     should 'not change updated_at date' do
       old_updated_at = @node.updated_at
-      Zena::Db.set_attribute(@node, :name, 'flop')
+      Zena::Db.set_attribute(@node, :node_name, 'flop')
       @node = secure!(Node) { nodes(:status) } # reload
       assert_equal old_updated_at, @node.updated_at
     end
 
     should 'set attribute in node' do
-      Zena::Db.set_attribute(@node, :name, 'flop')
-      assert_equal 'flop', @node.name
+      Zena::Db.set_attribute(@node, :node_name, 'flop')
+      assert_equal 'flop', @node.node_name
     end
 
     should 'not mark as dirty' do
-      Zena::Db.set_attribute(@node, :name, 'flop')
+      Zena::Db.set_attribute(@node, :node_name, 'flop')
       assert !@node.changed?
     end
 
     should 'set attribute in db' do
-      Zena::Db.set_attribute(@node, :name, 'flop')
+      Zena::Db.set_attribute(@node, :node_name, 'flop')
       @node = secure!(Node) { nodes(:status) } # reload
-      assert_equal 'flop', @node.name
+      assert_equal 'flop', @node.node_name
     end
 
     should 'set a time' do

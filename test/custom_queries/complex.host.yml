@@ -88,7 +88,7 @@ Node:
       - li1.relation_id = RELATION_ID(assigned_course)
       - courses.id = li1.source_id
     group: courses.id
-    order: priority DESC, last_date ASC, courses.name ASC
+    order: priority DESC, last_date ASC, courses.node_name ASC
 
   course_emp_date:
     main_table: employees
@@ -122,7 +122,7 @@ Node:
       - employees.id = li1.source_id AND li1.relation_id = RELATION_ID(assigned_employee) AND li1.target_id = assigned_pages.project_id
       - assigned_pages.id = links.target_id AND links.relation_id = RELATION_ID(assigned_page) AND links.source_id = NODE_ID
     group: employees.id
-    order: employees.name ASC, IF(form.last_date,form.last_date,0) ASC
+    order: employees.node_name ASC, IF(form.last_date,form.last_date,0) ASC
 
 
   all_course_emp_date:

@@ -179,7 +179,7 @@ module Zena
         # Create a gallery from a list of images. See ApplicationHelper#zazen for details.
         def make_gallery(ids=[], opts={})
           if ids == []
-            images = secure(Image) { Image.find(:all, :conditions => ["parent_id = ?", (opts[:node] || @node)[:id]], :order => "position ASC, name ASC")}
+            images = secure(Image) { Image.find(:all, :conditions => ["parent_id = ?", (opts[:node] || @node)[:id]], :order => "position ASC, node_name ASC")}
           else
             ids = ids.map{|i| i.to_i}
             images = ids == [] ? nil : secure(Document) { Document.find(:all, :conditions=>"zip IN (#{ids.join(',')})") }
@@ -214,7 +214,7 @@ module Zena
             docs = node.find(:all, 'images')
           else
             ids = ids.map{|i| i.to_i}
-            docs = ids == [] ? nil : secure!(Document) { Document.find(:all, :order=>'name ASC', :conditions=>"zip IN (#{ids.join(',')})") }
+            docs = ids == [] ? nil : secure!(Document) { Document.find(:all, :order=>'node_name ASC', :conditions=>"zip IN (#{ids.join(',')})") }
             # order like ids :
             docs.sort! {|a,b| ids.index(a[:zip].to_i) <=> ids.index(b[:zip].to_i) } if docs
           end

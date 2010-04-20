@@ -40,7 +40,7 @@ class ContactTest < Zena::Unit::TestCase
 
     context 'creating a contact' do
       subject do
-        secure!(Contact) { Contact.create('name' => 'Meyer', :parent_id => nodes_id(:zena)) }
+        secure!(Contact) { Contact.create(:name => 'Meyer', :first_name => 'Eric', :parent_id => nodes_id(:zena)) }
       end
 
       should 'save record' do
@@ -61,15 +61,15 @@ class ContactTest < Zena::Unit::TestCase
       end
 
       should 'write and read first_name like AR attributes' do
-        assert subject.prop['first_name'] = 'Eric'
-        assert_equal 'Eric', subject.prop['first_name']
-        assert_equal 'Eric', subject.first_name
+        assert subject.prop['first_name'] = 'Bertrand'
+        assert_equal 'Bertrand', subject.prop['first_name']
+        assert_equal 'Bertrand', subject.first_name
       end
 
       should 'write and read name like AR attributes' do
-        assert subject.prop['name'] = 'Meyer'
-        assert_equal 'Meyer', subject.prop['name']
-        assert_equal 'Meyer', subject.name
+        assert subject.prop['name'] = 'Hoffer'
+        assert_equal 'Hoffer', subject.prop['name']
+        assert_equal 'Hoffer', subject.name
       end
 
       should 'build node_name from fullname' do

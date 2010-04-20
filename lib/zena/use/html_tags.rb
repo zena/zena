@@ -202,7 +202,7 @@ module Zena
         #TODO: test
         # Return the list of possible templates
         def form_skins
-          @form_skins ||= secure!(Skin) { Skin.find(:all, :order=>'name ASC') }.map {|r| r[:name]}
+          @form_skins ||= secure!(Skin) { Skin.find(:all, :order=>'node_name ASC') }.map {|r| [r.title, r.zip]}
         end
 
         # Date selection tool
@@ -245,8 +245,8 @@ module Zena
           if count == 0
             return select(obj, sym, [], {:include_blank => opt[:include_blank]})
           elsif count < 30
-            values = secure_write(Node) { Node.all(:order=>:name, :conditions=>["kpath LIKE ?", "#{kpath}%"]) }.map do |record|
-              [record['name'], record['zip']]
+            values = secure_write(Node) { Node.all(:order => :node_name, :conditions=>["kpath LIKE ?", "#{kpath}%"]) }.map do |record|
+              [record.title, record.zip]
             end
             return select(obj, sym, values, { :include_blank => opt[:include_blank] })
           end

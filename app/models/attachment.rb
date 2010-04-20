@@ -43,5 +43,4 @@ class Attachment < Versions::SharedAttachment
         end
       end
     end
-
 end

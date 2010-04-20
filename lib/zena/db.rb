@@ -24,7 +24,7 @@ module Zena
     def set_attribute(obj, key, value)
       obj.send("#{key}=", value)
       execute "UPDATE #{obj.class.table_name} SET #{key}=#{quote(value)} WHERE id=#{obj[:id]}"
-      obj.send(:changed_attributes).delete(key)
+      obj.send(:changed_attributes).delete(key.to_s)
     end
 
     def quote(value)

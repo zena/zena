@@ -3,101 +3,126 @@ require 'fileutils'
 
 class DocumentTest < Zena::Unit::TestCase
 
-  self.use_transactional_fixtures = false
+  context 'With a logged in user' do
+    setup do
+      login(:ant)
+    end
 
-
-  context 'A newly created' do
-    context 'valid Document' do
-      setup { login(:ant) }
+    context 'creating a document' do
       subject do
-          secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater), :title=>'life',
-                                                    :file => uploaded_pdf('water.pdf') ) }
+        secure!(Document) { Document.create(
+          :parent_id => nodes_id(:cleanWater),
+          :file      => uploaded_pdf('water.pdf', 'life'))
+        }
       end
 
-      teardown do
-        FileUtils.rm(subject.filepath) if subject && subject.filepath
+      should 'create a new Document' do
+        assert_difference('Node.count', 1) do
+          assert !subject.new_record?
+          assert_kind_of Document, subject
+        end
       end
 
-      should 'behave nicely' do
-        assert subject.valid?
-        assert !subject.new_record?
-        assert_equal 'application/pdf', subject.prop['content_type']
-        assert_equal 'pdf', subject.prop['ext']
-        assert_equal 'life', subject.name
-        assert_equal 'life', subject.title
-        assert_equal 29279, subject.size
-        assert_equal users_id(:ant), subject.version.attachment.user_id
-        assert_equal sites_id(:zena), subject.version.attachment.site_id
-      end
-    end # Document
-
-    context 'Document with same name' do
-      setup do
-        login(:tiger)
+      should 'set content_type' do
+        assert_equal 'application/pdf', subject.content_type
       end
 
+      should 'set extension' do
+        assert_equal 'pdf', subject.ext
+      end
+
+      should 'set node_name from original_filename' do
+        assert_equal 'life', subject.node_name
+      end
+
+      should 'set title from original_filename' do
+        assert_equal 'life', subject.node_name
+      end
+
+      context 'with same node_name' do
+        subject do
+          secure!(Document) { Document.create(
+            :parent_id => nodes_id(:cleanWater),
+            :file      => uploaded_pdf('water.pdf'))
+          }
+        end
+
+        should 'save node_name and title with increment' do
+          assert_equal 'water-1', subject.node_name
+          assert_equal 'water-1', subject.title
+        end
+      end # with same node_name
+
+      context 'without a file' do
+        subject do
+          secure!(Document) { Document.create(
+            :parent_id => nodes_id(:cleanWater),
+            :title     => 'Adam & Steve')
+          }
+        end
+
+        should 'save text/plain as content_type' do
+          assert !subject.new_record?
+          assert_equal 'text/plain', subject.content_type
+        end
+      end # without a file
+
+      context 'with content_type specified' do
+        subject do
+          secure!(Document) { Document.create(
+            :parent_id    => nodes_id(:cleanWater),
+            :content_type => 'text/css',
+            :file         => uploaded_text('some.txt'))
+          }
+        end
+
+        should 'save the specified content_type' do
+          assert !subject.new_record?
+          assert_equal 'text/css', subject.content_type
+        end
+      end # with content_type
+
+      context 'with a wrong extension in node_name' do
+        subject do
+          secure!(Document) { Document.create(
+            :parent_id => nodes_id(:cleanWater),
+            :node_name => 'stupid.jpg',
+            :file      => uploaded_pdf('water.pdf'))
+          }
+        end
+
+        should 'fix extension but use node_name' do
+          err subject
+          assert !subject.new_record?
+          assert_equal 'pdf', subject.ext
+          assert_equal 'stupid', subject.node_name
+          assert_equal 'stupid', subject.title
+          assert_equal 'stupid.pdf', subject.filename
+        end
+      end
+    end # creating a document
+
+    context 'updating a document' do
       subject do
-        secure!(Document) { Document.create( :parent_id => nodes_id(:cleanWater),
-                                                   :name => 'water',
-                                                   :file  => uploaded_pdf('water.pdf') ) }
+        secure(Node) { nodes(:bird_jpg) }
       end
 
-      should 'save name & title with increment' do
-        assert_equal 'water-1', subject.name
-        assert_equal 'water-1', subject.title
-      end
-    end # with same name
+      context 'with a wrong file type' do
+        should 'not save and set an error on file' do
+          assert !subject.update_attributes( :file => uploaded_pdf('water.pdf') )
+          assert_equal '', subject.errors[:file]
+        end
+      end # with a wrong file type
 
-    context 'without file' do
-      setup do
-        login(:ant)
-      end
-      subject do
-        secure!(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :name=>'lalala') }
-      end
-
-      should 'save text/plain as content_type' do
-        assert !subject.new_record?
-        assert_equal 'text/plain', subject.content_type
-      end
-    end # without file
-
-    context 'Document with content_type specified' do
-      setup do
-        login(:tiger)
-      end
-      subject do
-        secure!(Document) { Document.create("content_type"=>"text/css",
-                                            "parent_id"=>nodes_id(:cleanWater),
-                                            :file => uploaded_text('some.txt') )}
-      end
-
-      should 'save the specified content_type' do
-        assert !subject.new_record?
-        assert_equal 'text/css', subject.content_type
-      end
-    end # with content type specified
-
-    context 'Document with a bad filename' do
-      setup do
-        login(:ant)
-      end
-      subject do
-        secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
-          :name => 'stupid.jpg',
-          :file => uploaded_pdf('water.pdf') ) }
-      end
-
-      should 'save name and version title with the given name' do
-        assert !subject.new_record?
-        assert_equal "stupid", subject.name
-        assert_equal "stupid", subject.title
-        assert_equal "water.pdf", subject.filename
-      end
-
-    end # Document with a bad file name
-  end # A newly created
-
+      context 'with same node_name' do
+        should 'save node_name and title with increment' do
+          assert subject.update_attributes( :node_name => 'water')
+          assert_equal 'water-1', subject.node_name
+          assert_equal 'water-1', subject.title
+        end
+      end # with same node_name
+    end # updating a document
+  end # With a logged in user
 
   context 'On reading' do
     setup do
@@ -114,8 +139,8 @@ class DocumentTest < Zena::Unit::TestCase
         assert  subject.valid?
       end
 
-      should 'get document name' do
-        assert_equal 'water', subject.name
+      should 'get document node_name' do
+        assert_equal 'water', subject.node_name
       end
 
       should 'get document title' do
@@ -201,9 +226,9 @@ class DocumentTest < Zena::Unit::TestCase
          assert_equal 'hopla', subject.title
        end
 
-       should 'change document name when title change' do
+       should 'change document node_name when title change' do
          subject.update_attributes(:title => 'hopla')
-         assert_equal 'hopla', subject.name
+         assert_equal 'hopla', subject.node_name
        end
 
        should 'not alter content_type' do
@@ -323,12 +348,13 @@ class DocumentTest < Zena::Unit::TestCase
   def test_create_with_file_name_has_dots
     without_files('/test.host/data') do
       login(:ant)
-      doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
-                                                :name=>'report...',
-                                                :file => uploaded_pdf('water.pdf') ) }
+      doc = secure!(Document) { Document.create(
+        :parent_id => nodes_id(:cleanWater),
+        :node_name => 'report...',
+        :file      => uploaded_pdf('water.pdf') ) }
       assert_kind_of Document , doc
       assert ! doc.new_record? , "Not a new record"
-      assert_equal "report...", doc.name
+      assert_equal "report...", doc.node_name
       assert_equal "report...", doc.version.title
       assert_equal "water.pdf", doc.filename
       assert_equal 'pdf', doc.ext
@@ -338,8 +364,9 @@ class DocumentTest < Zena::Unit::TestCase
   def test_create_with_file_name_unknown_ext
     without_files('/test.host/data') do
       login(:ant)
-      doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
-                                                :file  => uploaded_fixture("some.txt", 'application/octet-stream', "super.zz") ) }
+      doc = secure!(Document) { Document.create(
+        :parent_id => nodes_id(:cleanWater),
+        :file      => uploaded_fixture("some.txt", 'application/octet-stream', "super.zz") ) }
       assert_kind_of Document , doc
       assert ! doc.new_record? , "Not a new record"
       assert_equal "super", doc.name
@@ -353,11 +380,12 @@ class DocumentTest < Zena::Unit::TestCase
   def test_set_title
     without_files('/test.host/data') do
       login(:ant)
-      doc = secure!(Document) { Document.create( :parent_id=>nodes_id(:cleanWater),
-                                                :file  => uploaded_fixture('water.pdf', 'application/pdf', 'wat'), :title => "lazy waters.pdf") }
+      doc = secure!(Document) { Document.create(
+        :parent_id => nodes_id(:cleanWater),
+        :file      => uploaded_fixture('water.pdf', 'application/pdf', 'wat'), :title => "lazy waters.pdf") }
       assert_kind_of Document , doc
       assert ! doc.new_record? , "Not a new record"
-      assert_equal "lazy waters", doc.name
+      assert_equal "lazy waters", doc.node_name
       assert_equal "lazy waters", doc.version.title
       assert_equal "wat", doc.filename
       assert_equal 'pdf', doc.ext

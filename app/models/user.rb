@@ -215,7 +215,7 @@ class User < ActiveRecord::Base
       # su can view all
       secure(Comment) { Comment.find(:all, :conditions => ['status = ?', Zena::Status[:prop]]) }
     else
-      secure(Comment) { Comment.find(:all, :select=>'comments.*, nodes.name', :from=>'comments, nodes, discussions',
+      secure(Comment) { Comment.find(:all, :select=>'comments.*, nodes.node_name', :from=>'comments, nodes, discussions',
                    :conditions => ['comments.status = ? AND discussions.node_id = nodes.id AND comments.discussion_id = discussions.id AND nodes.dgroup_id IN (?)', Zena::Status[:prop], visitor.group_ids]) }
     end
   end

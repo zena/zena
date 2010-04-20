@@ -4,11 +4,11 @@ class TextDocumentTest < Zena::Unit::TestCase
 
   def test_create_simplest
     login(:tiger)
-    doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :name=>'skiny')}
+    doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :node_name => 'skiny')}
     assert_equal TextDocument, doc.class
     assert !doc.new_record?, "Not a new record"
     assert_equal 0, doc.size
-    doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :name=>'medium', :text=>"12345678901234567890")}
+    doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :node_name => 'medium', :text=>"12345678901234567890")}
     assert_equal TextDocument, doc.class
     assert !doc.new_record?, "Not a new record"
     assert_equal 20, doc.size
@@ -97,7 +97,7 @@ class TextDocumentTest < Zena::Unit::TestCase
     node = secure!(Node) { nodes(:style_css) }
     bird = secure!(Node) { nodes(:bird_jpg)}
     b_at = bird.updated_at
-    assert bird.update_attributes(:parent_id => node[:parent_id], :name => "greenBird")
+    assert bird.update_attributes(:parent_id => node[:parent_id], :node_name => "greenBird")
     Zena::Db.set_attribute(bird, :updated_at, b_at)
     start =<<-END_CSS
     body { font-size:10px; }

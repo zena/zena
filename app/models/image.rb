@@ -55,24 +55,20 @@ or to create a link to the article using the icon:
 
 =end
 class Image < Document
+  include Zena::Use::Upload::UploadedFile
+
   property do |t|
     t.integer 'width'
     t.integer 'height'
     t.text    'exif_json'
   end
+
   safe_property         :width, :height
   safe_method           :exif => 'ExifData'
-
-  before_validation     :image_before_validation
 
   class << self
     def accept_content_type?(content_type)
       Zena::Use::ImageBuilder.image_content_type?(content_type)
-    end
-
-    # This is a callback from acts_as_multiversioned
-    def version_class
-      ImageVersion
     end
 
     # Class list to which this class can change to
@@ -199,53 +195,24 @@ class Image < Document
     uploaded_file(file, filename, ctype)
   end
 
-  def can_crop?(format)
-    x, y, w, h = [format['x'].to_i, 0].max, [format['y'].to_i, 0].max, [format['w'].to_i, width].min, [format['h'].to_i, height].min
-    (format['max_value'] && (format['max_value'].to_f * (format['max_unit'] == 'Mb' ? 1024 : 1) * 1024) < prop['size']) ||
-    (format['format'] && format['format'] != prop['ext']) ||
-    ((x < width && y < height && w > 0 && h > 0) && !(x==0 && y==0 && w == width && h == height))
-  end
-
-  # Crop the image using the 'crop' hash with the top left corner position (:x, :y) and the width and height (:width, :heigt). Example:
-  #   @node.crop = {:x=>10, :y=>10, :width=>30, :height=>60}
-  # Be carefull as this method changes the current file. So you should make a backup version before croping the image (the popup editor displays a warning).
-  def crop=(format)
-    if can_crop?(format)
-      # do crop
-      if file = self.cropped_file(format)
-        # crop can return nil, check first.
-        self.file = file
-      end
-    end
-  end
-
-
-  # Return a cropped image using the 'crop' hash with the top left corner position (:x, :y) and the width and height (:width, :heigt).
-  def cropped_file(format)
-    original   = format['original'] || @loaded_file || self.file
-    x, y, w, h = format['x'].to_f, format['y'].to_f, format['w'].to_f, format['h'].to_f
-    new_type   = format['format'] ? Zena::EXT_TO_TYPE[format['format'].downcase][0] : nil
-    max        = format['max_value'].to_f * (format['max_unit'] == 'Mb' ? 1024 : 1) * 1024
-
-    # crop image
-    img = Zena::Use::ImageBuilder.new(:file=>original)
-    img.crop!(x, y, w, h) if x && y && w && h
-    img.format       = format['format'] if new_type && new_type != content_type
-    img.max_filesize = max if format['max_value'] && max
-
-    file = Tempfile.new(filename)
-    File.open(file.path, "wb") { |f| f.syswrite(img.read) }
-
-    ctype = Zena::EXT_TO_TYPE[img.format.downcase][0]
-    fname = "#{filename}.#{Zena::TYPE_TO_EXT[ctype][0]}"
-    uploaded_file(file, filename, ctype)
-  end
-
   private
 
     # Set image event date to when the photo was taken
-    def image_before_validation
-      self[:event_at] ||= self.exif.date_time
+    def set_defaults
+      super
+
+      if event_at.blank?
+        self.event_at = self.exif.date_time
+      end
+    end
+
+    # This is triggered after create (after the image has been saved but
+    # before the properties are saved with the version).
+    def save_version_after_create
+      if text.blank?
+        self.text = "!#{zip}!"
+      end
+      super
     end
 
     # Create a new image in File System with the new format
@@ -274,15 +241,4 @@ class Image < Document
       FileUtils::mkpath(File.dirname(path)) unless File.exist?(File.dirname(path))
       File.open(path, "wb") { |f| f.syswrite(data.read) }
     end
-
-    # Define 2 methods :original_filename and :content_type which are compulsory for creating new file.
-    def uploaded_file(file, filename = nil, content_type = nil)
-      (class << file; self; end;).class_eval do
-        #alias local_path path if respond_to?(:path)  # FIXME: do we need this ?
-        define_method(:original_filename) { filename }
-        define_method(:content_type) { content_type }
-      end
-      file
-    end
-
 end
