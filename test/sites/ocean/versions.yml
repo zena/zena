@@ -32,7 +32,7 @@ incognito_en:
     first_name:    Miss
     name:          Incognito
     address:       c/o Lilith
-    zip:           804
+    postal_code:   804
     city:          Somewhere
 
 whale_en:
@@ -45,7 +45,7 @@ whale_en:
     first_name:    Humpback
     name:          Whale
     address:       Anywhere Left Alone
-    zip:           903
+    postal_code:   903
     city:          Ocean
 
 skin_en:

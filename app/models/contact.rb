@@ -1,24 +1,29 @@
 class Contact < Reference
 
   property do |t|
-    t.string   "first_name"
-    t.string   "name"
-    t.text     "address"
-    t.string   "zip"
-    t.string   "city"
-    t.string   "telephone"
-    t.string   "mobile"
-    t.string   "email"
-    t.date     "birthday"
-    t.integer  "site_id"
-    t.string   "country"
+    t.string 'first_name'
+    t.string 'name'
+
+    t.text   'address'
+    t.string 'postal_code'
+    t.string 'city'
+    t.string 'country'
+
+    t.string 'telephone'
+    t.string 'mobile'
+    t.string 'email'
+
+    t.date   'birthday'
   end
 
-  safe_method :fullname => String, :initials => String
-  safe_method :created_at => Time, :updated_at => Time, :fullname => String, :initials => String,
-              :address => String
+  safe_property :first_name, :name,
+                :address, :postal_code, :city, :country,
+                :telephone, :mobile, :email,
+                :birthday
 
-  attr_protected     :site_id
+  safe_method :fullname => String, :initials => String
+
+  attr_protected :site_id
 
   class << self
 

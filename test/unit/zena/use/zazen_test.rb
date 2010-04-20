@@ -1,23 +1,11 @@
 require 'test_helper'
 
 class ZazenTest < Zena::View::TestCase
-  include Zena::Use::Zazen::ViewMethods
-  include Zena::Use::HtmlTags::ViewMethods
-  include Zena::Use::Refactor::ViewMethods # fquote, render_to_string
-  include Zena::Use::Urls::ViewMethods # zen_path, etc
-  include Bricks::Captcha::ViewMethods # mailhide test
-
-  # ============ stubs ============
-  def _(str)
-    ApplicationController.send(:_, str)
+  def setup
+    super
+    login(:anon)
+    visiting(:status)
   end
-  def js_data
-    @js_data ||= []
-  end
-  def fquote(text)
-    text.to_s.gsub("'",'&apos;')
-  end
-  # ===============================
 
   def assert_zazen_match(css, code)
     assert_match css, zazen(code)
@@ -29,13 +17,11 @@ class ZazenTest < Zena::View::TestCase
   end
 
   def test_wiki_link
-    login(:tiger)
     assert_equal "<p>? colors? I like <a href='http://en.wikipedia.org/wiki/Special:Search?search=yellow+mug' class='wiki'>yellow mug</a></p>", zazen("? colors? I like ?yellow mug?")
     assert_match %r{<cite>blah</cite> <cite>blih <a.*>test</a> it</cite>}, zazen('??blah?? ??blih ?test? it??')
   end
 
   def test_image_title
-    login(:tiger)
     assert_match %r{<div class='img_with_title'><img[^>]*><div class='img_title'><p>blah <a href=.*projects/cleanWater.*Clean Water.*/a></p></div></div>},
     zazen("!30/blah \"\":21!")
     assert_match %r{<div class='img_with_title'><img.*class.*pv.*><div class='img_title'><p>blah <a href=.*projects/cleanWater.*Clean Water.*/a></p></div></div>},
@@ -45,30 +31,27 @@ class ZazenTest < Zena::View::TestCase
   end
 
   def test_make_link
-    login(:tiger)
     # * ["":34] creates a link to node 34 with node's title.
-    assert_equal '<p><a href="/oo/projects/cleanWater">Clean Water project</a></p>', zazen('"":21')
+    assert_equal '<p><a href="/en/projects/cleanWater">Clean Water project</a></p>', zazen('"":21')
     # * ["title":34] creates a link to node 34 with the given title.
-    assert_equal '<p><a href="/oo/projects/cleanWater">hello</a></p>', zazen('"hello":21')
+    assert_equal '<p><a href="/en/projects/cleanWater">hello</a></p>', zazen('"hello":21')
     # * ["":034] if the node id starts with '0', creates a popup link.
-    assert_match %r{/oo/projects/cleanWater.*window.open.*hello}, zazen('"hello":021')
+    assert_match %r{/en/projects/cleanWater.*window.open.*hello}, zazen('"hello":021')
   end
 
   def test_make_link_sharp
-    login(:tiger)
     assert_equal '<p><a href="#node34">hello</a></p>', zazen('"hello":34#')
     assert_equal '<p><a href="#node34">hello</a></p>', zazen('"hello":34#[id]')
     assert_equal '<p><a href="#node34">hello</a></p>', zazen('"hello":34#[zip]')
-    assert_equal '<p><a href="#news">hello</a></p>', zazen('"hello":34#[name]')
+    assert_equal '<p><a href="#news">hello</a></p>', zazen('"hello":34#[node_name]')
     # * ["":34#[parent/]] if the node id starts with '0', creates a popup link.
-    assert_equal '<p><a href="/oo/page32.html#node34">hello</a></p>', zazen('"hello":34#[parent/]')
-    assert_equal '<p><a href="/oo/page32.html#node34">hello</a></p>', zazen('"hello":34#[parent/id]')
-    assert_equal '<p><a href="/oo/page32.html#node34">hello</a></p>', zazen('"hello":34#[parent/zip]')
-    assert_equal '<p><a href="/oo/page32.html#news">hello</a></p>', zazen('"hello":34#[parent/name]')
+    assert_equal '<p><a href="/en/page32.html#node34">hello</a></p>', zazen('"hello":34#[parent/]')
+    assert_equal '<p><a href="/en/page32.html#node34">hello</a></p>', zazen('"hello":34#[parent/id]')
+    assert_equal '<p><a href="/en/page32.html#node34">hello</a></p>', zazen('"hello":34#[parent/zip]')
+    assert_equal '<p><a href="/en/page32.html#news">hello</a></p>', zazen('"hello":34#[parent/node_name]')
   end
 
   def test_make_image
-    login(:tiger)
     # * [!24!] inline image 24. (default format is 'pv' defined in #ImageBuilder). Options are :
     assert_equal "<p><img src='/en/projects/cleanWater/image24_std.jpg?929831698949' width='545' height='400' alt='it&apos;s a lake' class='std'/></p>", zazen('!24!')
     # ** [!024!] inline image, default format, link to full image.
@@ -76,7 +59,6 @@ class ZazenTest < Zena::View::TestCase
   end
 
   def test_make_image_with_document
-    login(:tiger)
     assert_match %r{<p><a.*href=.*en/projects/cleanWater/document25\.pdf.*img src='/images/ext/pdf.png' width='32' height='32' alt='pdf document' class='doc'/></a></p>}, zazen('!25!')
     assert_match %r{<p><a.*href=.*en/projects/cleanWater/document25\.pdf.*img src='/images/ext/pdf.png' width='32' height='32' alt='pdf document' class='doc'/></a></p>}, zazen('!025!') # same as '!25!'
     assert_match %r{<p><a.*href=.*en/projects/cleanWater/document25\.pdf.*img src='/images/ext/pdf_pv.png' width='70' height='70' alt='pdf document' class='doc'/></a></p>}, zazen('!25_pv!')
@@ -111,7 +93,6 @@ class ZazenTest < Zena::View::TestCase
   end
 
   def test_make_gallery
-    login(:anon)
     # ** [![2,3,5]!] gallery : inline preview with javascript inline viewer
     assert_match %r{table.*gallery.*Zena.transfer.*image24_pv.jpg.*image24_std.jpg.*image30_pv.jpg.*image30_std.jpg}m, zazen('![24,30]!')
     @node = secure!(Node) { Node.find(nodes_id(:wiki)) }
@@ -120,7 +101,6 @@ class ZazenTest < Zena::View::TestCase
   end
 
   def test_make_gallery_bad_zips
-    login(:anon)
     @node = secure!(Node) { Node.find(nodes_id(:wiki)) }
     assert_nil secure(Node) { Node.find_by_id(999)}
     assert_nothing_raised { zazen("this ![999]!") }
@@ -148,7 +128,7 @@ class ZazenTest < Zena::View::TestCase
   end
 
   def test_full
-    assert_zazen_match "div.img_left a[@href='/en/projects/cleanWater'][@onclick*=window.open] img.std[@src='/en/projects/cleanWater/image24_std.jpg?929831698949'][@width='545'][@height='400'][@alt='it\\'s a lake']", '!<.24_3!:021'
+    assert_zazen_match "div.img_left a[@href='/en/projects/cleanWater'][@onclick*=window.open] img.std[@src='/en/projects/cleanWater/image24_std.jpg?929831698949'][@width='545'][@height='400'][@alt*=lake]", '!<.24_3!:021'
   end
 
   def test_empty_image_ref
@@ -167,16 +147,20 @@ class ZazenTest < Zena::View::TestCase
   end
 
   context 'An absolute pseudo path' do
+    setup do
+      login(:anon)
+    end
+
     subject do
-      '(/projects/cleanWater/status)'
+      '(/projects/wiki/bird)'
     end
 
     should 'resolve as link without using the current node' do
-      assert_equal '<p>Read <a href="/en/projects/cleanWater/page22.html">projects/cleanWater/status</a></p>', zazen(%Q{Read "":#{subject}})
+      assert_equal '<p>Read <a href="/en/image30.html">projects/wiki/bird</a></p>', zazen(%Q{Read "":#{subject}})
     end
 
     should 'resolve as image without using the current node' do
-      assert_equal "", zazen(%Q{See !#{subject}!})
+      assert_match %Q{img[@src='/en/image30_std.jpg?929831698949]}, zazen(%Q{See !#{subject}!})
     end
 
 
@@ -215,7 +199,7 @@ class ZazenTest < Zena::View::TestCase
     context 'with different current nodes' do
       setup do
         lion = secure!(Node) { nodes(:lion) }
-        lion.update_attributes(:name => 'status')
+        lion.update_attributes(:node_name => 'status')
         @people = secure!(Node) { nodes(:people) }
         @cleanWater = secure!(Node) { nodes(:cleanWater) }
       end
@@ -232,7 +216,7 @@ class ZazenTest < Zena::View::TestCase
   def test_pseudo_id_numbers_only
     login(:lion)
     lion = secure!(Node) { nodes(:lion) }
-    assert lion.update_attributes(:name => '1234')
+    assert lion.update_attributes(:node_name => '1234')
     login(:anon)
     assert_equal '<p>This is a <a href="/en/contact15.html">people/1234</a>.</p>', zazen('This is a "link"::123.')
   end
@@ -247,7 +231,6 @@ class ZazenTest < Zena::View::TestCase
   end
 
   def test_translate_ids
-    login(:anon)
     projects = secure!(Node) { nodes(:projects) }
     zena     = secure!(Node) { nodes(:zena) }
     assert_equal "This \"is\":33 \"a\":#{nodes_zip(:wiki)} !#{nodes_zip(:bird_jpg)}! \"link\":#{nodes_zip(:lion)}.",
