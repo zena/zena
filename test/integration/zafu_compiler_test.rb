@@ -268,6 +268,11 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     Zena::Db.insert_many('site_attributes', %W{key value owner_id}, values)
     yt_do_test('basic', 'captcha')
   end
-
+  
+  def test_dates_uses_datebox_missing_lang
+    visitor.lang = 'io'
+    yt_do_test('dates', 'uses_datebox_missing_lang')
+  end
+  
   yt_make
 end

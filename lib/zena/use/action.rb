@@ -44,7 +44,7 @@ module Zena
             "<a href='#{url}#{publish_after_save ? "?pub=#{publish_after_save}" : ''}' target='_blank' title='#{_('btn_title_edit')}' onclick=\"editor=window.open('#{url}#{publish_after_save ? "?pub=#{publish_after_save}" : ''}', \'#{current_site.host}#{node[:zip]}\', 'location=0,width=300,height=400,resizable=1');return false;\">" +
                    _('btn_edit') + "</a>"
           when 'drive'
-            "<a href='#{edit_node_url(:id => node[:zip])}' target='_blank' title='#{_('btn_title_drive')}' onclick=\"editor=window.open('" +
+            "<a href='#{edit_node_path(:id => node[:zip])}' target='_blank' title='#{_('btn_title_drive')}' onclick=\"editor=window.open('" +
                    edit_node_url(:id => node[:zip] ) +
                    "', '_blank', 'location=0,width=300,height=400,resizable=1');return false;\">" +
                    _('btn_drive') + "</a>"

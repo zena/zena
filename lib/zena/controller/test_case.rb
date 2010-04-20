@@ -21,10 +21,18 @@ module Zena
         end
       end
 
-      def assert_css(match)
-        target = Hpricot(@response.body)
+      def assert_match(match, target)
+        return super if match.kind_of?(Regexp)
+        target = Hpricot(target)
         assert !target.search(match).empty?,
           "expected tag, but no tag found matching #{match.inspect} in:\n#{target.inspect}"
+      end
+
+      def assert_no_match(match, target)
+        return super if match.kind_of?(Regexp)
+        target = Hpricot(target)
+        assert target.search(match).empty?,
+          "expected not tag, but tag found matching #{match.inspect} in:\n#{target.inspect}"
       end
 
       def err(obj)

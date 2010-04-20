@@ -112,7 +112,7 @@ class SecureTest < Zena::Unit::TestCase
 
       context 'loaded without secure' do
         should 'not be valid' do
-          subject.valid?
+          assert !subject.valid?
         end
       end
     end # with an accessible node

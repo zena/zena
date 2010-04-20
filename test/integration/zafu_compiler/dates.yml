@@ -30,3 +30,13 @@ could_be_nil:
   src: "*<r:date select='log_at'><r:eval>date.year</r:eval></r:date>*"
   tem: "*<%= (@node.log_at ? @node.log_at.year : nil) %>*"
   res: '**' # no errors
+
+uses_datebox:
+  src: "<r:uses_datebox/>"
+  tem: "/<script.*calendar.js.*calendar-setup.js.*calendar-en-utf8.js.*calendar-brown.css.*DEF_DATE_FORMAT.*%Y-%m-%d %H:%M.*FIRST_DAY.*0/"
+
+uses_datebox_missing_lang:
+  # should default to 'en'
+  # visitor.lang = 'io' set in ZafuCompilerTest
+  src: "<r:uses_datebox/>"
+  tem: "/calendar/lang/calendar-en-utf8.js/"

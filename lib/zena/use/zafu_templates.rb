@@ -165,7 +165,7 @@ module Zena
 
           unless document = self.expire_with_nodes[fullpath]
             unless document = secure(Document) { Document.find_by_path(fullpath) }
-              document = secure(Document) { Document.first(:conditions => ['name = ? AND section_id = ?', url.last, skin.id]) }
+              document = secure(Document) { Document.first(:conditions => ['node_name = ? AND section_id = ?', url.last, skin.id]) }
               self.expire_with_nodes[document.fullpath] = document if document
             end
             self.expire_with_nodes[fullpath] = document if document
@@ -173,7 +173,7 @@ module Zena
 
           if document
             # Return document and base_path to document
-            base_path = "#{([skin.name] + url[0..-2]).join('/')}"
+            base_path = "#{([skin.node_name] + url[0..-2]).join('/')}"
             [document, base_path]
           else
             nil
@@ -235,7 +235,7 @@ module Zena
           lang_path = dev_mode? ? "dev_#{lang}" : lang
 
           # Path as seen from zafu:
-          zafu_url  = template.fullpath.gsub(/^#{@skin.fullpath}/, @skin.name)
+          zafu_url  = template.fullpath.gsub(/^#{@skin.fullpath}/, @skin.node_name)
 
           rel_path  = current_site.zafu_path + "/#{zafu_url}/#{lang_path}/_main.erb"
           path      = SITES_ROOT + rel_path
@@ -290,7 +290,7 @@ module Zena
             FileUtils::rmtree(File.dirname(SITES_ROOT + rel_path))
 
             @skins = {
-              @skin.name => @skin
+              @skin.node_name => @skin
             }
 
             # Cache loaded templates and skins

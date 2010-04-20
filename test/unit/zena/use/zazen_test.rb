@@ -20,7 +20,7 @@ class ZazenTest < Zena::View::TestCase
   # ===============================
 
   def assert_zazen_match(css, code)
-    assert_css css, zazen(code)
+    assert_match css, zazen(code)
   end
 
   # all these additions are replaced by the traduction of 'unknown link' if the user does not have read access to the linked node.

@@ -212,23 +212,6 @@ module Zena
           helper.stylesheet_link_tag(*list)
         end
 
-        # date_box seizure setup
-        def r_uses_datebox
-          if ZENA_CALENDAR_LANGS.include?(visitor.lang)
-            l = visitor.lang
-          else
-            l = visitor.site[:default_lang]
-          end
-<<-EOL
-<script src="/calendar/calendar.js" type="text/javascript"></script>
-<script src="/calendar/calendar-setup.js" type="text/javascript"></script>
-<script src="/calendar/lang/calendar-#{l}-utf8.js" type="text/javascript"></script>
-<link href="/calendar/calendar-brown.css" media="screen" rel="Stylesheet" type="text/css" />
-<% js_data << %Q{Calendar._TT["DEF_DATE_FORMAT"] = "#{_('datetime')}";} -%>
-<% js_data << %Q{Calendar._TT["FIRST_DAY"] = #{_('week_start_day')};} -%>
-EOL
-        end
-
         # Used by zafu templates that act as layouts (adminLayout for example) to insert the content if present
         # or render.
         def r_content_for_layout

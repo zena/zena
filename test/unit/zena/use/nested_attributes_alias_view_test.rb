@@ -57,43 +57,43 @@ class NestedAttributesAliasViewTest < Zena::View::TestCase
   end
 
   def test_text_field_should_find_value
-    assert_css 'input#foo_title[@name="foo[title]"][@value="version title"][@type="text"]', text_field('foo', 'title')
+    assert_match 'input#foo_title[@name="foo[title]"][@value="version title"][@type="text"]', text_field('foo', 'title')
   end
 
   def test_text_field_should_find_value_through_proc
-    assert_css 'input#foo_friend_id[@name="foo[friend_id]"][@value="1234"]', text_field('foo', 'friend_id')
+    assert_match 'input#foo_friend_id[@name="foo[friend_id]"][@value="1234"]', text_field('foo', 'friend_id')
   end
 
   def test_text_field_should_find_value_deeply_nested
-    assert_css 'input#foo_c_width[@name="foo[c_width]"][@value="33"]', text_field('foo', 'c_width')
+    assert_match 'input#foo_c_width[@name="foo[c_width]"][@value="33"]', text_field('foo', 'c_width')
   end
 
   def test_password_field_should_find_value
     @foo.version.dyn = HashAsMethods.new('secret' => 'yellow')
-    assert_css 'input#foo_d_secret[@name="foo[d_secret]"][@value="yellow"][@type="password"]', password_field('foo', 'd_secret')
+    assert_match 'input#foo_d_secret[@name="foo[d_secret]"][@value="yellow"][@type="password"]', password_field('foo', 'd_secret')
   end
 
   def test_hidden_field_should_find_value
-    assert_css 'input#foo_title[@name="foo[title]"][@value="version title"][@type="hidden"]', hidden_field('foo', 'title')
+    assert_match 'input#foo_title[@name="foo[title]"][@value="version title"][@type="hidden"]', hidden_field('foo', 'title')
   end
 
   def test_file_field_should_find_value
-    assert_css 'input#foo_title[@name="foo[title]"][@type="file"]', file_field('foo', 'title')
+    assert_match 'input#foo_title[@name="foo[title]"][@type="file"]', file_field('foo', 'title')
   end
 
   def test_text_area_should_find_value
-    assert_css 'textarea#foo_title[@name="foo[title]"]', tag = text_area('foo', 'title')
+    assert_match 'textarea#foo_title[@name="foo[title]"]', tag = text_area('foo', 'title')
     assert_match %r{version title}, tag
   end
 
   def test_check_box_should_find_value
     tag = check_box('foo', 'title', {}, 'version title', '')
-    assert_css 'input[@name="foo[title]"][@value=""][@type="hidden"]', tag
-    assert_css 'input#foo_title[@name="foo[title]"][@value="version title"][@type="checkbox"][@checked="checked"]', tag
+    assert_match 'input[@name="foo[title]"][@value=""][@type="hidden"]', tag
+    assert_match 'input#foo_title[@name="foo[title]"][@value="version title"][@type="checkbox"][@checked="checked"]', tag
   end
 
   def test_radio_button_should_find_value
     tag = radio_button('foo', 'title', 'version title')
-    assert_css 'input[@name="foo[title]"][@value="version title"][@type="radio"][@checked="checked"]', tag
+    assert_match 'input[@name="foo[title]"][@value="version title"][@type="radio"][@checked="checked"]', tag
   end
 end

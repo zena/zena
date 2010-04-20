@@ -273,8 +273,8 @@ module Zena
                 res << "<em>#{l}</em>"
               end
             else
-              if visitor.is_anon? && params[:prefix]
-                res << tag_in + link_to(l, :overwrite_params => {:prefix => l}) + tag_out
+              if params[:controller] == 'nodes'
+                res << tag_in + "<a href='#{zen_path(@node, :lang => l)}'>#{l}</a>"
               else
                 res << tag_in + link_to(l, :overwrite_params => {:lang   => l}) + tag_out
               end

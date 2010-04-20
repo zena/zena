@@ -51,7 +51,7 @@ module Zena
             res
           end
         end
-
+        
         # <img> tag definition to show an Image / mp3 document
         # FIXME: this should live inside zafu
         def asset_img_tag(obj, opts)
@@ -204,32 +204,6 @@ module Zena
         def form_skins
           @form_skins ||= secure!(Skin) { Skin.find(:all, :order=>'node_name ASC') }.map {|r| [r.title, r.zip]}
         end
-
-        # Date selection tool
-      	def date_box(obj, var, opts = {})
-      	  rnd_id = rand(100000000000)
-      	  defaults = {  :id=>"datef#{rnd_id}", :button=>"dateb#{rnd_id}", :display=>"dated#{rnd_id}" }
-      	  opts = defaults.merge(opts)
-      	  date = eval("@#{obj} ? @#{obj}.#{var} : nil")
-      	  value = tformat_date(date,'datetime')
-          if opts[:size]
-            fld = "<input id='#{opts[:id]}' name='#{obj}[#{var}]' type='text' size='#{opts[:size]}' value='#{value}' />"
-          else
-            fld = "<input id='#{opts[:id]}' name='#{obj}[#{var}]' type='text' value='#{value}' />"
-          end
-      		<<-EOL
-      <span class="date_box"><img src="/calendar/iconCalendar.gif" id="#{opts[:button]}" alt='#{_('date selection')}'/>
-      #{fld}
-      	<script type="text/javascript">
-          Calendar.setup({
-              inputField     :    "#{opts[:id]}",      // id of the input field
-              button         :    "#{opts[:button]}",  // trigger for the calendar (button ID)
-              singleClick    :    true,
-              showsTime      :    true
-          });
-      </script></span>
-      		EOL
-      	end
 
         # Display an input field to select an id. The user can enter an id or a name in the field and the
         # node's path is shown next to the input field. If the :class option is specified and the elements

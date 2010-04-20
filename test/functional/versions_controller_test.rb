@@ -62,9 +62,9 @@ class VersionsControllerTest < Zena::Controller::TestCase
     assert_match %r{wikiSkin/Node-\+popupLayout/en/_main$}, @response.layout
     login(:ant)
     get 'edit', version_hash(:status_en, 0)
-    assert_css "form[@action='/nodes/#{nodes_zip(:status)}']"
+    assert_match "form[@action='/nodes/#{nodes_zip(:status)}']"
     get 'edit', version_hash(:lake_red_en)
-    assert_css "form[@action='/nodes/#{nodes_zip(:lake)}']"
+    assert_match "form[@action='/nodes/#{nodes_zip(:lake)}']"
   end
 
   def test_parse_assets

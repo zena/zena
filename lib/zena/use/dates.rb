@@ -104,8 +104,37 @@ module Zena
         include Common
       end
 
+      module FormTags
+        # Date selection tool
+      	def date_box(obj, var, opts = {})
+      	  rnd_id = rand(100000000000)
+      	  defaults = {  :id=>"datef#{rnd_id}", :button=>"dateb#{rnd_id}", :display=>"dated#{rnd_id}" }
+      	  opts = defaults.merge(opts)
+      	  date = eval("@#{obj} ? @#{obj}.#{var} : nil")
+      	  value = tformat_date(date,'datetime')
+          if opts[:size]
+            fld = "<input id='#{opts[:id]}' name='#{obj}[#{var}]' type='text' size='#{opts[:size]}' value='#{value}' />"
+          else
+            fld = "<input id='#{opts[:id]}' name='#{obj}[#{var}]' type='text' value='#{value}' />"
+          end
+      		<<-EOL
+      <span class="date_box"><img src="/calendar/iconCalendar.gif" id="#{opts[:button]}" alt='#{_('date selection')}'/>
+      #{fld}
+      	<script type="text/javascript">
+          Calendar.setup({
+              inputField     :    "#{opts[:id]}",      // id of the input field
+              button         :    "#{opts[:button]}",  // trigger for the calendar (button ID)
+              singleClick    :    true,
+              showsTime      :    true
+          });
+      </script></span>
+      		EOL
+      	end
+      end
+
       module ViewMethods
         include Common
+        include FormTags
 
         # default date used to filter events in templates
         def main_date
@@ -245,6 +274,23 @@ module Zena
           else
             {:method => 'main_date', :class => Time}
           end
+        end
+
+        # date_box seizure setup
+        def r_uses_datebox
+          if ZENA_CALENDAR_LANGS.include?(visitor.lang)
+            l = visitor.lang
+          else
+            l = visitor.site[:default_lang]
+          end
+<<-EOL
+<script src="/calendar/calendar.js" type="text/javascript"></script>
+<script src="/calendar/calendar-setup.js" type="text/javascript"></script>
+<script src="/calendar/lang/calendar-#{l}-utf8.js" type="text/javascript"></script>
+<link href="/calendar/calendar-brown.css" media="screen" rel="Stylesheet" type="text/css" />
+<% js_data << %Q{Calendar._TT["DEF_DATE_FORMAT"] = "#{_('datetime')}";} -%>
+<% js_data << %Q{Calendar._TT["FIRST_DAY"] = #{_('week_start_day')};} -%>
+EOL
         end
 
         # Select a date for the current context
