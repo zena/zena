@@ -131,8 +131,9 @@ class Image < Document
 
   # Set content file, will refuse to accept the file if it is not an image.
   def file=(file)
-    if Zena::Use::ImageBuilder.image_content_type?(file.content_type)
-      @new_image = super
+    new_file = super
+    if self.class.accept_content_type?(content_type)
+      @new_image = new_file
       img = image_with_format(nil)
       prop['width' ] = img.width
       prop['height'] = img.height
@@ -209,10 +210,14 @@ class Image < Document
     # This is triggered after create (after the image has been saved but
     # before the properties are saved with the version).
     def save_version_after_create
+      set_default_text
+      super
+    end
+
+    def set_default_text
       if text.blank?
         self.text = "!#{zip}!"
       end
-      super
     end
 
     # Create a new image in File System with the new format

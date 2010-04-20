@@ -1335,8 +1335,8 @@ class Node < ActiveRecord::Base
   # List of attribute keys to export in a zml file.
   def export_keys
     {
-      :zazen => version.export_keys[:zazen],
-      :dates => version.export_keys[:dates],
+      :zazen => prop.select { |k, v| v.kind_of?(String) },
+      :dates => prop.select { |k, v| v.kind_of?(Time) },
     }
   end
 

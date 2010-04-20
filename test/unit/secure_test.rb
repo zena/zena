@@ -27,7 +27,7 @@ class SecureTest < Zena::Unit::TestCase
     end
   end
 
-  context 'A visitor not in any access groups of a node' do
+  context 'A visitor not in any access groups' do
     setup do
       login(:anon)
     end
@@ -44,51 +44,78 @@ class SecureTest < Zena::Unit::TestCase
       assert_raise(ActiveRecord::RecordNotFound) { secure_drive!(Node) { nodes(:secret) }}
     end
 
-    should 'receive nil when calling secure read' do
-      node = nil
-      assert_nothing_raised { node = secure(Node) { nodes(:secret) }}
-      assert_nil node
-    end
-
-    should 'receive nil when calling secure write' do
-      node = nil
-      assert_nothing_raised { node = secure_write(Node) { nodes(:secret) }}
-      assert_nil node
-    end
-
-    should 'receive nil when calling secure drive' do
-      node = nil
-      assert_nothing_raised { node = secure_drive(Node) { nodes(:secret) }}
-      assert_nil node
-    end
-
-    should 'receive 0 when counting nodes with any secure scope' do
-      assert_equal 0, secure!(Node)       { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
-      assert_equal 0, secure(Node)        { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
-      assert_equal 0, secure_write!(Node) { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
-      assert_equal 0, secure_write(Node)  { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
-      assert_equal 0, secure_drive!(Node) { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
-      assert_equal 0, secure_drive(Node)  { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
-    end
-
-    context 'loaded without secure' do
-      setup do
-        @node = nodes(:secret)
-        #@visitor.visit(@node)
+    context 'with a forbidden node' do
+      subject do
+        nodes(:secret)
       end
 
-      should 'receive false when asking can_read?' do
-        assert !@node.can_read?
+      should 'receive nil when calling secure read' do
+        assert_nothing_raised do
+          assert_nil secure(Node) { subject }
+        end
       end
 
-      should 'receive false when asking can_write?' do
-        assert !@node.can_write?
+      should 'receive nil when calling secure write' do
+        assert_nothing_raised do
+          assert_nil secure_write(Node) { subject }
+        end
       end
 
-      should 'receive false when asking can_drive?' do
-        assert !@node.can_drive?
+      should 'receive nil when calling secure drive' do
+        assert_nothing_raised do
+          assert_nil secure_drive(Node) { subject }
+        end
       end
-    end
+
+      should 'receive 0 when counting nodes with any secure scope' do
+        assert_equal 0, secure!(Node)       { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
+        assert_equal 0, secure(Node)        { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
+        assert_equal 0, secure_write!(Node) { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
+        assert_equal 0, secure_write(Node)  { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
+        assert_equal 0, secure_drive!(Node) { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
+        assert_equal 0, secure_drive(Node)  { Node.count(:conditions => ['id = ?', nodes_id(:secret)])}
+      end
+
+      context 'loaded without secure' do
+        subject do
+          nodes(:secret)
+        end
+
+        should 'receive false when asking can_read?' do
+          assert !subject.can_read?
+        end
+
+        should 'receive false when asking can_write?' do
+          assert !subject.can_write?
+        end
+
+        should 'receive false when asking can_drive?' do
+          assert !subject.can_drive?
+        end
+      end
+    end # with a forbidden node
+
+    context 'with an accessible node' do
+      subject do
+        nodes(:status)
+      end
+
+      context 'loaded with secure' do
+        subject do
+          secure!(Node) { nodes(:status) }
+        end
+
+        should 'be valid' do
+          assert subject.valid?
+        end
+      end
+
+      context 'loaded without secure' do
+        should 'not be valid' do
+          subject.valid?
+        end
+      end
+    end # with an accessible node
   end # A visitor not in any access groups
 
   context 'A visitor counting nodes' do
@@ -932,7 +959,7 @@ class SecureTest < Zena::Unit::TestCase
         Object.new.send(:login, 'lion')
       end
     end
-    
+
     should 'not define secure method' do
       assert_raise(NoMethodError) do
         Object.new.send(:secure, Node)

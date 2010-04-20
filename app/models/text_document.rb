@@ -18,8 +18,9 @@ class TextDocument < Document
       (content_type =~ /^(text)/ && Zena::TYPE_TO_EXT[content_type.chomp] != ['rtf']) || (content_type =~ /x-javascript/)
     end
 
-    def version_class
-      TextDocumentVersion
+    # Return true if the content_type can change independantly from the file
+    def accept_content_type_change?
+      true
     end
   end # Class Methods
 

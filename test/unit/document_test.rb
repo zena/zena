@@ -3,6 +3,22 @@ require 'fileutils'
 
 class DocumentTest < Zena::Unit::TestCase
 
+  context 'Finding class from content_type' do
+    should 'return self on unknown content_type' do
+      class FooDoc < Document
+      end
+      assert_equal FooDoc, FooDoc.document_class_from_content_type('zorglub')
+    end
+
+    should 'return Image on image types' do
+      assert_equal Image, Document.document_class_from_content_type('image/png')
+    end
+
+    should 'return TextDocument on nil' do
+      assert_equal TextDocument, Document.document_class_from_content_type(nil)
+    end
+  end
+
   context 'With a logged in user' do
     setup do
       login(:ant)
@@ -99,7 +115,99 @@ class DocumentTest < Zena::Unit::TestCase
           assert_equal 'stupid', subject.title
           assert_equal 'stupid.pdf', subject.filename
         end
-      end
+      end # with wrong extension in node_name
+
+      context 'with title ending with dots' do
+        subject do
+          secure!(Document) { Document.create(
+            :parent_id => nodes_id(:cleanWater),
+            :title     => 'report...',
+            :file      => uploaded_pdf('water.pdf'))
+          }
+        end
+
+        should 'keep dots in title' do
+          assert_equal 'report...', subject.title
+        end
+
+        should 'keep dots in node_name' do
+          assert_equal 'report...', subject.node_name
+        end
+
+        should 'append extension afert dots' do
+          assert_equal 'report....pdf', subject.filename
+        end
+
+        should 'extract extension from file' do
+          assert_equal 'pdf', subject.ext
+        end
+      end # with title ending with dots
+
+      context 'with an unknown extension' do
+        subject do
+          secure!(Document) { Document.create(
+            :parent_id => nodes_id(:cleanWater),
+            :title     => 'report...',
+            :file      => uploaded_fixture('some.txt', 'application/octet-stream', 'super.zz'))
+          }
+        end
+
+        should 'build a Document' do
+          assert_equal Document, subject.class
+        end
+
+        should 'keep extension' do
+          assert_equal 'zz', subject.ext
+        end
+
+        should 'use application/octet-stream as content_type' do
+          assert_equal 'application/octet-stream', subject.content_type
+        end
+      end # with an unknown extension
+
+      context 'without an extension' do
+        subject do
+          secure!(Document) { Document.create(
+            :parent_id => nodes_id(:cleanWater),
+            :title     => 'report...',
+            :file      => uploaded_fixture('some.txt', 'application/octet-stream', 'super'))
+          }
+        end
+
+        should 'build a Document' do
+          assert_equal Document, subject.class
+        end
+
+        should 'use bin extension' do
+          assert_equal 'bin', subject.ext
+        end
+
+        should 'use application/octet-stream as content_type' do
+          assert_equal 'application/octet-stream', subject.content_type
+        end
+      end # without an extension
+
+      context 'with an extension in title' do
+        subject do
+          secure!(Document) { Document.create(
+            :parent_id => nodes_id(:cleanWater),
+            :title     => "lazy waters.sop",
+            :file      => uploaded_fixture('water.pdf', 'application/pdf', 'wat'))
+          }
+        end
+
+        should 'use file content_type to get extension' do
+          assert_equal 'pdf', subject.ext
+        end
+
+        should 'use file content_type to get content_type' do
+          assert_equal 'application/pdf', subject.content_type
+        end
+
+        should 'not remove ext from title' do
+          assert_equal 'lazy waters.sop', subject.title
+        end
+      end # with an extension in title
     end # creating a document
 
     context 'updating a document' do
@@ -109,41 +217,94 @@ class DocumentTest < Zena::Unit::TestCase
 
       context 'with a wrong file type' do
         should 'not save and set an error on file' do
-          assert !subject.update_attributes( :file => uploaded_pdf('water.pdf') )
-          assert_equal '', subject.errors[:file]
+          assert !subject.update_attributes(:file => uploaded_pdf('water.pdf'))
+          assert_equal 'incompatible with this class', subject.errors[:file]
         end
       end # with a wrong file type
 
-      context 'with same node_name' do
+      context 'with existing node_name' do
         should 'save node_name and title with increment' do
-          assert subject.update_attributes( :node_name => 'water')
-          assert_equal 'water-1', subject.node_name
-          assert_equal 'water-1', subject.title
+          assert subject.update_attributes(:node_name => 'flower')
+          assert_equal 'flower-1', subject.node_name
+          assert_equal 'flower-1', subject.title
         end
-      end # with same node_name
+      end # with existing node_name
+
+
+      context 'with a new file' do
+        # All tests relying on commit (filename, size, attachment) have been
+        # moved to AttachmentTest.
+        should 'save change' do
+          assert subject.update_attributes(:file => uploaded_jpg('tree.jpg'))
+        end
+
+        should 'change filepath' do
+          original_filepath = subject.filepath
+          subject.update_attributes(:file => uploaded_jpg('tree.jpg'))
+          assert_not_equal original_filepath, subject.filepath
+        end
+
+        context 'with different content-type' do
+          setup do
+            subject.update_attributes(:file => uploaded_png('bomb.png'))
+          end
+
+          should 'change content type' do
+            assert_equal 'image/png', subject.content_type
+          end
+
+          should 'change filename' do
+            assert_equal 'bird.png', subject.filename
+          end
+        end # with different content-type
+      end # with a new file
+
+      context 'with a new title' do
+        should 'save title changes' do
+          assert subject.update_attributes(:title => 'hopla')
+          assert_equal 'hopla', subject.title
+        end
+
+        should 'not change filename and filepath' do
+          assert subject.update_attributes(:title => 'hopla')
+          assert_equal 'bird.jpg', subject.filename
+          assert_match /bird\.jpg$/, subject.filepath
+        end
+
+        should 'change document node_name' do
+          subject.update_attributes(:title => 'hopla')
+          assert_equal 'hopla', subject.node_name
+        end
+
+        should 'not alter content_type' do
+          subject.update_attributes(:title => 'New title')
+          assert_equal 'image/jpeg', subject.content_type
+        end
+      end
+
+      context 'with a wrong content type' do
+        should 'not save and set an error on content_type' do
+          assert !subject.update_attributes(:content_type => 'image/png')
+          assert_equal 'incompatible with this file', subject.errors[:content_type]
+        end
+      end # with a wrong content type
     end # updating a document
-  end # With a logged in user
 
-  context 'On reading' do
-    setup do
-      login(:tiger)
-    end
-
-    context 'a document' do
+    context 'accessing a document' do
 
       subject do
-        secure!(Document) {Document.find(nodes(:water_pdf))}
+        secure!(Document) { nodes(:water_pdf) }
       end
 
       should 'be valid' do
-        assert  subject.valid?
+        assert subject.valid?
       end
 
-      should 'get document node_name' do
+      should 'get node_name' do
         assert_equal 'water', subject.node_name
       end
 
-      should 'get document title' do
+      should 'get title' do
         assert_equal 'water', subject.title
       end
 
@@ -156,7 +317,7 @@ class DocumentTest < Zena::Unit::TestCase
       end
 
       should 'get filepath' do
-         assert_match /water.pdf/, subject.filepath
+         assert_match /water.pdf$/, subject.filepath
       end
 
       should 'get rootpath' do
@@ -186,100 +347,24 @@ class DocumentTest < Zena::Unit::TestCase
       should 'have a a version with attachment' do
         assert_not_nil subject.version.attachment
       end
-    end # a document
+    end # accessing a document
 
-    context 'an image' do
-
-      subject{ secure!(Document){ Document.find(nodes(:bird_jpg))} }
+    context 'accessing an image' do
+      subject do
+        secure!(Document) { Document.find(nodes(:bird_jpg)) }
+      end
 
       should 'know if it is an image' do
         assert subject.image?
       end
     end
-  end # On reading
 
-  context 'Finding a Document by path' do
-    setup do
-      login(:tiger)
+    should 'find document by path' do
+      subject = secure!(Document) { Document.find_by_path("projects/cleanWater/water") }
+      assert_kind_of Document, subject
+      assert_equal nodes_id(:water_pdf), subject.id
     end
-
-
-    should 'return correct document' do
-      doc = secure!(Document) { Document.find_by_path("projects/cleanWater/water") }
-      assert_equal "projects/cleanWater/water", doc.fullpath
-    end
-  end
-
-  context 'On updating' do
-    setup do
-      login(:tiger)
-    end
-
-    subject do
-      secure!(Document){ Document.find(nodes(:water_pdf))}
-    end
-
-
-     context 'document attributes' do
-       should 'save title changes' do
-         assert subject.update_attributes(:title => 'hopla')
-         assert_equal 'hopla', subject.title
-       end
-
-       should 'change document node_name when title change' do
-         subject.update_attributes(:title => 'hopla')
-         assert_equal 'hopla', subject.node_name
-       end
-
-       should 'not alter content_type' do
-         subject.update_attributes(:title => "New title")
-         assert_equal 'application/pdf', subject.content_type
-       end
-
-       should 'not create a new attachment' do
-         assert_difference('Attachment.count', 0) do
-           subject.update_attributes(:title => 'hopla')
-         end
-       end
-     end # document attribute
-
-     context 'document file' do
-       should 'save change' do
-         assert subject.update_attributes(:file => uploaded_pdf('forest.pdf'))
-       end
-
-       should 'change filename' do
-         subject.update_attributes(:file => uploaded_pdf('forest.pdf'))
-         assert_equal 'forest.pdf', subject.filename
-       end
-
-       should 'change filepath' do
-         original_filepath = subject.filepath
-         subject.update_attributes(:file => uploaded_pdf('forest.pdf'))
-         assert_not_equal original_filepath, subject.filepath
-       end
-
-       context 'with different content-type' do
-         setup{  subject.update_attributes(:file => uploaded_text('some.txt')) }
-
-         should 'change content type' do
-           assert_equal 'text/plain', subject.content_type
-         end
-
-         should 'change filename' do
-           assert_equal 'some.txt', subject.filename
-         end
-
-         should 'change filepath' do
-           assert_match /some.txt/, subject.filepath
-         end
-
-         should 'change size' do
-           assert_equal subject.size, File.size(subject.filepath)
-         end
-       end # with different content-type
-     end # document file
-  end # on updating
+  end # With a logged in user
 
   context 'On destroy' do
     setup do
@@ -342,55 +427,4 @@ class DocumentTest < Zena::Unit::TestCase
       end
     end # with many versions
   end # On destroy
-
-
-
-  def test_create_with_file_name_has_dots
-    without_files('/test.host/data') do
-      login(:ant)
-      doc = secure!(Document) { Document.create(
-        :parent_id => nodes_id(:cleanWater),
-        :node_name => 'report...',
-        :file      => uploaded_pdf('water.pdf') ) }
-      assert_kind_of Document , doc
-      assert ! doc.new_record? , "Not a new record"
-      assert_equal "report...", doc.node_name
-      assert_equal "report...", doc.version.title
-      assert_equal "water.pdf", doc.filename
-      assert_equal 'pdf', doc.ext
-    end
-  end
-
-  def test_create_with_file_name_unknown_ext
-    without_files('/test.host/data') do
-      login(:ant)
-      doc = secure!(Document) { Document.create(
-        :parent_id => nodes_id(:cleanWater),
-        :file      => uploaded_fixture("some.txt", 'application/octet-stream', "super.zz") ) }
-      assert_kind_of Document , doc
-      assert ! doc.new_record? , "Not a new record"
-      assert_equal "super", doc.name
-      assert_equal "super", doc.version.title
-      assert_equal "super.zz", doc.filename
-      assert_equal 'bin', doc.ext
-      assert_equal 'application/octet-stream', doc.content_type
-    end
-  end
-
-  def test_set_title
-    without_files('/test.host/data') do
-      login(:ant)
-      doc = secure!(Document) { Document.create(
-        :parent_id => nodes_id(:cleanWater),
-        :file      => uploaded_fixture('water.pdf', 'application/pdf', 'wat'), :title => "lazy waters.pdf") }
-      assert_kind_of Document , doc
-      assert ! doc.new_record? , "Not a new record"
-      assert_equal "lazy waters", doc.node_name
-      assert_equal "lazy waters", doc.version.title
-      assert_equal "wat", doc.filename
-      assert_equal 'pdf', doc.ext
-      assert_equal 'application/pdf', doc.content_type
-    end
-  end
-
 end

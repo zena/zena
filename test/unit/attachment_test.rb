@@ -13,10 +13,6 @@ class AttachmentTest< ActiveSupport::TestCase
       login(:tiger)
     end
 
-    teardown do
-      FileUtils.rm(subject.filepath) if subject && subject.filepath
-    end
-
     context 'creating a document' do
       subject do
         secure!(Document) { Document.create(
@@ -27,21 +23,29 @@ class AttachmentTest< ActiveSupport::TestCase
       end
 
       should 'stat file size' do
-        assert_equal 29279, subject.size
+        preserving_files("test.host/data") do
+          assert_equal 29279, subject.size
+        end
       end
 
       should 'create an attachment' do
-        assert_difference('Attachment.count', 1) do
-          subject
+        preserving_files("test.host/data") do
+          assert_difference('Attachment.count', 1) do
+            subject
+          end
         end
       end
 
       should 'use visitor as owner for attachment' do
-        assert_equal users_id(:ant), subject.version.attachment.user_id
+        preserving_files("test.host/data") do
+          assert_equal users_id(:tiger), subject.version.attachment.user_id
+        end
       end
 
       should 'set site_id on attachment' do
-        assert_equal sites_id(:zena), subject.version.attachment.site_id
+        preserving_files("test.host/data") do
+          assert_equal sites_id(:zena), subject.version.attachment.site_id
+        end
       end
     end # creating a document
 
@@ -51,8 +55,29 @@ class AttachmentTest< ActiveSupport::TestCase
         secure!(Node) { nodes(:forest_pdf) } # redaction for 'ant' in 'en'
       end
 
-      teardown do
-        FileUtils.rm(subject.filepath) if subject && subject.filepath
+      context 'without changing file' do
+        should 'not create a new attachment' do
+          assert_difference('Attachment.count', 0) do
+            subject.update_attributes(:title => 'hopla')
+          end
+        end
+      end
+
+      context 'with a new file' do
+        subject do
+          secure!(Node) { nodes(:bird_jpg) }
+        end
+
+        should 'create a new attachment' do
+          assert_difference('Attachment.count', 1) do
+            assert subject.update_attributes(:file => uploaded_png('bomb.png'))
+          end
+        end
+
+        should 'change filepath' do
+          subject.update_attributes(:file => uploaded_png('bomb.png'))
+          assert_match /bird.png$/, subject.filepath
+        end
       end
 
       context 'in redit time' do
@@ -67,7 +92,12 @@ class AttachmentTest< ActiveSupport::TestCase
             assert_difference('Attachment.count', 0) do
               assert subject.update_attributes(:file => uploaded_pdf('water.pdf'))
             end
+          end
+        end
 
+        should 'update size' do
+          preserving_files("test.host/data") do
+            subject.update_attributes(:file => uploaded_pdf('water.pdf'))
             assert_equal 29279, subject.file.size
           end
         end

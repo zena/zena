@@ -468,6 +468,7 @@ module Zena
         end
 
         def workflow_validation
+          return true unless changed?
           if transition = @current_transition
             allowed, message = transition_allowed?(transition)
             unless allowed

@@ -47,6 +47,8 @@ class Document < Node
   safe_method   :filename => String, :file => File, :filepath => String
 
   validate :valid_file
+  validate :valid_content_type
+  after_save :clear_new_file
 
   class << self
 
@@ -60,7 +62,7 @@ class Document < Node
     def new(attrs = {})
 
       scope = self.scoped_methods[0] || {}
-      klass = self
+
       attrs = attrs.stringify_keys
       file  = attrs['file'] || ((attrs['version_attributes'] || {})['content_attributes'] || {})['file']
       if attrs['content_type']
@@ -75,19 +77,7 @@ class Document < Node
         content_type = types[0]
       end
 
-      if content_type
-        if Image.accept_content_type?(content_type)
-          klass = Image
-        elsif Template.accept_content_type?(content_type)
-          klass = Template
-        elsif TextDocument.accept_content_type?(content_type)
-          klass = TextDocument
-        end
-      elsif self == Document
-        # no content_type means no file. Only TextDocuments can be created without files
-        content_type = 'text/plain'
-        klass = TextDocument
-      end
+      klass = document_class_from_content_type(content_type)
 
       attrs['content_type'] = content_type
 
@@ -102,6 +92,31 @@ class Document < Node
     def change_to_classes_for_form
       classes_for_form(:class => 'Document', :without => 'Image')
     end
+
+    # Return document class and content_type from content_type
+    def document_class_from_content_type(content_type)
+      if content_type
+        if Image.accept_content_type?(content_type)
+          Image
+        elsif Template.accept_content_type?(content_type)
+          Template
+        elsif TextDocument.accept_content_type?(content_type)
+          TextDocument
+        else
+          self
+        end
+      elsif self == Document
+        # no content_type means no file. Only TextDocuments can be created without files
+        TextDocument
+      else
+        self
+      end
+    end
+
+    # Return true if the content_type can change independantly from the file
+    def accept_content_type_change?
+      false
+    end
   end # class << self
 
   def update_attributes(attributes)
@@ -113,12 +128,11 @@ class Document < Node
 
   # Create an attachment with a file in file system. Create a new version if file is updated.
   def file=(new_file)
-    if new_file =super(new_file)
+    if new_file = super(new_file)
       self.content_type = new_file.content_type if content_type.blank?
       self.size = new_file.kind_of?(StringIO) ? new_file.size : new_file.stat.size
       self.ext  = set_extension(new_file)
       @new_file = new_file
-      deb @new_file
     end
   end
 
@@ -176,21 +190,40 @@ class Document < Node
 
     # Make sure we have a file.
     def valid_file
-      if new_record?
-        if @new_file
-          @new_file = nil
-          true
-        else
-          errors.add('file', "can't be blank")
-          false
-        end
+      if new_record? && !@new_file
+        errors.add('file', "can't be blank")
+        false
       else
         true
       end
     end
 
+    # Make sure the new file
+    def valid_content_type
+      return true unless prop.content_type_changed?
+
+      if !@new_file && !self.class.accept_content_type_change?
+        errors.add('content_type', 'incompatible with this file')
+        return false
+      end
+
+      klass = Document.document_class_from_content_type(content_type)
+
+      if klass != self.class
+        if @new_file
+          errors.add('file', 'incompatible with this class')
+        else
+          errors.add('content_type', 'incompatible with this class')
+        end
+      end
+    end
+
+    def clear_new_file
+      @new_file = nil
+      true
+    end
+
     def set_node_name_from_file
-    deb @new_file
       return unless @new_file
       if base = node_name || title || @new_file.original_filename
         if base =~ /(.*)\.(\w+)$/
@@ -211,10 +244,13 @@ class Document < Node
       extensions = Zena::TYPE_TO_EXT[prop['content_type']]
       if extensions && content_type != 'application/octet-stream' # use 'bin' extension only if we do not have any other ext.
         (prop['ext'] && extensions.include?(prop['ext'].downcase)) ? self.prop['ext'].downcase : extensions[0]
-        #new_file.original_filename.split('.').last.downcase
       else
-        # unknown content_type or 'application/octet-stream' , just keep the extension we have
-        'bin'
+        # unknown content_type or 'application/octet-stream', just keep the extension we have
+        if new_file.original_filename =~ /\w\.(\w+)$/
+          $1.downcase
+        else
+          'bin'
+        end
       end
     end
 
