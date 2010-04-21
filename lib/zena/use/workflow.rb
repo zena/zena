@@ -110,8 +110,6 @@ module Zena
         base.has_many :editions,  :class_name => 'Version',
                  :conditions=>"publish_from <= #{Zena::Db::NOW} AND status = #{Zena::Status[:pub]}", :order=>'lang' #, :inverse_of => :node
 
-        # TODO: remove for Observers.
-        #after_save    :after_all
 
         base.before_validation :set_workflow_defaults
         base.validate      :workflow_validation
@@ -368,9 +366,27 @@ module Zena
           self.version_attributes = {'status' => Zena::Status[:rem]}
           save
         when :destroy_version
-          self.version_attributes = {'status' => -1, :__destroy => true}
+          self.version_attributes = {:__destroy => true}
           save
         end
+      end
+
+      def apply_with_callbacks(method, *args)
+        if apply_without_callbacks(method, *args)
+          # TODO: we should build callback from @current_transition.name
+          callback = :"after_#{method}"
+          if respond_to?(callback, true)
+            send(callback)
+          else
+            true
+          end
+        end && after_all # after_all can trigger even if no save operation occured
+      end
+
+      alias_method_chain :apply, :callbacks
+
+      def after_all
+        true
       end
 
       # Propose for publication
@@ -468,10 +484,12 @@ module Zena
         end
 
         def workflow_validation
-          return true unless changed?
+
           if transition = @current_transition
             allowed, message = transition_allowed?(transition)
-            unless allowed
+            if allowed
+              return true
+            else
               errors.add(:base, message || "You do not have the rights to #{transition[:name].to_s.gsub('_', ' ')}.")
             end
             #unless transition_allowed?(transition)
@@ -494,6 +512,7 @@ module Zena
           else
             errors.add(:base, 'This transition is not allowed.')
           end
+          false
         end
 
         def workflow_before_create
@@ -553,8 +572,7 @@ module Zena
             end
           end
 
-          # Why would we need this ?
-          # self.updated_at = Time.now unless changed? # force 'updated_at' sync
+          self.updated_at = Time.now unless changed? # force 'updated_at' sync
           true
         end
 

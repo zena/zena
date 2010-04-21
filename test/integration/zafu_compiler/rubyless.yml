@@ -13,14 +13,14 @@ tagged_relation:
   context:
     node: 'art'
     dev: 'true'
-  src: "<r:context select='tagged'><r:each join=', '><r:show attr='name'/></r:each></r:context>"
+  src: "<r:context select='tagged'><r:each join=', '><r:show attr='node_name'/></r:each></r:context>"
   res: "cleanWater, opening"
 
 tagged_relation:
   context:
     node: 'art'
     dev: 'true'
-  src: "<r:tagged foo='bar'><r:each join=', '><r:show attr='name'/></r:each></r:tagged>"
+  src: "<r:tagged foo='bar'><r:each join=', '><r:show attr='node_name'/></r:each></r:tagged>"
   res: "cleanWater, opening"
 
 tagged_rubyless:

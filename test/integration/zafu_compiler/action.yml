@@ -18,13 +18,13 @@ login_link_not_logged_in:
   res: '<a href="/login">login</a>'
 
 login_link_with_blocks:
-  src: "<r:login_link>ONE ONE<r:else do='name'/></r:login_link>"
+  src: "<r:login_link>ONE ONE<r:else do='node_name'/></r:login_link>"
   res: "<a href='/logout'>status</a>"
 
 login_link_with_blocks_not_logged_in:
   context:
     visitor: 'anon'
-  src: "<r:login_link><r:title/><r:else do='name'/></r:login_link>"
+  src: "<r:login_link><r:title/><r:else do='node_name'/></r:login_link>"
   res: "<a href='/login'>status title</a>"
 
 visitor_link_not_logged_in:

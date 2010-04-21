@@ -16,9 +16,11 @@ class ImageTest < Zena::Unit::TestCase
     end
 
     subject do
-      secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
-                                          :name=>'birdy',
-                                          :file => uploaded_jpg('bird.jpg')) }
+      secure!(Image) { Image.create( 
+        :parent_id =>nodes_id(:cleanWater),
+        :node_name =>'birdy',
+        :file      => uploaded_jpg('bird.jpg'))
+      }
     end
 
     should 'behave nicley' do
@@ -95,19 +97,19 @@ class ImageTest < Zena::Unit::TestCase
       assert_equal 1, subject.versions.count
     end
 
-    context 'and updating name' do
+    context 'and updating title' do
       setup do
-        @img.update_attributes(:title=>'milan')
+        @img.update_attributes(:title => 'milan')
       end
 
       should 'change node name' do
-        assert_equal 'milan', subject.name
+        assert_equal 'milan', subject.node_name
       end
 
       should 'return the original path by default' do
         assert_match /full/, subject.filepath
       end
-    end  # and updating name
+    end  # and updating title
   end # Resizin an image with iformat
 
   context 'Accepting content type' do
@@ -341,10 +343,12 @@ class ImageTest < Zena::Unit::TestCase
   def test_set_event_at_from_exif_tags
     without_files('test.host/data/jpg') do
       login(:ant)
-      img = secure!(Image) { Image.create( :parent_id=>nodes_id(:cleanWater),
-                                          :inherit => 1,
-                                          :name=>'lake',
-                                          :file => uploaded_jpg('exif_sample.jpg')) }
+      img = secure!(Image) { Image.create( 
+        :parent_id =>nodes_id(:cleanWater),
+        :inherit   => 1,
+        :node_name => 'lake',
+        :file      => uploaded_jpg('exif_sample.jpg'))
+      }
       assert_equal 'SANYO Electric Co.,Ltd.', img.exif['Make']
 
       # reload

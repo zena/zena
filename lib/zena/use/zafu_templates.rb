@@ -158,7 +158,7 @@ module Zena
           self.expire_with_nodes ||= {}
           self.renamed_assets ||= {}
 
-          skin = (@skins[skin_name] ||= secure(Skin) { Skin.find_by_name(skin_name) })
+          skin = (@skins[skin_name] ||= secure(Skin) { Skin.find_by_node_name(skin_name) })
           return nil unless skin
 
           fullpath = (skin.fullpath.split('/') + url).join('/')
@@ -303,10 +303,10 @@ module Zena
 
             begin
               res = ZafuCompiler.new_with_url(zafu_url, :helper => zafu_helper).to_erb(:dev => dev_mode?, :node => get_node_context)
-            #rescue => err
-            #  puts err.message
-            #  puts err.backtrace.join("\n")
-            #  return nil
+            rescue => err
+              puts err.message
+              puts err.backtrace.join("\n")
+              return nil
             end
 
             # unless valid_template?(res, opts)

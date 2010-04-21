@@ -7,60 +7,60 @@ class PageTest < Zena::Unit::TestCase
     node = secure!(Page) { Page.create(:parent_id=>nodes_id(:projects), :title=>'lazy node')}
     err node
     assert !node.new_record?
-    assert_equal 'lazyNode', node.name
-    assert_equal 'lazy node', node.version.title
+    assert_equal 'lazyNode', node.node_name
+    assert_equal 'lazy node', node.title
   end
 
-  def test_create_same_name
+  def test_create_same_node_name
     login(:tiger)
-    node = secure!(Page) { Page.create(:parent_id=>nodes_id(:projects), :name=>'wiki')}
+    node = secure!(Page) { Page.create(:parent_id=>nodes_id(:projects), :node_name =>'wiki')}
     assert node.new_record?
-    assert_equal 'has already been taken', node.errors[:name]
+    assert_equal 'has already been taken', node.errors[:node_name]
   end
 
-  def test_create_same_name_other_parent
+  def test_create_same_node_name_other_parent
     login(:tiger)
-    node = secure!(Page) { Page.create(:parent_id=>nodes_id(:cleanWater), :name=>'wiki')}
+    node = secure!(Page) { Page.create(:parent_id=>nodes_id(:cleanWater), :node_name =>'wiki')}
     err node
     assert ! node.new_record?, 'Not a new record'
-    assert_nil node.errors[:name] #.empty?
+    assert_nil node.errors[:node_name] #.empty?
   end
 
-  def test_create_same_name_other_parent_with_cache
+  def test_create_same_node_name_other_parent_with_cache
     with_caching do
       login(:tiger)
-      node = secure!(Page) { Page.create(:parent_id=>nodes_id(:cleanWater), :name=>'wiki')}
+      node = secure!(Page) { Page.create(:parent_id=>nodes_id(:cleanWater), :node_name =>'wiki')}
       err node
       assert ! node.new_record?, 'Not a new record'
-      assert_nil node.errors[:name] #.empty?
+      assert_nil node.errors[:node_name] #.empty?
     end
   end
 
-  def test_update_same_name
+  def test_update_same_node_name 
     login(:tiger)
     node = secure!(Node) { nodes(:cleanWater) }
-    node.name = 'wiki'
+    node.node_name = 'wiki'
     assert ! node.save, 'Cannot save'
-    assert_equal 'has already been taken', node.errors[:name]
+    assert_equal 'has already been taken', node.errors[:node_name]
   end
 
-  def test_update_same_name_other_parent
+  def test_update_same_node_name_other_parent
     login(:tiger)
     node = secure!(Node) { nodes(:cleanWater) }
-    node.name = 'wiki'
+    node.node_name = 'wiki'
     node[:parent_id] = nodes_id(:zena)
     assert node.save
-    assert_nil node.errors[:name] #.empty?
+    assert_nil node.errors[:node_name] #.empty?
   end
 
-  def test_update_same_name_other_parent_with_cache
+  def test_update_same_node_name_other_parent_with_cache
     with_caching do
       login(:tiger)
       node = secure!(Node) { nodes(:cleanWater) }
-      node.name = 'wiki'
+      node.node_name = 'wiki'
       node[:parent_id] = nodes_id(:zena)
       assert node.save
-      assert_nil node.errors[:name] #.empty?
+      assert_nil node.errors[:node_name] #.empty?
     end
   end
 

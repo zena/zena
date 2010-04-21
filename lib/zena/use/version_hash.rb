@@ -91,6 +91,21 @@ module Zena
             if v_id = vhash['r'][version.lang]
               vhash['w'][version.lang] = v_id
             end
+          when :destroy_version
+            if vhash['w'][version.lang] == version.id
+              if version.lang == ref_lang
+                # Must always have a value here
+                vhash['w'][ref_lang] = versions.last.id
+              else
+                vhash['w'].delete(version.lang)
+              end
+            end
+
+            if v_id = vhash['r'][version.lang]
+              vhash['w'][version.lang] = v_id
+            end
+            # force reload
+            @version = nil
           end
           self[:vhash] = vhash.to_json
         end

@@ -5,11 +5,11 @@
   <div class='header'><h1 do='title' class='s70' status='true' actions='all'>this is the title</h1></div>
     <ul class='tree' do='nodes'>
       <li class='parent' do='parent'><r:title actions='all' link='tree'/></li>
-      <li class='current'><r:show attr='name'/></li>
-      <li do='each'><r:show attr='name' edit='true'/>
+      <li class='current'><r:show attr='node_name'/></li>
+      <li do='each'><r:show attr='node_name' edit='true'/>
         <ul do='nodes' name='tree'>
           <li do='each'>
-            <r:link mode='tree' attr='name'/>
+            <r:link mode='tree' attr='node_name'/>
           </li>
         </ul>
       </li>

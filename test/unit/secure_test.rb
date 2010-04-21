@@ -6,8 +6,8 @@ class SecureTest < Zena::Unit::TestCase
     login(opts[:login] || :ant)
     # create new node
     attrs =  {
-      :name => 'hello',
-      :parent_id   => nodes_id(:cleanWater)
+      :node_name => 'hello',
+      :parent_id => nodes_id(:cleanWater)
     }.merge(opts[:node] || {})
 
     node = secure!(Note) { Note.create(attrs) }
@@ -27,26 +27,26 @@ class SecureTest < Zena::Unit::TestCase
     end
   end
 
-  context 'A visitor not in any access groups' do
+  context 'A visitor' do
     setup do
       login(:anon)
-    end
-
-    should 'raise an exception when trying to find the node with secure! read scope' do
-      assert_raise(ActiveRecord::RecordNotFound) { secure!(Node) { nodes(:secret) }}
-    end
-
-    should 'raise an exception when trying to find the node with secure! write scope' do
-      assert_raise(ActiveRecord::RecordNotFound) { secure_write!(Node) { nodes(:secret) }}
-    end
-
-    should 'raise an exception when trying to find the node with secure! drive scope' do
-      assert_raise(ActiveRecord::RecordNotFound) { secure_drive!(Node) { nodes(:secret) }}
     end
 
     context 'with a forbidden node' do
       subject do
         nodes(:secret)
+      end
+
+      should 'raise an exception when trying to find the node with secure! read scope' do
+        assert_raise(ActiveRecord::RecordNotFound) { secure!(Node) { subject }}
+      end
+
+      should 'raise an exception when trying to find the node with secure! write scope' do
+        assert_raise(ActiveRecord::RecordNotFound) { secure_write!(Node) { subject }}
+      end
+
+      should 'raise an exception when trying to find the node with secure! drive scope' do
+        assert_raise(ActiveRecord::RecordNotFound) { secure_drive!(Node) { subject }}
       end
 
       should 'receive nil when calling secure read' do
@@ -181,12 +181,32 @@ class SecureTest < Zena::Unit::TestCase
       Node.connection.execute "UPDATE nodes SET rgroup_id = #{groups_id(:managers)}, wgroup_id = #{groups_id(:workers)}, dgroup_id = #{groups_id(:managers)} WHERE id IN (#{ids})"
     end
 
-    should 'see a node that is not published yet' do
-      assert secure(Node) { nodes(:crocodiles) }
+    context 'on a node that is not published yet' do
+      subject do
+        secure(Node) { nodes(:crocodiles) }
+      end
+
+      should 'see it' do
+        assert subject
+      end
+
+      should 'not be allowed to publish' do
+        assert !subject.publish
+      end
+
+      should 'not be allowed to publish with v_status' do
+        assert !subject.update_attributes(:v_status => Zena::Status[:pub])
+      end
     end
 
-    should 'see published nodes' do
-      assert secure(Node) { nodes(:bananas) }
+    context 'on a published node' do
+      subject do
+        secure(Node) { nodes(:bananas) }
+      end
+
+      should 'see it' do
+        assert subject
+      end
     end
 
     context 'that is a user' do
@@ -196,6 +216,11 @@ class SecureTest < Zena::Unit::TestCase
         assert node.update_attributes(:title => 'max havelaar')
         node = secure(Node) { nodes(:bananas) } # reload
         assert_equal 'max havelaar', node.version.title
+      end
+
+      # FIXME: move to workflow_test ?
+      should 'not be allowed to publish' do
+        assert test_page.update_attributes(:v_status => Zena::Status[:pub], :title => "New funky title")
       end
     end
 
@@ -265,14 +290,14 @@ class SecureTest < Zena::Unit::TestCase
     should 'be allowed to drive' do
       node = secure!(Node) { nodes(:bananas) }
       assert node.can_drive?
-      assert node.update_attributes(:name => 'NamWa')
+      assert node.update_attributes(:node_name => 'NamWa')
     end
   end # A visitor in the read and drive groups
 
 
   def defaults
-    { :name       => 'hello',
-      :parent_id  => nodes_id(:zena) }
+    { :node_name => 'hello',
+      :parent_id => nodes_id(:zena) }
   end
 
   context 'A visitor in the read and write groups' do
@@ -495,8 +520,8 @@ class SecureTest < Zena::Unit::TestCase
       assert_equal 'You do not have the rights to do this.', @node.errors[:base]
     end
 
-    should 'not be allowed to change name' do
-      @node.name = 'slitherin'
+    should 'not be allowed to change node_name' do
+      @node.node_name = 'slitherin'
       assert !@node.save
       assert_equal 'You do not have the rights to do this.', @node.errors[:base]
     end
@@ -657,16 +682,16 @@ class SecureTest < Zena::Unit::TestCase
       assert_equal groups_id(:managers), nodes(:bananas).rgroup_id
     end
 
-    should 'update inheriting children skin on skin change' do
-      assert @node.update_attributes(:inherit => 0, :skin => 'wikiSkin')
-      assert_equal 'wikiSkin', @node.skin
+    should 'update inheriting children skin on skin_id change' do
+      assert @node.update_attributes(:inherit => 0, :skin_id => nodes_id(:wikiSkin))
+      assert_equal nodes_id(:wikiSkin), @node.skin
       # children
-      assert_equal 'wikiSkin', nodes(:status).skin
-      assert_equal 'wikiSkin', nodes(:water_pdf).skin
+      assert_equal nodes_id(:wikiSkin), nodes(:status).skin_id
+      assert_equal nodes_id(:wikiSkin), nodes(:water_pdf).skin_id
       # grandchildren
-      assert_equal 'wikiSkin', nodes(:lake_jpg).skin
+      assert_equal nodes_id(:wikiSkin), nodes(:lake_jpg).skin_id
       # not inherited
-      assert_equal 'default', nodes(:bananas).skin
+      assert_equal nodes_id(:default), nodes(:bananas).skin_id
     end
 
     should 'update inheriting children skin on parent change' do

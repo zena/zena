@@ -45,7 +45,12 @@ module Zena
           if !opts[:skip_rubyless] && rel.size == 1 && type = RubyLess::SafeClass.safe_method_type_for(self.class, [rel.first])
             self.send(type[:method])
           else
-            query = self.class.build_query(count, rel, :node_name => 'self')
+            begin
+              query = self.class.build_query(count, rel, :node_name => 'self')
+            rescue => err
+              puts err
+              puts err.backtrace
+            end
             do_find(count, eval(query.to_s))
           end
         end

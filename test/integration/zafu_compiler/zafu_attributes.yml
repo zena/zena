@@ -73,7 +73,7 @@ anchor_true:
   res: "<a class='anchor' name='node22'></a><span id='_title22'>status title</span>"
 
 show_attr_anchor:
-  src: "<r:show attr='name' anchor='true'/>"
+  src: "<r:show attr='node_name' anchor='true'/>"
   res: "<a class='anchor' name='node22'></a>status"
 
 anchor_in_link:

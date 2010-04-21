@@ -79,7 +79,7 @@ class NodesControllerTest < Zena::Controller::TestCase
       with_caching do
         assert !File.exist?("#{SITES_ROOT}/test.host/public/fr/#{name}")
         login(:lion)
-        doc = secure!(Template) { Template.create("name"=>"Node", "c_format"=>"xml", "summary"=>"", 'text' => '<?xml version="1.0" encoding="utf-8"?><node><name do="[name]"/></node>', "parent_id"=>nodes_id(:default))}
+        doc = secure!(Template) { Template.create("node_name"=>"Node", "c_format"=>"xml", "summary"=>"", 'text' => '<?xml version="1.0" encoding="utf-8"?><node><name do="[name]"/></node>', "parent_id"=>nodes_id(:default))}
         assert !doc.new_record?, "Not a new record"
         assert doc.publish
         login(:anon)
@@ -108,7 +108,7 @@ class NodesControllerTest < Zena::Controller::TestCase
   def test_ics_format_not_anon
     preserving_files('test.host/zafu') do
       login(:lion)
-      doc = secure!(Template) { Template.create("name"=>"Project", "c_format"=>"ics", "summary"=>"", 'text' => "<r:notes in='site' order='event_at asc'>
+      doc = secure!(Template) { Template.create("node_name"=>"Project", "c_format"=>"ics", "summary"=>"", 'text' => "<r:notes in='site' order='event_at asc'>
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//hacksw/handcal//NONSGML v1.0//EN
@@ -205,7 +205,7 @@ END:VCALENDAR
   def test_create_nodes_from_folder
     login(:tiger)
     preserving_files('/test.host/data') do
-      parent = secure!(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena)) }
+      parent = secure!(Project) { Project.create(:node_name => 'import', :parent_id => nodes_id(:zena)) }
       assert !parent.new_record?, "Not a new record"
 
       nodes = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(Zena::ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}.values
@@ -216,14 +216,14 @@ END:VCALENDAR
       assert_equal 4, nodes.size
       bird, doc   = nil, nil
       nodes.each do |n|
-        bird = n if n[:name] == 'bird'
-        doc  = n if n[:name] == 'document'
+        bird = n if n[:node_name] == 'bird'
+        doc  = n if n[:node_name] == 'document'
       end
-      simple = secure!(Node) { Node.find_by_name_and_parent_id('simple', parent[:id]) }
-      photos = secure!(Node) { Node.find_by_name_and_parent_id('photos', parent[:id]) }
+      simple = secure!(Node) { Node.find_by_node_node_name_and_parent_id('simple', parent[:id]) }
+      photos = secure!(Node) { Node.find_by_node_node_name_and_parent_id('photos', parent[:id]) }
 
-      assert_equal 'bird', bird[:name]
-      assert_equal 'simple', simple[:name]
+      assert_equal 'bird', bird[:node_name]
+      assert_equal 'simple', simple[:node_name]
       assert_equal 'The sky is blue', simple.version.title
       assert_equal 'jpg', bird.ext
       assert_equal 'Le septième ciel', bird.version.title

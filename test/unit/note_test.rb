@@ -4,17 +4,17 @@ class NoteTest < Zena::Unit::TestCase
   
   def test_create_simplest
     login(:ant)
-    test_page = secure!(Note) { Note.create(:name=>"yoba", :parent_id => nodes_id(:cleanWater), :inherit=>1 ) }
+    test_page = secure!(Note) { Note.create(:node_name => "yoba", :parent_id => nodes_id(:cleanWater), :inherit=>1 ) }
     assert ! test_page.new_record? , "Not a new record"
     assert_equal nodes_id(:cleanWater), test_page.parent[:id]
     assert_equal 'projects/cleanWater/yoba', test_page.fullpath
     assert_equal 'projects/cleanWater', test_page.basepath
   end
 
-  def test_create_with_name
+  def test_create_with_node_name
     login(:tiger)
     note = nil
-    assert_nothing_raised { note = secure!(Note) { Note.create(:name=>"asdf", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :set_tag_ids=>[nodes_id(:news)])} }
+    assert_nothing_raised { note = secure!(Note) { Note.create(:node_name => "asdf", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :set_tag_ids=>[nodes_id(:news)])} }
     assert note , "Note created"
     assert ! note.new_record? , "Not a new record"
   end
@@ -25,68 +25,68 @@ class NoteTest < Zena::Unit::TestCase
     assert_nothing_raised { note = secure!(Note) { Note.create(:title=>"Monday is nice", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :set_tag_ids=>[nodes_id(:news)])} }
     assert note , "Note created"
     assert ! note.new_record? , "Not a new record"
-    assert_equal "MondayIsNice", note[:name]
+    assert_equal "MondayIsNice", note[:node_name]
   end
 
-  def test_create_same_name
+  def test_create_same_node_name
     login(:tiger)
     note, note2, note3 = nil, nil, nil
-    assert_nothing_raised { note = secure!(Note) { Note.create(:name=>"test", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :set_tag_ids=>[nodes_id(:news)])} }
+    assert_nothing_raised { note = secure!(Note) { Note.create(:node_name => "test", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :set_tag_ids=>[nodes_id(:news)])} }
     assert note , "Note created"
     assert ! note.new_record? , "Not a new record"
-    assert_equal "test", note[:name]
+    assert_equal "test", note[:node_name]
 
-    assert_nothing_raised { note2 = secure!(Note) { Note.create(:name=>"test", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :set_tag_ids=>[nodes_id(:news)])} }
-    assert ! note2.new_record? , "Not a new record" # same name allowed for notes
+    assert_nothing_raised { note2 = secure!(Note) { Note.create(:node_name => "test", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :set_tag_ids=>[nodes_id(:news)])} }
+    assert ! note2.new_record? , "Not a new record" # same node_name allowed for notes
   end
 
-  def test_create_same_name_other_day
+  def test_create_same_node_name_other_day
     login(:tiger)
     note, note2, note3 = nil, nil, nil
-    assert_nothing_raised { note = secure!(Note) { Note.create(:name=>"test", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :set_tag_ids=>[nodes_id(:news)])} }
+    assert_nothing_raised { note = secure!(Note) { Note.create(:node_name => "test", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :set_tag_ids=>[nodes_id(:news)])} }
     assert note , "Note created"
     assert ! note.new_record? , "Not a new record"
-    assert_equal "test", note[:name]
+    assert_equal "test", note[:node_name]
 
-    assert_nothing_raised { note2 = secure!(Note) { Note.create(:name=>"test", :parent_id=>nodes_id(:zena), :log_at=>"2006-07-20", :set_tag_ids=>[nodes_id(:news)])} }
+    assert_nothing_raised { note2 = secure!(Note) { Note.create(:node_name => "test", :parent_id=>nodes_id(:zena), :log_at=>"2006-07-20", :set_tag_ids=>[nodes_id(:news)])} }
     assert !note2.new_record? , "Not a new record"
-    assert_equal "test", note2[:name]
+    assert_equal "test", note2[:node_name]
   end
 
 
-  def test_update_same_name
+  def test_update_same_node_name
     login(:tiger)
     note, note2 = nil, nil
-    assert_nothing_raised { note = secure!(Note) { Note.create(:name=>"test", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :set_tag_ids=>[nodes_id(:news)])} }
+    assert_nothing_raised { note = secure!(Note) { Note.create(:node_name => "test", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :set_tag_ids=>[nodes_id(:news)])} }
     assert note , "Note created"
     assert ! note.new_record? , "Not a new record"
-    assert_equal "test", note[:name]
+    assert_equal "test", note[:node_name]
 
-    assert_nothing_raised { note2 = secure!(Note) { Note.create(:name=>"asdf", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :set_tag_ids=>[nodes_id(:news)])} }
+    assert_nothing_raised { note2 = secure!(Note) { Note.create(:node_name => "asdf", :parent_id=>nodes_id(:zena), :log_at=>"2006-06-20", :set_tag_ids=>[nodes_id(:news)])} }
     assert note , "Note created"
     assert ! note2.new_record? , "Not a new record"
 
-    note2.name = "test"
+    note2.node_name = "test"
     assert note2.save
   end
 
   def test_default_set_event_at
     login(:tiger)
-    note = secure!(Note) { Note.create(:name => 'test', :parent_id => nodes_id(:zena), :event_at => '2009-06-15')}
+    note = secure!(Note) { Note.create(:node_name => 'test', :parent_id => nodes_id(:zena), :event_at => '2009-06-15')}
     assert_equal '2009-06-15', note.event_at.strftime('%Y-%m-%d')
     assert_equal '2009-06-15', note.log_at.strftime('%Y-%m-%d')
   end
 
   def test_default_set_log_at
     login(:tiger)
-    note = secure!(Note) { Note.create(:name => 'test', :parent_id => nodes_id(:zena), :log_at => '2009-06-15')}
+    note = secure!(Note) { Note.create(:node_name => 'test', :parent_id => nodes_id(:zena), :log_at => '2009-06-15')}
     assert_equal '2009-06-15', note.event_at.strftime('%Y-%m-%d')
     assert_equal '2009-06-15', note.log_at.strftime('%Y-%m-%d')
   end
 
   def test_default_set_log_at_and_event_at
     login(:tiger)
-    note = secure!(Note) { Note.create(:name => 'test', :parent_id => nodes_id(:zena), :event_at => '2009-06-15', :log_at => '2009-06-16')}
+    note = secure!(Note) { Note.create(:node_name => 'test', :parent_id => nodes_id(:zena), :event_at => '2009-06-15', :log_at => '2009-06-16')}
     assert_equal '2009-06-15', note.event_at.strftime('%Y-%m-%d')
     assert_equal '2009-06-16', note.log_at.strftime('%Y-%m-%d')
   end

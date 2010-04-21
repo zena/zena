@@ -467,11 +467,11 @@ wiki_project_changes_xml_en:
     summary:       Layout for the wiki skin.
     text:          |
       <?xml version="1.0" encoding="UTF-8"?>
-      <name><r:show attr='name'/></name>
+      <name><r:show attr='node_name'/></name>
       <changes do='nodes' in='project' order='updated_at DESC' limit='10'>
         <node do='each'>
           <type><r:show attr='type'/></type>
-          <name><r:show attr='name'/></name>
+          <name><r:show attr='node_name'/></name>
           <id><r:show attr='id'/></id>
         </note>
       </notes>

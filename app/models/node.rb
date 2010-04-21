@@ -152,7 +152,7 @@ class Node < ActiveRecord::Base
                 :custom_a => Number, :custom_b => Number,
                 :m_text => String, :m_title => String, :m_author => String,
                 :id => {:class => Number, :method => 'zip'},
-                :skin => Skin, :lang => String
+                :skin => 'Skin', :lang => String
 
   # FIXME: remove 'zip' and use :id => {:class => Number, :method => 'zip'}
   # same with parent_zip, section_zip, etc...
@@ -198,7 +198,8 @@ class Node < ActiveRecord::Base
                      :data_d => {:class => ['DataEntry'], :data_root => 'node_d'},
                      :traductions => ['Version']
   safe_method        :v => {:class => 'Version', :method => 'version'},
-                     :version => 'Version'
+                     :version => 'Version', :v_status => Number, :v_lang => String,
+                     :v_publish_from => Time, :v_backup => Boolean
 
   extend  Zena::Acts::SecureNode
   acts_as_secure_node
@@ -226,11 +227,17 @@ class Node < ActiveRecord::Base
     }
   end
 
+  def v_number
+    version.number
+  end
+
   # This is an adaptation of Versions::Multi code to use our special v_ shortcut
   # to access version attributes.
-  def validate_version
-    unless version.valid?
-      merge_multi_errors('v', version)
+  def merge_multi_errors(key, object)
+    if key == 'version'
+      super('v', object)
+    else
+      super
     end
   end
 
@@ -258,7 +265,7 @@ class Node < ActiveRecord::Base
       while child = @@unhandled_children.pop
         @@native_node_classes[child.kpath] = child
       end
-      @@native_node_classes.reject{|kpath,klass| !(kpath =~ /^#{self.kpath}/) }
+      @@native_node_classes.reject {|kpath,klass| !(kpath =~ /^#{self.kpath}/) }
     end
 
     # check inheritance chain through kpath
@@ -1620,18 +1627,18 @@ class Node < ActiveRecord::Base
       allOK
     end
 
-    # Whenever something changed (publication/proposition/redaction/link/...)
+    # This method is run whenever 'apply' is called.
     def after_all
+      return unless super
       sweep_cache
       if @add_comment
         # add comment
         @discussion ||= self.discussion
         @discussion.save if @discussion.new_record?
-        @add_comment[:author_name] = nil unless visitor.is_anon? # only anonymous user should set 'author_name'
-        @add_comment[:discussion_id] = @discussion[:id]
-        @add_comment[:user_id]       = visitor[:id]
 
-        @comment = secure!(Comment) { Comment.create(@add_comment) }
+        @comment = Comment.new(@add_comment)
+        @comment.discussion_id = @discussion.id
+        @comment.save
 
         remove_instance_variable(:@add_comment)
       end
@@ -1641,7 +1648,6 @@ class Node < ActiveRecord::Base
     end
 
     def change_klass
-
       if @new_klass && !new_record?
         old_kpath = self.kpath
 

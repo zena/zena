@@ -5,7 +5,7 @@ default:
     node: 'status'
 
 block:
-  src: "<r:parent><r:block name='foobar' do='name'/></r:parent>"
+  src: "<r:parent><r:block name='foobar' do='node_name'/></r:parent>"
   tem: "<% if var1 = @node.parent -%><div id='foobar_<%= var1.zip %>'><%= var1.name %></div><% end -%>"
   'ajax/block/en/foobar.erb': "<div id='foobar_<%= @node.zip %>'><%= @node.name %></div>"
 
@@ -18,12 +18,12 @@ add:
 # -- fixed to here
 
 show_edit:
-  src: "<r:show attr='name' edit='true'/>"
+  src: "<r:show attr='node_name' edit='true'/>"
   tem: "<% if @node.can_write? -%><span class='show_edit' id='list1_name'><%= link_to_remote(@node.name, :url => edit_node_path(@node.zip) + \"?attribute=name&dom_id=list1_name\", :method => :get) %></span><% else -%><%= @node.name %><% end -%>"
   res: "/span class='show_edit' id='list1_name'>.*Ajax\.Request\('/nodes/22/edit\?attribute=name/"
 
 zazen_edit:
-  src: "<r:zazen attr='name' edit='true'/>"
+  src: "<r:zazen attr='node_name' edit='true'/>"
   tem: "<div class='zazen' id='list1_name'><% if @node.can_write? -%><span class='zazen_edit'><%= link_to_remote(\"edit\", :url => edit_node_path(@node.zip) + \"?attribute=name&dom_id=list1_name&zazen=true\", :method => :get) %></span><% end -%><%= zazen(@node.name, :node=>@node) %></div>"
   res: "/div class='zazen' id='list1_name'>.*Ajax\.Request\('/nodes/22/edit\?attribute=name/"
 
@@ -94,7 +94,7 @@ each_add_with_select:
 each_edit_with_form:
   context:
     node: 'wiki'
-  src: "<r:children><li do='each'><r:show attr='name'>blah</r:show> <r:edit>edit</r:edit></li>\n<r:form><li><form>this is the form</form></li></r:form></r:children>"
+  src: "<r:children><li do='each'><r:show attr='node_name'>blah</r:show> <r:edit>edit</r:edit></li>\n<r:form><li><form>this is the form</form></li></r:form></r:children>"
   res: "/<li id='list1_30'>bird <a href='/nodes/30/edit\?t_url=.*' onclick=\"new Ajax.Request\('/nodes/30/edit\?t_url=%2Feach%2Fedit%2Fwith%2Fform%2Flist/"
 
 make_form:
@@ -107,7 +107,7 @@ each_edit_cannot_write:
   context:
     node: 'cleanWater'
     visitor: 'anon'
-  src: "<r:children><li do='each'><r:show attr='name'>blah</r:show> <r:edit>edit</r:edit></li>\n</r:children>"
+  src: "<r:children><li do='each'><r:show attr='node_name'>blah</r:show> <r:edit>edit</r:edit></li>\n</r:children>"
   res: "/<li id='list1_24'>lake </li>.*/"
 
 add_each_publish:
@@ -127,7 +127,7 @@ saved_each_block:
   'saved/each/en/block/list1.erb': "!/var1/"
 
 no_recursion_in_saved_block:
-  src: "<r:void name='grp'><r:show attr='name'/><r:pages><r:each><r:include part='grp'/></r:each><r:add/></r:pages></r:void>"
+  src: "<r:void name='grp'><r:show attr='node_name'/><r:pages><r:each><r:include part='grp'/></r:each><r:add/></r:pages></r:void>"
   'no/recursion/en/in/saved/block/grp1.erb': "!/no_recursion_in_saved_block_grp/"
 
 each_in_each:
@@ -182,7 +182,7 @@ edit_link:
   context:
     node: 'art'
     lang: 'fr'
-  src: "<r:context select='tagged'><r:each><r:show attr='name'/>: <r:show attr='l_status'/> <r:edit/></r:each></r:context>"
+  src: "<r:context select='tagged'><r:each><r:show attr='node_name'/>: <r:show attr='l_status'/> <r:edit/></r:each></r:context>"
   res: "/link_id.*éditer/"
   'edit/link/fr/list1_form.erb': "/<input type='hidden' name='link_id' value=.<%= @node.link_id %>./>/"
   'edit/link/fr/list1.erb': "/\#\{@node.link_id\}/"
@@ -225,7 +225,7 @@ update_target:
   tem: "/UT: <div id='foo'>...</div> <%= tag_to_remote.*dom_id=foo.*</a>/"
 
 include_update_target:
-  src: "IUT: <r:include template='/update/target'><r:with part='foo'><r:show attr='name'/></r:with></r:include>"
+  src: "IUT: <r:include template='/update/target'><r:with part='foo'><r:show attr='node_name'/></r:with></r:include>"
   tem: "/IUT: UT: <div id='foo'><%= @node.name %></div> <%= tag_to_remote.*dom_id=foo.*</a>"
 
 id_in_each_group_should_be_scoped:

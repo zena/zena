@@ -19,7 +19,7 @@ class Version < ActiveRecord::Base
   safe_property :title, :summary, :text
 
   include Versions::Auto
-  # include Versions::Destroy
+  include Versions::Destroy
 
   include Zena::Use::Workflow::VersionMethods
 
@@ -44,6 +44,11 @@ class Version < ActiveRecord::Base
     user.contact
   end
 
+  def mark_for_destruction
+    super
+    self.status = -1
+  end
+
   private
     def set_site_id
       self[:site_id] = current_site.id
@@ -59,5 +64,9 @@ class Version < ActiveRecord::Base
     def valid_version
       errors.add('lang', 'invalid') unless visitor.site.lang_list.include?(self[:lang])
       errors.add('node', "can't be blank") unless self[:node_id] || @node
+    end
+
+    def check_can_destroy
+      true # we use Node validations to check destruction
     end
 end

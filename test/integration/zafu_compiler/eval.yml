@@ -12,7 +12,7 @@ sprintf:
   res: "<b>22.00</b>"
 
 set_var:
-  src: "<r:set var='foo'>I am <r:show attr='name'/></r:set> <p do='show' var='foo'/>"
+  src: "<r:set var='foo'>I am <r:show attr='node_name'/></r:set> <p do='show' var='foo'/>"
   tem: "<% set_foo = capture do %>I am <%= @node.name %><% end -%> <p><%= set_foo %></p>"
   res: " <p>I am status</p>"
 

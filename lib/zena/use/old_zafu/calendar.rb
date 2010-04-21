@@ -49,7 +49,7 @@ module Zafu
           if size == :tiny
             @blocks = [make(:void, :method=>'void', :text=>"<em do='link' date='current_date' do='[current_date]' format='%d'/><r:else do='[current_date]' format='%d'/>")]
           else
-            @blocks = [make(:void, :method=>'void', :text=>"<span do='show' date='current_date' format='%d'/><ul><li do='each' do='link' attr='name'/></ul><r:else do='[current_date]' format='%d'/>")]
+            @blocks = [make(:void, :method=>'void', :text=>"<span do='show' date='current_date' format='%d'/><ul><li do='each' do='link' attr='node_name'/></ul><r:else do='[current_date]' format='%d'/>")]
           end
           remove_instance_variable(:@all_descendants)
         elsif !descendant('else')

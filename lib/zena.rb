@@ -11,7 +11,6 @@ def has_executable(*list)
   end
 end
 
-
 require 'bricks'
 
 module Zena

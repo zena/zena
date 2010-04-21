@@ -632,7 +632,7 @@ module Zena
           version['status'] = Zena::Status[version['status'].to_sym]
 
           version['prop'] ||= {}
-          version['prop']['title'] ||= raw_nodes[version['node']]['name'] || version['node']
+          version['prop']['title'] ||= raw_nodes[version['node']]['node_name'] || version['node']
 
           if prop = version.delete('prop')
             version['properties'] = make_prop(prop) unless prop.blank?

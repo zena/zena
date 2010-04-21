@@ -127,7 +127,7 @@ show_bad_attr:
   tem: "my <span class='parser_error'><span class='method'>show</span> Unknown attribute ':name'.</span>"
 
 show_name:
-  src: "my <r:show attr='name'/>"
+  src: "my <r:show attr='node_name'/>"
   res: "my status"
 
 show_text:

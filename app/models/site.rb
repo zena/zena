@@ -133,7 +133,7 @@ class Site < ActiveRecord::Base
       # make admin the current visitor
       Thread.current[:visitor] = admin_user
 
-      root = site.send(:secure,Project) { Project.create( :name => site.name, :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :dgroup_id => admin[:id], :title => site.name, :v_status => Zena::Status[:pub]) }
+      root = site.send(:secure,Project) { Project.create( :node_name => site.name, :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :dgroup_id => admin[:id], :title => site.name, :v_status => Zena::Status[:pub]) }
       raise Exception.new("Could not create root node for site [#{host}] (site#{site[:id]})\n#{root.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if root.new_record?
 
       Node.connection.execute "UPDATE nodes SET section_id = id, project_id = id WHERE id = '#{root[:id]}'"
@@ -346,11 +346,11 @@ class Site < ActiveRecord::Base
     batch_size = 100
     children = []
     while true
-      rec = Zena::Db.fetch_attributes(['id', 'fullpath', 'basepath', 'custom_base', 'name'], 'nodes', "parent_id #{parent_id ? "= #{parent_id}" : "IS NULL"} AND site_id = #{self.id} ORDER BY id ASC LIMIT #{batch_size} OFFSET #{i * batch_size}")
+      rec = Zena::Db.fetch_attributes(['id', 'fullpath', 'basepath', 'custom_base', 'node_name'], 'nodes', "parent_id #{parent_id ? "= #{parent_id}" : "IS NULL"} AND site_id = #{self.id} ORDER BY id ASC LIMIT #{batch_size} OFFSET #{i * batch_size}")
       break if rec.empty?
       rec.each do |rec|
         if parent_id
-          rec['fullpath'] = parent_fullpath == '' ? rec['name'] : "#{parent_fullpath}/#{rec['name']}"
+          rec['fullpath'] = parent_fullpath == '' ? rec['node_name'] : "#{parent_fullpath}/#{rec['node_name']}"
         else
           # root node
           rec['fullpath'] = ''

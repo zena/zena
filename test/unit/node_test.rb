@@ -3,13 +3,47 @@ require 'test_helper'
 class NodeTest < Zena::Unit::TestCase
 
   NEW_DEFAULT = {
-    :name       => 'hello',
-    :rgroup_id  => Zena::FoxyParser::id('zena', 'public'),
-    :wgroup_id  => Zena::FoxyParser::id('zena', 'workers'),
-    :dgroup_id  => Zena::FoxyParser::id('zena', 'managers'),
-    :parent_id  => Zena::FoxyParser::id('zena', 'cleanWater'),
+    :node_name => 'hello',
+    :rgroup_id => Zena::FoxyParser::id('zena', 'public'),
+    :wgroup_id => Zena::FoxyParser::id('zena', 'workers'),
+    :dgroup_id => Zena::FoxyParser::id('zena', 'managers'),
+    :parent_id => Zena::FoxyParser::id('zena', 'cleanWater'),
   }.freeze
-
+  
+  context 'A logged in user' do
+    setup do
+      login(:lion)
+    end
+    
+    context 'on a node with write access' do
+      subject do
+        secure!(Node) { nodes(:lion) }
+      end
+      
+      context 'adding a comment with m_title' do
+        subject do
+          node = secure!(Node) { nodes(:lion) }
+          node.update_attributes(:m_title => 'Amartya Sen', :m_text => 'Equality of What')
+          node
+        end
+        
+        should 'create a Comment' do
+          assert_difference('Comment.count', 1) do
+            subject
+          end
+        end
+        
+        should 'set comment title from m_title' do
+          assert_equal 'Amartya Sen', subject.comments.first.title
+        end
+        
+        should 'set author from visitor' do
+          assert_equal users_id(:lion), subject.comments.first.user_id
+        end
+      end # adding a comment with m_title
+    end # on a node with write access
+  end # A logged in user
+  
   def test_rebuild_fullpath
     Node.connection.execute "UPDATE nodes SET fullpath = NULL, basepath = NULL WHERE id = #{nodes_id(:wiki)}"
     login(:ant)
@@ -36,7 +70,7 @@ class NodeTest < Zena::Unit::TestCase
 
   def test_match_query
     query = Node.match_query('smala')
-    assert_equal "nodes.name LIKE 'smala%'", query[:conditions]
+    assert_equal "nodes.node_name LIKE 'smala%'", query[:conditions]
     query = Node.match_query('.', :node => nodes(:wiki))
     assert_equal ["parent_id = ?", nodes_id(:wiki)], query[:conditions]
   end
@@ -104,7 +138,7 @@ class NodeTest < Zena::Unit::TestCase
     node = secure!(Node) { nodes(:people) }
     assert node.update_attributes(:title => 'nice people')
     assert node.publish
-    assert_equal 'nicePeople', node.name # sync name
+    assert_equal 'nicePeople', node.node_name # sync node_name
     node = secure!(Node) { nodes(:tiger) }
     assert_equal 'nicePeople/tiger', node[:fullpath]
   end
@@ -131,14 +165,14 @@ class NodeTest < Zena::Unit::TestCase
     Node.connection.execute "UPDATE nodes SET parent_id = #{nodes_id(:proposition)} WHERE id = #{nodes_id(:bird_jpg)}"
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
-    assert_equal ['zena', 'projects', 'cleanWater'], node.ancestors.map { |a| a[:name] }
+    assert_equal ['zena', 'projects', 'cleanWater'], node.ancestors.map { |a| a[:node_name] }
     node = secure!(Node) { nodes(:zena) }
     assert_equal [], node.ancestors
     node = secure!(Node) { nodes(:bird_jpg) }
     prop = secure!(Node) { nodes(:proposition)}
     assert_kind_of Node, prop
     assert prop.can_read?
-    assert_equal ['zena', 'projects', 'secret', 'proposition'], node.ancestors.map { |a| a[:name] }
+    assert_equal ['zena', 'projects', 'secret', 'proposition'], node.ancestors.map { |a| a[:node_name] }
   end
 
   def test_ancestors_infinit_loop
@@ -152,27 +186,18 @@ class NodeTest < Zena::Unit::TestCase
     login(:tiger)
     node = secure!(Node) { nodes(:proposition) }
     assert_kind_of Node, node
-    assert_equal ['zena', 'projects', 'secret'], node.ancestors.map { |a| a[:name] } # ant can view 'proposition' but not the project proposition is in
+    assert_equal ['zena', 'projects', 'secret'], node.ancestors.map { |a| a[:node_name] } # ant can view 'proposition' but not the project proposition is in
   end
 
   def test_create_simplest
     login(:ant)
-    test_page = secure!(Node) { Node.create(:name=>"yoba", :parent_id => nodes_id(:cleanWater), :inherit=>1 ) }
+    test_page = secure!(Node) { Node.create(:node_name => 'yoba', :parent_id => nodes_id(:cleanWater), :inherit=>1 ) }
     assert ! test_page.new_record? , "Not a new record"
     assert_equal nodes_id(:cleanWater), test_page.parent[:id]
     assert_equal 'projects/cleanWater/yoba', test_page.fullpath
     assert_equal 'projects/cleanWater', test_page.basepath
     parent = secure!(Node) { nodes(:cleanWater) }
     assert_equal 'projects/cleanWater', parent.fullpath
-  end
-
-  def test_cannot_update_v_status
-    login(:ant)
-    test_page = secure!(Node) { nodes(:status) }
-    assert_equal 2, test_page.version.number
-    assert test_page.update_attributes( :v_status => Zena::Status[:pub], :title => "New funky title")
-    assert_equal 3, test_page.version.number
-    assert_equal Zena::Status[:red], test_page.version.status
   end
 
   def test_new_bad_parent
@@ -208,16 +233,16 @@ class NodeTest < Zena::Unit::TestCase
     assert node.save , "Save succeeds"
   end
 
-  def test_page_new_without_name
+  def test_page_new_without_node_name
     login(:tiger)
-    node = secure!(Node) { Node.new(:parent_id=>nodes_id(:cleanWater)) }
+    node = secure!(Node) { Node.new(:parent_id => nodes_id(:cleanWater)) }
     assert ! node.save, 'Save fails'
-    assert_equal 'can\'t be blank', node.errors[:name]
+    assert_equal 'can\'t be blank', node.errors[:node_name]
   end
 
   def test_new_set_section_id
     login(:tiger)
-    node = secure!(Page) { Page.create(:parent_id=>nodes_id(:people), :name=>'SuperPage')}
+    node = secure!(Page) { Page.create(:parent_id => nodes_id(:people), :node_name => 'SuperPage')}
     assert ! node.new_record?, 'Not a new record'
     assert_equal nodes_id(:people), node[:section_id]
   end
@@ -256,17 +281,17 @@ class NodeTest < Zena::Unit::TestCase
     assert node.save , "Save succeeds"
   end
 
-  def test_page_update_without_name
+  def test_page_update_without_node_name
     login(:tiger)
     node = secure!(Node) { nodes(:status)  }
-    node[:name] = nil
+    node[:node_name] = nil
     assert node.save, 'Save succeeds'
-    assert_equal 'statusTitle', node[:name]
+    assert_equal 'statusTitle', node[:node_name]
     node = secure!(Node) { nodes(:status)  }
-    node[:name] = nil
-    node.version.title = ""
+    node[:node_name] = nil
+    node.title = ""
     assert !node.save, 'Save fails'
-    assert_equal 'can\'t be blank', node.errors[:name]
+    assert_equal 'can\'t be blank', node.errors[:node_name]
   end
 
   def test_update_set_section_id
@@ -339,13 +364,13 @@ class NodeTest < Zena::Unit::TestCase
   def test_new_child
     login(:ant)
     node = secure!(Node) { nodes(:cleanWater)  }
-    child = node.new_child( :name => 'status', :class => Page )
+    child = node.new_child(:node_name => 'status', :class => Page )
     assert !child.save, "Save fails"
-    assert child.errors[:name].any?
+    assert child.errors[:node_name].any?
 
-    child = node.new_child( :name => 'new_name', :class => Page )
+    child = node.new_child(:node_name => 'new_name', :class => Page )
     assert child.save , "Save succeeds"
-    assert_equal Zena::Status[:red],  child.version.status
+    assert_equal Zena::Status[:red],  child.v_status
     assert_equal child[:user_id], users_id(:ant)
     assert_equal node[:dgroup_id], child[:dgroup_id]
     assert_equal node[:rgroup_id], child[:rgroup_id]
@@ -376,31 +401,30 @@ class NodeTest < Zena::Unit::TestCase
 
   def test_ext
     node = nodes(:status)
-    node[:name] = 'bob. and bob.jpg'
+    node[:node_name] = 'bob. and bob.jpg'
     assert_equal 'jpg', node.ext
-    node[:name] = 'no ext'
+    node[:node_name] = 'no ext'
     assert_equal '', node.ext
-    node[:name] = ''
+    node[:node_name] = ''
     assert_equal '', node.ext
-    node[:name] = nil
+    node[:node_name] = nil
     assert_equal '', node.ext
   end
 
-  def test_set_name_with_title
+  def test_set_node_name_with_title
     login(:tiger)
-    node = secure!(Node) { Node.create(NEW_DEFAULT.stringify_keys.merge('name' => '', 'title' => 'small bed')) }
+    node = secure!(Node) { Node.create(NEW_DEFAULT.stringify_keys.merge('node_name' => '', 'title' => 'small bed')) }
     assert_kind_of Node, node
     assert !node.new_record?
-    assert_equal 'smallBed', node.name
+    assert_equal 'smallBed', node.node_name
   end
 
-  def test_set_name
+  def test_set_node_name
     node = nodes(:wiki)
-    node.name = " J'aime l'aïl en août ! "
-    assert_equal 'JAimeLAilEnAout', node.name
-    assert_equal 'JAimeLAilEnAout', node[:name]
-    node.name = "LIEUX"
-    assert_equal 'LIEUX', node.name
+    node.node_name = " J'aime l'aïl en août ! "
+    assert_equal 'JAimeLAilEnAout', node.node_name
+    node.node_name = "LIEUX"
+    assert_equal 'LIEUX', node.node_name
   end
 
 
@@ -439,7 +463,7 @@ class NodeTest < Zena::Unit::TestCase
     end
 
     should 'be allowed to change attributes' do
-      assert @node.update_attributes(:name => 'vodou', :event_at => Time.now)
+      assert @node.update_attributes(:node_name => 'vodou', :event_at => Time.now)
     end
 
     should 'not be allowed to set parent' do
@@ -452,79 +476,82 @@ class NodeTest < Zena::Unit::TestCase
   context 'A visitor with drive access' do
     setup do
       login(:tiger)
-      @node = secure!(Node) { nodes(:wiki) }
     end
 
     context 'on a published node with documents' do
 
+      subject do
+        secure!(Node) { nodes(:wiki) }
+      end
+
       should 'see a published node with published documents' do
-        assert_equal Zena::Status[:pub], @node.version.status
+        assert_equal Zena::Status[:pub], subject.v_status
         assert_equal Zena::Status[:pub], versions(:bird_jpg_en).status
         assert_equal Zena::Status[:pub], versions(:flower_jpg_en).status
       end
 
       should 'unpublish documents when unpublishing node' do
-        assert @node.unpublish
+        assert subject.unpublish
         assert_equal Zena::Status[:rem], versions(:bird_jpg_en).status
         assert_equal Zena::Status[:rem], versions(:flower_jpg_en).status
       end
     end
 
     context 'on a removed node with removed documents' do
-      setup do
-        @node.unpublish
-        @node = secure!(Node) { nodes(:wiki) }
-      end
-
-      should 'see a removed node with removed documents' do
-        assert_equal Zena::Status[:rem], @node.version.status
-        assert_equal Zena::Status[:rem], versions(:bird_jpg_en).status
-        assert_equal Zena::Status[:rem], versions(:flower_jpg_en).status
+      subject do
+        node = secure!(Node) { nodes(:wiki) }
+        node.unpublish
+        node.reload
+        node
       end
 
       should 'publish documents when publishing node' do
-        assert @node.publish
+        assert subject.publish
         assert_equal Zena::Status[:pub], versions(:bird_jpg_en).status
         assert_equal Zena::Status[:pub], versions(:flower_jpg_en).status
       end
     end
 
     context 'on a redaction node with documents in redaction status' do
-      setup do
-        @node.unpublish
-        @node.redit
-        @node = secure!(Node) { nodes(:wiki) }
+      subject do
+        node = secure!(Node) { nodes(:wiki) }
+        node.unpublish
+        node.redit
+        node.reload
+        node
       end
 
       should 'see redactions' do
-        assert_equal Zena::Status[:red], @node.version.status
+        assert_equal Zena::Status[:red], subject.v_status
         assert_equal Zena::Status[:red], versions(:bird_jpg_en).status
         assert_equal Zena::Status[:red], versions(:flower_jpg_en).status
       end
 
       should 'propose documents when proposing node' do
-        assert @node.propose
+        assert subject.propose
         assert_equal Zena::Status[:prop_with], versions(:bird_jpg_en).status
         assert_equal Zena::Status[:prop_with], versions(:flower_jpg_en).status
       end
     end
 
     context 'on a proposition with proposed documents' do
-      setup do
-        @node.unpublish
-        @node.redit
-        @node.propose
-        @node = secure!(Node) { nodes(:wiki) }
+      subject do
+        node = secure!(Node) { nodes(:wiki) }
+        node.unpublish
+        node.redit
+        node.propose
+        node.reload
+        node
       end
 
       should 'see propositions' do
-        assert_equal Zena::Status[:prop], @node.version.status
+        assert_equal Zena::Status[:prop], subject.v_status
         assert_equal Zena::Status[:prop_with], versions(:bird_jpg_en).status
         assert_equal Zena::Status[:prop_with], versions(:flower_jpg_en).status
       end
 
       should 'refuse documents when refusing node' do
-        assert @node.refuse
+        assert subject.refuse
         assert_equal Zena::Status[:red], versions(:bird_jpg_en).status
         assert_equal Zena::Status[:red], versions(:flower_jpg_en).status
       end
@@ -614,13 +641,13 @@ class NodeTest < Zena::Unit::TestCase
     assert @node.save
     tags = @node.find(:all, 'set_tags')
     assert_equal 2, tags.size
-    assert_equal 'art', tags[0].name
-    assert_equal 'news', tags[1].name
+    assert_equal 'art', tags[0].node_name
+    assert_equal 'news', tags[1].node_name
     @node.rel['set_tag'].other_ids = [nodes_id(:art)]
     @node.save
     tags = @node.find(:all, 'set_tags')
     assert_equal 1, tags.size
-    assert_equal 'art', tags[0].name
+    assert_equal 'art', tags[0].node_name
   end
 
   def test_tag_update
@@ -656,7 +683,7 @@ class NodeTest < Zena::Unit::TestCase
       # do something on a note
       node = secure!(Node) { nodes(:proposition) }
       assert_equal 'NNP', node.vclass.kpath
-      assert node.update_attributes(:name => 'popo' ), "Can change attributes"
+      assert node.update_attributes(:node_name => 'popo' ), "Can change attributes"
       # sweep only kpath NN
       i = 4
       assert_equal "content 3", Cache.with(visitor.id, visitor.group_ids, 'NP', 'pages')  { "content #{i}" }
@@ -674,7 +701,7 @@ class NodeTest < Zena::Unit::TestCase
   def test_discussion_lang
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
-    assert_equal Zena::Status[:pub], node.version.status
+    assert_equal Zena::Status[:pub], node.v_status
     discussion = node.discussion
     assert_kind_of Discussion, discussion
     assert_equal discussions_id(:outside_discussion_on_status_en), discussion[:id]
@@ -707,7 +734,7 @@ class NodeTest < Zena::Unit::TestCase
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
     node.update_attributes( :title=>'new status' )
-    assert_equal Zena::Status[:red], node.version.status
+    assert_equal Zena::Status[:red], node.v_status
     discussion = node.discussion
     assert_equal discussions_id(:inside_discussion_on_status), discussion[:id]
   end
@@ -718,8 +745,8 @@ class NodeTest < Zena::Unit::TestCase
     letter = secure!(Node) { Node.create_node(:v_status => Zena::Status[:pub], :title => 'a letter', :class => 'Letter', :parent_id => nodes_zip(:cleanWater)) }
     assert !post.new_record?, "Not a new record"
     assert !letter.new_record?, "Not a new record"
-    assert_equal Zena::Status[:pub], post.version.status, "Published"
-    assert_equal Zena::Status[:pub], letter.version.status, "Published"
+    assert_equal Zena::Status[:pub], post.v_status, "Published"
+    assert_equal Zena::Status[:pub], letter.v_status, "Published"
     assert !letter.discussion
     assert post.discussion
     assert !post.discussion.new_record?
@@ -734,7 +761,7 @@ class NodeTest < Zena::Unit::TestCase
     login(:tiger)
     letter = secure!(Node) { Node.create_node(:v_status => Zena::Status[:pub], :title => 'a letter', :class => 'Letter', :parent_id => nodes_zip(:cleanWater)) }
     assert !letter.new_record?, "Not a new record"
-    assert_equal Zena::Status[:pub], letter.version.status, "Published"
+    assert_equal Zena::Status[:pub], letter.v_status, "Published"
     login(:lion)
     letter = secure!(Node) { Node.find(letter.id) }
     assert letter.can_auto_create_discussion?
@@ -768,14 +795,14 @@ class NodeTest < Zena::Unit::TestCase
 
   def test_other_site_id
     login(:whale)
-    node = secure!(Node) { Node.create(:parent_id=>nodes_id(:ocean), :rgroup_id=>groups_id(:aqua), :wgroup_id=>groups_id(:masters), :dgroup_id=>groups_id(:masters), :name=>"fish") }
+    node = secure!(Node) { Node.create(:parent_id => nodes_id(:ocean), :rgroup_id => groups_id(:aqua), :wgroup_id => groups_id(:masters), :dgroup_id => groups_id(:masters), :node_name => "fish") }
     assert !node.new_record?, "Not a new record"
     assert_equal sites_id(:ocean), node[:site_id]
   end
 
   def test_other_site_id_fool_id
     login(:whale)
-    node = secure!(Node) { Node.create(:parent_id=>nodes_id(:ocean), :rgroup_id=>groups_id(:aqua), :wgroup_id=>groups_id(:masters), :dgroup_id=>groups_id(:masters), :name=>"fish", :site_id=>sites_id(:zena)) }
+    node = secure!(Node) { Node.create(:parent_id => nodes_id(:ocean), :rgroup_id => groups_id(:aqua), :wgroup_id => groups_id(:masters), :dgroup_id => groups_id(:masters), :node_name => "fish", :site_id => sites_id(:zena)) }
     assert !node.new_record?, "Not a new record"
     assert_equal sites_id(:ocean), node[:site_id]
   end
@@ -797,7 +824,7 @@ class NodeTest < Zena::Unit::TestCase
   def test_zip
     next_zip = Zena::Db.fetch_row("SELECT zip FROM zips WHERE site_id = #{sites_id(:zena)}").to_i
     login(:tiger)
-    node = secure!(Node) { Node.create(:parent_id=>nodes_id(:zena), :name=>"fly")}
+    node = secure!(Node) { Node.create(:parent_id=>nodes_id(:zena), :node_name => "fly")}
     assert !node.new_record?, "Not a new record"
     assert_equal (next_zip + 1), node.zip
   end
@@ -818,7 +845,7 @@ class NodeTest < Zena::Unit::TestCase
 
   def test_create_node
     login(:ant)
-    node = secure!(Node) { Node.create_node(:parent_id => nodes_zip(:secret), :name => 'funny') }
+    node = secure!(Node) { Node.create_node(:parent_id => nodes_zip(:secret), :node_name => 'funny') }
     assert_equal nodes_id(:secret), node[:parent_id]
     assert node.new_record?, "Not saved"
     assert_equal 'invalid reference', node.errors[:parent_id]
@@ -826,7 +853,7 @@ class NodeTest < Zena::Unit::TestCase
 
   def test_create_node_with__parent_id
     login(:ant)
-    node = secure!(Node) { Node.create_node(:_parent_id => nodes_id(:secret), :name => 'funny') }
+    node = secure!(Node) { Node.create_node(:_parent_id => nodes_id(:secret), :node_name => 'funny') }
     assert_equal nodes_id(:secret), node[:parent_id]
     assert node.new_record?, "Not saved"
     assert_equal 'invalid reference', node.errors[:parent_id]
@@ -834,36 +861,36 @@ class NodeTest < Zena::Unit::TestCase
 
   def test_create_node_ok
     login(:tiger)
-    node = secure!(Node) { Node.create_node('parent_id' => nodes_zip(:cleanWater), 'name' => 'funny') }
+    node = secure!(Node) { Node.create_node('parent_id' => nodes_zip(:cleanWater), 'node_name' => 'funny') }
     assert_equal nodes_id(:cleanWater), node[:parent_id]
-    assert_equal 'funny', node[:name]
+    assert_equal 'funny', node[:node_name]
     assert !node.new_record?
   end
 
   def test_create_or_update_node_create
     login(:tiger)
-    node = secure!(Node) { Node.create_or_update_node('parent_id' => nodes_zip(:cleanWater), 'name' => 'funny') }
+    node = secure!(Node) { Node.create_or_update_node('parent_id' => nodes_zip(:cleanWater), 'node_name' => 'funny') }
     assert_equal nodes_id(:cleanWater), node[:parent_id]
-    assert_equal 'funny', node[:name]
+    assert_equal 'funny', node[:node_name]
     assert !node.new_record?, "Saved"
   end
 
   def test_create_or_update_node_update
     login(:tiger)
-    node = secure!(Node) { Node.create_or_update_node('parent_id' => nodes_zip(:cleanWater), 'name' => 'status', 'title'=>"It's all broken") }
+    node = secure!(Node) { Node.create_or_update_node('parent_id' => nodes_zip(:cleanWater), 'node_name' => 'status', 'title'=>"It's all broken") }
     assert_equal nodes_id(:cleanWater), node[:parent_id]
     assert_equal nodes_id(:status), node[:id]
     node = secure!(Node) { nodes(:status) }
-    assert_equal 'status', node[:name]
-    assert_equal "It's all broken", node.version.title
+    assert_equal 'status', node[:node_name]
+    assert_equal "It's all broken", node.title
   end
 
   def test_create_with_klass
     login(:tiger)
-    node = secure!(Node) { Node.create_node('parent_id' => nodes_zip(:projects), 'name' => 'funny', 'klass' => 'TextDocument', 'c_content_type' => 'application/x-javascript') }
+    node = secure!(Node) { Node.create_node('parent_id' => nodes_zip(:projects), 'node_name' => 'funny', 'klass' => 'TextDocument', 'c_content_type' => 'application/x-javascript') }
     assert_kind_of TextDocument, node
     assert_equal nodes_id(:projects), node[:parent_id]
-    assert_equal 'funny', node[:name]
+    assert_equal 'funny', node[:node_name]
     assert !node.new_record?, "Saved"
   end
 
@@ -899,7 +926,7 @@ done: \"I am done\""
 
   def test_create_nodes_from_gzip_file
     login(:tiger)
-    parent = secure!(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena)) }
+    parent = secure!(Project) { Project.create(:node_name => 'import', :parent_id => nodes_id(:zena)) }
     assert !parent.new_record?, "Not a new record"
     nodes = secure!(Node) { Node.create_nodes_from_folder(:archive => uploaded_archive('simple.zml.gz'), :parent_id => parent[:id] )}.values
     assert_equal 1, nodes.size
@@ -911,16 +938,16 @@ done: \"I am done\""
 
   def test_create_nodes_from_folder_with_defaults
     login(:tiger)
-    parent = secure!(Project) { Project.create(:name => 'import', :parent_id => nodes_id(:zena), :rgroup_id => groups_id(:managers), :wgroup_id => groups_id(:managers)) }
+    parent = secure!(Project) { Project.create(:node_name => 'import', :parent_id => nodes_id(:zena), :rgroup_id => groups_id(:managers), :wgroup_id => groups_id(:managers)) }
     assert !parent.new_record?, "Not a new record"
     result = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(Zena::ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}.values
     assert_equal 4, result.size
 
     children = parent.find(:all, 'children order by node_name ASC')
     assert_equal 2, children.size
-    assert_equal 'photos', children[0].name
+    assert_equal 'photos', children[0].node_name
     assert_equal groups_id(:managers), children[0].rgroup_id
-    assert_equal 'simple', children[1].name
+    assert_equal 'simple', children[1].node_name
     assert_equal groups_id(:managers), children[1].rgroup_id
 
     # we use children[1] as parent just to use any empty node
@@ -929,37 +956,37 @@ done: \"I am done\""
 
     children = children[1].find(:all, 'children order by node_name ASC')
     assert_equal 2, children.size
-    assert_equal 'photos', children[0].name
+    assert_equal 'photos', children[0].node_name
     assert_equal groups_id(:public), children[0].rgroup_id
   end
 
   def test_create_nodes_from_folder_with_publish
     login(:tiger)
     nodes = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(Zena::ROOT, 'test', 'fixtures', 'import'), :parent_id => nodes_id(:zena) )}.values
-    assert_equal Zena::Status[:red], nodes[0].version.status
+    assert_equal Zena::Status[:red], nodes[0].v_status
 
     nodes = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(Zena::ROOT, 'test', 'fixtures', 'import'), :parent_id => nodes_id(:cleanWater), :defaults => { :v_status => Zena::Status[:pub] }) }.values
-    assert_equal Zena::Status[:pub], nodes[0].version.status
+    assert_equal Zena::Status[:pub], nodes[0].v_status
   end
 
   def test_create_nodes_from_archive
     login(:tiger)
     res = secure!(Node) { Node.create_nodes_from_folder(:archive => uploaded_archive('import.tgz'), :parent_id => nodes_id(:zena)) }.values
-    photos = secure!(Section) { Section.find_by_name('photos') }
+    photos = secure!(Section) { Section.find_by_node_name('photos') }
     assert_kind_of Section, photos
-    bird = secure!(Node) { Node.find_by_parent_id_and_name(photos[:id], 'bird') }
+    bird = secure!(Node) { Node.find_by_parent_id_and_node_name(photos[:id], 'bird') }
     assert_kind_of Image, bird
     assert_equal 56183, bird.size
-    assert_equal 'Lucy in the sky', bird.version.title
+    assert_equal 'Lucy in the sky', bird.title
     visitor.lang = 'fr'
-    bird = secure!(Node) { Node.find_by_parent_id_and_name(photos[:id], 'bird') }
-    assert_equal 'Le septième ciel', bird.version.title
+    bird = secure!(Node) { Node.find_by_parent_id_and_node_name(photos[:id], 'bird') }
+    assert_equal 'Le septième ciel', bird.title
     assert_equal 1, bird[:inherit]
     assert_equal groups_id(:public), bird[:rgroup_id]
     assert_equal groups_id(:workers), bird[:wgroup_id]
     assert_equal groups_id(:managers), bird[:dgroup_id]
 
-    simple = secure!(Node) { Node.find_by_parent_id_and_name(nodes_id(:zena), 'simple') }
+    simple = secure!(Node) { Node.find_by_parent_id_and_node_name(nodes_id(:zena), 'simple') }
     assert_equal 0, simple[:inherit]
     assert_equal groups_id(:managers), simple[:rgroup_id]
     assert_equal groups_id(:managers), simple[:wgroup_id]
@@ -969,7 +996,7 @@ done: \"I am done\""
   def test_create_nodes_from_zip_archive
     login(:tiger)
     res = secure!(Node) { Node.create_nodes_from_folder(:archive => uploaded_zip('letter.zip'), :parent_id => nodes_id(:zena), :class => 'Letter') }.values
-    res.sort!{|a,b| a.name <=> b.name}
+    res.sort!{|a,b| a.node_name <=> b.node_name}
     letter, bird = res[1], res[0]
     assert_kind_of Note, letter
     assert_equal 'Letter', letter.klass
@@ -979,17 +1006,17 @@ done: \"I am done\""
     preserving_files('test.host/data') do
       bird = node = nil
       login(:tiger)
-      node = secure!(Page) { Page.create(:parent_id => nodes_id(:status), :name=>'photos', :title => 'my photos', :text => '![]!') }
+      node = secure!(Page) { Page.create(:parent_id => nodes_id(:status), :node_name => 'photos', :title => 'my photos', :text => '![]!') }
       assert !node.new_record?
       assert_nothing_raised { node = secure!(Node) { Node.find_by_path( 'projects/cleanWater/status/photos') } }
       assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { Node.find_by_path( 'projects/cleanWater/status/photos/bird') } }
-      assert_equal 'photos', node.name
-      assert_no_match %r{I took during my last vacations}, node.version.text
+      assert_equal 'photos', node.node_name
+      assert_no_match %r{I took during my last vacations}, node.text
       v1_id = node.version.id
       secure!(Node) { Node.create_nodes_from_folder(:archive => uploaded_archive('import.tgz'), :parent_id => nodes_id(:status)) }.values
       assert_nothing_raised { node = secure!(Node) { Node.find_by_path( 'projects/cleanWater/status/photos') } }
       assert_nothing_raised { bird = secure!(Node) { Node.find_by_path( 'projects/cleanWater/status/photos/bird') } }
-      assert_match %r{I took during my last vacations}, node.version.text
+      assert_match %r{I took during my last vacations}, node.text
       assert_equal v1_id, node.version.id
       assert_kind_of Image, bird
     end
@@ -1025,15 +1052,15 @@ done: \"I am done\""
     parent = secure!(Node) { nodes(:cleanWater) }
     children = parent.find(:all, 'children')
     assert_equal 8, children.size
-    assert_equal 'bananas', children[0].name
-    assert_equal 'crocodiles', children[1].name
+    assert_equal 'bananas', children[0].node_name
+    assert_equal 'crocodiles', children[1].node_name
 
     Node.connection.execute "UPDATE nodes SET position = -1.0 WHERE id = #{nodes_id(:water_pdf)}"
     Node.connection.execute "UPDATE nodes SET position = -0.5 WHERE id = #{nodes_id(:lake)}"
     children = parent.find(:all, 'children')
     assert_equal 8, children.size
-    assert_equal 'water', children[0].name
-    assert_equal 'lakeAddress', children[1].name
+    assert_equal 'water', children[0].node_name
+    assert_equal 'lakeAddress', children[1].node_name
   end
 
   def test_plural_relation
@@ -1052,7 +1079,7 @@ done: \"I am done\""
     login(:ant)
     node   = secure!(Node) {Node.find(:first, :conditions => ['id = ?', nodes_id(:lake)], :select => "*, 'foozibar' AS foobar") }
     status = secure!(Node) { nodes(:status) }
-    assert_equal 'lakeAddress', node.safe_read('name')
+    assert_equal 'lakeAddress', node.safe_read('node_name')
     assert_equal 'The lake we love', node.safe_read('title')
     assert_equal 'gaspard', status.safe_read('d_assigned')
     assert_equal 'Between Tanzania, Congo and Zambia', node.safe_read('c_address')
@@ -1183,14 +1210,14 @@ done: \"I am done\""
 
   def test_position_on_create
     login(:lion)
-    node = secure!(Page) { Page.create(:name=>"yoba", :parent_id => nodes_id(:cleanWater), :inherit=>1 ) }
+    node = secure!(Page) { Page.create(:node_name => "yoba", :parent_id => nodes_id(:cleanWater), :inherit=>1 ) }
     assert !node.new_record?
     assert_equal 0.0, node.position
     assert node.update_attributes(:position => 5.0)
     assert_equal 5.0, node.position
     node = secure!(Page) { Page.find_by_id(node.id) } # reload
     assert_equal 5.0, node.position
-    node = secure!(Page) { Page.create(:name=>"babo", :parent_id => nodes_id(:cleanWater), :inherit=>1 ) }
+    node = secure!(Page) { Page.create(:node_name => "babo", :parent_id => nodes_id(:cleanWater), :inherit=>1 ) }
     assert !node.new_record?
     assert_equal 6.0, node.position
 
@@ -1216,25 +1243,7 @@ done: \"I am done\""
     assert node.update_attributes(:parent_id => nodes_id(:cleanWater))
     assert_equal 0.0, node.position
   end
-
-  def test_add_comment
-    login(:lion)
-    node = secure!(Node) { nodes(:lion) }
-    assert node.can_comment?
-    assert_nil node.comments
-
-    node = secure!(Node) { nodes(:lion) } # reload
-    assert node.update_attributes(:m_title => 'changed icon', :m_text => 'new icon is "flower"', :icon_id => nodes_id(:flower_jpg))
-
-    node = secure!(Node) { nodes(:lion) } # reload
-    comments = node.comments
-    assert_equal 1, comments.size
-    comment = comments[0]
-    assert_equal 'changed icon', comment[:title]
-    assert_equal 'new icon is "flower"', comment[:text]
-    assert_equal 'Panthera Leo Verneyi', comment.author_name
-  end
-
+  
   def test_custom_a
     login(:lion)
     node = secure!(Node) { nodes(:status) }
@@ -1273,7 +1282,7 @@ done: \"I am done\""
       FileUtils::mkpath(export_folder)
       # Add a page and a text document into 'wiki'
       assert secure!(Node) { Node.create(:title=>"Hello World!", :text => "Bonjour", :parent_id => nodes_id(:wiki), :inherit=>1 ) }
-      assert secure!(TextDocument) { TextDocument.create(:name=>"yoba", :parent_id => nodes_id(:wiki), :text => "#header { color:red; }\n#footer { color:blue; }", :c_content_type => 'text/css') }
+      assert secure!(TextDocument) { TextDocument.create(:node_name => "yoba", :parent_id => nodes_id(:wiki), :text => "#header { color:red; }\n#footer { color:blue; }", :c_content_type => 'text/css') }
       wiki = secure!(Node) { nodes(:wiki) }
       assert_equal 4, wiki.find(:all, "children").size
       wiki.export_to_folder(export_folder)
@@ -1296,7 +1305,7 @@ done: \"I am done\""
       FileUtils::mkpath(export_folder)
       # Add a page and a text document into 'wiki'
       assert secure!(Node) { Node.create(:title=>"Hello World!", :text => "Bonjour", :parent_id => nodes_id(:wiki), :inherit=>1 ) }
-      assert secure!(TextDocument) { TextDocument.create(:name=>"yoba", :parent_id => nodes_id(:wiki), :text => "#header { color:red; }\n#footer { color:blue; }", :c_content_type => 'text/css') }
+      assert secure!(TextDocument) { TextDocument.create(:node_name => "yoba", :parent_id => nodes_id(:wiki), :text => "#header { color:red; }\n#footer { color:blue; }", :c_content_type => 'text/css') }
       wiki = secure!(Node) { nodes(:wiki) }
       assert_equal 4, wiki.find(:all, "children").size
       archive = wiki.archive
@@ -1328,7 +1337,7 @@ done: \"I am done\""
     lion       = secure!(Node) { nodes(:lion) }
     people     = secure!(Node) { nodes(:people) }
     cleanWater = secure!(Node) { nodes(:cleanWater) }
-    assert lion.update_attributes(:name => 'status')
+    assert lion.update_attributes(:node_name => 'status')
     assert_equal 'people/status', lion.fullpath
        # path                           base_node
     { ['(/projects/cleanWater/status)', nil]  => nodes_id(:status),
@@ -1344,20 +1353,20 @@ done: \"I am done\""
     login(:lion)
     @node = secure!(Node) { nodes(:status) }
     assert @node.update_attributes(:text => "Hello this is \"art\":#{nodes_zip(:art)}. !#{nodes_zip(:bird_jpg)}!")
-    assert_equal "Hello this is \"art\":(../../../collections/art). !(../../wiki/bird)!", @node.unparse_assets(@node.version.text, self, 'text')
+    assert_equal "Hello this is \"art\":(../../../collections/art). !(../../wiki/bird)!", @node.unparse_assets(@node.text, self, 'text')
   end
 
   def test_parse_assets
     login(:lion)
     @node = secure!(Node) { nodes(:status) }
     assert @node.update_attributes(:text => "Hello this is \"art\":(../../../collections/art).")
-    assert_equal "Hello this is \"art\":#{nodes_zip(:art)}.", @node.parse_assets(@node.version.text, self, 'text')
+    assert_equal "Hello this is \"art\":#{nodes_zip(:art)}.", @node.parse_assets(@node.text, self, 'text')
   end
 
   context 'Finding safe method type' do
     context 'for safe methods in class' do
       should 'return method name' do
-        ['m_text', 'inherit', 'l_status', 'l_comment', 'm_text', 'inherit'].each do |k|
+        ['m_text', 'inherit', 'l_status', 'l_comment', 'm_text', 'inherit', 'v_status'].each do |k|
           assert_equal k, Contact.safe_method_type([k])[:method]
         end
       end
@@ -1365,9 +1374,15 @@ done: \"I am done\""
 
     context 'for methods not declared as safe in the class' do
       should 'return nil' do
-        ['puts', 'raise', 'blah', 'system', 'id'].each do |k|
+        ['puts', 'raise', 'blah', 'system'].each do |k|
           assert_nil Contact.safe_method_type([k])
         end
+      end
+    end
+
+    context 'for id' do
+      should 'return zip' do
+        assert_equal Hash[:class=>Number, :method=>'zip'], Contact.safe_method_type(['id'])
       end
     end
 
@@ -1379,133 +1394,100 @@ done: \"I am done\""
       end
     end
 
-    context 'for safe methods in version using nested alias' do
+    context 'for safe properties' do
       should 'return version and method name when safe' do
-        ['v_status', 'title'].each do |k|
-          assert_equal "version.#{k[2..-1]}", Contact.safe_method_type([k])[:method]
+        ['text', 'title', 'first_name', 'name'].each do |k|
+          assert_equal "prop['#{k}']", Contact.safe_method_type([k])[:method]
         end
       end
 
-      should 'return version and safe_read when unsafe' do
-        ['v_foo'].each do |k|
-          assert_equal "version.safe_read(\"#{k[2..-1]}\")", Contact.safe_method_type([k])[:method]
-        end
-      end
-    end
-
-    context 'for dynattributes using nested alias' do
-      should 'return dyn access' do
-        ['d_something', 'd_foo'].each do |k|
-          assert_equal "version.prop[\"#{k[2..-1]}\"]", Contact.safe_method_type([k])[:method]
-        end
-      end
-    end
-
-    context 'for methods in content using nested alias' do
-      should 'use safe_content_read when method not declared' do
-        ['c_first_name', 'c_name', 'c_system'].each do |k|
-          assert_equal "version.safe_content_read(\"#{k[2..-1]}\")", Node.safe_method_type([k])[:method]
-        end
-      end
-
-      should 'use method name when safe' do
-        ['c_first_name', 'c_name'].each do |k|
-          assert_equal "version.content.#{k[2..-1]}", Contact.safe_method_type([k])[:method]
+      should 'return nil when unsafe' do
+        ['first_name', 'name'].each do |k|
+          assert_nil Node.safe_method_type([k])
         end
       end
     end
   end
 
-  def test_safe_
-    ['file', 'c_blah', 'c_system'].each do |k|
-      assert_match %r{safe_content_read\(.#{k.gsub(/^.+_/,'')}.\)}, Contact.safe_method_type([k])[:method], "#{k} should use safe_read"
-    end
-
-
-    ['file'].each do |k|
-      assert Image.safe_method_type([k]), "#{k} should be safe"
-    end
-  end
-
-  def test_sync_name_on_title_change_no_sync
+  def test_sync_node_name_on_title_change_no_sync
     login(:tiger)
     # We do not care anymore if the node was not in sync
     node = secure!(Node) { nodes(:status) }
     assert node.update_attributes(:title => 'simply different')
     assert node.publish
-    assert_equal 'simplyDifferent', node.name
+    assert_equal 'simplyDifferent', node.node_name
     visitor.lang = 'fr'
     # not ref lang
     node = secure!(Node) { nodes(:people) }
     assert node.update_attributes(:title => 'nice people')
     assert node.publish
-    assert_equal 'fr', node.version.lang
-    assert_equal 'people', node.name
+    assert_equal 'fr', node.v_lang
+    assert_equal 'people', node.node_name
   end
 
-  def test_sync_name_on_title_change
+  def test_sync_node_name_on_title_change
     login(:tiger)
     # was in sync, correct lang
     node = secure!(Node) { nodes(:people) }
     assert node.update_attributes(:title => 'nice people')
-    assert_equal 'people', node.name
-    assert_equal Zena::Status[:red], node.version.status
+    assert_equal 'people', node.node_name
+    assert_equal Zena::Status[:red], node.v_status
     assert node.publish
-    assert_equal 'nicePeople', node.name
+    assert_equal 'nicePeople', node.node_name
   end
 
-  def test_sync_name_should_result_on_duplicates
+  def test_sync_node_name_should_result_on_duplicates
     login(:tiger)
     # was in sync, correct lang
     people = secure!(Node) { nodes(:people) }
     node = secure!(Page) { Page.create(:title => 'nice people', :parent_id => people.parent_id)}
     assert !node.new_record?
-    assert_equal 'nicePeople', node.name
+    assert_equal 'nicePeople', node.node_name
     # would sync to 'nicePeople'
     assert people.update_attributes(:title => 'nice people')
-    assert_equal 'people', people.name
+    assert_equal 'people', people.node_name
     assert people.publish
-    assert_equal 'nicePeople-1', people.name
+    assert_equal 'nicePeople-1', people.node_name
   end
 
-  def test_sync_name_before_publish_if_single_version
+  def test_sync_node_name_before_publish_if_single_version
     login(:ant)
     node = secure!(Node) { Node.create(:title => 'Eve', :parent_id => nodes_id(:people)) }
-    assert_equal Zena::Status[:red], node.version.status
-    assert_equal 'Eve', node.name
+    assert_equal Zena::Status[:red], node.v_status
+    assert_equal 'Eve', node.node_name
     node.update_attributes(:title => 'Lilith')
-    assert_equal Zena::Status[:red], node.version.status
-    assert_equal 'Lilith', node.name
+    assert_equal Zena::Status[:red], node.v_status
+    assert_equal 'Lilith', node.node_name
   end
 
-  def test_sync_name_on_title_change_auto_pub_no_sync
+  def test_sync_node_name_on_title_change_auto_pub_no_sync
     Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 3600 WHERE id = #{sites_id(:zena)}"
     Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE node_id IN (#{nodes_id(:status)},#{nodes_id(:people)})"
     login(:tiger)
 
     node = secure!(Node) { nodes(:status) }
     assert node.update_attributes(:title => 'simply different')
-    assert_equal 'simplyDifferent', node.name
+    assert_equal 'simplyDifferent', node.node_name
     visitor.lang = 'fr'
     # not ref lang
     node = secure!(Node) { nodes(:people) }
     assert node.update_attributes(:title => 'nice people')
-    assert_equal 'fr', node.version.lang
-    assert_equal 'people', node.name
+    assert_equal 'fr', node.v_lang
+    assert_equal 'people', node.node_name
   end
 
-  def test_sync_name_on_title_change_auto_pub
+  def test_sync_node_name_on_title_change_auto_pub
     test_site('zena')
     Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 3600 WHERE id = #{sites_id(:zena)}"
     Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE node_id IN (#{nodes_id(:people)})"
     login(:tiger)
     node = secure!(Node) { nodes(:people) }
     # was in sync, correct lang
-    assert_equal node.name, node.version.title
+    assert_equal node.node_name, node.title
     assert node.update_attributes(:title => 'nice people')
     node = secure!(Node) { nodes(:people) }
-    assert_equal 'nice people', node.version.title
-    assert_equal 'nicePeople', node.name
+    assert_equal 'nice people', node.title
+    assert_equal 'nicePeople', node.node_name
   end
 
   # FIXME: write test
