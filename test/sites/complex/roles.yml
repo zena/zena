@@ -1,6 +1,7 @@
 DEFAULTS:
   create_group:    public
   icon:            ""
+  type:            VirtualClass
 
 Employee:
   kpath:           NRCE

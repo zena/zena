@@ -1,5 +1,5 @@
 # encoding: utf-8
-class VirtualClass < ActiveRecord::Base
+class VirtualClass < Role
   attr_accessor :import_result
   belongs_to    :create_group, :class_name => 'Group', :foreign_key => 'create_group_id'
   validate      :valid_virtual_class
@@ -137,10 +137,7 @@ class VirtualClass < ActiveRecord::Base
 
   private
     def valid_virtual_class
-      if self[:name].blank?
-        errors.add('name', "can't be blank")
-        return false
-      end
+      return unless errors.empty?
       @superclass ||= self.superclass
 
       if new_record? || self[:name] != old[:name] || @superclass != old.superclass
@@ -160,19 +157,19 @@ class VirtualClass < ActiveRecord::Base
           index += 1
         end
         errors.add('name', 'invalid (could not build unique kpath)') unless kpath
-        self[:kpath]      = kpath
+        self[:kpath] = kpath
       end
 
-      self[:site_id]    = current_site[:id]
       self[:real_class] = get_real_class(@superclass)
 
       unless (secure!(Group) { Group.find(self[:create_group_id]) } rescue nil)
         errors.add('create_group_id', 'invalid group')
       end
+
       unless self[:real_class]
         errors.add('superclass', 'invalid')
       end
-      return errors.empty?
+
     end
 
     def get_real_class(klass)

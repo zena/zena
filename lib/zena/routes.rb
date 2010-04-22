@@ -14,6 +14,7 @@ module Zena
       resources :groups
       resources :iformats
 
+
       connect ':prefix/*path?:cachestamp',  :controller => 'nodes', :action => 'show', :prefix => /\w\w/, :cachestamp => /\d+/
       connect ':prefix/*path',  :controller => 'nodes', :action => 'show', :prefix => /\w\w/
       connect 'dav/*path_info', :controller => 'nodes', :action => 'webdav'
@@ -53,8 +54,11 @@ module Zena
 
       resources :relations
       resources :virtual_classes, :collection => {:import => :post}
+      resources :columns
+
       resources :sites,
-        :member     => { :clear_cache => :post }
+                    :member     => { :clear_cache => :post }
+
       resources :comments,
                     :collection => { :empty_bin => :delete },
                     :member => { :remove  => :put,

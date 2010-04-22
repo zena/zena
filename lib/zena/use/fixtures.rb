@@ -76,7 +76,6 @@ module Zena
               Zena::FoxyParser::multi_site_id(fixture)
             end
           else
-
             define_method(table_name) do |fixture|
               raise Exception.new("$_test_site is blank!") if $_test_site.blank?
               fixture_name = "#{$_test_site}_#{fixture}"

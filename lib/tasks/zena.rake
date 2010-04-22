@@ -286,7 +286,7 @@ namespace :zena do
   task :build_fixtures => :environment do
     tables = Node.connection.tables
 
-    ordered_tables = %w{virtual_classes versions nodes attachments zips relations links}
+    ordered_tables = %w{roles versions nodes attachments zips relations links}
     ordered_tables.each do |table_name|
       # We need to clear because some tables are only built by appending entries from inline
       # definitions (attachments for example).
@@ -296,22 +296,22 @@ namespace :zena do
 
     tables -= ordered_tables
     tables += ordered_tables
-    virtual_classes, versions, nodes = nil, nil, nil
+    roles, versions, nodes = nil, nil, nil
     tables.each do |table|
       case table
-      when 'virtual_classes'
-        virtual_classes = Zena::FoxyParser.new(table)
-        virtual_classes.run
+      when 'roles'
+        roles = Zena::FoxyParser.new(table)
+        roles.run
       when 'versions'
         versions = Zena::FoxyParser.new(table)
         versions.run
       when 'nodes'
-        nodes = Zena::FoxyParser.new(table, :versions => versions, :virtual_classes => virtual_classes)
+        nodes = Zena::FoxyParser.new(table, :versions => versions, :roles => roles)
         nodes.run
       when 'zips'
         Zena::FoxyParser.new(table, :nodes => nodes).run
       when 'relations'
-        Zena::FoxyParser.new(table, :virtual_classes => virtual_classes).run
+        Zena::FoxyParser.new(table, :roles => roles).run
       when 'links'
         Zena::FoxyParser.new(table, :nodes => nodes).run
       else

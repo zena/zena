@@ -1,6 +1,7 @@
 DEFAULTS:
   create_group:    public
   icon:            ""
+  type:            VirtualClass
 
 Letter:
   kpath:           NNL
@@ -21,3 +22,7 @@ Tag:
   kpath:           NPT
   real_class:      Page
   create_group:    admin
+
+Task:
+  kpath:           N
+  type:            Role

@@ -136,9 +136,9 @@ class Node < ActiveRecord::Base
     p.string  'comment'
   end
 
+  include Zena::Acts::Enrollable
+  
   include RubyLess
-
-
   safe_property  :title, :text, :summary, :comment
 
   safe_attribute :created_at, :updated_at, :event_at, :log_at, :publish_from, :basepath, :inherit, :position

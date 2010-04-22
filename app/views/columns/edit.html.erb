@@ -1,0 +1,12 @@
+<h1>Editing column</h1>
+
+<% form_for(@column) do |f| %>
+  <%= f.error_messages %>
+
+  <p>
+    <%= f.submit 'Update' %>
+  </p>
+<% end %>
+
+<%= link_to 'Show', @column %> |
+<%= link_to 'Back', columns_path %>
