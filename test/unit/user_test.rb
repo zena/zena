@@ -73,7 +73,7 @@ class UserTest < Zena::Unit::TestCase
     assert visitor.user?, "Whale is a user"
 
     contact = user.contact
-    assert_equal "john", contact.version.title
+    assert_equal "john", contact.title
   end
 
   def test_only_admin_can_create

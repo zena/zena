@@ -1,5 +1,4 @@
 require 'versions'
-
 class Version < ActiveRecord::Base
   include Zena::Use::Dates::ModelMethods
   parse_date_attribute :publish_from
@@ -32,12 +31,21 @@ class Version < ActiveRecord::Base
   before_create :set_site_id
   validate :valid_version
 
-  def cloned
-    # set number
-    # last_record = self[:node_id] ? self.connection.select_one("select number from #{self.class.table_name} where node_id = '#{node[:id]}' ORDER BY number DESC LIMIT 1") : nil
-    # self[:number] = (last_record || {})['number'].to_i + 1
+  # node_with_secure is defined in node.rb. It is an ugly fix
+  # related to the circular dependency between Node and Version
 
+  def cloned
     set_defaults
+  end
+
+
+  def previous_number
+    if node_id = self[:node_id]
+      last_record = self.connection.select_one("SELECT number FROM #{self.class.table_name} WHERE node_id = '#{node[:id]}' ORDER BY number DESC LIMIT 1")
+      (last_record || {})['number'].to_i
+    else
+      nil
+    end
   end
 
   def author

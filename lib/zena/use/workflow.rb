@@ -366,8 +366,12 @@ module Zena
           self.version_attributes = {'status' => Zena::Status[:rem]}
           save
         when :destroy_version
-          self.version_attributes = {:__destroy => true}
-          save
+          if empty?
+            self.destroy # will destroy last version
+          else
+            self.version_attributes = {:__destroy => true}
+            save
+          end
         end
       end
 

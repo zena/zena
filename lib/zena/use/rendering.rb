@@ -105,7 +105,7 @@ module Zena
             else
               # send data inline
               filepath = nil
-              send_data( data , :filename=>@node.version.title, :type => content_type, :disposition=>'inline')
+              send_data( data , :filename=>@node.title, :type => content_type, :disposition=>'inline')
             end
             cache_page(:content_data => (failure || data), :content_path => filepath) if opts[:cache]
           else
@@ -176,7 +176,7 @@ module Zena
           if File.exist?(filepath)
             # ok send data
             data = File.read(filepath)
-            send_data( data , :filename=>@node.version.title, :type => content_type, :disposition=>'inline')
+            send_data( data , :filename=>@node.title, :type => content_type, :disposition=>'inline')
           else
             # generate pdf
             FileUtils::mkpath(File.dirname(filepath)) unless File.exist?(File.dirname(filepath))
@@ -255,10 +255,10 @@ module Zena
               # cache pdf data
               filepath = filepath[(SITES_ROOT.size)..-1]
               secure!(CachedPage) { CachedPage.create(:expire_after => nil, :path => filepath, :content_data => data, :node_id => @node[:id], :expire_with_ids => expire_with_ids) }
-              send_data( data , :filename=>@node.version.title, :type => content_type, :disposition=>'inline')
+              send_data( data , :filename=>@node.title, :type => content_type, :disposition=>'inline')
             else
               # failure: send log
-              send_data( failure , :filename=>"#{@node.version.title} - error", :type => 'text/plain', :disposition=>'inline')
+              send_data( failure , :filename=>"#{@node.title} - error", :type => 'text/plain', :disposition=>'inline')
             end
             #system("rm -rf #{tempf.path.inspect} #{(tempf.path + '.*').inspect}")
           end

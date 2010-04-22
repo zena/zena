@@ -1,4 +1,4 @@
 Task_assigned:
+  role:            Task
   ptype:           string
   name:            assigned
-  role:            Task

@@ -137,7 +137,7 @@ class Node < ActiveRecord::Base
   end
 
   include Zena::Acts::Enrollable
-  
+
   include RubyLess
   safe_property  :title, :text, :summary, :comment
 
@@ -1769,3 +1769,12 @@ class Node < ActiveRecord::Base
 end
 
 Bricks.apply_patches
+
+# This is an ugly fix related to the circular dependency between Node and Version
+class Version
+
+  def node_with_secure
+    @node ||= secure!(Node) { node_without_secure }
+  end
+  alias_method_chain :node, :secure
+end

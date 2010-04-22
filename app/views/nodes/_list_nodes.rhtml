@@ -3,7 +3,7 @@
   <% if i > 0 -%><tr><td colspan='2' class='result_break'></td></tr><% end -%>
   <tr>
     <td class='docpv'><%= link_to img_tag(doc, :mode=>'mini'), data_path(doc) %><p><%= fsize(doc.size) %></p></td>
-    <td class='docinfo'><p class='doc_title'><%= link_to(doc.version.title, zen_path(doc)) %></p><%= zazen(doc.summary) %></td>
+    <td class='docinfo'><p class='doc_title'><%= link_to(doc.title, zen_path(doc)) %></p><%= zazen(doc.summary) %></td>
   </tr>
   <% end %>
 </table>

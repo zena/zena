@@ -31,7 +31,7 @@ module Zena
       module InstanceMethods
 
         def record_must_be_secured
-          errors.add(:base, 'record not secured') unless @visitor == Thread.current[:visitor]
+          errors.add(:base, 'record not secured') unless secured?
         end
 
         # Store visitor to produce scope when needed and to retrieve correct editions.
@@ -43,6 +43,11 @@ module Zena
         # Return true if the node can be viewed by all (public)
         def public?
           can_read?(visitor.site.anon,visitor.site.anon.group_ids) # visible by anonymous
+        end
+
+        # Return true if the node is properly secured (was loaded with secure)
+        def secured?
+          @visitor && @visitor == Thread.current[:visitor]
         end
 
         # Return true if the node is not a reference for any other nodes

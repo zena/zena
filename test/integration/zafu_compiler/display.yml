@@ -9,7 +9,7 @@ default:
 
 show_title:
   old_src: "<r:show attr='title'/>"
-  old_tem: "<%= @node.version.title %>"
+  old_tem: "<%= @node.title %>"
   src: "<r:title/>"
   tem: "<%= @node.prop['title'] %>"
   res: "status title"

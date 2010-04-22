@@ -93,12 +93,12 @@ link_project:
   context:
     node: 'bird_jpg'
   src: "<r:link href='project'/>"
-  tem: "<a href='<%= zen_path(@node.project) %>'><%= @node.version.title %></a>"
+  tem: "<a href='<%= zen_path(@node.project) %>'><%= @node.title %></a>"
   res: "<a href='/oo/project29.html'>bird</a>"
 
 link_root:
   src: "<r:link href='root'/>"
-  tem: "<a href='<%= zen_path((secure(Node) { Node.find(_ID(zena))})) %>'><%= @node.version.title %></a>"
+  tem: "<a href='<%= zen_path((secure(Node) { Node.find(_ID(zena))})) %>'><%= @node.title %></a>"
   res: "<a href='/oo'>status title</a>"
 
 link_anchor:

@@ -228,7 +228,7 @@ class WorkflowTest < Zena::Unit::TestCase
 
         should 'not create a new redaction if all attributes are identical' do
           assert_difference('Version.count', 0) do
-            assert subject.update_attributes(:title => subject.version.title, :text => subject.version.text)
+            assert subject.update_attributes(:title => subject.title, :text => subject.version.text)
           end
         end
 
@@ -312,24 +312,24 @@ class WorkflowTest < Zena::Unit::TestCase
         assert_equal Zena::Status[:pub], versions(:status_en).status
       end
 
-      should 'be able to write new attributes using nested attributes alias' do
+      should 'be able to write new attributes using properties' do
         assert_difference('Version.count', 1) do
           node = secure!(Node) { nodes(:lake) }
-          assert node.update_attributes(:title => 'Mea Lua', :c_country => 'Brazil')
+          assert node.update_attributes(:title => 'Mea Lua', :country => 'Brazil')
           node = secure!(Node) { nodes(:lake) } # reload
-          assert_equal 'Mea Lua', node.version.title
+          assert_equal 'Mea Lua', node.title
           assert_equal 'Brazil', node.country
         end
       end
 
-      should 'be able to create nodes using nested attributes alias' do
+      should 'be able to create nodes using properties' do
         node = secure!(Node) { Node.create(defaults.merge(:title => 'Pandeiro')) }
-        assert_equal 'Pandeiro', node.version.title
+        assert_equal 'Pandeiro', node.title
       end
 
       should 'create a new redaction when setting version_attributes' do
-        subject.version_attributes = {'title' => 'labias'}
-        assert_equal 'labias', subject.version.title
+        subject.version_attributes = {'lang' => 'de'}
+        assert_equal 'de', subject.version.lang
         assert_difference('Version.count', 1) do
           assert subject.save
           assert subject.version.cloned?
@@ -888,6 +888,8 @@ class WorkflowTest < Zena::Unit::TestCase
     assert sub.destroy_version # destroy all
     node = secure!(Node) { nodes(:talk) } # reload
 
+    assert node.empty?
+
     assert node.can_destroy_version?
     assert node.destroy_version # destroy all
     assert_raise(ActiveRecord::RecordNotFound) { nodes(:talk) }
@@ -898,13 +900,13 @@ class WorkflowTest < Zena::Unit::TestCase
     login(:lion)
     node = secure!(Node) { nodes(:status) }
     assert_equal Zena::Status[:pub], node.version.status
-    assert_equal 'status title', node.version.title
+    assert_equal 'status title', node.title
     assert_equal 1, node.version.number
     assert_equal 2, node.versions.size
     node.update_attributes(:title => "Statues are better", 'v_status' => Zena::Status[:pub])
     assert_equal Zena::Status[:pub], node.version.status
     assert_equal 3, node.version.number
-    assert_equal 'Statues are better', node.version.title
+    assert_equal 'Statues are better', node.title
   end
 
   def test_update_auto_publish_set_v_publish_from_to_nil
@@ -913,7 +915,7 @@ class WorkflowTest < Zena::Unit::TestCase
     node = secure!(Node) { Node.create( :parent_id => nodes_id(:zena), :title => "This one should auto publish" ) }
     node = secure!(Node) { Node.find(node.id) } # reload
     node.update_attributes(:title => "This one should not be gone",  :v_publish_from => "")
-    assert_equal 'This one should not be gone', node.version.title
+    assert_equal 'This one should not be gone', node.title
     assert_equal Zena::Status[:pub], node.version.status
     assert_not_nil node.publish_from
     assert node.publish_from > Time.now - 10
@@ -931,7 +933,7 @@ class WorkflowTest < Zena::Unit::TestCase
     visitor.lang = 'en'
     node = secure!(Node) { nodes(:tiger) }
     assert_equal Zena::Status[:pub], node.version.status
-    assert_equal 'Tiger', node.version.title
+    assert_equal 'Tiger', node.title
     assert_equal 1, node.version.number
     assert_equal users_id(:tiger), node.version.user_id
     assert node.version.created_at < Time.now + 600
@@ -940,7 +942,7 @@ class WorkflowTest < Zena::Unit::TestCase
     assert_equal Zena::Status[:pub], node.version.status
     assert_equal 1, node.version.number
     assert_equal versions_id(:tiger_en), node.version.id
-    assert_equal 'Puma', node.version.title
+    assert_equal 'Puma', node.title
   end
 
   def test_publish_after_save_in_redit_time_can_publish
@@ -952,7 +954,7 @@ class WorkflowTest < Zena::Unit::TestCase
     visitor.lang = 'en'
     node = secure!(Node) { nodes(:tiger) }
     assert_equal Zena::Status[:pub], node.version.status
-    assert_equal 'Tiger', node.version.title
+    assert_equal 'Tiger', node.title
     assert_equal 1, node.version.number
     assert_equal users_id(:tiger), node.version.user_id
     assert node.version.created_at < Time.now + 600
@@ -961,7 +963,7 @@ class WorkflowTest < Zena::Unit::TestCase
     assert_equal Zena::Status[:pub], node.version.status
     assert_equal 1, node.version.number
     assert_equal versions_id(:tiger_en), node.version.id
-    assert_equal 'Puma', node.version.title
+    assert_equal 'Puma', node.title
   end
 
 
@@ -976,7 +978,7 @@ class WorkflowTest < Zena::Unit::TestCase
     assert node.publish_from < Time.now + 10
     assert node.version.publish_from > Time.now - 10
     assert node.version.publish_from < Time.now + 10
-    assert_equal "This one should auto publish", node.version.title
+    assert_equal "This one should auto publish", node.title
   end
 
   def test_set_v_lang_publish

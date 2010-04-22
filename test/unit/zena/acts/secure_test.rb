@@ -108,11 +108,19 @@ class SecureTest < Zena::Unit::TestCase
         should 'be valid' do
           assert subject.valid?
         end
+
+        should 'be secured' do
+          assert subject.secured?
+        end
       end
 
       context 'loaded without secure' do
         should 'not be valid' do
           assert !subject.valid?
+        end
+        
+        should 'not be secured' do
+          assert !subject.secured?
         end
       end
     end # with an accessible node
@@ -215,7 +223,7 @@ class SecureTest < Zena::Unit::TestCase
         assert node.can_write?
         assert node.update_attributes(:title => 'max havelaar')
         node = secure(Node) { nodes(:bananas) } # reload
-        assert_equal 'max havelaar', node.version.title
+        assert_equal 'max havelaar', node.title
       end
 
       # FIXME: move to workflow_test ?

@@ -67,7 +67,7 @@ module Zena
               opts[:project] = (obj.get_project_id != @node.get_project_id && obj[:id] != @node[:id])
             end
 
-            title = opts[:text] || obj.version.title
+            title = opts[:text] || obj.title
             if opts[:project] && project = obj.project
               title = "#{project.name} / #{title}"
             end

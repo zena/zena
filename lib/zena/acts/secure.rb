@@ -137,9 +137,9 @@ Just doing the above will filter all result according to the logged in user.
 
           scope = {:create => { :visitor => visitor }}
           find = scope[:find] ||= {}
-          if klass.ancestors.include?(Zena::Acts::SecureNode::InstanceMethods)
+          if klass < Zena::Acts::SecureNode::InstanceMethods
             find[:conditions] = node_find_scope
-          elsif klass.ancestors.include?(::Version)
+          elsif klass < ::Version
             ntbl = ::Node.table_name
             find[:joins] = :node
             find[:readonly] = false
@@ -151,7 +151,7 @@ Just doing the above will filter all result according to the logged in user.
             end
           elsif klass.column_names.include?('site_id')
             find[:conditions] = {klass.table_name => {:site_id => visitor.site[:id]}}
-          elsif klass.ancestors.include?(::Site)
+          elsif klass < ::Site
             find[:conditions] = {klass.table_name => {:id => visitor.site[:id]}}
           end
 
@@ -214,11 +214,6 @@ Just doing the above will filter all result according to the logged in user.
         # * members of +drive_group+ if +max_status+ >= prop
         # The options hash is used internally by zena when maintaining parent to children inheritance and should not be used for other purpose if you do not want to break secure access.
         def secure(klass, opts={}, &block)
-          # FIXME: why doesn't secure look like secure_write and secure_drive ?
-          # klass.ancestors.include? should not belong here !
-          # using the same:
-          # secure_with_scope(klass, nil, &block)
-          # for all should work.
           if opts[:secure] == false
             yield
           else

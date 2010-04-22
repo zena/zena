@@ -20,6 +20,7 @@ module Zena
 
       def all_possible_roles
         kpaths = []
+        kpath = self.kpath || vclass.kpath
         kpath.split(//).each_index { |i| kpaths << kpath[0..i] }
 
         # FIXME: !! manage a memory cache for Roles

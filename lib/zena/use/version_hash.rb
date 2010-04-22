@@ -92,18 +92,27 @@ module Zena
               vhash['w'][version.lang] = v_id
             end
           when :destroy_version
-            if vhash['w'][version.lang] == version.id
-              if version.lang == ref_lang
-                # Must always have a value here
-                vhash['w'][ref_lang] = versions.last.id
+            v_id = version.id
+            lang = version.lang
+            if vhash['w'][lang] == v_id
+              # Writers were looking at old version
+              if vhash['r'][lang] && vhash['r'][lang] != v_id
+                # There is a publication that can be used
+                vhash['w'][lang] = v_id
               else
-                vhash['w'].delete(version.lang)
+                # Nothing to see here for this lang
+                vhash['w'].delete(lang)
+                vhash['r'].delete(lang)
               end
             end
 
-            if v_id = vhash['r'][version.lang]
-              vhash['w'][version.lang] = v_id
+            if vhash['w'].values == []
+              if last = versions.last
+                # We have a last version (not destroying node)
+                vhash['w'][last.lang] = last.id
+              end
             end
+
             # force reload
             @version = nil
           end

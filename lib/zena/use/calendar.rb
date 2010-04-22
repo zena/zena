@@ -106,7 +106,7 @@ module Zena
           target_zip   ||= params[:s]
           template_url ||= params[:t_url]
           state = node.linked_node ? (node.linked_node.zip ==  target_zip.to_i ? 'on' : 'used') : 'free'
-          title = node.linked_node ? node.linked_node.version.title : _('free')
+          title = node.linked_node ? node.linked_node.title : _('free')
           hour  = date.strftime('%H')
           full_dom_id = "#{node.zip}_#{target_zip}_#{date.to_i}"
           res = "<li id='#{full_dom_id}' class='hour_#{hour} #{state}'>"
@@ -117,7 +117,7 @@ module Zena
             date_format = "%Y-%m-%d+%H"
             opts = {:url => "/nodes/#{node.zip}?node[rel][#{role}][date]=#{date.strftime(date_format)}&node[rel][#{role}][other_id]=#{state == 'free' ? target_zip : ''}&s=#{target_zip}&dom_id=#{full_dom_id}&t_url=#{CGI.escape(template_url)}&date=#{date.strftime(date_format)}", :method => :put}
             if state == 'used' && remove_used == 'warn'
-              opts[:confirm] = _("Delete relation '%{role}' between '%{source}' and '%{target}' ?") % {:role => role, :source => node.version.title, :target => node.linked_node.version.title}
+              opts[:confirm] = _("Delete relation '%{role}' between '%{source}' and '%{target}' ?") % {:role => role, :source => node.title, :target => node.linked_node.title}
             end
             res << link_to_remote(title, opts)
           end
