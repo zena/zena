@@ -263,14 +263,14 @@ class UserTest < Zena::Unit::TestCase
 
   def test_redactions
     login(:tiger)
-    assert_equal ['opening'], visitor.redactions.map {|r| r.node.name}
+    assert_equal ['opening'], visitor.redactions.map {|r| r.node.node_name}
     node = secure(Page) { Page.create(:title => 'hello', :parent_id => nodes_id(:projects)) }
     node.propose
-    assert_equal ['hello'], visitor.to_publish.map {|r| r.node.name}
-    assert_equal ['hello'], visitor.proposed.map {|r| r.node.name}
+    assert_equal ['hello'], visitor.to_publish.map {|r| r.node.node_name}
+    assert_equal ['hello'], visitor.proposed.map {|r| r.node.node_name}
 
     login(:lion)
-    assert_equal ['hello'], visitor.to_publish.map {|r| r.node.name}
+    assert_equal ['hello'], visitor.to_publish.map {|r| r.node.node_name}
   end
 
   context 'Creating a new user' do

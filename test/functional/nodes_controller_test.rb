@@ -233,9 +233,9 @@ END:VCALENDAR
       assert_equal 'en', versions[1].lang
       assert_equal 'Le septième ciel', versions[0].title
       assert_equal 'Photos !', photos.title
-      assert_match %r{Here are some photos.*!\[\]!}m, photos.version.text
-      assert_match %r{!#{bird.zip}_med!}m,     photos.version.text
-      assert_match %r{"links":#{simple.zip}}m, photos.version.text
+      assert_match %r{Here are some photos.*!\[\]!}m, photos.text
+      assert_match %r{!#{bird.zip}_med!}m,     photos.text
+      assert_match %r{"links":#{simple.zip}}m, photos.text
       assert_equal "A simple \"test\":#{simple.zip}", photos.version.prop['foo']
       in_photos = photos.find(:all, 'children')
       assert_equal 2, in_photos.size

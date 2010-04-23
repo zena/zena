@@ -88,7 +88,7 @@ module Zena
           else
             text = obj.send(sym)
             if text.blank? && sym == :summary
-              text = obj.version.text
+              text = obj.text
               opt[:images] = false
             else
               opt.delete(:limit)
@@ -172,29 +172,28 @@ ENDTXT
 
         # This lets helpers render partials
         # TODO: make sure this is the best way to handle this problem.
-
-        def render_to_string(*args)
-          controller ||= begin
-             # ==> this means render_to_string uses a view with everything ApplicationController has...
-            ApplicationController.new.instance_eval do
-              class << self
-                public :render, :render_to_string
-                attr_accessor :request, :response, :params
-              end
-
-              @request = ::ActionController::TestRequest.new
-              @response = ::ActionController::TestResponse.new
-
-              @params = {}
-              send(:initialize_current_url)
-              @template = @response.template = ::ActionView::Base.new(self.class.view_paths, {}, self)
-              @template.helpers.send :include, self.class.master_helper_module
-              self
-            end
-          end
-
-          controller.render(*args)
-        end
+        # def render_to_string(*args)
+        #   controller = self.controller || begin
+        #      # ==> this means render_to_string uses a view with everything ApplicationController has...
+        #     ApplicationController.new.instance_eval do
+        #       class << self
+        #         public :render, :render_to_string
+        #         attr_accessor :request, :response, :params
+        #       end
+        #
+        #       @request = ::ActionController::TestRequest.new
+        #       @response = ::ActionController::TestResponse.new
+        #
+        #       @params = {}
+        #       send(:initialize_current_url)
+        #       @template = @response.template = ::ActionView::Base.new(self.class.view_paths, {}, self)
+        #       @template.helpers.send :include, self.class.master_helper_module
+        #       self
+        #     end
+        #   end
+        #
+        #   controller.render(*args)
+        # end
 
       end # ViewMethods
     end # Refactor

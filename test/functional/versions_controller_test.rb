@@ -90,10 +90,10 @@ class VersionsControllerTest < Zena::Controller::TestCase
     #header { background:url('/en/image30.jpg?1144713600') }
     #footer { background:url('/en/image31.jpg?1144713600') }
     END_CSS
-    assert_equal res, version.text
+    assert_equal res, text
     get 'edit', :node_id => node.zip, :id => 0, :unparse_assets => 'true'
     assert_response :success
     version = assigns(:node).version
-    assert_equal start, version.text
+    assert_equal start, text
   end
 end

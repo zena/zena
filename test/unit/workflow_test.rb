@@ -98,7 +98,6 @@ class WorkflowTest < Zena::Unit::TestCase
       end
 
       should 'see a redaction from another language' do
-        login(:ant)
         visitor.lang = 'de'
         node = secure!(Node) { nodes(:opening) }
         assert_equal versions_id(:opening_red_fr), node.version.id
@@ -228,7 +227,7 @@ class WorkflowTest < Zena::Unit::TestCase
 
         should 'not create a new redaction if all attributes are identical' do
           assert_difference('Version.count', 0) do
-            assert subject.update_attributes(:title => subject.title, :text => subject.version.text)
+            assert subject.update_attributes(:title => subject.title, :text => subject.text)
           end
         end
 
@@ -789,7 +788,7 @@ class WorkflowTest < Zena::Unit::TestCase
     assert node.can_drive?
     assert_equal Zena::Status[:red], node.version.status
     assert_equal versions_id(:lake_red_en), node.version.id
-    assert node.remove, "Can remove"
+    assert node.remove
     assert_equal Zena::Status[:rem], node.version.status
   end
 

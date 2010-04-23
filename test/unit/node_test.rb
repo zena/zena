@@ -898,7 +898,7 @@ class NodeTest < Zena::Unit::TestCase
     assert_equal Node, Node.get_class('node')
     assert_equal Node, Node.get_class('nodes')
     assert_equal Node, Node.get_class('Node')
-    assert_equal virtual_classes(:Letter), Node.get_class('Letter')
+    assert_equal roles(:Letter), Node.get_class('Letter')
     assert_equal TextDocument, Node.get_class('TextDocument')
   end
 
@@ -932,7 +932,7 @@ done: \"I am done\""
     assert_equal 1, nodes.size
     simple = nodes[0]
     assert_kind_of Note, simple
-    assert_equal virtual_classes(:Post), simple.vclass
+    assert_equal roles(:Post), simple.vclass
     assert !simple.new_record?
   end
 
@@ -1201,8 +1201,8 @@ done: \"I am done\""
       assert_equal Node, Node.get_class_from_kpath('N')
       assert_equal Page, Node.get_class_from_kpath('NP')
       assert_equal Image, Node.get_class_from_kpath('NDI')
-      assert_equal virtual_classes(:Post), Node.get_class_from_kpath('NNP')
-      assert_equal virtual_classes(:Letter), Node.get_class_from_kpath('NNL')
+      assert_equal roles(:Post), Node.get_class_from_kpath('NNP')
+      assert_equal roles(:Letter), Node.get_class_from_kpath('NNL')
       assert_equal TextDocument, Node.get_class_from_kpath('NDT')
     end
   end

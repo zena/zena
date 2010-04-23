@@ -42,6 +42,8 @@ module Zena
 
           self.params  = {}
           self.session = {}
+          @template = self.response.template = ::ActionView::Base.new(self.class.view_paths, {}, self)
+          @template.helpers.send :include, self.class.master_helper_module
           initialize_current_url
         end
 

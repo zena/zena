@@ -34,7 +34,7 @@ class VersionsController < ApplicationController
           disposition  = 'inline'
 
         elsif @node.kind_of?(TextDocument)
-          data = StringIO.new(@node.version.text)
+          data = StringIO.new(@node.text)
           content_path = nil
           disposition  = 'attachment'
 
@@ -66,9 +66,9 @@ class VersionsController < ApplicationController
       @title_for_layout = @node.rootpath
       if @node.kind_of?(TextDocument)
         if params['parse_assets']
-          @node.version.text = @node.parse_assets(@node.version.text, self, 'text')
+          @node.text = @node.parse_assets(@node.text, self, 'text')
         elsif @node.kind_of?(TextDocument) && params['unparse_assets']
-          @node.version.text = @node.unparse_assets(@node.version.text, self, 'text')
+          @node.text = @node.unparse_assets(@node.text, self, 'text')
         end
       end
       @edit = true
@@ -144,11 +144,11 @@ class VersionsController < ApplicationController
       # elsif @node.kind_of?(Image)
       #   # view image version
       #   # TODO: how to show the image data of a version ? 'nodes/3/versions/4.jpg' ?
-      #   @node.version.text = "<img src='#{url_for(:controller=>'versions', :node_id=>@node[:zip], :id=>@node.v_number, :format=>@node.ext)}'/>"
+      #   @node.text = "<img src='#{url_for(:controller=>'versions', :node_id=>@node[:zip], :id=>@node.v_number, :format=>@node.ext)}'/>"
       # elsif @node.kind_of?(TextDocument)
       #   lang = @node.content_lang
       #   lang = lang ? " lang='#{lang}'" : ""
-      #   @node.version.text = "<code#{lang} class='full'>#{@text}</code>"
+      #   @node.text = "<code#{lang} class='full'>#{@text}</code>"
     end
 
 

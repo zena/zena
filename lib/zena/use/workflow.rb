@@ -366,7 +366,7 @@ module Zena
           self.version_attributes = {'status' => Zena::Status[:rem]}
           save
         when :destroy_version
-          if empty?
+          if versions.count == 1 && empty?
             self.destroy # will destroy last version
           else
             self.version_attributes = {:__destroy => true}
@@ -493,6 +493,8 @@ module Zena
             allowed, message = transition_allowed?(transition)
             if allowed
               return true
+            elsif %W{auto_publish}.include?(transition[:name].to_s)
+              errors.add(:base, message || 'You do not have the rights to do this.')
             else
               errors.add(:base, message || "You do not have the rights to #{transition[:name].to_s.gsub('_', ' ')}.")
             end

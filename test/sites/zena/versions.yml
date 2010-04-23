@@ -331,6 +331,8 @@ lake_red_en:
   number:          2
   prop:
     title:         The lake we love
+    first_name:    Lake
+    name:          Tanganyika
 
 opening_en:
   node:            opening

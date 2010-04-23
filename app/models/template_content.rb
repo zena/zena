@@ -42,7 +42,7 @@ class TemplateContent < ActiveRecord::Base
   end
 
   def size(format=nil)
-    version.text.size
+    text.size
   end
 
   def filename
@@ -60,11 +60,11 @@ class TemplateContent < ActiveRecord::Base
 
   def file=(file)
     @new_file = file
-    version.text = file.read
+    text = file.read
   end
 
   def file(mode=nil)
-    @new_file ||= StringIO.new(version.text)
+    @new_file ||= StringIO.new(text)
   end
 
   def version

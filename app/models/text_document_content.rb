@@ -2,16 +2,16 @@ class TextDocumentContent < DocumentContent
 
   def file=(aFile)
     super
-    version.text = @new_file.read
+    text = @new_file.read
   end
 
   def file(mode=nil)
-    @loaded_file ||= @new_file || StringIO.new(version.text)
+    @loaded_file ||= @new_file || StringIO.new(text)
   end
 
   # Return document file size (= version's text size).
   def size(format=nil)
-    version.text.size
+    text.size
   end
 
   def filename

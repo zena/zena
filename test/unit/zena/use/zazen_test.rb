@@ -248,7 +248,6 @@ class ZazenTest < Zena::View::TestCase
 
   def test_table_asset
     login(:tiger)
-    @node = secure!(Node) { nodes(:status) }
     assert_match %r{<table.*<tr.*<th>title</th.*<tr.*value}m, zazen("This is a table test:\n\n|shopping_list|")
     assert_match %r{<table.*<th>problem</th>.*<th>solution</th>.*<th>cost</th>.*<tr>.*<td>dead hard drive</td>}m, zazen("This is a table test:\n\n|problems|")
   end

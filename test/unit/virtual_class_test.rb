@@ -149,7 +149,7 @@ class VirtualClassTest < Zena::Unit::TestCase
 
   def test_new
     login(:ant)
-    klass = virtual_classes(:Letter)
+    klass = roles(:Letter)
     assert node = secure!(Node) { klass.new(:title => 'my letter', :parent_id => nodes_id(:cleanWater)) }
     assert node.save
     assert_kind_of Note, node
@@ -173,9 +173,9 @@ class VirtualClassTest < Zena::Unit::TestCase
   end
 
   def test_superclass
-    assert_equal Note, virtual_classes(:Post).superclass
-    assert_equal Note, virtual_classes(:Letter).superclass
-    assert_equal Page, virtual_classes(:Tracker).superclass
+    assert_equal Note, roles(:Post).superclass
+    assert_equal Note, roles(:Letter).superclass
+    assert_equal Page, roles(:Tracker).superclass
   end
 
   def test_new_conflict_virtual_kpath
@@ -199,7 +199,7 @@ class VirtualClassTest < Zena::Unit::TestCase
   def test_update
     # add a sub class
     login(:lion)
-    vclass = virtual_classes(:Post)
+    vclass = roles(:Post)
     assert_equal "reading, book", vclass.dyn_keys
     assert_equal "NNP", vclass.kpath
     assert vclass.update_attributes(:dyn_keys => 'foo, bar')
@@ -210,7 +210,7 @@ class VirtualClassTest < Zena::Unit::TestCase
   def test_update_name
     # add a sub class
     login(:lion)
-    vclass = virtual_classes(:Post)
+    vclass = roles(:Post)
     assert_equal "NNP", vclass.kpath
     assert vclass.update_attributes(:name => 'Past')
     assert_equal "NNP", vclass.kpath
@@ -219,7 +219,7 @@ class VirtualClassTest < Zena::Unit::TestCase
   def test_update_superclass
     # add a sub class
     login(:lion)
-    vclass = virtual_classes(:Post)
+    vclass = roles(:Post)
     assert_equal Note, vclass.superclass
     assert vclass.update_attributes(:superclass => 'Project')
     assert_equal Project, vclass.superclass
@@ -227,8 +227,8 @@ class VirtualClassTest < Zena::Unit::TestCase
   end
 
   def test_auto_create_discussion
-    assert !virtual_classes(:Letter).auto_create_discussion
-    assert virtual_classes(:Post).auto_create_discussion
+    assert !roles(:Letter).auto_create_discussion
+    assert roles(:Post).auto_create_discussion
   end
 
   def test_attributes

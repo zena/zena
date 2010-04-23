@@ -118,7 +118,7 @@ class SecureTest < Zena::Unit::TestCase
         should 'not be valid' do
           assert !subject.valid?
         end
-        
+
         should 'not be secured' do
           assert !subject.secured?
         end
@@ -224,11 +224,6 @@ class SecureTest < Zena::Unit::TestCase
         assert node.update_attributes(:title => 'max havelaar')
         node = secure(Node) { nodes(:bananas) } # reload
         assert_equal 'max havelaar', node.title
-      end
-
-      # FIXME: move to workflow_test ?
-      should 'not be allowed to publish' do
-        assert test_page.update_attributes(:v_status => Zena::Status[:pub], :title => "New funky title")
       end
     end
 
@@ -704,14 +699,14 @@ class SecureTest < Zena::Unit::TestCase
 
     should 'update inheriting children skin on parent change' do
       assert @node.update_attributes(:parent_id => nodes_id(:wiki))
-      assert_equal 'wikiSkin', @node.skin
+      assert_equal nodes_id(:wikiSkin), @node.skin_id
       # children
-      assert_equal 'wikiSkin', nodes(:status).skin
-      assert_equal 'wikiSkin', nodes(:water_pdf).skin
+      assert_equal nodes_id(:wikiSkin), nodes(:status).skin_id
+      assert_equal nodes_id(:wikiSkin), nodes(:water_pdf).skin_id
       # grandchildren
-      assert_equal 'wikiSkin', nodes(:lake_jpg).skin
+      assert_equal nodes_id(:wikiSkin), nodes(:lake_jpg).skin_id
       # not inherited
-      assert_equal 'default', nodes(:bananas).skin
+      assert_equal nodes_id(:default), nodes(:bananas).skin_id
     end
   end # A node with children
 

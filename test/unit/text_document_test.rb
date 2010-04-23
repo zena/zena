@@ -2,6 +2,54 @@ require 'test_helper'
 
 class TextDocumentTest < Zena::Unit::TestCase
 
+  context 'A visitor with write access' do
+    setup do
+      login(:tiger)
+    end
+
+    context 'on a css text_document' do
+      subject do
+        secure(Node) { nodes(:style_css) }
+      end
+
+      context 'in a folder with an image' do
+        setup do
+          bird = secure!(Node) { nodes(:bird_jpg) }
+          previous_updated_at = bird.updated_at
+          assert bird.update_attributes(:parent_id => subject[:parent_id])
+          # We want to keep the updated_at date
+          Zena::Db.set_attribute(bird, :updated_at, previous_updated_at)
+        end
+
+        should 'parse css assets' do
+          css =<<-END_CSS
+          body { font-size:10px; }
+          #header { background:url('bird.jpg') }
+          #pv     { background:url('bird_pv.jpg') }
+          #footer { background:url('/projects/wiki/flower.jpg') }
+          #no_stamp { background:url('/en/image30_pv.jpg?100001001345') }
+          END_CSS
+
+          assert subject.update_attributes(:text => css)
+
+          parsed_css =<<-END_CSS
+          body { font-size:10px; }
+          #header { background:url('/en/image30.jpg?1144713600') }
+          #pv     { background:url('/en/image30_pv.jpg?967816914293') }
+          #footer { background:url('/en/image31.jpg?1144713600') }
+          #no_stamp { background:url('/en/image30_pv.jpg?967816914293') }
+          END_CSS
+
+          assert_equal parsed_css, subject.text
+
+          # Reload
+          node = secure(Node) { nodes(:style_css) }
+          assert_equal parsed_css, node.text
+        end
+      end # in a folder with an image
+    end # on a css text_document
+  end # A visitor with write access
+
   def test_create_simplest
     login(:tiger)
     doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :node_name => 'skiny')}
@@ -23,7 +71,7 @@ class TextDocumentTest < Zena::Unit::TestCase
     assert_equal TextDocument, doc.class
     # reload
     doc = secure!(Document) { Document.find(doc[:id])}
-    assert !File.exist?(doc.filepath), "No file created"
+    assert_nil doc.filepath
     assert_equal 'txt', doc.ext
     assert_equal 'text/plain', doc.content_type
     assert_equal 'some.txt', doc.filename
@@ -60,7 +108,7 @@ class TextDocumentTest < Zena::Unit::TestCase
     #back   { background:url('../../projects/wiki/flower.jpg') }
     #no_stamp { background:url('/en/image30_pv.jpg') }
     END_CSS
-    node.version.text = start.dup
+    node.text = start.dup
     # dummy controller
     helper = ApplicationController.new
     helper.instance_variable_set(:@visitor, visitor)
@@ -105,7 +153,7 @@ class TextDocumentTest < Zena::Unit::TestCase
     #tiny   { background:url('green_bird_tiny.jpg') }
     #footer { background:url('/projects/wiki/flower.jpg') }
     END_CSS
-    node.version.text = start.dup
+    node.text = start.dup
     # dummy controller
     helper = ApplicationController.new
     helper.instance_variable_set(:@visitor, visitor)

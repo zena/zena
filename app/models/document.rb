@@ -180,12 +180,16 @@ class Document < Node
       end
 
       super
-
+      
+      set_attachment_filename
+      true
+    end
+    
+    # Overwriten in TextDocument
+    def set_attachment_filename
       if @new_file
         version.attachment.filename = "#{title}.#{ext}"
       end
-
-      true
     end
 
     # Make sure we have a file.

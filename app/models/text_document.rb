@@ -69,7 +69,11 @@ class TextDocument < Document
             "url(#{quote}#{src}#{quote})"
           end
         else
-          if new_src = helper.send(:template_url_for_asset, :src => src, :current_dir=>current_dir, :parse_assets => true)
+          if new_src = helper.send(:template_url_for_asset,
+              :src          => src,
+              :base_path    => current_dir,
+              :parse_assets => true )
+
             "url(#{quote}#{new_src}#{quote})"
           elsif !(src =~ /\.\./) && File.exist?(File.join(SITES_ROOT, current_site.public_path, src))
             "url(#{quote}#{src}?#{File.mtime(File.join(SITES_ROOT, current_site.public_path, src)).to_i}#{quote})"
@@ -87,7 +91,7 @@ class TextDocument < Document
   end
 
   def file=(file)
-    @new_file = super
+    @new_file = file
     self.text = @new_file.read
   end
 
@@ -97,6 +101,11 @@ class TextDocument < Document
 
   def filename
     "#{title}.#{ext}"
+  end
+
+  # Get the file path defined in attachment.
+  def filepath(format=nil)
+    nil
   end
 
   # Return document file size (= version's text size).
@@ -173,6 +182,13 @@ class TextDocument < Document
   end
 
   private
+    class AssetHelper
+      attr_accessor :visitor
+      include Zena::Acts::Secure                # secure
+      include Zena::Use::Zazen::ViewMethods     # make_image, ...
+      include Zena::Use::ZafuTemplates::Common  # template_url_for_asset
+      include Zena::Use::Urls::Common           # data_path
+    end
 
     # Overwrite superclass (DocumentContent) behavior
     def valid_file
@@ -183,16 +199,15 @@ class TextDocument < Document
       super
       self.content_type = 'text/plain' if content_type.blank?
       self.ext          = 'txt'        if ext.blank?
+      parse_assets_text_assets
     end
 
-    # This is triggered after create (after the image has been saved but
-    # before the properties are saved with the version).
-    def save_version_after_create
-      parse_assets_before_save
-      super
+    # Called from Document#set_defaults
+    def set_attachment_filename
+      # do nothing
     end
 
-    def parse_assets_before_save
+    def parse_assets_text_assets
       if can_parse_assets? && prop.text_changed?
         helper = AssetHelper.new
         helper.visitor = visitor
