@@ -8,14 +8,14 @@ development:
   tags:     ON
   captcha:  ON
   sphinx:
-    switch: ON
+    switch: OFF
     activate_if:
       gem: 'thinking_sphinx'
       adapter: 'mysql,postgresql'
     run_if:
       file: 'log/searchd.development.pid'
   worker:
-    switch:  ON
+    switch:  OFF
     activate_if:
       gem: 'delayed_job'
 
@@ -23,13 +23,13 @@ production:
   tags:     ON
   captcha:  ON
   sphinx:
-    switch: ON
+    switch: OFF
     activate_if:
       gem: 'thinking_sphinx'
       adapter: 'mysql,postgresql'
     run_if:
       file: 'log/searchd.production.pid'
   worker:
-    switch:  ON
+    switch:  OFF
     activate_if:
       gem: 'delayed_job'
