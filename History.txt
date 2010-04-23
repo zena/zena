@@ -1,3 +1,8 @@
+== 0.16.6 2010-04-23
+
+* 1 minor enhancement
+  * fixed gem loading when brick is deactivated
+
 == 0.16.5 2010-04-15
 
 * 2 major enhancements
