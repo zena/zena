@@ -33,16 +33,19 @@ class VersionTest < Zena::Unit::TestCase
         assert subject.edited?
       end
 
-
-      def test_edited
-        v = versions(:zena_en)
-        assert !v.edited?
-        v.status = 999
-        assert !v.edited?
-        v.title = 'new title'
-        assert v.edited?
+      should 'not be marked as edited' do
+        assert !subject.edited?
       end
 
+      should 'not be marked as edited on status change' do
+        subject.status = 999
+        assert !subject.edited?
+      end
+
+      should 'be marked as edited on node property change' do
+        subject.node.title = 'new title'
+        assert subject.edited?
+      end
     end # a version
 
 
@@ -76,12 +79,6 @@ class VersionTest < Zena::Unit::TestCase
           assert_difference('Version.count', 1) do
             subject
           end
-        end
-
-        should 'change visitor lang' do
-          assert_equal 'en', visitor.lang
-          subject
-          assert_equal 'de', visitor.lang
         end
 
         should 'set version lang' do
@@ -172,13 +169,13 @@ class VersionTest < Zena::Unit::TestCase
           should 'create a new redaction' do
             assert_difference('subject.versions.count', 1) do
               assert_difference('Version.count', 1) do
-                assert subject.update_attributes(:v_lang => 'fr')
+                assert subject.update_attributes(:v_lang => 'de')
               end
-              assert_equal 'fr', subject.v_lang
+              assert_equal 'de', subject.v_lang
             end
           end
         end
-      end
+      end # in redit time
     end # updating a node
   end # With a logged in visitor
 
@@ -220,56 +217,4 @@ class VersionTest < Zena::Unit::TestCase
       assert subject.edited?
     end
   end # A new version
-
-  context 'A visitor with write access on a redaction with dyn attributes' do
-    setup do
-      login(:tiger)
-      node = secure(Node) { nodes(:nature) }
-      node.update_attributes(:d_foo => 'bar')
-      @node = secure(Node) { nodes(:nature) } # reload
-    end
-
-    should 'see dyn attribute' do
-      assert_equal 'bar', @node.version.prop['foo']
-    end
-
-    should 'see be able to update dyn attribute' do
-      assert @node.version.dyn.would_edit?('foo' => 'max')
-      assert @node.update_attributes(:d_foo => 'max')
-      @node = secure(Node) { nodes(:nature) }
-      assert_equal 'max', @node.version.prop['foo']
-    end
-  end
-
-
-  def test_dynamic_attributes
-    login(:tiger)
-    node = secure!(Node) { nodes(:status) }
-    assert_nothing_raised { version.prop['zucchini'] = 'courgettes' }
-    assert_nothing_raised { version.dyn_attributes = {'zucchini' => 'courgettes' }}
-    assert_equal 'courgettes', version.prop['zucchini']
-    assert node.save
-
-    node = secure!(Node) { nodes(:status) }
-    version = node.version
-    assert_equal 'courgettes', version.prop['zucchini']
-  end
-
-  def test_clone
-    login(:tiger)
-    node = secure!(Node) { nodes(:status) }
-    assert node.update_attributes(:d_whatever => 'no idea')
-    assert_equal 'no idea', node.version.prop['whatever']
-    version1_id = node.version[:id]
-    assert node.publish
-    version1_publish_from = node.version.publish_from
-
-    node = secure!(Node) { nodes(:status) }
-    assert node.update_attributes(:d_other => 'funny')
-    version2_id = node.version[:id]
-    assert_not_equal version1_id, version2_id
-    assert_equal 'no idea', node.version.prop['whatever']
-    assert_equal 'funny', node.version.prop['other']
-    assert_equal version1_publish_from, node.version.publish_from
-  end
 end

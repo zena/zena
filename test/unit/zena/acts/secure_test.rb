@@ -106,7 +106,7 @@ class SecureTest < Zena::Unit::TestCase
         end
 
         should 'be valid' do
-          assert subject.valid?
+           assert subject.valid?
         end
 
         should 'be secured' do
@@ -537,7 +537,7 @@ class SecureTest < Zena::Unit::TestCase
 
     should 'not be allowed to destroy' do
       assert !@node.destroy
-      assert_equal 'You do not have the rights to do this.', @node.errors[:base]
+      assert_equal 'You do not have the rights to destroy.', @node.errors[:base]
     end
   end
 
@@ -656,12 +656,15 @@ class SecureTest < Zena::Unit::TestCase
   context 'A node with children' do
     setup do
       login(:tiger)
-      @node = secure!(Node) { nodes(:cleanWater) }
+    end
+
+    subject do
+      secure!(Node) { nodes(:cleanWater) }
     end
 
     should 'update inheriting children groups on group change' do
-      assert @node.update_attributes(:inherit => 0, :rgroup_id => groups_id(:workers))
-      assert_equal groups_id(:workers), @node.rgroup_id
+      assert subject.update_attributes(:inherit => 0, :rgroup_id => groups_id(:workers))
+      assert_equal groups_id(:workers), subject.rgroup_id
       # children
       assert_equal groups_id(:workers), nodes(:status).rgroup_id
       assert_equal groups_id(:workers), nodes(:water_pdf).rgroup_id
@@ -672,8 +675,8 @@ class SecureTest < Zena::Unit::TestCase
     end
 
     should 'update inheriting children groups on parent change' do
-      assert @node.update_attributes(:parent_id => nodes_id(:wiki))
-      assert_equal groups_id(:public), @node.rgroup_id
+      assert subject.update_attributes(:parent_id => nodes_id(:wiki))
+      assert_equal groups_id(:public), subject.rgroup_id
       # children
       assert_equal groups_id(:public), nodes(:status).rgroup_id
       assert_equal groups_id(:public), nodes(:water_pdf).rgroup_id
@@ -686,8 +689,8 @@ class SecureTest < Zena::Unit::TestCase
     end
 
     should 'update inheriting children skin on skin_id change' do
-      assert @node.update_attributes(:inherit => 0, :skin_id => nodes_id(:wikiSkin))
-      assert_equal nodes_id(:wikiSkin), @node.skin
+      assert subject.update_attributes(:inherit => 0, :skin_id => nodes_id(:wikiSkin))
+      assert_equal nodes_id(:wikiSkin), subject.skin_id
       # children
       assert_equal nodes_id(:wikiSkin), nodes(:status).skin_id
       assert_equal nodes_id(:wikiSkin), nodes(:water_pdf).skin_id
@@ -698,8 +701,8 @@ class SecureTest < Zena::Unit::TestCase
     end
 
     should 'update inheriting children skin on parent change' do
-      assert @node.update_attributes(:parent_id => nodes_id(:wiki))
-      assert_equal nodes_id(:wikiSkin), @node.skin_id
+      assert subject.update_attributes(:parent_id => nodes_id(:wiki))
+      assert_equal nodes_id(:wikiSkin), subject.skin_id
       # children
       assert_equal nodes_id(:wikiSkin), nodes(:status).skin_id
       assert_equal nodes_id(:wikiSkin), nodes(:water_pdf).skin_id
@@ -802,32 +805,36 @@ class SecureTest < Zena::Unit::TestCase
       login(:ant)
     end
 
+    subject do
+      # Do not let ant write in 'status' node
+      Node.connection.execute "UPDATE nodes SET wgroup_id = #{groups_id(:admin)} WHERE id = #{nodes_id(:status)}"
+      Version.find(:all,
+        :conditions => ['versions.id IN (?)', [
+          versions_id(:secret_en),
+          versions_id(:status_en),
+          versions_id(:strange_en_red),
+          versions_id(:ant_en)]],
+        :order      => 'node_name ASC')
+    end
+
     context 'with secure' do
       should 'only return versions where visitor can read or write' do
-        versions = secure(Version) { Version.find(:all, :conditions => "title like 's%'")}
-        # not ["Stranger in the night", "Secret"]
-        assert_equal ["super ouverture", "Skins (layout themes)", "status title", "style", "Solenopsis Invicta"],
-                     versions.map{|v| v.title}
+        list = secure(Version) { subject }
+        assert_equal ['Solenopsis Invicta', 'status title'], list.map {|v| v.prop['title']}
       end
     end
 
     context 'with secure_write' do
       should 'only return versions where visitor can write' do
-        Node.connection.execute "UPDATE nodes SET wgroup_id = #{groups_id(:admin)} WHERE id = #{nodes_id(:status)}"
-        versions = secure_write(Version) { Version.find(:all, :conditions => "title like 's%'")}
-        # not ["Stranger in the night", "Secret", "status title"]
-        assert_equal ["super ouverture", "Skins (layout themes)", "style", "Solenopsis Invicta"],
-                     versions.map{|v| v.title}
+        list = secure_write(Version) { subject }
+        assert_equal ['Solenopsis Invicta'], list.map {|v| v.prop['title']}
       end
     end
 
     context 'with secure_drive' do
       should 'only return versions where visitor can drive' do
-        Node.connection.execute "UPDATE nodes SET dgroup_id = #{groups_id(:workers)} WHERE id = #{nodes_id(:status)}"
-        versions = secure_drive(Version) { Version.find(:all, :conditions => "title like 's%'")}
-        assert_equal 2, versions.count
-        assert_equal ['Stranger in the night', 'status title'],
-                     versions.map {|v| v.title }.sort
+        list = secure_drive(Version) { subject }
+        assert_equal ['Stranger in the night'], list.map {|v| v.prop['title']}
       end
     end
   end # Finding versions
@@ -900,23 +907,26 @@ class SecureTest < Zena::Unit::TestCase
     setup do
       User.connection.execute "UPDATE users SET status = #{User::Status[:commentator]} WHERE id = #{users_id(:tiger)} AND site_id = #{sites_id(:zena)}"
       login(:tiger)
-      @node = secure!(Node) { nodes(:status) }
+    end
+
+    subject do
+      secure!(Node) { nodes(:status) }
     end
 
     should 'not be allowed to drive' do
-      assert !@node.update_attributes(:parent_id => nodes_id(:wiki))
-      assert_equal 'You do not have the rights to do this.', @node.errors[:base]
+      assert !subject.update_attributes(:parent_id => nodes_id(:wiki))
+      assert_equal 'You do not have the rights to do this.', subject.errors[:base]
     end
 
     should 'not be allowed to write' do
-      assert !@node.update_attributes(:title => 'Drosophila')
-      assert_equal 'You do not have the rights to edit.', @node.errors[:base]
+      assert !subject.update_attributes(:title => 'Drosophila')
+      assert_equal 'You do not have the rights to edit.', subject.errors[:base]
     end
 
     should 'be allowed to post comments' do
       assert_difference('Comment.count', 1) do
-        assert @node.update_attributes(:m_title => 'changed icon', :m_text => 'new icon is "flower"')
-        comment = @node.comments.last
+        assert subject.update_attributes(:m_title => 'changed icon', :m_text => 'new icon is "flower"')
+        comment = subject.comments.last
         assert_equal 'changed icon', comment.title
         assert_equal Zena::Status[:pub], comment.status
       end

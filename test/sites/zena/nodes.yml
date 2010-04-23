@@ -152,7 +152,7 @@ wiki:
   rgroup:          public
   wgroup:          public
   dgroup:          public
-  skin:            wiki_skin
+  skin:            wikiSkin
 
 bird_jpg:
   zip:             30
@@ -243,7 +243,7 @@ letter:
   event_at:        2008-01-10
   log_at:          2006-04-05
 
-wiki_skin:
+wikiSkin:
   zip:             43
   class:           Skin
   node_name:       wikiSkin
@@ -253,17 +253,17 @@ wiki_skin:
 wiki_Project_changes_xml_zafu:
   class:           Template
   node_name:       Project-changes-xml
-  parent:          wiki_skin
+  parent:          wikiSkin
 
 wiki_Page_changes_zafu:
   class:           Template
   node_name:       Page-changes
-  parent:          wiki_skin
+  parent:          wikiSkin
 
 wiki_Node_zafu:
   class:           Template
   node_name:       Node
-  parent:          wiki_skin
+  parent:          wikiSkin
 
 
 

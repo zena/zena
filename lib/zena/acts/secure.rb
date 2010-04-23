@@ -139,7 +139,7 @@ Just doing the above will filter all result according to the logged in user.
           find = scope[:find] ||= {}
           if klass < Zena::Acts::SecureNode::InstanceMethods
             find[:conditions] = node_find_scope
-          elsif klass < ::Version
+          elsif klass <= ::Version
             ntbl = ::Node.table_name
             find[:joins] = :node
             find[:readonly] = false
@@ -151,7 +151,7 @@ Just doing the above will filter all result according to the logged in user.
             end
           elsif klass.column_names.include?('site_id')
             find[:conditions] = {klass.table_name => {:site_id => visitor.site[:id]}}
-          elsif klass < ::Site
+          elsif klass <= ::Site
             find[:conditions] = {klass.table_name => {:id => visitor.site[:id]}}
           end
 

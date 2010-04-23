@@ -451,8 +451,8 @@ letter_en:
     summary:       This page is a *Letter*.
     text:          "letter content\n\n!30_med! !31_med! !24_med!"
 
-wiki_skin_en:
-  node:            wiki_skin
+wikiSkin_en:
+  node:            wikiSkin
   user:            tiger
   prop:
     comment:       very simple skin for wiki

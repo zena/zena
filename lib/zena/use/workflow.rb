@@ -48,7 +48,7 @@ module Zena
           edited? &&
           ( @backup ||
             user_id != visitor.id ||
-            status_changed?       ||
+            lang_changed?         ||
             Time.now > created_at + current_site[:redit_time].to_i )
         end
 
@@ -240,10 +240,12 @@ module Zena
         else
           trad = editions.find(:all, opts)
         end
+
         if trad == []
           nil
         else
-          trad.map {|t| t.node = self; t; }
+          trad.each {|t| t.node = self}
+          trad
         end
       end
 
@@ -488,6 +490,7 @@ module Zena
         end
 
         def workflow_validation
+          return true if !changed? && !version.changed?
 
           if transition = @current_transition
             allowed, message = transition_allowed?(transition)

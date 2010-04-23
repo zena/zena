@@ -825,17 +825,6 @@ class WorkflowTest < Zena::Unit::TestCase
     assert_equal 1, trad.size
   end
 
-  def test_dynamic_attributes
-    login(:lion)
-    node = secure!(Node) { nodes(:status) }
-    node.d_bolo = 'spaghetti bolognese'
-    assert node.save, "Can save node"
-
-    # reload
-    node = secure!(Node) { nodes(:status) }
-    assert_equal 'spaghetti bolognese', node.d_bolo
-  end
-
   def test_root_never_empty
     login(:lion)
     Node.connection.execute "UPDATE nodes SET parent_id = NULL WHERE parent_id = #{nodes_id(:zena)}"

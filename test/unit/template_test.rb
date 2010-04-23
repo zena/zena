@@ -235,8 +235,8 @@ class TemplateTest < Zena::Unit::TestCase
         end
 
         should 'update index' do
-          assert subject.update_attributes(:parent_id => nodes_id(:wiki_skin) )
-          assert_equal nodes_id(:wiki_skin), TemplateIndex.find_by_node_id(subject.id).skin_id
+          assert subject.update_attributes(:parent_id => nodes_id(:wikiSkin) )
+          assert_equal nodes_id(:wikiSkin), TemplateIndex.find_by_node_id(subject.id).skin_id
         end
       end # by moving it
 

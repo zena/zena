@@ -795,10 +795,6 @@ class Node < ActiveRecord::Base
   end
   alias_method_chain :versions, :secure
 
-  def traductions
-    @traductions ||= secure(Version) { versions.all(:conditions => "status = #{Zena::Status[:pub]}") }
-  end
-
   # Additional security so that unsecure finders explode when trying to update/save or follow relations.
   # def visitor
   #   return @visitor if @visitor
@@ -1774,7 +1770,7 @@ Bricks.apply_patches
 class Version
 
   def node_with_secure
-    @node ||= secure!(Node) { node_without_secure }
+    @node ||= secure(Node) { node_without_secure }
   end
   alias_method_chain :node, :secure
 end

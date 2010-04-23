@@ -4,12 +4,18 @@ module Zena
       def self.included(base)
         base.class_eval do
           alias_method_chain :attributes=, :enrollable
+          alias_method_chain :properties=, :enrollable
         end
       end
 
       def attributes_with_enrollable=(attrs)
         load_roles(all_possible_roles)
         self.attributes_without_enrollable = attrs
+      end
+
+      def properties_with_enrollable=(attrs)
+        load_roles(all_possible_roles)
+        self.properties_without_enrollable = attrs
       end
 
       def load_roles(*roles)
