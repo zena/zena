@@ -2,3 +2,8 @@ Task_assigned:
   role:            Task
   ptype:           string
   name:            assigned
+
+Original_assigned:
+  role:            Original
+  ptype:           string
+  name:            origin

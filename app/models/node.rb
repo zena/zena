@@ -152,7 +152,8 @@ class Node < ActiveRecord::Base
                 :custom_a => Number, :custom_b => Number,
                 :m_text => String, :m_title => String, :m_author => String,
                 :id => {:class => Number, :method => 'zip'},
-                :skin => 'Skin', :lang => String
+                :skin => 'Skin', :lang => String,
+                :visitor => 'User'
 
   # FIXME: remove 'zip' and use :id => {:class => Number, :method => 'zip'}
   # same with parent_zip, section_zip, etc...
@@ -867,12 +868,9 @@ class Node < ActiveRecord::Base
 
   # Replace [id], [title], etc in attributes values
   def replace_attributes_in_values(hash)
+    load_roles!
     hash.each do |k,v|
-      v.gsub!(/\[([^\]]+)\]/) do
-        attribute = $1
-        real_attribute = attribute =~ /\Ad_/ ? attribute : attribute.gsub(/\A(|[\w_]+)id(s?)\Z/, '\1zip\2')
-        Node.zafu_attribute(self, real_attribute)
-      end
+      hash[k] = eval ::RubyLess.translate_string(v, self)
     end
   end
 

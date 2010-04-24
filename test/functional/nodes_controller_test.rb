@@ -9,6 +9,87 @@ class NodesControllerTest < Zena::Controller::TestCase
       '/en/img.jpg?1234'
     )
   end
+  
+  context 'With a logged in visitor' do
+    setup do
+      login(:tiger)
+    end
+
+    context 'a version' do
+      subject do
+        versions(:status_en)
+      end
+
+      context 'receiving author' do
+        should 'return a Contact' do
+          assert_kind_of Contact, subject.author
+        end
+
+        should 'return the contact node of the author' do
+          assert_equal nodes_id(:ant), subject.author[:id]
+        end
+      end # receiving author
+
+      # Workflow testing....
+      should 'ignore workflow attributes on edited' do
+        subject.attributes = {'title' => 'status title', 'publish_from' => Time.now}
+        assert subject.changed?
+        assert !subject.edited?
+      end
+
+      should 'use properties on edited' do
+        subject.attributes = {'title' => 'Foo title'}
+        assert subject.changed?
+        assert subject.edited?
+      end
+
+
+      def test_edited
+        v = versions(:zena_en)
+        assert !v.edited?
+        v.status = 999
+        assert !v.edited?
+        v.title = 'new title'
+        assert v.edited?
+      end
+
+    end # a version
+
+
+    context 'a redaction' do
+      subject do
+        versions(:opening_red_fr)
+      end
+    end # a redaction
+
+    context 'on node creation' do
+      context 'setting an invalid v_lang' do
+        setup do
+          @node = secure!(Page) { Page.create(:v_lang => 'io', :parent_id => nodes_id(:status), :node_name => 'hello')}
+        end
+
+        should 'not create record if lang is not allowed' do
+          assert @node.new_record?
+        end
+
+        should 'return an error on v_lang' do
+          assert @node.errors[:v_lang].any?
+        end
+      end
+
+      context 'setting a valid v_lang' do
+        subject do
+          @node = secure!(Page) { Page.create(:v_lang => 'de', :parent_id => nodes_id(:status), :node_name => 'hello')}
+        end
+  
+        should 'change visitor lang' do
+          assert_equal 'en', visitor.lang
+          subject
+          assert_equal 'de', visitor.lang
+        end
+      end # setting a valid v_lang
+    end # on node creation
+  end # With a logged in visitor
 
   def test_should_get_document_data
     login(:tiger)

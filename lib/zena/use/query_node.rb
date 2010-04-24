@@ -46,8 +46,8 @@ module Zena
             self.send(type[:method])
           else
             begin
-              query = self.class.build_query(count, rel, :node_name => 'self')
-            rescue => err
+              query = self.class.build_query(count, rel.first, :node_name => 'self')
+            rescue QueryBuilder::SyntaxError => err
               puts err
               puts err.backtrace
             end
@@ -123,7 +123,7 @@ module Zena
 
         # Overwrite this and take car to check for valid fields.
         def process_field(field_name)
-          if map_def = self.class.filter_fields[field_name]
+          if processing_filter? && map_def = self.class.filter_fields[field_name]
             if map_def.kind_of?(String)
               return map_def
             elsif table_def = map_def[:table]

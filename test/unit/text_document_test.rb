@@ -48,6 +48,29 @@ class TextDocumentTest < Zena::Unit::TestCase
         end
       end # in a folder with an image
     end # on a css text_document
+    
+    context 'creating a text document' do
+      context 'with a content_type' do
+        subject do
+          secure!(TextDocument) { TextDocument.create(
+            :node_name => "yoba",
+            :parent_id => nodes_id(:wiki),
+            :text => "#header { color:red; }\n#footer { color:blue; }",
+            :content_type => 'text/css') 
+          }
+        end
+        
+        should 'create a new TextDocument' do
+          assert_difference('TextDocument.count', 1) do
+            subject
+          end
+        end
+        
+        should 'set extension from content_type' do
+          assert_equal 'css', subject.ext
+        end
+      end # with a content_type
+    end # creating a text document
   end # A visitor with write access
 
   def test_create_simplest

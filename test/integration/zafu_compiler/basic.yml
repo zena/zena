@@ -243,12 +243,12 @@ if_in_tag_else:
   res: "not in form"
 
 if_or:
-  src: "<r:if can='write' or_test='d_foo'>hello</r:if>"
+  src: "<r:if can='write' or_test='origin'>hello</r:if>"
   tem: "/<% if @node.can_write? || !@node.version.prop[\"foo\"].blank? -%>hello<% end -%>|<% if !@node.version.prop[\"foo\"].blank? || @node.can_write? -%>hello<% end -%>/"
   res: "hello"
 
 if_or_same:
-  src: "<r:if test='d_foo' test='d_bar'>hello</r:if>"
+  src: "<r:if test='origin' test='d_bar'>hello</r:if>"
   tem: "/<% if !@node.version.prop[\"foo\"].blank? || !@node.version.prop[\"bar\"].blank? -%>hello<% end -%>|<% if !@node.version.prop[\"bar\"].blank? || !@node.version.prop[\"foo\"].blank? -%>hello<% end -%>/"
   res: ""
 
@@ -601,11 +601,11 @@ select_time_zone:
   res: "/Asia/Jakarta.*Europe/Zurich.*US/Hawai"
 
 select_values_tshow:
-  src: "<r:select name='d_foo' values='1,2,3' tshow='en,fr,de'/>"
+  src: "<r:select name='origin' values='1,2,3' tshow='en,fr,de'/>"
   res: "/option value=.1.>english.*option value=.2.>french/"
 
 form_publish:
-  src: "<r:form publish='true'><r:select name='d_foo' values='bar,baz'/></r:form>"
+  src: "<r:form publish='true'><r:select name='origin' values='bar,baz'/></r:form>"
   res: "/div.*name=.node\[v_status\]. value=.50.\/>.*<\/div>/"
 
 checkbox:

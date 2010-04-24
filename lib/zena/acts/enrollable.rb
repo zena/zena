@@ -9,12 +9,12 @@ module Zena
       end
 
       def attributes_with_enrollable=(attrs)
-        load_roles(all_possible_roles)
+        load_roles!
         self.attributes_without_enrollable = attrs
       end
 
       def properties_with_enrollable=(attrs)
-        load_roles(all_possible_roles)
+        load_roles!
         self.properties_without_enrollable = attrs
       end
 
@@ -22,6 +22,12 @@ module Zena
         roles.flatten.each do |role|
           has_role role
         end
+      end
+
+      def load_roles!
+        return if @roles_loaded
+        load_roles(all_possible_roles)
+        @roles_loaded = true
       end
 
       def all_possible_roles

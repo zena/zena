@@ -33,7 +33,7 @@ class EnrollableTest < Zena::Unit::TestCase
         
         should 'load all roles on update_attributes' do
           assert_nothing_raised do
-            assert subject.update_attributes('assigned' => 'flat Eric')
+            assert subject.update_attributes('assigned' => 'flat Eric', 'origin' => '2D')
           end
         end
         

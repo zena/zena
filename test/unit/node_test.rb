@@ -9,41 +9,41 @@ class NodeTest < Zena::Unit::TestCase
     :dgroup_id => Zena::FoxyParser::id('zena', 'managers'),
     :parent_id => Zena::FoxyParser::id('zena', 'cleanWater'),
   }.freeze
-  
+
   context 'A logged in user' do
     setup do
       login(:lion)
     end
-    
+
     context 'on a node with write access' do
       subject do
         secure!(Node) { nodes(:lion) }
       end
-      
+
       context 'adding a comment with m_title' do
         subject do
           node = secure!(Node) { nodes(:lion) }
           node.update_attributes(:m_title => 'Amartya Sen', :m_text => 'Equality of What')
           node
         end
-        
+
         should 'create a Comment' do
           assert_difference('Comment.count', 1) do
             subject
           end
         end
-        
+
         should 'set comment title from m_title' do
           assert_equal 'Amartya Sen', subject.comments.first.title
         end
-        
+
         should 'set author from visitor' do
           assert_equal users_id(:lion), subject.comments.first.user_id
         end
       end # adding a comment with m_title
     end # on a node with write access
   end # A logged in user
-  
+
   def test_rebuild_fullpath
     Node.connection.execute "UPDATE nodes SET fullpath = NULL, basepath = NULL WHERE id = #{nodes_id(:wiki)}"
     login(:ant)
@@ -887,7 +887,7 @@ class NodeTest < Zena::Unit::TestCase
 
   def test_create_with_klass
     login(:tiger)
-    node = secure!(Node) { Node.create_node('parent_id' => nodes_zip(:projects), 'node_name' => 'funny', 'klass' => 'TextDocument', 'c_content_type' => 'application/x-javascript') }
+    node = secure!(Node) { Node.create_node('parent_id' => nodes_zip(:projects), 'node_name' => 'funny', 'klass' => 'TextDocument', 'content_type' => 'application/x-javascript') }
     assert_kind_of TextDocument, node
     assert_equal nodes_id(:projects), node[:parent_id]
     assert_equal 'funny', node[:node_name]
@@ -943,7 +943,7 @@ done: \"I am done\""
     result = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(Zena::ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}.values
     assert_equal 4, result.size
 
-    children = parent.find(:all, 'children order by node_name ASC')
+    children = parent.find(:all, 'children order by node_name asc')
     assert_equal 2, children.size
     assert_equal 'photos', children[0].node_name
     assert_equal groups_id(:managers), children[0].rgroup_id
@@ -1028,10 +1028,10 @@ done: \"I am done\""
     visitor.time_zone = 'Asia/Jakarta'
     assert_equal 'Asia/Jakarta', visitor.time_zone
     status = secure!(Node) { nodes(:status) }
-    assert status.update_attributes_with_transformation(:v_status => Zena::Status[:pub], :text => "This is a \"link\":#{nodes_zip(:projects)}.", :d_foo => "A picture: !#{nodes_zip(:bird_jpg)}!")
+    assert status.update_attributes_with_transformation(:v_status => Zena::Status[:pub], :text => "This is a \"link\":#{nodes_zip(:projects)}.", :origin => "A picture: !#{nodes_zip(:bird_jpg)}!")
     yaml = status.to_yaml
     assert_match %r{text:\s+\"?This is a "link":\(\.\./\.\.\)\.}, yaml
-    assert_match %r{d_foo:\s+\"?A picture: !\(\.\./\.\./wiki/bird\)!}, yaml
+    assert_match %r{origin:\s+\"?A picture: !\(\.\./\.\./wiki/bird\)!}, yaml
     assert_no_match %r{log_at}, yaml
   end
 
@@ -1039,11 +1039,11 @@ done: \"I am done\""
     login(:tiger)
     visitor.time_zone = 'Asia/Jakarta'
     prop = secure!(Node) { nodes(:proposition) }
-    assert prop.update_attributes_with_transformation(:v_status => Zena::Status[:pub], :text => "This is a \"link\":#{nodes_zip(:projects)}.", :d_foo => "A picture: !#{nodes_zip(:bird_jpg)}!", :log_at => "2008-10-20 14:53")
+    assert prop.update_attributes_with_transformation(:v_status => Zena::Status[:pub], :text => "This is a \"link\":#{nodes_zip(:projects)}.", :origin => "A picture: !#{nodes_zip(:bird_jpg)}!", :log_at => "2008-10-20 14:53")
     assert_equal Time.gm(2008,10,20,7,53), prop.log_at
     yaml = prop.to_yaml
     assert_match %r{text:\s+\"?This is a "link":\(\.\./\.\.\)\.}, yaml
-    assert_match %r{d_foo:\s+\"?A picture: !\(\.\./\.\./wiki/bird\)!}, yaml
+    assert_match %r{origin:\s+\"?A picture: !\(\.\./\.\./wiki/bird\)!}, yaml
     assert_match %r{log_at:\s+\"?2008-10-20 14:53:00\"?$}, yaml
   end
 
@@ -1243,7 +1243,7 @@ done: \"I am done\""
     assert node.update_attributes(:parent_id => nodes_id(:cleanWater))
     assert_equal 0.0, node.position
   end
-  
+
   def test_custom_a
     login(:lion)
     node = secure!(Node) { nodes(:status) }
@@ -1269,9 +1269,19 @@ done: \"I am done\""
   def test_copy
     login(:lion)
     node = secure!(Node) { nodes(:status) }
-    new_attributes = secure(Node) { Node.transform_attributes(:copy_id => nodes_zip(:bird_jpg), :icon_id => '[id]')}
-    assert_equal Hash['icon_id', nodes_id(:bird_jpg)], new_attributes
-    assert node.update_attributes_with_transformation(:copy_id => nodes_zip(:bird_jpg), :icon_id => '[id]')
+    attributes = {
+      :copy_id => nodes_zip(:bird_jpg),
+      :icon_id => '#{id}',
+      :m_title => 'Changed icon to "#{title}"',
+      :m_text  => 'By #{visitor.login}'
+    }
+
+    new_attributes = secure(Node) { Node.transform_attributes(attributes) }
+    assert_equal Hash['icon_id' => nodes_id(:bird_jpg),
+                      'm_title' => 'Changed icon to "bird"',
+                      'm_text'  => 'By lion'], new_attributes
+
+    assert node.update_attributes_with_transformation(attributes)
     assert_equal nodes_id(:bird_jpg), node.find(:first, 'icon')[:id]
   end
 
@@ -1282,7 +1292,7 @@ done: \"I am done\""
       FileUtils::mkpath(export_folder)
       # Add a page and a text document into 'wiki'
       assert secure!(Node) { Node.create(:title=>"Hello World!", :text => "Bonjour", :parent_id => nodes_id(:wiki), :inherit=>1 ) }
-      assert secure!(TextDocument) { TextDocument.create(:node_name => "yoba", :parent_id => nodes_id(:wiki), :text => "#header { color:red; }\n#footer { color:blue; }", :c_content_type => 'text/css') }
+      assert secure!(TextDocument) { TextDocument.create(:node_name => "yoba", :parent_id => nodes_id(:wiki), :text => "#header { color:red; }\n#footer { color:blue; }", :content_type => 'text/css') }
       wiki = secure!(Node) { nodes(:wiki) }
       assert_equal 4, wiki.find(:all, "children").size
       wiki.export_to_folder(export_folder)
@@ -1305,7 +1315,7 @@ done: \"I am done\""
       FileUtils::mkpath(export_folder)
       # Add a page and a text document into 'wiki'
       assert secure!(Node) { Node.create(:title=>"Hello World!", :text => "Bonjour", :parent_id => nodes_id(:wiki), :inherit=>1 ) }
-      assert secure!(TextDocument) { TextDocument.create(:node_name => "yoba", :parent_id => nodes_id(:wiki), :text => "#header { color:red; }\n#footer { color:blue; }", :c_content_type => 'text/css') }
+      assert secure!(TextDocument) { TextDocument.create(:node_name => "yoba", :parent_id => nodes_id(:wiki), :text => "#header { color:red; }\n#footer { color:blue; }", :content_type => 'text/css') }
       wiki = secure!(Node) { nodes(:wiki) }
       assert_equal 4, wiki.find(:all, "children").size
       archive = wiki.archive

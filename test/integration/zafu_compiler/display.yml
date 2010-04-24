@@ -150,8 +150,8 @@ show_else:
 
 show_default:
   old_src: "<r:show attr='d_foo' default='baz'/>"
-  src: "<r:show eval='comment || \"baz\"'/>"
-  tem: "<%= (@node.prop['comment'] or \"baz\").to_s %>"
+  src: "<r:show eval='origin || \"baz\"'/>"
+  tem: "<%= (@node.prop['origin'] or \"baz\").to_s %>"
   res: "baz"
 
 javascripts:

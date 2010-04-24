@@ -140,7 +140,7 @@ class ZenaNodeResource
     if @node.kind_of?(Note)
       "text/plain"
     elsif @node.kind_of?(Document)
-      @node.c_content_type
+      @node.content_type
     else
       "httpd/unix-directory"
     end

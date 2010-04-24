@@ -129,9 +129,7 @@ class Document < Node
   # Create an attachment with a file in file system. Create a new version if file is updated.
   def file=(new_file)
     if new_file = super(new_file)
-      self.content_type = new_file.content_type if content_type.blank?
       self.size = new_file.kind_of?(StringIO) ? new_file.size : new_file.stat.size
-      self.ext  = set_extension(new_file)
       @new_file = new_file
     end
   end
@@ -169,7 +167,9 @@ class Document < Node
 
   protected
     def set_defaults
-      set_node_name_from_file
+      set_defaults_from_file
+      
+      self.ext = get_extension if self.ext.blank?
 
       if title.to_s =~ /\A(.*)\.#{self.ext}$/i
         self.title = $1
@@ -227,8 +227,10 @@ class Document < Node
       true
     end
 
-    def set_node_name_from_file
+    def set_defaults_from_file
       return unless @new_file
+      self.content_type = @new_file.content_type if content_type.blank?
+      
       if base = node_name || title || @new_file.original_filename
         if base =~ /(.*)\.(\w+)$/
           self.node_name = $1 if new_record?
@@ -244,17 +246,19 @@ class Document < Node
       super
     end
 
-    def set_extension(new_file)
+    def get_extension
       extensions = Zena::TYPE_TO_EXT[prop['content_type']]
       if extensions && content_type != 'application/octet-stream' # use 'bin' extension only if we do not have any other ext.
         (prop['ext'] && extensions.include?(prop['ext'].downcase)) ? self.prop['ext'].downcase : extensions[0]
-      else
+      elsif @new_file
         # unknown content_type or 'application/octet-stream', just keep the extension we have
         if new_file.original_filename =~ /\w\.(\w+)$/
           $1.downcase
         else
           'bin'
         end
+      else
+        nil
       end
     end
 
