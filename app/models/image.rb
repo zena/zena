@@ -60,7 +60,7 @@ class Image < Document
   property do |t|
     t.integer 'width'
     t.integer 'height'
-    t.text    'exif_json'
+    t.text    'exif'
   end
 
   safe_property         :width, :height
@@ -105,7 +105,7 @@ class Image < Document
 
   # Return the Exchangeable Image Format (Exif).
   def exif
-    ExifData.new(prop['exif_json'])
+    prop['exif'] || ExifData.new({})
   end
 
   # Return the size of the image for the given format (see Image for information on format).
@@ -116,7 +116,7 @@ class Image < Document
   # Updaging image attributes and propreties. Accept also :file and :crop keys.
   def update_attributes(attributes)
     attributes.stringify_keys!
-    # If file and crop attributes are both present when updating, make sur to run file= before crop=.
+    # If file and crop attributes are both present when updating, make sure to run file= before crop=.
     if attributes['file'] && attributes['crop']
       file = attributes.delete('file')
       crop = attributes.delete('crop')
@@ -125,19 +125,20 @@ class Image < Document
       self.crop = crop
       save
     else
-      super(attributes)
+      super
     end
   end
 
   # Set content file, will refuse to accept the file if it is not an image.
   def file=(file)
     new_file = super
-    if self.class.accept_content_type?(content_type)
+    if self.class.accept_content_type?(new_file.content_type)
       @new_image = new_file
       img = image_with_format(nil)
+
       prop['width' ] = img.width
       prop['height'] = img.height
-      prop['exif_json'] = img.exif.to_json rescue nil
+      prop['exif']   = img.exif rescue nil
     end
   end
 

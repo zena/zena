@@ -73,7 +73,7 @@ module Zena
               @node_name = node.get(Node).name
             end
 
-            query = Node.build_query(count.to_sym, pseudo_sql, :node_name => @node_name, :raw_filters => raw_filters, :rubyless_helper => self)
+            query = node.klass.build_query(count.to_sym, pseudo_sql, :node_name => @node_name, :raw_filters => raw_filters, :rubyless_helper => self)
             klass = query.main_class
 
 

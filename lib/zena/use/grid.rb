@@ -26,7 +26,7 @@ module Zena
         # Get cell text
         def cell_edit
           # get table
-          table = get_table_from_json(@node.safe_read(params[:attr]))
+          table = get_table_from_json(@node.prop[params[:attr]])
           # get row/cell
           table_data = table[1]
 
@@ -43,8 +43,10 @@ module Zena
 
         # Ajax table editor
         def cell_update
+          # FIXME: SECURITY: how to make sure we only access authorized keys for tables ?
           # get table
-          table = get_table_from_json(@node.safe_read(params[:attr]))
+          table = get_table_from_json(@node.prop[params[:attr]])
+
           # get row/cell
           table_data = table[1]
 
@@ -71,7 +73,7 @@ module Zena
         # Ajax table add row/column
         def table_update
           # get table
-          @table = get_table_from_json(@node.safe_read(params[:attr]))
+          @table = get_table_from_json(@node.prop[params[:attr]])
           # get row/cell
           table_data = @table[1]
 
@@ -108,7 +110,6 @@ module Zena
         # Create a table from an attribute
         def make_table(opts)
           style, node, attribute, title, table = opts[:style], opts[:node], opts[:attribute], opts[:title], opts[:table]
-          attribute = "d_#{attribute}" unless ['v_', 'd_'].include?(attribute[0..1])
           case (style || '').sub('.', '')
           when ">"
             prefix = "<div class='img_right'>"
@@ -137,9 +138,13 @@ module Zena
             prefix << "</div>"
           end
 
-          table ||= get_table_from_json(node.safe_read(attribute))
+          table ||= get_table_from_json(node.prop[attribute])
 
-          prefix + render_to_string( :partial=>'nodes/table', :locals=>{:table=>table, :node=>node, :attribute=>attribute}) + suffix
+          prefix + render_to_string( :partial=>'nodes/table', :locals => {
+            :table     => table,
+            :node      => node,
+            :attribute => attribute
+          }) + suffix
         rescue JSON::ParserError
           "<span class='unknownLink'>could not build table from text</span>"
         end

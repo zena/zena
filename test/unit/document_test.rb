@@ -230,7 +230,6 @@ class DocumentTest < Zena::Unit::TestCase
         end
       end # with existing node_name
 
-
       context 'with a new file' do
         # All tests relying on commit (filename, size, attachment) have been
         # moved to AttachmentTest.

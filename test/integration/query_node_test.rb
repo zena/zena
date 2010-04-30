@@ -59,7 +59,7 @@ class QueryNodeTest < Zena::Unit::TestCase
           if node_class == Comment
             res = res ? res.map {|r| r[:title]}.join(', ') : ''
           else
-            res = res ? res.map {|r| r[:name]}.join(', ') : ''
+            res = res ? res.map {|r| r[:node_name]}.join(', ') : ''
           end
 
           yt_assert test_res, class_prefix + res

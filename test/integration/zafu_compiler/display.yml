@@ -162,4 +162,16 @@ stylesheets:
   src: "<r:stylesheets list='zena,code,search'/>"
   tem: "/link href.*/stylesheets/zena.css.*text/css.*code.css.*text/css.*search.css.*stylesheet/"
 
+icon:
+  context:
+    node: wiki
+  src: "<r:icon do='img'/>"
+  tem: "xx"
+
+defined_icon:
+  # update attributes in test def
+  context:
+    node: wiki
+  src: "<r:icon do='img'/>"
+  tem: "xx"
 # ---- fixed to here

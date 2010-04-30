@@ -140,7 +140,7 @@ class VirtualClassTest < Zena::Unit::TestCase
     assert_equal "NNL", node.kpath
     assert_kind_of Note, node
     assert_kind_of VirtualClass, node.virtual_class
-    assert_equal virtual_classes_id(:Letter), node.vclass_id
+    assert_equal roles_id(:Letter), node.vclass_id
     assert_equal 'Letter', node.klass
     assert node.vkind_of?('Letter')
     assert_equal "NNL", node.virtual_class[:kpath]
@@ -155,7 +155,7 @@ class VirtualClassTest < Zena::Unit::TestCase
     assert_kind_of Note, node
     assert !node.new_record?
     assert node.virtual_class
-    assert_equal virtual_classes_id(:Letter), node.vclass_id
+    assert_equal roles_id(:Letter), node.vclass_id
     assert_equal 'Letter', node.klass
     assert node.vkind_of?('Letter')
     assert_equal "NNL", node[:kpath]
@@ -229,14 +229,6 @@ class VirtualClassTest < Zena::Unit::TestCase
   def test_auto_create_discussion
     assert !roles(:Letter).auto_create_discussion
     assert roles(:Post).auto_create_discussion
-  end
-
-  def test_attributes
-    login(:lion)
-    post = secure!(Node) { nodes(:opening) }
-    assert_equal ["book", "reading"], post.dyn_attribute_keys
-    assert post.update_attributes(:origin => 'bar', :d_book => 'Alice In Wonderland')
-    assert_equal ["book", "foo", "reading"], post.dyn_attribute_keys
   end
 
   context 'importing virtual class definitions' do

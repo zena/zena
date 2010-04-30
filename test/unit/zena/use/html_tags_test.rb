@@ -167,10 +167,11 @@ class HtmlTagsTest < Zena::View::TestCase
   end
 
   def test_select_id
+    login(:ant)
     @node = secure!(Node) { nodes(:status) }
-    select = select_id('node', :parent_id, :class=>'Project')
+    select = select_id('node', :parent_id, :class => 'Project')
     assert_no_match %r{select.*node\[parent_id\].*21.*19.*29.*11}m, select
-    assert_match %r{select.*node\[parent_id\].*29}, select
+    assert_match %r{select.*node\[parent_id\].*29}m, select
     login(:tiger)
     @node = secure!(Node) { nodes(:status) }
     assert_match %r{select.*node\[parent_id\].*21.*19.*29.*11}m, select_id('node', :parent_id, :class=>'Project')
@@ -186,10 +187,11 @@ class HtmlTagsTest < Zena::View::TestCase
   end
 
   def test_show_path_root
+    login(:anon)
     @node = secure!(Node) { Node.find(nodes_id(:zena))}
-    assert_equal "<li><a href='/en' class='current'>zena</a></li>", show_path
+    assert_equal "<li><a href='/en' class='current'>Zena the wild CMS</a></li>", show_path
     @node = secure!(Node) { Node.find(nodes_id(:status))}
-    assert_match %r{.*zena.*projects.*cleanWater.*li.*page22\.html' class='current'>status}m, show_path
+    assert_match %r{.*Zena.*projects.*Clean Water.*li.*page22\.html' class='current'>status}m, show_path
   end
 
   def test_show_path_root_with_login
@@ -224,11 +226,11 @@ class HtmlTagsTest < Zena::View::TestCase
   def test_popup_images
     login(:anon)
     img = secure!(Node) { nodes(:bird_jpg) }
-    @js_data = nil
+    @controller.instance_variable_set(:@js_data, nil)
     img_tag(img)
-    assert_nil @js_data
+    assert_equal [], @controller.js_data
     img_tag(img, :mode => 'med', :id => 'flop') # med has a popup setting
-    popup_data = JSON.load(@js_data[0][%r{\A.*?(\{.*\}).*\Z},1])
+    popup_data = JSON.load(@controller.js_data[0][%r{\A.*?(\{.*\}).*\Z},1])
     assert_equal '/en/image30_std.jpg?929831698949', popup_data['src']
     assert_equal 400, popup_data['height']
     assert_equal 440, popup_data['width']

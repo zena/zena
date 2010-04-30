@@ -51,7 +51,7 @@ module Zena
             res
           end
         end
-        
+
         # <img> tag definition to show an Image / mp3 document
         # FIXME: this should live inside zafu
         def asset_img_tag(obj, opts)
@@ -91,7 +91,7 @@ module Zena
                     field_keys << k
                     data[k] = true
                   else
-                    if v = obj.safe_read(k)
+                    if v = obj.prop[k]
                       field_keys << k
                       case options[k]
                       when 'raw'
@@ -413,10 +413,10 @@ module Zena
           end
           nav = []
           node.ancestors.each do |obj|
-            nav << link_to(obj.name, zen_path(obj, opts))
+            nav << link_to(obj.title, zen_path(obj, opts))
           end
 
-          nav << "<a href='#{url_for(zen_path(node))}' class='current'>#{node.name}</a>"
+          nav << "<a href='#{url_for(zen_path(node))}' class='current'>#{node.title}</a>"
           res = "#{res}#{open_tag}#{nav.join("#{close_tag}#{open_tag}#{join}")}#{close_tag}"
         end
 

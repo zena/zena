@@ -7,11 +7,18 @@ module Zena
   module Use
     module QueryNode
 
+      class StringDictionary
+        include RubyLess
+        safe_method ['[]', String] => {:class => String, :nil => true}
+        disable_safe_read # ?
+      end
+
       module ModelMethods
         def self.included(base)
           base.send(:include, QueryBuilder)
           base.extend ClassMethods
           base.query_compiler = Zena::Use::QueryNode::Compiler
+          base.safe_method :db_attr => StringDictionary
         end
 
         # Find a node and propagate visitor
@@ -54,6 +61,15 @@ module Zena
             do_find(count, eval(query.to_s))
           end
         end
+
+        # Return a hash with the values contained in the SQL query with 'AS' (used with custom queries).
+        def db_attr
+          @db_attr ||= Hash[*@attributes.select do |key, value|
+            !self.class.column_names.include?(key)
+            # db fetch only: select 'now() - created_at AS age' ----> 'age' can be read
+          end.flatten]
+        end
+
       end # ModelMethods
 
       module ClassMethods
@@ -70,6 +86,7 @@ module Zena
         set_default :scope,   'self'
         set_default :order,   'position ASC, node_name ASC'
         set_default :context, 'self'
+        after_process :insert_links_fields
         after_process :secure_query
 
         load_custom_queries ["#{RAILS_ROOT}/bricks/*/queries"]
@@ -180,6 +197,12 @@ module Zena
           super(key, value.gsub('REF_DATE', context[:ref_date] ? insert_bind(context[:ref_date]) : 'now()'))
         end
 
+        # Special case 'in site' that is a noop scope and
+        # just avoids the insertion of the default 'in parent' scope.
+        def need_join_scope?(scope_name)
+          scope_name != 'site'
+        end
+
         private
           # Change class
           def class_relation(relation)
@@ -255,7 +278,13 @@ module Zena
               add_table('links')
 
               # source --> target
-              add_filter "#{field_or_attr('id')} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel.id} AND #{table('links')}.#{rel.link_side} = #{field_or_attr('id', table(main_table,-1))}"
+              if context[:scope] == 'site'
+                # Example: 'tagged in site' ==> any node with a 'tagged' relation (no need to
+                # filter by source).
+                add_filter "#{field_or_attr('id')} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel.id}"
+              else
+                add_filter "#{field_or_attr('id')} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel.id} AND #{table('links')}.#{rel.link_side} = #{field_or_attr('id', table(main_table,-1))}"
+              end
             else
               nil
             end
@@ -263,6 +292,67 @@ module Zena
 
           def secure_query
             query.add_filter "\#{secure_scope('#{table}')}"
+          end
+
+          def insert_links_fields
+            if @query.tables.include?('links')
+              link_table = table('links')
+              unless @query.select
+                @query.select = ["#{@query.main_table}.*"]
+              end
+              add_select "#{link_table}.id AS link_id"
+              Zena::Use::Relations::LINK_ATTRIBUTES.each do |l|
+                add_select "#{link_table}.#{l} AS l_#{l}"
+              end
+            end
+          end
+
+          def merge_queries(query1, query2)
+            if query1.tables.include?('links') && !query2.tables.include?('links')
+              add_dummy_link_clause(query2)
+            elsif query2.tables.include?('links') && !query1.tables.include?('links')
+              add_dummy_link_clause(query1)
+            end
+            super
+          end
+
+          def process_or(left, right)
+            left_clause  = [this.process(left)]
+            right_clause = [this.process(right)]
+            @query.tables.each do |t|
+              if t =~ /^links AS (.+)$/
+                lname = $1
+              else
+                lname = t
+              end
+
+              if left_clause =~ /#{lname}\./ && !right_clause =~ /#{lname}\./
+                right_clause << "#{lname}.id = 0)"
+              elsif right_clause =~ /#{lname}\./ && !left_clause =~ /#{lname}\./
+                left_clause << "#{lname}.id = 0)"
+              end
+            end
+
+            if left_clause.size > 1
+              left_clause = "(#{left_clause.join(' AND ')})"
+            else
+              left_clause = left_clause.first
+            end
+
+            if right_clause.size > 1
+              right_clause = "(#{right_clause.join(' AND ')})"
+            else
+              right_clause = right_clause.first
+            end
+
+            "(#{left_clause} OR #{right_clause})"
+          end
+
+          # This is used to avoid finding random links in clauses with and without link filters
+          # like this: "image or icon" ('image' is a filter in 'parent' scope, 'icon' is a
+          # relation found through links).
+          def add_dummy_link_clause(query)
+            query.where.insert(0, 'links.id = 0')
           end
 
           def node_name

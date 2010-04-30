@@ -120,47 +120,6 @@ class NodeTest < Zena::Unit::TestCase
     end
   end
 
-  def test_get_fullpath_rebuild
-    login(:lion)
-    node = secure!(Node) { nodes(:lake)  }
-    assert_equal 'projects/cleanWater/lakeAddress', node.fullpath
-    assert node.update_attributes(:parent_id => nodes_id(:collections))
-    assert_equal 'collections/lakeAddress', node.fullpath
-  end
-
-  def test_fullpath_updated_on_parent_rename
-    login(:tiger)
-    node = secure!(Node) { nodes(:tiger) }
-    assert_equal 'people/tiger', node.fullpath
-    node = secure!(Node) { nodes(:tiger) }
-    assert_equal 'people/tiger', node[:fullpath] # make sure fullpath is cached
-
-    node = secure!(Node) { nodes(:people) }
-    assert node.update_attributes(:title => 'nice people')
-    assert node.publish
-    assert_equal 'nicePeople', node.node_name # sync node_name
-    node = secure!(Node) { nodes(:tiger) }
-    assert_equal 'nicePeople/tiger', node[:fullpath]
-  end
-
-  def test_rootpath
-    login(:ant)
-    node = secure!(Node) { nodes(:status) }
-    assert_equal 'zena/projects/cleanWater/status', node.rootpath
-    node = secure!(Node) { nodes(:zena) }
-    assert_equal 'zena', node.rootpath
-  end
-
-  def test_basepath
-    login(:tiger)
-    node = secure!(Node) { nodes(:status) }
-    assert_equal 'projects/cleanWater', node.basepath
-    node = secure!(Node) { nodes(:projects) }
-    assert_equal '', node.basepath
-    node = secure!(Node) { nodes(:proposition) }
-    assert_equal '', node.basepath
-  end
-
   def test_ancestors
     Node.connection.execute "UPDATE nodes SET parent_id = #{nodes_id(:proposition)} WHERE id = #{nodes_id(:bird_jpg)}"
     login(:tiger)
@@ -399,18 +358,6 @@ class NodeTest < Zena::Unit::TestCase
     assert_equal 'Solenopsis Invicta', node.author.fullname
   end
 
-  def test_ext
-    node = nodes(:status)
-    node[:node_name] = 'bob. and bob.jpg'
-    assert_equal 'jpg', node.ext
-    node[:node_name] = 'no ext'
-    assert_equal '', node.ext
-    node[:node_name] = ''
-    assert_equal '', node.ext
-    node[:node_name] = nil
-    assert_equal '', node.ext
-  end
-
   def test_set_node_name_with_title
     login(:tiger)
     node = secure!(Node) { Node.create(NEW_DEFAULT.stringify_keys.merge('node_name' => '', 'title' => 'small bed')) }
@@ -426,7 +373,6 @@ class NodeTest < Zena::Unit::TestCase
     node.node_name = "LIEUX"
     assert_equal 'LIEUX', node.node_name
   end
-
 
   def test_change_project_to_page
     login(:tiger)
@@ -945,7 +891,7 @@ done: \"I am done\""
 
     children = parent.find(:all, 'children order by node_name asc')
     assert_equal 2, children.size
-    assert_equal 'photos', children[0].node_name
+    assert_equal 'Photos', children[0].node_name
     assert_equal groups_id(:managers), children[0].rgroup_id
     assert_equal 'simple', children[1].node_name
     assert_equal groups_id(:managers), children[1].rgroup_id
@@ -956,7 +902,7 @@ done: \"I am done\""
 
     children = children[1].find(:all, 'children order by node_name ASC')
     assert_equal 2, children.size
-    assert_equal 'photos', children[0].node_name
+    assert_equal 'Photos', children[0].node_name
     assert_equal groups_id(:public), children[0].rgroup_id
   end
 
@@ -972,15 +918,15 @@ done: \"I am done\""
   def test_create_nodes_from_archive
     login(:tiger)
     res = secure!(Node) { Node.create_nodes_from_folder(:archive => uploaded_archive('import.tgz'), :parent_id => nodes_id(:zena)) }.values
-    photos = secure!(Section) { Section.find_by_node_name('photos') }
+    photos = secure!(Section) { Section.find_by_node_name('Photos') }
     assert_kind_of Section, photos
     bird = secure!(Node) { Node.find_by_parent_id_and_node_name(photos[:id], 'bird') }
     assert_kind_of Image, bird
     assert_equal 56183, bird.size
-    assert_equal 'Lucy in the sky', bird.title
+    assert_equal 'Lucy in the sky', bird.text
     visitor.lang = 'fr'
     bird = secure!(Node) { Node.find_by_parent_id_and_node_name(photos[:id], 'bird') }
-    assert_equal 'Le septième ciel', bird.title
+    assert_equal 'Le septième ciel', bird.text
     assert_equal 1, bird[:inherit]
     assert_equal groups_id(:public), bird[:rgroup_id]
     assert_equal groups_id(:workers), bird[:wgroup_id]
@@ -1006,16 +952,15 @@ done: \"I am done\""
     preserving_files('test.host/data') do
       bird = node = nil
       login(:tiger)
-      node = secure!(Page) { Page.create(:parent_id => nodes_id(:status), :node_name => 'photos', :title => 'my photos', :text => '![]!') }
+      node = secure!(Page) { Page.create(:parent_id => nodes_id(:status), :title => 'Photos', :text => '![]!') }
       assert !node.new_record?
-      assert_nothing_raised { node = secure!(Node) { Node.find_by_path( 'projects/cleanWater/status/photos') } }
-      assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { Node.find_by_path( 'projects/cleanWater/status/photos/bird') } }
-      assert_equal 'photos', node.node_name
+      assert_nothing_raised { node = secure!(Node) { Node.find_by_path( 'projects/cleanWater/status/Photos') } }
+      assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { Node.find_by_path( 'projects/cleanWater/status/Photos/bird') } }
       assert_no_match %r{I took during my last vacations}, node.text
       v1_id = node.version.id
-      secure!(Node) { Node.create_nodes_from_folder(:archive => uploaded_archive('import.tgz'), :parent_id => nodes_id(:status)) }.values
-      assert_nothing_raised { node = secure!(Node) { Node.find_by_path( 'projects/cleanWater/status/photos') } }
-      assert_nothing_raised { bird = secure!(Node) { Node.find_by_path( 'projects/cleanWater/status/photos/bird') } }
+      secure!(Node) { Node.create_nodes_from_folder(:archive => uploaded_archive('import.tgz'), :parent_id => nodes_id(:status)) }
+      assert_nothing_raised { node = secure!(Node) { Node.find_by_path( 'projects/cleanWater/status/Photos') } }
+      assert_nothing_raised { bird = secure!(Node) { Node.find_by_path( 'projects/cleanWater/status/Photos/bird') } }
       assert_match %r{I took during my last vacations}, node.text
       assert_equal v1_id, node.version.id
       assert_kind_of Image, bird
@@ -1075,17 +1020,6 @@ done: \"I am done\""
     assert Node.plural_relation?('tagged')
   end
 
-  def test_safe_read
-    login(:ant)
-    node   = secure!(Node) {Node.find(:first, :conditions => ['id = ?', nodes_id(:lake)], :select => "*, 'foozibar' AS foobar") }
-    status = secure!(Node) { nodes(:status) }
-    assert_equal 'lakeAddress', node.safe_read('node_name')
-    assert_equal 'The lake we love', node.safe_read('title')
-    assert_equal 'gaspard', status.safe_read('d_assigned')
-    assert_equal 'Between Tanzania, Congo and Zambia', node.safe_read('c_address')
-    assert_equal 'foozibar', node.safe_read('foobar')
-  end
-
   def test_classes_for_form
     assert_equal [["Page", "Page"],
      ["  Project", "Project"],
@@ -1141,29 +1075,6 @@ done: \"I am done\""
     assert_equal 1, entries.size
     assert_equal BigDecimal.new("56"), entries[0].value
   end
-
-  def test_icon_by_relation
-    login(:ant)
-    node = secure!(Node) { nodes(:cleanWater) } # has an 'icon' relation
-    icon = node.icon
-    assert_kind_of Image, icon
-    assert_equal nodes_id(:lake_jpg), icon[:id]
-  end
-
-  def test_icon_by_first_child
-    login(:tiger)
-    node = secure!(Node) { nodes(:wiki) } # has no 'icon' relation
-    icon = node.icon
-    assert_kind_of Image, icon
-    assert_equal nodes_id(:bird_jpg), icon[:id] # first child
-    # define flower as icon
-    assert node.update_attributes(:icon_id => nodes_id(:flower_jpg))
-    node = secure!(Node) { nodes(:wiki) } # reload
-    icon = node.icon
-    assert_kind_of Image, icon
-    assert_equal nodes_id(:flower_jpg), icon[:id] # icon
-  end
-
 
   context 'A class\' native classes hash' do
     should 'be indexed by kpath' do
@@ -1262,7 +1173,7 @@ done: \"I am done\""
   def test_replace_attributes_in_values
     login(:lion)
     node = secure!(Node) { nodes(:status) }
-    new_attributes = node.replace_attributes_in_values(:foo => "id: [id], title: [title]")
+    new_attributes = node.replace_attributes_in_values(:foo => 'id: #{id}, title: #{title}')
     assert_equal "id: 22, title: status title", new_attributes[:foo]
   end
 
@@ -1347,7 +1258,7 @@ done: \"I am done\""
     lion       = secure!(Node) { nodes(:lion) }
     people     = secure!(Node) { nodes(:people) }
     cleanWater = secure!(Node) { nodes(:cleanWater) }
-    assert lion.update_attributes(:node_name => 'status')
+    assert lion.update_attributes(:title => 'status', :v_status => Zena::Status[:pub])
     assert_equal 'people/status', lion.fullpath
        # path                           base_node
     { ['(/projects/cleanWater/status)', nil]  => nodes_id(:status),
@@ -1419,87 +1330,6 @@ done: \"I am done\""
     end
   end
 
-  def test_sync_node_name_on_title_change_no_sync
-    login(:tiger)
-    # We do not care anymore if the node was not in sync
-    node = secure!(Node) { nodes(:status) }
-    assert node.update_attributes(:title => 'simply different')
-    assert node.publish
-    assert_equal 'simplyDifferent', node.node_name
-    visitor.lang = 'fr'
-    # not ref lang
-    node = secure!(Node) { nodes(:people) }
-    assert node.update_attributes(:title => 'nice people')
-    assert node.publish
-    assert_equal 'fr', node.v_lang
-    assert_equal 'people', node.node_name
-  end
-
-  def test_sync_node_name_on_title_change
-    login(:tiger)
-    # was in sync, correct lang
-    node = secure!(Node) { nodes(:people) }
-    assert node.update_attributes(:title => 'nice people')
-    assert_equal 'people', node.node_name
-    assert_equal Zena::Status[:red], node.v_status
-    assert node.publish
-    assert_equal 'nicePeople', node.node_name
-  end
-
-  def test_sync_node_name_should_result_on_duplicates
-    login(:tiger)
-    # was in sync, correct lang
-    people = secure!(Node) { nodes(:people) }
-    node = secure!(Page) { Page.create(:title => 'nice people', :parent_id => people.parent_id)}
-    assert !node.new_record?
-    assert_equal 'nicePeople', node.node_name
-    # would sync to 'nicePeople'
-    assert people.update_attributes(:title => 'nice people')
-    assert_equal 'people', people.node_name
-    assert people.publish
-    assert_equal 'nicePeople-1', people.node_name
-  end
-
-  def test_sync_node_name_before_publish_if_single_version
-    login(:ant)
-    node = secure!(Node) { Node.create(:title => 'Eve', :parent_id => nodes_id(:people)) }
-    assert_equal Zena::Status[:red], node.v_status
-    assert_equal 'Eve', node.node_name
-    node.update_attributes(:title => 'Lilith')
-    assert_equal Zena::Status[:red], node.v_status
-    assert_equal 'Lilith', node.node_name
-  end
-
-  def test_sync_node_name_on_title_change_auto_pub_no_sync
-    Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 3600 WHERE id = #{sites_id(:zena)}"
-    Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE node_id IN (#{nodes_id(:status)},#{nodes_id(:people)})"
-    login(:tiger)
-
-    node = secure!(Node) { nodes(:status) }
-    assert node.update_attributes(:title => 'simply different')
-    assert_equal 'simplyDifferent', node.node_name
-    visitor.lang = 'fr'
-    # not ref lang
-    node = secure!(Node) { nodes(:people) }
-    assert node.update_attributes(:title => 'nice people')
-    assert_equal 'fr', node.v_lang
-    assert_equal 'people', node.node_name
-  end
-
-  def test_sync_node_name_on_title_change_auto_pub
-    test_site('zena')
-    Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 3600 WHERE id = #{sites_id(:zena)}"
-    Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE node_id IN (#{nodes_id(:people)})"
-    login(:tiger)
-    node = secure!(Node) { nodes(:people) }
-    # was in sync, correct lang
-    assert_equal node.node_name, node.title
-    assert node.update_attributes(:title => 'nice people')
-    node = secure!(Node) { nodes(:people) }
-    assert_equal 'nice people', node.title
-    assert_equal 'nicePeople', node.node_name
-  end
-
   # FIXME: write test
   def test_assets
     print 'P'
@@ -1527,9 +1357,9 @@ done: \"I am done\""
 
   def test_parse_keys
     node = secure(Node) { nodes(:status) }
-    assert_equal ['d_assigned', 'text', 'title', 'summary', 'd_problems', 'd_archive'], node.parse_keys
+    assert_equal %w{archive assigned problems summary text title}, node.parse_keys.sort
 
     note = secure(Node) { nodes(:opening) }
-    assert_equal ['text', 'title', 'summary'], note.parse_keys
+    assert_equal %w{text title}, note.parse_keys.sort
   end
 end

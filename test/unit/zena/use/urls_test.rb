@@ -66,6 +66,7 @@ class UrlsTest < Zena::View::TestCase
   end
 
   def test_zen_path_with_anchor
+    login(:anon)
     assert_equal '/en/section12.html#comments', zen_path(nodes(:people), :anchor => 'comments')
   end
 
@@ -89,6 +90,7 @@ class UrlsTest < Zena::View::TestCase
   end
 
   def test_zen_url
+    login(:anon)
     node = secure!(Node) { nodes(:zena) }
     assert_equal "http://test.host/en", zen_url(node)
     assert_equal "http://test.host/en/project11_test.html", zen_url(node, :mode=>'test')

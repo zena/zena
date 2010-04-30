@@ -147,7 +147,7 @@ module Zena
       end
 
       def format=(fmt)
-        return unless !dummy? && Magick.formats[fmt.upcase] =~ /w/
+        return if dummy? || !Magick.formats[fmt.upcase] =~ /w/
         @actions << Proc.new {|img| img.format = fmt.upcase; img }
       end
 

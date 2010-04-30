@@ -25,19 +25,21 @@ class Attachment < Versions::SharedAttachment
 
     # When destoying an image, make sur to delete all iformats and their corresponding folders.
     def destroy_iformats
-      visitor.site.iformats.each do |k,v|
-        next if k == :updated_at
-        fpath = filepath(v)
-        if File.exist?(fpath)
-          FileUtils.rm(fpath)
-          folder = File.dirname(fpath)
-          if Dir.empty?(folder)
-            # rm parent folder
-            FileUtils::rmtree(folder)
-            folder = File.dirname(folder)
+      after_commit do
+        visitor.site.iformats.each do |k,v|
+          next if k == :updated_at
+          fpath = filepath(v)
+          if File.exist?(fpath)
+            FileUtils.rm(fpath)
+            folder = File.dirname(fpath)
             if Dir.empty?(folder)
-              # rm parent / parent folder
+              # rm parent folder
               FileUtils::rmtree(folder)
+              folder = File.dirname(folder)
+              if Dir.empty?(folder)
+                # rm parent / parent folder
+                FileUtils::rmtree(folder)
+              end
             end
           end
         end

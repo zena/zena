@@ -4,6 +4,26 @@ require 'rational'
 class ExifData < Hash
   include RubyLess
 
+  # Deserialization used by Property
+  def self.json_create(serialized)
+    if data = serialized['data']
+      ExifData.new(data)
+    else
+      nil
+    end
+  end
+
+  # Serialization used by Property
+  def to_json(*args)
+    { 'json_class' => 'ExifData', 'data' => Hash[self.to_a] }.to_json(*args)
+  end
+
+  # We need this extra rule to avoid ActiveSupport json encoder thinking Hash[self.to_a] is the
+  # same object as this. This is a temporary fix until ActiveSupport use object_id for :seen.
+  def ==(other)
+    other.class == self.class && super
+  end
+
   # You can create new ExifData objects with either a json representation (String), a
   # hash of key => value or an array of key,value pairs.
   def initialize(data)

@@ -282,6 +282,7 @@ bird_jpg_en:
     ext:           jpg
     width:         660
     height:        600
+    size:          56243
 
 flower_jpg_en:
   node:            flower_jpg
@@ -296,6 +297,7 @@ flower_jpg_en:
     ext:           jpg
     width:         800
     height:        600
+    size:          96648
 
 collections_en:
   node:            collections

@@ -21,5 +21,44 @@ class QueryNodeTest < Zena::Unit::TestCase
       assert_kind_of Query, subject.build_query(:all, 'nodes')
     end
 
+    should 'implement db_attr' do
+      assert subject.new.respond_to?(:db_attr)
+    end
+
+    should 'declare db_attr as safe RubyLess' do
+      assert_equal Hash[:class => Zena::Use::QueryNode::StringDictionary, :method => 'db_attr'],
+        subject.safe_method_type(['db_attr'])
+    end
+  end # A class with QueryNode::ModelMethods included
+
+  context 'An object with QueryNode::ModelMethods' do
+
+    setup do
+      login(:tiger)
+    end
+
+    subject do
+      secure!(Node) { nodes(:status) }
+    end
+
+    should 'return an empty hash on db_attr' do
+      assert_nothing_raised do
+        assert_equal Hash[], subject.db_attr
+      end
+    end
+
+    context 'found with an SQL query' do
+      subject do
+        secure!(Node) { Node.first(
+          :select     => 'count(versions.id) AS versions_count',
+          :joins      => 'LEFT JOIN versions ON versions.node_id = nodes.id',
+          :conditions => {'nodes.id' => nodes_id(:status)})
+        }
+      end
+
+      should 'reflect AS from query in db_attr' do
+        assert_equal Hash['versions_count', '2'], subject.db_attr
+      end
+    end
   end
 end

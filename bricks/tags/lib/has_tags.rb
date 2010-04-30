@@ -4,7 +4,6 @@ module Bricks
       include RubyLess
       safe_context [:[], String] => String
       safe_method :keys => [String]
-      undef_method(:safe_read) # FIXME: use 'disable_safe_read' when new rubyless gem is published
     end
 
     module HasTags

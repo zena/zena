@@ -36,17 +36,17 @@ class VirtualClassesControllerTest < Zena::Controller::TestCase
   end
 
   test "should show virtual class" do
-    get :show, :id => virtual_classes_id(:Letter)
+    get :show, :id => roles_id(:Letter)
     assert_response :success
   end
 
   test "should get edit" do
-    get :edit, :id => virtual_classes_id(:Letter)
+    get :edit, :id => roles_id(:Letter)
     assert_response :success
   end
 
   test "should update virtual class" do
-    put :update, :id => virtual_classes_id(:Letter), :virtual_class => { :name => 'Brief'}
+    put :update, :id => roles_id(:Letter), :virtual_class => { :name => 'Brief'}
     brief = assigns(:virtual_class)
     assert_redirected_to virtual_class_path(brief)
     assert_equal 'Brief', brief.name
@@ -55,7 +55,7 @@ class VirtualClassesControllerTest < Zena::Controller::TestCase
 
   test "should destroy virtual class" do
     assert_difference('VirtualClass.count', -1) do
-      delete :destroy, :id => virtual_classes_id(:Letter)
+      delete :destroy, :id => roles_id(:Letter)
     end
     assert_redirected_to virtual_classes_path
   end

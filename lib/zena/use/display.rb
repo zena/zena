@@ -227,6 +227,16 @@ module Zena
           "<% end -%>"
         end
 
+        # Find icon through a relation named 'icon' or use first image child
+        def r_icon
+          if rel = RelationProxy.find_by_role('icon')
+            finder = '(icon or image)'
+          else
+            finder = 'image'
+          end
+          expand_with_finder "#{finder} group by id,l_id order by l_id desc, position asc, node_name asc"
+        end
+
         def show_number(method)
           if fmt = @params[:format]
             begin

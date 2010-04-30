@@ -1,5 +1,5 @@
 class: Post
-title: The sky is blue
+title: simple
 text: Stay calm
 log_at: 2007-04-30 23:50
 inherit: no

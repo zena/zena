@@ -172,7 +172,6 @@ class Node < ActiveRecord::Base
   before_create      :node_before_create
   before_save        :change_klass
   after_save         :spread_project_and_section
-  after_save         :rebuild_children_fullpath
   after_create       :node_after_create
   attr_protected     :zip, :id, :section_id, :project_id, :publish_from
   attr_protected     :site_id
@@ -210,6 +209,7 @@ class Node < ActiveRecord::Base
   has_multiple :versions, :inverse => 'node'
 
   include Zena::Use::Workflow
+  include Zena::Use::NodeName # must be included after Workflow
   include Zena::Use::VersionHash
 
   # List of version attributes that should be accessed as proxies 'v_lang', 'v_status', etc
@@ -796,39 +796,6 @@ class Node < ActiveRecord::Base
   end
   alias_method_chain :versions, :secure
 
-  # Additional security so that unsecure finders explode when trying to update/save or follow relations.
-  # def visitor
-  #   return @visitor if @visitor
-  #   @visitor = Thread.current[:visitor] || Zena::RecordNotSecured.new("Visitor not set, record not secured.")
-  #   # We need to be more tolerant during object creation since 'v_foo' can be
-  #   # set before 'visitor' and we need visitor.lang when creating versions.
-  #   #return Thread.current[:visitor] #if new_record?
-  #   #raise Zena::RecordNotSecured.new("Visitor not set, record not secured.")
-  # end
-
-  # Return an attribute if it is safe (RubyLess allowed). Return nil otherwise.
-  # This is mostly used when the zafu compiler cannot decide whether a method is safe or not at compile time.
-  def safe_read(attribute)
-    case attribute[0..1]
-    when 'v_'
-      version.safe_read(attribute[2..-1])
-    when 'c_'
-      version.safe_content_read(attribute[2..-1])
-    when 'd_'
-      version.prop[attribute[2..-1]]
-    else
-      if @attributes.has_key?(attribute)             &&
-         !self.class.column_names.include?(attribute) &&
-         !methods.include?(attribute)                 &&
-         !self.class.safe_method_type([attribute])
-      # db fetch only: select 'created_at AS age' ----> 'age' can be read
-        @attributes[attribute]
-      else
-        super
-      end
-    end
-  end
-
   # check inheritance chain through kpath
   def kpath_match?(kpath)
     vclass.kpath =~ /^#{kpath}/
@@ -1032,15 +999,6 @@ class Node < ActiveRecord::Base
   # ACCESSORS
   def author
     user.contact
-  end
-
-  # Find icon through a relation named 'icon' or use first image child
-  def icon
-    return nil if new_record?
-    return @icon if defined? @icon
-    query = Node.build_find(:first, ['icon group by id,l_id order by l_id desc, position asc, node_name asc', 'image'], :node_name => 'self')
-    sql_str, uses_node_name = query.to_s, query.uses_node_name
-    @icon = sql_str ? do_find(:first, eval(sql_str), :ignore_source => !uses_node_name) : nil
   end
 
   alias o_user user
@@ -1336,8 +1294,8 @@ class Node < ActiveRecord::Base
   # List of attribute keys to export in a zml file.
   def export_keys
     {
-      :zazen => prop.select { |k, v| v.kind_of?(String) },
-      :dates => prop.select { |k, v| v.kind_of?(Time) },
+      :zazen => Hash[*prop.select { |k, v| v.kind_of?(String) }.flatten],
+      :dates => Hash[*prop.select { |k, v| v.kind_of?(Time) }.flatten],
     }
   end
 
@@ -1414,46 +1372,7 @@ class Node < ActiveRecord::Base
     end
 
   private
-
-    def rebuild_fullpath
-      return unless new_record? || node_name_changed? || parent_id_changed? || fullpath.nil?
-      if parent = parent(false)
-        path = parent.fullpath.split('/') + [node_name]
-      else
-        path = []
-      end
-      self[:fullpath] = path.join('/')
-    end
-
-    def rebuild_basepath
-      return unless new_record? || node_name_changed? || parent_id_changed? || custom_base_changed? || basepath.nil?
-      if custom_base
-        self[:basepath] = self.fullpath
-      elsif parent = parent(false)
-        self[:basepath] = parent.basepath || ""
-      else
-        self[:basepath] = ""
-      end
-    end
-
     def set_defaults
-      # sync version title and node_name
-      if ref_lang == v_lang &&
-         ((full_drive? && v_status == Zena::Status[:pub]) ||
-          (can_drive?  && vhash['r'][ref_lang].nil?))
-        if node_name_changed? && !properties.title_changed? &&
-          !node_name.blank? && properties.title_was == node_name_was
-          self.title = self.node_name
-        elsif properties.title_changed? && !node_name_changed? &&
-          !title.blank? && node_name_was == properties.title_was.url_name
-          self.node_name = title
-          if !new_record? && kind_of?(Page) && node_name_changed?
-            # we only rebuild Page node_names on update
-            get_unique_node_name_in_scope('NP%')
-          end
-        end
-      end
-
       self.title     = self.node_name if title.blank?
       self.node_name = self.title     if node_name.blank?
 
@@ -1463,15 +1382,6 @@ class Node < ActiveRecord::Base
 
     def node_before_validation
       self[:kpath] = self.vclass.kpath
-
-      unless node_name.blank?
-        # rebuild cached fullpath / basepath
-        rebuild_fullpath
-        rebuild_basepath
-        # we should use a full rebuild when there are corrupt values,
-        # if fullpath was blank, we have no way to find all children
-        @need_rebuild_children_fullpath = !new_record? && (fullpath_changed? || basepath_changed?) && !fullpath_was.blank?
-      end
 
       # make sure section is the same as the parent
       if self[:parent_id].nil?
@@ -1680,41 +1590,6 @@ class Node < ActiveRecord::Base
       Node.send(:with_exclusive_scope) do
         Node.find(:all, :conditions=>['parent_id = ?', self[:id] ])
       end
-    end
-
-    def rebuild_children_fullpath
-      return true unless @need_rebuild_children_fullpath
-
-      # Update descendants
-      fullpath_new = self.fullpath
-      fullpath_new = "#{fullpath_new}/" if fullpath_was == ''
-      fullpath_re  = fullpath_changed? ? %r{\A#{self.fullpath_was}} : nil
-
-      bases = [self.basepath]
-
-      i = 0
-      batch_size = 100
-      while true
-        list  = Zena::Db.fetch_attributes(['id', 'fullpath', 'basepath', 'custom_base'], 'nodes', "fullpath LIKE #{Zena::Db.quote("#{fullpath_was}%")} AND site_id = #{current_site.id} ORDER BY fullpath ASC LIMIT #{batch_size} OFFSET #{i * batch_size}")
-        break if list.empty?
-        list.each do |rec|
-          rec['fullpath'].sub!(fullpath_re, fullpath_new) if fullpath_re
-          if rec['custom_base'].to_i == 1
-            rec['basepath'] = rec['fullpath']
-            bases << rec['basepath']
-          else
-            while rec['fullpath'].size <= bases.last.size
-              bases.pop
-            end
-            rec['basepath'] = bases.last
-          end
-          id = rec.delete('id')
-          Zena::Db.execute "UPDATE nodes SET #{rec.map {|k,v| "#{Zena::Db.connection.quote_column_name(k)}=#{Zena::Db.quote(v)}"}.join(', ')} WHERE id = #{id}"
-        end
-        # 50 more
-        i += 1
-      end
-      true
     end
 
     # Base class

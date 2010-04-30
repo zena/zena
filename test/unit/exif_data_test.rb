@@ -51,7 +51,7 @@ class ExifDataTest < Test::Unit::TestCase
 
   def test_to_json_should_ignore_symbols
     e = ExifData.new("Make" => "SONY", "DateTime" => "1998:10:01 10:15:30")
-    assert_equal '{"Make":"SONY","DateTime":"1998:10:01 10:15:30"}', e.to_json
+    assert_equal '{"data":{"Make":"SONY","DateTime":"1998:10:01 10:15:30"},"json_class":"ExifData"}', e.to_json
   end
 
   def test_gps_longitude

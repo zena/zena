@@ -119,13 +119,6 @@ class Document < Node
     end
   end # class << self
 
-  def update_attributes(attributes)
-    # Release content_type to nil before update, so that the execution is not influenced by existing file.
-    attributes.stringify_keys!
-    prop['content_type'] = nil if attributes['file'] || attributes['crop']
-    super
-  end
-
   # Create an attachment with a file in file system. Create a new version if file is updated.
   def file=(new_file)
     if new_file = super(new_file)
@@ -168,8 +161,8 @@ class Document < Node
   protected
     def set_defaults
       set_defaults_from_file
-      
-      self.ext = get_extension if self.ext.blank?
+
+      self.ext = get_extension if self.ext.blank? || @new_file
 
       if title.to_s =~ /\A(.*)\.#{self.ext}$/i
         self.title = $1
@@ -180,11 +173,11 @@ class Document < Node
       end
 
       super
-      
+
       set_attachment_filename
       true
     end
-    
+
     # Overwriten in TextDocument
     def set_attachment_filename
       if @new_file
@@ -229,8 +222,8 @@ class Document < Node
 
     def set_defaults_from_file
       return unless @new_file
-      self.content_type = @new_file.content_type if content_type.blank?
-      
+      self.content_type = @new_file.content_type
+
       if base = node_name || title || @new_file.original_filename
         if base =~ /(.*)\.(\w+)$/
           self.node_name = $1 if new_record?

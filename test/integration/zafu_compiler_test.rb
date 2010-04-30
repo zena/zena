@@ -268,11 +268,18 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     Zena::Db.insert_many('site_attributes', %W{key value owner_id}, values)
     yt_do_test('basic', 'captcha')
   end
-  
+
   def test_dates_uses_datebox_missing_lang
     visitor.lang = 'io'
     yt_do_test('dates', 'uses_datebox_missing_lang')
   end
-  
+
+  def test_display_defined_icon
+    login(:tiger)
+    # define flower as icon
+    assert node.update_attributes(:icon_id => nodes_id(:flower_jpg))
+    yt_do_test('display', 'defined_icon')
+  end
+
   yt_make
 end
