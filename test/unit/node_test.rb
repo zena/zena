@@ -1036,14 +1036,14 @@ done: \"I am done\""
 
   def test_allowed_change_to_classes
     node_changes = Node.allowed_change_to_classes.reject{|k| k[/Dummy/]} # In case we are testing after Secure
-    assert_equal ["Node","Note","Letter","Post","Page","Project","Section","Skin","Reference"], node_changes
+    assert_equal %w{Node Note Letter Post Page Project Section Skin Reference}, node_changes
 
     assert_equal node_changes, Page.allowed_change_to_classes.reject{|k| k[/Dummy/]}
     assert_equal node_changes, Project.allowed_change_to_classes.reject{|k| k[/Dummy/]}
     assert_equal node_changes, Note.allowed_change_to_classes.reject{|k| k[/Dummy/]}
     assert_equal node_changes, Reference.allowed_change_to_classes.reject{|k| k[/Dummy/]}
 
-    assert_equal ["Document","TextDocument","Template"], Document.allowed_change_to_classes.reject{|k| k[/Dummy/]}
+    assert_equal %w{Document TextDocument Template}, Document.allowed_change_to_classes.reject{|k| k[/Dummy|/]}
 
     assert_equal ["Image"], Image.allowed_change_to_classes.reject{|k| k[/Dummy/]}
 
@@ -1078,8 +1078,8 @@ done: \"I am done\""
 
   context 'A class\' native classes hash' do
     should 'be indexed by kpath' do
-      assert_equal ['N', 'ND', 'NDI', 'NDT', 'NDTT', 'NN', 'NP', 'NPP', 'NPS', 'NPSS', 'NR', 'NRC', 'NU', 'NUS'], Node.native_classes.keys.sort
-      assert_equal ['ND', 'NDI', 'NDT', 'NDTT'], Document.native_classes.keys.sort
+      assert_equal [], %w{N ND NDI NDT NDTT NN NP NPP NPS NPSS NR NRC NU NUS} - Node.native_classes.keys
+      assert_equal [], %w{ND NDI NDT NDTT} - Document.native_classes.keys
     end
 
     should 'should point to real (ruby) sub-classes and self' do

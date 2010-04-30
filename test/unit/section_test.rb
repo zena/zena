@@ -5,11 +5,11 @@ class SectionTest < Zena::Unit::TestCase
 
   def test_section_id_on_create
     login(:tiger)
-    node = secure!(Section) { Section.create(:parent_id=>nodes_id(:status), :name=>'SuperSection') }
+    node = secure!(Section) { Section.create(:parent_id=>nodes_id(:status), :title => 'SuperSection') }
     assert ! node.new_record?, 'Not a new record'
     assert_equal node[:id], node.get_section_id
     assert_equal nodes_id(:zena), node[:section_id]
-    child = secure!(Page) { Page.create(:parent_id=>node[:id], :name=>'child')}
+    child = secure!(Page) { Page.create(:parent_id=>node[:id], :title => 'child')}
     assert ! node.new_record?, "Not a new record"
     assert_equal node[:id], child[:section_id]
   end

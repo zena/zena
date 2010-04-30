@@ -19,10 +19,6 @@ module Zena
           if ((full_drive? && v_status == Zena::Status[:pub]) ||
               (can_drive?  && vhash['r'][ref_lang].nil?))
             self.node_name = title
-            if !new_record? && kind_of?(Page) && node_name_changed?
-              # we only rebuild Page node_names on update
-              get_unique_node_name_in_scope('NP%')
-            end
           end
 
           unless node_name.blank?

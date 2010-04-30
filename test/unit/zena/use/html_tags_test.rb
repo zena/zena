@@ -197,7 +197,7 @@ class HtmlTagsTest < Zena::View::TestCase
   def test_show_path_root_with_login
     login(:ant)
     @node = secure!(Node) { Node.find(nodes_id(:zena))}
-    assert_equal "<li><a href='/#{AUTHENTICATED_PREFIX}' class='current'>zena</a></li>", show_path
+    assert_equal "<li><a href='/#{AUTHENTICATED_PREFIX}' class='current'>Zena the wild CMS</a></li>", show_path
   end
 
   def map_actions(version)

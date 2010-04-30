@@ -61,13 +61,14 @@ module Zena
           actions = 'destroy_version,remove,redit,unpublish,propose,refuse,publish' if actions == 'all'
 
           node = version.node
+          node.version = version
 
           actions.split(',').reject do |action|
             action.strip!
             if action == 'view'
-              !node.can_apply?('publish', version)
+              !node.can_apply?('publish')
             else
-              !node.can_apply?(action.to_sym, version)
+              !node.can_apply?(action.to_sym)
             end
           end.map do |action|
             version_action_link(action, version)
@@ -75,7 +76,7 @@ module Zena
         end
 
         # TODO: test
-        def version_action_link(action,version)
+        def version_action_link(action, version)
           if action == 'view'
             # FIXME
             link_to_function(

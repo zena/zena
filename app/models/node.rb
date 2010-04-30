@@ -1612,6 +1612,7 @@ class Node < ActiveRecord::Base
     end
 
     def get_unique_node_name_in_scope(kpath)
+
       if node_name_changed? || parent_id_changed? || kpath_changed?
         Node.send(:with_exclusive_scope) do
           if new_record?

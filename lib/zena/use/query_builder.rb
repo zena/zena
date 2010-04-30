@@ -176,6 +176,12 @@ module Zena
               or_clause = nil
             end
 
+            if finders.size > 1
+              finders = finders.map {|f| "(#{f})"}.join(' or ')
+            else
+              finders = finders.first
+            end
+
             return [finders, parse_raw_filters(params)]
           end
 

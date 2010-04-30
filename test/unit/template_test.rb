@@ -48,7 +48,7 @@ class TemplateTest < Zena::Unit::TestCase
     end
 
     context 'creating a template' do
-      
+
       context 'with a capitalized node_name' do
         subject do
           secure(Template) { Template.create(:parent_id => nodes_id(:default), :node_name => 'Project.zafu') }
@@ -73,7 +73,7 @@ class TemplateTest < Zena::Unit::TestCase
         should 'set content_type' do
           assert_equal 'text/zafu', subject.content_type
         end
-        
+
         should 'set a default text' do
           assert_match %r{include.*Node}, subject.text
         end
@@ -344,18 +344,18 @@ class TemplateTest < Zena::Unit::TestCase
     assert_equal 'Project--xml', doc.title
   end
 
-  def test_change_node_name_not_master
+  def test_cannot_change_node_name_not_master
     login(:tiger)
     doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), :node_name => 'Project-collab-xml.zafu')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     doc = secure!(Node) { Node.find(doc[:id]) } # reload
-    assert doc.update_attributes(:node_name => "simple-thing")
+    assert doc.update_attributes(:node_name => "simple-thing", :v_status => Zena::Status[:pub])
     assert_nil doc.target_klass
     assert_nil doc.mode
     assert_nil doc.format
     assert_nil doc.tkpath
-    assert_equal 'simple-thing', doc.node_name
+    assert_equal 'Project-collab-xml', doc.node_name
   end
 
   def test_set_node_name_no_extension

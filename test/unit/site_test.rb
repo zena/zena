@@ -203,8 +203,8 @@ class SiteTest < Zena::Unit::TestCase
   end
 
   def test_attributes_for_form
-    assert Site.attributes_for_form[:bool].include?(:authentication)
-    assert Site.attributes_for_form[:text].include?(:default_lang)
+    assert Site.attributes_for_form[:bool].include?('authentication')
+    assert Site.attributes_for_form[:text].include?('default_lang')
   end
 
   def test_find_by_host

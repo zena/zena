@@ -5,9 +5,9 @@ class DocumentTest < Zena::Unit::TestCase
 
   context 'Finding class from content_type' do
     should 'return self on unknown content_type' do
-      class FooDoc < Document
+      class Dummy < Document
       end
-      assert_equal FooDoc, FooDoc.document_class_from_content_type('zorglub')
+      assert_equal Dummy, Dummy.document_class_from_content_type('zorglub')
     end
 
     should 'return Image on image types' do
@@ -224,7 +224,7 @@ class DocumentTest < Zena::Unit::TestCase
 
       context 'with existing node_name' do
         should 'save node_name and title with increment' do
-          assert subject.update_attributes(:node_name => 'flower')
+          assert subject.update_attributes(:title => 'flower', :v_status => Zena::Status[:pub])
           assert_equal 'flower-1', subject.node_name
           assert_equal 'flower-1', subject.title
         end
@@ -270,8 +270,8 @@ class DocumentTest < Zena::Unit::TestCase
           assert_match /bird\.jpg$/, subject.filepath
         end
 
-        should 'change document node_name' do
-          subject.update_attributes(:title => 'hopla')
+        should 'change document node_name on publish' do
+          subject.update_attributes(:title => 'hopla', :v_status => Zena::Status[:pub])
           assert_equal 'hopla', subject.node_name
         end
 
@@ -365,44 +365,43 @@ class DocumentTest < Zena::Unit::TestCase
     end
   end # With a logged in user
 
-  context 'On destroy' do
+  context 'Destroying a document' do
     setup do
       login(:tiger)
     end
-    context 'a document' do
 
-      subject{ secure!(Document){ Document.find(nodes(:water_pdf))} }
+    subject do
+      secure!(Node) { nodes(:water_pdf) }
+    end
 
-      should 'destroy version from database' do
-        assert_difference('Version.count', -1) do
-          subject.destroy
-        end
-      end
-
-      should 'destroy attachment from database' do
-        assert_difference('Attachment.count', -1) do
-          subject.destroy
-        end
-      end
-
-      should 'destroy file from file system' do
-        filepath = subject.filepath
+    should 'destroy version from database' do
+      assert_difference('Version.count', -1) do
         subject.destroy
-        assert !File.exist?(filepath)
       end
-    end # a document
+    end
 
-    context 'an updated file' do
-      setup do
-        subject.update_attributes(:file=>uploaded_text('some.txt'))
-        assert_equal 'some.txt', subject.filename
-        assert_match /some.txt/, subject.filepath
+    should 'destroy attachment from database' do
+      assert_difference('Attachment.count', -1) do
+        subject.destroy
       end
+    end
 
-      should 'destroy the second file' do
+    # should 'destroy file from file system'
+    # Moved to Attachment test (no transactional fixtures)
 
-      end
-    end # an updated file
+    # ???
+    # context 'an updated file' do
+    #   setup do
+    #     subject.update_attributes(:file => uploaded_text('some.txt'))
+    #     deb subject.filepath
+    #     assert_equal 'some.txt', subject.filename
+    #     assert_match /some.txt/, subject.filepath
+    #   end
+    #
+    #   should 'destroy the second file' do
+    #     # ??
+    #   end
+    # end # an updated file
 
 
     context 'with many version' do
@@ -425,5 +424,5 @@ class DocumentTest < Zena::Unit::TestCase
         end
       end
     end # with many versions
-  end # On destroy
+  end # Destroying a document
 end

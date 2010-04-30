@@ -222,7 +222,7 @@ class Document < Node
 
     def set_defaults_from_file
       return unless @new_file
-      self.content_type = @new_file.content_type
+      self.content_type = @new_file.content_type unless prop.content_type_changed?
 
       if base = node_name || title || @new_file.original_filename
         if base =~ /(.*)\.(\w+)$/
@@ -233,10 +233,11 @@ class Document < Node
       end
     end
 
-    # Make sure node_name is unique
-    def node_before_validation
-      get_unique_node_name_in_scope('ND%')
+    # Make sure node_name is unique. This should be run after sync_node_name, this is why we
+    # hack around the name and use super.
+    def sync_node_name
       super
+      get_unique_node_name_in_scope('ND%')
     end
 
     def get_extension
@@ -245,7 +246,7 @@ class Document < Node
         (prop['ext'] && extensions.include?(prop['ext'].downcase)) ? self.prop['ext'].downcase : extensions[0]
       elsif @new_file
         # unknown content_type or 'application/octet-stream', just keep the extension we have
-        if new_file.original_filename =~ /\w\.(\w+)$/
+        if @new_file.original_filename =~ /\w\.(\w+)$/
           $1.downcase
         else
           'bin'

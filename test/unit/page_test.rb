@@ -36,11 +36,11 @@ class PageTest < Zena::Unit::TestCase
     end
   end
 
-  def test_update_same_node_name 
+  def test_update_same_node_name
     login(:tiger)
     node = secure!(Node) { nodes(:cleanWater) }
-    node.node_name = 'wiki'
-    assert ! node.save, 'Cannot save'
+    # publish so that we change node_name and check uniqueness
+    assert !node.update_attributes('title' => 'wiki', :v_status => Zena::Status[:pub])
     assert_equal 'has already been taken', node.errors[:node_name]
   end
 

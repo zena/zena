@@ -24,13 +24,13 @@ class AttachmentTest< ActiveSupport::TestCase
       end
 
       should 'stat file size' do
-        preserving_files("test.host/data") do
+        preserving_files('test.host/data') do
           assert_equal 29279, subject.size
         end
       end
 
       should 'create an attachment' do
-        preserving_files("test.host/data") do
+        preserving_files('test.host/data') do
           assert_difference('Attachment.count', 1) do
             subject
           end
@@ -38,13 +38,13 @@ class AttachmentTest< ActiveSupport::TestCase
       end
 
       should 'use visitor as owner for attachment' do
-        preserving_files("test.host/data") do
+        preserving_files('test.host/data') do
           assert_equal users_id(:tiger), subject.version.attachment.user_id
         end
       end
 
       should 'set site_id on attachment' do
-        preserving_files("test.host/data") do
+        preserving_files('test.host/data') do
           assert_equal sites_id(:zena), subject.version.attachment.site_id
         end
       end
@@ -89,7 +89,7 @@ class AttachmentTest< ActiveSupport::TestCase
         end
 
         should 'update attachment' do
-          preserving_files("test.host/data") do
+          preserving_files('test.host/data') do
             assert_difference('Attachment.count', 0) do
               assert subject.update_attributes(:file => uploaded_pdf('water.pdf'))
             end
@@ -97,7 +97,7 @@ class AttachmentTest< ActiveSupport::TestCase
         end
 
         should 'update size' do
-          preserving_files("test.host/data") do
+          preserving_files('test.host/data') do
             subject.update_attributes(:file => uploaded_pdf('water.pdf'))
             assert_equal 29279, subject.file.size
           end
@@ -117,7 +117,7 @@ class AttachmentTest< ActiveSupport::TestCase
         end
 
         should 'create a new attachment on file change' do
-          preserving_files("test.host/data") do
+          preserving_files('test.host/data') do
             login(:ant)
             visitor.lang = 'en'
             node = secure!(Node) { nodes(:forest_pdf) }
@@ -128,6 +128,25 @@ class AttachmentTest< ActiveSupport::TestCase
         end
       end # with many versions
     end # updating a document
+
+
+    context 'Destroying a document' do
+      setup do
+        login(:tiger)
+      end
+
+      subject do
+        secure!(Node) { nodes(:water_pdf) }
+      end
+
+      should 'destroy file from file system' do
+        preserving_files('test.host/data') do
+          filepath = subject.filepath
+          subject.destroy
+          assert !File.exist?(filepath)
+        end
+      end
+    end # Destroying a document
   end # With a logged in visitor
 
   # ====================================================== Image tests
