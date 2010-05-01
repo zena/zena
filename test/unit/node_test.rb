@@ -1043,7 +1043,7 @@ done: \"I am done\""
     assert_equal node_changes, Note.allowed_change_to_classes.reject{|k| k[/Dummy/]}
     assert_equal node_changes, Reference.allowed_change_to_classes.reject{|k| k[/Dummy/]}
 
-    assert_equal %w{Document TextDocument Template}, Document.allowed_change_to_classes.reject{|k| k[/Dummy|/]}
+    assert_equal %w{Document TextDocument Template}, Document.allowed_change_to_classes.reject{|k| k[/Dummy/]}
 
     assert_equal ["Image"], Image.allowed_change_to_classes.reject{|k| k[/Dummy/]}
 

@@ -194,7 +194,7 @@ class SiteTest < Zena::Unit::TestCase
   def test_site_attributes
     login(:lion)
     site = sites(:zena)
-    assert site.update_attributes(:d_recaptcha_pub => "something", :d_recaptcha_priv => "anything else")
+    assert site.update_attributes(:recaptcha_pub => "something", :recaptcha_priv => "anything else")
     site = sites(:zena)
     assert_equal "something", site.prop['recaptcha_pub']
     assert_equal "something", site.prop['recaptcha_pub']

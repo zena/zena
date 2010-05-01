@@ -4,7 +4,7 @@ module Zena
       module Common
 
         # This is like strftime but with better support for i18n (translate day names, month abbreviations, etc)
-        def format_date(thedate, theformat = nil, tz_name=nil, lang=visitor.lang)
+        def format_date(thedate, theformat = nil, tz_name=nil, lang = nil)
           format = theformat || '%Y-%m-%d %H:%M:%S'
           return "" unless thedate
           if tz_name
@@ -17,6 +17,7 @@ module Zena
           else
             tz = visitor.tz
           end
+
           if thedate.kind_of?(Time)
             utc_date = thedate
             adate = tz.utc_to_local(thedate)
@@ -38,7 +39,7 @@ module Zena
           # with_locale(lang) do
           # ...
           # end
-          if visitor.lang != lang
+          if lang
             ::I18n.locale = lang
           end
 
@@ -91,7 +92,8 @@ module Zena
           format.gsub!("%a", _(adate.strftime("%a")) )
           format.gsub!("%A", _(adate.strftime("%A")) )
 
-          if visitor.lang != lang
+          if lang
+            # Restore
             ::I18n.locale = visitor.lang
           end
 
@@ -141,36 +143,6 @@ module Zena
           # TODO: timezone for @date ?
           # .to_utc(_('datetime'), visitor.tz)
           @main_date ||= params[:date] ? DateTime.parse(params[:date]) : DateTime.now
-        end
-
-        # display the time with the format provided by the translation of 'long_time'
-        def long_time(atime)
-          format_date(atime, _("long_time"))
-        end
-
-        # display the time with the format provided by the translation of 'short_time'
-        def short_time(atime)
-          format_date(atime, _("short_time"))
-        end
-
-        # display the time with the format provided by the translation of 'full_date'
-        def full_date(adate)
-          format_date(adate, _("full_date"))
-        end
-
-        # display the time with the format provided by the translation of 'long_date'
-        def long_date(adate)
-          format_date(adate, _("long_date"))
-        end
-
-        # display the time with the format provided by the translation of 'short_date'
-        def short_date(adate)
-          format_date(adate, _("short_date"))
-        end
-
-        # format a date with the given format. Translate month and day names.
-        def tformat_date(thedate, fmt)
-          format_date(thedate, _(fmt))
         end
       end # ViewMethods
 

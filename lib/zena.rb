@@ -44,10 +44,6 @@ module Zena
     def include_modules
       ActionController::Routing::RouteSet::Mapper.send :include, Zena::Routes
 
-      if ActiveRecord::Base.configurations[RAILS_ENV]['adapter'] == 'mysql'
-        # This has to come first
-        Zena::Fix::MysqlConnection
-      end
 
       # FIXME: make this explicit in models
       ActiveRecord::Base.send :include, Zena::Acts::Secure
@@ -181,6 +177,7 @@ module Zena
 
       add_load_paths(config)
       config_gems(config)
+
       load_plugins if RAILS_ROOT != Zena::ROOT
       include_modules
       load_bricks

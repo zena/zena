@@ -43,10 +43,10 @@ class NodeNameTest < Zena::Unit::TestCase
           assert_equal 'people', subject.node_name
         end
 
-        should 'sync and increase node_name with title on publish' do
+        should 'set an error on node_name with title on publish' do
           assert subject.update_attributes(:title => 'nice people')
-          assert subject.publish
-          assert_equal 'nicePeople-1', subject.node_name
+          assert !subject.publish
+          assert_equal subject.errors[:node_name], 'has already been taken'
         end
       end # with another node with same node_name
     end # on a node

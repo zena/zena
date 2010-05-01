@@ -1,1 +1,1 @@
-require 'after_commit'
+#require 'after_commit'

@@ -1,14 +1,10 @@
 require 'test_helper'
 
 class DatesViewMethodsTest < Zena::View::TestCase
-  include Zena::Use::Dates::ViewMethods
-  include Zena::Use::Refactor::ViewMethods # fquote
-  include Zena::Use::I18n::ViewMethods # _
 
   def setup
-    super
-    I18n.locale = 'en'
-    visitor.time_zone = 'UTC'
+    login(:anon)
+    visiting(:status)
   end
 
   def test_long_time
@@ -41,10 +37,10 @@ class DatesViewMethodsTest < Zena::View::TestCase
   end
 
   def test_full_date
-    I18n.locale = 'en'
+    visitor.lang = ::I18n.locale = 'en'
     atime = visitor.tz.utc_to_local(Time.gm(2006,11,10))
     assert_equal "Friday, November 10 2006", full_date(atime)
-    ::I18n.locale = 'fr'
+    visitor.lang = ::I18n.locale = 'fr'
     assert_equal "vendredi, 10 novembre 2006", full_date(atime)
   end
 
