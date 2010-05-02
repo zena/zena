@@ -1,6 +1,10 @@
 module Zena
   module Use
+    # On load this module changes ENV['LANG'] to 'C' in order to behave consitently without
+    # strange bugs when the locale is changed.
     module I18n
+      ::ENV['LANG'] = 'C'
+
       module Common
 
         def format_date(thedate, theformat = nil, tz_name=nil, lang=visitor.lang)
