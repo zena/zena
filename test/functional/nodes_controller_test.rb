@@ -2,6 +2,88 @@ require 'test_helper'
 
 class NodesControllerTest < Zena::Controller::TestCase
 
+  def get_subject
+    without_files('/test.host/zafu') do
+      get subject.delete(:action), subject
+      if block_given?
+        yield
+      end
+    end
+  end
+
+  context 'An anonymous user' do
+    setup do
+      login(:anon)
+    end
+
+    context 'visiting index page' do
+      subject do
+        {:action => 'index', :controller => 'nodes', :prefix => ''}
+      end
+
+      should 'recognize index page' do
+        assert_recognizes subject, '/'
+      end
+
+      should 'redirect to lang' do
+        get_subject
+        assert_redirected_to '/en'
+      end
+
+      context 'with lang' do
+        subject do
+          {:action => 'index', :controller => 'nodes', :prefix => 'en'}
+        end
+
+        should 'recognize index page' do
+          assert_recognizes subject, '/en'
+        end
+
+        should 'succeed' do
+          get_subject
+          assert_response :success
+        end
+      end # with lang
+    end # visiting index page
+  end # An anonymous user
+
+  context 'A user' do
+    setup do
+      login(:tiger)
+    end
+
+    context 'visiting index page' do
+      subject do
+        {:action => 'index', :controller => 'nodes', :prefix => ''}
+      end
+
+      should 'recognize index page' do
+        assert_recognizes subject, '/'
+      end
+
+      should 'redirect to AUTHENTICATED_PREFIX' do
+        get_subject
+        assert_redirected_to "/#{AUTHENTICATED_PREFIX}"
+      end
+
+      context 'with AUTHENTICATED_PREFIX' do
+        subject do
+          {:action => 'index', :controller => 'nodes', :prefix => AUTHENTICATED_PREFIX}
+        end
+
+        should 'recognize index page' do
+          assert_recognizes subject, "/#{AUTHENTICATED_PREFIX}"
+        end
+
+        should 'succeed' do
+          get_subject
+          assert_response :success
+        end
+      end # with lang
+    end # visiting index page
+  end # A user
+
+
   def test_foo
     assert_generates '/en/img.jpg?1234', :controller => :nodes, :action => :show, :prefix => 'en', :path => ["img.jpg"], :cachestamp => '1234'
     assert_recognizes(
@@ -9,87 +91,6 @@ class NodesControllerTest < Zena::Controller::TestCase
       '/en/img.jpg?1234'
     )
   end
-  
-  context 'With a logged in visitor' do
-    setup do
-      login(:tiger)
-    end
-
-    context 'a version' do
-      subject do
-        versions(:status_en)
-      end
-
-      context 'receiving author' do
-        should 'return a Contact' do
-          assert_kind_of Contact, subject.author
-        end
-
-        should 'return the contact node of the author' do
-          assert_equal nodes_id(:ant), subject.author[:id]
-        end
-      end # receiving author
-
-      # Workflow testing....
-      should 'ignore workflow attributes on edited' do
-        subject.attributes = {'title' => 'status title', 'publish_from' => Time.now}
-        assert subject.changed?
-        assert !subject.edited?
-      end
-
-      should 'use properties on edited' do
-        subject.attributes = {'title' => 'Foo title'}
-        assert subject.changed?
-        assert subject.edited?
-      end
-
-
-      def test_edited
-        v = versions(:zena_en)
-        assert !v.edited?
-        v.status = 999
-        assert !v.edited?
-        v.title = 'new title'
-        assert v.edited?
-      end
-
-    end # a version
-
-
-    context 'a redaction' do
-      subject do
-        versions(:opening_red_fr)
-      end
-    end # a redaction
-
-    context 'on node creation' do
-      context 'setting an invalid v_lang' do
-        setup do
-          @node = secure!(Page) { Page.create(:v_lang => 'io', :parent_id => nodes_id(:status), :node_name => 'hello')}
-        end
-
-        should 'not create record if lang is not allowed' do
-          assert @node.new_record?
-        end
-
-        should 'return an error on v_lang' do
-          assert @node.errors[:v_lang].any?
-        end
-      end
-
-      context 'setting a valid v_lang' do
-        subject do
-          @node = secure!(Page) { Page.create(:v_lang => 'de', :parent_id => nodes_id(:status), :node_name => 'hello')}
-        end
-  
-        should 'change visitor lang' do
-          assert_equal 'en', visitor.lang
-          subject
-          assert_equal 'de', visitor.lang
-        end
-      end # setting a valid v_lang
-    end # on node creation
-  end # With a logged in visitor
 
   def test_should_get_document_data
     login(:tiger)

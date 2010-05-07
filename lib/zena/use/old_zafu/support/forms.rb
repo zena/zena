@@ -87,11 +87,6 @@ module Zafu
         end
       end
 
-      def r_form_tag
-        # replace <form> with constructed form
-        "#{@context[:form_tag]}#{expand_with(:form_tag => nil)}</form>"
-      end
-
       # <r:checkbox role='collaborator_for' values='projects' in='site'/>"
       # TODO: implement checkbox in the same spirit as 'r_select'
       def r_checkbox

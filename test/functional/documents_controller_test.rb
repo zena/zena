@@ -1,3 +1,46 @@
+require 'test_helper'
+
+class DocumentsControllerTest < Zena::Controller::TestCase
+
+  def get_subject
+    without_files('/test.host/zafu') do
+      get subject.delete(:action), subject
+      if block_given?
+        yield
+      end
+    end
+  end
+
+  context 'An anonymous user' do
+    setup do
+      login(:anon)
+    end
+
+    context 'uploading a document' do
+      subject do
+        {:action => 'new', :controller => 'documents', :parent_id => nodes_zip(:zena)}
+      end
+
+      should 'recognize url' do
+        hash = subject
+        hash.delete(:parent_id)
+        assert_recognizes hash, "/documents/new"
+      end
+
+      should 'render a form' do
+        get_subject
+        assert_response :success
+      end
+    end # uploading a document
+  end # An anonymous user
+
+  context 'A user' do
+    setup do
+      login(:tiger)
+    end
+  end # A user
+end
+
 =begin
 require 'test_helper'
 
@@ -5,7 +48,7 @@ class DocumentsControllerTest < Zena::Controller::TestCase
 
   def test_create_master_template
     login(:tiger)
-    post 'create', "node"=>{"klass"=>"Template", "name"=>"", "c_format"=>"", "c_mode"=>"tree", "c_klass"=>"Node", "summary"=>"", "parent_id"=>nodes_zip(:default)}
+    post 'create', "node"=>{"klass"=>"Template", "name"=>"", "c_format"=>"", "mode"=>"tree", "target_klass"=>"Node", "summary"=>"", "parent_id"=>nodes_zip(:default)}
     assert_redirected_to :action => 'show'
     assert_kind_of Template, assigns(:node)
     assert_equal 'Node-tree', assigns(:node).name
@@ -13,7 +56,7 @@ class DocumentsControllerTest < Zena::Controller::TestCase
 
   def test_create_template
     login(:tiger)
-    post 'create', "node"=>{"klass"=>"Template", "name"=>"lister", "c_format"=>"", "c_mode"=>"", "c_klass"=>"", "summary"=>"", "parent_id"=>nodes_zip(:default)}
+    post 'create', "node"=>{"klass"=>"Template", "name"=>"lister", "c_format"=>"", "mode"=>"", "target_klass"=>"", "summary"=>"", "parent_id"=>nodes_zip(:default)}
     assert_redirected_to :action => 'show'
     assert_kind_of Template, assigns(:node)
     assert_equal 'lister', assigns(:node).name

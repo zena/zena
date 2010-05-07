@@ -142,7 +142,7 @@ module Zena
         else
           @context = context
         end
-        @result  = ""
+        @result  = ''
         return @result unless before_render
         @pass    = {} # used to pass information to the parent
         res = nil

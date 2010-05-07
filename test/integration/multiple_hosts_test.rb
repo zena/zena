@@ -1,8 +1,11 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
 
 class MultipleHostsTest < ActionController::IntegrationTest
-  include Zena::Test::Base
-  fixtures :nodes, :versions, :users, :groups_users
+  # Maybe we can remove all these includes...
+  include Zena::Use::Fixtures
+  include Zena::Use::TestHelper
+  include Zena::Acts::Secure
+  include ::Authlogic::TestCase
 
   def test_visitor_host
     anon.get_node(:wiki)

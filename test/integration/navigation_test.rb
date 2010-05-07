@@ -1,7 +1,11 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
 
 class NavigationTest < ActionController::IntegrationTest
-  #include Zena::Test::Base
+  # Maybe we can remove all these includes...
+  include Zena::Use::Fixtures
+  include Zena::Use::TestHelper
+  include Zena::Acts::Secure
+  include ::Authlogic::TestCase
 
   def test_authorize
     get 'http://test.host/'

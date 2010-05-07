@@ -197,7 +197,7 @@ module Zena
 
         # Return the path of a template for the given skin, mode and format. Compiles the zafu template if needed.
         def template_url(opts={})
-          @skin     = opts[:skin] || @node.skin
+          @skin     = opts[:skin] || @node.skin || @node.parent.skin
           mode      = opts[:mode]
           format    = opts[:format] || 'html'
           klass     = @node.vclass

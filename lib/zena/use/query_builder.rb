@@ -111,7 +111,7 @@ module Zena
           def get_finder(query, count)
             query_string   = query.to_s(count == :count ? :count : :find)
             uses_node_name = query_string =~ /#{@node_name}\./
-            "#{@node_name}.do_find(#{count.inspect}, #{query_string}, #{uses_node_name}, #{query.main_class})"
+            "#{@node_name}.do_find(#{count.inspect}, #{query_string}, #{uses_node_name ? 'true' : 'false'}, #{query.main_class})"
           end
 
           # Returns :all, :first or :count depending on the parameters and some introspection in the zafu tree
@@ -144,13 +144,7 @@ module Zena
               parts[-1] << " in #{params[:in]}"
             end
 
-            if group = params[:group]
-              parts[-1] << " group by #{group}" unless parts[0] =~ /group by/
-            end
-
-            if order = params[:order]
-              parts[-1] << " order by #{order}" unless parts[0] =~ /order by/
-            end
+            # [limit num(,num)] [offset num] [paginate key] [group by GROUP_CLAUSE] [order by ORDER_CLAUSE]
 
             if paginate = params[:paginate]
               page_size = params[:limit].to_i
@@ -162,6 +156,15 @@ module Zena
                 parts[-1] << " #{k} #{params[k]}" unless parts[0] =~ / #{k} /
               end
             end
+
+            if group = params[:group]
+              parts[-1] << " group by #{group}" unless parts[0] =~ /group by/
+            end
+
+            if order = params[:order]
+              parts[-1] << " order by #{order}" unless parts[0] =~ /order by/
+            end
+
 
             finders = [parts.join(' from ')]
             if params[:or]

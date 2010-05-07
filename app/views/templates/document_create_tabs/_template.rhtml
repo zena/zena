@@ -1,5 +1,5 @@
 <%= form_tag( documents_path ) %>
-<%= hidden_field 'node', 'parent_id', :value=>@node.parent_zip  %>
+<%= hidden_field 'node', 'parent_id', :value => @node.parent_zip  %>
 <p class="btn_validate"><input type="submit" onclick="$('loader').style.visibility = 'visible';" value='<%= _('validate') %>'/></p>
 
 <input type='hidden' name='node[klass]' value='Template'/>
@@ -7,14 +7,14 @@
 <label for='node_name'><%= _('name') %></label>
 <input  id='node_name' type='text' name='node[node_name]'/><br/>
 
-<label for='node_c_klass'><%= _('class scope') %></label>
-<%= select('node', 'c_klass', Node.classes_for_form, {:include_blank => true} ) %><br/>
+<label for='node_target_klass'><%= _('class scope') %></label>
+<%= select('node', 'target_klass', Node.classes_for_form, {:include_blank => true} ) %><br/>
 
-<label for='node_c_mode'><%= _('mode') %></label>
-<input  id='node_c_mode' type='text' name='node[c_mode]'/><br/>
+<label for='node_mode'><%= _('mode') %></label>
+<input  id='node_mode' type='text' name='node[mode]'/><br/>
 
 <label for='node_format'><%= _('format') %></label>
-<input  id='node_format' type='text' name='node[c_format]' value='html'/><br/>
+<input  id='node_format' type='text' name='node[format]' value='html'/><br/>
 
 <label   for='node_summary'><%= _('summary') %></label>
 <textarea id='node_summary' rows='3' name='node[summary]'></textarea><br/>

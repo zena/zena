@@ -33,3 +33,7 @@ optional_hash:
   src: "<r:dummy do='hello' lang='fr'/>"
   tem: "<% if var1 = @node.dummy -%><%= var1.hello({:lang=>\"fr\"}) %><% end -%>"
   res: "Salut poilu!"
+
+build_query:
+  src: "<div id='notes' do='notes' in='project' limit='10' order='log_at DESC'>"
+  tem: "/SELECT nodes\.\* FROM nodes/"

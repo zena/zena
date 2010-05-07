@@ -344,7 +344,7 @@ namespace :zena do
   # do not change the order in which these elements are loaded (adding 'lib/**/test/*_test.rb' fails)
   tests = ['test/helpers/**/*_test.rb', 'test/unit/**/*_test.rb',
            'lib/parser/test/*_test.rb', 'lib/query_builder/test/*_test.rb',
-           'test/functional/*_test.rb', #'test/integration/*_test.rb',
+           'test/functional/*_test.rb', 'test/integration/*_test.rb',
            'bricks/**/test/unit/*_test.rb', 'bricks/**/test/functional/*_test.rb',
            'bricks/**/test/integration/*_test.rb'].map {|p| "#{Zena::ROOT}/#{p}"}
 
