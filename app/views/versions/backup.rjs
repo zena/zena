@@ -1,5 +1,5 @@
 if @errors || !@node.errors.empty?
-  page.replace_html "form_errors", :inline => @errors ? render_errors : error_messages_for(@node)
+  page.replace_html "form_errors", :inline => @errors ? render_errors : error_messages_for(:node, :object => @node)
 else
   page << "try {"
   page.replace_html 'original_caution', :inline=>""

@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="en" set_lang='[v_lang]' xml:lang='en'>
+<head do='void' name='head'>
+  <title do='title_for_layout' do='show' attr='title' name='page_title'>page title</title>
+  <link href='favicon_tiny.png' rel='shortcut icon' type='image/png' />
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+  <r:void name='stylesheets'>
+    <r:stylesheets media='all' list='reset,zena,code'/>
+    <link href="style.css" rel="Stylesheet" type="text/css"/>
+  </r:void>
+
+  <r:javascripts/>
+  <r:uses_datebox/>
+</head>
+
+<body do='void' name='body'>
+  <div id='top' do='root' do='link'/>
+  <div id='header'>
+    <div id='login' do='login_link'/>
+    <div id='visitor' do='visitor_link'/>
+    <div id='search' do='search_box' type='search'/>
+    <ol id='menu' do='root' do='pages'>
+      <li do='each' on_if_node='ancestor' do='link'/>
+    </ol>
+  </div>
+  <div id='container'>
+    <div id='title'>
+      <h1 do='title' actions='all'/>
+      <div class='summary' do='summary'/>
+    </div>
+    <div id='context'>
+      <r:parent>
+        <h3 do='link'/>
+        <ol do='pages'>
+          <li do='each' do='link'/>
+          <li do='add'/>
+          <li class='inline_form' do='form'>
+            <ol>
+              <li><r:select name='klass' root_class='Page'/></li>
+              <li><input type='text' name='title' value=''/></li>
+              <li class='validate'><input type="submit" value='validate' tset_value='validate'/></li>
+            </ol>
+          </li>
+        </ol>
+      </r:parent>
+    </div>
+    <div id='content'>
+      <div id='related'>
+        <r:documents name='documents'><h3 do='trans'>documents</h3>
+          <ol>
+            <li do='each' do='if' can='write'>
+              <r:link><r:img mode='tiny'/> <r:show attr='title'/>.<r:show attr='ext'/></r:link>
+              <r:else>
+                <r:link format='data'><r:img mode='tiny'/> <r:show attr='title'/>.<r:show attr='ext'/></r:link>
+              </r:else>
+            </li>
+            <li do='add_document'></li>
+          </ol>
+        </r:documents>
+        <r:pages name='pages'><h3 do='trans'>pages</h3>
+          <ol>
+            <li do='each' set_class='li_s[v_status]' do='link'/>
+            <li do='add' before='self'/>
+            <li class='inline_form' do='form'>
+              <p class='node_klass'>  <r:select name='klass' root_class='Page'/></p>
+              <p class='node_title'><input type='text' name='title' value=''/></p>
+              <p class='btn_validate'><input type="submit" value='validate' tset_value='validate'/></p>
+            </li>
+          </ol>
+        </r:pages>
+        <r:references name='references'><h3 do='trans'>references</h3>
+          <ol>
+            <li do='each' set_class='li_s[v_status]' do='link'/>
+            <li do='add' before='self'/>
+            <li class='inline_form' do='form'>
+              <p class='node_klass'>  <r:select name='klass' root_class='Reference'/></p>
+              <p class='node_title'><input type='text' name='title' value=''/></p>
+              <p class='btn_validate'><input type="submit" value='validate' tset_value='validate'/></p>
+            </li>
+          </ol>
+        </r:references>
+
+      </div>
+      <div id='main'>
+        <r:text/>
+      </div> <!-- main -->
+      <div class='clear'>&nbsp;</div>
+    </div> <!-- content -->
+    <div class='clear'>&nbsp;</div>
+  </div> <!-- container -->
+  <div id='footer'><r:zena type='garden'/></div>
+</body>
+
+</html>

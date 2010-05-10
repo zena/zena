@@ -2,7 +2,7 @@ if params[:dom_id]
   update_page_content(page, @node)
 else
   if @errors || !@node.errors.empty?
-    page.replace_html 'link_errors', :inline=> @errors ? render_errors : error_messages_for(@node)
+    page.replace_html 'link_errors', :inline=> @errors ? render_errors : error_messages_for(:node, :object => @node)
   else
     page.replace_html 'link_errors', :inline=>''
     page.visual_effect :highlight, "link#{@link[:id]}", :duration => 0.3

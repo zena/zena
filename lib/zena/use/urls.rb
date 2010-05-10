@@ -239,7 +239,7 @@ module Zena
             link = ::RubyLess.translate(method, self)
 
 
-            markup.set_dyn_params(:href => "<%= #{link} %>")
+            markup.set_dyn_param(:href, "<%= #{link} %>")
             markup.wrap text_for_link
 =begin
             query_params = options[:query_params] || {}

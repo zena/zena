@@ -83,3 +83,11 @@ anchor_in_link:
 anchor_tag:
   src: "<r:anchor/> <r:anchor anchor='#{name}'/>"
   res: "<a class='anchor' name='node22'></a> <a class='anchor' name='status'></a>"
+
+live_with_show:
+  src: "<r:title live='true'/>"
+  res: "<span id='_title22'>status title</span>"
+
+live_with_zazen:
+  src: "<r:zazen attr='text' live='true'/>"
+  res: "<div id='_text22'><p>status text</p></div>"

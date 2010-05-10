@@ -175,17 +175,6 @@ module Zena
             res = show_string("#{method}.to_s")
           end
 
-
-          if @params[:live] == 'true'
-            erb_id = "_#{@params[:attr]}<%= #{node}.zip %>"
-            if !@markup.tag || @markup.has_param?(:id) || @out_post != ''
-              # Do not overwrite id or use span if we have post content (actions) that would disappear on live update.
-              res = "<span id='#{erb_id}'>#{res}</span>"
-            else
-              @markup.set_dyn_params(:id => erb_id)
-            end
-          end
-
           res
         end
 
@@ -225,6 +214,16 @@ module Zena
           "<% if @title_for_layout -%><%= @title_for_layout %><% elsif @node && !@node.new_record? -%><%= @node.rootpath %><% elsif @node.parent -%><%= @node.parent.rootpath %><% else -%>" +
           expand_with +
           "<% end -%>"
+        end
+
+        # Show html to add open a popup window to add a document.
+        # TODO: inline ajax for upload ?
+        def r_add_document
+          return parser_error("only works with nodes (not with #{node.klass})") unless node.will_be?(Node)
+          @markup.append_param(:class, 'btn_add')
+          node = self.node.list_context? ? self.node.up : self.node
+          res = "<a href='/documents/new?parent_id=<%= #{node}.zip %>' onclick='uploader=window.open(\"/documents/new?parent_id=<%= #{node}.zip %>\", \"upload\", \"width=400,height=300\");return false;'>#{_('btn_add_doc')}</a>"
+          "<% if #{node}.can_write? -%>#{@markup.wrap(res)}<% end -%>"
         end
 
         # Find icon through a relation named 'icon' or use first image child

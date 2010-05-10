@@ -13,7 +13,7 @@ if params[:dom_id] && !params[:t_url]
 elsif upd = params[:drive]
   if ['parent', 'dates', 'groups', 'links'].include?(upd)
     if @errors || !@node.errors.empty?
-      page.replace_html "#{upd}_errors", :inline => @errors ? render_errors : error_messages_for(@node)
+      page.replace_html "#{upd}_errors", :inline => @errors ? render_errors : error_messages_for(:node, :object => @node)
     else
       page.replace upd, :partial => upd
       page.replace 'messages', :inline => flash_messages

@@ -691,16 +691,6 @@ date:
   src: "<r:date select='[log_at]'>nouvelles de <r:trans do='[current_date]' format='%B'/> <r:show date='current_date' format='%Y'/>: <r:notes in='site' log='month' do='each' join=', ' do='[name]'/></r:date>"
   res: "nouvelles de avril 2006: letter"
 
-add_document:
-  src: "<r:add_document/>"
-  res: "/<a href='/documents/new\?parent_id=22' onclick='uploader=window.open\(\"/documents/new\?parent_id=22.*images/picture_add.png/"
-
-cannot_add_document:
-  context:
-    visitor: 'anon'
-  src: "__<r:add_document/>__"
-  res: "____"
-
 recursion:
   src: "<r:void name='grp'><r:show attr='node_name'/><r:parent> -- <r:include part='grp'/></r:parent></r:void>"
   res: "status -- cleanWater -- projects -- zena"

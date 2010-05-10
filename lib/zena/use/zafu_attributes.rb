@@ -10,7 +10,7 @@ module Zena
       module ZafuMethods
         def self.included(base)
           base.before_process :filter_prefix, :filter_status, :filter_property, :filter_anchor
-          base.before_wrap :add_anchor
+          base.before_wrap :add_anchor, :add_live_id
         end
 
         private
@@ -55,6 +55,22 @@ module Zena
           def add_anchor(text)
             if @anchor_tag
               @anchor_tag.wrap('') + text
+            else
+              text
+            end
+          end
+
+          def add_live_id(text)
+            if @params[:live] == 'true'
+              erb_id = "_#{@params[:attr] || @method}<%= #{node}.zip %>"
+              @markup.tag ||= @method == 'zazen' ? 'div' : 'span'
+              if @markup.has_param?(:id) || !@out_post.blank?
+                # Do not overwrite id or use span if we have post content (actions) that would disappear on live update.
+                "<#{tag} id='#{erb_id}'>#{text}</#{tag}>"
+              else
+                @markup.set_dyn_param(:id, erb_id)
+                text
+              end
             else
               text
             end

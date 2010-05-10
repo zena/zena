@@ -32,6 +32,21 @@ class DocumentsControllerTest < Zena::Controller::TestCase
         assert_response :success
       end
     end # uploading a document
+    
+    context 'viewing a document' do
+      subject do
+        {:action => 'show', :controller => 'documents', :id => nodes_zip(:bird_jpg)}
+      end
+
+      should 'recognize url' do
+        assert_recognizes subject, "/documents/#{nodes_zip(:bird_jpg)}"
+      end
+
+      should 'render a page with preview' do
+        get_subject
+        assert_response :success
+      end
+    end # uploading a document
   end # An anonymous user
 
   context 'A user' do

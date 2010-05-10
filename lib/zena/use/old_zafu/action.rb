@@ -115,15 +115,6 @@ module Zafu
       @html_tag_done = true
     end
 
-    # Show html to add open a popup window to add a document.
-    # TODO: inline ajax for upload ?
-    def r_add_document
-      return parser_error("only works with nodes (not with #{node_class})") unless node.will_be?(Node)
-      @html_tag_params[:class] ||= 'btn_add'
-      res = "<a href='/documents/new?parent_id=#{erb_node_id}' onclick='uploader=window.open(\"/documents/new?parent_id=#{erb_node_id}\", \"upload\", \"width=400,height=300\");return false;'>#{_('btn_add_doc')}</a>"
-      "<% if #{node}.can_write? -%>#{render_html_tag(res)}<% end -%>"
-    end
-
     #if RAILS_ENV == 'test'
     #  def r_test
     #    inspect

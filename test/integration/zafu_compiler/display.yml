@@ -174,4 +174,15 @@ defined_icon:
     node: wiki
   src: "<r:icon do='img'/>"
   tem: "xx"
+
+add_document:
+  src: "<r:add_document/>"
+  res: "/<a href='/documents/new\?parent_id=22' onclick='uploader=window.open\(\"/documents/new\?parent_id=22.*images/picture_add.png/"
+
+cannot_add_document:
+  context:
+    visitor: 'anon'
+  src: "<r:add_document/>"
+  res: ""
+
 # ---- fixed to here

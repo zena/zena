@@ -4,15 +4,24 @@ module Zena
   module Use
     module ZafuTemplates
       module Common
+        DEFAULT_PATH = %r{^\/?\$([\+\-\w\/]+)}
+        DEFAULT_TEMPLATES_PATH = "#{Zena::ROOT}/app/views/zafu"
 
         # Return a template's content from an url. If the url does not start with a '/', we try by replacing the
         # first element with the current skin_name and if it does not work, we try with the full url. If the url
         # start with a '/' we use the full url directly.
         def get_template_text(path, base_path)
-          return nil unless res = find_document_for_template(path, base_path)
-          doc, base_path = res
-          # text, fullpath (for recursion testing), base_path
-          return doc.text, doc.fullpath, base_path
+          if path =~ DEFAULT_PATH
+            filepath = File.join(DEFAULT_TEMPLATES_PATH, "#{$1}.zafu")
+            text = File.exist?(filepath) ? File.read(filepath) : nil
+            return text, path, base_path
+          elsif res = find_document_for_template(path, base_path)
+            doc, base_path = res
+            # text, fullpath (for recursion testing), base_path
+            return doc.text, doc.fullpath, base_path
+          else
+            nil
+          end
         end
 
         # Return the zen_path ('/en/image34.png') for an asset given its name ('img/footer.png').
@@ -99,7 +108,7 @@ module Zena
         # Return the template path without '.erb' extension in case we need to append '_form'
         # from a template's url. The expected url is of the form '/skin/Klass-mode/partial'
         def template_path_from_template_url(template_url=params[:t_url])
-          if template_url =~ /\A\.|[^\w\+\._\-\/]/
+          if template_url =~ /\A\.|[^\w\+\._\-\/\$]/
             raise Zena::AccessViolation.new("'template_url' contains illegal characters : #{template_url.inspect}")
           end
 
@@ -124,11 +133,14 @@ module Zena
         end
 
         # Default template content for a specified mode
-        def default_zafu_template(mode)
-          if mode =~ /\A\.|[^\w\+\._\-\/]/
-            raise Zena::AccessViolation.new("'mode' contains illegal characters : #{mode.inspect}")
+        def default_template_url(mode)
+          if %w{+login +index +adminLayout +popupLayout}.include?(mode)
+            "$default/Node-#{mode}"
+          elsif mode
+            raise ActiveRecord::RecordNotFound
+          else
+            "$default/Node"
           end
-          File.read(File.join(Zena::ROOT, 'app', 'views', 'templates', 'defaults', "#{mode}.zafu"))
         end
 
 
@@ -206,45 +218,45 @@ module Zena
           klasses = []
           klass.kpath.split(//).each_index { |i| klasses << klass.kpath[0..i] }
 
-          if mode && mode[0..0] == '+'
-            # Only search all skins for special modes ?
-            # FIXME: remove this when we have rescue laoding in place
-            template = secure(Template) { Template.find(:first,
-              :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ? AND template_indices.node_id = nodes.id", klasses, format, mode],
-              :from       => "nodes, template_indices",
-              :select     => "nodes.*, (template_indices.skin_id = #{@skin.id}) AS skin_ok",
-              :order      => "length(tkpath) DESC, skin_ok DESC"
-            )}
-
-            if template && template.skin_id != @skin.id
-              @skin = template.skin
-            end
-
-          else
-            template = secure(Template) { Template.find(:first,
+          if template = secure(Template) { Template.find(:first,
               :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ? AND template_indices.node_id = nodes.id AND template_indices.skin_id = ?", klasses, format, mode, @skin.id],
               :from       => "nodes, template_indices",
               :select     => "nodes.*",
               :order      => "length(tkpath) DESC"
             )}
+
+            lang_path = dev_mode? ? "dev_#{lang}" : lang
+
+            # Path as seen from zafu:
+            zafu_url  = template.fullpath.gsub(/^#{@skin.fullpath}/, @skin.node_name)
+
+            rel_path  = current_site.zafu_path + "/#{zafu_url}/#{lang_path}/_main.erb"
+            path      = SITES_ROOT + rel_path
+
+            if !File.exists?(path) || params[:rebuild]
+              rebuild_template(template, zafu_url, rel_path, dev_mode? && mode != '+popupLayout')
+            end
+
+            rel_path
+          else
+            # No template found, use a default
+
+            lang_path = dev_mode? ? "dev_#{lang}" : lang
+
+            # $default/Node
+            zafu_url = default_template_url(mode)
+
+            # File path:
+            rel_path  = current_site.zafu_path + "/#{zafu_url}/#{lang_path}/_main.erb"
+            path      = SITES_ROOT + rel_path
+
+            if !File.exists?(path)
+              rebuild_template(template, zafu_url, rel_path, dev_mode? && mode != '+popupLayout')
+            end
+
+            rel_path
           end
 
-          # FIXME use a default fixed template.
-          raise ActiveRecord::RecordNotFound unless template
-
-          lang_path = dev_mode? ? "dev_#{lang}" : lang
-
-          # Path as seen from zafu:
-          zafu_url  = template.fullpath.gsub(/^#{@skin.fullpath}/, @skin.node_name)
-
-          rel_path  = current_site.zafu_path + "/#{zafu_url}/#{lang_path}/_main.erb"
-          path      = SITES_ROOT + rel_path
-
-          if !File.exists?(path) || params[:rebuild]
-            rebuild_template(template, zafu_url, rel_path, dev_mode? && mode != '+popupLayout')
-          end
-
-          return rel_path
         end
 
         def zafu_helper
@@ -294,10 +306,12 @@ module Zena
             }
 
             # Cache loaded templates and skins
-            self.expire_with_nodes = {
-              template.fullpath => template,
-              @skin.fullpath    => @skin,
-            }
+            if template
+              self.expire_with_nodes = {
+                template.fullpath => template,
+                @skin.fullpath    => @skin,
+              }
+            end
 
             self.renamed_assets = {}
 
@@ -325,12 +339,19 @@ module Zena
               res.sub!('</body>', "<%= render_js %></body>")
             end
 
-            secure!(CachedPage) { CachedPage.create(
-              :path            => rel_path,
-              :expire_after    => nil,
-              :expire_with_ids => self.expire_with_nodes.values.map{|n| n[:id]}.uniq,
-              :node_id         => template[:id],
-              :content_data    => res) }
+            if template
+              secure!(CachedPage) { CachedPage.create(
+                :path            => rel_path,
+                :expire_after    => nil,
+                :expire_with_ids => self.expire_with_nodes.values.map{|n| n[:id]}.uniq,
+                :node_id         => template[:id],
+                :content_data    => res) }
+            else
+              # Save the default template in the current site's zafu path
+              filepath = "#{SITES_ROOT}#{rel_path}"
+              FileUtils.mkpath(File.dirname(filepath))
+              File.open(filepath, "wb+") { |f| f.write(res) }
+            end
           end
 
           def dev_box

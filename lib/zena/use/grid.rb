@@ -64,7 +64,7 @@ module Zena
           end
 
           respond_to do |format|
-            format.html { render :inline => @node.errors.empty? ? "<%= zazen(params[:value], :no_p => true) %>" : error_messages_for(@node) }
+            format.html { render :inline => @node.errors.empty? ? "<%= zazen(params[:value], :no_p => true) %>" : error_messages_for(:node, :object => @node) }
           end
         rescue JSON::ParserError
           render :inline => _('could not save value (bad attribute)')

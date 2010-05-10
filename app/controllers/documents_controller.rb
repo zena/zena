@@ -12,6 +12,7 @@ class DocumentsController < ApplicationController
   # add a new document to the current node
   def new
     @node = @parent.new_child(:class => Document)
+
     # Add Template role so that we can use the same object in forms which need the Template properties.
     @node.has_role Template
 
@@ -49,7 +50,7 @@ class DocumentsController < ApplicationController
     responds_to_parent do # execute the redirect in the iframe's parent window
       render :update do |page|
         if @node.new_record?
-          page.replace_html 'form_errors', error_messages_for(@node)
+          page.replace_html 'form_errors', error_messages_for(:node, :object => @node)
           page.call 'UploadProgress.setAsError'
         else
           page.call 'UploadProgress.setAsFinished'

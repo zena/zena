@@ -29,45 +29,6 @@ end
     assert_equal 'default/default.css', url
   end
 
-  def test_template_url_project
-    without_files('zafu') do
-      wiki = @controller.send(:secure,Node) { Node.find(nodes_id(:wiki)) }
-      assert_equal 'wiki', wiki.skin
-      @controller.instance_variable_set(:@node, wiki)
-      assert !File.exist?(File.join(Zena::ROOT, 'app/views/templates/compiled/wiki/any_project_en.rhtml')), "File does not exist"
-      assert_equal '/templates/compiled/wiki/any_project_en', @controller.send(:template_url)
-      assert File.exist?(File.join(Zena::ROOT, 'app/views/templates/compiled/wiki/any_project_en.rhtml')), "File exist"
-    end
-  end
-
-  def test_template_url_virtual_class
-    without_files('zafu') do
-      node = @controller.send(:secure,Node) { nodes(:opening) }
-      # FIXME: finish to test virtual class template_url (create fixture)
-      @controller.instance_variable_set(:@node, node)
-      assert_equal '.....', @controller.send(:template_url)
-      assert File.exist?(File.join(Zena::ROOT, '.....')), "File exist"
-    end
-  end
-
-  def test_template_url_any
-    without_files('app/views/templates/compiled') do
-      bird = @controller.send(:secure,Node) { Node.find(nodes_id(:bird_jpg)) }
-      assert_equal 'wiki', bird.skin
-      @controller.instance_variable_set(:@node, bird)
-      assert !File.exist?(File.join(Zena::ROOT, 'app/views/templates/compiled/wiki/any_en.rhtml')), "File does not exist"
-      assert_equal '/templates/compiled/wiki/any_en', @controller.send(:template_url)
-      assert File.exist?(File.join(Zena::ROOT, 'app/views/templates/compiled/wiki/any_en.rhtml')), "File exist"
-    end
-  end
-
-  def test_template_url_index
-    bird = @controller.send(:secure,Node) { Node.find(nodes_id(:bird_jpg)) }
-    assert_equal 'wiki', bird.skin
-    @controller.instance_variable_set(:@node, bird)
-    assert_equal '/templates/fixed/default/any__index', @controller.send(:template_url, :mode=>'index')
-  end
-
   def test_class_skin
     proj = @controller.send(:secure,Node) { Node.find(nodes_id(:cleanWater)) }
     assert_equal 'default', proj.skin

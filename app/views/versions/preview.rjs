@@ -1,9 +1,9 @@
-key = "#{@key}#{@node[:zip]}"
+key = "_#{@key}#{@node[:zip]}"
 
-page << "try {"
+#page << "try {"
 page << "if ($('#{key}').classNames().include('zazen')) {"
 page.replace_html key, zazen(@value, :pretty_code=>true, :preview => true)
 page << "} else {"
 page.replace_html key, @value
 page << "}"
-page << "} catch(err) {}"
+#page << "} catch(err) {}"
