@@ -60,5 +60,36 @@ class QueryNodeTest < Zena::Unit::TestCase
         assert_equal Hash['versions_count', '2'], subject.db_attr
       end
     end
-  end
+  end # An object with QueryNode::ModelMethods
+
+  context 'Building a query' do
+    context 'with a real class filter' do
+      subject do
+        Node.build_query(:all, 'documents')
+      end
+
+      should 'set main_class' do
+        assert_equal Document, subject.main_class
+      end
+    end # with a real class filter
+
+    context 'with a virtual class filter' do
+      subject do
+        Node.build_query(:all, 'letters')
+      end
+
+      should 'set main_class with real_class' do
+        deb subject.main_class
+        assert subject.main_class < Note
+      end
+      
+      should 'load roles' do
+        assert subject.safe_method_type(['assigned'])
+      end
+      
+      should 'set kpath' do
+        assert_equal 'NNL', subject.main_class.kpath
+      end
+    end # with real class filter
+  end # Building a query
 end

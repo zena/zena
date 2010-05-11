@@ -45,7 +45,7 @@ module Zena
 
         # Find related nodes.
         # See Node#build_find for details on the options available.
-        # TODO: replace with rubyless translate ? Is this thing really used anyway ?
+        # TODO: do we need rubyless translate here ?
         def find(count, rel, opts = {})
           rel = [rel] if rel.kind_of?(String)
 
@@ -54,7 +54,7 @@ module Zena
           else
             begin
               query = self.class.build_query(count, rel.first, :node_name => 'self')
-            rescue QueryBuilder::SyntaxError => err
+            rescue ::QueryBuilder::SyntaxError => err
               puts err
               puts err.backtrace
             end
@@ -152,6 +152,11 @@ module Zena
           elsif %w{id parent_id project_id section_id}.include?(field_name) ||
             (Node.safe_method_type([field_name]) && Node.column_names.include?(field_name))
             "#{table}.#{field_name}"
+          elsif @query.tables.include?('links') &&
+               (key = field_name[/^l_(.+)$/,1]) &&
+               (key == 'id' ||
+                Zena::Use::Relations::LINK_ATTRIBUTES.include?(key.to_sym))
+            "#{table('links')}.#{key}"
           else
           #elsif field_name == 'REF_DATE'
           #  context[:ref_date] ? insert_bind(context[:ref_date]) : 'now()'
@@ -262,6 +267,16 @@ module Zena
             else
               # Not a core context, try to filter by class type
               if klass = Node.get_class(relation)
+                if klass.kind_of?(Class)
+                  res_class = Class.new(klass)
+                else
+                  res_class = Class.new(klass.real_class)
+                  res_class.kpath = klass.kpath
+                end
+
+                res_class.load_roles!
+                set_main_class(res_class)
+
                 add_table(main_table)
                 add_filter "#{table}.kpath LIKE #{quote("#{klass.kpath}%")}"
               else

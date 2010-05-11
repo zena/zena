@@ -25,6 +25,32 @@ module Zena
         before_destroy :secure_on_destroy
 
         include Zena::Acts::SecureNode::InstanceMethods
+
+        class << self
+
+          # kpath is a class shortcut to avoid tons of 'OR type = Page OR type = Document'
+          # we build this path with the first letter of each class. The example bellow
+          # shows how the kpath is built:
+          #           class hierarchy
+          #                Node --> N
+          #       Note --> NN          Page --> NP
+          #                    Document   Form   Section
+          #                       NPD      NPF      NPP
+          # So now, to get all Pages, your sql becomes : WHERE kpath LIKE 'NP%'
+          # to get all Documents : WHERE kpath LIKE 'NPD%'
+          # all pages without Documents : WHERE kpath LIKE 'NP%' AND NOT LIKE 'NPD%'
+          attr_accessor :kpath
+
+          def kpath
+            @kpath ||= make_kpath
+          end
+
+          private
+            def make_kpath
+              superclass.respond_to?(:kpath) ? (superclass.kpath + ksel) : ksel
+            end
+        end
+
         extend  Zena::Acts::SecureNode::ClassMethods
       end
 
@@ -430,20 +456,6 @@ module Zena
       end # InstanceMethods
 
       module ClassMethods
-        # kpath is a class shortcut to avoid tons of 'OR type = Page OR type = Document'
-        # we build this path with the first letter of each class. The example bellow
-        # shows how the kpath is built:
-        #           class hierarchy
-        #                Node --> N
-        #       Note --> NN          Page --> NP
-        #                    Document   Form   Section
-        #                       NPD      NPF      NPP
-        # So now, to get all Pages, your sql becomes : WHERE kpath LIKE 'NP%'
-        # to get all Documents : WHERE kpath LIKE 'NPD%'
-        # all pages without Documents : WHERE kpath LIKE 'NP%' AND NOT LIKE 'NPD%'
-        def kpath
-          @@kpath[self] ||= superclass == ActiveRecord::Base ? ksel : (superclass.kpath + ksel)
-        end
 
         # 'from' and 'joins' are removed: this method is used when receiving calls from zafu. Changing the source table removes
         # the secure scope.
@@ -457,8 +469,6 @@ module Zena
         def ksel
           self.to_s[0..0]
         end
-
-        @@kpath = {}
 
         # Replace Rails subclasses normal behavior
         def type_condition

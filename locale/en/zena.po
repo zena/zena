@@ -853,7 +853,7 @@ msgid "template_tab"
 msgstr "template"
 
 #: lib/gettext_strings.rb:19
-msgid "text_doc_tab"
+msgid "text_document_tab"
 msgstr "text doc."
 
 #: lib/gettext_strings.rb:20

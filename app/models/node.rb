@@ -136,7 +136,11 @@ class Node < ActiveRecord::Base
     p.string  'comment'
   end
 
-  include Zena::Acts::Enrollable
+  # This is used to load roles in an instance
+  include Zena::Acts::Enrollable::ModelMethods
+
+  # And this is used to laod roles on a class during compilation
+  extend  Zena::Acts::Enrollable::ClassMethods
 
   include RubyLess
   safe_property  :title, :text, :summary, :comment
@@ -256,7 +260,10 @@ class Node < ActiveRecord::Base
 
     def inherited(child)
       super
-      @@unhandled_children << child
+      unless child.name.blank?
+        # Do not register anonymous classes created during Zafu compilation
+        @@unhandled_children << child
+      end
     end
 
     # Return the list of (kpath,subclasses) for the current class.

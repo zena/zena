@@ -11,28 +11,20 @@ class DocumentsControllerTest < Zena::Controller::TestCase
     end
   end
 
+  def post_subject
+    without_files('/test.host/zafu') do
+      post subject.delete(:action), subject
+      if block_given?
+        yield
+      end
+    end
+  end
+
   context 'An anonymous user' do
     setup do
       login(:anon)
     end
 
-    context 'uploading a document' do
-      subject do
-        {:action => 'new', :controller => 'documents', :parent_id => nodes_zip(:zena)}
-      end
-
-      should 'recognize url' do
-        hash = subject
-        hash.delete(:parent_id)
-        assert_recognizes hash, "/documents/new"
-      end
-
-      should 'render a form' do
-        get_subject
-        assert_response :success
-      end
-    end # uploading a document
-    
     context 'viewing a document' do
       subject do
         {:action => 'show', :controller => 'documents', :id => nodes_zip(:bird_jpg)}
@@ -53,6 +45,53 @@ class DocumentsControllerTest < Zena::Controller::TestCase
     setup do
       login(:tiger)
     end
+    
+    context 'uploading a document' do
+      subject do
+        {:action => 'new', :controller => 'documents', :parent_id => nodes_zip(:zena)}
+      end
+
+      should 'recognize url' do
+        hash = subject
+        hash.delete(:parent_id)
+        assert_recognizes hash, "/documents/new"
+      end
+
+      should 'render a form' do
+        get_subject
+        assert_response :success
+      end
+    end # uploading a document
+
+    context 'creating a document' do
+      subject do
+        { :action => 'create', :controller => 'documents',
+          :node   => {:parent_id => nodes_zip(:zena), :file => uploaded_jpg('bird.jpg')}
+        }
+      end
+
+      should 'recognize url' do
+        hash = subject
+        hash.delete(:node)
+        assert_recognizes hash, {:path => '/documents', :method => 'post'}
+      end
+
+      should 'create a document' do
+        assert_difference('Document.count', 1) do
+          post_subject
+          assert_redirected_to "/documents/#{assigns(:node).zip}"
+        end
+      end
+
+      context 'with errors' do
+        subject do
+        end
+
+        should 'render new form' do
+          assert false # TODO
+        end
+      end
+    end # creating a document
   end # A user
 end
 

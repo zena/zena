@@ -64,7 +64,9 @@ class Image < Document
   end
 
   safe_property         :width, :height
-  safe_method           :exif => 'ExifData'
+
+  # We need ExifData to be loaded now (not a string) because JSON unpacking will not auto-load.
+  safe_method           :exif => ExifData
 
   class << self
     def accept_content_type?(content_type)

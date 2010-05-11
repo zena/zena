@@ -894,7 +894,7 @@ msgid "template_tab"
 msgstr "modèle"
 
 #: lib/gettext_strings.rb:19
-msgid "text_doc_tab"
+msgid "text_document_tab"
 msgstr "doc. texte"
 
 #: lib/gettext_strings.rb:20

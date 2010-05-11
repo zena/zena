@@ -358,36 +358,7 @@ module Zafu
       end
     end
 
-    def r_img
-      return unless node.will_be?(Node)
-      if @params[:src]
-        finder, klass = build_finder_for(:first, @params[:src])
-        return unless finder
-        return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
-        img = finder
-      else
-        img = node
-      end
-      mode = @params[:mode] || 'std'
-      # FIXME: replace this call by something that integrates better with html_tag_params and such.
-      res = "img_tag(#{img}, :mode=>#{mode.inspect}"
-      [:class, :alt_src, :id, :border, :style].each do |k|
-        res  += ", :#{k}=>#{@params[k].inspect}" if @params[k]
-      end
-      res += ", :host => #{@context["exp_host"]}" if @context["exp_host"]
-      res += ")"
-      if @params[:link]
-        finder, klass = build_finder_for(:first, @params[:link])
-        return unless finder
-        return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
-
-        opts_str = @context["exp_host"] ? ", :host => #{@context["exp_host"]}" : ""
-
-        "<a href='<%= zen_path(#{finder}#{opts_str}) %>'><%= #{res} %></a>"
-      else
-        "<%= #{res} %>"
-      end
-    end
+    
 
     # Compute statistics on elements in the current list context.
     def r_stat

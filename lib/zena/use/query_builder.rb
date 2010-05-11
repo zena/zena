@@ -85,7 +85,6 @@ module Zena
             finder = get_finder(query, count)
 
             if count == :count
-              finder =
               {:method => finder, :class => Number,  :query => query}
             elsif count == :all
               {:method => finder, :class => [klass], :query => query}

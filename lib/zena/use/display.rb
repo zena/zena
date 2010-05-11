@@ -1,8 +1,210 @@
 module Zena
   module Use
     module Display
-      module ViewMethods
+      module Common
+        def icon_finder
+          if rel = RelationProxy.find_by_role('icon')
+            finder = 'icon or image'
+          else
+            finder = 'image'
+          end
+          "#{finder} group by id,l_id order by l_id desc, position asc, node_name asc"
+        end
+      end # Common
 
+      module ImageTags
+        include Common
+
+        # This is used by _crop.rhtml
+        def crop_formats(obj)
+          buttons = ['jpg', 'png']
+          ext = Zena::TYPE_TO_EXT[obj.c_conten_type]
+          ext = ext ? ext[0] : obj.ext
+          buttons << ext unless buttons.include?(ext)
+          buttons.map do |e|
+            "<input type='radio' name='node[c_crop][format]' value='#{e}'#{e==ext ? " checked='checked'" : ''}/> #{e} "
+          end
+        end
+
+        # Display an image tag for the given node. If no mode is provided, 'full' is used. Options are ':mode', ':id', ':alt',
+        # ':alt_src' and ':class'. If no class option is passed, the format is used as the image class. Example :
+        # img_tag(@node, :mode=>'pv')  => <img src='/sites/test.host/data/jpg/20/bird_pv.jpg' height='80' width='80' alt='bird' class='pv'/>
+        def img_tag(obj, opts={})
+          return '' unless obj
+          # try:
+          # 1. tag on element data (Image, mp3 document)
+          res = asset_img_tag(obj, opts)
+
+          # 2. tag using alt_src data
+          if !res && alt_src = opts[:alt_src]
+            if alt_src == 'icon'
+              alt_src = icon_finder
+            else
+              alt_src = "#{alt_src.split(',').join(' or ')}"
+            end
+
+            if icon = obj.find(:first, alt_src)
+              return img_tag(icon, opts.merge(:alt_src => nil))
+            end
+          end
+
+          # 3. generic icon
+          res ||= generic_img_tag(obj, opts)
+
+          if res.kind_of?(Hash)
+            out = "<img"
+            [:src, :width, :height, :alt, :id, :class, :style, :border, :onclick].each do |k|
+              next unless v = res[k]
+              out << " #{k}='#{v}'"
+            end
+            out + "/>"
+          else
+            res
+          end
+        end
+
+        # <img> tag definition to show an Image / mp3 document
+        # FIXME: this should live inside zafu
+        def asset_img_tag(obj, opts)
+          if obj.kind_of?(Image)
+            res     = {}
+            format  = Iformat[opts[:mode]] || Iformat['std']
+
+            [:id, :border].each do |k|
+              next unless opts[k]
+              res[k]    = opts[k]
+            end
+
+            res[:alt]   = opts[:alt] || fquote(obj.title)
+            res[:src]   = data_path(obj, :mode => (format[:size] == :keep ? nil : format[:name]), :host => opts[:host])
+            res[:class] = opts[:class] || format[:name]
+
+            # compute image size
+            res[:width]  = obj.width(format)
+            res[:height] = obj.height(format)
+            if popup = format[:popup]
+
+              if popup_fmt = Iformat[popup[:name]]
+                options = popup[:options]
+                keys    = popup[:show]
+                res[:onclick] = 'Zena.popup(this)'
+                res[:id]    ||= unique_id
+                data = {}
+                data['src'] = data_path(obj, :mode => (popup[:size] == :keep ? nil : popup[:name]), :host => opts[:host])
+                data['width']   = obj.width(popup_fmt)
+                data['height']  = obj.height(popup_fmt)
+
+                data['fields'] = fields = {}
+                data['keys']   = field_keys = []
+                keys.each do |k|
+                  case k
+                  when 'navigation'
+                    field_keys << k
+                    data[k] = true
+                  else
+                    if v = obj.prop[k]
+                      field_keys << k
+                      case options[k]
+                      when 'raw'
+                        fields[k] = v
+                      when 'link'
+                        fields[k] = link_to(v, zen_path(obj))
+                      else
+                        fields[k] = zazen(v)
+                      end
+                    end
+                  end
+                end
+
+                self.js_data << "$('#{res[:id]}')._popup = #{data.to_json};"
+              end
+            end
+            res
+          elsif obj.kind_of?(Document) && obj.ext == 'mp3' && (opts[:mode].nil? || opts[:mode] == 'std' || opts[:mode] == 'button')
+            # rough wrap to use the 'button'
+            # we differ '<object...>' by using a placeholder to avoid the RedCloth escaping.
+            add_place_holder( %{ <object type="application/x-shockwave-flash"
+              data="/images/swf/xspf/musicplayer.swf?&song_url=#{CGI.escape(data_path(obj))}"
+              width="17" height="17">
+              <param name="movie"
+              value="/images/swf/xspf/musicplayer.swf?&song_url=#{CGI.escape(data_path(obj))}" />
+              <img src="/images/sound_mute.png"
+              width="16" height="16" alt="" />
+            </object> } )
+          end
+        end
+
+        # <img> tag definition for the generic icon (image showing class of element).
+        def generic_img_tag(obj, opts)
+          res = {}
+          [:class, :id, :border, :style].each do |k|
+            next unless opts[k]
+            res[k] = opts[k]
+          end
+
+          if obj.vclass.kind_of?(VirtualClass) && !obj.vclass.icon.blank?
+            # FIXME: we could use a 'zip' to an image as 'icon' (but we would need some caching to avoid multiple loading during doc listing)
+            res[:src]     = obj.vclass.icon
+            res[:alt]     = opts[:alt] || (_('%{type} node') % {:type => obj.vclass.name})
+            res[:class] ||= obj.klass
+            # no width, height available
+            return res
+          end
+
+          # default generic icon from /images/ext folder
+          res[:width]  = 32
+          res[:height] = 32
+
+          if obj.kind_of?(Document)
+            name = obj.ext
+            res[:alt] = opts[:alt] || (_('%{ext} document') % {:ext => name})
+            res[:class] ||= 'doc'
+          else
+            name = obj.klass.underscore
+            res[:alt] = opts[:alt] || (_('%{ext} node') % {:ext => obj.klass})
+            res[:class] ||= 'node'
+          end
+
+          if !File.exist?("#{RAILS_ROOT}/public/images/ext/#{name}.png")
+            name = 'other'
+          end
+
+          res[:src] = "/images/ext/#{name}.png"
+
+          if opts[:mode] && (format = Iformat[opts[:mode]]) && format[:size] != :keep
+            # resize image
+            img = Zena::Use::ImageBuilder.new(:path=>"#{RAILS_ROOT}/public#{res[:src]}", :width=>32, :height=>32)
+            img.transform!(format)
+            if (img.width == res[:width] && img.height == res[:height])
+              # ignore mode
+              res[:mode] = nil
+            else
+              res[:width]  = img.width
+              res[:height] = img.height
+
+              new_file = "#{name}_#{format[:name]}.png"
+              path     = "#{RAILS_ROOT}/public/images/ext/#{new_file}"
+              unless File.exist?(path)
+                # make new image with the mode
+                if img.dummy?
+                  File.cp("#{RAILS_ROOT}/public/images/ext/#{name}.png", path)
+                else
+                  File.open(path, "wb") { |f| f.syswrite(img.read) }
+                end
+              end
+
+              res[:src] = "/images/ext/#{new_file}"
+            end
+          end
+
+          res[:src] = "http://#{opts[:host]}#{res[:src]}" if opts[:host]
+
+          res
+        end
+      end # ImageTags
+
+      module ViewMethods
+        include ImageTags
         include RubyLess
         safe_method [:sprintf, String, Number] => {:class => String, :method => 'sprintf'}
         safe_method [:search_box, {:ajax => String, :type => String}] => String
@@ -114,6 +316,7 @@ module Zena
       end # ViewMethods
 
       module ZafuMethods
+        include Common
         include RubyLess
 
         safe_method [:zazen, String] => :r_zazen
@@ -228,12 +431,39 @@ module Zena
 
         # Find icon through a relation named 'icon' or use first image child
         def r_icon
-          if rel = RelationProxy.find_by_role('icon')
-            finder = '(icon or image)'
+          finder = build_finder(:first, icon_finder, {})
+          expand_with_finder(finder)
+        end
+
+        def r_img
+          return unless node.will_be?(Node)
+          if @params[:src]
+            finder, klass = build_finder_for(:first, @params[:src])
+            return unless finder
+            return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
+            img = finder
           else
-            finder = 'image'
+            img = node
           end
-          expand_with_finder "#{finder} group by id,l_id order by l_id desc, position asc, node_name asc"
+          mode = @params[:mode] || 'std'
+          # FIXME: replace this call by something that integrates better with html_tag_params and such.
+          res = "img_tag(#{img}, :mode=>#{mode.inspect}"
+          [:class, :alt_src, :id, :border, :style].each do |k|
+            res  += ", :#{k}=>#{@params[k].inspect}" if @params[k]
+          end
+          res += ", :host => #{@context["exp_host"]}" if @context["exp_host"]
+          res += ")"
+          if @params[:link]
+            finder, klass = build_finder_for(:first, @params[:link])
+            return unless finder
+            return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
+
+            opts_str = @context["exp_host"] ? ", :host => #{@context["exp_host"]}" : ""
+
+            "<a href='<%= zen_path(#{finder}#{opts_str}) %>'><%= #{res} %></a>"
+          else
+            "<%= #{res} %>"
+          end
         end
 
         def show_number(method)
