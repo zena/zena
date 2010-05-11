@@ -341,7 +341,7 @@ END_TXT
               #if sub_attr
               #  res[:name] = "#{base_class.to_s.underscore}[#{attribute}][#{sub_attr}]"
               #else
-                res[:name] = "#{node.underscore}[#{attribute}]"
+                res[:name] = "#{node.form_name}[#{attribute}]"
               #end
             end
 

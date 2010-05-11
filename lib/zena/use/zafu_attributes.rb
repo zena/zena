@@ -9,7 +9,7 @@ module Zena
 
       module ZafuMethods
         def self.included(base)
-          base.before_process :filter_prefix, :filter_status, :filter_property, :filter_anchor
+          base.before_process :filter_prefix, :filter_status, :filter_property, :filter_anchor, :filter_live
           base.before_wrap :add_anchor, :add_live_id
         end
 
@@ -60,10 +60,28 @@ module Zena
             end
           end
 
+          # Remove 'live' param so that it does not alter RubyLess method building.
+          def filter_live
+            @live_param = @params.delete(:live)
+          end
+
+          # If we had a 'live' parameter, wrap the result with an id.
+          # TODO: we could replace the id with a class so that multiple instances on a page do not
+          # cause problems.
           def add_live_id(text)
-            if @params[:live] == 'true'
-              erb_id = "_#{@params[:attr] || @method}<%= #{node}.zip %>"
-              @markup.tag ||= @method == 'zazen' ? 'div' : 'span'
+            if @live_param == 'true'
+              if name = @params[:attr]
+                # ok
+              elsif @method =~ /\(\s*([\w_]+)\s*\)/
+                name = $1
+              else
+                name = @method
+              end
+
+              erb_id = "_#{name}<%= #{node}.zip %>"
+
+              @markup.tag ||= @method =~ /^zazen/ ? 'div' : 'span'
+
               if @markup.has_param?(:id) || !@out_post.blank?
                 # Do not overwrite id or use span if we have post content (actions) that would disappear on live update.
                 "<#{tag} id='#{erb_id}'>#{text}</#{tag}>"

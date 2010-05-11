@@ -117,6 +117,10 @@ zazen_shortcut:
   tem: "<div class='zazen foo'><%= zazen(@node.prop['title'], {:node => @node}) %></div>"
   res: "<div class='zazen foo'><p>status title</p></div>"
 
+zazen_shortcut_with_live:
+  src: "<div class='foo' do='zazen(title)' live='true'>hello</div>"
+  res: "<div class='zazen foo' id='_title22'><p>status title</p></div>"
+
 zazen:
   src: "<r:zazen attr='title'/>"
   tem: "<%= zazen(@node.prop['title'], :node => @node) %>"

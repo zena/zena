@@ -22,7 +22,7 @@ module Zena
         end
 
         # Find a node and propagate visitor
-        def do_find(count, query, uses_source = true, klass = Node)
+        def do_find(count, query, uses_source = true)
           return nil if query.empty?
           if new_record? && uses_source
             # do not run query if it depends on the source and the source is not a proper Node
@@ -31,13 +31,13 @@ module Zena
 
           case count
           when :all
-            res = klass.find_by_sql(query)
+            res = Node.find_by_sql(query)
             secure_result(Node, res) if res
           when :first
-            res = klass.find_by_sql(query).first
+            res = Node.find_by_sql(query).first
             secure_result(Node, res) if res
           when :count
-            klass.count_by_sql(query)
+            Node.count_by_sql(query)
           else
             nil
           end

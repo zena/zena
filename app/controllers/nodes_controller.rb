@@ -315,7 +315,7 @@ class NodesController < ApplicationController
         conditions << "#{kpath}%"
       end
 
-      conditions[0] << "name LIKE ?"
+      conditions[0] << "node_name LIKE ?"
       conditions << "#{name_query}%"
 
       conditions[0] = conditions[0].join(' AND ')

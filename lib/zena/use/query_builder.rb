@@ -30,7 +30,12 @@ module Zena
 
         # Select the most pertinent error between RubyLess processing errors and QueryBuilder errors.
         def show_errors
-          @errors.detect {|e| e =~ /Syntax/} || @errors.last
+          if @method =~ / in /
+            # probably a query
+            @errors.detect {|e| e =~ /Syntax/} || @errors.last
+          else
+            @errors.first
+          end
         end
 
         # This method is called when we enter a new node context
@@ -110,7 +115,7 @@ module Zena
           def get_finder(query, count)
             query_string   = query.to_s(count == :count ? :count : :find)
             uses_node_name = query_string =~ /#{@node_name}\./
-            "#{@node_name}.do_find(#{count.inspect}, #{query_string}, #{uses_node_name ? 'true' : 'false'}, #{query.main_class})"
+            "#{@node_name}.do_find(#{count.inspect}, #{query_string}, #{uses_node_name ? 'true' : 'false'})"
           end
 
           # Returns :all, :first or :count depending on the parameters and some introspection in the zafu tree
