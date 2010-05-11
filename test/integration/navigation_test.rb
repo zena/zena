@@ -20,14 +20,14 @@ class NavigationTest < ActionController::IntegrationTest
 
     reset!
     post 'http://test.host/session', :login=>'tiger', :password=>'tiger'
-    assert_redirected_to "http://test.host/users/#{users_id(:tiger)}"
+    assert_redirected_to "http://test.host/oo"
 
     # 2. navigating out of '/oo' but logged in and format is not data
     get 'http://test.host/fr'
     assert_redirected_to 'http://test.host/oo'
     follow_redirect!
     assert_response :success
-    get 'http://test.host/fr/textdocument53.css' # data
+    get 'http://test.host/fr/textdocument53.css?1144713600' # data with timestamp
     assert_response :success
   end
 
@@ -44,7 +44,7 @@ class NavigationTest < ActionController::IntegrationTest
     assert_response 401 # http_auth
 
     reset!
-    post 'http://test.host/session', :login=>'tiger', :password=>'tiger'
+    post 'http://test.host/session', :login => 'tiger', :password => 'tiger'
     assert_redirected_to "http://test.host/users/#{users_id(:tiger)}"
 
     # 2. navigating out of '/oo' but logged in and format is not data
@@ -59,8 +59,8 @@ class NavigationTest < ActionController::IntegrationTest
   end
 
   def test_out_of_oo_custom_base_set_lang
-    post 'http://test.host/session', :login=>'tiger', :password=>'tiger'
-    assert_redirected_to "http://test.host/users/#{users_id(:tiger)}"
+    post 'http://test.host/session', :login => 'tiger', :password => 'tiger'
+    assert_redirected_to "http://test.host/oo"
     # 2. navigating out of '/oo' but logged in and format is not data, custom_base url (format not in path)
     assert_equal 'en', session[:lang]
     get 'http://test.host/fr/projects/cleanWater'
@@ -70,44 +70,89 @@ class NavigationTest < ActionController::IntegrationTest
     assert_response :success
   end
 
-  def test_set_lang
-    Site.connection.execute "UPDATE sites SET languages = 'fr,en,es' WHERE id = #{sites_id(:zena)}"
-    get 'http://test.host/', {}, {'HTTP_ACCEPT_LANGUAGE' => 'de-DE,fr-FR;q=0.8,es;q=0.9'}
-    assert_redirected_to 'http://test.host/es'
-    follow_redirect!
-    assert_response :success
-    get 'http://test.host/', {}, {'HTTP_ACCEPT_LANGUAGE' => 'de-DE,fr-FR;q=0.8,es;q=0.9'}
-    assert_redirected_to 'http://test.host/es'
-    reset!
-    get 'http://test.host/', {}, {'HTTP_ACCEPT_LANGUAGE' => 'de-DE,fr-FR;q=0.8,es;q=0.3'}
-    assert_redirected_to 'http://test.host/fr'
+  context 'Selecting lang' do
+    context 'from HTTP_ACCEPT_LANGUAGE' do
+      context 'with invalid languages' do
+        setup do
+          Site.connection.execute "UPDATE sites SET languages = 'fr,en,es' WHERE id = #{sites_id(:zena)}"
+        end
 
-    Site.connection.execute "UPDATE sites SET languages = 'fr,de,en,es' WHERE id = #{sites_id(:zena)}"
-    reset!
-    get 'http://test.host/', {}, {'HTTP_ACCEPT_LANGUAGE' => 'de-DE,fr-FR;q=0.8,es;q=0.3'}
-    assert_redirected_to 'http://test.host/de'
-    follow_redirect!
-    assert_response :success
-    get 'http://test.host/es'
-    assert_response :success
-    assert_equal 'es', session[:lang]
-    get 'http://test.host/en'
-    assert_response :success
-    assert_equal 'en', session[:lang]
-    get 'http://test.host/en?lang=es'
-    assert_redirected_to 'http://test.host/es'
-    follow_redirect!
-    assert_response :success
-    assert_equal 'es', session[:lang]
-    get 'http://test.host/nodes/29/edit'
-    assert_response :success
-    get 'http://test.host/oo'
-    assert_redirected_to 'http://test.host/login'
-    get 'http://test.host/oo/nodes/13' # private entry 'ant' in bad url format
-    assert_redirected_to 'http://test.host/login'
-    get 'http://test.host/nodes/13' # private entry 'ant'
-    assert_response :missing
-  end
+        should 'use q for sorting' do
+          get 'http://test.host/', {}, {'HTTP_ACCEPT_LANGUAGE' => 'de-DE,fr-FR;q=0.8,es;q=0.9'}
+          assert_redirected_to 'http://test.host/es'
+        end
+
+        should 'use q on lang group and skip invalid' do
+          get 'http://test.host/', {}, {'HTTP_ACCEPT_LANGUAGE' => 'de-DE,fr-FR;q=0.8,es;q=0.3'}
+          assert_redirected_to 'http://test.host/fr'
+        end
+      end # with invalid languages
+
+      context 'with valid languages' do
+        setup do
+          Site.connection.execute "UPDATE sites SET languages = 'fr,de,en,es' WHERE id = #{sites_id(:zena)}"
+        end
+
+        should 'use first from group' do
+          get 'http://test.host/', {}, {'HTTP_ACCEPT_LANGUAGE' => 'de-DE,fr-FR;q=0.8,es;q=0.3'}
+          assert_redirected_to 'http://test.host/de'
+        end
+
+        should 'set session lang after redirect' do
+          get 'http://test.host/', {}, {'HTTP_ACCEPT_LANGUAGE' => 'de-DE,fr-FR;q=0.8,es;q=0.3'}
+          assert_redirected_to 'http://test.host/de'
+          assert_equal 'de', session[:lang]
+        end
+      end # with valid languages
+
+      context 'with prefix' do
+        should 'use prefix' do
+          get 'http://test.host/es', {}, {'HTTP_ACCEPT_LANGUAGE' => 'de-DE,fr-FR;q=0.8,es;q=0.3'}
+          assert_response :success
+          assert_equal 'es', session[:lang]
+        end
+      end # with prefix
+
+      context 'with lang' do
+        should 'use lang' do
+          get 'http://test.host?lang=es', {}, {'HTTP_ACCEPT_LANGUAGE' => 'de-DE,fr-FR;q=0.8,es;q=0.3'}
+          assert_redirected_to 'http://test.host/es'
+          assert_equal 'es', session[:lang]
+        end
+      end # with lang
+
+      context 'with lang and prefix' do
+        should 'use lang' do
+          get 'http://test.host/es?lang=fr', {}, {'HTTP_ACCEPT_LANGUAGE' => 'de-DE,fr-FR;q=0.8,es;q=0.3'}
+          assert_redirected_to 'http://test.host/fr'
+          assert_equal 'fr', session[:lang]
+        end
+      end # with lang and prefix
+
+      context 'with lang and authenticated prefix' do
+        setup do
+          post 'http://test.host/session', :login => 'tiger', :password => 'tiger'
+        end
+
+        should 'use lang' do
+          get 'http://test.host/oo?lang=fr', {}, {'HTTP_ACCEPT_LANGUAGE' => 'de-DE,fr-FR;q=0.8,es;q=0.3'}
+          assert_redirected_to 'http://test.host/oo'
+          assert_equal 'fr', session[:lang]
+        end
+      end # with lang and authenticated prefix
+    end # from HTTP_ACCEPT_LANGUAGE
+
+
+    context 'without clues' do
+      should 'use session' do
+        get 'http://test.host/fr'
+        assert_response :success
+        assert_equal 'fr', session[:lang]
+        get 'http://test.host'
+        assert_redirected_to 'http://test.host/fr'
+      end
+    end # without clues
+  end # Selecting lang
 
   def test_set_lang_authenticated
     post 'http://test.host/session', :login=>'lion', :password=>'lion'
@@ -126,7 +171,6 @@ class NavigationTest < ActionController::IntegrationTest
 
   def test_set_lang_with_login
     post 'http://test.host/session', :login=>'tiger', :password=>'tiger'
-    assert_redirected_to "http://test.host/users/#{users_id(:tiger)}"
     follow_redirect!
     assert_response :success
     assert_equal 'en', session[:lang]
@@ -193,24 +237,23 @@ class NavigationTest < ActionController::IntegrationTest
     assert_redirected_to 'http://test.host/en/1'
     follow_redirect!
     assert_response :missing
-    assert Thread.current[:visitor]
-    assert_match %r{Node-\+notFound}, @response.rendered[:template].to_s
   end
 
-  def test_change_session_lang_on_login
+  def test_should_not_change_session_lang_on_login
     get 'http://test.host/'
     assert_redirected_to 'http://test.host/en'
     assert_equal 'en', session[:lang]
     get 'http://test.host/oo'
     assert_redirected_to 'http://test.host/login'
-    post 'http://test.host/session', :login=>'ant', :password=>'ant'
+    post 'http://test.host/session', :login => 'ant', :password => 'ant'
     assert_redirected_to 'http://test.host/oo'
-    assert_equal 'fr', session[:lang]
+    # should not change session lang
+    assert_equal 'en', session[:lang]
 
     # update visitor lang (as if changed through preferences)
-    User.connection.execute "UPDATE users SET lang = 'en' WHERE id = #{users_id(:ant)} and site_id = #{sites_id(:zena)}"
+    User.connection.execute "UPDATE users SET lang = 'de' WHERE id = #{users_id(:ant)} and site_id = #{sites_id(:zena)}"
     get 'http://test.host/oo'
-    assert_equal 'en', session[:lang]
+    assert_equal 'de', session[:lang]
 
     get 'http://test.host/fr'
     assert_redirected_to 'http://test.host/oo'
@@ -281,9 +324,4 @@ class NavigationTest < ActionController::IntegrationTest
       end
     end
 
-    def sites_id(key)
-      ZenaTest::multi_site_id(key)
-    end
-
-    alias users_id sites_id
 end

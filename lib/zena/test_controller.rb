@@ -58,6 +58,27 @@ module Zena
       params.delete(:node_id)
       params.delete(:text)
       params.delete(:url)
+
+      if controller = params.delete(:fake_controller)
+        # This is used when we need url rewriting.
+        case controller
+        when 'nodes'
+          self.request = ActionController::TestRequest.new
+
+          self.request.tap do |request|
+            request.path_parameters = {
+              'controller' => 'nodes',
+              'action'     => 'show',
+              'path'       => zen_path(@node).split('/')[2..-1],
+              'prefix'     => visitor.is_anon? ? visitor.lang : AUTHENTICATED_PREFIX,
+            }
+            request.symbolized_path_parameters
+            self.params = request.params
+            initialize_current_url
+          end
+
+        end
+      end
     end
 
     def get_template_text(path, base_path)

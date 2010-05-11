@@ -16,7 +16,7 @@ link_anchor:
   res: "<p>see <a href=\"#node22\">status title</a></p>"
 
 link_anchor_attribute:
-  tem: "<%= zazen('see \"\":22#[name]') %>"
+  tem: "<%= zazen('see \"\":22#[node_name]') %>"
   res: "<p>see <a href=\"#status\">status title</a></p>"
 
 link_anchor_in:
@@ -24,7 +24,7 @@ link_anchor_in:
   res: "<p>see <a href=\"/oo/projects/cleanWater#node22\">status title</a></p>"
 
 link_anchor_in_name:
-  tem: "<%= zazen('see \"\":22#[parent/name]') %>"
+  tem: "<%= zazen('see \"\":22#[parent/node_name]') %>"
   res: "<p>see <a href=\"/oo/projects/cleanWater#status\">status title</a></p>"
 
 complex_link:

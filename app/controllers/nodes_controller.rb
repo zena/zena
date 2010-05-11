@@ -441,14 +441,19 @@ class NodesController < ApplicationController
       end
     end
 
+    # Make sure the current url is valid. If it is not, redirect.
     def check_path
       case params[:action]
       when 'index'
+        # TODO: this should live in I18n (and maybe it is not needed anymore)
         # bad prefix '/so', '/rx' or '/en?lang=fr'
         if params[:prefix] != prefix
           set_visitor_lang(params[:prefix])
           # redirect if new lang could not be set
-          redirect_url = "/#{prefix}" if prefix != params[:prefix]
+          if prefix != params[:prefix]
+            # Invalid prefix
+            redirect_to "/#{prefix}" and return false
+          end
         end
       when 'show'
         # show must have a 'path' parameter
@@ -466,20 +471,30 @@ class NodesController < ApplicationController
         if params[:prefix] != prefix && !avoid_prefix_redirect
           # lang changed
           set_visitor_lang(params[:prefix])
-          redirect_url = zen_path(@node, path_params)
-        elsif (append_query_params("/#{params[:prefix]}/#{params[:path].join('/')}", :cachestamp => params[:cachestamp]) !=
-               zen_path(@node, :format => params[:format], :mode=>params[:mode], :asset=>params[:asset])) ||
-              (cachestamp_format?(params[:format]) && params[:cachestamp] != make_cachestamp(@node, params[:mode]))
-          # badly formed url
-          redirect_url = zen_path(@node, path_params)
-        elsif params[:mode] == 'edit' && !@node.can_write?
-          # special 'edit' mode
-          redirect_url = zen_path(@node, :format => params[:format], :asset => params[:asset])
+          redirect_to zen_path(@node, path_params) and return false
         end
-      end
 
-      if redirect_url
-        redirect_to redirect_url and return false
+        current_url  = append_query_params("/#{params[:prefix]}/#{params[:path].join('/')}", :cachestamp => params[:cachestamp])
+        base_url     = zen_path(@node,
+          :prefix => params[:prefix],
+          :format => params[:format],
+          :mode   => params[:mode],
+          :asset  => params[:asset])
+
+        if current_url != base_url
+          # Badly formed url, redirect
+          redirect_to zen_path(@node, path_params) and return false
+        end
+
+        if cachestamp_format?(params[:format]) && params[:cachestamp] != make_cachestamp(@node, params[:mode])
+          # Invalid cachestamp, redirect
+          redirect_to zen_path(@node, path_params) and return false
+        end
+
+        if params[:mode] == 'edit' && !@node.can_write?
+          # Not allowed to edit on special 'edit' mode
+          redirect_to zen_path(@node, :format => params[:format], :asset => params[:asset]) and return false
+        end
       end
 
       true

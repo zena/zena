@@ -15,7 +15,7 @@ class UserSessionsController < ApplicationController
       @user_session = UserSession.new(:login=>params[:login], :password=>params[:password])
       if @user_session.save
         flash[:notice] = "Successfully logged in."
-        redirect_to  Thread.current[:after_login_url] || nodes_path
+        redirect_to  redirect_after_login
       else
         flash[:notice] = "Invalid login or password."
         redirect_to login_url
@@ -28,9 +28,9 @@ class UserSessionsController < ApplicationController
       @user_session.destroy
       reset_session
       flash[:notice] = "Successfully logged out."
-      redirect_to session[:after_login_url] || nodes_path
+      redirect_to params[:redirect] || home_path(:prefix => prefix)
     else
-      redirect_to session[:after_login_url] || nodes_path
+      redirect_to home_path(:prefix => prefix)
     end
   end
 
@@ -44,4 +44,9 @@ class UserSessionsController < ApplicationController
 
       Thread.current[:visitor] = anonymous_visitor(site)
     end
+
+    def redirect_after_login
+      session.delete(:after_login_url) || home_path(:prefix => AUTHENTICATED_PREFIX)
+    end
+
 end

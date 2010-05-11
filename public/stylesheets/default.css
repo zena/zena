@@ -28,11 +28,6 @@ ol { padding-left:14px;}
 #content.project { margin:18px;}
 #related { width:150px; float:right; margin:-7px 0 14px 14px; border:1px dotted #bbb; padding:7px; font-size:12px; line-height:21px; background:#f4f4f4;}
 
-#login_form, #not_found { position:absolute; top:240px; left:0; width:550px; background:#9FA6AC; border:1px dotted #450009; }
-#login_form div, #not_found div { float:right; font-size:0.85em; padding:5px;}
-#login_form input { padding:1px; margin:0.3em; border:1px solid grey; }
-#login_form table { text-align:right; margin:0;}
-
 .summary { font-style:italic;}
 .zazen h1, .zazen h2, .zazen h3, .zazen h4, .zazen p, .zazen ol, .zazen ul { margin:21px 0;}
 .zazen table p, .zazen table ol, .zazen table ul { margin-top:0; margin-bottom:0;}

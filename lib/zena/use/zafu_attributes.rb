@@ -80,12 +80,13 @@ module Zena
 
               erb_id = "_#{name}<%= #{node}.zip %>"
 
-              @markup.tag ||= @method =~ /^zazen/ ? 'div' : 'span'
+              tag ||= @method =~ /^zazen/ ? 'div' : 'span'
 
               if @markup.has_param?(:id) || !@out_post.blank?
                 # Do not overwrite id or use span if we have post content (actions) that would disappear on live update.
                 "<#{tag} id='#{erb_id}'>#{text}</#{tag}>"
               else
+                @markup.tag = tag
                 @markup.set_dyn_param(:id, erb_id)
                 text
               end
@@ -97,6 +98,7 @@ module Zena
           # Rewrite things like <tt><h1 do='age' live='true'/></tt> to
           # <tt><h1 do='show' attr='age' live='true'/></tt>
           def filter_property
+            return if node.list_context?
             keys = @params.keys
             return if keys & [:live, :edit] == []
             if type = node.klass.safe_method_type([@method])
@@ -114,7 +116,7 @@ module Zena
                     out "<%= prefix_project(#{node}) %>"
                   end
                 when 'lang'
-                  out r_wrong_lang(:text => '[#{v.lang}] ')
+                  out r_wrong_lang
                 else
                   # parser error
                 end

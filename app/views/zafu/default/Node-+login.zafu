@@ -3,7 +3,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="en" set_lang='[v_lang]' xml:lang='en'>
 <head>
-  <title do='[title]' name='title'>Zena site</title>
+  <title do='show' attr='title' name='page_title'>Zena site</title>
   <r:stylesheets list='reset'/>
 <style>
 body { color:#666; background: #ddd url('') no-repeat; font:13px Verdana, Helvetica, sans-serif; }

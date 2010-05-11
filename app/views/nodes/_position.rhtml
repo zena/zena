@@ -1,13 +1,13 @@
 <div class='drive' id='position'>
   <div id='position_errors' class='errors'></div>
   <% sortables = [[@node.find(:all, 'pages'), 'pages'], [@node.find(:all, 'documents'), 'documents']] %>
-  <% sortables.each do |list,name| %>
+  <% sortables.each do |list, name| %>
   <% next unless list -%>
   <ul><li><label><%= _("sort #{name}") %></label></li>
     <li>
       <ul class='position' id='sort_<%= name %>'>
         <% list.each do |child| -%>
-        <li id='child_<%= child[:zip] %>'><%= truncate(child.name, :length => 18) %></li>
+        <li id='child_<%= child[:zip] %>'><%= truncate(child.title, :length => 18) %></li>
         <% end -%>
       </ul>
     </li>

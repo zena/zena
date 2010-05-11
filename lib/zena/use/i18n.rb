@@ -293,9 +293,9 @@ module Zena
         # Show a little [xx] next to the title if the desired language could not be found. You can
         # use a :text => '(lang)' option. The word 'lang' will be replaced by the real value.
         def r_wrong_lang(params = @params)
-          if @blocks.empty?
-            text = params[:text] || '[#{v.lang}]'
-            "<%=  #{node}.version.lang == lang ? '' : #{rubyless_attr(text)} %>"
+          if @blocks.empty? || @method != 'wrong_lang'
+            text = params[:text] || %q{<span class='wrong_lang'>[#{v.lang}]</span> }
+            "<%=  #{node}.version.lang == lang ? '' : #{::RubyLess.translate_string(text, self)} %>"
           else
             "<% if #{node}.version.lang != lang -%>#{expand_with(:in_if => true)}<% end -%>"
           end

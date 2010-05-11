@@ -7,11 +7,26 @@ default:
   tem: "simple text"
   res: "simple text"
 
+logout_link:
+  context:
+    # Forces NodesController type of url and params
+    fake_controller: 'nodes'
+  src: "<r:login_link/>"
+  res: '<a href="/logout?redirect=%2Fen%2Fprojects%2FcleanWater%2Fpage22.html">logout</a>'
+
 login_link:
+  context:
+    visitor: 'anon'
+    # Forces NodesController type of url and params
+    fake_controller: 'nodes'
+  src: "<r:login_link/>"
+  res: '<a href="/oo/projects/cleanWater/page22.html">login</a>'
+
+logout_link_other_controller:
   src: "<r:login_link/>"
   res: '<a href="/logout">logout</a>'
 
-login_link_not_logged_in:
+login_link_other_controller:
   context:
     visitor: 'anon'
   src: "<r:login_link/>"

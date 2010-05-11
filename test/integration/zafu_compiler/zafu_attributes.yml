@@ -29,12 +29,11 @@ prefix_project_no_show_with_tag:
 
 prefix_project_show_no_tag:
   src: "<r:root><r:void prefix='project'>hop</r:void></r:root>"
-  tem: "<%= prefix_project(@node) %>hop"
-  res: "hop"
+  res: "Zena the wild CMS / hop"
 
 prefix_project_show_with_tag:
   src: "<r:root><p do='void' prefix='project'>hop</p></r:root>"
-  res: "<p>hop</p>"
+  res: "<p>Zena the wild CMS / hop</p>"
 
 show_title_with_actions_without_prefix:
   src: "<h1 do='title' actions='all'/>"
@@ -61,7 +60,7 @@ prefix_lang_show:
 
 set_attribute:
   old_src: "<div do='void' set_class='[name]'>hop</div>"
-  src: "<div class='#{name}'>hop</div>"
+  src: "<div class='#{node_name}'>hop</div>"
   res: "<div class='status'>hop</div>"
 
 anchor_attribute:
@@ -90,4 +89,4 @@ live_with_show:
 
 live_with_zazen:
   src: "<r:zazen attr='text' live='true'/>"
-  res: "<div id='_text22'><p>status text</p></div>"
+  res: "<div class='zazen' id='_text22'><p>status text</p></div>"

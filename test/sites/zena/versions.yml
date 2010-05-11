@@ -559,7 +559,7 @@ Node_search_zafu_en:
   node:            Node_search_zafu
   user:            tiger
   prop:
-    text:          "[FILE:app/views/templates/defaults/Node-+search.zafu]"
+    text:          "[FILE:app/views/zafu/default/Node-+search.zafu]"
     format:        html
     tkpath:        N
     mode:          "+search"
@@ -578,7 +578,7 @@ Node_zafu_en:
   node:            Node_zafu
   user:            tiger
   prop:
-    text:          "[FILE:app/views/templates/defaults/Node.zafu]"
+    text:          "[FILE:app/views/zafu/default/Node.zafu]"
     format:        html
     tkpath:        N
     target_klass:  Node
@@ -587,7 +587,7 @@ Node_admin_layout_zafu_en:
   node:            Node_admin_layout_zafu
   user:            tiger
   prop:
-    text:          "[FILE:app/views/templates/defaults/Node-+adminLayout.zafu]"
+    text:          "[FILE:app/views/zafu/default/Node-+adminLayout.zafu]"
     format:        html
     tkpath:        N
     mode:          "+adminLayout"
@@ -597,7 +597,7 @@ Node_index_zafu_en:
   node:            Node_index_zafu
   user:            tiger
   prop:
-    text:          "[FILE:app/views/templates/defaults/Node-+index.zafu]"
+    text:          "[FILE:app/views/zafu/default/Node-+index.zafu]"
     format:        html
     tkpath:        N
     mode:          "+index"
@@ -607,7 +607,7 @@ Node_not_found_zafu_en:
   node:            Node_not_found_zafu
   user:            tiger
   prop:
-    text:          "[FILE:app/views/templates/defaults/Node-+notFound.zafu]"
+    text:          "[FILE:app/views/zafu/default/Node-+notFound.zafu]"
     format:        html
     tkpath:        N
     mode:          "+notFound"
@@ -617,7 +617,7 @@ Node_popup_layout_zafu_en:
   node:            Node_popup_layout_zafu
   user:            tiger
   prop:
-    text:          "[FILE:app/views/templates/defaults/Node-+popupLayout.zafu]"
+    text:          "[FILE:app/views/zafu/default/Node-+popupLayout.zafu]"
     format:        html
     tkpath:        N
     mode:          "+popupLayout"
@@ -653,7 +653,7 @@ Node_login_zafu_en:
   node:            Node_login_zafu
   user:            tiger
   prop:
-    text:          "[FILE:app/views/templates/defaults/Node-+login.zafu]"
+    text:          "[FILE:app/views/zafu/default/Node-+login.zafu]"
     format:        html
     tkpath:        N
     mode:          "+login"

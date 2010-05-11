@@ -113,6 +113,22 @@ module Zena
             end
           end
         end
+
+        def login_path
+          if params[:controller] == 'nodes'
+            url_for :overwrite_params => { :prefix => AUTHENTICATED_PREFIX }
+          else
+            super
+          end
+        end
+
+        def logout_path
+          if params[:controller] == 'nodes' && @node.public?
+            super :redirect => url_for(:overwrite_params => { :prefix => visitor.lang })
+          else
+            super
+          end
+        end
       end # ViewMethods
 
       module ZafuMethods
@@ -127,7 +143,7 @@ module Zena
             markup = @markup.tag == 'a' ? @markup : Zafu::Markup.new('a')
 
             # login
-            markup.set_dyn_param('href', '<%= login_url %>')
+            markup.set_dyn_param('href', '<%= login_path %>')
             out markup.wrap(expand_with) # will not render 'else' clause
 
             if else_block = descendant('else') || descendant('elsif')

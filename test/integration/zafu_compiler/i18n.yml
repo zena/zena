@@ -12,8 +12,8 @@ wrong_lang_show:
   context:
     lang: 'de'
   old_src: "<r:check_lang/> <r:check_lang text='(#LANG)'/> <p class='bad_lang' do='check_lang'>article en '_LANG'</p>"
-  src: '<r:wrong_lang/> hop'
-  res: '[en] hop'
+  src: '<r:wrong_lang/>hop'
+  res: "<span class='wrong_lang'>[en]</span> hop"
 
 wrong_lang_block_no_show:
   src: "<r:wrong_lang>this is not in <r:v do='lang'/></r:wrong_lang>"

@@ -46,10 +46,13 @@ module Zena
           if Thread.current[:visitor]
             # page not found
             @node = current_site.root_node
+            zafu_node('@node', Project)
+
             respond_to do |format|
               format.html do
-                if File.exists?("#{SITES_ROOT}/#{current_site.host}/public/#{prefix}/404.html")
-                  render :file => "#{SITES_ROOT}/#{current_site.host}/public/#{prefix}/404.html", :status => '404 Not Found'
+                not_found = "#{SITES_ROOT}/#{current_site.host}/public/#{prefix}/404.html"
+                if File.exists?(not_found)
+                  render :text => File.read(not_found), :status => '404 Not Found'
                 else
                   render_and_cache :mode => '+notFound', :format => 'html', :cache_url => "/#{prefix}/404.html", :status => '404 Not Found'
                 end
@@ -81,7 +84,7 @@ module Zena
         # END_MSG
 
           respond_to do |format|
-            format.html { render :file    => "#{Zena::ROOT}/app/views/nodes/500.html", :status => '500 Error' }
+            format.html { render :text    => File.read("#{Zena::ROOT}/app/views/nodes/500.html"), :status => '500 Error' }
             format.all  { render :nothing => true, :status => "500 Error" }
           end
         end
@@ -113,7 +116,6 @@ module Zena
             render :file => template_url(opts), :layout=>false, :status => opts[:status]
             cache_page(:url => opts[:cache_url]) if opts[:cache]
           end
-
         end
 
         # Cache page content into a static file in the current sites directory : SITES_ROOT/test.host/public

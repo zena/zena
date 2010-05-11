@@ -5,7 +5,7 @@
     </span>
     <span class='date'><%= long_date(li.created_at) + " " + short_time(li.created_at) %></span>
     <span class='sign'><%= li.author_name || li.author.fullname %></span>
-    <span class='title'><%= make_link(:node => li.discussion.node, :title => "#{li.discussion.node.name}#{li.title.blank? ? '' : " / #{li.title}"}") %></span>
+    <span class='title'><%= make_link(:node => li.discussion.node, :title => "#{li.discussion.node.title}#{li.title.blank? ? '' : " / #{li.title}"}") %></span>
   </div>
   <div class='body'>
     <div class='zazen'><%= zazen(li.text) %></div>

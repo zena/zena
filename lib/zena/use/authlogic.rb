@@ -12,15 +12,15 @@ module Zena
       module ControllerMethods
 
         def self.included(base)
-          base.before_filter :set_after_login, :set_visitor, :force_authentication?
+          base.before_filter :set_visitor, :force_authentication?
         end
 
         include Common
 
         private
 
-          def set_after_login
-            Thread.current[:after_login_url] = request.parameters
+          def save_after_login_url
+            session[:after_login_url] = request.parameters
           end
 
           def set_visitor
@@ -75,7 +75,8 @@ module Zena
           end
 
           def force_authentication?
-            if current_site.authentication? && visitor.is_anon?
+            if (current_site.authentication? || params[:prefix] == AUTHENTICATED_PREFIX) && visitor.is_anon?
+              save_after_login_url
               redirect_to login_url
             end
           end

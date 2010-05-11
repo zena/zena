@@ -45,6 +45,36 @@ class NodesControllerTest < Zena::Controller::TestCase
         end
       end # with lang
     end # visiting index page
+    
+    context 'visiting edit page' do
+      subject do
+        {:action => 'edit', :controller => 'nodes', :id => nodes_zip(:projects)}
+      end
+
+      should 'recognize edit page' do
+        assert_recognizes subject, "/nodes/#{subject[:id]}/edit"
+      end
+
+      should 'render missing' do
+        get_subject
+        assert_response :missing
+      end
+    end # visiting edit page
+    
+    context 'visiting edit page' do
+      subject do
+        {:action => 'show', :controller => 'nodes', :id => nodes_zip(:projects)}
+      end
+
+      should 'recognize show page' do
+        assert_recognizes subject, "/nodes/#{subject[:id]}"
+      end
+
+      should 'redirect' do
+        get_subject
+        assert_redirected_to 'http://test.host/en/page18.html'
+      end
+    end # visiting show
   end # An anonymous user
 
   context 'A user' do
@@ -81,6 +111,21 @@ class NodesControllerTest < Zena::Controller::TestCase
         end
       end # with lang
     end # visiting index page
+    
+    context 'visiting edit page' do
+      subject do
+        {:action => 'edit', :controller => 'nodes', :id => nodes_zip(:projects)}
+      end
+
+      should 'recognize edit page' do
+        assert_recognizes subject, "/nodes/#{subject[:id]}/edit"
+      end
+
+      should 'succeed' do
+        get_subject
+        assert_response :success
+      end
+    end # visiting edit page
   end # A user
 
 
