@@ -435,6 +435,7 @@ module Zena
           expand_with_finder(finder)
         end
 
+        # Display an image
         def r_img
           return unless node.will_be?(Node)
           if @params[:src]
@@ -466,55 +467,76 @@ module Zena
           end
         end
 
-        def show_number(method)
-          if fmt = @params[:format]
-            begin
-              # test argument
-              sprintf(fmt, 123.45)
-            rescue ArgumentError
-              return parser_error("incorect format #{fmt.inspect}")
-            end
-
-            if fmt =~ /%[\d\.]*f/
-              modifier = ".to_f"
-            elsif fmt =~ /%[\d\.]*i/
-              modifier = ".to_i"
+        # Shows a 'made with Zena' link or logo. ;-) Thanks for using this !
+        def r_zena
+          if logo = @params[:logo]
+            # FIXME
+            case logo
+            when 'tiny'
             else
-              modifier = ''
-            end
-
-            if @params[:zero] == 'hide'
-              "<%= sprintf_unless_zero(#{fmt.inspect}, #{method}#{modifier}) %>"
-            else
-              "<%= sprintf(#{fmt.inspect}, #{method}#{modifier}) %>"
             end
           else
-            "<%= #{method} %>"
+            text = case @params[:type]
+            when 'garden'
+              _("a Zen garden")
+            else
+              _("made with Zena")
+            end
+            "<a class='zena' href='http://zenadmin.org' title='Zena <%= Zena::VERSION %>'>#{text}</a>"
           end
         end
 
-        def show_string(method)
-          "<%= #{method} %>"
-        end
 
-        def show_time(method)
-          if fmt = @params[:format]
-            begin
-              # test argument
-              Time.now.strftime(fmt)
-            rescue ArgumentError
-              return parser_error("Incorect Time format #{fmt.inspect}")
-            end
+        private
+          def show_number(method)
+            if fmt = @params[:format]
+              begin
+                # test argument
+                sprintf(fmt, 123.45)
+              rescue ArgumentError
+                return parser_error("incorect format #{fmt.inspect}")
+              end
 
-            if method.could_be_nil?
-              "<%= #{method}.try(:strftime, #{fmt.inspect}) %>HOP"
+              if fmt =~ /%[\d\.]*f/
+                modifier = ".to_f"
+              elsif fmt =~ /%[\d\.]*i/
+                modifier = ".to_i"
+              else
+                modifier = ''
+              end
+
+              if @params[:zero] == 'hide'
+                "<%= sprintf_unless_zero(#{fmt.inspect}, #{method}#{modifier}) %>"
+              else
+                "<%= sprintf(#{fmt.inspect}, #{method}#{modifier}) %>"
+              end
             else
-              "<%= #{method}.strftime(#{fmt.inspect}) %>"
+              "<%= #{method} %>"
             end
-          else
+          end
+
+          def show_string(method)
             "<%= #{method} %>"
           end
-        end
+
+          def show_time(method)
+            if fmt = @params[:format]
+              begin
+                # test argument
+                Time.now.strftime(fmt)
+              rescue ArgumentError
+                return parser_error("Incorect Time format #{fmt.inspect}")
+              end
+
+              if method.could_be_nil?
+                "<%= #{method}.try(:strftime, #{fmt.inspect}) %>HOP"
+              else
+                "<%= #{method}.strftime(#{fmt.inspect}) %>"
+              end
+            else
+              "<%= #{method} %>"
+            end
+          end
       end
     end # Display
   end # Use

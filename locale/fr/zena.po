@@ -1351,21 +1351,13 @@ msgstr "éditer"
 msgid "%{skin}, design by %{name}"
 msgstr "%{skin}, conception %{name}"
 
-#: lib/zafu/display.rb:489
-msgid "riding zena"
-msgstr "en balade avec zena"
-
-#: lib/zafu/display.rb:491
-msgid "in peace with zena"
-msgstr "paisible avec zena"
-
 #: lib/zafu/display.rb:493
-msgid "a zen garden"
-msgstr "un jardin zen"
+msgid "a Zen garden"
+msgstr "un jardin Zen"
 
 #: lib/zafu/display.rb:495
-msgid "made with zena"
-msgstr "conçu avec zena"
+msgid "made with Zena"
+msgstr "conçu avec Zena"
 
 #: lib/zena/parser/zazen_rules.rb:98
 msgid "[gallery]"

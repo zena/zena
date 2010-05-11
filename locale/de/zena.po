@@ -796,20 +796,12 @@ msgstr "bearbeiten"
 msgid "%{skin}, design by %{name}"
 msgstr ""
 
-#: lib/zafu/display.rb:489
-msgid "riding zena"
-msgstr ""
-
-#: lib/zafu/display.rb:491
-msgid "in peace with zena"
-msgstr ""
-
 #: lib/zafu/display.rb:493
-msgid "a zen garden"
-msgstr ""
+msgid "a Zen garden"
+msgstr "ein Zen-Garten"
 
 #: lib/zafu/display.rb:495
-msgid "made with zena"
+msgid "made with Zena"
 msgstr ""
 
 #: lib/zafu/action.rb:128 lib/gettext_strings.rb:23

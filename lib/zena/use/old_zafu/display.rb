@@ -358,7 +358,7 @@ module Zafu
       end
     end
 
-    
+
 
     # Compute statistics on elements in the current list context.
     def r_stat
@@ -408,31 +408,6 @@ module Zafu
       end
       skin = "<i>#{skin.title}</i>" unless skin.blank?
       _("%{skin}, design by %{name}") % {:name => by, :skin => skin}
-    end
-
-    # Shows a 'made with zena' link or logo. ;-) Thanks for using this !
-    # TODO: test and add translation.
-    # <r:zena show='logo'/> or <r:zena show='text'/> == <r:zena/>
-    def r_zena
-      if logo = @params[:logo]
-        # FIXME
-        case logo
-        when 'tiny'
-        else
-        end
-      else
-        text = case @params[:type]
-        when 'riding'
-          _("riding zena")
-        when 'peace'
-          _("in peace with zena")
-        when 'garden'
-          _("a zen garden")
-        else
-          _("made with zena")
-        end
-        "<a class='zena' href='http://zenadmin.org' title='zena <%= Zena::VERSION %>'>#{text}</a>"
-      end
     end
 
   end # Display

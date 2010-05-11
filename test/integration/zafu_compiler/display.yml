@@ -237,4 +237,19 @@ img_html_params:
   src: "<r:img src='30' id='super'/>"
   res: "<img src='/en/image30_std.jpg?929831698949' width='440' height='400' alt='bird' id='super' class='std'/>"
 
+zena:
+  src: "<r:zena/>"
+  tem: "<a class='zena' href='http://zenadmin.org' title='zena <%= Zena::VERSION %>'>made with zena</a>"
+  res: "/<a class='zena' href='http://zenadmin.org' title='zena .+'>made with zena</a>/"
+
+zena_fr:
+  context:
+    lang: 'fr'
+  src: "<r:zena/>"
+  res: "/<a class='zena' href='http://zenadmin.org' title='Zena .+'>conçu avec Zena</a>/"
+
+zena_garden:
+  src: "<r:zena type='garden'/>"
+  res: "/<a class='zena' href='http://zenadmin.org' title='Zena .+'>a Zen garden</a>/"
+
 # ---- fixed to here

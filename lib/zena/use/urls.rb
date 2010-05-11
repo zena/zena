@@ -71,11 +71,6 @@ module Zena
             (asset ? ".#{asset}" : '') +
             (format == 'html' ? '' : ".#{format}")
           else
-            if node.klass.nil?
-              node.instance_eval do
-                puts [@new_klass, @set_klass, vclass.to_s].inspect
-              end
-            end
             "#{abs_url_prefix}/#{pre}/" +
             ((node.basepath != '' && !node.basepath.nil? )? "#{node.basepath}/"    : '') +
             (node.klass.downcase   ) +
