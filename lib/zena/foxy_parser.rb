@@ -525,24 +525,30 @@ module Zena
 
         @inline_versions[site] ||= {}
         unless @inline_versions[site][name]
+          # New inline version. Set defaults.
           @inline_versions[site][name] = version = {}
           version[:node] = node = elements[name]
-          version['node_id'] = Zena::FoxyParser::id(site, name)
-          # set defaults
+          version['node_id']      = Zena::FoxyParser::id(site, name)
+          version['publish_from'] = elements[name]['publish_from']
+          version['status']       = Zena::Status[:pub]
+          version['lang']         = elements[name]['ref_lang']
+          version['site_id']      = Zena::FoxyParser::multi_site_id(site)
+          version['number']       = 1
+
+          # Use DEFAULTS
           @defaults.each do |k,v|
-            if k =~ /^v_(.+)/
+            if k == 'v_status'
+              version['status'] = Zena::Status[v.to_sym]
+            elsif k =~ /^v_(.+)/
               version[$1] = v
             end
           end
-          version['publish_from'] ||= elements[name]['publish_from']
-          version['status'] ||= Zena::Status[:pub]
-          version['lang']   ||= elements[name]['ref_lang']
-          version['site_id']  = Zena::FoxyParser::multi_site_id(site)
-          version['number'] ||= 1
         end
+
         if key == 'status'
-          value = Zena::Status[key.to_sym]
+          value = Zena::Status[value.to_sym]
         end
+
         @inline_versions[site][name][key] = value
       end
 
