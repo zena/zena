@@ -69,7 +69,7 @@ class QueryNodeTest < Zena::Unit::TestCase
       end
 
       should 'set main_class' do
-        assert_equal Document, subject.main_class
+        assert subject.main_class < Document
       end
     end # with a real class filter
 
@@ -79,14 +79,13 @@ class QueryNodeTest < Zena::Unit::TestCase
       end
 
       should 'set main_class with real_class' do
-        deb subject.main_class
         assert subject.main_class < Note
       end
-      
+
       should 'load roles' do
-        assert subject.safe_method_type(['assigned'])
+        assert subject.main_class.safe_method_type(['assigned'])
       end
-      
+
       should 'set kpath' do
         assert_equal 'NNL', subject.main_class.kpath
       end

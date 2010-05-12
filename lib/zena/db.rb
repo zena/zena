@@ -32,7 +32,8 @@ module Zena
     end
 
     def adapter
-      ActiveRecord::Base.configurations[RAILS_ENV]['adapter']
+      # Loads the wrong adaper when running rake tasks: ActiveRecord::Base.configurations[RAILS_ENV]['adapter']
+      @adapter ||= ActiveRecord::Base.connection.class.name.split('::').last[/(.+)Adapter/,1].downcase
     end
 
     def execute(*args)

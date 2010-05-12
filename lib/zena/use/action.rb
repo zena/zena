@@ -43,9 +43,9 @@ module Zena
             when 'edit'
               url  = edit_node_version_path(:node_id => node.zip, :id => 0) + (publish_after_save ? "?pub=#{publish_after_save}" : '')
             when 'drive'
-              url  = edit_node_url(:id => node.zip )
+              url  = edit_node_path(:id => node.zip )
             when 'add_doc'
-              url  = new_document_url(:parent_id => node.zip)
+              url  = new_document_path(:parent_id => node.zip)
             end
 
             id   = "#{current_site.host.gsub('.', '_')}_#{node[:zip]}_#{action}"

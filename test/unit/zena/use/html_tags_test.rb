@@ -220,7 +220,7 @@ class HtmlTagsTest < Zena::View::TestCase
   def test_version_action_view
     login(:lion)
     node = secure!(Node) { nodes(:status) }
-    assert_match %r{opener.Zena.version_preview\('/nodes/#{node.zip}/versions/#{node.version.number}'\)}, version_actions(node.version, :actions => :view)
+    assert_match %r{Zena.version_preview\('/nodes/#{node.zip}/versions/#{node.version.number}'\)}, version_actions(node.version, :actions => :view)
   end
 
   def test_popup_images
