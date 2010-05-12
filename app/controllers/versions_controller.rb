@@ -77,18 +77,7 @@ class VersionsController < ApplicationController
       js_data << "Zena.reloadAndClose();"
     else
       js_data << <<-END_TXT
-      var current_sel = $('text_sel');
-      var current_tab = $('text_tab');
-
-      Event.observe(window, 'resize', function() { Zena.resizeElement('node_text'); } );
-      Event.observe(window, 'resize', function() { Zena.resizeElement('node_text'); } );
-      Zena.resizeElement('node_text');
-
-      $('node_form').getElements().each(function(input, index) {
-          new Form.Element.Observer(input, 3, function(element, value) {
-            opener.Zena.editor_preview('#{preview_node_version_path(:node_id=>@node[:zip], :id=>(@node.version.number || 0), :escape => false)}',element,value);
-          });
-      });
+      Zena.editor_setup('#{preview_node_version_path(:node_id=>@node[:zip], :id=>(@node.version.number || 0), :escape => false)}');
       END_TXT
     end
   end

@@ -400,7 +400,7 @@ END:VCALENDAR
     node.update_attributes('title' => 'foobar')
     assert_equal Zena::Status[:red], node.v_status
     # ajax
-    put 'update', :format => 'js', :id => node.zip, 'zazen' => 'true', 'dom_id' => 'foo', 'node' => {'d_philosopher' => 'Michel Serres', 'v_status' => '50'}
+    put 'update', :format => 'js', :id => node.zip, 'zazen' => 'true', 'dom_id' => 'foo', 'node' => {'title' => 'Michel Serres', 'v_status' => '50'}
     node = secure!(Node) { nodes(:status) }
     assert_equal Zena::Status[:pub], node.v_status
     assert_match %r{window.location.href = window.location.href}m, @response.body

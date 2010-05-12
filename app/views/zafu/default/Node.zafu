@@ -6,10 +6,10 @@
   <link href='favicon_tiny.png' rel='shortcut icon' type='image/png' />
   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
   <r:void name='stylesheets'>
-    <r:stylesheets media='all' list='reset,zena,code,default'/>
+    <r:stylesheets media='all' list='reset,zena,code,default,window'/>
   </r:void>
 
-  <r:javascripts/>
+  <r:javascripts list='all'/>
   <r:uses_datebox/>
 </head>
 
@@ -25,8 +25,8 @@
   </div>
   <div id='container'>
     <div id='title'>
-      <h1 do='title' actions='all'/>
-      <div class='summary' do='summary'/>
+      <h1 do='title' actions='all' live='true'/>
+      <div class='summary' do='summary' live='true'/>
     </div>
     <div id='context'>
       <r:parent>
@@ -43,7 +43,7 @@
           </li>
         </ol>
       </r:parent>
-    </div>
+    </div> <!-- context -->
     <div id='content'>
       <div id='related'>
         <r:documents name='documents'><h3 do='trans'>documents</h3>
@@ -80,15 +80,16 @@
           </ol>
         </r:references>
 
-      </div>
+      </div> <!-- related -->
       <div id='main'>
-        <r:text/>
+        <r:zazen attr='text' live='true'/>
       </div> <!-- main -->
       <div class='clear'>&nbsp;</div>
     </div> <!-- content -->
     <div class='clear'>&nbsp;</div>
   </div> <!-- container -->
   <div id='footer'><r:zena type='garden'/></div>
+  <div id='zena_editor'></div>
 </body>
 
 </html>

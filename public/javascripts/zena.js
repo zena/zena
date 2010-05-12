@@ -2,6 +2,49 @@ var Zena = {};
 
 Zena.env = new Array();
 
+Zena.editor_setup = function(url) {
+  var current_sel = $('text_sel');
+  var current_tab = $('text_tab');
+  var preview = parent ? parent : opener;
+
+  Event.observe(window, 'resize', function() { Zena.resizeElement('node_text'); } );
+  Event.observe(window, 'resize', function() { Zena.resizeElement('node_text'); } );
+  Zena.resizeElement('node_text');
+
+  if (parent) {
+    parent.$('zena_editor_title').update(document.title);
+  }
+
+  $('node_form').getElements().each(function(input, index) {
+      new Form.Element.Observer(input, 3, function(element, value) {
+        preview.Zena.editor_preview(url, element, value);
+      });
+  });
+}
+
+Zena.editor_open = function(url, name) {
+  var pop = $('zena_editor');
+
+  if (pop) {
+    new Draggable(pop, {handle: 'handle', starteffect: false, endeffect: false});
+    //if (!Zena.editor_div) {
+    //  Zena.editor_div = pop;
+    //  new Draggable(pop); // {handle: 'title'}
+    //}
+
+    var iframe = '';
+    iframe = iframe + "<div class='handle'><p id='zena_editor_title'>&nbsp;</p></div>";
+    iframe = iframe + "<div class='resize'>&nbsp;</div>";
+    iframe = iframe + "<iframe src ='" + url + "'";
+    iframe = iframe + ">"; //  width='310' height='410'
+    iframe = iframe + "<p>Your browser does not support iframes: <a target='" + name + "' href='" + url + "'>Open editor</a>.</p>";
+    iframe = iframe + "</iframe>";
+    Element.update(pop, iframe);
+  } else {
+    editor = window.open(url, name, 'location=0,width=300,height=400,resizable=1');
+  }
+}
+
 // preview content from another window.
 Zena.editor_preview = function(url, element, value) {
   var key = element.name;
@@ -508,8 +551,12 @@ Zena.select_tab = function(name) {
 }
 
 Zena.reloadAndClose = function() {
-  opener.window.location.href = opener.window.location.href;
-  window.close();
+  if (parent) {
+    parent.window.location.href = parent.window.location.href;
+  } else {
+    opener.window.location.href = opener.window.location.href;
+    window.close();
+  }
 }
 
 // POPUP GALLERY

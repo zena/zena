@@ -86,3 +86,10 @@ ins.differ, ins.differ * { background:#cfc; text-decoration:none; padding:1px 2p
 #pg_info a { width:100px; height:40px;}
 #pg_next {position:absolute; right:0; background:url('/images/popup_next.png') no-repeat right top;}
 #pg_prev {position:absolute; left:0; background:url('/images/popup_prev.png') no-repeat left top;}
+
+/* editor */
+#zena_editor { position:fixed; top:15px; left:15px; background:transparent; border:1px solid #666;}
+#zena_editor .handle { height:14px; background:black; opacity:0.7;}
+#zena_editor_title { color:#aaa; padding:2px 5px; font-size:10px; font-family:Arial; line-height:10px;}
+#zena_editor .resize { height:14px; background:black; opacity:0.7; position:absolute; right:0; bottom:0; width:15px; height:15px;}
+#zena_editor iframe { border:0;}
