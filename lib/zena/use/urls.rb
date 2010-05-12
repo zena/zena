@@ -204,9 +204,13 @@ module Zena
             @markup.tag ||= 'a'
             method      = 'zen_path'
             method_args = []
+            hash_params = []
 
             if href = @params[:href]
               method_args << href
+            elsif node.will_be?(Version)
+              method_args << node(Node)
+              hash_params << ":lang => this.lang"
             else
               method_args << 'this'
             end
@@ -219,9 +223,8 @@ module Zena
 
             steal_and_eval_html_params_for(markup, @params)
 
-            hash_params = []
             @params.each do |key, value|
-              next if key == :href
+              next if [:href, :eval, :text].include?(key)
               hash_params << ":#{key} => %Q{#{value}}"
             end
 
@@ -230,7 +233,7 @@ module Zena
             end
 
             method = "#{method}(#{method_args.join(', ')})"
-
+deb method
             link = ::RubyLess.translate(method, self)
 
 
