@@ -20,7 +20,7 @@ input { padding:3px 4px;}
 
 #title { margin:0 42px 42px 200px; color:black;}
 #title h1 { font-size:35px; margin:0;}
-.summary p { margin:0; text-style:italic; font-family:Georgia,Times,serif; color:black;}
+.summary p { margin:0; font-style:italic; font-family:Georgia,Times,serif; color:black;}
 #context { width:180px; float:left; border-right:1px solid grey;}
 ol { padding-left:14px;}
 

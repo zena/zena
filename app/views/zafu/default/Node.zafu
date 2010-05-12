@@ -9,7 +9,7 @@
     <r:stylesheets media='all' list='reset,zena,code,default,window'/>
   </r:void>
 
-  <r:javascripts list='all'/>
+  <r:javascripts list='prototype,effects,window,tablekit,zena'/>
   <r:uses_datebox/>
 </head>
 

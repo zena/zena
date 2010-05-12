@@ -3,8 +3,8 @@ var Zena = {};
 Zena.env = new Array();
 
 Zena.editor_setup = function(url) {
-  var current_sel = $('text_sel');
-  var current_tab = $('text_tab');
+  window.current_sel = $('text_sel');
+  window.current_tab = $('text_tab');
   var preview = parent ? parent : opener;
 
   Event.observe(window, 'resize', function() { Zena.resizeElement('node_text'); } );
@@ -12,7 +12,8 @@ Zena.editor_setup = function(url) {
   Zena.resizeElement('node_text');
 
   if (parent) {
-    parent.$('zena_editor_title').update(document.title);
+    window.editor_window = parent.Zena.new_editor;
+    window.editor_window.setTitle(document.title);
   }
 
   $('node_form').getElements().each(function(input, index) {
@@ -22,26 +23,21 @@ Zena.editor_setup = function(url) {
   });
 }
 
-Zena.editor_open = function(url, name) {
-  var pop = $('zena_editor');
-
-  if (pop) {
-    new Draggable(pop, {handle: 'handle', starteffect: false, endeffect: false});
-    //if (!Zena.editor_div) {
-    //  Zena.editor_div = pop;
-    //  new Draggable(pop); // {handle: 'title'}
-    //}
-
-    var iframe = '';
-    iframe = iframe + "<div class='handle'><p id='zena_editor_title'>&nbsp;</p></div>";
-    iframe = iframe + "<div class='resize'>&nbsp;</div>";
-    iframe = iframe + "<iframe src ='" + url + "'";
-    iframe = iframe + ">"; //  width='310' height='410'
-    iframe = iframe + "<p>Your browser does not support iframes: <a target='" + name + "' href='" + url + "'>Open editor</a>.</p>";
-    iframe = iframe + "</iframe>";
-    Element.update(pop, iframe);
-  } else {
+Zena.editor_open = function(url, name, use_popup) {
+  if (use_popup) {
     editor = window.open(url, name, 'location=0,width=300,height=400,resizable=1');
+  } else {
+    var win = new Window({
+      url: url,
+      className: 'dialog',
+      title: "",
+      top:15, left:15,
+      width:300, height:400,
+      showEffect: Element.show, hideEffect: Element.hide
+    });
+
+    Zena.new_editor = win;
+    win.show();
   }
 }
 
@@ -49,7 +45,7 @@ Zena.editor_open = function(url, name) {
 Zena.editor_preview = function(url, element, value) {
   var key = element.name;
   var full_url = url + '?key=' + key.slice(5, key.length - 1);
-  new Ajax.Request(full_url, {method:'get', asynchronous:true, evalScripts:true, parameters:{content: value }}); // $F()
+  new Ajax.Request(full_url, {method:'get', asynchronous:true, evalScripts:true, parameters:{content: value }});
 }
 
 // preview version.
@@ -156,9 +152,11 @@ Zena.resizeElement = function(name) {
   }
   var hMargin = obj.offsetLeft;
   var vMargin = obj.offsetTop;
-  obj.style.width  = (myWidth  - hMargin - 5) + 'px';
-  obj.style.height = (myHeight - vMargin - 5) + 'px';
+  var pad = parent ? 5 : 5;
+  obj.style.width  = (myWidth  - hMargin - pad) + 'px';
+  obj.style.height = (myHeight - vMargin - pad) + 'px';
 }
+
 // transfer html from src tag to trgt tag
 Zena.transfer = function(src,trgt) {
   target = $(trgt);
