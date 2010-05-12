@@ -233,7 +233,7 @@ module Zena
             end
 
             method = "#{method}(#{method_args.join(', ')})"
-deb method
+
             link = ::RubyLess.translate(method, self)
 
 

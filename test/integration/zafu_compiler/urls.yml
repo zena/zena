@@ -4,6 +4,10 @@ default:
     visitor: 'ant'
     node: 'status'
 
+url:
+  src: "<r:url/>"
+  res: "http://test.host/oo/projects/cleanWater/page22.html"
+
 use_url_in_attribute:
   src: "<a href='#{url}'>blah</a>"
   res: "<a href='http://test.host/oo/projects/cleanWater/page22.html'>blah</a>"
@@ -32,7 +36,7 @@ link_not_logged:
     visitor: anon
   src: "<r:link/>"
   res: "<a href='/en/projects/cleanWater/page22.html'>status title</a>"
-  
+
 do_link:
   src: "<li class='super' do='link'>sample text</li>"
   res: "<li class='super'><a href='/oo/projects/cleanWater/page22.html'>status title</a></li>"
