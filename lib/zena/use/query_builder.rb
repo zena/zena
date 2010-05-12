@@ -53,7 +53,7 @@ module Zena
         end
 
         private
-          def build_finder(count, rel, params)
+          def build_finder(count, rel, params = {})
 
             if !node.klass.respond_to?(:build_query)
               raise ::QueryBuilder::Error.new("No query builder for class #{node.klass}")

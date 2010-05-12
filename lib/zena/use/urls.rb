@@ -254,7 +254,7 @@ module Zena
               if lnode = find_stored(Node, href)
                 # using stored node
               else
-                lnode, klass = build_finder_for(:first, href, {})
+                lnode, klass = build_finder(:first, href, {})
                 return unless lnode
                 return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
               end
@@ -287,7 +287,7 @@ module Zena
             end
 
             if anchor_in = params.delete(:in)
-              finder, klass = build_finder_for(:first, anchor_in, {})
+              finder, klass = build_finder(:first, anchor_in, {})
               return unless finder
               return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
               opts[:anchor_in] = finder

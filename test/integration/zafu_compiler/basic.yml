@@ -523,8 +523,8 @@ select_class_new_node:
   res: "/<select.*name=.node\[klass\].*Note.*Letter.*Post. selected=.selected./"
 
 select_nodes:
-  src: "<r:form><select nodes='images in site' name='d_ref'></select></r:form>"
-  res: "/name='node\[d_ref\]'><option value=\"\" selected=\"selected\"></option>\n<option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
+  src: "<r:form><select nodes='images in site' name='foo'></select></r:form>"
+  res: "/name='node\[foo\]'><option value=\"\" selected=\"selected\"></option>\n<option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
 
 do_not_set_parent_id_if_form_contains_parent_id:
   src: "<r:children><r:each do='[name]'/><r:add/><r:form><r:select name='parent_id' nodes='projects in site'/><input name='title'/></r:form></r:children>"

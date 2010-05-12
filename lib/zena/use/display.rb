@@ -431,7 +431,7 @@ module Zena
 
         # Find icon through a relation named 'icon' or use first image child
         def r_icon
-          finder = build_finder(:first, icon_finder, {})
+          finder = build_finder(:first, icon_finder)
           expand_with_finder(finder)
         end
 
@@ -439,7 +439,7 @@ module Zena
         def r_img
           return unless node.will_be?(Node)
           if @params[:src]
-            finder, klass = build_finder_for(:first, @params[:src])
+            finder, klass = build_finder(:first, @params[:src])
             return unless finder
             return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
             img = finder
@@ -455,7 +455,7 @@ module Zena
           res += ", :host => #{@context["exp_host"]}" if @context["exp_host"]
           res += ")"
           if @params[:link]
-            finder, klass = build_finder_for(:first, @params[:link])
+            finder, klass = build_finder(:first, @params[:link])
             return unless finder
             return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
 

@@ -14,7 +14,7 @@ module Zafu
       # give a clue on the context at start and end. Another way to open a context is the 'do' syntax: "<div do='pages'>...</div>".
       # FIXME: 'else' clause has been removed, find a solution to put it back.
       def r_context
-        # DRY ! (build_finder_for, block)
+        # DRY ! (build_finder, block)
         return parser_error("missing 'select' parameter") unless method = @params[:select]
         context = change_context(method, :skip_rubyless => true)
         open_context(context)
@@ -25,7 +25,7 @@ module Zafu
         #elsif node.will_be?(Node)
         #  count   = ['first','all','count'].include?(@params[:find]) ? @params[:find].to_sym : nil
         #  count ||= Node.plural_relation?(method) ? :all : :first
-        #  finder, klass, query = build_finder_for(count, method, @params)
+        #  finder, klass, query = build_finder(count, method, @params)
         #  return unless finder
         #  if node.will_be?(Node) && !klass.ancestors.include?(Node)
         #    # moving out of node: store last Node
@@ -35,7 +35,7 @@ module Zafu
         #    # plural
         #    do_list( finder, query, :node_class => klass)
         #  # elsif count == :count
-        #  #   "<%= #{build_finder_for(count, method, @params)} %>"
+        #  #   "<%= #{build_finder(count, method, @params)} %>"
         #  else
         #    # singular
         #    do_var(  finder, :node_class => klass)

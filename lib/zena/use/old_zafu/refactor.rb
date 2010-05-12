@@ -10,10 +10,10 @@ module Zafu
       @context[:output_format] || 'html'
     end
 
-    # icon or first image (defined using build_finder_for instead of zafu_known_context for performance reasons).
+    # icon or first image (defined using build_finder instead of zafu_known_context for performance reasons).
     def r_icon
       if !@params[:in] && !@params[:where] && !@params[:from] && !@params[:find]
-        finder, klass = build_finder_for(:first, 'icon', @params.merge(:or => 'image', :order => 'l_id desc, position asc, node_name ASC', :group => 'id,l_id'))
+        finder, klass = build_finder(:first, 'icon', @params.merge(:or => 'image', :order => 'l_id desc, position asc, node_name ASC', :group => 'id,l_id'))
         return unless finder
         return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
         do_var(finder, :node_class => klass)

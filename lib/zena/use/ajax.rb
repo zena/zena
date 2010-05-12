@@ -11,7 +11,9 @@ module Zena
       module ViewMethods
         include Common
 
-        def dom_id(node)
+        # Return the DOM id for a node. We had to name this method 'ndom_id' because we want
+        # to avoid the clash with Rails' dom_id method.
+        def ndom_id(node)
           if node.new_record?
             "#{params[:dom_id]}_form"
           elsif params[:action] == 'create' && !params[:udom_id]

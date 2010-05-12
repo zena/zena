@@ -25,7 +25,7 @@ module Zena
           #else
           #  if node.will_be?(DataEntry) && @method.to_s =~ /node_/
           #    # select node_id
-          #    "<%= select_id('#{base_class.to_s.underscore}', '#{@method}_id') %>"
+          #    "<%= select_id('#{node.form_name}', '#{@method}_id') %>"
           #  end
           end
           #res = "<#{@html_tag || 'div'} class='zazen'>#{res}</#{@html_tag || 'div'}>" if [:r_summary, :r_text].include?(method)
@@ -40,26 +40,24 @@ module Zena
           if template_url = @context[:template_url]
             # Ajax
 
-            base_name = self.base_class.to_s.underscore
-
             if @context[:in_add]
               # Inline form used to create new elements: set values to '' and 'parent_id' from context
               opts[:id]          = "#{node.dom_prefix}_form"
-              opts[:form_tag]    = "<% remote_form_for(:#{base_name}, #{node}, :url => #{base_name.pluralize}_path, :html => {:id => \"#{dom_name}_form_t\"}) do |f| %>"
+              opts[:form_tag]    = "<% remote_form_for(:#{node.form_name}, #{node}, :url => #{node.form_name.pluralize}_path, :html => {:id => \"#{dom_name}_form_t\"}) do |f| %>"
               opts[:form_cancel] = "<p class='btn_x'><a href='#' onclick='[\"#{dom_name}_add\", \"#{dom_name}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>\n"
             else
               # Saved form
-              opts[:id]          = "<%= dom_id(#{node}) %>"
+              opts[:id]          = "<%= ndom_id(#{node}) %>"
 
               opts[:form_tag]    = <<-END_TXT
-<% remote_form_for(:#{base_name}, #{node}, :url => #{node}.new_record? ? #{base_name.pluralize}_path : #{base_name}_path(#{node}), :method => #{node}.new_record? ? :post : :put, :html => {:id => \"#{dom_name}_form_t\"}) do |f| %>
+<% remote_form_for(:#{node.form_name}, #{node}, :url => #{node}.new_record? ? #{node.form_name.pluralize}_path : #{node.form_name}_path(#{node}), :method => #{node}.new_record? ? :post : :put, :html => {:id => \"#{dom_name}_form_t\"}) do |f| %>
 END_TXT
 
               opts[:form_cancel] = <<-END_TXT
 <% if #{node}.new_record? -%>
   <p class='btn_x'><a href='#' onclick='[\"<%= params[:dom_id] %>_add\", \"<%= params[:dom_id] %>_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
 <% else -%>
-  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{base_class.to_s.underscore}_path(#{node}.id) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}#{@context[:need_link_id] ? "&link_id=\#{#{node}.link_id}" : ''}\", :method => :get) %></p>
+  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{node.form_name}_path(#{node}.id) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}#{@context[:need_link_id] ? "&link_id=\#{#{node}.link_id}" : ''}\", :method => :get) %></p>
 <% end -%>
 END_TXT
             end
@@ -72,9 +70,9 @@ END_TXT
 
           set_fields = []
           @markup.params[:class] ||= 'form'
-          var_name   = base_class.to_s.underscore
+
           (descendants('input') + descendants('select')).each do |tag|
-            set_fields << "#{var_name}[#{tag.params[:name]}]"
+            set_fields << "#{node.form_name}[#{tag.params[:name]}]"
           end
 
           if template_url = @context[:template_url] # @context[:dom_prefix] || @params[:update]
@@ -195,24 +193,20 @@ END_TXT
         def r_select
           html_attributes, attribute = get_input_params()
           return parser_error("missing name") unless attribute
+
           if value = @params[:selected]
-            # FIXME: DRY with html_attributes
-            value = value.gsub(/\[([^\]]+)\]/) do
-              node_attr = $1
-              res = node_attribute(node_attr)
-              "\#{#{res}}"
-            end
-            selected = value.inspect
+            selected = ::RubyLess.translate_string(value, self)
           elsif @context[:in_filter]
             selected = "params[#{attribute.to_sym.inspect}].to_s"
           else
-            selected = "#{node_attribute(attribute)}.to_s"
+            selected = "#{node}.prop['#{attribute}'].to_s"
           end
+
           html_id = html_attributes[:id] ? " id='#{html_attributes[:id]}'" : ''
           if @context[:in_filter]
             select_tag = "<select#{html_id} name='#{attribute}'>"
           else
-            select_tag = "<select#{html_id} name='#{base_class.to_s.underscore}[#{attribute}]'>"
+            select_tag = "<select#{html_id} name='#{node.form_name}[#{attribute}]'>"
           end
 
           if klass = @params[:root_class]
@@ -240,12 +234,12 @@ END_TXT
           when 'date_box', 'date'
             return parser_error("date_box without name") unless attribute
             input_id = @context[:dom_prefix] ? ", :id=>\"#{dom_id}_#{attribute}\"" : ''
-            "<%= date_box '#{base_class.to_s.underscore}', #{attribute.inspect}, :size=>15#{@context[:in_add] ? ", :value=>''" : ''}#{input_id} %>"
+            "<%= date_box '#{node.form_name}', #{attribute.inspect}, :size=>15#{@context[:in_add] ? ", :value=>''" : ''}#{input_id} %>"
           when 'id'
             return parser_error("select id without name") unless attribute
             name = "#{attribute}_id" unless attribute[-3..-1] == '_id'
             input_id = @context[:erb_dom_id] ? ", :input_id =>\"#{erb_dom_id}_#{attribute}\"" : ''
-            "<%= select_id('#{base_class.to_s.underscore}', #{attribute.inspect}#{input_id}) %>"
+            "<%= select_id('#{node.form_name}', #{attribute.inspect}#{input_id}) %>"
           when 'time_zone'
             out parser_error("please use [select] here")
             r_select
@@ -285,7 +279,7 @@ END_TXT
             list_finder = "(secure(Node) { Node.find(:all, :conditions => 'zip IN (#{values.join(',')})') })"
           else
             # relation
-            list_finder, klass = build_finder_for(:all, values)
+            list_finder, klass = build_finder(:all, values)
             return unless list_finder
             return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
           end
@@ -319,7 +313,7 @@ END_TXT
         #  return '' if ['url','path'].include?(attribute) # cannot be set with a form
         #  if params[:date]
         #  input_id = @context[:dom_prefix] ? ", :id=>\"#{dom_id}_#{attribute}\"" : ''
-        #    return "<%= date_box('#{base_class.to_s.underscore}', #{params[:date].inspect}#{input_id}) %>"
+        #    return "<%= date_box('#{node.form_name}', #{params[:date].inspect}#{input_id}) %>"
         #  end
         #  input_id = node.dom_prefix ? " id='#{node.dom_prefix}_#{attribute}'" : ''
         #  "<input type='#{params[:type] || 'text'}'#{input_id} name='#{input[:name]}' value='#{input[:value]}'/>"
@@ -339,7 +333,7 @@ END_TXT
 
             unless @context[:in_filter] || attribute == 's'
               #if sub_attr
-              #  res[:name] = "#{base_class.to_s.underscore}[#{attribute}][#{sub_attr}]"
+              #  res[:name] = "#{node.form_name}[#{attribute}][#{sub_attr}]"
               #else
                 res[:name] = "#{node.form_name}[#{attribute}]"
               #end
@@ -458,13 +452,15 @@ END_TXT
                 nodes = "(secure(Node) { Node.find(:all, :conditions => 'zip IN (#{nodes.join(',')})') })"
               else
                 # relation
-                nodes, klass = build_finder_for(:all, nodes)
-                return unless nodes
-                return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
+                finder = build_finder(:all, nodes)
+                return parser_error("invalid class (#{klass})") unless finder[:class].first <= Node
+                nodes = finder[:method]
               end
-              set_attr  = @params[:attr] || 'id'
-              show_attr = @params[:show] || 'name'
-              options_list = "[['','']] + (#{nodes} || []).map{|r| [#{node_attribute(show_attr, :node => 'r', :node_class => Node)}, #{node_attribute(set_attr, :node => 'r', :node_class => Node)}.to_s]}"
+
+              set_attr  = ::RubyLess.translate(@params[:attr] || 'id', Node)
+              show_attr = ::RubyLess.translate(@params[:show] || 'title', Node)
+
+              options_list = "[['','']] + (#{nodes} || []).map{|r| [r.#{show_attr}, r.#{set_attr}.to_s]}"
             elsif values = @params[:values]
               options_list = values.split(',').map(&:strip)
 
@@ -493,7 +489,7 @@ END_TXT
               attribute = $2
             else
               attribute = name
-              name = "#{base_class.to_s.underscore}[#{attribute}]"
+              name = "#{node.form_name}[#{attribute}]"
             end
             return '' if attribute == 'parent_id' # set with 'r_form'
 
