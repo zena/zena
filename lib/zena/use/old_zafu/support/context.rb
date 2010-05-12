@@ -133,19 +133,6 @@ module Zafu
           "params[:#{key}]"
         end
 
-        def find_stored(klass, key)
-          if "#{klass}_#{key}" == "Node_start_node"
-            # main node before ajax stuff (the one in browser url)
-            "start_node"
-          else
-            @context["#{klass}_#{key}"]
-          end
-        end
-
-        def set_stored(klass, key, obj)
-          @context["#{klass}_#{key}"] = obj
-        end
-
         def open_context(context)
           return nil unless context
           klass = context.delete(:class)

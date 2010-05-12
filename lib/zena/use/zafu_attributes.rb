@@ -9,7 +9,7 @@ module Zena
 
       module ZafuMethods
         def self.included(base)
-          base.before_process :filter_prefix, :filter_status, :filter_property, :filter_anchor, :filter_live
+          base.before_process :filter_prefix, :filter_status, :filter_property, :filter_anchor, :filter_live, :filter_set_var
           base.before_wrap :add_anchor, :add_live_id
         end
 
@@ -63,6 +63,19 @@ module Zena
           # Remove 'live' param so that it does not alter RubyLess method building.
           def filter_live
             @live_param = @params.delete(:live)
+          end
+
+          # Evaluate 'set_xxx' param and store result in context with 'var' name. This name
+          # will be used during RubyLess method resolution.
+          def filter_set_var
+            @params.keys.each do |k|
+              if k.to_s =~ /^set_(.+)$/
+                var = $1
+                typed_string = ::RubyLess.translate(@params.delete(k), self)
+                deb typed_string
+                set_context_var('set_var', var, typed_string)
+              end
+            end
           end
 
           # If we had a 'live' parameter, wrap the result with an id.

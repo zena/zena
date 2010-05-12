@@ -122,8 +122,9 @@ link_anchor_name_in:
   res: "<a href='/oo/projects/cleanWater#status'>status title</a>"
 
 link_stored:
-  src: "<r:void store='foo'><r:parent><r:link href='foo' do='[name]'/></r:parent></r:void>"
-  res: "<a href='/oo/projects/cleanWater/page22.html'>cleanWater</a>"
+  old_src: "<r:void store='foo'><r:parent><r:link href='foo' do='[name]'/></r:parent></r:void>"
+  src: "<r:void set_foo='this'><r:parent><r:link href='foo' do='title'/></r:parent></r:void>"
+  res: "<a href='/oo/projects/cleanWater/page22.html'>Clean Water project</a>"
 
 link_date:
   context:
@@ -137,8 +138,8 @@ link_url_params:
   res: "<a href='/oo/projects/cleanWater/page22.html?plob=hopla'>status title</a>"
 
 link_url_params_parsed_values:
-  src: "<r:link plob='haha [name]'/>"
-  res: "<a href='/oo/projects/cleanWater/page22.html?plob=haha+status'>status title</a>"
+  src: "<r:link plob='haha #{title}'/>"
+  res: "<a href='/oo/projects/cleanWater/page22.html?plob=haha+status+title'>status title</a>"
 
 link_in_anchor:
   src: "<r:anchor do='link'/>"
