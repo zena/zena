@@ -15,58 +15,58 @@
 .dialog_nw {
 	width: 9px;
 	height: 23px;
-	background: transparent url(/images/window/top_left.gif) no-repeat 0 0;
+	background: transparent url(/images/window/top_left.png) no-repeat 0 0;
 }
 
 .dialog_n {
-	background: transparent url(/images/window/top_mid.gif) repeat-x 0 0;
+	background: transparent url(/images/window/top_mid.png) repeat-x 0 0;
 	height: 23px;
 }
 
 .dialog_ne {
 	width: 9px;
 	height: 23px;
-	background: transparent url(/images/window/top_right.gif) no-repeat 0 0;
+	background: transparent url(/images/window/top_right.png) no-repeat 0 0;
 }
 
 .dialog_e {
 	width: 2px;
-	background: transparent url(/images/window/center_right.gif) repeat-y 0 0;
+	background: transparent url(/images/window/center_right.png) repeat-y 0 0;
 }
 
 .dialog_w {
 	width: 2px;
-	background: transparent url(/images/window/center_left.gif) repeat-y 0 0;
+	background: transparent url(/images/window/center_left.png) repeat-y 0 0;
 }
 
 .dialog_sw {
 	width: 9px;
 	height: 19px;
-	background: transparent url(/images/window/bottom_left.gif) no-repeat 0 0;
+	background: transparent url(/images/window/bottom_left.png) no-repeat 0 0;
 }
 
 .dialog_s {
-	background: transparent url(/images/window/bottom_mid.gif) repeat-x 0 0;
+	background: transparent url(/images/window/bottom_mid.png) repeat-x 0 0;
 	height: 19px;
 }
 
 .dialog_se {
 	width: 9px;
 	height: 19px;
-	background: transparent url(/images/window/bottom_right.gif) no-repeat 0 0;
+	background: transparent url(/images/window/bottom_right.png) no-repeat 0 0;
 }
 
 .dialog_sizer {
 	width: 9px;
 	height: 19px;
-	background: transparent url(/images/window/sizer.gif) no-repeat 0 0;
+	background: transparent url(/images/window/sizer.png) no-repeat 0 0;
 	cursor:se-resize;
 }
 
 .dialog_close {
 	width: 14px;
 	height: 14px;
-	background: transparent url(/images/window/close.gif) no-repeat 0 0;
+	background: transparent url(/images/window/close.png) no-repeat 0 0;
 	position:absolute;
 	top:5px;
 	left:8px;
@@ -77,7 +77,7 @@
 .dialog_minimize {
 	width: 14px;
 	height: 15px;
-	background: transparent url(/images/window/minimize.gif) no-repeat 0 0;
+	background: transparent url(/images/window/minimize.png) no-repeat 0 0;
 	position:absolute;
 	top:5px;
 	left:28px;
@@ -88,7 +88,7 @@
 .dialog_maximize {
 	width: 14px;
 	height: 15px;
-	background: transparent url(/images/window/maximize.gif) no-repeat 0 0;
+	background: transparent url(/images/window/maximize.png) no-repeat 0 0;
 	position:absolute;
 	top:5px;
 	left:49px;
@@ -101,9 +101,9 @@
 	height:14px;
 	font-family: Tahoma, Arial, sans-serif;
 	font-size:12px;
-	text-align:center;
+	text-align:center; line-height:14px;
 	width:100%;
-	color:#000;
+	color:#bbb;
 }
 
 .dialog_content {

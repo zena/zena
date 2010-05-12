@@ -90,7 +90,6 @@
     <div class='clear'>&nbsp;</div>
   </div> <!-- container -->
   <div id='footer'><r:zena type='garden'/></div>
-  <div id='zena_editor'></div>
 </body>
 
 </html>
