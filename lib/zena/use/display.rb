@@ -425,7 +425,7 @@ module Zena
           return parser_error("only works with nodes (not with #{node.klass})") unless node.will_be?(Node)
           @markup.append_param(:class, 'btn_add')
           node = self.node.list_context? ? self.node.up : self.node
-          res = "<a href='/documents/new?parent_id=<%= #{node}.zip %>' onclick='uploader=window.open(\"/documents/new?parent_id=<%= #{node}.zip %>\", \"upload\", \"width=400,height=300\");return false;'>#{_('btn_add_doc')}</a>"
+          res = "<%= node_action_link('add_doc', #{node})  %>"
           "<% if #{node}.can_write? -%>#{@markup.wrap(res)}<% end -%>"
         end
 

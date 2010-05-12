@@ -91,7 +91,8 @@ class VersionsController < ApplicationController
   # TODO: test/improve or remove (experiments)
   def diff
     # source
-    source = @node.version
+    source = @node.version.prop
+
     # target
     if params[:to].to_i > 0
       version = secure!(Version) { Version.find(:first, :conditions => ['node_id = ? AND number = ?', @node.id, params[:to]])}
@@ -100,19 +101,17 @@ class VersionsController < ApplicationController
       # default
       @node.instance_variable_set(:@version, nil)
     end
-    target = @node.version
+    target = @node.prop
 
-    ['title', 'text', 'summary'].each do |k|
-      target.send("#{k}=",
-        Differ.diff_by_word(target.send(k) || '', source.send(k) || '').format_as(:html).gsub(/(\s+)<\/del>/, '</del>\1')
-      )
+    keys = (target.keys + source.keys).uniq
+
+    keys.each do |k|
+      target[k] = Differ.diff_by_word(
+        target[k] || '',
+        source[k] || '').format_as(:html).gsub(/(\s+)<\/del>/, '</del>\1')
     end
 
-    source = source.dyn
-    target = target.dyn
-    target.keys.each do |k|
-      target[k] = Differ.diff_by_word(target[k] || '', source[k] || '').format_as(:html).gsub(/(\s+)<\/del>/, '</del>\1')
-    end
+    puts target.inspect
 
     show
   end

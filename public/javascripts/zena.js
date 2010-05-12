@@ -11,7 +11,7 @@ Zena.editor_setup = function(url) {
   Event.observe(window, 'resize', function() { Zena.resizeElement('node_text'); } );
   Zena.resizeElement('node_text');
 
-  if (parent) {
+  if (parent != window) {
     window.editor_window = parent.Zena.new_editor;
     window.editor_window.setTitle(document.title);
   }
@@ -23,21 +23,41 @@ Zena.editor_setup = function(url) {
   });
 }
 
-Zena.editor_open = function(url, name, use_popup) {
-  if (use_popup) {
-    editor = window.open(url, name, 'location=0,width=300,height=400,resizable=1');
-  } else {
-    var win = new Window({
-      url: url,
-      className: 'dialog',
-      title: "",
-      top:15, left:15,
-      width:300, height:400,
-      showEffect: Element.show, hideEffect: Element.hide
-    });
+Zena.open_window = function(url, id, event) {
+  if (parent != window) {
+    // popup open from within popup
+    parent.Zena.open_window(url, id, event);
+    return;
+  }
 
-    Zena.new_editor = win;
-    win.show();
+  if (event.shiftKey) {
+    window.open(url, name, 'location=0,width=300,height=400,resizable=1');
+  } else {
+    if ($(id)) {
+      new Effect.Shake(id, {distance:3, duration:0.3});
+    } else {
+
+      if (Zena.window_offset) {
+        Zena.window_offset = Zena.window_offset + 15;
+      } else {
+        Zena.window_offset = 15;
+      }
+
+      var win = new Window({
+        url: url,
+        id: id,
+        className: 'dialog',
+        title: "",
+        top:Zena.window_offset, left:Zena.window_offset,
+        width: 300,
+        height:400,
+        showEffect: Element.show, hideEffect: Element.hide,
+        destroyOnClose: true
+      });
+
+      Zena.new_editor = win;
+      win.show();
+    }
   }
 }
 
@@ -50,10 +70,12 @@ Zena.editor_preview = function(url, element, value) {
 
 // preview version.
 Zena.version_preview = function(url) {
-  if (window.location.href.endsWith(url)) {
-    window.location.href = url.gsub(/\/versions\/.*$/,'');
+  var target = opener ? opener : parent;
+
+  if (target.location.href.endsWith(url)) {
+    target.location.href = url.gsub(/\/versions\/.*$/,'');
   } else {
-    window.location.href = url;
+    target.location.href = url;
   }
 }
 
@@ -152,9 +174,8 @@ Zena.resizeElement = function(name) {
   }
   var hMargin = obj.offsetLeft;
   var vMargin = obj.offsetTop;
-  var pad = parent ? 5 : 5;
-  obj.style.width  = (myWidth  - hMargin - pad) + 'px';
-  obj.style.height = (myHeight - vMargin - pad) + 'px';
+  obj.style.width  = (myWidth  - hMargin - 5) + 'px';
+  obj.style.height = (myHeight - vMargin - 5) + 'px';
 }
 
 // transfer html from src tag to trgt tag
@@ -549,10 +570,12 @@ Zena.select_tab = function(name) {
 }
 
 Zena.reloadAndClose = function() {
-  if (parent) {
+  if (opener && !opener.is_editor) {
+    opener.window.location.href = opener.window.location.href;
+    window.close();
+  } else if (parent != window) {
     parent.window.location.href = parent.window.location.href;
   } else {
-    opener.window.location.href = opener.window.location.href;
     window.close();
   }
 }

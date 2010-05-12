@@ -134,7 +134,7 @@
 /* DO NOT CHANGE THESE VALUES*/
 .dialog {
 	display: block;
-	position: absolute;
+	position: fixed;
 }
 
 .dialog table.table_window  {

@@ -37,19 +37,22 @@ module Zena
         end
 
         # TODO: test
-        def node_action_link(action, node, publish_after_save)
-          case action
-          when 'edit'
-            url  = edit_node_version_path(:node_id => node[:zip], :id => 0) + (publish_after_save ? "?pub=#{publish_after_save}" : '')
-            name = "#{current_site.host}#{node[:zip]}"
+        def node_action_link(action, node, publish_after_save = false)
+          if %w{edit drive add_doc}.include?(action)
+            case action
+            when 'edit'
+              url  = edit_node_version_path(:node_id => node.zip, :id => 0) + (publish_after_save ? "?pub=#{publish_after_save}" : '')
+            when 'drive'
+              url  = edit_node_url(:id => node.zip )
+            when 'add_doc'
+              url  = new_document_url(:parent_id => node.zip)
+            end
 
-            "<a href='#{url}' target='_blank' title='#{_('btn_title_edit')}' onclick=\"editor=Zena.editor_open('#{url}', '#{name}');return false;\">" +
-            _('btn_edit') + '</a>'
-          when 'drive'
-            "<a href='#{edit_node_path(:id => node[:zip])}' target='_blank' title='#{_('btn_title_drive')}' onclick=\"editor=window.open('" +
-                   edit_node_url(:id => node[:zip] ) +
-                   "', '_blank', 'location=0,width=300,height=400,resizable=1');return false;\">" +
-                   _('btn_drive') + "</a>"
+            id   = "#{current_site.host.gsub('.', '_')}_#{node[:zip]}_#{action}"
+
+            "<a href='#{url}' target='_blank' title='#{_('btn_title_edit')}' onclick=\"editor=Zena.open_window('#{url}', '#{id}', event);return false;\">" +
+            _("btn_#{action}") + '</a>'
+
           else
             link_to( _("btn_#{action}"), {:controller=>'versions', :action => action, :node_id => node[:zip], :id => 0}, :title=>_("btn_title_#{action}"), :method => :put )
           end
@@ -83,7 +86,7 @@ module Zena
             # FIXME
             link_to_function(
             _("status_#{version.status}_img"),
-            "opener.Zena.version_preview('/nodes/#{version.node.zip}/versions/#{version.number}');", :title => _("status_#{version.status}"))
+            "Zena.version_preview('/nodes/#{version.node.zip}/versions/#{version.number}');", :title => _("status_#{version.status}"))
           else
             if action == 'destroy_version'
               action = 'destroy'
