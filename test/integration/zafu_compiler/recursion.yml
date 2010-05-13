@@ -1,0 +1,27 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'status'
+
+basic:
+  src: "<r:void name='grp'><r:show attr='node_name'/><r:parent> -- <r:include part='grp'/></r:parent></r:void>"
+  res: "status -- cleanWater -- projects -- zena"
+
+in_each:
+  src: "<ul do='comments'>
+    <li do='each' name='com'><b do='title'>sample title</b>
+      <ul do='replies' do='include' part='com'/>
+    </li>
+  </ul>"
+  res: "<ul> <li><b>I agree</b> </li> <li><b>I think this is bad</b> <ul> <li><b>Why ?</b> </li></ul> </li> <li><b>OK for me</b> </li> </ul>"
+
+foo:
+  src: |
+    <r:void name='grp'>
+      <r:parent>
+        <r:include part='grp'/> /
+      </r:parent>
+      <r:show attr='title'/>
+    </r:void>
+  res: ''

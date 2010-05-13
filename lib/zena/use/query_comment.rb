@@ -86,9 +86,9 @@ module Zena
         return 'nil' unless valid?
         case count
         when :count
-          "#{node_name}.do_find(:count, #{to_s(:count)}, #{!uses_node_name}, #{main_class})"
+          "#{node_name}.do_find(:count, #{to_s(:count)}, #{uses_node_name ? 'true' : 'false'})"
         else
-          "#{node_name}.do_find(#{count.inspect}, #{self.to_s}, #{!uses_node_name}, #{main_class})"
+          "#{node_name}.do_find(#{count.inspect}, #{self.to_s}, #{uses_node_name ? 'true' : 'false'})"
         end
       end
     end # QueryComment

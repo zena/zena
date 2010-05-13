@@ -56,15 +56,13 @@ filter_l_status:
   context:
     node: art
   src: "tagged where l_status > 5"
-  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM nodes,links WHERE #{secure_scope('nodes')} AND nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags) AND links.target_id = ? AND links.status > 5 ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id]"
+  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags) AND links.target_id = ? AND links.status > 5 ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id]"
   res: "cleanWater"
 
 param_filter:
   context:
     node: art
-  src:
-    - "tagged where name like \"%[param:tag]%\" and \"[param:tag]\" ne \"\" in site"
-    - "tagged where l_status > 5"
+  src: "(tagged where node_name like #{params[:tag]} and #{params[:tag]} ne '' in site)"
   res: "cleanWater"
 
 param_filter_no_string:

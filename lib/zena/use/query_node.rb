@@ -187,7 +187,7 @@ module Zena
               raise QueryBuilder::QueryException.new("Unknown class #{right.last.inspect}.")
             end
           else
-            super
+            process_op(:like, left, right)
           end
         end
 
@@ -296,9 +296,12 @@ module Zena
               if context[:scope] == 'site'
                 # Example: 'tagged in site' ==> any node with a 'tagged' relation (no need to
                 # filter by source).
-                add_filter "#{field_or_attr('id')} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel.id}"
+                add_filter "#{table('links')}.relation_id = #{rel.id}"
+                add_filter "#{field_or_attr('id')} = #{table('links')}.#{rel.other_side}"
               else
-                add_filter "#{field_or_attr('id')} = #{table('links')}.#{rel.other_side} AND #{table('links')}.relation_id = #{rel.id} AND #{table('links')}.#{rel.link_side} = #{field_or_attr('id', table(main_table,-1))}"
+                add_filter "#{table('links')}.#{rel.link_side} = #{field_or_attr('id', table(main_table,-1))}"
+                add_filter "#{table('links')}.relation_id = #{rel.id}"
+                add_filter "#{field_or_attr('id')} = #{table('links')}.#{rel.other_side}"
               end
             else
               nil
@@ -322,11 +325,13 @@ module Zena
             end
           end
 
-          def merge_queries(query1, query2)
-            if query1.tables.include?('links') && !query2.tables.include?('links')
-              add_dummy_link_clause(query2)
-            elsif query2.tables.include?('links') && !query1.tables.include?('links')
-              add_dummy_link_clause(query1)
+          def merge_queries(queries)
+            if queries.detect {|query| query.tables.include?('links')}
+              queries.each do |query|
+                if !query.tables.include?('links')
+                  add_dummy_link_clause(query)
+                end
+              end
             end
             super
           end
@@ -342,9 +347,9 @@ module Zena
               end
 
               if left_clause =~ /#{lname}\./ && !right_clause =~ /#{lname}\./
-                right_clause << "#{lname}.id = 0)"
+                right_clause << "#{lname}.id = 0"
               elsif right_clause =~ /#{lname}\./ && !left_clause =~ /#{lname}\./
-                left_clause << "#{lname}.id = 0)"
+                left_clause << "#{lname}.id = 0"
               end
             end
 
@@ -360,7 +365,7 @@ module Zena
               right_clause = right_clause.first
             end
 
-            "(#{left_clause} OR #{right_clause})"
+            "#{left_clause} OR #{right_clause}"
           end
 
           # This is used to avoid finding random links in clauses with and without link filters
