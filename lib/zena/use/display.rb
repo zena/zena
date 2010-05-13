@@ -365,6 +365,11 @@ module Zena
 
         # Display an attribute or RubyLess code
         def r_show
+          if node.list_context?
+            @context[:node] = node.move_to("#{node}.first", node.klass.first)
+            return r_show
+          end
+
           method, klass = get_attribute_or_eval
           return nil unless method
 

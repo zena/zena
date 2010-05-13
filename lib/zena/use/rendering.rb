@@ -110,7 +110,7 @@ module Zena
               filepath = nil
               send_data( data , :filename=>@node.title, :type => content_type, :disposition=>'inline')
             end
-            cache_page(:content_data => (failure || data), :content_path => filepath) if opts[:cache]
+            cache_page(:content_data => data, :content_path => filepath) if opts[:cache]
           else
             # html
             render :file => template_url(opts), :layout=>false, :status => opts[:status]

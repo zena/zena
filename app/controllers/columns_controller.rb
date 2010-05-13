@@ -1,8 +1,15 @@
 class ColumnsController < ApplicationController
+  before_filter :visitor_node
+  before_filter :find_column, :except => [:index, :create, :new]
+  before_filter :check_is_admin
+  layout :admin_layout
+
   # GET /columns
   # GET /columns.xml
   def index
-    @columns = Column.all
+    secure!(Column) do
+      @columns = Column.paginate(:all, :order => 'name', :per_page => 20, :page => params[:page])
+    end
 
     respond_to do |format|
       format.html # index.html.erb
@@ -13,7 +20,6 @@ class ColumnsController < ApplicationController
   # GET /columns/1
   # GET /columns/1.xml
   def show
-    @column = Column.find(params[:id])
 
     respond_to do |format|
       format.html # show.html.erb
@@ -34,7 +40,7 @@ class ColumnsController < ApplicationController
 
   # GET /columns/1/edit
   def edit
-    @column = Column.find(params[:id])
+    #
   end
 
   # POST /columns
@@ -57,8 +63,6 @@ class ColumnsController < ApplicationController
   # PUT /columns/1
   # PUT /columns/1.xml
   def update
-    @column = Column.find(params[:id])
-
     respond_to do |format|
       if @column.update_attributes(params[:column])
         flash[:notice] = 'Column was successfully updated.'
@@ -74,7 +78,6 @@ class ColumnsController < ApplicationController
   # DELETE /columns/1
   # DELETE /columns/1.xml
   def destroy
-    @column = Column.find(params[:id])
     @column.destroy
 
     respond_to do |format|
@@ -82,4 +85,13 @@ class ColumnsController < ApplicationController
       format.xml  { head :ok }
     end
   end
+
+  protected
+    def visitor_node
+      @node = visitor.contact
+    end
+
+    def find_column
+      @column = secure!(Column) { Column.find(params[:id])}
+    end
 end

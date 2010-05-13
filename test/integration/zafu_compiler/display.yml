@@ -38,6 +38,9 @@ show_title_link_id:
   src: "<r:link href='32' do='title' live='true'/>"
   res: "<a href='/oo/page32.html'><span id='_title22'>status title</span></a>"
 
+show_title_in_list:
+  src: "<r:nodes in='site'><r:show attr='title'/></r:nodes>"
+  tem: "/var1.first.prop\['title'\]/"
 
 do_title:
   src: "<h2 do='title'/>"

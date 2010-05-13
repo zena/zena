@@ -92,9 +92,9 @@ module Zena
             if count == :count
               {:method => finder, :class => Number,  :query => query}
             elsif count == :all
-              {:method => finder, :class => [klass], :query => query}
+              {:method => finder, :class => [klass], :query => query, :nil => true}
             else
-              {:method => finder, :class => klass,   :query => query}
+              {:method => finder, :class => klass,   :query => query, :nil => true}
             end
 
             # if params['else']
