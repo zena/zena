@@ -63,8 +63,13 @@ set_attribute:
   src: "<div class='#{node_name}'>hop</div>"
   res: "<div class='status'>hop</div>"
 
+set_attribute_empty_tag:
+  old_src: "<div do='void' set_class='[name]'>hop</div>"
+  src: "<div class='#{node_name}'/>"
+  res: "<div class='status'></div>"
+
 anchor_attribute:
-  src: "<p do='#{id}' anchor='#{name}'>hello</p>"
+  src: "<p do='#{id}' anchor='#{node_name}'>hello</p>"
   res: "<p><a class='anchor' name='status'></a>22</p>"
 
 anchor_true:
@@ -80,7 +85,7 @@ anchor_in_link:
   res: "<a class='anchor xx' name='node22' href='/oo/projects/cleanWater/page22.html'>status title</a>"
 
 anchor_tag:
-  src: "<r:anchor/> <r:anchor anchor='#{name}'/>"
+  src: "<r:anchor/> <r:anchor anchor='#{node_name}'/>"
   res: "<a class='anchor' name='node22'></a> <a class='anchor' name='status'></a>"
 
 live_with_show:

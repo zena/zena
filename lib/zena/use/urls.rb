@@ -178,8 +178,8 @@ module Zena
         include RubyLess
         safe_method [:url,  Node]     => {:class => String, :method => 'zen_url'}
         safe_method [:path, Node]     => {:class => String, :method => 'zen_path'}
-        safe_method [:zen_path, Node, Hash] => String
-        safe_method [:zen_path, Node] => String
+        safe_method [:zen_path, Node, Hash] => {:class => String, :accept_nil => true}
+        safe_method [:zen_path, Node]       => {:class => String, :accept_nil => true}
       end # ViewMethods
 
       module ZafuMethods
@@ -203,18 +203,6 @@ module Zena
         private
           def make_link(options = {})
             @markup.tag ||= 'a'
-            method      = 'zen_path'
-            method_args = []
-            hash_params = []
-
-            if href = @params[:href]
-              method_args << href
-            elsif node.will_be?(Version)
-              method_args << node(Node)
-              hash_params << ":lang => this.lang"
-            else
-              method_args << 'this'
-            end
 
             if @markup.tag == 'a'
               markup = @markup
@@ -224,19 +212,37 @@ module Zena
 
             steal_and_eval_html_params_for(markup, @params)
 
-            @params.each do |key, value|
-              next if [:href, :eval, :text].include?(key)
-              hash_params << ":#{key} => %Q{#{value}}"
+
+            if anchor = @params[:anchor]
+              anchor = 'node#{id}' if anchor == 'true'
+              link = ::RubyLess.translate_string("##{anchor}", self)
+            else
+              method      = 'zen_path'
+              method_args = []
+              hash_params = []
+
+              if href = @params[:href]
+                method_args << href
+              elsif node.will_be?(Version)
+                method_args << node(Node)
+                hash_params << ":lang => this.lang"
+              else
+                method_args << 'this'
+              end
+
+              @params.each do |key, value|
+                next if [:href, :eval, :text, :anchor].include?(key)
+                hash_params << ":#{key} => %Q{#{value}}"
+              end
+
+              unless hash_params.empty?
+                method_args << hash_params.join(', ')
+              end
+
+              method = "#{method}(#{method_args.join(', ')})"
+
+              link = ::RubyLess.translate(method, self)
             end
-
-            unless hash_params.empty?
-              method_args << hash_params.join(', ')
-            end
-
-            method = "#{method}(#{method_args.join(', ')})"
-
-            link = ::RubyLess.translate(method, self)
-
 
             markup.set_dyn_param(:href, "<%= #{link} %>")
             markup.wrap text_for_link

@@ -10,13 +10,17 @@ module Zena
       module ZafuMethods
         def self.included(base)
           base.before_process :filter_prefix, :filter_status, :filter_property, :filter_anchor, :filter_live, :filter_set_var
-          base.before_wrap :add_anchor, :add_live_id
+          base.before_wrap :add_live_id
+          base.after_wrap  :add_anchor
         end
 
         private
 
           # Enable 'a' tag anchoring
           def filter_anchor
+            # anchor has a different meaning with 'link' (used to point link).
+            return if @method == 'link'
+
             if @method == 'anchor'
               @method = 'void'
               if single_child_method == 'link'

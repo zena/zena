@@ -58,8 +58,8 @@ link_class:
   res: "<a class='hello' href='/oo/projects/cleanWater/page22.html'>status title</a>"
 
 link_set_class:
-  src: "<r:link class='#{name}_foo'/>"
-  tem: "<a class='<%= \"#{@node.name}_foo\" %>' href='<%= zen_path(@node) %>'><%= @node.prop['title'] %></a>"
+  src: "<r:link class='#{node_name}_foo'/>"
+  tem: "<a class='<%= \"#{@node.node_name}_foo\" %>' href='<%= zen_path(@node) %>'><%= @node.prop['title'] %></a>"
   res: "<a class='status_foo' href='/oo/projects/cleanWater/page22.html'>status title</a>"
 
 link_attr:
@@ -86,23 +86,21 @@ link_parent:
   tem: "<a href='<%= zen_path(@node.parent) %>'>click here</a>"
   res: "<a href='/oo/projects/cleanWater'>click here</a>"
 
-#----------- fixed up to here
-
 link_with_block:
-  src: "<r:link href='parent'>look at <b do='[name]'>her</b></r:link>"
-  tem: "<a href='<%= zen_path(@node.parent) %>'>look at <b><%= @node.name %></b></a>"
+  src: "<r:link href='parent'>look at <b do='node_name'>her</b></r:link>"
+  tem: "<a href='<%= zen_path(@node.parent) %>'>look at <b><%= @node.node_name %></b></a>"
   res: "<a href='/oo/projects/cleanWater'>look at <b>status</b></a>"
 
 link_project:
   context:
     node: 'bird_jpg'
   src: "<r:link href='project'/>"
-  tem: "<a href='<%= zen_path(@node.project) %>'><%= @node.title %></a>"
+  tem: "<a href='<%= zen_path(@node.project) %>'><%= @node.prop['title'] %></a>"
   res: "<a href='/oo/project29.html'>bird</a>"
 
 link_root:
   src: "<r:link href='root'/>"
-  tem: "<a href='<%= zen_path((secure(Node) { Node.find(_ID(zena))})) %>'><%= @node.title %></a>"
+  tem: "<a href='<%= zen_path((secure(Node) { Node.find(_ID(zena))})) %>'><%= @node.prop['title'] %></a>"
   res: "<a href='/oo'>status title</a>"
 
 link_anchor:
@@ -110,7 +108,8 @@ link_anchor:
   res: "<a href='#node22'>status title</a>"
 
 link_anchor_name:
-  src: "<r:link anchor='[name]'/>"
+  old_src: "<r:link anchor='[name]'/>"
+  src: "<r:link anchor='#{node_name}'/>"
   res: "<a href='#status'>status title</a>"
 
 link_anchor_in:
