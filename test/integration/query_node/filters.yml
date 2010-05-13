@@ -62,8 +62,11 @@ filter_l_status:
 param_filter:
   context:
     node: art
-  src: "(tagged where node_name like #{params[:tag]} and #{params[:tag]} ne '' in site)"
-  res: "cleanWater"
+    params:
+      tag: c
+  src: 'nodes where node_name like "#{params[:tag]}%" in site'
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.node_name LIKE ? ORDER BY nodes.position ASC, nodes.node_name ASC}, \"#{params[:tag]}%\"]"
+  res: "cleanWater, collections, crocodiles"
 
 param_filter_no_string:
   old_src: "notes where created_at gt REF_DATE - param:f in site"
@@ -71,22 +74,25 @@ param_filter_no_string:
   sql: "/nodes.created_at\ > now\(\) - \? /"
 
 filter_literal:
-  src: "nodes where name like 'w%' in site"
+  src: "nodes where node_name like 'w%' in site"
   sql: "/name LIKE 'w%'/"
   res: "water, wiki, wikiSkin"
 
-param_filter_tag:
+filter_literal_first:
+  src: "nodes where #{params[:tag]} = 'two'"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND ? = ? AND nodes.parent_id = ? ORDER BY nodes.position ASC, nodes.node_name ASC}, params[:tag], \"two\", @node.id]"
+
+links_in_merged_queries:
+  # Some queries have links, others don't. Merging should not mess things up.
   context:
     node: art
     params:
       tag: 'op'
-  src:
-    - "tagged where name like \"%[param:tag]%\" and \"[param:tag]\" ne \"\" in site"
-    - "tagged where l_status > 5"
-  res: "cleanWater, opening"
+  src: "(nodes where node_name like \"%#{params[:tag]}%\" and \"#{params[:tag]}\" ne '' in site) or (tagged where l_status > 5)"
+  res: "cleanWater, Node-+popupLayout, opening, people"
 
 pages_group_by_name:
-  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NP%' AND nodes.parent_id = ? GROUP BY nodes.name ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id]"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NP%' AND nodes.parent_id = ? GROUP BY nodes.node_name ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id]"
   res: "crocodiles, status, track"
 
 nodes_group_by_year:

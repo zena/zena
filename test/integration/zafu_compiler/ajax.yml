@@ -142,7 +142,7 @@ live_filter:
   context:
     node: cleanWater
   src: "<r:filter live='true'/><r:block><ol do='pages where name like \"[param:f]%\"'><li do='each' do='[name]'/></ol></r:block>"
-  tem: "/nodes.name LIKE \?.*, params\[:f\].to_s\+ \"%\"/"
+  tem: "/nodes.node_name LIKE \?.*, params\[:f\].to_s\+ \"%\"/"
   'live/filter/en/list2.erb': "/<div id='<%= dom_id\(@node\) %>.*, params\[:f\].*var1.name/"
   res: "/<input type='text' name='f'.*<div id='list2'><ol><li>crocodiles</li><li>status</li><li>track</li></ol></div>/"
 

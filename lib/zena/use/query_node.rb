@@ -55,8 +55,7 @@ module Zena
             begin
               query = self.class.build_query(count, rel.first, :node_name => 'self')
             rescue ::QueryBuilder::SyntaxError => err
-              puts err
-              puts err.backtrace
+              return nil
             end
             do_find(count, eval(query.to_s))
           end
@@ -199,7 +198,32 @@ module Zena
         # ******** And maybe overwrite these **********
         def parse_custom_query_argument(key, value)
           return nil unless value
-          super(key, value.gsub('REF_DATE', context[:ref_date] ? insert_bind(context[:ref_date]) : 'now()'))
+          super.gsub(/(RELATION_ID|NODE_ATTR)\(([^)]+)\)|(REF_DATE|NODE_ID)/) do
+            type, value = $1, $2
+            type ||= $3
+            case type
+            when 'RELATION_ID'
+              role = value
+              if rel = RelationProxy.find_by_role(role.singularize)
+                rel[:id]
+              else
+                @errors << "could not find Relation '#{role}' in custom query"
+                '-1'
+              end
+            when 'NODE_ATTR'
+              attribute = value
+              if Node.safe_method_type([attribute])
+                insert_bind("#{@node_name}.#{attribute}")
+              else
+                @errors << "cannot read attribute '#{attribute}' in custom query"
+                '-1'
+              end
+            when 'REF_DATE'
+              context[:ref_date] ? insert_bind(context[:ref_date]) : 'now()'
+            when 'NODE_ID'
+              insert_bind("#{node_name}.id")
+            end
+          end
         end
 
         # Special case 'in site' that is a noop scope and
@@ -372,6 +396,7 @@ module Zena
           # like this: "image or icon" ('image' is a filter in 'parent' scope, 'icon' is a
           # relation found through links).
           def add_dummy_link_clause(query)
+            query.add_table('links')
             query.where.insert(0, 'links.id = 0')
           end
 

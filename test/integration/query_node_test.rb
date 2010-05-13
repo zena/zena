@@ -83,8 +83,8 @@ class QueryNodeTest < Zena::Unit::TestCase
   def test_do_find_in_new_node
     login(:tiger)
     assert var1_new = secure!(Node) { Node.get_class("Post").new }
-    sql = Node.build_find(:all, 'posts in site', :node_name => 'self').sql(binding)
-    assert_nil var1_new.do_find(:all, eval("\"#{sql}\""))
+    sql = Node.build_query(:all, 'posts in site').to_s
+    assert_nil var1_new.do_find(:all, eval(sql))
   end
 
   def test_link_id

@@ -273,33 +273,6 @@ module Zena
           end
         end
 
-        def parse_custom_query_argument(key, value)
-          return nil unless value
-          super.gsub(/(RELATION_ID|NODE_ATTR)\(([^)]+)\)/) do
-            type, value = $1, $2
-            if type == 'RELATION_ID'
-              role = value
-              if rel = RelationProxy.find_by_role(role.singularize)
-                rel[:id]
-              else
-                @errors << "could not find Relation '#{role}' in custom query"
-                '-1'
-              end
-            elsif type == 'NODE_ATTR'
-              attribute = value
-              if Node.safe_method_type([attribute])
-                insert_bind("#{@node_name}.#{attribute}")
-              else
-                @errors << "cannot read attribute '#{attribute}' in custom query"
-                '-1'
-              end
-            end
-          end.gsub(/NODE_ID/) do
-            @uses_node_name = true
-            insert_bind("#{@node_name}.id")
-          end
-        end
-
         def extract_custom_query(list)
           super.singularize
         end
