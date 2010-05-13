@@ -6,7 +6,7 @@
   end %>
 </td>
 <td class="add" colspan="8">
-  <div id='relation_errors'><%= error_messages_for(@relation) %></div>
+  <div id='relation_errors'><%= error_messages_for(:relation, :object => @relation) %></div>
   <% unless @relation.new_record? %>
   <%= form_remote_tag(:url => relation_path(@relation), :method => :put ) %>
   <% else %>

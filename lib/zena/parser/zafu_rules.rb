@@ -59,6 +59,13 @@ module Zena
         end
       end
 
+      # Dummy method. We only insert the error here so that 'r_include' can be overwriten
+      # to enable recursion.
+      def r_include
+        parser_error("missing 'template' attribute", 'include')
+      end
+
+
       def before_parse(text)
         text.gsub('<%', '&lt;%').gsub('%>', '%&gt;')
       end

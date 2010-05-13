@@ -173,11 +173,11 @@ icon:
   tem: "xx"
 
 defined_icon:
-  # update attributes in test def
+  # set 'flower' as icon for wiki in ZafuCompilerTest
   context:
     node: wiki
   src: "<r:icon do='img'/>"
-  tem: "xx"
+  res: "/img.*alt='flower'/"
 
 add_document:
   src: "<r:add_document/>"

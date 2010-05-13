@@ -5,5 +5,5 @@ if @comment.errors.empty?
   end
   page.replace_html "comment_errors", :inline=>""
 else
-  page.replace_html "comment_errors", :inline=>error_messages_for(@comment)
+  page.replace_html "comment_errors", :inline=>error_messages_for(:comment, :object => @comment)
 end

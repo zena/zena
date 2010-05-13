@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{zena}
-  s.version = "0.16.4"
+  s.version = "0.16.5"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2010-02-22}
+  s.date = %q{2010-05-13}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -30,6 +30,7 @@ Gem::Specification.new do |s|
      "TODO",
      "TODO_ZENA_1_0",
      "app/controllers/application_controller.rb",
+     "app/controllers/columns_controller.rb",
      "app/controllers/comments_controller.rb",
      "app/controllers/data_entries_controller.rb",
      "app/controllers/discussions_controller.rb",
@@ -50,9 +51,11 @@ Gem::Specification.new do |s|
      "app/helpers/documents_helper.rb",
      "app/helpers/nodes_helper.rb",
      "app/helpers/versions_helper.rb",
+     "app/models/attachment.rb",
      "app/models/book.rb",
      "app/models/cache.rb",
      "app/models/cached_page.rb",
+     "app/models/column.rb",
      "app/models/comment.rb",
      "app/models/contact.rb",
      "app/models/contact_content.rb",
@@ -61,13 +64,11 @@ Gem::Specification.new do |s|
      "app/models/discussion.rb",
      "app/models/document.rb",
      "app/models/document_content.rb",
-     "app/models/document_version.rb",
      "app/models/dyn_attribute.rb",
      "app/models/group.rb",
      "app/models/iformat.rb",
      "app/models/image.rb",
      "app/models/image_content.rb",
-     "app/models/image_version.rb",
      "app/models/link.rb",
      "app/models/node.rb",
      "app/models/note.rb",
@@ -76,20 +77,25 @@ Gem::Specification.new do |s|
      "app/models/reference.rb",
      "app/models/relation.rb",
      "app/models/relation_proxy.rb",
+     "app/models/role.rb",
      "app/models/section.rb",
      "app/models/site.rb",
      "app/models/skin.rb",
      "app/models/template.rb",
      "app/models/template_content.rb",
+     "app/models/template_index.rb",
      "app/models/template_version.rb",
      "app/models/text_document.rb",
      "app/models/text_document_content.rb",
-     "app/models/text_document_version.rb",
      "app/models/user.rb",
      "app/models/user_session.rb",
      "app/models/version.rb",
      "app/models/virtual_class.rb",
      "app/models/zip.rb",
+     "app/views/columns/edit.html.erb",
+     "app/views/columns/index.html.erb",
+     "app/views/columns/new.html.erb",
+     "app/views/columns/show.html.erb",
      "app/views/comments/_add.rhtml",
      "app/views/comments/_bin.rhtml",
      "app/views/comments/_form.rhtml",
@@ -195,12 +201,10 @@ Gem::Specification.new do |s|
      "app/views/sites/index.erb",
      "app/views/sites/show.rjs",
      "app/views/sites/update.rjs",
-     "app/views/templates/defaults/+adminLayout.zafu",
-     "app/views/templates/defaults/+login.zafu",
      "app/views/templates/document_create_tabs/_file.rhtml",
      "app/views/templates/document_create_tabs/_import.rhtml",
      "app/views/templates/document_create_tabs/_template.rhtml",
-     "app/views/templates/document_create_tabs/_text_doc.rhtml",
+     "app/views/templates/document_create_tabs/_text_document.rhtml",
      "app/views/templates/drive_tabs/_drive.rhtml",
      "app/views/templates/drive_tabs/_help.rhtml",
      "app/views/templates/drive_tabs/_links.rhtml",
@@ -243,6 +247,13 @@ Gem::Specification.new do |s|
      "app/views/virtual_classes/new.erb",
      "app/views/virtual_classes/show.rjs",
      "app/views/virtual_classes/update.rjs",
+     "app/views/zafu/default/Node-+adminLayout.zafu",
+     "app/views/zafu/default/Node-+index.zafu",
+     "app/views/zafu/default/Node-+login.zafu",
+     "app/views/zafu/default/Node-+notFound.zafu",
+     "app/views/zafu/default/Node-+popupLayout.zafu",
+     "app/views/zafu/default/Node-+search.zafu",
+     "app/views/zafu/default/Node.zafu",
      "bin/zena",
      "bricks/captcha/MIT-LICENSE",
      "bricks/captcha/README",
@@ -370,7 +381,17 @@ Gem::Specification.new do |s|
      "db/migrate/20091123175137_add_single_access_token.rb",
      "db/migrate/20091124161608_rebuild_fullpath.rb",
      "db/migrate/20100115134729_rebuild_fullpath_after_fix.rb",
-     "db/schema.rb",
+     "db/migrate/20100125062254_add_dynamo_to_version.rb",
+     "db/migrate/20100201133242_remove_default_status_on_version.rb",
+     "db/migrate/20100208194210_create_attachments.rb",
+     "db/migrate/20100210112319_change_dynamo_to_property.rb",
+     "db/migrate/20100320145726_transform_template_contents_into_index.rb",
+     "db/migrate/20100328125634_change_skin_name_to_id.rb",
+     "db/migrate/20100417061257_add_properties_to_sites.rb",
+     "db/migrate/20100419163149_rename_name_to_node_name.rb",
+     "db/migrate/20100422091606_change_v_class_table_into_roles.rb",
+     "db/migrate/20100422094048_node_habtm_roles.rb",
+     "db/migrate/20100422115935_create_columns.rb",
      "doc/README_FOR_APP",
      "doc/fixtures.graffle",
      "doc/fixtures.pdf",
@@ -395,6 +416,7 @@ Gem::Specification.new do |s|
      "doc/template/cache/STYLE",
      "doc/template/cache/URL",
      "doc/zafu_changes.yml",
+     "generate",
      "lib/bricks.rb",
      "lib/bricks/loader.rb",
      "lib/bricks/requirements_validation.rb",
@@ -407,31 +429,12 @@ Gem::Specification.new do |s|
      "lib/tasks/zena.rake",
      "lib/tasks/zena.rb",
      "lib/upload_progress_server.rb",
-     "lib/zafu/action.rb",
-     "lib/zafu/ajax.rb",
-     "lib/zafu/attributes.rb",
-     "lib/zafu/calendar.rb",
-     "lib/zafu/context.rb",
-     "lib/zafu/core/html.rb",
-     "lib/zafu/core/move_to_parser.rb",
-     "lib/zafu/dates.rb",
-     "lib/zafu/display.rb",
-     "lib/zafu/eval.rb",
-     "lib/zafu/experimental.rb",
-     "lib/zafu/i18n.rb",
-     "lib/zafu/meta.rb",
-     "lib/zafu/refactor.rb",
-     "lib/zafu/support/context.rb",
-     "lib/zafu/support/dom.rb",
-     "lib/zafu/support/erb.rb",
-     "lib/zafu/support/flow.rb",
-     "lib/zafu/support/forms.rb",
-     "lib/zafu/support/links.rb",
-     "lib/zafu_parser.rb",
+     "lib/version_off.rb",
      "lib/zazen_parser.rb",
      "lib/zena.rb",
-     "lib/zena/acts/multiversion.rb",
+     "lib/zena/acts/enrollable.rb",
      "lib/zena/acts/secure.rb",
+     "lib/zena/acts/secure_node.rb",
      "lib/zena/app.rb",
      "lib/zena/base_additions.rb",
      "lib/zena/code_syntax.rb",
@@ -454,10 +457,10 @@ Gem::Specification.new do |s|
      "lib/zena/deploy/template.rb",
      "lib/zena/deploy/vhost.rhtml",
      "lib/zena/deploy/vhost_www.rhtml",
-     "lib/zena/fix/mysql_connection.rb",
      "lib/zena/fix_rails_layouts.rb",
      "lib/zena/foxy_parser.rb",
      "lib/zena/info.rb",
+     "lib/zena/loader/yaml_loader.rb",
      "lib/zena/migrator.rb",
      "lib/zena/parser.rb",
      "lib/zena/parser/zafu_rules.rb",
@@ -465,24 +468,52 @@ Gem::Specification.new do |s|
      "lib/zena/parser/zazen_rules.rb",
      "lib/zena/parser/zazen_tags.rb",
      "lib/zena/parser/zena_rules.rb",
+     "lib/zena/refactor/act_as_content.rb",
      "lib/zena/routes.rb",
      "lib/zena/test_controller.rb",
      "lib/zena/unit/test_case.rb",
+     "lib/zena/use/action.rb",
      "lib/zena/use/ajax.rb",
      "lib/zena/use/authlogic.rb",
      "lib/zena/use/calendar.rb",
+     "lib/zena/use/conditional.rb",
      "lib/zena/use/dates.rb",
+     "lib/zena/use/display.rb",
      "lib/zena/use/dyn_attributes.rb",
      "lib/zena/use/error_rendering.rb",
      "lib/zena/use/fixtures.rb",
+     "lib/zena/use/forms.rb",
      "lib/zena/use/grid.rb",
      "lib/zena/use/html_tags.rb",
      "lib/zena/use/i18n.rb",
      "lib/zena/use/image_builder.rb",
      "lib/zena/use/nested_attributes_alias.rb",
+     "lib/zena/use/node_name.rb",
+     "lib/zena/use/old_zafu/action.rb",
+     "lib/zena/use/old_zafu/ajax.rb",
+     "lib/zena/use/old_zafu/attributes.rb",
+     "lib/zena/use/old_zafu/calendar.rb",
+     "lib/zena/use/old_zafu/context.rb",
+     "lib/zena/use/old_zafu/core/html.rb",
+     "lib/zena/use/old_zafu/core/move_to_parser.rb",
+     "lib/zena/use/old_zafu/dates.rb",
+     "lib/zena/use/old_zafu/display.rb",
+     "lib/zena/use/old_zafu/eval.rb",
+     "lib/zena/use/old_zafu/experimental.rb",
+     "lib/zena/use/old_zafu/i18n.rb",
+     "lib/zena/use/old_zafu/meta.rb",
+     "lib/zena/use/old_zafu/query_node.rb",
+     "lib/zena/use/old_zafu/refactor.rb",
+     "lib/zena/use/old_zafu/support/context.rb",
+     "lib/zena/use/old_zafu/support/dom.rb",
+     "lib/zena/use/old_zafu/support/erb.rb",
+     "lib/zena/use/old_zafu/support/flow.rb",
+     "lib/zena/use/old_zafu/support/forms.rb",
+     "lib/zena/use/old_zafu/support/links.rb",
+     "lib/zena/use/old_zafu/zafu_parser.rb",
+     "lib/zena/use/query_builder.rb",
      "lib/zena/use/query_comment.rb",
      "lib/zena/use/query_node.rb",
-     "lib/zena/use/query_node_finders.rb",
      "lib/zena/use/refactor.rb",
      "lib/zena/use/relations.rb",
      "lib/zena/use/rendering.rb",
@@ -490,10 +521,16 @@ Gem::Specification.new do |s|
      "lib/zena/use/test_helper.rb",
      "lib/zena/use/upload.rb",
      "lib/zena/use/urls.rb",
-     "lib/zena/use/zafu.rb",
+     "lib/zena/use/version_hash.rb",
+     "lib/zena/use/workflow.rb",
+     "lib/zena/use/zafu_attributes.rb",
+     "lib/zena/use/zafu_eval.rb",
+     "lib/zena/use/zafu_safe_definitions.rb",
+     "lib/zena/use/zafu_templates.rb",
      "lib/zena/use/zazen.rb",
      "lib/zena/view/test_case.rb",
      "lib/zena/webdav_adapter.rb",
+     "lib/zena/zafu_compiler.rb",
      "locale/de/LC_MESSAGES/zena.mo",
      "locale/de/zena.po",
      "locale/en/LC_MESSAGES/zena.mo",
@@ -1559,6 +1596,19 @@ Gem::Specification.new do |s|
      "public/images/webcam_add.png",
      "public/images/webcam_delete.png",
      "public/images/webcam_error.png",
+     "public/images/window/bottom_left.png",
+     "public/images/window/bottom_mid.png",
+     "public/images/window/bottom_right.png",
+     "public/images/window/center_left.png",
+     "public/images/window/center_right.png",
+     "public/images/window/close.png",
+     "public/images/window/maximize.png",
+     "public/images/window/minimize.png",
+     "public/images/window/overlay.png",
+     "public/images/window/sizer.png",
+     "public/images/window/top_left.png",
+     "public/images/window/top_mid.png",
+     "public/images/window/top_right.png",
      "public/images/world.png",
      "public/images/world_add.png",
      "public/images/world_delete.png",
@@ -1588,6 +1638,7 @@ Gem::Specification.new do |s|
      "public/javascripts/tablekit.js",
      "public/javascripts/unittest.js",
      "public/javascripts/upload-progress.js",
+     "public/javascripts/window.js",
      "public/javascripts/zena.js",
      "public/robots.txt",
      "public/stylesheets/admin.css",
@@ -1601,6 +1652,7 @@ Gem::Specification.new do |s|
      "public/stylesheets/search.css",
      "public/stylesheets/upload-progress.css",
      "public/stylesheets/wiki.css",
+     "public/stylesheets/window.css",
      "public/stylesheets/zen.css",
      "public/stylesheets/zena.css",
      "rails/init.rb",
@@ -1646,6 +1698,7 @@ Gem::Specification.new do |s|
      "test/fixtures/import/simple.zml",
      "test/functional/application_controller_test.rb",
      "test/functional/calendar_controller_test.rb",
+     "test/functional/columns_controller_test.rb",
      "test/functional/comments_controller_test.rb",
      "test/functional/data_entries_controller_test.rb",
      "test/functional/discussion_controller_test.rb",
@@ -1664,75 +1717,96 @@ Gem::Specification.new do |s|
      "test/functional/users_controller_test.rb",
      "test/functional/versions_controller_test.rb",
      "test/functional/virtual_classes_controller_test.rb",
-     "test/helpers/query_node/basic.yml",
-     "test/helpers/query_node/comments.yml",
-     "test/helpers/query_node/complex.yml",
-     "test/helpers/query_node/filters.yml",
-     "test/helpers/query_node/relations.yml",
-     "test/helpers/query_node_test.rb",
      "test/integration/multiple_hosts_test.rb",
      "test/integration/multiversion_test.rb",
      "test/integration/navigation_test.rb",
+     "test/integration/query_node/basic.yml",
+     "test/integration/query_node/comments.yml",
+     "test/integration/query_node/complex.yml",
+     "test/integration/query_node/dates.yml",
+     "test/integration/query_node/filters.yml",
+     "test/integration/query_node/relations.yml",
+     "test/integration/query_node_test.rb",
+     "test/integration/zafu_compiler/action.yml",
+     "test/integration/zafu_compiler/ajax.yml",
+     "test/integration/zafu_compiler/apphelper.yml",
+     "test/integration/zafu_compiler/asset.yml",
+     "test/integration/zafu_compiler/basic.yml",
+     "test/integration/zafu_compiler/complex.yml",
+     "test/integration/zafu_compiler/conditional.yml",
+     "test/integration/zafu_compiler/data.yml",
+     "test/integration/zafu_compiler/dates.yml",
+     "test/integration/zafu_compiler/display.yml",
+     "test/integration/zafu_compiler/errors.yml",
+     "test/integration/zafu_compiler/eval.yml",
+     "test/integration/zafu_compiler/i18n.yml",
+     "test/integration/zafu_compiler/off/off.yml",
+     "test/integration/zafu_compiler/relations.yml",
+     "test/integration/zafu_compiler/rubyless.yml",
+     "test/integration/zafu_compiler/safe_definitions.yml",
+     "test/integration/zafu_compiler/security.yml",
+     "test/integration/zafu_compiler/site.yml",
+     "test/integration/zafu_compiler/urls.yml",
+     "test/integration/zafu_compiler/version.yml",
+     "test/integration/zafu_compiler/visitor.yml",
+     "test/integration/zafu_compiler/zafu_attributes.yml",
+     "test/integration/zafu_compiler/zazen.yml",
+     "test/integration/zafu_compiler_test.rb",
      "test/sites/README",
      "test/sites/complex/complex.png",
      "test/sites/complex/groups.yml",
      "test/sites/complex/links.yml",
      "test/sites/complex/nodes.yml",
      "test/sites/complex/relations.yml",
+     "test/sites/complex/roles.yml",
      "test/sites/complex/sites.yml",
      "test/sites/complex/users.yml",
      "test/sites/complex/versions.yml",
-     "test/sites/complex/virtual_classes.yml",
-     "test/sites/ocean/contact_contents.yml",
      "test/sites/ocean/groups.yml",
      "test/sites/ocean/iformats.yml",
      "test/sites/ocean/nodes.yml",
      "test/sites/ocean/sites.yml",
-     "test/sites/ocean/template_contents.yml",
+     "test/sites/ocean/template_indices.yml",
      "test/sites/ocean/users.yml",
      "test/sites/ocean/versions.yml",
+     "test/sites/zena/columns.yml",
      "test/sites/zena/comments.yml",
-     "test/sites/zena/contact_contents.yml",
      "test/sites/zena/data_entries.yml",
      "test/sites/zena/discussions.yml",
-     "test/sites/zena/document_contents.yml",
-     "test/sites/zena/dyn_attributes.yml",
      "test/sites/zena/groups.yml",
      "test/sites/zena/iformats.yml",
      "test/sites/zena/links.yml",
      "test/sites/zena/nodes.yml",
      "test/sites/zena/relations.yml",
+     "test/sites/zena/roles.yml",
      "test/sites/zena/sites.yml",
-     "test/sites/zena/template_contents.yml",
+     "test/sites/zena/template_indices.yml",
      "test/sites/zena/users.yml",
      "test/sites/zena/versions.yml",
-     "test/sites/zena/virtual_classes.yml",
      "test/test_helper.rb",
      "test/test_zena.rb",
+     "test/unit/after_commit_test.rb",
+     "test/unit/attachment_test.rb",
      "test/unit/cache_test.rb",
      "test/unit/cached_page_test.rb",
+     "test/unit/column_test.rb",
      "test/unit/comment_test.rb",
-     "test/unit/contact_content_test.rb",
      "test/unit/contact_test.rb",
-     "test/unit/contact_version_test.rb",
      "test/unit/core_ext_test.rb",
      "test/unit/data_entry_test.rb",
      "test/unit/discussion_test.rb",
-     "test/unit/document_content_test.rb",
      "test/unit/document_test.rb",
-     "test/unit/document_version_test.rb",
-     "test/unit/dyn_attributes_test.rb",
      "test/unit/exif_data_test.rb",
      "test/unit/group_test.rb",
      "test/unit/helpers/ping_helper_test.rb",
      "test/unit/iformat_test.rb",
      "test/unit/image_builder_test.rb",
-     "test/unit/image_content_test.rb",
      "test/unit/image_test.rb",
-     "test/unit/image_version_test.rb",
      "test/unit/letter_test.rb",
      "test/unit/link_test.rb",
+     "test/unit/multi_version_test.rb",
      "test/unit/multiversion_test.rb",
+     "test/unit/node_name_test.rb",
      "test/unit/node_test.rb",
      "test/unit/note_test.rb",
      "test/unit/page_test.rb",
@@ -1740,19 +1814,21 @@ Gem::Specification.new do |s|
      "test/unit/reference_test.rb",
      "test/unit/relation_proxy_test.rb",
      "test/unit/relation_test.rb",
+     "test/unit/role_test.rb",
      "test/unit/section_test.rb",
-     "test/unit/secure_test.rb",
      "test/unit/site_test.rb",
      "test/unit/skin_test.rb",
-     "test/unit/template_content_test.rb",
      "test/unit/template_test.rb",
      "test/unit/template_version_test.rb",
      "test/unit/text_document_content_test.rb",
      "test/unit/text_document_test.rb",
-     "test/unit/text_document_version_test.rb",
+     "test/unit/transparent_version_test.rb",
      "test/unit/user_test.rb",
      "test/unit/version_test.rb",
      "test/unit/virtual_class_test.rb",
+     "test/unit/workflow_test.rb",
+     "test/unit/zena/acts/enrollable_test.rb",
+     "test/unit/zena/acts/secure_test.rb",
      "test/unit/zena/db_test.rb",
      "test/unit/zena/parser/latex.yml",
      "test/unit/zena/parser/zafu.yml",
@@ -1761,32 +1837,25 @@ Gem::Specification.new do |s|
      "test/unit/zena/parser/zazen.yml",
      "test/unit/zena/parser_test.rb",
      "test/unit/zena/unit/test_case_test.rb",
+     "test/unit/zena/use/action_test.rb",
      "test/unit/zena/use/calendar_test.rb",
      "test/unit/zena/use/dates_model_methods_test.rb",
      "test/unit/zena/use/dates_string_methods_test.rb",
+     "test/unit/zena/use/dates_test.rb",
      "test/unit/zena/use/dates_view_methods_test.rb",
      "test/unit/zena/use/html_tags_test.rb",
      "test/unit/zena/use/i18n_test.rb",
      "test/unit/zena/use/nested_attributes_alias_model_test.rb",
      "test/unit/zena/use/nested_attributes_alias_view_test.rb",
+     "test/unit/zena/use/query_node_test.rb",
      "test/unit/zena/use/refactor_test.rb",
      "test/unit/zena/use/rendering_test.rb",
      "test/unit/zena/use/upload_test.rb",
      "test/unit/zena/use/urls_test.rb",
-     "test/unit/zena/use/zafu_test.rb",
+     "test/unit/zena/use/version_hash_test.rb",
+     "test/unit/zena/use/zafu_template_test.rb",
      "test/unit/zena/use/zazen_test.rb",
      "test/unit/zena/workflow/status_version_test.rb",
-     "test/unit/zena/zena_tags/ajax.yml",
-     "test/unit/zena/zena_tags/apphelper.yml",
-     "test/unit/zena/zena_tags/basic.yml",
-     "test/unit/zena/zena_tags/complex.yml",
-     "test/unit/zena/zena_tags/data.yml",
-     "test/unit/zena/zena_tags/errors.yml",
-     "test/unit/zena/zena_tags/eval.yml",
-     "test/unit/zena/zena_tags/relations.yml",
-     "test/unit/zena/zena_tags/rubyless.yml",
-     "test/unit/zena/zena_tags/zazen.yml",
-     "test/unit/zena/zena_tags_test.rb",
      "vendor/TextMate/Ruby Shoulda.tmbundle/Commands/Run 2.tmCommand",
      "vendor/TextMate/Ruby Shoulda.tmbundle/Commands/Run Context.tmCommand",
      "vendor/TextMate/Ruby Shoulda.tmbundle/Commands/Run Focused Should.tmCommand",
@@ -1880,6 +1949,11 @@ Gem::Specification.new do |s|
      "vendor/apache2_upload_progress/README",
      "vendor/apache2_upload_progress/mod_upload_progress.c",
      "vendor/apache_upload/mod_upload_progress.c",
+     "vendor/plugins/after_commit/MIT-LICENSE",
+     "vendor/plugins/after_commit/README.rdoc",
+     "vendor/plugins/after_commit/init.rb",
+     "vendor/plugins/after_commit/lib/after_commit.rb",
+     "vendor/plugins/after_commit/test/after_commit_test.rb",
      "vendor/plugins/ar_mysql_full_text/README",
      "vendor/plugins/ar_mysql_full_text/init.rb",
      "vendor/plugins/ar_mysql_full_text/lib/ar_mysql_full_text.rb",
@@ -1900,6 +1974,8 @@ Gem::Specification.new do |s|
      "vendor/plugins/gettext_i18n_rails/spec/gettext_i18n_rails_spec.rb",
      "vendor/plugins/gettext_i18n_rails/spec/spec_helper.rb",
      "vendor/plugins/gettext_i18n_rails/tasks/gettext_rails_i18n.rake",
+     "vendor/plugins/mysql_timezone_utc/init.rb",
+     "vendor/plugins/mysql_timezone_utc/lib/mysql_timezone_utc.rb",
      "vendor/plugins/responds_to_parent/MIT-LICENSE",
      "vendor/plugins/responds_to_parent/README",
      "vendor/plugins/responds_to_parent/Rakefile",
@@ -1918,12 +1994,13 @@ Gem::Specification.new do |s|
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{zena}
-  s.rubygems_version = %q{1.3.5}
+  s.rubygems_version = %q{1.3.6}
   s.summary = %q{CMS with super natural powers, based on Ruby on Rails}
   s.test_files = [
     "spec/controllers/versions_controller_spec.rb",
      "test/functional/application_controller_test.rb",
      "test/functional/calendar_controller_test.rb",
+     "test/functional/columns_controller_test.rb",
      "test/functional/comments_controller_test.rb",
      "test/functional/data_entries_controller_test.rb",
      "test/functional/discussion_controller_test.rb",
@@ -1942,36 +2019,35 @@ Gem::Specification.new do |s|
      "test/functional/users_controller_test.rb",
      "test/functional/versions_controller_test.rb",
      "test/functional/virtual_classes_controller_test.rb",
-     "test/helpers/query_node_test.rb",
      "test/integration/multiple_hosts_test.rb",
      "test/integration/multiversion_test.rb",
      "test/integration/navigation_test.rb",
+     "test/integration/query_node_test.rb",
+     "test/integration/zafu_compiler_test.rb",
      "test/test_helper.rb",
      "test/test_zena.rb",
+     "test/unit/after_commit_test.rb",
+     "test/unit/attachment_test.rb",
      "test/unit/cache_test.rb",
      "test/unit/cached_page_test.rb",
+     "test/unit/column_test.rb",
      "test/unit/comment_test.rb",
-     "test/unit/contact_content_test.rb",
      "test/unit/contact_test.rb",
-     "test/unit/contact_version_test.rb",
      "test/unit/core_ext_test.rb",
      "test/unit/data_entry_test.rb",
      "test/unit/discussion_test.rb",
-     "test/unit/document_content_test.rb",
      "test/unit/document_test.rb",
-     "test/unit/document_version_test.rb",
-     "test/unit/dyn_attributes_test.rb",
      "test/unit/exif_data_test.rb",
      "test/unit/group_test.rb",
      "test/unit/helpers/ping_helper_test.rb",
      "test/unit/iformat_test.rb",
      "test/unit/image_builder_test.rb",
-     "test/unit/image_content_test.rb",
      "test/unit/image_test.rb",
-     "test/unit/image_version_test.rb",
      "test/unit/letter_test.rb",
      "test/unit/link_test.rb",
+     "test/unit/multi_version_test.rb",
      "test/unit/multiversion_test.rb",
+     "test/unit/node_name_test.rb",
      "test/unit/node_test.rb",
      "test/unit/note_test.rb",
      "test/unit/page_test.rb",
@@ -1979,38 +2055,43 @@ Gem::Specification.new do |s|
      "test/unit/reference_test.rb",
      "test/unit/relation_proxy_test.rb",
      "test/unit/relation_test.rb",
+     "test/unit/role_test.rb",
      "test/unit/section_test.rb",
-     "test/unit/secure_test.rb",
      "test/unit/site_test.rb",
      "test/unit/skin_test.rb",
-     "test/unit/template_content_test.rb",
      "test/unit/template_test.rb",
      "test/unit/template_version_test.rb",
      "test/unit/text_document_content_test.rb",
      "test/unit/text_document_test.rb",
-     "test/unit/text_document_version_test.rb",
+     "test/unit/transparent_version_test.rb",
      "test/unit/user_test.rb",
      "test/unit/version_test.rb",
      "test/unit/virtual_class_test.rb",
+     "test/unit/workflow_test.rb",
+     "test/unit/zena/acts/enrollable_test.rb",
+     "test/unit/zena/acts/secure_test.rb",
      "test/unit/zena/db_test.rb",
      "test/unit/zena/parser_test.rb",
      "test/unit/zena/unit/test_case_test.rb",
+     "test/unit/zena/use/action_test.rb",
      "test/unit/zena/use/calendar_test.rb",
      "test/unit/zena/use/dates_model_methods_test.rb",
      "test/unit/zena/use/dates_string_methods_test.rb",
+     "test/unit/zena/use/dates_test.rb",
      "test/unit/zena/use/dates_view_methods_test.rb",
      "test/unit/zena/use/html_tags_test.rb",
      "test/unit/zena/use/i18n_test.rb",
      "test/unit/zena/use/nested_attributes_alias_model_test.rb",
      "test/unit/zena/use/nested_attributes_alias_view_test.rb",
+     "test/unit/zena/use/query_node_test.rb",
      "test/unit/zena/use/refactor_test.rb",
      "test/unit/zena/use/rendering_test.rb",
      "test/unit/zena/use/upload_test.rb",
      "test/unit/zena/use/urls_test.rb",
-     "test/unit/zena/use/zafu_test.rb",
+     "test/unit/zena/use/version_hash_test.rb",
+     "test/unit/zena/use/zafu_template_test.rb",
      "test/unit/zena/use/zazen_test.rb",
-     "test/unit/zena/workflow/status_version_test.rb",
-     "test/unit/zena/zena_tags_test.rb"
+     "test/unit/zena/workflow/status_version_test.rb"
   ]
 
   if s.respond_to? :specification_version then
@@ -2020,73 +2101,70 @@ Gem::Specification.new do |s|
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
       s.add_runtime_dependency(%q<tzinfo>, [">= 0.3.12"])
-      s.add_runtime_dependency(%q<rubyless>, [">= 0.3.5"])
+      s.add_runtime_dependency(%q<rubyless>, [">= 0.5.0"])
       s.add_runtime_dependency(%q<rails>, ["= 2.3.4"])
+      s.add_runtime_dependency(%q<property>, [">= 0.9.2"])
       s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_runtime_dependency(%q<authlogic>, ["= 2.1.3"])
-      s.add_runtime_dependency(%q<ts-delayed-delta>, [">= 1.0.2"])
+      s.add_runtime_dependency(%q<zafu>, [">= 0.6.0"])
       s.add_runtime_dependency(%q<shoulda>, [">= 2.10.2"])
       s.add_runtime_dependency(%q<fast_gettext>, ["~> 0.4.16"])
-      s.add_runtime_dependency(%q<delayed_job>, [">= 1.8.4"])
       s.add_runtime_dependency(%q<syntax>, ["= 1.0.0"])
-      s.add_runtime_dependency(%q<yamltest>, [">= 0.5.3"])
-      s.add_runtime_dependency(%q<thinking-sphinx>, [">= 1.3.14"])
+      s.add_runtime_dependency(%q<yamltest>, [">= 0.6.0"])
       s.add_runtime_dependency(%q<json>, [">= 1.1.9"])
       s.add_runtime_dependency(%q<will_paginate>, ["~> 2.3.12"])
-      s.add_runtime_dependency(%q<gettext>, ["= 1.93.0"])
+      s.add_runtime_dependency(%q<gettext>, [">= 1.93.0"])
+      s.add_runtime_dependency(%q<versions>, [">= 0.2.2"])
       s.add_runtime_dependency(%q<jeweler>, [">= 0"])
-      s.add_runtime_dependency(%q<rmagick>, [">= 2.10.0"])
       s.add_runtime_dependency(%q<hpricot>, [">= 0"])
       s.add_runtime_dependency(%q<differ>, [">= 0.1.1"])
       s.add_runtime_dependency(%q<RedCloth>, ["= 3.0.4"])
-      s.add_runtime_dependency(%q<querybuilder>, ["= 0.5.8"])
+      s.add_runtime_dependency(%q<querybuilder>, [">= 0.6.1"])
     else
       s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
       s.add_dependency(%q<tzinfo>, [">= 0.3.12"])
-      s.add_dependency(%q<rubyless>, [">= 0.3.5"])
+      s.add_dependency(%q<rubyless>, [">= 0.5.0"])
       s.add_dependency(%q<rails>, ["= 2.3.4"])
+      s.add_dependency(%q<property>, [">= 0.9.2"])
       s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_dependency(%q<authlogic>, ["= 2.1.3"])
-      s.add_dependency(%q<ts-delayed-delta>, [">= 1.0.2"])
+      s.add_dependency(%q<zafu>, [">= 0.6.0"])
       s.add_dependency(%q<shoulda>, [">= 2.10.2"])
       s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
-      s.add_dependency(%q<delayed_job>, [">= 1.8.4"])
       s.add_dependency(%q<syntax>, ["= 1.0.0"])
-      s.add_dependency(%q<yamltest>, [">= 0.5.3"])
-      s.add_dependency(%q<thinking-sphinx>, [">= 1.3.14"])
+      s.add_dependency(%q<yamltest>, [">= 0.6.0"])
       s.add_dependency(%q<json>, [">= 1.1.9"])
       s.add_dependency(%q<will_paginate>, ["~> 2.3.12"])
-      s.add_dependency(%q<gettext>, ["= 1.93.0"])
+      s.add_dependency(%q<gettext>, [">= 1.93.0"])
+      s.add_dependency(%q<versions>, [">= 0.2.2"])
       s.add_dependency(%q<jeweler>, [">= 0"])
-      s.add_dependency(%q<rmagick>, [">= 2.10.0"])
       s.add_dependency(%q<hpricot>, [">= 0"])
       s.add_dependency(%q<differ>, [">= 0.1.1"])
       s.add_dependency(%q<RedCloth>, ["= 3.0.4"])
-      s.add_dependency(%q<querybuilder>, ["= 0.5.8"])
+      s.add_dependency(%q<querybuilder>, [">= 0.6.1"])
     end
   else
     s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
     s.add_dependency(%q<tzinfo>, [">= 0.3.12"])
-    s.add_dependency(%q<rubyless>, [">= 0.3.5"])
+    s.add_dependency(%q<rubyless>, [">= 0.5.0"])
     s.add_dependency(%q<rails>, ["= 2.3.4"])
+    s.add_dependency(%q<property>, [">= 0.9.2"])
     s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
     s.add_dependency(%q<authlogic>, ["= 2.1.3"])
-    s.add_dependency(%q<ts-delayed-delta>, [">= 1.0.2"])
+    s.add_dependency(%q<zafu>, [">= 0.6.0"])
     s.add_dependency(%q<shoulda>, [">= 2.10.2"])
     s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
-    s.add_dependency(%q<delayed_job>, [">= 1.8.4"])
     s.add_dependency(%q<syntax>, ["= 1.0.0"])
-    s.add_dependency(%q<yamltest>, [">= 0.5.3"])
-    s.add_dependency(%q<thinking-sphinx>, [">= 1.3.14"])
+    s.add_dependency(%q<yamltest>, [">= 0.6.0"])
     s.add_dependency(%q<json>, [">= 1.1.9"])
     s.add_dependency(%q<will_paginate>, ["~> 2.3.12"])
-    s.add_dependency(%q<gettext>, ["= 1.93.0"])
+    s.add_dependency(%q<gettext>, [">= 1.93.0"])
+    s.add_dependency(%q<versions>, [">= 0.2.2"])
     s.add_dependency(%q<jeweler>, [">= 0"])
-    s.add_dependency(%q<rmagick>, [">= 2.10.0"])
     s.add_dependency(%q<hpricot>, [">= 0"])
     s.add_dependency(%q<differ>, [">= 0.1.1"])
     s.add_dependency(%q<RedCloth>, ["= 3.0.4"])
-    s.add_dependency(%q<querybuilder>, ["= 0.5.8"])
+    s.add_dependency(%q<querybuilder>, [">= 0.6.1"])
   end
 end
 

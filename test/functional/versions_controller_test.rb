@@ -59,12 +59,13 @@ class VersionsControllerTest < Zena::Controller::TestCase
     login(:anon)
     get 'edit', version_hash(:wiki_en)
     assert_response :success
-    assert_match %r{wikiSkin/Node-\+popupLayout/en/_main$}, @response.layout
+    # TODO: move assertion to rendering_test
+    assert_match %r{\$default/Node-\+popupLayout/en/_main$}, @response.layout
     login(:ant)
     get 'edit', version_hash(:status_en, 0)
-    assert_match "form[@action='/nodes/#{nodes_zip(:status)}']"
+    assert_match "form[@action='/nodes/#{nodes_zip(:status)}']", @response.body
     get 'edit', version_hash(:lake_red_en)
-    assert_match "form[@action='/nodes/#{nodes_zip(:lake)}']"
+    assert_match "form[@action='/nodes/#{nodes_zip(:lake)}']", @response.body
   end
 
   def test_parse_assets
@@ -83,17 +84,17 @@ class VersionsControllerTest < Zena::Controller::TestCase
     assert node.update_attributes(:text => start.dup)
     get 'edit', :node_id => node.zip, :id => 0, :parse_assets => 'true'
     assert_response :success
-    version = assigns(:node).version
+    node = assigns(:node)
 
     res =<<-END_CSS
     body { font-size:10px; }
     #header { background:url('/en/image30.jpg?1144713600') }
     #footer { background:url('/en/image31.jpg?1144713600') }
     END_CSS
-    assert_equal res, text
+    assert_equal res, node.text
     get 'edit', :node_id => node.zip, :id => 0, :unparse_assets => 'true'
     assert_response :success
-    version = assigns(:node).version
-    assert_equal start, text
+    node = assigns(:node)
+    assert_equal start, node.text
   end
 end

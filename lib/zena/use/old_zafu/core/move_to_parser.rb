@@ -63,35 +63,6 @@ module Zafu
         pre + super
       end
 
-      def do_method(sym)
-        method = sym
-        pre, post = '', ''
-
-        # do we need recursion ?
-        inc = descendant('include')
-        if inc && inc.params[:part] == @name
-          @context["#{@name}_method".to_sym] = method_name = template_url[1..-1].gsub(/[\/-]/,'_')
-          pre << "<% def #{method_name}(depth, node, list); return '' if depth > #{inc.params[:depth] ? [inc.params[:depth].to_i,30].min : 5}; _erbout = '' -%>"
-          post << "<% _erbout; end -%><%= #{method_name}(0,#{node},#{list || "[#{node}]"}) %>"
-          @context[:node] = 'node'
-          @context[:list] = 'list'
-        end
-
-
-        res ||= super(method)
-        "#{pre}#{res}#{post}"
-      end
-
-      # recursion
-      def r_include
-        return '' if @context[:saved_template]
-        return super if @params[:template] || !@params[:part]
-        part = @params[:part].gsub(/[^a-zA-Z_]/,'')
-        method_name = @context["#{part}_method".to_sym]
-        return parser_error("no parent named '#{part}'") unless method_name
-        "<%= #{method_name}(depth+1,#{node},#{list}) %>"
-      end
-
       # Find a block to update on the page
       def find_target(name)
         # find dom_id / template_url

@@ -191,39 +191,57 @@ hot_else:
   res: "cleanWater"
 
 updated_today:
+  # date set in ZafuCompilerTest
   src: "<r:pages in='site' updated='today' do='each' join=', ' do='show' attr='node_name'/>"
+  src: "<r:pages in='site' where='updated_at.day = now.day' do='each' join=', ' do='show' attr='node_name'/>"
   res: "art, status"
 
 upcoming_events:
+  # date set in ZafuCompilerTest
   src: "<r:pages in='site' log='upcoming' do='each' join=', ' do='show' attr='node_name'/>"
+  src: "<r:pages in='site' where='log_at gt now' do='each' join=', ' do='show' attr='node_name'/>"
   res: "people"
 
 in_7_days:
-  src: "<r:pages in='site' log='+7days' do='each' join=', ' do='show' attr='node_name'/>"
+  # date set in ZafuCompilerTest
+  old_src: "<r:pages in='site' log='+7days' do='each' join=', ' do='show' attr='node_name'/>"
+  src: "<r:pages in='site' where='log_at gt now and log_at lt now + 7 days' do='each' join=', ' do='show' attr='node_name'/>"
   res: "cleanWater, projects"
 
 logged_7_days_ago:
-  src: "<r:pages in='site' log='-7days' do='each' join=', ' do='show' attr='node_name'/>"
+  # date set in ZafuCompilerTest
+  old_src: "<r:pages in='site' log='-7days' do='each' join=', ' do='show' attr='node_name'/>"
+  src: "<r:pages in='site' where='log_at gt now - 7 days and log_at lt now' do='each' join=', ' do='show' attr='node_name'/>"
   res: "cleanWater, projects"
 
 around_7_days:
-  src: "<r:pages in='site' log='7days' do='each' join=', ' do='show' attr='node_name'/>"
+  # date set in ZafuCompilerTest
+  old_src: "<r:pages in='site' log='7days' do='each' join=', ' do='show' attr='node_name'/>"
+  src: "<r:pages in='site' where='log_at gt now - 7 days and log_at lt now + 7 days' do='each' join=', ' do='show' attr='node_name'/>"
   res: "art, cleanWater, projects, status"
 
 in_37_hours:
-  src: "<r:pages in='site' log='+37hours' do='each' join=', ' do='show' attr='node_name'/>"
+  # date set in ZafuCompilerTest
+  old_src: "<r:pages in='site' log='+37hours' do='each' join=', ' do='show' attr='node_name'/>"
+  src: "<r:pages in='site' where='log_at gt now and log_at lt now + 37 hours' do='each' join=', ' do='show' attr='node_name'/>"
   res: "art, cleanWater"
 
 this_week:
-  src: "<r:pages in='site' event='week' do='each' join=', ' do='show' attr='node_name'/>"
+  # date set in ZafuCompilerTest
+  old_src: "<r:pages in='site' event='week' do='each' join=', ' do='show' attr='node_name'/>"
+  src: "<r:pages in='site' where='event_at.week = now.week' do='each' join=', ' do='show' attr='node_name'/>"
   res: "art, projects"
 
 this_month:
-  src: "<r:pages in='site' event='month' do='each' join=', ' do='show' attr='node_name'/>"
+  # date set in ZafuCompilerTest
+  old_src: "<r:pages in='site' event='month' do='each' join=', ' do='show' attr='node_name'/>"
+  src: "<r:pages in='site' where='event_at.month = now.month' do='each' join=', ' do='show' attr='node_name'/>"
   res: "art, projects"
 
 this_year:
-  src: "<r:pages in='site' event='year' do='each' join=', ' do='show' attr='node_name'/>"
+  # date set in ZafuCompilerTest
+  old_src: "<r:pages in='site' event='year' do='each' join=', ' do='show' attr='node_name'/>"
+  src: "<r:pages in='site' where='event_at.year = now.year' do='each' join=', ' do='show' attr='node_name'/>"
   res: "art, projects"
 
 date_select:

@@ -30,7 +30,7 @@ module Zena
 
         # Select the most pertinent error between RubyLess processing errors and QueryBuilder errors.
         def show_errors
-          if @method =~ / in /
+          if @method =~ / in / || ([:in, :where] & @params.keys != [])
             # probably a query
             @errors.detect {|e| e =~ /Syntax/} || @errors.last
           else
@@ -193,6 +193,7 @@ module Zena
           end
 
           # Parse special filters
+          # FIXME: replace all these with proper pseudo_sql (and destroy Zena::Db.date_condition).
           def parse_raw_filters(params)
             filters = []
 
@@ -237,7 +238,7 @@ module Zena
             [:updated, :created, :event, :log].each do |k|
               if value = params[k]
                 # current, same are synonym for 'today'
-                filters << date_condition(value,"TABLE_NAME.#{k}_at",current_date)
+                filters << Zena::Db.date_condition(value,"TABLE_NAME.#{k}_at", get_date)
               end
             end
 

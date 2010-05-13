@@ -126,11 +126,6 @@ class Test::Unit::TestCase
   undef default_test
 end
 
-class ZenaTestHelper < ActionView::TestCase
-  attr_accessor :visitor
-  include Zena::Test::TestHelper
-end
-
 class ZenaTestController < ActionController::TestCase
   #include Zena::Test::TestController
 end

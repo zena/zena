@@ -240,7 +240,9 @@ module Zena
         include RubyLess
         safe_method :date => :get_date
 
-        def get_date(signature)
+        def get_date(signature = nil)
+          # TODO: replace @context[:date] with get_context_var('set_var', 'date')
+          # We could then remove <r:date select='...'/>
           if method = @context[:date]
             {:method => method, :class => Time, :nil => method.could_be_nil?}
           else

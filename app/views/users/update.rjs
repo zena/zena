@@ -8,7 +8,7 @@ if @user.errors.empty?
 else
   # render form
   if @update
-    page.replace_html "user_#{@update}_errors", :inline => error_messages_for(@user)
+    page.replace_html "user_#{@update}_errors", :inline => error_messages_for(:user, :object => @user)
   else
     @groups = secure!(Group) { Group.find(:all, :order=>"id") }
     page.replace "user#{@user[:id]}", :partial=>"users/form"

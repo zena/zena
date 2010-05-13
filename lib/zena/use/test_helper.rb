@@ -8,8 +8,8 @@ module Zena
 
       # Set visitor for unit testing
       def login(fixture)
-        user =  users(fixture)
-        Thread.current[:visitor] = user = users(fixture)
+        user = users(fixture)
+        Thread.current[:visitor] = user
         user.ip = '10.0.0.44'
         $_test_site = user.site.name
         ::I18n.locale = user.lang
@@ -27,7 +27,8 @@ module Zena
         $_test_site = site_name
       end
 
-      def set_date(node_syms, opts = {})
+      def set_date(node_syms, opts = {}, site = 'zena')
+        $_test_site = site
         fld = opts.delete(:fld) || 'log_at'
         if opts == {}
           date = Time.now

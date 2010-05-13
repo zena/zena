@@ -6,7 +6,7 @@
   end %>
 </td>
 <td class="add" colspan="6">
-  <div id='iformat_errors'><%= error_messages_for(@iformat) %></div>
+  <div id='iformat_errors'><%= error_messages_for(:iformat, :object => @iformat) %></div>
   <% unless @iformat.name.blank? %>
   <%= form_remote_tag(:url => iformat_path(@iformat.pseudo_id), :method => :put ) %>
   <% else %>

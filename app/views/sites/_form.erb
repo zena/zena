@@ -6,7 +6,7 @@
   end %>
 </td>
 <td class='add' colspan='8'>
-  <div id='site_errors'><%= error_messages_for(@site) %></div>
+  <div id='site_errors'>error_messages_for(:site, :object => @site)</div>
   <% unless @site.new_record? %>
   <%= form_remote_tag(:url => site_path(@site), :method => :put ) %>
   <% else %>

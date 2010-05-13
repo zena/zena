@@ -1,10 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="en" set_lang='[v_lang]' xml:lang='en'>
+<html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="#{v_lang}" xml:lang='en'>
   <head>
   <title do='title_for_layout' do='trans'>login</title>
   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-  <meta http-equiv="Content-Language" do='void' content='fr-fr' tset_content='[v_lang]_content'/>
+  <meta http-equiv="Content-Language" do='void' content='#{trans("#{v_lang}_conent")}'/>
 
   <r:stylesheets name='stylesheets' list='reset,zena,comment,admin,search,default'/>
   <r:javascripts/>
@@ -32,7 +32,7 @@
         <r:to_publish>
           <h3 class='group' do='trans'>to publish</h3>
           <ol>
-            <li do='each' set_class='li_s[status]'><r:link/></li>
+            <li do='each' class='li_s#{status}'><r:link/></li>
           </ol>
         </r:to_publish>
 
@@ -46,14 +46,14 @@
         <r:proposed>
           <h3 class='group' do='trans'>waiting for publication</h3>
           <ol>
-            <li do='each' set_class='li_s[status]'><r:link/></li>
+            <li do='each' class='li_s#{status}'><r:link/></li>
           </ol>
         </r:proposed>
 
         <r:redactions>
           <h3 class='group' do='trans'>redactions</h3>
           <ol>
-            <li do='each' set_class='li_s[status]'><r:link/></li>
+            <li do='each' class='li_s#{status}'><r:link/></li>
           </ol>
         </r:redactions>
       </div>

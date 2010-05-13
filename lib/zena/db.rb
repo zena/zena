@@ -179,11 +179,25 @@ module Zena
         case function
         when 'year'
           "year(#{key})"
+        when 'month'
+          "date_format(#{key},'%Y-%m')"
+        when 'week'
+          "date_format(#{key},'%Y-%v')"
+        when 'day'
+          "DATE(#{key})"
         end
       when 'sqlite3'
         case function
         when 'year'
+          # we multiply by '1' to force a cast to INTEGER so that comparaison against
+          # numbers works.
           "strftime('%Y', #{key})*1"
+        when 'month'
+          "strftime('%Y-%m', #{key})"
+        when 'week'
+          "strftime('%Y-%W', #{key})"
+        when 'day'
+          "DATE(#{key})"
         end
       end
       raise Exception.new("Database Adapter #{adapter.inspect} does not support function #{function.inspect}.") unless res

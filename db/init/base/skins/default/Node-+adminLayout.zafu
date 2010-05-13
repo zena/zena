@@ -15,7 +15,7 @@
       <r:to_publish>
         <h3 class='group' do='trans'>to publish</h3>
         <ol>
-          <li do='each' set_class='li_s[status]'><r:link/></li>
+          <li do='each' class='li_s#{status}'><r:link/></li>
         </ol>
       </r:to_publish>
 
@@ -29,14 +29,14 @@
       <r:proposed>
         <h3 class='group' do='trans'>waiting for publication</h3>
         <ol>
-          <li do='each' set_class='li_s[status]'><r:link/></li>
+          <li do='each' class='li_s#{status}'><r:link/></li>
         </ol>
       </r:proposed>
 
       <r:redactions>
         <h3 class='group' do='trans'>redactions</h3>
         <ol>
-          <li do='each' set_class='li_s[status]'><r:link/></li>
+          <li do='each' class='li_s#{status}'><r:link/></li>
         </ol>
       </r:redactions>
     </div>

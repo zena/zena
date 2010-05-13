@@ -2,24 +2,6 @@ require 'test_helper'
 
 class DocumentsControllerTest < Zena::Controller::TestCase
 
-  def get_subject
-    without_files('/test.host/zafu') do
-      get subject.delete(:action), subject
-      if block_given?
-        yield
-      end
-    end
-  end
-
-  def post_subject
-    without_files('/test.host/zafu') do
-      post subject.delete(:action), subject
-      if block_given?
-        yield
-      end
-    end
-  end
-
   context 'An anonymous user' do
     setup do
       login(:anon)
@@ -45,7 +27,7 @@ class DocumentsControllerTest < Zena::Controller::TestCase
     setup do
       login(:tiger)
     end
-    
+
     context 'uploading a document' do
       subject do
         {:action => 'new', :controller => 'documents', :parent_id => nodes_zip(:zena)}

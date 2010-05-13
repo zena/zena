@@ -8,7 +8,7 @@ class VirtualClassesController < ApplicationController
     secure(VirtualClass) do
       @virtual_classes = VirtualClass.paginate(:all, :order => 'kpath', :per_page => 20, :page => params[:page])
     end
-    @virtual_class  = VirtualClass.new
+    @virtual_class  = VirtualClass.new('')
     respond_to do |format|
       format.html # index.erb
       format.xml  { render :xml => @virtual_classes }
@@ -34,7 +34,7 @@ class VirtualClassesController < ApplicationController
         redirect_to :action => :index
       else
         @virtual_classes = secure(VirtualClass) { VirtualClass.import(data) }.paginate(:per_page => 200)
-        @virtual_class  = VirtualClass.new
+        @virtual_class  = VirtualClass.new('')
         respond_to do |format|
           format.html { render :action => 'index' }
         end
@@ -51,7 +51,7 @@ class VirtualClassesController < ApplicationController
   end
 
   def new
-    @virtual_class = VirtualClass.new
+    @virtual_class = VirtualClass.new('')
 
     respond_to do |format|
       format.html # new.erb

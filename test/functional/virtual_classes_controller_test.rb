@@ -2,70 +2,146 @@ require 'test_helper'
 
 class VirtualClassesControllerTest < Zena::Controller::TestCase
 
-  def setup
-    super
-    login(:lion)
-  end
-
-  test "should not have access to virtual classes if not admin" do
-    login(:tiger)
-    get :index
-    assert_response :missing
-  end
-
-  test "should get index" do
-    get :index
-    assert_response :success
-    assert_not_nil assigns(:virtual_classes)
-  end
-
-  test "should get new" do
-    get :new
-    assert_response :success
-  end
-
-  test "should create virtual class" do
-    assert_difference('VirtualClass.count') do
-      post :create, :virtual_class => { :name => 'Xkcd', :superclass => 'Section', :create_group_id => groups_id(:public) }
-    end
-    xkcd = assigns(:virtual_class)
-    assert_equal "Xkcd",  xkcd.name
-    assert_equal Section, xkcd.superclass
-    assert_equal "NPSX",  xkcd.kpath
-    assert_redirected_to virtual_class_path(assigns(:virtual_class))
-  end
-
-  test "should show virtual class" do
-    get :show, :id => roles_id(:Letter)
-    assert_response :success
-  end
-
-  test "should get edit" do
-    get :edit, :id => roles_id(:Letter)
-    assert_response :success
-  end
-
-  test "should update virtual class" do
-    put :update, :id => roles_id(:Letter), :virtual_class => { :name => 'Brief'}
-    brief = assigns(:virtual_class)
-    assert_redirected_to virtual_class_path(brief)
-    assert_equal 'Brief', brief.name
-    assert_equal "NNB",  brief.kpath
-  end
-
-  test "should destroy virtual class" do
-    assert_difference('VirtualClass.count', -1) do
-      delete :destroy, :id => roles_id(:Letter)
-    end
-    assert_redirected_to virtual_classes_path
-  end
-
-  context 'importing virtual class definitions' do
-    should 'create virtual_classes' do
-      assert_difference('VirtualClass.count', 3) do
-        post :import, :attachment => uploaded_fixture('vclasses.yml', 'text/yaml')
+  context 'A logged in user' do
+    
+    context 'that is not an admin' do
+      setup do
+        login(:tiger)
       end
-      list = assigns(:virtual_classes)
-    end
-  end
+      
+      context 'accessing index' do
+        subject do
+          {:action => :index}
+        end
+        
+        should 'not be allowed' do
+          get_subject
+          assert_response :missing
+        end
+      end # accessing index
+    end # that is not an admin
+    
+    context 'that is an admin' do
+      setup do
+        login(:lion)
+      end
+      
+      context 'accessing index' do
+        subject do
+          {:action => :index}
+        end
+        
+        should 'succeed' do
+          get_subject
+          assert_response :success
+        end
+        
+        should 'display list of virtual classes' do
+          get_subject
+          assert assigns(:virtual_classes)
+        end
+      end # accessing index
+      
+      should 'access new' do
+        get :new
+        assert_response :success
+      end
+      
+      context 'creating a virtual class' do
+        subject do
+          {:action => :create, :virtual_class => { :name => 'Xkcd', :superclass => 'Section', :create_group_id => groups_id(:public) }}
+        end
+        
+        should 'create a new VirtualClass' do
+          assert_difference('VirtualClass.count', 1) do
+            post_subject
+          end
+        end
+        
+        should 'set name, superclass and kpath' do
+          post_subject
+          vclass = assigns(:virtual_class)
+          assert_equal "Xkcd",  vclass.name
+          assert_equal Section, vclass.superclass
+          assert_equal "NPSX",  vclass.kpath
+        end
+        
+        should 'redirect to show' do
+          post_subject
+          assert_redirected_to virtual_class_path(assigns(:virtual_class))
+        end
+          
+      end # creating a virtual class
+      
+      context 'displaying a virtual class' do
+        subject do
+          {:action => :show, :id => roles_id(:Letter)}
+        end
+        
+        should 'succeed' do
+          get_subject
+          assert_response :success
+        end
+      end # displaying a virtual class
+      
+      context 'editing a virtual class' do
+        subject do
+          {:action => :edit, :id => roles_id(:Letter)}
+        end
+        
+        should 'succeed' do
+          get_subject
+          assert_response :success
+        end
+      end # editing a virtual class
+      
+      context 'updating a virtual class' do
+        subject do
+          {:action => :update, :id => roles_id(:Letter), :virtual_class => { :name => 'Brief'}}
+        end
+        
+        should 'redirect to show' do
+          put_subject
+          assert_redirected_to virtual_class_path(assigns(:virtual_class))
+        end
+        
+        should 'save name and kpath' do
+          put_subject
+          vclass = assigns(:virtual_class)
+          assert_equal 'Brief', vclass.name
+          assert_equal "NNB",  vclass.kpath
+        end
+          
+      end # updating a virtual class
+      
+      context 'destroying a virtual class' do
+        subject do
+          {:action => :destroy, :id => roles_id(:Letter)}
+        end
+        
+        should 'destroy' do
+          assert_difference('VirtualClass.count', -1) do
+            delete_subject
+          end
+        end
+            
+        should 'redirect to index' do
+          delete_subject
+          assert_redirected_to virtual_classes_path
+        end
+      end # destroying a virtual class
+      
+      context 'importing virtual class definitions' do
+        subject do
+          {:action => :import, :attachment => uploaded_fixture('vclasses.yml', 'text/yaml')}
+        end
+        
+        should 'create virtual classes' do
+          assert_difference('VirtualClass.count', 3) do
+            post_subject
+          end
+        end
+      end # destroying a virtual class
+    end # that is an admin
+  end # A logged in user
 end

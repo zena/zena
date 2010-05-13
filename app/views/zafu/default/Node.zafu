@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="en" set_lang='[v_lang]' xml:lang='en'>
+<html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="#{v_lang}" xml:lang='en'>
 <head do='void' name='head'>
   <title do='title_for_layout' do='show' attr='title' name='page_title'>page title</title>
   <link href='favicon_tiny.png' rel='shortcut icon' type='image/png' />
@@ -38,7 +38,7 @@
             <ol>
               <li><r:select name='klass' root_class='Page'/></li>
               <li><input type='text' name='title' value=''/></li>
-              <li class='validate'><input type="submit" value='validate' tset_value='validate'/></li>
+              <li class='validate'><input type="submit" value='#{trans("validate")'/></li>
             </ol>
           </li>
         </ol>
@@ -59,23 +59,23 @@
         </r:documents>
         <r:pages name='pages'><h3 do='trans'>pages</h3>
           <ol>
-            <li do='each' set_class='li_s[v_status]' do='link'/>
+            <li do='each' class='li_s#{v.status}' do='link'/>
             <li do='add' before='self'/>
             <li class='inline_form' do='form'>
               <p class='node_klass'>  <r:select name='klass' root_class='Page'/></p>
               <p class='node_title'><input type='text' name='title' value=''/></p>
-              <p class='btn_validate'><input type="submit" value='validate' tset_value='validate'/></p>
+              <p class='btn_validate'><input type="submit" value='#{trans("validate")}'/></p>
             </li>
           </ol>
         </r:pages>
         <r:references name='references'><h3 do='trans'>references</h3>
           <ol>
-            <li do='each' set_class='li_s[v_status]' do='link'/>
+            <li do='each' class='li_s#{v.status}' do='link'/>
             <li do='add' before='self'/>
             <li class='inline_form' do='form'>
               <p class='node_klass'>  <r:select name='klass' root_class='Reference'/></p>
               <p class='node_title'><input type='text' name='title' value=''/></p>
-              <p class='btn_validate'><input type="submit" value='validate' tset_value='validate'/></p>
+              <p class='btn_validate'><input type="submit" value='#{trans("validate")}'/></p>
             </li>
           </ol>
         </r:references>

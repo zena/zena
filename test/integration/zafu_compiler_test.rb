@@ -1,9 +1,6 @@
 require 'test_helper'
 
-
-
 class ZafuCompilerTest < Zena::Controller::TestCase
-
 
   yamltest :directories => [:default, "#{Zena::ROOT}/bricks/**/test/zafu"]
   Section # make sure we load Section links before trying relations
@@ -103,41 +100,44 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     o_yt_assert test_val, result
   end
 
-  def test_basic_cache_part
-    with_caching do
-      Node.connection.execute "UPDATE nodes SET name = 'first' WHERE id = #{nodes_id(:status)}"
-      caches = Cache.find(:all)
-      assert_equal [], caches
-      yt_do_test('basic', 'cache_part')
-
-      cont = {
-        :user_id => users_id(:anon),
-        :user => 'anon',
-        :node_id => nodes_id(:status),
-        :prefix  => 'en',
-        :url  => '/cache/part',
-        :text => @response.body
-      }.freeze
-
-      post 'test_render', cont
-      assert_equal 'first', @response.body
-
-      cache  = Cache.find(:first)
-      assert_kind_of Cache, cache
-      assert_equal "first", cache.content
-      Node.connection.execute "UPDATE nodes SET name = 'second' WHERE id = #{nodes_id(:status)}"
-
-      post 'test_render', cont
-      assert_equal 'first', @response.body
-
-      Node.connection.execute "DELETE FROM #{Cache.table_name};"
-
-      post 'test_render', cont
-      assert_equal 'second', @response.body
-    end
-  end
+  # turned part caching off
+  # def test_basic_cache_part
+  #   test_site('zena')
+  #   with_caching do
+  #     Node.connection.execute "UPDATE nodes SET node_name = 'first' WHERE id = #{nodes_id(:status)}"
+  #     caches = Cache.find(:all)
+  #     assert_equal [], caches
+  #     yt_do_test('basic', 'cache_part')
+  #
+  #     cont = {
+  #       :user_id => users_id(:anon),
+  #       :user => 'anon',
+  #       :node_id => nodes_id(:status),
+  #       :prefix  => 'en',
+  #       :url  => '/cache/part',
+  #       :text => @response.body
+  #     }.freeze
+  #
+  #     post 'test_render', cont
+  #     assert_equal 'first', @response.body
+  #
+  #     cache  = Cache.find(:first)
+  #     assert_kind_of Cache, cache
+  #     assert_equal "first", cache.content
+  #     Node.connection.execute "UPDATE nodes SET node_name = 'second' WHERE id = #{nodes_id(:status)}"
+  #
+  #     post 'test_render', cont
+  #     assert_equal 'first', @response.body
+  #
+  #     Node.connection.execute "DELETE FROM #{Cache.table_name};"
+  #
+  #     post 'test_render', cont
+  #     assert_equal 'second', @response.body
+  #   end
+  # end
 
   def test_relations_updated_today
+    test_site('zena')
     Node.connection.execute "UPDATE nodes SET updated_at = #{Zena::Db::NOW} WHERE id IN (#{nodes_id(:status)}, #{nodes_id(:art)});"
     yt_do_test('relations', 'updated_today')
   end
@@ -248,15 +248,19 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     yt_do_test('relations', 'direction_both_self_auto_ref')
   end
 
-  def test_basic_recursion_in_each
+  def test_recursion_in_each
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
     node.unpublish
-    yt_do_test('basic', 'recursion_in_each')
+    yt_do_test('recursion', 'in_each')
   end
 
   def test_zazen_swf_button_player
-    DocumentContent.connection.execute "UPDATE document_contents SET ext = 'mp3' WHERE id = #{document_contents_id(:water_pdf)}"
+    login(:tiger)
+    node = secure!(Node) { nodes(:water_pdf) }
+    node.prop['ext'] = 'mp3'
+    node.send(:dump_properties)
+    Zena::Db.execute "UPDATE versions SET properties = #{Zena::Db.quote(node.version[:properties])}"
     yt_do_test('zazen', 'swf_button_player')
   end
 
@@ -270,6 +274,7 @@ class ZafuCompilerTest < Zena::Controller::TestCase
   end
 
   def test_dates_uses_datebox_missing_lang
+    login(:ant)
     visitor.lang = 'io'
     yt_do_test('dates', 'uses_datebox_missing_lang')
   end
@@ -277,6 +282,7 @@ class ZafuCompilerTest < Zena::Controller::TestCase
   def test_display_defined_icon
     login(:tiger)
     # define flower as icon
+    node = secure!(Node) { nodes(display_tests['defined_icon']['context']['node'].to_sym)}
     assert node.update_attributes(:icon_id => nodes_id(:flower_jpg))
     yt_do_test('display', 'defined_icon')
   end

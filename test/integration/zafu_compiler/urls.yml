@@ -129,9 +129,10 @@ link_stored:
 link_date:
   context:
     ref_date: '2008-06-27'
-  src: "<r:link date='current_date'/>"
-  tem: "/:date=>main_date/"
-  res: "<a href='/oo/projects/cleanWater/page22.html?date=2008-06-27'>status title</a>"
+  old_src: "<r:link date='current_date'/>"
+  src: "<r:link date='#{date}'/>"
+  tem: '/:date => "#\{main_date\}"'
+  res: "<a href='/oo/projects/cleanWater/page22.html?date=2008-06-27T00%3A00%3A00%2B00%3A00'>status title</a>"
 
 link_url_params:
   src: "<r:link plob='hopla'/>"

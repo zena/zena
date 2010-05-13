@@ -643,18 +643,6 @@ date:
   src: "<r:date select='[log_at]'>nouvelles de <r:trans do='[current_date]' format='%B'/> <r:show date='current_date' format='%Y'/>: <r:notes in='site' log='month' do='each' join=', ' do='[name]'/></r:date>"
   res: "nouvelles de avril 2006: letter"
 
-recursion:
-  src: "<r:void name='grp'><r:show attr='node_name'/><r:parent> -- <r:include part='grp'/></r:parent></r:void>"
-  res: "status -- cleanWater -- projects -- zena"
-
-recursion_in_each:
-  src: "<ul do='comments'>
-    <li do='each' name='com'><b do='[title]'>sample title</b>
-      <ul do='replies' do='include' part='com'/>
-    </li>
-  </ul>"
-  res: "<ul> <li><b>I agree</b> </li> <li><b>I think this is bad</b> <ul> <li><b>Why ?</b> </li></ul> </li> <li><b>OK for me</b> </li> </ul>"
-
 #comments_with_params:
 #  src: "<r:comments order='date desc'><r:each join=', ' do='[title]'/></r:comments>"
 #  tem: "."

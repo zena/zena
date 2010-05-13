@@ -21,6 +21,19 @@ module Zena
         end
       end
 
+      %w{get post put delete}.each do |method|
+        class_eval <<-END_TXT
+          def #{method}_subject
+            without_files('/test.host/zafu') do
+              #{method} subject.delete(:action), subject
+              if block_given?
+                yield
+              end
+            end
+          end
+        END_TXT
+      end
+
       def assert_match(match, target)
         return super if match.kind_of?(Regexp)
         target = Hpricot(target)

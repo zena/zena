@@ -13,5 +13,6 @@ module Zena
     Zena::Use::Action::ZafuMethods,
     Zena::Use::Dates::ZafuMethods,
     Zena::Use::Forms::ZafuMethods,
+    Zena::Use::Recursion::ZafuMethods,
   ])
 end

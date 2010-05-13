@@ -6,7 +6,7 @@
         <p class='node_title'><input type='text' name='title' size='25'/></p>
         <p class='node_klass'>  <r:select name='klass' root_class='Note' selected='Post'/></p>
         <p class='node_log_at'> <input type='date_box' name='log_at'/> </p>
-        <p class='validate'>    <input type="submit" value='validate' do='void' tset_value='validate'/></p>
+        <p class='validate'>    <input type="submit" value='#{trans("validate")}'/></p>
       </form>
     </li>
     <li class='note' do='each' live='true'>

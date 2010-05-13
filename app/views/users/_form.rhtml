@@ -6,7 +6,7 @@
   end %>
 </td>
 <td class="add" colspan="4">
-  <div id='user_errors'><%= error_messages_for(@user) %></div>
+  <div id='user_errors'><%= error_messages_for(:user, :object => @user) %></div>
   <% if user_id %>
   <%= form_remote_tag(:url => user_path(@user), :method => :put ) %>
   <% else %>

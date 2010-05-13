@@ -90,6 +90,7 @@ module Zena
             list = opts.keys.map do |k|
               if value = opts[k]
                 if value.respond_to?(:strftime)
+                  # FIXME: I think this is not needed anymore (and removing time might not be a good idea).
                   "#{k}=#{value.strftime('%Y-%m-%d')}"
                 else
                   "#{k}=#{CGI.escape(opts[k].to_s)}"
