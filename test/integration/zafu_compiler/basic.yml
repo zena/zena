@@ -45,7 +45,7 @@ calendar_hours:
     node: 'zena'
   # I do not like the way we do this, the 'else' thing is not helping. Maybe we need some
   # extra zafu tags because it' messy: we have 3 lists (days, hours, nodes) ...
-  src: "<div do='calendar' select='added_notes' date='l_date' split_hours='12'><r:if test='hour eq 0' do='[current_date]' format='%d'/><div do='void' set_class='hour_[hour]' do='each' do='[name]' join=', '/><r:else><r:if test='hour eq 0' do='[current_date]' format='%d'/><div do='void' set_class='hour_[hour]'></div></r:else></div>"
+  src: "<div do='calendar' select='added_notes' date='l_date' split_hours='12'><r:if test='hour eq 0' do='[current_date]' format='%d'/><div do='void' set_class='hour_[hour]' do='each' do='node_name' join=', '/><r:else><r:if test='hour eq 0' do='[current_date]' format='%d'/><div do='void' set_class='hour_[hour]'></div></r:else></div>"
   res: "/<td class='ref'>17<div class='hour_0'></div><div class='hour_12'>opening</div></td>/"
 
 flash_messages_both:
@@ -89,31 +89,31 @@ each_traductions_only_list:
 each_alternate_class:
   context:
     node: 'cleanWater'
-  src: "<ol do='pages'><li do='each' alt_class='blue' do='[name]'/></ol>"
+  src: "<ol do='pages'><li do='each' alt_class='blue' do='node_name'/></ol>"
   res: "<ol><li>crocodiles</li><li class=\"blue\">status</li><li>track</li></ol>"
 
 each_alternate_class_reverse:
   context:
     node: 'cleanWater'
-  src: "<ol do='pages' limit='2'><li do='each' alt_class='blue' alt_reverse='true' do='[name]'/></ol>"
+  src: "<ol do='pages' limit='2'><li do='each' alt_class='blue' alt_reverse='true' do='node_name'/></ol>"
   res: "<ol><li class=\"blue\">crocodiles</li><li>status</li></ol>"
 
 each_alternate_class_two:
   context:
     node: 'collections'
-  src: "<ol do='pages'><li class='post' alt_class='stripe' do='each' do='[name]'/></ol>"
+  src: "<ol do='pages'><li class='post' alt_class='stripe' do='each' do='node_name'/></ol>"
   res: "<ol><li class='post'>art</li><li class='post stripe'>menu</li><li class='post'>news</li><li class='post stripe'>wikiSkin</li></ol>"
 
 each_alternate_class_ajax:
   context:
     node: 'cleanWater'
-  src: "<ol do='pages' limit='2'><li do='each' alt_class='blue' do='[name]'/><li do='add'/></ol>"
+  src: "<ol do='pages' limit='2'><li do='each' alt_class='blue' do='node_name'/><li do='add'/></ol>"
   res: "/<li>crocodiles<\/li><li class=\"blue\">status/"
 
 each_else:
   context:
     node: 'opening'
-  src: "<div do='pages'>has pages (<r:each do='[name]' join=', '/>)<r:else>no pages</r:else></div>"
+  src: "<div do='pages'>has pages (<r:each do='node_name' join=', '/>)<r:else>no pages</r:else></div>"
   tem: "/-%><div>has pages \(<% list1.each do \|var1\| -%><%= var1.name %><% end -%>\)</div><% elsif true -%><div>no pages</div><% end -%>/"
   res: "<div>no pages</div>"
 
@@ -207,7 +207,7 @@ multiple_class_conditions_true_in_middle:
 
 # var1 = stored 'papa'
 test_ancestor_with_stored:
-  src: "<r:parent do='parent' store='papa' do='pages'><div do='each' super_if_node='papa.ancestor' do='[name]'/></r:parent>"
+  src: "<r:parent do='parent' store='papa' do='pages'><div do='each' super_if_node='papa.ancestor' do='node_name'/></r:parent>"
   tem: "/var1.fullpath.*var3.fullpath/"
   res: "<div class='super'>cleanWater</div><div>wiki</div>"
 
@@ -220,7 +220,7 @@ on_if_kind_of:
 on_if_attribute:
   context:
     node: 'cleanWater'
-  src: "<r:pages><div do='each' on_if='d_assigned' do='[name]'/></r:pages>"
+  src: "<r:pages><div do='each' on_if='d_assigned' do='node_name'/></r:pages>"
   tem: "/list1.each.*var1.*<div.*var1.version.dyn\[\"assigned\"\]/"
   res: "<div>crocodiles</div><div class='on'>status</div><div>track</div>"
 
@@ -231,11 +231,11 @@ on_if_attribute_with_edit:
   tem: "/list1.each.*var1.*<div.*var1.version.dyn\[\"assigned\"\]/"
 
 on_if_node_main:
-  src: "<r:parent><r:pages><div do='each' on_if_node='main' do='[name]'>hello</div></r:pages></r:parent>"
+  src: "<r:parent><r:pages><div do='each' on_if_node='main' do='node_name'>hello</div></r:pages></r:parent>"
   res: "<div>crocodiles</div><div class='on'>status</div><div>track</div>"
 
 if_in_tag:
-  src: "<r:form><p do='if' in='form' do='[name]'/></r:form><i do='if' in='form' do='[name]'/>done."
+  src: "<r:form><p do='if' in='form' do='node_name'/></r:form><i do='if' in='form' do='node_name'/>done."
   res: "/<p>status</p></form></div>done./"
 
 if_in_tag_else:
@@ -258,7 +258,7 @@ if_now:
   res: "past"
 
 on_if_now:
-  src: "<p do='[name]' on_if='log_at gt now'/>"
+  src: "<p do='node_name' on_if='log_at gt now'/>"
   tem: "<p<%= @node.log_at.to_i > Time.now.to_i ? \" class='on'\" : \"\" %>><%= @node.name %></p>"
   res: "<p>status</p>"
 
@@ -271,12 +271,12 @@ visitor_is_anon:
 test_in_each:
   context:
     node: 'cleanWater'
-  src: "<ul do='pages'><li do='each' on_if='name eq \"track\"' do='[name]'/></ul>"
+  src: "<ul do='pages'><li do='each' on_if='name eq \"track\"' do='node_name'/></ul>"
   tem: "/var1.name == \"track\"/"
   res: "<ul><li>crocodiles</li><li>status</li><li class='on'>track</li></ul>"
 
 on_if_in_unknown:
-  src: "<div do='project' on_if='name eq \"cleanWater\"' do='[name]'/>"
+  src: "<div do='project' on_if='name eq \"cleanWater\"' do='node_name'/>"
   res: "<div class='on'>cleanWater</div>"
 
 test_negative_value:
@@ -326,11 +326,11 @@ set_in_ztag:
   res: "<div id='node22'>status</div>"
 
 set_attribute_stored_node:
-  src: "<r:void store='foo'><r:parent><p do='[name]' set_id='test_[foo.id]'>hey</p></r:parent></r:void>"
+  src: "<r:void store='foo'><r:parent><p do='node_name' set_id='test_[foo.id]'>hey</p></r:parent></r:void>"
   res: "<p id='test_22'>cleanWater</p>"
 
 set_attribute_main_node:
-  src: "<r:parent><p do='[name]' set_id='test_[main.name]'>hey</p></r:parent>"
+  src: "<r:parent><p do='node_name' set_id='test_[main.name]'>hey</p></r:parent>"
   res: "<p id='test_status'>cleanWater</p>"
 
 set_attribute_in_list:
@@ -417,11 +417,11 @@ include_named:
 
 # this test is a dummy used by include_context
 context_dummy:
-  src: "CD: <r:pages in='site' where='name like \"s%\"' name='pages'><r:each join=', ' do='[name]'/></r:pages>"
+  src: "CD: <r:pages in='site' where='name like \"s%\"' node_name='pages'><r:each join=', ' do='node_name'/></r:pages>"
   res: "CD: skins, status"
 
 include_context:
-  src: "IC: <r:include template='/context/dummy'><r:with part='pages'><r:each join=' / ' do='[name]'/></r:with></r:include>"
+  src: "IC: <r:include template='/context/dummy'><r:with part='pages'><r:each join=' / ' do='node_name'/></r:with></r:include>"
   res: "IC: CD: skins / status"
 
 content_for_layout:
@@ -527,7 +527,7 @@ select_nodes:
   res: "/name='node\[foo\]'><option value=\"\" selected=\"selected\"></option>\n<option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
 
 do_not_set_parent_id_if_form_contains_parent_id:
-  src: "<r:children><r:each do='[name]'/><r:add/><r:form><r:select name='parent_id' nodes='projects in site'/><input name='title'/></r:form></r:children>"
+  src: "<r:children><r:each do='node_name'/><r:add/><r:form><r:select name='parent_id' nodes='projects in site'/><input name='title'/></r:form></r:children>"
   res: "!/node\[parent_id\].\s+value/"
 
 select_nodes_selected:
@@ -535,7 +535,7 @@ select_nodes_selected:
   res: "/option\s* value=.21.\s* selected=.selected.>cleanWater/"
 
 select_nodes_in_ajax:
-  src: "<r:pages><r:each do='[name]'/><r:add/><r:form><r:select nodes='images in site' name='d_ref'/></r:form></r:pages>"
+  src: "<r:pages><r:each do='node_name'/><r:add/><r:form><r:select nodes='images in site' name='d_ref'/></r:form></r:pages>"
   res: "/name=.node\[d_ref\].><option value=\"\" selected=\"selected\"></option>\n<option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
 
 select_nodes_show_attr:
@@ -618,7 +618,7 @@ input_new:
 
 add_btn:
   src: "<table do='pages' in='site' limit='1'>
-  <tr do='each'><td do='[name]'/></tr>
+  <tr do='each'><td do='node_name'/></tr>
   <tr do='add'><td><b><r:add_btn/></b></td></tr>
   </table>"
   res: "/<tr class='btn_add' id='list1_add'><td><b><a href='#' onclick/"
@@ -640,7 +640,7 @@ date:
     visitor: ant
     node: 'letter'
     lang: 'fr'
-  src: "<r:date select='[log_at]'>nouvelles de <r:trans do='[current_date]' format='%B'/> <r:show date='current_date' format='%Y'/>: <r:notes in='site' log='month' do='each' join=', ' do='[name]'/></r:date>"
+  src: "<r:date select='[log_at]'>nouvelles de <r:trans do='[current_date]' format='%B'/> <r:show date='current_date' format='%Y'/>: <r:notes in='site' log='month' do='each' join=', ' do='node_name'/></r:date>"
   res: "nouvelles de avril 2006: letter"
 
 #comments_with_params:
@@ -726,7 +726,7 @@ date_from_params:
 date_from_params_in_query:
   context:
     year: 2006
-  src: "<r:date select='[param:year]-01-01'><r:nodes in='site' log='year' do='each' join=', ' do='[name]'/></r:date>"
+  src: "<r:date select='[param:year]-01-01'><r:nodes in='site' log='year' do='each' join=', ' do='node_name'/></r:date>"
   tem: "/(date_format|strftime).*format_date.*params\[:year\].*%Y/"
   res: "letter, opening"
 
@@ -743,7 +743,7 @@ find_count:
 link_page_next:
   context:
     pak: 2
-  src: "<r:nodes in='site' limit='3' order='zip' paginate='pak'><r:link page='previous'/> | <r:show var='pak'/> | <r:link page='next'/> || <r:each join=',' do='[name]'/></r:nodes>"
+  src: "<r:nodes in='site' limit='3' order='zip' paginate='pak'><r:link page='previous'/> | <r:show var='pak'/> | <r:link page='next'/> || <r:each join=',' do='node_name'/></r:nodes>"
   res: "<a href='/oo/projects/cleanWater/page22.html?pak=1'>1</a> | 2 | <a href='/oo/projects/cleanWater/page22.html?pak=3'>3</a> || tiger,lion,myLife"
 
 link_page_next_with_block:
@@ -806,14 +806,14 @@ debug_params:
   context:
     foo: 'bar'
     dev: true
-  src: "DEBUG: <r:debug title='no idea for a title' show='params'/><r:debug do='[name]'/>"
+  src: "DEBUG: <r:debug title='no idea for a title' show='params'/><r:debug do='node_name'/>"
   tem: "DEBUG: <div class='debug'><p>no idea for a title</p><pre><%= params.inspect %></pre></div><div class='debug'><%= @node.name %></div>"
   res: "/DEBUG: <div class='debug'><p>no idea for a title</p><pre>.*\"foo\"=>\"bar\".*</pre></div><div class='debug'>status</div>/"
 
 debug_params_not_in_dev_mode:
   context:
     foo: 'bar'
-  src: "DEBUG: <r:debug show='params'/><r:debug do='[name]'/><r:debug title='help needed'/>"
+  src: "DEBUG: <r:debug show='params'/><r:debug do='node_name'/><r:debug title='help needed'/>"
   tem: 'DEBUG: '
   res: 'DEBUG: '
 

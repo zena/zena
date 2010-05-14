@@ -36,6 +36,8 @@ module Zena
           res = asset_img_tag(obj, opts)
 
           # 2. tag using alt_src data
+          # FIXME: replace recompilation by executing the find here
+          # alt_src = alt_src.kind_of?(String) ? Node.do_find(:first, alt_src) : alt_src
           if !res && alt_src = opts[:alt_src]
             if alt_src == 'icon'
               alt_src = icon_finder
@@ -324,40 +326,34 @@ module Zena
         # Parse text with zazen helper
         def r_zazen(signature = nil)
           @markup.prepend_param(:class, 'zazen')
-          node = node(Node)
           if signature
             {
               :class  => String,
               :method => 'zazen',
               :accept_nil => true,
-              :append_hash => {:node => ::RubyLess::TypedString.new(node.to_s, :class => node.klass)}
+              :append_hash => {:node => ::RubyLess::TypedString.new(node(Node).to_s, :class => node(Node).klass)}
             }
-          elsif attribute = @params[:attr]
-            type = node.klass.safe_method_type([attribute])
-            return parser_error("Unknown attribute '#{attribute}'.") unless type
-            klass = type[:class]
-            "<%= zazen(#{node}.#{type[:method]}, :node => #{node}) %>"
           else
-            return parser_error("Missing attribute parameter")
+            method = get_attribute_or_eval
+            "<%= zazen(#{method}, :node => #{node(Node)}) %>"
           end
         end
 
         def get_attribute_or_eval(use_string_block = true)
           if attribute = @params[:attr]
-            res = RubyLess.translate("this.#{attribute}", self)
-            [res, res.klass]
+            code = "this.#{attribute}"
           elsif code = @params[:eval]
-            res = RubyLess.translate(code, self)
-            [res, res.klass]
           elsif text = @params[:text]
-            res = RubyLess.translate_string(text, self)
-            [res, res.klass]
+            code = "%Q{#{text}}"
           elsif use_string_block && @blocks.size == 1 && @blocks.first.kind_of?(String)
-            res = RubyLess::TypedString.new(@blocks.first.inspect, :class => String, :literal => @blocks.first)
-            [res, res.klass]
+            return RubyLess::TypedString.new(@blocks.first.inspect, :class => String, :literal => @blocks.first)
           else
             return parser_error("Missing attribute/eval parameter")
           end
+
+          RubyLess.translate(code, self)
+        rescue RubyLess::Error => err
+          parser_error(err.message, code)
         end
 
         # Display an attribute or RubyLess code
@@ -365,16 +361,19 @@ module Zena
           if node.list_context?
             @context[:node] = node.move_to("#{node}.first", node.klass.first)
             return r_show
+          elsif node.will_be?(String)
+            return "<%= #{node} %>"
           end
 
-          method, klass = get_attribute_or_eval
-          return nil unless method
+          return nil unless method = get_attribute_or_eval
 
-          if klass.ancestors.include?(String)
+          klass = method.klass
+
+          if klass <= String
             res = show_string(method)
-          elsif klass.ancestors.include?(Number)
+          elsif klass <= Number
             res = show_number(method)
-          elsif klass.ancestors.include?(Time)
+          elsif klass <= Time
             res = show_time(method)
           else
             res = show_string("#{method}.to_s")
@@ -456,10 +455,10 @@ module Zena
           end
           res += ", :host => #{@context["exp_host"]}" if @context["exp_host"]
           res += ")"
-          if @params[:link]
-            finder, klass = build_finder(:first, @params[:link])
-            return unless finder
-            return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
+          if finder = @params[:link]
+            finder = ::RubyLess.translate(finder, self)
+
+            return parser_error("Invalid class (#{klass})") unless finder.klass <= Node
 
             opts_str = @context["exp_host"] ? ", :host => #{@context["exp_host"]}" : ""
 

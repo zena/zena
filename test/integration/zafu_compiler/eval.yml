@@ -47,7 +47,7 @@ show_var:
   res: "<b>12345</b>"
 
 show_var_overwrites_attribute:
-  src: "<r:set var='name'>12345</r:set><b do='[name]'/>"
+  src: "<r:set var='name'>12345</r:set><b do='node_name'/>"
   res: "<b>12345</b>"
 
 test_var:

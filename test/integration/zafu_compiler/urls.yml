@@ -122,7 +122,7 @@ link_anchor_name_in:
   res: "<a href='/oo/projects/cleanWater#status'>status title</a>"
 
 link_stored:
-  old_src: "<r:void store='foo'><r:parent><r:link href='foo' do='[name]'/></r:parent></r:void>"
+  old_src: "<r:void store='foo'><r:parent><r:link href='foo' do='node_name'/></r:parent></r:void>"
   src: "<r:void set_foo='this'><r:parent><r:link href='foo' do='title'/></r:parent></r:void>"
   res: "<a href='/oo/projects/cleanWater/page22.html'>Clean Water project</a>"
 

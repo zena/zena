@@ -21,28 +21,6 @@ module Zena
           base.safe_method :db_attr => StringDictionary
         end
 
-        # Find a node and propagate visitor
-        def do_find(count, query, uses_source = true)
-          return nil if query.empty?
-          if new_record? && uses_source
-            # do not run query if it depends on the source and the source is not a proper Node
-            return nil
-          end
-
-          case count
-          when :all
-            res = Node.find_by_sql(query)
-            secure_result(Node, res) if res
-          when :first
-            res = Node.find_by_sql(query).first
-            secure_result(Node, res) if res
-          when :count
-            Node.count_by_sql(query)
-          else
-            nil
-          end
-        end
-
         # Find related nodes.
         # See Node#build_find for details on the options available.
         # TODO: do we need rubyless translate here ?
@@ -57,7 +35,7 @@ module Zena
             rescue ::QueryBuilder::SyntaxError => err
               return nil
             end
-            do_find(count, eval(query.to_s))
+            self.class.do_find(count, eval(query.to_s))
           end
         end
 
@@ -72,9 +50,27 @@ module Zena
       end # ModelMethods
 
       module ClassMethods
+        include Zena::Acts::Secure::SecureResult
+
         # Return the name of the group used for custom queries
         def query_group
           visitor.site.host
+        end
+
+        # Find a node and propagate visitor
+        def do_find(count, query)
+          case count
+          when :all
+            res = find_by_sql(query)
+            secure_result(res)
+          when :first
+            res = find_by_sql(query).first
+            secure_result(res)
+          when :count
+            count_by_sql(query)
+          else
+            nil
+          end
         end
       end
 
@@ -236,11 +232,22 @@ module Zena
           # Change class
           def class_relation(relation)
             case relation
-            when 'users'
-              change_processor 'UserProcessor'
-              add_table('users')
-              add_filter "#{table('users')}.node_id = #{field_or_attr('id', table(self.class.main_table))}"
-              return true
+            when 'comment', 'comments'
+              if last?
+                change_processor Comment.query_compiler
+                # no need to load discussions, versions and all the mess
+                add_table('comments')
+                add_filter "#{table('comments')}.discussion_id = #{process_attr('discussion_id')}"
+              else
+                after_process # Make sure we secure the current part
+                change_processor Comment.query_compiler
+
+                add_table('discussions')
+                add_table('comments')
+                add_filter "#{table('discussions')}.node_id = #{table('nodes')}.id"
+                add_filter "#{table('comments')}.discussion_id = #{table('discussions')}.id"
+                # after_parse
+              end
             else
               return nil
             end
@@ -333,6 +340,7 @@ module Zena
           end
 
           def secure_query
+            return if this != self
             query.add_filter "\#{secure_scope('#{table}')}"
           end
 

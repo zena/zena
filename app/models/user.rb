@@ -36,7 +36,7 @@ class User < ActiveRecord::Base
 
   include RubyLess
 
-  safe_attribute          :login, :name, :first_name, :email, :time_zone, :created_at, :updated_at, :lang
+  safe_attribute          :login, :name, :first_name, :email, :time_zone, :created_at, :updated_at, :lang, :id
   safe_method             :initials => String, :fullname => String, :status => Number, :status_name => String,
                           :is_anon? => Boolean
 

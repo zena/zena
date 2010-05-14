@@ -4,9 +4,9 @@ default:
     visitor: 'anon'
     node: 'status'
 
-author:
-  src: "<r:author do='[c_fullname]'>"
-  tem: '/var1\.version\.content\.fullname/'
+version_author:
+  src: "<r:version do='author' do='#{fullname}'>"
+  tem: '/<% if var2 = var1.author -%><%= var2.fullname %><% end -%>/'
   res: 'Solenopsis Invicta'
 
 tagged_relation:
@@ -31,7 +31,7 @@ tagged_rubyless:
 
 optional_hash:
   src: "<r:dummy do='hello' lang='fr'/>"
-  tem: "<% if var1 = @node.dummy -%><%= var1.hello({:lang=>\"fr\"}) %><% end -%>"
+  tem: "<% var1 = @node.dummy -%><%= var1.hello({:lang => \"fr\"}) %>"
   res: "Salut poilu!"
 
 build_query:

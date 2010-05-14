@@ -242,7 +242,7 @@ module Zena
             end
 
             if href = params.delete(:href)
-              if lnode = find_stored(Node, href)
+              if lnode = get_context_var('set_var', value) && stored.klass <= Node
                 # using stored node
               else
                 lnode, klass = build_finder(:first, href, {})
@@ -359,9 +359,10 @@ module Zena
 
           # Build the 'href' link
           def make_href
-            if anchor = @params[:anchor] && !@params[:href]
+            anchor = @params[:anchor]
+            if anchor && !@params[:href]
               # Link on same page
-              return ::RubyLess.translate(get_anchor_name(anchor), self)
+              return ::RubyLess.translate_string("##{get_anchor_name(anchor)}", self)
             end
 
             method      = 'zen_path'
@@ -378,7 +379,7 @@ module Zena
             end
 
             @params.each do |key, value|
-              next if [:href, :eval, :text].include?(key)
+              next if [:href, :eval, :text, :attr].include?(key)
               if key == :anchor
                 value = get_anchor_name(value)
               end
@@ -460,8 +461,8 @@ module Zena
             if dynamic_blocks?
               expand_with
             else
-              method, klass = get_attribute_or_eval(false)
-              if klass
+
+              if method = get_attribute_or_eval(false)
                 method.literal || "<%= #{method} %>"
               elsif default
                 default

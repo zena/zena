@@ -17,7 +17,7 @@ class QueryNodeTest < Zena::Unit::TestCase
 
   # ========== YAML TESTS
   yamltest
-  
+
   def yt_do_test(file, test)
     @context = Hash[*(yt_get('context', file, test).map{|k,v| [k.to_sym, v]}.flatten)]
 
@@ -55,7 +55,7 @@ class QueryNodeTest < Zena::Unit::TestCase
           @node = secure(Node) { nodes(@context[:node].to_sym) }
           sql = eval sql
 
-          res = @node.do_find(:all, sql, true)
+          res = node_class.do_find(:all, sql)
 
           if node_class == Comment
             res = res ? res.map {|r| r[:title]}.join(', ') : ''
@@ -83,8 +83,8 @@ class QueryNodeTest < Zena::Unit::TestCase
   def test_do_find_in_new_node
     login(:tiger)
     assert var1_new = secure!(Node) { Node.get_class("Post").new }
-    sql = Node.build_query(:all, 'posts in site').to_s
-    assert_nil var1_new.do_find(:all, eval(sql))
+    sql = Node.build_query(:all, 'posts', :node_name => 'var1_new').to_s
+    assert_nil Node.do_find(:all, eval(sql))
   end
 
   def test_link_id
@@ -129,7 +129,7 @@ class QueryNodeTest < Zena::Unit::TestCase
   def test_find_count
     login(:ant)
     page = secure!(Node) { nodes(:cleanWater) }
-    
+
     sql = Node.build_query(:all, 'nodes where node_name like "a%" in site').to_s(:count)
     assert_equal 3, page.do_find(:count, eval(sql))
   end

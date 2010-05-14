@@ -21,6 +21,8 @@ class Comment < ActiveRecord::Base
   before_validation :comment_before_validation
   after_save :sweep_cache
 
+  include Zena::Use::QueryComment::ModelMethods
+
   def author
     @author ||= secure(User) { User.find(self[:user_id]) }
   end

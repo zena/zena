@@ -120,7 +120,7 @@ This filter updates the "distant filter block test"
 
 <div id='upfi' do='block'>
   <h2>distant filter block test</h2>
-    <ol do='pages where name like "[param:f]%" limit 5'><li do='each' do='[name]'/></ol>
+    <ol do='pages where node_name like "[param:f]%" limit 5'><li do='each' do='node_name'/></ol>
 </div>
 
 <hr/>
@@ -128,8 +128,8 @@ This filter updates the "distant filter block test"
 <div id='filter'>
   <h2>filter block test</h2>
   <r:filter live='true'/>
-  <r:block do='pages where name like "[param:f]%" limit 5'>
-    <ol><li do='each' do='[name]'/></ol>
+  <r:block do='pages where node_name like "[param:f]%" limit 5'>
+    <ol><li do='each' do='node_name'/></ol>
   </r:block>
 </div>
 

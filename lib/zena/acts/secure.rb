@@ -94,7 +94,6 @@ Just doing the above will filter all result according to the logged in user.
 =end
     # ============================================= SECURE  ===============
     module Secure
-
       # protect access to site_id : should not be changed by users
       # def site_id=(i)
       #   raise Zena::AccessViolation, "#{self.class.to_s} '#{self.id}': tried to change 'site_id' to '#{i}'."
@@ -168,42 +167,7 @@ Just doing the above will filter all result according to the logged in user.
 
           klass.send(:scoped_methods).unshift last_scope if last_scope
 
-          secure_result(klass,result)
-        end
-
-        def secure_result(klass,result)
-          if result && result != []
-            if result.kind_of?(Array)
-              if result.first.kind_of?(::Node)
-                id_map, ids = construct_id_map(result)
-                ::Version.find(ids).each do |v|
-                  if r = id_map[v.id]
-                    r.version = v
-                  end
-                end
-              end
-            elsif result.kind_of?(::Node)
-              visitor.visit(result)
-            end
-            result
-          else
-            nil
-          end
-        end
-
-        # Take an array of records and return a 2-tuple: a hash of
-        # version_id to record and a list of version ids. This method also
-        # secures the node by calling visitor.visit(node).
-        def construct_id_map(records)
-          map   = {}
-          v_ids = []
-          records.each do |r|
-            visitor.visit(r)
-            v_id = r.version_id
-            map[v_id] = r
-            v_ids << v_id
-          end
-          [map, v_ids]
+          secure_result(result)
         end
 
         # Secure for read/create.
@@ -292,8 +256,50 @@ Just doing the above will filter all result according to the logged in user.
         def driveable?
           respond_to?(:dgroup_id)
         end
-    end
-  end
+
+      # This module does two things:
+      # 1. make the visitor visit each node
+      # 2. fast version preload
+      module SecureResult
+        def secure_result(result)
+          if result && result != []
+            if result.kind_of?(Array)
+              if result.first.kind_of?(::Node)
+                id_map, ids = construct_id_map(result)
+                ::Version.find(ids).each do |v|
+                  if r = id_map[v.id]
+                    r.version = v
+                  end
+                end
+              end
+            elsif result.kind_of?(::Node)
+              visitor.visit(result)
+            end
+            result
+          else
+            nil
+          end
+        end
+
+        # Take an array of records and return a 2-tuple: a hash of
+        # version_id to record and a list of version ids. This method also
+        # secures the node by calling visitor.visit(node).
+        def construct_id_map(records)
+          map   = {}
+          v_ids = []
+          records.each do |r|
+            visitor.visit(r)
+            v_id = r.version_id
+            map[v_id] = r
+            v_ids << v_id
+          end
+          [map, v_ids]
+        end
+      end # SecureResult
+
+      include SecureResult
+    end # Secure
+  end # Acts
   # This exception handles all flagrant access violations or tentatives (like suppression of _su_ user)
   class AccessViolation < StandardError
   end
@@ -305,7 +311,7 @@ Just doing the above will filter all result according to the logged in user.
   # This exception occurs when corrupt data in encountered (infinit loops, etc)
   class InvalidRecord < StandardError
   end
-end
+end # Zena
 
 ### ============== GLOBAL METHODS ACCESSIBLE TO ALL OBJECTS ============== ######
 

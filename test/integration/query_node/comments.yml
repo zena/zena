@@ -7,12 +7,13 @@ default:
   sql: "Comment: [%Q{SELECT comments.* FROM comments WHERE comments.discussion_id = ? ORDER BY comments.created_at DESC}, @node.get_discussion_id]"
 
 comments_from_nodes_in_site:
-  sql: "Comment: %Q{SELECT comments.* FROM nodes,discussions,comments WHERE #{secure_scope('nodes')} AND comments.discussion_id = discussions.id AND discussions.node_id = nodes.id ORDER BY comments.created_at ASC}"
-  res: "Comment: I agree, I think this is bad, OK for me, Why ?, Travailleurs, unissez-vous !, Nice site, What about rivers ?, re: What about rivers ?"
+  context:
+    visitor: lion
+  sql: "Comment: %Q{SELECT comments.* FROM comments,discussions,nodes AS no1 WHERE comments.discussion_id = discussions.id AND discussions.node_id = no1.id AND #{secure_scope('no1')} GROUP BY comments.id ORDER BY comments.created_at ASC}"
+  res: "Comment: I agree, I think this is bad, OK for me, Why ?, Travailleurs, unissez-vous !, Nice site, What about rivers ?, re: What about rivers ?, I want to become queen"
 
 does_not_see_secret:
   context:
     visitor: ant
   src: "comments from nodes in site"
-  sql: "Comment: %Q{SELECT comments.* FROM nodes,discussions,comments WHERE #{secure_scope('nodes')} AND comments.discussion_id = discussions.id AND discussions.node_id = nodes.id ORDER BY comments.created_at ASC}"
   res: "Comment: I agree, I think this is bad, OK for me, Why ?, Travailleurs, unissez-vous !, Nice site, What about rivers ?, re: What about rivers ?"

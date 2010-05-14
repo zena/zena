@@ -30,7 +30,7 @@ module Zena
 
         # Select the most pertinent error between RubyLess processing errors and QueryBuilder errors.
         def show_errors
-          if @method =~ / in / || ([:in, :where] & @params.keys != [])
+          if @method =~ / in / || ([:in, :where, :or] & @params.keys != [])
             # probably a query
             @errors.detect {|e| e =~ /Syntax/} || @errors.last
           else
@@ -89,12 +89,41 @@ module Zena
 
             finder = get_finder(query, count)
 
+            if count != :count && else_clause = @params[:else]
+              else_clause = ::RubyLess.translate(else_clause, self)
+
+              if else_clause.klass == Array
+                or_klass = else_clause.opts[:array_content_class]
+                if count == :all
+                  # Get first common ancestor
+                  common_klass = (klass.ancestors & or_klass.ancestors).detect {|x| x.kind_of?(Class)}
+                  raise ::QueryBuilder::Error.new("Incompatible 'else' ([#{else_clause.klass}]) with finder ([#{klass}])") unless common_klass
+                else
+                  raise ::QueryBuilder::Error.new("Incompatible 'else' ([#{or_klass}]) with finder (#{klass})")
+                end
+              else
+                if count == :first
+                  # Get first common ancestor
+                  common_klass = (klass.ancestors & else_clause.klass.ancestors).detect {|x| x.kind_of?(Class)}
+                  raise ::QueryBuilder::Error.new("Incompatible 'else' (#{else_clause.klass}) with finder ([#{klass}])") unless common_klass
+                else
+                  raise ::QueryBuilder::Error.new("Incompatible 'else' (#{else_clause.klass}) with finder ([#{klass}])")
+                end
+              end
+
+
+              finder = "(#{finder} || #{else_clause})"
+              could_be_nil = else_clause.could_be_nil?
+            else
+              could_be_nil = true
+            end
+
             if count == :count
               {:method => finder, :class => Number,  :query => query}
             elsif count == :all
-              {:method => finder, :class => [klass], :query => query, :nil => true}
+              {:method => finder, :class => [klass], :query => query, :nil => could_be_nil}
             else
-              {:method => finder, :class => klass,   :query => query, :nil => true}
+              {:method => finder, :class => klass,   :query => query, :nil => could_be_nil}
             end
 
             # if params['else']
@@ -113,15 +142,14 @@ module Zena
 
           # Return Ruby finder from a query
           def get_finder(query, count)
-            query_string   = query.to_s(count == :count ? :count : :find)
-            uses_node_name = query_string =~ /#{@node_name}\./
-            "#{@node_name}.do_find(#{count.inspect}, #{query_string}, #{uses_node_name ? 'true' : 'false'})"
+            query_string = query.to_s(count == :count ? :count : :find)
+            "#{query.master_class}.do_find(#{count.inspect}, #{query_string})"
           end
 
           # Returns :all, :first or :count depending on the parameters and some introspection in the zafu tree
           def get_count(method, params)
             (%w{first all count}.include?(params[:find]) ? params[:find].to_sym : nil) ||
-            (params[:paginate] || child['each'] || child['group'] || Node.plural_relation?(method)) ? :all : :first
+            ((params[:paginate] || child['each'] || child['group'] || Node.plural_relation?(method)) ? :all : :first)
           end
 
           # Build pseudo sql from the parameters
@@ -148,7 +176,15 @@ module Zena
               parts[-1] << " in #{params[:in]}"
             end
 
-            # [limit num(,num)] [offset num] [paginate key] [group by GROUP_CLAUSE] [order by ORDER_CLAUSE]
+            # [group by GROUP_CLAUSE] [order by ORDER_CLAUSE] [limit num(,num)] [offset num] [paginate key]
+
+            if group = params[:group]
+              parts[-1] << " group by #{group}" unless parts[0] =~ /group by/
+            end
+
+            if order = params[:order]
+              parts[-1] << " order by #{order}" unless parts[0] =~ /order by/
+            end
 
             if paginate = params[:paginate]
               page_size = params[:limit].to_i
@@ -160,15 +196,6 @@ module Zena
                 parts[-1] << " #{k} #{params[k]}" unless parts[0] =~ / #{k} /
               end
             end
-
-            if group = params[:group]
-              parts[-1] << " group by #{group}" unless parts[0] =~ /group by/
-            end
-
-            if order = params[:order]
-              parts[-1] << " order by #{order}" unless parts[0] =~ /order by/
-            end
-
 
             finders = [parts.join(' from ')]
             if params[:or]
@@ -198,10 +225,10 @@ module Zena
             filters = []
 
             if value = params[:author]
-              if stored = find_stored(User, value)
+              if stored = get_context_var('set_var', value) && stored.klass <= User
                 filters << "TABLE_NAME.user_id = '\#{#{stored}.id}'"
               elsif value == 'current'
-                filters << "TABLE_NAME.user_id = '\#{#{node}[:user_id]}'"
+                filters << "TABLE_NAME.user_id = '\#{#{node(Node)}[:user_id]}'"
               elsif value == 'visitor'
                 filters << "TABLE_NAME.user_id = '\#{visitor[:id]}'"
               elsif value =~ /\A\d+\Z/
@@ -212,10 +239,10 @@ module Zena
             end
 
             if value = params[:project]
-              if stored = find_stored(Node, value)
+              if stored = get_context_var('set_var', value) && stored.klass <= Node
                 filters << "TABLE_NAME.project_id = '\#{#{stored}.get_project_id}'"
               elsif value == 'current'
-                filters << "TABLE_NAME.project_id = '\#{#{node}.get_project_id}'"
+                filters << "TABLE_NAME.project_id = '\#{#{node(Node)}.get_project_id}'"
               elsif value =~ /\A\d+\Z/
                 filters << "TABLE_NAME.project_id = '#{value.to_i}'"
               elsif value =~ /\A[\w\/]+\Z/
@@ -224,7 +251,7 @@ module Zena
             end
 
             if value = params[:section]
-              if stored = find_stored(Node, value)
+              if stored = get_context_var('set_var', value) && stored.klass <= Node
                 filters << "TABLE_NAME.section_id = '\#{#{stored}.get_section_id}'"
               elsif value == 'current'
                 filters << "TABLE_NAME.section_id = '\#{#{node}.get_section_id}'"

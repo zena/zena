@@ -13,7 +13,7 @@ module Zena
           @method = 'zazen'
           @params[:attr] = $1
         elsif @method =~ /\A(\w+)\s+(\w+)\s+(.+)$/
-          # 'pages where name ...'
+          # 'pages where node_name ...'
           @params[:select] = @method
           @method = 'context'
         end

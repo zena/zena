@@ -21,14 +21,14 @@ bad_query:
 
 bad_field_in_query:
   src: "<r:images where='name = baz'>ok</r:images>"
-  res: "<span class='parser_error'>[images where name = baz] invalid field or value \"baz\"</span>"
+  res: "<span class='parser_error'>[images where node_name = baz] invalid field or value \"baz\"</span>"
 
 bad_relation:
-  src: "<div do='categories in site' do='each' join=', ' do='[name]'/>"
+  src: "<div do='categories in site' do='each' join=', ' do='node_name'/>"
   tem: "<div><span class='parser_error'>[categories in site] unknown relation 'categories'</span></div>"
 
 bad_order_clause:
-  src: "<r:images order='l_status ASC' do='each' join=',' do='[name]'/>"
+  src: "<r:images order='l_status ASC' do='each' join=',' do='node_name'/>"
   res: "<span class='parser_error'>[images order by l_status ASC] cannot use link field 'l_status' in this query</span>"
 
 show_var:

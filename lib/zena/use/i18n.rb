@@ -330,10 +330,11 @@ module Zena
 
         def r_trans
           # _1 ==> insert this param ==> trans(@params[:text])
-          method, klass = get_attribute_or_eval
-          return method unless klass # method contains the error message
-          return parser_error("Cannot translate a '#{klass}'.") unless klass.ancestors.include?(String)
-          if method.kind_of?(::RubyLess::TypedString) && method.literal
+          return nil unless method = get_attribute_or_eval
+          klass = method.klass
+          return parser_error("Cannot translate a '#{klass}'.") unless klass <= String
+          
+          if method.literal
             helper.send(:_, method.literal)
           else
             "<%= trans(#{method}) %>"

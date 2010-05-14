@@ -40,7 +40,7 @@ edit_not_each:
   tem: "/<li class='blah'>this is a post </li>/"
 
 add_each_no_form:
-  src: "<ul do='children' id='things'><li do='each'>I <p do='[name]'>blah</p></li><li do='add'/></ul>"
+  src: "<ul do='children' id='things'><li do='each'>I <p do='node_name'>blah</p></li><li do='add'/></ul>"
   res: "/<ul><li.*id='things_add'.*li class='form' id='things_form'.*form.*hidden.*I <p><input type='text' id='things_name' name='node\[name\]' value=''\/><\/p><\/form><\/li>/"
 
 add_each_no_form_date:
@@ -56,7 +56,7 @@ each_add_with_form:
     node: 'wiki'
   src: |
     <ol do='children'>
-      <li do='each' do='[name]'>blah</li>
+      <li do='each' do='node_name'>blah</li>
       <li do='add'>add new</li>
       <li do='form'><input name='title'/> this is the form</li>
     </ol>
@@ -68,7 +68,7 @@ each_add_with_form_in_sub_block:
   src: |
     <r:children>
     <ol do='void' name='boo'>
-      <li do='each' do='[name]'>blah</li>
+      <li do='each' do='node_name'>blah</li>
       <li do='add'>add new</li>
       <li do='form'><input name='title'/> this is the form</li>
     </ol>
@@ -80,14 +80,14 @@ each_add_with_form_klass_set:
     node: 'wiki'
   src: |
     <r:children>
-      <li do='each' do='[name]'>blah</li>
+      <li do='each' do='node_name'>blah</li>
       <li do='add'>add new</li>
       <li do='form'><input name='title'/> <select name='klass' root_class='Note' selected='Post'/> this is the form</li>
     </r:children>
   res: "!/hidden.*node\[klass\].*Node.*select.*node\[klass\]/"
 
 each_add_with_select:
-  src: "<r:children><r:each do='[name]'/><r:add/><r:form><select name='icon_id' nodes='images in project' selected='[main.icon_id]_abc'/></r:form></r:children>"
+  src: "<r:children><r:each do='node_name'/><r:add/><r:form><select name='icon_id' nodes='images in project' selected='[main.icon_id]_abc'/></r:form></r:children>"
   'each/add/en/with/select/list1_form.erb': '/map.|r| \[r.name, r.zip.to_s\]., \"#.@node.icon_zip._abc\"\)/'
   tem: "/@node.do_find\(:all, \[%Q{SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NDI%'/"
 
@@ -98,7 +98,7 @@ each_edit_with_form:
   res: "/<li id='list1_30'>bird <a href='/nodes/30/edit\?t_url=.*' onclick=\"new Ajax.Request\('/nodes/30/edit\?t_url=%2Feach%2Fedit%2Fwith%2Fform%2Flist/"
 
 make_form:
-  src: "<ul do='children'><li do='each' do='[name]'/><li do='add'/></ul>"
+  src: "<ul do='children'><li do='each' do='node_name'/><li do='add'/></ul>"
   tem: "/<li class='form' id='list1_form' style='display:none;'><%= form_remote_tag\(:url => nodes_path/"
   'make/form/en/list1.erb': "<li><%= @node.name %></li>"
   'make/form/en/list1_form.erb': "/<li class='form' id='<%= dom_id\(@node\) %>'>/"
@@ -111,11 +111,11 @@ each_edit_cannot_write:
   res: "/<li id='list1_24'>lake </li>.*/"
 
 add_each_publish:
-  src: "<ul do='children' id='things'><li do='each'>I <p do='[name]'>blah</p></li><li do='add' publish='true'/></ul>"
+  src: "<ul do='children' id='things'><li do='each'>I <p do='node_name'>blah</p></li><li do='add' publish='true'/></ul>"
   res: "/<ul><li.*id='things_add'.*li.*id='things_form'.*form.*hidden.*name='node\[v_status\]' value=.50./"
 
 block_edit_form:
-  src: "<r:block><p do='[name]'/> <r:edit/> <r:form>please enter name: <input name='name'/> <r:input type='submit'/></r:form></r:block>"
+  src: "<r:block><p do='node_name'/> <r:edit/> <r:form>please enter name: <input name='name'/> <r:input type='submit'/></r:form></r:block>"
   res: "/<p>status<\/p>.*edit/"
 
 query_in_block:
@@ -141,7 +141,7 @@ default_focus_field:
 live_filter:
   context:
     node: cleanWater
-  src: "<r:filter live='true'/><r:block><ol do='pages where name like \"[param:f]%\"'><li do='each' do='[name]'/></ol></r:block>"
+  src: "<r:filter live='true'/><r:block><ol do='pages where node_name like \"[param:f]%\"'><li do='each' do='node_name'/></ol></r:block>"
   tem: "/nodes.node_name LIKE \?.*, params\[:f\].to_s\+ \"%\"/"
   'live/filter/en/list2.erb': "/<div id='<%= dom_id\(@node\) %>.*, params\[:f\].*var1.name/"
   res: "/<input type='text' name='f'.*<div id='list2'><ol><li>crocodiles</li><li>status</li><li>track</li></ol></div>/"
@@ -149,7 +149,7 @@ live_filter:
 live_filter_single_element:
   context:
     node: cleanWater
-  src: "<r:filter live='true'/><r:block><r:page where='name like \"[param:f]%\"' find='first'><b do='[name]'/></r:page></r:block>"
+  src: "<r:filter live='true'/><r:block><r:page where='name like \"[param:f]%\"' find='first'><b do='node_name'/></r:page></r:block>"
   tem: "/, params\[:f\].to_s/"
   'live/filter/en/single/element/list2.erb': "/<div id='<%= dom_id\(@node\) %>.*params\[:f\].*var1.name/"
   res: "/<input type='text' name='f'.*<div id='list2'><b>crocodiles</b></div>/"
@@ -157,7 +157,7 @@ live_filter_single_element:
 live_filter_select_options:
   context:
     node: cleanWater
-  src: "<r:filter live='true' do='select' name='f' values='1,2'/><r:block><ol do='pages where name like \"[param:f]%\"'><li do='each' do='[name]'/></ol></r:block>"
+  src: "<r:filter live='true' do='select' name='f' values='1,2'/><r:block><ol do='pages where node_name like \"[param:f]%\"'><li do='each' do='node_name'/></ol></r:block>"
   tem: "/select name=.f.><%= options_for_select\(\[.1., .2.\], params\[:f\].to_s/"
   'live/filter/en/list2.erb': "/<div id='<%= dom_id\(@node\) %>.*, params\[:f\].to_s/"
   res: "/<select name='f'.*<div id='list2'><ol><li>crocodiles</li><li>status</li><li>track</li></ol></div>/"

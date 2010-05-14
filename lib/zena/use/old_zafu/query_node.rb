@@ -70,21 +70,14 @@ module Zena
         def parse_change_class(rel, is_last)
           case rel
           when 'comment', 'comments'
-            if is_last
-              # no need to load discussions, versions and all the mess
-              add_table('comments')
-              @where << "#{table('comments')}.discussion_id = #{map_attr('discussion_id')}"
-              return Zena::Use::QueryComment # class change
-            else
-              # parse_context(default_context_filter, true) if is_last
-              # after_parse
-              add_table('discussions')
-              add_table('comments')
-              @where << "#{table('discussions')}.node_id = #{table('nodes')}.id"
-              @where << "#{table('comments')}.discussion_id = #{table('discussions')}.id"
-              after_parse
-              return Zena::Use::QueryComment
-            end
+            # parse_context(default_context_filter, true) if is_last
+            # after_parse
+            add_table('discussions')
+            add_table('comments')
+            @where << "#{table('discussions')}.node_id = #{table('nodes')}.id"
+            @where << "#{table('comments')}.discussion_id = #{table('discussions')}.id"
+            after_parse
+            return Zena::Use::QueryComment
           else
             return nil
           end

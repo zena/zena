@@ -4,16 +4,28 @@ default:
     visitor: 'ant'
     node: 'status'
 
-link_version:
+link:
   context:
     node: 'opening'
   src: "<r:traductions><r:each join=', '><r:link eval='trans(lang)'/></r:each></r:traductions>"
   res: "<a href='/oo/projects/cleanWater/post27.html?lang=en'>english</a>, <a href='/oo/projects/cleanWater/post27.html?lang=fr'>french</a>"
 
-version_anchor:
+anchor:
   context:
     node: 'opening'
   src: "<r:traductions><r:each join=', '><r:anchor do='link' eval='trans(lang)'/></r:each></r:traductions>"
   res: "<a class='anchor' name='version27_2'></a><a href='/oo/projects/cleanWater/post27.html?lang=en'>english</a>, <a class='anchor' name='version27_1'></a><a href='/oo/projects/cleanWater/post27.html?lang=fr'>french</a>"
+
+node:
+  context:
+    node: 'opening'
+  src: "<r:traductions do='each' join=', '><r:lang/>:<r:eval>node.node_name</r:eval></r:traductions>"
+  res: "en:opening, fr:opening"
+
+author:
+  context:
+    node: 'opening'
+  src: "<r:traductions do='each' join=', '><r:lang/>:<r:eval>author.fullname</r:eval></r:traductions>"
+  res: "en:Panther Tigris Sumatran, fr:Solenopsis Invicta"
 
 # ------ fix to here

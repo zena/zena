@@ -2,95 +2,85 @@ require 'querybuilder'
 
 module Zena
   module Use
-    class QueryComment < QueryBuilder
-      attr_reader :uses_node_name, :node_name
-      set_main_table 'comments'
-      set_main_class 'Comment'
+    class QueryComment
 
-      # Default sort order
-      def default_order_clause
-        "created_at ASC"
-      end
-
-      def default_context_filter
-        # should never be called alone
-        raise Exception.new("QueryComment should only be called from within QueryNode")
-      end
-
-      def parse_change_class(rel, is_last)
-        case rel
-        when 'author'
-          add_table('users')
-          @where << "#{table('users')}.id = #{field_or_attr('author_id')}"
-          # should we move on to Contact ?
-        when 'node', 'nodes'
-          add_table('discussions')
-          add_table('nodes')
-          @where << "#{table('discussions')}.id = #{table('comments')}.discussion_id"
-          @where << "#{table('nodes')}.id = #{table('discussions')}.node_id"
-          return Zena::Use::QueryNode # class change
-        else
-          return nil
+      module ModelMethods
+        def self.included(base)
+          base.send(:include, QueryBuilder)
+          base.extend ClassMethods
+          base.query_compiler = Zena::Use::QueryComment::Compiler
         end
       end
 
-      # Same as QueryNode... DRY needed.
-      def map_literal(value)
-        if value =~ /(.*?)\[(node|visitor|param):(\w+)\](.*)/
-          val_start = $1 == '' ? '' : "#{$1.inspect} +"
-          val_end   = $4 == '' ? '' : "+ #{$4.inspect}"
-          case $2
-          when 'visitor'
-            if $3 == 'user_id'
-              value = "visitor.id"
-            else
-              value = "Node.zafu_attribute(visitor.contact, #{$3.inspect})"
-            end
-          when 'node'
-            @uses_node_name = true
-            if $3 == 'user_id'
-              value = "#{@node_name}.user_id"
-            else
-              value = "Node.zafu_attribute(#{@node_name}, #{$3.inspect})"
-            end
-          when 'param'
-            return "\#{Node.connection.quote(#{val_start}params[:#{$3}].to_s#{val_end})}"
-          end
-
-          if !val_start.blank? || !val_end.blank?
-            "\#{Node.connection.quote(#{val_start}#{value}#{val_end})}"
+      module ClassMethods
+        # Find a node and propagate visitor
+        def do_find(count, query)
+          case count
+          when :all
+            res = find_by_sql(query)
+            res.empty? ? nil : res
+          when :first
+            find_by_sql(query).first
+          when :count
+            count_by_sql(query)
           else
-            "\#{#{value}}"
+            nil
           end
-        else
-          value = Node.connection.quote(value)
         end
       end
 
-      # Overwrite this and take car to check for valid fields.
-      def map_field(fld, table_name, context = nil)
-        if ['status', 'updated_at', 'author_name', 'created_at', 'title', 'text', 'author_id'].include?(fld)
-          "#{table_name}.#{fld}"
-        else
-          # TODO: error, raise / ignore ?
-        end
-      end
+      class Compiler < QueryBuilder::Processor
+        attr_reader :node_name
+        set_main_table 'comments'
+        set_main_class 'Comment'
+        set_default :order,   'created_at ASC'
 
-      def map_attr(fld)
-        # error
-        nil
-      end
+        # Same as QueryNode... DRY needed.
+        def map_literal(value)
+          if value =~ /(.*?)\[(node|visitor|param):(\w+)\](.*)/
+            val_start = $1 == '' ? '' : "#{$1.inspect} +"
+            val_end   = $4 == '' ? '' : "+ #{$4.inspect}"
+            case $2
+            when 'visitor'
+              if $3 == 'user_id'
+                value = "visitor.id"
+              else
+                value = "Node.zafu_attribute(visitor.contact, #{$3.inspect})"
+              end
+            when 'node'
+              if $3 == 'user_id'
+                value = "#{@node_name}.user_id"
+              else
+                value = "Node.zafu_attribute(#{@node_name}, #{$3.inspect})"
+              end
+            when 'param'
+              return "\#{Node.connection.quote(#{val_start}params[:#{$3}].to_s#{val_end})}"
+            end
 
-      # Erb finder used by zafu
-      def finder(count)
-        return 'nil' unless valid?
-        case count
-        when :count
-          "#{node_name}.do_find(:count, #{to_s(:count)}, #{uses_node_name ? 'true' : 'false'})"
-        else
-          "#{node_name}.do_find(#{count.inspect}, #{self.to_s}, #{uses_node_name ? 'true' : 'false'})"
+            if !val_start.blank? || !val_end.blank?
+              "\#{Node.connection.quote(#{val_start}#{value}#{val_end})}"
+            else
+              "\#{#{value}}"
+            end
+          else
+            value = Node.connection.quote(value)
+          end
         end
-      end
+
+        # Overwrite this and take car to check for valid fields.
+        def process_field(field_name)
+          if %w{status updated_at author_name created_at title text author_id}.include?(field_name)
+            "#{table}.#{field_name}"
+          else
+            super # raise an error
+          end
+        end
+
+        def map_attr(fld)
+          # error
+          nil
+        end
+      end # Compiler
     end # QueryComment
   end # Use
 end # Zena
