@@ -22,7 +22,7 @@ module Zena
           ext = ext ? ext[0] : obj.ext
           buttons << ext unless buttons.include?(ext)
           buttons.map do |e|
-            "<input type='radio' name='node[c_crop][format]' value='#{e}'#{e==ext ? " checked='checked'" : ''}/> #{e} "
+            "<input type='radio' name='node[crop][format]' value='#{e}'#{e==ext ? " checked='checked'" : ''}/> #{e} "
           end
         end
 
@@ -384,10 +384,8 @@ module Zena
 
         # Insert javascript asset tags
         def r_javascripts
-          if @params[:list].nil?
-            list = %w{ prototype effects tablekit zena }
-          elsif @params[:list] == 'all'
-            list = %w{ prototype effects dragdrop tablekit zena }
+          if @params[:list] == 'all' || @params[:list].nil?
+            list = %w{ prototype effects dragdrop tablekit window zena }
           else
             list = @params[:list].split(',').map{|e| e.strip}
           end
@@ -397,7 +395,7 @@ module Zena
         # Insert stylesheet asset tags
         def r_stylesheets
           if @params[:list] == 'all' || @params[:list].nil?
-            list = %w{ zena code }
+            list = %w{ window zena code }
           else
             list = @params[:list].split(',').map{|e| e.strip}
           end

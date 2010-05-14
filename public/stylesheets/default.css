@@ -1,34 +1,39 @@
 body { background: #eee; color:#444; line-height:21px; font-size:14px; font-family:Helvetica, Arial, sans-serif;}
-a { text-decoration:none; color:#2F31D5;}
+a { text-decoration:none; color:#04a;}
 a.wiki { color:inherit; border-bottom:1px dotted blue;}
 .zazen a:hover, #footer a:hover { border-bottom:1px solid blue;}
 .table_add a:hover { border:0;}
 input { padding:3px 4px;}
 
-#header, #container, #footer, #top { width:800px; border:1px solid #555; border-width:0 1px 1px; margin:0 auto; background:white; padding:100px 21px;}
-#header { background:orange; padding:7px 21px; position:relative; color:white;}
-#top { background:orange; padding:21px; text-align:center; font-size:42px; line-height:42px; font-family:Georgia; font-style:italic; color:#555;}
+#header, #container, #footer, #top { width:900px; border:1px solid #555; border-width:0 1px 1px; margin:0 auto; background:white; padding:0 21px;}
+#container { padding:30px 21px;}
+#header { background:#444; padding:7px 21px; position:relative; color:#eee; border-top:1px solid #333; border-bottom:1px solid #333;}
+#top { background:#555; padding:21px; text-align:center; font-size:36px; line-height:42px; font-family:"proxima-nova-1","proxima-nova-2","Helvetica Neue",Helvetica,Arial,sans-serif; font-weight:bold;
+ color:#333; text-shadow: 0 1px 0 #777;}
 #top a { color:inherit;}
 #footer { background:grey; text-align:center; font-size:12px; padding:7px 21px; color:white; }
 #footer a { color:inherit; }
-#login, #search, #visitor { position:absolute; right:21px; color:#bbb;}
+#login, #search, #visitor { position:absolute; right:10px; color:#bbb;}
 #login { top:42px; }
-#visitor { top:42px; right:120px; color:#bbb;}
+#search { line-height:10px; font-size:10px;}
+#visitor { top:42px; right:70px; color:#bbb;}
 #menu li { display: inline; padding:0 14px; font-weight:bold;}
 #menu li.on { color:black; }
 #header a { color: inherit; }
 
-#title { margin:0 42px 42px 200px; color:black;}
+#title { margin:60px 42px 15px 200px; color:black;}
 #title h1 { font-size:35px; margin:0;}
-.summary p { margin:0; font-style:italic; font-family:Georgia,Times,serif; color:black;}
+.summary p { margin:0; font-style:italic; font-family:Georgia,Times,serif;}
 #context { width:180px; float:left; border-right:1px solid grey;}
+#context a { color:#aaa; }
+#context a:hover { color:#04a; }
 ol { padding-left:14px;}
 
 #content { margin-left: 200px; }
 #content.project { margin:18px;}
-#related { width:150px; float:right; margin:-7px 0 14px 14px; border:1px dotted #bbb; padding:7px; font-size:12px; line-height:21px; background:#f4f4f4;}
+#related { width:150px; float:right; margin:-7px 0 14px 14px; border-left:1px dashed #bbb; padding-left:15px; font-size:12px; line-height:21px;}
 
-.summary { font-style:italic;}
+.summary { font-style:italic; color:#444;}
 .zazen h1, .zazen h2, .zazen h3, .zazen h4, .zazen p, .zazen ol, .zazen ul { margin:21px 0;}
 .zazen table p, .zazen table ol, .zazen table ul { margin-top:0; margin-bottom:0;}
 h1, h2, h3 { color:black;}

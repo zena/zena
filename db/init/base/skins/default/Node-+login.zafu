@@ -1,23 +1,25 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="en" lang='#{v_lang}' xml:lang='en'>
+<html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="#{v.lang}" xml:lang='en'>
 <head>
   <title do='show' attr='title' name='page_title'>Zena site</title>
   <r:stylesheets list='reset'/>
 <style>
-body { color:#666; background: #ddd url('') no-repeat; font:13px Verdana, Helvetica, sans-serif; }
-a { color:#922; text-decoration:none;}
+body { color:#666; background: #ddd url('/en/skin52.html') no-repeat; font:13px Verdana, Helvetica, sans-serif; }
+a { color:inherit; text-decoration:none;}
+a:hover { color:#04a;}
 .welcome { text-align:center; border-bottom:1px solid grey; padding:10px; background:#aaa; color:#333;}
+.cancel { float:right; color:#333;}
 table { margin:20px;}
 td { padding:5px; }
-#login_form { border:1px solid grey; background:#eee; width:400px; margin:200px auto; padding:0;}
+#login_form { border:1px solid grey; background:#eee; width:400px; margin:120px auto; padding:0;}
 </style>
 </head>
 
 <body do='void' name='body'>
     <div id='login_form'>
-      <p class='welcome'><r:t>Login for</r:t> <b do='title'/></p>
+      <p class='welcome' do='link'><r:t>Login for</r:t> <b do='title'/></p>
       <form action="/session" method="post">    <table>
           <tr>
             <td><label for='user_login' do='trans'>User name:</label></td>
@@ -28,7 +30,7 @@ td { padding:5px; }
 
             <td><input name="password" size="20" type="password" /></td>
           </tr>
-          <tr><td></td><td><input name="commit" type="submit" value=" login " /></td></tr>
+          <tr><td></td><td><input name="commit" type="submit" value=" login " /> <p class='cancel' do='link' do='t'>cancel</p></td></tr>
         </table>
       </form>
     </div>

@@ -6,7 +6,7 @@
   <link href='favicon_tiny.png' rel='shortcut icon' type='image/png' />
   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
   <r:void name='stylesheets'>
-    <r:stylesheets media='all' list='reset,zena,code'/>
+    <r:stylesheets media='all' list='reset,zena,window,code'/>
     <link href="style.css" rel="Stylesheet" type="text/css"/>
   </r:void>
 
@@ -25,10 +25,6 @@
     </ol>
   </div>
   <div id='container'>
-    <div id='title'>
-      <h1 do='title' actions='all' live='true'/>
-      <div class='summary' do='summary' live='true'/>
-    </div>
     <div id='context'>
       <r:parent>
         <h3 do='link'/>
@@ -39,12 +35,16 @@
             <ol>
               <li><r:select name='klass' root_class='Page'/></li>
               <li><input type='text' name='title' value=''/></li>
-              <li class='validate'><input type="submit" value='#{trans("validate")}'/></li>
+              <li class='validate'><input type="submit" value='#{trans("validate")'/></li>
             </ol>
           </li>
         </ol>
       </r:parent>
     </div> <!-- context -->
+    <div id='title'>
+      <h1 do='title' actions='all' live='true'/>
+      <div class='summary' do='zazen(summary)' live='true'/>
+    </div>
     <div id='content'>
       <div id='related'>
         <r:documents name='documents'><h3 do='trans'>documents</h3>

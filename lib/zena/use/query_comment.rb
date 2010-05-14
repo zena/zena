@@ -29,7 +29,7 @@ module Zena
         end
       end
 
-      class Compiler < QueryBuilder::Processor
+      class Compiler < ::QueryBuilder::Processor
         attr_reader :node_name
         set_main_table 'comments'
         set_main_class 'Comment'

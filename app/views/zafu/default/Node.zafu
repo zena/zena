@@ -9,7 +9,7 @@
     <r:stylesheets media='all' list='reset,zena,code,default,window'/>
   </r:void>
 
-  <r:javascripts list='prototype,effects,window,tablekit,zena'/>
+  <r:javascripts/>
   <r:uses_datebox/>
 </head>
 
@@ -24,10 +24,6 @@
     </ol>
   </div>
   <div id='container'>
-    <div id='title'>
-      <h1 do='title' actions='all' live='true'/>
-      <div class='summary' do='summary' live='true'/>
-    </div>
     <div id='context'>
       <r:parent>
         <h3 do='link'/>
@@ -44,6 +40,10 @@
         </ol>
       </r:parent>
     </div> <!-- context -->
+    <div id='title'>
+      <h1 do='title' actions='all' live='true'/>
+      <div class='summary' do='zazen(summary)' live='true'/>
+    </div>
     <div id='content'>
       <div id='related'>
         <r:documents name='documents'><h3 do='trans'>documents</h3>
