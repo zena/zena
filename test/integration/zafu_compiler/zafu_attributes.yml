@@ -70,7 +70,7 @@ set_attribute_empty_tag:
 
 anchor_attribute:
   src: "<p do='#{id}' anchor='#{node_name}'>hello</p>"
-  res: "<p><a class='anchor' name='status'></a>22</p>"
+  res: "<a class='anchor' name='status'></a><p>22</p>"
 
 anchor_true:
   src: "<r:title live='true' anchor='true'/>"

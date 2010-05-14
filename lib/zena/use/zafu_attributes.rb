@@ -23,33 +23,22 @@ module Zena
 
             if @method == 'anchor'
               @method = 'void'
-              if single_child_method == 'link'
-                @blocks.first.params[:anchor] ||= 'true'
-                return
-              else
-                @params[:anchor] ||= 'true'
-              end
+              @params[:anchor] ||= 'true'
+              #if single_child_method == 'link'
+              #  @blocks.first.params[:anchor] ||= 'true'
+              #  return
+              #else
+              #  @params[:anchor] ||= 'true'
+              #end
             end
 
-            if anchor_name = @params.delete(:anchor)
-              if anchor_name == 'true'
-                if node.will_be?(Node)
-                  anchor_name = 'node#{id}'
-                elsif node.will_be?(Version)
-                  anchor_name = 'version#{node.id}_#{id}'
-                else
-                  # force compilation with Node context
-                  node_bak = @context[:node]
-                  @context[:node] = node(Node)
-                    anchor_name = ::RubyLess.translate_string(anchor_name, self)
-                  @context[:node] = node_bak
-                end
-              end
-
+            if anchor_name = get_anchor_name(@params.delete(:anchor))
               if @markup.tag == 'a' || @method == 'link'
                 markup = @markup
               else
                 markup = @anchor_tag = Zafu::Markup.new('a')
+                markup.space_before  = @markup.space_before
+                @markup.space_before = nil
               end
               markup.append_param(:class, 'anchor')
               set_markup_attr(markup, :name, anchor_name)
@@ -58,7 +47,9 @@ module Zena
 
           def add_anchor(text)
             if @anchor_tag
-              @anchor_tag.wrap('') + text
+              anchor = @anchor_tag.wrap('')
+              @anchor_tag = nil
+              anchor + text
             else
               text
             end

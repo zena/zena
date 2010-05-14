@@ -11,11 +11,6 @@ class ZazenTest < Zena::View::TestCase
     assert_match css, zazen(code)
   end
 
-  # all these additions are replaced by the traduction of 'unknown link' if the user does not have read access to the linked node.
-  def test_bad_link
-    assert_match %r{unknown link}, zazen('"hello":99')
-  end
-
   def test_wiki_link
     assert_equal "<p>? colors? I like <a href='http://en.wikipedia.org/wiki/Special:Search?search=yellow+mug' class='wiki'>yellow mug</a></p>", zazen("? colors? I like ?yellow mug?")
     assert_match %r{<cite>blah</cite> <cite>blih <a.*>test</a> it</cite>}, zazen('??blah?? ??blih ?test? it??')

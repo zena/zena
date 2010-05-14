@@ -18,22 +18,7 @@ module Zena
           return '#' unless node
 
           if anchor = options.delete(:anchor)
-            if anchor =~ /\[(.+)\]/
-              anchor_value = node.safe_read($1)
-            elsif anchor == 'true'
-              anchor_value = "node#{node[:zip]}"
-            else
-              fixed = true
-              anchor_value = anchor
-            end
-            if anchor_in = options.delete(:anchor_in)
-              anchor_node = anchor_in.kind_of?(Node) ? anchor_in : (node.find(:first, [anchor_in]) || node)
-              return "#{zen_path(anchor_node, options)}##{anchor_value}"
-            elsif fixed
-              return "#{zen_path(node, options)}##{anchor_value}"
-            else
-              return "##{anchor_value}"
-            end
+            return "#{zen_path(node, options)}##{anchor}"
           end
 
           opts   = options.dup
@@ -200,6 +185,34 @@ module Zena
           end
         end
 
+        # Insert a named anchor
+        def r_anchor
+          @params[:anchor] ||= 'true'
+          r_link
+        end
+
+        protected
+
+          # Get default anchor name
+          def get_anchor_name(anchor_name)
+            if anchor_name == 'true'
+              if node.will_be?(Node)
+                'node#{id}'
+              elsif node.will_be?(Version)
+                'version#{node.id}_#{id}'
+              else
+                anchor_name
+                # force compilation with Node context. Why ?
+                #node_bak = @context[:node]
+                #@context[:node] = node(Node)
+                #  anchor_name = ::RubyLess.translate_string(anchor_name, self)
+                #@context[:node] = node_bak
+              end
+            else
+              anchor_name
+            end
+          end
+
         private
           def make_link(options = {})
             @markup.tag ||= 'a'
@@ -212,39 +225,7 @@ module Zena
 
             steal_and_eval_html_params_for(markup, @params)
 
-
-            if anchor = @params[:anchor]
-              anchor = 'node#{id}' if anchor == 'true'
-              link = ::RubyLess.translate_string("##{anchor}", self)
-            else
-              method      = 'zen_path'
-              method_args = []
-              hash_params = []
-
-              if href = @params[:href]
-                method_args << href
-              elsif node.will_be?(Version)
-                method_args << node(Node)
-                hash_params << ":lang => this.lang"
-              else
-                method_args << 'this'
-              end
-
-              @params.each do |key, value|
-                next if [:href, :eval, :text, :anchor].include?(key)
-                hash_params << ":#{key} => %Q{#{value}}"
-              end
-
-              unless hash_params.empty?
-                method_args << hash_params.join(', ')
-              end
-
-              method = "#{method}(#{method_args.join(', ')})"
-
-              link = ::RubyLess.translate(method, self)
-            end
-
-            markup.set_dyn_param(:href, "<%= #{link} %>")
+            markup.set_dyn_param(:href, "<%= #{make_href} %>")
             markup.wrap text_for_link
 =begin
             query_params = options[:query_params] || {}
@@ -376,6 +357,44 @@ module Zena
 =end
           end
 
+          # Build the 'href' link
+          def make_href
+            if anchor = @params[:anchor] && !@params[:href]
+              # Link on same page
+              return ::RubyLess.translate(get_anchor_name(anchor), self)
+            end
+
+            method      = 'zen_path'
+            method_args = []
+            hash_params = []
+
+            if href = @params[:href]
+              method_args << href
+            elsif node.will_be?(Version)
+              method_args << node(Node)
+              hash_params << ":lang => this.lang"
+            else
+              method_args << 'this'
+            end
+
+            @params.each do |key, value|
+              next if [:href, :eval, :text].include?(key)
+              if key == :anchor
+                value = get_anchor_name(value)
+              end
+
+              hash_params << ":#{key} => %Q{#{value}}"
+            end
+
+            unless hash_params.empty?
+              method_args << hash_params.join(', ')
+            end
+
+            method = "#{method}(#{method_args.join(', ')})"
+
+            ::RubyLess.translate(method, self)
+          end
+
           # <r:link page='next'/> <r:link page='previous'/> <r:link page='list'/>
           def pagination_links
             # FIXME: replace @context[:paginate] with get_context_var('paginate', 'key')
@@ -443,7 +462,7 @@ module Zena
             else
               method, klass = get_attribute_or_eval(false)
               if klass
-                "<%= #{method} %>"
+                method.literal || "<%= #{method} %>"
               elsif default
                 default
               elsif node.will_be?(Node)

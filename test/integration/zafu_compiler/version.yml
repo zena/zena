@@ -14,6 +14,6 @@ version_anchor:
   context:
     node: 'opening'
   src: "<r:traductions><r:each join=', '><r:anchor do='link' eval='trans(lang)'/></r:each></r:traductions>"
-  res: "<a class='anchor' name='version27_2' href='/oo/projects/cleanWater/post27.html?lang=en'>english</a>, <a class='anchor' name='version27_1' href='/oo/projects/cleanWater/post27.html?lang=fr'>french</a>"
+  res: "<a class='anchor' name='version27_2'></a><a href='/oo/projects/cleanWater/post27.html?lang=en'>english</a>, <a class='anchor' name='version27_1'></a><a href='/oo/projects/cleanWater/post27.html?lang=fr'>french</a>"
 
 # ------ fix to here

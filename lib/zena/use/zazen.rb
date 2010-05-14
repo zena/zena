@@ -76,32 +76,57 @@ module Zena
         # Creates a link to the node referenced by zip (used by zazen)
         def make_link(opts)
           # for latex refs, see http://www.tug.org/applications/hyperref/manual.html
-          link_opts = {}
-          if anchor = opts[:anchor]
-            if anchor =~ /\[(.+?)\/(.*)\]/
-              anchor_in, anchor = $1, $2
-              anchor = anchor == '' ? 'true' : "[#{anchor}]"
-              link_opts[:anchor_in] = anchor_in
-            end
-            if ['[id]', '[zip]'].include?(anchor)
-              link_opts[:anchor] = 'true'
-            else
-              link_opts[:anchor] = anchor
-            end
+          anchor = opts[:anchor]
+          if anchor && anchor =~ /\[(.+?)\/(.*)\]/
+            anchor_in, anchor = $1, $2
+            anchor = anchor == '' ? 'true' : "[#{anchor}]"
           end
+
+          link_opts = {}
           if opts[:id] =~ /(\d+)(_\w+|)(\.\w+|)/
-            opts[:id]     = $1
+            id = $1
             link_opts[:mode]   = ($2 != '') ? $2[1..-1] : nil
             link_opts[:format] = ($3 != '') ? $3[1..-1] : nil
+
+            node = opts[:node] || secure(Node) { Node.find_by_zip(id) }
+          else
+            node = opts[:node]
           end
-          node  = opts[:node] || secure(Node) { Node.find_by_zip(opts[:id]) }
 
-          return "<span class='unknownLink'>#{_('unknown link')}</span>" unless node
+          if %w{true [id] [zip]}.include?(anchor)
+            return "<span class='unknownLink'>#{_('unknown link')}</span>" unless node
+            anchor_value = "node#{node.zip}"
+          end
 
-          title = (opts[:title] && opts[:title] != '') ? opts[:title] : node.title
+          if !node && (
+             opts[:id]           ||
+             opts[:title].blank? ||
+             anchor_in           ||
+             anchor == 'true'    ||
+             anchor =~ /^\[(.+)\]/)
+            return "<span class='unknownLink'>#{_('unknown link')}</span>"
+          end
 
-          link_opts[:format] = node.ext if link_opts[:format] == 'data'
-          if opts[:id] && opts[:id][0..0] == '0'
+          title = opts[:title].blank? ? node.title : opts[:title]
+
+          link_opts[:format] = node.ext if node.kind_of?(Document) && link_opts[:format] == 'data'
+
+          if anchor
+            if %w{true [id] [zip]}.include?(anchor)
+              anchor_value = "node#{node.zip}"
+            elsif anchor =~ /\[(.+)\]/
+              anchor_value = $1 == 'node_name' ? node.node_name : node.prop[$1]
+            else
+              anchor_value = anchor
+            end
+
+            if anchor_in
+              node = node.find(:first, anchor_in)
+              link_to title, "#{zen_path(node, link_opts)}##{anchor_value}"
+            else
+              link_to title, "##{anchor_value}"
+            end
+          elsif opts[:id] && opts[:id][0..0] == '0'
             link_to title, zen_path(node, link_opts), :popup=>true
           else
             link_to title, zen_path(node, link_opts)

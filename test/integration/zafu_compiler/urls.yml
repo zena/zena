@@ -100,7 +100,7 @@ link_project:
 
 link_root:
   src: "<r:link href='root'/>"
-  tem: "<a href='<%= zen_path((secure(Node) { Node.find(_ID(zena))})) %>'><%= @node.prop['title'] %></a>"
+  tem: "<a href='<%= zen_path(visitor.site.root_node) %>'><%= @node.prop['title'] %></a>"
   res: "<a href='/oo'>status title</a>"
 
 link_anchor:
@@ -113,11 +113,12 @@ link_anchor_name:
   res: "<a href='#status'>status title</a>"
 
 link_anchor_in:
-  src: "<r:link anchor='true' in='project' mode='tree'/>"
+  src: "<r:link anchor='true' href='project' mode='tree'/>"
   res: "<a href='/oo/projects/cleanWater_tree#node22'>status title</a>"
 
 link_anchor_name_in:
-  src: "<r:link anchor='[name]' in='parent'/>"
+  old_src: "<r:link anchor='[name]' in='parent'/>"
+  src: "<r:link anchor='#{node_name}' href='parent'/>"
   res: "<a href='/oo/projects/cleanWater#status'>status title</a>"
 
 link_stored:
@@ -140,10 +141,6 @@ link_url_params:
 link_url_params_parsed_values:
   src: "<r:link plob='haha #{title}'/>"
   res: "<a href='/oo/projects/cleanWater/page22.html?plob=haha+status+title'>status title</a>"
-
-link_in_anchor:
-  src: "<r:anchor do='link'/>"
-  res: "<a class='anchor' name='node22' href='/oo/projects/cleanWater/page22.html'>status title</a>"
 
 title_link_mode:
   old_src: "<h2 do='title' link='details'/>"

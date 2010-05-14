@@ -344,11 +344,8 @@ module Zena
 
         def get_attribute_or_eval(use_string_block = true)
           if attribute = @params[:attr]
-            if type = node.klass.safe_method_type([attribute])
-              ["#{node}.#{type[:method]}", type[:class]]
-            else
-              return parser_error("Unknown attribute '#{attribute}'.")
-            end
+            res = RubyLess.translate("this.#{attribute}", self)
+            [res, res.klass]
           elsif code = @params[:eval]
             res = RubyLess.translate(code, self)
             [res, res.klass]
