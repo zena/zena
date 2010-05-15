@@ -203,7 +203,8 @@ class Node < ActiveRecord::Base
                      :traductions => ['Version']
   safe_method        :v => {:class => 'Version', :method => 'version'},
                      :version => 'Version', :v_status => Number, :v_lang => String,
-                     :v_publish_from => Time, :v_backup => Boolean
+                     :v_publish_from => Time, :v_backup => Boolean,
+                     :zip => Number
 
   extend  Zena::Acts::SecureNode
   acts_as_secure_node
@@ -767,7 +768,8 @@ class Node < ActiveRecord::Base
         #   # ...
         # end
         if method =~ /^(.+)_((id|zip|status|comment)(s?))\Z/ && !instance_methods.include?(method)
-          {:method => "rel[#{$1.inspect}].try(:other_#{$2})", :nil => true, :class => ($4.blank? ? Number : [Number])}
+          key = $3 == 'id' ? "zip#{$4}" : $2
+          {:method => "rel[#{$1.inspect}].try(:other_#{key})", :nil => true, :class => ($4.blank? ? Number : [Number])}
         else
           RubyLess::SafeClass.safe_method_type_for(self, signature)
         end

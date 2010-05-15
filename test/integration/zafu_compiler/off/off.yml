@@ -9,3 +9,7 @@ trans_show:
   src: "<r:trans><r:show attr='ref_lang'/></r:trans>"
   tem: "<%= _(@node.ref_lang) %>"
   res: "anglais"
+
+node_path:
+  src: "<r:context select='/projects/wiki'><r:link/></r:context>"
+  res: "<a href='/en/project29.html'>a wiki with zena</a>"

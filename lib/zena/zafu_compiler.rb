@@ -4,6 +4,7 @@ module Zena
   ZafuCompiler = Zafu.parser_with_rules([
     Zafu::All,
     Zena::Use::Conditional::ZafuMethods,
+    Zena::Use::Context::ZafuMethods,
     Zena::Use::Display::ZafuMethods,
     Zena::Use::Urls::ZafuMethods,
     Zena::Use::ZafuAttributes::ZafuMethods,

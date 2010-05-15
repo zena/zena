@@ -17,3 +17,7 @@ does_not_see_secret:
     visitor: ant
   src: "comments from nodes in site"
   res: "Comment: I agree, I think this is bad, OK for me, Why ?, Travailleurs, unissez-vous !, Nice site, What about rivers ?, re: What about rivers ?"
+
+filter:
+  src: "comments where title like \"%rivers%\""
+  sql: "Comment: [%Q{SELECT comments.* FROM comments WHERE comments.title LIKE ? AND comments.discussion_id = ? ORDER BY comments.created_at ASC}, \"%rivers%\", @node.get_discussion_id]"

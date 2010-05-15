@@ -340,7 +340,7 @@ module Zena
         end
 
         def get_attribute_or_eval(use_string_block = true)
-          if attribute = @params[:attr]
+          if attribute = @params[:attr] || @params[:date]
             code = "this.#{attribute}"
           elsif code = @params[:eval]
           elsif text = @params[:text]
@@ -369,14 +369,16 @@ module Zena
 
           klass = method.klass
 
-          if klass <= String
+          if klass.kind_of?(Array)
+            res = show_string(method)
+          elsif klass <= String
             res = show_string(method)
           elsif klass <= Number
             res = show_number(method)
           elsif klass <= Time
             res = show_time(method)
           else
-            res = show_string("#{method}.to_s")
+            res = show_string(method)
           end
 
           res
@@ -528,7 +530,7 @@ module Zena
               end
 
               if method.could_be_nil?
-                "<%= #{method}.try(:strftime, #{fmt.inspect}) %>HOP"
+                "<%= #{method}.try(:strftime, #{fmt.inspect}) %>"
               else
                 "<%= #{method}.strftime(#{fmt.inspect}) %>"
               end

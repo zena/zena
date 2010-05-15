@@ -45,39 +45,6 @@ module Zafu
         #end
       end
 
-      # Group elements in a list. Use :order to specify order.
-      def r_group
-        return parser_error("cannot be used outside of a list") unless list_var = @context[:list]
-        return parser_error("missing 'by' clause") unless key = @params[:by]
-
-        sort_key = @params[:sort] || 'name'
-        if node.will_be?(DataEntry) && DataEntry::NodeLinkSymbols.include?(key.to_sym)
-          key = "#{key}_id"
-          sort_block = "{|e| (e.#{key} || {})[#{sort_key.to_sym.inspect}]}"
-          group_array = "group_array(#{list_var}) {|e| e.#{key}}"
-        elsif node.will_be?(Node)
-          if ['project', 'parent', 'section'].include?(key)
-            sort_block  = "{|e| (e.#{key} || {})[#{sort_key.to_sym.inspect}]}"
-            group_array = "group_array(#{list_var}) {|e| e.#{key}_id}"
-          end
-        end
-
-        group_array ||= "group_array(#{list_var}) {|e| #{node_attribute(key, :node => 'e')}}"
-
-        if sort_block
-          out "<% grp_#{list_var} = sort_array(#{group_array}) #{sort_block} -%>"
-        else
-          out "<% grp_#{list_var} = #{group_array} -%>"
-        end
-
-        if descendant('each_group')
-          out expand_with(:group => "grp_#{list_var}")
-        else
-          @context[:group] = "grp_#{list_var}"
-          r_each_group
-        end
-      end
-
       protected
 
         # find the current node name in the context

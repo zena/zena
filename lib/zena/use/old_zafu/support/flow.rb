@@ -2,18 +2,6 @@ module Zafu
   module Support
     module Flow
 
-      def r_each_group
-        return parser_error("must be used inside a group context") unless group = @context[:group]
-        if join = @params[:join]
-          join = join.gsub(/&lt;([^%])/, '<\1').gsub(/([^%])&gt;/, '\1>')
-          out "<% #{group}.each_index do |#{list_var}_index| -%>"
-          out "<%= #{list_var}=#{group}[#{list_var}_index]; #{var} = #{list_var}[0]; #{list_var}_index > 0 ? #{join.inspect} : '' %>"
-        else
-          out "<% #{group}.each do |#{list_var}|; #{var} = #{list_var}[0]; -%>"
-        end
-        out render_html_tag(expand_with(:group => nil, :list => list_var, :node => var, :scope_node => var))
-        out "<% end -%>"
-      end
 
       def r_each
         is_draggable = @params[:draggable] == 'true' || @params[:drag_handle]

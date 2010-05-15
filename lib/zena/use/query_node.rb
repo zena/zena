@@ -141,7 +141,7 @@ module Zena
             elsif table_def = map_def[:table]
               table_to_use = needs_join_table(*table_def)
             else
-              table_to_use = main_table
+              table_to_use = table
             end
             "#{table_to_use}.#{map_def[:key]}"
           elsif %w{id parent_id project_id section_id}.include?(field_name) ||
@@ -152,6 +152,8 @@ module Zena
                (key == 'id' ||
                 Zena::Use::Relations::LINK_ATTRIBUTES.include?(key.to_sym))
             "#{table('links')}.#{key}"
+          elsif field_name == 'random'
+            Zena::Db.sql_function(field_name, nil)
           else
           #elsif field_name == 'REF_DATE'
           #  context[:ref_date] ? insert_bind(context[:ref_date]) : 'now()'
@@ -234,7 +236,7 @@ module Zena
             case relation
             when 'comment', 'comments'
               if last?
-                change_processor Comment.query_compiler
+                change_processor Comment.query_compiler, :rubyless_helper => @rubyless_helper
                 # no need to load discussions, versions and all the mess
                 add_table('comments')
                 add_filter "#{table('comments')}.discussion_id = #{process_attr('discussion_id')}"
@@ -256,7 +258,7 @@ module Zena
           # Moving to another context without a join table
           def context_relation(relation)
             # Not sure we need all these anymore...
-            #case relation
+            case relation
             #when 'self'
             #  # Dummy context
             #  fields = ['id', 'id']
@@ -267,10 +269,11 @@ module Zena
             #  if @table_counter[main_table] > 0 || @tables.include?('links')
             #    fields = ['id', "#{relation[0..-2]}_id"]
             #  end
-            #when 'root'
-            #  # Special pseudo-context
-            #  @where << "#{table}.id = #{current_site.root_id}"
-            #  return true
+            when 'root'
+              # Special pseudo-context
+              add_table(main_table)
+              add_filter "#{table}.id = #{current_site.root_id}"
+              return true
             #when 'author', 'traductions', 'versions'
             #  # TODO: not implemented yet...
             #  return nil
@@ -278,7 +281,7 @@ module Zena
             #  # Special pseudo-context
             #  @where << "#{table}.id = #{insert_bind("visitor.contact_id")}"
             #  return true
-            #end
+            end
 
             if CORE_CONTEXTS.include?(relation)
               # PREVIOUS_GROUP.id = NEW_GROUP.project_id
@@ -309,7 +312,8 @@ module Zena
                 set_main_class(res_class)
 
                 add_table(main_table)
-                add_filter "#{table}.kpath LIKE #{quote("#{klass.kpath}%")}"
+                add_filter "#{table}.kpath LIKE #{quote("#{klass.kpath}%")}" unless klass.kpath == 'N'
+                true
               else
                 # unknown class
                 nil

@@ -185,6 +185,8 @@ module Zena
           "date_format(#{key},'%Y-%v')"
         when 'day'
           "DATE(#{key})"
+        when 'random'
+          'RAND()'
         end
       when 'sqlite3'
         case function
@@ -198,6 +200,8 @@ module Zena
           "strftime('%Y-%W', #{key})"
         when 'day'
           "DATE(#{key})"
+        when 'random'
+          'random()'
         end
       end
       raise Exception.new("Database Adapter #{adapter.inspect} does not support function #{function.inspect}.") unless res

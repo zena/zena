@@ -70,7 +70,7 @@ pages_do_syntax:
 pages_limit:
   context:
     node: 'cleanWater'
-  src: "<r:pages limit='2' order='name DESC'><r:each join=', '><r:show attr='node_name'/></r:each></r:pages>"
+  src: "<r:pages limit='2' order='node_name DESC'><r:each join=', '><r:show attr='node_name'/></r:each></r:pages>"
   res: "track, status"
 
 pages_random:
@@ -84,7 +84,7 @@ nodes_in_project:
   res: "lake, lakeAddress"
 
 nodes_in_project_stored:
-  src: "<r:void store='foo'><r:node select='29'>from <r:show attr='node_name'/>, look at <r:node select='foo' do='node_name'/>: <r:pages in='site' project='foo' do='each' join=', ' do='node_name'/></r:node></r:void>"
+  src: "<r:void set_foo='this'><r:node where='id = 29 in site'>from <r:show attr='node_name'/>, look at <r:foo do='node_name'/>: <r:foo do='pages in project' do='each' join=', ' do='node_name'/></r:node></r:void>"
   res: "from wiki, look at status: status, track"
 
 nodes_in_site:
@@ -106,7 +106,7 @@ store_in_block:
 
 set_var_outside_block:
   old_src: "<r:node select='18' set_found='this' do='pages'><r:block><r:show attr='node_name'/>: <r:context select='found' do='node_name'/></r:block></r:node>"
-  src: "<r:void  set_found='this' do='node where id = 18 in site' do='pages' do='each' join=', '><r:block><r:found do='node_name'/>: <r:show attr='node_name'/></r:block></r:void>"
+  src: "<r:void  set_found='this' do='pages from node where id = 18 in site' do='each' join=', '><r:block><r:found do='node_name'/>: <r:show attr='node_name'/></r:block></r:void>"
   res: "<div id='list1_21'><div id='list1_21'>status: cleanWater</div></div>, <div id='list1_29'><div id='list1_29'>status: wiki</div></div>"
   'relations/set/en/var/outside/block/list1.erb': "/unknown method<span class='type'>found\(\)/"
 
@@ -142,14 +142,11 @@ public_readable_link_id:
   tem: '<%= @node.rel["icon"].try(:other_zip) %>'
 
 node_id:
-  src: "I (<r:show attr='node_name'/>) know: <r:context select='12'><r:show attr='node_name'/> with <r:children><span do='each' join=', '><r:show attr='node_name'>child</r:show></span></r:children></r:context>"
+  old_src: "I (<r:show attr='node_name'/>) know: <r:context select='12'><r:show attr='node_name'/> with <r:children><span do='each' join=', '><r:show attr='node_name'>child</r:show></span></r:children></r:context>"
+  src: "I (<r:show attr='node_name'/>) know: <r:node where='id = 12 in site'><r:show attr='node_name'/> with <r:children><span do='each' join=', '><r:show attr='node_name'>child</r:show></span></r:children></r:node>"
   res: "I (status) know: people with <span>anonymous</span>, <span>ant</span>, <span>lion</span>, <span>tiger</span>"
 
-node_path:
-  src: "<r:context select='/projects/wiki'><r:link/></r:context>"
-  res: "<a href='/en/project29.html'>a wiki with zena</a>"
-
-node_root:
+context_root:
   src: "<r:context select='root'><r:show attr='node_name'/></r:context>"
   res: "zena"
 
@@ -159,15 +156,15 @@ parent:
   res: "Clean Water project"
 
 parent_no_parent:
-  src: "result=<r:context select='root'><r:parent><r:show attr='node_name'/></r:parent></r:context>="
+  src: "result=<r:root><r:parent><r:show attr='node_name'/></r:parent></r:root>="
   res: "result=="
 
 node_not_found:
-  src: "result=<r:context select='99'>this is something</r:context>="
+  src: "result=<r:node where='1 eq 2'>this is something</r:node>="
   res: "result=="
 
 node_not_found_else:
-  src: "result=<r:context select='99'><r:link/><r:else>not found</r:else></r:context>="
+  src: "result=<r:node where='1 eq 2'><r:link/><r:else>not found</r:else></r:node>="
   res: "result=not found="
 
 children_else_block:
@@ -179,14 +176,14 @@ each_not_in_list:
   res: "status"
 
 hot_else_block:
-  src: "<r:hot>I am hot<r:else>I am not (<r:show attr='node_name'/>)</r:else> and funny</r:hot>"
-  res: "I am not (status)"
+  src: "<r:hot>I am hot<r:else>I am not</r:else> funny</r:hot>"
+  res: "I am not funny" # Yes, this is the expected behavior: else block continues to the end
 
 hot_not_else_block:
   context:
     node: 'cleanWater'
-  src: "<r:hot>I am hot<r:else>I am not</r:else> and funny</r:hot>"
-  res: "I am hot and funny"
+  src: "<r:hot>I am hot<r:else>I am not</r:else> funny</r:hot>"
+  res: "I am hot" # Yes, this is the expected behavior: main block halts at first 'else'
 
 children_else:
   src: "<r:children find='first' where='node_name like \"%asdfg\"' else='this'><r:show attr='node_name'/></r:children>"
@@ -253,7 +250,8 @@ this_year:
 date_select:
   context:
     visitor: tiger
-  src: "<r:date select='2006-04-05'><r:nodes in='site' log='current' do='each' join=', ' do='show' attr='node_name'/>"
+  old_src: "<r:date select='2006-04-05'><r:nodes in='site' log='current' do='each' join=', ' do='show' attr='node_name'/>"
+  src: "<r:void set_strdate='\"2006-04-05\"'><r:nodes where='log_at.day eq #{strdate}' in='site' do='each' join=', ' do='node_name'/></r:void>"
   res: "letter, proposition"
 
 empty_list:
@@ -263,16 +261,16 @@ empty_list:
 order_limit:
   context:
     node: 'zena'
-  src: "<ul do='news' in='site' limit='5' order='updated_at DESC'><li do='each'><r:link/></li></ul>"
+  src: "<ul do='news' in='site' limit='5' order='updated_at desc'><li do='each'><r:link/></li></ul>"
   res: "<ul><li><a href='/en/projects/cleanWater/post27.html'>parc opening</a></li></ul>"
 
 relation_not_in_current_node:
-  src: "<ul do='news' in='site' limit='5' order='updated_at DESC'><li do='each'><r:link/></li></ul>"
+  src: "<ul do='news' in='site' limit='5' order='updated_at desc'><li do='each'><r:link/></li></ul>"
   res: "<ul><li><a href='/en/projects/cleanWater/post27.html'>parc opening</a></li></ul>"
 
 pages_anchor:
   src: "<r:pages in='site' limit='3' do='each' join=', '><r:show attr='node_name' anchor='true'/></r:pages>"
-  res: "<a name='node33'></a>art, <a name='node21'></a>cleanWater, <a name='node32'></a>collections"
+  res: "<a class='anchor' name='node33'></a>art, <a class='anchor' name='node21'></a>cleanWater, <a class='anchor' name='node32'></a>collections"
 
 projects_in_site:
   src: "<div class='all_projects' do='projects' in='site'><r:each join=', ' do='show' attr='node_name'/></div>"
@@ -328,7 +326,7 @@ relation_in_site:
   res: "cleanWater,opening"
 
 relation_in_site_find_first:
-  src: "<r:tagged find='first' in='site' limit='10' do='each' join=',' do='node_name'/>"
+  src: "<r:tagged find='first' in='site' do='node_name'/>"
   res: "cleanWater"
 
 where:
@@ -344,8 +342,8 @@ else:
   tem: "/ false\) || \[@node\]\)/"
   res: "status"
 
-incompatible_or_eval:
-  src: "<r:nodes where='node_name = 1' in='site' or_eval='this' do='each' join=',' do='node_name'/>"
+incompatible_else:
+  src: "<r:nodes where='node_name = 1' in='site' else='this' do='each' join=',' do='node_name'/>"
   tem: "/\(Node\).*finder \(\[Node\]\)/"
 
 where_not:
@@ -391,37 +389,39 @@ where_with_param:
 group_by_secret_project:
   context:
     visitor: ant
-  src: "<r:pages where='name like \"t%\"' in='site' order='node_name ASC' do='group' by='project'><b do='project' do='node_name'/>: <r:each join=',' do='node_name'/></r:pages>"
+  src: "<r:pages where='node_name like \"t%\"' in='site' order='node_name ASC' do='group' by='project'><b do='project' do='node_name'/>: <r:each join=',' do='node_name'/></r:pages>"
   res: ": talk<b>cleanWater</b>: track"
 
 group_by_project:
   context:
     visitor: lion
   src: "<r:notes in='site' order='node_name ASC' do='group' by='project'><b do='project' do='node_name'/>: <r:each join=',' do='node_name'/></r:notes>"
-  res: "<b>cleanWater</b>: opening<b>secret</b>: proposition<b>zena</b>: letter"
+  res: "<b>zena</b>: letter<b>cleanWater</b>: opening<b>secret</b>: proposition"
 
 group_by_project_sort_zip:
   context:
     visitor: ant
-  src: "<r:images in='site' order='node_name ASC' do='group' by='project' sort='zip'><b do='project' do='node_name'/>: <r:each join=',' do='node_name'/></r:images>"
-  res: "<b>zena</b>: tree<b>cleanWater</b>: lake<b>wiki</b>: bird,flower"
+  old_src: "<r:images in='site' order='node_name ASC' do='group' by='project' sort='zip'><b do='project' do='node_name'/>: <r:each join=',' do='node_name'/></r:images>"
+  src: "<r:images in='site' order='zip ASC' do='group' by='project'><b do='project' do='node_name'/>: <r:each join=',' do='node_name'/></r:images>"
+  res: "<b>cleanWater</b>: lake<b>wiki</b>: bird,flower<b>zena</b>: tree"
 
 group_by_parent_sort:
   src: "<r:images in='site' order='node_name ASC' do='group' by='parent'><b do='parent' do='node_name'/>: <r:each join=',' do='node_name'/></r:images>"
-  res: "<b>cleanWater</b>: lake<b>wiki</b>: bird,flower"
+  res: "<b>wiki</b>: bird,flower<b>cleanWater</b>: lake"
 
 nodes_in_site_group_by_year:
-  src: "<r:nodes in='site' group='log_at:year' order='log_at:year asc, node_name ASC' do='each' join=', '><r:show date='log_at' format='%Y'/></r:nodes>"
+  old_src: "<r:nodes in='site' group='log_at:year' order='log_at:year asc, node_name ASC' do='each' join=', '><r:show date='log_at' format='%Y'/></r:nodes>"
+  src: "<r:nodes in='site' group='log_at.year' order='log_at.year asc, node_name ASC' do='each' join=', '><r:show date='log_at' format='%Y'/></r:nodes>"
   res: ", 2006, 2007"
 
 comments_order_desc:
   context:
     visitor: ant
   src: "<r:comments order='created_at desc'><r:each join=', '><r:show date='created_at' format='%Y-%m-%d'/>:<b do='[title]'/></r:each></r:comments>"
-  res: "2008-05-21:<b>re: What about rivers ?</b>, 2006-12-20:<b>What about rivers ?</b>, 2006-12-20:<b>Nice site</b>"
+  res: "2008-05-21:<b>re: What about rivers ?</b>, 2006-12-20:<b>What about rivers ?</b>, 2006-12-19:<b>Nice site</b>"
 
 comments_where_title:
-  src: "<r:comments where='title like \"%rivers%\"'><r:each join=', '><r:show date='created_at' format='%Y-%m-%d'/>:<b do='[title]'/></r:each></r:comments>"
+  src: "<r:comments where='title like \"%rivers%\"'><r:each join=', '><r:show date='created_at' format='%Y-%m-%d'/>:<b do='title'/></r:each></r:comments>"
   res: "2006-12-20:<b>What about rivers ?</b>, 2008-05-21:<b>re: What about rivers ?</b>"
 
 comments_no_discussion:
