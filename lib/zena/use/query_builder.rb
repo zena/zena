@@ -15,12 +15,20 @@ module Zena
           base.process_unknown :querybuilder_eval
         end
 
+        # Enter a new context (<r:context find='all' select='pages'>). This is the same as '<r:pages>...</r:pages>'). It is
+        # considered better style to use '<r:pages>...</r:pages>' instead of the more general '<r:context>' because the tags
+        # give a clue on the context at start and end. Another way to open a context is the 'do' syntax: "<div do='pages'>...</div>".
+        def r_context
+          return parser_error("missing 'select' parameter") unless method = @params[:select]
+          querybuilder_eval(method)
+        end
+
         # Resolve unknown methods by trying to build a pseudo-sql query with QueryBuilder.
-        def querybuilder_eval
+        def querybuilder_eval(method = @method)
           return nil if node.klass.kind_of?(Array) # list context
 
-          count  = get_count(@method, @params)
-          finder = build_finder(count, @method, @params)
+          count  = get_count(method, @params)
+          finder = build_finder(count, method, @params)
 
           expand_with_finder(finder)
           true

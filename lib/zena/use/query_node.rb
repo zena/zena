@@ -327,6 +327,7 @@ module Zena
               if context[:scope] == 'site'
                 # Example: 'tagged in site' ==> any node with a 'tagged' relation (no need to
                 # filter by source).
+                distinct!
                 add_filter "#{table('links')}.relation_id = #{rel.id}"
                 add_filter "#{field_or_attr('id')} = #{table('links')}.#{rel.other_side}"
               else

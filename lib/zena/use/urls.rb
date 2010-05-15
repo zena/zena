@@ -11,7 +11,7 @@ module Zena
           end
         end
 
-        # Path for the node (as string). Options can be :format, :host and :mode.
+        # Path for a node. Options can be :format, :host and :mode.
         # ex '/en/document34_print.html'
         def zen_path(node, options={})
 
@@ -163,8 +163,18 @@ module Zena
         include RubyLess
         safe_method [:url,  Node]     => {:class => String, :method => 'zen_url'}
         safe_method [:path, Node]     => {:class => String, :method => 'zen_path'}
-        safe_method [:zen_path, Node, Hash] => {:class => String, :accept_nil => true}
-        safe_method [:zen_path, Node]       => {:class => String, :accept_nil => true}
+        safe_method [:zen_path, Node, Hash]   => {:class => String, :accept_nil => true}
+        safe_method [:zen_path, Node]         => {:class => String, :accept_nil => true}
+        safe_method [:zen_path, String, Hash]   => {:class => String, :accept_nil => true, :method => 'dummy_zen_path'}
+        safe_method [:zen_path, String]         => {:class => String, :accept_nil => true, :method => 'dummy_zen_path'}
+
+        def dummy_zen_path(string, options = {})
+          if anchor = options.delete(:anchor)
+            "#{string}##{anchor}"
+          else
+            "#{string}"
+          end
+        end
       end # ViewMethods
 
       module ZafuMethods

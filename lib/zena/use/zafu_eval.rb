@@ -1,12 +1,6 @@
 module Zena
   module Use
     module ZafuEval
-      module ViewMethods
-        def prefix_project(node)
-          node.get_project_id == start_node.get_project_id ? '' : "#{node.project.title} / "
-        end
-      end
-
       module ZafuMethods
         def r_eval
           text = @blocks.first

@@ -91,21 +91,27 @@ nodes_in_site:
   src: "<r:nodes in='site' limit='3'><r:each join=', ' do='show' attr='node_name'/></r:nodes>"
   res: "anonymous, ant, art"
 
+context:
+  src: "<r:context select='nodes' in='site' limit='3'><r:each join=', ' do='show' attr='node_name'/></r:context>"
+  res: "anonymous, ant, art"
+
 store_node:
-  src: "<r:void store='baz'><r:parent><r:show attr='node_name'/>: <r:node select='baz'><r:show attr='node_name'/></r:node> + <r:node select='main' do='show' attr='id'/></r:parent></r:void>"
+  src: "<r:void set_baz='this'><r:parent><r:show attr='node_name'/>: <r:baz do='node_name'/> + <r:main do='show' attr='id'/></r:parent></r:void>"
   res: "cleanWater: status + 22"
 
 store_in_block:
-  src: "<r:block><r:node select='18' store='found' do='pages'><r:show attr='node_name'/>: <r:node select='found' do='node_name'/></r:node></r:block>"
-  res: "<div id='list1'>projects: status</div>"
+  src: "<r:block><r:void set_found='this' do='node' where='id = 18 in site' do='page'><r:found do='node_name'/>: <r:show attr='node_name'/></r:void></r:block>"
+  res: "<div id='list1_22'>status: cleanWater</div>"
+  'relations/store/en/in/block/list1.erb': '/<% var3 = @node -%><%= var3.node_name %>:/'
 
-store_outside_block:
-  src: "<r:node select='18' store='found' do='pages'><r:block><r:show attr='node_name'/>: <r:node select='found' do='node_name'/></r:block></r:node>"
-  res: "<div id='list1'>projects: status</div>"
-  'store/outside/en/block/list1.erb': "/unknown relation 'found'/"
+set_var_outside_block:
+  old_src: "<r:node select='18' set_found='this' do='pages'><r:block><r:show attr='node_name'/>: <r:context select='found' do='node_name'/></r:block></r:node>"
+  src: "<r:void  set_found='this' do='node where id = 18 in site' do='pages' do='each' join=', '><r:block><r:found do='node_name'/>: <r:show attr='node_name'/></r:block></r:void>"
+  res: "<div id='list1_21'><div id='list1_21'>status: cleanWater</div></div>, <div id='list1_29'><div id='list1_29'>status: wiki</div></div>"
+  'relations/set/en/var/outside/block/list1.erb': "/unknown method<span class='type'>found\(\)/"
 
 store_node_as_relation:
-  src: "<r:void store='baz'><r:parent><r:show attr='node_name'/>: <r:baz do='node_name'/> + <r:node select='main' do='show' attr='id'/></r:parent></r:void>"
+  src: "<r:void set_baz='this'><r:parent><r:show attr='node_name'/>: <r:baz do='node_name'/> + <r:main do='show' attr='id'/></r:parent></r:void>"
   res: "cleanWater: status + 22"
 
 store_img:
@@ -136,15 +142,15 @@ public_readable_link_id:
   tem: '<%= @node.rel["icon"].try(:other_zip) %>'
 
 node_id:
-  src: "I (<r:show attr='node_name'/>) know: <r:node select='12'><r:show attr='node_name'/> with <r:children><span do='each' join=', '><r:show attr='node_name'>child</r:show></span></r:children></r:node>"
+  src: "I (<r:show attr='node_name'/>) know: <r:context select='12'><r:show attr='node_name'/> with <r:children><span do='each' join=', '><r:show attr='node_name'>child</r:show></span></r:children></r:context>"
   res: "I (status) know: people with <span>anonymous</span>, <span>ant</span>, <span>lion</span>, <span>tiger</span>"
 
 node_path:
-  src: "<r:node select='/projects/wiki'><r:link/></r:node>"
+  src: "<r:context select='/projects/wiki'><r:link/></r:context>"
   res: "<a href='/en/project29.html'>a wiki with zena</a>"
 
 node_root:
-  src: "<r:node select='root'><r:show attr='node_name'/></r:node>"
+  src: "<r:context select='root'><r:show attr='node_name'/></r:context>"
   res: "zena"
 
 parent:
@@ -153,15 +159,15 @@ parent:
   res: "Clean Water project"
 
 parent_no_parent:
-  src: "result=<r:node select='root'><r:parent><r:show attr='node_name'/></r:parent></r:node>="
+  src: "result=<r:context select='root'><r:parent><r:show attr='node_name'/></r:parent></r:context>="
   res: "result=="
 
 node_not_found:
-  src: "result=<r:node select='99'>this is something</r:node>="
+  src: "result=<r:context select='99'>this is something</r:context>="
   res: "result=="
 
 node_not_found_else:
-  src: "result=<r:node select='99'><r:link/><r:else>not found</r:else></r:node>="
+  src: "result=<r:context select='99'><r:link/><r:else>not found</r:else></r:context>="
   res: "result=not found="
 
 children_else_block:
@@ -283,13 +289,14 @@ nodes:
 menu_with_favorites:
   context:
     visitor: ant
-  src: "<ul><r:root do='pages' only='public' cache='true' name='menu'><li do='each'><r:link/><ul do='pages'><li do='each' do='link'/></ul></li></r:root><r:node select='visitor' do='favorites'><li class='favorites'><r:trans>favorites</r:trans><ul><li do='each' do='link'/></ul></li></ul>"
+  src: "<ul><r:root do='pages' only='public' cache='true' name='menu'><li do='each'><r:link/><ul do='pages'><li do='each' do='link'/></ul></li></r:root><r:visitor_node do='favorites'><li class='favorites'><r:trans>favorites</r:trans><ul><li do='each' do='link'/></ul></li></ul>"
   res: "/.*tag33.*tag35.*Clean Water.*favorites.*Nature/"
 
 visitor_favorites:
   context:
     visitor: ant
-  src: "<r:node select='visitor'><ul do='favorites'><li do='each' do='link'/></ul></r:node>"
+  old_src: "<r:node select='visitor'><ul do='favorites'><li do='each' do='link'/></ul></r:node>"
+  src: "<r:visitor_node><ul do='favorites'><li do='each' do='link'/></ul></r:visitor_node>"
   res: "<ul><li><a href='/oo/page39.html'>Nature</a></li></ul>"
 
 checkbox:
@@ -312,8 +319,8 @@ direction_both_else:
   src: "<r:references direction='both' else='parent' do='each' join=', ' do='node_name'/>"
   res: "cleanWater"
 
-visitor:
-  src: "<r:visitor><b do='[title]'/></r:visitor>"
+visitor_node:
+  src: "<r:visitor_node><b do='title'/></r:visitor_node>"
   res: "<b>Mr nobody</b>"
 
 relation_in_site:

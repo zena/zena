@@ -126,6 +126,18 @@ link_stored:
   src: "<r:void set_foo='this'><r:parent><r:link href='foo' do='title'/></r:parent></r:void>"
   res: "<a href='/oo/projects/cleanWater/page22.html'>Clean Water project</a>"
 
+link_stored_not_a_node:
+  src: "<r:void set_foo='45'><r:parent><r:link href='foo' do='title'/></r:parent></r:void>"
+  res: "/unknown method 'zen_path\(Number\)'/"
+
+link_href_string:
+  src: "<r:link href='\"yop\"'>"
+  res: "<a href='yop'>status title</a>"
+
+link_href_string_with_anchor:
+  src: "<r:link href='\"yop\"' anchor='zoom'>"
+  res: "<a href='yop#zoom'>status title</a>"
+
 link_date:
   context:
     ref_date: '2008-06-27'
