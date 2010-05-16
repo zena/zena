@@ -85,7 +85,7 @@ class DatesViewMethodsTest < Zena::View::TestCase
       7.1*24 * 60 => (atime - 7.1*24 * 60 * 60).strftime("%Y-%m-%d"),
       -9* 24 * 60 => (atime + 9 * 24 * 60 * 60).strftime("%Y-%m-%d"),
     }.each do |age, phrase|
-      assert_equal phrase, format_date(Time.now.utc - (60 * age),'age/%Y-%m-%d')
+      assert_equal phrase, format_date(Time.now.utc - (60 * age), :format => 'age/%Y-%m-%d')
     end
   end
 
@@ -114,7 +114,7 @@ class DatesViewMethodsTest < Zena::View::TestCase
       7.1*24 * 60 => (atime - 7.1*24 * 60 * 60).strftime("%Y-%m-%d"),
       -9* 24 * 60 => (atime + 9 * 24 * 60 * 60).strftime("%Y-%m-%d"),
     }.each do |age, phrase|
-      assert_equal phrase, format_date(Time.now.utc - (60 * age),'age/%Y-%m-%d')
+      assert_equal phrase, format_date(Time.now.utc - (60 * age), :format => 'age/%Y-%m-%d')
     end
   end
 
@@ -132,7 +132,7 @@ class DatesViewMethodsTest < Zena::View::TestCase
       ["2008-05-17 13:03:10", '%Y-%m-%d %H:%M:%S'],
       ["03.01.2008 13:03:10", '%d.%m.%Y %H:%M:%S'],
     ].each do |date_str, format|
-      assert_equal date_str, format_date(date_str.to_utc(format, visitor.tz), format)
+      assert_equal date_str, format_date(date_str.to_utc(format, visitor.tz), :format => format)
     end
 
     login(:ant) # Europe/Paris
@@ -149,7 +149,7 @@ class DatesViewMethodsTest < Zena::View::TestCase
       ["2008-05-17 13:03:10", '%Y-%m-%d %H:%M:%S'],
       ["03.01.2008 13:03:10", '%d.%m.%Y %H:%M:%S'],
     ].each do |date_str, format|
-      assert_equal date_str, format_date(date_str.to_utc(format, visitor.tz), format)
+      assert_equal date_str, format_date(date_str.to_utc(format, visitor.tz), :format => format)
     end
   end
 end

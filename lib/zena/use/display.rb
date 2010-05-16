@@ -439,14 +439,16 @@ module Zena
         # Display an image
         def r_img
           return unless node.will_be?(Node)
-          if @params[:src]
-            finder, klass = build_finder(:first, @params[:src])
-            return unless finder
-            return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
+
+          if src = @params[:src]
+            finder = ::RubyLess.translate(@params[:src], self) #build_finder(:first, @params[:src])
+            return parser_error("invalid class (#{finder.klass})") unless finder.klass <= Node
+
             img = finder
           else
             img = node
           end
+
           mode = @params[:mode] || 'std'
           # FIXME: replace this call by something that integrates better with html_tag_params and such.
           res = "img_tag(#{img}, :mode=>#{mode.inspect}"
@@ -458,7 +460,7 @@ module Zena
           if finder = @params[:link]
             finder = ::RubyLess.translate(finder, self)
 
-            return parser_error("Invalid class (#{klass})") unless finder.klass <= Node
+            return parser_error("Invalid class (#{finder.klass})") unless finder.klass <= Node
 
             opts_str = @context["exp_host"] ? ", :host => #{@context["exp_host"]}" : ""
 
@@ -521,21 +523,17 @@ module Zena
           end
 
           def show_time(method)
-            if fmt = @params[:format]
-              begin
-                # test argument
-                Time.now.strftime(fmt)
-              rescue ArgumentError
-                return parser_error("Incorect Time format #{fmt.inspect}")
-              end
+            hash_arguments = []
 
-              if method.could_be_nil?
-                "<%= #{method}.try(:strftime, #{fmt.inspect}) %>"
-              else
-                "<%= #{method}.strftime(#{fmt.inspect}) %>"
-              end
-            else
+            [:tz, :lang, :format].each do |key|
+              next unless value = @params[key]
+              hash_arguments << ":#{key} => #{RubyLess.translate_string(value, self)}"
+            end
+
+            if hash_arguments == []
               "<%= #{method} %>"
+            else
+              "<%= format_date(#{method}, #{hash_arguments.join(', ')}) %>"
             end
           end
       end

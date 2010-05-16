@@ -1,0 +1,122 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'status'
+  src: "simple text"
+  tem: "simple text"
+  res: "simple text"
+
+add_btn:
+  src: "<table do='pages' in='site' limit='1'>
+  <tr do='each'><td do='node_name'/></tr>
+  <tr do='add'><td><b><r:add_btn/></b></td></tr>
+  </table>"
+  res: "/<tr class='btn_add' id='list1_add'><td><b><a href='#' onclick/"
+
+translate_id_to_zip:
+  src: "<b do='hot_id'/><i do='parent_id'/>"
+  tem: "<b><%= @node.rel[\"hot\"].try(:other_zip) %></b><i><%= @node.parent_zip %></i>"
+
+select_class_existing_node:
+  context:
+    node: 'letter'
+  src: "<r:form><select name='klass' root_class='Note' selected='Post'/></r:form>"
+  res: "/<select name=.node\[klass\].><option value=\"Note\">Note<\/option>\n<option value=\"Letter\" selected=\"selected\">  Letter<\/option>\n<option value=\"Post\">  Post<\/option><\/select>/"
+
+select_class_new_node:
+  src: "<r:pages><r:each/><r:add/><r:form><select name='klass' root_class='Note' selected='Post'/></r:form>"
+  res: "/<select.*name=.node\[klass\].*Note.*Letter.*Post. selected=.selected./"
+
+select_nodes:
+  src: "<r:form><select nodes='images in site' name='foo'></select></r:form>"
+  res: "/name='node\[foo\]'><option value=\"\" selected=\"selected\"></option>\n<option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
+
+do_not_set_parent_id_if_form_contains_parent_id:
+  src: "<r:children><r:each do='node_name'/><r:add/><r:form><r:select name='parent_id' nodes='projects in site'/><input name='title'/></r:form></r:children>"
+  res: "!/node\[parent_id\].\s+value/"
+
+select_nodes_selected:
+  src: "<r:form><select name='parent_id' nodes='projects in site'/></r:form>"
+  res: "/option\s* value=.21.\s* selected=.selected.>cleanWater/"
+
+select_nodes_in_ajax:
+  src: "<r:pages><r:each do='node_name'/><r:add/><r:form><r:select nodes='images in site' name='d_ref'/></r:form></r:pages>"
+  res: "/name=.node\[d_ref\].><option value=\"\" selected=\"selected\"></option>\n<option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
+
+select_nodes_show_attr:
+  src: "<r:form><r:select name='d_ref' nodes='images in site' attr='ext' show='title'/></r:form>"
+  res: "/name=.node\[d_ref\].>.*<option value=\"jpg\">flower</option>\n<option value=\"jpg\">it's a lake</option>/"
+
+select_nodes_data_list:
+  context:
+    node: status
+  src: "<r:data><r:each><r:form><select nodes='projects in site' name='node_a_id'/></r:form></r:each></r:data>"
+  res: "/option\s* value=.29.\s* selected=.selected.>wiki/"
+
+select_time_zone:
+  src: "<r:form><r:select type='time_zone' name='d_tz'/></r:form>"
+  res: "/Asia/Jakarta.*Europe/Zurich.*US/Hawai"
+
+select_values_tshow:
+  src: "<r:select name='origin' values='1,2,3' tshow='en,fr,de'/>"
+  res: "/option value=.1.>english.*option value=.2.>french/"
+
+form_publish:
+  src: "<r:form publish='true'><r:select name='origin' values='bar,baz'/></r:form>"
+  res: "/div.*name=.node\[v_status\]. value=.50.\/>.*<\/div>/"
+
+checkbox:
+  context:
+    node: 'opening'
+  src: "<r:checkbox role='calendar' values='11'/>"
+  res: "/input type='checkbox' name='node\[calendar_ids\]\[\]' value='11' checked='checked'.*zena.*hidden.*node\[calendar_ids\]\[\]' value=''/"
+
+checkbox_finder:
+  context:
+    node: 'opening'
+  src: "<r:checkbox role='calendar' values='projects in site'/>"
+  res: "/value=.21.*cleanWater.*input type=.checkbox. name=.node\[calendar_ids\]\[\]. value=.29. checked=.checked.*wiki/"
+
+checkbox_checked_value:
+  src: "<r:input type='checkbox' name='tagged[sky]'/>"
+  res: "<input name='node[tagged][sky]' type='checkbox' value='sky' checked='checked'/>"
+
+checkbox_unchecked_value:
+  src: "<r:input type='checkbox' name='tagged[foo]'/>"
+  tem: "/@node.tagged\\[\"foo\"\\] == \"foo\"/"
+
+input_set_value:
+  src: "<r:input type='hidden' name='icon_id' value='#{main.id}'/>"
+  tem: "/@node.zip/"
+  res: "<input type='hidden' name='node[icon_id]' value='22'/>"
+
+input:
+  context:
+    node: 'ant'
+  src: "<r:Contact><r:input name='first_name'/></r:Contact>"
+  tem: "<% if @node.kpath_match?('NRC') %><input type='text' name='node[first_name]' value=\"<%= fquote @node.prop['first_name'] %>\"/><% end -%>"
+  res: "<input type='text' name='node[first_name]' value=\"Solenopsis\"/>"
+
+input_style:
+  src: "<r:input style='display:none;' type='submit'/>"
+  res: "<input type='submit' style='display:none;'/>"
+
+textarea:
+  context:
+    node: 'ant'
+  src: "<r:Contact do='textarea' name='first_name'/>"
+  res: "<textarea name='node[first_name]'>Solenopsis</textarea>"
+
+textarea_with_blocks:
+  context:
+    node: 'ant'
+  src: "<r:Contact do='textarea' name='first_name'>Sir <r:show attr='first_name'/></r:Contact>"
+  tem: "/<textarea name='node\[first_name\]'>Sir <%= @node.prop\['first_name'\] %></textarea>/"
+  res: "<textarea name='node[first_name]'>Sir Solenopsis</textarea>"
+
+input_new:
+  context:
+    node: 'ant'
+  src: "<r:contacts><r:each/><r:form><r:input name='first_name'/></r:form><r:add/></r:contacts>"
+  res: "/name='node[first_name]' id='list1_first_name'/"

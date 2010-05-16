@@ -138,6 +138,10 @@ link_href_string_with_anchor:
   src: "<r:link href='\"yop\"' anchor='zoom'>"
   res: "<a href='yop#zoom'>status title</a>"
 
+link_href_node:
+  src: "<r:link href='find(30)'/>"
+  res: "<a href='/oo/image30.html'>status title</a>"
+
 link_date:
   context:
     ref_date: '2008-06-27'

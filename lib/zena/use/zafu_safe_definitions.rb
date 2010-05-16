@@ -8,10 +8,9 @@ module Zena
 
       module ViewMethods
         include RubyLess
-        safe_method [:params] => ParamsDictionary
+        safe_method :params => ParamsDictionary
         safe_method_for String, [:gsub, Regexp, String] => {:class => String, :pre_processor => true}
         safe_method_for String, :upcase => {:class => String, :pre_processor => true}
-        safe_method_for Time, :year => {:class => Number, :pre_processor => true}
       end
     end
   end

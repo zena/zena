@@ -274,22 +274,23 @@ module Zena
         end
 
         private
-          # Return the node_context to use in zafu compilation from the current controller and action
+          # Return the node_context to use in zafu compilation from the current controller and action.
+          # FIXME: Use information on template target_class to get class !
           def get_node_context
             if self.class.to_s =~ /\A([A-Z]\w+?)s?[A-Z]/
               ivar = "@#{$1.downcase}"
               if var = self.instance_variable_get(ivar.to_sym)
                 name  = ivar
-                klass = var.class
+                klass = Zena::Acts::Enrollable.make_class(var.class)
               elsif var = self.instance_variable_get(ivar + 's')
                 name = ivar + 's'
-                klass = [var.first.class]
+                klass = [Zena::Acts::Enrollable.make_class(var.first.class)]
               end
               return Zafu::NodeContext.new(name, klass) if name
             end
 
             if defined?(@node)
-              return Zafu::NodeContext.new('@node', @node.class)
+              return Zafu::NodeContext.new('@node', Zena::Acts::Enrollable.make_class(Node))
             else
               raise Exception.new("Could not guess node context from request parameters, please add something like \"zafu_node('@var_name', Page)\" in your action.")
             end

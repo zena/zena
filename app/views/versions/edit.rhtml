@@ -18,7 +18,7 @@
     <div>
       <input name='save' onclick="return Zena.save('<%= save_text_node_path(:id => @node[:zip]) %>',this.form,false);" type='button' value='<%= _('save') %>' />
     </div>
-    <div><a href='#' onclick='uploader=window.open("<%= new_document_path(:parent_id=>@node[:zip])%>", "uploader", "location=1,width=400,height=300");uploader.opener = opener;return false;'><%= _('btn_add_document')%></a></div>
+    <div><%= node_action_link('add_doc', @node) %></div>
     <% if @node.full_drive? && !visitor.site.auto_publish? %><div><small><input type='checkbox' name='node[v_backup]' value='true'/> <%= _('bak') %></small> <small><input type='checkbox' name='node[v_status]' value='50'<%= params[:pub] ? " checked='checked'" : '' %>/> <%= _('pub') %></small></div><% end -%>
   </div>
   <div class='readers'>

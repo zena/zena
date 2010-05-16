@@ -4,9 +4,12 @@ module Zena
       module Common
 
         # This is like strftime but with better support for i18n (translate day names, month abbreviations, etc)
-        def format_date(thedate, theformat = nil, tz_name=nil, lang = nil)
+        def format_date(thedate, opts = {})
+          return '' unless thedate
+
+          theformat, tz_name, lang = opts[:format], opts[:tz], opts[:lang]
           format = theformat || '%Y-%m-%d %H:%M:%S'
-          return "" unless thedate
+
           if tz_name
             # display time local to event's timezone
             begin
@@ -144,6 +147,11 @@ module Zena
           # .to_utc(_('datetime'), visitor.tz)
           @main_date ||= params[:date] ? DateTime.parse(params[:date]) : DateTime.now
         end
+
+        def parse_date(string)
+          return nil unless string
+          DateTime.parse(string) rescue nil
+        end
       end # ViewMethods
 
       module AddParseDateAttributeMethod
@@ -238,15 +246,16 @@ module Zena
 
       module ZafuMethods
         include RubyLess
-        safe_method :date => :get_date
+        safe_method_for Time, :year       => {:class => Number, :pre_processor => true}
+        safe_method_for Time, [:strftime, String] => {:class => String, :pre_processor => true}
+        safe_method :date                 => :get_date
+        safe_method [:parse_date, String] => {:class => Time, :nil => true, :accept_nil => true}
 
-        def get_date(signature = nil)
-          # TODO: replace @context[:date] with get_context_var('set_var', 'date')
-          # We could then remove <r:date select='...'/>
-          if method = @context[:date]
-            {:method => method, :class => Time, :nil => method.could_be_nil?}
+        def get_date(signature)
+          if var = get_context_var('set_var', 'date')
+            {:class => var.klass, :method => var, :nil => var.could_be_nil?}
           else
-            {:method => 'main_date', :class => Time}
+            {:class => Time, :method => 'main_date'}
           end
         end
 
@@ -268,25 +277,9 @@ EOL
         end
 
         # Select a date for the current context
-        def r_date
-          select = @params[:select]
-          case select
-          when 'main'
-            expand_with(:date=>'main_date')
-          when 'now'
-            expand_with(:date=>'Time.now')
-          else
-            if res = RubyLess.translate(select, self)
-              if res.klass.ancestors.include?(Time)
-                out expand_with(:date => res)
-              else
-                parser_error("'#{res}' is not a Time (found #{res.klass})")
-              end
-            else
-              parser_error("Invalid 'select' parameter '#{select}'")
-            end
-          end
-        end
+        # def r_date
+        #   set_context_var('set_var', 'date', get_attribute_or_eval)
+        # end
 
       end
     end # Dates

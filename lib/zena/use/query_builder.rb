@@ -1,6 +1,12 @@
 module Zena
   module Use
     module QueryBuilder
+      module ViewMethods
+        def find_node_by_zip(zip)
+          return nil unless zip
+          secure(Node) { Node.find_by_zip(zip) }
+        end
+      end # ViewMethods
 
       # 1. try Zafu
       #   <r:images in='site'>
@@ -10,17 +16,31 @@ module Zena
       #
       # 3. helper (view) tries to resolve safe_method_type as RubyLess or PseudoSQL
       module ZafuMethods
+        include RubyLess
+        # The :class argument in this method is only used when the String is not a literal value
+        safe_method [:find, String] => {:method => 'nil', :pre_processor => :get_finder_type, :class => NilClass}
+        safe_method [:find, Number] => {:method => :find_node_by_zip, :class => Node, :nil => true, :accept_nil => true}
 
         def self.included(base)
           base.process_unknown :querybuilder_eval
+        end
+
+        # Pre-processing of the 'find("...")' method.
+        def get_finder_type(string)
+          finder = build_finder(:first, string, {})
+          TypedString.new(finder.delete(:method), finder)
         end
 
         # Resolve unknown methods by trying to build a pseudo-sql query with QueryBuilder.
         def querybuilder_eval(method = @method)
           return nil if node.klass.kind_of?(Array) # list context
 
-          count  = get_count(method, @params)
-          finder = build_finder(count, method, @params)
+          if method =~ /^\d+$/
+            finder = {:method => "find_node_by_zip(#{method})", :class => Node, :nil => true}
+          else
+            count  = get_count(method, @params)
+            finder = build_finder(count, method, @params)
+          end
 
           expand_with_finder(finder)
           true
@@ -30,7 +50,7 @@ module Zena
 
         # Select the most pertinent error between RubyLess processing errors and QueryBuilder errors.
         def show_errors
-          if @method =~ / in / || ([:in, :where, :or, :limit, :order] & @params.keys != [])
+          if @method =~ / in / || ([:find, :in, :where, :or, :limit, :order] & @params.keys != [])
             # probably a query
             @errors.detect {|e| e =~ /Syntax/} || @errors.last
           else
@@ -78,7 +98,15 @@ module Zena
               @node_name = node.get(Node).name
             end
 
-            query = node.klass.build_query(count.to_sym, pseudo_sql, :node_name => @node_name, :raw_filters => raw_filters, :rubyless_helper => self)
+            query_opts = {
+              :node_name            => @node_name,
+              :raw_filters          => raw_filters,
+              :rubyless_helper      => self,
+              :link_both_directions => @params[:direction] == 'both',
+            }
+
+
+            query = node.klass.build_query(count.to_sym, pseudo_sql, query_opts)
             klass = query.main_class
 
 
@@ -265,13 +293,13 @@ module Zena
             [:updated, :created, :event, :log].each do |k|
               if value = params[k]
                 # current, same are synonym for 'today'
-                filters << Zena::Db.date_condition(value,"TABLE_NAME.#{k}_at", get_date)
+                filters << Zena::Db.date_condition(value,"TABLE_NAME.#{k}_at", get_context_var('set_var', 'date') || RubyLess::TypedString('main_date', Time))
               end
             end
 
             filters == [] ? nil : filters
           end
-      end # ViewMethods
+      end # ZafuMethods
     end # QueryBuilder
   end # Use
 end # Zena

@@ -301,18 +301,11 @@ module Zena
             else
               # Not a core context, try to filter by class type
               if klass = Node.get_class(relation)
-                if klass.kind_of?(Class)
-                  res_class = Class.new(klass)
-                else
-                  res_class = Class.new(klass.real_class)
-                  res_class.kpath = klass.kpath
-                end
-
-                res_class.load_roles!
+                res_class = Zena::Acts::Enrollable.make_class(klass)
                 set_main_class(res_class)
 
                 add_table(main_table)
-                add_filter "#{table}.kpath LIKE #{quote("#{klass.kpath}%")}" unless klass.kpath == 'N'
+                add_filter "#{table}.kpath LIKE #{quote("#{res_class.kpath}%")}" unless res_class.kpath == 'N'
                 true
               else
                 # unknown class
@@ -327,18 +320,25 @@ module Zena
               add_table(main_table)
               add_table('links')
 
-              # source --> target
               if context[:scope] == 'site'
                 # Example: 'tagged in site' ==> any node with a 'tagged' relation (no need to
                 # filter by source).
                 distinct!
                 add_filter "#{table('links')}.relation_id = #{rel.id}"
                 add_filter "#{field_or_attr('id')} = #{table('links')}.#{rel.other_side}"
+              elsif @opts[:link_both_directions]
+                # source --> target && target --> source
+                add_filter "#{table('links')}.relation_id = #{rel.id}"
+                source = "#{table('links')}.#{rel.link_side} = #{field_or_attr('id', table(main_table,-1))} AND #{field_or_attr('id')} = #{table('links')}.#{rel.other_side}"
+                target = "#{table('links')}.#{rel.other_side} = #{field_or_attr('id', table(main_table,-1))} AND #{field_or_attr('id')} = #{table('links')}.#{rel.link_side}"
+                add_filter "(#{source} OR #{target})"
               else
+                # source --> target
                 add_filter "#{table('links')}.#{rel.link_side} = #{field_or_attr('id', table(main_table,-1))}"
                 add_filter "#{table('links')}.relation_id = #{rel.id}"
                 add_filter "#{field_or_attr('id')} = #{table('links')}.#{rel.other_side}"
               end
+
             else
               nil
             end

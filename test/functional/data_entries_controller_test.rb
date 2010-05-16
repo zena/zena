@@ -15,7 +15,7 @@ class DataEntriesControllerTest < Zena::Controller::TestCase
     assert_equal 'this is a test', dat[:text]
     assert_equal 34, dat.value
     assert_equal Time.utc(2008,05,17,13), dat[:date]
-    assert_equal '17.05.2008 15:00', format_date(dat[:date], '%d.%m.%Y %H:%M')
+    assert_equal '17.05.2008 15:00', format_date(dat[:date], :format => '%d.%m.%Y %H:%M')
     assert_equal nodes_id(:people), dat[:node_b_id]
     assert_equal sites_id(:zena), dat[:site_id]
   end

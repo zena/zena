@@ -1,9 +1,8 @@
 Task_assigned:
-  role:            Task
   ptype:           string
-  name:            assigned
 
-Original_assigned:
-  role:            Original
+Original_origin:
   ptype:           string
-  name:            origin
+
+Original_weight:
+  ptype:           integer

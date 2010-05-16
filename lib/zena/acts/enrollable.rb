@@ -1,6 +1,22 @@
 module Zena
   module Acts
     module Enrollable
+
+      def self.make_class(klass)
+        if klass.kind_of?(VirtualClass)
+          res_class = Class.new(klass.real_class)
+        elsif klass <= Node
+          res_class = Class.new(klass)
+        else
+          return klass
+        end
+
+        res_class.kpath = klass.kpath
+
+        res_class.load_roles!
+        res_class
+      end
+
       module Common
 
         def load_roles!

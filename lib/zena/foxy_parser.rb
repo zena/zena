@@ -772,9 +772,21 @@ module Zena
       end
   end
 
-  class FoxyGroupsUsersParser < FoxyParser
-    attr_reader :nodes
+  class FoxyColumnsParser < FoxyParser
+    private
+      def set_defaults
+        super
+        elements.each do |name, col|
+          if !col['role']
+            col['role'], col['name'] = name.split('_')
+            col[:header_keys] << :role
+            col[:header_keys] << :name
+          end
+        end
+      end
+  end
 
+  class FoxyGroupsUsersParser < FoxyParser
     private
       def set_defaults
         super

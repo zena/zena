@@ -50,7 +50,7 @@ module Zena
 
             id   = "#{current_site.host.gsub('.', '_')}_#{node[:zip]}_#{action}"
 
-            "<a href='#{url}' target='_blank' title='#{_('btn_title_edit')}' onclick=\"editor=Zena.open_window('#{url}', '#{id}', event);return false;\">" +
+            "<a href='#{url}' target='_blank' title='#{_('btn_title_edit')}' onclick=\"Zena.open_window('#{url}', '#{id}', event);return false;\">" +
             _("btn_#{action}") + '</a>'
 
           else

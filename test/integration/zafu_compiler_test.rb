@@ -2,7 +2,8 @@ require 'test_helper'
 
 class ZafuCompilerTest < Zena::Controller::TestCase
 
-  yamltest :directories => [:default, "#{Zena::ROOT}/bricks/**/test/zafu"]
+  yamltest :directories => [:default, "#{Zena::ROOT}/bricks/**/test/zafu"],
+           :files => [:display]
   Section # make sure we load Section links before trying relations
 
   class ZafuDummy
@@ -228,6 +229,7 @@ class ZafuCompilerTest < Zena::Controller::TestCase
   end
 
   def test_relations_direction_both
+    test_site('zena')
     art, projects, status = nodes_id(:art), nodes_id(:projects), nodes_id(:status)
     values = [
       [art,    status,   relations_id(:node_has_references)],
@@ -238,6 +240,7 @@ class ZafuCompilerTest < Zena::Controller::TestCase
   end
 
   def test_relations_direction_both_self_auto_ref
+    test_site('zena')
     art, projects, status = nodes_id(:art), nodes_id(:projects), nodes_id(:status)
     values = [
       [art,    status,   relations_id(:node_has_references)],

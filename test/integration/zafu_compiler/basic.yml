@@ -65,7 +65,7 @@ flash_messages_notice:
 
 show_author_short:
   src: "<div class='subtitle' do='show_author'><b>SI</b> - 05.12</div>"
-  tem: "<div class='subtitle'><b><%= @node.version.author.initials %></b> - <%= format_date(@node.version.updated_at, \"%m.%d\") %></div>"
+  tem: "<div class='subtitle'><b><%= @node.version.author.initials %></b> - <%= format_date(@node.version.updated_at, :format => \"%m.%d\") %></div>"
   res: "<div class='subtitle'><b>SI</b> - 04.11</div>"
 
 show_author_large:
@@ -512,137 +512,6 @@ design_by_options:
   src: "<li do='design' skin='dark' by='vador' href='http://teti.ch'></li>"
   res: "<li><i>dark</i>, design by <a href='http://teti.ch'>vador</a></li>"
 
-select_class_existing_node:
-  context:
-    node: 'letter'
-  src: "<r:form><select name='klass' root_class='Note' selected='Post'/></r:form>"
-  res: "/<select name=.node\[klass\].><option value=\"Note\">Note<\/option>\n<option value=\"Letter\" selected=\"selected\">  Letter<\/option>\n<option value=\"Post\">  Post<\/option><\/select>/"
-
-select_class_new_node:
-  src: "<r:pages><r:each/><r:add/><r:form><select name='klass' root_class='Note' selected='Post'/></r:form>"
-  res: "/<select.*name=.node\[klass\].*Note.*Letter.*Post. selected=.selected./"
-
-select_nodes:
-  src: "<r:form><select nodes='images in site' name='foo'></select></r:form>"
-  res: "/name='node\[foo\]'><option value=\"\" selected=\"selected\"></option>\n<option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
-
-do_not_set_parent_id_if_form_contains_parent_id:
-  src: "<r:children><r:each do='node_name'/><r:add/><r:form><r:select name='parent_id' nodes='projects in site'/><input name='title'/></r:form></r:children>"
-  res: "!/node\[parent_id\].\s+value/"
-
-select_nodes_selected:
-  src: "<r:form><select name='parent_id' nodes='projects in site'/></r:form>"
-  res: "/option\s* value=.21.\s* selected=.selected.>cleanWater/"
-
-select_nodes_in_ajax:
-  src: "<r:pages><r:each do='node_name'/><r:add/><r:form><r:select nodes='images in site' name='d_ref'/></r:form></r:pages>"
-  res: "/name=.node\[d_ref\].><option value=\"\" selected=\"selected\"></option>\n<option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
-
-select_nodes_show_attr:
-  src: "<r:form><r:select name='d_ref' nodes='images in site' attr='ext' show='title'/></r:form>"
-  res: "/name=.node\[d_ref\].>.*<option value=\"jpg\">flower</option>\n<option value=\"jpg\">it's a lake</option>/"
-
-select_nodes_data_list:
-  context:
-    node: status
-  src: "<r:data><r:each><r:form><select nodes='projects in site' name='node_a_id'/></r:form></r:each></r:data>"
-  res: "/option\s* value=.29.\s* selected=.selected.>wiki/"
-
-select_time_zone:
-  src: "<r:form><r:select type='time_zone' name='d_tz'/></r:form>"
-  res: "/Asia/Jakarta.*Europe/Zurich.*US/Hawai"
-
-select_values_tshow:
-  src: "<r:select name='origin' values='1,2,3' tshow='en,fr,de'/>"
-  res: "/option value=.1.>english.*option value=.2.>french/"
-
-form_publish:
-  src: "<r:form publish='true'><r:select name='origin' values='bar,baz'/></r:form>"
-  res: "/div.*name=.node\[v_status\]. value=.50.\/>.*<\/div>/"
-
-checkbox:
-  context:
-    node: 'opening'
-  src: "<r:checkbox role='calendar' values='11'/>"
-  res: "/input type='checkbox' name='node\[calendar_ids\]\[\]' value='11' checked='checked'.*zena.*hidden.*node\[calendar_ids\]\[\]' value=''/"
-
-checkbox_finder:
-  context:
-    node: 'opening'
-  src: "<r:checkbox role='calendar' values='projects in site'/>"
-  res: "/value=.21.*cleanWater.*input type=.checkbox. name=.node\[calendar_ids\]\[\]. value=.29. checked=.checked.*wiki/"
-
-checkbox_checked_value:
-  src: "<r:input type='checkbox' name='tagged[sky]'/>"
-  res: "<input name='node[tagged][sky]' type='checkbox' value='sky' checked='checked'/>"
-
-checkbox_unchecked_value:
-  src: "<r:input type='checkbox' name='tagged[foo]'/>"
-  tem: "/@node.tagged\\[\"foo\"\\] == \"foo\"/"
-
-input_set_value:
-  src: "<r:input type='hidden' name='icon_id' set_value='[main.id]'/>"
-  tem: "<input name='node[icon_id]' type='hidden' value='<%= @node.zip %>'/>"
-  res: "<input name='node[icon_id]' type='hidden' value='22'/>"
-
-input:
-  context:
-    node: 'ant'
-  src: "<r:input name='c_first_name'/>"
-  tem: "<input name='node[c_first_name]' type='text' value='<%= fquote @node.version.safe_content_read(\"first_name\") %>'/>"
-  res: "<input name='node[c_first_name]' type='text' value='Solenopsis'/>"
-
-input_style:
-  src: "<r:input style='display:none;' type='submit'/>"
-  res: "<input style='display:none;' type='submit'/>"
-
-textarea:
-  context:
-    node: 'ant'
-  src: "<r:textarea name='c_first_name'/>"
-  tem: "<textarea name='node[c_first_name]'><%= @node.version.safe_content_read(\"first_name\") %></textarea>"
-  res: "<textarea name='node[c_first_name]'>Solenopsis</textarea>"
-
-textarea_with_blocks:
-  context:
-    node: 'ant'
-  src: "<r:textarea name='c_first_name'>Sir <r:show attr='c_first_name'/></textarea>"
-  tem: "<textarea name='node[c_first_name]'>Sir <%= @node.version.safe_content_read(\"first_name\") %></textarea></textarea>"
-  res: "<textarea name='node[c_first_name]'>Sir Solenopsis</textarea></textarea>"
-
-input_new:
-  context:
-    node: 'ant'
-  src: "<r:contacts><r:each/><r:form><r:input name='c_first_name'/></r:form><r:add/></r:contacts>"
-  res: "!/value=''''/"
-
-add_btn:
-  src: "<table do='pages' in='site' limit='1'>
-  <tr do='each'><td do='node_name'/></tr>
-  <tr do='add'><td><b><r:add_btn/></b></td></tr>
-  </table>"
-  res: "/<tr class='btn_add' id='list1_add'><td><b><a href='#' onclick/"
-
-read_no_content:
-  src: "this is <b do='[c_bad]'/>"
-  res: "this is <b></b>"
-
-read_bad_attribute:
-  src: "this is <b do='[bad]'/>"
-  res: "this is <b>'bad' not readable</b>"
-
-translate_id_to_zip:
-  src: "<b do='[d_empid]'/><i do='[parent_id]'/>"
-  tem: "<b><%= @node.version.prop[\"empid\"] %></b><i><%= @node.parent_zip %></i>"
-
-date:
-  context:
-    visitor: ant
-    node: 'letter'
-    lang: 'fr'
-  src: "<r:date select='[log_at]'>nouvelles de <r:trans do='[current_date]' format='%B'/> <r:show date='current_date' format='%Y'/>: <r:notes in='site' log='month' do='each' join=', ' do='node_name'/></r:date>"
-  res: "nouvelles de avril 2006: letter"
-
 #comments_with_params:
 #  src: "<r:comments order='date desc'><r:each join=', ' do='[title]'/></r:comments>"
 #  tem: "."
@@ -656,7 +525,7 @@ date_tformat:
     node: 'people'
     lang: 'fr'
   src: "<r:show date='created_at' tformat='%d %B %Y'/>"
-  tem: "<%= format_date(@node.created_at, \"%d %B %Y\") %>"
+  tem: "<%= format_date(@node.created_at, :format => \"%d %B %Y\") %>"
   res: "10 mars 2006"
 
 date_tz:
@@ -708,19 +577,22 @@ date_fr:
 date_fr_lang:
   context:
     lang: 'fr'
-  src: "<r:show date='created_at' format='%a' lang='en'/>"
+  old_src: "<r:show date='created_at' format='%a' lang='en'/>"
+  src: "<r:show attr='created_at' format='%a' lang='en'/>"
+  tem: "<%= format_date(@node.created_at, :lang => \"en\", :format => \"%a\") %>"
   res: "Fri"
 
 date_context:
-  src: "<r:date select='2008-03-02'><r:show date='current_date' format='%A %d.%m.%Y'/></r:date>"
-  tem: "<%= format_date(\"2008-03-02\", \"%A %d.%m.%Y\") %>"
+  old_src: "<r:date select='2008-03-02'><r:show date='current_date' format='%A %d.%m.%Y'/></r:date>"
+  src: "<r:show eval='parse_date(\"2008-03-02\")' format='%A %d.%m.%Y'/>"
   res: "Sunday 02.03.2008"
 
 date_from_params:
   context:
     year: 1975
-  src: "<r:date select='[param:year]-01-01'><r:show date='current_date' format='%A %d.%m.%Y'/></r:date>"
-  tem: "<%= format_date(\"#{params[:year]}-01-01\", \"%A %d.%m.%Y\") %>"
+  old_src: "<r:date select='[param:year]-01-01'><r:show date='current_date' format='%A %d.%m.%Y'/></r:date>"
+  src: "<r:show eval='parse_date(\"#{params[:year]}-01-01\")' format='%A %d.%m.%Y'/>"
+  tem: "<%= format_date(parse_date(\"#{params[:year]}-01-01\"), :format => \"%A %d.%m.%Y\") %>"
   res: "Wednesday 01.01.1975"
 
 date_from_params_in_query:

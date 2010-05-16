@@ -25,7 +25,8 @@ module Zena
     end
 
     def test_compile
-      render :text => Zena::ZafuCompiler.new_with_url(@test_url, :helper => zafu_helper).to_erb(:dev => params['dev'], :node => Zafu::NodeContext.new('@node', Node))
+      klass = Zena::Acts::Enrollable.make_class(Node)
+      render :text => Zena::ZafuCompiler.new_with_url(@test_url, :helper => zafu_helper).to_erb(:dev => params['dev'], :node => Zafu::NodeContext.new('@node', klass))
     rescue => err
       render :text => ([err.message] + err.backtrace[0..4]).join("    \n").tap {|x| puts x}
     end

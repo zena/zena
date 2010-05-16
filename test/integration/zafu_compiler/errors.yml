@@ -61,3 +61,11 @@ not_finished_block:
 missing_template:
   src: "<r:include template='Foo'/>"
   tem: "<span class='parser_error'>[include] template 'missing/Foo' not found</span>"
+
+bad_attribute:
+  src: "this is <b do='show' attr='bad'/>"
+  res: "/unknown method 'bad\(\)' for '@node' of type Node./"
+
+show_bad_attr:
+  src: "my <r:show attr=':name'/>"
+  tem: "/parse error on value \"name\" \(tSYMBOL\)/"

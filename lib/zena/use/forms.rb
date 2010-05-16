@@ -183,8 +183,7 @@ END_TXT
         end
 
         def r_textarea
-          out make_textarea(@html_tag_params.merge(@params))
-          @html_tag_done = true
+          out make_textarea(@markup.params.merge(@params))
         end
 
         # <r:select name='klass' root_class='...'/>
@@ -321,10 +320,11 @@ END_TXT
         #
 
         # Parse params to extract everything that is relevant to building input fields.
-        # TODO: refactor
+        # TODO: refactor and pass the @markup so that attributes are added directly
         def get_input_params(params = @params)
-          res = {}
-          if res[:name] = (params[:name] || params[:date])
+          res = Zafu::OrderedHash.new
+          if name = (params[:name] || params[:date])
+            res[:name] = name
             #if res[:name] =~ /\A([\w_]+)\[(.*?)\]/
             #  attribute, sub_attr = $1, $2
             #else
@@ -344,8 +344,16 @@ END_TXT
             #    nattr = "#{nattr}[#{sub_attr.inspect}]"
             #  end
             #else
-            if type = node.klass.safe_method_type([attribute.to_sym])
-              res[:value] = "<%= fquote #{type[:method]} %>"
+            if value = params[:value]
+              # On refactor, use append_markup_attr(markup, key, value)
+              value = ::RubyLess.translate_string(value, self)
+              if value.literal
+                res[:value] = value.literal.to_s.gsub("'",'&apos;')
+              else
+                res[:value] = "<%= fquote #{value} %>"
+              end
+            elsif type = node.klass.safe_method_type([attribute])
+              res[:value] = "<%= fquote #{node}.#{type[:method]} %>"
             end
             #end
 
@@ -383,8 +391,9 @@ END_TXT
             end
           end
 
-          [:size, :style, :class].each do |k|
-            res[k] = params[k] if params[k]
+          params.each do |k, v|
+            next unless [:size, :style, :class].include?(k)
+            res[k] = params[k]
           end
 
           return [res, attribute]
@@ -502,7 +511,7 @@ END_TXT
             else
               value = expand_with
             end
-            html_id = @context[:dom_prefix] ? " id='#{erb_dom_id}_#{attribute}'" : ''
+            html_id = node.dom_prefix ? " id='#{node.dom_prefix}_#{attribute}'" : ''
             "<textarea#{html_id} name='#{name}'>#{value}</textarea>"
           end
 

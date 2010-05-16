@@ -19,11 +19,9 @@ forbidden_methods:
   src: "<r:eval>eval '\'bad\''</r:eval>"
   tem: "/unknown method 'eval\(String\)'/"
 
-#----------- fixed up to here
-
 syntax_error:
-  src: "<r:date select='<% puts \"mean\" %>'/>"
-  res: "<span class='parser_error'><span class='method'>date: <span class='message'>\nparse error on value \"<\" (tLT)</span></span>"
+  src: "<r:show eval='<% puts \"mean\" %>'/>"
+  res: "/parse error on value \"<\"/"
 
 mean_eval:
   src: "<r:show eval='puts \"bad\"'/>"

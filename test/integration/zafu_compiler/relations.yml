@@ -314,7 +314,7 @@ direction_both_self_auto_ref:
   res: "art, projects, status"
 
 direction_both_else:
-  src: "<r:references direction='both' else='parent' do='each' join=', ' do='node_name'/>"
+  src: "<r:references direction='both' else='[parent]' do='each' join=', ' do='node_name'/>"
   res: "cleanWater"
 
 visitor_node:
@@ -437,3 +437,11 @@ comments_previous_node:
 comments_in_site_node:
   src: "<r:comments from='nodes in site' order='created_at desc' limit='2' do='each' join=', '><r:node do='node_name'/>: <r:show attr='title'/></r:comments>"
   res: "status: re: What about rivers ?, status: What about rivers ?"
+
+find_by_zip:
+  src: "<r:context select='30' do='img'/>"
+  res: '/image30_std.jpg/'
+
+find_by_zip:
+  src: "<div do='find(30)' do='img'/>"
+  res: '/image30_std.jpg/'

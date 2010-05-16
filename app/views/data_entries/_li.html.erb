@@ -1,5 +1,5 @@
 <tr id='data_entry<%= li[:id] %>'>
-  <td class='date'> <%= format_date(li.date, _('datetime')) %></td>
+  <td class='date'> <%= format_date(li.date, :format =>_('datetime')) %></td>
   <td class='text'> <%= li.text %></td>
   <td class='value'><%= li.value %></td>
   <td class='node'><%= li.node ? li.node.name : ''%></td>

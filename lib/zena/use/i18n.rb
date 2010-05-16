@@ -5,139 +5,40 @@ module Zena
     module I18n
       ::ENV['LANG'] = 'C'
 
-      module Common
-
-        def format_date(thedate, theformat = nil, tz_name=nil, lang=visitor.lang)
-          format = theformat || '%Y-%m-%d %H:%M:%S'
-          return "" unless thedate
-          if tz_name
-            # display time local to event's timezone
-            begin
-              tz = TZInfo::Timezone.get(tz_name)
-            rescue TZInfo::InvalidTimezoneIdentifier
-              return "<span class='parser_error'>invalid timezone #{tz_name.inspect}</span>"
-            end
-          else
-            tz = visitor.tz
-          end
-          if thedate.kind_of?(Time)
-            utc_date = thedate
-            adate = tz.utc_to_local(thedate)
-          elsif thedate.kind_of?(String)
-            begin
-              adate    = Date.parse(thedate)
-              utc_date = adate
-
-            rescue
-              # only return error if there is a format (without = used in sql query)
-              return theformat ? "<span class='parser_error'>invalid date #{thedate.inspect}</span>" : Time.now.strftime('%Y-%m-%d %H:%M:%S')
-            end
-          else
-            adate    = thedate
-            utc_date = adate
-          end
-
-          # TODO: REFACTOR TO something like:
-          # with_locale(lang) do
-          # ...
-          # end
-          if visitor.lang != lang
-            ::I18n.locale = lang
-          end
-
-          if format =~ /^age\/?(.*)$/
-            format = $1.blank? ? _('long_date') : $1
-            # how long ago/in how long is the date
-            # FIXME: when using 'age', set expire_at (+1 minute, +1 hour, +1 day, never)
-            age = (Time.now.utc - utc_date) / 60
-
-            if age > 7 * 24 * 60
-              # far in the past, use strftime
-            elsif age >= 2 * 24 * 60
-              # days
-              return _("%{d} days ago") % {:d => (age/(24*60)).floor}
-            elsif age >= 24 * 60
-              # days
-              return _("yesterday")
-            elsif age >= 2 * 60
-              # hours
-              return _("%{h} hours ago") % {:h => (age/60).floor}
-            elsif age >= 60
-              return _("1 hour ago")
-            elsif age > 2
-              # minutes
-              return _("%{m} minutes ago") % {:m => age.floor}
-            elsif age > 0
-              return _("1 minute ago")
-            elsif age >= -1
-              return _("in 1 minute")
-            elsif age > -60
-              return _("in %{m} minutes") % {:m => -age.ceil}
-            elsif age > -2 * 60
-              return _("in 1 hour")
-            elsif age > -24 * 60
-              return _("in %{h} hours") % {:h => -(age/60).ceil}
-            elsif age > -2 * 24 * 60
-              return _("tomorrow")
-            elsif age > -7 * 24 * 60
-              return _("in %{d} days") % {:d => -(age/(24*60)).ceil}
-            else
-              # too far in the future, use strftime
-            end
-          end
-
-          # month name
-          format = format.gsub("%b", _(adate.strftime("%b")) )
-          format.gsub!("%B", _(adate.strftime("%B")) )
-
-          # weekday name
-          format.gsub!("%a", _(adate.strftime("%a")) )
-          format.gsub!("%A", _(adate.strftime("%A")) )
-
-          if visitor.lang != lang
-            ::I18n.locale = visitor.lang
-          end
-
-          adate.strftime(format)
-        end
-
-      end # Common
-
       module FormatDate
 
         # display the time with the format provided by the translation of 'long_time'
         def long_time(atime)
-          format_date(atime, _("long_time"))
+          format_date(atime, :format => _("long_time"))
         end
 
         # display the time with the format provided by the translation of 'short_time'
         def short_time(atime)
-          format_date(atime, _("short_time"))
+          format_date(atime, :format => _("short_time"))
         end
 
         # display the time with the format provided by the translation of 'full_date'
         def full_date(adate)
-          format_date(adate, _("full_date"))
+          format_date(adate, :format => _("full_date"))
         end
 
         # display the time with the format provided by the translation of 'long_date'
         def long_date(adate)
-          format_date(adate, _("long_date"))
+          format_date(adate, :format => _("long_date"))
         end
 
         # display the time with the format provided by the translation of 'short_date'
         def short_date(adate)
-          format_date(adate, _("short_date"))
+          format_date(adate, :format => _("short_date"))
         end
 
         # format a date with the given format. Translate month and day names.
         def tformat_date(thedate, fmt)
-          format_date(thedate, _(fmt))
+          format_date(thedate, :format => _(fmt))
         end
       end
 
       module ControllerMethods
-        include Common
 
         def self.included(base)
           FastGettext.add_text_domain 'zena', :path => "#{Zena::ROOT}/locale"
@@ -236,7 +137,6 @@ module Zena
           base.send(:alias_method_chain, :will_paginate, :i18n) if base.respond_to?(:will_paginate)
         end
 
-        include Common
         include FormatDate
 
         # Enable translations for will_paginate
@@ -333,7 +233,7 @@ module Zena
           return nil unless method = get_attribute_or_eval
           klass = method.klass
           return parser_error("Cannot translate a '#{klass}'.") unless klass <= String
-          
+
           if method.literal
             helper.send(:_, method.literal)
           else

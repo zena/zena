@@ -30,12 +30,12 @@ show_title_link_http:
 
 show_title_link_attribute:
   old_src: "<r:title link='http://[name].com'/>"
-  src: "<a href='http://#{name}.com' do='title'/>"
+  src: "<a href='http://#{node_name}.com' do='title'/>"
   res: "<a href='http://status.com'>status title</a>"
 
 show_title_link_id:
   old_src: "<r:title link='32'/>"
-  src: "<r:link href='32' do='title' live='true'/>"
+  src: "<r:link href='node where id eq 32 in site' do='title' live='true'/>"
   res: "<a href='/oo/page32.html'><span id='_title22'>status title</span></a>"
 
 show_title_in_list:
@@ -87,14 +87,14 @@ show_format_nil:
   context:
     node: 'bird_jpg'
   old_src: "<b do='[d_id]' format='%.2f'/>"
-  src: "<r:Image><b do='#{size}' format='%.2f'/></r:Image>"
+  src: "<b do='#{weight}' format='%.2f'/>"
   res: "<b>0.00</b>"
 
 show_format_hide_zero:
   context:
     node: 'bird_jpg'
   old_src: "<b do='[d_id]' format='%.2f' zero='hide'/>"
-  src: "<r:Image><b do='#{size}' format='%.2f' zero='hide'/></r:Image>"
+  src: "<b do='#{weight}' format='%.2f' zero='hide'/>"
   res: "<b></b>"
 
 show_edit_preview:
@@ -129,10 +129,6 @@ zazen:
   tem: "<%= zazen(@node.prop['title'], :node => @node) %>"
   res: "<p>status title</p>"
 
-show_bad_attr:
-  src: "my <r:show attr=':name'/>"
-  tem: "my <span class='parser_error'><span class='method'>show</span> Unknown attribute ':name'.</span>"
-
 show_name:
   src: "my <r:show attr='node_name'/>"
   res: "my status"
@@ -151,14 +147,14 @@ show_width:
 
 show_else:
   old_src: "<r:show attr='comment' else='name'/>"
-  src: "<r:show eval='comment || name'/>"
-  tem: "<%= (@node.prop['comment'] or @node.name).to_s %>"
+  src: "<r:show eval='comment || node_name'/>"
+  tem: "<%= (@node.prop['comment'] or @node.node_name) %>"
   res: "status"
 
 show_default:
   old_src: "<r:show attr='d_foo' default='baz'/>"
   src: "<r:show eval='origin || \"baz\"'/>"
-  tem: "<%= (@node.prop['origin'] or \"baz\").to_s %>"
+  tem: "<%= (@node.prop['origin'] or \"baz\") %>"
   res: "baz"
 
 javascripts:
@@ -184,13 +180,14 @@ defined_icon:
 
 add_document:
   src: "<r:add_document/>"
-  res: "/<a href='/documents/new\?parent_id=22' onclick='uploader=window.open\(\"/documents/new\?parent_id=22.*images/picture_add.png/"
+  tem: "/node_action_link\('add_doc', @node\)/"
+  res: "/Zena.open_window/"
 
 cannot_add_document:
   context:
     visitor: 'anon'
   src: "<r:add_document/>"
-  res: ""
+  res: ''
 
 img_no_image:
   src: "<r:img/>"
@@ -225,19 +222,23 @@ img_image_not_public:
 img_href:
   context:
     node: 'bird_jpg'
-  src: "<r:img link='self'/>"
+  src: "<r:img link='this'/>"
   res: "<a href='/oo/image30.html'><img src='/en/image30_std.jpg?929831698949' width='440' height='400' alt='bird' class='std'/></a>"
 
 img_src_id:
-  src: "<r:img src='30'/>"
+  src: "<r:img src='find(30)'/>"
   res: "<img src='/en/image30_std.jpg?929831698949' width='440' height='400' alt='bird' class='std'/>"
 
+img_src_finder:
+  src: "<r:img src='find(\"icon from project\")'/>"
+  res: "/image24_std.jpg/"
+
 img_src_mode:
-  src: "<r:img src='30' mode='pv'/>"
+  src: "<r:img src='find(30)' mode='pv'/>"
   res: "<img src='/en/image30_pv.jpg?967816914293' width='70' height='70' alt='bird' class='pv'/>"
 
 img_html_params:
-  src: "<r:img src='30' id='super'/>"
+  src: "<r:img src='find(30)' id='super'/>"
   res: "<img src='/en/image30_std.jpg?929831698949' width='440' height='400' alt='bird' id='super' class='std'/>"
 
 zena:

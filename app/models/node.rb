@@ -204,7 +204,7 @@ class Node < ActiveRecord::Base
   safe_method        :v => {:class => 'Version', :method => 'version'},
                      :version => 'Version', :v_status => Number, :v_lang => String,
                      :v_publish_from => Time, :v_backup => Boolean,
-                     :zip => Number
+                     :zip => Number, :parent_id => {:class => Number, :nil => true, :method => 'parent_zip'}
 
   extend  Zena::Acts::SecureNode
   acts_as_secure_node
@@ -767,11 +767,13 @@ class Node < ActiveRecord::Base
         # if model_names = nested_model_names_for_alias(method)
         #   # ...
         # end
-        if method =~ /^(.+)_((id|zip|status|comment)(s?))\Z/ && !instance_methods.include?(method)
+        if type = RubyLess::SafeClass.safe_method_type_for(self, signature)
+          type
+        elsif method =~ /^(.+)_((id|zip|status|comment)(s?))\Z/ && !instance_methods.include?(method)
           key = $3 == 'id' ? "zip#{$4}" : $2
           {:method => "rel[#{$1.inspect}].try(:other_#{key})", :nil => true, :class => ($4.blank? ? Number : [Number])}
         else
-          RubyLess::SafeClass.safe_method_type_for(self, signature)
+          nil
         end
       end
     end

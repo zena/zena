@@ -98,7 +98,7 @@ module Zena
                 # Do not overwrite id or use span if we have post content (actions) that would disappear on live update.
                 "<#{tag} id='#{erb_id}'>#{text}</#{tag}>"
               else
-                @markup.tag = tag
+                @markup.tag ||= tag
                 @markup.set_dyn_param(:id, erb_id)
                 text
               end
