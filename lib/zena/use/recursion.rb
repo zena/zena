@@ -31,7 +31,24 @@ module Zena
               # We are called by a descendant, create method
               proc_name = template_url(node).gsub(/[^\w]/,'_')
               deb proc_name
-              set_context_var('recursion', @name, {:proc_name => proc_name, :klass => node.klass})
+
+              if node.klass.kind_of?(Array)
+                if node.klass.first.name.blank?
+                  # Skip current anonymous class
+                  klass = [node.klass.first.superclass]
+                else
+                  klass = node.klass
+                end
+              else
+                if node.klass.name.blank?
+                  # Skip current anonymous class
+                  klass = node.klass.superclass
+                else
+                  klass = node.klass
+                end
+              end
+
+              set_context_var('recursion', @name, {:proc_name => proc_name, :klass => klass})
               out "<% #{proc_name} = Proc.new do |depth, node| %>"
               out "<% next if depth > #{inc.params[:depth] ? [inc.params[:depth].to_i,30].min : 5} -%>"
               @recursion_call = "<% end -%><% #{proc_name}.call(0,#{node}) %>"

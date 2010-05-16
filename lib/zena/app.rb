@@ -35,6 +35,7 @@ module Zena
         helper  Zena::Use::Context::ViewMethods
         helper  Zena::Use::Action::ViewMethods
         helper  Zena::Use::QueryBuilder::ViewMethods
+        helper  Zena::Use::Forms::ViewMethods
 
         helper  Zena::Use::Zazen::ViewMethods
 

@@ -37,7 +37,7 @@ do_not_set_parent_id_if_form_contains_parent_id:
   res: "!/node\[parent_id\].\s+value/"
 
 select_nodes_selected:
-  src: "<r:form><select name='parent_id' nodes='projects in site'/></r:form>"
+  src: "<r:form><select name='parent_id' values='projects in site'/></r:form>"
   res: "/option\s* value=.21.\s* selected=.selected.>cleanWater/"
 
 select_nodes_in_ajax:

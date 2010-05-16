@@ -787,6 +787,10 @@ class Node < ActiveRecord::Base
       end
     end
 
+    # Seeing all the columns of the Node class on every inspect does not help at all.
+    def inspect
+      to_s
+    end
 
     def auto_create_discussion
       false

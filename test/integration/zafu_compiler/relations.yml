@@ -299,11 +299,12 @@ visitor_favorites:
 
 checkbox:
   src: "<r:checkbox role='hot_for' values='projects' in='site'/>"
-  res: "/<input type='checkbox' name='node\[hot_for_ids\]\[\]' value='21' checked='checked'\/> cleanWater/"
+  res: "/<input type='checkbox' name='node\[hot_for_ids\]\[\]' value='21' checked='checked'\/> Clean Water project/"
 
 checkbox_unique:
   src: "<r:checkbox role='icon' values='images' in='site'/>"
-  res: "/<input type='radio' name='node\[icon_id\]' value='30'\/> bird"
+  tem: '/make_checkbox/'
+  res: "/<input type='radio' name='node\[icon_id\]' value='30'/> bird/"
 
 direction_both:
   src: "<r:references or='reference_for' do='each' join=', ' do='node_name'/>"
@@ -343,8 +344,8 @@ else:
   res: "status"
 
 incompatible_else:
-  src: "<r:nodes where='node_name = 1' in='site' else='this' do='each' join=',' do='node_name'/>"
-  tem: "/\(Node\).*finder \(\[Node\]\)/"
+  src: "<r:letters where='node_name = 1' in='site' else='this' do='each' join=',' do='node_name'/>"
+  tem: "/\(Node\).*finder \(\[Letter\]\)/"
 
 where_not:
   context:
@@ -417,8 +418,9 @@ nodes_in_site_group_by_year:
 comments_order_desc:
   context:
     visitor: ant
+    #  tz='UTC'
   src: "<r:comments order='created_at desc'><r:each join=', '><r:show date='created_at' format='%Y-%m-%d'/>:<b do='[title]'/></r:each></r:comments>"
-  res: "2008-05-21:<b>re: What about rivers ?</b>, 2006-12-20:<b>What about rivers ?</b>, 2006-12-19:<b>Nice site</b>"
+  res: "2008-05-21:<b>re: What about rivers ?</b>, 2006-12-20:<b>What about rivers ?</b>, 2006-12-20:<b>Nice site</b>"
 
 comments_where_title:
   src: "<r:comments where='title like \"%rivers%\"'><r:each join=', '><r:show date='created_at' format='%Y-%m-%d'/>:<b do='title'/></r:each></r:comments>"
@@ -437,10 +439,6 @@ comments_previous_node:
 comments_in_site_node:
   src: "<r:comments from='nodes in site' order='created_at desc' limit='2' do='each' join=', '><r:node do='node_name'/>: <r:show attr='title'/></r:comments>"
   res: "status: re: What about rivers ?, status: What about rivers ?"
-
-find_by_zip:
-  src: "<r:context select='30' do='img'/>"
-  res: '/image30_std.jpg/'
 
 find_by_zip:
   src: "<div do='find(30)' do='img'/>"

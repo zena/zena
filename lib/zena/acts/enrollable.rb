@@ -1,16 +1,29 @@
 module Zena
   module Acts
     module Enrollable
+      module Named
+        def self.included(base)
+          class << base
+            attr_accessor :to_s
+          end
+        end
+      end
 
       def self.make_class(klass)
         if klass.kind_of?(VirtualClass)
-          res_class = Class.new(klass.real_class)
+          res_class = Class.new(klass.real_class) do
+            include Named
+          end
         elsif klass <= Node
-          res_class = Class.new(klass)
+          res_class = Class.new(klass) do
+            include Named
+          end
         else
           return klass
         end
 
+
+        res_class.to_s  = klass.name
         res_class.kpath = klass.kpath
 
         res_class.load_roles!

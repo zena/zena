@@ -50,7 +50,7 @@ module Zena
 
         # Select the most pertinent error between RubyLess processing errors and QueryBuilder errors.
         def show_errors
-          if @method =~ / in / || ([:find, :in, :where, :or, :limit, :order] & @params.keys != [])
+          if @method =~ / in / || ([:find, :else, :in, :where, :or, :limit, :order] & @params.keys != [])
             # probably a query
             @errors.detect {|e| e =~ /Syntax/} || @errors.last
           else
@@ -121,19 +121,19 @@ module Zena
               else_clause = ::RubyLess.translate(else_clause, self)
 
               if else_clause.klass == Array
-                or_klass = else_clause.opts[:array_content_class]
+                else_klass = else_clause.opts[:array_content_class]
                 if count == :all
                   # Get first common ancestor
-                  common_klass = (klass.ancestors & or_klass.ancestors).detect {|x| x.kind_of?(Class)}
-                  raise ::QueryBuilder::Error.new("Incompatible 'else' ([#{else_clause.klass}]) with finder ([#{klass}])") unless common_klass
+                  common_klass = (klass.ancestors & else_klass.ancestors).detect {|x| x.kind_of?(Class)}
+                  raise ::QueryBuilder::Error.new("Incompatible 'else' ([#{else_clause}]) with finder ([#{klass}])") unless common_klass
                 else
-                  raise ::QueryBuilder::Error.new("Incompatible 'else' ([#{or_klass}]) with finder (#{klass})")
+                  raise ::QueryBuilder::Error.new("Incompatible 'else' ([#{else_klass}]) with finder (#{klass})")
                 end
               else
                 if count == :first
                   # Get first common ancestor
                   common_klass = (klass.ancestors & else_clause.klass.ancestors).detect {|x| x.kind_of?(Class)}
-                  raise ::QueryBuilder::Error.new("Incompatible 'else' (#{else_clause.klass}) with finder ([#{klass}])") unless common_klass
+                  raise ::QueryBuilder::Error.new("Incompatible 'else' (#{else_clause.klass}) with finder (#{klass})") unless common_klass
                 else
                   raise ::QueryBuilder::Error.new("Incompatible 'else' (#{else_clause.klass}) with finder ([#{klass}])")
                 end

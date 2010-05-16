@@ -24,4 +24,4 @@ foo:
       </r:parent>
       <r:show attr='title'/>
     </r:void>
-  res: ''
+  res: '/Zena.*projects.*Clean.*status'

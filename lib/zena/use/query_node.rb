@@ -144,7 +144,7 @@ module Zena
               table_to_use = table
             end
             "#{table_to_use}.#{map_def[:key]}"
-          elsif %w{id parent_id project_id section_id}.include?(field_name) ||
+          elsif %w{id parent_id project_id section_id user_id}.include?(field_name) ||
             (Node.safe_method_type([field_name]) && Node.column_names.include?(field_name))
             "#{table}.#{field_name}"
           elsif @query.tables.include?('links') &&

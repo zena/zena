@@ -1,6 +1,42 @@
 module Zena
   module Use
     module Forms
+      module ViewMethods
+        def make_checkbox(node, values, relation_name, attribute)
+          relation_proxy = node.relation_proxy(relation_name)
+          return nil unless values && relation_proxy
+
+          res = []
+          role = relation_proxy.other_role
+
+          if relation_proxy.unique?
+            current_value = relation_proxy.other_id
+
+            res << "<div class='input_radio'>"
+            values.each do |value|
+              res << "<span><input type='radio' name='node[#{role}_id]' value='#{value.zip}'"
+              res << (current_value == value.id ? " checked='checked'/> " : '/> ')
+              res << value.prop[attribute]
+              res << '</span> '
+            end
+            res << '</div>'
+
+            res << "<span><input type='radio' name='node[#{role}_id]' value=''/> #{_('none')}</span>"
+          else
+            current_values = relation_proxy.other_ids
+            res << "<div class='input_checkbox'>"
+            values.each do |value|
+              res << "<span><input type='checkbox' name='node[#{role}_ids][]' value='#{value.zip}'"
+              res << (current_values.include?(value.id) ? " checked='checked'/> " : '/> ')
+              res << value.prop[attribute]
+              res << '</span> '
+            end
+            res << '</div>'
+            res << "<input type='hidden' name='node[#{role}_ids][]' value=''/>"
+          end
+          res.join('')
+        end
+      end # ViewMethods
 
       module ZafuMethods
         def make_form
@@ -261,11 +297,10 @@ END_TXT
         end
 
         # <r:checkbox role='collaborator_for' values='projects' in='site'/>"
-        # TODO: implement checkbox in the same spirit as 'r_select'
         def r_checkbox
           return parser_error("missing 'nodes'") unless values = @params[:values] || @params[:nodes]
-          return parser_error("missing 'role'")   unless   role = (@params[:role] || @params[:name])
-          attribute = @params[:attr] || 'name'
+          return parser_error("missing 'role'")  unless   role = (@params[:role]  || @params[:name])
+          attribute = @params[:attr] || 'title'
           if role =~ /(.*)_ids?\Z/
             role = $1
           end
@@ -275,31 +310,14 @@ END_TXT
             # ids
             # TODO generate the full query instead of using secure.
             values = values.split(',').map{|v| v.to_i}
-            list_finder = "(secure(Node) { Node.find(:all, :conditions => 'zip IN (#{values.join(',')})') })"
+            finder = "secure(Node) { Node.all(:conditions => 'zip IN (#{values.join(',')})') }"
           else
             # relation
-            list_finder, klass = build_finder(:all, values)
-            return unless list_finder
-            return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
+            return unless finder = build_finder(:all, values, @params)
+            return parser_error("invalid class (#{finder[:class]})") unless finder[:class].first <= Node
+            finder = finder[:method]
           end
-          out "<% if (#{list_var} = #{list_finder}) && (#{list_var}_relation = #{node}.relation_proxy(#{role.inspect})) -%>"
-          out "<% if #{list_var}_relation.unique? -%>"
-
-          out "<% #{list_var}_id = #{list_var}_relation.other_id -%>"
-          out "<div class='input_radio'><% #{list_var}.each do |#{var}| -%>"
-          out "<span><input type='radio' name='node[#{meth}_id]' value='#{erb_node_id(var)}'<%= #{list_var}_id == #{var}[:id] ? \" checked='checked'\" : '' %>/> <%= #{node_attribute(attribute, :node=>var)} %></span> "
-          out "<% end -%></div>"
-          out "<input type='radio' name='node[#{meth}_id]' value=''/> #{_('none')}"
-
-          out "<% else -%>"
-
-          out "<% #{list_var}_ids = #{list_var}_relation.other_ids -%>"
-          out "<div class='input_checkbox'><% #{list_var}.each do |#{var}| -%>"
-          out "<span><input type='checkbox' name='node[#{meth}_ids][]' value='#{erb_node_id(var)}'<%= #{list_var}_ids.include?(#{var}[:id]) ? \" checked='checked'\" : '' %>/> <%= #{node_attribute(attribute, :node=>var)} %></span> "
-          out "<% end -%></div>"
-          out "<input type='hidden' name='node[#{meth}_ids][]' value=''/>"
-
-          out "<% end -%><% end -%>"
+          out "<%= make_checkbox(#{node}, #{finder}, #{meth.inspect}, #{attribute.inspect}) %>"
         end
 
         alias r_radio r_checkbox
@@ -413,7 +431,7 @@ END_TXT
           @html_tag_params.merge!(id_hash)
           out render_html_tag(res)
 =end
-      protected
+        protected
 
           # Get current attribute in forms
           def node_attribute(attribute)
@@ -452,7 +470,7 @@ END_TXT
 
           # Return options for [select] tag.
           def get_options_for_select
-            if nodes = @params[:nodes]
+            if nodes = @params[:values]
               # TODO: dry with r_checkbox
               if nodes =~ /^\d+\s*($|,)/
                 # ids
@@ -461,7 +479,7 @@ END_TXT
                 nodes = "(secure(Node) { Node.find(:all, :conditions => 'zip IN (#{nodes.join(',')})') })"
               else
                 # relation
-                finder = build_finder(:all, nodes)
+                finder = build_finder(:all, nodes, @params)
                 return parser_error("invalid class (#{klass})") unless finder[:class].first <= Node
                 nodes = finder[:method]
               end
@@ -527,7 +545,7 @@ END_TXT
               'text'
             end
           end
-      end
+      end # ZafuMethods
     end # Forms
   end # Use
 end # Zena
