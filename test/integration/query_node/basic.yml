@@ -44,7 +44,7 @@ pages_or_letters:
   context:
     node: zena
   src: pages or letters
-  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND ((nodes.kpath LIKE 'NP%' AND nodes.parent_id = ?) OR (nodes.kpath LIKE 'NNL%' AND nodes.parent_id = ?)) ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id, @node.id]"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND ((nodes.kpath LIKE 'NP%' AND nodes.parent_id = ?) OR (nodes.kpath LIKE 'NNL%' AND nodes.parent_id = ?)) GROUP BY id ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id, @node.id]"
   res: "collections, letter, nature, people, projects, skins"
 
 project:
@@ -122,7 +122,7 @@ paginate_one:
   src: "nodes in site order by zip limit 2 paginate p"
   # we sort by zip to avoid collation problems when some DB sort Capital letters first
   # and others are case-insensitive.
-  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} ORDER BY nodes.zip ASC LIMIT 2 OFFSET ?}, ((params[:p].to_i > 0 ? params[:p].to_i : 1)-1)*2]"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} ORDER BY nodes.zip LIMIT 2 OFFSET ?}, ((params[:p].to_i > 0 ? params[:p].to_i : 1)-1)*2]"
   res: "zena, people"
 
 paginate_two:
@@ -130,5 +130,5 @@ paginate_two:
     params:
       p: 2
   src: "nodes in site order by zip limit 2 paginate p"
-  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} ORDER BY nodes.zip ASC LIMIT 2 OFFSET ?}, ((params[:p].to_i > 0 ? params[:p].to_i : 1)-1)*2]"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} ORDER BY nodes.zip LIMIT 2 OFFSET ?}, ((params[:p].to_i > 0 ? params[:p].to_i : 1)-1)*2]"
   res: "ant, tiger"

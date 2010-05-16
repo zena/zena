@@ -35,7 +35,7 @@ show_title_link_attribute:
 
 show_title_link_id:
   old_src: "<r:title link='32'/>"
-  src: "<r:link href='node where id eq 32 in site' do='title' live='true'/>"
+  src: "<r:link href='find(32)' do='title' live='true'/>"
   res: "<a href='/oo/page32.html'><span id='_title22'>status title</span></a>"
 
 show_title_in_list:
@@ -46,23 +46,6 @@ do_title:
   src: "<h2 do='title'/>"
   tem: "<h2><%= @node.prop['title'] %></h2>"
   res: "<h2>status title</h2>"
-
-title_link_format:
-  src: "<h2 do='title' link='details.xml'/>"
-  tem: "<h2><%= show_title(:node=>@node, :link=>\"details.xml\")%></h2>"
-  res: "<h2><a href='/oo/projects/cleanWater/page22_details.xml'><span id='title22'>status title</span></a></h2>"
-
-title_link_data:
-  context:
-    node: 'bird_jpg'
-  src: "<h2 do='title' link='data' attr='title'>super titre</h2>"
-  res: "<h2><a href='/en/image30.jpg?1144713600'><span id='title30'>bird</span></a></h2>"
-
-title_link_data_mode:
-  context:
-    node: 'bird_jpg'
-  src: "<h2 do='title' link='pv.data'>super title</h2>"
-  res: "<h2><a href='/en/image30_pv.jpg?967816914293'><span id='title30'>bird</span></a></h2>"
 
 show_title_link_id_from_stored:
   # disabled
@@ -243,8 +226,8 @@ img_html_params:
 
 zena:
   src: "<r:zena/>"
-  tem: "<a class='zena' href='http://zenadmin.org' title='zena <%= Zena::VERSION %>'>made with zena</a>"
-  res: "/<a class='zena' href='http://zenadmin.org' title='zena .+'>made with zena</a>/"
+  tem: "<a class='zena' href='http://zenadmin.org' title='Zena <%= Zena::VERSION %>'>made with Zena</a>"
+  res: "/<a class='zena' href='http://zenadmin.org' title='Zena .+'>made with Zena</a>/"
 
 zena_fr:
   context:

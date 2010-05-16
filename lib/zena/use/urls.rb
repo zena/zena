@@ -23,13 +23,22 @@ module Zena
 
           opts   = options.dup
           format = opts.delete(:format)
-          format = 'html' if format.blank?
+          if format.blank?
+            format = 'html'
+          elsif format == 'data'
+            if node.kind_of?(Document)
+              format = node.ext
+            else
+              format = 'html'
+            end
+          end
+
           pre    = opts.delete(:prefix) || (visitor.is_anon? && opts.delete(:lang)) || prefix
           mode   = opts.delete(:mode)
           host   = opts.delete(:host)
           abs_url_prefix = host ? "http://#{host}" : ''
 
-          if node.kind_of?(Document) && format == node.prop['ext']
+          if node.kind_of?(Document) && format == node.ext
             if node.public? && !visitor.site.authentication?
               # force the use of a cacheable path for the data, even when navigating in '/oo'
               pre = node.version.lang
@@ -236,7 +245,16 @@ module Zena
             steal_and_eval_html_params_for(markup, @params)
 
             markup.set_dyn_param(:href, "<%= #{make_href} %>")
-            markup.wrap text_for_link
+
+            # This is to make sure live_id is set *inside* the <a> tag.
+            if @live_param
+              text = add_live_id(text_for_link, markup)
+              @live_param = nil
+            else
+              text = text_for_link
+            end
+
+            markup.wrap text
 =begin
             query_params = options[:query_params] || {}
             default_text = options[:default_text]
@@ -471,7 +489,6 @@ module Zena
             if dynamic_blocks?
               expand_with
             else
-
               if method = get_attribute_or_eval(false)
                 method.literal || "<%= #{method} %>"
               elsif default

@@ -80,10 +80,12 @@ module Zena
           # If we had a 'live' parameter, wrap the result with an id.
           # TODO: we could replace the id with a class so that multiple instances on a page do not
           # cause problems.
-          def add_live_id(text)
+          def add_live_id(text, markup = @markup)
             if @live_param == 'true'
               if name = @params[:attr]
                 # ok
+              elsif @method == 'link'
+                name = 'title'
               elsif @method =~ /\(\s*([\w_]+)\s*\)/
                 name = $1
               else
@@ -94,12 +96,12 @@ module Zena
 
               tag ||= @method =~ /^zazen/ ? 'div' : 'span'
 
-              if @markup.has_param?(:id) || !@out_post.blank?
+              if markup.has_param?(:id) || (@markup.object_id == markup.object_id && !@out_post.blank?)
                 # Do not overwrite id or use span if we have post content (actions) that would disappear on live update.
                 "<#{tag} id='#{erb_id}'>#{text}</#{tag}>"
               else
-                @markup.tag ||= tag
-                @markup.set_dyn_param(:id, erb_id)
+                markup.tag ||= tag
+                markup.set_dyn_param(:id, erb_id)
                 text
               end
             else

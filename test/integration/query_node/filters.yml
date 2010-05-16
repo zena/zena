@@ -43,20 +43,20 @@ version_filter_comment:
 year_function:
   context:
     visitor: 'lion'
-  src: "nodes where v_updated_at:year = 2007 in project"
-  sql: "[%Q{SELECT nodes.* FROM nodes,versions WHERE #{secure_scope('nodes')} AND nodes.project_id = ? AND year(versions.updated_at) = 2007 AND nodes.id = versions.node_id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.get_project_id]"
+  src: "nodes where updated_at.year = 2007 in project"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND year(nodes.updated_at) = 2007 AND nodes.project_id = ? ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.get_project_id]"
   sqlite3: "[%Q{SELECT nodes.* FROM nodes,versions WHERE #{secure_scope('nodes')} AND nodes.project_id = ? AND strftime('%Y', versions.updated_at)*1 = 2007 AND nodes.id = versions.node_id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.get_project_id]"
-  res: "bananas"
+  res: "crocodiles"
 
 two_fields:
   src: "notes where event_at = log_at in site"
-  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NN%' AND nodes.event_at = nodes.log_at ORDER BY nodes.position ASC, nodes.node_name ASC}"
+  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.event_at = nodes.log_at AND nodes.kpath LIKE 'NN%' ORDER BY nodes.position ASC, nodes.node_name ASC}"
 
 filter_l_status:
   context:
     node: art
   src: "tagged where l_status > 5"
-  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags) AND links.target_id = ? AND links.status > 5 ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id]"
+  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND links.status > 5 AND nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags) AND links.target_id = ? ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id]"
   res: "cleanWater"
 
 param_filter:
@@ -80,7 +80,7 @@ filter_literal:
 
 filter_literal_first:
   src: "nodes where #{params[:tag]} = 'two'"
-  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND ? = ? AND nodes.parent_id = ? ORDER BY nodes.position ASC, nodes.node_name ASC}, params[:tag], \"two\", @node.id]"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND ? = 'two' AND nodes.parent_id = ? ORDER BY nodes.position ASC, nodes.node_name ASC}, params[:tag], @node.id]"
 
 links_in_merged_queries:
   # Some queries have links, others don't. Merging should not mess things up.
@@ -91,18 +91,19 @@ links_in_merged_queries:
   src: "(nodes where node_name like \"%#{params[:tag]}%\" and \"#{params[:tag]}\" ne '' in site) or (tagged where l_status > 5)"
   res: "cleanWater, Node-+popupLayout, opening, people"
 
-pages_group_by_name:
+pages_group_by_node_name:
+  src: 'pages group by node_name'
   sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NP%' AND nodes.parent_id = ? GROUP BY nodes.node_name ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id]"
   res: "crocodiles, status, track"
 
 nodes_group_by_year:
-  src: "nodes in site group by log_at:year order by log_at:year asc, node_name ASC"
+  src: "nodes in site group by log_at.year order by log_at.year asc, node_name ASC"
   sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} GROUP BY year(nodes.log_at) ORDER BY year(nodes.log_at) ASC, nodes.node_name ASC}"
   sqlite3: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} GROUP BY strftime('%Y', nodes.log_at)*1 ORDER BY strftime('%Y', nodes.log_at)*1 ASC, nodes.node_name ASC}"
 
 negative_value:
   src: "notes where custom_a ne -10 in site"
-  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NN%' AND nodes.custom_a <> -10 ORDER BY nodes.position ASC, nodes.node_name ASC}"
+  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.custom_a <> -10 AND nodes.kpath LIKE 'NN%' ORDER BY nodes.position ASC, nodes.node_name ASC}"
 
 filter_through_links:
   src: "nodes where (set_tag_id eq 33 and hot_id eq 22) in site"
@@ -110,8 +111,9 @@ filter_through_links:
   res: "cleanWater"
 
 filter_with_fullpath:
-  src: "nodes where fullpath like '[node:fullpath]/%' in site order by fullpath"
-  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.fullpath LIKE ? ORDER BY nodes.fullpath ASC\", @node.safe_read(\"fullpath\").to_s+ \"/%}]"
+  # Get all objects under a given node (node the '/' to avoid self)
+  src: "nodes where fullpath like \"#{fullpath}/%\" in site order by fullpath"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.fullpath LIKE ? ORDER BY nodes.fullpath}, \"#{@node.fullpath}/%\"]"
   res: 'crocodiles, lake, lakeAddress, opening, status, track, water'
 
 class_filter:

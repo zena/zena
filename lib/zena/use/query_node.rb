@@ -162,6 +162,11 @@ module Zena
           end
         end
 
+        # Process pagination parameter
+        def process_param(pagination_key)
+          "params[#{pagination_key.to_sym.inspect}]"
+        end
+
         # Handle special case for 'class = '
         def process_equal(left, right)
           if left == [:field, 'class'] && right[0] == :field
@@ -230,6 +235,38 @@ module Zena
           scope_name != 'site'
         end
 
+        def process_or(left, right)
+          left_clause  = [this.process(left)]
+          right_clause = [this.process(right)]
+          @query.tables.each do |t|
+            if t =~ /^links AS (.+)$/
+              lname = $1
+            else
+              lname = t
+            end
+
+            if left_clause =~ /#{lname}\./ && !right_clause =~ /#{lname}\./
+              right_clause << "#{lname}.id = 0"
+            elsif right_clause =~ /#{lname}\./ && !left_clause =~ /#{lname}\./
+              left_clause << "#{lname}.id = 0"
+            end
+          end
+
+          if left_clause.size > 1
+            left_clause = "(#{left_clause.join(' AND ')})"
+          else
+            left_clause = left_clause.first
+          end
+
+          if right_clause.size > 1
+            right_clause = "(#{right_clause.join(' AND ')})"
+          else
+            right_clause = right_clause.first
+          end
+
+          "(#{left_clause} OR #{right_clause})"
+        end
+
         private
           # Change class
           def class_relation(relation)
@@ -281,6 +318,11 @@ module Zena
             #  # Special pseudo-context
             #  @where << "#{table}.id = #{insert_bind("visitor.contact_id")}"
             #  return true
+            end
+
+            unless last?
+              # We treat differently 'projects from ...' and 'projects in site'
+              relation = relation.singularize
             end
 
             if CORE_CONTEXTS.include?(relation)
@@ -346,7 +388,7 @@ module Zena
 
           def secure_query
             return if this != self
-            query.add_filter "\#{secure_scope('#{table}')}"
+            add_filter "\#{secure_scope('#{table}')}"
           end
 
           def insert_links_fields
@@ -371,38 +413,6 @@ module Zena
               end
             end
             super
-          end
-
-          def process_or(left, right)
-            left_clause  = [this.process(left)]
-            right_clause = [this.process(right)]
-            @query.tables.each do |t|
-              if t =~ /^links AS (.+)$/
-                lname = $1
-              else
-                lname = t
-              end
-
-              if left_clause =~ /#{lname}\./ && !right_clause =~ /#{lname}\./
-                right_clause << "#{lname}.id = 0"
-              elsif right_clause =~ /#{lname}\./ && !left_clause =~ /#{lname}\./
-                left_clause << "#{lname}.id = 0"
-              end
-            end
-
-            if left_clause.size > 1
-              left_clause = "(#{left_clause.join(' AND ')})"
-            else
-              left_clause = left_clause.first
-            end
-
-            if right_clause.size > 1
-              right_clause = "(#{right_clause.join(' AND ')})"
-            else
-              right_clause = right_clause.first
-            end
-
-            "#{left_clause} OR #{right_clause}"
           end
 
           # This is used to avoid finding random links in clauses with and without link filters

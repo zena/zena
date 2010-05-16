@@ -131,7 +131,7 @@ class QueryNodeTest < Zena::Unit::TestCase
     page = secure!(Node) { nodes(:cleanWater) }
 
     sql = Node.build_query(:all, 'nodes where node_name like "a%" in site').to_s(:count)
-    assert_equal 3, page.do_find(:count, eval(sql))
+    assert_equal 3, Node.do_find(:count, eval(sql))
   end
 
   yt_make

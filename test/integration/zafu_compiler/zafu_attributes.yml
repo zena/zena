@@ -95,3 +95,7 @@ live_with_show:
 live_with_zazen:
   src: "<r:zazen attr='text' live='true'/>"
   res: "<div class='zazen' id='_text22'><p>status text</p></div>"
+
+live_with_link:
+  src: "<h2 do='link' attr='title' live='true'>super titre</h2>"
+  res: "<h2><a href='/oo/projects/cleanWater/page22.html' id='_title22'>status title</a></h2>"
