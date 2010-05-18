@@ -59,6 +59,7 @@ select_time_zone:
   res: "/Asia/Jakarta.*Europe/Zurich.*US/Hawai"
 
 select_values_tshow:
+  # Refactor select to use collection_select.
   src: "<r:select name='origin' values='1,2,3' tshow='en,fr,de'/>"
   res: "/option value=.1.>english.*option value=.2.>french/"
 

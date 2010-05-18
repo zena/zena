@@ -18,7 +18,6 @@ Examples:
 
 =end
 class NodesController < ApplicationController
-  before_filter :forbid_anonymous_xml
   before_filter :check_is_admin,  :only => [:export]
   before_filter :find_node, :except => [:index, :create, :not_found, :catch_all, :search]
   before_filter :check_can_drive, :only => [:edit]
@@ -263,6 +262,7 @@ class NodesController < ApplicationController
 
     @v_status_before_update = @node.v_status
     @node.update_attributes_with_transformation(params['node'])
+    # What is this 'extfile' thing ?
     @node.errors.add('extfile', file_error) if file_error
 
     if @node.errors.empty?
@@ -279,8 +279,8 @@ class NodesController < ApplicationController
             page.redirect_to edit_node_version_path(:node_id => @node[:zip], :id=>(@node.v_number || 0), :close => (params[:validate] ? true : nil))
           end
         end
-      end
-    else
+      end # parent iframe (upload)
+    elsif @node.errors.empty?
       respond_to do |format|
         format.html do
           if params[:edit] == 'popup'
@@ -288,8 +288,17 @@ class NodesController < ApplicationController
           else
             redirect_to zen_path(@node, :mode => params[:mode])
           end
-        end
+        end # html
+
         format.js { @flash = flash }
+
+        format.xml do
+          if @node.errors.empty?
+            head :ok
+          else
+            render :xml => @page.errors, :status => :unprocessable_entity
+          end
+        end # xml
       end
     end
   end
@@ -559,12 +568,6 @@ class NodesController < ApplicationController
 
     def check_can_drive
       raise ActiveRecord::RecordNotFound unless @node.can_drive?
-    end
-
-    def forbid_anonymous_xml
-      if visitor.is_anon? && params[:format] == 'xml' && !params[:prefix]
-        render :xml => 'Authentication token needed.', :status => 401
-      end
     end
 end
 

@@ -1,11 +1,6 @@
-require "#{File.dirname(__FILE__)}/../test_helper"
+require 'test_helper'
 
-class NavigationTest < ActionController::IntegrationTest
-  # Maybe we can remove all these includes...
-  include Zena::Use::Fixtures
-  include Zena::Use::TestHelper
-  include Zena::Acts::Secure
-  include ::Authlogic::TestCase
+class NavigationTest < Zena::Integration::TestCase
 
   def test_authorize
     get 'http://test.host/'

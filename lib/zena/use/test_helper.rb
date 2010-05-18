@@ -22,11 +22,6 @@ module Zena
         end
       end
 
-      # Set the current site used for testing (mostly to generate ids)
-      def test_site(site_name)
-        $_test_site = site_name
-      end
-
       def set_date(node_syms, opts = {}, site = 'zena')
         $_test_site = site
         fld = opts.delete(:fld) || 'log_at'

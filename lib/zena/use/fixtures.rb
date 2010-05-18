@@ -11,6 +11,11 @@ module Zena
         self.load_fixtures unless defined?(@@loaded_fixtures)
       end
 
+      # Set the current site used for testing (mostly to generate ids)
+      def test_site(site_name)
+        $_test_site = site_name
+      end
+
       def load_fixtures
         super
         # Cannot insert zero link from fixtures (zero id is changed to some incremented value). We

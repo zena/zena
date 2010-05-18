@@ -36,6 +36,7 @@ module Zena
             end
           end
 
+          # Secured in site with scope in set_visitor
           def registered_visitor
             visitor_session && visitor_session.user
           end
@@ -59,28 +60,42 @@ module Zena
             visitor.lang
           end
 
+          # Secured in site with scope in set_visitor
           def token_visitor
-            if user_token = params[:user_token] && request.format == Mime::XML
+            if user_token = (request.headers['HTTP_X_AUTHENTICATION_TOKEN'] || params[:user_token])
               User.find_by_single_access_token(user_token)
             end
           end
 
+          # Secured in site with scope in set_visitor
           def http_visitor(site)
-            if site.http_auth && request.format == Mime::XML
+            if request.format == Mime::XML
+              # user must be an authentication token
               authenticate_or_request_with_http_basic do |login, password|
-                user = User.find_allowed_user_by_login(login)
-                user if (user && user.valid_password?(password))
+                User.find_by_single_access_token(password)
               end
+            elsif false # site.http_auth # HTTP_AUTH disabled for now.
+              user = User.find_allowed_user_by_login(login)
+              user if (user && user.valid_password?(password))
             end
           end
 
           def force_authentication?
-            if (current_site.authentication? || params[:prefix] == AUTHENTICATED_PREFIX) && visitor.is_anon?
-              save_after_login_url
-              redirect_to login_url
+            if visitor.is_anon?
+              # Anonymous visitor has more limited access rights.
+
+              if current_site.authentication? || params[:prefix] == AUTHENTICATED_PREFIX
+                # Ask for login
+                save_after_login_url
+                redirect_to login_url
+              elsif request.format == Mime::XML && (self != NodesController || !params[:prefix])
+                # Allow xml without :prefix in NodesController because it is rendered with zafu.
+
+                # Authentication token required for xml.
+                render :xml => 'Authentication token needed.', :status => 401
+              end
             end
           end
-
       end
 
       module ViewMethods

@@ -12,7 +12,7 @@ anon:
 
 su:
   login:           su
-  crypted_password:        <%= Zena::CryptoProvider::Initial.encrypt('su') %>
+  crypted_password: <%= Zena::CryptoProvider::Initial.encrypt('su') %>
   first_name:      Super
   name:            User
   status:          su
@@ -24,7 +24,7 @@ ant:
   name:            Invicta
   email:           ant@zenadmin.info
   login:           ant
-  crypted_password:        <%= Zena::CryptoProvider::Initial.encrypt('ant') %>
+  crypted_password: <%= Zena::CryptoProvider::Initial.encrypt('ant') %>
   time_zone:       Europe/Zurich
   groups:          public, workers
   status:          user
@@ -35,7 +35,8 @@ tiger:
   name:            Tigris Sumatran
   email:           tiger@zenadmin.info
   login:           tiger
-  crypted_password:        <%= Zena::CryptoProvider::Initial.encrypt('tiger') %>
+  crypted_password: <%= Zena::CryptoProvider::Initial.encrypt('tiger') %>
+  single_access_token: mytoken
   groups:          public, workers, managers
   status:          user
 
@@ -44,6 +45,6 @@ lion:
   name:            Leo Verneyi
   email:           lion@zenadmin.info
   login:           lion
-  crypted_password:        <%= Zena::CryptoProvider::Initial.encrypt('lion') %>
+  crypted_password: <%= Zena::CryptoProvider::Initial.encrypt('lion') %>
   groups:          public, workers, admin
   status:          admin
