@@ -133,10 +133,12 @@ module Zena
         end
 
         # Default template content for a specified mode
-        def default_template_url(mode)
-          if %w{+login +index +adminLayout +popupLayout}.include?(mode)
-            "$default/Node-#{mode}"
-          elsif mode
+        def default_template_url(opts = {})
+          if opts[:format] && opts[:format] != 'html'
+            raise ActiveRecord::RecordNotFound
+          elsif %w{+login +index +adminLayout +popupLayout}.include?(opts[:mode])
+            "$default/Node-#{opts[:mode]}"
+          elsif opts[:mode]
             raise ActiveRecord::RecordNotFound
           else
             "$default/Node"
@@ -244,7 +246,7 @@ module Zena
             lang_path = dev_mode? ? "dev_#{lang}" : lang
 
             # $default/Node
-            zafu_url = default_template_url(mode)
+            raise ActiveRecord::RecordNotFound unless zafu_url = default_template_url(opts)
 
             # File path:
             rel_path  = current_site.zafu_path + "/#{zafu_url}/#{lang_path}/_main.erb"

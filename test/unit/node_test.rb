@@ -75,51 +75,6 @@ class NodeTest < Zena::Unit::TestCase
     assert_equal ["parent_id = ?", nodes_id(:wiki)], query[:conditions]
   end
 
-  def transform_attributes_zazen_shortcut_text
-    login(:lion)
-    [
-      ["Hi, this is just a simple \"test\"::w or \"\"::w+_life.rss. OK ?\n\n!:lake+_pv!",
-       "Hi, this is just a simple \"test\":25 or \"\":29_life.rss. OK ?\n\n!24_pv!"],
-
-      ["Hi ![30,:lake+]! ![]!",
-       "Hi ![30,24]! ![]!"],
-
-      ["Hi !{:bird,:lake+}! !{}!",
-       "Hi !{30,24}! !{}!"],
-
-      ["Hi !30!::clean !:bird!::clean !:bird/nice bird!:21 !30_pv/hello ladies!:21",
-       "Hi !30!:21 !30!:21 !30/nice bird!:21 !30_pv/hello ladies!:21"],
-
-      ["Hi, this is normal "":1/ just a\n\n* asf\n* asdf ![23,33]!",
-       "Hi, this is normal "":1/ just a\n\n* asf\n* asdf ![23,33]!"],
-    ].each do |src,res|
-      assert_equal res, secure(Node) { Node.transform_attributes( 'text' => src )['text'] }
-    end
-  end
-
-  def test_transform_attributes
-    login(:tiger)
-    visitor[:time_zone] = "Europe/Zurich"
-    [
-      [{'parent_id' => 'lake+'},
-       {'parent_id' => nodes_id(:lake_jpg)}],
-
-      [{'d_super_id' => 'lake',           'd_other_id' => '11'},
-       {'d_super_id' => nodes_zip(:lake), 'd_other_id' => 11}],
-
-      [{'tag_ids' => "33,news"},
-       {'tag_ids' => [nodes_id(:art), nodes_id(:news)]}],
-
-      [{'parent_id' => '999', 'tag_ids' => "999,34,art"},
-       {'parent_id' => '999', 'tag_ids' => [nodes_id(:news),nodes_id(:art)]}],
-
-      [{'link' => {'hot' => {'other_id' => '22', 'date' => '2009-7-15 16:58' }}},
-       {'link' => {'hot' => {'other_id' => nodes_id(:status), 'date' => Time.gm(2009,7,15,16,58)}}}], # this should be 14:58 when #255 is fixed (tz support).
-    ].each do |src,res|
-      assert_equal res, secure(Node) { Node.transform_attributes( src ) }
-    end
-  end
-
   def test_ancestors
     Node.connection.execute "UPDATE nodes SET parent_id = #{nodes_id(:proposition)} WHERE id = #{nodes_id(:bird_jpg)}"
     login(:tiger)
@@ -1341,18 +1296,88 @@ done: \"I am done\""
     secure(Node) { Node.find_node_by_pseudo(string, base_node || @node) }
   end
 
-  def test_should_parse_event_at_date
-    I18n.locale = 'fr'
-    visitor.time_zone = 'Asia/Jakarta'
-    v = secure(Node) {Node.new('event_at' => '9-9-2009 15:17')}
-    assert_equal Time.utc(2009,9,9,8,17), v.event_at
+  def assert_transforms(result, src)
+    if src.kind_of?(Hash)
+      assert_equal result, secure(Node) { Node.transform_attributes( src ) }
+    else
+      assert_equal result, secure(Node) { Node.transform_attributes( 'text' => src )['text'] }
+    end
   end
 
-  def test_should_parse_log_at_date
-    I18n.locale = 'fr'
-    visitor.time_zone = 'Asia/Jakarta'
-    v = secure(Node) {Node.new('log_at' => '9-9-2009 15:17')}
-    assert_equal Time.utc(2009,9,9,8,17), v.log_at
+  context 'Transforming attributes' do
+    context 'with non-ISO date format' do
+      setup do
+        I18n.locale = 'fr'
+        visitor.time_zone = 'Asia/Jakarta'
+      end
+
+      subject do
+        '9-9-2009 15:17'
+      end
+
+      should 'parse event_at date' do
+        assert_transforms Hash['event_at' => Time.utc(2009,9,9,8,17)], Hash['event_at' => '9-9-2009 15:17']
+      end
+
+      should 'parse log_at date' do
+        assert_transforms Hash['log_at' => Time.utc(2009,9,9,8,17)], Hash['log_at' => '9-9-2009 15:17']
+      end
+    end
+
+    context 'with zazen content' do
+      setup do
+        login(:lion)
+      end
+
+      should 'parse pseudo ids' do
+        assert_transforms "Hi, this is just a simple \"test\":25 or \"\":29_life.rss. OK ?\n\n!24_pv!",
+                          "Hi, this is just a simple \"test\"::w or \"\"::w+_life.rss. OK ?\n\n!:lake+_pv!"
+      end
+
+      should 'parse pseudo ids with offset in gallery' do
+        assert_transforms "Hi ![30,24]! ![]!",
+                          "Hi ![30,:lake+]! ![]!"
+      end
+
+      should 'parse pseudo ids in doc_list' do
+        assert_transforms "Hi !{30,24}! !{}!",
+                          "Hi !{:bird,:lake+}! !{}!"
+                          
+      end
+
+      should 'parse pseudo ids in links' do
+        assert_transforms "Hi !30!:21 !30!:21 !30/nice bird!:21 !30_pv/hello ladies!:21",
+                          "Hi !30!::clean !:bird!::clean !:bird/nice bird!:21 !30_pv/hello ladies!:21"
+      end
+
+      should 'not alter existing code without pseudo ids' do
+        assert_transforms "Hi, this is normal "":1/ just a\n\n* asf\n* asdf ![23,33]!",
+                          "Hi, this is normal "":1/ just a\n\n* asf\n* asdf ![23,33]!"
+      end
+    end
+
+    def test_transform_attributes
+      login(:tiger)
+      visitor[:time_zone] = "Europe/Zurich"
+      [
+        [{'parent_id' => 'lake+'},
+         {'parent_id' => nodes_id(:lake_jpg)}],
+
+        [{'d_super_id' => 'lake',           'd_other_id' => '11'},
+         {'d_super_id' => nodes_zip(:lake), 'd_other_id' => 11}],
+
+        [{'tag_ids' => "33,news"},
+         {'tag_ids' => [nodes_id(:art), nodes_id(:news)]}],
+
+        [{'parent_id' => '999', 'tag_ids' => "999,34,art"},
+         {'parent_id' => '999', 'tag_ids' => [nodes_id(:news),nodes_id(:art)]}],
+
+        [{'link' => {'hot' => {'other_id' => '22', 'date' => '2009-7-15 16:58' }}},
+         {'link' => {'hot' => {'other_id' => nodes_id(:status), 'date' => Time.gm(2009,7,15,16,58)}}}], # this should be 14:58 when #255 is fixed (tz support).
+      ].each do |src,res|
+        assert_equal res, secure(Node) { Node.transform_attributes( src ) }
+      end
+    end
   end
 
   def test_parse_keys

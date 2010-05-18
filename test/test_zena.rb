@@ -129,5 +129,3 @@ end
 class ZenaTestController < ActionController::TestCase
   #include Zena::Test::TestController
 end
-
-Zena::Db.insert_zero_link(Link)

@@ -460,12 +460,14 @@ module Zena
                 else
                   open_tag = close_tag = ''
                 end
-                link_params = {}
+                link_params = ''
+
                 @params.each do |k,v|
                   next if [:tag, :page, :join, :page_count].include?(k)
-                  link_params[k] = v
+                  link_params << "#{k}='#{v}'"
                 end
-                text = "#{open_tag}<r:link #{params_to_html(link_params)} #{pagination_key}='[#{pagination_key}_page]' do='[#{pagination_key}_page]'/>#{close_tag}"
+
+                text = "#{open_tag}<r:link#{link_params} #{pagination_key}='[#{pagination_key}_page]' do='[#{pagination_key}_page]'/>#{close_tag}"
                 @blocks = [make(:void, :method=>'void', :text=>text)]
                 remove_instance_variable(:@all_descendants)
               end

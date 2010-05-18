@@ -18,12 +18,13 @@ Examples:
 
 =end
 class NodesController < ApplicationController
-  before_filter :check_is_admin, :only => [:export]
+  before_filter :forbid_anonymous_xml
+  before_filter :check_is_admin,  :only => [:export]
   before_filter :find_node, :except => [:index, :create, :not_found, :catch_all, :search]
   before_filter :check_can_drive, :only => [:edit]
-  before_filter :check_path, :only  => [:index, :show]
-  after_filter  :change_lang, :only => [:create, :update, :save_text]
-  layout :popup_layout,     :only   => [:edit, :import]
+  before_filter :check_path,      :only => [:index, :show]
+  after_filter  :change_lang,     :only => [:create, :update, :save_text]
+  layout :popup_layout,           :only => [:edit, :import]
 
   include Zena::Use::Grid::ControllerMethods
 
@@ -113,6 +114,11 @@ class NodesController < ApplicationController
 
       format.html { render_and_cache }
 
+      if !params[:prefix]
+        # /nodes/18.xml not treated the same as /en/page18.xml (render_and_cache)
+        format.xml { render :xml => @node.to_xml }
+      end
+
       format.any do
         if asset = params[:asset]
           # math rendered as png, ...
@@ -172,13 +178,13 @@ class NodesController < ApplicationController
     respond_to do |format|
       if @node.errors.empty?
         flash[:notice] = 'Node was successfully created.'
-        format.html { redirect_to node_url(@node) }
+        format.html { redirect_to zen_path(@node) }
         format.js
-        format.xml  { head :created, :location => node_url(@node) }
+        format.xml  { render :xml => @node, :status => :created, :location => node_url(@node) }
       else
         format.html { render :action => "new" }
         format.js
-        format.xml  { render :xml => @node.errors.to_xml }
+        format.xml  { render :xml => @node.errors, :status => :unprocessable_entity }
       end
     end
   end
@@ -443,6 +449,12 @@ class NodesController < ApplicationController
 
     # Make sure the current url is valid. If it is not, redirect.
     def check_path
+      # show must have a 'path' parameter unless logged in and xml format
+      if !params[:prefix] && params[:format] == 'xml'
+        # xml API
+        return true
+      end
+
       case params[:action]
       when 'index'
         # TODO: this should live in I18n (and maybe it is not needed anymore)
@@ -456,7 +468,7 @@ class NodesController < ApplicationController
           end
         end
       when 'show'
-        # show must have a 'path' parameter
+
         if params[:format] != 'html' && params[:cachestamp].nil?
           # maybe not seen, try to find it
           params.each do |k,v|
@@ -547,6 +559,12 @@ class NodesController < ApplicationController
 
     def check_can_drive
       raise ActiveRecord::RecordNotFound unless @node.can_drive?
+    end
+
+    def forbid_anonymous_xml
+      if visitor.is_anon? && params[:format] == 'xml' && !params[:prefix]
+        render :xml => 'Authentication token needed.', :status => 401
+      end
     end
 end
 

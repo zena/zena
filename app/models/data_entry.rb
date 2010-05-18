@@ -36,23 +36,24 @@ class DataEntry < ActiveRecord::Base
   end
 
   # modify attributes so ext sees 'zip' values but we store 'ids'
-  def self.transform_attributes(new_attributes)
+  def self.transform_attributes(new_attributes, base_node = nil, parse_dates = true)
     attributes = new_attributes.stringify_keys
 
     attributes.keys.each do |key|
       if key == 'date'
+        next unless parse_dates
         attributes[key] = attributes[key].to_utc(_('datetime'), visitor.tz)
       elsif key =~ /^(\w+)_id$/
         if key[0..4] == 'node_'
-          attributes[key] = Node.translate_pseudo_id(attributes[key]) || attributes[key]
+          attributes[key] = Node.translate_pseudo_id(attributes[key], :id, base_node) || attributes[key]
         else
-          attributes[key] = Node.translate_pseudo_id(attributes[key]) || attributes[key]
+          attributes[key] = Node.translate_pseudo_id(attributes[key], :id, base_node) || attributes[key]
         end
       elsif key == 'text'
         # translate zazen
         value = attributes[key]
         if value.kind_of?(String)
-          attributes[key] = ZazenParser.new(value,:helper=>self, :node=>self).render(:translate_ids=>:zip)
+          attributes[key] = ZazenParser.new(value,:helper=>self, :node=>base_node).render(:translate_ids=>:zip)
         end
       end
     end
@@ -96,8 +97,8 @@ class DataEntry < ActiveRecord::Base
   end
 
   # Update a data entry's attributes, transforming the attributes first from the visitor's context to internal context.
-  def update_attributes_with_transformation(new_attributes)
-    update_attributes(DataEntry.transform_attributes(new_attributes))
+  def update_attributes_with_transformation(new_attributes, parse_dates = true)
+    update_attributes(DataEntry.transform_attributes(new_attributes, ref_node, parse_dates))
   end
 
   def clone

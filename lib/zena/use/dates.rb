@@ -153,7 +153,8 @@ module Zena
           DateTime.parse(string) rescue nil
         end
       end # ViewMethods
-
+      
+      # FIXME: remove from other models (has been removed from Node) !
       module AddParseDateAttributeMethod
         def parse_date_attribute(*args)
           args.each do |arg|

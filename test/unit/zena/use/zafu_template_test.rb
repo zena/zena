@@ -74,11 +74,15 @@ class ZafuTemplateTest < Zena::View::TestCase
 
     context 'on default_template_url' do
       should 'return a template with pseudo skin $default' do
-        assert_equal '$default/Node', default_template_url(nil)
+        assert_equal '$default/Node', default_template_url
       end
 
       should 'return index on index mode' do
-        assert_equal '$default/Node-+index', default_template_url('+index')
+        assert_equal '$default/Node-+index', default_template_url(:mode => '+index')
+      end
+      
+      should 'raise not found on none html format' do
+        assert_raise(ActiveRecord::RecordNotFound) { default_template_url(:format => 'xml') }
       end
     end # on default_template_url
 

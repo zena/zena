@@ -46,9 +46,9 @@ class NodesControllerTest < Zena::Controller::TestCase
       end # with lang
     end # visiting index page
 
-    context 'visiting edit page' do
+    context 'editing a page' do
       subject do
-        {:action => 'edit', :controller => 'nodes', :id => nodes_zip(:projects)}
+        {:action => 'edit', :controller => 'nodes', :id => nodes_zip(:projects).to_s}
       end
 
       should 'recognize edit page' do
@@ -61,9 +61,9 @@ class NodesControllerTest < Zena::Controller::TestCase
       end
     end # visiting edit page
 
-    context 'visiting edit page' do
+    context 'visiting a page without path' do
       subject do
-        {:action => 'show', :controller => 'nodes', :id => nodes_zip(:projects)}
+        {:action => 'show', :controller => 'nodes', :id => nodes_zip(:projects).to_s}
       end
 
       should 'recognize show page' do
@@ -74,7 +74,69 @@ class NodesControllerTest < Zena::Controller::TestCase
         get_subject
         assert_redirected_to 'http://test.host/en/page18.html'
       end
+    end # visiting a page without path
+
+    context 'visiting a page with path' do
+      subject do
+        {:action => 'show', :controller => 'nodes', :path => ["page#{nodes_zip(:projects)}.html"], :prefix => 'en'}
+      end
+
+      should 'recognize show page' do
+        assert_recognizes subject, "/en/page#{nodes_zip(:projects)}.html"
+      end
+
+      should 'succeed' do
+        get_subject
+        assert_response :success
+      end
     end # visiting show
+
+    context 'with xml' do
+      context 'asking for show' do
+        subject do
+          {:action => 'show', :controller => 'nodes', :id => nodes_zip(:projects).to_s, :format => 'xml'}
+        end
+
+        should 'recognize show page' do
+          assert_recognizes subject, "/nodes/#{subject[:id]}.xml"
+        end
+
+        should 'return unauthorized' do
+          get_subject
+          assert_response :unauthorized
+        end
+      end
+
+      context 'asking for index' do
+        subject do
+          {:action => 'index', :controller => 'nodes', :format => 'xml'}
+        end
+
+        should 'recognize index page' do
+          assert_recognizes subject, "/nodes.xml"
+        end
+
+        should 'return unauthorized' do
+          get_subject
+          assert_response :unauthorized
+        end
+      end
+
+      context 'creating a node' do
+        subject do
+          {:action => 'create', :controller => 'nodes', :format => 'xml', :node => {:parent_id => nodes_zip(:zena), :title => 'hello'}}
+        end
+
+        should 'recognize create page' do
+          assert_recognizes subject, {:path => "/nodes.xml", :method => :post}, {:node => {:parent_id => nodes_zip(:zena), :title => 'hello'}}
+        end
+
+        should 'return unauthorized' do
+          post_subject
+          assert_response :unauthorized
+        end
+      end # creating a node
+    end # with xml
   end # An anonymous user
 
   context 'A user' do
@@ -114,7 +176,7 @@ class NodesControllerTest < Zena::Controller::TestCase
 
     context 'visiting edit page' do
       subject do
-        {:action => 'edit', :controller => 'nodes', :id => nodes_zip(:projects)}
+        {:action => 'edit', :controller => 'nodes', :id => nodes_zip(:projects).to_s}
       end
 
       should 'recognize edit page' do
@@ -126,6 +188,81 @@ class NodesControllerTest < Zena::Controller::TestCase
         assert_response :success
       end
     end # visiting edit page
+
+    context 'creating a node' do
+      subject do
+        {:action => 'create', :controller => 'nodes', :node => {:parent_id => nodes_zip(:zena), :title => 'hello', :klass => 'Page'}}
+      end
+
+      should 'recognize create page' do
+        assert_recognizes subject, {:path => '/nodes', :method => :post}, {:node => subject[:node]}
+      end
+
+      should 'succeed' do
+        post_subject
+        node = assigns(:node)
+        assert_redirected_to "/oo/page#{node.zip}.html"
+      end
+    end # creating a node
+
+    context 'using xml' do
+      context 'asking for show' do
+        subject do
+          {:action => 'show', :controller => 'nodes', :id => nodes_zip(:projects).to_s, :format => 'xml'}
+        end
+
+        should 'recognize show page' do
+          assert_recognizes subject, "/nodes/#{subject[:id]}.xml"
+        end
+
+        should 'succeed' do
+          get_subject
+          assert_response :success
+        end
+
+        should 'return an xml representation' do
+          get_subject
+          assert_match %r{<title>projects list</title>}, @response.body
+        end
+      end
+
+      context 'asking for index' do
+        subject do
+          {:action => 'index', :controller => 'nodes', :format => 'xml'}
+        end
+
+        should 'recognize create page' do
+          assert_recognizes subject, "/nodes.xml"
+        end
+
+        should 'return succeed' do
+          get_subject
+          assert_response :success
+        end
+      end
+
+      context 'creating a node' do
+        subject do
+          {:action => 'create', :controller => 'nodes', :format => 'xml', :node => {:parent_id => nodes_zip(:zena), :title => 'hello'}}
+        end
+
+        should 'recognize create page' do
+          assert_recognizes subject, {:path => "/nodes.xml", :method => :post}, {:node => {:parent_id => nodes_zip(:zena), :title => 'hello'}}
+        end
+
+        should 'succeed' do
+          post_subject
+          assert_response :success
+        end
+
+        should 'return an xml representation' do
+          post_subject
+          assert_match %r{<title>hello</title>}, @response.body
+          zip = assigns(:node).zip
+          assert_match %r{<id[^>]*>#{zip}</id>}, @response.body
+        end
+      end # creating a node
+    end # using xml
   end # A user
 
 
@@ -201,18 +338,19 @@ class NodesControllerTest < Zena::Controller::TestCase
   end
 
   def test_cache_xml_format
-   without_files('/test.host/public') do
+    test_site(:zena)
+    without_files('/test.host/public') do
       name = "section#{nodes_zip(:people)}.xml"
       with_caching do
         assert !File.exist?("#{SITES_ROOT}/test.host/public/fr/#{name}")
         login(:lion)
-        doc = secure!(Template) { Template.create("node_name"=>"Node", "format"=>"xml", "summary"=>"", 'text' => '<?xml version="1.0" encoding="utf-8"?><node><name do="[name]"/></node>', "parent_id"=>nodes_id(:default))}
+        doc = secure!(Template) { Template.create('node_name'=>'Node', 'format'=>'xml', 'text' => '<?xml version="1.0" encoding="utf-8"?><node><title do="title"/></node>', 'parent_id'=>nodes_id(:default))}
         assert !doc.new_record?, "Not a new record"
         assert doc.publish
         login(:anon)
         get 'show', :prefix => 'en', :path => [name]
         assert_response :success
-        assert_equal "<?xml version=\"1.0\" encoding=\"utf-8\"?><node><name>people</name></node>", @response.body
+        assert_equal "<?xml version=\"1.0\" encoding=\"utf-8\"?><node><title>people</title></node>", @response.body
         assert File.exist?("#{SITES_ROOT}/test.host/public/en/#{name}")
       end
     end

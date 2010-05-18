@@ -51,7 +51,7 @@ module Zena
           end
 
           def check_is_admin
-            render_404(ActiveRecord::RecordNotFound) unless visitor.is_admin?
+            raise ActiveRecord::RecordNotFound unless visitor.is_admin?
             @admin = true
           end
 

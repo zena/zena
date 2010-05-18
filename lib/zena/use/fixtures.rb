@@ -7,7 +7,15 @@ module Zena
       # We use transactional fixtures with a single load for ALL tests (this is not the default rails implementation). Tests are now 5x-10x faster.
 
       def self.included(base)
+        # We load once using our own loader so that accessor methods are defined
         self.load_fixtures unless defined?(@@loaded_fixtures)
+      end
+
+      def load_fixtures
+        super
+        # Cannot insert zero link from fixtures (zero id is changed to some incremented value). We
+        # have to insert it by hand.
+        Zena::Db.insert_zero_link(Link)
       end
 
       # Could DRY with file_path defined in Base
@@ -139,16 +147,6 @@ module Zena
             FileUtils::cp("#{RAILS_ROOT}/test/fixtures/files/#{filename}",dest_path)
           end
         end
-        # unless File.exist?("#{SITES_ROOT}/test.host/data")
-        #   @@loaded_fixtures['document_contents'].each do |name,fixture|
-        #     fname, content_id = fixture.instance_eval { [@fixture['name']+"."+@fixture['ext'], @fixture['id'].to_s] }
-        #     path = file_path(fname, content_id)
-        #     FileUtils::mkpath(File.dirname(path))
-        #     if File.exist?(File.join(FILE_FIXTURES_PATH,fname))
-        #       FileUtils::cp(File.join(FILE_FIXTURES_PATH,fname),path)
-        #     end
-        #   end
-        # end
 
         unless File.exist?("#{SITES_ROOT}/test.host/public")
           FileUtils::mkpath("#{SITES_ROOT}/test.host/public")
@@ -158,6 +156,8 @@ module Zena
         end
 
         FileUtils::mkpath("#{SITES_ROOT}/test.host/log") unless File.exist?("#{SITES_ROOT}/test.host/log")
+
+        Zena::Db.insert_zero_link(Link)
       end
     end # Fixtures
   end # use

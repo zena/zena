@@ -177,11 +177,8 @@ class Node < ActiveRecord::Base
   before_save        :change_klass
   after_save         :spread_project_and_section
   after_create       :node_after_create
-  attr_protected     :zip, :id, :section_id, :project_id, :publish_from
+  attr_protected     :zip, :id, :section_id, :project_id, :publish_from, :created_at, :updated_at
   attr_protected     :site_id
-
-  include Zena::Use::Dates::ModelMethods
-  parse_date_attribute :event_at, :log_at
 
   # Until we find another way to write friend_ids, we need NestedAttributesAlias in Relations
   # A possible solution could be to use the other syntax exclusively ('rel' => {'friend' => [4,5,6]})
@@ -216,6 +213,8 @@ class Node < ActiveRecord::Base
   include Zena::Use::Workflow
   include Zena::Use::NodeName # must be included after Workflow
   include Zena::Use::VersionHash
+
+  include Zena::Acts::Serializable::NodeMethods
 
   # List of version attributes that should be accessed as proxies 'v_lang', 'v_status', etc
   VERSION_ATTRIBUTES = %w{status lang publish_from backup}
@@ -684,7 +683,7 @@ class Node < ActiveRecord::Base
 
     # Translate attributes from the visitor's reference to the application.
     # This method translates dates, zazen shortcuts and zips and returns a stringified hash.
-    def transform_attributes(new_attributes, base_node = nil)
+    def transform_attributes(new_attributes, base_node = nil, change_timezone = true)
       res = {}
       res['parent_id'] = new_attributes[:_parent_id] if new_attributes[:_parent_id] # real id set inside zena.
 
@@ -700,32 +699,38 @@ class Node < ActiveRecord::Base
         res['parent_id'] = Node.translate_pseudo_id(p, :id, base_node) || p
       end
 
-      attributes.keys.each do |key|
+      attributes.each do |key, value|
         next if ['_parent_id', 'parent_id'].include?(key)
 
-        if ['rgroup_id', 'wgroup_id', 'dgroup_id'].include?(key)
-          res[key] = Group.translate_pseudo_id(attributes[key], :id) || attributes[key]
-        elsif ['rgroup', 'wgroup', 'dgroup'].include?(key)
-          res["#{key}_id"] = Group.translate_pseudo_id(attributes[key], :id) || attributes[key]
-        elsif ['user_id'].include?(key)
-          res[key] = User.translate_pseudo_id(attributes[key], :id) || attributes[key]
-        elsif ['date'].include?(key)
-          # FIXME: this is a temporary hack because date in links do not support timezones/formats properly
-          if attributes[key].kind_of?(Time)
-            res[key] = attributes[key]
-          elsif attributes[key]
+        if %w{rgroup_id wgroup_id dgroup_id}.include?(key)
+          res[key] = Group.translate_pseudo_id(value, :id) || value
+        elsif %w{rgroup wgroup dgroup}.include?(key)
+          res["#{key}_id"] = Group.translate_pseudo_id(value, :id) || value
+        elsif %w{user_id}.include?(key)
+          res[key] = User.translate_pseudo_id(value, :id) || value
+        elsif %w{create_at updated_at}.include?(key)
+          # ignore (can be present in xml)
+        elsif %w{log_at event_at v_publish_from date}.include?(key)
+          if value.kind_of?(Time)
+            res[key] = value
+          elsif value
             # parse date
-            res[key] = attributes[key].to_utc("%Y-%m-%d %H:%M:%S")
+            if key == 'date'
+              # TODO: this is a temporary hack because date in links do not support timezones/formats properly
+              res[key] = value.to_utc("%Y-%m-%d %H:%M:%S")
+            else
+              res[key] = value.to_utc(_('datetime'), change_timezone ? visitor.tz : nil)
+            end
           end
         elsif key =~ /^(\w+)_id$/
           if key[0..1] == 'd_'
-            res[key] = Node.translate_pseudo_id(attributes[key], :zip, base_node) || attributes[key]
+            res[key] = Node.translate_pseudo_id(value, :zip, base_node) || value
           else
-            res[key] = Node.translate_pseudo_id(attributes[key],  :id, base_node) || attributes[key]
+            res[key] = Node.translate_pseudo_id(value,  :id, base_node) || value
           end
         elsif key =~ /^(\w+)_ids$/
           # Id list. Bad ids are removed.
-          values = attributes[key].kind_of?(Array) ? attributes[key] : attributes[key].split(',')
+          values = value.kind_of?(Array) ? value : value.split(',')
           if key[0..1] == 'd_'
             values.map! {|v| Node.translate_pseudo_id(v, :zip, base_node) }
           else
@@ -733,14 +738,13 @@ class Node < ActiveRecord::Base
           end
           res[key] = values.compact
         elsif key == 'file'
-          unless attributes[key].blank?
-            res[key] = attributes[key]
+          unless value.blank?
+            res[key] = value
           end
-        elsif attributes[key].kind_of?(Hash)
-          res[key] = transform_attributes(attributes[key], base_node)
+        elsif value.kind_of?(Hash)
+          res[key] = transform_attributes(value, base_node, change_timezone)
         else
           # translate zazen
-          value = attributes[key]
           if value.kind_of?(String)
             # FIXME: ignore if 'text' of a TextDocument...
             res[key] = ZazenParser.new(value,:helper=>self).render(:translate_ids=>:zip, :node=>base_node)
@@ -844,8 +848,8 @@ class Node < ActiveRecord::Base
   end
 
   # Update a node's attributes, transforming the attributes first from the visitor's context to Node context.
-  def update_attributes_with_transformation(new_attributes)
-    update_attributes(secure(Node) {Node.transform_attributes(new_attributes, self)})
+  def update_attributes_with_transformation(new_attributes, change_timezone = true)
+    update_attributes(secure(Node) {Node.transform_attributes(new_attributes, self, change_timezone)})
   end
 
   # Replace [id], [title], etc in attributes values
@@ -1290,6 +1294,8 @@ class Node < ActiveRecord::Base
       end
     end
   end
+
+  # FIXME: remove all this because we now have Zena::Acts::Serializable
 
   # export node as a hash
   def to_yaml

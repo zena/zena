@@ -145,6 +145,14 @@ module Zena
       connection.select_all(sql)
     end
 
+    def select_all(sql_or_array)
+      if sql_or_array.kind_of?(String)
+        connection.select_all(sql_or_array)
+      else
+        connection.select_all(Node.send(:sanitize_sql, sql_or_array))
+      end
+    end
+
     def fetch_attribute(attribute, sql)
       unless sql =~ /SELECT/i
         sql = "SELECT `#{attribute}` FROM #{table_name} WHERE #{sql}"
