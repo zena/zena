@@ -80,7 +80,7 @@ class RoleTest < Zena::Unit::TestCase
       end
     end # with an admin visitor
   end # Creating a new Role
-  
+
   context 'Updating a Role' do
     subject do
       roles(:Task)
@@ -117,4 +117,6 @@ class RoleTest < Zena::Unit::TestCase
       end
     end # with an admin visitor
   end # Creating a new Role
+
+  # Indexed columns in role tested in NodeTest
 end

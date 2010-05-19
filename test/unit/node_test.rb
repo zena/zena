@@ -41,6 +41,56 @@ class NodeTest < Zena::Unit::TestCase
           assert_equal users_id(:lion), subject.comments.first.user_id
         end
       end # adding a comment with m_title
+
+      context 'setting an indexed field' do
+        class NodeStringIndex < ActiveRecord::Base
+          set_table_name :i_string_nodes
+        end
+
+        subject do
+          node = secure!(Node) { nodes(:art) }
+          node.update_attributes(:origin => 'Dada')
+          node
+        end
+
+        should 'create index entries' do
+          assert_difference('NodeStringIndex.count', 1) do
+            subject
+          end
+        end
+
+        should 'write field value in index' do
+          subject
+          index = NodeStringIndex.last
+          assert_equal 'origin', index.key
+          assert_equal 'Dada', index.value
+        end
+
+        should 'keep index entries up to date' do
+          subject
+
+          assert_difference('NodeStringIndex.count', 0) do
+            subject.update_attributes(:origin => 'Surrealism')
+          end
+
+          index = NodeStringIndex.last
+          assert_equal 'origin', index.key
+          assert_equal 'Surrealism', index.value
+        end
+
+        should 'find indexed nodes with exact search' do
+          subject # create index entry
+          assert node = Node.search_records('origin:Dada').first
+          assert_equal nodes_id(:art), node.id
+        end
+
+        should 'find indexed nodes with hash search' do
+          subject # create index entry
+          assert node = Node.search_records(:origin => 'Dada').first
+          assert_equal nodes_id(:art), node.id
+        end
+      end # setting an indexed field
+
     end # on a node with write access
   end # A logged in user
 
@@ -1342,7 +1392,7 @@ done: \"I am done\""
       should 'parse pseudo ids in doc_list' do
         assert_transforms "Hi !{30,24}! !{}!",
                           "Hi !{:bird,:lake+}! !{}!"
-                          
+
       end
 
       should 'parse pseudo ids in links' do
@@ -1354,31 +1404,40 @@ done: \"I am done\""
         assert_transforms "Hi, this is normal "":1/ just a\n\n* asf\n* asdf ![23,33]!",
                           "Hi, this is normal "":1/ just a\n\n* asf\n* asdf ![23,33]!"
       end
-    end
+    end # with zazen content
 
-    def test_transform_attributes
-      login(:tiger)
-      visitor[:time_zone] = "Europe/Zurich"
-      [
-        [{'parent_id' => 'lake+'},
-         {'parent_id' => nodes_id(:lake_jpg)}],
-
-        [{'d_super_id' => 'lake',           'd_other_id' => '11'},
-         {'d_super_id' => nodes_zip(:lake), 'd_other_id' => 11}],
-
-        [{'tag_ids' => "33,news"},
-         {'tag_ids' => [nodes_id(:art), nodes_id(:news)]}],
-
-        [{'parent_id' => '999', 'tag_ids' => "999,34,art"},
-         {'parent_id' => '999', 'tag_ids' => [nodes_id(:news),nodes_id(:art)]}],
-
-        [{'link' => {'hot' => {'other_id' => '22', 'date' => '2009-7-15 16:58' }}},
-         {'link' => {'hot' => {'other_id' => nodes_id(:status), 'date' => Time.gm(2009,7,15,16,58)}}}], # this should be 14:58 when #255 is fixed (tz support).
-      ].each do |src,res|
-        assert_equal res, secure(Node) { Node.transform_attributes( src ) }
+    context 'with ids' do
+      setup do
+        login(:tiger)
       end
-    end
-  end
+
+      should 'parse pseudo_ids in parent_id' do
+        assert_transforms Hash['parent_id' => nodes_id(:lake_jpg)],
+                          Hash['parent_id' => 'lake+']
+      end
+
+      should 'parse pseudo_ids in links' do
+        assert_transforms Hash['tag_ids' => [nodes_id(:art), nodes_id(:news)]],
+                          Hash['tag_ids' => '33,news']
+      end
+
+      should 'leave single bad ids' do
+        assert_transforms Hash['parent_id' => '999', 'hot_id' => '999'],
+                          Hash['parent_id' => '999', 'hot_id' => '999']
+      end
+
+      should 'remove bad values from id lists' do
+        assert_transforms Hash['tag_ids' => [nodes_id(:news),nodes_id(:art)]],
+                          Hash['tag_ids' => '999,34,art']
+      end
+
+      should 'parse dates and ids in rel' do
+        # this should be 14:58 when #255 is fixed (tz support).
+        assert_transforms Hash['link' => {'hot' => {'other_id' => nodes_id(:status), 'date' => Time.gm(2009,7,15,16,58)}}],
+                          Hash['link' => {'hot' => {'other_id' => '22', 'date' => '2009-7-15 16:58' }}]
+      end
+    end # with ids
+  end # Transforming attributes
 
   def test_parse_keys
     node = secure(Node) { nodes(:status) }

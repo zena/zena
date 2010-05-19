@@ -4,9 +4,7 @@ module Bricks
   module Sphinx
     module NodeClassMethods
       include Zena::Acts::Secure
-      def search_records(query, opts = {})
-        with = opts[:with] || {}
-        with[:site_id] = current_site.id
+      def search_text(query, opts = {})
         if offset = opts[:offset]
           limit = opts[:limit] || 20
           ids = search_for_ids(query, :with => with, :limit => (offset + limit) * [limit,20].max)

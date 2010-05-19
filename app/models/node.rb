@@ -203,6 +203,8 @@ class Node < ActiveRecord::Base
                      :v_publish_from => Time, :v_backup => Boolean,
                      :zip => Number, :parent_id => {:class => Number, :nil => true, :method => 'parent_zip'}
 
+  # This is needed so that we can use secure_scope and secure in search.
+  extend  Zena::Acts::Secure
   extend  Zena::Acts::SecureNode
   acts_as_secure_node
 
