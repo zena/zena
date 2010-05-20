@@ -130,11 +130,16 @@ class Node < ActiveRecord::Base
   store_properties_in :version
 
   property do |p|
-    p.string  'title'
+    # Multilingual string index on 'title'
+    p.string  'title', :index => :ml_string
+
     p.string  'text'
     p.string  'summary'
     p.string  'comment'
   end
+
+  # This is used to enable multilingual indexes
+  include Zena::Use::MLIndex::ModelMethods
 
   # This is used to load roles in an instance
   include Zena::Acts::Enrollable::ModelMethods
