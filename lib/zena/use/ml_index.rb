@@ -2,18 +2,13 @@ module Zena
   module Use
     module MLIndex
       module ModelMethods
-        def index_table_name(group_name)
-          if group_name.to_s =~ /^ml_(.+)$/
-            "i_#{$1}_#{self.class.table_name}"
+        # Hash used to read current values
+        def index_reader(group_name)
+          if group_name.to_s =~ /^ml_/
+            super.merge(:with => {'lang' => index_langs})
           else
             super
           end
-        end
-
-        # Hash used to read current values
-        def index_reader
-          # FIXME: only insert lang if multilingual (include group_name as argument ?)!
-          super.merge(:with => {'lang' => index_langs})
         end
 
         private
@@ -23,7 +18,7 @@ module Zena
             read = vhash['w'].merge(vhash['r'])
             @index_langs ||= current_site.lang_list.select do |lang|
               (read[lang] || read[ref_lang] || read.values.first) == v_id
-            end.tap {|x| deb x}
+            end
           end
       end # ModelMethods
     end # MLIndex

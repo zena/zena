@@ -1,8 +1,12 @@
 require 'test_helper'
 
 class EnrollableTest < Zena::Unit::TestCase
-  class NodeMLStringIndex < ActiveRecord::Base
+  class NodeStringIndex < ActiveRecord::Base
     set_table_name :i_string_nodes
+  end
+
+  class NodeMLStringIndex < ActiveRecord::Base
+    set_table_name :i_ml_string_nodes
   end
 
   context 'A visitor with write access' do
@@ -25,9 +29,22 @@ class EnrollableTest < Zena::Unit::TestCase
         end
       end
 
-      should 'not consider lang in non ml index' do
-        assert false # TODO
-      end
+      context 'with non ML indices' do
+        subject do
+          secure(Contact) { Contact.create(
+            :name      => 'Zanzibar',
+            :parent_id => nodes_id(:cleanWater)
+          )}
+        end
+
+        should 'insert single value' do
+          assert_difference('NodeStringIndex.count', 1) do
+            # title = 4, name = 1
+            assert subject
+          end
+        end
+      end # with non ML indices
+
     end # creating a node
 
     context 'updating a node' do
