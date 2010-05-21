@@ -31,8 +31,12 @@ class EnrollableTest < Zena::Unit::TestCase
 
       context 'with non ML indices' do
         subject do
-          secure(Contact) { Contact.create(
-            :name      => 'Zanzibar',
+          k = Class.new(Node) do
+            property.string 'foo', :index => true
+          end
+          secure(k) { k.create(
+            :title     => 'Zanzibar',
+            :foo       => 'bar',
             :parent_id => nodes_id(:cleanWater)
           )}
         end

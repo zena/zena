@@ -2,7 +2,7 @@ class Contact < Reference
 
   property do |t|
     t.string 'first_name'
-    t.string 'name', :index => true
+    t.string 'name'
 
     t.text   'address'
     t.string 'postal_code'
