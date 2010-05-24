@@ -1672,7 +1672,12 @@ Bricks.apply_patches
 class Version
 
   def node_with_secure
-    @node ||= secure(Node) { node_without_secure }
+    @node ||= begin
+      if n = secure(Node) { node_without_secure }
+        n.version = self
+      end
+      n
+    end
   end
   alias_method_chain :node, :secure
 end

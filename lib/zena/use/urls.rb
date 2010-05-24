@@ -66,7 +66,7 @@ module Zena
             (format == 'html' ? '' : ".#{format}")
           else
             "#{abs_url_prefix}/#{pre}/" +
-            ((node.basepath != '' && !node.basepath.nil? )? "#{node.basepath}/"    : '') +
+            ((node.basepath != '' && !node.basepath.nil? )? "#{node.basepath}/" : '') +
             (node.klass.downcase   ) +
             (node[:zip].to_s       ) +
             (mode  ? "_#{mode}"  : '') +
@@ -400,7 +400,7 @@ module Zena
             if href = @params[:href]
               method_args << href
             elsif node.will_be?(Version)
-              method_args << node(Node)
+              method_args << "node"
               hash_params << ":lang => this.lang"
             else
               method_args << 'this'

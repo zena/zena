@@ -10,6 +10,16 @@ link:
   src: "<r:traductions><r:each join=', '><r:link eval='trans(lang)'/></r:each></r:traductions>"
   res: "<a href='/oo/projects/cleanWater/post27.html?lang=en'>english</a>, <a href='/oo/projects/cleanWater/post27.html?lang=fr'>french</a>"
 
+link_not_same_node:
+  # version link where 'up' node is not the version's node
+  context:
+    node: 'lion'
+    visitor: 'lion'
+    lang: fr
+  src: "<r:visitor do='redactions'><r:each join=', '><r:link/></r:each></r:visitor>"
+  tem: "/<%= zen_path\(var3.node, \{:lang => var3.lang\}\) %>/"
+  res: "<a href='/oo/page36.html?lang=en'>Stranger in the night</a>"
+
 anchor:
   context:
     node: 'opening'

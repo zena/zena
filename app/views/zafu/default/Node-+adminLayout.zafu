@@ -11,9 +11,7 @@
   </r:with>
   <r:with part='title'/>
   <r:with part='content' do='content_for_layout'>
-    <div id='title'>
-      <h1 do='title' actions='all' live='true'/>
-    </div>
+    <r:include template='Node' part='title'/>
     <div id='related' do='visitor'>
       <r:to_publish>
         <h3 class='group' do='trans'>to publish</h3>

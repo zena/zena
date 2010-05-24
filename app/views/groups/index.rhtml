@@ -1,4 +1,4 @@
-<h3><%= _('manage groups') %></h3>
+<h2 class='title'><%= _('manage groups') %></h2>
 <table class="admin" cellspacing="0">
   <tr><th class='nav' colspan='3'><%= will_paginate @groups %></th></tr>
   <%= render :partial=>'groups/li',  :collection=>@groups %>

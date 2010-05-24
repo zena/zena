@@ -4,29 +4,29 @@ module Zena
       attr_accessor :html_tag, :html_tag_params, :name, :sub_do
 
       # Replace the 'original' element in the included template with our new version.
-      # def replace_with(new_obj)
-      #   super
-      #   html_tag_params    = new_obj.html_tag_params
-      #   [:class, :id].each do |sym|
-      #     html_tag_params[sym] = new_obj.params[sym] if new_obj.params.include?(sym)
-      #   end
-      #   @html_tag = new_obj.html_tag || @html_tag
-      #   @html_tag_params.merge!(html_tag_params)
-      #   if new_obj.params[:method]
-      #     @method   = new_obj.params[:method] if new_obj.params[:method]
-      #   elsif new_obj.sub_do
-      #     @method = 'void'
-      #   end
-      # end
-      #
-      # # Pass the caller's 'html_tag' and 'html_tag_params' to the included part.
-      # def include_part(obj)
-      #   obj.html_tag = @html_tag || obj.html_tag
-      #   obj.html_tag_params = !@html_tag_params.empty? ? @html_tag_params : obj.html_tag_params
-      #   @html_tag = nil
-      #   @html_tag_params = {}
-      #   super(obj)
-      # end
+      def replace_with(new_obj)
+        super
+        html_tag_params    = new_obj.html_tag_params
+        [:class, :id].each do |sym|
+          html_tag_params[sym] = new_obj.params[sym] if new_obj.params.include?(sym)
+        end
+        @html_tag = new_obj.html_tag || @html_tag
+        @html_tag_params.merge!(html_tag_params)
+        if new_obj.params[:method]
+          @method   = new_obj.params[:method] if new_obj.params[:method]
+        elsif new_obj.sub_do
+          @method = 'void'
+        end
+      end
+
+      # Pass the caller's 'html_tag' and 'html_tag_params' to the included part.
+      def include_part(obj)
+        obj.html_tag = @html_tag || obj.html_tag
+        obj.html_tag_params = !@html_tag_params.empty? ? @html_tag_params : obj.html_tag_params
+        @html_tag = nil
+        @html_tag_params = {}
+        super(obj)
+      end
 
       def empty?
         super && @html_tag_params == {} && @html_tag.nil?

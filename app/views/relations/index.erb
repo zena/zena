@@ -1,4 +1,4 @@
-<h3><%= _('manage relations') %></h3>
+<h2 class='title'><%= _('manage relations') %></h2>
 <table id='relation_list' class='admin' cellspacing="0">
   <tr><th class='nav' colspan='9'><%= will_paginate @relations %></th></tr>
   <%= render :partial=>'relations/li',  :collection=>@relations %>
