@@ -52,10 +52,6 @@ class SitesController < ApplicationController
   end
 
   protected
-    def visitor_node
-      @node = visitor.contact
-    end
-
     def remove_methods
       raise ActiveRecord::RecordNotFound
     end

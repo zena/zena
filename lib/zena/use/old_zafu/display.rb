@@ -325,11 +325,6 @@ module Zafu
       out "<%= node_actions(:node=>#{node}#{params_to_erb(:actions=>@params[:select], :publish_after_save=>auto_publish_param)}) %>"
     end
 
-    # TODO: test
-    def r_admin_links
-      "<%= show_link(:admin_links).join('</#{@html_tag}><#{@html_tag}>') %>"
-    end
-
     def r_text
       text = @params[:text] ? @params[:text].inspect : "#{node_attribute('text')}"
       limit  = @params[:limit] ? ", :limit=>#{@params[:limit].to_i}" : ""

@@ -1,69 +1,48 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="#{v_lang}" xml:lang='en'>
-  <head>
-  <title do='title_for_layout' do='trans'>login</title>
-  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-  <meta http-equiv="Content-Language" do='void' content='#{trans("#{v_lang}_conent")}'/>
+<r:include template='Node'>
+  <r:with part='stylesheets'>
+    <r:stylesheets list='reset,zena,comment,admin,code,search,window'/>
+    <link href="style.css" rel="Stylesheet" type="text/css"/>
+  </r:with>
 
-  <r:stylesheets name='stylesheets' list='reset,zena,comment,admin,search,default'/>
-  <r:javascripts/>
-  <r:uses_datebox/>
-</head>
-<body>
-  <!-- There was a problem with the rendering of the original zafu code. Using default '+adminLayout' template. -->
-  <div id='top' do='root' do='link'/>
-  <div id='header'>
-    <div id='login' do='login_link'/>
-    <div id='visitor' do='visitor_link'/>
-    <div id='search' do='search_box' type='search'/>
-    <ol id='menu' do='root' do='pages'>
-      <li do='each' on_if_node='ancestor' do='link'/>
+  <r:with part='context'>
+    <ol class='admin_links' do='admin_links'>
+      <li do='each' do='show'><a href='#'>do this</a></li>
     </ol>
-  </div>
-  <div id='container'>
-    <div id='context'>
-      <ol class='admin_links'>
-        <li do='admin_links'><a href='#'>do this</a></li>
-      </ol>
+  </r:with>
+  <r:with part='title'/>
+  <r:with part='content' do='content_for_layout'>
+    <div id='title'>
+      <h1 do='title' actions='all' live='true'/>
     </div>
-    <div id='content' do='content_for_layout'>
-      <div id='related'>
-        <r:to_publish>
-          <h3 class='group' do='trans'>to publish</h3>
-          <ol>
-            <li do='each' class='li_s#{status}'><r:link/></li>
-          </ol>
-        </r:to_publish>
+    <div id='related' do='visitor'>
+      <r:to_publish>
+        <h3 class='group' do='trans'>to publish</h3>
+        <ol>
+          <li do='each' status='true'><r:link/></li>
+        </ol>
+      </r:to_publish>
 
-        <r:comments_to_publish>
-          <h3 class='group' do='trans'>comments to publish</h3>
-          <ol>
-            <li do='each'><r:show attr='title'/></li>
-          </ol>
-        </r:comments_to_publish>
+      <r:comments_to_publish>
+        <h3 class='group' do='trans'>comments to publish</h3>
+        <ol>
+          <li do='each'><r:show attr='title'/></li>
+        </ol>
+      </r:comments_to_publish>
 
-        <r:proposed>
-          <h3 class='group' do='trans'>waiting for publication</h3>
-          <ol>
-            <li do='each' class='li_s#{status}'><r:link/></li>
-          </ol>
-        </r:proposed>
+      <r:proposed>
+        <h3 class='group' do='trans'>waiting for publication</h3>
+        <ol>
+          <li do='each' status='true'><r:link/></li>
+        </ol>
+      </r:proposed>
 
-        <r:redactions>
-          <h3 class='group' do='trans'>redactions</h3>
-          <ol>
-            <li do='each' class='li_s#{status}'><r:link/></li>
-          </ol>
-        </r:redactions>
-      </div>
-      <div id='main'>
-        <r:text/>
-      </div> <!-- main -->
-      <div class='clear'>&nbsp;</div>
-    </div> <!-- content -->
-    <div class='clear'>&nbsp;</div>
-  </div> <!-- container -->
-  <div id='footer'><r:zena type='garden'/></div>
-</body>
-</html>
+      <r:redactions>
+        <h3 class='group' do='trans'>redactions</h3>
+        <ol>
+          <li do='each' status='true'><r:link/></li>
+        </ol>
+      </r:redactions>
+    </div>
+    <r:include template='Node' part='main'/>
+  </r:with>
+</r:include>

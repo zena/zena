@@ -4,5 +4,5 @@ if @iformat.errors.empty?
   page.replace_html 'add_iformat_form', :partial=>'iformats/form'
   page << "$('iformat_name').focus();"
 else
-  page.replace 'add_iformat_form', :partial=>'iformats/form'
+  page.replace_html 'add_iformat_form', :partial=>'iformats/form'
 end

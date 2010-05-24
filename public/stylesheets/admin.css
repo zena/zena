@@ -6,11 +6,11 @@
 #bin span { position:absolute; top:2px; left:30px; }
 
 /* ADMIN USERS, GROUPS */
-.admin_links { margin:18px; border:1px solid #35462B; background:#C2C095; padding:0;}
+.admin_links { margin:18px; border:1px solid #35462B; background:#ccc; padding:0;}
 .admin_links li { padding:0;}
-.admin_links li a { margin:0; border-top:1px solid #35462B; padding:3px; font-size:90%; color:black;  display:block;}
-.admin_links li:first-child a { border:0; }
-.admin_links li a:hover { background:#C47330; }
+#context .admin_links li a { margin:0; border-top:1px solid #35462B; padding:3px; font-size:90%; color:black;  display:block;}
+#context .admin_links li:first-child a { border:0; }
+.admin_links li a:hover { background:#999; }
 .admin_links li a.on {background:#eee;}
 .disabled img { opacity:0.4;}
 
@@ -42,13 +42,16 @@ table.admin td:first-child { border-left: 1px solid #666; }
 .admin .btn_validate { float:right; margin-right:30px; }
 .admin .label {width:150px; line-height:1.9em;}
 .admin th { color:#450009; }
-.admin .source, .admin .source_role { background:#DBBFBF;}
-.admin .target, .admin .target_role { background:#C0DBC0;}
-.admin .source_icon { background:#DBBFBF; text-align:center;}
-.admin .target_icon { background:#C0DBC0; text-align:center;}
+.admin .light { background:#eee;}
+.admin .dark { background:#ddd;}
+.admin .constant { display:inline-block; min-width:5em;}
+.admin .symbol { display:inline-block; min-width:7.5em;}
+.admin .ruby .text { display:inline-block; min-width:5em;}
+.admin .spacer {font-family:monospace;color:white;font-size:90%;}
+.destroy { margin:5px;}
 .destroy input, .destroy form { display:inline; }
 .destroy { border:1px solid #300; padding:3px; background:#fdd; float:right;}
-.source_role, .target_role { font-weight:bold;}
+.source, .target { font-weight:bold;}
 .source_role { text-align:right;}
 .nav td { border:0;}
 .prev_page, .next_page { margin:0; }
@@ -64,6 +67,7 @@ table.admin td:first-child { border-left: 1px solid #666; }
 #right { border:0; }
 ul.actions { position:relative; }
 ul.actions li { margin:0; border:1px dashed #9E9E9E; background: #D3D3D3; display:block; margin-bottom:10px;}
+ul.actions li p { padding:5px;}
 ul.actions form {margin:8px 0 0;}
 ul.actions ul { margin:0 0 0 1.6em; padding:0; }
 #preferences ul li, ul.actions ul li { padding:4px 0; border:0; margin:0;}

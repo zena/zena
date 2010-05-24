@@ -1,0 +1,6 @@
+<tr id='add_column' class='btn_add'>
+  <td class='add'><%= link_to_function _('btn_column_add'), "['add_column', 'add_column_form'].each(Element.toggle); $('column_name').focus();" %></td><td class='add_column'></td>
+</tr>
+<tr id='add_column_form' style='display:none;'>
+  <%= render :partial=>'columns/form' %>
+</tr>

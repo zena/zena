@@ -239,4 +239,23 @@ zena_garden:
   src: "<r:zena type='garden'/>"
   res: "/<a class='zena' href='http://zenadmin.org' title='Zena .+'>a Zen garden</a>/"
 
+admin_links_for_admin:
+  context:
+    visitor: lion
+  src: "<r:admin_links do='each' do='show'/>"
+  res: '/preferences.*comments.*users.*groups.*relations.*classes.*properties.*image.*sites.*dev/'
+
+admin_links_for_admin_with_list:
+  context:
+    visitor: lion
+  src: "<ul do='admin_links' list='comments,sites'><li do='each' do='show'><a href='#'>do this</a></li></ul>"
+  tem: '/if var1 = admin_links\(\{:list => "comments,sites"\}/'
+  res: '<ul><li><a href="/comments">manage comments</a></li><li><a href="/sites">manage sites</a></li></ul>'
+
+admin_links_for_anon:
+  context:
+    visitor: anon
+  src: "<r:admin_links>hello</r:admin_links>"
+  res: ''
+
 # ---- fixed to here

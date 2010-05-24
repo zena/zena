@@ -4,5 +4,5 @@ if @virtual_class.errors.empty?
   page.replace_html 'add_virtual_class_form', :partial=>'virtual_classes/form'
   page << "$('virtual_class_name').focus();"
 else
-  page.replace 'add_virtual_class_form', :partial=>'virtual_classes/form'
+  page.replace_html 'add_virtual_class_form', :partial=>'virtual_classes/form'
 end

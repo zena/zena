@@ -1,18 +1,15 @@
-<h1>Listing columns</h1>
+<h3><%= _('manage properties') %></h3>
 
-<table>
-  <tr>
-  </tr>
-
-<% @columns.each do |column| %>
-  <tr>
-    <td><%= link_to 'Show', column %></td>
-    <td><%= link_to 'Edit', edit_column_path(column) %></td>
-    <td><%= link_to 'Destroy', column, :confirm => 'Are you sure?', :method => :delete %></td>
-  </tr>
-<% end %>
+<table id='column_list' class='admin' cellspacing="0">
+  <tr><th class='nav' colspan='7'><%= will_paginate @columns %></th></tr>
+  <%= render :partial=>'columns/li',  :collection=>@columns %>
+  <%= render :partial=>'columns/add' %>
 </table>
 
-<br />
+<div class='admin_group'><h3><%= _('import definitions') %></h3>
 
-<%= link_to 'New column', new_column_path %>
+<%= form_tag({ :controller => 'columns', :action => 'import'}, {:multipart => true} ) %>
+<input style='line-height:1.5em;' name="attachment" class='file' type="file" />
+<p class="btn_validate"><input type="submit" value='<%= _('import') %>'/></p>
+</form>
+</div>

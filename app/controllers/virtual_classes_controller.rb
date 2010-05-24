@@ -8,7 +8,9 @@ class VirtualClassesController < ApplicationController
     secure(VirtualClass) do
       @virtual_classes = VirtualClass.paginate(:all, :order => 'kpath', :per_page => 20, :page => params[:page])
     end
+
     @virtual_class  = VirtualClass.new('')
+
     respond_to do |format|
       format.html # index.erb
       format.xml  { render :xml => @virtual_classes }
@@ -16,10 +18,11 @@ class VirtualClassesController < ApplicationController
   end
 
   def export
-    secure(VirtualClass) do
-      @virtual_classes = VirtualClass.all
+    data = secure(VirtualClass) do
+      VirtualClass.export
     end
-    ###
+
+    ### TODO
   end
 
   def import
@@ -45,8 +48,8 @@ class VirtualClassesController < ApplicationController
   def show
     respond_to do |format|
       format.html # show.erb
-      format.xml  { render :xml => @virtual_class }
       format.js
+      format.xml  { render :xml => @virtual_class }
     end
   end
 
@@ -112,10 +115,6 @@ class VirtualClassesController < ApplicationController
   end
 
   protected
-    def visitor_node
-      @node = visitor.contact
-    end
-
     def find_virtual_class
       @virtual_class = secure!(VirtualClass) { VirtualClass.find(params[:id])}
     end

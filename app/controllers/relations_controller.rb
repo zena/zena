@@ -89,10 +89,6 @@ class RelationsController < ApplicationController
   end
 
   protected
-    def visitor_node
-      @node = visitor.contact
-    end
-
     def find_relation
       @relation = secure!(Relation) { Relation.find(params[:id])}
     end

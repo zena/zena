@@ -1,21 +1,24 @@
 <r:include template='Node'>
   <r:with part='stylesheets'>
-    <r:stylesheets list='reset,zena,comment,admin,search'/>
+    <r:stylesheets list='reset,zena,comment,admin,code,search,window'/>
     <link href="style.css" rel="Stylesheet" type="text/css"/>
   </r:with>
 
   <r:with part='context'>
-    <ol class='admin_links'>
-      <li do='admin_links'><a href='#'>do this</a></li>
+    <ol class='admin_links' do='admin_links'>
+      <li do='each' do='show'><a href='#'>do this</a></li>
     </ol>
   </r:with>
   <r:with part='title'/>
   <r:with part='content' do='content_for_layout'>
-    <div id='related'>
+    <div id='title'>
+      <h1 do='title' actions='all' live='true'/>
+    </div>
+    <div id='related' do='visitor'>
       <r:to_publish>
         <h3 class='group' do='trans'>to publish</h3>
         <ol>
-          <li do='each' class='li_s#{status}'><r:link/></li>
+          <li do='each' status='true'><r:link/></li>
         </ol>
       </r:to_publish>
 
@@ -29,14 +32,14 @@
       <r:proposed>
         <h3 class='group' do='trans'>waiting for publication</h3>
         <ol>
-          <li do='each' class='li_s#{status}'><r:link/></li>
+          <li do='each' status='true'><r:link/></li>
         </ol>
       </r:proposed>
 
       <r:redactions>
         <h3 class='group' do='trans'>redactions</h3>
         <ol>
-          <li do='each' class='li_s#{status}'><r:link/></li>
+          <li do='each' status='true'><r:link/></li>
         </ol>
       </r:redactions>
     </div>

@@ -54,7 +54,7 @@ module Zena
 
       resources :relations
       resources :virtual_classes, :collection => {:import => :post}
-      resources :columns
+      resources :columns,         :collection => {:import => :post}
 
       resources :sites,
                     :member     => { :clear_cache => :post }

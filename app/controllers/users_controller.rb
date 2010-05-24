@@ -114,6 +114,7 @@ class UsersController < ApplicationController
       else
         @user = visitor
       end
+      zafu_node('@node', Contact)
       @node = @user.contact
     end
 

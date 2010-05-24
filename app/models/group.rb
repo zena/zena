@@ -105,6 +105,7 @@ class Group < ActiveRecord::Base
 
       # make sure site_id is set
       self[:site_id] = visitor.site[:id]
+
       # Make sure all users are in the group's site.
       if @defined_user_ids
         if public_group? || site_group?

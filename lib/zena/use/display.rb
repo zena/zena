@@ -208,8 +208,9 @@ module Zena
       module ViewMethods
         include ImageTags
         include RubyLess
-        safe_method [:sprintf, String, Number] => {:class => String, :method => 'sprintf'}
-        safe_method [:search_box, {:ajax => String, :type => String}] => String
+        safe_method  [:sprintf,     String, Number]                     => {:class => String, :method => 'sprintf'}
+        safe_method  [:search_box,  {:ajax => String, :type => String}] => String
+        safe_context [:admin_links, {:list => String}]                  => [String]
 
         # Return sprintf formated entry. Return '' for values eq to zero.
         def sprintf_unless_zero(fmt, value)
@@ -220,6 +221,68 @@ module Zena
         def search_box(opts={})
           render_to_string(:partial=>'search/form', :locals => {:ajax => opts[:ajax], :type => opts[:type]})
         end
+
+        # Return a list of administrative links
+        def admin_links(opts = {})
+          list = opts[:list] || 'all'
+          if list == 'all'
+            list = %w{home preferences comments users groups relations virtual_classes properties iformats sites dev}
+          else
+            list = list.split(',').map(&:strip)
+          end
+
+          list = list.map do |key|
+            show_link(key)
+          end.compact
+
+          list.empty? ? nil : list
+        end
+
+        # shows links for site features
+        def show_link(link, opt={})
+          case link
+          when 'home'
+            return nil if visitor.is_anon?
+            link_to_with_state(_('my home'), user_path(visitor))
+          when 'preferences'
+            return nil if visitor.is_anon?
+            link_to_with_state(_('preferences'), preferences_user_path(visitor[:id]))
+          when 'comments'
+            return nil unless visitor.is_admin?
+            link_to_with_state(_('manage comments'), comments_path)
+          when 'users'
+            return nil unless visitor.is_admin?
+            link_to_with_state(_('manage users'), users_path)
+          when 'groups'
+            return nil unless visitor.is_admin?
+            link_to_with_state(_('manage groups'), groups_path)
+          when 'relations'
+            return nil unless visitor.is_admin?
+            link_to_with_state(_('manage relations'), relations_path)
+          when 'virtual_classes'
+            return nil unless visitor.is_admin?
+            link_to_with_state(_('manage classes'), virtual_classes_path)
+          when 'properties'
+            return nil unless visitor.is_admin?
+            link_to_with_state(_('manage properties'), columns_path)
+          when 'iformats'
+            return nil unless visitor.is_admin?
+            link_to_with_state(_('image formats'), iformats_path)
+          when 'sites'
+            return nil unless visitor.is_admin?
+            link_to_with_state(_('manage sites'), sites_path)
+          when 'dev'
+            return nil unless visitor.is_admin?
+            if @controller.session[:dev]
+              link_to(_('turn dev off'), swap_dev_user_path(visitor))
+            else
+              link_to(_('turn dev on'), swap_dev_user_path(visitor))
+            end
+          else
+            nil
+          end
+        end
+
 =begin
         def title(node, opts = {})
           if node.kind_of?(Version)
@@ -488,7 +551,6 @@ module Zena
             "<a class='zena' href='http://zenadmin.org' title='Zena <%= Zena::VERSION %>'>#{text}</a>"
           end
         end
-
 
         private
           def show_number(method)

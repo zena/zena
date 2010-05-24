@@ -18,6 +18,12 @@ status_without_tag:
   tem: "<span class='s<%= @node.version.status %>'>hello</span>"
   res: "<span class='s70'>hello</span>"
 
+status_on_each:
+  context:
+    visitor: lion
+  src: "<r:visitor do='to_publish'><p do='each' status='true'>hello</p></r:visitor>"
+  tem: "/var2.each do .var3. .*<p class='s<%= var3.status %>'"
+
 prefix_project_no_show_no_tag:
   src: "<r:void prefix='project'>hop</r:void>"
   tem: "<%= prefix_project(@node) %>hop"

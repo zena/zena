@@ -1,0 +1,34 @@
+<td class="adm_icon">
+  <%= unless @column.new_record?
+    link_to_remote _('btn_x'), :url => column_path(@column), :method => :get
+  else
+    link_to_function _('btn_x'), "['add_column', 'add_column_form'].each(Element.toggle)"
+  end %>
+</td>
+<td class="add">
+  <div id='column_errors'><%= error_messages_for(:column, :object => @column) %></div>
+  <% if @column.new_record? %>
+  <%= form_remote_tag(:url => columns_path ) %>
+  <% else %>
+  <%= form_remote_tag(:url => column_path(@column), :method => :put ) %>
+  <% end %>
+  <table cellspacing='0' class='edit_column'>
+    <tr class='ruby'>
+      <td class='label'><%= _("role")%></td>
+      <td class='label'><%= _("type")%></td>
+      <td class='label'><%= _("name")%></td>
+    </tr>
+    <tr class='ruby'>
+      <td><span class='constant'><%= select('column', 'role_id', Column.roles_for_form  ) %></span></td>
+      <td><span class='text'><%= select('column', 'ptype',   Column.ptypes_for_form ) %></span></td>
+      <td><%= text_field('column', 'name',  :size=>15 ) %></td>
+    </tr>
+    <tr><td colspan='3'><p class='btn_validate'><input type='submit' value='<%= _('validate') %>'/></p></td></tr>
+  </table>
+  </form>
+  <% if !@column.new_record? -%>
+  <%= form_remote_tag(:url => column_path(@column), :method => :delete, :confirm => _('Are you sure you want to destroy this property definition ?') ) %>
+  <p class='destroy'><%= _('destroy property') %> <input type='submit' value='<%= _('destroy') %>'></p>
+  </form>
+  <% end -%>
+</td>

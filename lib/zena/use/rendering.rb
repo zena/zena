@@ -40,7 +40,6 @@ module Zena
           end
         end
 
-
         # TODO: test
         def render_404(exception)
           if Thread.current[:visitor]
@@ -163,6 +162,12 @@ module Zena
         def popup_layout
           js_data << "var is_editor = true;"
           template_url(:mode=>'+popupLayout')
+        end
+
+        # Use the current visitor as master node.
+        def visitor_node
+          @node = visitor.contact
+          zafu_node('@node', Contact)
         end
 
         def render_pdf(rendering_egine)

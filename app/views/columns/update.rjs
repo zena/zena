@@ -1,0 +1,5 @@
+if @column.errors.empty?
+  page.replace "column#{@column[:id]}", :partial=>"columns/li", :collection=>[@column]
+else
+  page.replace "column#{@column[:id]}", :partial=>"columns/form"
+end

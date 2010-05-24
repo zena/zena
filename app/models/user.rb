@@ -40,7 +40,9 @@ class User < ActiveRecord::Base
   safe_method             :initials => String, :fullname => String, :status => Number, :status_name => String,
                           :is_anon? => Boolean
 
-  safe_context            :contact => 'Contact', :node => {:method => 'contact', :class => 'Contact'}
+  safe_context            :contact => 'Contact', :node => {:method => 'contact', :class => 'Contact'},
+                          :to_publish => ['Version'], :redactions => ['Version'], :proposed => ['Version'],
+                          :comments_to_publish => ['Comment']
   attr_accessible         :login, :lang, :first_name, :name, :email, :time_zone, :status, :group_ids, :site_ids, :crypted_password, :password
   attr_accessor           :visited_node_ids
   attr_accessor           :ip

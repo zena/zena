@@ -49,6 +49,9 @@ class VirtualClass < Role
     end
   end
 
+  def self.export
+    # TODO
+  end
 
   def to_s
     name

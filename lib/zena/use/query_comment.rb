@@ -6,7 +6,7 @@ module Zena
 
       module ModelMethods
         def self.included(base)
-          base.send(:include, QueryBuilder)
+          base.send(:include, ::QueryBuilder)
           base.extend ClassMethods
           base.query_compiler = Zena::Use::QueryComment::Compiler
         end

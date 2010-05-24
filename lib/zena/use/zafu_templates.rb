@@ -279,6 +279,8 @@ module Zena
           # Return the node_context to use in zafu compilation from the current controller and action.
           # FIXME: Use information on template target_class to get class !
           def get_node_context
+            return zafu_context[:node] if zafu_context[:node]
+
             if self.class.to_s =~ /\A([A-Z]\w+?)s?[A-Z]/
               ivar = "@#{$1.downcase}"
               if var = self.instance_variable_get(ivar.to_sym)

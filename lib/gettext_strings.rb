@@ -78,6 +78,8 @@ module Zena
     N_('btn_unpublish')    # version action
     N_('btn_destroy')
     N_('btn_propose')
+    N_('btn_edit')
+    N_('btn_drive')
     N_('btn_refuse')
     N_('btn_destroy_version')
     N_('btn_redit')

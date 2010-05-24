@@ -1,12 +1,5 @@
-<h1>Editing column</h1>
-
-<% form_for(@column) do |f| %>
-  <%= f.error_messages %>
-
-  <p>
-    <%= f.submit 'Update' %>
-  </p>
-<% end %>
-
-<%= link_to 'Show', @column %> |
-<%= link_to 'Back', columns_path %>
+<h3><%= _('property') %></h3>
+<table class="admin" cellspacing="0">
+  <tr><th class='nav' colspan='3'>&nbsp;</th></tr>
+  <tr id='property<%= @column[:id] %>'><%= render :partial=>'columns/form' %></tr>
+</table>

@@ -77,9 +77,9 @@ class ColumnsControllerTest < Zena::Controller::TestCase
           assert_redirected_to column_path(assigns(:column))
         end
 
-      end # creating a virtual class
+      end # creating a column
 
-      context 'displaying a virtual class' do
+      context 'displaying a column' do
         subject do
           {:action => :show, :id => columns_id(:Task_assigned)}
         end
@@ -88,9 +88,9 @@ class ColumnsControllerTest < Zena::Controller::TestCase
           get_subject
           assert_response :success
         end
-      end # displaying a virtual class
+      end # displaying a column
 
-      context 'editing a virtual class' do
+      context 'editing a column' do
         subject do
           {:action => :edit, :id => columns_id(:Task_assigned)}
         end
@@ -99,9 +99,9 @@ class ColumnsControllerTest < Zena::Controller::TestCase
           get_subject
           assert_response :success
         end
-      end # editing a virtual class
+      end # editing a column
 
-      context 'updating a virtual class' do
+      context 'updating a column' do
         subject do
           {:action => :update, :id => columns_id(:Task_assigned), :column => { :name => 'foobar'}}
         end
@@ -117,7 +117,7 @@ class ColumnsControllerTest < Zena::Controller::TestCase
           assert_equal 'foobar', column.name
         end
 
-      end # updating a virtual class
+      end # updating a column
 
       context 'destroying a column' do
         subject do
@@ -134,7 +134,7 @@ class ColumnsControllerTest < Zena::Controller::TestCase
           delete_subject
           assert_redirected_to columns_path
         end
-      end # destroying a virtual class
+      end # destroying a column
     end # that is an admin
   end # A logged in user
 end

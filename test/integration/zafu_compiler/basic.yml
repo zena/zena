@@ -404,8 +404,12 @@ name_title:
   res: "title: <h1 id='lala'>status</h1>"
 
 include_with:
-  src: "include_with: <r:include template='/name/title'><h1 do='with' part='title' attr='id'/>"
+  src: "include_with: <r:include template='/basic/name/title'><h1 do='with' part='title' attr='id'/>"
   res: "include_with: title: <h1 id='lala'>22</h1>"
+
+include_with_empty:
+  src: "include_with: <r:include template='/basic/name/title'><r:with part='title'/>"
+  res: "include_with: title: "
 
 id_name:
   src: "name_with_name: My name is <b do='void' name='bob'>Bob</b>.<r:void id='comment'> I am happy.</r:void>"

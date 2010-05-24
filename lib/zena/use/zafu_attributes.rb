@@ -141,6 +141,7 @@ module Zena
           def filter_status
             status = @params.delete(:status)
             if status == 'true' || (@params[:actions] && status != 'false')
+              node = @method == 'each' ? self.node.move_to(var, self.node.klass) : self.node
 
               if node.will_be? Node
                 accessor = "#{node}.version"

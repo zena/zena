@@ -1,6 +1,6 @@
 class ColumnsController < ApplicationController
   before_filter :visitor_node
-  before_filter :find_column, :except => [:index, :create, :new]
+  before_filter :find_column, :except => [:index, :create, :new, :import]
   before_filter :check_is_admin
   layout :admin_layout
 
@@ -11,9 +11,39 @@ class ColumnsController < ApplicationController
       @columns = Column.paginate(:all, :order => 'name', :per_page => 20, :page => params[:page])
     end
 
+    @column  = Column.new
+
     respond_to do |format|
       format.html # index.html.erb
       format.xml  { render :xml => @columns }
+    end
+  end
+
+  def export
+    data = secure(Column) do
+      Column.export
+    end
+
+    ### TODO
+  end
+
+  def import
+    attachment = params[:attachment]
+    if attachment.nil?
+      flass[:error] = "Upload failure: no definitions."
+      redirect_to :action => :index
+    else
+      data = YAML.load(attachment.read) rescue nil
+      if data.nil?
+        flash[:error] = "Could not parse yaml document"
+        redirect_to :action => :index
+      else
+        @columns = secure(Column) { Column.import(data) }.paginate(:per_page => 200)
+        @column  = VirtualClass.new('')
+        respond_to do |format|
+          format.html { render :action => 'index' }
+        end
+      end
     end
   end
 
@@ -23,6 +53,7 @@ class ColumnsController < ApplicationController
 
     respond_to do |format|
       format.html # show.html.erb
+      format.js
       format.xml  { render :xml => @column }
     end
   end
@@ -40,7 +71,10 @@ class ColumnsController < ApplicationController
 
   # GET /columns/1/edit
   def edit
-    #
+    respond_to do |format|
+      format.html { render :partial => 'columns/form' }
+      format.js   { render :partial => 'columns/form', :layout => false }
+    end
   end
 
   # POST /columns
@@ -52,9 +86,11 @@ class ColumnsController < ApplicationController
       if @column.save
         flash[:notice] = 'Column was successfully created.'
         format.html { redirect_to(@column) }
+        format.js
         format.xml  { render :xml => @column, :status => :created, :location => @column }
       else
         format.html { render :action => "new" }
+        format.js
         format.xml  { render :xml => @column.errors, :status => :unprocessable_entity }
       end
     end
@@ -82,15 +118,12 @@ class ColumnsController < ApplicationController
 
     respond_to do |format|
       format.html { redirect_to(columns_url) }
+      format.js
       format.xml  { head :ok }
     end
   end
 
   protected
-    def visitor_node
-      @node = visitor.contact
-    end
-
     def find_column
       @column = secure!(Column) { Column.find(params[:id])}
     end

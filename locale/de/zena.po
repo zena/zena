@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: version 0.0.1\n"
-"POT-Creation-Date: 2010-02-01 22:55+0100\n"
+"POT-Creation-Date: 2010-05-24 15:22+0200\n"
 "PO-Revision-Date: 2009-10-17 21:34+0100\n"
 "Last-Translator: Lars Kanis <lars@greiz-reinsdorf.de>\n"
 "Language-Team: de <lars@greiz-reinsdorf.de>\n"
@@ -13,62 +13,70 @@ msgstr ""
 "X-Poedit-Bookmarks: -1,-1,-1,219,-1,-1,-1,-1,-1,-1\n"
 "X-Poedit-Basepath: /Users/gaspard/svk/zena\n"
 
-#: app/controllers/documents_controller.rb:34
-msgid "Upload failed."
-msgstr "Upload fehlgeschlagen"
-
-#: app/controllers/documents_controller.rb:37
-msgid "Upload succeeded."
-msgstr "Upload erfogreich"
-
-#: app/controllers/nodes_controller.rb:210
-msgid "Backup created."
-msgstr "Backup erzeugt"
-
-#: app/controllers/nodes_controller.rb:212
-msgid "Could not create backup."
-msgstr "Backup konnte nicht erzeugt werden"
-
-#: app/controllers/nodes_controller.rb:263
-msgid "node updated"
-msgstr "Eintrag aktualisiert"
-
-#: app/controllers/nodes_controller.rb:265
-msgid "could not update"
-msgstr "Eintrag konnte nicht aktualisiert werden"
-
-#: app/controllers/nodes_controller.rb:316
-msgid "node not found"
-msgstr "Eintrag nicht gefunden"
-
-#: app/controllers/nodes_controller.rb:340
-msgid "Order updated"
-msgstr "Order aktualisiert"
-
-#: app/controllers/nodes_controller.rb:342
-msgid "Could not update order."
-msgstr "Order konnte nicht aktualisiert werden"
-
-#: app/controllers/nodes_controller.rb:359
-msgid "Could not clear order."
-msgstr "Order konnte nicht gelöscht werden"
+#: app/controllers/comments_controller.rb:31
+msgid "Comment was successfully created."
+msgstr "Kommentar erfolgreich angelegt"
 
 #: app/controllers/data_entries_controller.rb:18
 msgid "Data entry was successfully created."
 msgstr "Dateneintrag erfolgreich angelegt"
 
-#: app/controllers/comments_controller.rb:31
-msgid "Comment was successfully created."
-msgstr "Kommentar erfolgreich angelegt"
+#: app/controllers/documents_controller.rb:37
+msgid "Upload failed."
+msgstr "Upload fehlgeschlagen"
+
+#: app/controllers/documents_controller.rb:40
+msgid "Upload succeeded."
+msgstr "Upload erfogreich"
+
+#: app/controllers/nodes_controller.rb:215
+msgid "Backup created."
+msgstr "Backup erzeugt"
+
+#: app/controllers/nodes_controller.rb:217
+msgid "Could not create backup."
+msgstr "Backup konnte nicht erzeugt werden"
+
+#: app/controllers/nodes_controller.rb:269
+msgid "node updated"
+msgstr "Eintrag aktualisiert"
+
+#: app/controllers/nodes_controller.rb:271
+msgid "could not update"
+msgstr "Eintrag konnte nicht aktualisiert werden"
+
+#: app/controllers/nodes_controller.rb:352
+msgid "node not found"
+msgstr "Eintrag nicht gefunden"
+
+#: app/controllers/nodes_controller.rb:352
+msgid "new"
+msgstr ""
+
+#: app/controllers/nodes_controller.rb:376
+msgid "Order updated"
+msgstr "Order aktualisiert"
+
+#: app/controllers/nodes_controller.rb:378
+msgid "Could not update order."
+msgstr "Order konnte nicht aktualisiert werden"
+
+#: app/controllers/nodes_controller.rb:395
+msgid "Could not clear order."
+msgstr "Order konnte nicht gelöscht werden"
+
+#: app/controllers/preferences_controller.rb:25
+msgid "password successfully updated"
+msgstr "Passwort erfolgreich aktualisiert"
+
+#: app/controllers/preferences_controller.rb:40
+#: app/controllers/users_controller.rb:97
+msgid "information successfully updated"
+msgstr "Information erfolgreich aktualisiert"
 
 #: app/controllers/sites_controller.rb:51
 msgid "Cache cleared."
 msgstr "Zwischenspeicher gelöscht."
-
-#: app/controllers/users_controller.rb:97
-#: app/controllers/preferences_controller.rb:40
-msgid "information successfully updated"
-msgstr "Information erfolgreich aktualisiert"
 
 #: app/controllers/users_controller.rb:99
 msgid "could not update user"
@@ -82,63 +90,202 @@ msgstr "Artikel wieder zur Begutachtung gestellt"
 msgid "Could not change version back to redaction."
 msgstr "Artikel konnte nicht wieder zur Begutachtung gestellt werden"
 
-#: app/controllers/versions_controller.rb:67
-msgid "Could not edit version."
-msgstr "Eintrag konnte nicht bearbeitet werden"
-
-#: app/controllers/versions_controller.rb:183
+#: app/controllers/versions_controller.rb:166
 msgid "Redaction proposed for publication."
 msgstr "Vorgeschlagen zur Veröffentlichung"
 
-#: app/controllers/versions_controller.rb:185
+#: app/controllers/versions_controller.rb:168
 msgid "Could not propose redaction."
 msgstr "Artikel konnte nicht zur Veröffentlichung vorgeschlagen werden"
 
-#: app/controllers/versions_controller.rb:192
+#: app/controllers/versions_controller.rb:175
 msgid "Proposition refused."
 msgstr "Vorschlag zur Veröffentlichung zurückgezogen"
 
-#: app/controllers/versions_controller.rb:195
+#: app/controllers/versions_controller.rb:178
 msgid "Could not refuse proposition."
 msgstr "Vorschlag zur Veröffentlichung konnte nicht zurückgezogen werden"
 
-#: app/controllers/preferences_controller.rb:25
-msgid "password successfully updated"
-msgstr "Passwort erfolgreich aktualisiert"
-
-#: app/models/data_entry.rb:44 app/views/data_entries/_li.html.erb:2
-#: lib/zena/use/dates.rb:145
-msgid "datetime"
-msgstr "%Y-%m-%d %H:%M"
-
-#: app/models/comment.rb:86
+#: app/models/comment.rb:88
 msgid "re: "
 msgstr ""
 
-#: app/views/sites/edit.erb:1
-msgid "edit site"
-msgstr "Site bearbeiten"
+#: app/models/data_entry.rb:45 app/models/node.rb:729
+#: app/views/data_entries/_li.html.erb:2 app/views/discussions/_li.rhtml:7
+#: lib/zena/use/dates.rb:162
+msgid "datetime"
+msgstr "%Y-%m-%d %H:%M"
 
-#: app/views/sites/_li.erb:2 lib/gettext_strings.rb:31
-msgid "site_img"
-msgstr "<img src='/images/world.png' title='site'/>"
+#: app/views/columns/_add.html.erb:2
+#, fuzzy
+msgid "btn_column_add"
+msgstr "<img src='/images/group_add.png' title='Gruppe hinzufügen'/>"
 
-#: app/views/sites/index.erb:1 lib/zena/use/html_tags.rb:428
-msgid "manage sites"
-msgstr "Sites verwalten"
-
-#: app/views/sites/_form.erb:3 app/views/sites/_form.erb:5
+#: app/views/columns/_form.html.erb:3 app/views/columns/_form.html.erb:5
 #: app/views/relations/_form.erb:3 app/views/relations/_form.erb:5
+#: app/views/sites/_form.erb:3 app/views/sites/_form.erb:5
 #: app/views/virtual_classes/_form.erb:3 app/views/virtual_classes/_form.erb:5
-#: app/views/links/_form.rhtml:12 app/views/links/_form.rhtml:14
-#: app/views/nodes/_results.rhtml:7 app/views/nodes/_import_results.rhtml:3
-#: app/views/users/_form.rhtml:3 app/views/users/_form.rhtml:5
 #: app/views/comments/_form.rhtml:8 app/views/comments/_form.rhtml:10
-#: app/views/comments/_form.rhtml:12 app/views/groups/_form.rhtml:3
-#: app/views/groups/_form.rhtml:5 app/views/iformats/_form.rhtml:3
-#: app/views/iformats/_form.rhtml:5 app/views/discussions/_form.rhtml:8
+#: app/views/comments/_form.rhtml:12 app/views/discussions/_form.rhtml:8
+#: app/views/groups/_form.rhtml:3 app/views/groups/_form.rhtml:5
+#: app/views/iformats/_form.rhtml:3 app/views/iformats/_form.rhtml:5
+#: app/views/links/_form.rhtml:12 app/views/links/_form.rhtml:14
+#: app/views/nodes/_import_results.rhtml:3 app/views/nodes/_results.rhtml:7
+#: app/views/users/_form.rhtml:3 app/views/users/_form.rhtml:5
 msgid "btn_x"
 msgstr "<img src='/images/cross.png' title='cancel'/>"
+
+#: app/views/columns/_form.html.erb:17 app/views/relations/_form.erb:27
+msgid "role"
+msgstr "Rolle"
+
+#: app/views/columns/_form.html.erb:18 app/views/relations/_form.erb:21
+#: app/views/iformats/_form.rhtml:17
+msgid "type"
+msgstr "Typ"
+
+#: app/views/columns/_form.html.erb:19 app/views/users/preferences.html.erb:18
+#: app/views/virtual_classes/_form.erb:16 app/views/groups/_form.rhtml:18
+#: app/views/iformats/_form.rhtml:16 app/views/nodes/_parent.rhtml:8
+#: app/views/templates/document_create_tabs/_template.rhtml:7
+#: app/views/templates/document_create_tabs/_text_document.rhtml:8
+#: app/views/users/_form.rhtml:27 lib/gettext_strings.rb:161
+msgid "name"
+msgstr "Name"
+
+#: app/views/columns/_form.html.erb:26 app/views/relations/_form.erb:35
+#: app/views/sites/_form.erb:34 app/views/users/preferences.html.erb:22
+#: app/views/users/preferences.html.erb:41
+#: app/views/virtual_classes/_form.erb:22 app/views/comments/_form.rhtml:23
+#: app/views/groups/_form.rhtml:35 app/views/iformats/_form.rhtml:22
+#: app/views/nodes/_edit_attribute.rhtml:15
+#: app/views/templates/document_create_tabs/_file.rhtml:3
+#: app/views/templates/document_create_tabs/_import.rhtml:2
+#: app/views/templates/document_create_tabs/_template.rhtml:3
+#: app/views/templates/document_create_tabs/_text_document.rhtml:3
+#: app/views/users/_form.rhtml:46 app/views/versions/edit.rhtml:16
+msgid "validate"
+msgstr " fertig "
+
+#: app/views/columns/_form.html.erb:30
+#, fuzzy
+msgid "Are you sure you want to destroy this property definition ?"
+msgstr "Sind sie sicher, diesen Bezug zu löschen?"
+
+#: app/views/columns/_form.html.erb:31
+#, fuzzy
+msgid "destroy property"
+msgstr "<img src='/images/group.png' title='Gruppe löschen'/>"
+
+#: app/views/columns/_form.html.erb:31 app/views/relations/_form.erb:40
+#: app/views/virtual_classes/_form.erb:27 app/views/groups/_form.rhtml:41
+#: app/views/iformats/_form.rhtml:27
+msgid "destroy"
+msgstr "Löschen"
+
+#: app/views/columns/_li.html.erb:2
+#, fuzzy
+msgid "column_error_img"
+msgstr "<img src='/images/brick_error.png' title='class error'/>"
+
+#: app/views/columns/_li.html.erb:2
+msgid "column_img"
+msgstr ""
+
+#: app/views/columns/edit.html.erb:1
+msgid "property"
+msgstr ""
+
+#: app/views/columns/index.html.erb:1 lib/zena/use/display.rb:267
+#, fuzzy
+msgid "manage properties"
+msgstr "Gruppen verwalten"
+
+#: app/views/columns/index.html.erb:9 app/views/virtual_classes/index.erb:9
+msgid "import definitions"
+msgstr "Definitionen importieren"
+
+#: app/views/columns/index.html.erb:13 app/views/virtual_classes/index.erb:13
+msgid "import"
+msgstr "Import"
+
+#: app/views/columns/new.html.erb:1 app/views/virtual_classes/new.erb:1
+msgid "new class"
+msgstr "neue Klasse"
+
+#: app/views/data_entries/index.html.erb:1
+#: app/views/data_entries/show.html.erb:1
+#, fuzzy
+msgid "data entries"
+msgstr "%Y-%m-%d %H:%M"
+
+#: app/views/groups/edit.html.erb:1 app/views/groups/show.html.erb:1
+msgid "group"
+msgstr "Gruppe"
+
+#: app/views/iformats/edit.html.erb:1 app/views/iformats/show.html.erb:1
+msgid "iformat"
+msgstr ""
+
+#: app/views/relations/_add.erb:2 lib/gettext_strings.rb:36
+msgid "btn_relation_add"
+msgstr "<img src='/images/link_add.png' title='Bezug hinzufügen'/>"
+
+#: app/views/relations/_form.erb:16
+#, fuzzy
+msgid "forward"
+msgstr "Format"
+
+#: app/views/relations/_form.erb:16
+#, fuzzy
+msgid "inverse"
+msgstr "innerhalb"
+
+#: app/views/relations/_form.erb:17 app/views/nodes/_parent.rhtml:7
+msgid "class"
+msgstr "<img src='/images/lock.png' title='Klasse'/>"
+
+#: app/views/relations/_form.erb:22 app/views/relations/_form.erb:24
+#: app/views/relations/_li.erb:7 app/views/relations/_li.erb:8
+#, fuzzy
+msgid "has_one"
+msgstr "übernehmen"
+
+#: app/views/relations/_form.erb:23 app/views/relations/_form.erb:25
+#: app/views/relations/_li.erb:7 app/views/relations/_li.erb:8
+msgid "has_many"
+msgstr ""
+
+#: app/views/relations/_form.erb:31 app/views/virtual_classes/_form.erb:17
+msgid "icon"
+msgstr "Icon"
+
+#: app/views/relations/_form.erb:39
+msgid "Are you sure you want to destroy this relation ?"
+msgstr "Sind sie sicher, diesen Bezug zu löschen?"
+
+#: app/views/relations/_form.erb:40
+msgid "destroy relation (with all links)"
+msgstr "Bezug löschen (mit allen Links)"
+
+#: app/views/relations/_li.erb:2 lib/zena/use/old_zafu/action.rb:45
+#: lib/zena/use/old_zafu/display.rb:177 lib/zena/use/urls.rb:505
+msgid "edit"
+msgstr "bearbeiten"
+
+#: app/views/relations/edit.erb:1
+#, fuzzy
+msgid "edit relation"
+msgstr "<img src='/images/target.png' title='role'/>"
+
+#: app/views/relations/index.erb:1 lib/zena/use/display.rb:261
+msgid "manage relations"
+msgstr "Bezüge verwalten"
+
+#: app/views/relations/new.erb:1
+#, fuzzy
+msgid "new relation"
+msgstr "<img src='/images/target.png' title='role'/>"
 
 #: app/views/sites/_form.erb:16
 msgid "host"
@@ -172,162 +319,98 @@ msgid ""
 "reloads) ?"
 msgstr ""
 
-#: app/views/sites/_form.erb:34 app/views/users/preferences.html.erb:19
-#: app/views/users/preferences.html.erb:35 app/views/relations/_form.erb:35
-#: app/views/virtual_classes/_form.erb:22
-#: app/views/nodes/_edit_attribute.rhtml:15 app/views/users/_form.rhtml:46
-#: app/views/comments/_form.rhtml:23 app/views/groups/_form.rhtml:35
-#: app/views/versions/edit.rhtml:16 app/views/iformats/_form.rhtml:22
-#: app/views/templates/document_create_tabs/_file.rhtml:3
-#: app/views/templates/document_create_tabs/_template.rhtml:3
-#: app/views/templates/document_create_tabs/_import.rhtml:2
-#: app/views/templates/document_create_tabs/_text_doc.rhtml:3
-msgid "validate"
-msgstr " fertig "
+#: app/views/sites/_li.erb:2 lib/gettext_strings.rb:31
+msgid "site_img"
+msgstr "<img src='/images/world.png' title='site'/>"
 
-#: app/views/users/preferences.html.erb:1 lib/zena/use/html_tags.rb:407
+#: app/views/sites/edit.erb:1
+msgid "edit site"
+msgstr "Site bearbeiten"
+
+#: app/views/sites/index.erb:1 lib/zena/use/display.rb:273
+msgid "manage sites"
+msgstr "Sites verwalten"
+
+#: app/views/users/preferences.html.erb:1 lib/zena/use/display.rb:249
 msgid "preferences"
 msgstr "Einstellungen"
 
-#: app/views/users/preferences.html.erb:6
+#: app/views/users/preferences.html.erb:7
 msgid "change personal information"
 msgstr "persönliche Informationen ändern"
 
-#: app/views/users/preferences.html.erb:7
-#: app/views/users/preferences.html.erb:27 app/views/users/_form.rhtml:20
-#: app/views/documents/_crop.rhtml:1
+#: app/views/users/preferences.html.erb:10
+#: app/views/users/preferences.html.erb:33 app/views/documents/_crop.rhtml:1
+#: app/views/users/_form.rhtml:20
 msgid "cancel"
 msgstr "Abbruch"
 
-#: app/views/users/preferences.html.erb:13 app/views/users/_form.rhtml:17
-#: lib/zena/use/html_tags.rb:380
+#: app/views/users/preferences.html.erb:16 app/views/users/_form.rhtml:17
 msgid "login"
 msgstr "anmelden"
 
-#: app/views/users/preferences.html.erb:14 app/views/users/_form.rhtml:26
+#: app/views/users/preferences.html.erb:17 app/views/users/_form.rhtml:26
 msgid "first name"
 msgstr "Vorname"
 
-#: app/views/users/preferences.html.erb:15
-#: app/views/virtual_classes/_form.erb:16 app/views/nodes/_parent.rhtml:8
-#: app/views/users/_form.rhtml:27 app/views/groups/_form.rhtml:18
-#: app/views/iformats/_form.rhtml:16
-#: app/views/templates/document_create_tabs/_template.rhtml:7
-#: app/views/templates/document_create_tabs/_text_doc.rhtml:8
-#: lib/gettext_strings.rb:159
-msgid "name"
-msgstr "Name"
-
-#: app/views/users/preferences.html.erb:16 app/views/users/_form.rhtml:28
-#: app/views/templates/edit_tabs/_title.rhtml:12
+#: app/views/users/preferences.html.erb:19
+#: app/views/templates/edit_tabs/_title.rhtml:7 app/views/users/_form.rhtml:28
 msgid "language"
 msgstr "Sprache"
 
-#: app/views/users/preferences.html.erb:17 app/views/users/_form.rhtml:29
+#: app/views/users/preferences.html.erb:20 app/views/users/_form.rhtml:29
 msgid "time zone"
 msgstr "Zeitzone"
 
-#: app/views/users/preferences.html.erb:18 app/views/users/_form.rhtml:31
-#: lib/gettext_strings.rb:166
+#: app/views/users/preferences.html.erb:21 app/views/users/_form.rhtml:31
+#: lib/gettext_strings.rb:168
 msgid "email"
 msgstr "E-Mail"
 
-#: app/views/users/preferences.html.erb:26 app/views/users/_form.rhtml:19
+#: app/views/users/preferences.html.erb:30 app/views/users/_form.rhtml:19
 msgid "change password"
 msgstr "Passwort ändern"
 
-#: app/views/users/preferences.html.erb:32
+#: app/views/users/preferences.html.erb:38
 msgid "old password"
 msgstr "altes Passwort"
 
-#: app/views/users/preferences.html.erb:33
+#: app/views/users/preferences.html.erb:39
 msgid "new password"
 msgstr "neues Passwort"
 
-#: app/views/users/preferences.html.erb:34
+#: app/views/users/preferences.html.erb:40
 msgid "retype new password"
 msgstr "Passwort wiederholen"
 
-#: app/views/data_entries/index.html.erb:1
-#: app/views/data_entries/show.html.erb:1
-#, fuzzy
-msgid "data entries"
-msgstr "%Y-%m-%d %H:%M"
+#: app/views/virtual_classes/_add.erb:2 lib/gettext_strings.rb:39
+msgid "btn_virtual_class_add"
+msgstr "<img src='/images/brick_add.png' title='Klasse hinzufügen'/>"
 
-#: app/views/groups/edit.html.erb:1 app/views/groups/show.html.erb:1
-msgid "group"
-msgstr "Gruppe"
+#: app/views/virtual_classes/_form.erb:18
+msgid "superclass"
+msgstr "Basisklasse"
 
-#: app/views/relations/edit.erb:1
-#, fuzzy
-msgid "edit relation"
-msgstr "<img src='/images/target.png' title='role'/>"
+#: app/views/virtual_classes/_form.erb:19
+msgid "create group"
+msgstr "<img src='/images/group.png' title='Gruppe erzeugen'/>"
 
-#: app/views/relations/_li.erb:2 app/views/relations/_li.erb:12
-#: app/views/relations/_form.erb:30 app/views/relations/_form.erb:32
-#: lib/gettext_strings.rb:29
-msgid "relation_img"
-msgstr "<img src='/images/target.png' title='role'/>"
+#: app/views/virtual_classes/_form.erb:20
+msgid "auto create discussion"
+msgstr ""
+"<img src='/images/comments_add.png' title='Kommentar automatisch anlegen'/>"
 
-#: app/views/relations/_li.erb:2 app/views/relations/_li.erb:12
-#: app/views/relations/_form.erb:31 app/views/relations/_form.erb:33
-#: lib/gettext_strings.rb:30
-msgid "relations_img"
-msgstr "<img src='/images/collection.png' title='collection'/>"
-
-#: app/views/relations/new.erb:1
-#, fuzzy
-msgid "new relation"
-msgstr "<img src='/images/target.png' title='role'/>"
-
-#: app/views/relations/index.erb:1 lib/zena/use/html_tags.rb:419
-msgid "manage relations"
-msgstr "Bezüge verwalten"
-
-#: app/views/relations/_form.erb:16
-msgid "source"
-msgstr "Quelle"
-
-#: app/views/relations/_form.erb:16
-msgid "target"
-msgstr "Ziel"
-
-#: app/views/relations/_form.erb:17
-msgid "kpath"
+#: app/views/virtual_classes/_form.erb:21
+msgid "dyn_keys"
 msgstr ""
 
-#: app/views/relations/_form.erb:21
-msgid "role"
-msgstr "Rolle"
+#: app/views/virtual_classes/_form.erb:26
+msgid "Are you sure you want to destroy this virtual class ?"
+msgstr "Sind sie sicher, die virtuelle Klasse zu löschen?"
 
-#: app/views/relations/_form.erb:25 app/views/virtual_classes/_form.erb:17
-msgid "icon"
-msgstr "Icon"
-
-#: app/views/relations/_form.erb:29 app/views/iformats/_form.rhtml:17
-msgid "type"
-msgstr "Typ"
-
-#: app/views/relations/_form.erb:39
-msgid "Are you sure you want to destroy this relation ?"
-msgstr "Sind sie sicher, diesen Bezug zu löschen?"
-
-#: app/views/relations/_form.erb:40
-msgid "destroy relation (with all links)"
-msgstr "Bezug löschen (mit allen Links)"
-
-#: app/views/relations/_form.erb:40 app/views/virtual_classes/_form.erb:27
-#: app/views/groups/_form.rhtml:41 app/views/iformats/_form.rhtml:27
-msgid "destroy"
-msgstr "Löschen"
-
-#: app/views/relations/_add.erb:2 lib/gettext_strings.rb:36
-msgid "btn_relation_add"
-msgstr "<img src='/images/link_add.png' title='Bezug hinzufügen'/>"
-
-#: app/views/iformats/edit.html.erb:1 app/views/iformats/show.html.erb:1
-msgid "iformat"
-msgstr ""
+#: app/views/virtual_classes/_form.erb:27
+msgid "destroy virtual class"
+msgstr "<img src='/images/brick.png' title='Klasse löschen'/>"
 
 #: app/views/virtual_classes/_li.erb:2 lib/gettext_strings.rb:38
 msgid "virtual_class_error_img"
@@ -342,189 +425,69 @@ msgstr "<img src='/images/brick.png' title='class'/>"
 msgid "auto discussion"
 msgstr "<img src='/images/comments_add.png' title='add a discussion'/>"
 
-#: app/views/virtual_classes/new.erb:1
-msgid "new class"
-msgstr "neue Klasse"
-
 #: app/views/virtual_classes/index.erb:1 app/views/iformats/index.rhtml:1
-#: lib/zena/use/html_tags.rb:422
+#: lib/zena/use/display.rb:264
 msgid "manage classes"
 msgstr "Klassen verwalten"
 
-#: app/views/virtual_classes/index.erb:9
-msgid "import definitions"
-msgstr "Definitionen importieren"
+#: app/views/comments/_add.rhtml:2 lib/gettext_strings.rb:24
+msgid "btn_add_comment"
+msgstr "<img src='/images/comment_add.png' title='Kommentar hinzufügen'/>"
 
-#: app/views/virtual_classes/index.erb:13
-msgid "import"
-msgstr "Import"
+#: app/views/comments/_bin.rhtml:4
+msgid "btn_bomb"
+msgstr "<img src='/images/bomb.png' title='empty bin'/>"
 
-#: app/views/virtual_classes/_form.erb:18
-msgid "superclass"
-msgstr "Basisklasse"
+#: app/views/comments/_bin.rhtml:4
+msgid ""
+"Are you sure you want to permanently remove the content of this rubbish bin ?"
+msgstr "Sind Sie sicher, den Inhalt des Papierkorbs dauerhaft zu löschen?"
 
-#: app/views/virtual_classes/_form.erb:19
-msgid "create group"
-msgstr "<img src='/images/group.png' title='Gruppe erzeugen'/>"
+#: app/views/comments/_form.rhtml:14
+msgid "author"
+msgstr "Autor"
 
-#: app/views/virtual_classes/_form.erb:20
-msgid "auto create discussion"
-msgstr "<img src='/images/comments_add.png' title='Kommentar automatisch anlegen'/>"
+#: app/views/comments/_form.rhtml:15
+#: app/views/templates/document_create_tabs/_file.rhtml:7
+#: app/views/templates/edit_tabs/_title.rhtml:1
+msgid "title"
+msgstr "Titel"
 
-#: app/views/virtual_classes/_form.erb:21
-msgid "dyn_keys"
-msgstr ""
+#: app/views/comments/_li.rhtml:3 lib/zena/use/action.rb:115
+msgid "btn_remove"
+msgstr "<img src='/images/delete.png' title='Löschen'/>"
 
-#: app/views/virtual_classes/_form.erb:26
-msgid "Are you sure you want to destroy this virtual class ?"
-msgstr "Sind sie sicher, die virtuelle Klasse zu löschen?"
+#: app/views/comments/_li.rhtml:4
+msgid "btn_publish"
+msgstr "<img src='/images/wand.png' title='veröffentlichen'/>"
 
-#: app/views/virtual_classes/_form.erb:27
-msgid "destroy virtual class"
-msgstr "<img src='/images/brick.png' title='Klasse löschen'/>"
+#: app/views/comments/_list.rhtml:9
+msgid "comments closed"
+msgstr "Kommentare abgestellt"
 
-#: app/views/virtual_classes/_add.erb:2 lib/gettext_strings.rb:39
-msgid "btn_virtual_class_add"
-msgstr "<img src='/images/brick_add.png' title='Klasse hinzufügen'/>"
+#: app/views/comments/index.rhtml:1 lib/zena/use/display.rb:252
+msgid "manage comments"
+msgstr "Kommentare verwalten"
 
-#: app/views/links/_form.rhtml:29 app/views/users/_form.rhtml:25
-msgid "status"
-msgstr "Status"
+#: app/views/discussions/_add.rhtml:2
+msgid "btn_add_discussion"
+msgstr "<img src='/images/comments_add.png' title='Kommentar hinzufügen'/>"
 
-#: app/views/links/_form.rhtml:30
-#: app/views/templates/edit_tabs/_title.rhtml:26
-msgid "comment"
-msgstr "Kommentar"
+#: app/views/discussions/_form.rhtml:11 lib/gettext_strings.rb:58
+msgid "outside"
+msgstr "außerhalb"
 
-#: app/views/links/_form.rhtml:31
-msgid "set"
-msgstr ""
+#: app/views/discussions/_form.rhtml:12 lib/gettext_strings.rb:57
+msgid "inside"
+msgstr "innerhalb"
 
-#: app/views/links/_add.rhtml:2
-msgid "btn_add_link"
-msgstr "<img src='/images/tag_blue_add.png' title='Link hinzufügen'/>"
+#: app/views/discussions/_form.rhtml:18
+msgid "create"
+msgstr "Kommentar hinzufügen"
 
-#: app/views/links/_li.rhtml:2
-msgid "img_link"
-msgstr "<img src='/images/tag_blue.png' title='Link'/>"
-
-#: app/views/links/_li.rhtml:6 lib/zafu/action.rb:239
-msgid "btn_tiny_del"
-msgstr "<img src='/images/bullet_delete.png' title='Löschen'/>"
-
-#: app/views/nodes/_results.rhtml:15
-msgid "'%{search_string}' not found"
-msgstr "'%{search_string}' wurde nicht gefunden"
-
-#: app/views/nodes/_parent.rhtml:6
-msgid "parent"
-msgstr "Eltern-Eintrag"
-
-#: app/views/nodes/_parent.rhtml:7
-msgid "class"
-msgstr "<img src='/images/lock.png' title='Klasse'/>"
-
-#: app/views/nodes/_parent.rhtml:10
-msgid "custom base url"
-msgstr ""
-
-#: app/views/nodes/_parent.rhtml:12 app/views/nodes/_dates.rhtml:10
-#: app/views/nodes/_groups.rhtml:19 lib/zena/use/upload.rb:167
-msgid "change"
-msgstr "übernehmen"
-
-#: app/views/nodes/_dates.rhtml:6
-#: app/views/templates/edit_tabs/_title.rhtml:18
-msgid "event date"
-msgstr ""
-
-#: app/views/nodes/_dates.rhtml:7
-#: app/views/templates/edit_tabs/_title.rhtml:16
-msgid "log date"
-msgstr ""
-
-#: app/views/nodes/_dates.rhtml:8
-msgid "custom a"
-msgstr ""
-
-#: app/views/nodes/_dates.rhtml:9
-msgid "custom b"
-msgstr ""
-
-#: app/views/nodes/_position.rhtml:17
-msgid "reset"
-msgstr "zurücksetzen"
-
-#: app/views/nodes/_import_results.rhtml:2
-msgid "import result"
-msgstr "Import-Ergebnis"
-
-#: app/views/nodes/_import_results.rhtml:11
-msgid "same"
-msgstr " gleich "
-
-#: app/views/nodes/_import_results.rhtml:14
-msgid "%{count} versions"
-msgstr "%{count} Versionen"
-
-#: app/views/nodes/_groups.rhtml:3
-msgid "inherit"
-msgstr "vererbt"
-
-#: app/views/nodes/_groups.rhtml:3
-msgid "custom"
-msgstr "angepasst"
-
-#: app/views/nodes/_groups.rhtml:14
-#: app/views/templates/edit_tabs/_template.rhtml:4
-#: app/views/templates/document_create_tabs/_template.rhtml:13
-msgid "mode"
-msgstr "Modus"
-
-#: app/views/nodes/_groups.rhtml:15
-msgid "publishers"
-msgstr "Veröffentlichen"
-
-#: app/views/nodes/_groups.rhtml:16
-msgid "writers"
-msgstr "Schreiben"
-
-#: app/views/nodes/_groups.rhtml:17
-msgid "readers"
-msgstr "Lesen"
-
-#: app/views/nodes/_groups.rhtml:18
-msgid "skin"
-msgstr "Oberfläche"
-
-#: app/views/nodes/_groups.rhtml:22
-msgid "rights cannot be changed"
-msgstr "Berechtung kann nicht geändert werden"
-
-#: app/views/users/_form.rhtml:20 app/views/users/_form.rhtml:22
-msgid "password"
-msgstr "Passwort"
-
-#: app/views/users/_form.rhtml:34
-msgid "groups"
-msgstr "Gruppen"
-
-#: app/views/users/_add.rhtml:2
-msgid "btn_user_add"
-msgstr "<img src='/images/user_add.png' title='Benutzer hinzufügen'/>"
-
-#: app/views/users/index.rhtml:1 lib/zena/use/html_tags.rb:413
-msgid "manage users"
-msgstr "Benutzer verwalten"
-
-#: app/views/documents/show.rhtml:15
-msgid "upload more"
-msgstr "mehr hochladen"
-
-#: app/views/documents/show.rhtml:15
-#, fuzzy
-msgid "close"
-msgstr "<img src='/images/lock.png' title='closed'/>"
+#: app/views/discussions/_li.rhtml:6
+msgid "comment(s)"
+msgstr "Kommentar(e)"
 
 #: app/views/documents/_crop.rhtml:4
 msgid "convert"
@@ -543,45 +506,18 @@ msgstr "Original"
 msgid "original is #X this view"
 msgstr ""
 
-#: app/views/comments/_form.rhtml:14
-msgid "author"
-msgstr "Autor"
+#: app/views/documents/show.rhtml:15
+msgid "upload more"
+msgstr "mehr hochladen"
 
-#: app/views/comments/_form.rhtml:15
-#: app/views/templates/edit_tabs/_title.rhtml:1
-#: app/views/templates/document_create_tabs/_file.rhtml:7
-msgid "title"
-msgstr "Titel"
+#: app/views/documents/show.rhtml:15
+#, fuzzy
+msgid "close"
+msgstr "<img src='/images/lock.png' title='closed'/>"
 
-#: app/views/comments/_add.rhtml:2 lib/zafu/action.rb:128
-#: lib/gettext_strings.rb:24
-msgid "btn_add_comment"
-msgstr "<img src='/images/comment_add.png' title='Kommentar hinzufügen'/>"
-
-#: app/views/comments/_bin.rhtml:4
-msgid "btn_bomb"
-msgstr "<img src='/images/bomb.png' title='empty bin'/>"
-
-#: app/views/comments/_bin.rhtml:4
-msgid ""
-"Are you sure you want to permanently remove the content of this rubbish bin ?"
-msgstr "Sind Sie sicher, den Inhalt des Papierkorbs dauerhaft zu löschen?"
-
-#: app/views/comments/_li.rhtml:3 lib/zena/use/html_tags.rb:584
-msgid "btn_remove"
-msgstr "<img src='/images/delete.png' title='Löschen'/>"
-
-#: app/views/comments/_li.rhtml:4
-msgid "btn_publish"
-msgstr "<img src='/images/wand.png' title='veröffentlichen'/>"
-
-#: app/views/comments/_list.rhtml:9
-msgid "comments closed"
-msgstr "Kommentare abgestellt"
-
-#: app/views/comments/index.rhtml:1 lib/zena/use/html_tags.rb:410
-msgid "manage comments"
-msgstr "Kommentare verwalten"
+#: app/views/groups/_add.rhtml:2
+msgid "btn_group_add"
+msgstr "<img src='/images/group_add.png' title='Gruppe hinzufügen'/>"
 
 #: app/views/groups/_form.rhtml:19
 msgid "users"
@@ -599,39 +535,13 @@ msgstr "Sind sie sicher, die Gruppe zu löschen?"
 msgid "destroy group"
 msgstr "<img src='/images/group.png' title='Gruppe löschen'/>"
 
-#: app/views/groups/_add.rhtml:2
-msgid "btn_group_add"
-msgstr "<img src='/images/group_add.png' title='Gruppe hinzufügen'/>"
-
-#: app/views/groups/index.rhtml:1 lib/zena/use/html_tags.rb:416
+#: app/views/groups/index.rhtml:1 lib/zena/use/display.rb:258
 msgid "manage groups"
 msgstr "Gruppen verwalten"
 
-#: app/views/versions/edit.rhtml:19
-msgid "save"
-msgstr " übernehmen "
-
-#: app/views/versions/edit.rhtml:21
-msgid "btn_add_document"
-msgstr "<img src='/images/picture_add.png' title='Dokumente hinzufügen'/>"
-
-#: app/views/versions/edit.rhtml:22
-msgid "bak"
-msgstr "<span title='beim Speichern Sicherungskopie anlegen'>bak</span>"
-
-#: app/views/versions/edit.rhtml:22
-#: app/views/templates/document_create_tabs/_import.rhtml:12
-msgid "pub"
-msgstr "<span title='beim Speichern veröffentlichen'>pub</span>"
-
-#: app/views/versions/_list.rhtml:2
-msgid "This node contains sub-nodes: it cannot be destroyed."
-msgstr ""
-"Dieser Eintrag enthält Untereinträge und kann deshalb nicht gelöscht werden"
-
-#: app/views/search/_form.rhtml:7
-msgid "search field"
-msgstr "Suchfeld"
+#: app/views/iformats/_add.rhtml:2
+msgid "btn_iformat_add"
+msgstr "<img src='/images/photo_add.png' title='Bild-Format hinzufügen'/>"
 
 #: app/views/iformats/_form.rhtml:18
 msgid "width"
@@ -657,10 +567,6 @@ msgstr "Sind sie sicher, das Bild-Format zu löschen?"
 msgid "destroy image format"
 msgstr "Bild-Format löschen"
 
-#: app/views/iformats/_add.rhtml:2
-msgid "btn_iformat_add"
-msgstr "<img src='/images/photo_add.png' title='Bild-Format hinzufügen'/>"
-
 #: app/views/iformats/_li.rhtml:3
 msgid "full_iformat_img"
 msgstr "<img src='/images/photo_blue.png' title='Original-Größe'/>"
@@ -673,50 +579,175 @@ msgstr "<img src='/images/photo_grey.png' title='Standard-Bild-Format'/>"
 msgid "iformat_img"
 msgstr "<img src='/images/photo.png' title='Bild-Format'/>"
 
-#: app/views/discussions/_form.rhtml:11 lib/gettext_strings.rb:58
-msgid "outside"
-msgstr "außerhalb"
+#: app/views/links/_add.rhtml:2
+msgid "btn_add_link"
+msgstr "<img src='/images/tag_blue_add.png' title='Link hinzufügen'/>"
 
-#: app/views/discussions/_form.rhtml:12 lib/gettext_strings.rb:57
-msgid "inside"
-msgstr "innerhalb"
+#: app/views/links/_form.rhtml:29 app/views/users/_form.rhtml:25
+msgid "status"
+msgstr "Status"
 
-#: app/views/discussions/_form.rhtml:18
-msgid "create"
-msgstr "Kommentar hinzufügen"
+#: app/views/links/_form.rhtml:30
+#: app/views/templates/edit_tabs/_title.rhtml:21
+msgid "comment"
+msgstr "Kommentar"
 
-#: app/views/discussions/_add.rhtml:2
-msgid "btn_add_discussion"
-msgstr "<img src='/images/comments_add.png' title='Kommentar hinzufügen'/>"
+#: app/views/links/_form.rhtml:31
+msgid "set"
+msgstr ""
 
-#: app/views/discussions/_li.rhtml:6
-msgid "comment(s)"
-msgstr "Kommentar(e)"
+#: app/views/links/_li.rhtml:2
+msgid "img_link"
+msgstr "<img src='/images/tag_blue.png' title='Link'/>"
 
-#: app/views/templates/edit_tabs/_template.rhtml:1
-#: app/views/templates/document_create_tabs/_template.rhtml:16
-msgid "format"
-msgstr "Format"
+#: app/views/links/_li.rhtml:6 lib/zena/use/old_zafu/action.rb:214
+msgid "btn_tiny_del"
+msgstr "<img src='/images/bullet_delete.png' title='Löschen'/>"
 
-#: app/views/templates/edit_tabs/_template.rhtml:7
+#: app/views/nodes/_dates.rhtml:6
+#: app/views/templates/edit_tabs/_title.rhtml:13
+msgid "event date"
+msgstr ""
+
+#: app/views/nodes/_dates.rhtml:7
+#: app/views/templates/edit_tabs/_title.rhtml:11
+msgid "log date"
+msgstr ""
+
+#: app/views/nodes/_dates.rhtml:8
+msgid "custom a"
+msgstr ""
+
+#: app/views/nodes/_dates.rhtml:9
+msgid "custom b"
+msgstr ""
+
+#: app/views/nodes/_dates.rhtml:10 app/views/nodes/_groups.rhtml:19
+#: app/views/nodes/_parent.rhtml:12 lib/zena/use/upload.rb:167
+msgid "change"
+msgstr "übernehmen"
+
+#: app/views/nodes/_groups.rhtml:3
+msgid "inherit"
+msgstr "vererbt"
+
+#: app/views/nodes/_groups.rhtml:3
+msgid "custom"
+msgstr "angepasst"
+
+#: app/views/nodes/_groups.rhtml:14
+#: app/views/templates/document_create_tabs/_template.rhtml:13
+#: app/views/templates/edit_tabs/_template.rhtml:4
+msgid "mode"
+msgstr "Modus"
+
+#: app/views/nodes/_groups.rhtml:15
+msgid "publishers"
+msgstr "Veröffentlichen"
+
+#: app/views/nodes/_groups.rhtml:16
+msgid "writers"
+msgstr "Schreiben"
+
+#: app/views/nodes/_groups.rhtml:17
+msgid "readers"
+msgstr "Lesen"
+
+#: app/views/nodes/_groups.rhtml:18
+msgid "skin"
+msgstr "Oberfläche"
+
+#: app/views/nodes/_groups.rhtml:22
+msgid "rights cannot be changed"
+msgstr "Berechtung kann nicht geändert werden"
+
+#: app/views/nodes/_import_results.rhtml:2
+msgid "import result"
+msgstr "Import-Ergebnis"
+
+#: app/views/nodes/_import_results.rhtml:11
+msgid "same"
+msgstr " gleich "
+
+#: app/views/nodes/_import_results.rhtml:14
+msgid "%{count} versions"
+msgstr "%{count} Versionen"
+
+#: app/views/nodes/_parent.rhtml:6
+msgid "parent"
+msgstr "Eltern-Eintrag"
+
+#: app/views/nodes/_parent.rhtml:10
+msgid "custom base url"
+msgstr ""
+
+#: app/views/nodes/_position.rhtml:17
+msgid "reset"
+msgstr "zurücksetzen"
+
+#: app/views/nodes/_results.rhtml:15
+msgid "'%{search_string}' not found"
+msgstr "'%{search_string}' wurde nicht gefunden"
+
+#: app/views/search/_form.rhtml:7
+msgid "search field"
+msgstr "Suchfeld"
+
+#: app/views/templates/document_create_tabs/_file.rhtml:10
+#: app/views/templates/document_create_tabs/_template.rhtml:19
+#: app/views/templates/document_create_tabs/_text_document.rhtml:11
+#: app/views/templates/edit_tabs/_title.rhtml:18
+msgid "summary"
+msgstr "Zusammenfassung"
+
+#: app/views/templates/document_create_tabs/_import.rhtml:7
+msgid "class of first element"
+msgstr ""
+
+#: app/views/templates/document_create_tabs/_import.rhtml:11
+#, fuzzy
+msgid "publish nodes"
+msgstr "<img src='/images/wand.png' title='publish'/>"
+
+#: app/views/templates/document_create_tabs/_import.rhtml:12
+#: app/views/versions/edit.rhtml:22
+msgid "pub"
+msgstr "<span title='beim Speichern veröffentlichen'>pub</span>"
+
 #: app/views/templates/document_create_tabs/_template.rhtml:10
+#: app/views/templates/edit_tabs/_template.rhtml:7
 msgid "class scope"
 msgstr "Klassen Scope"
 
-#: app/views/templates/edit_tabs/_title.rhtml:9
-msgid "tags"
-msgstr "Schlagwörter"
+#: app/views/templates/document_create_tabs/_template.rhtml:16
+#: app/views/templates/edit_tabs/_template.rhtml:1
+msgid "format"
+msgstr "Format"
 
-#: app/views/templates/edit_tabs/_title.rhtml:21
-msgid "publication date"
-msgstr "Datum der Veröffentlichung"
+#: app/views/templates/document_create_tabs/_text_document.rhtml:5
+#: app/views/templates/edit_tabs/_document.rhtml:3
+#: app/views/templates/edit_tabs/_textdocument.rhtml:9
+msgid "content type"
+msgstr ""
 
-#: app/views/templates/edit_tabs/_title.rhtml:23
-#: app/views/templates/document_create_tabs/_file.rhtml:10
-#: app/views/templates/document_create_tabs/_template.rhtml:19
-#: app/views/templates/document_create_tabs/_text_doc.rhtml:11
-msgid "summary"
-msgstr "Zusammenfassung"
+#: app/views/templates/drive_tabs/_links.rhtml:1
+msgid "links"
+msgstr "Links"
+
+#: app/views/templates/drive_tabs/_links.rhtml:4
+msgid "versions"
+msgstr "Versionen"
+
+#: app/views/templates/drive_tabs/_links.rhtml:7
+msgid "discussions"
+msgstr "Kommentare"
+
+#: app/views/templates/edit_tabs/_help.rhtml:6
+msgid "help not found"
+msgstr ""
+"Die Hilfe konnte nicht gefunden werden. In der Zwischenzeit schauen Sie doch "
+"auf die offizielle <a href='http://zenadmin.org' target='_blank'>zena "
+"Website</a>."
 
 #: app/views/templates/edit_tabs/_image.rhtml:6
 msgid "image"
@@ -729,12 +760,6 @@ msgstr "Größe anpassen"
 #: app/views/templates/edit_tabs/_image.rhtml:12
 msgid "size"
 msgstr "Größe"
-
-#: app/views/templates/edit_tabs/_document.rhtml:3
-#: app/views/templates/edit_tabs/_textdocument.rhtml:9
-#: app/views/templates/document_create_tabs/_text_doc.rhtml:5
-msgid "content type"
-msgstr ""
 
 #: app/views/templates/edit_tabs/_textdocument.rhtml:2
 #: app/views/templates/edit_tabs/_textdocument.rhtml:15
@@ -761,226 +786,42 @@ msgstr ""
 msgid "parse"
 msgstr ""
 
-#: app/views/templates/edit_tabs/_help.rhtml:6
-msgid "help not found"
+#: app/views/templates/edit_tabs/_title.rhtml:4
+msgid "tags"
+msgstr "Schlagwörter"
+
+#: app/views/templates/edit_tabs/_title.rhtml:16
+msgid "publication date"
+msgstr "Datum der Veröffentlichung"
+
+#: app/views/users/_add.rhtml:2
+msgid "btn_user_add"
+msgstr "<img src='/images/user_add.png' title='Benutzer hinzufügen'/>"
+
+#: app/views/users/_form.rhtml:20 app/views/users/_form.rhtml:22
+msgid "password"
+msgstr "Passwort"
+
+#: app/views/users/_form.rhtml:34
+msgid "groups"
+msgstr "Gruppen"
+
+#: app/views/users/index.rhtml:1 lib/zena/use/display.rb:255
+msgid "manage users"
+msgstr "Benutzer verwalten"
+
+#: app/views/versions/_list.rhtml:4
+msgid "This node contains sub-nodes: it cannot be destroyed."
 msgstr ""
-"Die Hilfe konnte nicht gefunden werden. In der Zwischenzeit schauen "
-"Sie doch auf die offizielle <a href='http://zenadmin.org' target='_blank'>zena Website</a>."
+"Dieser Eintrag enthält Untereinträge und kann deshalb nicht gelöscht werden"
 
-#: app/views/templates/document_create_tabs/_import.rhtml:7
-msgid "class of first element"
-msgstr ""
+#: app/views/versions/edit.rhtml:19
+msgid "save"
+msgstr " übernehmen "
 
-#: app/views/templates/document_create_tabs/_import.rhtml:11
-#, fuzzy
-msgid "publish nodes"
-msgstr "<img src='/images/wand.png' title='publish'/>"
-
-#: app/views/templates/drive_tabs/_links.rhtml:1
-msgid "links"
-msgstr "Links"
-
-#: app/views/templates/drive_tabs/_links.rhtml:4
-msgid "versions"
-msgstr "Versionen"
-
-#: app/views/templates/drive_tabs/_links.rhtml:7
-msgid "discussions"
-msgstr "Kommentare"
-
-#: lib/zafu/support/links.rb:301 lib/zafu/display.rb:220 lib/zafu/action.rb:45
-msgid "edit"
-msgstr "bearbeiten"
-
-#: lib/zafu/display.rb:473
-msgid "%{skin}, design by %{name}"
-msgstr ""
-
-#: lib/zafu/display.rb:493
-msgid "a Zen garden"
-msgstr "ein Zen-Garten"
-
-#: lib/zafu/display.rb:495
-msgid "made with Zena"
-msgstr ""
-
-#: lib/zafu/action.rb:128 lib/gettext_strings.rb:23
-msgid "btn_add"
-msgstr "<img src='/images/add.png' title='add'/>"
-
-#: lib/zena/use/i18n.rb:45 lib/zena/use/i18n.rb:121 lib/zena/use/dates.rb:46
-#: lib/zena/use/dates.rb:127
-msgid "long_date"
-msgstr "%Y-%m-%d"
-
-#: lib/zena/use/i18n.rb:54 lib/zena/use/dates.rb:55
-msgid "%{d} days ago"
-msgstr "vor %{d} Tagen"
-
-#: lib/zena/use/i18n.rb:57 lib/zena/use/dates.rb:58
-#, fuzzy
-msgid "yesterday"
-msgstr "<img src='/images/bomb.png' title='destroy'/>"
-
-#: lib/zena/use/i18n.rb:60 lib/zena/use/dates.rb:61
-msgid "%{h} hours ago"
-msgstr "vor %{h} Stunden"
-
-#: lib/zena/use/i18n.rb:62 lib/zena/use/dates.rb:63
-msgid "1 hour ago"
-msgstr "vor einer Stunde"
-
-#: lib/zena/use/i18n.rb:65 lib/zena/use/dates.rb:66
-msgid "%{m} minutes ago"
-msgstr "vor %{m} Minuten"
-
-#: lib/zena/use/i18n.rb:67 lib/zena/use/dates.rb:68
-msgid "1 minute ago"
-msgstr "vor einer Minute"
-
-#: lib/zena/use/i18n.rb:69 lib/zena/use/dates.rb:70
-msgid "in 1 minute"
-msgstr "in einer Minute"
-
-#: lib/zena/use/i18n.rb:71 lib/zena/use/dates.rb:72
-msgid "in %{m} minutes"
-msgstr "in %{m} Minuten"
-
-#: lib/zena/use/i18n.rb:73 lib/zena/use/dates.rb:74
-msgid "in 1 hour"
-msgstr "in einer Stunde"
-
-#: lib/zena/use/i18n.rb:75 lib/zena/use/dates.rb:76
-msgid "in %{h} hours"
-msgstr "in %{h} Stunden"
-
-#: lib/zena/use/i18n.rb:77 lib/zena/use/dates.rb:78
-msgid "tomorrow"
-msgstr "morgen"
-
-#: lib/zena/use/i18n.rb:79 lib/zena/use/dates.rb:80
-msgid "in %{d} days"
-msgstr "in %{d} Tagen"
-
-#: lib/zena/use/i18n.rb:106 lib/zena/use/dates.rb:112
-msgid "long_time"
-msgstr "%H:%M:%S"
-
-#: lib/zena/use/i18n.rb:111 lib/zena/use/dates.rb:117
-msgid "short_time"
-msgstr "%H:%M"
-
-#: lib/zena/use/i18n.rb:116 lib/zena/use/dates.rb:122
-msgid "full_date"
-msgstr "%A, %d.%m.%Y"
-
-#: lib/zena/use/i18n.rb:126 lib/zena/use/dates.rb:132
-msgid "short_date"
-msgstr "%d.%m."
-
-#: lib/zena/use/i18n.rb:230 lib/gettext_strings.rb:62
-msgid "img_prev_page"
-msgstr ""
-"<img src='/images/control_rewind.png' title='previous page' title='previous "
-"page'/>"
-
-#: lib/zena/use/i18n.rb:230 lib/gettext_strings.rb:63
-msgid "img_next_page"
-msgstr ""
-"<img src='/images/control_fastforward.png' title='next page' title='next page'/"
-">"
-
-#: lib/zena/use/calendar.rb:12 lib/zena/use/calendar.rb:28
-msgid "week_start_day"
-msgstr "1"
-
-#: lib/zena/use/calendar.rb:109
-msgid "free"
-msgstr "frei"
-
-#: lib/zena/use/calendar.rb:120
-msgid "Delete relation '%{role}' between '%{source}' and '%{target}' ?"
-msgstr ""
-
-#: lib/zena/use/html_tags.rb:138 lib/gettext_strings.rb:73
-msgid "%{type} node"
-msgstr ""
-
-#: lib/zena/use/html_tags.rb:150 lib/gettext_strings.rb:72
-msgid "%{ext} document"
-msgstr ""
-
-#: lib/zena/use/html_tags.rb:154
-msgid "%{ext} node"
-msgstr ""
-
-#: lib/zena/use/html_tags.rb:323 lib/gettext_strings.rb:45
-msgid "img_public"
-msgstr "<img src='/images/user_pub.png' title='public'/>"
-
-#: lib/zena/use/html_tags.rb:383
-msgid "logout"
-msgstr "abmelden"
-
-#: lib/zena/use/html_tags.rb:404
-msgid "my home"
-msgstr "Benutzerseite"
-
-#: lib/zena/use/html_tags.rb:425
-msgid "image formats"
-msgstr "Bildformate"
-
-#: lib/zena/use/html_tags.rb:432
-msgid "turn dev off"
-msgstr "<img src='/images/bug.png'/> Entwicklung ausschalten"
-
-#: lib/zena/use/html_tags.rb:434
-msgid "turn dev on"
-msgstr "Entwicklung einschalten"
-
-#: lib/zena/use/html_tags.rb:520
-msgid "btn_edit"
-msgstr "<img src='/images/page_edit.png' title='edit'/>"
-
-#: lib/zena/use/html_tags.rb:525
-msgid "btn_drive"
-msgstr "<img src='/images/wrench.png' title='drive'/>"
-
-#: lib/zena/use/html_tags.rb:576
-msgid "btn_view"
-msgstr "<img src='/images/eye.png' title='view'/>"
-
-#: lib/zena/use/html_tags.rb:579
-msgid "img_open"
-msgstr "<img src='/images/lock_open.png' title='open'/>"
-
-#: lib/zena/use/html_tags.rb:579
-msgid "btn_title_close_discussion"
-msgstr "Close the discussion (disable comments)."
-
-#: lib/zena/use/html_tags.rb:581
-msgid "img_closed"
-msgstr "<img src='/images/lock.png' title='closed'/>"
-
-#: lib/zena/use/html_tags.rb:581
-msgid "btn_title_open_discussion"
-msgstr "Open the edition window to edit the node"
-
-#: lib/zena/use/html_tags.rb:584
-msgid "btn_title_destroy_discussion"
-msgstr "Delete the discussion (with all comments)."
-
-#: lib/zena/use/grid.rb:67 lib/zena/use/grid.rb:95
-msgid "could not save value (bad attribute)"
-msgstr ""
-
-#: lib/zena/parser/zazen_rules.rb:98
-msgid "[gallery]"
-msgstr ""
-
-#: lib/zena/parser/zazen_rules.rb:113
-msgid "[documents]"
-msgstr ""
+#: app/views/versions/edit.rhtml:22
+msgid "bak"
+msgstr "<span title='beim Speichern Sicherungskopie anlegen'>bak</span>"
 
 #: lib/gettext_strings.rb:4
 msgid "help_tab"
@@ -1031,7 +872,8 @@ msgid "template_tab"
 msgstr "Template"
 
 #: lib/gettext_strings.rb:19
-msgid "text_document_tab"
+#, fuzzy
+msgid "text_doc_tab"
 msgstr "Text Dok."
 
 #: lib/gettext_strings.rb:20
@@ -1042,6 +884,10 @@ msgstr "++"
 msgid "btn_add_doc"
 msgstr "<img src='/images/picture_add.png' title='Dokumente hinzufügen'/>"
 
+#: lib/gettext_strings.rb:23
+msgid "btn_add"
+msgstr "<img src='/images/add.png' title='add'/>"
+
 #: lib/gettext_strings.rb:25
 msgid "btn_title_edit"
 msgstr "Öffnet das Fenster zum Bearbeiten des Eintrags"
@@ -1049,6 +895,14 @@ msgstr "Öffnet das Fenster zum Bearbeiten des Eintrags"
 #: lib/gettext_strings.rb:26
 msgid "btn_title_drive"
 msgstr "Öffnet das Fenster zum Ändern von Berechtigungen, Versionen etc."
+
+#: lib/gettext_strings.rb:29
+msgid "relation_img"
+msgstr "<img src='/images/target.png' title='role'/>"
+
+#: lib/gettext_strings.rb:30
+msgid "relations_img"
+msgstr "<img src='/images/collection.png' title='collection'/>"
 
 #: lib/gettext_strings.rb:32
 msgid "btn_site_add"
@@ -1065,6 +919,10 @@ msgstr "Original von"
 #: lib/gettext_strings.rb:43
 msgid "modified by"
 msgstr "geändert von"
+
+#: lib/gettext_strings.rb:45 lib/zena/use/html_tags.rb:119
+msgid "img_public"
+msgstr "<img src='/images/user_pub.png' title='public'/>"
 
 #: lib/gettext_strings.rb:46
 msgid "img_private"
@@ -1119,6 +977,18 @@ msgstr "<img src='/images/lock_open.png' title='open'/>"
 msgid "closed"
 msgstr "<img src='/images/lock.png' title='closed'/>"
 
+#: lib/gettext_strings.rb:62 lib/zena/use/i18n.rb:144
+msgid "img_prev_page"
+msgstr ""
+"<img src='/images/control_rewind.png' title='previous page' title='previous "
+"page'/>"
+
+#: lib/gettext_strings.rb:63 lib/zena/use/i18n.rb:144
+msgid "img_next_page"
+msgstr ""
+"<img src='/images/control_fastforward.png' title='next page' title='next "
+"page'/>"
+
 #: lib/gettext_strings.rb:65
 msgid "admin"
 msgstr "Admin"
@@ -1143,6 +1013,14 @@ msgstr "nur lesen"
 msgid "deleted"
 msgstr "gelöscht"
 
+#: lib/gettext_strings.rb:72 lib/zena/use/display.rb:162
+msgid "%{ext} document"
+msgstr ""
+
+#: lib/gettext_strings.rb:73 lib/zena/use/display.rb:150
+msgid "%{type} node"
+msgstr ""
+
 #: lib/gettext_strings.rb:75
 msgid "no result found"
 msgstr "Kein Ergebnis gefunden"
@@ -1164,285 +1042,461 @@ msgid "btn_propose"
 msgstr "<img src='/images/picture_empty.png' title='propose'/>"
 
 #: lib/gettext_strings.rb:81
+msgid "btn_edit"
+msgstr "<img src='/images/page_edit.png' title='edit'/>"
+
+#: lib/gettext_strings.rb:82
+msgid "btn_drive"
+msgstr "<img src='/images/wrench.png' title='drive'/>"
+
+#: lib/gettext_strings.rb:83
 msgid "btn_refuse"
 msgstr "<img src='/images/delete.png' title='refuse'/>"
 
-#: lib/gettext_strings.rb:82
+#: lib/gettext_strings.rb:84
 msgid "btn_destroy_version"
 msgstr "<img src='/images/bomb.png' title='destroy'/>"
 
-#: lib/gettext_strings.rb:83
+#: lib/gettext_strings.rb:85
 msgid "btn_redit"
 msgstr "<img src='/images/page_edit.png' title='edit'/>"
 
-#: lib/gettext_strings.rb:85
+#: lib/gettext_strings.rb:87
 msgid "status_50"
 msgstr "published"
 
-#: lib/gettext_strings.rb:86
+#: lib/gettext_strings.rb:88
 msgid "status_60"
 msgstr "proposed"
 
-#: lib/gettext_strings.rb:87
+#: lib/gettext_strings.rb:89
 msgid "status_65"
 msgstr "proposed with"
 
-#: lib/gettext_strings.rb:88
+#: lib/gettext_strings.rb:90
 msgid "status_70"
 msgstr "redaction"
 
-#: lib/gettext_strings.rb:89
+#: lib/gettext_strings.rb:91
 msgid "status_20"
 msgstr "replaced"
 
-#: lib/gettext_strings.rb:90
+#: lib/gettext_strings.rb:92
 msgid "status_10"
 msgstr "removed"
 
-#: lib/gettext_strings.rb:91
+#: lib/gettext_strings.rb:93
 msgid "status_0"
 msgstr "deleted"
 
-#: lib/gettext_strings.rb:93
+#: lib/gettext_strings.rb:95
 msgid "status_50_img"
 msgstr "<img src='/images/weather_sun.png'/>"
 
-#: lib/gettext_strings.rb:94
+#: lib/gettext_strings.rb:96
 msgid "status_60_img"
 msgstr "<img src='/images/magnifier.png'/>"
 
-#: lib/gettext_strings.rb:95
+#: lib/gettext_strings.rb:97
 msgid "status_65_img"
 msgstr "<img src='/images/magnifier.png'/>"
 
-#: lib/gettext_strings.rb:96
+#: lib/gettext_strings.rb:98
 msgid "status_70_img"
 msgstr "<img src='/images/pencil.png'/>"
 
-#: lib/gettext_strings.rb:97
+#: lib/gettext_strings.rb:99
 msgid "status_20_img"
 msgstr "<img src='/images/weather_clouds.png'/>"
 
-#: lib/gettext_strings.rb:98
+#: lib/gettext_strings.rb:100
 msgid "status_10_img"
 msgstr "<img src='/images/weather_rain.png'/>"
 
-#: lib/gettext_strings.rb:99
+#: lib/gettext_strings.rb:101
 msgid "status_0_img"
 msgstr "<img src='/images/weather_lightning.png'/>"
 
-#: lib/gettext_strings.rb:101
+#: lib/gettext_strings.rb:103
 msgid "en"
 msgstr "englisch"
 
-#: lib/gettext_strings.rb:102
+#: lib/gettext_strings.rb:104
 msgid "fr"
 msgstr "französisch"
 
-#: lib/gettext_strings.rb:103
+#: lib/gettext_strings.rb:105
 msgid "de"
 msgstr "deutsch"
 
-#: lib/gettext_strings.rb:104
+#: lib/gettext_strings.rb:106
 msgid "Monday"
 msgstr "Montag"
 
-#: lib/gettext_strings.rb:105
+#: lib/gettext_strings.rb:107
 msgid "Tuesday"
 msgstr "Dienstag"
 
-#: lib/gettext_strings.rb:106
+#: lib/gettext_strings.rb:108
 msgid "Wednesday"
 msgstr "Mittwoch"
 
-#: lib/gettext_strings.rb:107
+#: lib/gettext_strings.rb:109
 msgid "Thursday"
 msgstr "Donnerstag"
 
-#: lib/gettext_strings.rb:108
+#: lib/gettext_strings.rb:110
 msgid "Friday"
 msgstr "Freitag"
 
-#: lib/gettext_strings.rb:109
+#: lib/gettext_strings.rb:111
 msgid "Saturday"
 msgstr "Samstag"
 
-#: lib/gettext_strings.rb:110
+#: lib/gettext_strings.rb:112
 msgid "Sunday"
 msgstr "Sonntag"
 
-#: lib/gettext_strings.rb:112
+#: lib/gettext_strings.rb:114
 msgid "news_date"
 msgstr "%A, %B %d %Y"
 
-#: lib/gettext_strings.rb:114
+#: lib/gettext_strings.rb:116
 msgid "Mon"
 msgstr "Mo"
 
-#: lib/gettext_strings.rb:115
+#: lib/gettext_strings.rb:117
 msgid "Tue"
 msgstr "Di"
 
-#: lib/gettext_strings.rb:116
+#: lib/gettext_strings.rb:118
 msgid "Wed"
 msgstr "Mi"
 
-#: lib/gettext_strings.rb:117
+#: lib/gettext_strings.rb:119
 msgid "Thu"
 msgstr "Do"
 
-#: lib/gettext_strings.rb:118
+#: lib/gettext_strings.rb:120
 msgid "Fri"
 msgstr "Fr"
 
-#: lib/gettext_strings.rb:119
+#: lib/gettext_strings.rb:121
 msgid "Sat"
 msgstr "Sa"
 
-#: lib/gettext_strings.rb:120
+#: lib/gettext_strings.rb:122
 msgid "Sun"
 msgstr "So"
 
-#: lib/gettext_strings.rb:122
+#: lib/gettext_strings.rb:124
 msgid "January"
 msgstr "Januar"
 
-#: lib/gettext_strings.rb:123
+#: lib/gettext_strings.rb:125
 msgid "February"
 msgstr "Februar"
 
-#: lib/gettext_strings.rb:124
+#: lib/gettext_strings.rb:126
 msgid "March"
 msgstr "März"
 
-#: lib/gettext_strings.rb:125
+#: lib/gettext_strings.rb:127
 msgid "April"
 msgstr "April"
 
-#: lib/gettext_strings.rb:126 lib/gettext_strings.rb:139
+#: lib/gettext_strings.rb:128 lib/gettext_strings.rb:141
 msgid "May"
 msgstr "Mai"
 
-#: lib/gettext_strings.rb:127
+#: lib/gettext_strings.rb:129
 msgid "June"
 msgstr "Juni"
 
-#: lib/gettext_strings.rb:128
+#: lib/gettext_strings.rb:130
 msgid "July"
 msgstr "Juli"
 
-#: lib/gettext_strings.rb:129
+#: lib/gettext_strings.rb:131
 msgid "August"
 msgstr "August"
 
-#: lib/gettext_strings.rb:130
+#: lib/gettext_strings.rb:132
 msgid "September"
 msgstr "September"
 
-#: lib/gettext_strings.rb:131
+#: lib/gettext_strings.rb:133
 msgid "October"
 msgstr "Oktober"
 
-#: lib/gettext_strings.rb:132
+#: lib/gettext_strings.rb:134
 msgid "November"
 msgstr "November"
 
-#: lib/gettext_strings.rb:133
+#: lib/gettext_strings.rb:135
 msgid "December"
 msgstr "Dezember"
 
-#: lib/gettext_strings.rb:135
+#: lib/gettext_strings.rb:137
 msgid "Jan"
 msgstr "Jan"
 
-#: lib/gettext_strings.rb:136
+#: lib/gettext_strings.rb:138
 msgid "Feb"
 msgstr "Feb"
 
-#: lib/gettext_strings.rb:137
+#: lib/gettext_strings.rb:139
 msgid "Mar"
 msgstr "Mär"
 
-#: lib/gettext_strings.rb:138
+#: lib/gettext_strings.rb:140
 msgid "Apr"
 msgstr "Apr"
 
-#: lib/gettext_strings.rb:140
+#: lib/gettext_strings.rb:142
 msgid "Jun"
 msgstr "Jun"
 
-#: lib/gettext_strings.rb:141
+#: lib/gettext_strings.rb:143
 msgid "Jul"
 msgstr "Jul"
 
-#: lib/gettext_strings.rb:142
+#: lib/gettext_strings.rb:144
 msgid "Aug"
 msgstr "Aug"
 
-#: lib/gettext_strings.rb:143
+#: lib/gettext_strings.rb:145
 msgid "Sep"
 msgstr "Sep"
 
-#: lib/gettext_strings.rb:144
+#: lib/gettext_strings.rb:146
 msgid "Oct"
 msgstr "Okt"
 
-#: lib/gettext_strings.rb:145
+#: lib/gettext_strings.rb:147
 msgid "Nov"
 msgstr "Nov"
 
-#: lib/gettext_strings.rb:146
+#: lib/gettext_strings.rb:148
 msgid "Dec"
 msgstr "Dez"
 
-#: lib/gettext_strings.rb:148
+#: lib/gettext_strings.rb:150
 msgid "User name:"
 msgstr "Benutzername:"
 
-#: lib/gettext_strings.rb:149
+#: lib/gettext_strings.rb:151
 msgid "Password:"
 msgstr "Passwort"
 
-#: lib/gettext_strings.rb:152
+#: lib/gettext_strings.rb:154
 msgid "you are editing the original"
 msgstr "Sie bearbeiten das Original"
 
-#: lib/gettext_strings.rb:153
+#: lib/gettext_strings.rb:155
 msgid "redaction saved"
 msgstr "zur Begutachtung gespeichert"
 
-#: lib/gettext_strings.rb:156
+#: lib/gettext_strings.rb:158
 msgid "rebuild"
 msgstr "<img src='/images/arrow_refresh.png' title='rebuild'/> rebuild zafu"
 
-#: lib/gettext_strings.rb:158
+#: lib/gettext_strings.rb:160
 msgid "first_name"
 msgstr "Vorname"
 
-#: lib/gettext_strings.rb:160
+#: lib/gettext_strings.rb:162
 msgid "address"
 msgstr "Adresse"
 
-#: lib/gettext_strings.rb:161
+#: lib/gettext_strings.rb:163
 msgid "zip"
 msgstr "PLZ"
 
-#: lib/gettext_strings.rb:162
+#: lib/gettext_strings.rb:164
 msgid "city"
 msgstr "Stadt"
 
-#: lib/gettext_strings.rb:163
+#: lib/gettext_strings.rb:165
 msgid "country"
 msgstr "Land"
 
-#: lib/gettext_strings.rb:164
+#: lib/gettext_strings.rb:166
 msgid "telephone"
 msgstr "Tel."
 
-#: lib/gettext_strings.rb:165
+#: lib/gettext_strings.rb:167
 msgid "mobile"
 msgstr "Mobil"
 
-#: lib/gettext_strings.rb:167
+#: lib/gettext_strings.rb:169
 msgid "birthday"
 msgstr "Geburtstag"
+
+#: lib/zena/parser/zazen_rules.rb:98
+msgid "[gallery]"
+msgstr ""
+
+#: lib/zena/parser/zazen_rules.rb:113
+msgid "[documents]"
+msgstr ""
+
+#: lib/zena/use/action.rb:54
+msgid "</a>"
+msgstr ""
+
+#: lib/zena/use/action.rb:107
+msgid "btn_view"
+msgstr "<img src='/images/eye.png' title='view'/>"
+
+#: lib/zena/use/action.rb:110
+msgid "img_open"
+msgstr "<img src='/images/lock_open.png' title='open'/>"
+
+#: lib/zena/use/action.rb:110
+msgid "btn_title_close_discussion"
+msgstr "Close the discussion (disable comments)."
+
+#: lib/zena/use/action.rb:112
+msgid "img_closed"
+msgstr "<img src='/images/lock.png' title='closed'/>"
+
+#: lib/zena/use/action.rb:112
+msgid "btn_title_open_discussion"
+msgstr "Open the edition window to edit the node"
+
+#: lib/zena/use/action.rb:115
+msgid "btn_title_destroy_discussion"
+msgstr "Delete the discussion (with all comments)."
+
+#: lib/zena/use/calendar.rb:12 lib/zena/use/calendar.rb:28
+msgid "week_start_day"
+msgstr "1"
+
+#: lib/zena/use/calendar.rb:109
+msgid "free"
+msgstr "frei"
+
+#: lib/zena/use/calendar.rb:120
+msgid "Delete relation '%{role}' between '%{source}' and '%{target}' ?"
+msgstr ""
+
+#: lib/zena/use/dates.rb:50 lib/zena/use/i18n.rb:27
+msgid "long_date"
+msgstr "%Y-%m-%d"
+
+#: lib/zena/use/dates.rb:59
+msgid "%{d} days ago"
+msgstr "vor %{d} Tagen"
+
+#: lib/zena/use/dates.rb:62
+#, fuzzy
+msgid "yesterday"
+msgstr "<img src='/images/bomb.png' title='destroy'/>"
+
+#: lib/zena/use/dates.rb:65
+msgid "%{h} hours ago"
+msgstr "vor %{h} Stunden"
+
+#: lib/zena/use/dates.rb:67
+msgid "1 hour ago"
+msgstr "vor einer Stunde"
+
+#: lib/zena/use/dates.rb:70
+msgid "%{m} minutes ago"
+msgstr "vor %{m} Minuten"
+
+#: lib/zena/use/dates.rb:72
+msgid "1 minute ago"
+msgstr "vor einer Minute"
+
+#: lib/zena/use/dates.rb:74
+msgid "in 1 minute"
+msgstr "in einer Minute"
+
+#: lib/zena/use/dates.rb:76
+msgid "in %{m} minutes"
+msgstr "in %{m} Minuten"
+
+#: lib/zena/use/dates.rb:78
+msgid "in 1 hour"
+msgstr "in einer Stunde"
+
+#: lib/zena/use/dates.rb:80
+msgid "in %{h} hours"
+msgstr "in %{h} Stunden"
+
+#: lib/zena/use/dates.rb:82
+msgid "tomorrow"
+msgstr "morgen"
+
+#: lib/zena/use/dates.rb:84
+msgid "in %{d} days"
+msgstr "in %{d} Tagen"
+
+#: lib/zena/use/display.rb:166
+msgid "%{ext} node"
+msgstr ""
+
+#: lib/zena/use/display.rb:246
+msgid "my home"
+msgstr "Benutzerseite"
+
+#: lib/zena/use/display.rb:270
+msgid "image formats"
+msgstr "Bildformate"
+
+#: lib/zena/use/display.rb:277
+msgid "turn dev off"
+msgstr "<img src='/images/bug.png'/> Entwicklung ausschalten"
+
+#: lib/zena/use/display.rb:279
+msgid "turn dev on"
+msgstr "Entwicklung einschalten"
+
+#: lib/zena/use/display.rb:547
+msgid "a Zen garden"
+msgstr "ein Zen-Garten"
+
+#: lib/zena/use/display.rb:549
+msgid "made with Zena"
+msgstr ""
+
+#: lib/zena/use/grid.rb:70 lib/zena/use/grid.rb:98
+msgid "could not save value (bad attribute)"
+msgstr ""
+
+#: lib/zena/use/i18n.rb:12
+msgid "long_time"
+msgstr "%H:%M:%S"
+
+#: lib/zena/use/i18n.rb:17
+msgid "short_time"
+msgstr "%H:%M"
+
+#: lib/zena/use/i18n.rb:22
+msgid "full_date"
+msgstr "%A, %d.%m.%Y"
+
+#: lib/zena/use/i18n.rb:32
+msgid "short_date"
+msgstr "%d.%m."
+
+#: lib/zena/use/old_zafu/display.rb:405
+msgid "%{skin}, design by %{name}"
+msgstr ""
+
+#~ msgid "Could not edit version."
+#~ msgstr "Eintrag konnte nicht bearbeitet werden"
+
+#~ msgid "source"
+#~ msgstr "Quelle"
+
+#~ msgid "target"
+#~ msgstr "Ziel"
+
+#~ msgid "btn_add_document"
+#~ msgstr "<img src='/images/picture_add.png' title='Dokumente hinzufügen'/>"
+
+#~ msgid "logout"
+#~ msgstr "abmelden"

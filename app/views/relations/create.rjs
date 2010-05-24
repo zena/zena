@@ -4,5 +4,5 @@ if @relation.errors.empty?
   page.replace_html 'add_relation_form', :partial=>'relations/form'
   page << "$('relation_source_role').focus();"
 else
-  page.replace 'add_relation_form', :partial=>'relations/form'
+  page.replace_html 'add_relation_form', :partial=>'relations/form'
 end
