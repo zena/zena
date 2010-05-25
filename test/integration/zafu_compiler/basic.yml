@@ -256,7 +256,7 @@ if_in_tag_else:
   res: "not in form"
 
 if_or:
-  src: "<r:if can='write' or_test='origin'>hello</r:if>"
+  src: "<r:if eval='can_write?' or_test='origin'>hello</r:if>"
   tem: "/<% if @node.can_write? || !@node.version.prop[\"foo\"].blank? -%>hello<% end -%>|<% if !@node.version.prop[\"foo\"].blank? || @node.can_write? -%>hello<% end -%>/"
   res: "hello"
 

@@ -1,8 +1,8 @@
 class UsersController < ApplicationController
   before_filter :find_user
   before_filter :visitor_node
-  before_filter :check_is_admin,  :only => [:index, :create, :dev_skin, :rescue]
-  before_filter :restrict_access
+  before_filter :check_is_admin,  :only => [:index, :create, :dev_skin]
+  before_filter :restrict_access, :except => [:rescue]
   layout :admin_layout
 
   def show
@@ -37,16 +37,21 @@ class UsersController < ApplicationController
   # xx  ==> fixed skin
   def dev_skin(skin_id = params['skin_id'])
     visitor.update_attributes('dev_skin_id' => skin_id)
-    if request.referer
+    if request.referer && !(request.referer =~ /login/)
       redirect_to request.referer
     else
-      redirect_to :action => 'show', :id => visitor.id
+      redirect_to home_path(:prefix => prefix)
     end
   end
 
   # Use $default skin for rendering
   def rescue
-    dev_skin(-1)
+    if visitor.is_admin?
+      dev_skin(-1)
+    else
+      save_after_login_url
+      redirect_to login_url
+    end
   end
 
   # TODO: test

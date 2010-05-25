@@ -4,8 +4,8 @@ CHANGESET1:
 
   CHANGES:
     if_or:
-      old: "<r:if can='write' or_test='[d_foo]'>hello</r:if>"
-      new: "<r:if can='write' or_test='d_foo'>hello</r:if>"
+      old: "<r:if eval='can_write?' or_test='[d_foo]'>hello</r:if>"
+      new: "<r:if eval='can_write?' or_test='d_foo'>hello</r:if>"
 
 SHOULD_CHANGE:
   basic:

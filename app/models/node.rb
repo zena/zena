@@ -613,17 +613,15 @@ class Node < ActiveRecord::Base
               attrs['content_type'] = ctype
 
 
-              File.open(document_path) do |f|
+              File.open(document_path, 'rb') do |f|
                 file = uploaded_file(f, filename, ctype)
-                (class << file; self; end;).class_eval do
-                  alias o_read read
-                  define_method(:read) do
-                    if insert_zafu_headings
-                      o_read.sub(%r{</head>},"  <r:stylesheets/>\n  <r:javascripts/>\n  <r:uses_datebox/>\n</head>")
-                    else
-                      o_read
+                if insert_zafu_headings
+                  (class << file; self; end;).class_eval %Q{
+                    alias o_read read
+                    def read(*args)
+                      o_read(*args).sub(%r{</head>},"  <r:stylesheets/>\n  <r:javascripts/>\n  <r:uses_datebox/>\n</head>")
                     end
-                  end
+                  }
                 end
                 current_obj = create_or_update_node(attrs.merge(:file => file, :klass => 'Document', :_parent_id => parent_id))
               end

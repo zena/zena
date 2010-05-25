@@ -5,7 +5,7 @@ module Zena
       not_found  ':prefix/404.html',  :controller => 'nodes',    :action => 'not_found', :prefix => /\w\w/
       login      'login',  :controller => 'user_sessions',  :action => 'new',    :requirements => { :method => :get  }
       logout     'logout', :controller => 'user_sessions',  :action => 'destroy'
-      rescue_    'rescue',   :controller => 'users', :action => 'dev_skin', :skin_id => '-1'
+      rescue_    'rescue',   :controller => 'users', :action => 'rescue'
       dev_skin   'dev_skin', :controller => 'users', :action => 'dev_skin'
 
       upload_progress 'upload_progress', :controller => 'documents', :action => 'upload_progress'

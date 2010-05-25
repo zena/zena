@@ -141,12 +141,22 @@ module Zena
           if opts[:format] && opts[:format] != 'html'
             raise ActiveRecord::RecordNotFound
           elsif %w{+login +index +adminLayout +popupLayout}.include?(opts[:mode])
-            "$default/Node-#{opts[:mode]}"
+            zafu_url ="$default/Node-#{opts[:mode]}"
           elsif opts[:mode]
             raise ActiveRecord::RecordNotFound
           else
-            "$default/Node"
+            zafu_url ="$default/Node"
           end
+
+          # File path:
+          rel_path  = current_site.zafu_path + "/#{zafu_url}/#{lang_path}/_main.erb"
+          path      = SITES_ROOT + rel_path
+
+          if !File.exists?(path)
+            rebuild_template(nil, opts.merge(:zafu_url => zafu_url, :rel_path => rel_path, :dev_mode => (dev_mode? && opts[:mode] != '+popupLayout')))
+          end
+
+          rel_path
         end
 
 
@@ -230,7 +240,6 @@ module Zena
               :order      => "length(tkpath) DESC"
             )}
 
-            lang_path = dev_mode? ? "dev_#{lang}" : lang
 
             # Path as seen from zafu:
             zafu_url  = template.fullpath.gsub(/^#{@skin.fullpath}/, @skin.node_name)
@@ -238,32 +247,19 @@ module Zena
             rel_path  = current_site.zafu_path + "/#{zafu_url}/#{lang_path}/_main.erb"
             path      = SITES_ROOT + rel_path
 
-            puts path.inspect
-
             if !File.exists?(path) || params[:rebuild]
-              rebuild_template(template, zafu_url, rel_path, dev_mode? && mode != '+popupLayout')
+              unless rebuild_template(template, opts.merge(:zafu_url => zafu_url, :rel_path => rel_path, :dev_mode => (dev_mode? && mode != '+popupLayout')))
+                return default_template_url(opts)
+              end
             end
 
             rel_path
           else
             # No template found, use a default
 
-            lang_path = dev_mode? ? "dev_#{lang}" : lang
-
             # $default/Node
-            raise ActiveRecord::RecordNotFound unless zafu_url = default_template_url(opts)
-
-            # File path:
-            rel_path  = current_site.zafu_path + "/#{zafu_url}/#{lang_path}/_main.erb"
-            path      = SITES_ROOT + rel_path
-
-            if !File.exists?(path)
-              rebuild_template(template, zafu_url, rel_path, dev_mode? && mode != '+popupLayout')
-            end
-
-            rel_path
+            default_template_url(opts)
           end
-
         end
 
         def zafu_helper
@@ -279,6 +275,10 @@ module Zena
         # Return true if the current rendering should include a dev box.
         def dev_mode?
           !visitor.dev_skin_id.blank?
+        end
+
+        def lang_path
+          dev_mode? ? "dev_#{lang}" : lang
         end
 
         # Return the skin to use depending on the current node and dev mode of the visitor.
@@ -339,7 +339,8 @@ module Zena
 
           # Build or rebuild a template based on a template, a zafu url ('/skin/path/to/template') and
           # a filesystem path inside SITES_ROOT where the built template should be compiled.
-          def rebuild_template(template, zafu_url, rel_path, insert_dev = false)
+          def rebuild_template(template, opts = {})
+            zafu_url, rel_path, insert_dev = opts[:zafu_url], opts[:rel_path], opts[:dev_mode]
             # clear :
             FileUtils::rmtree(File.dirname(SITES_ROOT + rel_path))
 
@@ -360,10 +361,10 @@ module Zena
               return nil
             end
 
-            # unless valid_template?(res, opts)
-            #   # problem during rendering, use default zafu
-            #   res = ZafuCompiler.new(default_zafu_template(mode), :helper => zafu_helper).render(:dev => dev_mode?)
-            # end
+            unless valid_template?(res, opts)
+              # problem during rendering, use default zafu
+              return nil
+            end
 
             if insert_dev
               # add template edit buttons
@@ -424,7 +425,7 @@ module Zena
             res << "    <ul id='_dev_tools' style='display:none;'>\n"
             res << "      <li><a href='?rebuild=true'>#{_('rebuild')}</a></li>\n"
             res << "<% if @node.kind_of?(Skin) -%>      <li><a href='<%= export_node_path(@node[:zip]) %>'>#{_('export')}</a></li>\n<% end -%>"
-            res << "      <li><a href='/users/skin_dev'>#{_('turn dev off')}</a></li>\n"
+            res << "      <li><a href='/dev_skin'>#{_('turn dev off')}</a></li>\n"
             res << %Q{    <li><% form_for(:user, visitor, :url => user_path(visitor), :html => { :method => :put }) do |f| %>
               <%= f.select(:dev_skin_id, dev_skin_options) %> <input type='submit' value='<%= _('validate') %>'/>
             <% end -%></li>}

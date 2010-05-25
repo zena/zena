@@ -1,6 +1,0 @@
-== DESCRIPTION:
-
-Adds an 'after_commit' method to your models. The code in the after_commit block
-will only be executed if the top-most transaction succeeds (after the database commit).
-
-This plugin is part of 'zena', the peaceful CMS: http://zenadmin.org

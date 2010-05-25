@@ -1,5 +1,5 @@
+$migrating_new_site = true
 class CreateBase < ActiveRecord::Migration
-
   def self.up
     create_table("users", :options => Zena::Db.table_options) do |t|
       t.column "created_at", :datetime
