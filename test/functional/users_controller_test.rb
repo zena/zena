@@ -45,10 +45,42 @@ class UsersControllerTest < Zena::Controller::TestCase
       login(:su)
       get(:show, {'id'=>visitor.id})
     end
-
-    should_respond_with :success
+    
+    should 'succeed' do
+      assert_response :success
+    end
+    
     should_render_without_layout
   end
+
+  context 'With an admin user' do
+    setup do
+      login(:lion)
+    end
+
+    context 'setting dev_skin' do
+      subject do
+        get(:dev_skin, {'skin_id' => nodes_zip(:wikiSkin)})
+      end
+
+      should 'store value in visitor properties' do
+        subject
+        assert_equal nodes_zip(:wikiSkin), visitor.dev_skin_id
+      end
+    end # setting dev_skin
+
+    context 'calling rescue' do
+      subject do
+        get(:rescue)
+      end
+
+      should 'set dev_skin in visitor properties' do
+        subject
+        assert_equal -1, visitor.dev_skin_id
+      end
+    end # setting dev_skin
+  end # With an admin user
+
 
   context 'on GET preferences' do
     setup do
@@ -59,18 +91,6 @@ class UsersControllerTest < Zena::Controller::TestCase
     should_respond_with :success
     should_render_with_layout :_main
   end
-
-  context 'on GET swap_dev' do
-    setup do
-      login(:su)
-      get(:swap_dev, {'id'=> visitor.id})
-    end
-
-    should_set_session(:dev) {true}
-    should_redirect_to("the user profile") { user_url(visitor.id) }
-  end
-
-
 
   context "on PUT" do
     context "in order to update parameters" do

@@ -1,6 +1,6 @@
 class RelationsController < ApplicationController
-  before_filter :visitor_node
   before_filter :find_relation, :except => [:index, :create, :new]
+  before_filter :visitor_node
   before_filter :check_is_admin
   layout :admin_layout
 

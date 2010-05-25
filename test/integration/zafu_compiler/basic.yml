@@ -90,19 +90,19 @@ each_alternate_class:
   context:
     node: 'cleanWater'
   src: "<ol do='pages'><li do='each' alt_class='blue' do='node_name'/></ol>"
-  res: "<ol><li>crocodiles</li><li class=\"blue\">status</li><li>track</li></ol>"
+  res: "<ol><li class=''>crocodiles</li><li class='blue'>status</li><li class=''>track</li></ol>"
 
 each_alternate_class_reverse:
   context:
     node: 'cleanWater'
   src: "<ol do='pages' limit='2'><li do='each' alt_class='blue' alt_reverse='true' do='node_name'/></ol>"
-  res: "<ol><li class=\"blue\">crocodiles</li><li>status</li></ol>"
+  res: "<ol><li class='blue'>crocodiles</li><li class=''>status</li></ol>"
 
 each_alternate_class_two:
   context:
     node: 'collections'
-  src: "<ol do='pages'><li class='post' alt_class='stripe' do='each' do='node_name'/></ol>"
-  res: "<ol><li class='post'>art</li><li class='post stripe'>menu</li><li class='post'>news</li><li class='post stripe'>wikiSkin</li></ol>"
+  src: "<ol do='pages'><li class='post' do='each' alt_class='stripe' do='node_name'/></ol>"
+  res: "<ol><li class='post '>art</li><li class='post stripe'>menu</li><li class='post '>news</li><li class='post stripe'>wikiSkin</li></ol>"
 
 each_alternate_class_ajax:
   context:
@@ -113,8 +113,8 @@ each_alternate_class_ajax:
 each_else:
   context:
     node: 'opening'
-  src: "<div do='pages'>has pages (<r:each do='node_name' join=', '/>)<r:else>no pages</r:else></div>"
-  tem: "/-%><div>has pages \(<% list1.each do \|var1\| -%><%= var1.name %><% end -%>\)</div><% elsif true -%><div>no pages</div><% end -%>/"
+  src: "<div do='pages'>has pages (<r:each join=', ' do='node_name'/>)<r:else>no pages</r:else></div>"
+  tem: "/<% if var1.* -%><div>has pages \(<% var1.each_with_index .* -%><%= var2.node_name %><% end -%>\)</div><% elsif true -%><div>no pages</div><% end -%>/"
   res: "<div>no pages</div>"
 
 case_when:
@@ -135,8 +135,21 @@ case_when_test:
   res: "one"
 
 if_html_tag:
-  src: "<div do='if' test='1 eq 1'>yes it's true<r:else>four</r:else></div>"
+  src: "<div do='if' eval='1 == 1'>yes it's true<r:else>four</r:else></div>"
   res: "<div>yes it's true</div>"
+
+if_html_tag_false:
+  src: "<div do='if' eval='2 == 1'>yes it's true<r:else>four</r:else></div>"
+  res: "<div>four</div>"
+
+if_html_tag_false_html_params:
+  src: "<div do='if' eval='2 == 1'>yes it's true<r:else class='bad'>four</r:else></div>"
+  res: "<div class='bad'>four</div>"
+
+if_html_tag_elsif:
+  src: "<div do='if' eval='2 == 1'>A<r:elsif eval='1'>B</r:elsif><r:else>C</r:else></div>"
+  tem: '<% if (2==1) -%><div>A</div><% elsif 1 -%><div>B</div><% elsif true -%><div>C</div><% end -%>'
+  res: "<div>B</div>"
 
 case_when_html_tag:
   src: "<div do='case'><r:when test='1 eq 3'>one</r:when><r:when test='1 eq 1'>two</r:when><r:else>four</r:else></div>"

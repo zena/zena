@@ -15,6 +15,10 @@ module Zena
             filepath = File.join(DEFAULT_TEMPLATES_PATH, "#{$1}.zafu")
             text = File.exist?(filepath) ? File.read(filepath) : nil
             return text, path, base_path
+          elsif @skin.nil? && path == 'Node'
+            filepath = File.join(DEFAULT_TEMPLATES_PATH, "default/#{path}.zafu")
+            text = File.exist?(filepath) ? File.read(filepath) : nil
+            return text, path, base_path
           elsif res = find_document_for_template(path, base_path)
             doc, base_path = res
             # text, fullpath (for recursion testing), base_path
@@ -168,12 +172,10 @@ module Zena
           skin_name = url.shift
 
           # TODO: can we move this initialization somewhere else ?
-          @skins ||= {}
           self.expire_with_nodes ||= {}
           self.renamed_assets ||= {}
 
-          skin = (@skins[skin_name] ||= secure(Skin) { Skin.find_by_node_name(skin_name) })
-          return nil unless skin
+          return nil unless skin = get_skin(skin_name)
 
           fullpath = (skin.fullpath.split('/') + url).join('/')
 
@@ -211,7 +213,8 @@ module Zena
 
         # Return the path of a template for the given skin, mode and format. Compiles the zafu template if needed.
         def template_url(opts={})
-          @skin     = opts[:skin] || @node.skin || @node.parent.skin
+          # opts[:skin] option removed
+          @skin     = get_skin
           mode      = opts[:mode]
           format    = opts[:format] || 'html'
           klass     = @node.vclass
@@ -220,7 +223,7 @@ module Zena
           klasses = []
           klass.kpath.split(//).each_index { |i| klasses << klass.kpath[0..i] }
 
-          if template = secure(Template) { Template.find(:first,
+          if @skin && template = secure(Template) { Template.find(:first,
               :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ? AND template_indices.node_id = nodes.id AND template_indices.skin_id = ?", klasses, format, mode, @skin.id],
               :from       => "nodes, template_indices",
               :select     => "nodes.*",
@@ -234,6 +237,8 @@ module Zena
 
             rel_path  = current_site.zafu_path + "/#{zafu_url}/#{lang_path}/_main.erb"
             path      = SITES_ROOT + rel_path
+
+            puts path.inspect
 
             if !File.exists?(path) || params[:rebuild]
               rebuild_template(template, zafu_url, rel_path, dev_mode? && mode != '+popupLayout')
@@ -271,8 +276,40 @@ module Zena
           end
         end
 
+        # Return true if the current rendering should include a dev box.
         def dev_mode?
-          session[:dev]
+          !visitor.dev_skin_id.blank?
+        end
+
+        # Return the skin to use depending on the current node and dev mode of the visitor.
+        def get_skin(skin_name = nil)
+          @skins ||= {}
+
+          if skin_name.blank?
+            skin_zip = visitor.is_admin? ? visitor.dev_skin_id.to_i : 0
+
+            case skin_zip
+            when User::RESCUE_SKIN_ID
+              # rescue skin
+              skin = nil
+            when User::ANY_SKIN_ID
+              # normal skin
+              skin = @node.skin || @node.parent.skin
+            else
+              # find skin from zip
+              skin = secure(Skin) { Skin.find_by_zip(skin_zip)}
+            end
+          elsif skin = @skins[skin_name]
+            return skin
+          else
+            skin =secure(Skin) { Skin.find_by_node_name(skin_name)}
+          end
+
+          if skin
+            @skins[skin.node_name] = skin
+          end
+
+          skin
         end
 
         private
@@ -306,15 +343,10 @@ module Zena
             # clear :
             FileUtils::rmtree(File.dirname(SITES_ROOT + rel_path))
 
-            @skins = {
-              @skin.node_name => @skin
-            }
-
             # Cache loaded templates and skins
             if template
               self.expire_with_nodes = {
-                template.fullpath => template,
-                @skin.fullpath    => @skin,
+                template.fullpath => template
               }
             end
 
@@ -392,7 +424,10 @@ module Zena
             res << "    <ul id='_dev_tools' style='display:none;'>\n"
             res << "      <li><a href='?rebuild=true'>#{_('rebuild')}</a></li>\n"
             res << "<% if @node.kind_of?(Skin) -%>      <li><a href='<%= export_node_path(@node[:zip]) %>'>#{_('export')}</a></li>\n<% end -%>"
-            res << "      <li><a href='/users/#{visitor[:id]}/swap_dev'>#{_('turn dev off')}</a></li>\n"
+            res << "      <li><a href='/users/skin_dev'>#{_('turn dev off')}</a></li>\n"
+            res << %Q{    <li><% form_for(:user, visitor, :url => user_path(visitor), :html => { :method => :put }) do |f| %>
+              <%= f.select(:dev_skin_id, dev_skin_options) %> <input type='submit' value='<%= _('validate') %>'/>
+            <% end -%></li>}
             res << "      <li>skins used: #{@skins.keys.join(', ')}</li>\n"
             res << "    </ul>\n  </li>\n</ul></div>"
             res
@@ -401,6 +436,17 @@ module Zena
 
       module ViewMethods
         include Common
+
+        def dev_skin_options
+          skins = secure(Skin) { Skin.all }
+
+          [
+            ['off',    nil ],
+            ['any',    0   ],
+          ] + skins.map {|s| [ s.node_name, s.zip ] } + [
+            ['rescue', -1  ],
+          ]
+        end
       end # ViewMethods
     end # Zafu
   end # Use

@@ -43,14 +43,13 @@ module Zena
           end
 
           expand_with_finder(finder)
-          true
         rescue ::QueryBuilder::Error => err
           parser_error(err.message)
         end
 
         # Select the most pertinent error between RubyLess processing errors and QueryBuilder errors.
         def show_errors
-          if @method =~ / in / || ([:find, :else, :in, :where, :or, :limit, :order] & @params.keys != [])
+          if @method =~ / in | where / || ([:find, :else, :in, :where, :or, :limit, :order] & @params.keys != [])
             # probably a query
             @errors.detect {|e| e =~ /Syntax/} || @errors.last
           else
@@ -293,7 +292,7 @@ module Zena
             [:updated, :created, :event, :log].each do |k|
               if value = params[k]
                 # current, same are synonym for 'today'
-                filters << Zena::Db.date_condition(value,"TABLE_NAME.#{k}_at", get_context_var('set_var', 'date') || RubyLess::TypedString('main_date', Time))
+                filters << Zena::Db.date_condition(value,"TABLE_NAME.#{k}_at", get_context_var('set_var', 'date') || ::RubyLess::TypedString('main_date', Time))
               end
             end
 

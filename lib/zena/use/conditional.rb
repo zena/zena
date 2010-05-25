@@ -5,9 +5,7 @@ module Zena::Use::Conditional
       # capital letter ==> class conditional
       klass = Node.get_class(class_name)
       if klass.kpath =~ %r{^#{node.klass.kpath}}
-        out "<% if #{node}.kpath_match?('#{klass.kpath}') %>"
-        out expand_with(:in_if => true, :node => node.move_to(node.name, klass))
-        out "<% end -%>"
+        out expand_if("#{node}.kpath_match?('#{klass.kpath}')", node.move_to(node.name, klass))
       else
         # render nothing: incompatible classes
         ''

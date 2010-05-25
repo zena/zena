@@ -33,10 +33,45 @@ class ZafuTemplateTest < Zena::View::TestCase
     should 'find best template based on class' do
       assert_match %r{default/Node}, @controller.send(:template_url)
     end
+    
+    context 'with an admin visitor' do
+      setup do
+        login(:lion)
+      end
+      
+      should 'use visitor chosen dev skin' do
+        visitor.dev_skin_id = nodes_zip(:wikiSkin)
+        assert_match %r{/wikiSkin/Node}, @controller.send(:template_url)
+      end
+      
+      should 'use rescue skin' do
+        visitor.dev_skin_id = User::RESCUE_SKIN_ID
+        assert_match %r{/\$default/Node}, @controller.send(:template_url)
+      end
+      
+      should 'use any skin' do
+        visitor.dev_skin_id = User::ANY_SKIN_ID
+        assert_match %r{/default/Node}, @controller.send(:template_url)
+        visiting(:wiki)
+        assert_match %r{/wikiSkin/Node}, @controller.send(:template_url)
+      end
+    end # with an admin visitor
+    
+    context 'without an admin visitor' do
+      setup do
+        login(:anon)
+      end
 
-    should 'use given skin' do
-      assert_match %r{wikiSkin/Node}, @controller.send(:template_url, :skin => secure(Node) { nodes(:wikiSkin) })
-    end
+      should 'not include dev box' do
+        session[:dev] = true
+        assert !dev_mode?
+      end
+      
+      should 'not use visitor skin mode' do
+        visitor.dev_skin_id = nodes_zip(:wikiSkin)
+        assert_match %r{/default/Node}, @controller.send(:template_url)
+      end
+    end # without an admin visitor
     #def test_template_url_virtual_class
     #  without_files('zafu') do
     #    node = @controller.send(:secure,Node) { nodes(:opening) }
@@ -80,7 +115,7 @@ class ZafuTemplateTest < Zena::View::TestCase
       should 'return index on index mode' do
         assert_equal '$default/Node-+index', default_template_url(:mode => '+index')
       end
-      
+
       should 'raise not found on none html format' do
         assert_raise(ActiveRecord::RecordNotFound) { default_template_url(:format => 'xml') }
       end

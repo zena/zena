@@ -1,7 +1,7 @@
 class GroupsController < ApplicationController
   before_filter :check_is_admin
   before_filter :find_group, :except => [:index, :new, :create]
-  before_filter :find_node
+  before_filter :visitor_node
   before_filter :get_users,  :except => [:show, :update]
   before_filter :get_groups, :except => [:show, :update, :index]
   before_filter :filter_users_ids, :only => [:create, :update]
@@ -76,10 +76,6 @@ class GroupsController < ApplicationController
         end
         @group = secure!(Group) { Group.find(params[:id]) }
       end
-    end
-
-    def find_node
-      @node = visitor.contact
     end
 
     def get_users

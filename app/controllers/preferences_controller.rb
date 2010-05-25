@@ -1,3 +1,4 @@
+=begin
 class PreferencesController < ApplicationController
   before_filter :check_user
   layout :admin_layout
@@ -50,3 +51,4 @@ class PreferencesController < ApplicationController
     end
   end
 end
+=end

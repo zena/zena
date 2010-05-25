@@ -1,7 +1,7 @@
 class IformatsController < ApplicationController
   before_filter :check_is_admin
   before_filter :find_iformat, :except => [:index, :new, :create]
-  before_filter :find_node
+  before_filter :visitor_node
   layout :admin_layout
 
   def show
@@ -70,9 +70,5 @@ class IformatsController < ApplicationController
           @iformat = secure!(Iformat) { Iformat.find(params[:id]) }
         end
       end
-    end
-
-    def find_node
-      @node = visitor.contact
     end
 end

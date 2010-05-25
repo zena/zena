@@ -29,6 +29,10 @@ module Zena
           "expected not tag, but tag found matching #{match.inspect} in:\n#{target.inspect}"
       end
 
+      def session
+        @controller.session
+      end
+
       tests ApplicationController.master_helper_module
 
       def visiting(node_name)

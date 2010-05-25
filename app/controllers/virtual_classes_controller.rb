@@ -1,6 +1,6 @@
 class VirtualClassesController < ApplicationController
-  before_filter :visitor_node
   before_filter :find_virtual_class, :except => [:index, :create, :new, :import]
+  before_filter :visitor_node
   before_filter :check_is_admin
   layout :admin_layout
 

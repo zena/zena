@@ -273,10 +273,10 @@ module Zena
             link_to_with_state(_('manage sites'), sites_path)
           when 'dev'
             return nil unless visitor.is_admin?
-            if @controller.session[:dev]
-              link_to(_('turn dev off'), swap_dev_user_path(visitor))
+            if visitor.dev_skin_id
+              link_to(_('turn dev off'), dev_skin_path)
             else
-              link_to(_('turn dev on'), swap_dev_user_path(visitor))
+              link_to(_('turn dev on'), dev_skin_path('skin_id' => '0'))
             end
           else
             nil
@@ -460,7 +460,7 @@ module Zena
         # Insert stylesheet asset tags
         def r_stylesheets
           if @params[:list] == 'all' || @params[:list].nil?
-            list = %w{ window zena code }
+            list = %w{ reset window zena code }
           else
             list = @params[:list].split(',').map{|e| e.strip}
           end

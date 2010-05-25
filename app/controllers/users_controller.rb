@@ -1,6 +1,7 @@
 class UsersController < ApplicationController
   before_filter :find_user
-  before_filter :check_is_admin,  :only => [:index, :create, :swap_dev]
+  before_filter :visitor_node
+  before_filter :check_is_admin,  :only => [:index, :create, :dev_skin, :rescue]
   before_filter :restrict_access
   layout :admin_layout
 
@@ -30,19 +31,23 @@ class UsersController < ApplicationController
     end
   end
 
-  def swap_dev
-    if session[:dev]
-      session[:dev] = nil
-    else
-      session[:dev] = true
-    end
+  # nil ==> no dev mode
+  # -1  ==> rescue skin
+  # 0   ==> normal skin
+  # xx  ==> fixed skin
+  def dev_skin(skin_id = params['skin_id'])
+    visitor.update_attributes('dev_skin_id' => skin_id)
     if request.referer
       redirect_to request.referer
     else
-      redirect_to :action => 'show'
+      redirect_to :action => 'show', :id => visitor.id
     end
   end
 
+  # Use $default skin for rendering
+  def rescue
+    dev_skin(-1)
+  end
 
   # TODO: test
   def create
@@ -65,6 +70,9 @@ class UsersController < ApplicationController
 
   # TODO: test
   def update
+    if skin_id = params['user']['dev_skin_id']
+      return dev_skin(skin_id)
+    end
 
     @update = params.delete(:update)
 
@@ -114,8 +122,6 @@ class UsersController < ApplicationController
       else
         @user = visitor
       end
-      zafu_node('@node', Contact)
-      @node = @user.contact
     end
 
     def get_groups_list

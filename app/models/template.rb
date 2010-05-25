@@ -108,11 +108,11 @@ class Template < TextDocument
   <!-- link href='favicon.png' rel='shortcut icon' type='image/png' / -->
   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
   <r:void name='stylesheets'>
-    <r:stylesheets list='reset,zena,code'/>
+    <r:stylesheets/>
     <link href="style.css" rel="Stylesheet" type="text/css"/>
   </r:void>
 
-  <r:javascripts list='prototype,effects,zena'/>
+  <r:javascripts/>
   <r:uses_datebox/>
 </head>
 <body>

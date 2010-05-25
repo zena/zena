@@ -108,7 +108,7 @@ set_var_outside_block:
   old_src: "<r:node select='18' set_found='this' do='pages'><r:block><r:show attr='node_name'/>: <r:context select='found' do='node_name'/></r:block></r:node>"
   src: "<r:void  set_found='this' do='pages from node where id = 18 in site' do='each' join=', '><r:block><r:found do='node_name'/>: <r:show attr='node_name'/></r:block></r:void>"
   res: "<div id='list1_21'><div id='list1_21'>status: cleanWater</div></div>, <div id='list1_29'><div id='list1_29'>status: wiki</div></div>"
-  'relations/set/en/var/outside/block/list1.erb': "/unknown method<span class='type'>found\(\)/"
+  'relations/set/en/var/outside/block/list1.erb': "/unknown method <span class='type'>found\(\)/"
 
 store_node_as_relation:
   src: "<r:void set_baz='this'><r:parent><r:show attr='node_name'/>: <r:baz do='node_name'/> + <r:main do='show' attr='id'/></r:parent></r:void>"
@@ -164,8 +164,14 @@ node_not_found:
   res: "result=="
 
 node_not_found_else:
-  src: "result=<r:node where='1 eq 2'><r:link/><r:else>not found</r:else></r:node>="
-  res: "result=not found="
+  src: "result=<div do='node where 1 eq 2'><r:link/><r:else class='error'>not found</r:else></div>="
+  res: "result=<div class='error'>not found</div>="
+
+elsif_in_node_context:
+  context:
+    visitor: lion
+  src: "result=<div do='node where 1 eq 2'><r:link/><r:elsif eval='can_write?'>add something</r:elsif><r:else class='error'>not found</r:else></div>="
+  res: "result=<div>add something</div>="
 
 children_else_block:
   src: "<r:children>I am a parent !<r:else>I am not tired.</r:else></r:children>"
@@ -176,14 +182,14 @@ each_not_in_list:
   res: "status"
 
 hot_else_block:
-  src: "<r:hot>I am hot<r:else>I am not</r:else> funny</r:hot>"
-  res: "I am not funny" # Yes, this is the expected behavior: else block continues to the end
+  src: "<div do='hot'>I am hot<r:else>I am not</r:else> funny</div>"
+  res: "<div>I am not</div>"
 
 hot_not_else_block:
   context:
     node: 'cleanWater'
   src: "<r:hot>I am hot<r:else>I am not</r:else> funny</r:hot>"
-  res: "I am hot" # Yes, this is the expected behavior: main block halts at first 'else'
+  res: "I am hot funny"
 
 children_else:
   src: "<r:children find='first' where='node_name like \"%asdfg\"' else='this'><r:show attr='node_name'/></r:children>"

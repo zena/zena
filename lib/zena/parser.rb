@@ -239,7 +239,7 @@ module Zena
 
         included_text, absolute_url = self.class.get_template_text(@params[:template], @options[:helper], @options[:current_dir])
 
-        if absolute_url
+        if included_text
           absolute_url += "::#{@params[:part].gsub('/','_')}" if @params[:part]
           absolute_url += "??#{@options[:part].gsub('/','_')}" if @options[:part]
           if @options[:included_history].include?(absolute_url)
@@ -248,7 +248,10 @@ module Zena
             included_history  = @options[:included_history] + [absolute_url]
             current_dir    = absolute_url.split('/')[1..-2].join('/')
           end
+        else
+          return "<span class='parser_error'>[include] template '#{url}' not found</span>"
         end
+
         res = self.class.new(included_text, :helper=>@options[:helper], :current_dir=>current_dir, :included_history=>included_history, :part => @params[:part], :root=>@options[:root]) # we set :part to avoid loop failure when doing self inclusion
 
         if @params[:part]

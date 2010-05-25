@@ -15,7 +15,10 @@ module Zena
     # The workflow module manages the different versions' status and transitions. This module depends on MultiVersion and VersionHash
     # and it should be included *before* these two modules.
     module Workflow
-      WORKFLOW_ATTRIBUTES = ['status', 'publish_from']
+      include RubyLess
+      safe_method :can_edit? => Boolean, :can_write? => Boolean, :can_drive? => Boolean
+
+      WORKFLOW_ATTRIBUTES = %w{status publish_from}
       # The Workflow::VersionMethods module should be included in the model used as version.
       module VersionMethods
         attr_reader   :stored_workflow, :status_set
@@ -249,7 +252,6 @@ module Zena
         end
       end
 
-      # FIXME: merge this with the logic in build_redaction
       def can_edit?(lang=nil)
         # Has the visitor write access to the node & node is not a proposition ?
         can_write? && !(Zena::Status[:prop]..Zena::Status[:prop_with]).include?(version.status)

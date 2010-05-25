@@ -1,6 +1,7 @@
 <r:include template='Node'>
   <r:with part='stylesheets'>
-    <r:stylesheets list='reset,zena,comment,admin,code,search,window'/>
+    <r:stylesheets/>
+    <r:stylesheets list='default,admin'/>
     <link href="style.css" rel="Stylesheet" type="text/css"/>
   </r:with>
 

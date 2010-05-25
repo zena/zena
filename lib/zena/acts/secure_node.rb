@@ -55,6 +55,8 @@ module Zena
       end
 
       module InstanceMethods
+        include RubyLess
+        safe_method :public? => Boolean, :empty? => Boolean
 
         def record_must_be_secured
           errors.add(:base, 'record not secured') unless secured?

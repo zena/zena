@@ -1,7 +1,7 @@
 class SitesController < ApplicationController
-  before_filter :visitor_node
   before_filter :remove_methods, :only => [:new, :create, :destroy]
   before_filter :find_site, :except => [:index, :create, :new]
+  before_filter :visitor_node
   before_filter :check_is_admin
   layout :admin_layout
 

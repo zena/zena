@@ -1,0 +1,36 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'anon'
+    node: 'status'
+
+can_edit:
+  eval: "can_edit?"
+  tem: '<%= @node.can_edit? %>'
+  res: 'false'
+
+can_edit:
+  context:
+    visitor: lion
+  eval: "can_edit?"
+  res: 'true'
+
+can_drive:
+  context:
+    visitor: lion
+  eval: "can_drive?"
+  res: 'true'
+  
+public:
+  context:
+    visitor: lion
+    node: secret
+  eval: "public?"
+  res: 'false'
+
+empty:
+  context:
+    visitor: lion
+    node: opening
+  eval: "empty?"
+  res: 'true'

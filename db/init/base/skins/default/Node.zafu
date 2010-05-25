@@ -6,7 +6,7 @@
   <link href='favicon_tiny.png' rel='shortcut icon' type='image/png' />
   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
   <r:void name='stylesheets'>
-    <r:stylesheets media='all' list='reset,zena,window,code'/>
+    <r:stylesheets media='all'/>
     <link href="style.css" rel="Stylesheet" type="text/css"/>
   </r:void>
 

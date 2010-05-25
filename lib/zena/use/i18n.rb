@@ -197,7 +197,7 @@ module Zena
             text = params[:text] || %q{<span class='wrong_lang'>[#{v.lang}]</span> }
             "<%=  #{node}.version.lang == lang ? '' : #{::RubyLess.translate_string(text, self)} %>"
           else
-            "<% if #{node}.version.lang != lang -%>#{expand_with(:in_if => true)}<% end -%>"
+            expand_if("#{node}.version.lang != lang")
           end
         end
 

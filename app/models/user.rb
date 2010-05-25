@@ -23,6 +23,17 @@ things they can/cannot do :
 TODO: when a user is 'destroyed', pass everything he owns to another user or just mark the user as 'deleted'...
 =end
 class User < ActiveRecord::Base
+  include Property
+  RESCUE_SKIN_ID = -1
+  ANY_SKIN_ID    = 0
+
+  property do |p|
+    # nil ==> no dev mode
+    # -1  ==> rescue skin
+    # 0   ==> dev mode with normal skin
+    # xx  ==> fixed skin
+    p.integer :dev_skin_id
+  end
 
   acts_as_authentic do |c|
     #c.transition_from_crypto_providers = Zena::InitialCryptoProvider
@@ -38,7 +49,8 @@ class User < ActiveRecord::Base
 
   safe_attribute          :login, :name, :first_name, :email, :time_zone, :created_at, :updated_at, :lang, :id
   safe_method             :initials => String, :fullname => String, :status => Number, :status_name => String,
-                          :is_anon? => Boolean
+                          :is_anon? => Boolean, :is_admin? => Boolean, :user? => Boolean, :commentator? => Boolean,
+                          :moderated? => Boolean
 
   safe_context            :contact => 'Contact', :node => {:method => 'contact', :class => 'Contact'},
                           :to_publish => ['Version'], :redactions => ['Version'], :proposed => ['Version'],
