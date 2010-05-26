@@ -7,7 +7,7 @@
   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
   <r:void name='stylesheets'>
     <r:stylesheets media='all'/>
-    <r:stylesheets media='all' list='reset,default'/>
+    <r:stylesheets media='all' list='default'/>
   </r:void>
 
   <r:javascripts/>
@@ -49,7 +49,7 @@
       <div id='related'>
         <r:documents name='documents'><h3 do='trans'>documents</h3>
           <ol>
-            <li do='each' do='if' eval='can_write?'>
+            <li do='each' do='if' can='write'>
               <r:link><r:img mode='tiny'/> <r:show attr='title'/>.<r:show attr='ext'/></r:link>
               <r:else>
                 <r:link format='data'><r:img mode='tiny'/> <r:show attr='title'/>.<r:show attr='ext'/></r:link>

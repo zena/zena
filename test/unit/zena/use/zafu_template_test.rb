@@ -33,22 +33,22 @@ class ZafuTemplateTest < Zena::View::TestCase
     should 'find best template based on class' do
       assert_match %r{default/Node}, @controller.send(:template_url)
     end
-    
+
     context 'with an admin visitor' do
       setup do
         login(:lion)
       end
-      
+
       should 'use visitor chosen dev skin' do
         visitor.dev_skin_id = nodes_zip(:wikiSkin)
         assert_match %r{/wikiSkin/Node}, @controller.send(:template_url)
       end
-      
+
       should 'use rescue skin' do
         visitor.dev_skin_id = User::RESCUE_SKIN_ID
         assert_match %r{/\$default/Node}, @controller.send(:template_url)
       end
-      
+
       should 'use any skin' do
         visitor.dev_skin_id = User::ANY_SKIN_ID
         assert_match %r{/default/Node}, @controller.send(:template_url)
@@ -56,7 +56,7 @@ class ZafuTemplateTest < Zena::View::TestCase
         assert_match %r{/wikiSkin/Node}, @controller.send(:template_url)
       end
     end # with an admin visitor
-    
+
     context 'without an admin visitor' do
       setup do
         login(:anon)
@@ -66,7 +66,7 @@ class ZafuTemplateTest < Zena::View::TestCase
         session[:dev] = true
         assert !dev_mode?
       end
-      
+
       should 'not use visitor skin mode' do
         visitor.dev_skin_id = nodes_zip(:wikiSkin)
         assert_match %r{/default/Node}, @controller.send(:template_url)
@@ -109,11 +109,11 @@ class ZafuTemplateTest < Zena::View::TestCase
 
     context 'on default_template_url' do
       should 'return a template with pseudo skin $default' do
-        assert_equal '$default/Node', default_template_url
+        assert_match %r{\$default/Node}, default_template_url
       end
 
       should 'return index on index mode' do
-        assert_equal '$default/Node-+index', default_template_url(:mode => '+index')
+        assert_match %r{\$default/Node-\+index}, default_template_url(:mode => '+index')
       end
 
       should 'raise not found on none html format' do

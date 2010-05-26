@@ -15,13 +15,13 @@
 .disabled img { opacity:0.4;}
 
 
-table.admin, table.admin table { border-collapse:separate; border-width:0; margin:auto; border-color:#666; border-style:solid; }
+table.admin, table.admin table { border-collapse:separate; border-width:0; margin:auto; border-color:#999; border-style:solid; }
 table.admin { width:500px; }
 .admin_group { display:table; margin:1em auto; width:500px; border:1px solid grey; padding:5px; background:#eee;}
 .admin_group .btn_validate { float:right;}
 table.admin table { width:90%; }
 table.admin table td { text-align:left; }
-table.admin td:first-child { border-left: 1px solid #666; }
+table.admin td:first-child { border-left: 1px solid #999; }
 
 #admin_users  table.admin {background:#B3CC92}
 #admin_groups table.admin {background:#91B9AE}
@@ -29,8 +29,9 @@ table.admin td:first-child { border-left: 1px solid #666; }
 #add_group td { border: 0;}
 #add_user  td { background: white;}
 #add_group td { background: white;}
-.admin td { padding: 3px; height:18px; border-right:1px solid #666; border-bottom:1px solid #666; }
-.admin th { border-bottom:1px solid #666; padding:4px;}
+#virtual_class_list td, #virtual_class_list, #virtual_class_list th {border-color:#ccc;}
+.admin td { padding: 3px; height:18px; border-right:1px solid #999; border-bottom:1px solid #999; }
+.admin th { border-bottom:1px solid #999; padding:4px;}
 .admin .adm_icon, .admin .adm_add, .admin .action { width:22px; text-align:center; vertical-align:top; margin:0;}
 .admin .adm_icon img { border:0;}
 .admin table { width:100%;}
@@ -44,10 +45,11 @@ table.admin td:first-child { border-left: 1px solid #666; }
 .admin th { color:#450009; }
 .admin .light { background:#eee;}
 .admin .dark { background:#ddd;}
-.admin .constant { display:inline-block; min-width:5em;}
-.admin .symbol { display:inline-block; min-width:7.5em;}
+.admin .min_width { display:inline-block; min-width:6em;}
 .admin .ruby .text { display:inline-block; min-width:5em;}
-.admin .spacer {font-family:monospace;color:white;font-size:90%;}
+.admin .ruby .constant { font-weight:bold;}
+.admin .real_class .ruby .constant { color:#333;}
+.admin .spacer {font-family:monospace;color:#ccc;}
 .destroy { margin:5px;}
 .destroy input, .destroy form { display:inline; }
 .destroy { border:1px solid #300; padding:3px; background:#fdd; float:right;}

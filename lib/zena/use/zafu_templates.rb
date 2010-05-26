@@ -213,7 +213,7 @@ module Zena
         def self.included(base)
           base.send(:helper_attr, :expire_with_nodes, :renamed_assets)
           if base.respond_to?(:helper_method)
-            base.send(:helper_method, :dev_mode?, :get_template_text, :template_url_for_asset)
+            base.send(:helper_method, :dev_mode?, :lang_path, :rebuild_template, :get_template_text, :template_url_for_asset)
           end
           base.send(:attr_accessor, :expire_with_nodes, :renamed_assets)
           base.send(:include, ::Zafu::ControllerMethods)

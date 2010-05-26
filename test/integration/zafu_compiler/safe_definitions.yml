@@ -18,8 +18,8 @@ params:
 gsub:
   context:
     node: 'tiger'
-  old_src: "<r:Contact do='addres.gsub(/\\n/,\";\";')'/>"
-  src: "<r:Contact do='eval'>address.gsub(/\\n/, ';')</r:Contact>"
+  old_src: "<r:BaseContact do='addres.gsub(/\\n/,\";\";')'/>"
+  src: "<r:BaseContact do='eval'>address.gsub(/\\n/, ';')</r:BaseContact>"
   tem: "<% if @node.kpath_match?('NRC') -%><%= (@node.prop['address'] ? @node.prop['address'].gsub(/\\n/, \";\") : nil) %><% end -%>"
   res: "Small Island;In the Wild"
 
@@ -32,5 +32,17 @@ gsub_static:
 gsub_newline:
   context:
     node: 'tiger'
-  src: "<r:Contact do='address.gsub(/\\n/, \"\\\\n\")'/>"
+  src: "<r:BaseContact do='address.gsub(/\\n/, \"\\\\n\")'/>"
   res: 'Small Island\nIn the Wild'
+
+blank:
+  eval: 'this.blank?'
+  tem:  "<%= @node.blank? %>"
+
+blank_on_string:
+  eval: 'node_name.blank?'
+  tem:  "<%= @node.node_name.blank? %>"
+
+blank_on_could_be_nil:
+  eval: 'parent.blank?'
+  tem:  "<%= @node.parent.blank? %>"

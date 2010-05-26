@@ -13,7 +13,7 @@ class VirtualClassTest < Zena::Unit::TestCase
   def test_node_classes_for_form
     login(:anon)
     # preload models
-    [Project, Skin, Note, Image, Template, Contact]
+    [Project, Skin, Note, Image, Template, BaseContact]
 
     classes_for_form = Node.classes_for_form
     assert classes_for_form.include?(["Node", "Node"])
@@ -26,7 +26,7 @@ class VirtualClassTest < Zena::Unit::TestCase
   def test_note_classes_for_form
     login(:anon)
     # preload models
-    [Project, Skin, Note, Image, Template, Contact]
+    [Project, Skin, Note, Image, Template, BaseContact]
 
     classes_for_form = Note.classes_for_form
     assert classes_for_form.include?(["Note", "Note"])
@@ -98,7 +98,7 @@ class VirtualClassTest < Zena::Unit::TestCase
   def test_node_classes_for_form_except
     login(:anon)
     # preload models
-    [Project, Skin, Note, Image, Template, Contact]
+    [Project, Skin, Note, Image, Template, BaseContact]
 
     classes_for_form = Node.classes_for_form(:without => 'Letter')
     assert classes_for_form.include?(["Node", "Node"])

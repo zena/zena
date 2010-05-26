@@ -9,6 +9,15 @@ class VirtualClassesController < ApplicationController
       @virtual_classes = VirtualClass.paginate(:all, :order => 'kpath', :per_page => 20, :page => params[:page])
     end
 
+    last_kpath = @virtual_classes.last.kpath
+    Node.native_classes.each do |kpath, klass|
+      if kpath < last_kpath
+        @virtual_classes << klass
+      end
+    end
+
+    @virtual_classes.sort! {|a, b| a.kpath <=> b.kpath }
+
     @virtual_class  = VirtualClass.new('')
 
     respond_to do |format|

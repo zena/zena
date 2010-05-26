@@ -137,7 +137,7 @@ class ZazenTest < Zena::View::TestCase
   end
 
   def test_pseudo_id
-    assert_zazen_match "a[@href='/en/contact15.html'][text()='people/lion']", 'This is a "link"::lio.'
+    assert_zazen_match "a[@href='/en/basecontact15.html'][text()='people/lion']", 'This is a "link"::lio.'
     assert_zazen_match "a[@href='/en/image30_pv.jpg?967816914293'][text()='projects/wiki/bird_pv.jpg']", 'This is a "link"::bir_pv.data.'
   end
 
@@ -203,7 +203,7 @@ class ZazenTest < Zena::View::TestCase
         @node = @cleanWater
         assert_equal '<p>Read <a href="/oo/projects/cleanWater/page22.html">projects/cleanWater/status</a></p>', zazen(%Q{Read "":#{subject}})
         @node = @people
-        assert_equal '<p>Read <a href="/oo/contact15.html">people/status</a></p>', zazen(%Q{Read "":#{subject}})
+        assert_equal '<p>Read <a href="/oo/basecontact15.html">people/status</a></p>', zazen(%Q{Read "":#{subject}})
       end
     end
   end # A relative pseudo path
@@ -213,7 +213,7 @@ class ZazenTest < Zena::View::TestCase
     lion = secure!(Node) { nodes(:lion) }
     assert lion.update_attributes(:title => '1234', :v_status => Zena::Status[:pub])
     login(:anon)
-    assert_equal '<p>This is a <a href="/en/contact15.html">people/1234</a>.</p>', zazen('This is a "link"::123.')
+    assert_equal '<p>This is a <a href="/en/basecontact15.html">people/1234</a>.</p>', zazen('This is a "link"::123.')
   end
 
   def test_bad_pseudo_path

@@ -1,13 +1,13 @@
 require 'test_helper'
 
-class ContactTest < Zena::Unit::TestCase
+class BaseContactTest < Zena::Unit::TestCase
 
   context 'On initialize' do
     setup do
       login(:tiger)
     end
     subject do
-      secure!(Contact) {Contact.new('name' => 'Meyer', :parent_id => nodes_id(:zena))}
+      secure!(BaseContact) {BaseContact.new('name' => 'Meyer', :parent_id => nodes_id(:zena))}
     end
 
     should 'have a parent' do
@@ -26,7 +26,7 @@ class ContactTest < Zena::Unit::TestCase
 
     context 'creating a contact by title' do
       subject do
-        secure!(Contact) { Contact.create('title' => 'Eric Meyer', :parent_id => nodes_id(:zena))}
+        secure!(BaseContact) { BaseContact.create('title' => 'Eric Meyer', :parent_id => nodes_id(:zena))}
       end
 
       should 'extract name and first_name' do
@@ -40,7 +40,7 @@ class ContactTest < Zena::Unit::TestCase
 
     context 'creating a contact' do
       subject do
-        secure!(Contact) { Contact.create(:name => 'Meyer', :first_name => 'Eric', :parent_id => nodes_id(:zena)) }
+        secure!(BaseContact) { BaseContact.create(:name => 'Meyer', :first_name => 'Eric', :parent_id => nodes_id(:zena)) }
       end
 
       should 'save record' do
@@ -79,7 +79,7 @@ class ContactTest < Zena::Unit::TestCase
 
     context 'creating a contact without parent_id' do
       subject do
-        secure!(Contact) { Contact.create('name' => 'Meyer') }
+        secure!(BaseContact) { BaseContact.create('name' => 'Meyer') }
       end
 
       should 'not save' do
@@ -163,19 +163,19 @@ class ContactTest < Zena::Unit::TestCase
   end # Updating a contact
 
   context 'When looking for class' do
-    setup   {@contact = Contact.new}
+    setup   {@contact = BaseContact.new}
     subject {@contact}
 
-    should 'return Contact with class.name' do
-      assert_equal 'Contact', subject.class.name
+    should 'return BaseContact with class.name' do
+      assert_equal 'BaseContact', subject.class.name
     end
 
-    should 'return Contact with klass' do
-      assert_equal 'Contact', subject.klass
+    should 'return BaseContact with klass' do
+      assert_equal 'BaseContact', subject.klass
     end
 
-    should 'return Contact with type' do
-      assert_equal 'Contact', subject.type
+    should 'return BaseContact with type' do
+      assert_equal 'BaseContact', subject.type
     end
   end
 
@@ -190,24 +190,24 @@ class ContactTest < Zena::Unit::TestCase
 
   context 'With fullname' do
     should 'return first name and name if both exist' do
-      contact = Contact.new('first_name' => 'Eric', 'name' => 'Meyer')
+      contact = BaseContact.new('first_name' => 'Eric', 'name' => 'Meyer')
       assert_equal 'Eric Meyer', contact.fullname
     end
 
     should 'return name only if first name is null' do
-      contact = Contact.new('name' => 'Meyer')
+      contact = BaseContact.new('name' => 'Meyer')
       assert_equal 'Meyer', contact.fullname
     end
 
     should 'return first name only if name is null' do
-      contact = Contact.new('first_name' => 'Eric')
+      contact = BaseContact.new('first_name' => 'Eric')
       assert_equal 'Eric', contact.fullname
     end
 
     context 'on dirty object' do
       setup do
         login(:tiger)
-        @contact = secure!(Contact) {Contact.create('name' => 'Meyer', 'first_name' => 'Eric', :parent_id => nodes_id(:zena))}
+        @contact = secure!(BaseContact) {BaseContact.create('name' => 'Meyer', 'first_name' => 'Eric', :parent_id => nodes_id(:zena))}
       end
       subject {@contact}
 

@@ -27,16 +27,6 @@ module Zena
             kpath = klass.kpath
           end
 
-          count = secure_write(Node) { Node.count(:all, :conditions => ['kpath LIKE ?', "#{kpath}%"]) }
-          if count == 0
-            return select(obj, sym, [], {:include_blank => opt[:include_blank]})
-          elsif count < 30
-            values = secure_write(Node) { Node.all(:order => :node_name, :conditions=>["kpath LIKE ?", "#{kpath}%"]) }.map do |record|
-              [record.title, record.zip]
-            end
-            return select(obj, sym, values, { :include_blank => opt[:include_blank] })
-          end
-
           if obj == 'link'
             if link = instance_variable_get("@#{obj}")
               node        = link.this

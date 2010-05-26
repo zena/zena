@@ -15,6 +15,7 @@
   <table cellspacing='0' class='edit_virtual_class'>
     <tr><td class='label'><%= _("name")%>      </td><td><%= text_field('virtual_class', 'name',        :size=>15 ) %></td></tr>
     <tr><td class='label'><%= _("superclass")%></td><td><%= select('virtual_class', 'superclass',  Node.classes_for_form(:without => (@virtual_class.new_record? ? nil : @virtual_class.to_s)), :selected => @virtual_class.superclass.to_s ) %></td></tr>
+    <tr><td class='label'><%= _("create group")%></td><td><%= select('virtual_class', 'create_group_id',  visitor.groups.map{|g| [g.name, g.id]} ) %></td></tr>
     <tr><td class='label'><%= _("auto create discussion")%></td><td><%= check_box('virtual_class', 'auto_create_discussion') %></td></tr>
     <tr><td class='label'><%= _("icon")%>      </td><td><%= text_field('virtual_class', 'icon',        :size=>15 ) %></td></tr>
     <tr><td colspan='2'><p class='btn_validate'><input type='submit' value='<%= _('validate') %>'/></p></td></tr>

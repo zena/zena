@@ -117,7 +117,7 @@ class RelationProxyTest < Zena::Unit::TestCase
       Note    => ["blog", "calendar", "favorite_for", "home_for", "hot_for", "icon", "reference", "reference_for", "set_tag"],
       Image   => ["favorite_for", "home_for", "hot_for", "icon", "icon_for", "reference", "reference_for", "set_tag"],
       Project => ["added_note", "collaborator", "favorite_for", "home", "home_for", "hot", "hot_for", "icon", "news", "reference", "reference_for", "set_tag"],
-      Contact => ["collaborator_for", "favorite", "favorite_for", "home_for", "hot_for", "icon", "reference", "reference_for", "set_tag"],
+      BaseContact => ["collaborator_for", "favorite", "favorite_for", "home_for", "hot_for", "icon", "reference", "reference_for", "set_tag"],
     }.each do |klass, roles|
       node = secure!(klass) { klass.find(:first) }
       assert_equal roles, node.relations_for_form.map{|a,b| a}

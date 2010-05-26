@@ -1,9 +1,9 @@
 =begin rdoc
-Used by Contact to store contact data. See the documentation on this class for more information.
+Used by BaseContact to store contact data. See the documentation on this class for more information.
 
 === Attributes
 
-Provides the following attributes to Contact :
+Provides the following attributes to BaseContact :
 
 first_name:: first name
 name::       name

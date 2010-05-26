@@ -162,7 +162,7 @@ module Zena
             res[:alt] = opts[:alt] || (_('%{ext} document') % {:ext => name})
             res[:class] ||= 'doc'
           else
-            name = obj.klass.underscore
+            name = obj.klass.downcase
             res[:alt] = opts[:alt] || (_('%{ext} node') % {:ext => obj.klass})
             res[:class] ||= 'node'
           end

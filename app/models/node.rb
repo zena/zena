@@ -42,7 +42,7 @@ Node (manages access and publication cycle)
   |
   +-- Reference
         |
-        +-- Contact (address, name, phone)
+        +-- BaseContact (address, name, phone)
 
 === Node, Version and Content
 
@@ -162,7 +162,8 @@ class Node < ActiveRecord::Base
                 :m_text => String, :m_title => String, :m_author => String,
                 :id => {:class => Number, :method => 'zip'},
                 :skin => 'Skin', :lang => String,
-                :visitor => 'User'
+                :visitor => 'User',
+                [:ancestor?, Node] => Boolean
 
   # FIXME: remove 'zip' and use :id => {:class => Number, :method => 'zip'}
   # same with parent_zip, section_zip, etc...
@@ -193,7 +194,7 @@ class Node < ActiveRecord::Base
   #nested_attributes_alias %r{^c_(\w+)} => ['version', 'content']
   #nested_attributes_alias %r{^d_(\w+)} => ['version', 'dyn']
 
-  safe_context       :author => 'Contact', :parent => 'Node',
+  safe_context       :author => 'BaseContact', :parent => 'Node',
                      :project => 'Project', :section => 'Section',
                      :real_project => 'Project', :real_section => 'Section',
                      :user => 'User', :comments => ['Comment'],
@@ -276,7 +277,7 @@ class Node < ActiveRecord::Base
     # Return the list of (kpath,subclasses) for the current class.
     def native_classes
       # this is to make sure subclasses are loaded before the first call
-      [Note,Page,Project,Section,Reference,Contact,Document,Image,TextDocument,Skin,Template]
+      [Note,Page,Project,Section,Reference,BaseContact,Document,Image,TextDocument,Skin,Template]
       while child = @@unhandled_children.pop
         @@native_node_classes[child.kpath] = child
       end
@@ -290,7 +291,7 @@ class Node < ActiveRecord::Base
 
     # Class list to which this class can change to
     def change_to_classes_for_form
-      classes_for_form(:class => 'Node', :without => 'Document, Contact')
+      classes_for_form(:class => 'Node', :without => 'Document, BaseContact')
     end
 
     # List of classes that a node can change to.
@@ -613,15 +614,17 @@ class Node < ActiveRecord::Base
               attrs['content_type'] = ctype
 
 
-              File.open(document_path, 'rb') do |f|
+              File.open(document_path) do |f|
                 file = uploaded_file(f, filename, ctype)
-                if insert_zafu_headings
-                  (class << file; self; end;).class_eval %Q{
-                    alias o_read read
-                    def read(*args)
-                      o_read(*args).sub(%r{</head>},"  <r:stylesheets/>\n  <r:javascripts/>\n  <r:uses_datebox/>\n</head>")
+                (class << file; self; end;).class_eval do
+                  alias o_read read
+                  define_method(:read) do
+                    if insert_zafu_headings
+                      o_read.sub(%r{</head>},"  <r:stylesheets/>\n  <r:javascripts/>\n  <r:uses_datebox/>\n</head>")
+                    else
+                      o_read
                     end
-                  }
+                  end
                 end
                 current_obj = create_or_update_node(attrs.merge(:file => file, :klass => 'Document', :_parent_id => parent_id))
               end
@@ -897,6 +900,10 @@ class Node < ActiveRecord::Base
     end
   end
 
+  # Return true if the current node is an ancestor for the given child
+  def ancestor?(child)
+    child.fullpath =~ %r{\A#{fullpath}}
+  end
 
   # url base path. If a node is in 'projects' and projects has custom_base set, the
   # node's basepath becomes 'projects', so the url will be 'projects/node34.html'.

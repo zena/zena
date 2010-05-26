@@ -1,8 +1,16 @@
+<% if li.kind_of?(Class) -%>
+<tr class='real_class'>
+  <td class="adm_icon"><%= _('virtual_class_img') %></td>
+  <td class='ruby'><span class='spacer'><%= li.kpath[1..-1].gsub(/./, '| ') %></span><span class='constant'><%= li.name %></span></td>
+  <td class="auto_create_discussion" >&nbsp;</td>
+</tr>
+<% else -%>
 <tr id='virtual_class<%= li[:id] %>'>
   <td class="adm_icon"><%= (li.new_record? || !li.errors.empty?) ? _('virtual_class_error_img') : link_to_remote( !li.icon.blank? ? "<img src='#{li.icon}'/>" : _('virtual_class_img'),
           :update =>"virtual_class#{li[:id]}",
           :url    => edit_virtual_class_path(li),
           :method => :get) %></td>
-  <td class='ruby'><span class='spacer'><%= li.kpath[1..-1] + li.kpath[1..-1] %></span><span class='constant'><%= li.name %><%= li.import_result ? " (#{li.import_result})" : ''%></span> &lt; <span class='constant'><%= li.superclass %></span></td>
+  <td class='ruby'><span class='spacer'><%= li.kpath[1..-1].gsub(/./, '| ') %></span><span class='constant'><%= li.name %><%= li.import_result ? " (#{li.import_result})" : ''%></span></td>
   <td class="auto_create_discussion" ><%= li.auto_create_discussion ? _('auto discussion') : '' %></td>
 </tr>
+<% end -%>

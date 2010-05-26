@@ -1,11 +1,11 @@
 =begin rdoc
-This class stores version text for Contact. See Version for details.
+This class stores version text for BaseContact. See Version for details.
 
 === Content
 
 Uses ContactContent.
 =end
-class ContactVersion < Version
+class BaseContactVersion < Version
 
   def self.content_class
     ContactContent

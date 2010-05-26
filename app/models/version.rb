@@ -6,7 +6,7 @@ class Version < ActiveRecord::Base
   include RubyLess
   safe_attribute     :created_at, :updated_at, :publish_from, :status, :lang
   safe_method        :node => 'Node', :id => {:class => Number, :method => 'number'}, :number => Number
-  safe_context       :author => 'Contact'
+  safe_context       :author => 'BaseContact'
 
   # We need to include Property::Base so that we can read the properties that
   # we store (useful when listing versions or comparing them).

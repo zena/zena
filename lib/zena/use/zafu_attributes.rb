@@ -9,7 +9,7 @@ module Zena
 
       module ZafuMethods
         def self.included(base)
-          base.before_process :filter_prefix, :filter_status, :filter_property, :filter_anchor, :filter_live, :filter_set_var
+          base.before_process :filter_prefix, :filter_status, :filter_property, :filter_anchor, :filter_live, :filter_set_var, :filter_if_class
           base.before_wrap :add_live_id
           base.after_wrap  :add_anchor
         end
@@ -72,6 +72,29 @@ module Zena
                   set_context_var('set_var', var, typed_string)
                 rescue RubyLess::NoMethodError => err
                   parser_error(err.message, code)
+                end
+              end
+            end
+          end
+
+          def filter_if_class
+            node = @method == 'each' ? self.node.move_to(var, self.node.klass.first) : self.node
+            tags_stolen = false
+            with_context(:node => node) do
+              @params.keys.each do |k|
+                if k.to_s =~ /^([\w_\W]+)_if$/
+                  # We 'steal' common html attributes here so that they are inserted before we
+                  # append.
+                  @markup.steal_html_params_from(@params) unless tags_stolen
+
+                  class_name  = $1
+                  code        = @params.delete(k)
+                  begin
+                    typed_string = ::RubyLess.translate(code, self)
+                    @markup.append_dyn_param(:class, "<%= (#{typed_string}) ? ' #{$1}' : '' %>", true)
+                  rescue RubyLess::NoMethodError => err
+                    out self.class.parser_error(err.message, code)
+                  end
                 end
               end
             end
@@ -141,7 +164,7 @@ module Zena
           def filter_status
             status = @params.delete(:status)
             if status == 'true' || (@params[:actions] && status != 'false')
-              node = @method == 'each' ? self.node.move_to(var, self.node.klass) : self.node
+              node = @method == 'each' ? self.node.move_to(var, self.node.klass.first) : self.node
 
               if node.will_be? Node
                 accessor = "#{node}.version"

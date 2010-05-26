@@ -1,4 +1,4 @@
-class Contact < Reference
+class BaseContact < Reference
 
   property do |t|
     t.string 'first_name'
@@ -29,7 +29,11 @@ class Contact < Reference
 
     # Class list to which this class can change to
     def change_to_classes_for_form
-      classes_for_form(:class => 'Contact')
+      classes_for_form(:class => 'BaseContact')
+    end
+
+    def ksel
+      self == BaseContact ? 'C' : super
     end
   end
 

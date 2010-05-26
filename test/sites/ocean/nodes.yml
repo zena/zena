@@ -16,12 +16,12 @@ ocean:
   skin:            default
 
 incognito:
-  class:           Contact
+  class:           BaseContact
   parent:          ocean
   skin:            default
 
 whale:
-  class:           Contact
+  class:           BaseContact
   node_name:       whale
   parent:          ocean
   skin:            default

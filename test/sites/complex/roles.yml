@@ -5,7 +5,7 @@ DEFAULTS:
 
 Employee:
   kpath:           NRCE
-  real_class:      Contact
+  real_class:      BaseContact
 
 Job:
   kpath:           NPPJ

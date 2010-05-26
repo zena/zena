@@ -85,7 +85,7 @@ class UserTest < Zena::Unit::TestCase
     login(:lion)
     user = secure!(User) { User.create("name"=>"Shakespeare", "status"=>"50", "group_ids"=>[""], "lang"=>"fr", "time_zone"=>"Bern", "first_name"=>"William", "login"=>"bob", "password"=>"jsahjks894", "email"=>"") }
     assert !user.new_record?, "Saved"
-    assert !user.contact.new_record?, "Contact saved"
+    assert !user.contact.new_record?, "BaseContact saved"
     assert_equal sites_id(:zena), user.contact.site_id
   end
 
@@ -94,7 +94,7 @@ class UserTest < Zena::Unit::TestCase
     login(:lion)
     user = secure!(User) { User.create("name"=>"Shakespeare", "status"=>"50", "group_ids"=>[""], "lang"=>"fr", "time_zone"=>"Europe/Zurich", "first_name"=>"William", "login"=>"bob", "password"=>"jsahjks894", "email"=>"") }
     assert !user.new_record?, "Saved"
-    assert !user.contact.new_record?, "Contact saved"
+    assert !user.contact.new_record?, "BaseContact saved"
     assert_equal sites_id(:zena), user.contact.site_id
   end
 

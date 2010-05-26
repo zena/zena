@@ -4,7 +4,7 @@
           :url    => edit_relation_path(li),
           :method => :get) %></td>
   <td class="ruby relation" colspan='7'>
-    <span class='constant'><%= Node.get_class_from_kpath(li.source_kpath) %></span> <span class='arity'><%= li.target_unique? ? _('has_one') : _('has_many') %></span> <span class='symbol'>:<%= li.target_role %></span>, <span>:class</span> => <span class='constant'><%= Node.get_class_from_kpath(li.target_kpath).to_s %></span><br/>
-    <span class='constant'><%= Node.get_class_from_kpath(li.target_kpath) %></span> <span class='arity'><%= li.source_unique? ? _('has_one') : _('has_many') %></span> <span class='symbol'>:<%= li.source_role %></span>, <span>:class</span> => <span class='constant'><%= Node.get_class_from_kpath(li.source_kpath).to_s %></span><br/>
+    <span class='constant min_width'><%= Node.get_class_from_kpath(li.source_kpath) %></span> <span class='arity'><%= li.target_unique? ? _('has_one') : _('has_many') %></span> <span class='symbol'>:<%= li.target_role %></span>, <span>:class</span> => <span class='constant'><%= Node.get_class_from_kpath(li.target_kpath).to_s %></span><br/>
+    <span class='constant min_width'><%= Node.get_class_from_kpath(li.target_kpath) %></span> <span class='arity'><%= li.source_unique? ? _('has_one') : _('has_many') %></span> <span class='symbol'>:<%= li.source_role %></span>, <span>:class</span> => <span class='constant'><%= Node.get_class_from_kpath(li.source_kpath).to_s %></span><br/>
   </td>
 </tr>

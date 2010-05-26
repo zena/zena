@@ -52,7 +52,7 @@ class User < ActiveRecord::Base
                           :is_anon? => Boolean, :is_admin? => Boolean, :user? => Boolean, :commentator? => Boolean,
                           :moderated? => Boolean
 
-  safe_context            :contact => 'Contact', :node => {:method => 'contact', :class => 'Contact'},
+  safe_context            :contact => 'BaseContact', :node => {:method => 'contact', :class => 'BaseContact'},
                           :to_publish => ['Version'], :redactions => ['Version'], :proposed => ['Version'],
                           :comments_to_publish => ['Comment']
   attr_accessible         :login, :lang, :first_name, :name, :email, :time_zone, :status, :group_ids, :site_ids, :crypted_password, :password
@@ -60,7 +60,7 @@ class User < ActiveRecord::Base
   attr_accessor           :ip
 
   belongs_to              :site
-  belongs_to              :contact, :dependent => :destroy
+  belongs_to              :contact, :dependent => :destroy, :class_name => 'BaseContact'
   has_and_belongs_to_many :groups
   has_many                :nodes
   has_many                :versions
@@ -110,7 +110,7 @@ class User < ActiveRecord::Base
   end
 
   def contact_with_secure
-    @contact ||= secure(Contact) { contact_without_secure }
+    @contact ||= secure(BaseContact) { contact_without_secure }
   end
   alias_method_chain :contact, :secure
 
@@ -258,7 +258,7 @@ class User < ActiveRecord::Base
     def create_contact
       return unless visitor.site[:root_id] # do not try to create a contact if the root node is not created yet
 
-      @contact = secure!(Contact) { Contact.new(
+      @contact = secure!(BaseContact) { BaseContact.new(
         # owner is the user except for anonymous and super user.
         # TODO: not sure this is a good idea...
         :user_id       => (self[:id] == site[:anon_id] || self[:id] == site[:su_id]) ? visitor[:id] : self[:id],

@@ -180,12 +180,12 @@ if_test_param_var:
   tem: "<% set_year = capture do %>3000<% end -%><% if set_year == params[:f] -%>funky!<% end -%>"
 
 if_in_if:
-  src: "<r:if test='id eq 22'><r:if test='1 eq 2'>strange...<r:else>wrong!</r:else></r:if><r:else>other node</r:else></r:if>"
-  tem: "<% if @node.zip.to_i == 22 -%><% if 1 == 2 -%>strange...<% elsif true -%>wrong!<% end -%><% elsif true -%>other node<% end -%>"
+  src: "<r:if eval='id == 22'><r:if eval='1 == 2'>strange...<r:else>wrong!</r:else></r:if><r:else>other node</r:else></r:if>"
+  tem: "<% if (@node.zip==22) -%><% if (1==2) -%>strange...<% elsif true -%>wrong!<% end -%><% elsif true -%>other node<% end -%>"
   res: "wrong!"
 
 do_if:
-  src: "<b do='if' test='1 eq 2'>it's true<r:else>it's false</r:else></b>"
+  src: "<b do='if' eval='1 == 2'>it's true<r:else>it's false</r:else></b>"
   res: "<b>it's false</b>"
 
 if_has_discussion:
@@ -193,21 +193,23 @@ if_has_discussion:
   res: "status:yes letter:no"
 
 case_ancestor:
-  src: "<r:root><r:pages><r:each join=', '><r:case><r:when node='ancestor'><b><r:show attr='node_name'/></b></r:when><r:else><r:show attr='node_name'/></r:else></r:case></r:each></r:pages></r:root>"
+  src: "<r:root><r:pages><r:each join=', '><r:case><r:when eval='ancestor?(main)'><b><r:show attr='node_name'/></b></r:when><r:else><r:show attr='node_name'/></r:else></r:case></r:each></r:pages></r:root>"
   res: "collections, nature, people, <b>projects</b>, skins"
 
 on_if_ancestor_no_class:
-  src: "<r:root><r:pages><li do='each' on_if_node='ancestor' join=', '><r:show attr='node_name'/></li></r:pages></r:root>"
-  res: "<li>collections</li>, <li>nature</li>, <li>people</li>, <li class='on'>projects</li>, <li>skins</li>"
+  old_src: "<r:root><r:pages><li do='each' on_if_node='ancestor' join=', '><r:show attr='node_name'/></li></r:pages></r:root>"
+  src: "<r:root><r:pages><li do='each' on_if='ancestor?(main)' join=', '><r:show attr='node_name'/></li></r:pages></r:root>"
+  tem: '/var3.ancestor\?\(@node\)/'
+  res: "<li class=''>collections</li>, <li class=''>nature</li>, <li class=''>people</li>, <li class=' on'>projects</li>, <li class=''>skins</li>"
 
 on_if_ancestor:
-  src: "<r:root><r:pages><li do='each' on_if_node='ancestor' class='hello' join=', '><r:show attr='node_name'/></li></r:pages></r:root>"
-  res: "<li class='hello'>collections</li>, <li class='hello'>nature</li>, <li class='hello'>people</li>, <li class='on'>projects</li>, <li class='hello'>skins</li>"
+  src: "<r:root><r:pages><li do='each' on_if='ancestor?(main)' class='hello' join=', '><r:show attr='node_name'/></li></r:pages></r:root>"
+  res: "<li class='hello'>collections</li>, <li class='hello'>nature</li>, <li class='hello'>people</li>, <li class='hello on'>projects</li>, <li class='hello'>skins</li>"
 
 on_if_empty:
-  src: "<li do='void' on_if='custom_a eq nil'>hello</li>"
-  tem: "<li<%= @node.custom_a == nil ? \" class='on'\" : \"\" %>>hello</li>"
-  res: "<li class='on'>hello</li>"
+  src: "<li do='void' on_if='custom_a.blank?'>hello</li>"
+  tem: "<li class='<%= (@node.custom_a.blank?) ? ' on' : '' %>'>hello</li>"
+  res: "<li class=' on'>hello</li>"
 
 multiple_class_conditions:
   src: "<li class='unknown' do='void' one_if='custom_a eq 1' two_if='custom_a eq 2'>Agrippina</li>"

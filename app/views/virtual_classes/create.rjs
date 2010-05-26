@@ -1,6 +1,6 @@
 if @virtual_class.errors.empty?
   page.insert_html :before, 'add_virtual_class', :partial=>'virtual_classes/li', :collection=>[@virtual_class]
-  @virtual_class = VirtualClass.new
+  @virtual_class = VirtualClass.new('')
   page.replace_html 'add_virtual_class_form', :partial=>'virtual_classes/form'
   page << "$('virtual_class_name').focus();"
 else
