@@ -7,3 +7,6 @@ Original_origin:
 
 Original_weight:
   ptype:           integer
+
+Letter_paper:
+  ptype:           string

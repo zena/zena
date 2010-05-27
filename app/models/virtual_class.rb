@@ -98,7 +98,10 @@ class VirtualClass < Role
 
   # new instances, not virtual classes
   def new_instance(hash={})
-    obj = real_class.new(:vclass_id => self[:id])
+    obj = real_class.new
+    obj.vclass_id  = self[:id]
+    # set kpath before loading roles
+    obj.kpath      = self.kpath
     obj.attributes = hash
     obj
   end

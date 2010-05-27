@@ -263,7 +263,15 @@ class Node < ActiveRecord::Base
   class << self
 
     # needed for compatibility with virtual classes
-    alias create_instance create
+    def create_instance(hash)
+      obj = new
+      # set kpath before loading roles
+      obj.kpath      = self.kpath
+      obj.attributes = hash
+      obj.save ? obj : nil
+    end
+
+    # TODO: remove
     alias new_instance new
 
     def inherited(child)

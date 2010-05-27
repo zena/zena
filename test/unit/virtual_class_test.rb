@@ -136,12 +136,13 @@ class VirtualClassTest < Zena::Unit::TestCase
 
   def test_create_letter
     login(:ant)
-    assert node = secure!(Node) { Node.create_node(:title => 'my letter', :class => 'Letter', :parent_id => nodes_zip(:cleanWater)) }
+    assert node = secure!(Node) { Node.create_node(:title => 'my letter', :paper => 'Manila', :class => 'Letter', :parent_id => nodes_zip(:cleanWater)) }
     assert_equal "NNL", node.kpath
     assert_kind_of Note, node
     assert_kind_of VirtualClass, node.virtual_class
     assert_equal roles_id(:Letter), node.vclass_id
     assert_equal 'Letter', node.klass
+    assert_equal 'Manila', node.paper
     assert node.vkind_of?('Letter')
     assert_equal "NNL", node.virtual_class[:kpath]
     assert_equal "NNL", node[:kpath]

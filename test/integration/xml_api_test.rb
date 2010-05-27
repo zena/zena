@@ -35,7 +35,7 @@ class XmlApiTest < Zena::Integration::TestCase
 
       should 'succeed' do
         assert_nothing_raised do
-          subject.attributes.merge!('title' => 'cloud')
+          subject.attributes.merge!('origin' => 'foobar')
           subject.save
         end
       end
@@ -44,6 +44,19 @@ class XmlApiTest < Zena::Integration::TestCase
         subject.attributes.merge!('title' => 'cloud')
         assert subject.save
         assert_equal 'cloud', nodes(:status).title
+      end
+    end # updating a node
+
+    context 'creating a node with klass' do
+      subject do
+        # Letter should load 'paper' property
+        NodeResource.new(:parent_id => nodes_zip(:people), :klass => 'Letter', :paper => 'manila', :title => 'Hey')
+      end
+
+      should 'succeed' do
+        assert_nothing_raised do
+          subject.save
+        end
       end
     end # updating a node
   end # With an authentification token

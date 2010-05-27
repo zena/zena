@@ -9,29 +9,29 @@ class NodeTest < Zena::Unit::TestCase
     :dgroup_id => Zena::FoxyParser::id('zena', 'managers'),
     :parent_id => Zena::FoxyParser::id('zena', 'cleanWater'),
   }.freeze
-  
+
   context 'On a node' do
     subject do
       secure!(Node) { nodes(:cleanWater) }
     end
-    
+
     context 'with a sub-node' do
       should 'return true on ancestor?' do
         assert subject.ancestor?(secure!(Node) { nodes(:status) })
       end
     end # with a sub-node
-    
+
     context 'with a node that is not a sub-node' do
       should 'return false on ancestor?' do
         assert !subject.ancestor?(secure!(Node) { nodes(:people) })
       end
     end # with a node that is not a sub-node
-    
+
     should 'return true on ancestor? on self' do
       assert subject.ancestor?(subject)
     end
   end # On a node
-  
+
   context 'A logged in user' do
     setup do
       login(:lion)
