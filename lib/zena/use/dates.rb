@@ -110,17 +110,18 @@ module Zena
       end
 
       module FormTags
-        # Date selection tool
-      	def date_box(obj, var, opts = {})
+        # Date selection tool.
+        # TODO: make it work with form_helper: <%= f.date_box(:event_at) %>
+      	def date_box(obj, name, opts = {})
       	  rnd_id = rand(100000000000)
       	  defaults = {  :id=>"datef#{rnd_id}", :button=>"dateb#{rnd_id}", :display=>"dated#{rnd_id}" }
       	  opts = defaults.merge(opts)
-      	  date = eval("@#{obj} ? @#{obj}.#{var} : nil")
+      	  date = obj.send(name)
       	  value = tformat_date(date,'datetime')
           if opts[:size]
-            fld = "<input id='#{opts[:id]}' name='#{obj}[#{var}]' type='text' size='#{opts[:size]}' value='#{value}' />"
+            fld = "<input id='#{opts[:id]}' name='node[#{name}]' type='text' size='#{opts[:size]}' value='#{value}' />"
           else
-            fld = "<input id='#{opts[:id]}' name='#{obj}[#{var}]' type='text' value='#{value}' />"
+            fld = "<input id='#{opts[:id]}' name='node[#{name}]' type='text' value='#{value}' />"
           end
       		<<-EOL
       <span class="date_box"><img src="/calendar/iconCalendar.gif" id="#{opts[:button]}" alt='#{_('date selection')}'/>
@@ -153,7 +154,7 @@ module Zena
           DateTime.parse(string) rescue nil
         end
       end # ViewMethods
-      
+
       # FIXME: remove from other models (has been removed from Node) !
       module AddParseDateAttributeMethod
         def parse_date_attribute(*args)

@@ -96,32 +96,12 @@ class VirtualClass < Role
     end
   end
 
-  # new instances, not virtual classes
+  # Build new nodes instances of this VirtualClass
   def new_instance(hash={})
-    obj = real_class.new
-    obj.vclass_id  = self[:id]
-    # set kpath before loading roles
-    obj.kpath      = self.kpath
-    obj.attributes = hash
-    obj
+    real_class.new(hash.merge(:kpath => self.kpath, :vclass_id => self.id))
   end
 
-  alias new new_instance
-
-  def real_class
-    klass = Module::const_get(self[:real_class])
-    raise NameError unless klass.ancestors.include?(Node)
-    klass
-  end
-
-  def with_exclusive_scope(scope, &block)
-    @scope = scope
-    res = yield
-    @scope = nil
-    res
-  end
-
-  # create instances, not virtual classes
+  # Create new nodes instances of this VirtualClass
   def create_instance(*args)
     if @scope
       # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
@@ -137,16 +117,29 @@ class VirtualClass < Role
     end
   end
 
+  def real_class
+    klass = Module::const_get(self[:real_class])
+    raise NameError unless klass.ancestors.include?(Node)
+    klass
+  end
+
+  def with_exclusive_scope(scope, &block)
+    @scope = scope
+    res = yield
+    @scope = nil
+    res
+  end
+
   def import_result
     @import_result || errors[:base]
   end
 
   private
     def valid_virtual_class
-      return unless errors.empty?
+      return if !errors.empty?
       @superclass ||= self.superclass
 
-      if new_record? || self[:name] != old[:name] || @superclass != old.superclass
+      if new_record? || name_changed? || @superclass != old.superclass
         index = 0
         kpath = nil
         while index < self[:name].length

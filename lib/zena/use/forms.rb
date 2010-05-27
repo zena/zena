@@ -39,13 +39,34 @@ module Zena
       end # ViewMethods
 
       module ZafuMethods
+        def make_input(form_helper, name, type, textarea = false)
+          if type == Time
+            "<%= date_box(#{node}, :#{name}) %>"
+          elsif textarea
+            "<%= #{form_helper}.text_area :#{name}, :id => '#{node.dom_prefix}_#{name}' %>"
+          else
+            "<%= #{form_helper}.text_field :#{name}, :id => '#{node.dom_prefix}_#{name}' %>"
+          end
+        end
+
         def make_form
           return super unless form_helper = @context[:form_helper]
 
-          case method
-          when 'title', 'link'
-            name = @params[:attr] || 'title'
-            out "<%= #{form_helper}.text_field :#{name} %>"
+          if %W{link show}.include?(method) || method == 'zazen' || (name = method[/zazen\(\s*(\w+)\s*\)/,1])
+            name ||= @params[:attr] || @params[:date] || 'title'
+            textarea = method =~ /zazen/
+          elsif type = node.klass.safe_method_type([method])
+            name = method
+          end
+
+          if name
+            type ||= node.klass.safe_method_type([name])
+            if type && (node.klass.column_names.include?(name) || node.klass.schema.column_names.include?(name))
+              out make_input(form_helper, name, type[:class], textarea)
+            else
+              # ignore
+              out ''
+            end
           else
             super
           #when 'text', 'summary'
@@ -103,7 +124,7 @@ END_TXT
 
         def form_hidden_fields(opts)
           hidden_fields = super
-
+          add_params = @context[:add] ? @context[:add].params : {}
           set_fields = []
           @markup.params[:class] ||= 'form'
 
@@ -123,8 +144,7 @@ END_TXT
 
             hidden_fields['link_id'] = "<%= #{node}.link_id %>" if @context[:need_link_id]
 
-            # if @params[:update] || (@context[:add] && @context[:add].params[:update])
-            #   upd = @params[:update] || @context[:add].params[:update]
+            # if upd = @params[:update] || add_params[:update]
             #   if target = find_target(upd)
             #     hidden_fields['u_url']   = target.template_url
             #     hidden_fields['udom_id'] = target.erb_dom_id
@@ -198,14 +218,14 @@ END_TXT
           end
 
           if node.will_be?(Node) && (@params[:klass] || @context[:klass])
-            hidden_fields['node[klass]']    = @params[:klass] || @context[:klass]
+            hidden_fields['node[klass]'] = @params[:klass] || @context[:klass]
           end
 
           if node.will_be?(Node) && @params[:mode]
             hidden_fields['mode'] = @params[:mode]
           end
 
-          hidden_fields['node[v_status]'] = Zena::Status[:pub] if @context[:publish_after_save] || auto_publish_param
+          hidden_fields['node[v_status]'] = Zena::Status[:pub].to_s if add_params[:publish] || auto_publish_param
 
           # ===
           # TODO: reject set_fields from hidden_fields
@@ -330,7 +350,7 @@ END_TXT
         #  return '' if ['url','path'].include?(attribute) # cannot be set with a form
         #  if params[:date]
         #  input_id = @context[:dom_prefix] ? ", :id=>\"#{dom_id}_#{attribute}\"" : ''
-        #    return "<%= date_box('#{node.form_name}', #{params[:date].inspect}#{input_id}) %>"
+        #    return "<%= date_box(#{node}, #{params[:date].inspect}#{input_id}) %>"
         #  end
         #  input_id = node.dom_prefix ? " id='#{node.dom_prefix}_#{attribute}'" : ''
         #  "<input type='#{params[:type] || 'text'}'#{input_id} name='#{input[:name]}' value='#{input[:value]}'/>"
@@ -401,13 +421,13 @@ END_TXT
             res[:id]   = params[:id] if params[:id]
           end
 
-          if params[:type] == 'checkbox' && nattr
-            if value = params[:value]
-              res[:checked] = "<%= #{nattr} == #{value.inspect} ? \" checked='checked'\" : '' %>"
-            else
-              res[:checked] = "<%= #{nattr}.blank? ? '' : \" checked='checked'\" %>"
-            end
-          end
+          # if params[:type] == 'checkbox' && nattr
+          #   if value = params[:value]
+          #     res[:checked] = "<%= #{nattr} == #{value.inspect} ? \" checked='checked'\" : '' %>"
+          #   else
+          #     res[:checked] = "<%= #{nattr}.blank? ? '' : \" checked='checked'\" %>"
+          #   end
+          # end
 
           params.each do |k, v|
             next unless [:size, :style, :class].include?(k)

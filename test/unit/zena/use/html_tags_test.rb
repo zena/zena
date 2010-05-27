@@ -171,20 +171,25 @@ class HtmlTagsTest < Zena::View::TestCase
     @node = secure!(Node) { nodes(:status) }
     select = select_id('node', :parent_id, :class => 'Project')
     assert_no_match %r{select.*node\[parent_id\].*21.*19.*29.*11}m, select
-    assert_match %r{select.*node\[parent_id\].*29}m, select
+    #assert_match %r{select.*node\[parent_id\].*29}m, select
+    # no more select
+    assert_match %r{input.*node\[parent_id\].*21}m, select
     login(:tiger)
     @node = secure!(Node) { nodes(:status) }
-    assert_match %r{select.*node\[parent_id\].*21.*19.*29.*11}m, select_id('node', :parent_id, :class=>'Project')
+    # no more select
+    #assert_match %r{select.*node\[parent_id\].*21.*19.*29.*11}m, select_id('node', :parent_id, :class=>'Project')
+    assert_match %r{input.*node\[parent_id\].*21}m, select_id('node', :parent_id, :class=>'Project')
     assert_match %r{input type='text'.*name.*node\[icon_id\]}m, select_id('node', :icon_id)
   end
 
-  def test_select_id_with_empty_value
-    login(:lion)
-    vclass = VirtualClass.create(:superclass => 'Post', :name => 'Foo', :create_group_id =>  groups_id(:public))
-    @node = secure!(Node) { nodes(:status) }
-    select = select_id('node', :parent_id, :class=>'Foo')
-    assert_match %r{<select[^>]*></select>}, select
-  end
+  # No more select
+  # def test_select_id_with_empty_value
+  #   login(:lion)
+  #   vclass = VirtualClass.create(:superclass => 'Post', :name => 'Foo', :create_group_id =>  groups_id(:public))
+  #   @node = secure!(Node) { nodes(:status) }
+  #   select = select_id('node', :parent_id, :class=>'Foo')
+  #   assert_match %r{<select[^>]*></select>}, select
+  # end
 
   def test_show_path_root
     login(:anon)

@@ -353,13 +353,7 @@ module Zena
 
             self.renamed_assets = {}
 
-            begin
-              res = ZafuCompiler.new_with_url(zafu_url, :helper => zafu_helper).to_erb(:dev => dev_mode?, :node => get_node_context)
-            rescue => err
-              puts err.message
-              puts err.backtrace.join("\n")
-              return nil
-            end
+            res = ZafuCompiler.new_with_url(zafu_url, :helper => zafu_helper).to_erb(:dev => dev_mode?, :node => get_node_context)
 
             unless valid_template?(res, opts)
               # problem during rendering, use default zafu

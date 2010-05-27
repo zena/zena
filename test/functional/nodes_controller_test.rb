@@ -561,7 +561,7 @@ END:VCALENDAR
       img = secure!(Node) { nodes(:bird_jpg) }
       assert_equal Zena::Status[:pub], img.version.status
       pub_version_id = img.version.id
-      pub_content_id = img.id
+      pub_content_id = img.version.attachment.id
       assert_equal 660, img.width
       assert_equal 600, img.height
       assert_equal 56243, img.size
@@ -572,7 +572,7 @@ END:VCALENDAR
       err img
       img = secure!(Node) { nodes(:bird_jpg) }
       assert_not_equal pub_version_id, img.version.id
-      assert_not_equal pub_content_id, img.id
+      assert_not_equal pub_content_id, img.version.attachment.id
       assert_equal 2010,   img.size
       assert_equal 160,  img.width
       assert_equal 80, img.height

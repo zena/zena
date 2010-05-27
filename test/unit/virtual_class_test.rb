@@ -148,10 +148,10 @@ class VirtualClassTest < Zena::Unit::TestCase
     assert_equal "NNL", node[:kpath]
   end
 
-  def test_new
+  def test_new_instance
     login(:ant)
     klass = roles(:Letter)
-    assert node = secure!(Node) { klass.new(:title => 'my letter', :parent_id => nodes_id(:cleanWater)) }
+    assert node = secure!(Node) { klass.new_instance(:title => 'my letter', :parent_id => nodes_id(:cleanWater)) }
     assert node.save
     assert_kind_of Note, node
     assert !node.new_record?

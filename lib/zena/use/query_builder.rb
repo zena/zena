@@ -292,7 +292,7 @@ module Zena
             [:updated, :created, :event, :log].each do |k|
               if value = params[k]
                 # current, same are synonym for 'today'
-                filters << Zena::Db.date_condition(value,"TABLE_NAME.#{k}_at", get_context_var('set_var', 'date') || ::RubyLess::TypedString('main_date', Time))
+                filters << Zena::Db.date_condition(value,"TABLE_NAME.#{k}_at", get_context_var('set_var', 'date') || RubyLess::TypedString('main_date', Time))
               end
             end
 

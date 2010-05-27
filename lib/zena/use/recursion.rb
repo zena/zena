@@ -30,7 +30,6 @@ module Zena
             if inc && inc.params[:part] == @name
               # We are called by a descendant, create method
               proc_name = template_url(node).gsub(/[^\w]/,'_')
-              deb proc_name
 
               if node.klass.kind_of?(Array)
                 if node.klass.first.name.blank?

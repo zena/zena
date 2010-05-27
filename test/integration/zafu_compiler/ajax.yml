@@ -6,16 +6,14 @@ default:
 
 block:
   src: "<r:parent><r:block name='foobar' do='node_name'/></r:parent>"
-  tem: "<% if var1 = @node.parent -%><div id='foobar_<%= var1.zip %>'><%= var1.name %></div><% end -%>"
-  'ajax/block/en/foobar.erb': "<div id='foobar_<%= @node.zip %>'><%= @node.name %></div>"
+  tem: "<% if var1 = @node.parent -%><div id='foobar_<%= var1.zip %>'><%= var1.node_name %></div><% end -%>"
+  'ajax/block/en/foobar.erb': "<div id='foobar_<%= @node.zip %>'><%= @node.node_name %></div>"
 
 add:
   src: "<ul id='children' do='nodes'><li do='each' do='link'/><li do='add'/></ul>"
   tem: "/\[\"children_add\", \"children_form\"\].each\(Element.toggle\)/"
   'ajax/add/en/children_form.erb': "/class='form' id='<%= ndom_id\(@node\) %>'/"
   'ajax/add/en/children.erb': "<li id='<%= ndom_id(@node) %>'><a href='<%= zen_path(@node) %>'><%= @node.prop['title'] %></a></li>"
-
-# -- fixed to here
 
 show_edit:
   src: "<r:show attr='node_name' edit='true'/>"
@@ -41,16 +39,15 @@ edit_not_each:
 
 add_each_no_form:
   src: "<ul do='children' id='things'><li do='each'>I <p do='node_name'>blah</p></li><li do='add'/></ul>"
-  res: "/<ul><li.*id='things_add'.*li class='form' id='things_form'.*form.*hidden.*I <p><input type='text' id='things_name' name='node\[name\]' value=''\/><\/p><\/form><\/li>/"
+  res: "/<ul><li.*id='things_add'.*li.*class='form' id='things_form'.*form.*hidden.*I <p><input id=.things_node_name. name=.node\[node_name\]. .*type=.text./"
 
 add_each_no_form_date:
   src: "<ul do='children' id='things'><li do='each'>I <p do='show' date='event_at' tformat='short_date'>blah</p></li><li do='add'/></ul>"
-  # fails because <p do='show' date='event_at' is not transformed into an input tag
-  res: "/<ul><li.*id='things_add'.*li.*id='things_form'.*form.*hidden.*I <p>.*date_box.*<input id='things_event_at' name='node\[event_at\]' type='text' value.*/m"
+  res: "/<ul><li.*id='things_add'.*li.*id='things_form'.*form.*hidden.*I <p>.*date_box.*name='node\[event_at\]' type='text' value.*/m"
 
 add_each_no_form_focus:
-  src: "<ul do='children' id='test'><li do='each'>I <p do='[title]'>blah</p></li><li do='add' focus='title'/></ul>"
-  res: "/<ul><li.*id=.*_add.*onclick.*toggle.*test_title.*focus.*li.*id=.*_form.*form.*hidden.*I <p><input type='text' id='test_title' name='node\[title\]' value=''\/><\/p><\/form><\/li>/"
+  src: "<ul do='children' id='test'><li do='each'>I <p do='title'>blah</p></li><li do='add' focus='title'/></ul>"
+  res: "/\$\(.test_title.\).focus\(\).*I <p>.*id=.test_title./"
 
 each_add_with_form:
   context:
@@ -113,7 +110,7 @@ each_edit_cannot_write:
 
 add_each_publish:
   src: "<ul do='children' id='things'><li do='each'>I <p do='node_name'>blah</p></li><li do='add' publish='true'/></ul>"
-  res: "/<ul><li.*id='things_add'.*li.*id='things_form'.*form.*hidden.*name='node\[v_status\]' value=.50./"
+  res: "/hidden.*name=.node\[v_status\]. value=.50./"
 
 block_edit_form:
   src: "<r:block><p do='node_name'/> <r:edit/> <r:form>please enter name: <input name='name'/> <r:input type='submit'/></r:form></r:block>"

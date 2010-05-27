@@ -9,6 +9,7 @@ class Column < ActiveRecord::Base
 
   validates_presence_of :role
   validates_uniqueness_of :name, :scope => :site_id
+  validate :name_not_in_models
 
   class << self
     include Zena::Acts::Secure
@@ -78,5 +79,14 @@ class Column < ActiveRecord::Base
   protected
     def set_defaults
       self[:site_id] = current_site.id
+    end
+
+    def name_not_in_models
+      Node.native_classes.each do |kpath, klass|
+        if klass.schema.column_names.include?(self.name)
+          errors.add(:name, _('has already been taken in %s') % klass.name)
+          break
+        end
+      end
     end
 end

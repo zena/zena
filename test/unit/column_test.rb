@@ -49,6 +49,17 @@ class ColumnTest < Zena::Unit::TestCase
       end
     end # with an existing name
 
+    context 'with the name of a hardwire property' do
+      subject do
+        Column.create(:role_id => roles_id(:Task), :ptype => 'string', :name => 'first_name')
+      end
+
+      should 'fail with an error' do
+        assert_difference('Column.count', 0) do
+          assert_equal 'has already been taken in BaseContact', subject.errors[:name]
+        end
+      end
+    end # with an existing name
   end # Creating a column
 
 end

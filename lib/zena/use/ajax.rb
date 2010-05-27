@@ -34,12 +34,7 @@ module Zena
 
           if obj.new_record?
             # A. could not create object: show form with errors
-            begin
-              page.replace "#{params[:dom_id]}_form", :file => template_path_from_template_url + "_form.erb"
-            rescue => err
-              puts err.message
-              puts err.backtrace.join("\n")
-            end
+            page.replace "#{params[:dom_id]}_form", :file => template_path_from_template_url + "_form.erb"
           elsif @errors || !obj.errors.empty?
             # B. could not update/delete: show errors
             case params[:action]

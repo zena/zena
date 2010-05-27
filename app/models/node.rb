@@ -262,17 +262,19 @@ class Node < ActiveRecord::Base
   @@unhandled_children  = []
   class << self
 
-    # needed for compatibility with virtual classes
-    def create_instance(hash)
-      obj = new
+    def new(hash={})
+      node = super()
       # set kpath before loading roles
-      obj.kpath      = self.kpath
-      obj.attributes = hash
-      obj.save ? obj : nil
+      node.kpath = hash[:kpath] || self.kpath
+      node.attributes = hash
+      node
     end
 
-    # TODO: remove
+    # Compatibility with VirtualClass
     alias new_instance new
+
+    # Compatibility with VirtualClass
+    alias create_instance create
 
     def inherited(child)
       super
@@ -285,10 +287,13 @@ class Node < ActiveRecord::Base
     # Return the list of (kpath,subclasses) for the current class.
     def native_classes
       # this is to make sure subclasses are loaded before the first call
+      # TODO: find a better way to make sure they are all loaded
       [Note,Page,Project,Section,Reference,BaseContact,Document,Image,TextDocument,Skin,Template]
+
       while child = @@unhandled_children.pop
         @@native_node_classes[child.kpath] = child
       end
+
       @@native_node_classes.reject {|kpath,klass| !(kpath =~ /^#{self.kpath}/) }
     end
 
@@ -356,7 +361,7 @@ class Node < ActiveRecord::Base
     # Return a new object of the class name or nil if the class name does not exist.
     def new_from_class(rel)
       if k = get_class(rel, :create => true)
-        k.new
+        k.new_instance
       else
         nil
       end
@@ -472,11 +477,11 @@ class Node < ActiveRecord::Base
         return node
       end
 
-      node = if klass != self
+      if klass != self
         # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
-        klass.send(:with_exclusive_scope, scope) { klass.create_instance(attributes) }
+        node = klass.send(:with_exclusive_scope, scope) { klass.create_instance(attributes) }
       else
-        self.create_instance(attributes)
+        node = self.create_instance(attributes)
       end
 
       node
