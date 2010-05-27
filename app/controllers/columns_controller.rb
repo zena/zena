@@ -7,7 +7,7 @@ class ColumnsController < ApplicationController
   # GET /columns
   # GET /columns.xml
   def index
-    secure!(Column) do
+    secure(Column) do
       @columns = Column.paginate(:all, :order => 'name', :per_page => 20, :page => params[:page])
     end
 
