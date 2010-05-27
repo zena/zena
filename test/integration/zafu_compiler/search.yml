@@ -1,0 +1,13 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'status'
+  src: "simple text"
+  tem: "simple text"
+  res: "simple text"
+
+search_results_without_values:
+  src: "<r:search_results>..</r:search_results>"
+  tem: '<% if var1 = @nodes -%>..<% end -%>'
+  res: ''

@@ -402,23 +402,6 @@ module Zena
           end
         end
 
-        def get_attribute_or_eval(use_string_block = true)
-          if attribute = @params[:attr] || @params[:date]
-            code = "this.#{attribute}"
-          elsif code = @params[:eval]
-          elsif text = @params[:text]
-            code = "%Q{#{text}}"
-          elsif use_string_block && @blocks.size == 1 && @blocks.first.kind_of?(String)
-            return RubyLess::TypedString.new(@blocks.first.inspect, :class => String, :literal => @blocks.first)
-          else
-            return parser_error("Missing attribute/eval parameter")
-          end
-
-          RubyLess.translate(code, self)
-        rescue RubyLess::Error => err
-          parser_error(err.message, code)
-        end
-
         # Display an attribute or RubyLess code
         def r_show
           if node.list_context?

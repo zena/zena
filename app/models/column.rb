@@ -2,7 +2,7 @@ class Column < ActiveRecord::Base
   attr_accessor :import_result
   include RubyLess
   include Property::StoredColumn
-  TYPES_FOR_FORM = %w{string integer}
+  TYPES_FOR_FORM = %w{string datetime integer}
 
   belongs_to :role
   before_validation :set_defaults

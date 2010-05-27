@@ -865,7 +865,7 @@ msgid "document_tab"
 msgstr "doc"
 
 #: lib/gettext_strings.rb:15
-msgid "contact_tab"
+msgid "basecontact_tab"
 msgstr "contact"
 
 #: lib/gettext_strings.rb:17

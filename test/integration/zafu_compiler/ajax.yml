@@ -11,9 +11,9 @@ block:
 
 add:
   src: "<ul id='children' do='nodes'><li do='each' do='link'/><li do='add'/></ul>"
-  tem: ".."
-  'ajax/add/en/children.erb': "..."
-  'ajax/add/en/children_form.erb': "..."
+  tem: "/\[\"children_add\", \"children_form\"\].each\(Element.toggle\)/"
+  'ajax/add/en/children_form.erb': "/class='form' id='<%= ndom_id\(@node\) %>'/"
+  'ajax/add/en/children.erb': "<li id='<%= ndom_id(@node) %>'><a href='<%= zen_path(@node) %>'><%= @node.prop['title'] %></a></li>"
 
 # -- fixed to here
 
@@ -45,6 +45,7 @@ add_each_no_form:
 
 add_each_no_form_date:
   src: "<ul do='children' id='things'><li do='each'>I <p do='show' date='event_at' tformat='short_date'>blah</p></li><li do='add'/></ul>"
+  # fails because <p do='show' date='event_at' is not transformed into an input tag
   res: "/<ul><li.*id='things_add'.*li.*id='things_form'.*form.*hidden.*I <p>.*date_box.*<input id='things_event_at' name='node\[event_at\]' type='text' value.*/m"
 
 add_each_no_form_focus:

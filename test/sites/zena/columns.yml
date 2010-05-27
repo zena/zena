@@ -3,7 +3,7 @@ Task_assigned:
 
 Original_origin:
   ptype:           string
-  index:           1
+  index:           ml_string
 
 Original_weight:
   ptype:           integer

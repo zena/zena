@@ -606,6 +606,23 @@ END:VCALENDAR
     assert nodes = assigns(:nodes)
     assert_equal [nodes_id(:bird_jpg)], nodes.map {|r| r.id}
   end
+
+  def test_search_klass
+    login(:anon)
+    get 'search', 'klass' => 'Project'
+    assert nodes = assigns(:nodes)
+    assert_equal [nodes_id(:zena), nodes_id(:wiki), nodes_id(:cleanWater)], nodes.map {|r| r.id}
+  end
+
+  def test_search_q
+    login(:lion)
+    # Until we have indices in fixtures: create entries
+    secure(Node) { nodes(:zena) }.update_attributes(:v_status => Zena::Status[:pub], :title => 'zoom')
+    login(:anon)
+    get 'search', 'q' => 'klass:Project title:z'
+    assert nodes = assigns(:nodes)
+    assert_equal [nodes_id(:zena)], nodes.map {|r| r.id}
+  end
 end
 
 =begin

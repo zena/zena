@@ -142,28 +142,23 @@ module Zena
         end
 
         def r_login_link
-          out "<% if visitor.is_anon? -%>"
           if dynamic_blocks?
             @markup.tag ||= 'a'
             markup = @markup.tag == 'a' ? @markup : Zafu::Markup.new('a')
 
-            # login
-            markup.set_dyn_param('href', '<%= login_path %>')
-            out markup.wrap(expand_with) # will not render 'else' clause
+            else_markup = markup.dup
+            else_markup.set_dyn_param('href', '<%= logout_path %>')
 
-            if else_block = descendant('else') || descendant('elsif')
-              # logout
-              out "<% else -%>"
-              markup.done = false
-              markup.set_dyn_param('href', '<%= logout_url %>')
-              out markup.wrap(else_block.expand_with)
-            end
+            markup.set_dyn_param('href', '<%= login_path %>')
+
+            out markup.wrap(expand_if("visitor.is_anon?", self.node, else_markup))
           else
+            out "<% if visitor.is_anon? -%>"
             out "<%= link_to #{_('login').inspect}, login_path %>"
             out "<% else -%>"
             out "<%= link_to #{_('logout').inspect}, logout_path %>"
+            out "<% end -%>"
           end
-          out "<% end -%>"
         end
 
         def r_visitor_link

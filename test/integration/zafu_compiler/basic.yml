@@ -135,7 +135,7 @@ case_when_test:
   res: "one"
 
 if_html_tag:
-  src: "<div do='if' eval='1 == 1'>yes it's true<r:else>four</r:else></div>"
+  src: "<div do='if' test='1 == 1'>yes it's true<r:else>four</r:else></div>"
   res: "<div>yes it's true</div>"
 
 if_html_tag_false:
@@ -147,7 +147,7 @@ if_html_tag_false_html_params:
   res: "<div class='bad'>four</div>"
 
 if_html_tag_elsif:
-  src: "<div do='if' eval='2 == 1'>A<r:elsif eval='1'>B</r:elsif><r:else>C</r:else></div>"
+  src: "<div do='if' test='2 == 1'>A<r:elsif test='1'>B</r:elsif><r:else>C</r:else></div>"
   tem: '<% if (2==1) -%><div>A</div><% elsif 1 -%><div>B</div><% elsif true -%><div>C</div><% end -%>'
   res: "<div>B</div>"
 
@@ -229,7 +229,7 @@ test_ancestor_with_stored:
 on_if_kind_of:
   context:
     node: 'opening'
-  src: "<b do='[title]' doc_if_kind_of='Document' popo_if_kind_of='Post'/>"
+  src: "<b do='title' doc_if='kind_of?(Document)' popo_if='kind_of?(Post)'/>"
   res: "<b class='popo'>parc opening</b>"
 
 on_if_attribute:
