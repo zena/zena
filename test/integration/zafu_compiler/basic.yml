@@ -217,14 +217,14 @@ multiple_class_conditions:
   res: "<li class='unknown'>Agrippina</li>"
 
 multiple_class_conditions_true_in_middle:
-  src: "<li class='unknown' do='void' one_if='custom_a eq 1' two_if='2 eq 2'>Agrippina</li>"
-  res: "<li class='two'>Agrippina</li>"
+  src: "<li class='unknown' do='void' one_if='custom_a == 1' two_if='2 == 2'>Agrippina</li>"
+  res: "<li class='unknown two'>Agrippina</li>"
 
 # var1 = stored 'papa'
 test_ancestor_with_stored:
-  src: "<r:parent do='parent' store='papa' do='pages'><div do='each' super_if_node='papa.ancestor' do='node_name'/></r:parent>"
-  tem: "/var1.fullpath.*var3.fullpath/"
-  res: "<div class='super'>cleanWater</div><div>wiki</div>"
+  src: "<r:parent do='parent' set_papa='this' do='pages'><div do='each' super_if='papa.ancestor?(this)' do='node_name'/></r:parent>"
+  tem: "/\(var1\.ancestor\?\(var4\)\)/"
+  res: "<div class=' super'>cleanWater</div><div class=''>wiki</div>"
 
 on_if_kind_of:
   context:
