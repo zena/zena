@@ -63,20 +63,6 @@ module Zafu
         pre + super
       end
 
-      # Find a block to update on the page
-      def find_target(name)
-        # find dom_id / template_url
-        target = nil
-        root.descendants('block').each do |b|
-          if b.name == name
-            target = b
-            break
-          end
-        end
-        out parser_error("could not find a block named '#{name}'") if target.nil?
-        target
-      end
-
       def context
         return @context if @context
         # not rendered yet, find first parent with context

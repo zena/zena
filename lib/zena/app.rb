@@ -13,6 +13,7 @@ module Zena
         include Zena::Use::Upload::ControllerMethods
         include Zena::Use::Urls::ControllerMethods
         include Zena::Use::ZafuTemplates::ControllerMethods
+        include Zena::Acts::Enrollable::ControllerMethods
         include RubyLess
 
         helper  Zena::Use::Authlogic::ViewMethods

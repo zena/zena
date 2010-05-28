@@ -87,6 +87,24 @@ module Zena
           end
         end
       end # ClassMethods
+
+      module Common
+        def get_class(class_name)
+          if klass = Node.get_class(class_name)
+            Enrollable.make_class(klass)
+          else
+            nil
+          end
+        end
+      end # Common
+
+      module ZafuMethods
+        include Common
+      end
+
+      module ControllerMethods
+        include Common
+      end
     end # Enrollable
   end # Acts
 end # Zena

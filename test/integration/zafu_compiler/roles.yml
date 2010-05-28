@@ -1,0 +1,13 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'status'
+  src: "simple text"
+  tem: "simple text"
+  res: "simple text"
+
+
+show_paper:
+  src: "<r:Letter do='paper'/>"
+  tem: "<% if @node.kpath_match?('NNL') -%><%= @node.prop['paper'] %><% end -%>"

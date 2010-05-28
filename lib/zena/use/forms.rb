@@ -289,7 +289,7 @@ END_TXT
           when 'date_box', 'date'
             return parser_error("date_box without name") unless attribute
             input_id = @context[:dom_prefix] ? ", :id=>\"#{dom_id}_#{attribute}\"" : ''
-            "<%= date_box '#{node.form_name}', #{attribute.inspect}, :size=>15#{@context[:in_add] ? ", :value=>''" : ''}#{input_id} %>"
+            "<%= date_box #{node}, #{attribute.inspect}, :size=>15#{@context[:in_add] ? ", :value=>''" : ''}#{input_id} %>"
           when 'id'
             return parser_error("select id without name") unless attribute
             name = "#{attribute}_id" unless attribute[-3..-1] == '_id'

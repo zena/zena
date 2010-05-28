@@ -236,7 +236,7 @@ module Zena
           if @skin && template = secure(Template) { Template.find(:first,
               :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ? AND template_indices.node_id = nodes.id AND template_indices.skin_id = ?", klasses, format, mode, @skin.id],
               :from       => "nodes, template_indices",
-              :select     => "nodes.*",
+              :select     => "nodes.*, tkpath",
               :order      => "length(tkpath) DESC"
             )}
 
@@ -248,6 +248,12 @@ module Zena
             path      = SITES_ROOT + rel_path
 
             if !File.exists?(path) || params[:rebuild]
+              if @node && klass = Node.get_class_from_kpath(template.tkpath)
+                zafu_node('@node', Zena::Acts::Enrollable.make_class(klass))
+              else
+                nil
+              end
+
               unless rebuild_template(template, opts.merge(:zafu_url => zafu_url, :rel_path => rel_path, :dev_mode => (dev_mode? && mode != '+popupLayout')))
                 return default_template_url(opts)
               end
