@@ -92,9 +92,37 @@ class EnrollableTest < Zena::Unit::TestCase
 
           should 'remove role on property set to blank' do
             assert_difference('NodesRoles.count', -1) do
-              assert subject.update_attributes('properties' => {'origin' => ''})
+              assert subject.update_attributes('origin' => '')
               assert_nil subject.origin
               assert_nil subject.cached_role_ids
+            end
+          end
+
+
+          should 'rebuild index on publish' do
+            # make sure we are creating all versions in the same lang
+            visitor.lang = subject.version.lang
+
+            # 1. publish current version
+            assert_difference('NodesRoles.count', 0) do
+              subject.publish
+            end
+
+            orig_version_id = subject.version.id
+
+            # 2. create a new version and publish
+            assert_difference('NodesRoles.count', -1) do
+              subject.update_attributes('origin' => '')
+              assert subject.publish
+            end
+            
+            # make sure properties are reloaded
+            subject = secure(Node) { nodes(:nature) }
+            subject.version = Version.find(orig_version_id)
+              
+            # 3. publish old version should rebuild index
+            assert_difference('NodesRoles.count', 1) do
+              assert subject.publish
             end
           end
         end # with roles assigned
@@ -122,7 +150,7 @@ class EnrollableTest < Zena::Unit::TestCase
         end # with properties assigned through role
       end # from a class with roles
     end # on a node
-    
+
     context 'creating a node' do
       context 'with properties from roles' do
         subject do
@@ -135,8 +163,8 @@ class EnrollableTest < Zena::Unit::TestCase
           end
         end
       end # with properties from roles
-      
+
     end # creating a node
-    
+
   end # A visitor with write access
 end

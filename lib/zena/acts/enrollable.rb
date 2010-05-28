@@ -101,30 +101,29 @@ module Zena
               role_ids << role.id if role.column_names & keys != []
             end
 
-            if cached_role_ids.blank?
-              @add_roles = role_ids
-              @del_roles = []
-            else
-              @add_roles = (role_ids - cached_role_ids)
-              @del_roles = cached_role_ids - role_ids
-            end
-
             prop['cached_role_ids'] = role_ids
           end
 
           def update_roles
-            if v_status > Zena::Status[:pub]
-              if !@add_roles.blank?
-                Zena::Db.insert_many('nodes_roles', %W{node_id role_id}, @add_roles.map {|role_id| [self.id, role_id]})
+            return if version.status < Zena::Status[:pub]
+
+            # High status, rebuild role index
+
+            if cached_role_ids.blank?
+              Zena::Db.execute("DELETE FROM nodes_roles WHERE node_id = #{Zena::Db.quote(self.id)}")
+            else
+              current_ids = Zena::Db.fetch_ids("SELECT role_id FROM nodes_roles WHERE node_id = #{Zena::Db.quote(self.id)}", 'role_id')
+              add_roles = cached_role_ids - current_ids
+              del_roles = current_ids - cached_role_ids
+
+              if !add_roles.blank?
+                Zena::Db.insert_many('nodes_roles', %W{node_id role_id}, add_roles.map {|role_id| [self.id, role_id]})
               end
 
-              if !@del_roles.blank?
-                Zena::Db.execute("DELETE FROM nodes_roles WHERE node_id = #{Zena::Db.quote(self.id)} AND role_id IN (#{@del_roles.map{|r| Zena::Db.quote(r)}.join(',')})")
+              if !del_roles.blank?
+                Zena::Db.execute("DELETE FROM nodes_roles WHERE node_id = #{Zena::Db.quote(self.id)} AND role_id IN (#{del_roles.map{|r| Zena::Db.quote(r)}.join(',')})")
               end
             end
-
-            @add_roles = nil
-            @del_roles = nil
           end
 
       end # ModelMethods

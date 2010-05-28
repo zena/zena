@@ -1,6 +1,7 @@
 module Zena
 
-  # version status
+  # version status.
+  # FIXME: replace Status[:red] by constant Status::Red
   Status = {
     :red  => 70,
     :prop_with => 65,
