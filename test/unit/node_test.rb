@@ -1462,7 +1462,7 @@ done: \"I am done\""
 
   def test_parse_keys
     node = secure(Node) { nodes(:status) }
-    assert_equal %w{archive assigned problems summary text title}, node.parse_keys.sort
+    assert_equal %w{archive problems summary text title}, node.parse_keys.sort
 
     note = secure(Node) { nodes(:opening) }
     assert_equal %w{text title}, note.parse_keys.sort

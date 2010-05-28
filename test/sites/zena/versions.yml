@@ -24,7 +24,6 @@ people_en:
     title:         people
     assigned:      gaspard
 
-
 ant_en:
   node:            ant
   user:            ant
@@ -190,7 +189,6 @@ status_en:
     summary:       status summary
     text:          status text
     archive:       LZNB34
-    assigned:      gaspard
     problems: |
       [{"type":"table"},
        [["problem","solution","cost"],
@@ -369,7 +367,6 @@ status_fr:
     title:         Etat des travaux
     summary:       status summary
     text:          status text
-    assigned:      gaspard
 
 track_en:
   node:            track
@@ -410,6 +407,8 @@ nature_red_en:
     title:         Nature
     summary:       "Ant's redaction on Nature"
     text:          "![]!"
+    origin:        Big Bang
+    cached_role_ids: Original
 
 tree_jpg_en:
   node:            tree_jpg

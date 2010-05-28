@@ -55,6 +55,13 @@ module Zena
           base.class_eval do
             alias_method_chain :attributes=, :enrollable
             alias_method_chain :properties=, :enrollable
+            before_validation  :prepare_roles
+            after_save  :update_roles
+            has_and_belongs_to_many :roles
+
+            property do |p|
+              p.serialize :cached_role_ids, Array
+            end
           end
         end
 
@@ -73,6 +80,53 @@ module Zena
             has_role role
           end
         end
+
+        def has_role?(role_id)
+          (cached_role_ids || []).include?(role_id)
+        end
+
+        private
+          # Prepare roles to add/remove to object.
+          def prepare_roles
+            return unless prop.changed?
+
+            keys = []
+            properties.each do |k, v|
+              keys << k unless v.blank?
+            end
+
+            role_ids = []
+            schema.roles.flatten.uniq.each do |role|
+              next unless role.kind_of?(Role)
+              role_ids << role.id if role.column_names & keys != []
+            end
+
+            if cached_role_ids.blank?
+              @add_roles = role_ids
+              @del_roles = []
+            else
+              @add_roles = (role_ids - cached_role_ids)
+              @del_roles = cached_role_ids - role_ids
+            end
+
+            prop['cached_role_ids'] = role_ids
+          end
+
+          def update_roles
+            if v_status > Zena::Status[:pub]
+              if !@add_roles.blank?
+                Zena::Db.insert_many('nodes_roles', %W{node_id role_id}, @add_roles.map {|role_id| [self.id, role_id]})
+              end
+
+              if !@del_roles.blank?
+                Zena::Db.execute("DELETE FROM nodes_roles WHERE node_id = #{Zena::Db.quote(self.id)} AND role_id IN (#{@del_roles.map{|r| Zena::Db.quote(r)}.join(',')})")
+              end
+            end
+
+            @add_roles = nil
+            @del_roles = nil
+          end
+
       end # ModelMethods
 
       module ClassMethods

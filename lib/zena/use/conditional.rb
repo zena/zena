@@ -3,22 +3,22 @@ module Zena::Use::Conditional
 
     def rubyless_class_scope(class_name)
       # capital letter ==> class conditional
-      klass = get_class(class_name)
-      if klass.kpath =~ %r{^#{node.klass.kpath}}
-        out expand_if("#{node}.kpath_match?('#{klass.kpath}')", node.move_to(node.name, klass))
+      if klass = get_class(class_name)
+        if klass.kpath =~ %r{^#{node.klass.kpath}}
+          out expand_if("#{node}.kpath_match?('#{klass.kpath}')", node.move_to(node.name, klass))
+        else
+          # render nothing: incompatible classes
+          out expand_if('false', node.move_to(node.name, klass))
+        end
+      elsif role = Role.first(:conditions => ['name = ? AND site_id = ?', class_name, current_site.id])
+        if node.klass.kpath =~ %r{^#{role.kpath}}
+          out expand_if("#{node}.has_role?(#{role.id})", node.move_to(node.name, klass))
+        else
+          # render nothing: incompatible classes
+          out expand_if('false', node.move_to(node.name, klass))
+        end
       else
-        # render nothing: incompatible classes
-        ''
-      end
-    #rescue NameError
-    #  parser_error("Invalid class name '#{class_name}'")
-    end
-
-    def get_class(class_name)
-      if klass = Node.get_class(class_name)
-        Zena::Acts::Enrollable.make_class(klass)
-      else
-        nil
+        parser_error("Invalid role or class '#{class_name}'")
       end
     end
   end

@@ -3,6 +3,7 @@ require 'property/stored_role'
 class Role < ActiveRecord::Base
   include Property::StoredRole
   has_many :stored_columns, :class_name => 'Column', :dependent => :destroy
+  has_and_belongs_to_many :nodes
 
   before_validation :set_defaults
   validate :check_can_save

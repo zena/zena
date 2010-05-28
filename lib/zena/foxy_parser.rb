@@ -265,7 +265,9 @@ module Zena
 
       def make_prop(prop)
         prop.each do |key, value|
-          if value.kind_of?(String)
+          if key == 'cached_role_ids'
+            prop[key] = value.split(',').map {|role_name| FoxyParser.id(site, role_name.strip)}
+          elsif value.kind_of?(String)
             value.gsub!(%r{\[FILE:(.*?)\]}) do
               File.read("#{Zena::ROOT}/#{$1}")
             end
@@ -781,6 +783,20 @@ module Zena
             col['role'], col['name'] = name.split('_')
             col[:header_keys] << :role
             col[:header_keys] << :name
+          end
+        end
+      end
+  end
+
+  class FoxyNodesRolesParser < FoxyParser
+    private
+      def set_defaults
+        super
+        elements.each do |name, col|
+          if !col['role']
+            col['node'], col['role'] = name.split('_')
+            col[:header_keys] << :role
+            col[:header_keys] << :node
           end
         end
       end

@@ -8,6 +8,21 @@ default:
   res: "simple text"
 
 
-show_paper:
+show_property_filter_vclass:
   src: "<r:Letter do='paper'/>"
   tem: "<% if @node.kpath_match?('NNL') -%><%= @node.prop['paper'] %><% end -%>"
+
+show_property_filter_role_no_role:
+  src: "<r:Original>Has an origin</r:Original>"
+  res: ''
+
+show_property_filter_role_has_role:
+  context:
+    node: nature
+  src: "<r:Original>Has an original</r:Original>"
+  tem: "<% if @node.has_role?(493147733) -%>Has an original<% end -%>"
+  res: 'Has an original'
+
+show_bad_role:
+  src: "<r:Foo>abc</r:Foo>"
+  tem: "/Invalid role or class 'Foo'/"

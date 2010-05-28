@@ -2,6 +2,10 @@ require 'test_helper'
 
 class EnrollableTest < Zena::Unit::TestCase
 
+  class NodesRoles < ActiveRecord::Base
+    set_table_name :nodes_roles
+  end
+
   context 'A visitor with write access' do
     setup do
       login(:tiger)
@@ -17,19 +21,19 @@ class EnrollableTest < Zena::Unit::TestCase
           subject.load_roles!
         end
       end
-      
+
       context 'with roles loaded' do
         setup do
           subject.load_roles!
         end
-        
+
         should 'consider role methods as safe' do
           assert_equal Hash[:class=>String, :method=>"prop['assigned']", :nil=>true], subject.safe_method_type(['assigned'])
         end
       end # with roles loaded
-      
+
       context 'without roles loaded' do
-        
+
         should 'not consider role methods as safe' do
           assert_equal nil, subject.safe_method_type(['assigned'])
         end
@@ -73,6 +77,28 @@ class EnrollableTest < Zena::Unit::TestCase
           end
         end
 
+        should 'add role on property set' do
+          assert_difference('NodesRoles.count', 1) do
+            assert subject.update_attributes('properties' => {'assigned' => 'flat Eric'})
+            assert_equal 'flat Eric', subject.assigned
+            assert_equal [roles_id(:Task)], subject.cached_role_ids
+          end
+        end
+
+        context 'with roles assigned' do
+          subject do
+            secure(Node) { nodes(:nature) }
+          end
+
+          should 'remove role on property set to blank' do
+            assert_difference('NodesRoles.count', -1) do
+              assert subject.update_attributes('properties' => {'origin' => ''})
+              assert_nil subject.origin
+              assert_nil subject.cached_role_ids
+            end
+          end
+        end # with roles assigned
+
         should 'not allow arbitrary attributes' do
           assert_raise(ActiveRecord::UnknownAttributeError) do
             assert subject.update_attributes('assigned' => 'flat Eric', 'bad' => 'property')
@@ -86,15 +112,31 @@ class EnrollableTest < Zena::Unit::TestCase
 
         context 'with properties assigned through role' do
           subject do
-            secure(Node) { nodes(:status) }
+            secure(Node) { nodes(:nature) }
           end
 
           should 'read attributes without loading roles' do
-            assert_equal 'gaspard', subject.prop['assigned']
-            assert !subject.respond_to?(:assigned)
+            assert_equal 'Big Bang', subject.prop['origin']
+            assert !subject.respond_to?(:origin)
           end
         end # with properties assigned through role
       end # from a class with roles
     end # on a node
+    
+    context 'creating a node' do
+      context 'with properties from roles' do
+        subject do
+          secure(Node) { Node.create(:parent_id => nodes_id(:zena), :title => 'foo', :origin => 'Hop')}
+        end
+
+        should 'add roles' do
+          assert_difference('NodesRoles.count', 1) do
+            assert_equal [roles_id(:Original)], subject.cached_role_ids
+          end
+        end
+      end # with properties from roles
+      
+    end # creating a node
+    
   end # A visitor with write access
 end

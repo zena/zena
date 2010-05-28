@@ -32,7 +32,7 @@ class SerializableTest < Zena::Unit::TestCase
           assert_match %r{encoding=.UTF-8.*&#224; l'&#233;cole}m, subject.to_xml
         end
       end
-      
+
       context 'with empty properties' do
         # origin is empty
         should 'remove blank values from xml' do
