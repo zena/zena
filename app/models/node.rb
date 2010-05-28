@@ -358,6 +358,13 @@ class Node < ActiveRecord::Base
       klass
     end
 
+    # Find a role by name.
+    def get_role(rel)
+      # mushroom_types ==> MushroomType
+      role_name = rel =~ /\A[a-z]/ ? rel.singularize.camelize : rel
+      Role.first(:conditions => ['name = ? AND site_id = ?', role_name, current_site.id])
+    end
+
     # Return a new object of the class name or nil if the class name does not exist.
     def new_from_class(rel)
       if k = get_class(rel, :create => true)

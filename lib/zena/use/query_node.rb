@@ -167,13 +167,19 @@ module Zena
           "params[#{pagination_key.to_sym.inspect}]"
         end
 
-        # Handle special case for 'class = '
+        # Handle special case for 'class = ' and 'role = '
         def process_equal(left, right)
           if left == [:field, 'class'] && right[0] == :field
             if klass = Node.get_class(right[1])
               "#{field_or_attr('kpath')} = #{quote(klass.kpath)}"
             else
               raise QueryBuilder::QueryException.new("Unknown class #{right.last.inspect}.")
+            end
+          elsif left == [:field, 'role'] && right[0] == :field
+            if role = Node.get_role(right[1])
+              # FIXME: how to only add table once if the other clause in not an OR ?
+              add_table('nodes_roles')
+              "(#{table('nodes_roles')}.node_id = #{table('nodes')}.id AND #{table('nodes_roles')}.role_id = #{role.id})"
             end
           else
             super
@@ -348,6 +354,16 @@ module Zena
 
                 add_table(main_table)
                 add_filter "#{table}.kpath LIKE #{quote("#{res_class.kpath}%")}" unless res_class.kpath == 'N'
+                true
+              elsif role = Node.get_role(relation)
+                klass = Zena::Acts::Enrollable.make_class(@query.main_class)
+                klass.has_role role
+                set_main_class(klass)
+
+                add_table(main_table)
+                add_table('nodes_roles')
+                add_filter "#{table('nodes_roles')}.node_id = #{table('nodes')}.id"
+                add_filter "#{table('nodes_roles')}.role_id = #{role.id}"
                 true
               else
                 # unknown class

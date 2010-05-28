@@ -10,7 +10,7 @@ module Zena::Use::Conditional
           # render nothing: incompatible classes
           out expand_if('false', node.move_to(node.name, klass))
         end
-      elsif role = Role.first(:conditions => ['name = ? AND site_id = ?', class_name, current_site.id])
+      elsif role = Node.get_role(class_name)
         if node.klass.kpath =~ %r{^#{role.kpath}}
           out expand_if("#{node}.has_role?(#{role.id})", node.move_to(node.name, klass))
         else
