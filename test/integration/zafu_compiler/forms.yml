@@ -96,7 +96,7 @@ input:
   context:
     node: 'ant'
   src: "<r:BaseContact><r:input name='first_name'/></r:BaseContact>"
-  tem: "<% if @node.kpath_match?('NRC') %><input type='text' name='node[first_name]' value=\"<%= fquote @node.prop['first_name'] %>\"/><% end -%>"
+  tem: "<% if @node.kpath_match?('NRC') -%><input type='text' name='node[first_name]' value=\"<%= fquote @node.prop['first_name'] %>\"/><% end -%>"
   res: "<input type='text' name='node[first_name]' value=\"Solenopsis\"/>"
 
 input_style:
@@ -119,5 +119,5 @@ textarea_with_blocks:
 input_new:
   context:
     node: 'ant'
-  src: "<r:contacts><r:each/><r:form><r:input name='first_name'/></r:form><r:add/></r:contacts>"
+  src: "<r:base_contacts><r:each/><r:form><r:input name='first_name'/></r:form><r:add/></r:base_contacts>"
   res: "/name='node[first_name]' id='list1_first_name'/"

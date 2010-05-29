@@ -179,11 +179,11 @@ link_format_data:
 live_link_format:
   old_src: "<h2 do='title' link='details.xml'/>"
   src: "<h2 do='link' live='true' format='xml' mode='details'/>"
-  res: "<h2><a href='/oo/projects/cleanWater/page22_details.xml' id='_title22'>status title</a></h2>"
+  res: "<h2><a id='_title22' href='/oo/projects/cleanWater/page22_details.xml'>status title</a></h2>"
 
 live_link_data_mode:
   context:
     node: 'bird_jpg'
   old_src: "<h2 do='title' link='pv.data'>super title</h2>"
   src: "<h2 do='link' live='true' mode='pv' format='data'/>"
-  res: "<h2><a href='/en/image30_pv.jpg?967816914293' id='_title30'>bird</a></h2>"
+  res: "<h2><a id='_title30' href='/en/image30_pv.jpg?967816914293'>bird</a></h2>"

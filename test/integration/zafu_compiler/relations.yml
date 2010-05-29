@@ -101,7 +101,7 @@ store_node:
 
 store_in_block:
   src: "<r:block><r:void set_found='this' do='node' where='id = 18 in site' do='page'><r:found do='node_name'/>: <r:show attr='node_name'/></r:void></r:block>"
-  res: "<div id='list1_22'>status: cleanWater</div>"
+  res: "<div id='list1'>status: cleanWater</div>"
   'relations/store/en/in/block/list1.erb': '/<% var3 = @node -%><%= var3.node_name %>:/'
 
 set_var_outside_block:

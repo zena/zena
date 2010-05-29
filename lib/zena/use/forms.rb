@@ -497,9 +497,18 @@ END_TXT
                 # TODO: optimization generate the full query instead of using secure.
                 nodes = nodes.split(',').map{|v| v.to_i}
                 nodes = "(secure(Node) { Node.find(:all, :conditions => 'zip IN (#{nodes.join(',')})') })"
+              elsif @params[:values].to_s =~ /,/
+                values = [['','']] + @params[:values].to_s.split(',').map {|v| [v.strip, v]}
+                return values.inspect
               else
                 # relation
-                finder = build_finder(:all, nodes, @params)
+                begin
+                  finder = build_finder(:all, nodes, @params)
+                rescue ::QueryBuilder::SyntaxError => err
+                  out self.class.parser_error(err.message, @method)
+                  return nil
+                end
+
                 return parser_error("invalid class (#{klass})") unless finder[:class].first <= Node
                 nodes = finder[:method]
               end

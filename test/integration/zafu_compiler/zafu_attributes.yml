@@ -104,4 +104,4 @@ live_with_zazen:
 
 live_with_link:
   src: "<h2 do='link' attr='title' live='true'>super titre</h2>"
-  res: "<h2><a href='/oo/projects/cleanWater/page22.html' id='_title22'>status title</a></h2>"
+  res: "<h2><a id='_title22' href='/oo/projects/cleanWater/page22.html'>status title</a></h2>"
