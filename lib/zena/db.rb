@@ -285,13 +285,22 @@ module Zena
     end # date_condition
 
     # Insert a dummy (empty) link to use when mixing queries (QueryNode) with links and without.
-    def self.insert_zero_link(link_class)
-      return if link_class.find_by_id(0)
-      link_class.connection.execute "INSERT INTO #{link_class.table_name} (id,target_id,source_id,status,comment) VALUES (0,0,0,NULL,NULL)"
-      unless link_class.find_by_id(0)
-        # the zero id is replaced by auto-increment value
-        last_id = link_class.find(:first, :order => 'id DESC').id
-        link_class.connection.execute "UPDATE #{link_class.table_name} SET id = 0 WHERE id = #{last_id}"
+    def insert_dummy_ids
+      connection.tables.each do |table|
+        if table =~ /^i_/ || table == 'links'
+          next if fetch_row("SELECT id FROM #{table} WHERE id = 0")
+          # index table
+          klass = Class.new(ActiveRecord::Base) do
+            set_table_name table
+          end
+          if dummy = klass.create
+            connection.execute "UPDATE #{table} SET id = 0 WHERE id = #{dummy.id}"
+          else
+            raise "Could not create dummy record for table #{table}"
+          end
+        else
+          next
+        end
       end
     end
   end # Db

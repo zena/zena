@@ -241,36 +241,18 @@ module Zena
           scope_name != 'site'
         end
 
-        def process_or(left, right)
-          left_clause  = [this.process(left)]
-          right_clause = [this.process(right)]
-          @query.tables.each do |t|
-            if t =~ /^links AS (.+)$/
-              lname = $1
-            else
-              lname = t
-            end
-
-            if left_clause =~ /#{lname}\./ && !right_clause =~ /#{lname}\./
-              right_clause << "#{lname}.id = 0"
-            elsif right_clause =~ /#{lname}\./ && !left_clause =~ /#{lname}\./
-              left_clause << "#{lname}.id = 0"
-            end
-          end
-
-          if left_clause.size > 1
-            left_clause = "(#{left_clause.join(' AND ')})"
+        # This is used to avoid finding random indexed objects or links in clauses with and without link filters
+        # like this: "image or icon" ('image' is a filter in 'parent' scope, 'icon' is a
+        # relation found through links).
+        def resolve_missing_table(query, table_alias, table_name)
+          if table_name == 'links'
+            query.where.insert 0, "#{table_alias}.id = 0"
+          elsif table_name =~ /^i_/
+            # index table
+            query.where.insert 0, "#{table_alias}.id = 0"
           else
-            left_clause = left_clause.first
+            super
           end
-
-          if right_clause.size > 1
-            right_clause = "(#{right_clause.join(' AND ')})"
-          else
-            right_clause = right_clause.first
-          end
-
-          "(#{left_clause} OR #{right_clause})"
         end
 
         private
@@ -418,25 +400,6 @@ module Zena
                 add_select "#{link_table}.#{l} AS l_#{l}"
               end
             end
-          end
-
-          def merge_queries(queries)
-            if queries.detect {|query| query.tables.include?('links')}
-              queries.each do |query|
-                if !query.tables.include?('links')
-                  add_dummy_link_clause(query)
-                end
-              end
-            end
-            super
-          end
-
-          # This is used to avoid finding random links in clauses with and without link filters
-          # like this: "image or icon" ('image' is a filter in 'parent' scope, 'icon' is a
-          # relation found through links).
-          def add_dummy_link_clause(query)
-            query.add_table('links')
-            query.where.insert(0, 'links.id = 0')
           end
 
           def node_name

@@ -370,7 +370,7 @@ Gem::Specification.new do |s|
      "db/migrate/049_fix_publish_from_is_null.rb",
      "db/migrate/050_date_in_links.rb",
      "db/migrate/051_add_exif_tags_to_images.rb",
-     "db/migrate/20090825201159_insert_zero_link.rb",
+     "db/migrate/20090825201159_insert_dummy_ids.rb",
      "db/migrate/20090825201200_merge_bricks_migrations_with_std_migrations.rb",
      "db/migrate/20090924141459_zafu_fix_sept09.rb",
      "db/migrate/20090927125912_allow_null_in_text_fields.rb",

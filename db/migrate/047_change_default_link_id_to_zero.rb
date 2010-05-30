@@ -5,7 +5,7 @@ class ChangeDefaultLinkIdToZero < ActiveRecord::Migration
     if !$migrating_new_site
       Link.connection.execute "UPDATE #{Link.table_name} SET id = 0 WHERE id = -1"
     end
-    Zena::Db.insert_zero_link(Link)
+    Zena::Db.insert_dummy_ids
   end
 
   def self.down

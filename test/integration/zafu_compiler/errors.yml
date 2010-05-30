@@ -13,39 +13,39 @@ add_in_each:
 
 if_bad_test:
   src: "<r:if foo='bar'>lala</r:if>"
-  tem: "<span class='parser_error'>[if] condition error</span>"
+  tem: "<span class='parser_error'><span class='method'>if</span> <span class='message'>Missing attribute/eval parameter</span></span>"
 
 bad_query:
   src: "<r:images where='foo bar baz'>ok</r:images>"
-  tem: "<span class='parser_error'>[images where foo bar baz] invalid field or value \"foo\"</span>"
+  tem: "<span class='parser_error'><span class='method'>images</span> <span class='message'>Syntax error near \"oo bar baz\".</span></span>"
 
 bad_field_in_query:
-  src: "<r:images where='name = baz'>ok</r:images>"
-  res: "<span class='parser_error'>[images where node_name = baz] invalid field or value \"baz\"</span>"
+  src: "<r:images where='node_name = baz'>ok</r:images>"
+  res: "<span class='parser_error'><span class='method'>images</span> <span class='message'>Unknown field 'baz'.</span></span>"
 
 bad_relation:
   src: "<div do='categories in site' do='each' join=', ' do='node_name'/>"
-  tem: "<div><span class='parser_error'>[categories in site] unknown relation 'categories'</span></div>"
+  tem: "<div><span class='parser_error'><span class='method'>categories in site</span> <span class='message'>Unknown relation 'categories'.</span></span></div>"
 
 bad_order_clause:
   src: "<r:images order='l_status ASC' do='each' join=',' do='node_name'/>"
   res: "<span class='parser_error'>[images order by l_status ASC] cannot use link field 'l_status' in this query</span>"
 
 show_var:
-  src: "<r:show var='boo'/>"
-  tem: "<span class='parser_error'>[show] var \"boo\" not set</span>"
+  src: "<r:show eval='boo'/>"
+  tem: "/unknown method 'boo\(\)' for Zena::ZafuCompiler/"
 
 show_bad_sprintf:
-  src: "<p do='show' attr='node_name' format='%.2f %i hop'/>"
-  res: "<p><span class='parser_error'>[show] incorect format \"%.2f %i hop\"</span></p>"
+  src: "<p do='show' date='updated_at' format='%.2f %i hop'/>"
+  res: "<p>.2f i hop</p>"
 
 division_by_zero_in_eval:
-  src: "<r:set var='foo'>134</r:set><r:show eval='foo / 0'/>"
-  res: "<span class='parser_error'>[show] error in eval</span>"
+  eval: "1/0"
+  res: ""
 
 division_by_zero_in_eval_on_runtime:
-  src: "<r:set var='foo'>134</r:set><r:show eval='foo / ( 21 - [id].to_f )'/>"
-  res: "Infinity"
+  eval: "10 / (21 - id)"
+  res: ''
 
 bad_argument_list_in_eval:
   src: "<r:show eval='3 * / * 5'/>"

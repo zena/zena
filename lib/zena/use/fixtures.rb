@@ -20,7 +20,7 @@ module Zena
         super
         # Cannot insert zero link from fixtures (zero id is changed to some incremented value). We
         # have to insert it by hand.
-        Zena::Db.insert_zero_link(Link)
+        Zena::Db.insert_dummy_ids
       end
 
       # Could DRY with file_path defined in Base
@@ -162,7 +162,7 @@ module Zena
 
         FileUtils::mkpath("#{SITES_ROOT}/test.host/log") unless File.exist?("#{SITES_ROOT}/test.host/log")
 
-        Zena::Db.insert_zero_link(Link)
+        Zena::Db.insert_dummy_ids
       end
     end # Fixtures
   end # use

@@ -295,12 +295,12 @@ on_if_in_unknown:
   res: "<div class='on'>cleanWater</div>"
 
 test_negative_value:
-  src: "<div do='void' off_if='custom_a eq -10'>...</div>"
-  tem: "<div<%= @node.custom_a.to_i == -10 ? \" class='off'\" : \"\" %>>...</div>"
+  src: "<div do='void' off_if='custom_a == -10'>...</div>"
+  tem: "<div class='<%= ((@node.custom_a==-10)) ? ' off' : '' %>'>...</div>"
 
 simple_each:
   src: "<r:children><r:each><r:show attr='node_name'/></r:each></r:children>"
-  tem: "/.*if list1.*each.*var1.name/"
+  tem: "/.*if var1.*each.*var2.node_name/"
   res: ""
 
 each_join:
@@ -345,14 +345,15 @@ set_attribute_stored_node:
   res: "<p id='test_22'>cleanWater</p>"
 
 set_attribute_main_node:
-  src: "<r:parent><p do='node_name' set_id='test_[main.name]'>hey</p></r:parent>"
+  src: "<r:parent><p id='test_#{main.node_name}' do='node_name'>hey</p></r:parent>"
   res: "<p id='test_status'>cleanWater</p>"
 
 set_attribute_in_list:
   context:
     node: 'projects'
-  src: "<div do='pages' set_id='[name]'>...</div>"
-  res: "<div id='projects'>...</div>"
+  src: "<div do='pages'><p id='#{node_name}'>...</p></div>"
+  tem: /var1.first/
+  res: "<div><p id='cleanWater'>...</p></div>"
 
 set_attribute_with_namespace:
   src: "<entry do='void' set_xml:base='[name]'>..</entry>"
@@ -476,7 +477,7 @@ tada:
       <li><a href='/oo/tag34.html'>News list</a></li>
     </ul>
 
-    <div class='zazen' id='text'><p>We are glad to announce the opening of our new project !</p>
+    <div id='text' class='zazen'><p>We are glad to announce the opening of our new project !</p>
 
 
     	<p>You are all invited to <strong>Romanel</strong> for a great party this weekend.</p></div>
