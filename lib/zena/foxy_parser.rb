@@ -389,6 +389,7 @@ module Zena
           end
 
           cached = Zena::Use::VersionHash.cached_values_from_records(records)
+          # TODO: build index...
           node['publish_from'] = cached[:publish_from]
           node['vhash'] = cached[:vhash].to_json
 

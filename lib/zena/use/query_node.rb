@@ -155,10 +155,25 @@ module Zena
           elsif field_name == 'random'
             Zena::Db.sql_function(field_name, nil)
           else
-          #elsif field_name == 'REF_DATE'
-          #  context[:ref_date] ? insert_bind(context[:ref_date]) : 'now()'
-          #else
-            super # raises an error
+            column = @query.main_class.schema.columns[field_name]
+            if column.indexed?
+              if column.index == true
+                group_name = column.type
+              else
+                group_name = column.index
+              end
+
+              index_table = @query.main_class.index_table_name(group_name)
+              add_table(index_table)
+
+              add_filter "#{table(index_table)}.node_id = #{table}.id"
+              add_filter "#{table(index_table)}.key = #{quote(field_name)}"
+              add_filter "#{table(index_table)}.lang = #{quote(visitor.lang)}"
+              distinct!
+              "#{table(index_table)}.value"
+            else
+              super # raises an error
+            end
           end
         end
 

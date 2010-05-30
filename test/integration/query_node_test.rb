@@ -134,5 +134,25 @@ class QueryNodeTest < Zena::Unit::TestCase
     assert_equal 3, Node.do_find(:count, eval(sql))
   end
 
+  def test_filters_indexed_value_filter
+    login(:ant) # create 'fr' index
+    node = secure!(Node) { nodes(:status) }
+    node.update_attributes(:title => 'Foobar', :v_status => Zena::Status[:pub])
+    login(:lion) # create parasite 'en' index
+    node = secure!(Node) { nodes(:wiki) }
+    node.update_attributes(:title => 'Foobar', :v_status => Zena::Status[:pub])
+    yt_do_test('filters', 'indexed_value_filter')
+  end
+
+  def test_filters_indexed_value_filter_with_or
+    login(:ant) # create 'fr' index
+    node = secure!(Node) { nodes(:status) }
+    node.update_attributes(:title => 'Foobar', :v_status => Zena::Status[:pub])
+    login(:lion) # create parasite 'en' index
+    node = secure!(Node) { nodes(:wiki) }
+    node.update_attributes(:title => 'Foobar', :v_status => Zena::Status[:pub])
+    yt_do_test('filters', 'indexed_value_filter_with_or')
+  end
+
   yt_make
 end

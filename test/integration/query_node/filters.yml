@@ -17,16 +17,25 @@ version_filter_title_like:
   # databases, and that's not what we are testing here
   res: "people, projects, opening, Project-changes-xml, Page-changes, Project"
 
-dynattr_filter:
-  src: "nodes where d_assigned = 'gaspard' in site"
-  sql: "%Q{SELECT nodes.* FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'assigned' WHERE #{secure_scope('nodes')} AND dyn_attributes.value = 'gaspard' AND nodes.id = versions.node_id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
-  res: "cleanWater, people, status"
+indexed_value_filter:
+  # Builds 'title' index in test (only needed until they are created by FoxyParser...)
+  src: "nodes where title like 'foo%' in site"
+  sql: "%Q{SELECT nodes.* FROM i_ml_string_nodes,nodes WHERE #{secure_scope('nodes')} AND i_ml_string_nodes.value LIKE 'foo%' AND i_ml_string_nodes.lang = 'fr' AND i_ml_string_nodes.key = 'title' AND i_ml_string_nodes.node_id = nodes.id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
+  res: 'Foobar'
 
-# Results can be wrong if a node has many 'versions', some of which have d_assigned set and others not. See #190.
-dynattr_filter_is_null:
-  src: "projects where d_assigned is null in site"
-  sql: "%Q{SELECT nodes.* FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'assigned' WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NPP%' AND dyn_attributes.value IS NULL AND nodes.id = versions.node_id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
-  res: "wiki, zena"
+indexed_value_filter_with_or:
+  # Builds 'title' index in test (only needed until they are created by FoxyParser...)
+  src: "nodes where title like 'foo%' or class = Letter in site"
+  sql: "%Q{SELECT nodes.* FROM i_ml_string_nodes,nodes WHERE #{secure_scope('nodes')} AND ((i_ml_string_nodes.value LIKE 'foo%' AND i_ml_string_nodes.lang = 'fr' AND i_ml_string_nodes.key = 'title' AND i_ml_string_nodes.node_id = nodes.id) OR (nodes.kpath = 'NNL' AND i_ml_string_nodes.id = 0)) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
+  res: 'Foobar, letter'
+
+# TODO: Only implement with a proper use case.
+#       this is really more complex then it seems if we do not want too bad performance. Easiest way:
+#       NOT EXISTS (SELECT 'x' FROM i_ml_string_nodes WHERE i_ml_string_nodes.node_id = nodes.id)
+# indexed_value_is_null:
+#   src: "projects where title is null in site"
+#   sql: "%Q{SELECT nodes.* FROM i_ml_string_nodes,nodes WHERE #{secure_scope('nodes')} AND i_ml_string_nodes.value IS NULL AND i_ml_string_nodes.key = 'title' AND i_ml_string_nodes.node_id = nodes.id AND nodes.kpath LIKE 'NPP%' GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
+#   res: "wiki, zena"
 
 dynattr_filter_in_relation:
   src: "favorites where d_priority = 'important'"
