@@ -471,16 +471,17 @@ module Zena
 
           # <r:link page='next'/> <r:link page='previous'/> <r:link page='list'/>
           def pagination_links
-            # FIXME: replace @context[:paginate] with get_context_var('paginate', 'key')
-            return parser_error("not in pagination scope") unless pagination_key = @context[:paginate]
 
+            return parser_error("not in pagination scope") unless pagination_key = get_context_var('paginate', 'key')
             case @params[:page]
             when 'previous'
-              out "<% if set_#{pagination_key}_previous = (set_#{pagination_key} > 1 ? set_#{pagination_key} - 1 : nil) -%>"
-              # FIXME: remove the :vars thing and use set_context_var('paginate', 'previous', "set_#{pagination_key}")
-              @context[:vars] ||= []
-              @context[:vars] << "#{pagination_key}_previous"
-              out make_link(:default_text => "<%= set_#{pagination_key}_previous %>", :query_params => {pagination_key => "[#{pagination_key}_previous]"}, :params => @params.merge(:page => nil))
+              current = get_context_var('paginate', 'current')
+
+              prev = get_var_name('paginate', 'previous')
+              out "<% if #{prev} = (#{current} > 1 ? #{current} - 1 : nil) -%>"
+
+              # .... FIXME: continue fixing...
+              out make_link(:default_text => "<%= #{prev} %>", :query_params => {pagination_key => "[#{pagination_key}_previous]"}, :params => @params.merge(:page => nil))
               if descendant('else')
                 out expand_with(:in_if => true, :only => ['else', 'elsif'])
               end

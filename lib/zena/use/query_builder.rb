@@ -62,9 +62,14 @@ module Zena
           sub_context = super
           query = finder[:query]
           if query && (pagination_key = query.pagination_key)
-            node_count = set_var(sub_context, "#{pagination_key}_nodes")
-            page_count = set_var(sub_context, "#{pagination_key}_count")
-            curr_page  = set_var(sub_context, pagination_key)
+            node_count = set_context_var('paginate', 'key', pagination_key, sub_context)
+            
+            node_count = get_var_name('paginate', "#{pagination_key}_nodes", sub_context)
+            page_count = get_var_name() #set_var(sub_context, "#{pagination_key}_count")
+            curr_page  = get_var_name() #set_var(sub_context, pagination_key)
+            
+            set_context_var('paginate', 'key', pagination_key, sub_context)
+              
             out "<% #{node_count} = #{query.to_s(:count)}; #{page_count} = (#{node_count} / #{query.page_size.to_f}).ceil; #{curr_page} = [1,params[:#{pagination_key}].to_i].max -%>"
             sub_context[:paginate] = pagination_key
           end

@@ -4,11 +4,7 @@ module Zafu
     def r_search_results
       pagination_key = 'page'
       out "<% set_#{pagination_key}_nodes = @search_count; set_#{pagination_key}_count = (set_#{pagination_key}_nodes / @search_per_page).ceil; set_#{pagination_key} = [1,params[:page].to_i].max -%>"
-      @context[:vars] ||= []
-      @context[:vars] << "#{pagination_key}_nodes"
-      @context[:vars] << "#{pagination_key}_count"
-      @context[:vars] << pagination_key
-      @context[:paginate] = pagination_key
+      set_context_var('paginate', 'key', pagination_key)
       do_list('@nodes')
     end
 

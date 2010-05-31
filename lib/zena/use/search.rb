@@ -93,13 +93,14 @@ module Zena
 
         # def r_search_results
         #   pagination_key = 'page'
-        #   out "<% set_#{pagination_key}_nodes = @search_count; set_#{pagination_key}_count = (set_#{pagination_key}_nodes / @search_per_page).ceil; set_#{pagination_key} = [1,params[:page].to_i].max -%>"
-        #   @context[:vars] ||= []
-        #   @context[:vars] << "#{pagination_key}_nodes"
-        #   @context[:vars] << "#{pagination_key}_count"
-        #   @context[:vars] << pagination_key
-        #   @context[:paginate] = pagination_key
-        #   do_list('@nodes')
+        #   set_context_var('paginate', 'key', pagination_key)
+        #
+        #   node_count = get_var_name('paginate', 'nodes')
+        #   page_count = get_var_name('paginate', 'count')
+        #   curr_page  = get_var_name('paginate', 'current')
+        #   out "<% set_#{pagination_key}_count = (set_#{pagination_key}_nodes / @search_per_page).ceil; set_#{pagination_key} = [1,params[:page].to_i].max -%>"
+        #   out "<% #{node_count} = @search_count; #{page_count} = (#{node_count} / @search_per_page).ceil; #{curr_page} = [1,params[:#{pagination_key}].to_i].max -%>"
+        #   expand_if....
         # end
       end
     end # Search

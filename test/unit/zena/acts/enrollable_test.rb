@@ -102,7 +102,6 @@ class EnrollableTest < Zena::Unit::TestCase
             preserving_files('test.host/data') do
               assert_difference('NodesRoles.count', -1) do
                 subject.destroy
-                err subject
               end
             end
           end
