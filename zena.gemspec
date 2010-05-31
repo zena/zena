@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2010-05-31}
+  s.date = %q{2010-05-27}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -214,7 +214,7 @@ Gem::Specification.new do |s|
      "app/views/templates/drive_tabs/_drive.rhtml",
      "app/views/templates/drive_tabs/_help.rhtml",
      "app/views/templates/drive_tabs/_links.rhtml",
-     "app/views/templates/edit_tabs/_basecontact.rhtml",
+     "app/views/templates/edit_tabs/_contact.rhtml",
      "app/views/templates/edit_tabs/_custom.rhtml",
      "app/views/templates/edit_tabs/_document.rhtml",
      "app/views/templates/edit_tabs/_help.rhtml",
@@ -370,7 +370,7 @@ Gem::Specification.new do |s|
      "db/migrate/049_fix_publish_from_is_null.rb",
      "db/migrate/050_date_in_links.rb",
      "db/migrate/051_add_exif_tags_to_images.rb",
-     "db/migrate/20090825201159_insert_zero_link.rb",
+     "db/migrate/20090825201159_insert_dummy_ids.rb",
      "db/migrate/20090825201200_merge_bricks_migrations_with_std_migrations.rb",
      "db/migrate/20090924141459_zafu_fix_sept09.rb",
      "db/migrate/20090927125912_allow_null_in_text_fields.rb",
@@ -400,11 +400,10 @@ Gem::Specification.new do |s|
      "db/migrate/20100422115935_create_columns.rb",
      "db/migrate/20100513181529_add_site_id_to_columns.rb",
      "db/migrate/20100519091711_add_index_definition_to_columns.rb",
-     "db/migrate/20100519091940_create_idx_string_nodes.rb",
-     "db/migrate/20100519232432_create_idx_ml_string_nodes.rb",
+     "db/migrate/20100519091940_create_idx_nodes_string.rb",
+     "db/migrate/20100519232432_create_idx_nodes_ml_string.rb",
      "db/migrate/20100525113858_add_porperties_to_users.rb",
      "db/migrate/20100526090140_renamed_contact_model_to_base_contact.rb",
-     "db/migrate/20100527130937_change_column_index_to_string.rb",
      "doc/README_FOR_APP",
      "doc/fixtures.graffle",
      "doc/fixtures.pdf",
@@ -1765,10 +1764,8 @@ Gem::Specification.new do |s|
      "test/integration/zafu_compiler/off/off.yml",
      "test/integration/zafu_compiler/recursion.yml",
      "test/integration/zafu_compiler/relations.yml",
-     "test/integration/zafu_compiler/roles.yml",
      "test/integration/zafu_compiler/rubyless.yml",
      "test/integration/zafu_compiler/safe_definitions.yml",
-     "test/integration/zafu_compiler/search.yml",
      "test/integration/zafu_compiler/security.yml",
      "test/integration/zafu_compiler/site.yml",
      "test/integration/zafu_compiler/urls.yml",
@@ -1803,7 +1800,6 @@ Gem::Specification.new do |s|
      "test/sites/zena/iformats.yml",
      "test/sites/zena/links.yml",
      "test/sites/zena/nodes.yml",
-     "test/sites/zena/nodes_roles.yml",
      "test/sites/zena/relations.yml",
      "test/sites/zena/roles.yml",
      "test/sites/zena/sites.yml",
@@ -2133,7 +2129,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<property>, [">= 1.0.0"])
       s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_runtime_dependency(%q<authlogic>, ["= 2.1.3"])
-      s.add_runtime_dependency(%q<zafu>, [">= 0.6.1"])
+      s.add_runtime_dependency(%q<zafu>, [">= 0.6.0"])
       s.add_runtime_dependency(%q<shoulda>, [">= 2.10.2"])
       s.add_runtime_dependency(%q<fast_gettext>, ["~> 0.4.16"])
       s.add_runtime_dependency(%q<syntax>, ["= 1.0.0"])
@@ -2155,7 +2151,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<property>, [">= 1.0.0"])
       s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_dependency(%q<authlogic>, ["= 2.1.3"])
-      s.add_dependency(%q<zafu>, [">= 0.6.1"])
+      s.add_dependency(%q<zafu>, [">= 0.6.0"])
       s.add_dependency(%q<shoulda>, [">= 2.10.2"])
       s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
       s.add_dependency(%q<syntax>, ["= 1.0.0"])
@@ -2178,7 +2174,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<property>, [">= 1.0.0"])
     s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
     s.add_dependency(%q<authlogic>, ["= 2.1.3"])
-    s.add_dependency(%q<zafu>, [">= 0.6.1"])
+    s.add_dependency(%q<zafu>, [">= 0.6.0"])
     s.add_dependency(%q<shoulda>, [">= 2.10.2"])
     s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
     s.add_dependency(%q<syntax>, ["= 1.0.0"])

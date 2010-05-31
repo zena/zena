@@ -20,21 +20,21 @@ version_filter_title_like:
 indexed_value_filter:
   # Builds 'title' index in test (only needed until they are created by FoxyParser...)
   src: "nodes where title like 'foo%' in site"
-  sql: "%Q{SELECT nodes.* FROM idx_ml_string_nodes,nodes WHERE #{secure_scope('nodes')} AND idx_ml_string_nodes.value LIKE 'foo%' AND idx_ml_string_nodes.lang = 'fr' AND idx_ml_string_nodes.key = 'title' AND idx_ml_string_nodes.node_id = nodes.id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
+  sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_string,nodes WHERE #{secure_scope('nodes')} AND idx_nodes_ml_string.value LIKE 'foo%' AND idx_nodes_ml_string.lang = 'fr' AND idx_nodes_ml_string.key = 'title' AND idx_nodes_ml_string.node_id = nodes.id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
   res: 'Foobar'
 
 indexed_value_filter_with_or:
   # Builds 'title' index in test (only needed until they are created by FoxyParser...)
   src: "nodes where title like 'foo%' or class = Letter in site"
-  sql: "%Q{SELECT nodes.* FROM idx_ml_string_nodes,nodes WHERE #{secure_scope('nodes')} AND ((idx_ml_string_nodes.value LIKE 'foo%' AND idx_ml_string_nodes.lang = 'fr' AND idx_ml_string_nodes.key = 'title' AND idx_ml_string_nodes.node_id = nodes.id) OR (nodes.kpath = 'NNL' AND idx_ml_string_nodes.id = 0)) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
+  sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_string,nodes WHERE #{secure_scope('nodes')} AND ((idx_nodes_ml_string.value LIKE 'foo%' AND idx_nodes_ml_string.lang = 'fr' AND idx_nodes_ml_string.key = 'title' AND idx_nodes_ml_string.node_id = nodes.id) OR (nodes.kpath = 'NNL' AND idx_nodes_ml_string.id = 0)) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
   res: 'Foobar, letter'
 
 # TODO: Only implement with a proper use case.
 #       this is really more complex then it seems if we do not want too bad performance. Easiest way:
-#       NOT EXISTS (SELECT 'x' FROM idx_ml_string_nodes AS im WHERE im.node_id = nodes.id AND im.key = 'title' AND im.lang = 'fr')
+#       NOT EXISTS (SELECT 'x' FROM idx_nodes_ml_string AS im WHERE im.node_id = nodes.id AND im.key = 'title' AND im.lang = 'fr')
 # indexed_value_is_null:
 #   src: "projects where title is null in site"
-#   sql: "%Q{SELECT nodes.* FROM idx_ml_string_nodes,nodes WHERE #{secure_scope('nodes')} AND idx_ml_string_nodes.value IS NULL AND idx_ml_string_nodes.key = 'title' AND idx_ml_string_nodes.node_id = nodes.id AND nodes.kpath LIKE 'NPP%' GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
+#   sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_string,nodes WHERE #{secure_scope('nodes')} AND idx_nodes_ml_string.value IS NULL AND idx_nodes_ml_string.key = 'title' AND idx_nodes_ml_string.node_id = nodes.id AND nodes.kpath LIKE 'NPP%' GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
 #   res: "wiki, zena"
 
 dynattr_filter_in_relation:

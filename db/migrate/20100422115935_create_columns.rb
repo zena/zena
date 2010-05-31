@@ -1,6 +1,6 @@
 class CreateColumns < ActiveRecord::Migration
   def self.up
-    create_table :columns do |t|
+    create_table :columns, :options => Zena::Db.table_options do |t|
       t.integer 'role_id'
       t.string 'name'
       # Property Type

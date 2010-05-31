@@ -66,7 +66,7 @@ class NodeTest < Zena::Unit::TestCase
 
       context 'setting an indexed field' do
         class NodeStringIndex < ActiveRecord::Base
-          set_table_name :idx_string_nodes
+          set_table_name :idx_nodes_string
         end
 
         subject do
@@ -83,7 +83,7 @@ class NodeTest < Zena::Unit::TestCase
 
         should 'write field value in index' do
           subject
-          index = NodeStringIndex.last
+          index = NodeStringIndex.find(:first, :conditions => {:key => 'origin', :node_id => subject.id})
           assert_equal 'origin', index.key
           assert_equal 'Dada', index.value
         end
@@ -95,7 +95,7 @@ class NodeTest < Zena::Unit::TestCase
             subject.update_attributes(:origin => 'Surrealism')
           end
 
-          index = NodeStringIndex.last
+          index = NodeStringIndex.find(:first, :conditions => {:key => 'origin', :node_id => subject.id})
           assert_equal 'origin', index.key
           assert_equal 'Surrealism', index.value
         end

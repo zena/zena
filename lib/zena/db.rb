@@ -299,7 +299,7 @@ module Zena
             if !col.null
               if col.name =~ /_id$/
                 dummy_hash[col.name] = 0
-              else
+              elsif col.name != 'id'
                 dummy_hash[col.name] = ''
               end
             end

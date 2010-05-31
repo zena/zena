@@ -147,7 +147,7 @@ class EnrollableTest < Zena::Unit::TestCase
 
         context 'with properties assigned through role' do
           subject do
-            secure(Node) { nodes(:nature) }
+            secure(Node) { nodes(:tree_jpg) }
           end
 
           should 'read attributes without loading roles' do

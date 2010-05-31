@@ -407,8 +407,6 @@ nature_red_en:
     title:         Nature
     summary:       "Ant's redaction on Nature"
     text:          "![]!"
-    origin:        Big Bang
-    cached_role_ids: Original
 
 tree_jpg_en:
   node:            tree_jpg
@@ -422,6 +420,8 @@ tree_jpg_en:
     title:         Autumn Tree
     summary:       "photography © André Karwath 2004"
     text:          ""
+    origin:        Big Bang
+    cached_role_ids: Original
     content_type:  image/jpeg
     ext:           jpg
     width:         800
