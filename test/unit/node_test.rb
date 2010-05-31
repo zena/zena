@@ -66,7 +66,7 @@ class NodeTest < Zena::Unit::TestCase
 
       context 'setting an indexed field' do
         class NodeStringIndex < ActiveRecord::Base
-          set_table_name :i_string_nodes
+          set_table_name :idx_string_nodes
         end
 
         subject do

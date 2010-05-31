@@ -2,11 +2,11 @@ require 'test_helper'
 
 class EnrollableTest < Zena::Unit::TestCase
   class NodeStringIndex < ActiveRecord::Base
-    set_table_name :i_string_nodes
+    set_table_name :idx_string_nodes
   end
 
   class NodeMLStringIndex < ActiveRecord::Base
-    set_table_name :i_ml_string_nodes
+    set_table_name :idx_ml_string_nodes
   end
 
   context 'A visitor with write access' do

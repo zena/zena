@@ -293,7 +293,19 @@ module Zena
           klass = Class.new(ActiveRecord::Base) do
             set_table_name table
           end
-          if dummy = klass.create
+
+          dummy_hash = {}
+          klass.columns.each do |col|
+            if !col.null
+              if col.name =~ /_id$/
+                dummy_hash[col.name] = 0
+              else
+                dummy_hash[col.name] = ''
+              end
+            end
+          end
+
+          if dummy = klass.create(dummy_hash)
             connection.execute "UPDATE #{table} SET id = 0 WHERE id = #{dummy.id}"
           else
             raise "Could not create dummy record for table #{table}"

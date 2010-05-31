@@ -45,7 +45,7 @@ module Zena
           end
         end
 
-        # Execute an index search using the indexed fields in i_string_nodes, i_integer_nodes, etc.
+        # Execute an index search using the indexed fields in idx_string_nodes, i_integer_nodes, etc.
         # FIXME: reimplement with full QueryBuilder parsing.
         def search_index(params, options = {})
           query = ::QueryBuilder::Query.new(Node.query_compiler)
@@ -63,7 +63,7 @@ module Zena
                 type = 'ml_string'
               end
 
-              table_name = "i_#{type}_nodes"
+              table_name = Node.index_table_name(type)
               query.add_table(table_name)
               index_table = query.table(table_name)
               query.add_filter "nodes.id = #{index_table}.node_id AND #{index_table}.key = #{::QueryBuilder::Processor.insert_bind(key.inspect)} AND #{index_table}.value LIKE #{::QueryBuilder::Processor.insert_bind("%#{value}%".inspect)}"
