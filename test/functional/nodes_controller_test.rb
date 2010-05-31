@@ -1,16 +1,6 @@
 require 'test_helper'
 
 class NodesControllerTest < Zena::Controller::TestCase
-
-  def get_subject
-    without_files('/test.host/zafu') do
-      get subject.delete(:action), subject
-      if block_given?
-        yield
-      end
-    end
-  end
-
   context 'An anonymous user' do
     setup do
       login(:anon)
@@ -262,7 +252,67 @@ class NodesControllerTest < Zena::Controller::TestCase
           assert_match %r{<id[^>]*>#{zip}</id>}, @response.body
         end
       end # creating a node
+
+      context 'deleting a node' do
+
+        should 'succeed' do
+          delete( :destroy, {:format=>'xml', :id=>nodes_zip(:art)})
+          assert_response :success
+        end
+
+      end
+
     end # using xml
+
+    context 'using html' do
+      context 'destroying a node' do
+
+        subject do
+          {:action=>'destroy', :controller=>'nodes', :id=>nodes_zip(:art)}
+        end
+
+        should 'succeed' do
+          assert_nothing_raised do
+            delete_subject
+          end
+        end
+
+        should 'be redirected' do
+          delete_subject
+          assert_response :redirect
+        end
+
+        should 'be noticed that the node is destroyed' do
+          delete_subject
+          assert_equal 'Node destroyed.', flash[:notice]
+        end
+
+        should 'delete the node' do
+          assert_difference('Node.count', -1) do
+            delete_subject
+          end
+        end
+
+      end # destroying a node
+
+      context 'trying to destroy an inaccessible node' do
+        subject do
+          {:action=>'destroy', :controller=>'nodes', :id=>nodes_zip(:status)}
+        end
+
+        should 'be noticed that it could not destroy the node' do
+          delete_subject
+          assert_equal "Could not destroy node.", flash[:notice]
+        end
+
+        should 'not delete the node' do
+          assert_difference('Node.count', 0) do
+            delete_subject
+          end
+        end
+
+      end # trying to destroy an inaccessible node
+    end # using html
   end # A user
 
 

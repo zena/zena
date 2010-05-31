@@ -109,7 +109,6 @@ class NodesController < ApplicationController
   end
 
   def show
-
     respond_to do |format|
 
       format.html { render_and_cache }
@@ -199,6 +198,34 @@ class NodesController < ApplicationController
         # zafu edit
         render :template => 'nodes/edit.rjs' # FIXME: this should not be needed. Rails bug ?
       end
+    end
+  end
+
+  def destroy
+    respond_to do |format|
+
+      format.html do
+        if @node.destroy
+          flash[:notice] = "Node destroyed."
+          redirect_to zen_path(@node.parent)
+        else
+          flash[:notice] = "Could not destroy node."
+          render :action => 'show'
+        end
+      end
+
+      format.xml  do
+        node_xml = @node.to_xml #need to be allocated before destroying
+        if node_xml && @node.destroy
+          render :xml => node_xml, :status => 200
+        else
+          @node.errors.add(:visitor, visitor.login) if RAILS_ENV == 'development'
+          render :xml => @node.errors, :status => :unprocessable_entity
+        end
+      end
+
+      format.js
+
     end
   end
 
@@ -460,7 +487,7 @@ class NodesController < ApplicationController
     # Make sure the current url is valid. If it is not, redirect.
     def check_path
       # show must have a 'path' parameter unless logged in and xml format
-      if !params[:prefix] && params[:format] == 'xml'
+      if !params[:prefix] && request.format == Mime::XML
         # xml API
         return true
       end

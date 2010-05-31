@@ -1,7 +1,16 @@
 require 'test_helper'
 
 class XmlApiTest < Zena::Integration::TestCase
+
   class NodeResource < ActiveResource::Base
+    headers['HTTP_X_AUTHENTICATION_TOKEN'] = 'mytoken'
+    include Zena::Integration::MockResource
+    self.site         = 'http://test.host'
+    self.element_name = 'node'
+  end
+
+  class BadTokenResource < ActiveResource::Base
+    headers['HTTP_X_AUTHENTICATION_TOKEN'] = 'some-bad-token'
     include Zena::Integration::MockResource
     self.site         = 'http://test.host'
     self.element_name = 'node'
@@ -9,8 +18,7 @@ class XmlApiTest < Zena::Integration::TestCase
 
   context 'With an authentification token' do
     setup do
-      login(:lion)
-      NodeResource.password = 'mytoken'
+      test_site(:zena)
       init_test_connection!
     end
 
@@ -104,18 +112,36 @@ class XmlApiTest < Zena::Integration::TestCase
         end
       end
     end # updating a node
+
+    context 'destroying a node' do
+      subject do
+        nodes_zip(:art)
+      end
+
+      should 'succeed' do
+        assert_nothing_raised do
+          NodeResource.find(subject).destroy
+        end
+      end
+
+      should 'delete the node' do
+        assert_difference('Node.count', -1) do
+          NodeResource.find(subject).destroy
+        end
+      end
+    end # 'destroying a node'
+
   end # With an authentification token
 
   context 'Without an authentification token' do
     setup do
       test_site(:zena)
-      NodeResource.password = nil
       init_test_connection!
     end
 
     context 'reading a node' do
       subject do
-        NodeResource.find(nodes_zip(:status))
+        BadTokenResource.find(nodes_zip(:status))
       end
 
       should 'raise ActiveResource::UnauthorizedAccess' do

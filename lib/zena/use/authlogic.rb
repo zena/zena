@@ -32,7 +32,7 @@ module Zena
             ::I18n.locale = site.default_lang
 
             User.send(:with_scope, :find => {:conditions => ['site_id = ?', site.id]}) do
-              Thread.current[:visitor] = registered_visitor || http_visitor(site) || token_visitor || anonymous_visitor(site)
+              Thread.current[:visitor] = token_visitor || registered_visitor ||  anonymous_visitor(site)
             end
           end
 
@@ -62,7 +62,7 @@ module Zena
 
           # Secured in site with scope in set_visitor
           def token_visitor
-            if user_token = (request.headers['HTTP_X_AUTHENTICATION_TOKEN'] || params[:user_token])
+            if user_token = (request.headers['HTTP_X_AUTHENTICATION_TOKEN'] || request.headers['HTTP_AUTHORIZATION'].to_s[/Basic (.*)/,1] || params[:user_token])
               User.find_by_single_access_token(user_token)
             end
           end
