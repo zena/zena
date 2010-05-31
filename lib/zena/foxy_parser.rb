@@ -232,7 +232,7 @@ module Zena
         if value =~ /\n/
           res += "|\n    #{value.gsub("\n", "\n    ")}"
         elsif value.to_s =~ /[\{\[:]/
-          res += value.inspect
+          res += value.inspect.gsub('\\#{', '#{')
         else
           res += value.to_s
         end

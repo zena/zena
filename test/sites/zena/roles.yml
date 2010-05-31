@@ -6,6 +6,7 @@ DEFAULTS:
 Letter:
   kpath:           NNL
   real_class:      Note
+  idx_text_high:   title:#{title} paper:#{paper}
 
 Post:
   kpath:           NNP

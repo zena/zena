@@ -156,7 +156,7 @@ module Zena
             Zena::Db.sql_function(field_name, nil)
           else
             column = @query.main_class.schema.columns[field_name]
-            if column.indexed?
+            if column && column.indexed?
               if column.index == true
                 group_name = column.type
               else

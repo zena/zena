@@ -266,6 +266,7 @@ Just doing the above will filter all result according to the logged in user.
             if result.kind_of?(Array)
               if result.first.kind_of?(::Node)
                 id_map, ids = construct_id_map(result)
+                # FIXME: PERFORMANCE avoid selecting idx_... entries.
                 ::Version.find(ids).each do |v|
                   if r = id_map[v.id]
                     r.version = v

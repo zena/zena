@@ -37,7 +37,7 @@ class EnrollableTest < Zena::Unit::TestCase
         should 'not consider role methods as safe' do
           assert_equal nil, subject.safe_method_type(['assigned'])
         end
-      end # with roles loaded
+      end # without roles loaded
     end # on a class
 
     context 'on a node' do
@@ -84,6 +84,22 @@ class EnrollableTest < Zena::Unit::TestCase
             assert_equal [roles_id(:Task)], subject.cached_role_ids
           end
         end
+
+        context 'with roles loaded' do
+          setup do
+            subject.load_roles!
+          end
+
+          should 'consider role methods as safe' do
+            assert_equal Hash[:class=>String, :method=>"prop['paper']", :nil=>true], subject.safe_method_type(['paper'])
+          end
+        end # with roles loaded
+        
+        context 'without roles loaded' do
+          should 'not consider role methods as safe' do
+            assert_equal nil, subject.safe_method_type(['paper'])
+          end
+        end # without roles loaded
 
         context 'with roles assigned' do
           subject do

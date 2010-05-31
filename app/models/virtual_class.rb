@@ -4,6 +4,7 @@ class VirtualClass < Role
   belongs_to    :create_group, :class_name => 'Group', :foreign_key => 'create_group_id'
   validate      :valid_virtual_class
   include Zena::Use::Relations::ClassMethods
+  include Zena::Use::Fulltext::VirtualClassMethods
 
   # Import a hash of virtual class definitions and try to build the virtual classes.
   def self.import(data)

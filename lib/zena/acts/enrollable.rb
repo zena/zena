@@ -30,12 +30,31 @@ module Zena
         res_class
       end
 
-      module Common
+      module LoadRoles
 
+        # We overwrite safe_method_type from RubyLess to include the properties loaded
+        # with load_roles!.
+        def safe_method_type(signature)
+          if signature.size == 1 && (column = loaded_role_properties[signature.first])
+            RubyLess::SafeClass.safe_method_type_for_column(column, true)
+          else
+            super
+          end
+        end
+
+        # Load all possible roles for the current class or instance.
         def load_roles!
           return if @roles_loaded
           load_roles(all_possible_roles)
           @roles_loaded = true
+        end
+
+        def load_roles(*roles)
+          safe_properties = self.loaded_role_properties
+          roles.flatten.each do |role|
+            has_role role
+            safe_properties.merge!(role.columns)
+          end
         end
 
         def all_possible_roles
@@ -46,13 +65,28 @@ module Zena
           # FIXME: !! manage a memory cache for Roles
           Role.all(:conditions => ['kpath IN (?)', kpaths])
         end
-      end # Common
+      end # LoadRoles
 
       module ModelMethods
-        include Common
-
         def self.included(base)
+          base.extend LoadRoles
+
+          class << base
+            attr_accessor :loaded_role_properties
+
+            def loaded_role_properties
+              @loaded_role_properties ||= {}
+            end
+          end
+
           base.class_eval do
+            attr_accessor :loaded_role_properties
+            include LoadRoles
+
+            def loaded_role_properties
+              @loaded_role_properties ||= {}
+            end
+
             alias_method_chain :attributes=, :enrollable
             alias_method_chain :properties=, :enrollable
             before_validation  :prepare_roles
@@ -74,12 +108,6 @@ module Zena
         def properties_with_enrollable=(attrs)
           load_roles!
           self.properties_without_enrollable = attrs
-        end
-
-        def load_roles(*roles)
-          roles.flatten.each do |role|
-            has_role role
-          end
         end
 
         def has_role?(role_id)
@@ -132,19 +160,6 @@ module Zena
           end
 
       end # ModelMethods
-
-      module ClassMethods
-        include Common
-
-        def load_roles(*roles)
-          roles.flatten.each do |role|
-            has_role role
-            role.column_names.each do |col|
-              safe_property col
-            end
-          end
-        end
-      end # ClassMethods
 
       module Common
         def get_class(class_name)

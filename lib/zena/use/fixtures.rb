@@ -129,6 +129,10 @@ module Zena
           end
         end
 
+
+        alias virtual_classes roles
+        alias virtual_classes_id roles_id
+
         fixtures = ::Fixtures.create_fixtures(FIXTURE_PATH, fixture_table_names)
         unless fixtures.nil?
           if fixtures.instance_of?(::Fixtures)

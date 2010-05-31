@@ -61,7 +61,7 @@ module Zena
           else
             # site not found
             respond_to do |format|
-              format.html { render :file    => "#{Zena::ROOT}/app/views/sites/404.html", :status => '404 Not Found' }
+              format.html { render :text    => File.read("#{Zena::ROOT}/app/views/sites/404.html"), :status => '404 Not Found' }
               format.all  { render :nothing => true, :status => "404 Not Found" }
             end
           end

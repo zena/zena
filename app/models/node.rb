@@ -141,12 +141,6 @@ class Node < ActiveRecord::Base
   # This is used to enable multilingual indexes
   include Zena::Use::MLIndex::ModelMethods
 
-  # This is used to load roles in an instance
-  include Zena::Acts::Enrollable::ModelMethods
-
-  # And this is used to laod roles on a class during compilation
-  extend  Zena::Acts::Enrollable::ClassMethods
-
   include RubyLess
   safe_property  :title, :text, :summary, :comment
 
@@ -167,6 +161,11 @@ class Node < ActiveRecord::Base
 
   # FIXME: remove 'zip' and use :id => {:class => Number, :method => 'zip'}
   # same with parent_zip, section_zip, etc...
+
+
+  # This is used to load roles in an instance or on a class during compilation. Module
+  # inclusion has to come *after* RubyLess because we overwrite safe_method_type.
+  include Zena::Acts::Enrollable::ModelMethods
 
   #attr_accessible    :version_content
   has_many           :discussions, :dependent => :destroy
@@ -222,7 +221,11 @@ class Node < ActiveRecord::Base
   include Zena::Use::NodeName # must be included after Workflow
   include Zena::Use::VersionHash
 
+  # to_xml
   include Zena::Acts::Serializable::NodeMethods
+
+  # fulltext indices
+  include Zena::Use::Fulltext::ModelMethods
 
   # List of version attributes that should be accessed as proxies 'v_lang', 'v_status', etc
   VERSION_ATTRIBUTES = %w{status lang publish_from backup}
@@ -796,10 +799,7 @@ class Node < ActiveRecord::Base
         RubyLess::SafeClass.safe_method_type_for(self, signature)
       else
         method = signature.first
-        # if model_names = nested_model_names_for_alias(method)
-        #   # ...
-        # end
-        if type = RubyLess::SafeClass.safe_method_type_for(self, signature)
+        if type = super
           type
         elsif method =~ /^(.+)_((id|zip|status|comment)(s?))\Z/ && !instance_methods.include?(method)
           key = $3 == 'id' ? "zip#{$4}" : $2

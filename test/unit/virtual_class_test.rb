@@ -336,5 +336,4 @@ class VirtualClassTest < Zena::Unit::TestCase
       end
     end # without an existing superclass
   end # importing virtual class definitions
-
 end

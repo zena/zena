@@ -47,17 +47,16 @@ module Bricks
         klass.class_eval do
           define_index do
             indexes name
-            indexes versions.title,                    :as => 'title'
-            indexes versions.text,                     :as => 'text'
-            indexes versions.summary,                  :as => 'summary'
-            indexes versions.dynamic_attributes.value, :as => 'attribute'
-            #indexes versions.dynamic_attributes.key,   :as => 'key'
+
+            Zena::Use::Fulltext::FULLTEXT_FIELDS.each do |fld|
+              indexes versions.send(fld), :as => fld
+            end
 
             has site_id
 
             where "versions.status >= #{Zena::Status[:pub]}"
 
-            set_property :field_weights => { :title => 5, :summary => 3, :text => 2, :attribute => 1 }
+            set_property :field_weights => { :idx_text_high => 5, :idx_text_medium => 3, :idx_text_low => 2 }
             set_property :group_concat_max_len => 30000 # FIXME: articles can easily have a length of 17000 chars...
             set_property :delta => (has_dd ? :delayed : true)
           end

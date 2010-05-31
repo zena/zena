@@ -28,7 +28,7 @@ class UsersControllerTest < Zena::Controller::TestCase
     context " if layout is invalid" do
       setup do
         login(:lion)
-        Version.connection.execute "UPDATE #{Version.table_name} SET text = 'empty' WHERE id = #{versions_id(:Node_admin_layout_zafu_en)}"
+        Version.connection.execute "UPDATE #{Version.table_name} SET properties = '{\"data\":{\"text\":\"empty\"},\"json_class\":\"Property::Properties\"}' WHERE id = #{versions_id(:Node_admin_layout_zafu_en)}"
         without_files('test.host/zafu') do
           get 'index'
         end
@@ -45,11 +45,11 @@ class UsersControllerTest < Zena::Controller::TestCase
       login(:su)
       get(:show, {'id'=>visitor.id})
     end
-    
+
     should 'succeed' do
       assert_response :success
     end
-    
+
     should_render_without_layout
   end
 
