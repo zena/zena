@@ -38,6 +38,16 @@ module Zena
     class TestCase < ActionController::IntegrationTest
       include Zena::Use::Fixtures
 
+      def open_session
+        sess = super
+
+        sess.extend Zena::Acts::Secure
+        sess.extend Zena::Use::TestHelper
+
+        yield sess if block_given?
+        sess
+      end
+
       def init_test_connection!
         $test_connection = MockConnection.new(self)
       end

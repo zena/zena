@@ -9,7 +9,7 @@ class XmlApiTest < Zena::Integration::TestCase
 
   context 'With an authentification token' do
     setup do
-      test_site(:zena)
+      login(:lion)
       NodeResource.password = 'mytoken'
       init_test_connection!
     end
@@ -26,6 +26,51 @@ class XmlApiTest < Zena::Integration::TestCase
       should 'read attributes' do
         assert_equal 'status title', subject.title
       end
+    end # reading a node
+
+    context 'searching for nodes' do
+      subject do
+        node = secure!(Node) { nodes(:art) }
+        node.update_attributes(:title => 'Dada', :v_status => Zena::Status[:pub])
+        node
+      end
+
+      should 'succeed' do
+        subject # create index entry
+        assert_nothing_raised { NodeResource.find(:all, :from => '/nodes/search', :params => {:title => 'Dada'}) }
+      end
+
+      should 'find the list of nodes' do
+        subject # create index entry for art
+        # create index entry for status
+        node = secure!(Node) { nodes(:status) }
+        node.update_attributes(:title => 'Fuda', :v_status => Zena::Status[:pub])
+
+        result = NodeResource.find(:all,
+          :from   => '/nodes/search',
+          :params => {:title => 'da'}
+        ).map(&:id)
+
+        assert_equal [nodes_zip(:art), nodes_zip(:status)], result
+      end
+
+      should 'find the list of nodes with fulltext' do
+        subject # create index entry for art
+
+        result = NodeResource.find(:all,
+          :from   => '/nodes/search',
+          :params => {:q => 'da'}
+        ).map(&:id)
+
+        assert_equal [nodes_zip(:art)], result
+      end
+
+      context 'returning nothing' do
+        should 'return an empty list' do
+          assert_equal [], NodeResource.find(:all, :from => '/nodes/search', :params => {:title => 'Foobar'})
+        end
+      end # returning empty
+
     end # reading a node
 
     context 'updating a node' do
