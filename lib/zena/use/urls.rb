@@ -416,8 +416,8 @@ module Zena
           end
 
           def insert_ajax_args(target, hash_params)
-            hash_params << ":dom_id => %Q{#{target.node.dom_id(:erb => false, :list => false)}}"
-            hash_params << ":t_url  => %Q{#{template_url(target.node)}}"
+            hash_params << ":dom_id => %Q{#{target.name}}"
+            hash_params << ":t_url  => %Q{#{template_url(target.name)}}"
 
             # method = opts[:method] || :get
             #

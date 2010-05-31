@@ -39,9 +39,6 @@ module Zena
             # Removed pagination clause
             if query.kind_of?(Hash)
               search_index(query, options)
-            elsif query =~ /\w:\w/
-              hash = Hash[*query.split(/\s+/).map {|e| e.split(':').map(&:strip)}.flatten]
-              search_index(hash, options)
             else
               search_text(query, options)
             end
@@ -61,11 +58,15 @@ module Zena
             else
               key = key.to_s
               if column = schema.columns[key] || secure(Column) { Column.find_by_name(key) }
-                table_name = "i_#{column.index}_nodes"
-                query.add_table(table_name)
-                index_table = query.table(table_name)
-                query.add_filter "nodes.id = #{index_table}.node_id AND #{index_table}.key = #{::QueryBuilder::Processor.insert_bind(key.inspect)} AND #{index_table}.value LIKE #{::QueryBuilder::Processor.insert_bind("%#{value}%".inspect)}"
+                type = column.index == true ? column.type : column.index
+              else
+                type = 'ml_string'
               end
+
+              table_name = "i_#{type}_nodes"
+              query.add_table(table_name)
+              index_table = query.table(table_name)
+              query.add_filter "nodes.id = #{index_table}.node_id AND #{index_table}.key = #{::QueryBuilder::Processor.insert_bind(key.inspect)} AND #{index_table}.value LIKE #{::QueryBuilder::Processor.insert_bind("%#{value}%".inspect)}"
             end
           end
 

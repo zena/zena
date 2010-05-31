@@ -102,7 +102,7 @@ class NodeTest < Zena::Unit::TestCase
 
         should 'find indexed nodes with exact search' do
           subject # create index entry
-          assert node = Node.search_records('origin:Dada').first
+          assert node = Node.search_records(:origin => 'Dada').first
           assert_equal nodes_id(:art), node.id
         end
 

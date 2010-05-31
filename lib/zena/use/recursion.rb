@@ -29,7 +29,7 @@ module Zena
             inc = descendant('include')
             if inc && inc.params[:part] == @name
               # We are called by a descendant, create method
-              proc_name = template_url(node).gsub(/[^\w]/,'_')
+              proc_name = template_url(node.dom_prefix).gsub(/[^\w]/,'_')
 
               if node.klass.kind_of?(Array)
                 if node.klass.first.name.blank?

@@ -260,9 +260,7 @@ module Zena
         # like this: "image or icon" ('image' is a filter in 'parent' scope, 'icon' is a
         # relation found through links).
         def resolve_missing_table(query, table_alias, table_name)
-          if table_name == 'links'
-            query.where.insert 0, "#{table_alias}.id = 0"
-          elsif table_name =~ /^i_/
+          if table_name == 'links' || table_name =~ /^i_/
             # index table
             query.where.insert 0, "#{table_alias}.id = 0"
           else

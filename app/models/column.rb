@@ -83,8 +83,9 @@ class Column < ActiveRecord::Base
 
     def name_not_in_models
       Node.native_classes.each do |kpath, klass|
-        if klass.schema.column_names.include?(self.name)
-          errors.add(:name, _('has already been taken in %s') % klass.name)
+        if column = klass.schema.columns[self.name]
+          # find column origin
+          errors.add(:name, _('has already been taken in %s') % column.role.name)
           break
         end
       end

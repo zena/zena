@@ -1,8 +1,8 @@
 class BaseContact < Reference
 
   property do |t|
-    t.string 'first_name'
-    t.string 'name'
+    t.string 'first_name', :index => true
+    t.string 'name',       :index => true
 
     t.text   'address'
     t.string 'postal_code'

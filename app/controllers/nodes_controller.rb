@@ -532,9 +532,15 @@ class NodesController < ApplicationController
     end
 
     def do_search
+      unless query_params = params[:q]
+        query_params = params.dup
+        query_params.delete(:action)
+        query_params.delete(:controller)
+      end
+
       @node = current_site.root_node
       @search_per_page = params[:per_page] ? params[:per_page].to_i : 20
-      @nodes = secure(Node) { Node.search_records(params[:q] || params, :node => @node, :page => params[:page], :per_page => @search_per_page) }
+      @nodes = secure(Node) { Node.search_records(params, :node => @node, :page => params[:page], :per_page => @search_per_page) }
       @search_count = 100 # FIXME: @nodes ? @nodes.total_entries : 0
     end
 
