@@ -57,6 +57,7 @@ module Zena
             alias_method_chain :properties=, :enrollable
             before_validation  :prepare_roles
             after_save  :update_roles
+            after_destroy :destroy_nodes_roles
             has_and_belongs_to_many :roles
 
             property do |p|
@@ -124,6 +125,10 @@ module Zena
                 Zena::Db.execute("DELETE FROM nodes_roles WHERE node_id = #{Zena::Db.quote(self.id)} AND role_id IN (#{del_roles.map{|r| Zena::Db.quote(r)}.join(',')})")
               end
             end
+          end
+
+          def destroy_nodes_roles
+            Zena::Db.execute("DELETE FROM nodes_roles WHERE node_id = #{Zena::Db.quote(self.id)}")
           end
 
       end # ModelMethods

@@ -535,8 +535,9 @@ class NodesController < ApplicationController
     def do_search
       unless query_params = params[:q]
         query_params = params.dup
-        query_params.delete(:action)
-        query_params.delete(:controller)
+        %w{controller action format}.each do |key|
+          query_params.delete(key)
+        end
       end
 
       @node = current_site.root_node

@@ -795,9 +795,13 @@ module Zena
         super
         elements.each do |name, col|
           if !col['role']
-            col['node'], col['role'] = name.split('_')
-            col[:header_keys] << :role
-            col[:header_keys] << :node
+            if name =~ /^(.*)_(.*)$/
+              col['node'], col['role'] = $1, $2
+              col[:header_keys] << :role
+              col[:header_keys] << :node
+            else
+              puts "Missing 'role' for nodes_roles '#{name}'"
+            end
           end
         end
       end

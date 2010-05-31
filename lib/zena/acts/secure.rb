@@ -352,5 +352,9 @@ if defined?(IRB)
     rescue ActiveRecord::RecordNotFound
       puts "Could not login with user name: #{name}"
     end
+
+    def nodes(node_zip)
+      secure(Node) { Node.find_by_zip(node_zip) }
+    end
   end
 end

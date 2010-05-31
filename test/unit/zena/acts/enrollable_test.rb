@@ -87,7 +87,7 @@ class EnrollableTest < Zena::Unit::TestCase
 
         context 'with roles assigned' do
           subject do
-            secure(Node) { nodes(:nature) }
+            secure(Node) { nodes(:tree_jpg) }
           end
 
           should 'remove role on property set to blank' do
@@ -98,6 +98,14 @@ class EnrollableTest < Zena::Unit::TestCase
             end
           end
 
+          should 'delete nodes_roles on destroy' do
+            preserving_files('test.host/data') do
+              assert_difference('NodesRoles.count', -1) do
+                subject.destroy
+                err subject
+              end
+            end
+          end
 
           should 'rebuild index on publish' do
             # make sure we are creating all versions in the same lang
@@ -115,11 +123,11 @@ class EnrollableTest < Zena::Unit::TestCase
               subject.update_attributes('origin' => '')
               assert subject.publish
             end
-            
+
             # make sure properties are reloaded
             subject = secure(Node) { nodes(:nature) }
             subject.version = Version.find(orig_version_id)
-              
+
             # 3. publish old version should rebuild index
             assert_difference('NodesRoles.count', 1) do
               assert subject.publish

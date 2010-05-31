@@ -290,23 +290,6 @@ class NodeTest < Zena::Unit::TestCase
     assert_equal nodes_id(:zena), node[:section_id]
   end
 
-  def test_before_destroy
-    login(:tiger)
-    node = secure!(Node) { nodes(:projects)  }
-    assert !node.destroy, "Cannot destroy"
-    assert_equal 'cannot be removed (contains subpages or data)', node.errors[:base]
-    node = secure!(Node) { nodes(:bananas)  }
-    assert node.destroy, "Can destroy"
-  end
-
-  def test_cannot_destroy_has_private
-    login(:tiger)
-    node = secure!(Node) { nodes(:lion)  }
-    assert_nil node.find(:all, 'pages'), "No subpages"
-    assert !node.destroy, "Cannot destroy"
-    assert_equal 'cannot be removed (contains subpages or data)', node.errors[:base]
-  end
-
   def test_parent
     login(:anon)
     assert_equal nodes_id(:projects), secure!(Node) { nodes(:wiki) }.parent[:id]

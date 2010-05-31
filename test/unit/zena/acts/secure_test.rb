@@ -495,8 +495,15 @@ class SecureTest < Zena::Unit::TestCase
       assert node.destroy
     end
 
-    should 'not be allowed to remove node with children' do
+    should 'not be allowed to remove a node with children' do
       node = secure!(Node) { nodes(:wiki)}
+      assert !node.empty?
+      assert !node.destroy
+      assert_equal 'cannot be removed (contains subpages or data)', node.errors[:base]
+    end
+
+    should 'not be allowed to remove a node with data' do
+      node = secure!(Node) { nodes(:status)}
       assert !node.empty?
       assert !node.destroy
       assert_equal 'cannot be removed (contains subpages or data)', node.errors[:base]
