@@ -164,23 +164,6 @@ class TextDocument < Document
     (super + (content_type == 'text/css' ? ['text'] : [])).uniq
   end
 
-  # Return the code language used for syntax highlighting.
-  def content_lang
-    ctype = prop['content_type']
-    if ctype =~ /^text\/(.*)/
-      case $1
-      when 'x-ruby-script'
-        'ruby'
-      when 'html', 'zafu'
-        'zafu'
-      else
-        $1
-      end
-    else
-      nil
-    end
-  end
-
   private
     class AssetHelper
       attr_accessor :visitor

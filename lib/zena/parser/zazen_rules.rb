@@ -365,19 +365,8 @@ module Zena
           if @translate_ids
             @escaped_code[$1.to_i]
           else
-            lang, code = *(@escaped_code[$1.to_i])
-            if lang != ''
-              code_tag = "<code class='#{lang}'>"
-            else
-              code_tag = '<code>'
-            end
-            if Syntax::SYNTAX[lang] != Syntax::Default && @context[:pretty_code]
-              convertor = Syntax::Convertors::HTML.for_syntax(lang)
-              "#{code_tag}#{convertor.convert( code, false )}</code>"
-            else
-              RedCloth.new("#{code_tag}#{code}</code>").to_html
-            end
-            #code_tag + code.gsub(/\n( *)/m) { "<br/>\n" + ('&nbsp;' * $1.length) } + '</code>'
+            code_lang, code = *(@escaped_code[$1.to_i])
+            Zena::CodeSyntax.new(code, @context[:pretty_code] ? code_lang : nil).to_html
           end
         end
 
@@ -386,19 +375,10 @@ module Zena
           if @translate_ids
             '@'+code+'@'
           else
-            if code =~ /^(\w+)\|/ && Syntax::SYNTAX[$1]
-              lang = $1
-              if @context[:pretty_code]
-                convertor = Syntax::Convertors::HTML.for_syntax(lang)
-                res = convertor.convert( code[(lang.length+1)..-1], false )
-              else
-                res = code[(lang.length+1)..-1]
-              end
-              res = "<code class='#{lang}'>#{res}</code>"
-            else
-              res = RedCloth.new("<code>#{code}</code>").to_html
+            if code =~ /^(\w+)\|(.*)$/
+              code_lang, code = $1, $2
             end
-            res
+            Zena::CodeSyntax.new(code, @context[:pretty_code] ? code_lang : nil).to_html
           end
         end
       end

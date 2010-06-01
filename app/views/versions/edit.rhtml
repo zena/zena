@@ -16,7 +16,16 @@
       <input name='validate' type='submit' value='<%= _('validate') %>' />
     </div>
     <div>
-      <input name='save' onclick="return Zena.save('<%= save_text_node_path(:id => @node[:zip]) %>',this.form,false);" type='button' value='<%= _('save') %>' />
+      <input name='save' onclick="return Zena.save('<%= save_text_node_path(:id => @node.zip) %>',this.form,'<%= @node.kind_of?(TextDocument) ? "'reload'" : 'false' %>');" type='button' value='<%= _('save') %>' />
+    </div>
+    <div onclick="Zena.dettach('<%= save_text_node_path(:id => @node.zip) %>', '<%= edit_node_version_path(:node_id => @node.zip, :id => 0) %>',$('node_form'));">
+<%= javascript_tag(%Q{
+  if (parent != window) {
+    document.write("#{_('dettach_img')}");
+  } else {
+    document.write("#{_('attach_img')}");
+  }
+}) %>
     </div>
     <div><%= node_action_link('add_doc', @node) %></div>
     <% if @node.full_drive? && !visitor.site.auto_publish? %><div><small><input type='checkbox' name='node[v_backup]' value='true'/> <%= _('bak') %></small> <small><input type='checkbox' name='node[v_status]' value='50'<%= params[:pub] ? " checked='checked'" : '' %>/> <%= _('pub') %></small></div><% end -%>

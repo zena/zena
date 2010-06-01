@@ -92,7 +92,7 @@ module Zena
             before_validation  :prepare_roles
             after_save  :update_roles
             after_destroy :destroy_nodes_roles
-            has_and_belongs_to_many :roles
+            has_and_belongs_to_many :roles, :class_name => '::Role'
 
             property do |p|
               p.serialize :cached_role_ids, Array
@@ -111,7 +111,11 @@ module Zena
         end
 
         def has_role?(role_id)
-          (cached_role_ids || []).include?(role_id)
+          if role_id.kind_of?(Fixnum)
+            (cached_role_ids || []).include?(role_id)
+          else
+            super
+          end
         end
 
         private

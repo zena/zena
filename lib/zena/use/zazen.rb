@@ -38,6 +38,11 @@ module Zena
         # * [!14!:www.example.com] use an image for an outgoing link
         def zazen(text, opt={})
           return '' unless text
+          code_lang = opt[:code]
+          if !code_lang.blank?
+            return Zena::CodeSyntax.new(text, code_lang).to_html
+          end
+
           opt = {:images=>true, :pretty_code=>true, :output=>'html'}.merge(opt)
           no_p = opt.delete(:no_p)
           img = opt[:images]

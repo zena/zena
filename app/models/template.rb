@@ -44,23 +44,8 @@ class Template < TextDocument
     end
   end # Class Methods
 
-  # Force template content-type to 'text/zafu'
-  def content_type
-    "text/zafu"
-  end
-
-  # Force template extension to zafu
-  def ext
-    'zafu'
-  end
-
-  # Ignore ext assignation
-  def ext=(ext)
-    'zafu'
-  end
-
   def filename
-    "#{node_name}.zafu"
+    "#{title}.#{ext}"
   end
 
   def skin
@@ -71,6 +56,12 @@ class Template < TextDocument
 
     def set_defaults
       super
+
+      # Force template extension to zafu
+      self.ext = 'zafu'
+
+      # Force template content-type to 'text/zafu'
+      self.content_type = 'text/zafu'
 
       if node_name_changed?
         if node_name =~ /^([A-Z][a-zA-Z]+?)(-(([a-zA-Z_\+]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/

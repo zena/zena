@@ -155,7 +155,7 @@ class Node < ActiveRecord::Base
                 :custom_a => Number, :custom_b => Number,
                 :m_text => String, :m_title => String, :m_author => String,
                 :id => {:class => Number, :method => 'zip'},
-                :skin => 'Skin', :lang => String,
+                :skin => 'Skin', :lang => String, :content_lang => {:class => String, :nil => true},
                 :visitor => 'User',
                 [:ancestor?, Node] => Boolean
 
@@ -965,6 +965,23 @@ class Node < ActiveRecord::Base
     # It would be nice to move this outside 'self[:id]' so that the same asset can
     # be used by many pages... But then, how do we expire unused assets ?
     "#{SITES_ROOT}#{site.data_path}/asset/#{self[:id]}/#{asset_filename}"
+  end
+
+  # Return the code language used for syntax highlighting.
+  def content_lang
+    ctype = prop['content_type']
+    if ctype =~ /^text\/(.*)/
+      case $1
+      when 'x-ruby-script'
+        'ruby'
+      when 'html', 'zafu'
+        'zafu'
+      else
+        $1
+      end
+    else
+      nil
+    end
   end
 
   # Used by zafu to find the search score

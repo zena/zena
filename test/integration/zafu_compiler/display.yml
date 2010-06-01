@@ -112,6 +112,13 @@ zazen:
   tem: "<%= zazen(@node.prop['title'], :node => @node) %>"
   res: "<p>status title</p>"
 
+zazen_code:
+  context:
+    node: style_css
+  src: "<r:zazen code='#{content_lang}' attr='text'/>"
+  tem: "<%= zazen(@node.prop['text'], :node => @node, :code => \"#{@node.content_lang}\") %>"
+  res: "/<code class='css'><span class=\"tag\">body</span>/"
+
 show_name:
   src: "my <r:show attr='node_name'/>"
   res: "my status"

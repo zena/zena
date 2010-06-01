@@ -5,8 +5,21 @@ require 'syntax/lang/ruby'
 require 'syntax'
 
 module Zena
-  module CodeSyntax
-    # dummy module to auto load 'syntax'
+  class CodeSyntax
+    def initialize(text, code_lang)
+      @text = text
+      @code_lang = code_lang
+    end
+
+    def to_html
+      code_lang = @code_lang
+      if ::Syntax::SYNTAX[code_lang] != ::Syntax::Default
+        convertor = ::Syntax::Convertors::HTML.for_syntax(code_lang)
+        return "<pre><code class='#{code_lang}'>#{convertor.convert(@text, false)}</code></pre>"
+      else
+        return ::RedCloth.new("<code class='#{code_lang}'>#{@text}</code>").to_html
+      end
+    end
   end
 end
 

@@ -5,4 +5,4 @@
 <input  id='node_mode' type='text' name='node[mode]' value='<%= @node.mode %>'/><br/>
 
 <label for='node_klass'><%= _('class scope') %></label>
-<%= select('node', 'klass', Node.classes_for_form, {:include_blank => true} ) %><br/>
+<%= select('node', 'target_klass', Node.classes_for_form, {:include_blank => true} ) %><br/>

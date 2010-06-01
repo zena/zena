@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: version 0.0.1\n"
-"POT-Creation-Date: 2010-05-24 15:22+0200\n"
+"POT-Creation-Date: 2010-06-01 15:53+0200\n"
 "PO-Revision-Date: 2009-10-17 21:34+0100\n"
 "Last-Translator: Lars Kanis <lars@greiz-reinsdorf.de>\n"
 "Language-Team: de <lars@greiz-reinsdorf.de>\n"
@@ -29,56 +29,51 @@ msgstr "Upload fehlgeschlagen"
 msgid "Upload succeeded."
 msgstr "Upload erfogreich"
 
-#: app/controllers/nodes_controller.rb:215
+#: app/controllers/nodes_controller.rb:216
 msgid "Backup created."
 msgstr "Backup erzeugt"
 
-#: app/controllers/nodes_controller.rb:217
+#: app/controllers/nodes_controller.rb:218
 msgid "Could not create backup."
 msgstr "Backup konnte nicht erzeugt werden"
 
-#: app/controllers/nodes_controller.rb:269
+#: app/controllers/nodes_controller.rb:270
 msgid "node updated"
 msgstr "Eintrag aktualisiert"
 
-#: app/controllers/nodes_controller.rb:271
+#: app/controllers/nodes_controller.rb:272
 msgid "could not update"
 msgstr "Eintrag konnte nicht aktualisiert werden"
 
-#: app/controllers/nodes_controller.rb:352
+#: app/controllers/nodes_controller.rb:353
 msgid "node not found"
 msgstr "Eintrag nicht gefunden"
 
-#: app/controllers/nodes_controller.rb:352
+#: app/controllers/nodes_controller.rb:353
 msgid "new"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:376
+#: app/controllers/nodes_controller.rb:377
 msgid "Order updated"
 msgstr "Order aktualisiert"
 
-#: app/controllers/nodes_controller.rb:378
+#: app/controllers/nodes_controller.rb:379
 msgid "Could not update order."
 msgstr "Order konnte nicht aktualisiert werden"
 
-#: app/controllers/nodes_controller.rb:395
+#: app/controllers/nodes_controller.rb:396
 msgid "Could not clear order."
 msgstr "Order konnte nicht gelöscht werden"
-
-#: app/controllers/preferences_controller.rb:25
-msgid "password successfully updated"
-msgstr "Passwort erfolgreich aktualisiert"
-
-#: app/controllers/preferences_controller.rb:40
-#: app/controllers/users_controller.rb:97
-msgid "information successfully updated"
-msgstr "Information erfolgreich aktualisiert"
 
 #: app/controllers/sites_controller.rb:51
 msgid "Cache cleared."
 msgstr "Zwischenspeicher gelöscht."
 
-#: app/controllers/users_controller.rb:99
+#: app/controllers/users_controller.rb:110
+msgid "information successfully updated"
+msgstr "Information erfolgreich aktualisiert"
+
+#: app/controllers/users_controller.rb:112
 msgid "could not update user"
 msgstr "Benutzer konnte nicht aktualisiert werden"
 
@@ -106,13 +101,17 @@ msgstr "Vorschlag zur Veröffentlichung zurückgezogen"
 msgid "Could not refuse proposition."
 msgstr "Vorschlag zur Veröffentlichung konnte nicht zurückgezogen werden"
 
+#: app/models/column.rb:88
+msgid "has already been taken in %s"
+msgstr ""
+
 #: app/models/comment.rb:88
 msgid "re: "
 msgstr ""
 
-#: app/models/data_entry.rb:45 app/models/node.rb:729
+#: app/models/data_entry.rb:45 app/models/node.rb:753
 #: app/views/data_entries/_li.html.erb:2 app/views/discussions/_li.rhtml:7
-#: lib/zena/use/dates.rb:162
+#: lib/zena/use/dates.rb:163
 msgid "datetime"
 msgstr "%Y-%m-%d %H:%M"
 
@@ -149,14 +148,14 @@ msgstr "Typ"
 #: app/views/iformats/_form.rhtml:16 app/views/nodes/_parent.rhtml:8
 #: app/views/templates/document_create_tabs/_template.rhtml:7
 #: app/views/templates/document_create_tabs/_text_document.rhtml:8
-#: app/views/users/_form.rhtml:27 lib/gettext_strings.rb:161
+#: app/views/users/_form.rhtml:27 lib/gettext_strings.rb:164
 msgid "name"
 msgstr "Name"
 
 #: app/views/columns/_form.html.erb:26 app/views/relations/_form.erb:35
 #: app/views/sites/_form.erb:34 app/views/users/preferences.html.erb:22
 #: app/views/users/preferences.html.erb:41
-#: app/views/virtual_classes/_form.erb:22 app/views/comments/_form.rhtml:23
+#: app/views/virtual_classes/_form.erb:26 app/views/comments/_form.rhtml:23
 #: app/views/groups/_form.rhtml:35 app/views/iformats/_form.rhtml:22
 #: app/views/nodes/_edit_attribute.rhtml:15
 #: app/views/templates/document_create_tabs/_file.rhtml:3
@@ -178,7 +177,7 @@ msgid "destroy property"
 msgstr "<img src='/images/group.png' title='Gruppe löschen'/>"
 
 #: app/views/columns/_form.html.erb:31 app/views/relations/_form.erb:40
-#: app/views/virtual_classes/_form.erb:27 app/views/groups/_form.rhtml:41
+#: app/views/virtual_classes/_form.erb:32 app/views/groups/_form.rhtml:41
 #: app/views/iformats/_form.rhtml:27
 msgid "destroy"
 msgstr "Löschen"
@@ -227,7 +226,7 @@ msgstr "Gruppe"
 msgid "iformat"
 msgstr ""
 
-#: app/views/relations/_add.erb:2 lib/gettext_strings.rb:36
+#: app/views/relations/_add.erb:2 lib/gettext_strings.rb:39
 msgid "btn_relation_add"
 msgstr "<img src='/images/link_add.png' title='Bezug hinzufügen'/>"
 
@@ -256,7 +255,7 @@ msgstr "übernehmen"
 msgid "has_many"
 msgstr ""
 
-#: app/views/relations/_form.erb:31 app/views/virtual_classes/_form.erb:17
+#: app/views/relations/_form.erb:31 app/views/virtual_classes/_form.erb:25
 msgid "icon"
 msgstr "Icon"
 
@@ -269,7 +268,7 @@ msgid "destroy relation (with all links)"
 msgstr "Bezug löschen (mit allen Links)"
 
 #: app/views/relations/_li.erb:2 lib/zena/use/old_zafu/action.rb:45
-#: lib/zena/use/old_zafu/display.rb:177 lib/zena/use/urls.rb:505
+#: lib/zena/use/old_zafu/display.rb:177 lib/zena/use/urls.rb:551
 msgid "edit"
 msgstr "bearbeiten"
 
@@ -296,16 +295,16 @@ msgstr ""
 msgid "redit_time"
 msgstr "%H:%M"
 
-#: app/views/sites/_form.erb:21 lib/gettext_strings.rb:34
+#: app/views/sites/_form.erb:21 lib/gettext_strings.rb:37
 msgid "public group"
 msgstr ""
 
-#: app/views/sites/_form.erb:22 lib/gettext_strings.rb:35
+#: app/views/sites/_form.erb:22 lib/gettext_strings.rb:38
 #, fuzzy
 msgid "site group"
 msgstr "<img src='/images/group.png' title='group'/>"
 
-#: app/views/sites/_form.erb:23 lib/gettext_strings.rb:33
+#: app/views/sites/_form.erb:23 lib/gettext_strings.rb:36
 msgid "options"
 msgstr "Einstellungen"
 
@@ -319,7 +318,7 @@ msgid ""
 "reloads) ?"
 msgstr ""
 
-#: app/views/sites/_li.erb:2 lib/gettext_strings.rb:31
+#: app/views/sites/_li.erb:2 lib/gettext_strings.rb:34
 msgid "site_img"
 msgstr "<img src='/images/world.png' title='site'/>"
 
@@ -363,7 +362,7 @@ msgid "time zone"
 msgstr "Zeitzone"
 
 #: app/views/users/preferences.html.erb:21 app/views/users/_form.rhtml:31
-#: lib/gettext_strings.rb:168
+#: lib/gettext_strings.rb:171
 msgid "email"
 msgstr "E-Mail"
 
@@ -383,54 +382,50 @@ msgstr "neues Passwort"
 msgid "retype new password"
 msgstr "Passwort wiederholen"
 
-#: app/views/virtual_classes/_add.erb:2 lib/gettext_strings.rb:39
+#: app/views/virtual_classes/_add.erb:2 lib/gettext_strings.rb:42
 msgid "btn_virtual_class_add"
 msgstr "<img src='/images/brick_add.png' title='Klasse hinzufügen'/>"
 
-#: app/views/virtual_classes/_form.erb:18
+#: app/views/virtual_classes/_form.erb:17
 msgid "superclass"
 msgstr "Basisklasse"
 
-#: app/views/virtual_classes/_form.erb:19
+#: app/views/virtual_classes/_form.erb:23
 msgid "create group"
 msgstr "<img src='/images/group.png' title='Gruppe erzeugen'/>"
 
-#: app/views/virtual_classes/_form.erb:20
+#: app/views/virtual_classes/_form.erb:24
 msgid "auto create discussion"
 msgstr ""
 "<img src='/images/comments_add.png' title='Kommentar automatisch anlegen'/>"
 
-#: app/views/virtual_classes/_form.erb:21
-msgid "dyn_keys"
-msgstr ""
-
-#: app/views/virtual_classes/_form.erb:26
+#: app/views/virtual_classes/_form.erb:31
 msgid "Are you sure you want to destroy this virtual class ?"
 msgstr "Sind sie sicher, die virtuelle Klasse zu löschen?"
 
-#: app/views/virtual_classes/_form.erb:27
+#: app/views/virtual_classes/_form.erb:32
 msgid "destroy virtual class"
 msgstr "<img src='/images/brick.png' title='Klasse löschen'/>"
 
-#: app/views/virtual_classes/_li.erb:2 lib/gettext_strings.rb:38
-msgid "virtual_class_error_img"
-msgstr "<img src='/images/brick_error.png' title='class error'/>"
-
-#: app/views/virtual_classes/_li.erb:2 lib/gettext_strings.rb:37
+#: app/views/virtual_classes/_li.erb:3 app/views/virtual_classes/_li.erb:10
+#: lib/gettext_strings.rb:40
 msgid "virtual_class_img"
 msgstr "<img src='/images/brick.png' title='class'/>"
 
-#: app/views/virtual_classes/_li.erb:8
+#: app/views/virtual_classes/_li.erb:10 lib/gettext_strings.rb:41
+msgid "virtual_class_error_img"
+msgstr "<img src='/images/brick_error.png' title='class error'/>"
+
+#: app/views/virtual_classes/_li.erb:16
 #, fuzzy
 msgid "auto discussion"
 msgstr "<img src='/images/comments_add.png' title='add a discussion'/>"
 
-#: app/views/virtual_classes/index.erb:1 app/views/iformats/index.rhtml:1
-#: lib/zena/use/display.rb:264
+#: app/views/virtual_classes/index.erb:1 lib/zena/use/display.rb:264
 msgid "manage classes"
 msgstr "Klassen verwalten"
 
-#: app/views/comments/_add.rhtml:2 lib/gettext_strings.rb:24
+#: app/views/comments/_add.rhtml:2 lib/gettext_strings.rb:27
 msgid "btn_add_comment"
 msgstr "<img src='/images/comment_add.png' title='Kommentar hinzufügen'/>"
 
@@ -473,11 +468,11 @@ msgstr "Kommentare verwalten"
 msgid "btn_add_discussion"
 msgstr "<img src='/images/comments_add.png' title='Kommentar hinzufügen'/>"
 
-#: app/views/discussions/_form.rhtml:11 lib/gettext_strings.rb:58
+#: app/views/discussions/_form.rhtml:11 lib/gettext_strings.rb:61
 msgid "outside"
 msgstr "außerhalb"
 
-#: app/views/discussions/_form.rhtml:12 lib/gettext_strings.rb:57
+#: app/views/discussions/_form.rhtml:12 lib/gettext_strings.rb:60
 msgid "inside"
 msgstr "innerhalb"
 
@@ -578,6 +573,11 @@ msgstr "<img src='/images/photo_grey.png' title='Standard-Bild-Format'/>"
 #: app/views/iformats/_li.rhtml:5
 msgid "iformat_img"
 msgstr "<img src='/images/photo.png' title='Bild-Format'/>"
+
+#: app/views/iformats/index.rhtml:1
+#, fuzzy
+msgid "manage image formats"
+msgstr "Bildformate"
 
 #: app/views/links/_add.rhtml:2
 msgid "btn_add_link"
@@ -710,7 +710,7 @@ msgid "publish nodes"
 msgstr "<img src='/images/wand.png' title='publish'/>"
 
 #: app/views/templates/document_create_tabs/_import.rhtml:12
-#: app/views/versions/edit.rhtml:22
+#: app/views/versions/edit.rhtml:31
 msgid "pub"
 msgstr "<span title='beim Speichern veröffentlichen'>pub</span>"
 
@@ -819,7 +819,7 @@ msgstr ""
 msgid "save"
 msgstr " übernehmen "
 
-#: app/views/versions/edit.rhtml:22
+#: app/views/versions/edit.rhtml:31
 msgid "bak"
 msgstr "<span title='beim Speichern Sicherungskopie anlegen'>bak</span>"
 
@@ -860,476 +860,485 @@ msgid "document_tab"
 msgstr "Dokument"
 
 #: lib/gettext_strings.rb:15
-msgid "basecontact_tab"
+#, fuzzy
+msgid "contact_tab"
 msgstr "Kontakt"
 
 #: lib/gettext_strings.rb:17
+msgid "attach_img"
+msgstr ""
+
+#: lib/gettext_strings.rb:18
+msgid "dettach_img"
+msgstr ""
+
+#: lib/gettext_strings.rb:20
 msgid "file_tab"
 msgstr "Datei"
 
-#: lib/gettext_strings.rb:18
+#: lib/gettext_strings.rb:21
 msgid "template_tab"
 msgstr "Template"
 
-#: lib/gettext_strings.rb:19
+#: lib/gettext_strings.rb:22
 #, fuzzy
 msgid "text_doc_tab"
 msgstr "Text Dok."
 
-#: lib/gettext_strings.rb:20
+#: lib/gettext_strings.rb:23
 msgid "custom_tab"
 msgstr "++"
 
-#: lib/gettext_strings.rb:22
+#: lib/gettext_strings.rb:25
 msgid "btn_add_doc"
 msgstr "<img src='/images/picture_add.png' title='Dokumente hinzufügen'/>"
 
-#: lib/gettext_strings.rb:23
+#: lib/gettext_strings.rb:26
 msgid "btn_add"
 msgstr "<img src='/images/add.png' title='add'/>"
 
-#: lib/gettext_strings.rb:25
+#: lib/gettext_strings.rb:28
 msgid "btn_title_edit"
 msgstr "Öffnet das Fenster zum Bearbeiten des Eintrags"
 
-#: lib/gettext_strings.rb:26
+#: lib/gettext_strings.rb:29
 msgid "btn_title_drive"
 msgstr "Öffnet das Fenster zum Ändern von Berechtigungen, Versionen etc."
 
-#: lib/gettext_strings.rb:29
+#: lib/gettext_strings.rb:32
 msgid "relation_img"
 msgstr "<img src='/images/target.png' title='role'/>"
 
-#: lib/gettext_strings.rb:30
+#: lib/gettext_strings.rb:33
 msgid "relations_img"
 msgstr "<img src='/images/collection.png' title='collection'/>"
 
-#: lib/gettext_strings.rb:32
+#: lib/gettext_strings.rb:35
 msgid "btn_site_add"
 msgstr "<img src='/images/world_add.png' title='Site hinzufügen'/>"
 
-#: lib/gettext_strings.rb:41
+#: lib/gettext_strings.rb:44
 msgid "posted by"
 msgstr "erstellt von"
 
-#: lib/gettext_strings.rb:42
+#: lib/gettext_strings.rb:45
 msgid "original by"
 msgstr "Original von"
 
-#: lib/gettext_strings.rb:43
+#: lib/gettext_strings.rb:46
 msgid "modified by"
 msgstr "geändert von"
 
-#: lib/gettext_strings.rb:45 lib/zena/use/html_tags.rb:119
+#: lib/gettext_strings.rb:48 lib/zena/use/html_tags.rb:109
 msgid "img_public"
 msgstr "<img src='/images/user_pub.png' title='public'/>"
 
-#: lib/gettext_strings.rb:46
+#: lib/gettext_strings.rb:49
 msgid "img_private"
 msgstr "<img src='/images/lock.png' title='Privat'/>"
 
-#: lib/gettext_strings.rb:47
+#: lib/gettext_strings.rb:50
 msgid "img_custom_inherit"
 msgstr "<img src='/images/cog.png' title='custom rights'/>"
 
-#: lib/gettext_strings.rb:48
+#: lib/gettext_strings.rb:51
 msgid "img_user"
 msgstr "<img src='/images/user.png' title='user'/>"
 
-#: lib/gettext_strings.rb:49
+#: lib/gettext_strings.rb:52
 msgid "img_user_admin"
 msgstr "<img src='/images/user_admin.png' title='administrator'/>"
 
-#: lib/gettext_strings.rb:50
+#: lib/gettext_strings.rb:53
 msgid "img_user_su"
 msgstr "<img src='/images/user_su.png' title='super user'/>"
 
-#: lib/gettext_strings.rb:51
+#: lib/gettext_strings.rb:54
 msgid "img_user_pub"
 msgstr "<img src='/images/user_pub.png' title='anonymous user'/>"
 
-#: lib/gettext_strings.rb:52
+#: lib/gettext_strings.rb:55
 msgid "img_group"
 msgstr "<img src='/images/group.png' title='group'/>"
 
-#: lib/gettext_strings.rb:53
+#: lib/gettext_strings.rb:56
 msgid "img_group_pub"
 msgstr "<img src='/images/group_pub.png' title='public group'/>"
 
-#: lib/gettext_strings.rb:54
+#: lib/gettext_strings.rb:57
 msgid "img_group_site"
 msgstr "<img src='/images/group_site.png' title='site group'/>"
 
-#: lib/gettext_strings.rb:55
+#: lib/gettext_strings.rb:58
 #, fuzzy
 msgid "img_comments"
 msgstr "<img src='/images/lock_open.png' title='open'/>"
 
-#: lib/gettext_strings.rb:56
+#: lib/gettext_strings.rb:59
 msgid "img_comments_inside"
 msgstr ""
 
-#: lib/gettext_strings.rb:59
+#: lib/gettext_strings.rb:62
 msgid "open"
 msgstr "<img src='/images/lock_open.png' title='open'/>"
 
-#: lib/gettext_strings.rb:60
+#: lib/gettext_strings.rb:63
 msgid "closed"
 msgstr "<img src='/images/lock.png' title='closed'/>"
 
-#: lib/gettext_strings.rb:62 lib/zena/use/i18n.rb:144
+#: lib/gettext_strings.rb:65 lib/zena/use/i18n.rb:144
 msgid "img_prev_page"
 msgstr ""
 "<img src='/images/control_rewind.png' title='previous page' title='previous "
 "page'/>"
 
-#: lib/gettext_strings.rb:63 lib/zena/use/i18n.rb:144
+#: lib/gettext_strings.rb:66 lib/zena/use/i18n.rb:144
 msgid "img_next_page"
 msgstr ""
 "<img src='/images/control_fastforward.png' title='next page' title='next "
 "page'/>"
 
-#: lib/gettext_strings.rb:65
+#: lib/gettext_strings.rb:68
 msgid "admin"
 msgstr "Admin"
 
-#: lib/gettext_strings.rb:66
+#: lib/gettext_strings.rb:69
 msgid "user"
 msgstr "Benutzer"
 
-#: lib/gettext_strings.rb:67
+#: lib/gettext_strings.rb:70
 msgid "commentator"
 msgstr "Kommentierer"
 
-#: lib/gettext_strings.rb:68
+#: lib/gettext_strings.rb:71
 msgid "moderated"
 msgstr "moderiert"
 
-#: lib/gettext_strings.rb:69
+#: lib/gettext_strings.rb:72
 msgid "reader"
 msgstr "nur lesen"
 
-#: lib/gettext_strings.rb:70
+#: lib/gettext_strings.rb:73
 msgid "deleted"
 msgstr "gelöscht"
 
-#: lib/gettext_strings.rb:72 lib/zena/use/display.rb:162
+#: lib/gettext_strings.rb:75 lib/zena/use/display.rb:162
 msgid "%{ext} document"
 msgstr ""
 
-#: lib/gettext_strings.rb:73 lib/zena/use/display.rb:150
+#: lib/gettext_strings.rb:76 lib/zena/use/display.rb:150
 msgid "%{type} node"
 msgstr ""
 
-#: lib/gettext_strings.rb:75
+#: lib/gettext_strings.rb:78
 msgid "no result found"
 msgstr "Kein Ergebnis gefunden"
 
-#: lib/gettext_strings.rb:76
+#: lib/gettext_strings.rb:79
 msgid "search results"
 msgstr "Suchergebnisse"
 
-#: lib/gettext_strings.rb:78
+#: lib/gettext_strings.rb:81
 msgid "btn_unpublish"
 msgstr "<img src='/images/delete.png' title='unpublish'/>"
 
-#: lib/gettext_strings.rb:79
+#: lib/gettext_strings.rb:82
 msgid "btn_destroy"
 msgstr "<img src='/images/bomb.png' title='destroy'/>"
 
-#: lib/gettext_strings.rb:80
+#: lib/gettext_strings.rb:83
 msgid "btn_propose"
 msgstr "<img src='/images/picture_empty.png' title='propose'/>"
 
-#: lib/gettext_strings.rb:81
+#: lib/gettext_strings.rb:84
 msgid "btn_edit"
 msgstr "<img src='/images/page_edit.png' title='edit'/>"
 
-#: lib/gettext_strings.rb:82
+#: lib/gettext_strings.rb:85
 msgid "btn_drive"
 msgstr "<img src='/images/wrench.png' title='drive'/>"
 
-#: lib/gettext_strings.rb:83
+#: lib/gettext_strings.rb:86
 msgid "btn_refuse"
 msgstr "<img src='/images/delete.png' title='refuse'/>"
 
-#: lib/gettext_strings.rb:84
+#: lib/gettext_strings.rb:87
 msgid "btn_destroy_version"
 msgstr "<img src='/images/bomb.png' title='destroy'/>"
 
-#: lib/gettext_strings.rb:85
+#: lib/gettext_strings.rb:88
 msgid "btn_redit"
 msgstr "<img src='/images/page_edit.png' title='edit'/>"
 
-#: lib/gettext_strings.rb:87
+#: lib/gettext_strings.rb:90
 msgid "status_50"
 msgstr "published"
 
-#: lib/gettext_strings.rb:88
+#: lib/gettext_strings.rb:91
 msgid "status_60"
 msgstr "proposed"
 
-#: lib/gettext_strings.rb:89
+#: lib/gettext_strings.rb:92
 msgid "status_65"
 msgstr "proposed with"
 
-#: lib/gettext_strings.rb:90
+#: lib/gettext_strings.rb:93
 msgid "status_70"
 msgstr "redaction"
 
-#: lib/gettext_strings.rb:91
+#: lib/gettext_strings.rb:94
 msgid "status_20"
 msgstr "replaced"
 
-#: lib/gettext_strings.rb:92
+#: lib/gettext_strings.rb:95
 msgid "status_10"
 msgstr "removed"
 
-#: lib/gettext_strings.rb:93
+#: lib/gettext_strings.rb:96
 msgid "status_0"
 msgstr "deleted"
 
-#: lib/gettext_strings.rb:95
+#: lib/gettext_strings.rb:98
 msgid "status_50_img"
 msgstr "<img src='/images/weather_sun.png'/>"
 
-#: lib/gettext_strings.rb:96
+#: lib/gettext_strings.rb:99
 msgid "status_60_img"
 msgstr "<img src='/images/magnifier.png'/>"
 
-#: lib/gettext_strings.rb:97
+#: lib/gettext_strings.rb:100
 msgid "status_65_img"
 msgstr "<img src='/images/magnifier.png'/>"
 
-#: lib/gettext_strings.rb:98
+#: lib/gettext_strings.rb:101
 msgid "status_70_img"
 msgstr "<img src='/images/pencil.png'/>"
 
-#: lib/gettext_strings.rb:99
+#: lib/gettext_strings.rb:102
 msgid "status_20_img"
 msgstr "<img src='/images/weather_clouds.png'/>"
 
-#: lib/gettext_strings.rb:100
+#: lib/gettext_strings.rb:103
 msgid "status_10_img"
 msgstr "<img src='/images/weather_rain.png'/>"
 
-#: lib/gettext_strings.rb:101
+#: lib/gettext_strings.rb:104
 msgid "status_0_img"
 msgstr "<img src='/images/weather_lightning.png'/>"
 
-#: lib/gettext_strings.rb:103
+#: lib/gettext_strings.rb:106
 msgid "en"
 msgstr "englisch"
 
-#: lib/gettext_strings.rb:104
+#: lib/gettext_strings.rb:107
 msgid "fr"
 msgstr "französisch"
 
-#: lib/gettext_strings.rb:105
+#: lib/gettext_strings.rb:108
 msgid "de"
 msgstr "deutsch"
 
-#: lib/gettext_strings.rb:106
+#: lib/gettext_strings.rb:109
 msgid "Monday"
 msgstr "Montag"
 
-#: lib/gettext_strings.rb:107
+#: lib/gettext_strings.rb:110
 msgid "Tuesday"
 msgstr "Dienstag"
 
-#: lib/gettext_strings.rb:108
+#: lib/gettext_strings.rb:111
 msgid "Wednesday"
 msgstr "Mittwoch"
 
-#: lib/gettext_strings.rb:109
+#: lib/gettext_strings.rb:112
 msgid "Thursday"
 msgstr "Donnerstag"
 
-#: lib/gettext_strings.rb:110
+#: lib/gettext_strings.rb:113
 msgid "Friday"
 msgstr "Freitag"
 
-#: lib/gettext_strings.rb:111
+#: lib/gettext_strings.rb:114
 msgid "Saturday"
 msgstr "Samstag"
 
-#: lib/gettext_strings.rb:112
+#: lib/gettext_strings.rb:115
 msgid "Sunday"
 msgstr "Sonntag"
 
-#: lib/gettext_strings.rb:114
+#: lib/gettext_strings.rb:117
 msgid "news_date"
 msgstr "%A, %B %d %Y"
 
-#: lib/gettext_strings.rb:116
+#: lib/gettext_strings.rb:119
 msgid "Mon"
 msgstr "Mo"
 
-#: lib/gettext_strings.rb:117
+#: lib/gettext_strings.rb:120
 msgid "Tue"
 msgstr "Di"
 
-#: lib/gettext_strings.rb:118
+#: lib/gettext_strings.rb:121
 msgid "Wed"
 msgstr "Mi"
 
-#: lib/gettext_strings.rb:119
+#: lib/gettext_strings.rb:122
 msgid "Thu"
 msgstr "Do"
 
-#: lib/gettext_strings.rb:120
+#: lib/gettext_strings.rb:123
 msgid "Fri"
 msgstr "Fr"
 
-#: lib/gettext_strings.rb:121
+#: lib/gettext_strings.rb:124
 msgid "Sat"
 msgstr "Sa"
 
-#: lib/gettext_strings.rb:122
+#: lib/gettext_strings.rb:125
 msgid "Sun"
 msgstr "So"
 
-#: lib/gettext_strings.rb:124
+#: lib/gettext_strings.rb:127
 msgid "January"
 msgstr "Januar"
 
-#: lib/gettext_strings.rb:125
+#: lib/gettext_strings.rb:128
 msgid "February"
 msgstr "Februar"
 
-#: lib/gettext_strings.rb:126
+#: lib/gettext_strings.rb:129
 msgid "March"
 msgstr "März"
 
-#: lib/gettext_strings.rb:127
+#: lib/gettext_strings.rb:130
 msgid "April"
 msgstr "April"
 
-#: lib/gettext_strings.rb:128 lib/gettext_strings.rb:141
+#: lib/gettext_strings.rb:131 lib/gettext_strings.rb:144
 msgid "May"
 msgstr "Mai"
 
-#: lib/gettext_strings.rb:129
+#: lib/gettext_strings.rb:132
 msgid "June"
 msgstr "Juni"
 
-#: lib/gettext_strings.rb:130
+#: lib/gettext_strings.rb:133
 msgid "July"
 msgstr "Juli"
 
-#: lib/gettext_strings.rb:131
+#: lib/gettext_strings.rb:134
 msgid "August"
 msgstr "August"
 
-#: lib/gettext_strings.rb:132
+#: lib/gettext_strings.rb:135
 msgid "September"
 msgstr "September"
 
-#: lib/gettext_strings.rb:133
+#: lib/gettext_strings.rb:136
 msgid "October"
 msgstr "Oktober"
 
-#: lib/gettext_strings.rb:134
+#: lib/gettext_strings.rb:137
 msgid "November"
 msgstr "November"
 
-#: lib/gettext_strings.rb:135
+#: lib/gettext_strings.rb:138
 msgid "December"
 msgstr "Dezember"
 
-#: lib/gettext_strings.rb:137
+#: lib/gettext_strings.rb:140
 msgid "Jan"
 msgstr "Jan"
 
-#: lib/gettext_strings.rb:138
+#: lib/gettext_strings.rb:141
 msgid "Feb"
 msgstr "Feb"
 
-#: lib/gettext_strings.rb:139
+#: lib/gettext_strings.rb:142
 msgid "Mar"
 msgstr "Mär"
 
-#: lib/gettext_strings.rb:140
+#: lib/gettext_strings.rb:143
 msgid "Apr"
 msgstr "Apr"
 
-#: lib/gettext_strings.rb:142
+#: lib/gettext_strings.rb:145
 msgid "Jun"
 msgstr "Jun"
 
-#: lib/gettext_strings.rb:143
+#: lib/gettext_strings.rb:146
 msgid "Jul"
 msgstr "Jul"
 
-#: lib/gettext_strings.rb:144
+#: lib/gettext_strings.rb:147
 msgid "Aug"
 msgstr "Aug"
 
-#: lib/gettext_strings.rb:145
+#: lib/gettext_strings.rb:148
 msgid "Sep"
 msgstr "Sep"
 
-#: lib/gettext_strings.rb:146
+#: lib/gettext_strings.rb:149
 msgid "Oct"
 msgstr "Okt"
 
-#: lib/gettext_strings.rb:147
+#: lib/gettext_strings.rb:150
 msgid "Nov"
 msgstr "Nov"
 
-#: lib/gettext_strings.rb:148
+#: lib/gettext_strings.rb:151
 msgid "Dec"
 msgstr "Dez"
 
-#: lib/gettext_strings.rb:150
+#: lib/gettext_strings.rb:153
 msgid "User name:"
 msgstr "Benutzername:"
 
-#: lib/gettext_strings.rb:151
+#: lib/gettext_strings.rb:154
 msgid "Password:"
 msgstr "Passwort"
 
-#: lib/gettext_strings.rb:154
+#: lib/gettext_strings.rb:157
 msgid "you are editing the original"
 msgstr "Sie bearbeiten das Original"
 
-#: lib/gettext_strings.rb:155
+#: lib/gettext_strings.rb:158
 msgid "redaction saved"
 msgstr "zur Begutachtung gespeichert"
 
-#: lib/gettext_strings.rb:158
+#: lib/gettext_strings.rb:161
 msgid "rebuild"
 msgstr "<img src='/images/arrow_refresh.png' title='rebuild'/> rebuild zafu"
 
-#: lib/gettext_strings.rb:160
+#: lib/gettext_strings.rb:163
 msgid "first_name"
 msgstr "Vorname"
 
-#: lib/gettext_strings.rb:162
+#: lib/gettext_strings.rb:165
 msgid "address"
 msgstr "Adresse"
 
-#: lib/gettext_strings.rb:163
+#: lib/gettext_strings.rb:166
 msgid "zip"
 msgstr "PLZ"
 
-#: lib/gettext_strings.rb:164
+#: lib/gettext_strings.rb:167
 msgid "city"
 msgstr "Stadt"
 
-#: lib/gettext_strings.rb:165
+#: lib/gettext_strings.rb:168
 msgid "country"
 msgstr "Land"
 
-#: lib/gettext_strings.rb:166
+#: lib/gettext_strings.rb:169
 msgid "telephone"
 msgstr "Tel."
 
-#: lib/gettext_strings.rb:167
+#: lib/gettext_strings.rb:170
 msgid "mobile"
 msgstr "Mobil"
 
-#: lib/gettext_strings.rb:169
+#: lib/gettext_strings.rb:172
 msgid "birthday"
 msgstr "Geburtstag"
 
@@ -1454,12 +1463,16 @@ msgstr "<img src='/images/bug.png'/> Entwicklung ausschalten"
 msgid "turn dev on"
 msgstr "Entwicklung einschalten"
 
-#: lib/zena/use/display.rb:547
+#: lib/zena/use/display.rb:533
 msgid "a Zen garden"
 msgstr "ein Zen-Garten"
 
-#: lib/zena/use/display.rb:549
+#: lib/zena/use/display.rb:535
 msgid "made with Zena"
+msgstr ""
+
+#: lib/zena/use/fulltext.rb:24
+msgid "Compilation should produce a String. Found %s."
 msgstr ""
 
 #: lib/zena/use/grid.rb:70 lib/zena/use/grid.rb:98
@@ -1485,6 +1498,9 @@ msgstr "%d.%m."
 #: lib/zena/use/old_zafu/display.rb:405
 msgid "%{skin}, design by %{name}"
 msgstr ""
+
+#~ msgid "password successfully updated"
+#~ msgstr "Passwort erfolgreich aktualisiert"
 
 #~ msgid "Could not edit version."
 #~ msgstr "Eintrag konnte nicht bearbeitet werden"

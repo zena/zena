@@ -26,12 +26,11 @@ Zena.editor_setup = function(url) {
 Zena.open_window = function(url, id, event) {
   if (parent != window) {
     // popup open from within popup
-    parent.Zena.open_window(url, id, event);
-    return;
+    return parent.Zena.open_window(url, id, event);
   }
 
-  if (event.shiftKey) {
-    window.open(url, name, 'location=0,width=300,height=400,resizable=1');
+  if (event && (event == true || event.shiftKey)) {
+    return window.open(url, name, 'location=0,width=300,height=400,resizable=1');
   } else {
     if ($(id)) {
       new Effect.Shake(id, {distance:3, duration:0.3});
@@ -57,6 +56,7 @@ Zena.open_window = function(url, id, event) {
 
       Zena.new_editor = win;
       win.show();
+      return win;
     }
   }
 }
@@ -85,18 +85,40 @@ Zena.version_diff = function(id, from, to) {
 }
 
 // save (does not use ajax when there is a file upload)
-Zena.save = function(url, form, close_on_complete) {
+Zena.save = function(url, form, on_complete, show_url) {
   if ($(form).select('[name="attachment"]')[0]) {
     // do not use ajax call
     eval(form.getAttribute('onsubmit'));
     return true;
   } else {
-    if (close_on_complete) {
+    if (on_complete == 'close') {
       new Ajax.Request(url, {asynchronous:true, evalScripts:true, onLoading:function(request){$('loader').style.visibility = 'visible';}, onComplete:function(request){opener.window.location.href = opener.window.location.href; window.close();}, parameters:Form.serialize(form)});
+    } else if (on_complete == 'reload') {
+      new Ajax.Request(url, {asynchronous:true, evalScripts:true, onLoading:function(request){$('loader').style.visibility = 'visible';}, onComplete:function(request){opener.window.location.href = opener.window.location.href;}, parameters:Form.serialize(form)});
+    } else if (on_complete == 'dettach') {
+      var popup = parent.Zena.open_window(show_url, null, true);
+      new Ajax.Request(url, {asynchronous:true, evalScripts:true, onLoading:function(request){$('loader').style.visibility = 'visible';},
+      onComplete:function(request) {
+        popup.window.location.href  = show_url;
+        parent.window.location.href = parent.window.location.href;
+      },
+      parameters:Form.serialize(form)});
+     } else if (on_complete == 'attach') {
+        new Ajax.Request(url, {asynchronous:true, evalScripts:true, onLoading:function(request){$('loader').style.visibility = 'visible';}, onComplete:function(request){opener.Zena.open_window(show_url); window.close();}, parameters:Form.serialize(form)});
     } else {
       new Ajax.Request(url, {asynchronous:true, evalScripts:true, onLoading:function(request){$('loader').style.visibility = 'visible';}, parameters:Form.serialize(form)});
     }
     return false;
+  }
+}
+
+Zena.dettach = function(save_url, url, form) {
+  if (parent != window) {
+    // in popup
+    Zena.save(save_url, form, 'dettach', url);
+  } else {
+    // popup: attach
+    Zena.save(save_url, form, 'attach', url);
   }
 }
 

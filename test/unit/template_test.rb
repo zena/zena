@@ -24,6 +24,10 @@ class TemplateTest < Zena::Unit::TestCase
     should 'remove extension from node_name' do
       assert_equal 'Project-collab-xml', subject.node_name
     end
+    
+    should 'set extension to zafu' do
+      assert_equal 'zafu', subject.prop['ext']
+    end
   end
 
   context 'A visitor with drive access' do

@@ -397,8 +397,11 @@ module Zena
               :append_hash => {:node => ::RubyLess::TypedString.new(node(Node).to_s, :class => node(Node).klass)}
             }
           else
-            method = get_attribute_or_eval
-            "<%= zazen(#{method}, :node => #{node(Node)}) %>"
+            hash_arguments = extract_from_params(:code) || []
+
+            hash_arguments.insert(0, ":node => #{node(Node)}")
+
+            "<%= zazen(#{get_attribute_or_eval}, #{hash_arguments.join(', ')}) %>"
           end
         end
 
@@ -568,17 +571,10 @@ module Zena
           end
 
           def show_time(method)
-            hash_arguments = []
-
-            [:tz, :lang, :format].each do |key|
-              next unless value = @params[key]
-              hash_arguments << ":#{key} => #{RubyLess.translate_string(value, self)}"
-            end
-
-            if hash_arguments == []
-              "<%= #{method} %>"
-            else
+            if hash_arguments = extract_from_params(:tz, :lang, :format)
               "<%= format_date(#{method}, #{hash_arguments.join(', ')}) %>"
+            else
+              "<%= #{method} %>"
             end
           end
       end

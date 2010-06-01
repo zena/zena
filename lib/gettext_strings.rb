@@ -14,6 +14,9 @@ module Zena
     N_('document_tab')      # edit form tab
     N_('contact_tab')       # edit form tab
 
+    N_('attach_img')  # version edit.rhtml
+    N_('dettach_img') # version edit.rhtml
+
     N_('file_tab')              # document form tab name
     N_('template_tab')          # document form tab name
     N_('text_doc_tab')          # document form tab name

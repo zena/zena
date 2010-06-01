@@ -83,7 +83,7 @@
 
       </div> <!-- related -->
       <div id='main'>
-        <r:zazen attr='text' live='true'/>
+        <r:zazen attr='text' code='#{content_lang}' live='true'/>
       </div> <!-- main -->
       <div class='clear'>&nbsp;</div>
     </div> <!-- content -->
