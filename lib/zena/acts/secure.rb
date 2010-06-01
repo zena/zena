@@ -354,8 +354,12 @@ if defined?(IRB)
       puts "Could not login with user name: #{name}"
     end
 
-    def nodes(node_zip)
-      secure(Node) { Node.find_by_zip(node_zip) }
+    def nodes(zip_or_name)
+      if zip_or_name.kind_of?(Fixnum)
+        secure(Node) { Node.find_by_zip(zip_or_name) }
+      else
+        secure(Node) { Node.first(:conditions => ['node_name LIKE ?', "#{zip_or_name}%"]) }
+      end
     end
   end
 end

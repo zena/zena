@@ -282,6 +282,18 @@ namespace :zena do
     Rake::Task["db:schema:dump"].invoke if ActiveRecord::Base.schema_format == :ruby
   end
 
+  desc 'Reset development environment (drop database, migrate, load fixtures)'
+  task :reset => :environment do
+    if RAILS_ENV == 'production'
+      puts "You cannot reset database in production !"
+    else
+      %w{db:drop db:create zena:migrate zena:build_fixtures db:fixtures:load}.each do |task|
+        puts "******************************* #{task}"
+        Rake::Task[task].invoke
+      end
+    end
+  end
+
   desc 'Rebuild foxy fixtures for all sites'
   task :build_fixtures => :environment do
     tables = Node.connection.tables
