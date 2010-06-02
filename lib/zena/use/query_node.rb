@@ -168,7 +168,9 @@ module Zena
 
               add_filter "#{table(index_table)}.node_id = #{table}.id"
               add_filter "#{table(index_table)}.key = #{quote(field_name)}"
-              add_filter "#{table(index_table)}.lang = #{quote(visitor.lang)}"
+              if group_name.to_s =~ /^ml_/
+                add_filter "#{table(index_table)}.lang = #{quote(visitor.lang)}"
+              end
               distinct!
               "#{table(index_table)}.value"
             else

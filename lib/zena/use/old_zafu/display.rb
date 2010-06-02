@@ -182,26 +182,6 @@ module Zafu
       end
     end
 
-    # TODO: test
-    def r_filter
-      if upd = @params[:update]
-        return unless block = find_target(upd)
-      else
-        return parser_error("missing 'block' in same parent") unless parent && block = parent.descendant('block')
-      end
-      return parser_error("cannot use 's' as key (used by start_node)") if @params[:key] == 's'
-      out "<%= form_remote_tag(:url => zafu_node_path(#{node_id}), :method => :get, :html => {:id => \"#{dom_id}_f\"}) %><div class='hidden'><input type='hidden' name='t_url' value='#{block.template_url}'/><input type='hidden' name='dom_id' value='#{block.erb_dom_id}'/>#{start_node_s_param(:input)}</div><div class='wrapper'>"
-      if @blocks == []
-        out "<input type='text' name='#{@params[:key] || 'f'}' value='<%= params[#{(@params[:key] || 'f').to_sym.inspect}] %>'/>"
-      else
-        out expand_with(:in_filter => true)
-      end
-      out "</div></form>"
-      if @params[:live] || @params[:update]
-        out "<%= observe_form( \"#{dom_id}_f\" , :method => :get, :frequency  =>  1, :submit =>\"#{dom_id}_f\", :url => zafu_node_path(#{node_id})) %>"
-      end
-    end
-
     def r_title
       # 1. extract / compile options
       # 1.1 extract 'status', node_actions ===> rubyless "title(xxx, xxx) + actions('all')" ==> title helper && node_actions helper

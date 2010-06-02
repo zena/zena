@@ -17,17 +17,23 @@ version_filter_title_like:
   # databases, and that's not what we are testing here
   res: "people, projects, opening, Project-changes-xml, Page-changes, Project"
 
-indexed_value_filter:
+ml_indexed_value_filter:
   # Builds 'title' index in test (only needed until they are created by FoxyParser...)
   src: "nodes where title like 'foo%' in site"
   sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_string,nodes WHERE #{secure_scope('nodes')} AND idx_nodes_ml_string.value LIKE 'foo%' AND idx_nodes_ml_string.lang = 'fr' AND idx_nodes_ml_string.key = 'title' AND idx_nodes_ml_string.node_id = nodes.id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
   res: 'Foobar'
 
-indexed_value_filter_with_or:
+ml_indexed_value_filter_with_or:
   # Builds 'title' index in test (only needed until they are created by FoxyParser...)
   src: "nodes where title like 'foo%' or class = Letter in site"
   sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_string,nodes WHERE #{secure_scope('nodes')} AND ((idx_nodes_ml_string.value LIKE 'foo%' AND idx_nodes_ml_string.lang = 'fr' AND idx_nodes_ml_string.key = 'title' AND idx_nodes_ml_string.node_id = nodes.id) OR (nodes.kpath = 'NNL' AND idx_nodes_ml_string.id = 0)) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
   res: 'Foobar, letter'
+
+indexed_value_filter:
+  # Builds 'title' index in test (only needed until they are created by FoxyParser...)
+  src: "base_contacts where name like 'Foo%' in site"
+  sql: "%Q{SELECT nodes.* FROM idx_nodes_string,nodes WHERE #{secure_scope('nodes')} AND idx_nodes_string.value LIKE 'Foo%' AND idx_nodes_string.key = 'name' AND idx_nodes_string.node_id = nodes.id AND nodes.kpath LIKE 'NRC%' GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
+  res: 'SolenopsisFoobar'
 
 # TODO: Only implement with a proper use case.
 #       this is really more complex then it seems if we do not want too bad performance. Easiest way:

@@ -172,12 +172,18 @@ module Zena
         include RubyLess
         safe_method [:url,  Node]     => {:class => String, :method => 'zen_url'}
         safe_method [:path, Node]     => {:class => String, :method => 'zen_path'}
-        safe_method [:zen_path, Node, Hash]   => {:class => String, :accept_nil => true}
-        safe_method [:zafu_node_path, Node, Hash]   => {:class => String, :accept_nil => true}
 
-        safe_method [:zen_path, Node]         => {:class => String, :accept_nil => true}
+        safe_method [:zen_path, Node, Hash]     => {:class => String, :accept_nil => true}
+        safe_method [:zen_path, Node]           => {:class => String, :accept_nil => true}
         safe_method [:zen_path, String, Hash]   => {:class => String, :accept_nil => true, :method => 'dummy_zen_path'}
         safe_method [:zen_path, String]         => {:class => String, :accept_nil => true, :method => 'dummy_zen_path'}
+
+        safe_method [:zafu_node_path, Node, Hash]   => {:class => String, :accept_nil => true}
+        safe_method [:zafu_node_path, Node]         => {:class => String, :accept_nil => true}
+        safe_method [:edit_node_path, Node, Hash]   => {:class => String, :accept_nil => true}
+        safe_method [:edit_node_path, Node]         => {:class => String, :accept_nil => true}
+        safe_method [:delete_node_path, Node, Hash] => {:class => String, :accept_nil => true}
+        safe_method [:delete_node_path, Node]       => {:class => String, :accept_nil => true}
 
         def dummy_zen_path(string, options = {})
           if anchor = options.delete(:anchor)
@@ -189,6 +195,18 @@ module Zena
       end # ViewMethods
 
       module ZafuMethods
+        include RubyLess
+
+        # private
+        safe_method :insert_dom_id => :insert_dom_id
+
+
+        # Add the dom_id inside a RubyLess built method (used with make_href and ajax).
+        #
+        def insert_dom_id(signature)
+          return nil if signature.size != 1
+          {:method => @insert_dom_id, :class => String}
+        end
 
         # creates a link. Options are:
         # :href (node, parent, project, root)
@@ -211,6 +229,157 @@ module Zena
           @params[:anchor] ||= 'true'
           r_link
         end
+
+        # Create a link tag.
+        #
+        # ==== Parameters (hash)
+        #
+        # * +:update+ - DOM_ID: produce an Ajax call that will update this part of the page (optional)
+        # * +:default_text+ - default text to use for the link if there are no 'text', 'eval' or 'attr' params
+        # * +:action+ - link action (edit, show, etc)
+        #
+        def make_link(options = {})
+          puts options.keys.inspect
+          remote_target = (options[:update] || @params.delete(:update))
+
+          @markup.tag ||= 'a'
+
+          if @markup.tag == 'a'
+            markup = @markup
+          else
+            markup = Zafu::Markup.new('a')
+          end
+
+          steal_and_eval_html_params_for(markup, @params)
+
+          href = make_href(remote_target, options)
+
+          # This is to make sure live_id is set *inside* the <a> tag.
+          if @live_param
+            text = add_live_id(text_for_link, markup)
+            @live_param = nil
+          else
+            text = text_for_link(options[:default_text])
+          end
+
+          if remote_target
+            # ajax link (link_to_remote)
+
+            # Add href to non-ajax method.
+            markup.set_param(:href, "<%= #{make_href(nil, options.merge(:update => false))} %>")
+
+            # Use onclick with Ajax.
+            markup.set_dyn_param(:onclick, "new Ajax.Request(\"<%= #{href} %>\", {asynchronous:true, evalScripts:true, method:\"#{options[:method] || 'get'}\"}); return false;")
+          else
+            markup.set_dyn_param(:href, "<%= #{href} %>")
+          end
+
+          markup.wrap(text).tap {|x| puts x.inspect}
+=begin
+          query_params = options[:query_params] || {}
+          default_text = options[:default_text]
+          params = {}
+          (options[:params] || @params).each do |k,v|
+            next if v.nil?
+            params[k] = v
+          end
+
+          opts = {}
+
+          if href = params.delete(:href)
+            if lnode = get_context_var('set_var', value) && stored.klass <= Node
+              # using stored node
+            else
+              lnode, klass = build_finder(:first, href, {})
+              return unless lnode
+              return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
+            end
+          else
+            # obj
+            if node_class == Version
+              lnode = "#{node}.node"
+              opts[:lang] = "#{node}.lang"
+            elsif node.will_be?(Node)
+              lnode = node
+            else
+              lnode = @context[:previous_node]
+            end
+          end
+
+          if fmt = params.delete(:format)
+            if fmt == 'data'
+              opts[:format] = "#{node}.ext"
+            else
+              opts[:format] = fmt.inspect
+            end
+          end
+
+          if mode = params.delete(:mode)
+            opts[:mode] = mode.inspect
+          end
+
+          if anchor = params.delete(:anchor)
+            opts[:anchor] = anchor.inspect
+          end
+
+          if anchor_in = params.delete(:in)
+            finder, klass = build_finder(:first, anchor_in, {})
+            return unless finder
+            return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
+            opts[:anchor_in] = finder
+          end
+
+          if @html_tag && @html_tag != 'a'
+            # FIXME: can we remove this ?
+            # html attributes do not belong to anchor
+            pre_space = ''
+            html_params = {}
+          else
+            html_params = get_html_params(params.merge(@html_tag_params), :link)
+            pre_space = @space_before || ''
+            @html_tag_done = true
+          end
+
+          (params.keys - [:style, :class, :id, :rel, :name, :anchor, :attr, :tattr, :trans, :text]).each do |k|
+            next if k.to_s =~ /if_|set_|\A_/
+            query_params[k] = params[k]
+          end
+
+          # TODO: merge these two query_params cleanup things into something cleaner.
+          else
+            # direct link
+            query_params.each do |k,v|
+              if k == :date
+                if v == 'current_date'
+                  query_params[k] = current_date
+                elsif v =~ /\A\d/
+                  query_params[k] = v.inspect
+                elsif v =~ /\[/
+                  attribute, static = parse_attributes_in_value(v.gsub('"',''), :erb => false)
+                  query_params[k] = "\"#{attribute}\""
+                else
+                  query_params[k] = node_attribute(v)
+                end
+              else
+                attribute, static = parse_attributes_in_value(v.gsub('"',''), :erb => false)
+                query_params[k] = "\"#{attribute}\""
+              end
+            end
+
+            query_params.merge!(opts)
+
+            opts_str = ''
+            query_params.keys.sort {|a,b| a.to_s <=> b.to_s }.each do |k|
+              opts_str << ",:#{k.to_s.gsub(/[^a-z_A-Z_]/,'')}=>#{query_params[k]}"
+            end
+
+            opts_str += ", :host => #{@context["exp_host"]}" if @context["exp_host"]
+
+            pre_space + "<a#{params_to_html(html_params)} href='<%= zen_path(#{lnode}#{opts_str}) %>'>#{text_for_link(default_text)}</a>"
+          end
+=end
+        end
+
 
         protected
 
@@ -235,154 +404,32 @@ module Zena
           end
 
         private
-          def make_link(options = {})
-            if upd = @params.delete(:update)
-              return nil unless remote_target = find_target(upd)
-            end
-            @markup.tag ||= 'a'
 
-            if @markup.tag == 'a'
-              markup = @markup
-            else
-              markup = Zafu::Markup.new('a')
-            end
-
-            steal_and_eval_html_params_for(markup, @params)
-
-            href = make_href(remote_target)
-
-            # This is to make sure live_id is set *inside* the <a> tag.
-            if @live_param
-              text = add_live_id(text_for_link, markup)
-              @live_param = nil
-            else
-              text = text_for_link
-            end
-
-            if remote_target
-              # ajax link (link_to_remote)
-              markup.set_param(:href, "<%= #{make_href} %>") # no update and ajax
-
-              markup.set_dyn_param(:onclick, "new Ajax.Request(\"<%= #{href} %>\", {asynchronous:true, evalScripts:true, method:\"#{options[:method] || 'get'}\"}); return false;")
-            else
-              markup.set_dyn_param(:href, "<%= #{href} %>")
-            end
-
-            markup.wrap text
-=begin
-            query_params = options[:query_params] || {}
-            default_text = options[:default_text]
-            params = {}
-            (options[:params] || @params).each do |k,v|
-              next if v.nil?
-              params[k] = v
-            end
-
-            opts = {}
-
-            if href = params.delete(:href)
-              if lnode = get_context_var('set_var', value) && stored.klass <= Node
-                # using stored node
-              else
-                lnode, klass = build_finder(:first, href, {})
-                return unless lnode
-                return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
-              end
-            else
-              # obj
-              if node_class == Version
-                lnode = "#{node}.node"
-                opts[:lang] = "#{node}.lang"
-              elsif node.will_be?(Node)
-                lnode = node
-              else
-                lnode = @context[:previous_node]
-              end
-            end
-
-            if fmt = params.delete(:format)
-              if fmt == 'data'
-                opts[:format] = "#{node}.ext"
-              else
-                opts[:format] = fmt.inspect
-              end
-            end
-
-            if mode = params.delete(:mode)
-              opts[:mode] = mode.inspect
-            end
-
-            if anchor = params.delete(:anchor)
-              opts[:anchor] = anchor.inspect
-            end
-
-            if anchor_in = params.delete(:in)
-              finder, klass = build_finder(:first, anchor_in, {})
-              return unless finder
-              return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
-              opts[:anchor_in] = finder
-            end
-
-            if @html_tag && @html_tag != 'a'
-              # FIXME: can we remove this ?
-              # html attributes do not belong to anchor
-              pre_space = ''
-              html_params = {}
-            else
-              html_params = get_html_params(params.merge(@html_tag_params), :link)
-              pre_space = @space_before || ''
-              @html_tag_done = true
-            end
-
-            (params.keys - [:style, :class, :id, :rel, :name, :anchor, :attr, :tattr, :trans, :text]).each do |k|
-              next if k.to_s =~ /if_|set_|\A_/
-              query_params[k] = params[k]
-            end
-
-            # TODO: merge these two query_params cleanup things into something cleaner.
-            else
-              # direct link
-              query_params.each do |k,v|
-                if k == :date
-                  if v == 'current_date'
-                    query_params[k] = current_date
-                  elsif v =~ /\A\d/
-                    query_params[k] = v.inspect
-                  elsif v =~ /\[/
-                    attribute, static = parse_attributes_in_value(v.gsub('"',''), :erb => false)
-                    query_params[k] = "\"#{attribute}\""
-                  else
-                    query_params[k] = node_attribute(v)
-                  end
-                else
-                  attribute, static = parse_attributes_in_value(v.gsub('"',''), :erb => false)
-                  query_params[k] = "\"#{attribute}\""
-                end
-              end
-
-              query_params.merge!(opts)
-
-              opts_str = ''
-              query_params.keys.sort {|a,b| a.to_s <=> b.to_s }.each do |k|
-                opts_str << ",:#{k.to_s.gsub(/[^a-z_A-Z_]/,'')}=>#{query_params[k]}"
-              end
-
-              opts_str += ", :host => #{@context["exp_host"]}" if @context["exp_host"]
-
-              pre_space + "<a#{params_to_html(html_params)} href='<%= zen_path(#{lnode}#{opts_str}) %>'>#{text_for_link(default_text)}</a>"
-            end
-=end
-          end
-
-          # Build the 'href' link
-          def make_href(remote_target = nil)
+          # Build the 'href' part of a link.
+          #
+          # ==== Parameters
+          #
+          # * +:remote_target+ - a processing node to update
+          # * +:action+ - action to use ('edit', 'show'). Default is 'show'.
+          #
+          # ==== Examples
+          #
+          #   Product.count_by_sql "SELECT COUNT(*) FROM sales s, customers c WHERE s.customer_id = c.id"
+          def make_href(remote_target = nil, opts = {})
             anchor = @params[:anchor]
             if anchor && !@params[:href]
               # Link on same page
               return ::RubyLess.translate_string("##{get_anchor_name(anchor)}", self)
             end
 
-            method      = remote_target ? 'zafu_node_path' : 'zen_path'
+            if opts[:update]
+              method = 'zafu_node_path'
+            elsif %w{edit delete}.include?(opts[:action])
+              method = "#{opts[:action]}_node_path"
+            else
+              method = 'zen_path'
+            end
+
             method_args = []
             hash_params = []
 
@@ -411,13 +458,24 @@ module Zena
             end
 
             method = "#{method}(#{method_args.join(', ')})"
-
+puts method.inspect
             ::RubyLess.translate(method, self)
           end
 
           def insert_ajax_args(target, hash_params)
-            hash_params << ":dom_id => %Q{#{target.name}}"
-            hash_params << ":t_url  => %Q{#{template_url(target.name)}}"
+
+            if target.kind_of?(String)
+              # named target
+              return nil unless target = find_target(target)
+
+              hash_params << ":dom_id => %Q{#{target.name}}" # target.node.dom_id
+              hash_params << ":t_url  => %Q{#{template_url(target.name)}}"
+            else
+              # 'each' target in parent hierarchy
+              @insert_dom_id = %Q{"#{node.dom_id(:erb => false)}"}
+              hash_params << ":dom_id => insert_dom_id"
+              hash_params << ":t_url  => %Q{#{form_url(node.dom_prefix)}}"
+            end
 
             # method = opts[:method] || :get
             #

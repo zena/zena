@@ -68,7 +68,8 @@ class NodesController < ApplicationController
     end
   end
 
-  # RJS method. This is *much* better the "format.js" in the "show" controller or JS TextDocuments will pose problems.
+  # RJS method. show.js not working... ?
+  # FIXME: remove.
   def zafu
     return self.update if params[:method] == 'put'
     respond_to do |format|

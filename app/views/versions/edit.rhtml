@@ -16,7 +16,7 @@
       <input name='validate' type='submit' value='<%= _('validate') %>' />
     </div>
     <div>
-      <input name='save' onclick="return Zena.save('<%= save_text_node_path(:id => @node.zip) %>',this.form,'<%= @node.kind_of?(TextDocument) ? "'reload'" : 'false' %>');" type='button' value='<%= _('save') %>' />
+      <input name='save' onclick="return Zena.save('<%= save_text_node_path(:id => @node.zip) %>',this.form,<%= @node.kind_of?(TextDocument) ? "'reload'" : 'false' %>);" type='button' value='<%= _('save') %>' />
     </div>
     <div onclick="Zena.dettach('<%= save_text_node_path(:id => @node.zip) %>', '<%= edit_node_version_path(:node_id => @node.zip, :id => 0) %>',$('node_form'));">
 <%= javascript_tag(%Q{

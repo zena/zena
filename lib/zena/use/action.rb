@@ -180,7 +180,6 @@ module Zena
           out "<% end -%>"
         end
 
-
         def filter_actions
           if actions = @params.delete(:actions)
             node = self.node

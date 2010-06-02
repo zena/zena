@@ -134,24 +134,31 @@ class QueryNodeTest < Zena::Unit::TestCase
     assert_equal 3, Node.do_find(:count, eval(sql))
   end
 
-  def test_filters_indexed_value_filter
+  def create_indices
     login(:ant) # create 'fr' index
     node = secure!(Node) { nodes(:status) }
     node.update_attributes(:title => 'Foobar', :v_status => Zena::Status[:pub])
     login(:lion) # create parasite 'en' index
     node = secure!(Node) { nodes(:wiki) }
     node.update_attributes(:title => 'Foobar', :v_status => Zena::Status[:pub])
-    yt_do_test('filters', 'indexed_value_filter')
   end
 
-  def test_filters_indexed_value_filter_with_or
-    login(:ant) # create 'fr' index
-    node = secure!(Node) { nodes(:status) }
-    node.update_attributes(:title => 'Foobar', :v_status => Zena::Status[:pub])
-    login(:lion) # create parasite 'en' index
-    node = secure!(Node) { nodes(:wiki) }
-    node.update_attributes(:title => 'Foobar', :v_status => Zena::Status[:pub])
-    yt_do_test('filters', 'indexed_value_filter_with_or')
+  def test_filters_ml_indexed_value_filter
+    create_indices
+    yt_do_test('filters', 'ml_indexed_value_filter')
+  end
+
+  def test_filters_ml_indexed_value_filter_with_or
+    create_indices
+    yt_do_test('filters', 'ml_indexed_value_filter_with_or')
+  end
+
+  def test_filters_indexed_value_filter
+    login(:tiger)
+    # create 'name' index
+    node = secure!(Node) { nodes(:ant) }
+    node.update_attributes(:name => 'Foobar', :v_status => Zena::Status[:pub])
+    yt_do_test('filters', 'indexed_value_filter')
   end
 
   yt_make
