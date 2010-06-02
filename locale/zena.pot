@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: version 0.0.1\n"
-"POT-Creation-Date: 2010-06-01 15:53+0200\n"
+"POT-Creation-Date: 2010-06-02 16:42+0200\n"
 "PO-Revision-Date: 2007-05-13 19:08-0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,39 +32,39 @@ msgstr ""
 msgid "Upload succeeded."
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:216
+#: app/controllers/nodes_controller.rb:244
 msgid "Backup created."
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:218
+#: app/controllers/nodes_controller.rb:246
 msgid "Could not create backup."
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:270
+#: app/controllers/nodes_controller.rb:298
 msgid "node updated"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:272
+#: app/controllers/nodes_controller.rb:300
 msgid "could not update"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:353
+#: app/controllers/nodes_controller.rb:381
 msgid "node not found"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:353
+#: app/controllers/nodes_controller.rb:381
 msgid "new"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:377
+#: app/controllers/nodes_controller.rb:405
 msgid "Order updated"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:379
+#: app/controllers/nodes_controller.rb:407
 msgid "Could not update order."
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:396
+#: app/controllers/nodes_controller.rb:424
 msgid "Could not clear order."
 msgstr ""
 
@@ -150,7 +150,7 @@ msgstr ""
 #: app/views/iformats/_form.rhtml:16 app/views/nodes/_parent.rhtml:8
 #: app/views/templates/document_create_tabs/_template.rhtml:7
 #: app/views/templates/document_create_tabs/_text_document.rhtml:8
-#: app/views/users/_form.rhtml:27 lib/gettext_strings.rb:164
+#: app/views/users/_form.rhtml:27 lib/gettext_strings.rb:166
 msgid "name"
 msgstr ""
 
@@ -194,7 +194,7 @@ msgstr ""
 msgid "property"
 msgstr ""
 
-#: app/views/columns/index.html.erb:1 lib/zena/use/display.rb:267
+#: app/views/columns/index.html.erb:1 lib/zena/use/display.rb:273
 msgid "manage properties"
 msgstr ""
 
@@ -261,8 +261,8 @@ msgstr ""
 msgid "destroy relation (with all links)"
 msgstr ""
 
-#: app/views/relations/_li.erb:2 lib/zena/use/old_zafu/action.rb:45
-#: lib/zena/use/old_zafu/display.rb:177 lib/zena/use/urls.rb:551
+#: app/views/relations/_li.erb:2 lib/zena/use/old_zafu/display.rb:177
+#: lib/zena/use/urls.rb:608
 msgid "edit"
 msgstr ""
 
@@ -270,7 +270,7 @@ msgstr ""
 msgid "edit relation"
 msgstr ""
 
-#: app/views/relations/index.erb:1 lib/zena/use/display.rb:261
+#: app/views/relations/index.erb:1 lib/zena/use/display.rb:267
 msgid "manage relations"
 msgstr ""
 
@@ -316,11 +316,11 @@ msgstr ""
 msgid "edit site"
 msgstr ""
 
-#: app/views/sites/index.erb:1 lib/zena/use/display.rb:273
+#: app/views/sites/index.erb:1 lib/zena/use/display.rb:279
 msgid "manage sites"
 msgstr ""
 
-#: app/views/users/preferences.html.erb:1 lib/zena/use/display.rb:249
+#: app/views/users/preferences.html.erb:1 lib/zena/use/display.rb:255
 msgid "preferences"
 msgstr ""
 
@@ -352,7 +352,7 @@ msgid "time zone"
 msgstr ""
 
 #: app/views/users/preferences.html.erb:21 app/views/users/_form.rhtml:31
-#: lib/gettext_strings.rb:171
+#: lib/gettext_strings.rb:173
 msgid "email"
 msgstr ""
 
@@ -409,7 +409,7 @@ msgstr ""
 msgid "auto discussion"
 msgstr ""
 
-#: app/views/virtual_classes/index.erb:1 lib/zena/use/display.rb:264
+#: app/views/virtual_classes/index.erb:1 lib/zena/use/display.rb:270
 msgid "manage classes"
 msgstr ""
 
@@ -448,7 +448,7 @@ msgstr ""
 msgid "comments closed"
 msgstr ""
 
-#: app/views/comments/index.rhtml:1 lib/zena/use/display.rb:252
+#: app/views/comments/index.rhtml:1 lib/zena/use/display.rb:258
 msgid "manage comments"
 msgstr ""
 
@@ -517,7 +517,7 @@ msgstr ""
 msgid "destroy group"
 msgstr ""
 
-#: app/views/groups/index.rhtml:1 lib/zena/use/display.rb:258
+#: app/views/groups/index.rhtml:1 lib/zena/use/display.rb:264
 msgid "manage groups"
 msgstr ""
 
@@ -586,7 +586,7 @@ msgstr ""
 msgid "img_link"
 msgstr "<img src='/images/tag_blue.png' alt='link'/>"
 
-#: app/views/links/_li.rhtml:6 lib/zena/use/old_zafu/action.rb:214
+#: app/views/links/_li.rhtml:6 lib/zena/use/old_zafu/action.rb:194
 msgid "btn_tiny_del"
 msgstr ""
 
@@ -788,7 +788,7 @@ msgstr ""
 msgid "groups"
 msgstr ""
 
-#: app/views/users/index.rhtml:1 lib/zena/use/display.rb:255
+#: app/views/users/index.rhtml:1 lib/zena/use/display.rb:261
 msgid "manage users"
 msgstr ""
 
@@ -1284,35 +1284,43 @@ msgstr ""
 msgid "rebuild"
 msgstr ""
 
+#: lib/gettext_strings.rb:162
+msgid "rebuild_btn"
+msgstr ""
+
 #: lib/gettext_strings.rb:163
-msgid "first_name"
+msgid "turn_dev_off_btn"
 msgstr ""
 
 #: lib/gettext_strings.rb:165
-msgid "address"
-msgstr ""
-
-#: lib/gettext_strings.rb:166
-msgid "zip"
+msgid "first_name"
 msgstr ""
 
 #: lib/gettext_strings.rb:167
-msgid "city"
+msgid "address"
 msgstr ""
 
 #: lib/gettext_strings.rb:168
-msgid "country"
+msgid "zip"
 msgstr ""
 
 #: lib/gettext_strings.rb:169
-msgid "telephone"
+msgid "city"
 msgstr ""
 
 #: lib/gettext_strings.rb:170
-msgid "mobile"
+msgid "country"
+msgstr ""
+
+#: lib/gettext_strings.rb:171
+msgid "telephone"
 msgstr ""
 
 #: lib/gettext_strings.rb:172
+msgid "mobile"
+msgstr ""
+
+#: lib/gettext_strings.rb:174
 msgid "birthday"
 msgstr ""
 
@@ -1420,27 +1428,27 @@ msgstr ""
 msgid "%{ext} node"
 msgstr ""
 
-#: lib/zena/use/display.rb:246
+#: lib/zena/use/display.rb:252
 msgid "my home"
 msgstr ""
 
-#: lib/zena/use/display.rb:270
+#: lib/zena/use/display.rb:276
 msgid "image formats"
 msgstr ""
 
-#: lib/zena/use/display.rb:277
+#: lib/zena/use/display.rb:283
 msgid "turn dev off"
 msgstr ""
 
-#: lib/zena/use/display.rb:279
+#: lib/zena/use/display.rb:285
 msgid "turn dev on"
 msgstr ""
 
-#: lib/zena/use/display.rb:533
+#: lib/zena/use/display.rb:569
 msgid "a Zen garden"
 msgstr ""
 
-#: lib/zena/use/display.rb:535
+#: lib/zena/use/display.rb:571
 msgid "made with Zena"
 msgstr ""
 
@@ -1468,6 +1476,6 @@ msgstr ""
 msgid "short_date"
 msgstr ""
 
-#: lib/zena/use/old_zafu/display.rb:405
+#: lib/zena/use/old_zafu/display.rb:385
 msgid "%{skin}, design by %{name}"
 msgstr ""

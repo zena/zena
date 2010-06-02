@@ -66,8 +66,8 @@ padding:5px; border:1px solid #714D3D; text-align:left; color:#444; z-index:9999
 #dev td.actions {width:40px;}
 #dev li img { border:0; }
 #dev li li { clear:both;}
-#dev li table { display:none;}
-#dev:hover table { display:block;}
+#dev li .dev_pop { display:none;}
+#dev:hover .dev_pop { display:block;}
 
 /* table js */
 .zazen .table_add a { visibility:hidden; padding:0 5px; text-decoration:none;}

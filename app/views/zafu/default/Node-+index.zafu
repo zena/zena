@@ -1,1 +1,1 @@
-<r:include template='Node'/>
+<r:include template='$default/Node'/>

@@ -412,8 +412,8 @@ module Zena
 
             res = "<div id='dev'><ul>\n"
             used_nodes.each do |name, nodes|
-              res << "  <li><a class='group' onclick='$(\"_dev_#{name}\").toggle();' href='#'>#{name}</a>\n"
-              res << "  <table id='_dev_#{name}'#{name == 'images' ? " style='display:none;'" : ''}>\n"
+              res << "  <li><a class='group' onclick='$(\"dev_#{name}\").toggle();' href='#'>#{name}</a>\n"
+              res << "  <table class='dev_pop' id='dev_#{name}'#{name == 'images' ? " style='display:none;'" : ''}>\n"
               nodes.each do |k,n|
                 res << "    <tr><td class='actions'>#{zafu_helper.send(:node_actions, n)}</td><td>#{zafu_helper.send(:link_to,k,zen_path(n))}</td></tr>\n"
               end
@@ -421,16 +421,15 @@ module Zena
               res << "  </li>\n"
             end
 
-            res << "  <li><a class='group' onclick='$(\"_dev_tools\").toggle();' href='#'>tools</a>\n"
-            res << "    <ul id='_dev_tools' style='display:none;'>\n"
-            res << "      <li><a href='?rebuild=true'>#{_('rebuild')}</a></li>\n"
-            res << "<% if @node.kind_of?(Skin) -%>      <li><a href='<%= export_node_path(@node[:zip]) %>'>#{_('export')}</a></li>\n<% end -%>"
-            res << "      <li><a href='/dev_skin'>#{_('turn dev off')}</a></li>\n"
-            res << %Q{    <li><% form_for(:user, visitor, :url => user_path(visitor), :html => { :method => :put }) do |f| %>
-              <%= f.select(:dev_skin_id, dev_skin_options) %> <input type='submit' value='<%= _('validate') %>'/>
-            <% end -%></li>}
-            res << "      <li>skins used: #{@skins.keys.join(', ')}</li>\n"
-            res << "    </ul>\n  </li>\n</ul></div>"
+            res << "  <li><a class='group' onclick='$(\"dev_tools\").toggle();' href='#'>tools</a>\n"
+            res << "    <ul class='dev_pop' id='dev_tools'><li>\n"
+            res << %Q{    <div style='float:right'><% form_for(:user, visitor, :url => user_path(visitor), :html => { :method => :put }) do |f| %>
+              <%= f.select(:dev_skin_id, dev_skin_options, {}, {:onchange => 'this.form.submit()'}) %> <input style='display:none;' type='submit' value='<%= _('validate') %>'/>
+            <% end -%></div>}
+            res << "      <a style='float:right; margin:0 8px;' href='?rebuild=true'>#{_('rebuild_btn')}</a>\n"
+            res << "<% if @node.kind_of?(Skin) -%><a href='<%= export_node_path(@node[:zip]) %>'>#{_('export')}</a>\n<% end -%>"
+            res << "      <a style='float:right' href='/dev_skin'>#{_('turn_dev_off_btn')}</a>\n"
+            res << "    </li></ul>\n  </li>\n</ul></div>"
             res
           end
       end # ControllerMethods

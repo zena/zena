@@ -396,18 +396,24 @@ module Zena
         def r_zazen(signature = nil)
           @markup.prepend_param(:class, 'zazen')
           if signature
-            {
-              :class  => String,
-              :method => 'zazen',
-              :accept_nil => true,
-              :append_hash => {:node => ::RubyLess::TypedString.new(node(Node).to_s, :class => node(Node).klass)}
-            }
-          else
+            if node = node(Node)
+              {
+                :class  => String,
+                :method => 'zazen',
+                :accept_nil => true,
+                :append_hash => {:node => ::RubyLess::TypedString.new(node.to_s, :class => node.klass)}
+              }
+            else
+              nil
+            end
+          elsif node = node(Node)
             hash_arguments = extract_from_params(:code) || []
 
-            hash_arguments.insert(0, ":node => #{node(Node)}")
+            hash_arguments.insert(0, ":node => #{node}")
 
             "<%= zazen(#{get_attribute_or_eval}, #{hash_arguments.join(', ')}) %>"
+          else
+            parser_error("Cannot access 'Node' context")
           end
         end
 

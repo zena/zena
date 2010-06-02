@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: version 0.0.1\n"
-"POT-Creation-Date: 2010-06-01 15:53+0200\n"
-"PO-Revision-Date: 2010-06-01 15:54+0100\n"
+"POT-Creation-Date: 2010-06-02 16:42+0200\n"
+"PO-Revision-Date: 2010-06-02 16:43+0100\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: fr <gaspard@teti.ch>\n"
 "MIME-Version: 1.0\n"
@@ -29,39 +29,39 @@ msgstr "Le téléchargement a échoué."
 msgid "Upload succeeded."
 msgstr "Téléchargement effectué."
 
-#: app/controllers/nodes_controller.rb:216
+#: app/controllers/nodes_controller.rb:244
 msgid "Backup created."
 msgstr "Copie de sauvegarde effectuée."
 
-#: app/controllers/nodes_controller.rb:218
+#: app/controllers/nodes_controller.rb:246
 msgid "Could not create backup."
 msgstr "La sauvegarde n'a pas pu être créée."
 
-#: app/controllers/nodes_controller.rb:270
+#: app/controllers/nodes_controller.rb:298
 msgid "node updated"
 msgstr "Objet mis à jour."
 
-#: app/controllers/nodes_controller.rb:272
+#: app/controllers/nodes_controller.rb:300
 msgid "could not update"
 msgstr "L'objet n'a pas pu être mis à jour."
 
-#: app/controllers/nodes_controller.rb:353
+#: app/controllers/nodes_controller.rb:381
 msgid "node not found"
 msgstr "objet non trouvé"
 
-#: app/controllers/nodes_controller.rb:353
+#: app/controllers/nodes_controller.rb:381
 msgid "new"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:377
+#: app/controllers/nodes_controller.rb:405
 msgid "Order updated"
 msgstr "Ordre mis à jour."
 
-#: app/controllers/nodes_controller.rb:379
+#: app/controllers/nodes_controller.rb:407
 msgid "Could not update order."
 msgstr "L'ordre n'a pas pu être mis à jour."
 
-#: app/controllers/nodes_controller.rb:396
+#: app/controllers/nodes_controller.rb:424
 msgid "Could not clear order."
 msgstr "L'ordre de tri n'a pas pu être remis à zéro."
 
@@ -166,7 +166,7 @@ msgstr ""
 #: app/views/templates/document_create_tabs/_template.rhtml:7
 #: app/views/templates/document_create_tabs/_text_document.rhtml:8
 #: app/views/users/_form.rhtml:27
-#: lib/gettext_strings.rb:164
+#: lib/gettext_strings.rb:166
 msgid "name"
 msgstr "nom"
 
@@ -219,7 +219,7 @@ msgid "property"
 msgstr "attribut"
 
 #: app/views/columns/index.html.erb:1
-#: lib/zena/use/display.rb:267
+#: lib/zena/use/display.rb:273
 msgid "manage properties"
 msgstr "gestion des attributs"
 
@@ -299,9 +299,8 @@ msgid "destroy relation (with all links)"
 msgstr "supprimer la relations (avec tous les liens)"
 
 #: app/views/relations/_li.erb:2
-#: lib/zena/use/old_zafu/action.rb:45
 #: lib/zena/use/old_zafu/display.rb:177
-#: lib/zena/use/urls.rb:551
+#: lib/zena/use/urls.rb:608
 msgid "edit"
 msgstr "éditer"
 
@@ -310,7 +309,7 @@ msgid "edit relation"
 msgstr "modifier la relation"
 
 #: app/views/relations/index.erb:1
-#: lib/zena/use/display.rb:261
+#: lib/zena/use/display.rb:267
 msgid "manage relations"
 msgstr "gestion des rôles"
 
@@ -362,12 +361,12 @@ msgid "edit site"
 msgstr "délai de republication"
 
 #: app/views/sites/index.erb:1
-#: lib/zena/use/display.rb:273
+#: lib/zena/use/display.rb:279
 msgid "manage sites"
 msgstr "gestion des sites"
 
 #: app/views/users/preferences.html.erb:1
-#: lib/zena/use/display.rb:249
+#: lib/zena/use/display.rb:255
 msgid "preferences"
 msgstr "préférences"
 
@@ -405,7 +404,7 @@ msgstr "fuseau horaire"
 
 #: app/views/users/preferences.html.erb:21
 #: app/views/users/_form.rhtml:31
-#: lib/gettext_strings.rb:171
+#: lib/gettext_strings.rb:173
 msgid "email"
 msgstr "email"
 
@@ -467,7 +466,7 @@ msgid "auto discussion"
 msgstr "discussion auto"
 
 #: app/views/virtual_classes/index.erb:1
-#: lib/zena/use/display.rb:264
+#: lib/zena/use/display.rb:270
 msgid "manage classes"
 msgstr "gestion des classes"
 
@@ -508,7 +507,7 @@ msgid "comments closed"
 msgstr "commentaires fermés"
 
 #: app/views/comments/index.rhtml:1
-#: lib/zena/use/display.rb:252
+#: lib/zena/use/display.rb:258
 msgid "manage comments"
 msgstr "gestion des commentaires"
 
@@ -581,7 +580,7 @@ msgid "destroy group"
 msgstr "supprimer groupe"
 
 #: app/views/groups/index.rhtml:1
-#: lib/zena/use/display.rb:258
+#: lib/zena/use/display.rb:264
 msgid "manage groups"
 msgstr "gestion des groupes"
 
@@ -654,7 +653,7 @@ msgid "img_link"
 msgstr "<img src='/images/tag_blue.png' alt='lien'/>"
 
 #: app/views/links/_li.rhtml:6
-#: lib/zena/use/old_zafu/action.rb:214
+#: lib/zena/use/old_zafu/action.rb:194
 msgid "btn_tiny_del"
 msgstr "<img src='/images/bullet_delete.png' alt='supprimer'/>"
 
@@ -863,7 +862,7 @@ msgid "groups"
 msgstr "groupes"
 
 #: app/views/users/index.rhtml:1
-#: lib/zena/use/display.rb:255
+#: lib/zena/use/display.rb:261
 msgid "manage users"
 msgstr "gestion des utilisateurs"
 
@@ -1367,36 +1366,44 @@ msgstr "Rédaction enregistrée."
 msgid "rebuild"
 msgstr "<img src='/images/arrow_refresh.png' alt='rebuild'/> rebuild zafu"
 
+#: lib/gettext_strings.rb:162
+msgid "rebuild_btn"
+msgstr "<img src='/images/arrow_refresh.png' alt='rebuild template'/>"
+
 #: lib/gettext_strings.rb:163
+msgid "turn_dev_off_btn"
+msgstr "<img src='/images/bug.png' title='quitter le mode dev'/>"
+
+#: lib/gettext_strings.rb:165
 msgid "first_name"
 msgstr "prénom"
 
-#: lib/gettext_strings.rb:165
+#: lib/gettext_strings.rb:167
 msgid "address"
 msgstr "adresse"
 
-#: lib/gettext_strings.rb:166
+#: lib/gettext_strings.rb:168
 msgid "zip"
 msgstr "NPA"
 
-#: lib/gettext_strings.rb:167
+#: lib/gettext_strings.rb:169
 msgid "city"
 msgstr "ville"
 
-#: lib/gettext_strings.rb:168
+#: lib/gettext_strings.rb:170
 msgid "country"
 msgstr "pays"
 
-#: lib/gettext_strings.rb:169
+#: lib/gettext_strings.rb:171
 msgid "telephone"
 msgstr "téléphone"
 
-#: lib/gettext_strings.rb:170
+#: lib/gettext_strings.rb:172
 #, fuzzy
 msgid "mobile"
 msgstr "fichier"
 
-#: lib/gettext_strings.rb:172
+#: lib/gettext_strings.rb:174
 msgid "birthday"
 msgstr "anniversaire"
 
@@ -1507,27 +1514,27 @@ msgstr ""
 msgid "%{ext} node"
 msgstr "objet %{type}"
 
-#: lib/zena/use/display.rb:246
+#: lib/zena/use/display.rb:252
 msgid "my home"
 msgstr "suivi"
 
-#: lib/zena/use/display.rb:270
+#: lib/zena/use/display.rb:276
 msgid "image formats"
 msgstr "formats d'image"
 
-#: lib/zena/use/display.rb:277
+#: lib/zena/use/display.rb:283
 msgid "turn dev off"
-msgstr "<img src='/images/bug.png'/> quitter le mode 'dev'"
+msgstr "quitter le mode dev"
 
-#: lib/zena/use/display.rb:279
+#: lib/zena/use/display.rb:285
 msgid "turn dev on"
-msgstr "passer en mode 'dev'"
+msgstr "passer en mode dev"
 
-#: lib/zena/use/display.rb:533
+#: lib/zena/use/display.rb:569
 msgid "a Zen garden"
 msgstr "un jardin Zen"
 
-#: lib/zena/use/display.rb:535
+#: lib/zena/use/display.rb:571
 msgid "made with Zena"
 msgstr "conçu avec Zena"
 
@@ -1556,7 +1563,7 @@ msgstr "%A, %d %B %Y"
 msgid "short_date"
 msgstr "%d.%m"
 
-#: lib/zena/use/old_zafu/display.rb:405
+#: lib/zena/use/old_zafu/display.rb:385
 msgid "%{skin}, design by %{name}"
 msgstr "%{skin}, conception %{name}"
 

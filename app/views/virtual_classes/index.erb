@@ -1,7 +1,7 @@
 <h2 class='title'><%= _('manage classes') %></h2>
 
 <table id='virtual_class_list' class='admin' cellspacing="0">
-  <tr><th class='nav' colspan='7'><%= will_paginate @virtual_classes %></th></tr>
+  <tr><th class='nav' colspan='4'><%= will_paginate @virtual_classes %></th></tr>
   <%= render :partial=>'virtual_classes/li',  :collection=>@virtual_classes %>
   <%= render :partial=>'virtual_classes/add' %>
 </table>

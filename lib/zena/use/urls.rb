@@ -239,7 +239,6 @@ module Zena
         # * +:action+ - link action (edit, show, etc)
         #
         def make_link(options = {})
-          puts options.keys.inspect
           remote_target = (options[:update] || @params.delete(:update))
 
           @markup.tag ||= 'a'
@@ -274,7 +273,7 @@ module Zena
             markup.set_dyn_param(:href, "<%= #{href} %>")
           end
 
-          markup.wrap(text).tap {|x| puts x.inspect}
+          markup.wrap(text)
 =begin
           query_params = options[:query_params] || {}
           default_text = options[:default_text]
@@ -458,7 +457,7 @@ module Zena
             end
 
             method = "#{method}(#{method_args.join(', ')})"
-puts method.inspect
+
             ::RubyLess.translate(method, self)
           end
 

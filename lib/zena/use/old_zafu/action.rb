@@ -32,26 +32,6 @@ module Zafu
       out link_to_update(block, :query_params => query_params, :method => :put, :html_params => get_html_params(@params, :link))
     end
 
-    def r_edit
-      if @context[:dom_prefix]
-        # ajax
-        if @context[:in_form]
-          # cancel button
-          @context[:form_cancel] || ''
-        else
-          # edit button
-
-          # TODO: show 'reply' instead of 'edit' in comments if visitor != author
-          out link_to_update(self, :default_text => _('edit'), :url => "\#{edit_#{base_class.to_s.underscore}_path(#{node_id})}", :html_params => get_html_params(@params, :link), :method => :get, :cond => "#{node}.can_write?", :else => :void)
-        end
-      else
-        # FIXME: we could link to some html page to edit the item.
-        ""
-      end
-    end
-
-    alias r_cancel r_edit
-
     # TODO: test
     def r_add
       return parser_error("should not be called from within 'each'") if parent.method == 'each'

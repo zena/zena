@@ -158,7 +158,9 @@ module Zena
     N_('redaction saved')
 
     # failed to find
-    N_('rebuild') # application
+    N_('rebuild')     # zafu_templates.rb
+    N_('rebuild_btn')     # zafu_templates.rb
+    N_('turn_dev_off_btn') # zafu_templates.rb
     # contact
     N_('first_name')
     N_('name')
