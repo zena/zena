@@ -23,23 +23,45 @@ Zena.editor_setup = function(url) {
   });
 }
 
-Zena.open_window = function(url, id, event) {
+Zena.open_window = function(url, id, event, pos_x, pos_y) {
   if (parent != window) {
     // popup open from within popup
-    return parent.Zena.open_window(url, id, event);
+    return parent.Zena.open_window(url, id, event, pos_x, pos_y);
   }
 
   if (event && (event == true || event.shiftKey)) {
-    return window.open(url, name, 'location=0,width=300,height=400,resizable=1');
+    var popup = window.open(url, name, 'location=0,width=300,height=400,resizable=1');
+    if (pos_x && pos_y) {
+      popup.moveTo(pos_x, pos_y);
+    }
+    return popup;
   } else {
     if ($(id)) {
       new Effect.Shake(id, {distance:3, duration:0.3});
     } else {
 
-      if (Zena.window_offset) {
-        Zena.window_offset = Zena.window_offset + 15;
+      if (pos_x && pos_y) {
+        var width = document.viewport.getWidth();
+        var height = document.viewport.getHeight();
+        if (pos_x > width - 150) {
+          pos_x = width - 150;
+        } else if (pos_x < 0) {
+          pos_x = 0;
+        }
+
+        if (pos_y > height - 100) {
+          pos_y = height - 100;
+        } else if (pos_y < 0) {
+          pos_y = 0;
+        }
       } else {
-        Zena.window_offset = 15;
+        if (Zena.window_offset) {
+          Zena.window_offset = Zena.window_offset + 15;
+        } else {
+          Zena.window_offset = 15;
+        }
+        pos_x = Zena.window_offset;
+        pos_y = Zena.window_offset;
       }
 
       var win = new Window({
@@ -47,7 +69,8 @@ Zena.open_window = function(url, id, event) {
         id: id,
         className: 'dialog',
         title: "",
-        top:Zena.window_offset, left:Zena.window_offset,
+        left:pos_x,
+        top:pos_y,
         width: 300,
         height:400,
         showEffect: Element.show, hideEffect: Element.hide,
@@ -85,7 +108,7 @@ Zena.version_diff = function(id, from, to) {
 }
 
 // save (does not use ajax when there is a file upload)
-Zena.save = function(url, form, on_complete, show_url) {
+Zena.save = function(url, form, on_complete, show_url, event) {
   if ($(form).select('[name="attachment"]')[0]) {
     // do not use ajax call
     eval(form.getAttribute('onsubmit'));
@@ -96,15 +119,21 @@ Zena.save = function(url, form, on_complete, show_url) {
     } else if (on_complete == 'reload') {
       new Ajax.Request(url, {asynchronous:true, evalScripts:true, onLoading:function(request){$('loader').style.visibility = 'visible';}, onComplete:function(request){opener.window.location.href = opener.window.location.href;}, parameters:Form.serialize(form)});
     } else if (on_complete == 'dettach') {
-      var popup = parent.Zena.open_window(show_url, null, true);
+      var x = event.screenX - Event.pointerX(event);
+      var y = event.screenY - Event.pointerY(event) - 50;
+      var popup = parent.Zena.open_window('', null, true, x, y);
       new Ajax.Request(url, {asynchronous:true, evalScripts:true, onLoading:function(request){$('loader').style.visibility = 'visible';},
       onComplete:function(request) {
         popup.window.location.href  = show_url;
-        parent.window.location.href = parent.window.location.href;
+        parent.window.location.href = parent.window.location.href.gsub(/#/,'');
       },
       parameters:Form.serialize(form)});
-     } else if (on_complete == 'attach') {
-        new Ajax.Request(url, {asynchronous:true, evalScripts:true, onLoading:function(request){$('loader').style.visibility = 'visible';}, onComplete:function(request){opener.Zena.open_window(show_url); window.close();}, parameters:Form.serialize(form)});
+    } else if (on_complete == 'attach') {
+
+      var x = event.screenX - Event.pointerX(event) - opener.screenX;
+      var y = event.screenY - Event.pointerY(event) - opener.screenY - 140;
+
+      new Ajax.Request(url, {asynchronous:true, evalScripts:true, onLoading:function(request){$('loader').style.visibility = 'visible';}, onComplete:function(request){opener.Zena.open_window(show_url,null,null,x,y); window.close();}, parameters:Form.serialize(form)});
     } else {
       new Ajax.Request(url, {asynchronous:true, evalScripts:true, onLoading:function(request){$('loader').style.visibility = 'visible';}, parameters:Form.serialize(form)});
     }
@@ -112,13 +141,13 @@ Zena.save = function(url, form, on_complete, show_url) {
   }
 }
 
-Zena.dettach = function(save_url, url, form) {
+Zena.dettach = function(save_url, url, form, event) {
   if (parent != window) {
     // in popup
-    Zena.save(save_url, form, 'dettach', url);
+    Zena.save(save_url, form, 'dettach', url, event);
   } else {
     // popup: attach
-    Zena.save(save_url, form, 'attach', url);
+    Zena.save(save_url, form, 'attach', url, event);
   }
 }
 
