@@ -490,16 +490,13 @@ END_TXT
 
           # Return options for [select] tag.
           def get_options_for_select
-            if nodes = @params[:values]
+            if nodes = @params[:nodes]
               # TODO: dry with r_checkbox
               if nodes =~ /^\d+\s*($|,)/
                 # ids
                 # TODO: optimization generate the full query instead of using secure.
                 nodes = nodes.split(',').map{|v| v.to_i}
                 nodes = "(secure(Node) { Node.find(:all, :conditions => 'zip IN (#{nodes.join(',')})') })"
-              elsif @params[:values].to_s =~ /,/
-                values = [['','']] + @params[:values].to_s.split(',').map {|v| [v.strip, v]}
-                return values.inspect
               else
                 # relation
                 begin

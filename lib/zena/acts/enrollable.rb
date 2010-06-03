@@ -184,6 +184,39 @@ module Zena
 
       module ZafuMethods
         include Common
+
+        # This is used to resolve 'this' (current NodeContext), '@node' as NodeContext with class Node,
+        # '@page' as first NodeContext of type Page, @letter, etc.
+        # We overwrite Zafu's version to cope with our anonymous classes.
+        def node_context_from_signature(signature)
+          return nil unless signature.size == 1
+          ivar = signature.first
+          if ivar == 'this'
+            {:class => node.klass, :method => node.name}
+          elsif ivar[0..0] == '@' && klass = get_class(ivar[1..-1].capitalize)
+
+            if klass <= Node
+              # We have to get 'up' class with a little more skill because of enrollable's anonymous classes.
+              kpath = klass.kpath
+              node = self.node
+              while node &&
+                    (node.list_context? || !(node.klass <= Node) || !(node.klass.kpath =~ /^#{kpath}/))
+                node = node.up
+              end
+            else
+              node = self.node(klass)
+            end
+
+            if node
+              {:class => node.klass, :method => node.name}
+            else
+              nil
+            end
+          else
+            nil
+          end
+        end
+
       end
 
       module ControllerMethods
