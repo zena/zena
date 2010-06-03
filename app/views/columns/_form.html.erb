@@ -17,13 +17,15 @@
       <td class='label'><%= _("role")%></td>
       <td class='label'><%= _("type")%></td>
       <td class='label'><%= _("name")%></td>
+      <td class='label'><%= _("index")%></td>
     </tr>
     <tr class='ruby'>
       <td><span class='constant'><%= select('column', 'role_id', Column.roles_for_form  ) %></span></td>
-      <td><span class='text'><%= select('column', 'ptype',   Column.ptypes_for_form ) %></span></td>
+      <td><span class='text'><%= select('column', 'ptype',   Column::TYPES_FOR_FORM ) %></span></td>
       <td><%= text_field('column', 'name',  :size=>15 ) %></td>
+      <td><span class='text'><%= select('column', 'index',   Column::INDICES_FOR_FORM, :include_blank => true ) %></span></td>
     </tr>
-    <tr><td colspan='3'><p class='btn_validate'><input type='submit' value='<%= _('validate') %>'/></p></td></tr>
+    <tr><td colspan='4'><p class='btn_validate'><input type='submit' value='<%= _('validate') %>'/></p></td></tr>
   </table>
   </form>
   <% if !@column.new_record? -%>

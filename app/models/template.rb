@@ -21,7 +21,7 @@ class Template < TextDocument
     p.string  'mode'
     p.string  'tkpath'
 
-    p.index(TemplateIndex) do |record|
+    p.index(IdxTemplate) do |record|
       {
         'format'    => record.format,
         'mode'      => record.mode,

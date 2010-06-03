@@ -324,7 +324,7 @@ end
 # Return the current visitor. Raise an error if the visitor is not set.
 # For controllers, this method must be redefined in Application
 def visitor
-  Thread.current[:visitor] || Zena::RecordNotSecured.new("Visitor not set, record not secured.")
+  Thread.current[:visitor] || (raise Zena::RecordNotSecured.new("Visitor not set, record not secured."))
 end
 
 if defined?(IRB)

@@ -45,8 +45,7 @@ table.admin td:first-child { border-left: 1px solid #999; }
 .admin th { color:#450009; }
 .admin .light { background:#eee;}
 .admin .dark { background:#ddd;}
-.admin .min_width { display:inline-block; min-width:6em;}
-.admin .ruby .text { display:inline-block; min-width:5em;}
+/*.admin .ruby .text { display:inline-block; min-width:5em;}*/
 .admin .ruby .constant { font-weight:bold;}
 .admin .real_class .ruby .constant { color:#333;}
 .admin .spacer {font-family:monospace;color:#ccc;}

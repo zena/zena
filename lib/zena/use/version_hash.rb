@@ -64,6 +64,19 @@ module Zena
         access[visitor.lang] || access[self[:ref_lang]] || access.values.first
       end
 
+      # Return the list of versions that are stored in the vhash and could be loaded depending
+      # on the visitor.
+      def visible_versions
+        @visible_versions ||= begin
+          ids = (vhash['w'].values + vhash['r'].values).uniq
+          ::Version.find(ids).tap do |list|
+            list.each do |version|
+              version.node = self
+            end
+          end
+        end
+      end
+
       def vhash
         @vhash ||= JSON.parse(self[:vhash] || '{"r":{}, "w":{}}')
       end

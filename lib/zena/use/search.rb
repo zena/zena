@@ -45,7 +45,7 @@ module Zena
           end
         end
 
-        # Execute an index search using the indexed fields in idx_nodes_string, i_integer_nodes, etc.
+        # Execute an index search using the indexed fields in idx_nodes_strings, i_integer_nodes, etc.
         # FIXME: reimplement with full QueryBuilder parsing.
         def search_index(params, options = {})
           query = ::QueryBuilder::Query.new(Node.query_compiler)

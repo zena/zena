@@ -3,11 +3,11 @@ This class is responsible for maintaining an index table Templates so that we ca
 given template for a kpath, format and mode. The indexing process is triggered by the Property
 gem.
 =end
-class TemplateIndex < ActiveRecord::Base
+class IdxTemplate < ActiveRecord::Base
   before_create :set_site_id
 
   def self.set_property_index(template, indices)
-    if (template.max_status || template.version.status) >= Zena::Status[:pub]
+    if template.version.status >= Zena::Status[:pub]
       # create or update index
       if index = first(:conditions => ['node_id = ?', template.id])
         if template.tkpath

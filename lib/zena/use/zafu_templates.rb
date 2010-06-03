@@ -234,8 +234,8 @@ module Zena
           klass.kpath.split(//).each_index { |i| klasses << klass.kpath[0..i] }
 
           if @skin && template = secure(Template) { Template.find(:first,
-              :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ? AND template_indices.node_id = nodes.id AND template_indices.skin_id = ?", klasses, format, mode, @skin.id],
-              :from       => "nodes, template_indices",
+              :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ? AND idx_templates.node_id = nodes.id AND idx_templates.skin_id = ?", klasses, format, mode, @skin.id],
+              :from       => "nodes, idx_templates",
               :select     => "nodes.*, tkpath",
               :order      => "length(tkpath) DESC"
             )}

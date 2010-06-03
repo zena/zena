@@ -1,7 +1,7 @@
 class CreateIdxNodesString < ActiveRecord::Migration
   def self.up
     # index strings for nodes
-    create_table :idx_nodes_string, :options => Zena::Db.table_options, :id => false do |t|
+    create_table :idx_nodes_strings, :options => Zena::Db.table_options, :id => false do |t|
       t.integer 'node_id'
       t.string  'key'
       t.string  'value'
@@ -9,6 +9,6 @@ class CreateIdxNodesString < ActiveRecord::Migration
   end
 
   def self.down
-    drop_table 'idx_nodes_string'
+    drop_table 'idx_nodes_strings'
   end
 end

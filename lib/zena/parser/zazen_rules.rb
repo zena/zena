@@ -344,10 +344,10 @@ module Zena
               lang = ''
             end
             #divparams << "class='code'" unless params =~ /class\s*=/
-            divparams.unshift('') if divparams != []
-            @escaped_code << [lang, text]
+            divparams = nil if divparams.empty?
+            @escaped_code << [lang, text, divparams]
             block_counter += 1
-            "<pre#{divparams.join(' ')}>\\ZAZENBLOCKCODE#{block_counter}ZAZENBLOCKCODE\\</pre>"
+            "\\ZAZENBLOCKCODE#{block_counter}ZAZENBLOCKCODE\\"
           end
         end
 
@@ -365,8 +365,8 @@ module Zena
           if @translate_ids
             @escaped_code[$1.to_i]
           else
-            code_lang, code = *(@escaped_code[$1.to_i])
-            Zena::CodeSyntax.new(code, @context[:pretty_code] ? code_lang : nil).to_html
+            code_lang, code, pre_params = @escaped_code[$1.to_i]
+            Zena::CodeSyntax.new(code, @context[:pretty_code] ? code_lang : nil).to_html(:pre_params => pre_params)
           end
         end
 
@@ -378,7 +378,7 @@ module Zena
             if code =~ /^(\w+)\|(.*)$/
               code_lang, code = $1, $2
             end
-            Zena::CodeSyntax.new(code, @context[:pretty_code] ? code_lang : nil).to_html
+            Zena::CodeSyntax.new(code, @context[:pretty_code] ? code_lang : nil).to_html(:inline => true)
           end
         end
       end

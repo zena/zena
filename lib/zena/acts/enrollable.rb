@@ -89,6 +89,8 @@ module Zena
 
             alias_method_chain :attributes=, :enrollable
             alias_method_chain :properties=, :enrollable
+            alias_method_chain :rebuild_index!, :enrollable
+
             before_validation  :prepare_roles
             after_save  :update_roles
             after_destroy :destroy_nodes_roles
@@ -116,6 +118,11 @@ module Zena
           else
             super
           end
+        end
+
+        def rebuild_index_with_enrollable!
+          load_roles!
+          rebuild_index_without_enrollable!
         end
 
         private

@@ -11,11 +11,22 @@ module Zena
       @code_lang = code_lang
     end
 
-    def to_html
+    def to_html(opts = {})
       code_lang = @code_lang
       if ::Syntax::SYNTAX[code_lang] != ::Syntax::Default
         convertor = ::Syntax::Convertors::HTML.for_syntax(code_lang)
-        return "<pre><code class='#{code_lang}'>#{convertor.convert(@text, false)}</code></pre>"
+        if opts[:inline]
+          return "<code class='#{code_lang}'>#{convertor.convert(@text, false)}</code>"
+        else
+          if pre_params = opts[:pre_params]
+            tag = "<pre #{pre_params.join(' ')}>"
+          else
+            tag = '<pre>'
+          end
+          return "#{tag}<code class='#{code_lang}'>#{convertor.convert(@text, false)}</code></pre>"
+        end
+      elsif code_lang.blank?
+        return ::RedCloth.new("<code>#{@text}</code>").to_html
       else
         return ::RedCloth.new("<code class='#{code_lang}'>#{@text}</code>").to_html
       end

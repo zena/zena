@@ -122,7 +122,7 @@ class EnrollableTest < Zena::Unit::TestCase
             end
           end
 
-          should 'rebuild index on publish' do
+          should 'rebuild nodes_roles index on publish' do
             # make sure we are creating all versions in the same lang
             visitor.lang = subject.version.lang
 
@@ -148,6 +148,20 @@ class EnrollableTest < Zena::Unit::TestCase
               assert subject.publish
             end
           end
+          
+          context 'with new property index defined in role' do
+            setup do
+              column = secure(Column) { columns(:Letter_paper) }
+              column.update_attributes(:index => 'string')
+            end
+
+            should 'rebuild property index on rebuild_index' do
+              # Make sure that load_roles! is called before index rebuild
+              assert_difference('IdxNodesString.count', 1) do
+                subject.rebuild_index!
+              end
+            end
+          end # with new property index defined in role
         end # with roles assigned
 
         should 'not allow arbitrary attributes' do
@@ -171,7 +185,7 @@ class EnrollableTest < Zena::Unit::TestCase
             assert !subject.respond_to?(:origin)
           end
         end # with properties assigned through role
-      end # from a class with roles
+      end # from a classwith roles
     end # on a node
 
     context 'creating a node' do

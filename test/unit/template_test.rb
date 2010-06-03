@@ -24,7 +24,7 @@ class TemplateTest < Zena::Unit::TestCase
     should 'remove extension from node_name' do
       assert_equal 'Project-collab-xml', subject.node_name
     end
-    
+
     should 'set extension to zafu' do
       assert_equal 'zafu', subject.prop['ext']
     end
@@ -65,7 +65,7 @@ class TemplateTest < Zena::Unit::TestCase
         end
 
         should 'create a new template index entry' do
-          assert_difference('TemplateIndex.count', 1) do
+          assert_difference('IdxTemplate.count', 1) do
             subject
           end
         end
@@ -96,7 +96,7 @@ class TemplateTest < Zena::Unit::TestCase
         end
 
         should 'not create a new template index entry' do
-          assert_difference('TemplateIndex.count', 0) do
+          assert_difference('IdxTemplate.count', 0) do
             subject
           end
         end
@@ -222,7 +222,7 @@ class TemplateTest < Zena::Unit::TestCase
         end
 
         should 'destroy index if target_klass is removed' do
-          assert_difference('TemplateIndex.count', -1) do
+          assert_difference('IdxTemplate.count', -1) do
             assert subject.update_attributes(:target_klass => '')
           end
         end
@@ -240,7 +240,7 @@ class TemplateTest < Zena::Unit::TestCase
 
         should 'update index' do
           assert subject.update_attributes(:parent_id => nodes_id(:wikiSkin) )
-          assert_equal nodes_id(:wikiSkin), TemplateIndex.find_by_node_id(subject.id).skin_id
+          assert_equal nodes_id(:wikiSkin), IdxTemplate.find_by_node_id(subject.id).skin_id
         end
       end # by moving it
 
@@ -271,7 +271,7 @@ class TemplateTest < Zena::Unit::TestCase
 
         should 'not alter index' do
           assert subject.update_attributes('text' => 'God is just an abbreviation for Goddess')
-          index = TemplateIndex.find_by_node_id(subject.id)
+          index = IdxTemplate.find_by_node_id(subject.id)
           assert_equal nodes_id(:default), index.skin_id
           assert_equal 'html', index.format
           assert_nil index.mode

@@ -359,19 +359,6 @@ where_not:
   src: "<r:nodes where='node_name ne \"status\"' do='each' join=',' do='node_name'/>"
   res: "lake,lakeAddress,opening,track,water"
 
-order_dyn_attr:
-  context:
-    node: 'cleanWater'
-  src: "<r:nodes order='d_assigned DESC, node_name ASC' do='each'><span do='node_name' assigned_if='d_assigned'/></r:nodes>"
-  res: "<span class='assigned'>status</span><span>lake</span><span>lakeAddress</span><span>opening</span><span>track</span><span>water</span>"
-
-# Bug #190 (hard to fix...)
-where_dyn_attr_is_null:
-  context:
-    node: 'cleanWater'
-  src: "<r:nodes where='d_assigned is null' do='each' join=', ' do='node_name'/>"
-  res: "lake, lakeAddress, opening, track, water"
-
 where_two_attributes:
   src: "<r:nodes where='log_at ne event_at' in='site' do='each' join=', ' do='node_name'/>"
   tem: "/nodes.log_at <> nodes.event_at/"

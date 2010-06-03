@@ -123,7 +123,7 @@ class ZafuTemplateTest < Zena::View::TestCase
 
     context 'on get_template_text' do
       should 'read content from filesystem' do
-        assert_equal "<r:include template='Node'/>", get_template_text('$default/Node-+index', 'foo').first
+        assert_equal "<r:include template='$default/Node'/>", get_template_text('$default/Node-+index', 'foo').first
       end
     end # on get_template_text
   end # Rendering a default template

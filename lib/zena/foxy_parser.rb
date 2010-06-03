@@ -45,6 +45,33 @@ module Zena
       def parses(table_name)
         @@parser_for_table[table_name.to_s] = self
       end
+
+      def dump_fixtures(index_tables)
+        index_tables.each do |table_name|
+          klass = Class.new(ActiveRecord::Base)
+          klass.set_table_name table_name
+
+          File.open(path_for_table(table_name), 'wb') do |file|
+            puts [table_name, klass.count].inspect
+            file.puts records_to_yaml(klass.all)
+          end
+        end
+      end
+
+      def records_to_yaml(records)
+        Hash[*records.map do |rec|
+          id = Fixtures.identify(rec.attributes.values * '_')
+          [id, rec.attributes]
+        end.flatten].to_yaml
+      end
+
+      def path_for_table(table)
+        "#{RAILS_ROOT}/test/fixtures/#{table}.yml"
+      end
+    end
+
+    def path_for_table(table)
+      self.class.path_for_table(table)
     end
 
     def initialize(table_name, opts={})
@@ -209,7 +236,7 @@ module Zena
       def out(res)
         unless @file
           # only open the file if we have things to write in it
-          @file = File.open("#{RAILS_ROOT}/test/fixtures/#{table}.yml", 'wb')
+          @file = File.open(path_for_table(table), 'wb')
           @file.puts "# Fixtures generated from content of 'sites' folder by #{self.class} (rake zena:build_fixtures)"
           @file.puts ""
           @file.puts self.class.prelude
@@ -558,13 +585,12 @@ module Zena
       def after_parse
         super
         write_versions
-        write_template_indices
       end
 
       def write_versions
         #
         node_file = @file
-          File.open("#{RAILS_ROOT}/test/fixtures/versions.yml", 'ab') do |file|
+          File.open(path_for_table('versions'), 'ab') do |file|
             @file = file
 
             if versions = @inline_versions[site]
@@ -583,34 +609,6 @@ module Zena
                 out "#{site}_#{name}:"
                 @inserted_keys = []
                 version.each do |k,v|
-                  out_pair(k, v)
-                end
-              end
-            end
-          end
-        @file = node_file
-      end
-
-      def write_template_indices
-        #
-        node_file = @file
-          File.open("#{RAILS_ROOT}/test/fixtures/template_indices.yml", 'ab') do |file|
-            @file = file
-
-            if templates = @inline_templates[site]
-              out "\n# ========== #{site} (generated from 'nodes.yml') ==========="
-              out ""
-              templates.each do |name, template|
-                template['id'] = FoxyParser.id(site, name)
-                template['node_id'] = FoxyParser.id(site, name)
-                template['skin_id'] = FoxyParser.id(site, elements[name]['section'])
-                template['site_id'] = FoxyParser.multi_site_id(site)
-                version = @inline_versions[site][name]
-                template['version_id'] = FoxyParser.id(site, "#{name}_#{version['lang']}")
-                out ""
-                out "#{site}_#{name}:"
-                @inserted_keys = []
-                template.each do |k,v|
                   out_pair(k, v)
                 end
               end
@@ -670,7 +668,7 @@ module Zena
       def write_attachments
         #
         node_file = @file
-          File.open("#{RAILS_ROOT}/test/fixtures/attachments.yml", 'ab') do |file|
+          File.open(path_for_table('attachments'), 'ab') do |file|
             @file = file
 
             if attachments = @inline_attachments[site]

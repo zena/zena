@@ -324,23 +324,28 @@ class Site < ActiveRecord::Base
         FileUtils.rmtree(path)
       end
     end
+
+    true
   end
 
-  def rebuild_vhash
-    lang_list = self.lang_list.sort
-    i = 0
-    while true
-      nodes = Node.find(:all, :conditions => ['site_id = ?', id], :order=>'id ASC', :limit => 50, :offset => i * 50)
-      break if nodes.empty?
+  # Rebuild vhash indices for the Site. This method uses the Worker thread to rebuild and works on
+  # chunks of 50 nodes.
+  def rebuild_vhash(nodes = nil)
+    if !nodes
+      Site.logger.error("\n-----------------\REBUILD VHASH FOR SITE #{host}\n-----------------\n")
+      Zena::SiteWorker.perform(self, :rebuild_vhash)
+    else
+      # do things
       nodes.each do |node|
         node.rebuild_vhash
         Node.connection.execute "UPDATE nodes SET publish_from = #{Node.connection.quote(node.publish_from)}, vhash = #{Node.connection.quote(node.vhash.to_json)} WHERE id = #{node.id}"
       end
-      # 50 more
-      i += 1
     end
+
+    true
   end
 
+  # TODO: replace fullpath defined from names by '/zip/zip/zip'
   def rebuild_fullpath(parent_id = nil, parent_fullpath = "", parent_basepath = "")
     i = 0
     batch_size = 100
@@ -372,6 +377,26 @@ class Site < ActiveRecord::Base
     children.each do |child|
       rebuild_fullpath(*child)
     end
+
+    true
+  end
+
+  # Rebuild property indices for the Site. This method uses the Worker thread to rebuild and works on
+  # chunks of 50 nodes.
+  #
+  # The visitor used during index rebuild is the anonymous user.
+  def rebuild_index(nodes = nil)
+    if !nodes
+      Site.logger.error("\n-----------------\REBUILD INDEX FOR SITE #{host}\n-----------------\n")
+      Zena::SiteWorker.perform(self, :rebuild_index)
+    else
+      # do things
+      nodes.each do |node|
+        node.rebuild_index!
+      end
+    end
+
+    true
   end
 
   private
@@ -380,6 +405,7 @@ class Site < ActiveRecord::Base
       errors.add(:languages, 'invalid') unless self[:languages].split(',').inject(true){|i,l| (i && l =~ /^\w\w$/)}
       errors.add(:default_lang, 'invalid') unless self[:languages].split(',').include?(self[:default_lang])
     end
+
 end
 
 Bricks.apply_patches

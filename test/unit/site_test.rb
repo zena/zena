@@ -256,15 +256,51 @@ class SiteTest < Zena::Unit::TestCase
   context 'Clearing a site cache' do
     setup do
       login(:tiger)
-      @site = visitor.site
+    end
+
+    subject do
+      visitor.site
     end
 
     should 'not alter fullpath' do
       node = secure!(Node) { nodes(:status) }
       assert_equal 'projects/cleanWater/status', node.fullpath
-      @site.clear_cache
+      subject.clear_cache
       node = secure!(Node) { nodes(:status) }
       assert_equal 'projects/cleanWater/status', node.fullpath
+    end
+  end
+
+  context 'Rebuilding site index' do
+    setup do
+      login(:tiger)
+      Node.connection.tables.each do |name|
+        if name =~ /^idx_/
+          Node.connection.execute "DELETE FROM #{name}"
+        end
+      end
+      flds = Zena::Use::Fulltext::FULLTEXT_FIELDS.map { |fld| "#{fld} = ''"}.join(',')
+      Version.connection.execute("UPDATE versions SET #{flds}")
+    end
+
+    subject do
+      visitor.site
+    end
+
+    should 'rebuild visible entries for all objects' do
+      assert_difference('IdxNodesMlString.count', subject.lang_list.count * Node.count(:conditions => {:site_id => subject.id})) do
+        subject.rebuild_index
+      end
+    end
+
+    should 'build index entries for each lang' do
+      subject.rebuild_index
+      ml_indices = Hash[*IdxNodesMlString.find(:all, :conditions => {:node_id => nodes_id(:status), :key => 'title'}).map {|r| [r.lang, r.value]}.flatten]
+      assert_equal Hash[
+        'de'=>'status title',
+        'fr'=>'Etat des travaux',
+        'es'=>'status title',
+        'en'=>'status title'], ml_indices
     end
   end
 end

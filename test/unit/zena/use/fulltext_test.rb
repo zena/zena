@@ -47,6 +47,23 @@ class FulltextTest < Zena::Unit::TestCase
           subject.update_attributes(:paper => 'Green')
           assert_equal 'title:zena enhancements paper:Green', subject.version.idx_text_high
         end
+
+        context 'with many versions' do
+          setup do
+            visitor.lang = 'fr'
+            assert subject.update_attributes(:paper => 'Vert')
+          end
+
+          should 'rebuild fulltext for all versions' do
+            flds = Zena::Use::Fulltext::FULLTEXT_FIELDS.map { |fld| "#{fld} = ''"}.join(',')
+            Version.connection.execute("UPDATE versions SET #{flds} WHERE node_id = #{subject.id}")
+
+            subject.rebuild_index!
+            assert_equal 'title:zena enhancements paper:Vert', Version.find(subject.version.id).idx_text_high
+            assert_equal 'title:zena enhancements paper:', versions(:letter_en).idx_text_high
+          end
+        end # with many versions
+
       end # from a class with fulltext indices
 
       context 'from a class without fulltext indices' do
@@ -58,7 +75,7 @@ class FulltextTest < Zena::Unit::TestCase
           subject.update_attributes(:title => 'Spiral Jetty')
           assert_equal 'Spiral Jetty', subject.version.idx_text_high
         end
-      end # from a class with fulltext indices
+      end # from a class without fulltext indices
     end # on a node
   end # A visitor with write access
 end

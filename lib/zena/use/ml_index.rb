@@ -2,11 +2,38 @@ module Zena
   module Use
     module MLIndex
       module ModelMethods
+        def self.included(base)
+          base.alias_method_chain :rebuild_index!, :multi_lingual
+        end
+
+        def rebuild_index_with_multi_lingual!
+          # We call rebuild_index_without_multi_lingual first with our hack
+          # to avoid inclusion order probles with fulltext index.
+
+          # Skip multi lingual indices
+          @index_langs = []
+
+          # Build std index
+          rebuild_index_without_multi_lingual!
+
+          # Skip std index
+          @skip_std_index = true
+
+          visible_versions.each do |version|
+            self.version = version
+            @properties  = version.prop
+            @index_langs = nil # force rebuild
+            property_index
+          end
+        end
+
         # Hash used to read current values
         def index_reader(group_name)
           if group_name.to_s =~ /^ml_/
             return nil if index_langs.empty?
             super.merge(:with => {'lang' => index_langs})
+          elsif @skip_std_index
+            nil
           else
             super
           end

@@ -282,12 +282,12 @@ namespace :zena do
     Rake::Task["db:schema:dump"].invoke if ActiveRecord::Base.schema_format == :ruby
   end
 
-  desc 'Reset development environment (drop database, migrate, load fixtures)'
+  desc 'Reset development environment (drop database, migrate, rebuild and load fixtures, clone to test)'
   task :reset => :environment do
     if RAILS_ENV == 'production'
       puts "You cannot reset database in production !"
     else
-      %w{db:drop db:create zena:migrate zena:build_fixtures db:fixtures:load}.each do |task|
+      %w{db:drop db:create zena:migrate zena:build_fixtures db:test:clone}.each do |task|
         puts "******************************* #{task}"
         Rake::Task[task].invoke
       end
@@ -296,15 +296,12 @@ namespace :zena do
 
   desc 'Rebuild foxy fixtures for all sites'
   task :build_fixtures => :environment do
-    tables = Node.connection.tables
-
-    ordered_tables = %w{roles versions nodes attachments zips relations links}
-    ordered_tables.each do |table_name|
-      # We need to clear because some tables are only built by appending entries from inline
-      # definitions (attachments for example).
-      fixtures_file = "#{RAILS_ROOT}/test/fixtures/#{table_name}.yml"
-      FileUtils.rm fixtures_file if File.exist?(fixtures_file)
+    Dir["#{RAILS_ROOT}/test/fixtures/*.yml"].each do |f|
+      FileUtils.rm f
     end
+
+    tables = Node.connection.tables
+    ordered_tables = %w{roles versions nodes attachments zips relations links}
 
     tables -= ordered_tables
     tables += ordered_tables
@@ -329,6 +326,28 @@ namespace :zena do
       else
         Zena::FoxyParser.new(table).run
       end
+    end
+
+    %w{db:fixtures:load zena:rebuild_index}.each do |task|
+      puts "******************************* #{task}"
+      Rake::Task[task].invoke
+    end
+
+    index_tables = Node.connection.tables.select {|t| t =~ /^idx_/ }
+    Zena::FoxyParser.dump_fixtures(index_tables)
+  end
+
+  desc 'Rebuild index for all sites (without SiteWorker)'
+  task :rebuild_index => :environment do
+    include Zena::Acts::Secure
+
+    Site.all.each do |site|
+      # We avoid SiteWorker because it's async.
+      Thread.current[:visitor] = User.find_by_login_and_site_id(nil, site.id)
+      nodes = Node.find(:all,
+        :conditions => ['site_id = ?', site.id]
+      )
+      site.rebuild_index(secure_result(nodes))
     end
   end
 

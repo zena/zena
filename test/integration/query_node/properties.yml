@@ -1,0 +1,50 @@
+default:
+  context:
+    node_name: '@node'
+    node: 'cleanWater'
+    visitor: 'ant'
+
+ml_title_like:
+  src: "nodes where title like 'P%' in site order by zip"
+  sql: "%Q{SELECT nodes.* FROM nodes,versions WHERE #{secure_scope('nodes')} AND versions.title LIKE 'P%' AND nodes.id = versions.node_id GROUP BY nodes.id ORDER BY nodes.zip ASC}"
+  # we avoid sorting by name here because of collation issues when using different
+  # databases, and that's not what we are testing here
+  res: "people, projects, opening, Project-changes-xml, Page-changes, Project"
+
+ml_title_where:
+  # Builds 'title' index in test (only needed until they are created by FoxyParser...)
+  src: "nodes where title like 'foo%' in site"
+  sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings,nodes WHERE #{secure_scope('nodes')} AND idx_nodes_ml_strings.value LIKE 'foo%' AND idx_nodes_ml_strings.lang = 'fr' AND idx_nodes_ml_strings.key = 'title' AND idx_nodes_ml_strings.node_id = nodes.id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
+  res: 'Foobar'
+
+ml_title_where_with_or:
+  # Builds 'title' index in test (only needed until they are created by FoxyParser...)
+  src: "nodes where title like 'foo%' or class = Letter in site"
+  sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings,nodes WHERE #{secure_scope('nodes')} AND ((idx_nodes_ml_strings.value LIKE 'foo%' AND idx_nodes_ml_strings.lang = 'fr' AND idx_nodes_ml_strings.key = 'title' AND idx_nodes_ml_strings.node_id = nodes.id) OR (nodes.kpath = 'NNL' AND idx_nodes_ml_strings.id = 0)) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
+  res: 'Foobar, letter'
+
+name_where:
+  # Builds 'title' index in test (only needed until they are created by FoxyParser...)
+  src: "base_contacts where name like 'Foo%' in site"
+  sql: "%Q{SELECT nodes.* FROM idx_nodes_strings,nodes WHERE #{secure_scope('nodes')} AND idx_nodes_strings.value LIKE 'Foo%' AND idx_nodes_strings.key = 'name' AND idx_nodes_strings.node_id = nodes.id AND nodes.kpath LIKE 'NRC%' GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
+  res: 'SolenopsisFoobar'
+
+# TODO: Only implement with a proper use case. Ref [#190]
+#       this is really more complex then it seems if we do not want too bad performance. Easiest way:
+#       NOT EXISTS (SELECT 'x' FROM idx_nodes_ml_strings AS im WHERE im.node_id = nodes.id AND im.key = 'title' AND im.lang = 'fr')
+# indexed_value_is_null:
+#   src: "projects where title is null in site"
+#   sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings,nodes WHERE #{secure_scope('nodes')} AND idx_nodes_ml_strings.value IS NULL AND idx_nodes_ml_strings.key = 'title' AND idx_nodes_ml_strings.node_id = nodes.id AND nodes.kpath LIKE 'NPP%' GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
+#   res: "wiki, zena"
+
+ml_title_order:
+  context:
+    node: 'cleanWater'
+  src: "<r:nodes order='title asc' do='each' join=', ' do='title'/>"
+  res: "<span class='assigned'>status</span><span>lake</span><span>lakeAddress</span><span>opening</span><span>track</span><span>water</span>"
+
+
+dynattr_filter_in_relation:
+  src: "favorites where d_priority = 'important'"
+  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'priority',links WHERE #{secure_scope('nodes')} AND nodes.id = links.target_id AND links.relation_id = _ID(contact_has_favorites) AND links.source_id = ? AND dyn_attributes.value = 'important' AND nodes.id = versions.node_id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id]"
+  res: ""

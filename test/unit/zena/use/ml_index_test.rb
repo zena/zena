@@ -1,14 +1,6 @@
 require 'test_helper'
 
 class EnrollableTest < Zena::Unit::TestCase
-  class NodeStringIndex < ActiveRecord::Base
-    set_table_name :idx_nodes_string
-  end
-
-  class NodeMLStringIndex < ActiveRecord::Base
-    set_table_name :idx_nodes_ml_string
-  end
-
   context 'A visitor with write access' do
     setup do
       login(:tiger)
@@ -24,7 +16,7 @@ class EnrollableTest < Zena::Unit::TestCase
       end
 
       should 'write index for every language available' do
-        assert_difference('NodeMLStringIndex.count', 4) do
+        assert_difference('IdxNodesMlString.count', 4) do
           subject
         end
       end
@@ -42,7 +34,7 @@ class EnrollableTest < Zena::Unit::TestCase
         end
 
         should 'insert single value' do
-          assert_difference('NodeStringIndex.count', 1) do
+          assert_difference('IdxNodesString.count', 1) do
             # title = 4, name = 1
             assert subject
           end
@@ -60,12 +52,61 @@ class EnrollableTest < Zena::Unit::TestCase
         secure(Node) { nodes(:news) }
       end
 
-      should 'write index for concerned language only' do
-        assert_difference('NodeMLStringIndex.count', 1) do
-          subject.update_attributes('title' => 'Nouvelles')
+      context 'with std indices removed' do
+        setup do
+          IdxNodesString.connection.execute 'DELETE from idx_nodes_strings'
         end
-      end
+
+        should 'not write std index on skip_std_index' do
+          subject = secure(Node) { nodes(:ant) }
+          subject.instance_variable_set(:@skip_std_index, true)
+          assert_difference('IdxNodesString.count', 0) do
+            subject.update_attributes(:name => 'New')
+          end
+        end
+      end # with std indices removed
+
+      context 'with multi lingual indices removed' do
+        setup do
+          IdxNodesMlString.connection.execute 'DELETE from idx_nodes_ml_strings'
+        end
+
+        should 'write index for concerned language only' do
+          assert_difference('IdxNodesMlString.count', 1) do
+            subject.update_attributes('title' => 'Nouvelles')
+          end
+        end
+      end # with multi lingual indices removed
     end # updating a node
+
+    context 'on a node' do
+      subject do
+        secure(Node) { nodes(:status) }
+      end
+
+      context 'without indices in table' do
+        setup do
+          IdxNodesMlString.connection.execute "DELETE from idx_nodes_ml_strings"
+        end
+
+        should 'rebuild index for all langs' do
+          assert_difference('IdxNodesMlString.count', 4) do
+            subject.rebuild_index!
+          end
+        end
+
+        should 'set proper content for each lang' do
+          subject.rebuild_index!
+          ml_indices = Hash[*IdxNodesMlString.find(:all, :conditions => {:node_id => nodes_id(:status), :key => 'title'}).map {|r| [r.lang, r.value]}.flatten]
+          assert_equal Hash[
+            'de'=>'status title',
+            'fr'=>'Etat des travaux',
+            'es'=>'status title',
+            'en'=>'status title'], ml_indices
+        end
+      end # without indices in table
+
+    end # on a node
 
   end # A visitor with write access
 end

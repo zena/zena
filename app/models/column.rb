@@ -2,7 +2,8 @@ class Column < ActiveRecord::Base
   attr_accessor :import_result
   include RubyLess
   include Property::StoredColumn
-  TYPES_FOR_FORM = %w{string datetime integer}
+  TYPES_FOR_FORM   = %w{string datetime integer}
+  INDICES_FOR_FORM = %w{string ml_string}
 
   belongs_to :role
   before_validation :set_defaults
@@ -13,10 +14,6 @@ class Column < ActiveRecord::Base
 
   class << self
     include Zena::Acts::Secure
-
-    def ptypes_for_form
-      TYPES_FOR_FORM
-    end
 
     def roles_for_form
       secure(Role) { Role.all(:order => 'kpath ASC') }.map {|r| [r.name, r.id]}

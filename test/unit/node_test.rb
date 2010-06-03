@@ -65,10 +65,6 @@ class NodeTest < Zena::Unit::TestCase
       end # adding a comment with m_title
 
       context 'setting an indexed field' do
-        class NodeStringIndex < ActiveRecord::Base
-          set_table_name :idx_nodes_string
-        end
-
         subject do
           node = secure!(Node) { nodes(:art) }
           node.update_attributes(:origin => 'Dada')
@@ -76,14 +72,14 @@ class NodeTest < Zena::Unit::TestCase
         end
 
         should 'create index entries' do
-          assert_difference('NodeStringIndex.count', 1) do
+          assert_difference('IdxNodesString.count', 1) do
             subject
           end
         end
 
         should 'write field value in index' do
           subject
-          index = NodeStringIndex.find(:first, :conditions => {:key => 'origin', :node_id => subject.id})
+          index = IdxNodesString.find(:first, :conditions => {:key => 'origin', :node_id => subject.id})
           assert_equal 'origin', index.key
           assert_equal 'Dada', index.value
         end
@@ -91,11 +87,11 @@ class NodeTest < Zena::Unit::TestCase
         should 'keep index entries up to date' do
           subject
 
-          assert_difference('NodeStringIndex.count', 0) do
+          assert_difference('IdxNodesString.count', 0) do
             subject.update_attributes(:origin => 'Surrealism')
           end
 
-          index = NodeStringIndex.find(:first, :conditions => {:key => 'origin', :node_id => subject.id})
+          index = IdxNodesString.find(:first, :conditions => {:key => 'origin', :node_id => subject.id})
           assert_equal 'origin', index.key
           assert_equal 'Surrealism', index.value
         end

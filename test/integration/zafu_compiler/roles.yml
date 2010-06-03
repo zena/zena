@@ -18,7 +18,7 @@ show_property_filter_role_no_role:
 
 show_property_filter_role_has_role:
   context:
-    node: nature
+    node: tree_jpg
   src: "<r:Original>Has an original</r:Original>"
   tem: "<% if @node.has_role?(493147733) -%>Has an original<% end -%>"
   res: 'Has an original'
