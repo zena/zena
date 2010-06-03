@@ -161,5 +161,29 @@ class QueryNodeTest < Zena::Unit::TestCase
     yt_do_test('filters', 'indexed_value_filter')
   end
 
+  def test_relations_same_name_as_class
+    login(:lion)
+    rel = Relation.create(
+      :source_role  => '',
+      :target_role  => '',
+      :source_kpath => 'NP',
+      :target_kpath => 'NNL'
+    )
+    assert !rel.new_record?
+    yt_do_test('relations', 'same_name_as_class')
+  end
+
+  def test_relations_same_name_as_class_not_valid
+    login(:lion)
+    rel = Relation.create(
+      :source_role  => '',
+      :target_role  => '',
+      :source_kpath => 'NP',
+      :target_kpath => 'NNL'
+    )
+    assert !rel.new_record?
+    yt_do_test('relations', 'same_name_as_class_not_valid')
+  end
+
   yt_make
 end

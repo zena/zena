@@ -7,14 +7,23 @@ class RelationProxy < Relation
   class << self
 
     # Open a relation to a role. start => 'role'
-    def find_by_role(role)
-      rel = find(:first, :conditions => ["(source_role = ? OR target_role = ?) AND site_id = ?", role, role, current_site[:id]])
+    def find_by_role(role, source_kpath = nil)
+      if source_kpath
+        klasses = []
+        source_kpath.split(//).each_index { |i| klasses << source_kpath[0..i] }
+        rel = find(:first, :conditions => ["((source_role = ? AND target_kpath IN (?)) OR (target_role = ? AND source_kpath IN (?))) AND site_id = ?", role, klasses, role, klasses, current_site[:id]])
+      else
+        rel = find(:first, :conditions => ["(source_role = ? OR target_role = ?) AND site_id = ?", role, role, current_site[:id]])
+      end
+
       return nil unless rel
+
       if rel.target_role == role
         rel.side = :source
       else
         rel.side = :target
       end
+
       rel
     end
 

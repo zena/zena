@@ -289,5 +289,16 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     yt_do_test('display', 'defined_icon')
   end
 
+  def test_relations_same_name_as_class
+    login(:lion)
+    rel = Relation.create(
+      :source_role  => '',
+      :target_role  => '',
+      :source_kpath => 'NP',
+      :target_kpath => 'NNL'
+    )
+    assert !rel.new_record?
+    yt_do_test('relations', 'same_name_as_class')
+  end
   yt_make
 end

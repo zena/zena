@@ -4,6 +4,6 @@
   <td class="box"><%= li.lang %></td>
   <td class="status"><%= _(li.inside? ? 'inside' : 'outside') %> / <%= _(li.open? ? 'open' : 'closed') %></td>
   <td class="comment"><%= li.comments_count(:with_prop=>true).to_s + ' ' + _('comment(s)') %></td>
-  <td class="date"><%= tformat_date(li.updated_at, :format => _('datetime')) %></td>
+  <td class="date"><%= tformat_date(li.updated_at, 'datetime') %></td>
   <td class="actions"><%= discussion_actions(li) %></td>
 </tr>

@@ -63,11 +63,11 @@ module Zena
           query = finder[:query]
           if query && (pagination_key = query.pagination_key)
             set_context_var('paginate', 'key', pagination_key, sub_context)
-            
+
             node_count = get_var_name('paginate', 'nodes', sub_context)
             page_count = get_var_name('paginate', 'count', sub_context)
             curr_page  = get_var_name('paginate', 'current', sub_context)
-              
+
             out "<% #{node_count} = #{query.to_s(:count)}; #{page_count} = (#{node_count} / #{query.page_size.to_f}).ceil; #{curr_page} = [1,params[:#{pagination_key}].to_i].max -%>"
           end
           sub_context
@@ -104,6 +104,8 @@ module Zena
               :raw_filters          => raw_filters,
               :rubyless_helper      => self,
               :link_both_directions => @params[:direction] == 'both',
+              # set starting class in case we need to search for relations
+              :main_class           => node.klass,
             }
 
 

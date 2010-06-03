@@ -436,3 +436,8 @@ comments_in_site_node:
 find_by_zip:
   src: "<div do='find(30)' do='img'/>"
   res: '/image30_std.jpg/'
+
+same_name_as_class:
+  # we create a relation with 'page' role from Letter.
+  src: "<r:Letter do='pages'/>"
+  tem: '/nodes.id = links.source_id AND links.relation_id/'

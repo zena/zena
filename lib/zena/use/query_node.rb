@@ -339,10 +339,12 @@ module Zena
 
           # Filtering of objects in scope
           def filter_relation(relation)
-            case relation
-            when main_table, 'children'
+            if [main_table, 'children'].include?(relation)
               # no filter
               add_table(main_table)
+            elsif @relation = RelationProxy.find_by_role(relation.singularize, @query.main_class.kpath)
+              # ignore, will be handled later by join_relation
+              nil
             else
               # Not a core context, try to filter by class type
               if klass = Node.get_class(relation)
@@ -371,7 +373,9 @@ module Zena
 
           # Moving to another context through 'joins'
           def join_relation(relation)
-            if rel = RelationProxy.find_by_role(relation.singularize)
+            if @relation ||= RelationProxy.find_by_role(relation.singularize, @query.main_class.kpath)
+              rel = @relation
+              @relation = nil
               add_table(main_table)
               add_table('links')
 

@@ -3,26 +3,115 @@ require 'test_helper'
 # Test Relation. RelationProxy is tested in its own file.
 class RelationTest < Zena::Unit::TestCase
 
-  def test_cannot_create
-    login(:ant) # not an admin
-    relation = Relation.create(:source_role => 'wife', :target_role => 'husband', :source_kpath => 'NRC', :target_kpath => 'NRC', :source_icon => "<img src='/img/user_pink.png'/>", :target_icon => "<img src='/img/user_blue.png'/>")
-    assert relation.new_record?
-    assert_equal 'You do not have the rights to do this.', relation.errors[:base]
-  end
+  context 'A visitor that is not an admin' do
+    setup do
+      login(:ant)
+    end
 
-  def test_cannot_update
-    login(:ant) # not an admin
-    relation = relations(:node_has_tags)
-    assert !relation.update_attributes(:target_kpath => 'NP')
-    assert_equal 'You do not have the rights to do this.', relation.errors[:base]
-  end
+    context 'on relation create' do
+      subject do
+        Relation.create(:source_role => 'wife', :target_role => 'husband', :source_kpath => 'NRC', :target_kpath => 'NRC', :source_icon => "<img src='/img/user_pink.png'/>", :target_icon => "<img src='/img/user_blue.png'/>")
+      end
 
-  def test_can_create
-    login(:lion) # admin
-    relation = Relation.create(:source_role => 'wife', :target_role => 'husband', :source_kpath => 'NRC', :target_kpath => 'NRC', :source_icon => "<img src='/img/user_pink.png'/>", :target_icon => "<img src='/img/user_blue.png'/>")
-    assert !relation.new_record?
-    assert_equal sites_id(:zena), relation[:site_id]
-  end
+      should 'fail' do
+        assert_difference('Relation.count', 0) do
+          assert subject.new_record?
+          assert_equal 'You do not have the rights to do this.', subject.errors[:base]
+        end
+      end
+    end # on relation create
+
+    context 'on relation update' do
+      subject do
+        Relation.create(:source_role => 'wife', :target_role => 'husband', :source_kpath => 'NRC', :target_kpath => 'NRC', :source_icon => "<img src='/img/user_pink.png'/>", :target_icon => "<img src='/img/user_blue.png'/>")
+        relations(:node_has_tags)
+      end
+
+      should 'fail' do
+        assert !subject.update_attributes(:target_kpath => 'NP')
+        assert_equal 'You do not have the rights to do this.', subject.errors[:base]
+      end
+    end # on relation update
+  end # A visitor that is not an admin
+
+  context 'A visitor that is an admin' do
+    setup do
+      login(:lion)
+    end
+
+    context 'on relation create' do
+      subject do
+        Relation.create(
+          :source_role  => 'wife',
+          :target_role  => 'husband',
+          :source_kpath => 'NRC',
+          :target_kpath => 'NRC',
+          :source_icon  => "<img src='/img/user_pink.png'/>",
+          :target_icon  => "<img src='/img/user_blue.png'/>"
+        )
+      end
+
+      should 'succeed' do
+        assert_difference('Relation.count', 1) do
+          assert !subject.new_record?
+        end
+      end
+
+      should 'set site_id' do
+        assert_equal sites_id(:zena), subject.site_id
+      end
+
+      context 'with blank source_role' do
+        subject do
+          Relation.create(
+            :source_role  => '',
+            :target_role  => 'husband',
+            :source_kpath => 'NP',
+            :target_kpath => 'NRC'
+          )
+        end
+
+        should 'succeed' do
+          assert !subject.new_record?
+        end
+
+        should 'use source class as source name' do
+          assert_equal 'page', subject.source_role
+        end
+      end # with blank source_role
+
+      context 'with blank target_role' do
+        subject do
+          Relation.create(
+            :source_role  => 'wife',
+            :target_role  => '',
+            :source_kpath => 'NP',
+            :target_kpath => 'NRC'
+          )
+        end
+
+        should 'succeed' do
+          assert !subject.new_record?
+        end
+
+        should 'use target class as target name' do
+          assert_equal 'base_contact', subject.target_role
+        end
+      end # with blank source_role
+    end # on relation create
+
+    context 'on relation update' do
+      subject do
+        Relation.create(:source_role => 'wife', :target_role => 'husband', :source_kpath => 'NRC', :target_kpath => 'NRC', :source_icon => "<img src='/img/user_pink.png'/>", :target_icon => "<img src='/img/user_blue.png'/>")
+        relations(:node_has_tags)
+      end
+
+      should 'succeed' do
+        assert subject.update_attributes(:target_kpath => 'NP')
+      end
+    end # on relation update
+  end # A visitor that is not an admin
+
 
   def test_cannot_set_site_id
     login(:lion) # admin
@@ -39,10 +128,4 @@ class RelationTest < Zena::Unit::TestCase
     assert_equal original_site_id, relation.site_id
   end
 
-  def test_can_update
-    login(:lion) # admin
-    relation = relations(:node_has_tags)
-    assert relation.update_attributes(:target_kpath => 'NP')
-    assert_equal 'NP', relation.target_kpath
-  end
 end
