@@ -323,7 +323,7 @@ class NodesController < ApplicationController
 
         format.xml do
           if @node.errors.empty?
-            head :ok
+            render :xml => @node.to_xml, :status => :ok, :location => node_url(@node)
           else
             render :xml => @page.errors, :status => :unprocessable_entity
           end
