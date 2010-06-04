@@ -31,7 +31,7 @@ module Zena
             self.send(type[:method])
           else
             begin
-              query = self.class.build_query(count, rel.first, :node_name => 'self')
+              query = self.class.build_query(count, rel.first, :node_name => 'self', :main_class => Zena::Acts::Enrollable.make_class(self.vclass))
             rescue ::QueryBuilder::SyntaxError => err
               return nil
             end
@@ -262,10 +262,14 @@ module Zena
         # like this: "image or icon" ('image' is a filter in 'parent' scope, 'icon' is a
         # relation found through links).
         def resolve_missing_table(query, table_alias, table_name)
-          if table_name == 'links' || table_name =~ /^i_/
-            # index table
+          if table_name =~ /^idx_nodes/
+            # index tables
+            query.where.insert 0, "#{table_alias}.node_id = 0"
+          elsif table_name == 'links' || table_name =~ /^idx_/
+            # index tables
             query.where.insert 0, "#{table_alias}.id = 0"
           else
+            # Raise an error
             super
           end
         end
@@ -370,17 +374,23 @@ module Zena
 
           # Moving to another context through 'joins'
           def join_relation(relation)
-            if rel = RelationProxy.find_by_role(relation.singularize, @query.main_class.kpath)
+            if context[:scope] == 'site'
+              # Example: 'icons in site' ==> any node with an 'icon' relation (no need to filter by source).
+              source_kpath = nil
+            else
+              source_kpath = @query.main_class.kpath
+            end
+
+            if rel = RelationProxy.find_by_role(relation.singularize, source_kpath)
               add_table(main_table)
               add_table('links')
 
               if context[:scope] == 'site'
-                # Example: 'tagged in site' ==> any node with a 'tagged' relation (no need to
-                # filter by source).
                 distinct!
                 add_filter "#{table('links')}.relation_id = #{rel.id}"
                 add_filter "#{field_or_attr('id')} = #{table('links')}.#{rel.other_side}"
               elsif @opts[:link_both_directions]
+                # TODO: Just detect same source and target roles.
                 # source --> target && target --> source
                 add_filter "#{table('links')}.relation_id = #{rel.id}"
                 source = "#{table('links')}.#{rel.link_side} = #{field_or_attr('id', table(main_table,-1))} AND #{field_or_attr('id')} = #{table('links')}.#{rel.other_side}"

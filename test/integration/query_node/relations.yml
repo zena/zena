@@ -34,8 +34,8 @@ nodes_in_section:
   res: "anonymous, ant, lion, myLife, tiger"
 
 relation_from_class:
-  src: "hot from pages in site"
-  sql: "/links.source_id = no1.id AND no1.kpath LIKE 'NP%'/"
+  src: "hot from projects in site"
+  sql: "/links.source_id = no1.id AND no1.kpath LIKE 'NPP%'/"
 
 same_name_as_class:
   src: 'pages from letters'

@@ -6,7 +6,8 @@ class RelationProxy < Relation
 
   class << self
 
-    # Open a relation to a role. start => 'role'
+    # Find a role from a name. If a source_kpath is provided, only roles that could be reached
+    # from this class are found.
     def find_by_role(role, source_kpath = nil)
       if source_kpath
         klasses = []

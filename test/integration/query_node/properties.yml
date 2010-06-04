@@ -11,8 +11,8 @@ ml_title_where:
 
 ml_title_where_with_or:
   src: "nodes where title like 'Etat%' or class = Letter in site"
-  sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings,nodes WHERE #{secure_scope('nodes')} AND ((idx_nodes_ml_strings.value LIKE 'Etat%' AND idx_nodes_ml_strings.lang = 'fr' AND idx_nodes_ml_strings.key = 'title' AND idx_nodes_ml_strings.node_id = nodes.id) OR (nodes.kpath = 'NNL' AND idx_nodes_ml_strings.id = 0)) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
-  res: 'status, letter'
+  sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings,nodes WHERE #{secure_scope('nodes')} AND ((idx_nodes_ml_strings.value LIKE 'Etat%' AND idx_nodes_ml_strings.lang = 'fr' AND idx_nodes_ml_strings.key = 'title' AND idx_nodes_ml_strings.node_id = nodes.id) OR (nodes.kpath = 'NNL' AND idx_nodes_ml_strings.node_id = 0)) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
+  res: 'letter, status'
 
 name_where:
   src: "base_contacts where name like 'Inv%' in site"
@@ -35,7 +35,7 @@ ml_title_order:
   res: "wiki, art, cleanWater, collections, crocodiles, default, status"
 
 
-dynattr_filter_in_relation:
-  src: "favorites where d_priority = 'important'"
-  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'priority',links WHERE #{secure_scope('nodes')} AND nodes.id = links.target_id AND links.relation_id = _ID(contact_has_favorites) AND links.source_id = ? AND dyn_attributes.value = 'important' AND nodes.id = versions.node_id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id]"
+ml_title_filter_in_relation:
+  src: "references where title = 'important'"
+  sql: "/idx_nodes_ml_strings,links,nodes.*value = 'important'.*lang = 'fr'.*key = 'title'.*nodes.id = links.target_id.*source_id = \?/"
   res: ""

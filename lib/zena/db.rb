@@ -286,9 +286,15 @@ module Zena
 
     # Insert a dummy (empty) link to use when mixing queries (QueryNode) with links and without.
     def insert_dummy_ids
+      tables = []
       connection.tables.each do |table|
-        if table =~ /^i_/ || table == 'links'
-          next if fetch_row("SELECT id FROM #{table} WHERE id = 0")
+        if table =~ /^idx_/ || table == 'links'
+          if table =~ /^idx_nodes/
+            next if fetch_row("SELECT node_id FROM #{table} WHERE node_id = 0")
+          else
+            next if fetch_row("SELECT id FROM #{table} WHERE id = 0")
+          end
+
           # index table
           klass = Class.new(ActiveRecord::Base) do
             set_table_name table
@@ -306,7 +312,10 @@ module Zena
           end
 
           if dummy = klass.create(dummy_hash)
-            connection.execute "UPDATE #{table} SET id = 0 WHERE id = #{dummy.id}"
+            tables << table
+            if klass.column_names.include?('id')
+              connection.execute "UPDATE #{table} SET id = 0 WHERE id = #{dummy.id}"
+            end
           else
             raise "Could not create dummy record for table #{table}"
           end
@@ -314,6 +323,8 @@ module Zena
           next
         end
       end
+
+      tables
     end
   end # Db
 end # Zena

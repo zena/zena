@@ -83,6 +83,7 @@ vlcass_or_pages:
 find_relation:
   context:
     node: 'ant'
+    class: BaseContact
   src: "favorites"
   res: "nature"
 
@@ -101,19 +102,19 @@ children_with_order_clause:
   sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.parent_id = ? ORDER BY nodes.node_name ASC}, @node.id]"
 
 notes_or_news:
+  context:
+    class: Project
   sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND ((nodes.kpath LIKE 'NN%' AND nodes.parent_id = ? AND links.id = 0) OR (nodes.id = links.source_id AND links.relation_id = _ID(note_has_calendars) AND links.target_id = ?)) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id, @node.id]"
 
 news_or_notes:
+  context:
+    class: Project
   sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND ((nodes.id = links.source_id AND links.relation_id = _ID(note_has_calendars) AND links.target_id = ?) OR (nodes.kpath LIKE 'NN%' AND nodes.parent_id = ? AND links.id = 0)) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id, @node.id]"
-
-order_dynattr:
-  src: "nodes order by d_assigned ASC, node_name ASC"
-  sql: "[%Q{SELECT nodes.* FROM nodes,versions LEFT JOIN dyn_attributes ON versions.id = dyn_attributes.owner_id AND dyn_attributes.key = 'assigned' WHERE #{secure_scope('nodes')} AND nodes.id = versions.node_id AND nodes.parent_id = ? GROUP BY nodes.id ORDER BY dyn_attributes.value ASC, nodes.node_name ASC}, @node.id]"
-  res: "crocodiles, lake, lakeAddress, opening, track, water, status"
 
 order_l_status:
   context:
-    node: art
+    node:  art
+    class: Tag
   src: "tagged order by l_status ASC, node_name ASC"
   sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags) AND links.target_id = ? ORDER BY links.status ASC, nodes.node_name ASC}, @node.id]"
   res: "opening, cleanWater"

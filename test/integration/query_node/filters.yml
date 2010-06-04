@@ -10,13 +10,6 @@ id_becomes_zip:
   src: "nodes where id ne 1"
   sql: "/nodes.zip <> 1/"
 
-version_filter_comment:
-  context:
-    visitor: 'lion'
-  src: pages where comment = "no comment yet" in project
-  sql: "[%Q{SELECT nodes.* FROM nodes,versions WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NP%' AND nodes.project_id = ? AND versions.comment = 'no comment yet' AND nodes.id = versions.node_id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.get_project_id]"
-  res: "bananas, crocodiles"
-
 year_function:
   context:
     visitor: 'lion'
@@ -31,14 +24,16 @@ two_fields:
 
 filter_l_status:
   context:
-    node: art
+    node:  art
+    class: Tag
   src: "tagged where l_status > 5"
   sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND links.status > 5 AND nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags) AND links.target_id = ? ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id]"
   res: "cleanWater"
 
 param_filter:
   context:
-    node: art
+    node:  art
+    class: Tag
     params:
       tag: c
   src: 'nodes where node_name like "#{params[:tag]}%" in site'
@@ -62,7 +57,8 @@ filter_literal_first:
 links_in_merged_queries:
   # Some queries have links, others don't. Merging should not mess things up.
   context:
-    node: art
+    node:  art
+    class: Tag
     params:
       tag: 'op'
   src: "(nodes where node_name like \"%#{params[:tag]}%\" and \"#{params[:tag]}\" ne '' in site) or (tagged where l_status > 5)"

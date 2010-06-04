@@ -30,6 +30,13 @@ class QueryNodeTest < Zena::Unit::TestCase
     login @context[:visitor].to_sym
 
     @context[:rubyless_helper] = self
+
+    if klass = @context.delete(:class)
+      klass = Node.get_class(klass)
+      klass = Zena::Acts::Enrollable.make_class(klass)
+      @context[:main_class] = klass
+    end
+
     begin
       query  = Node.build_query(:all, yt_get('src', file, test), @context)
       sql, node_class = query.to_s, query.main_class
@@ -37,7 +44,7 @@ class QueryNodeTest < Zena::Unit::TestCase
       errors = err.message
     end
 
-    class_prefix = (node_class && !(node_class <= Node)) ? "#{node_class.to_s}: " : ''
+    class_prefix = (node_class && !(node_class <= Node)) ? "#{node_class}: " : ''
 
     if test_err = yt_get('err', file, test)
       yt_assert test_err, class_prefix + errors
