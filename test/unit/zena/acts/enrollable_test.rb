@@ -94,7 +94,7 @@ class EnrollableTest < Zena::Unit::TestCase
             assert_equal Hash[:class=>String, :method=>"prop['paper']", :nil=>true], subject.safe_method_type(['paper'])
           end
         end # with roles loaded
-        
+
         context 'without roles loaded' do
           should 'not consider role methods as safe' do
             assert_equal nil, subject.safe_method_type(['paper'])
@@ -148,11 +148,15 @@ class EnrollableTest < Zena::Unit::TestCase
               assert subject.publish
             end
           end
-          
+
           context 'with new property index defined in role' do
             setup do
               column = secure(Column) { columns(:Letter_paper) }
               column.update_attributes(:index => 'string')
+            end
+            
+            subject do
+              secure(Node) { nodes(:letter) }
             end
 
             should 'rebuild property index on rebuild_index' do

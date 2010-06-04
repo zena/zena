@@ -451,6 +451,7 @@ letter_en:
     title:         zena enhancements
     summary:       This page is a *Letter*.
     text:          "letter content\n\n!30_med! !31_med! !24_med!"
+    paper:         Kraft
 
 wikiSkin_en:
   node:            wikiSkin

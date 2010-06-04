@@ -104,6 +104,23 @@ class EnrollableTest < Zena::Unit::TestCase
             'es'=>'status title',
             'en'=>'status title'], ml_indices
         end
+
+        context 'with idx_text_high defined for vclass' do
+          subject do
+            secure(Node) { nodes(:letter) }
+          end
+
+          should 'set title index from idx_text_high' do
+            subject.rebuild_index!
+            ml_indices = Hash[*IdxNodesMlString.find(:all, :conditions => {:node_id => subject.id, :key => 'title'}).map {|r| [r.lang, r.value]}.flatten]
+            assert_equal Hash[
+              'de'=>'zena enhancements paper:Kraft',
+              'fr'=>'zena enhancements paper:Kraft',
+              'es'=>'zena enhancements paper:Kraft',
+              'en'=>'zena enhancements paper:Kraft'], ml_indices
+          end
+        end # with idx_text_high defined for vclass
+
       end # without indices in table
 
     end # on a node

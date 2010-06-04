@@ -97,7 +97,7 @@ class VirtualClassesControllerTest < Zena::Controller::TestCase
 
       context 'updating a virtual class' do
         subject do
-          {:action => :update, :id => roles_id(:Letter), :virtual_class => { :name => 'Brief'}}
+          {:action => :update, :id => roles_id(:Letter), :virtual_class => { :name => 'Life'}}
         end
 
         should 'redirect to show' do

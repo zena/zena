@@ -137,7 +137,7 @@ module Zena
 
             role_ids = []
             schema.roles.flatten.uniq.each do |role|
-              next unless role.kind_of?(Role)
+              next unless role.class == Role # Do not index VirtualClasses (information exists through kpath).
               role_ids << role.id if role.column_names & keys != []
             end
 

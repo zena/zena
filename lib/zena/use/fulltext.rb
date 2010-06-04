@@ -39,7 +39,6 @@ module Zena
         end
 
         def rebuild_index_with_fulltext!
-          rebuild_index_without_fulltext!
           visible_versions.each do |version|
             build_fulltext_indices(version)
             fields_to_set = []
@@ -52,6 +51,7 @@ module Zena
               Version.connection.execute "UPDATE versions SET #{fields_to_set.join(',')} WHERE id=#{version.id}"
             end
           end
+          rebuild_index_without_fulltext!
         end
 
         private

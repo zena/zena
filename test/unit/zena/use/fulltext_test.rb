@@ -45,7 +45,7 @@ class FulltextTest < Zena::Unit::TestCase
 
         should 'update index on save' do
           subject.update_attributes(:paper => 'Green')
-          assert_equal 'title:zena enhancements paper:Green', subject.version.idx_text_high
+          assert_equal 'zena enhancements paper:Green', subject.version.idx_text_high
         end
 
         context 'with many versions' do
@@ -59,8 +59,8 @@ class FulltextTest < Zena::Unit::TestCase
             Version.connection.execute("UPDATE versions SET #{flds} WHERE node_id = #{subject.id}")
 
             subject.rebuild_index!
-            assert_equal 'title:zena enhancements paper:Vert', Version.find(subject.version.id).idx_text_high
-            assert_equal 'title:zena enhancements paper:', versions(:letter_en).idx_text_high
+            assert_equal 'zena enhancements paper:Vert', Version.find(subject.version.id).idx_text_high
+            assert_equal 'zena enhancements paper:Kraft', versions(:letter_en).idx_text_high
           end
         end # with many versions
 
