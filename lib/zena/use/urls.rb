@@ -421,7 +421,7 @@ module Zena
               return ::RubyLess.translate_string("##{get_anchor_name(anchor)}", self)
             end
 
-            if opts[:update]
+            if remote_target
               method = 'zafu_node_path'
             elsif %w{edit delete}.include?(opts[:action])
               method = "#{opts[:action]}_node_path"
@@ -533,8 +533,8 @@ module Zena
             case @params[:page]
             when 'previous'
               current = get_context_var('paginate', 'current')
+              prev    = get_var_name('paginate', 'previous')
 
-              prev = get_var_name('paginate', 'previous')
               out "<% if #{prev} = (#{current} > 1 ? #{current} - 1 : nil) -%>"
 
               # .... FIXME: continue fixing...
@@ -553,38 +553,49 @@ module Zena
               end
               out "<% end -%>"
             when 'list'
-              @context[:vars] ||= []
-              @context[:vars] << "#{pagination_key}_page"
-              if @blocks == [] || (@blocks.size == 1 && !@blocks.first.kind_of?(String) && @blocks.first.method == 'else')
-                # add a default block
-                if tag = @params[:tag]
-                  open_tag = "<#{tag}>"
-                  close_tag = "</#{tag}>"
-                else
-                  open_tag = close_tag = ''
-                end
-                link_params = ''
 
+              node_count  = get_context_var('paginate', 'nodes')
+              page_count  = get_context_var('paginate', 'count')
+              curr_page   = get_context_var('paginate', 'current')
+              page_number = get_var_name('paginate', 'page')
+              page_join   = get_var_name('paginate', 'join')
+
+              if @blocks == [] || (@blocks.size == 1 && !@blocks.first.kind_of?(String) && @blocks.first.method == 'else')
+                # We need to insert the default 'link' tag: <r:link href='@node' #{pagination_key}='#{this}' ... do='this'/>
+                link = {}
                 @params.each do |k,v|
                   next if [:tag, :page, :join, :page_count].include?(k)
-                  link_params << "#{k}='#{v}'"
+                  # transfer params
+                  link[k] = v
                 end
+                tag = @params[:tag]
 
-                text = "#{open_tag}<r:link#{link_params} #{pagination_key}='[#{pagination_key}_page]' do='[#{pagination_key}_page]'/>#{close_tag}"
-                @blocks = [make(:void, :method=>'void', :text=>text)]
+                link[:html_tag] = tag if tag
+                link[:href] = '@node'
+                link[:eval] = 'this'
+                link[pagination_key.to_sym] = '#{this}'
+
+                # <r:link href='@node' href='@node' p='#{this}' ... eval='this'/>
+
+                @blocks = [make(:void, :method => 'link', :params => link)]
+                # Clear cached descendants
                 remove_instance_variable(:@all_descendants)
               end
 
               if !descendant('else')
-                @blocks += [make(:void, :method=>'void', :text=>"<r:else>#{open_tag}<r:show var='#{pagination_key}_page'/>#{close_tag}</r:else>")]
+                else_tag = {:method => 'else', :text => '<r:this/>'}
+                else_tag[:tag] = tag if tag
+                @blocks += [make(:void, else_tag)]
+                # Clear cached descendants
                 remove_instance_variable(:@all_descendants)
               end
 
-              out "<% page_numbers(set_#{pagination_key}, set_#{pagination_key}_count, #{(@params[:join] || ' ').inspect}, #{@params[:page_count] ? @params[:page_count].to_i : 'nil'}) do |set_#{pagination_key}_page, #{pagination_key}_page_join| %>"
-              out "<%= #{pagination_key}_page_join %>"
-              out "<% if set_#{pagination_key}_page != set_#{pagination_key} -%>"
-              out expand_with(:in_if => true)
-              out "<% end; end -%>"
+              out "<% page_numbers(#{curr_page}, #{page_count}, #{(@params[:join] || ' ').inspect}, #{@params[:page_count] ? @params[:page_count].to_i : 'nil'}) do |#{page_number}, #{page_join}| %>"
+              out "<%= #{page_join} %>"
+              with_context(:node => node.move_to(page_number, Number)) do
+                out expand_if("#{page_number} != #{curr_page}")
+              end
+              out "<% end -%>"
             else
               parser_error("unkown option for 'page' #{@params[:page].inspect} should be ('previous', 'next' or 'list')")
             end

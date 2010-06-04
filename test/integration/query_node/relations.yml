@@ -45,6 +45,12 @@ same_name_as_class_not_valid:
   src: 'pages'
   sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NP%' AND nodes.parent_id = ? ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id]"
 
+root_should_be_project:
+  context:
+    # Make sure we do not start query on a Project so that we can tell if 'root' properly sets main_class.
+    node: ant
+  src: 'news from root'
+  sql: "%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes,nodes AS no1 WHERE #{secure_scope('nodes')} AND nodes.id = links.source_id AND links.relation_id = 488905945 AND links.target_id = no1.id AND no1.id = 850927283 GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
 
 # l_date_as_date:
 #   src: "select *,if(l_date,l_date,event_at) AS date from (notes or assigned_notes) order by date"

@@ -4,30 +4,20 @@ default:
     node: 'cleanWater'
     visitor: 'ant'
 
-ml_title_like:
-  src: "nodes where title like 'P%' in site order by zip"
-  sql: "%Q{SELECT nodes.* FROM nodes,versions WHERE #{secure_scope('nodes')} AND versions.title LIKE 'P%' AND nodes.id = versions.node_id GROUP BY nodes.id ORDER BY nodes.zip ASC}"
-  # we avoid sorting by name here because of collation issues when using different
-  # databases, and that's not what we are testing here
-  res: "people, projects, opening, Project-changes-xml, Page-changes, Project"
-
 ml_title_where:
-  # Builds 'title' index in test (only needed until they are created by FoxyParser...)
-  src: "nodes where title like 'foo%' in site"
-  sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings,nodes WHERE #{secure_scope('nodes')} AND idx_nodes_ml_strings.value LIKE 'foo%' AND idx_nodes_ml_strings.lang = 'fr' AND idx_nodes_ml_strings.key = 'title' AND idx_nodes_ml_strings.node_id = nodes.id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
-  res: 'Foobar'
+  src: "nodes where title like 'Etat%' in site"
+  sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings,nodes WHERE #{secure_scope('nodes')} AND idx_nodes_ml_strings.value LIKE 'Etat%' AND idx_nodes_ml_strings.lang = 'fr' AND idx_nodes_ml_strings.key = 'title' AND idx_nodes_ml_strings.node_id = nodes.id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
+  res: 'status'
 
 ml_title_where_with_or:
-  # Builds 'title' index in test (only needed until they are created by FoxyParser...)
-  src: "nodes where title like 'foo%' or class = Letter in site"
-  sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings,nodes WHERE #{secure_scope('nodes')} AND ((idx_nodes_ml_strings.value LIKE 'foo%' AND idx_nodes_ml_strings.lang = 'fr' AND idx_nodes_ml_strings.key = 'title' AND idx_nodes_ml_strings.node_id = nodes.id) OR (nodes.kpath = 'NNL' AND idx_nodes_ml_strings.id = 0)) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
-  res: 'Foobar, letter'
+  src: "nodes where title like 'Etat%' or class = Letter in site"
+  sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings,nodes WHERE #{secure_scope('nodes')} AND ((idx_nodes_ml_strings.value LIKE 'Etat%' AND idx_nodes_ml_strings.lang = 'fr' AND idx_nodes_ml_strings.key = 'title' AND idx_nodes_ml_strings.node_id = nodes.id) OR (nodes.kpath = 'NNL' AND idx_nodes_ml_strings.id = 0)) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
+  res: 'status, letter'
 
 name_where:
-  # Builds 'title' index in test (only needed until they are created by FoxyParser...)
-  src: "base_contacts where name like 'Foo%' in site"
-  sql: "%Q{SELECT nodes.* FROM idx_nodes_strings,nodes WHERE #{secure_scope('nodes')} AND idx_nodes_strings.value LIKE 'Foo%' AND idx_nodes_strings.key = 'name' AND idx_nodes_strings.node_id = nodes.id AND nodes.kpath LIKE 'NRC%' GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
-  res: 'SolenopsisFoobar'
+  src: "base_contacts where name like 'Inv%' in site"
+  sql: "%Q{SELECT nodes.* FROM idx_nodes_strings,nodes WHERE #{secure_scope('nodes')} AND idx_nodes_strings.value LIKE 'Inv%' AND idx_nodes_strings.key = 'name' AND idx_nodes_strings.node_id = nodes.id AND nodes.kpath LIKE 'NRC%' GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
+  res: 'ant'
 
 # TODO: Only implement with a proper use case. Ref [#190]
 #       this is really more complex then it seems if we do not want too bad performance. Easiest way:
@@ -40,8 +30,9 @@ name_where:
 ml_title_order:
   context:
     node: 'cleanWater'
-  src: "<r:nodes order='title asc' do='each' join=', ' do='title'/>"
-  res: "<span class='assigned'>status</span><span>lake</span><span>lakeAddress</span><span>opening</span><span>track</span><span>water</span>"
+  src: "pages in site order by title asc limit 7"
+  sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings,nodes WHERE #{secure_scope('nodes')} AND idx_nodes_ml_strings.lang = 'fr' AND idx_nodes_ml_strings.key = 'title' AND idx_nodes_ml_strings.node_id = nodes.id AND nodes.kpath LIKE 'NP%' GROUP BY nodes.id ORDER BY idx_nodes_ml_strings.value ASC LIMIT 7}"
+  res: "wiki, art, cleanWater, collections, crocodiles, default, status"
 
 
 dynattr_filter_in_relation:

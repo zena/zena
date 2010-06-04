@@ -52,7 +52,6 @@ module Zena
           klass.set_table_name table_name
 
           File.open(path_for_table(table_name), 'wb') do |file|
-            puts [table_name, klass.count].inspect
             file.puts records_to_yaml(klass.all)
           end
         end

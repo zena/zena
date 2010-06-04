@@ -82,7 +82,15 @@ module Zena
           end
         end
 
-        # list of page numbers links
+        # Enter page numbers context.
+        #
+        # ==== Parameters
+        #
+        # * +current+     - current page number
+        # * +count+       - total number of pages
+        # * +join_string+ - (optional) string to use to join page numbers
+        # * +max_count+   - (optional) maximum number of pages to display
+        # * +&block+      - block to yield for each page number. Receives |page_number, join_string|.
         def page_numbers(current, count, join_string = nil, max_count = nil)
           max_count ||= 10
           join_string ||= ''

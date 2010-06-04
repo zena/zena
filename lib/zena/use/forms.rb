@@ -253,8 +253,13 @@ END_TXT
             selected = ::RubyLess.translate_string(value, self)
           elsif @context[:in_filter]
             selected = "params[#{attribute.to_sym.inspect}].to_s"
+          elsif %w{parent_id}.include?(attribute)
+            selected = "#{node}.parent_zip.to_s"
+          elsif attribute =~ /^(.*)_id$/
+            # relation
+            selected = "#{node}.rel[#{$1.inspect}].other_zip.to_s"
           else
-            selected = "#{node}.prop['#{attribute}'].to_s"
+            selected = "#{node}.prop[#{attribute.inspect}].to_s"
           end
 
           html_id = html_attributes[:id] ? " id='#{html_attributes[:id]}'" : ''
@@ -363,42 +368,45 @@ END_TXT
           res = Zafu::OrderedHash.new
           if name = (params[:name] || params[:date])
             res[:name] = name
-            #if res[:name] =~ /\A([\w_]+)\[(.*?)\]/
-            #  attribute, sub_attr = $1, $2
-            #else
+            if res[:name] =~ /\A([\w_]+)\[(.*?)\]/
+              # Sub attributes are used with tags or might be used for other features. It
+              # enables things like 'tagged[foo]'
+              attribute, sub_attr = $1, $2
+            else
               attribute = res[:name]
-            #end
+            end
 
             unless @context[:in_filter] || attribute == 's'
-              #if sub_attr
-              #  res[:name] = "#{node.form_name}[#{attribute}][#{sub_attr}]"
-              #else
-                res[:name] = "#{node.form_name}[#{attribute}]"
-              #end
-            end
-
-            #if sub_attr
-            #  if (nattr = node_attribute(attribute)) != 'nil'
-            #    nattr = "#{nattr}[#{sub_attr.inspect}]"
-            #  end
-            #else
-            if value = params[:value]
-              # On refactor, use append_markup_attr(markup, key, value)
-              value = ::RubyLess.translate_string(value, self)
-              if value.literal
-                res[:value] = value.literal.to_s.gsub("'",'&apos;')
+              if sub_attr
+                res[:name] = "#{node.form_name}[#{attribute}][#{sub_attr}]"
               else
-                res[:value] = "<%= fquote #{value} %>"
+               res[:name] = "#{node.form_name}[#{attribute}]"
               end
-            elsif type = node.klass.safe_method_type([attribute])
-              res[:value] = "<%= fquote #{node}.#{type[:method]} %>"
             end
-            #end
 
-            #if sub_attr && params[:type] == 'checkbox' && !params[:value]
-            #  # Special case when we have a sub_attribute: default value for "tagged[foobar]" is "foobar"
-            #  params[:value] = sub_attr
-            #end
+            if sub_attr
+              type = node.klass.safe_method_type([attribute])
+              if sub_attr_ruby = RubyLess.translate(%Q{this.#{attribute}[#{sub_attr.inspect}]}, self)
+                res[:value] = "<%= fquote #{sub_attr_ruby} %>"
+              end
+            else
+              if value = params[:value]
+                # On refactor, use append_markup_attr(markup, key, value)
+                value = RubyLess.translate_string(value, self)
+                if value.literal
+                  res[:value] = value.literal.to_s.gsub("'",'&apos;')
+                else
+                  res[:value] = "<%= fquote #{value} %>"
+                end
+              elsif type = node.klass.safe_method_type([attribute])
+                res[:value] = "<%= fquote #{node}.#{type[:method]} %>"
+              end
+            end
+
+            if sub_attr && params[:type] == 'checkbox' && !params[:value]
+              # Special case when we have a sub_attribute: default value for "tagged[foobar]" is "foobar"
+              params[:value] = sub_attr
+            end
 
             #if @context[:in_add]
             #  res[:value] = (params[:value] || params[:set_value]) ? ["'#{ helper.fquote(params[:value])}'"] : ["''"]
@@ -421,13 +429,13 @@ END_TXT
             res[:id]   = params[:id] if params[:id]
           end
 
-          # if params[:type] == 'checkbox' && nattr
-          #   if value = params[:value]
-          #     res[:checked] = "<%= #{nattr} == #{value.inspect} ? \" checked='checked'\" : '' %>"
-          #   else
-          #     res[:checked] = "<%= #{nattr}.blank? ? '' : \" checked='checked'\" %>"
-          #   end
-          # end
+          if params[:type] == 'checkbox' && sub_attr_ruby
+            if value = params[:value]
+              res[:checked] = "<%= #{sub_attr_ruby} == #{value.inspect} ? \" checked='checked'\" : '' %>"
+            else
+              res[:checked] = "<%= #{sub_attr_ruby}.blank? ? '' : \" checked='checked'\" %>"
+            end
+          end
 
           params.each do |k, v|
             next unless [:size, :style, :class].include?(k)
@@ -492,6 +500,7 @@ END_TXT
           def get_options_for_select
             if nodes = @params[:nodes]
               # TODO: dry with r_checkbox
+              klass = Node
               if nodes =~ /^\d+\s*($|,)/
                 # ids
                 # TODO: optimization generate the full query instead of using secure.
@@ -501,17 +510,18 @@ END_TXT
                 # relation
                 begin
                   finder = build_finder(:all, nodes, @params)
+                  klass  = finder[:class].first
                 rescue ::QueryBuilder::SyntaxError => err
                   out self.class.parser_error(err.message, @method)
                   return nil
                 end
 
-                return parser_error("invalid class (#{klass})") unless finder[:class].first <= Node
+                return parser_error("invalid class (#{klass})") unless klass <= Node
                 nodes = finder[:method]
               end
 
-              set_attr  = ::RubyLess.translate(@params[:attr] || 'id', Node)
-              show_attr = ::RubyLess.translate(@params[:show] || 'title', Node)
+              set_attr  = ::RubyLess.translate(@params[:attr] || 'id', klass)
+              show_attr = ::RubyLess.translate(@params[:show] || 'title', klass)
 
               options_list = "[['','']] + (#{nodes} || []).map{|r| [r.#{show_attr}, r.#{set_attr}.to_s]}"
             elsif values = @params[:values]

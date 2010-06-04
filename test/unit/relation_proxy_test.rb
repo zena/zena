@@ -7,7 +7,7 @@ class RelationProxyTest < Zena::Unit::TestCase
     assert_equal relations_id(:note_has_calendars), RelationProxy.find_by_role('calendar')[:id]
     assert_nil RelationProxy.find_by_role('badrole')
   end
-
+  
   def test_get_proxy
     proj = secure(Node) { nodes(:cleanWater) }
     note = secure(Note) { nodes(:opening)    }

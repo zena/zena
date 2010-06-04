@@ -8,7 +8,7 @@ module Zena
     def self.perform(site, action, page = 1)
       action = new(site.id, action, page)
 
-      if defined?(Delayed)
+      if Bricks::CONFIG['worker']
         Delayed::Job.enqueue action
       else
         # No worker: do it now

@@ -30,6 +30,7 @@ class RelationProxy < Relation
     # Find a relation proxy for a role through a given node.
     # The finder makes sure the class path is compatible with the node's class/virtual_class given as parameter.
     def get_proxy(node, role)
+      # TODO: use find_by_role(role, node.kpath) when all tests are clear
       rel = find_by_role(role)
       if rel && (node.new_record? || node.vclass.kpath =~ /\A#{rel.this_kpath}/)
         rel.start = node

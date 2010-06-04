@@ -37,16 +37,16 @@ do_not_set_parent_id_if_form_contains_parent_id:
   res: "!/node\[parent_id\].\s+value/"
 
 select_nodes_selected:
-  src: "<r:form><select name='parent_id' values='projects in site'/></r:form>"
-  res: "/option\s* value=.21.\s* selected=.selected.>cleanWater/"
+  src: "<r:form><select name='parent_id' nodes='projects in site'/></r:form>"
+  res: "/option\s* value=.21.\s* selected=.selected.>Clean Water/"
 
 select_nodes_in_ajax:
   src: "<r:pages><r:each do='node_name'/><r:add/><r:form><r:select nodes='images in site' name='d_ref'/></r:form></r:pages>"
   res: "/name=.node\[d_ref\].><option value=\"\" selected=\"selected\"></option>\n<option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
 
 select_nodes_show_attr:
-  src: "<r:form><r:select name='d_ref' nodes='images in site' attr='ext' show='title'/></r:form>"
-  res: "/name=.node\[d_ref\].>.*<option value=\"jpg\">flower</option>\n<option value=\"jpg\">it's a lake</option>/"
+  src: "<r:form><r:select name='title' nodes='images in site' attr='ext' show='title'/></r:form>"
+  res: "/name=.node\[title\].>.*<option value=\"jpg\">flower</option>\n<option value=\"jpg\">it's a lake</option>/"
 
 select_nodes_data_list:
   context:
@@ -71,17 +71,17 @@ checkbox:
   context:
     node: 'opening'
   src: "<r:checkbox role='calendar' values='11'/>"
-  res: "/input type='checkbox' name='node\[calendar_ids\]\[\]' value='11' checked='checked'.*zena.*hidden.*node\[calendar_ids\]\[\]' value=''/"
+  res: "/input type='checkbox' name='node\[calendar_ids\]\[\]' value='11' checked='checked'.*Zena.*hidden.*node\[calendar_ids\]\[\]' value=''/"
 
 checkbox_finder:
   context:
     node: 'opening'
-  src: "<r:checkbox role='calendar' values='projects in site'/>"
-  res: "/value=.21.*cleanWater.*input type=.checkbox. name=.node\[calendar_ids\]\[\]. value=.29. checked=.checked.*wiki/"
+  src: "<r:checkbox role='calendar' nodes='projects in site'/>"
+  res: "/value=.21.*Clean Water.*input type=.checkbox. name=.node\[calendar_ids\]\[\]. value=.29. checked=.checked.*wiki/"
 
 checkbox_checked_value:
   src: "<r:input type='checkbox' name='tagged[sky]'/>"
-  res: "<input name='node[tagged][sky]' type='checkbox' value='sky' checked='checked'/>"
+  res: "<input type='checkbox' name='node[tagged][sky]' value='sky' checked='checked'/>"
 
 checkbox_unchecked_value:
   src: "<r:input type='checkbox' name='tagged[foo]'/>"
@@ -120,4 +120,4 @@ input_new:
   context:
     node: 'ant'
   src: "<r:base_contacts><r:each/><r:form><r:input name='first_name'/></r:form><r:add/></r:base_contacts>"
-  res: "/name='node[first_name]' id='list1_first_name'/"
+  res: "/name='node\[first_name\]' [^>]*id='list1_first_name'/"

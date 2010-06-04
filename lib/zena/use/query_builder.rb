@@ -49,7 +49,7 @@ module Zena
 
         # Select the most pertinent error between RubyLess processing errors and QueryBuilder errors.
         def show_errors
-          if @method =~ / in | where / || ([:find, :else, :in, :where, :or, :limit, :order] & @params.keys != [])
+          if @method =~ / in | where | from / || ([:find, :from, :else, :in, :where, :or, :limit, :order] & @params.keys != [])
             # probably a query
             @errors.detect {|e| e =~ /Syntax/} || @errors.last
           else
@@ -68,7 +68,7 @@ module Zena
             page_count = get_var_name('paginate', 'count', sub_context)
             curr_page  = get_var_name('paginate', 'current', sub_context)
 
-            out "<% #{node_count} = #{query.to_s(:count)}; #{page_count} = (#{node_count} / #{query.page_size.to_f}).ceil; #{curr_page} = [1,params[:#{pagination_key}].to_i].max -%>"
+            out "<% #{node_count} = Node.do_find(:count, #{query.to_s(:count)}); #{page_count} = (#{node_count} / #{query.page_size.to_f}).ceil; #{curr_page} = [1,params[:#{pagination_key}].to_i].max -%>"
           end
           sub_context
         end

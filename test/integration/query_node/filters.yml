@@ -95,18 +95,18 @@ filter_with_fullpath:
 
 class_filter:
   src: "nodes where class like Image or class = Project in site"
-  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND (nodes.kpath LIKE 'NDI%' OR nodes.kpath = 'NPP') ORDER BY nodes.position ASC, nodes.node_name ASC}"
+  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND (nodes.kpath LIKE 'NDI%' OR nodes.kpath = 'NPP') GROUP BY id ORDER BY nodes.position ASC, nodes.node_name ASC}"
   res: 'bird, cleanWater, flower, lake, tree, wiki, zena'
 
 role_filter:
   src: "nodes where role = Original in site"
   sql: "%Q{SELECT nodes.* FROM nodes,nodes_roles WHERE #{secure_scope('nodes')} AND (nodes_roles.node_id = nodes.id AND nodes_roles.role_id = 493147733) ORDER BY nodes.position ASC, nodes.node_name ASC}"
-  res: 'nature'
+  res: 'tree'
 
 role_as_relation_filter:
   src: "originals in site"
   sql: "%Q{SELECT nodes.* FROM nodes,nodes_roles WHERE #{secure_scope('nodes')} AND nodes_roles.role_id = 493147733 AND nodes_roles.node_id = nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
-  res: 'nature'
+  res: 'tree'
 
 #many_role_filter:
 # This is not working (or clause on 'indexed' fields is not supported right now)

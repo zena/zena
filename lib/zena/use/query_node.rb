@@ -312,6 +312,7 @@ module Zena
             when 'root'
               # Special pseudo-context
               add_table(main_table)
+              make_and_set_main_class(Project)
               add_filter "#{table}.id = #{current_site.root_id}"
               return true
             #when 'author', 'traductions', 'versions'
@@ -342,14 +343,10 @@ module Zena
             if [main_table, 'children'].include?(relation)
               # no filter
               add_table(main_table)
-            elsif @relation = RelationProxy.find_by_role(relation.singularize, @query.main_class.kpath)
-              # ignore, will be handled later by join_relation
-              nil
             else
               # Not a core context, try to filter by class type
               if klass = Node.get_class(relation)
-                res_class = Zena::Acts::Enrollable.make_class(klass)
-                set_main_class(res_class)
+                res_class = make_and_set_main_class(klass)
 
                 add_table(main_table)
                 add_filter "#{table}.kpath LIKE #{quote("#{res_class.kpath}%")}" unless res_class.kpath == 'N'
@@ -373,9 +370,7 @@ module Zena
 
           # Moving to another context through 'joins'
           def join_relation(relation)
-            if @relation ||= RelationProxy.find_by_role(relation.singularize, @query.main_class.kpath)
-              rel = @relation
-              @relation = nil
+            if rel = RelationProxy.find_by_role(relation.singularize, @query.main_class.kpath)
               add_table(main_table)
               add_table('links')
 
@@ -423,6 +418,12 @@ module Zena
 
           def node_name
             @context[:node_name]
+          end
+
+          def make_and_set_main_class(klass)
+            res_class = Zena::Acts::Enrollable.make_class(klass)
+            set_main_class(res_class)
+            res_class
           end
       end # Compiler
     end # QueryNode

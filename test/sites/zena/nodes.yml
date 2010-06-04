@@ -228,7 +228,7 @@ tree_jpg:
   node_name:       tree
   parent:          nature
   user:            ant
-  roles:           Original
+  roles:           zena_Original
 
 forest_pdf:
   zip:             41

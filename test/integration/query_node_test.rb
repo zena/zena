@@ -134,40 +134,13 @@ class QueryNodeTest < Zena::Unit::TestCase
     assert_equal 3, Node.do_find(:count, eval(sql))
   end
 
-  def create_indices
-    login(:ant) # create 'fr' index
-    node = secure!(Node) { nodes(:status) }
-    node.update_attributes(:title => 'Foobar', :v_status => Zena::Status[:pub])
-    login(:lion) # create parasite 'en' index
-    node = secure!(Node) { nodes(:wiki) }
-    node.update_attributes(:title => 'Foobar', :v_status => Zena::Status[:pub])
-  end
-
-  def test_filters_ml_indexed_value_filter
-    create_indices
-    yt_do_test('filters', 'ml_indexed_value_filter')
-  end
-
-  def test_filters_ml_indexed_value_filter_with_or
-    create_indices
-    yt_do_test('filters', 'ml_indexed_value_filter_with_or')
-  end
-
-  def test_filters_indexed_value_filter
-    login(:tiger)
-    # create 'name' index
-    node = secure!(Node) { nodes(:ant) }
-    node.update_attributes(:name => 'Foobar', :v_status => Zena::Status[:pub])
-    yt_do_test('filters', 'indexed_value_filter')
-  end
-
   def test_relations_same_name_as_class
     login(:lion)
     rel = Relation.create(
-      :source_role  => '',
-      :target_role  => '',
       :source_kpath => 'NP',
-      :target_kpath => 'NNL'
+      :source_role  => '',
+      :target_kpath => 'NNL',
+      :target_role  => 'live_letter'
     )
     assert !rel.new_record?
     yt_do_test('relations', 'same_name_as_class')
@@ -176,10 +149,10 @@ class QueryNodeTest < Zena::Unit::TestCase
   def test_relations_same_name_as_class_not_valid
     login(:lion)
     rel = Relation.create(
-      :source_role  => '',
-      :target_role  => '',
       :source_kpath => 'NP',
-      :target_kpath => 'NNL'
+      :source_role  => '',
+      :target_kpath => 'NNL',
+      :target_role  => 'live_letter'
     )
     assert !rel.new_record?
     yt_do_test('relations', 'same_name_as_class_not_valid')

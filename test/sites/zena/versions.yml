@@ -596,7 +596,7 @@ Node_index_zafu_en:
   node:            Node_index_zafu
   user:            tiger
   prop:
-    text:          "[FILE:app/views/zafu/default/Node-+index.zafu]"
+    text:          "[FILE:db/init/base/skins/default/Node-+index.zafu]"
     format:        html
     tkpath:        N
     mode:          "+index"

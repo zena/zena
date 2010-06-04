@@ -8,12 +8,16 @@ module Zena
         include RubyLess
         safe_method [:[], String] => {:class => 'RelationProxy', :nil => true}
 
+        DUMMY = Class.new do
+          def other_id; nil; end
+        end.new.freeze
+
         def initialize(node)
           @node = node
         end
 
         def [](role)
-          @node.relation_proxy(role.to_s)
+          @node.relation_proxy(role.to_s) || DUMMY
         end
 
         def send(role)

@@ -3,6 +3,8 @@ require 'test_helper'
 class ZafuCompilerTest < Zena::Controller::TestCase
 
   yamltest :directories => [:default, "#{Zena::ROOT}/bricks/**/test/zafu"]
+
+
   Section # make sure we load Section links before trying relations
 
   class ZafuDummy
@@ -292,10 +294,10 @@ class ZafuCompilerTest < Zena::Controller::TestCase
   def test_relations_same_name_as_class
     login(:lion)
     rel = Relation.create(
-      :source_role  => '',
-      :target_role  => '',
       :source_kpath => 'NP',
-      :target_kpath => 'NNL'
+      :source_role  => '',
+      :target_kpath => 'NNL',
+      :target_role  => 'live_letter'
     )
     assert !rel.new_record?
     yt_do_test('relations', 'same_name_as_class')
