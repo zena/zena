@@ -69,3 +69,7 @@ bad_attribute:
 show_bad_attr:
   src: "my <r:show attr=':name'/>"
   tem: "/parse error on value \"name\" \(tSYMBOL\)/"
+
+zazen_bad_attr:
+  src: "<r:zazen attr='d_some_attr' edit='true' publish='true'/>"
+  tem: "/unknown method 'd_some_attr\(\)' for '@node'/"

@@ -2,6 +2,7 @@
 require 'test_helper'
 
 class AttachmentTest< ActiveSupport::TestCase
+  # FIXME: we could use execute_after_commit! instead of reloading fixtures.
   self.use_transactional_fixtures = false
   include Zena::Use::Fixtures
   include Zena::Use::TestHelper

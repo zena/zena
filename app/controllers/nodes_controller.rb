@@ -191,10 +191,13 @@ class NodesController < ApplicationController
 
   # modifications of the node itself (dates, groups, revert editions, etc)
   def edit
+    @node.load_roles!
+
     respond_to do |format|
       format.html do
         @title_for_layout = @node.rootpath
       end
+
       format.js do
         # zafu edit
         render :template => 'nodes/edit.rjs' # FIXME: this should not be needed. Rails bug ?
@@ -249,6 +252,7 @@ class NodesController < ApplicationController
 
   # import sub-nodes from a file
   def import
+    puts visitor.inspect
     defaults = params[:node]
     klass = defaults.delete(:klass)
     if klass == 'Skin' && !defaults.has_key?('v_status')

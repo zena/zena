@@ -178,7 +178,8 @@ END_TXT
               # FIXME: the "... || '@node'" is a hack and I don't understand why it's needed...
               hidden_fields['node_id'] = "<%= #{node.up || '@node'}.zip %>"
             elsif node.will_be?(DataEntry)
-              hidden_fields["data_entry[#{@context[:data_root]}_id]"] = "<%= #{@context[:in_add] ? @context[:parent_node] : "#{node}.#{@context[:data_root]}"}.zip %>"
+              return parser_error("Missing :data_root in context (internal error)") unless data_root = @context[:data_root]
+              hidden_fields["data_entry[#{data_root}_id]"] = "<%= #{@context[:in_add] ? node(Node) : "#{node}.#{data_root}"}.zip %>"
             end
 
             if add_block = @context[:add]

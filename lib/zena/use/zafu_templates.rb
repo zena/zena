@@ -32,26 +32,26 @@ module Zena
         # The rule is not the same whether we are rendering a template and find <img/> <link rel='stylesheet'/> tags
         # or if we are parsing assets in a CSS file.
         def template_url_for_asset(opts)
-          src = opts[:src]
-          if src =~ /\A(.*)\.(\w+)\Z/
-            src, format = $1, $2
+          source = opts[:src]
+          if source =~ /\A(.*)\.(\w+)\Z/
+            source, format = $1, $2
           end
 
           if opts[:parse_assets]
             base_path = opts[:base_path] || ''
             base_path = base_path[1..-1] if base_path[0..0] == '/'
 
-            if src =~ /\A(.*)_(\w+)\Z/
+            if source =~ /\A(.*)_(\w+)\Z/
               # if the element was not found, maybe it was not a name with underscore but it was an image mode
               src2, mode2 = $1, $2
             end
 
             paths = []
-            if src[0..0] == '/'
-              paths << src[1..-1]
+            if source[0..0] == '/'
+              paths << source[1..-1]
               paths << src2[1..-1] if src2
             else
-              paths << (base_path + '/' + src)
+              paths << (base_path + '/' + source)
               paths << (base_path + '/' + src2) if src2
             end
 
@@ -75,13 +75,14 @@ module Zena
               return nil
             end
           else
-            if src =~ /\A(.*)_(\w+)\Z/
-              src, mode = $1, $2
+            src2 = source.split('/').map {|s| s.url_name!}.join('/')
+
+            if source =~ /\A(.*)_(\w+)\Z/
+              source, mode = $1, $2
             end
 
-            src2 = opts[:src].split('/').map {|s| s.url_name!}.join('/')
 
-            unless res = find_document_for_template(src, opts[:base_path])
+            unless res = find_document_for_template(source, opts[:base_path])
               # '_...' did not mean mode but was an old name.
               mode = nil
               return nil unless res = find_document_for_template(src2, opts[:base_path])

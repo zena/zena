@@ -475,48 +475,6 @@ END:VCALENDAR
     end
   end
 
-  def test_import_xhtml
-    login(:tiger)
-    preserving_files('/test.host/data') do
-      post 'import', :id => nodes_zip(:skins), :node => {:klass => 'Skin', :v_status => Zena::Status[:pub]}, :attachment => uploaded_archive('jet_30.zip')
-      node_list = assigns(:nodes)
-      nodes = {}
-      node_list.each do |n|
-        nodes[n.node_name] = n
-      end
-      assert skin = nodes['jet30']
-      assert_kind_of Skin, skin
-
-      assert zafu = nodes['Node']
-      assert_kind_of Template, zafu
-      assert_equal 'html', zafu.format
-      assert_equal 'Node', zafu.klass
-      assert_equal 'N', zafu.tkpath
-      assert style = nodes['style']
-      assert_kind_of TextDocument, style
-      assert navBar = nodes['navBar']
-      assert_kind_of Image, navBar
-      assert xhtmlBgHover = nodes['xhtmlBgHover']
-      assert_kind_of Image, xhtmlBgHover
-      assert topIcon = nodes['topIcon']
-      assert_kind_of Image, topIcon
-      ['lftPic1', 'lftPic2', 'lftPic3'].each do |p|
-        assert nodes[p]
-        assert_kind_of Image, nodes[p]
-      end
-      assert_match %r{#header ul\{\s*background:url\('/en/image#{navBar.zip}.gif\?#{navBar.updated_at.to_i}'\)}m, style.text
-      assert_match %r{a\.xht:hover\{\s*background:url\('/en/image#{xhtmlBgHover.zip}.gif\?#{xhtmlBgHover.updated_at.to_i}'\)}, style.text
-
-      # use this template
-      status = secure(Node) { nodes(:status) }
-      assert status.update_attributes(:skin => 'jet30', :inherit => 0)
-      get 'show', 'prefix'=>'oo', 'path'=>['projects', 'cleanWater', "page#{nodes_zip(:status)}.html"]
-      assert_response :success
-
-      assert_match %r{posuere eleifend arcu</p>\s*<img [^>]*src\s*=\s*./en/image#{topIcon.zip}.gif}, @response.body
-    end
-  end
-
   def test_create_nodes_from_folder
     login(:tiger)
     preserving_files('/test.host/data') do
@@ -531,27 +489,26 @@ END:VCALENDAR
       assert_equal 4, nodes.size
       bird, doc   = nil, nil
       nodes.each do |n|
-        bird = n if n[:node_name] == 'bird'
-        doc  = n if n[:node_name] == 'document'
+        bird = n if n.node_name == 'bird'
+        doc  = n if n.node_name == 'document'
       end
       simple = secure!(Node) { Node.find_by_node_name_and_parent_id('simple', parent[:id]) }
       photos = secure!(Node) { Node.find_by_node_name_and_parent_id('photos', parent[:id]) }
 
-      assert_equal 'bird', bird[:node_name]
-      assert_equal 'simple', simple[:node_name]
-      assert_equal 'The sky is blue', simple.title
+      assert_equal 'bird', bird.node_name
+      assert_equal 'simple', simple.node_name
       assert_equal 'jpg', bird.ext
-      assert_equal 'Le septième ciel', bird.title
+      assert_equal 'Le septième ciel', bird.text
       versions = secure!(Node) { Node.find(bird[:id]) }.versions
       assert_equal 2, versions.size
       assert_equal 'fr', versions[0].lang
       assert_equal 'en', versions[1].lang
-      assert_equal 'Le septième ciel', versions[0].title
+      assert_equal 'Le septième ciel', versions[0].text
       assert_equal 'Photos !', photos.title
       assert_match %r{Here are some photos.*!\[\]!}m, photos.text
       assert_match %r{!#{bird.zip}_med!}m,     photos.text
       assert_match %r{"links":#{simple.zip}}m, photos.text
-      assert_equal "A simple \"test\":#{simple.zip}", photos.version.prop['foo']
+      assert_equal "A simple \"test\":#{simple.zip}", photos.version.prop['origin']
       in_photos = photos.find(:all, 'children')
       assert_equal 2, in_photos.size
 
@@ -567,19 +524,19 @@ END:VCALENDAR
 
   def test_edit_attribute_publish
     login(:tiger)
-    node = secure!(Node) { nodes(:status) }
+    node = secure!(Node) { nodes(:letter) }
     assert_equal Zena::Status[:pub], node.version.status
     # get ajax
-    get 'edit', :format => 'js', :id => node.zip, 'attribute' => 'd_philosopher', 'dom_id' => 'foo', 'publish' => 'true', 'zazen' => 'true'
+    get 'edit', :format => 'js', :id => node.zip, 'attribute' => 'paper', 'dom_id' => 'foo', 'publish' => 'true', 'zazen' => 'true'
     assert_match %r{name='node\[v_status\]' value='50'}m, @response.body
     assert_match %r{name='publish' value='true'}m, @response.body
 
-    put 'update', :format => 'js', :id => node.zip, 'publish' => 'true', 'zazen' => 'true', 'dom_id' => 'foo', 'node' => {'d_philosopher' => 'Michel Serres', 'v_status' => '50'}
+    put 'update', :format => 'js', :id => node.zip, 'publish' => 'true', 'zazen' => 'true', 'dom_id' => 'foo', 'node' => {'paper' => 'Parchment', 'v_status' => '50'}
     assert_match %r{publish=true}m, @response.body
 
-    node = secure!(Node) { nodes(:status) }
+    node = secure!(Node) { nodes(:letter) }
     assert_equal Zena::Status[:pub], node.v_status
-    assert_equal 'Michel Serres', node.d_philosopher
+    assert_equal 'Parchment', node.prop['paper']
   end
 
   def test_update_change_v_status_reloads_page
@@ -630,9 +587,11 @@ END:VCALENDAR
   end
 
   def test_should_get_test_page_without_errors
-    login(:tiger)
-    get 'show', 'prefix'=>'oo', 'path'=>["page#{nodes_zip(:projects)}_test.html"]
-    assert_response :success
+    without_files('test.host/zafu') do
+      login(:tiger)
+      get 'show', 'prefix'=>'oo', 'path'=>["page#{nodes_zip(:projects)}_test.html"]
+      assert_response :success
+    end
   end
 
   def test_create_from_url
@@ -665,13 +624,10 @@ END:VCALENDAR
   end
 
   def test_search_q
-    login(:lion)
-    # Until we have indices in fixtures: create entries
-    secure(Node) { nodes(:zena) }.update_attributes(:v_status => Zena::Status[:pub], :title => 'zoom')
     login(:anon)
-    get 'search', 'q' => 'klass:Project title:z'
+    get 'search', :klass => 'Project', :title => 'k'
     assert nodes = assigns(:nodes)
-    assert_equal [nodes_id(:zena)], nodes.map {|r| r.id}
+    assert_equal [nodes_id(:wiki)], nodes.map {|r| r.id}
   end
 end
 

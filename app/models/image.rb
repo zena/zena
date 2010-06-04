@@ -56,6 +56,7 @@ or to create a link to the article using the icon:
 =end
 class Image < Document
   include Zena::Use::Upload::UploadedFile
+  after_save :clear_new_image
 
   property do |t|
     t.integer 'width'
@@ -248,5 +249,13 @@ class Image < Document
     def make_file(path, data)
       FileUtils::mkpath(File.dirname(path)) unless File.exist?(File.dirname(path))
       File.open(path, "wb") { |f| f.syswrite(data.read) }
+    end
+
+    # We have to clear the @new_image after save because it points to a temporary file
+    # that can be removed after saving and we could crash during rendering if we wanted
+    # to access the image.
+    def clear_new_image
+      @new_image = nil
+      true
     end
 end

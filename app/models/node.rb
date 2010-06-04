@@ -197,11 +197,11 @@ class Node < ActiveRecord::Base
                      :project => 'Project', :section => 'Section',
                      :real_project => 'Project', :real_section => 'Section',
                      :user => 'User', :comments => ['Comment'],
-                     :data   => {:class => ['DataEntry'], :data_root => 'node_a'},
-                     :data_a => {:class => ['DataEntry'], :data_root => 'node_a'},
-                     :data_b => {:class => ['DataEntry'], :data_root => 'node_b'},
-                     :data_c => {:class => ['DataEntry'], :data_root => 'node_c'},
-                     :data_d => {:class => ['DataEntry'], :data_root => 'node_d'},
+                     :data   => {:class => ['DataEntry'], :zafu => {:data_root => 'node_a'}},
+                     :data_a => {:class => ['DataEntry'], :zafu => {:data_root => 'node_a'}},
+                     :data_b => {:class => ['DataEntry'], :zafu => {:data_root => 'node_b'}},
+                     :data_c => {:class => ['DataEntry'], :zafu => {:data_root => 'node_c'}},
+                     :data_d => {:class => ['DataEntry'], :zafu => {:data_root => 'node_d'}},
                      :traductions => ['Version']
   safe_method        :v => {:class => 'Version', :method => 'version'},
                      :version => 'Version', :v_status => Number, :v_lang => String,
@@ -499,7 +499,8 @@ class Node < ActiveRecord::Base
 
     # Create new nodes from the data in a folder or archive.
     def create_nodes_from_folder(opts)
-      # TODO: all this method needs cleaning, it's a mess.
+      # TODO: all this needs refactoring (and moved into a module).
+      # It's probably the messiest part of Zena.
       return [] unless (opts[:folder] || opts[:archive]) && (opts[:parent] || opts[:parent_id])
       scope = self.scoped_methods[0] || {}
       parent_id = opts[:parent_id] || opts[:parent][:id]
@@ -508,49 +509,18 @@ class Node < ActiveRecord::Base
       klass     = opts[:klass] || "Page"
       res       = {}
 
-      # create from archive
       unless folder
-        archive = opts[:archive]
-        n       = 0
-        while true
-          folder = File.join(RAILS_ROOT, 'tmp', sprintf('%s.%d.%d', 'import', $$, n))
-          break unless File.exists?(folder)
-        end
-
-        begin
-          FileUtils::mkpath(folder)
-
-          if archive.kind_of?(StringIO)
-            filename = archive.original_filename
-            tempf = Tempfile.new(archive.original_filename)
-            File.open(tempf.path, 'wb') { |f| f.syswrite(archive.read) }
-            archive = tempf
-          else
-            filename = archive.original_filename
-          end
-
-          # extract file in this temporary folder.
-          # FIXME: is there a security risk here ?
-          if filename =~ /\.tgz$/
-            `tar -C '#{folder}' -xz < '#{archive.path}'`
-          elsif filename =~ /\.tar$/
-            `tar -C '#{folder}' -x < '#{archive.path}'`
-          elsif filename =~ /\.zip$/
-            `unzip -d '#{folder}' '#{archive.path}'`
-          elsif filename =~ /(.*)(\.gz|\.z)$/
-            `gzip -d '#{archive.path}' -c > '#{folder}/#{$1.gsub("'",'')}'`
-          else
-            # FIXME: send errors back
-            puts "BAD #{archive.inspect}"
-          end
+        # Create from archive
+        res = nil
+        extract_archive(opts[:archive]) do |folder|
           res = create_nodes_from_folder(:folder => folder, :parent_id => parent_id, :defaults => defaults, :klass => klass)
-        ensure
-          FileUtils::rmtree(folder)
         end
+
         return res
       end
 
       entries = Dir.entries(folder).reject { |f| f =~ /^([\._~]|[^\w])/ }.sort
+
       index  = 0
 
       while entries[index]
@@ -561,10 +531,11 @@ class Node < ActiveRecord::Base
         path     = File.join(folder, filename)
 
         if File.stat(path).directory?
-          type   = :folder
+          type       = :folder
           node_name  = filename
           sub_folder = path
-          attrs = defaults.dup
+          attrs      = defaults.dup
+          attrs['v_lang'] ||= visitor.lang
         elsif filename =~ /^(.+?)(\.\w\w|)(\.\d+|)\.zml$/  # bird.jpg.en.zml
           # node content in yaml
           type      = :node
@@ -583,7 +554,7 @@ class Node < ActiveRecord::Base
           lang      = $4.blank? ? nil : $4[1..-1]
           attrs['v_lang'] = lang || attrs['v_lang'] || visitor.lang
           attrs['ext']  = $3
-          document_path   = path
+          document_path = path
         end
 
         index += 1
@@ -662,13 +633,53 @@ class Node < ActiveRecord::Base
           new_object = new_object || current_obj.instance_variable_get(:@new_record_before_save)
         end
         current_obj.instance_variable_set(:@new_record_before_save, new_object)
-
         current_obj.instance_variable_set(:@versions_count, versions.size)
+
         res[current_obj[:id].to_i] = current_obj
 
         res.merge!(create_nodes_from_folder(:folder => sub_folder, :parent_id => current_obj[:id], :defaults => defaults, :parent_class => opts[:klass])) if sub_folder && !current_obj.new_record?
       end
       res
+    end
+
+    def extract_archive(archive)
+      begin
+        n = 0
+        # TODO: we could move the tmp folder inside sites/{current_site}/tmp
+        folder = File.join(RAILS_ROOT, 'tmp', sprintf('%s.%d.%d', 'import', $$, n))
+      end while File.exists?(folder)
+
+      begin
+        FileUtils::mkpath(folder)
+
+        if archive.kind_of?(StringIO)
+          filename = archive.original_filename
+          tempf = Tempfile.new(archive.original_filename)
+          File.open(tempf.path, 'wb') { |f| f.syswrite(archive.read) }
+          archive = tempf
+        else
+          filename = archive.original_filename
+        end
+
+        # extract file in this temporary folder.
+        # FIXME: SECURITY is there a security risk here ?
+        # FIXME: not compatible with Windows.
+        if filename =~ /\.tgz$/
+          `tar -C '#{folder}' -xz < '#{archive.path}'`
+        elsif filename =~ /\.tar$/
+          `tar -C '#{folder}' -x < '#{archive.path}'`
+        elsif filename =~ /\.zip$/
+          `unzip -d '#{folder}' '#{archive.path}'`
+        elsif filename =~ /(.*)(\.gz|\.z)$/
+          `gzip -d '#{archive.path}' -c > '#{folder}/#{$1.gsub("'",'')}'`
+        else
+          # FIXME: send errors back
+          puts "BAD #{archive.inspect}"
+        end
+        yield folder
+      ensure
+        FileUtils::rmtree(folder)
+      end
     end
 
     def find_by_zip(zip)

@@ -16,7 +16,7 @@ querybuilder:   '>= 0.8.0'
 yamltest:       '>= 0.6.0'
 rubyless:       '>= 0.6.0'
 property:       '>= 1.1.0'
-versions:       '>= 0.3.0'
+versions:       '>= 0.3.1'
 zafu:           '>= 0.6.1'
 
 jeweler:

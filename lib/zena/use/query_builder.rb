@@ -69,6 +69,9 @@ module Zena
             curr_page  = get_var_name('paginate', 'current', sub_context)
 
             out "<% #{node_count} = Node.do_find(:count, #{query.to_s(:count)}); #{page_count} = (#{node_count} / #{query.page_size.to_f}).ceil; #{curr_page} = [1,params[:#{pagination_key}].to_i].max -%>"
+          elsif finder[:method].kind_of?(::RubyLess::TypedString)
+            # Hash passed with :zafu => {} is inserted into context
+            sub_context.merge!(finder[:method].opts[:zafu] || {})
           end
           sub_context
         end
@@ -93,14 +96,8 @@ module Zena
             # <r:img link='foo'/>
             # ...
 
-            if node.will_be?(Node)
-              @node_name = node.name
-            else
-              @node_name = node.get(Node).name
-            end
-
             query_opts = {
-              :node_name            => @node_name,
+              :node_name            => node.name,
               :raw_filters          => raw_filters,
               :rubyless_helper      => self,
               :link_both_directions => @params[:direction] == 'both',
@@ -111,12 +108,6 @@ module Zena
 
             query = node.klass.build_query(count.to_sym, pseudo_sql, query_opts)
             klass = query.main_class
-
-
-            #unless query.valid?
-            #  raise QueryException.new(query.errors.join(' '), pseudo_sql.join(', '))
-            #end
-
 
             finder = get_finder(query, count)
 
@@ -296,7 +287,7 @@ module Zena
             [:updated, :created, :event, :log].each do |k|
               if value = params[k]
                 # current, same are synonym for 'today'
-                filters << Zena::Db.date_condition(value,"TABLE_NAME.#{k}_at", get_context_var('set_var', 'date') || RubyLess::TypedString('main_date', Time))
+                filters << Zena::Db.date_condition(value,"TABLE_NAME.#{k}_at", get_context_var('set_var', 'date')) # || ::RubyLess::TypedString('main_date', Time))
               end
             end
 
