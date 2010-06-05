@@ -1,0 +1,12 @@
+default:
+  context:
+    node_name: '@node'
+    node: 'cleanWater'
+    visitor: 'ant'
+
+site:
+  err: "Unknown relation 'site'."
+
+pages_from_site_or_images:
+  src: '(project from site) or images'
+  err: "Unknown relation 'site'."

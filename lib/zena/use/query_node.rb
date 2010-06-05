@@ -155,6 +155,20 @@ module Zena
           elsif field_name == 'random'
             Zena::Db.sql_function(field_name, nil)
           else
+            if processing_filter? && field_name =~ /^(.*)_ids?$/
+              # tag_id = 33  ===> join links as lk, nodes as tt .......
+              rel = $1
+
+              # Fake field_or_attr so it does not use 'zip' on nodes
+              context[:processing] = :relation
+                if join_relation($1, 'jnode')
+                  res = "#{table('jnode')}.zip"
+                end
+              context[:processing] = :filter
+
+              return res
+            end
+
             column = @query.main_class.schema.columns[field_name]
             if column && column.indexed?
               if column.index == true
@@ -387,7 +401,7 @@ module Zena
           end
 
           # Moving to another context through 'joins'
-          def join_relation(relation)
+          def join_relation(relation, use_name = nil)
             if context[:scope] == 'site'
               # Example: 'icons in site' ==> any node with an 'icon' relation (no need to filter by source).
               source_kpath = nil
@@ -396,7 +410,14 @@ module Zena
             end
 
             if rel = RelationProxy.find_by_role(relation.singularize, source_kpath)
-              add_table(main_table)
+              if use_name
+                # Doing a jnode.. (node for filtering), we need to reverse relation
+                rel.side = rel.side == :source ? :target : :source
+                add_table(use_name, main_table)
+              else
+                add_table(main_table)
+              end
+
               add_table('links')
 
               if context[:scope] == 'site'
@@ -416,7 +437,7 @@ module Zena
                 add_filter "#{table('links')}.relation_id = #{rel.id}"
                 add_filter "#{field_or_attr('id')} = #{table('links')}.#{rel.other_side}"
               end
-
+              true
             else
               nil
             end

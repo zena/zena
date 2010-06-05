@@ -20,7 +20,7 @@ class QueryNodeTest < Zena::Unit::TestCase
   end
 
   # ========== YAML TESTS
-  yamltest :files => [:complex]
+  yamltest
 
   def yt_do_test(file, test)
     # Disable defined tests without loaded files
@@ -47,10 +47,8 @@ class QueryNodeTest < Zena::Unit::TestCase
     begin
       query  = Node.build_query(:all, yt_get('src', file, test), @context)
       sql, node_class = query.to_s, query.main_class
-    rescue => err # QueryBuilder::Error => err
+    rescue QueryBuilder::Error => err
       errors = err.message
-      puts err
-      puts err.backtrace
     end
 
     class_prefix = (node_class && !(node_class <= Node)) ? "#{node_class}: " : ''

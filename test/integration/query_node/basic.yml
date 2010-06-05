@@ -90,13 +90,6 @@ find_relation:
 root:
   res: "zena"
 
-site:
-  err: "Unknown relation 'site'."
-
-pages_from_site_or_images:
-  src: '(project from site) or images'
-  err: "Unknown relation 'site'."
-
 children_with_order_clause:
   src: "children order by node_name ASC"
   sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.parent_id = ? ORDER BY nodes.node_name ASC}, @node.id]"
