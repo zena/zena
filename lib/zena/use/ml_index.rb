@@ -29,7 +29,7 @@ module Zena
 
         # Hash used to read current values
         def index_reader(group_name)
-          if group_name.to_s =~ /^ml_/
+          if group_name =~ /^ml_/
             return nil if index_langs.empty?
             super.merge(:with => {'lang' => index_langs})
           elsif @skip_std_index

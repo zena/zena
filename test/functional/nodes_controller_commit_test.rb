@@ -2,10 +2,7 @@ require 'test_helper'
 
 class NodesControllerCommitTest < ActionController::TestCase
   self.use_transactional_fixtures = false
-  include Zena::Use::Fixtures
   include Zena::Use::TestHelper
-  include Zena::Acts::Secure
-  include ::Authlogic::TestCase
 
   tests NodesController
 
@@ -22,7 +19,7 @@ class NodesControllerCommitTest < ActionController::TestCase
 
     without_files('/test.host/data') do
       without_files('/test.host/zafu') do
-        post 'import', :id => nodes_zip(:skins), :node => {:klass => 'Skin', :v_status => Zena::Status[:pub]}, :attachment => uploaded_archive('jet_30.zip')
+        post 'import', :id => nodes(:zena_skins).zip, :node => {:klass => 'Skin', :v_status => Zena::Status[:pub]}, :attachment => uploaded_archive('jet_30.zip')
 
         node_list = assigns(:nodes)
         nodes = {}
@@ -52,9 +49,10 @@ class NodesControllerCommitTest < ActionController::TestCase
         assert_match %r{a\.xht:hover\{\s*background:url\('/en/image#{xhtmlBgHover.zip}.gif\?#{xhtmlBgHover.updated_at.to_i}'\)}, style.text
 
         # use this template
-        status = secure(Node) { nodes(:status) }
+        status = nodes(:zena_status)
+        status.visitor = Thread.current[:visitor]
         assert status.update_attributes(:skin_id => skin.id, :inherit => 0)
-        get 'show', 'prefix'=>'oo', 'path'=>['projects', 'cleanWater', "page#{nodes_zip(:status)}.html"]
+        get 'show', 'prefix'=>'oo', 'path'=>['projects', 'cleanWater', "page#{status.zip}.html"]
         assert_response :success
 
         assert_match %r{posuere eleifend arcu</p>\s*<img [^>]*src\s*=\s*./en/image#{topIcon.zip}.gif}, @response.body

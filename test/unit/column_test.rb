@@ -60,13 +60,13 @@ class ColumnTest < Zena::Unit::TestCase
         end
       end
     end # with an existing name
-    
+
     context 'with the name of a hardwire property' do
       subject do
         Column.create(:role_id => roles_id(:Task), :ptype => 'string', :name => 'title')
       end
 
-      should 'fail with an error' do
+      should 'fail with an error and return class' do
         assert_difference('Column.count', 0) do
           assert_equal 'has already been taken in Node', subject.errors[:name]
         end

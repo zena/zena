@@ -9,7 +9,7 @@ class DocumentsControllerTest < Zena::Controller::TestCase
 
     context 'viewing a document' do
       subject do
-        {:action => 'show', :controller => 'documents', :id => nodes_zip(:bird_jpg)}
+        {:action => 'show', :controller => 'documents', :id => nodes_zip(:bird_jpg).to_s}
       end
 
       should 'recognize url' do
@@ -67,10 +67,14 @@ class DocumentsControllerTest < Zena::Controller::TestCase
 
       context 'with errors' do
         subject do
+          { :action => 'create', :controller => 'documents',
+            :node   => {:parent_id => 0, :file => uploaded_jpg('bird.jpg')}
+          }
         end
 
         should 'render new form' do
-          assert false # TODO
+          post_subject
+          assert_template 'documents/new'
         end
       end
     end # creating a document

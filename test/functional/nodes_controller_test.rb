@@ -618,16 +618,16 @@ END:VCALENDAR
 
   def test_search_klass
     login(:anon)
-    get 'search', 'klass' => 'Project'
+    get 'search', 'klass' => 'Project', 'title' => 'k'
     assert nodes = assigns(:nodes)
-    assert_equal [nodes_id(:zena), nodes_id(:wiki), nodes_id(:cleanWater)], nodes.map {|r| r.id}
+    assert_equal [nodes_id(:wiki)], nodes.map {|r| r.id}
   end
 
   def test_search_q
     login(:anon)
-    get 'search', :klass => 'Project', :title => 'k'
+    get 'search', 'q' => 'zen'
     assert nodes = assigns(:nodes)
-    assert_equal [nodes_id(:wiki)], nodes.map {|r| r.id}
+    assert_equal [nodes_id(:zena)], nodes.map {|r| r.id}
   end
 end
 

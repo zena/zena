@@ -15,10 +15,17 @@ class QueryNodeTest < Zena::Unit::TestCase
     end
   end
 
+  def date
+    @context[:date]
+  end
+
   # ========== YAML TESTS
-  yamltest
+  yamltest :files => [:complex]
 
   def yt_do_test(file, test)
+    # Disable defined tests without loaded files
+    return unless (@@test_strings[file] || {})[test]
+
     @context = Hash[*(yt_get('context', file, test).map{|k,v| [k.to_sym, v]}.flatten)]
 
     params = {}
@@ -40,8 +47,10 @@ class QueryNodeTest < Zena::Unit::TestCase
     begin
       query  = Node.build_query(:all, yt_get('src', file, test), @context)
       sql, node_class = query.to_s, query.main_class
-    rescue QueryBuilder::Error => err
+    rescue => err # QueryBuilder::Error => err
       errors = err.message
+      puts err
+      puts err.backtrace
     end
 
     class_prefix = (node_class && !(node_class <= Node)) ? "#{node_class}: " : ''

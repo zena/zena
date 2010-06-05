@@ -11,35 +11,41 @@ default:
 assigned_jobs:
   context:
     node: roger
+    class: Employee
   src: assigned_jobs
   res: "driver, technician"
 
 courses_assigned_to_driver_team:
   context:
     node: driver_team
+    class: Page
   src: assigned_courses
   res: "formulate_problems, transmit_information"
 
 all_courses_in_driver:
   context:
     node: driver
+    class: Employee
   src: assigned_courses from pages in project
   res: "dangerous_transportations, engine, formulate_problems, transmit_information"
 
 all_courses_for_roger:
   context:
     node: roger
+    class: Employee
   src: assigned_courses from pages in project from assigned_jobs
   res: "dangerous_transportations, engine, fiber_junction, formulate_problems, radio_usage, secure_a_site, transmit_information, winch_usage"
 all_courses_for_joe:
   context:
     node: joe
+    class: Employee
   src: assigned_courses from pages in project from assigned_jobs
   res: "fiber_junction, formulate_problems, radio_usage, secure_a_site, transmit_information, winch_usage"
 
 all_courses_for_mike:
   context:
     node: mike
+    class: Employee
   src: assigned_courses from pages in project from assigned_jobs
   # TODO: optimization
   #sql: "[%Q{SELECT no1.*,li1.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes,nodes AS no1,links AS li1 WHERE no1.id = li1.target_id AND li1.relation_id = 512923747 AND li1.source_id = nodes.id AND nodes.kpath LIKE 'NP%' AND nodes.project_id = links.target_id AND links.relation_id = 813976280 AND links.source_id = \#{@node.id} AND (\#{@node.secure_scope('no1')}) GROUP BY no1.id ORDER BY no1.position ASC, no1.node_name ASC}]"
@@ -48,49 +54,56 @@ all_courses_for_mike:
 all_achieved_formations_for_roger:
   context:
     node: roger
+    class: Employee
   src: assigned_formations where l_status eq 100
   res: fiber2003, form2006, transm2001, transm2002, transp2004
 
 custom_query_form_date:
   context:
     node: roger
-  src: emp_form_date order by node_name ASC
+    class: Employee
+  src: emp_form_dates order by node_name ASC
   res: "dangerous_transportations, engine, fiber_junction, formulate_problems, radio_usage, secure_a_site, transmit_information, winch_usage"
 
 custom_query_form_with_where:
   context:
     node: roger
-    ref_date: 2005-03-01
-  src: emp_form_dates where last_date is null or (repeat_every is not null and next_date lt REF_DATE + 6 month)
+    class: Employee
+    date: 2005-03-01
+  src: "emp_form_dates where last_date is null or (repeat_every is not null and next_date lt #{date} + 6 month)"
   res: "secure_a_site, winch_usage, engine, transmit_information, fiber_junction, radio_usage"
 
 find_employees_related_to_a_course__formulate_problems:
   context:
     node: transmit_information
-  src: assigned_employees from project from assigned_pages
+    class: Course
+  src: assigned_employees from jobs:project from assigned_pages
   res: 'joe, mike, roger'
 
 find_employees_related_to_a_course__fiber_junction:
   context:
     node: fiber_junction
-  src: assigned_employees from project from assigned_pages
+    class: Course
+  src: assigned_employees from jobs:project from assigned_pages
   res: 'joe, mike, roger'
 
 
 find_employees_related_to_a_course__vision:
   context:
     node: vision
-  src: assigned_employees from project from assigned_pages
+    class: Course
+  src: assigned_employees from jobs:project from assigned_pages
   res: 'mike'
 
 course_emp_date:
   context:
     node: transmit_information
+    class: Course
   src: "course_emp_dates"
   res: "joe, mike, roger"
 
 all_course_emp_date:
-  src: "assigned_employees from project from assigned_pages from courses in site"
+  src: "assigned_employees from jobs:project from assigned_pages from courses in site"
   res: "joe, mike, roger"
 
 courses_with_rep:

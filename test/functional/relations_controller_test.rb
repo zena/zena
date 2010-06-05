@@ -26,7 +26,7 @@ class RelationsControllerTest < Zena::Controller::TestCase
 
   def test_should_create_relation
     assert_difference('Relation.count', 1) do
-      post :create, :relation => {:source_role => 'wife', :target_role => 'husband'}
+      post :create, :relation => {:source_kpath => 'NR', :target_kpath => 'NP'}
     end
     assert_redirected_to relation_path(assigns(:relation))
   end

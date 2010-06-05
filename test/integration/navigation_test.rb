@@ -26,32 +26,33 @@ class NavigationTest < Zena::Integration::TestCase
     assert_response :success
   end
 
-  def test_authorize_http_auth
-    Site.connection.execute "UPDATE sites SET http_auth = 1 WHERE id = #{sites_id(:zena)}"
-    get 'http://test.host/'
-    assert_redirected_to 'http://test.host/en'
-    follow_redirect!
-    assert_response :success
-
-    # 1. site forces authentication
-    Site.connection.execute "UPDATE sites SET authentication = 1 WHERE id = #{sites_id(:zena)}"
-    get 'http://test.host/'
-    assert_response 401 # http_auth
-
-    reset!
-    post 'http://test.host/session', :login => 'tiger', :password => 'tiger'
-    assert_redirected_to "http://test.host/users/#{users_id(:tiger)}"
-
-    # 2. navigating out of '/oo' but logged in and format is not data
-    get 'http://test.host/fr'
-    assert_redirected_to 'http://test.host/oo'
-    follow_redirect!
-    assert_response :success
-    assert_equal 'fr', session[:lang]
-    get 'http://test.host/en/textdocument53.css' # data
-    assert_response :success
-    assert_equal 'fr', session[:lang]
-  end
+  # HTTP_AUTH disabled
+  # def test_authorize_http_auth
+  #   Site.connection.execute "UPDATE sites SET http_auth = 1 WHERE id = #{sites_id(:zena)}"
+  #   get 'http://test.host/'
+  #   assert_redirected_to 'http://test.host/en'
+  #   follow_redirect!
+  #   assert_response :success
+  #
+  #   # 1. site forces authentication
+  #   Site.connection.execute "UPDATE sites SET authentication = 1 WHERE id = #{sites_id(:zena)}"
+  #   get 'http://test.host/'
+  #   assert_response 401 # http_auth
+  #
+  #   reset!
+  #   post 'http://test.host/session', :login => 'tiger', :password => 'tiger'
+  #   assert_redirected_to "http://test.host/users/#{users_id(:tiger)}"
+  #
+  #   # 2. navigating out of '/oo' but logged in and format is not data
+  #   get 'http://test.host/fr'
+  #   assert_redirected_to 'http://test.host/oo'
+  #   follow_redirect!
+  #   assert_response :success
+  #   assert_equal 'fr', session[:lang]
+  #   get 'http://test.host/en/textdocument53.css' # data
+  #   assert_response :success
+  #   assert_equal 'fr', session[:lang]
+  # end
 
   def test_out_of_oo_custom_base_set_lang
     post 'http://test.host/session', :login => 'tiger', :password => 'tiger'

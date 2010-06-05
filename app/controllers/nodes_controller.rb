@@ -252,7 +252,6 @@ class NodesController < ApplicationController
 
   # import sub-nodes from a file
   def import
-    puts visitor.inspect
     defaults = params[:node]
     klass = defaults.delete(:klass)
     if klass == 'Skin' && !defaults.has_key?('v_status')

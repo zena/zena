@@ -108,10 +108,11 @@ class VirtualClassesControllerTest < Zena::Controller::TestCase
         should 'save name and kpath' do
           put_subject
           vclass = assigns(:virtual_class)
-          assert_equal 'Brief', vclass.name
-          assert_equal 'NNB',  vclass.kpath
+          assert_equal 'Life', vclass.name
+          assert_equal 'NNL',  vclass.kpath
         end
 
+        # TODO: What happens to properties for a class if kpath changes ?
       end # updating a virtual class
 
       context 'destroying a virtual class' do

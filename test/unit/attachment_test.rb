@@ -1,4 +1,4 @@
-# Simple integration test for the Versions::Attachment
+# Simple integration test for the Versions::Attachment that needs after_commit to fire
 require 'test_helper'
 
 class AttachmentTest< ActiveSupport::TestCase

@@ -54,7 +54,7 @@
 
 Node:
   # find all courses that an employee must follow
-  emp_form_date:
+  emp_form_dates:
     # find courses assigned_to pages in job assigned_to CURRENT_NODE (employee)
     main_table: courses
     select:
@@ -90,11 +90,11 @@ Node:
     group: courses.id
     order: priority DESC, last_date ASC, courses.node_name ASC
 
-  course_emp_date:
+  course_emp_dates:
     main_table: employees
     select:
       - employees.id
-      - employees.name
+      - employees.node_name
       - employees.publish_from
       - employees.zip
       - employees.vclass_id
@@ -125,13 +125,13 @@ Node:
     order: employees.node_name ASC, IF(form.last_date,form.last_date,0) ASC
 
 
-  all_course_emp_date:
+  all_course_emp_dates:
     # assigned_employees from project from assigned_pages from courses in site
     # all courses that need to have a formation created
     main_table: courses
     select:
       - courses.id
-      - courses.name
+      - courses.node_name
       - courses.publish_from
       - courses.zip
       - courses.vclass_id

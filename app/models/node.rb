@@ -131,14 +131,11 @@ class Node < ActiveRecord::Base
 
   property do |p|
     # Multilingual string index on 'title'
-    p.string  'title'
+    p.string  'title', :index => Proc.new {|r| {'title' => r.version.idx_text_high}}, :index_group => :ml_string
+
     p.string  'text'
     p.string  'summary'
     p.string  'comment'
-
-    p.index(:ml_string) do |r|
-      {'title' => r.version.idx_text_high}
-    end
   end
 
   # This is used to enable multilingual indexes

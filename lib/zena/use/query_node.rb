@@ -239,7 +239,7 @@ module Zena
             when 'NODE_ATTR'
               attribute = value
               if Node.safe_method_type([attribute])
-                insert_bind("#{@node_name}.#{attribute}")
+                insert_bind("#{node_name}.#{attribute}")
               else
                 @errors << "cannot read attribute '#{attribute}' in custom query"
                 '-1'
@@ -333,7 +333,21 @@ module Zena
               relation = relation.singularize
             end
 
+
+            if relation =~ /^(.+):(.+)$/
+              class_name, relation = $1, $2
+            end
+
             if CORE_CONTEXTS.include?(relation)
+              if class_name
+                # We have named the relation, set main_class
+                if klass = Node.get_class(class_name)
+                  make_and_set_main_class(klass)
+                else
+                  raise QueryBuilder::QueryException.new("Unknown class #{klass} in scope '#{class_name}:#{scope}'.")
+                end
+              end
+
               # PREVIOUS_GROUP.id = NEW_GROUP.project_id
               add_table(main_table)
               add_filter "#{field_or_attr('id')} = #{field_or_attr("#{relation}_id", table(main_table, -1))}"
