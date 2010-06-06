@@ -107,7 +107,7 @@ module Zena
               opts[:id]          = "<%= ndom_id(#{node}) %>"
 
               opts[:form_tag]    = <<-END_TXT
-<% remote_form_for(:#{node.form_name}, #{node}, :url => #{node}.new_record? ? #{node.form_name.pluralize}_path : #{node.form_name}_path(#{node}), :method => #{node}.new_record? ? :post : :put, :html => {:id => \"#{dom_name}_form_t\"}) do |f| %>
+<% remote_form_for(:#{node.form_name}, #{node}, :url => #{node}.new_record? ? #{node.form_name.pluralize}_path : #{node.form_name}_path(#{node}), :method => #{node}.new_record? ? :post : :put, :html => {:id => \"\#{ndom_id(#{node})}_form_t\"}) do |f| %>
 END_TXT
 
               opts[:form_cancel] = <<-END_TXT

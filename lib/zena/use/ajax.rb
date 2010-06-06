@@ -66,10 +66,13 @@ module Zena
             #  # reload page
             #  page << "document.location.href = document.location.href;"
             #
+            puts params.inspect
+
             case params[:action]
             when 'edit'
-              page.replace params[:dom_id], :file => template_path_from_template_url + "_form.erb"
-      #        page << "$('#{params[:dom_id]}_form_t').focusFirstElement();"
+              page.replace params[:dom_id], :file => template_path_from_template_url + ".erb"
+              puts "$('#{params[:dom_id]}_form_t').focusFirstElement();"
+              page << "$('#{params[:dom_id]}_form_t').focusFirstElement();"
             when 'create'
               pos = params[:position]  || :before
               ref = params[:reference] || "#{params[:dom_id]}_add"
@@ -229,16 +232,16 @@ module Zena
           markup.tag ||= 'div'
 
           # This dom_id detection code is crap but it fixes the drop in each bug.
-          # if dom_id = markup.dyn_params[:id]
-          #   if dom_id =~ /<%= %Q\{(.*)\} %>/
-          #     dom_id = $1
-          #   end
-          # else
-          dom_id = node.dom_id(:list => false, :erb => false)
-          markup.set_id(node.dom_id(:list => false))
-          # end
+          if dom_id = markup.dyn_params[:id]
+            if dom_id =~ /<%= %Q\{(.*)\} %>/
+              dom_id = $1
+            end
+          else
+            dom_id = node.dom_id(:list => false, :erb => false)
+            markup.set_id(node.dom_id(:list => false))
+          end
 
-          markup.append_param(:class, 'drop') # unless markup.params[:class] =~ /drop/
+          markup.append_param(:class, 'drop') unless markup.params[:class] =~ /drop/
 
           if hover  = @params.delete(:hover)
             query_params = ", :hover => #{hover.inspect}"
@@ -277,7 +280,6 @@ module Zena
           opts[:update] = target
 
           if node.will_be?(Node)
-            opts[:cond] = "#{node}.can_write? && #{node}.link_id"
             opts[:action] = 'unlink'
           elsif node.will_be?(Link)
             # ?

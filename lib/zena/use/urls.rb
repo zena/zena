@@ -448,7 +448,10 @@ module Zena
               return ::RubyLess.translate_string("##{get_anchor_name(anchor)}", self)
             end
 
-            if %w{drop unlink}.include?(opts[:action])
+            # if opts[:action] == 'edit' && !remote_target
+            #   method = 'edit_node_path'
+            # els
+            if %w{edit drop unlink}.include?(opts[:action])
               method = "#{opts[:action]}_node_path"
             elsif remote_target
               method = 'zafu_node_path'
@@ -510,7 +513,8 @@ module Zena
               @insert_dom_id = %Q{"#{node.dom_id(:erb => false)}"}
               hash_params << ":dom_id => insert_dom_id"
               hash_params << ":t_url  => %Q{#{form_url(node.dom_prefix)}}"
-              puts "EDIT: #{target.name} // #{node.dom_prefix}"
+              # To enable link edit fix the following line:
+              # hash_params << "'node[link_id]' => link_id"
             when 'unlink', 'delete'
               @insert_dom_id = %Q{"#{node.dom_id(:erb => false)}"}
               hash_params << ":dom_id => insert_dom_id"

@@ -69,22 +69,6 @@ module Zafu
         @context = parent ? parent.context : {}
       end
 
-      # Block visibility of descendance with 'do_list'.
-      def public_descendants
-        all = super
-        if ['context', 'each', 'block'].include?(self.method)
-          # do not propagate 'form',etc up
-          all.reject do |k,v|
-            ['form','unlink'].include?(k)
-          end
-        elsif ['if', 'case'].include?(self.method)
-          all.reject do |k,v|
-            ['else', 'elsif', 'when'].include?(k)
-          end
-        else
-          all
-        end
-      end
     end # MoveToParser
   end # Core
 end # Zafu
