@@ -65,29 +65,5 @@ module Zafu
     end
 
     protected
-      # Used by [each] and [draggable] to insert 'id' and drag handle span
-      def set_drag_handle_and_id(text, params, id_hash)
-        res, drag_handle = text, nil
-        if params[:drag_handle]
-          drag_handle = params[:drag_handle] == 'true' ? 'drag_handle' : params[:drag_handle]
-          if text =~ /class\s*=\s*['"]#{drag_handle}/
-            # nothing to do
-            insert = ''
-          else
-            insert = "<span class='#{drag_handle}'>&nbsp;</span>"
-          end
-        else
-          insert = ''
-        end
-
-        res = insert + text
-
-        if id_hash
-          @html_tag ||= 'div'
-          @html_tag_params.merge!(id_hash)
-        end
-
-        [res, drag_handle]
-      end
   end # Ajax
 end # Zafu

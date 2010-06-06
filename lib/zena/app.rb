@@ -18,6 +18,7 @@ module Zena
 
         helper  Zena::Use::Authlogic::ViewMethods
         helper  Zena::Acts::Secure
+        helper  Zena::Use::Rendering::ViewMethods
         helper  Zena::Use::Ajax::ViewMethods
         helper  Zena::Use::Calendar::ViewMethods
         helper  Zena::Use::Dates::ViewMethods
@@ -26,7 +27,6 @@ module Zena
         helper  Zena::Use::I18n::ViewMethods
         helper  Zena::Use::NestedAttributesAlias::ViewMethods
         helper  Zena::Use::Refactor::ViewMethods
-        helper  Zena::Use::Rendering::ViewMethods
         helper  Zena::Use::Upload::ViewMethods
         helper  Zena::Use::Urls::ViewMethods
         helper  Zena::Use::ZafuTemplates::ViewMethods

@@ -76,17 +76,66 @@ class RelationTest < Zena::Unit::TestCase
         end
 
         should 'use source class as source name' do
-          assert_equal 'page', subject.source_role
+          assert_equal 'pages', subject.source_role
         end
       end # with blank source_role
+
+      context 'with plural source_role' do
+        subject do
+          Relation.create(
+            :source_role  => 'wives',
+            :source_unique=> false,
+            :target_role  => 'husband',
+            :source_kpath => 'NP',
+            :target_kpath => 'NRC'
+          )
+        end
+
+        should 'succeed' do
+          assert !subject.new_record?
+        end
+
+        should 'singularize source role' do
+          assert_equal 'wife', subject[:source_role]
+        end
+        
+        should 'show source role as plural' do
+          assert_equal 'wives', subject.source_role
+        end
+      end # with plural source_role
+
+      context 'with plural target_role' do
+        subject do
+          Relation.create(
+            :source_role  => 'wife',
+            :target_role  => 'husbands',
+            :target_unique => false,
+            :source_kpath => 'NP',
+            :target_kpath => 'NRC'
+          )
+        end
+
+        should 'succeed' do
+          assert !subject.new_record?
+        end
+
+        should 'singularize target role' do
+          assert_equal 'husband', subject[:target_role]
+        end
+        
+        should 'show target role as plural' do
+          assert_equal 'husbands', subject.target_role
+        end
+      end # with plural source_role
 
       context 'with blank target_role' do
         subject do
           Relation.create(
-            :source_role  => 'wife',
-            :target_role  => '',
-            :source_kpath => 'NP',
-            :target_kpath => 'NRC'
+            :source_role   => 'wife',
+            :target_role   => '',
+            :source_kpath  => 'NP',
+            :target_kpath  => 'NRC',
+            :target_unique => true
           )
         end
 

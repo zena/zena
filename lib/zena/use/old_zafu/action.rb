@@ -101,46 +101,6 @@ module Zafu
     #  end
     #end
 
-    def r_drop
-      if parent.method == 'each' && @method == parent.single_child_method
-        parent.add_html_class('drop')
-      else
-        @html_tag_params[:class] ||= 'drop'
-      end
-      r_block
-    end
-
-    def drop_javascript
-      hover  = @params[:hover]
-      change = @params[:change]
-
-      if role = @params[:set] || @params[:add]
-        query_params = ["node[#{role}_id]=[id]"]
-      else
-        query_params = []
-        # set='icon_for=[id], v_status='50', title='[title]'
-        @params.each do |k, v|
-          next if [:hover, :change, :done].include?(k)
-          value, static = parse_attributes_in_value(v, :erb => false, :skip_node_attributes => true)
-          key = change == 'params' ? "params[#{k}]" : "node[#{k}]"
-          query_params << "#{key}=#{CGI.escape(value)}"
-        end
-        return parser_error("missing parameters to set values") if query_params == []
-      end
-
-      query_params << "change=#{change}" if change == 'receiver'
-      query_params << "t_url=#{CGI.escape(template_url)}"
-      query_params << "dom_id=#{erb_dom_id}"
-      query_params << start_node_s_param(:erb)
-      query_params << "done=#{CGI.escape(@params[:done])}" if @params[:done]
-
-      "<script type='text/javascript'>
-      //<![CDATA[
-      Droppables.add('#{erb_dom_id}', {hoverclass:'#{hover || 'drop_hover'}', onDrop:function(element){new Ajax.Request('/nodes/#{erb_node_id}/drop?#{query_params.join('&')}', {asynchronous:true, evalScripts:true, method:'put', parameters:'drop=' + encodeURIComponent(element.id)})}})
-      //]]>
-      </script>"
-    end
-
     def r_draggable
       new_dom_scope
       @html_tag ||= 'div'
@@ -163,55 +123,6 @@ module Zafu
       else
         out "<script type='text/javascript'>\n//<![CDATA[\nZena.draggable('#{erb_dom_id}',0,true,true,#{revert_effect})\n//]]>\n</script>"
       end
-    end
-
-    def r_unlink
-      return "" if @context[:make_form]
-      opts = {}
-
-      if upd = @params[:update]
-        if upd == '_page'
-          target = nil
-        elsif target = find_target(upd)
-          # ok
-        else
-          return
-        end
-      elsif target = ancestor('block')
-        # ok
-      else
-        target = self
-      end
-
-      if node.will_be?(Node)
-        opts[:cond] = "#{node}.can_write? && #{node}.link_id"
-        opts[:url] = "/nodes/\#{#{node_id}}/links/\#{#{node}.link_id}"
-      elsif node.will_be?(Link)
-        opts[:url] = "/nodes/\#{#{node}.this_zip}/links/\#{#{node}.zip}"
-      end
-
-      opts[:method]       = :delete
-      opts[:default_text] = _('btn_tiny_del')
-      opts[:html_params]  = get_html_params({:class => 'unlink'}.merge(@params), :link)
-
-      out link_to_update(target, opts)
-
-     #tag_to_remote
-     #"<%= tag_to_remote({:url => node_path(#{node_id}) + \"#{opts[:method] != :put ? '/zafu' : ''}?#{action.join('&')}\", :method => #{opts[:method].inspect}}) %>"
-     #  out "<a class='#{@params[:class] || 'unlink'}' href='/nodes/#{erb_node_id}/links/<%= #{node}.link_id %>?#{action}' onclick=\"new Ajax.Request('/nodes/#{erb_node_id}/links/<%= #{node}.link_id %>?#{action}', {asynchronous:true, evalScripts:true, method:'delete'}); return false;\">"
-     #  if !@blocks.empty?
-     #    inner = expand_with
-     #  else
-     #    inner = _('btn_tiny_del')
-     #  end
-     #  out "#{inner}</a><% else -%>#{inner}<% end -%>"
-     #elsif node.will_be?(DataEntry)
-     #  text = get_text_for_erb
-     #  if text.blank?
-     #    text = _('btn_tiny_del')
-     #  end
-     #  out "<%= link_to_remote(#{text.inspect}, {:url => \"/data_entries/\#{#{node}[:id]}?dom_id=#{dom_id}#{upd_url}\", :method => :delete}, :class=>#{(@params[:class] || 'unlink').inspect}) %>"
-     #end
     end
 
   end # Action

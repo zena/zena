@@ -336,10 +336,12 @@ module Zena
             #when 'author', 'traductions', 'versions'
             #  # TODO: not implemented yet...
             #  return nil
-            #when 'visitor'
-            #  # Special pseudo-context
-            #  @where << "#{table}.id = #{insert_bind("visitor.contact_id")}"
-            #  return true
+            when 'visitor'
+              # Special pseudo-context
+              add_table(main_table)
+              make_and_set_main_class(BaseContact)
+              add_filter "#{table}.id = #{insert_bind("visitor.contact_id")}"
+              return true
             end
 
             unless last?

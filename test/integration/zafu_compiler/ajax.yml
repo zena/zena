@@ -6,8 +6,8 @@ default:
 
 block:
   src: "<r:parent><r:block name='foobar' do='node_name'/></r:parent>"
-  tem: "<% if var1 = @node.parent -%><div id='foobar_<%= var1.zip %>'><%= var1.node_name %></div><% end -%>"
-  'ajax/block/en/foobar.erb': "<div id='foobar_<%= @node.zip %>'><%= @node.node_name %></div>"
+  tem: "<% if var1 = @node.parent -%><div id='foobar'><%= var1.node_name %></div><% end -%>"
+  'ajax/block/en/foobar.erb': "<div id='foobar'><%= @node.node_name %></div>"
 
 add:
   src: "<ul id='children' do='nodes'><li do='each' do='link'/><li do='add'/></ul>"
@@ -58,7 +58,7 @@ each_add_with_form:
       <li do='add'>add new</li>
       <li do='form'><input name='title'/> this is the form</li>
     </ol>
-  res: "/<li>bird.*<li>flower.*<li.*list1_add.*list1_form.*toggle.*<li .*list1_form.*style.*none.*Ajax.Request.*input type='hidden' name='t_url' value=./each/add/with/form/list1.*input type='hidden' name='node\[parent_id\]' value=.29./"
+  res: "/<li id='list1_30'>bird.*<li id='list1_31'>flower.*<li.*list1_add.*list1_form.*toggle.*<li style.*none.*list1_form.*Ajax.Request.*input type='hidden' name='t_url' value=.ajax/each/add/with/form/list1.*input type='hidden' name='node\[parent_id\]' value=.29./"
 
 each_add_with_form_in_sub_block:
   context:
@@ -86,14 +86,14 @@ each_add_with_form_klass_set:
 
 each_add_with_select:
   src: "<r:children><r:each do='node_name'/><r:add/><r:form><select name='icon_id' nodes='images in project' selected='[main.icon_id]_abc'/></r:form></r:children>"
-  'each/add/en/with/select/list1_form.erb': '/map.|r| \[r.name, r.zip.to_s\]., \"#.@node.icon_zip._abc\"\)/'
-  tem: "/@node.do_find\(:all, \[%Q{SELECT nodes.* FROM nodes WHERE nodes.kpath LIKE 'NDI%'/"
+  'ajax/each/en/add/with/select/list1_form.erb': '/map.|r| \[r.name, r.zip.to_s\]., \"#.@node.icon_zip._abc\"\)/'
+  tem: "/nodes.kpath LIKE 'NDI%'/"
 
 each_edit_with_form:
   context:
     node: 'wiki'
   src: "<r:children><li do='each'><r:show attr='node_name'>blah</r:show> <r:edit>edit</r:edit></li>\n<r:form><li><form>this is the form</form></li></r:form></r:children>"
-  res: "/<li id='list1_30'>bird <a href='/nodes/30/edit\?t_url=.*' onclick=\"new Ajax.Request\('/nodes/30/edit\?t_url=%2Feach%2Fedit%2Fwith%2Fform%2Flist/"
+  res: "/<li id='list1_30'>bird <a href='/nodes/30/edit' onclick='new Ajax.Request\(\"/nodes/30/zafu\?.*t_url=ajax%2Feach%2Fedit%2Fwith%2Fform%2Flist1_form/"
 
 make_form:
   src: "<ul do='children'><li do='each' do='node_name'/><li do='add'/></ul>"
@@ -106,7 +106,7 @@ each_edit_cannot_write:
     node: 'cleanWater'
     visitor: 'anon'
   src: "<r:children><li do='each'><r:show attr='node_name'>blah</r:show> <r:edit>edit</r:edit></li>\n</r:children>"
-  res: "/<li id='list1_24'>lake </li>.*/"
+  res: "/<li id='list1_24'>lake</li>.*/"
 
 add_each_publish:
   src: "<ul do='children' id='things'><li do='each'>I <p do='node_name'>blah</p></li><li do='add' publish='true'/></ul>"
@@ -129,6 +129,7 @@ no_recursion_in_saved_block:
   'no/recursion/en/in/saved/block/grp1.erb': "!/no_recursion_in_saved_block_grp/"
 
 each_in_each:
+  # should render correct form
   src: "<r:pages><r:form>FORM1</r:form><r:each><r:pages>sub-pages <r:form>FORM2</r:form></r:pages></r:each><r:add/></r:pages>"
   res: "/FORM1/"
 
@@ -162,13 +163,23 @@ live_filter_select_options:
 
 draggable_do_syntax:
   src: "<r:images in='site' do='each' draggable='true' do='img' mode='pv'/>"
-  res: "/div id='list1_30'><img src='/en/image30_pv.jpg\?967816914293'.*list1_30.*.each\(Zena.draggable/"
+  tem: "/add_drag_id\(\"list1_#\{var2.zip\}\"\)/"
+  res: "/div id='list1_30'><img src='/en/image30_pv.jpg\?967816914293'/"
+
+draggable_on_link:
+  src: "<r:link draggable='true'/>"
+  res: "/<div class='drag' id='list1_22'><span class='drag_handle'>&nbsp;</span>/"
+
+draggable_on_title:
+  src: "<h1 id='title' do='title' draggable='true'/>"
+  tem: "/<h1 id='title'><span class='drag' id='<%= %Q\{title_#\{@node.zip\}\} %>'><% add_drag_id\(\"title_#\{@node.zip\}/"
 
 unlink:
   context:
     node: 'art'
+    class: Tag
   src: "<r:context select='tagged' do='each' do='unlink'/>"
-  res: "/<div id='list1_21'><a .*onclick=.*Ajax.Request.*_ID(cleanWater_in_art)\?dom_id=list1_21.*class=.unlink.*bullet_delete.png.*<\/div><div id='list1_27'/"
+  res: "/<div id='list1_21'><a .*onclick=.*Ajax.Request.*_ID(cleanWater_in_art)\?dom_id=list1_21.*class=.unlink.*bullet_delete.png.*/"
 
 unlink_ignored_in_form:
   context:
@@ -184,10 +195,6 @@ edit_link:
   res: "/link_id.*éditer/"
   'edit/link/fr/list1_form.erb': "/<input type='hidden' name='link_id' value=.<%= @node.link_id %>./>/"
   'edit/link/fr/list1.erb': "/\#\{@node.link_id\}/"
-
-drop_done_remove:
-  src: "<div do='drop' set='tagged' done='remove'></div>"
-  res: "/&done=remove/"
 
 each_in_each_dom_id:
   src: |
@@ -206,9 +213,21 @@ start_id:
   src: "<r:form><input type='hidden' name='s' set_value='[start.id]'/></r:form>"
   res: "/<input name='s' type='hidden' value='22'/>/"
 
+drop_add_link:
+  context:
+    class: BaseContact
+  src: "<div do='drop' add='favorite'></div>"
+  tem: "/drop_node_path.*\"node\[favorite_id\]\" => \"\[id\]\"/"
+  res: "<div class='drop' id='list1'>drop</div>"
+
+drop_done_remove:
+  src: "<div do='drop' set='tagged' done='remove'></div>"
+  res: "/&done=remove/"
+
 drop_param:
-  src: "<r:drop change='params' d='[id]'><r:show param='d'/></r:drop>"
-  tem: "/<div class='drop' id='list1'><%= params\[:d\] %>.*drop\?params\[d\]=%5Bid%5D/"
+  src: "<r:drop change='params' d='[id]'>params[:d] = <r:show eval='params[:d]'/></r:drop>"
+  tem: "/<div class='drop' id='list1'><% add_drop_id\(\"list1\", :url => drop_node_path\(@node.*:change => \"params\", :d => \"\[id\]\"/"
+  res: "<div class='drop' id='list1'>params[:d] = </div>"
 
 drop_param_in_each:
   src: "<r:pages do='each' do='drop' change='params' d='[id]'><r:show param='d'/></r:pages>"

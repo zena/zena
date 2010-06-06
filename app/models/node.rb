@@ -151,13 +151,14 @@ class Node < ActiveRecord::Base
                 :project_zip => Number, :section_zip => Number, :skin => String, :ref_lang => String,
                 :fullpath => String, :rootpath => String, :position => Number, :rgroup_id => Number,
                 :wgroup_id => Number, :dgroup_id => Number, :custom_base => Boolean, :klass => String,
-                :score => Number, :comments_count => Number,
-                :custom_a => Number, :custom_b => Number,
                 :m_text => String, :m_title => String, :m_author => String,
                 :id => {:class => Number, :method => 'zip'},
                 :skin => 'Skin', :lang => String, :content_lang => {:class => String, :nil => true},
                 :visitor => 'User',
                 [:ancestor?, Node] => Boolean
+  safe_method   :defaults => {:nil => true},
+                :score => Number, :comments_count => Number,
+                :custom_a => Number, :custom_b => Number
 
   # FIXME: remove 'zip' and use :id => {:class => Number, :method => 'zip'}
   # same with parent_zip, section_zip, etc...
@@ -893,9 +894,11 @@ class Node < ActiveRecord::Base
 
   # Replace [id], [title], etc in attributes values
   def replace_attributes_in_values(hash)
+    puts "Evaluation #{hash.inspect} in #{self.zip}"
     load_roles!
     hash.each do |k,v|
-      hash[k] = eval ::RubyLess.translate_string(v, self)
+      puts v
+      hash[k] = safe_eval_string(v).tap {|x| puts x}
     end
   end
 

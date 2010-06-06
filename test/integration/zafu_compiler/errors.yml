@@ -9,7 +9,7 @@ default:
 
 add_in_each:
   src: "<r:pages><li do='each'><r:add/></li>"
-  res: "/\[add\] should not be called from within 'each'/"
+  res: "/add.*Should not be called from within 'each'/"
 
 if_bad_test:
   src: "<r:if foo='bar'>lala</r:if>"
@@ -29,7 +29,7 @@ bad_relation:
 
 bad_order_clause:
   src: "<r:images order='l_status ASC' do='each' join=',' do='node_name'/>"
-  res: "<span class='parser_error'>[images order by l_status ASC] cannot use link field 'l_status' in this query</span>"
+  res: "/Unknown field 'l_status'./"
 
 show_var:
   src: "<r:show eval='boo'/>"
@@ -49,18 +49,18 @@ division_by_zero_in_eval_on_runtime:
 
 bad_argument_list_in_eval:
   src: "<r:show eval='3 * / * 5'/>"
-  res: "<span class='parser_error'>[show] compilation error in eval</span>"
+  res: "/unterminated string meets end of file/"
 
 nil_value:
-  src: "<r:show eval='4 * [d_bob]'/>"
-  res: "0.0"
+  src: "<r:show eval='4 * custom_a'/>"
+  res: ""
 
 not_finished_block:
   src: "<r:if kind_of='Document'><r:link format='data'><r:img mode='tiny'/> <r:show attr='node_name'/>.<r:show attr='ext'/></r:link><r:else do='link'/></r:if>"
 
 missing_template:
   src: "<r:include template='Foo'/>"
-  tem: "<span class='parser_error'>[include] template 'missing/Foo' not found</span>"
+  tem: "/template 'Foo' not found/"
 
 bad_attribute:
   src: "this is <b do='show' attr='bad'/>"

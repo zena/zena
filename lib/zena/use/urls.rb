@@ -11,6 +11,26 @@ module Zena
           end
         end
 
+        # We overwrite some url writers that might use Node so that they use
+        # zip instead of id.
+        %w{edit delete drop zafu}.each do |method|
+          class_eval %Q{
+            def #{method}_node_path(node, options={}) # def edit_node_path(node, options={})
+              if node.kind_of?(Node)                  #   if node.kind_of?(Node)
+                super(node.zip, options)              #     super(node.zip, options)
+              else                                    #   else
+                super                                 #     super
+              end                                     #   end
+            end                                       # end
+          }
+        end
+
+        # Path to remove a node link.
+        def unlink_node_path(node, options={})
+          return '#' unless node.can_write? && node.link_id
+          node_link_path(node.zip, node.link_id, options)
+        end
+
         # Path for a node. Options can be :format, :host and :mode.
         # ex '/en/document34_print.html'
         def zen_path(node, options={})
@@ -184,6 +204,12 @@ module Zena
         safe_method [:edit_node_path, Node]         => {:class => String, :accept_nil => true}
         safe_method [:delete_node_path, Node, Hash] => {:class => String, :accept_nil => true}
         safe_method [:delete_node_path, Node]       => {:class => String, :accept_nil => true}
+        safe_method [:drop_node_path, Node, Hash]   => {:class => String, :accept_nil => true}
+        safe_method [:drop_node_path, Node]         => {:class => String, :accept_nil => true}
+        safe_method [:unlink_node_path, Node, Hash]   => {:class => String, :accept_nil => true}
+        safe_method [:unlink_node_path, Node]         => {:class => String, :accept_nil => true}
+
+        safe_method :start_id  => {:class => String, :method => 'start_node_zip'}
 
         def dummy_zen_path(string, options = {})
           if anchor = options.delete(:anchor)
@@ -267,8 +293,9 @@ module Zena
             # Add href to non-ajax method.
             markup.set_param(:href, "<%= #{make_href(nil, options.merge(:update => false))} %>")
 
+
             # Use onclick with Ajax.
-            markup.set_dyn_param(:onclick, "new Ajax.Request(\"<%= #{href} %>\", {asynchronous:true, evalScripts:true, method:\"#{options[:method] || 'get'}\"}); return false;")
+            markup.set_dyn_param(:onclick, "new Ajax.Request(\"<%= #{href} %>\", {asynchronous:true, evalScripts:true, method:\"#{http_method_from_action(options[:action])}\"}); return false;")
           else
             markup.set_dyn_param(:href, "<%= #{href} %>")
           end
@@ -421,16 +448,24 @@ module Zena
               return ::RubyLess.translate_string("##{get_anchor_name(anchor)}", self)
             end
 
-            if remote_target
-              method = 'zafu_node_path'
-            elsif %w{edit delete}.include?(opts[:action])
+            if %w{edit delete drop unlink}.include?(opts[:action])
               method = "#{opts[:action]}_node_path"
+            elsif remote_target
+              method = 'zafu_node_path'
             else
               method = 'zen_path'
             end
 
             method_args = []
             hash_params = []
+
+            # Select http verb.
+            unless remote_target
+              http_method = http_method_from_action(opts[:action])
+              if http_method != 'get'
+                hash_params << ":_method => '#{http_method}'"
+              end
+            end
 
             if href = @params[:href]
               method_args << href
@@ -441,7 +476,7 @@ module Zena
               method_args << 'this'
             end
 
-            insert_ajax_args(remote_target, hash_params) if remote_target
+            insert_ajax_args(remote_target, hash_params, opts[:action]) if remote_target
 
             @params.each do |key, value|
               next if [:href, :eval, :text, :attr].include?(key)
@@ -449,7 +484,7 @@ module Zena
                 value = get_anchor_name(value)
               end
 
-              hash_params << ":#{key} => %Q{#{value}}"
+              hash_params << "#{key.inspect} => %Q{#{value}}"
             end
 
             unless hash_params.empty?
@@ -461,19 +496,27 @@ module Zena
             ::RubyLess.translate(method, self)
           end
 
-          def insert_ajax_args(target, hash_params)
+          def insert_ajax_args(target, hash_params, action)
+            hash_params << ":s => start_id"
 
             if target.kind_of?(String)
               # named target
               return nil unless target = find_target(target)
+            end
 
-              hash_params << ":dom_id => %Q{#{target.name}}" # target.node.dom_id
-              hash_params << ":t_url  => %Q{#{template_url(target.name)}}"
-            else
+            case action
+            when 'edit'
               # 'each' target in parent hierarchy
               @insert_dom_id = %Q{"#{node.dom_id(:erb => false)}"}
               hash_params << ":dom_id => insert_dom_id"
-              hash_params << ":t_url  => %Q{#{form_url(node.dom_prefix)}}"
+              hash_params << ":t_url  => %Q{#{form_url(node.dom_prefix)}}" # ? target.name ?
+            when 'unlink', 'delete'
+              @insert_dom_id = %Q{"#{node.dom_id(:erb => false)}"}
+              hash_params << ":dom_id => insert_dom_id"
+              hash_params << ":t_url  => %Q{#{template_url(target.name)}}"
+            else # drop
+              hash_params << ":dom_id => %Q{#{target.name}}" # target.node.dom_id
+              hash_params << ":t_url  => %Q{#{template_url(target.name)}}"
             end
 
             # method = opts[:method] || :get
@@ -618,6 +661,18 @@ module Zena
               else
                 _('edit')
               end
+            end
+          end
+
+          # Return the HTTP verb to use for the given action.
+          def http_method_from_action(action)
+            case action
+            when 'delete', 'unlink'
+              'delete'
+            when 'drop'
+              'put'
+            else
+              'get'
             end
           end
       end # ZafuMethods

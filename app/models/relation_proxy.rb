@@ -19,7 +19,7 @@ class RelationProxy < Relation
 
       return nil unless rel
 
-      if rel.target_role == role
+      if rel[:target_role] == role
         rel.side = :source
       else
         rel.side = :target
@@ -121,11 +121,11 @@ class RelationProxy < Relation
   end
 
   def other_role
-    @side == :source ? target_role : source_role
+    @side == :source ? self[:target_role] : self[:source_role]
   end
 
   def this_role
-    @side == :source ? source_role : target_role
+    @side == :source ? self[:source_role] : self[:target_role]
   end
 
   def other_icon

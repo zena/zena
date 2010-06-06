@@ -596,16 +596,15 @@ Zena.Div_editor.prototype = {
   }
 }
 
-Zena.draggable = function(dom_id, index, g, r, rE) {
-  var g  = (g  == null) ? true : g;
-  var r  = (r  == null) ? true : r;
-  if (rE == null) {
-    new Draggable(dom_id, {ghosting:g, revert:r});
-  } else {
-    new Draggable(dom_id, {ghosting:g, revert:r, reverteffect:rE});
+Zena.draggable = function(dom_id, drag_handle) {
+  new Draggable(dom_id, {ghosting:true, revert:true, handle:drag_handle});
+  if (drag_handle) {
+    if ($(dom_id).select('.' + drag_handle) != []) {
+      // insert span
+      $(dom_id).insert({top: "<span class='" + drag_handle + "'>&nbsp;</span>"});
+    }
   }
 }
-
 
 Zena.select_tab = function(name) {
   if (name == 'custom' && custom_loaded == false) {

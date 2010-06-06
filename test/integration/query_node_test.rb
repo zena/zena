@@ -23,9 +23,6 @@ class QueryNodeTest < Zena::Unit::TestCase
   yamltest
 
   def yt_do_test(file, test)
-    # Disable defined tests without loaded files
-    return unless (@@test_strings[file] || {})[test]
-
     @context = Hash[*(yt_get('context', file, test).map{|k,v| [k.to_sym, v]}.flatten)]
 
     params = {}

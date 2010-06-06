@@ -1,4 +1,5 @@
 class Relation < ActiveRecord::Base
+  before_validation :singularize_roles
   validate        :valid_relation
   attr_accessor   :side, :link_errors, :start, :link
   attr_protected  :site_id
@@ -7,7 +8,20 @@ class Relation < ActiveRecord::Base
   # FIXME: validate uniqueness of source_role and target_role in scope site_id
   # FIXME: set kpath from class
 
+  def source_role
+    source_unique ? self[:source_role] : self[:source_role].pluralize
+  end
+
+  def target_role
+    target_unique ? self[:target_role] : self[:target_role].pluralize
+  end
+
   private
+    def singularize_roles
+      self.source_role = source_role.singularize unless source_role.blank?
+      self.target_role = target_role.singularize unless target_role.blank?
+    end
+
     def valid_relation
       self.site_id = current_site[:id]
 

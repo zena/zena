@@ -2,7 +2,7 @@ require 'test_helper'
 
 class ZafuCompilerTest < Zena::Controller::TestCase
 
-  yamltest :directories => [:default, "#{Zena::ROOT}/bricks/**/test/zafu"]
+  yamltest :directories => [:default, "#{Zena::ROOT}/bricks/**/test/zafu"], :files => ['ajax']
 
 
   Section # make sure we load Section links before trying relations
@@ -41,6 +41,9 @@ class ZafuCompilerTest < Zena::Controller::TestCase
   end
 
   def yt_do_test(file, test)
+    # Disable defined tests without loaded files
+    return unless (@@test_strings[file] || {})[test]
+
     if @@test_strings[file][test].keys.include?('src')
       # we do not want src built from title
       src = yt_get('src', file, test)
@@ -284,9 +287,10 @@ class ZafuCompilerTest < Zena::Controller::TestCase
   end
 
   def test_display_defined_icon
+    return unless test = (@@test_strings['display'] || {})['defined_icon']
     login(:tiger)
     # define flower as icon
-    node = secure!(Node) { nodes(display_tests['defined_icon']['context']['node'].to_sym)}
+    node = secure!(Node) { nodes(test['context']['node'].to_sym)}
     assert node.update_attributes(:icon_id => nodes_id(:flower_jpg))
     yt_do_test('display', 'defined_icon')
   end

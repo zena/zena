@@ -54,6 +54,7 @@ notes:
 blog_with_news:
   context:
     node: 'zena'
+    class: Project
   src: "<r:notes or='news' do='each' join=', ' do='node_name'/>"
   res: "letter, opening"
 
@@ -106,8 +107,8 @@ store_in_block:
 
 set_var_outside_block:
   old_src: "<r:node select='18' set_found='this' do='pages'><r:block><r:show attr='node_name'/>: <r:context select='found' do='node_name'/></r:block></r:node>"
-  src: "<r:void  set_found='this' do='pages from node where id = 18 in site' do='each' join=', '><r:block><r:found do='node_name'/>: <r:show attr='node_name'/></r:block></r:void>"
-  res: "<div id='list1_21'><div id='list1_21'>status: cleanWater</div></div>, <div id='list1_29'><div id='list1_29'>status: wiki</div></div>"
+  src: "<r:void set_found='this' do='pages from node where id = 18 in site' do='each' join=', '><r:block><r:found do='node_name'/>: <r:show attr='node_name'/></r:block></r:void>"
+  res: "<div id='list1_21'><div id='list2'>status: cleanWater</div></div>, <div id='list1_29'><div id='list2'>status: wiki</div></div>"
   'relations/set/en/var/outside/block/list1.erb': "/unknown method <span class='type'>found\(\)/"
 
 store_node_as_relation:
@@ -376,6 +377,8 @@ many_or:
   res: "art,bird,cleanWater,flower,lake,menu,news,opening"
 
 hot_or_page:
+  context:
+    class: Project
   src: "<r:hot or='page in project'>...</r:hot>"
   tem: "/:first.*.*links.relation_id = _ID(project_has_a_hot_element).*nodes.kpath LIKE 'NP%' AND nodes.project_id = ?.*LIMIT 1.*@node.get_project_id"
 

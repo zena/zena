@@ -16,6 +16,7 @@ module Zena
     Zena::Use::Forms::ZafuMethods,
     Zena::Use::Recursion::ZafuMethods,
     Zena::Use::Search::ZafuMethods,
+    Zena::Use::Ajax::ZafuMethods,
     Zena::Acts::Enrollable::ZafuMethods,
   ])
 end

@@ -4,9 +4,14 @@ module Zena
   module Use
     module Rendering
       module ViewMethods
-        def render_js
-          return '' unless self.js_data
-          javascript_tag(self.js_data.join("\n"))
+        def render_js(in_html = true)
+          return '' unless js_data
+          js = js_data.join("\n")
+          if in_html
+            javascript_tag(js)
+          else
+            js
+          end
         end
       end
 

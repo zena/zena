@@ -78,7 +78,7 @@ module Zena
           end
 
           def filter_if_class
-            node = @method == 'each' ? self.node.move_to(var, self.node.klass.first) : self.node
+            node = pre_filter_node
             tags_stolen = false
             with_context(:node => node) do
               @params.keys.each do |k|
@@ -98,6 +98,12 @@ module Zena
                 end
               end
             end
+          end
+
+          # Return the node that will be used inside the tag. Also used
+          # by Ajax to get dom_id for drag handle.
+          def pre_filter_node
+            @method == 'each' ? self.node.move_to(var, self.node.klass.first) : self.node
           end
 
           # If we had a 'live' parameter, wrap the result with an id.
