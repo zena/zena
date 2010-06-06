@@ -127,15 +127,15 @@ module Zena
             records.each do |record|
               if record['source_id'].to_i == id
                 if relation.target_unique?
-                  res["#{relation.target_role}_id"] = record['zip']
+                  res["#{relation[:target_role]}_id"] = record['zip']
                 else
-                  (res["#{relation.target_role}_ids"] ||= []) << record['zip']
+                  (res["#{relation[:target_role]}_ids"] ||= []) << record['zip']
                 end
               else
                 if relation.source_unique?
-                  res["#{relation.source_role}_id"] = record['zip']
+                  res["#{relation[:source_role]}_id"] = record['zip']
                 else
-                  (res["#{relation.source_role}_ids"] ||= []) << record['zip']
+                  (res["#{relation[:source_role]}_ids"] ||= []) << record['zip']
                 end
               end
             end

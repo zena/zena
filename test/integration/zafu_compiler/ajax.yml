@@ -162,15 +162,18 @@ live_filter_select_options:
   res: "/<select name='f'.*<div id='list2'><ol><li>crocodiles</li><li>status</li><li>track</li></ol></div>/"
 
 draggable_do_syntax:
-  src: "<r:images in='site' do='each' draggable='true' do='img' mode='pv'/>"
-  tem: "/add_drag_id\(\"list1_#\{var2.zip\}\"\)/"
-  res: "/div id='list1_30'><img src='/en/image30_pv.jpg\?967816914293'/"
+  src: "<r:images in='site' do='each' draggable='all' do='img' mode='pv'/>"
+  tem: "/add_drag_id\(\"list1_#\{var2.zip\}\"/"
+  res: "/id='list1_30'><img src='/en/image30_pv.jpg\?967816914293'/"
+  js: '/"list1_40"\].each.*Zena.draggable\(item, false\)/'
 
-draggable_on_link:
+draggable_true:
+  # should use 'drag_handle' class
   src: "<r:link draggable='true'/>"
-  res: "/<div class='drag' id='list1_22'><span class='drag_handle'>&nbsp;</span>/"
+  tem: "/add_drag_id\(\"list1_\#\{@node.zip\}\", .*drag_handle/"
 
-draggable_on_title:
+draggable_with_id_set:
+  # should not change original id
   src: "<h1 id='title' do='title' draggable='true'/>"
   tem: "/<h1 id='title'><span class='drag' id='<%= %Q\{title_#\{@node.zip\}\} %>'><% add_drag_id\(\"title_#\{@node.zip\}/"
 
@@ -217,21 +220,24 @@ drop_add_link:
   context:
     class: BaseContact
   src: "<div do='drop' add='favorite'></div>"
-  tem: "/drop_node_path.*\"node\[favorite_id\]\" => \"\[id\]\"/"
+  # without the ugly inspect, this would be '#{id}' or "\#{id}"
+  tem: "/drop_node_path.*\"node\[favorite_id\]\" => \"\\\\#\{id\}\"/"
   res: "<div class='drop' id='list1'>drop</div>"
+  js: "/Droppables.add\('list1'.*/nodes/22/drop.*node%5Bfavorite_id%5D=%23%7Bid%7D"
 
 drop_done_remove:
-  src: "<div do='drop' set='tagged' done='remove'></div>"
-  res: "/&done=remove/"
+  src: "<div do='drop' set='reference' done='remove'></div>"
+  js: "/done=remove/"
 
 drop_param:
-  src: "<r:drop change='params' d='[id]'>params[:d] = <r:show eval='params[:d]'/></r:drop>"
-  tem: "/<div class='drop' id='list1'><% add_drop_id\(\"list1\", :url => drop_node_path\(@node.*:change => \"params\", :d => \"\[id\]\"/"
+  src: "<r:drop change='params' d='foo'>params[:d] = <r:show eval='params[:d]'/></r:drop>"
+  tem: "/<div class='drop' id='list1'><% add_drop_id\(\"list1\", :url => drop_node_path\(@node.*:change => \"params\", :d => \"foo\"/"
   res: "<div class='drop' id='list1'>params[:d] = </div>"
+  js: '/Droppables.add\(.list1.*d=foo/'
 
 drop_param_in_each:
-  src: "<r:pages do='each' do='drop' change='params' d='[id]'><r:show param='d'/></r:pages>"
-  tem: "/<div class='drop' id='list1_<%= var1.zip %>'><%= params\[:d\] %>.*drop\?params\[d\]=%5Bid%5D/"
+  src: "<r:pages do='each' do='drop' change='params' d='foo'><r:show eval='params[:d]'/></r:pages>"
+  tem: "/<div class='drop' id='<%= %Q\{list1_#\{var2.zip\}\} %>'><% add_drop_id\(\"list1_#\{var2.zip\}\"/"
 
 swap_in_each:
   src: "<r:pages><li do='each'><span do='swap' attr='d_status' states='todo,done,alert'/></li></r:pages>"

@@ -53,9 +53,11 @@ class ZafuCompilerTest < Zena::Controller::TestCase
 
     tem = yt_get('tem', file, test)
     res = yt_get('res', file, test)
+    js  = yt_get('js',  file, test)
+
     compiled_files = {}
     @@test_strings[file][test].each do |k,v|
-      next if ['src','tem','res','context','eval'].include?(k) || k =~ /^old/
+      next if ['src','tem','res','context','eval','js'].include?(k) || k =~ /^old/
       compiled_files[k] = v
     end
     context = yt_get('context', file, test)
@@ -93,6 +95,13 @@ class ZafuCompilerTest < Zena::Controller::TestCase
       post 'test_render', params
       result = @response.body
       yt_assert res, result
+      if js
+        yt_assert js, @controller.send(:render_js)
+      end
+    elsif js
+      params[:text] = template
+      post 'test_render', params
+      yt_assert js, @controller.send(:render_js)
     end
   end
 

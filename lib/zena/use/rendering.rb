@@ -4,6 +4,7 @@ module Zena
   module Use
     module Rendering
       module ViewMethods
+        # Append javascript to the end of the page.
         def render_js(in_html = true)
           return '' unless js_data
           js = js_data.join("\n")

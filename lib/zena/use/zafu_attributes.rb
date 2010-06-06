@@ -103,7 +103,7 @@ module Zena
           # Return the node that will be used inside the tag. Also used
           # by Ajax to get dom_id for drag handle.
           def pre_filter_node
-            @method == 'each' ? self.node.move_to(var, self.node.klass.first) : self.node
+            @method == 'each' ? self.node.move_to(var, self.node.klass.first) : self.node.dup
           end
 
           # If we had a 'live' parameter, wrap the result with an id.

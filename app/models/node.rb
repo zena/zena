@@ -894,11 +894,9 @@ class Node < ActiveRecord::Base
 
   # Replace [id], [title], etc in attributes values
   def replace_attributes_in_values(hash)
-    puts "Evaluation #{hash.inspect} in #{self.zip}"
     load_roles!
     hash.each do |k,v|
-      puts v
-      hash[k] = safe_eval_string(v).tap {|x| puts x}
+      hash[k] = safe_eval_string(v)
     end
   end
 

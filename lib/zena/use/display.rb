@@ -498,36 +498,6 @@ module Zena
           expand_with_finder(finder)
         end
 
-        # Display an input field to filter a remote block
-        def r_filter
-          if upd = @params[:update]
-            return unless block = find_target(upd)
-          else
-            return parser_error("missing 'block' in same parent") unless parent && block = parent.descendant('block')
-          end
-
-          return parser_error("cannot use 's' as key (used by start_node)") if @params[:key] == 's'
-
-          dom_id = node.dom_id(:erb => false)
-
-          out %Q{<%= form_remote_tag(:url => zafu_node_path(#{node}), :method => :get, :html => {:id => \"#{dom_id}_f\"}) %>
-          <div class='hidden'>
-            <input type='hidden' name='t_url' value='#{template_url(upd)}'/>
-            <input type='hidden' name='dom_id' value='#{upd}'/>
-            <input type='hidden' name='s' value='<%= start_node_zip %>'/>
-          </div><div class='wrapper'>
-          }
-          if @blocks == []
-            out "<input type='text' name='#{@params[:key] || 'f'}' value='<%= params[#{(@params[:key] || 'f').to_sym.inspect}] %>'/>"
-          else
-            out expand_with(:in_filter => true)
-          end
-          out "</div></form>"
-          if @params[:live] || @params[:update]
-            out "<%= observe_form( \"#{dom_id}_f\" , :method => :get, :frequency  =>  0.3, :submit =>\"#{dom_id}_f\", :url => zafu_node_path(#{node})) %>"
-          end
-        end
-
         # Display an image
         def r_img
           return unless node.will_be?(Node)

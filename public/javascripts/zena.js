@@ -596,8 +596,9 @@ Zena.Div_editor.prototype = {
   }
 }
 
-Zena.draggable = function(dom_id, drag_handle) {
-  new Draggable(dom_id, {ghosting:true, revert:true, handle:drag_handle});
+Zena.draggable = function(dom_id, drag_handle, revert) {
+  revert = revert == undefined ? true : revert
+  new Draggable(dom_id, {ghosting:true, revert:revert, handle:drag_handle});
   if (drag_handle) {
     if ($(dom_id).select('.' + drag_handle) != []) {
       // insert span

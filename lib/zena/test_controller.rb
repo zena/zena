@@ -24,6 +24,11 @@ module Zena
       render :text => ([err.message] + err.backtrace[0..4]).join("    \n")
     end
 
+    # Get render_js content from template
+    def render_js
+      @template.send(:render_js)
+    end
+
     def test_compile
 
       if klass = params.delete(:class)

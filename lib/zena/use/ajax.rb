@@ -1,16 +1,7 @@
 module Zena
   module Use
     module Ajax
-      module Common
-      end # Common
-
-      module ControllerMethods
-        include Common
-      end
-
       module ViewMethods
-        include Common
-
         # Return the DOM id for a node. We had to name this method 'ndom_id' because we want
         # to avoid the clash with Rails' dom_id method.
         def ndom_id(node)
@@ -115,9 +106,9 @@ module Zena
         end
 
         # Used by zafu to set dom_id that need to be made draggable.
-        def add_drag_id(dom_id, handle = nil)
+        def add_drag_id(dom_id, js_options = nil)
           @drag_ids ||= {}
-          (@drag_ids[handle] ||= []) << dom_id
+          (@drag_ids[js_options] ||= []) << dom_id
         end
 
         # Used by zafu to transform a dom_id into a droppable element.
@@ -127,13 +118,18 @@ module Zena
 }});"
         end
 
+        def filter_form(node, dom_id)
+          js_data << %Q{new Form.Observer('#{dom_id}', 0.3, function(element, value) {new Ajax.Request('#{zafu_node_path(node)}', {asynchronous:true, evalScripts:true, method:'get', parameters:Form.serialize('#{dom_id}')})});}
+        end
+
+        # Include draggable ids in bottom of page Javascript.
         def render_js(in_html = true)
           if @drag_ids
-            @drag_ids.each do |klass, list|
-              if klass.nil?
+            @drag_ids.each do |js_options, list|
+              if js_options.nil?
                 js_data << %Q{#{list.inspect}.each(Zena.draggable);}
               else
-                js_data << %Q{#{list.inspect}.each(function(item) { Zena.draggable(item, #{klass.inspect})})}
+                js_data << %Q{#{list.inspect}.each(function(item) { Zena.draggable(item, #{js_options})});}
               end
             end
           end
@@ -144,7 +140,7 @@ module Zena
 
       module ZafuMethods
         def self.included(base)
-          base.before_process :process_drag_drop
+          base.before_process :process_drag
           base.before_wrap    :wrap_with_drag
         end
 
@@ -157,61 +153,106 @@ module Zena
         end
 
         # Force an id on the current tag and record the DOM_ID to make the element draggable.
-        def process_drag_drop
-          drag = @params.delete(:draggable)
+        def process_drag
+          return unless drag = @params.delete(:draggable)
 
-          return unless drag || @method == 'drop'
-
-          set_dom_prefix
-
-          if parent.method == 'each' && @method == parent.single_child_method
-            node = self.node
-            markup = parent.markup
+          if @markup.params[:id]
+            # we do not mess with it
+            markup = @wrap_with_drag = Zafu::Markup.new('span')
           else
-            node = pre_filter_node
             markup = @markup
           end
 
           markup.tag ||= 'div'
 
-          if drag
-            if markup.params[:id]
-              # we do not mess with it
-              markup = @wrap_with_drag = Zafu::Markup.new('span')
-            end
+          node = pre_filter_node
 
-            markup.set_id(node.dom_id)
-            markup.append_param(:class, 'drag')
+          # We do not want to have duplicate ids so we use our own dom prefix.
+          set_dom_prefix(node)
 
-            drag = 'drag_handle' if drag == 'true'
+          markup.set_id(node.dom_id)
+          markup.append_param(:class, 'drag')
 
-            if drag == 'all'
-              # drag full element
-              markup.pre_wrap[:drag] = "<% add_drag_id(\"#{node.dom_id(:erb => false)}\") -%>"
-            else
-              # drag with class handle
-              markup.pre_wrap[:drag] = "<% add_drag_id(\"#{node.dom_id(:erb => false)}\", #{drag.inspect}) -%>"
-            end
-          elsif @method == 'drop'
-            markup.set_id(node.dom_id(:list => false))
-            markup.append_param(:class, 'drop')
+          drag = 'drag_handle' if drag == 'true'
 
-            if hover  = @params.delete(:hover)
-              query_params = ", :hover => #{hover.inspect}"
-            else
-              query_params = ""
-            end
+          js_options = drag == 'all' ? ['false'] : [drag.inspect]
 
-            if role = @params.delete(:set) || @params.delete(:add)
-              @params["node[#{role}_id]"] = '\#{id}'
-            end
+          if revert = @params.delete(:revert)
+            js_options << (%w{true false}.include?(revert) ? revert : revert.inspect)
+          end
 
-            query_params << ", :url => #{make_href(self.name, :action => 'drop')}"
-            markup.pre_wrap[:drop] = "<% add_drop_id(\"#{node.dom_id(:erb => false, :list => false)}\"#{query_params}) -%>"
+          markup.pre_wrap[:drag] = "<% add_drag_id(\"#{node.dom_id(:erb => false)}\", #{js_options.join(', ').inspect}) -%>"
+        end
+
+        # Display an input field to filter a remote block
+        def r_filter
+          if upd = @params[:update]
+            return unless block = find_target(upd)
+          else
+            return parser_error("missing 'block' in same parent") unless parent && block = parent.descendant('block')
+          end
+
+          return parser_error("cannot use 's' as key (used by start_node)") if @params[:key] == 's'
+
+          dom_id = node.dom_id(:erb => false)
+
+          out %Q{<%= form_remote_tag(:url => zafu_node_path(#{node}), :method => :get, :html => {:id => \"#{dom_id}_f\"}) %>
+          <div class='hidden'>
+            <input type='hidden' name='t_url' value='#{template_url(upd)}'/>
+            <input type='hidden' name='dom_id' value='#{upd}'/>
+            <input type='hidden' name='s' value='<%= start_node_zip %>'/>
+          </div><div class='wrapper'>
+          }
+          if @blocks == []
+            out "<input type='text' name='#{@params[:key] || 'f'}' value='<%= params[#{(@params[:key] || 'f').to_sym.inspect}] %>'/>"
+          else
+            out expand_with(:in_filter => true)
+          end
+          out "</div></form>"
+          if @params[:live] || @params[:update]
+            out "<% filter_form(#{node}, \"#{dom_id}_f\") -%>"
           end
         end
 
+        # Create a drop block.
         def r_drop
+          if parent.method == 'each' && @method == parent.single_child_method
+            # We reuse the 'each' block.
+            markup = parent.markup
+            # Make sure the parent has a proper dom_prefix.
+            parent.set_dom_prefix
+          else
+            set_dom_prefix
+            markup = @markup
+          end
+
+          markup.tag ||= 'div'
+
+          # This dom_id detection code is crap but it fixes the drop in each bug.
+          # if dom_id = markup.dyn_params[:id]
+          #   if dom_id =~ /<%= %Q\{(.*)\} %>/
+          #     dom_id = $1
+          #   end
+          # else
+          dom_id = node.dom_id(:list => false, :erb => false)
+          markup.set_id(node.dom_id(:list => false))
+          # end
+
+          markup.append_param(:class, 'drop') # unless markup.params[:class] =~ /drop/
+
+          if hover  = @params.delete(:hover)
+            query_params = ", :hover => #{hover.inspect}"
+          else
+            query_params = ""
+          end
+
+          if role = @params.delete(:set) || @params.delete(:add)
+            @params["node[#{role}_id]"] = '\#{id}'
+          end
+
+          query_params << ", :url => #{make_href(self.name, :action => 'drop')}"
+          markup.pre_wrap[:drop] = "<% add_drop_id(\"#{dom_id}\"#{query_params}) -%>"
+
           r_block
         end
 
