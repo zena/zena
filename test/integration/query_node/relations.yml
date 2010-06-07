@@ -38,10 +38,17 @@ relation_from_class:
   sql: "/links.source_id = no1.id AND no1.kpath LIKE 'NPP%'/"
 
 same_name_as_class:
+  # Creates pages relation in QueryNodeTest
   src: 'pages from letters'
   sql: "/nodes.id = links.source_id AND links.relation_id.*no1.kpath LIKE 'NNL%'/"
 
+same_name_as_class_in_site:
+  # Creates pages relation in QueryNodeTest
+  src: 'pages in site'
+  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NP%' ORDER BY nodes.position ASC, nodes.node_name ASC}"
+
 same_name_as_class_not_valid:
+  # Creates pages relation in QueryNodeTest
   src: 'pages'
   sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NP%' AND nodes.parent_id = ? ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id]"
 
@@ -51,6 +58,13 @@ root_should_be_project:
     node: ant
   src: 'news from root'
   sql: "%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes,nodes AS no1 WHERE #{secure_scope('nodes')} AND nodes.id = links.source_id AND links.relation_id = 488905945 AND links.target_id = no1.id AND no1.id = 850927283 GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
+
+start_as_tag:
+  context:
+    node: art
+  src: "tagged from tag:start"
+  sql: '/no1.site_id = \? AND no1.zip = \?.*current_site.id, start_node_zip/'
+  res: 'cleanWater, opening'
 
 from_visitor:
   src: 'favorites from visitor'

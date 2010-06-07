@@ -19,6 +19,10 @@ class QueryNodeTest < Zena::Unit::TestCase
     @context[:date]
   end
 
+  def start_node_zip
+    @node.zip
+  end
+
   # ========== YAML TESTS
   yamltest
 
@@ -155,6 +159,18 @@ class QueryNodeTest < Zena::Unit::TestCase
     )
     assert !rel.new_record?
     yt_do_test('relations', 'same_name_as_class')
+  end
+
+  def test_relations_same_name_as_class_in_site
+    login(:lion)
+    rel = Relation.create(
+      :source_kpath => 'NP',
+      :source_role  => '',
+      :target_kpath => 'NNL',
+      :target_role  => 'live_letter'
+    )
+    assert !rel.new_record?
+    yt_do_test('relations', 'same_name_as_class_in_site')
   end
 
   def test_relations_same_name_as_class_not_valid

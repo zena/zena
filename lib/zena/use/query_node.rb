@@ -47,6 +47,9 @@ module Zena
           end.flatten]
         end
 
+        def start_node_zip
+          self.zip
+        end
       end # ModelMethods
 
       module ClassMethods
@@ -354,15 +357,23 @@ module Zena
               class_name, relation = $1, $2
             end
 
-            if CORE_CONTEXTS.include?(relation)
-              if class_name
-                # We have named the relation, set main_class
-                if klass = Node.get_class(class_name)
-                  make_and_set_main_class(klass)
-                else
-                  raise QueryBuilder::QueryException.new("Unknown class #{klass} in scope '#{class_name}:#{scope}'.")
-                end
+            if class_name
+              # We have named the relation, set main_class
+              if klass = Node.get_class(class_name)
+                make_and_set_main_class(klass)
+              else
+                raise QueryBuilder::QueryException.new("Unknown class #{klass} in scope '#{class_name}:#{scope}'.")
               end
+            end
+
+            if relation == 'start'
+              add_table(main_table)
+              add_filter "#{field_or_attr('zip')} = #{insert_bind('start_node_zip')}"
+              add_filter "#{table}.site_id = #{insert_bind('current_site.id')}"
+              return true
+            end
+
+            if CORE_CONTEXTS.include?(relation)
 
               # PREVIOUS_GROUP.id = NEW_GROUP.project_id
               add_table(main_table)
@@ -379,7 +390,9 @@ module Zena
               add_table(main_table)
             else
               # Not a core context, try to filter by class type
-              if klass = Node.get_class(relation)
+              if klass = @filter_relation_class || Node.get_class(relation)
+                # Relation was found in 'join_relation'
+                @filter_relation_class = nil
                 res_class = make_and_set_main_class(klass)
 
                 add_table(main_table)
@@ -406,6 +419,9 @@ module Zena
           def join_relation(relation, use_name = nil)
             if context[:scope] == 'site'
               # Example: 'icons in site' ==> any node with an 'icon' relation (no need to filter by source).
+              if @filter_relation_class = Node.get_class(relation)
+                return nil
+              end
               source_kpath = nil
             else
               source_kpath = @query.main_class.kpath

@@ -256,6 +256,8 @@ END_TXT
             selected = "params[#{attribute.to_sym.inspect}].to_s"
           elsif %w{parent_id}.include?(attribute)
             selected = "#{node}.parent_zip.to_s"
+          elsif attribute == 'copy_id'
+            selected = 'nil'
           elsif attribute =~ /^(.*)_id$/
             # relation
             selected = "#{node}.rel[#{$1.inspect}].other_zip.to_s"
