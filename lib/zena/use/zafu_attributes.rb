@@ -63,15 +63,17 @@ module Zena
           # Evaluate 'set_xxx' param and store result in context with 'var' name. This name
           # will be used during RubyLess method resolution.
           def filter_set_var
-            @params.keys.each do |k|
-              if k.to_s =~ /^set_(.+)$/
-                var  = $1
-                code = @params.delete(k)
-                begin
-                  typed_string = ::RubyLess.translate(code, self)
-                  set_context_var('set_var', var, typed_string)
-                rescue RubyLess::NoMethodError => err
-                  parser_error(err.message, code)
+            [@params, @markup.params].each do |params|
+              params.keys.each do |k|
+                if k.to_s =~ /^set_(.+)$/
+                  var  = $1
+                  code = params.delete(k)
+                  begin
+                    typed_string = ::RubyLess.translate(code, self)
+                    set_context_var('set_var', var, typed_string)
+                  rescue RubyLess::NoMethodError => err
+                    parser_error(err.message, code)
+                  end
                 end
               end
             end

@@ -11,6 +11,10 @@ class Version < ActiveRecord::Base
   # We need to include Property::Base so that we can read the properties that
   # we store (useful when listing versions or comparing them).
   include Property::Base
+
+  # Should be the same serialization as in Node
+  include Property::Serialization::JSON
+
   property do |p|
     p.string 'title'
     p.string 'summary'

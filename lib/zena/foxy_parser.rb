@@ -300,7 +300,7 @@ module Zena
           end
         end
 
-        Property::Properties[prop].to_json
+        Node.encode_properties(Property::Properties[prop])
       end
   end
 

@@ -74,6 +74,37 @@ set_attribute_empty_tag:
   src: "<div class='#{node_name}'/>"
   res: "<div class='status'></div>"
 
+store_node:
+  src: "<r:void set_baz='this'><r:parent><r:show attr='node_name'/>: <r:baz do='node_name'/> + <r:main do='show' attr='id'/></r:parent></r:void>"
+  res: "cleanWater: status + 22"
+
+store_in_block:
+  src: "<r:block><r:void set_found='this' do='node' where='id = 18 in site' do='page'><r:found do='node_name'/>: <r:show attr='node_name'/></r:void></r:block>"
+  res: "<div id='list1'>status: cleanWater</div>"
+  'relations/store/en/in/block/list1.erb': '/<% var3 = @node -%><%= var3.node_name %>:/'
+
+set_var_outside_block:
+  old_src: "<r:node select='18' set_found='this' do='pages'><r:block><r:show attr='node_name'/>: <r:context select='found' do='node_name'/></r:block></r:node>"
+  src: "<r:void set_found='this' do='pages from node where id = 18 in site' do='each' join=', '><r:block><r:found do='node_name'/>: <r:show attr='node_name'/></r:block></r:void>"
+  res: "<div id='list1_21'><div id='list2'>status: cleanWater</div></div>, <div id='list1_29'><div id='list2'>status: wiki</div></div>"
+  'relations/set/en/var/outside/block/list1.erb': "/unknown method <span class='type'>found\(\)/"
+
+store_node_as_relation:
+  src: "<r:void set_baz='this'><r:parent><r:show attr='node_name'/>: <r:baz do='node_name'/> + <r:main do='show' attr='id'/></r:parent></r:void>"
+  res: "cleanWater: status + 22"
+
+store_img:
+  src: "<r:parent><r:icon set_bob='this'><r:show attr='node_name'/><r:img link='bob'/></r:icon></r:parent>"
+  tem: "/if var1 = @node.parent.*var2 = Node.do_find.*relation_id = _ID(node_has_an_icon).*LIKE 'NDI%'.*var2.node_name.*zen_path\(var1\).*img_tag\(var2/"
+
+store_var_in_html:
+  src: "<p set_foo='this' do='parent' do='foo' do='title'/>"
+  res: "<p>status title</p>"
+
+stored_in_if_clause:
+  src: "<r:parent set_base='this'><li do='void' on_if='id == base.id'>hop</li></r:parent>"
+  tem: "/var1.zip==@node.zip/"
+
 anchor_attribute:
   src: "<p do='#{id}' anchor='#{node_name}'>hello</p>"
   res: "<a class='anchor' name='status'></a><p>22</p>"

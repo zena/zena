@@ -96,29 +96,6 @@ context:
   src: "<r:context select='nodes' in='site' limit='3'><r:each join=', ' do='show' attr='node_name'/></r:context>"
   res: "anonymous, ant, art"
 
-store_node:
-  src: "<r:void set_baz='this'><r:parent><r:show attr='node_name'/>: <r:baz do='node_name'/> + <r:main do='show' attr='id'/></r:parent></r:void>"
-  res: "cleanWater: status + 22"
-
-store_in_block:
-  src: "<r:block><r:void set_found='this' do='node' where='id = 18 in site' do='page'><r:found do='node_name'/>: <r:show attr='node_name'/></r:void></r:block>"
-  res: "<div id='list1'>status: cleanWater</div>"
-  'relations/store/en/in/block/list1.erb': '/<% var3 = @node -%><%= var3.node_name %>:/'
-
-set_var_outside_block:
-  old_src: "<r:node select='18' set_found='this' do='pages'><r:block><r:show attr='node_name'/>: <r:context select='found' do='node_name'/></r:block></r:node>"
-  src: "<r:void set_found='this' do='pages from node where id = 18 in site' do='each' join=', '><r:block><r:found do='node_name'/>: <r:show attr='node_name'/></r:block></r:void>"
-  res: "<div id='list1_21'><div id='list2'>status: cleanWater</div></div>, <div id='list1_29'><div id='list2'>status: wiki</div></div>"
-  'relations/set/en/var/outside/block/list1.erb': "/unknown method <span class='type'>found\(\)/"
-
-store_node_as_relation:
-  src: "<r:void set_baz='this'><r:parent><r:show attr='node_name'/>: <r:baz do='node_name'/> + <r:main do='show' attr='id'/></r:parent></r:void>"
-  res: "cleanWater: status + 22"
-
-store_img:
-  src: "<r:parent><r:icon set_bob='this'><r:show attr='node_name'/><r:img link='bob'/></r:icon></r:parent>"
-  tem: "/if var1 = @node.parent.*var2 = Node.do_find.*relation_id = _ID(node_has_an_icon).*LIKE 'NDI%'.*var2.node_name.*zen_path\(var1\).*img_tag\(var2/"
-
 author_visitor:
   context:
     visitor: ant
@@ -452,3 +429,8 @@ same_name_as_class:
   # we create a relation with 'page' role from Letter.
   src: "<r:Letter do='pages'/>"
   tem: '/nodes.id = links.source_id AND links.relation_id/'
+
+start:
+  src: "<r:start do='title'/>"
+  tem: '..'
+  res: 'status title'

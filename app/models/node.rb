@@ -127,6 +127,10 @@ class Node < ActiveRecord::Base
   extend Zena::Use::Search::NodeClassMethods
 
   include Property
+
+  # Should be the same serialization as in Version
+  include Property::Serialization::JSON
+
   store_properties_in :version
 
   property do |p|

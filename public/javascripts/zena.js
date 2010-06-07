@@ -33,6 +33,10 @@ Zena.open_window = function(url, id, event, pos_x, pos_y) {
     var popup = window.open(url, name, 'location=0,width=300,height=400,resizable=1');
     if (pos_x && pos_y) {
       popup.moveTo(pos_x, pos_y);
+    } else {
+      var x = event.screenX;
+      var y = event.screenY - 50;
+      popup.moveTo(x, y);
     }
     return popup;
   } else {
