@@ -46,11 +46,21 @@ module Zena
         end
 
         # Execute an index search using the indexed fields in idx_nodes_strings, i_integer_nodes, etc.
-        # FIXME: reimplement with full QueryBuilder parsing.
+        # FIXME: reimplement all with QueryBuilder parsing.
         def search_index(params, options = {})
           query = ::QueryBuilder::Query.new(Node.query_compiler)
           query.add_table(query.main_table)
           filters = []
+
+          if query = params[:qb]
+            res = current_site.root_node.find(:all, query, :errors => true)
+            if res.kind_of?(Exception)
+              raise ActiveRecord::StatementInvalid.new(res.message)
+            else
+              return res
+            end
+          end
+
           params.each do |key, value|
             if key == 'klass'
               next unless klass = Node.get_class(value)

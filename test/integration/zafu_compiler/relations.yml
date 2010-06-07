@@ -432,5 +432,12 @@ same_name_as_class:
 
 start:
   src: "<r:start do='title'/>"
-  tem: '..'
+  tem: "<% var1 = start_node -%><%= var1.prop['title'] %>"
   res: 'status title'
+
+foo:
+  context:
+    node: art
+  src: "<div do='tagged from tag:start' do='each' join=', ' do='title'/>"
+  tem: "/nodes.id = links.source_id/"
+  res: '<div>Clean Water project, parc opening</div>'

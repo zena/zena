@@ -79,7 +79,7 @@ negative_value:
   sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.custom_a <> -10 AND nodes.kpath LIKE 'NN%' ORDER BY nodes.position ASC, nodes.node_name ASC}"
 
 filter_through_links:
-  src: "nodes where (set_tag_id eq 33 and hot_id eq 22) in site"
+  src: "nodes where (set_tag_id = 33 and hot_id = 22) in site"
   sql: "/jn1\.zip = 33 AND jn2\.zip = 22.*nodes.id = links.source_id/"
   res: "cleanWater"
 

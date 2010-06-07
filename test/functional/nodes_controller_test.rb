@@ -629,6 +629,21 @@ END:VCALENDAR
     assert nodes = assigns(:nodes)
     assert_equal [nodes_id(:zena)], nodes.map {|r| r.id}
   end
+  
+  def test_search_qb
+    login(:anon)
+    get 'search', 'qb' => 'nodes where (set_tag_id = 33 and hot_id = 22) in site'
+    assert_response :success
+    assert nodes = assigns(:nodes)
+    assert_equal [nodes_id(:cleanWater)], nodes.map {|r| r.id}
+  end
+  
+  def test_search_qb_errors
+    login(:anon)
+    assert_raise(ActiveRecord::StatementInvalid) do
+      get 'search', 'qb' => 'nodes foobar error'
+    end
+  end
 end
 
 =begin
