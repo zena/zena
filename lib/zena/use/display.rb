@@ -225,7 +225,7 @@ module Zena
         # Return the 'zip' of the node corresponding to the browser url (start node). This value is kept
         # accross all Ajax calls.
         def start_node_zip
-          params[:s] || @node.zip
+          (params[:s] || @node.zip).to_i
         end
 
         # Return a list of administrative links

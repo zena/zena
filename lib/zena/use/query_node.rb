@@ -32,7 +32,7 @@ module Zena
           else
             begin
               query = self.class.build_query(count, rel.first, :node_name => 'self', :main_class => Zena::Acts::Enrollable.make_class(self.vclass))
-            rescue ::QueryBuilder::SyntaxError => err
+            rescue ::QueryBuilder::Error => err
               return opts[:errors] ? err : nil
             end
             self.class.do_find(count, eval(query.to_s))

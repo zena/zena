@@ -192,7 +192,7 @@ module Zena
           return nil unless signature.size == 1
           ivar = signature.first
           if ivar == 'this'
-            {:class => node.klass, :method => node.name}
+            super
           elsif ivar[0..0] == '@' && klass = get_class(ivar[1..-1].capitalize)
 
             if klass <= Node

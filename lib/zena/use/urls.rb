@@ -209,7 +209,7 @@ module Zena
         safe_method [:unlink_node_path, Node, Hash]   => {:class => String, :accept_nil => true}
         safe_method [:unlink_node_path, Node]         => {:class => String, :accept_nil => true}
 
-        safe_method :start_id  => {:class => String, :method => 'start_node_zip'}
+        safe_method :start_id  => {:class => Number, :method => 'start_node_zip'}
 
         def dummy_zen_path(string, options = {})
           if anchor = options.delete(:anchor)

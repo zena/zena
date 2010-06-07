@@ -55,6 +55,11 @@ class ZafuTemplateTest < Zena::View::TestCase
         visiting(:wiki)
         assert_match %r{/wikiSkin/Node}, @controller.send(:template_url)
       end
+
+      should 'not insert dev_box for non html content' do
+        # TODO
+        print 'P'
+      end
     end # with an admin visitor
 
     context 'without an admin visitor' do

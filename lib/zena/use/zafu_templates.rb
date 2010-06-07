@@ -255,7 +255,7 @@ module Zena
                 nil
               end
 
-              unless rebuild_template(template, opts.merge(:zafu_url => zafu_url, :rel_path => rel_path, :dev_mode => (dev_mode? && mode != '+popupLayout')))
+              unless rebuild_template(template, opts.merge(:zafu_url => zafu_url, :rel_path => rel_path, :dev_mode => (dev_box?(mode, format))))
                 return default_template_url(opts)
               end
             end
@@ -282,6 +282,11 @@ module Zena
         # Return true if the current rendering should include a dev box.
         def dev_mode?
           !visitor.dev_skin_id.blank?
+        end
+
+        # Return true if we should display the dev box
+        def dev_box?(mode, format)
+          format == 'html' && mode != '+popupLayout' && dev_mode?
         end
 
         def lang_path
