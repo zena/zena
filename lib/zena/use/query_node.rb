@@ -203,13 +203,14 @@ module Zena
 
         # Handle special case for 'class = ' and 'role = '
         def process_equal(left, right)
-          if left == [:field, 'class'] && right[0] == :field
-            if klass = Node.get_class(right[1])
+          if (left == [:field, 'class'] || left == [:field, 'klass']) &&
+             (right[0] == :field || right[0] == :string)
+            if klass = Node.get_class(right.last)
               "#{field_or_attr('kpath')} = #{quote(klass.kpath)}"
             else
-              raise QueryBuilder::QueryException.new("Unknown class #{right.last.inspect}.")
+              raise ::QueryBuilder::Error.new("Unknown class #{right.last.inspect}.")
             end
-          elsif left == [:field, 'role'] && right[0] == :field
+          elsif left == [:field, 'role'] && (right[0] == :field || right[0] == :string)
             if role = Node.get_role(right[1])
               # FIXME: how to only add table once if the other clause in not an OR ?
               add_table('nodes_roles')

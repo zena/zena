@@ -618,7 +618,7 @@ END:VCALENDAR
 
   def test_search_klass
     login(:anon)
-    get 'search', 'klass' => 'Project', 'title' => 'k'
+    get 'search', 'class' => 'Project', 'title' => 'a wiki with zena'
     assert nodes = assigns(:nodes)
     assert_equal [nodes_id(:wiki)], nodes.map {|r| r.id}
   end
@@ -629,7 +629,7 @@ END:VCALENDAR
     assert nodes = assigns(:nodes)
     assert_equal [nodes_id(:zena)], nodes.map {|r| r.id}
   end
-  
+
   def test_search_qb
     login(:anon)
     get 'search', 'qb' => 'nodes where (set_tag_id = 33 and hot_id = 22) in site'
@@ -637,7 +637,7 @@ END:VCALENDAR
     assert nodes = assigns(:nodes)
     assert_equal [nodes_id(:cleanWater)], nodes.map {|r| r.id}
   end
-  
+
   def test_search_qb_errors
     login(:anon)
     assert_raise(ActiveRecord::StatementInvalid) do

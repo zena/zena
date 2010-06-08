@@ -45,45 +45,29 @@ module Zena
           end
         end
 
-        # Execute an index search using the indexed fields in idx_nodes_strings, i_integer_nodes, etc.
-        # FIXME: reimplement all with QueryBuilder parsing.
+        # Execute an index search using query builder. Either provide a full query with 'qb' or 'key'='value' parameters.
         def search_index(params, options = {})
           query = ::QueryBuilder::Query.new(Node.query_compiler)
           query.add_table(query.main_table)
           filters = []
 
-          if query = params[:qb]
-            res = current_site.root_node.find(:all, query, :errors => true)
-            if res.kind_of?(Exception)
-              raise ActiveRecord::StatementInvalid.new(res.message)
-            else
-              return res
+          unless query = params[:qb]
+            query_args = []
+
+            params.each do |key, value|
+              query_args << "#{key} = #{Zena::Db.quote(value)}"
             end
+
+            query = "nodes where #{query_args.join(' and ')} in site"
           end
 
-          params.each do |key, value|
-            if key == 'klass'
-              next unless klass = Node.get_class(value)
-              query.add_filter "kpath LIKE #{::QueryBuilder::Processor.insert_bind("#{klass.kpath}%".inspect)}"
-            else
-              key = key.to_s
-              if column = schema.columns[key] || secure(Column) { Column.find_by_name(key) }
-                type = column.index == true ? column.type : column.index
-              else
-                type = 'ml_string'
-              end
+          res = current_site.root_node.find(:all, query, :errors => true)
 
-              table_name = Node.index_table_name(type)
-              query.add_table(table_name)
-              index_table = query.table(table_name)
-              query.add_filter "nodes.id = #{index_table}.node_id AND #{index_table}.key = #{::QueryBuilder::Processor.insert_bind(key.inspect)} AND #{index_table}.value LIKE #{::QueryBuilder::Processor.insert_bind("%#{value}%".inspect)}"
-            end
+          if res.kind_of?(Exception)
+            raise ActiveRecord::StatementInvalid.new("Error parsing query #{query.inspect} (#{res.message})")
+          else
+            return res
           end
-
-          # Secure
-          query.add_filter '#{secure_scope(\'nodes\')}'
-          query.distinct = true
-          Node.do_find(:all, eval(query.to_s))
         end
 
         # Execute a fulltext search using default fulltext support from the database (MyISAM on MySQL).

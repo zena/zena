@@ -94,10 +94,22 @@ class_filter:
   sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND (nodes.kpath LIKE 'NDI%' OR nodes.kpath = 'NPP') GROUP BY id ORDER BY nodes.position ASC, nodes.node_name ASC}"
   res: 'bird, cleanWater, flower, lake, tree, wiki, zena'
 
+class_filter_with_quotes:
+  src: "nodes where class = 'Project' and title = 'k' in site"
+  sql: "/nodes.kpath = 'NPP'/"
+
+klass_filter:
+  src: "nodes where klass = 'Project' and title = 'k' in site"
+  sql: "/nodes.kpath = 'NPP'/"
+
 role_filter:
   src: "nodes where role = Original in site"
   sql: "%Q{SELECT nodes.* FROM nodes,nodes_roles WHERE #{secure_scope('nodes')} AND (nodes_roles.node_id = nodes.id AND nodes_roles.role_id = 493147733) ORDER BY nodes.position ASC, nodes.node_name ASC}"
   res: 'tree'
+
+role_filter_string:
+  src: "nodes where role = 'Original' in site"
+  sql: "/nodes_roles.role_id = 493147733/"
 
 role_as_relation_filter:
   src: "originals in site"

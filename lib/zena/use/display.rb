@@ -395,6 +395,8 @@ module Zena
         # Parse text with zazen helper
         def r_zazen(signature = nil)
           @markup.prepend_param(:class, 'zazen')
+          @markup.tag ||= 'div'
+
           if signature
             if node = node(Node)
               {

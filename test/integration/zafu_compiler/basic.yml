@@ -280,15 +280,15 @@ on_if_now:
 visitor_is_anon:
   context:
     visitor: 'anon'
-  src: "<r:if visitor='anon'>anonymous<r:else>logged in</r:else></r:if>"
+  src: "<r:if test='visitor.is_anon?'>anonymous<r:else>logged in</r:else></r:if>"
   res: "anonymous"
 
 test_in_each:
   context:
     node: 'cleanWater'
-  src: "<ul do='pages'><li do='each' on_if='name eq \"track\"' do='node_name'/></ul>"
-  tem: "/var1.name == \"track\"/"
-  res: "<ul><li>crocodiles</li><li>status</li><li class='on'>track</li></ul>"
+  src: "<ul do='pages'><li do='each' on_if='this.node_name == \"track\"' do='node_name'/></ul>"
+  tem: "/var2.node_name==\"track\"/"
+  res: "<ul><li class=''>crocodiles</li><li class=''>status</li><li class=' on'>track</li></ul>"
 
 on_if_in_unknown:
   src: "<div do='project' on_if='name eq \"cleanWater\"' do='node_name'/>"
@@ -503,16 +503,19 @@ summary_or_text_has_summary:
 summary_or_text_no_summary:
   context:
     node: 'zena'
-  src: "<r:summary or='text'/>"
-  res: "<div class='zazen' id='summary11'><p>This is the root of your peaceful tests.</p></div>"
+  old_src: "<r:summary or='text'/>"
+  src: "<div do='zazen(summary || text)'/>"
+  tem: "/@node.prop\['summary'\] or @node.prop\['text'\]/"
+  res: "<div class='zazen'><p>This is the root of your peaceful tests.</p></div>"
 
 summary_in_div_with_id:
   src: "<div id='foo' do='summary'/>"
   res: "<div class='zazen' id='foo'><div id='summary22'><p>status summary</p></div></div>"
 
 text:
-  src: "<r:text/>"
-  res: "<div class='zazen' id='text22'><p>status text</p></div>"
+  old_src: "<r:text/>"
+  src: "<r:zazen attr='text' live='true'/>"
+  res: "<div class='zazen' id='_text22'><p>status text</p></div>"
 
 text_code:
   context:
