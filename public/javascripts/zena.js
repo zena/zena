@@ -785,3 +785,72 @@ Zena.popup_close = function() {
     });
   }
 }
+
+// Lighter 'put' options for the page.
+Zena.put = function(tag) {
+  var f = document.createElement('form');
+  f.style.display = 'none';
+  tag.parentNode.appendChild(f);
+  f.method = 'POST';
+  f.action = tag.href;
+  var m = document.createElement('input');
+  m.setAttribute('type', 'hidden');
+  m.setAttribute('name', '_method');
+  m.setAttribute('value', 'put');
+  f.appendChild(m);
+  f.submit();
+}
+function test()
+{
+	alert("test!");
+}
+Zena.set_toggle = function(dom_id, definition) {
+  var elem = $(dom_id);
+  var id = dom_id.replace(/^.*_/,'') * 1;
+  var list = definition['list'];
+
+  if (!elem.hasClassName('on') && !elem.hasClassName('off')) {
+    Event.observe(elem, 'click', function(event) {
+      if (event.findElement() == elem)
+        Zena.toggle(elem, definition, id);
+    });
+  }
+
+  if (list.indexOf(id) == -1) {
+    // off
+    elem.removeClassName('on');
+    elem.addClassName('off');
+  } else {
+    // on
+    elem.removeClassName('off');
+    elem.addClassName('on');
+  }
+}
+
+Zena.toggle = function(elem, definition, id) {
+  if (elem.hasClassName('on')) {
+    // turn off
+    new Ajax.Request(definition['url'], {
+      method:'put',
+      asynchronous:true,
+      evalScripts:true,
+      parameters: 'node[' + definition['role'] + '_id]=-' + id,
+      onSuccess: function() {
+        definition['list'] = definition['list'].without(id);
+        Zena.set_toggle(elem.id, definition);
+      }
+    });
+  } else {
+    // turn on
+    new Ajax.Request(definition['url'], {
+      method:'put',
+      asynchronous:true,
+      evalScripts:true,
+      parameters: 'node[' + definition['role'] + '_id]=' + id,
+      onSuccess: function() {
+        definition['list'].push(id);
+        Zena.set_toggle(elem.id, definition);
+      }
+    });
+  }
+}

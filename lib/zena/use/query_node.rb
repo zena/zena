@@ -435,6 +435,7 @@ module Zena
                 add_table(use_name, main_table)
               else
                 add_table(main_table)
+                make_and_set_main_class(rel.other_klass)
               end
 
               add_table('links')

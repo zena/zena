@@ -109,14 +109,14 @@ zazen_shortcut_with_live:
 
 zazen:
   src: "<r:zazen attr='title'/>"
-  tem: "<%= zazen(@node.prop['title'], :node => @node) %>"
-  res: "<p>status title</p>"
+  tem: "<div class='zazen'><%= zazen(@node.prop['title'], :node => @node) %></div>"
+  res: "<div class='zazen'><p>status title</p></div>"
 
 zazen_code:
   context:
     node: style_css
   src: "<r:zazen code='#{content_lang}' attr='text'/>"
-  tem: "<%= zazen(@node.prop['text'], :node => @node, :code => \"#{@node.content_lang}\") %>"
+  tem: "<div class='zazen'><%= zazen(@node.prop['text'], :node => @node, :code => \"#{@node.content_lang}\") %></div>"
   res: "/<code class='css'><span class=\"tag\">body</span>/"
 
 show_name:
@@ -170,8 +170,13 @@ defined_icon:
 
 add_document:
   src: "<r:add_document/>"
-  tem: "/node_action_link\('add_doc', @node\)/"
+  tem: "/documents/new\?parent_id=<%= @node.zip %>/"
   res: "/Zena.open_window/"
+
+add_document_block:
+  src: "<r:add_document do='t'>add image</r:add_document>"
+  tem: "/add image/"
+  res: "/add image/"
 
 cannot_add_document:
   context:

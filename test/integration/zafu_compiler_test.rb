@@ -2,7 +2,7 @@ require 'test_helper'
 
 class ZafuCompilerTest < Zena::Controller::TestCase
 
-  yamltest :directories => [:default, "#{Zena::ROOT}/bricks/**/test/zafu"], :files => ['basic']
+  yamltest :directories => [:default, "#{Zena::ROOT}/bricks/**/test/zafu"] #, :files => ['display']
 
 
   Section # make sure we load Section links before trying relations

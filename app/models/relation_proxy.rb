@@ -132,6 +132,11 @@ class RelationProxy < Relation
     @side == :source ? target_icon : source_icon
   end
 
+  # Get class of other element (used by QueryNode to properly set resulting class).
+  def other_klass
+    Node.get_class_from_kpath(@side == :source ? self[:target_kpath] : self[:source_kpath])
+  end
+
   # set
   def other_id=(v)
     if !v.kind_of?(Array) && v.to_i < 0

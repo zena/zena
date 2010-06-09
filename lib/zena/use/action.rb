@@ -1,7 +1,40 @@
 module Zena
   module Use
     module Action
+      module Common
+
+        # This method renders an action link without using Rails actions so that we can feed it with
+        # erb from Zafu.
+        def node_action_link(action, node_zip, opts={})
+          publish = opts[:publish]
+          text  = opts[:text].blank? ? _("btn_#{action}") : opts[:text]
+          title = opts[:title] || _("btn_title_#{action}")
+          query = publish ? ["?=#{publish}"] : []
+
+          if %w{edit drive add_doc}.include?(action)
+            case action
+            when 'edit'
+              url = "/nodes/#{node_zip}/versions/0/edit"
+            when 'drive'
+              url = "/nodes/#{node_zip}/edit"
+            when 'add_doc'
+              url = "/documents/new"
+              query << "parent_id=#{node_zip}"
+            end
+            id  = "#{current_site.host.gsub('.', '_')}_#{node_zip}_#{action}"
+
+            url = query.empty? ? url : "#{url}?#{query.join('&')}"
+            tag = "<a href='#{url}' target='_blank' title='#{title}' onclick=\"Zena.open_window('#{url}', '#{id}', event);return false;\">"
+          else
+            query = query.empty? ? '' : "?#{query.join('&')}"
+            tag  = "<a href='/nodes/#{node_zip}/versions/0/#{action}#{query}' onclick='Zena.put(this);return false;' title ='#{title}'>"
+          end
+          "#{tag}#{text}</a>"
+        end
+      end
+
       module ViewMethods
+        include Common
         include RubyLess
         safe_method :login_path  => String
         safe_method :logout_path => String
@@ -22,39 +55,16 @@ module Zena
           actions = 'edit,propose,refuse,publish,drive' if actions == 'all'
 
           return '' if node.new_record?
-          publish_after_save = opts[:publish_after_save]
           res = actions.split(',').reject do |action|
             !node.can_apply?(action.to_sym)
           end.map do |action|
-            node_action_link(action, node, publish_after_save)
+            node_action_link(action, node.zip, opts)
           end.join(" ")
 
           if res != ""
             "<span class='actions'>#{res}</span>"
           else
             ""
-          end
-        end
-
-        # TODO: test
-        def node_action_link(action, node, publish_after_save = false)
-          if %w{edit drive add_doc}.include?(action)
-            case action
-            when 'edit'
-              url  = edit_node_version_path(:node_id => node.zip, :id => 0) + (publish_after_save ? "?pub=#{publish_after_save}" : '')
-            when 'drive'
-              url  = edit_node_path(:id => node.zip )
-            when 'add_doc'
-              url  = new_document_path(:parent_id => node.zip)
-            end
-
-            id   = "#{current_site.host.gsub('.', '_')}_#{node[:zip]}_#{action}"
-
-            "<a href='#{url}' target='_blank' title='#{_('btn_title_edit')}' onclick=\"Zena.open_window('#{url}', '#{id}', event);return false;\">" +
-            _("btn_#{action}") + '</a>'
-
-          else
-            link_to( _("btn_#{action}"), {:controller=>'versions', :action => action, :node_id => node[:zip], :id => 0}, :title=>_("btn_title_#{action}"), :method => :put )
           end
         end
 
@@ -137,6 +147,8 @@ module Zena
       end # ViewMethods
 
       module ZafuMethods
+        include Common
+
         def self.included(base)
           base.before_process :filter_actions
         end
@@ -191,7 +203,7 @@ module Zena
             end
 
             if publish = @params.delete(:publish)
-              out_post " <%= node_actions(#{node}, :actions => #{actions.inspect}, :publish_after_save => #{publish.inspect}) %>"
+              out_post " <%= node_actions(#{node}, :actions => #{actions.inspect}, :publish => #{publish.inspect}) %>"
             else
               out_post " <%= node_actions(#{node}, :actions => #{actions.inspect}) %>"
             end

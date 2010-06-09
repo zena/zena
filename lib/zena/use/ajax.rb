@@ -16,6 +16,15 @@ module Zena
 
         # RJS to update a page after create/update/destroy
         def update_page_content(page, obj)
+          unless params[:dom_id]
+            # simply reply with failure or success
+            if !@node.errors.empty?
+              page << "alert(#{@node.error_messages.first.inspect});"
+              page << "return false;" # How to avoid 'onSuccess' ?
+            end
+            return
+          end
+
           if params[:t_id] && @node.errors.empty?
             @node = secure(Node) { Node.find_by_zip(params[:t_id])}
           end
@@ -66,7 +75,6 @@ module Zena
             #  # reload page
             #  page << "document.location.href = document.location.href;"
             #
-            puts params.inspect
 
             case params[:action]
             when 'edit'
@@ -121,6 +129,23 @@ module Zena
 }});"
         end
 
+        def add_toggle_id(dom_id, group_name, role)
+          @toggle_ids ||= {}
+          unless list = @toggle_ids[group_name]
+            list = @toggle_ids[group_name] = []
+            other = yield
+
+            if other = yield
+              found = other.rel[role].other_zips
+            else
+              found = []
+            end
+            url = "/nodes/#{other.zip}"
+            js_data << "#{group_name} = {\"list\":#{found.inspect}, \"url\":#{url.inspect}, \"role\":#{role.inspect}};"
+          end
+          list << dom_id
+        end
+
         def filter_form(node, dom_id)
           js_data << %Q{new Form.Observer('#{dom_id}', 0.3, function(element, value) {new Ajax.Request('#{zafu_node_path(node)}', {asynchronous:true, evalScripts:true, method:'get', parameters:Form.serialize('#{dom_id}')})});}
         end
@@ -136,6 +161,13 @@ module Zena
               end
             end
           end
+
+          if @toggle_ids
+            @toggle_ids.each do |group_name, list|
+              js_data << %Q{#{list.inspect}.each(function(item) { Zena.set_toggle(item, #{group_name})});}
+            end
+          end
+
           # Super is in Zena::Use::Rendering
           super
         end
@@ -257,6 +289,21 @@ module Zena
           markup.pre_wrap[:drop] = "<% add_drop_id(\"#{dom_id}\"#{query_params}) -%>"
 
           r_block
+        end
+
+        # Create a link to toggle relation on/off
+        def r_toggle
+          return self.class.parser_error("missing 'set' or 'add' parameter", 'toggle') unless role = @params.delete(:set) || @params.delete(:add)
+          return self.class.parser_error("missing 'for' parameter", 'toggle') unless finder = @params.delete(:for)
+
+          finder = RubyLess.translate(finder, self)
+          return self.class.parser_error("Invalid class 'for' parameter: #{finder.klass}", 'toggle') unless finder.klass <= Node
+
+          set_dom_prefix
+          dom_id = node.dom_id(:erb => false)
+          markup.set_id(node.dom_id)
+          markup.append_param(:class, 'toggle')
+          out "<% add_toggle_id(\"#{dom_id}\", #{var.inspect}, #{role.inspect}) { #{finder} } -%>#{expand_with}"
         end
 
         def r_unlink

@@ -42,7 +42,10 @@ table.errors td { padding:2px 5px; background:inherit; border:none;}
 /* Ajax css */
 .drop_hover { background:#ace; border:2px dashed #99f;}
 .drop { min-height:1em;}
-.drag_handle { padding-left:1em; margin:2px; background: url('/images/shading.png');}
+.drag_handle { padding-left:1em; margin:2px; background: url('/images/shading.png?1276089554');}
+.toggle { background-position:0 4px; background-repeat:no-repeat;}
+.toggle.off { background-image:url('/images/toggle_off.png');}
+.toggle.on { background-image:url('/images/toggle_on.png');}
 
 /* zazen css */
 
@@ -84,5 +87,5 @@ ins.differ, ins.differ * { background:#cfc; text-decoration:none; padding:1px 2p
 #pg_info .title {text-align:center; font-weight:bold;}
 #pg_info .summary {clear:both; padding:3px 10px 10px;}
 #pg_info a { width:100px; height:40px;}
-#pg_next {position:absolute; right:0; background:url('/images/popup_next.png') no-repeat right top;}
-#pg_prev {position:absolute; left:0; background:url('/images/popup_prev.png') no-repeat left top;}
+#pg_next {position:absolute; right:0; background:url('/images/popup_next.png?1276089554') no-repeat right top;}
+#pg_prev {position:absolute; left:0; background:url('/images/popup_prev.png?1276089554') no-repeat left top;}

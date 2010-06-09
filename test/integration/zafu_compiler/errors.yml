@@ -73,3 +73,7 @@ show_bad_attr:
 zazen_bad_attr:
   src: "<r:zazen attr='d_some_attr' edit='true' publish='true'/>"
   tem: "/unknown method 'd_some_attr\(\)' for '@node'/"
+
+toggle_bad_finder_class:
+  src: "<span do='toggle' set='favorite' for='visitor'/>"
+  res: "/Invalid class 'for' parameter: User/"

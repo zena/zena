@@ -9,7 +9,9 @@ module Zena
         safe_method [:[], String] => {:class => 'RelationProxy', :nil => true}
 
         DUMMY = Class.new do
-          def other_id; nil; end
+          def other_id;   nil; end
+          def other_ids;  [];  end
+          def other_zids; [];  end
         end.new.freeze
 
         def initialize(node)

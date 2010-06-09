@@ -270,3 +270,8 @@ link_page_list:
   src: "<div id='foo' do='block' do='nodes' in='site' limit='10' order='zip' paginate='pak' do='link' page='list' update='foo' join=', '/>"
   tem: "/_zpage != _zcurrent.*Ajax.Request.*:pak => \"#\{_zpage\}\"/"
   res: "/pak=1.*1</a>, 2, .*pak=3.*3</a>.*pak=4.*4</a>.*pak=5.*5</a>/"
+
+toggle:
+  src: "<span do='toggle' set='favorite' for='visitor.node'/>"
+  res: "<span id='list1_22'></span>"
+  js: "/var1 = \{\"list\":\[39\], \"source_id\":13, \"role\":\"favorite\".*\"list1_22\"\].each.function.item. \{ Zena.set_toggle/"

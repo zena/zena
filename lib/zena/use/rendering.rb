@@ -36,8 +36,8 @@ module Zena
             render_500(exception)
           end
         end
-
-        def rescue_action(exception)
+        
+        def rescue_action_locally(exception)
           case exception
           when ActiveRecord::RecordNotFound, ActionController::UnknownAction
             render_404(exception)
