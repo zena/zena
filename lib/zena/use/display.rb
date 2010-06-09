@@ -18,7 +18,7 @@ module Zena
         # This is used by _crop.rhtml
         def crop_formats(obj)
           buttons = ['jpg', 'png']
-          ext = Zena::TYPE_TO_EXT[obj.c_conten_type]
+          ext = Zena::TYPE_TO_EXT[obj.content_type]
           ext = ext ? ext[0] : obj.ext
           buttons << ext unless buttons.include?(ext)
           buttons.map do |e|

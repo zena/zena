@@ -61,3 +61,7 @@ visitor_link_blocks_not_logged_in:
 visitor_link_blocks:
   src: "<p do='visitor_link'><r:visitor do='login'/><p>"
   res: "<p><a href='/users/440568585'>ant<p></a></p>"
+
+action:
+  src: "<p do='action' select='edit' do='t'>hello</p>"
+  res: "/nodes/22/versions/0/edit.*Open the edition window to edit the node.*Zena.open_window/"

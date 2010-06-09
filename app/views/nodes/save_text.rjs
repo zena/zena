@@ -6,7 +6,7 @@ else
   page.replace_html 'number',   :text => @node.version.number
   page.show 'notice'
   page.visual_effect :fade, 'notice', :duration => 5.0
-  if params[:node][:c_crop]
+  if params[:node][:crop]
     page.replace_html 'crop_form', :partial=>'documents/crop'
     page << "new Zena.Div_editor('edit_img', 'posx', 'posy', 'width', 'height', #{@node.width / @node.width(Iformat['edit']).to_f}, 20, 220);"
   end

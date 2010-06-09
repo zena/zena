@@ -20,7 +20,7 @@ For more information on img_tag, have a look at ApplicationHelper#img_tag.
 
 An image can be croped by changing the 'crop' pseudo attribute (see Image#crop= ) :
 
-  @node.update_attributes(:c_crop=>{:x=>10, :y=>10, :width=>30, :height=>60})
+  @node.update_attributes(:crop=>{:x=>10, :y=>10, :width=>30, :height=>60})
 
 === Version
 

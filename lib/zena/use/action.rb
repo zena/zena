@@ -192,6 +192,20 @@ module Zena
           out "<% end -%>"
         end
 
+        def r_action
+          return self.class.parser_error("Missing 'action' parameter.", 'action') unless action = @params[:select]
+
+          if self.node.will_be? Node
+            node = self.node
+          elsif self.node.will_be? Version
+            node = "#{self.node}.node"
+          else
+            return self.class.parser_error("Invalid option 'actions' for #{node.klass}.", 'action')
+          end
+
+          out node_action_link(action, "<%= #{node}.zip %>", :text => text_for_link(''), :publish => @params[:publish])
+        end
+
         def filter_actions
           if actions = @params.delete(:actions)
             node = self.node
