@@ -809,19 +809,27 @@ Zena.set_toggle = function(dom_id, definition) {
   var id = dom_id.replace(/^.*_/,'') * 1;
   var list = definition['list'];
 
-  if (!elem.hasClassName('on') && !elem.hasClassName('off')) {
+  if (!elem.select('input.cb')[0]) {
     Event.observe(elem, 'click', function(event) {
-      if (event.findElement() == elem)
+      if (event.findElement().tagName != 'A')
         Zena.toggle(elem, definition, id);
     });
+
+    var target = elem;
+    if (elem.tagName == 'TR') {
+      target = elem.select('td')[0];
+    }
+    target.insert({top:"<input type='checkbox' class='cb'/>"});
   }
 
   if (list.indexOf(id) == -1) {
     // off
+    elem.select('input.cb')[0].checked = false;
     elem.removeClassName('on');
     elem.addClassName('off');
   } else {
     // on
+    elem.select('input.cb')[0].checked = true;
     elem.removeClassName('off');
     elem.addClassName('on');
   }

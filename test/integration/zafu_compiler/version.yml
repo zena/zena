@@ -38,4 +38,10 @@ author:
   src: "<r:traductions do='each' join=', '><r:lang/>:<r:eval>author.fullname</r:eval></r:traductions>"
   res: "en:Panther Tigris Sumatran, fr:Solenopsis Invicta"
 
-# ------ fix to here
+created_at:
+  src: "<p do='v.created_at' format='%d %b %y'/>"
+  res: "."
+
+updated_at:
+  src: "<p do='v.updated_at' format='%d %b %y'/>"
+  res: "."

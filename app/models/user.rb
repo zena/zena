@@ -55,6 +55,7 @@ class User < ActiveRecord::Base
   safe_context            :contact => 'BaseContact', :node => {:method => 'contact', :class => 'BaseContact'},
                           :to_publish => ['Version'], :redactions => ['Version'], :proposed => ['Version'],
                           :comments_to_publish => ['Comment']
+
   attr_accessible         :login, :lang, :first_name, :name, :email, :time_zone, :status, :group_ids, :site_ids, :crypted_password, :password
   attr_accessor           :visited_node_ids
   attr_accessor           :ip
@@ -261,13 +262,15 @@ class User < ActiveRecord::Base
       @contact = secure!(BaseContact) { BaseContact.new(
         # owner is the user except for anonymous and super user.
         # TODO: not sure this is a good idea...
-        :user_id       => (self[:id] == site[:anon_id] || self[:id] == site[:su_id]) ? visitor[:id] : self[:id],
+        :user_id     => (self[:id] == site[:anon_id] || self[:id] == site[:su_id]) ? visitor[:id] : self[:id],
         :title       => (name.blank? || first_name.blank?) ? login : fullname,
         :first_name  => first_name,
         :name        => (name || login ),
         :email       => email,
         :v_status      => Zena::Status[:pub]
       )}
+
+#      @contact
       @contact[:parent_id] = site[:root_id]
 
       unless @contact.save

@@ -175,7 +175,7 @@ module Zena
 
       module ZafuMethods
         def self.included(base)
-          base.before_process :process_drag
+          base.before_process :process_drag, :process_toggle
           base.before_wrap    :wrap_with_drag
         end
 
@@ -304,6 +304,36 @@ module Zena
           markup.set_id(node.dom_id)
           markup.append_param(:class, 'toggle')
           out "<% add_toggle_id(\"#{dom_id}\", #{var.inspect}, #{role.inspect}) { #{finder} } -%>#{expand_with}"
+        end
+
+        def process_toggle
+          return unless role = @params.delete(:toggle)
+
+          unless finder = @params.delete(:for)
+            out self.class.parser_error("missing 'for' parameter", 'toggle')
+            return
+          end
+
+          finder = RubyLess.translate(finder, self)
+          unless finder.klass <= Node
+            out self.class.parser_error("Invalid class 'for' parameter: #{finder.klass}", 'toggle')
+            return
+          end
+
+          node = pre_filter_node
+
+          if dom_id = @markup.params[:id]
+            # we do not mess with it
+          else
+            set_dom_prefix
+            markup.set_id(node.dom_id)
+            dom_id = node.dom_id(:erb => false)
+          end
+
+          markup.tag ||= 'div'
+
+          markup.append_param(:class, 'toggle')
+          markup.pre_wrap[:toggle] = "<% add_toggle_id(\"#{dom_id}\", #{"#{var}_tog".inspect}, #{role.inspect}) { #{finder} } -%>"
         end
 
         def r_unlink

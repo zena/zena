@@ -20,3 +20,13 @@ lang:
 is_anon:
   eval: "visitor.is_anon?"
   res: "false"
+
+author_is_a_user:
+  src: "<b do='author.login'/>"
+  tem: "<b><%= @node.user.login %></b>"
+  res: '<b>ant</b>'
+
+version_author_is_a_user:
+  src: "<b do='v.author.login'/>"
+  tem: "<b><%= @node.version.user.login %></b>"
+  res: '<b>ant</b>'

@@ -448,3 +448,36 @@ final_class:
   # Only projects (calendars) have a 'hot' relation
   src: "<div do='calendars from notes' do='each' do='hot' do='link'/>"
   tem: "!/unknown method/"
+
+query:
+  # Live compile and query from params
+  context:
+    visitor: lion
+    node: cleanWater
+    qb: "nodes where updated_at.year = 2007 in project"
+  src: "<r:query default='nodes in project' do='each' join=', ' do='node_name'/>"
+  tem: "/@node.find\(:all, params\[:qb\] \|\| \"nodes in project\", :rubyless_helper => zafu_helper\)/"
+  res: 'crocodiles'
+
+query_with_default:
+  # Live compile and query from params
+  context:
+    visitor: lion
+    node: cleanWater
+  src: "<r:query default='nodes in project' do='each' join=', ' do='node_name'/>"
+  res: 'bananas, crocodiles, lake, lakeAddress, opening, status, track, water'
+
+query_with_param:
+  # Live compile and query from params
+  context:
+    visitor: lion
+    node: cleanWater
+    qb: "nodes where updated_at.year = #{params[:p]} in project"
+    p: 2007
+  src: "<r:query default='nodes in project' do='each' join=', ' do='node_name'/>"
+  tem: ".."
+  res: 'crocodiles'
+
+tmp:
+  tem: "<%= @node.find(:all, params[:qb] || \"nodes in project\", :rubyless_helper => zafu_helper.helpers) %>"
+  res: ".."

@@ -198,10 +198,9 @@ class Node < ActiveRecord::Base
   #nested_attributes_alias %r{^c_(\w+)} => ['version', 'content']
   #nested_attributes_alias %r{^d_(\w+)} => ['version', 'dyn']
 
-  safe_context       :author => 'BaseContact', :parent => 'Node',
-                     :project => 'Project', :section => 'Section',
+  safe_context       :parent => 'Node', :project => 'Project', :section => 'Section',
                      :real_project => 'Project', :real_section => 'Section',
-                     :user => 'User', :comments => ['Comment'],
+                     :comments => ['Comment'],
                      :data   => {:class => ['DataEntry'], :zafu => {:data_root => 'node_a'}},
                      :data_a => {:class => ['DataEntry'], :zafu => {:data_root => 'node_a'}},
                      :data_b => {:class => ['DataEntry'], :zafu => {:data_root => 'node_b'}},
@@ -211,7 +210,8 @@ class Node < ActiveRecord::Base
   safe_method        :v => {:class => 'Version', :method => 'version'},
                      :version => 'Version', :v_status => Number, :v_lang => String,
                      :v_publish_from => Time, :v_backup => Boolean,
-                     :zip => Number, :parent_id => {:class => Number, :nil => true, :method => 'parent_zip'}
+                     :zip => Number, :parent_id => {:class => Number, :nil => true, :method => 'parent_zip'},
+                     :author => {:method => 'user', :class => 'User'}, :user => 'User'
 
   # This is needed so that we can use secure_scope and secure in search.
   extend  Zena::Acts::Secure
@@ -1081,12 +1081,14 @@ class Node < ActiveRecord::Base
   end
 
   # ACCESSORS
+  # FIXME: remove
   def author
     user.contact
   end
 
   alias o_user user
 
+  # TODO: why do we need secure here ?
   def user
     secure!(User) { o_user }
   end

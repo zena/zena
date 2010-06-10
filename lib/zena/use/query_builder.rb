@@ -25,6 +25,26 @@ module Zena
           base.process_unknown :querybuilder_eval
         end
 
+        # Open a list context with a query comming from the url params. Default param name is
+        # "qb"
+        def r_query
+          return self.class.parser_error("Cannot be used in list context (#{node.class_name})", 'query') if node.list_context?
+          return self.class.parser_error("Missing 'default' query", 'query') unless default = @params[:default]
+          return self.class.parser_error("No query compiler for (#{node.class_name})", 'query') if !node.klass.respond_to?(:build_query)
+
+
+          default_query = build_query(:all, default)
+          klass = [default_query.main_class]
+
+          qb = (@params[:param] || :qb).to_sym
+
+          # TODO: we could optimize to avoid default compilation over and over...
+          # We use 'zafu_helper' (which is slower) instead of 'self' because our helper needs to have helper modules
+          # mixed in and strangely RubyLess cannot access the helpers from 'self'.
+          method = "#{node}.find(:all, params[#{qb.inspect}] || #{default.inspect}, :rubyless_helper => zafu_helper.helpers)"
+          expand_with_finder(:method => method, :class => klass)
+        end
+
         # Pre-processing of the 'find("...")' method.
         def get_finder_type(string)
           finder = build_finder(:first, string, {})
@@ -77,13 +97,27 @@ module Zena
         end
 
         private
-          def build_finder(count, rel, params = {})
+          # Build a Query object from pseudo sql.
+          def build_query(count, pseudo_sql, raw_filters = [])
 
             if !node.klass.respond_to?(:build_query)
               raise ::QueryBuilder::Error.new("No query builder for class #{node.klass}")
             end
 
+            query_opts = {
+              :node_name            => node.name,
+              :raw_filters          => raw_filters,
+              :rubyless_helper      => self,
+              :link_both_directions => @params[:direction] == 'both',
+              # set starting class in case we need to search for relations
+              :main_class           => node.klass,
+            }
 
+            query = node.klass.build_query(count.to_sym, pseudo_sql, query_opts)
+          end
+
+          # Build a finder method and class from a query (relation) and params.
+          def build_finder(count, rel, params = {})
             raw_filters = []
             pseudo_sql, add_raw_filters = get_pseudo_sql(rel, params)
             raw_filters += add_raw_filters if add_raw_filters
@@ -96,17 +130,8 @@ module Zena
             # <r:img link='foo'/>
             # ...
 
-            query_opts = {
-              :node_name            => node.name,
-              :raw_filters          => raw_filters,
-              :rubyless_helper      => self,
-              :link_both_directions => @params[:direction] == 'both',
-              # set starting class in case we need to search for relations
-              :main_class           => node.klass,
-            }
+            query = build_query(count, pseudo_sql, raw_filters)
 
-
-            query = node.klass.build_query(count.to_sym, pseudo_sql, query_opts)
             klass = query.main_class
 
             finder = get_finder(query, count)

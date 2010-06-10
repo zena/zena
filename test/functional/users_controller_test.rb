@@ -79,6 +79,44 @@ class UsersControllerTest < Zena::Controller::TestCase
         assert_equal -1, visitor.dev_skin_id
       end
     end # setting dev_skin
+
+    context 'creating a new user' do
+      subject do
+        {
+          :user   => {
+            "name"       => "Dupont",
+            "lang"       => "fr",
+            "time_zone"  => "Europe/Zurich",
+            "status"     => "50",
+            "password"   => "secret",
+            "login"      => "bolomey",
+            "first_name" => "Paul"
+
+          },
+          :action => 'create'
+        }
+      end
+
+      should 'succeed' do
+        post_subject
+        assert_response :success
+        user = assigns(:user)
+        err user
+        assert !user.new_record?
+      end
+
+      should 'create a new user' do
+        assert_difference('User.count', 1) do
+          post_subject
+        end
+      end
+
+      should 'create a new node' do
+        assert_difference('Node.count', 1) do
+          post_subject
+        end
+      end
+    end # creating a new user
   end # With an admin user
 
 
