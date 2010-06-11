@@ -4,6 +4,7 @@ module Zena
       module Named
         def self.included(base)
           class << base
+            # Pseudo class name
             attr_accessor :to_s
           end
         end
@@ -221,7 +222,11 @@ module Zena
 
       module ControllerMethods
         include Common
-      end
+      end # ControllerMethods
+
+      module ViewMethods
+        include Common
+      end # ViewMethods
     end # Enrollable
   end # Acts
 end # Zena

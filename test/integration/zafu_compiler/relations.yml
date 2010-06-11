@@ -456,7 +456,7 @@ query:
     node: cleanWater
     qb: "nodes where updated_at.year = 2007 in project"
   src: "<r:query default='nodes in project' do='each' join=', ' do='node_name'/>"
-  tem: "/@node.find\(:all, params\[:qb\] \|\| \"nodes in project\", :rubyless_helper => zafu_helper\)/"
+  tem: "/if var1 = query\('Node', \"@node\", params\[:qb\] \|\| \"nodes in project\"\)/"
   res: 'crocodiles'
 
 query_with_default:
@@ -475,9 +475,4 @@ query_with_param:
     qb: "nodes where updated_at.year = #{params[:p]} in project"
     p: 2007
   src: "<r:query default='nodes in project' do='each' join=', ' do='node_name'/>"
-  tem: ".."
   res: 'crocodiles'
-
-tmp:
-  tem: "<%= @node.find(:all, params[:qb] || \"nodes in project\", :rubyless_helper => zafu_helper.helpers) %>"
-  res: ".."

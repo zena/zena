@@ -30,6 +30,7 @@ module Zena
         helper  Zena::Use::Upload::ViewMethods
         helper  Zena::Use::Urls::ViewMethods
         helper  Zena::Use::ZafuTemplates::ViewMethods
+        helper  Zena::Acts::Enrollable::ViewMethods
         helper  Zena::Use::ZafuAttributes::ViewMethods
         helper  Zena::Use::ZafuSafeDefinitions::ViewMethods
         helper  Zena::Use::Display::ViewMethods

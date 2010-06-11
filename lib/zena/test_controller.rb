@@ -46,6 +46,8 @@ module Zena
     def test_render
       render :inline => @text
     rescue => err
+      puts err.message
+      puts err.backtrace
       render :text => ([err.message] + err.backtrace[0..4]).join("    \n")
     end
 

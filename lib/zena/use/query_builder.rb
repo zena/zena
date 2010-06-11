@@ -6,6 +6,22 @@ module Zena
           return nil unless zip
           secure(Node) { Node.find_by_zip(zip) }
         end
+
+        def query(class_name, node_name, pseudo_sql)
+          klass = get_class(class_name)
+          begin
+            query = klass.build_query(:all, pseudo_sql,
+              :node_name       => node_name,
+              :main_class      => klass,
+              :rubyless_helper => zafu_helper.helpers
+            )
+          rescue ::QueryBuilder::Error => err
+            # FIXME: how to return error messages to the user ?
+            nil
+          end
+
+          klass.do_find(:all, eval(query.to_s))
+        end
       end # ViewMethods
 
       # 1. try Zafu
@@ -41,8 +57,8 @@ module Zena
           # TODO: we could optimize to avoid default compilation over and over...
           # We use 'zafu_helper' (which is slower) instead of 'self' because our helper needs to have helper modules
           # mixed in and strangely RubyLess cannot access the helpers from 'self'.
-          method = "#{node}.find(:all, params[#{qb.inspect}] || #{default.inspect}, :rubyless_helper => zafu_helper.helpers)"
-          expand_with_finder(:method => method, :class => klass)
+          method = "query('#{node.klass}', #{node.to_s.inspect}, params[#{qb.inspect}] || #{default.inspect})"
+          expand_with_finder(:method => method, :class => klass, :nil => true)
         end
 
         # Pre-processing of the 'find("...")' method.

@@ -25,13 +25,11 @@ module Zena
         # See Node#build_find for details on the options available.
         # TODO: do we need rubyless translate here ?
         def find(count, rel, opts = {})
-          rel = [rel] if rel.kind_of?(String)
-
           if !opts[:skip_rubyless] && rel.size == 1 && type = RubyLess::SafeClass.safe_method_type_for(self.class, [rel.first])
             self.send(type[:method])
           else
             begin
-              query = self.class.build_query(count, rel.first, :node_name => 'self', :main_class => Zena::Acts::Enrollable.make_class(self.vclass), :rubyless_helper => (opts[:rubyless_helper] || self))
+              query = self.class.build_query(count, rel, :node_name => 'self', :main_class => Zena::Acts::Enrollable.make_class(self.vclass), :rubyless_helper => (opts[:rubyless_helper] || self))
             rescue ::QueryBuilder::Error => err
               return opts[:errors] ? err : nil
             end

@@ -4,11 +4,6 @@ default:
     visitor: 'anon'
     node: 'status'
 
-version_author:
-  src: "<r:version do='author' do='#{fullname}'>"
-  tem: '/<% if var2 = var1.author -%><%= var2.fullname %><% end -%>/'
-  res: 'Solenopsis Invicta'
-
 tagged_relation:
   context:
     node: 'art'
