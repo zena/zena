@@ -3,7 +3,7 @@ require 'test_helper'
 
 class AfterCommitTest < ActiveSupport::TestCase
   self.use_transactional_fixtures = false
-  
+
   class Page < ActiveRecord::Base
     set_table_name :nodes
     attr_accessor :actions

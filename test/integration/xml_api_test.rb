@@ -56,7 +56,21 @@ class XmlApiTest < Zena::Integration::TestCase
 
         result = NodeResource.find(:all,
           :from   => '/nodes/search',
-          :params => {:title => 'da'}
+          :params => {:title => 'Fuda'}
+        ).map(&:id)
+
+        assert_equal [nodes_zip(:status)], result
+      end
+      
+      should 'find the list of nodes with qb' do
+        subject # create index entry for art
+        # create index entry for status
+        node = secure!(Node) { nodes(:status) }
+        node.update_attributes(:title => 'Fuda', :v_status => Zena::Status[:pub])
+
+        result = NodeResource.find(:all,
+          :from   => '/nodes/search',
+          :params => {:qb => 'nodes where title like "%da%" in site'}
         ).map(&:id)
 
         assert_equal [nodes_zip(:art), nodes_zip(:status)], result

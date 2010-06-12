@@ -50,7 +50,11 @@ module Zena
         end
 
         def make_form
-          return super unless form_helper = @context[:form_helper]
+          if node.list_context? || @context[:form_helper].blank?
+            return super
+          else
+            form_helper = @context[:form_helper]
+          end
 
           if %W{link show}.include?(method) || method == 'zazen' || (name = method[/zazen\(\s*(\w+)\s*\)/,1])
             name ||= @params[:attr] || @params[:date] || 'title'
@@ -61,7 +65,9 @@ module Zena
 
           if name
             type ||= node.klass.safe_method_type([name])
+            # do we have a property ?
             if type && (node.klass.column_names.include?(name) || node.klass.schema.column_names.include?(name))
+              # create an input field
               out make_input(form_helper, name, type[:class], textarea)
             else
               # ignore

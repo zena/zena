@@ -1,9 +1,41 @@
 require 'test_helper'
 
 class ZafuCompilerTest < Zena::Controller::TestCase
+ OK = %w{
+    action
+    asset
+    conditional
+    dates
+    display
+    errors
+    i18n
+    off
+    recursion
+    relations
+    roles
+    rubyless
+    safe_definitions
+    search
+    site
+    urls
+    user
+    version
+    workflow
+    zafu_attributes
+    zazen
+  }
 
-  yamltest :directories => [:default, "#{Zena::ROOT}/bricks/**/test/zafu"], :files => ['forms']
-
+  BUG = %w{
+    ajax
+    apphelper
+    basic
+    complex
+    data
+    eval
+    forms
+    security
+  }
+  yamltest :directories => [:default, "#{Zena::ROOT}/bricks/**/test/zafu"] #, :files => OK
 
   Section # make sure we load Section links before trying relations
 
@@ -67,11 +99,11 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     # set context
     params = {}
     #params[:user_id] = users_id(context.delete('visitor').to_sym)
-    params[:user] = context.delete 'visitor'
-    params[:node_id] = nodes_id(context.delete('node').to_sym)
-    params[:prefix]  = context.delete('lang')
-    params[:date]    = context['ref_date'] ? context.delete('ref_date').to_s : nil
-    params[:url] = "#{file}/#{test.to_s.gsub('_', '/')}"
+    params['user'] = context.delete 'visitor'
+    params['node_id'] = nodes_id(context.delete('node').to_sym)
+    params['prefix']  = context.delete('lang')
+    params['date']    = context['ref_date'] ? context.delete('ref_date').to_s : nil
+    params['url'] = "#{file}/#{test.to_s.gsub('_', '/')}"
     params.merge!(context) # merge the rest of the context as query parameters
     Zena::TestController.templates = @@test_strings[file]
     if src
@@ -91,7 +123,7 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     end
 
     if res
-      params[:text] = template
+      params['text'] = template
       post 'test_render', params
       result = @response.body
       yt_assert res, result
@@ -99,7 +131,7 @@ class ZafuCompilerTest < Zena::Controller::TestCase
         yt_assert js, @controller.send(:render_js)
       end
     elsif js
-      params[:text] = template
+      params['text'] = template
       post 'test_render', params
       yt_assert js, @controller.send(:render_js)
     end
@@ -315,5 +347,6 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     assert !rel.new_record?
     yt_do_test('relations', 'same_name_as_class')
   end
+
   yt_make
 end

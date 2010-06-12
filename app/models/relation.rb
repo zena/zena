@@ -18,8 +18,8 @@ class Relation < ActiveRecord::Base
 
   private
     def singularize_roles
-      self.source_role = source_role.singularize unless source_role.blank?
-      self.target_role = target_role.singularize unless target_role.blank?
+      self.source_role = self[:source_role].singularize unless self[:source_role].blank?
+      self.target_role = self[:target_role].singularize unless self[:target_role].blank?
     end
 
     def valid_relation
@@ -30,7 +30,7 @@ class Relation < ActiveRecord::Base
         return false
       end
 
-      if source_role.blank?
+      if self[:source_role].blank?
         if klass = Node.get_class_from_kpath(source_kpath)
           self.source_role = klass.to_s.underscore
         else
@@ -42,7 +42,7 @@ class Relation < ActiveRecord::Base
 
       errors.add(:source_kpath, 'invalid (could not find class)') unless klass
 
-      if target_role.blank?
+      if self[:target_role].blank?
         if klass = Node.get_class_from_kpath(target_kpath)
           self.target_role = klass.to_s.underscore
         else

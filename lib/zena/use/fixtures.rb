@@ -39,6 +39,32 @@ module Zena
         "#{SITES_ROOT}/test.host/data/#{format}/#{subpath}"
       end
 
+      def self.reset_data_folder
+        # Cleaning the test folder which include the attachment files.
+        FileUtils::rmtree("#{RAILS_ROOT}/sites/test.host/data")
+
+        # Copy attachments file from /test/fixtures/files folder to the folder
+        # provided by the dest_filepath method.
+        attachments = YAML.load_file("#{RAILS_ROOT}/test/fixtures/attachments.yml")
+        attachments.each do |attachment_name, attachment_attributes|
+          filename  = attachment_attributes['filename']
+          dest_path = dest_filepath(filename, attachment_attributes['id'],'full')
+          if File.exist?("#{RAILS_ROOT}/test/fixtures/files/#{filename}")
+            FileUtils::mkdir_p(File.dirname(dest_path))
+            FileUtils::cp("#{RAILS_ROOT}/test/fixtures/files/#{filename}",dest_path)
+          end
+        end
+      end
+
+      def self.reset_public_folder
+        unless File.exist?("#{SITES_ROOT}/test.host/public")
+          FileUtils::mkpath("#{SITES_ROOT}/test.host/public")
+          ['images', 'calendar', 'stylesheets', 'javascripts'].each do |dir|
+            FileUtils.symlink_or_copy("../../../public/#{dir}", "#{SITES_ROOT}/test.host/public/#{dir}")
+          end
+        end
+      end
+
       def self.load_fixtures
         # make sure versions is of type InnoDB if testing with mysql (transaction support)
         begin
@@ -142,27 +168,8 @@ module Zena
           end
         end
 
-        # Cleaning the test folder which include the attachment files.
-        FileUtils::rmtree("#{RAILS_ROOT}/sites/test.host/data")
-
-        # Copy attachments file from /test/fixtures/files folder to the folder
-        # provided by the dest_filepath method.
-        attachments = YAML.load_file("#{RAILS_ROOT}/test/fixtures/attachments.yml")
-        attachments.each do |attachment_name, attachment_attributes|
-          filename  = attachment_attributes['filename']
-          dest_path = dest_filepath(filename, attachment_attributes['id'],'full')
-          if File.exist?("#{RAILS_ROOT}/test/fixtures/files/#{filename}")
-            FileUtils::mkdir_p(File.dirname(dest_path))
-            FileUtils::cp("#{RAILS_ROOT}/test/fixtures/files/#{filename}",dest_path)
-          end
-        end
-
-        unless File.exist?("#{SITES_ROOT}/test.host/public")
-          FileUtils::mkpath("#{SITES_ROOT}/test.host/public")
-          ['images', 'calendar', 'stylesheets', 'javascripts'].each do |dir|
-            FileUtils.symlink_or_copy("../../../public/#{dir}", "#{SITES_ROOT}/test.host/public/#{dir}")
-          end
-        end
+        reset_data_folder
+        reset_public_folder
 
         FileUtils::mkpath("#{SITES_ROOT}/test.host/log") unless File.exist?("#{SITES_ROOT}/test.host/log")
 

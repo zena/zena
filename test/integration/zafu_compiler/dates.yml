@@ -49,8 +49,10 @@ uses_datebox_missing_lang:
   src: "<r:uses_datebox/>"
   tem: "/calendar/lang/calendar-en-utf8.js/"
 
-show_date:
+show_date_foo:
   context:
     date: '2010-05-16'
-  src: "<r:show eval='date' format='%A'/>"
-  res: 'Sunday'
+    lang: fr
+  src: "<r:show eval='date' format='%A %d.%m.%Y'/>"
+  tem: "/main_date/"
+  res: 'dimanche 16.05.2010'

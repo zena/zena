@@ -476,3 +476,12 @@ query_with_param:
     p: 2007
   src: "<r:query default='nodes in project' do='each' join=', ' do='node_name'/>"
   res: 'crocodiles'
+
+query_eval:
+  # Live compile and query from params
+  context:
+    visitor: lion
+    node: cleanWater
+    scope: 'self'
+  src: "<r:query text='pages in #{params[:scope] || \"project\"}' default='pages in project' do='each' join=', ' do='node_name'/>"
+  res: 'bananas, crocodiles, status, track'

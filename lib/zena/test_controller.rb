@@ -46,8 +46,6 @@ module Zena
     def test_render
       render :inline => @text
     rescue => err
-      puts err.message
-      puts err.backtrace
       render :text => ([err.message] + err.backtrace[0..4]).join("    \n")
     end
 
@@ -70,7 +68,6 @@ module Zena
       @node = secure!(Node) { Node.find(params[:node_id])}
       @text = params[:text]
       @test_url  = params[:url]
-      @date = Date.parse(params[:date]) if params[:date]
       params.delete(:user_id)
       params.delete(:user)
       params.delete(:prefix)

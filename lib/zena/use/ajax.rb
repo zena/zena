@@ -19,7 +19,7 @@ module Zena
           unless params[:dom_id]
             # simply reply with failure or success
             if !@node.errors.empty?
-              page << "alert(#{@node.error_messages.first.inspect});"
+              page << "alert(#{@node.errors.first.join(': ')});"
               page << "return false;" # How to avoid 'onSuccess' ?
             end
             return

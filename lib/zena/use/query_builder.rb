@@ -13,6 +13,8 @@ module Zena
             query = klass.build_query(:all, pseudo_sql,
               :node_name       => node_name,
               :main_class      => klass,
+              # We use 'zafu_helper' (which is slower) instead of 'self' because our helper needs to have helper modules
+              # mixed in and strangely RubyLess cannot access the helpers from 'self'.
               :rubyless_helper => zafu_helper.helpers
             )
           rescue ::QueryBuilder::Error => err
@@ -52,12 +54,19 @@ module Zena
           default_query = build_query(:all, default)
           klass = [default_query.main_class]
 
-          qb = (@params[:param] || :qb).to_sym
+          if sql = @params[:eval]
+            sql = RubyLess.translate(sql, self)
+            unless sql.klass <= String
+              return self.class.parser_error("Invalid compilation result for #{sql.inspect} (#{sql.klass})")
+            end
+          elsif sql = @params[:text]
+            sql = RubyLess.translate_string(sql, self)
+          else
+            sql = "params[:qb]"
+          end
 
-          # TODO: we could optimize to avoid default compilation over and over...
-          # We use 'zafu_helper' (which is slower) instead of 'self' because our helper needs to have helper modules
-          # mixed in and strangely RubyLess cannot access the helpers from 'self'.
-          method = "query('#{node.klass}', #{node.to_s.inspect}, params[#{qb.inspect}] || #{default.inspect})"
+          method = "query('#{node.klass}', #{node.to_s.inspect}, #{sql} || #{default.inspect})"
+
           expand_with_finder(:method => method, :class => klass, :nil => true)
         end
 
