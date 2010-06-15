@@ -25,5 +25,3 @@ ZafuParser  = Zena::Parser.parser_with_rules(
   Zafu::Support::Flow,
   Zafu::Support::Links
 )
-
-Bricks.load_zafu(ZafuParser)

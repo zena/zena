@@ -8,6 +8,10 @@ language and if the current visitor is a commentator (User.commentator?).
 =end
 class Discussion < ActiveRecord::Base
 
+  include RubyLess
+  safe_context :comments => ['Comment']
+  safe_method  :comments_count => Number
+
   attr_protected :site_id
   has_many :all_comments, :class_name=>'Comment', :foreign_key=>'discussion_id', :order=>'created_at ASC', :dependent=>:delete_all
   belongs_to :node

@@ -11,3 +11,184 @@ class_conditional:
   old_src: "<r:if kind_of='Image'><b do='#{size}' format='%.2f'/></r:if>"
   src: "<r:Image><b do='#{size}' format='%.2f'/></r:Image>"
   tem: "/@node.kpath_match\?\('NDI'\)/"
+
+case_when:
+  src: "<r:case><r:Document>this is a document</r:Document><r:Page>Page</r:Page><r:when test='v.status == 50'>Pub</r:when></r:case>"
+  tem: "<% if false -%><% elsif @node.kpath_match?('ND') -%>this is a document<% elsif @node.kpath_match?('NP') -%>Page<% elsif (@node.version.status==50) -%>Pub<% end -%>"
+  res: "Page"
+
+case_when_else:
+  src: "<r:case><r:Document>Document</r:Document><r:else>Not a document</r:else></r:case>"
+  res: "Not a document"
+
+case_when_else_text:
+  src: "<r:case><r:Document>Document</r:Document><r:else do='t' text='Not a document'/></r:case>"
+  res: "Not a document"
+
+case_when_test:
+  src: "<r:case><r:when test='id &gt; 10'>one</r:when><r:when test='4 &gt; 3'>two</r:when></r:case>"
+  res: "one"
+
+if_html_tag:
+  src: "<div do='if' test='1 == 1'>yes it's true<r:else>four</r:else></div>"
+  res: "<div>yes it's true</div>"
+
+if_html_tag_false:
+  src: "<div do='if' eval='2 == 1'>yes it's true<r:else>four</r:else></div>"
+  res: "<div>four</div>"
+
+if_html_tag_false_html_params:
+  src: "<div do='if' eval='2 == 1'>yes it's true<r:else class='bad'>four</r:else></div>"
+  res: "<div class='bad'>four</div>"
+
+if_html_tag_elsif:
+  src: "<div do='if' test='2 == 1'>A<r:elsif test='1'>B</r:elsif><r:else>C</r:else></div>"
+  tem: '<% if (2==1) -%><div>A</div><% elsif 1 -%><div>B</div><% elsif true -%><div>C</div><% end -%>'
+  res: "<div>B</div>"
+
+case_when_html_tag:
+  src: "<div do='case'><r:when test='1 == 3'>one</r:when><r:when test='1 == 1'>two</r:when><r:else>four</r:else></div>"
+  res: "<div>two</div>"
+
+case_when_html_tag_else:
+  src: "<div do='case'><r:when test='1 == 3'>one</r:when><r:when test='1 == 3'>two</r:when><r:else>four</r:else></div>"
+  res: "<div>four</div>"
+
+case_when_test_attribute:
+  src: "<r:case><r:when test='title'>one</r:when><r:else>two</r:else></r:case>"
+  res: "one"
+
+case_when_evil_test:
+  src: "<r:case><r:when test='1 = = id'>one</r:when><r:when test='system = \"date\"'>two</r:when><r:else>three</r:else></r:case>"
+  tem: "/'lasgn' not available in RubyLess./"
+  res: "three"
+
+if_test_equal:
+  src: "<r:if test='id == 22'>one</r:if>"
+  res: "one"
+
+if_test_param:
+  context:
+    f: '3'
+  src: "<r:if test='params[:f] == \"3\"'>three</r:if> / <r:if test='!params[:f].blank?'>exist</r:if>"
+  tem: "<% if (params[:f]==\"3\") -%>three<% end -%> / <% if not params[:f].blank? -%>exist<% end -%>"
+  res: 'three / exist'
+
+if_in_if:
+  src: "<r:if eval='id == 22'><r:if eval='1 == 2'>strange...<r:else>wrong!</r:else></r:if><r:else>other node</r:else></r:if>"
+  tem: "<% if (@node.zip==22) -%><% if (1==2) -%>strange...<% elsif true -%>wrong!<% end -%><% elsif true -%>other node<% end -%>"
+  res: "wrong!"
+
+do_if:
+  src: "<b do='if' eval='1 == 2'>it's true<r:else>it's false</r:else></b>"
+  res: "<b>it's false</b>"
+
+if_has_discussion:
+  src: "<r:show attr='node_name'/>:<r:if test='discussion'>yes<r:else>no</r:else></r:if> <r:context select='42'><r:show attr='node_name'/>:<r:if test='discussion'>yes<r:else>no</r:else></r:if></r:context>"
+  res: "status:yes letter:no"
+
+case_ancestor:
+  src: "<r:root><r:pages><r:each join=', '><r:case><r:when eval='ancestor?(main)'><b><r:show attr='node_name'/></b></r:when><r:else><r:show attr='node_name'/></r:else></r:case></r:each></r:pages></r:root>"
+  res: "collections, nature, people, <b>projects</b>, skins"
+
+on_if_ancestor_no_class:
+  old_src: "<r:root><r:pages><li do='each' on_if_node='ancestor' join=', '><r:show attr='node_name'/></li></r:pages></r:root>"
+  src: "<r:root><r:pages><li do='each' on_if='ancestor?(main)' join=', '><r:show attr='node_name'/></li></r:pages></r:root>"
+  tem: '/var3.ancestor\?\(@node\)/'
+  res: "<li class=''>collections</li>, <li class=''>nature</li>, <li class=''>people</li>, <li class=' on'>projects</li>, <li class=''>skins</li>"
+
+on_if_ancestor:
+  src: "<r:root><r:pages><li do='each' on_if='ancestor?(main)' class='hello' join=', '><r:show attr='node_name'/></li></r:pages></r:root>"
+  res: "<li class='hello'>collections</li>, <li class='hello'>nature</li>, <li class='hello'>people</li>, <li class='hello on'>projects</li>, <li class='hello'>skins</li>"
+
+on_if_empty:
+  src: "<li do='void' on_if='custom_a.blank?'>hello</li>"
+  tem: "<li class='<%= (@node.custom_a.blank?) ? ' on' : '' %>'>hello</li>"
+  res: "<li class=' on'>hello</li>"
+
+multiple_class_conditions:
+  src: "<li class='unknown' do='void' one_if='custom_a eq 1' two_if='custom_a eq 2'>Agrippina</li>"
+  tem: "/@node.custom_a.to_i == 2 \? \" class='two'\" : @node.custom_a.to_i == 1 \? \" class='one'\" : \" class='unknown'\" %>>Agrippina</li>|<li<%= @node.custom_a.to_i == 1 \? \" class='one'\" : @node.custom_a.to_i == 2 \? \" class='two'\" : \" class='unknown'\" %>>Agrippina</li>/"
+  res: "<li class='unknown'>Agrippina</li>"
+
+multiple_class_conditions_true_in_middle:
+  src: "<li class='unknown' do='void' one_if='custom_a == 1' two_if='2 == 2'>Agrippina</li>"
+  res: "<li class='unknown two'>Agrippina</li>"
+
+# var1 = stored 'papa'
+test_ancestor_with_stored:
+  src: "<r:parent do='parent' set_papa='this' do='pages'><div do='each' super_if='papa.ancestor?(this)' do='node_name'/></r:parent>"
+  tem: "/\(var1\.ancestor\?\(var4\)\)/"
+  res: "<div class=' super'>cleanWater</div><div class=''>wiki</div>"
+
+on_if_kind_of:
+  context:
+    node: 'opening'
+  src: "<b do='title' doc_if='kind_of?(Document)' popo_if='kind_of?(Post)'/>"
+  res: "<b class='popo'>parc opening</b>"
+
+on_if_attribute:
+  context:
+    node: 'cleanWater'
+  src: "<r:pages><div do='each' on_if='d_assigned' do='node_name'/></r:pages>"
+  tem: "/list1.each.*var1.*<div.*var1.version.dyn\[\"assigned\"\]/"
+  res: "<div>crocodiles</div><div class='on'>status</div><div>track</div>"
+
+on_if_attribute_with_edit:
+  context:
+    node: 'cleanWater'
+  src: "<r:pages><div do='each' on_if='d_assigned'><r:show attr='node_name'/><r:edit/></div></r:pages>"
+  tem: "/list1.each.*var1.*<div.*var1.version.dyn\[\"assigned\"\]/"
+
+on_if_node_main:
+  src: "<r:parent><r:pages><div do='each' on_if='id == main.id' do='node_name'>hello</div></r:pages></r:parent>"
+  res: "<div class=''>crocodiles</div><div class=' on'>status</div><div class=''>track</div>"
+
+if_in_tag:
+  src: "<r:form><p do='if' in='form' do='node_name'/></r:form><i do='if' in='form' do='node_name'/>done."
+  res: "/<p>status</p>.*</form>done./"
+
+if_in_tag_else:
+  src: "<r:if in='form'>in form<r:else>not in form</r:else></r:if>"
+  res: "not in form"
+
+if_or:
+  src: "<r:if eval='can_write?' or_test='origin'>hello</r:if>"
+  tem: "/<% if @node.can_write? || !@node.version.prop[\"foo\"].blank? -%>hello<% end -%>|<% if !@node.version.prop[\"foo\"].blank? || @node.can_write? -%>hello<% end -%>/"
+  res: "hello"
+
+if_or_same:
+  src: "<r:if test='origin' test='d_bar'>hello</r:if>"
+  tem: "/<% if !@node.version.prop[\"foo\"].blank? || !@node.version.prop[\"bar\"].blank? -%>hello<% end -%>|<% if !@node.version.prop[\"bar\"].blank? || !@node.version.prop[\"foo\"].blank? -%>hello<% end -%>/"
+  res: ""
+
+if_now:
+  src: "<r:if test='log_at &gt; now'>future<r:else>past</r:else></r:if>"
+  tem: "<% if (@node.log_at ? (@node.log_at>Time.now) : nil) -%>future<% elsif true -%>past<% end -%>"
+  res: "past"
+
+on_if_now:
+  src: "<p do='node_name' on_if='log_at gt now'/>"
+  tem: "<p<%= @node.log_at.to_i > Time.now.to_i ? \" class='on'\" : \"\" %>><%= @node.name %></p>"
+  res: "<p>status</p>"
+
+visitor_is_anon:
+  context:
+    visitor: 'anon'
+  src: "<r:if test='visitor.is_anon?'>anonymous<r:else>logged in</r:else></r:if>"
+  res: "anonymous"
+
+test_in_each:
+  context:
+    node: 'cleanWater'
+  src: "<ul do='pages'><li do='each' on_if='this.node_name == \"track\"' do='node_name'/></ul>"
+  tem: "/var2.node_name==\"track\"/"
+  res: "<ul><li class=''>crocodiles</li><li class=''>status</li><li class=' on'>track</li></ul>"
+
+on_if_in_unknown:
+  src: "<div do='project' on_if='name eq \"cleanWater\"' do='node_name'/>"
+  res: "<div class='on'>cleanWater</div>"
+
+test_negative_value:
+  src: "<div do='void' off_if='custom_a == -10'>...</div>"
+  tem: "<div class='<%= ((@node.custom_a==-10)) ? ' off' : '' %>'>...</div>"

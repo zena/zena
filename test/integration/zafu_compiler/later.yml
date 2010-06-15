@@ -1,0 +1,5 @@
+
+# [set] should be reimplemented with RubyLess in mind
+if_test_param_var:
+  src: "<r:set var='year'>3000</r:set><r:if test='year eq param:f'>funky!</r:if>"
+  tem: "<% set_year = capture do %>3000<% end -%><% if set_year == params[:f] -%>funky!<% end -%>"

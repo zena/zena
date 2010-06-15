@@ -128,7 +128,7 @@ class Node < ActiveRecord::Base
 
   include Property
 
-  # Should be the same serialization as in Version
+  # Should be the same serialization as in Version and Site
   include Property::Serialization::JSON
 
   store_properties_in :version
@@ -206,7 +206,8 @@ class Node < ActiveRecord::Base
                      :data_b => {:class => ['DataEntry'], :zafu => {:data_root => 'node_b'}},
                      :data_c => {:class => ['DataEntry'], :zafu => {:data_root => 'node_c'}},
                      :data_d => {:class => ['DataEntry'], :zafu => {:data_root => 'node_d'}},
-                     :traductions => ['Version']
+                     :traductions => ['Version'],
+                     :discussion  => 'Discussion'
   safe_method        :v => {:class => 'Version', :method => 'version'},
                      :version => 'Version', :v_status => Number, :v_lang => String,
                      :v_publish_from => Time, :v_backup => Boolean,

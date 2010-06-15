@@ -50,7 +50,7 @@ module Zena
         end
 
         def make_form
-          if node.list_context? || @context[:form_helper].blank?
+          if !@context[:make_form] || node.list_context? || @context[:form_helper].blank?
             return super
           else
             form_helper = @context[:form_helper]
@@ -521,7 +521,7 @@ END_TXT
                   finder = build_finder(:all, nodes, @params)
                   klass  = finder[:class].first
                 rescue ::QueryBuilder::SyntaxError => err
-                  out self.class.parser_error(err.message, @method)
+                  out parser_error(err.message)
                   return nil
                 end
 

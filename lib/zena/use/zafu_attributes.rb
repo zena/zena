@@ -95,7 +95,7 @@ module Zena
                     typed_string = ::RubyLess.translate(code, self)
                     @markup.append_dyn_param(:class, "<%= (#{typed_string}) ? ' #{$1}' : '' %>", true)
                   rescue RubyLess::NoMethodError => err
-                    out self.class.parser_error(err.message, code)
+                    out parser_error(err.message, code)
                   end
                 end
               end

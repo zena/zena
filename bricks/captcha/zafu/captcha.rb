@@ -1,15 +1,15 @@
 require 'ruby-recaptcha'
 
-# You have to name your module Bricks::[NameOfBrick]::Zafu in order
+# You have to name your module Bricks::[NameOfBrick]::ZafuMethods in order
 # for the module to be inserted into the ZafuParser.
 module Bricks
   module Captcha
-    module Zafu
+    module ZafuMethods
       def r_captcha
         return parser_error("recaptcha keys not set") unless current_site.prop['recaptcha_pub'] && current_site.prop['recaptcha_priv']
         res = "<%= get_captcha(:rcc_pub => #{visitor.site.prop['recaptcha_pub'].inspect}, :rcc_priv => #{visitor.site.prop['recaptcha_priv'].inspect}#{get_recaptcha_params}) %>"
         res += expand_with
-        "<% if visitor.is_anon? -%>#{render_html_tag(res)}<% end -%>"
+        "<% if visitor.is_anon? -%>#{@markup.wrap(res)}<% end -%>"
       end
 
       def r_mail_hide
@@ -24,6 +24,6 @@ module Bricks
         res << ", :tabindex => #{(@params[:tabindex] || 0).to_i}}"
         res
       end
-    end # Zafu
+    end # ZafuMethods
   end # Captcha
 end # Bricks

@@ -35,7 +35,10 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     forms
     security
   }
-  yamltest :directories => [:default, "#{Zena::ROOT}/bricks/**/test/zafu"], :files => OK
+
+  LATER = %w{later}
+
+  yamltest :directories => [:default, "#{Zena::ROOT}/bricks/**/test/zafu"] #, :files => ['conditional']
 
   Section # make sure we load Section links before trying relations
 

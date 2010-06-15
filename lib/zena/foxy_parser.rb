@@ -707,6 +707,15 @@ module Zena
 
   class FoxySitesParser < FoxyParser
     private
+      def set_defaults
+        super
+        elements.each do |name, site|
+          if prop = site.delete('prop')
+            site['properties'] = make_prop(prop) unless prop.blank?
+          end
+        end
+      end
+
       def multi_site_id_keys
         super + ['su', 'anon']
       end

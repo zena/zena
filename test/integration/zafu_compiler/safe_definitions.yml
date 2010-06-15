@@ -46,3 +46,12 @@ blank_on_string:
 blank_on_could_be_nil:
   eval: 'parent.blank?'
   tem:  "<%= @node.parent.blank? %>"
+
+now:
+  eval: 'now'
+  tem: "<%= Time.now %>"
+  
+now_format:
+  src: "rendering at: <r:show eval='now' format='%d.%m.%Y %H:%M:%S'/>"
+  tem: "/rendering at: .*Time.now/"
+  res: "/rendering at: \d/"

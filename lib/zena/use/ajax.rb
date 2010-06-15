@@ -293,11 +293,11 @@ module Zena
 
         # Create a link to toggle relation on/off
         def r_toggle
-          return self.class.parser_error("missing 'set' or 'add' parameter", 'toggle') unless role = @params.delete(:set) || @params.delete(:add)
-          return self.class.parser_error("missing 'for' parameter", 'toggle') unless finder = @params.delete(:for)
+          return parser_error("missing 'set' or 'add' parameter") unless role = @params.delete(:set) || @params.delete(:add)
+          return parser_error("missing 'for' parameter") unless finder = @params.delete(:for)
 
           finder = RubyLess.translate(finder, self)
-          return self.class.parser_error("Invalid class 'for' parameter: #{finder.klass}", 'toggle') unless finder.klass <= Node
+          return parser_error("Invalid class 'for' parameter: #{finder.klass}") unless finder.klass <= Node
 
           set_dom_prefix
           dom_id = node.dom_id(:erb => false)
@@ -310,13 +310,13 @@ module Zena
           return unless role = @params.delete(:toggle)
 
           unless finder = @params.delete(:for)
-            out self.class.parser_error("missing 'for' parameter", 'toggle')
+            out parser_error("missing 'for' parameter")
             return
           end
 
           finder = RubyLess.translate(finder, self)
           unless finder.klass <= Node
-            out self.class.parser_error("Invalid class 'for' parameter: #{finder.klass}", 'toggle')
+            out parser_error("Invalid class 'for' parameter: #{finder.klass}")
             return
           end
 

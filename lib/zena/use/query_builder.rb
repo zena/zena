@@ -46,9 +46,9 @@ module Zena
         # Open a list context with a query comming from the url params. Default param name is
         # "qb"
         def r_query
-          return self.class.parser_error("Cannot be used in list context (#{node.class_name})", 'query') if node.list_context?
-          return self.class.parser_error("Missing 'default' query", 'query') unless default = @params[:default]
-          return self.class.parser_error("No query compiler for (#{node.class_name})", 'query') if !node.klass.respond_to?(:build_query)
+          return parser_error("Cannot be used in list context (#{node.class_name})") if node.list_context?
+          return parser_error("Missing 'default' query") unless default = @params[:default]
+          return parser_error("No query compiler for (#{node.class_name})") if !node.klass.respond_to?(:build_query)
 
 
           default_query = build_query(:all, default)
@@ -57,7 +57,7 @@ module Zena
           if sql = @params[:eval]
             sql = RubyLess.translate(sql, self)
             unless sql.klass <= String
-              return self.class.parser_error("Invalid compilation result for #{sql.inspect} (#{sql.klass})")
+              return parser_error("Invalid compilation result for #{sql.inspect} (#{sql.klass})")
             end
           elsif sql = @params[:text]
             sql = RubyLess.translate_string(sql, self)
@@ -89,7 +89,7 @@ module Zena
 
           expand_with_finder(finder)
         rescue ::QueryBuilder::Error => err
-          parser_error(err.message)
+          parser_continue(err.message)
         end
 
         # Select the most pertinent error between RubyLess processing errors and QueryBuilder errors.

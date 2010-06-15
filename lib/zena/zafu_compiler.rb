@@ -19,4 +19,6 @@ module Zena
     Zena::Use::Ajax::ZafuMethods,
     Zena::Acts::Enrollable::ZafuMethods,
   ])
+
+  Bricks.load_zafu(ZafuCompiler)
 end

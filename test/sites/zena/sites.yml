@@ -11,3 +11,6 @@ zena:
   languages:       en,fr,de,es
   default_lang:    en
   formats_updated_at: 2008-05-01
+  prop:
+    recaptcha_pub: 'pub'
+    recaptcha_priv: 'priv'

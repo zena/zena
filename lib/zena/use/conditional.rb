@@ -7,22 +7,34 @@ module Zena::Use::Conditional
         if klass.kpath =~ %r{^#{node.klass.kpath}} || @context[:saved_template]
           # Saved templates can be rendered with anything...
           # FIXME: Make sure saved templates from 'block' start with the proper node type ?
-          out expand_if("#{node}.kpath_match?('#{klass.kpath}')", node.move_to(node.name, klass))
+          cond     = "#{node}.kpath_match?('#{klass.kpath}')"
+          new_node = node.move_to(node.name, klass)
         else
           # render nothing: incompatible classes
-          out expand_if('false', node.move_to(node.name, klass))
+          cond     = 'false'
+          new_node = node.move_to(node.name, klass)
         end
       elsif role = Node.get_role(class_name)
         if node.klass.kpath =~ %r{^#{role.kpath}} || @context[:saved_template]
           # Saved templates can be rendered with anything...
           # FIXME: Make sure saved templates from 'block' start with the proper node type ?
-          out expand_if("#{node}.has_role?(#{role.id})", node.move_to(node.name, klass))
+          cond     = "#{node}.has_role?(#{role.id})"
+          new_node = node.move_to(node.name, klass)
         else
           # render nothing: incompatible classes
-          out expand_if('false', node.move_to(node.name, klass))
+          cond     = 'false'
+          new_node = node.move_to(node.name, klass)
         end
       else
-        parser_error("Invalid role or class '#{class_name}'")
+        return parser_error("Invalid role or class '#{class_name}'")
+      end
+
+      if parent.method == 'case'
+        with_context(:node => new_node) do
+          r_elsif(cond)
+        end
+      else
+        out expand_if(cond, new_node)
       end
     end
   end

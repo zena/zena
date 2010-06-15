@@ -79,7 +79,7 @@ module Bricks
           next if rules_name =~ /\A\./
           load File.join(zafu_path, rules_name)
         end
-        mod.send(:include, eval("Bricks::#{brick_name.capitalize}::Zafu"))
+        mod.send(:include, eval("Bricks::#{brick_name.capitalize}::ZafuMethods"))
       end
     end
   end

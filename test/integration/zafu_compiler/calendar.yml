@@ -1,0 +1,35 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'status'
+
+
+calendar:
+  context:
+    ref_date: "2006-03-18"
+  src: "<div do='calendar' select='notes in site'/>"
+  res: "/<td class='sat ref'><span>18</span><ul><li><a href='/oo/projects/cleanWater/post27.html'>opening</a></li></ul><\/td>/"
+
+calendar_default_else:
+  context:
+    # no notes here
+    ref_date: "2008-01-30"
+  src: "<div do='calendar'>---</div>"
+  res: "/<td class='sun'>27<\/td>/"
+
+calendar_l_date:
+  context:
+    ref_date: "2009-7-17"
+    node: 'zena'
+  src: "<div do='calendar' select='added_notes' date='l_date' />"
+  res: "/<td class='ref'><span>17</span><ul><li><a href='/oo/projects/cleanWater/post27.html'>opening</a></li></ul></td>/"
+
+calendar_hours:
+  context:
+    ref_date: "2009-7-17"
+    node: 'zena'
+  # I do not like the way we do this, the 'else' thing is not helping. Maybe we need some
+  # extra zafu tags because it' messy: we have 3 lists (days, hours, nodes) ...
+  src: "<div do='calendar' select='added_notes' date='l_date' split_hours='12'><r:if test='hour eq 0' do='[current_date]' format='%d'/><div do='void' set_class='hour_[hour]' do='each' do='node_name' join=', '/><r:else><r:if test='hour eq 0' do='[current_date]' format='%d'/><div do='void' set_class='hour_[hour]'></div></r:else></div>"
+  res: "/<td class='ref'>17<div class='hour_0'></div><div class='hour_12'>opening</div></td>/"

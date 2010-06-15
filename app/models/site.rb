@@ -30,6 +30,9 @@ class Site < ActiveRecord::Base
 
   include Property
 
+  # Should be the same serialization as in Node
+  include Property::Serialization::JSON
+
   @@attributes_for_form = {
     :bool => %w{authentication http_auth auto_publish},
     :text => %w{name languages default_lang},
