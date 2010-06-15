@@ -107,10 +107,16 @@ module Zena
           conf = gem_config.symbolize_keys
           conf[:version].gsub!(/\A=\s*/,'')
           if conf[:optional]
-            begin
-              config.gem gem_name, conf
-            rescue LoadError
-              # ignore
+            if brick = conf[:brick]
+              if Bricks::CONFIG[brick]
+                config.gem gem_name, conf
+              end
+            else
+              begin
+                config.gem gem_name, conf
+              rescue LoadError
+                # ignore
+              end
             end
           else
             config.gem gem_name, conf
