@@ -97,18 +97,9 @@ on_if_ancestor_no_class:
   tem: '/var3.ancestor\?\(@node\)/'
   res: "<li class=''>collections</li>, <li class=''>nature</li>, <li class=''>people</li>, <li class=' on'>projects</li>, <li class=''>skins</li>"
 
-on_if_ancestor:
-  src: "<r:root><r:pages><li do='each' on_if='ancestor?(main)' class='hello' join=', '><r:show attr='node_name'/></li></r:pages></r:root>"
-  res: "<li class='hello'>collections</li>, <li class='hello'>nature</li>, <li class='hello'>people</li>, <li class='hello on'>projects</li>, <li class='hello'>skins</li>"
-
-on_if_empty:
-  src: "<li do='void' on_if='custom_a.blank?'>hello</li>"
-  tem: "<li class='<%= (@node.custom_a.blank?) ? ' on' : '' %>'>hello</li>"
-  res: "<li class=' on'>hello</li>"
-
 multiple_class_conditions:
-  src: "<li class='unknown' do='void' one_if='custom_a eq 1' two_if='custom_a eq 2'>Agrippina</li>"
-  tem: "/@node.custom_a.to_i == 2 \? \" class='two'\" : @node.custom_a.to_i == 1 \? \" class='one'\" : \" class='unknown'\" %>>Agrippina</li>|<li<%= @node.custom_a.to_i == 1 \? \" class='one'\" : @node.custom_a.to_i == 2 \? \" class='two'\" : \" class='unknown'\" %>>Agrippina</li>/"
+  src: "<li class='unknown' do='void' one_if='custom_a == 1' two_if='custom_a == 2'>Agrippina</li>"
+  tem: "/class='unknown<%= .*@node.custom_a==1.* \? ' one' : '' %><%= .*@node.custom_a==2.* \? ' two' : '' %>'/"
   res: "<li class='unknown'>Agrippina</li>"
 
 multiple_class_conditions_true_in_middle:
@@ -125,20 +116,16 @@ on_if_kind_of:
   context:
     node: 'opening'
   src: "<b do='title' doc_if='kind_of?(Document)' popo_if='kind_of?(Post)'/>"
-  res: "<b class='popo'>parc opening</b>"
+  res: "<b class=' popo'>parc opening</b>"
 
 on_if_attribute:
-  context:
-    node: 'cleanWater'
-  src: "<r:pages><div do='each' on_if='d_assigned' do='node_name'/></r:pages>"
-  tem: "/list1.each.*var1.*<div.*var1.version.dyn\[\"assigned\"\]/"
-  res: "<div>crocodiles</div><div class='on'>status</div><div>track</div>"
+  src: "<r:projects in='site'><div do='each' on_if='assigned' do='node_name'/></r:projects>"
+  tem: "/var2.prop\['assigned'\]. \? ' on'/"
+  res: "<div class=' on'>cleanWater</div><div class=''>wiki</div><div class=''>zena</div>"
 
 on_if_attribute_with_edit:
-  context:
-    node: 'cleanWater'
-  src: "<r:pages><div do='each' on_if='d_assigned'><r:show attr='node_name'/><r:edit/></div></r:pages>"
-  tem: "/list1.each.*var1.*<div.*var1.version.dyn\[\"assigned\"\]/"
+  src: "<r:projects in='site'><div do='each' on_if='assigned'><r:show attr='node_name'/><r:edit/></div></r:projects>"
+  tem: "/var2.prop\['assigned'\]. \? ' on'/"
 
 on_if_node_main:
   src: "<r:parent><r:pages><div do='each' on_if='id == main.id' do='node_name'>hello</div></r:pages></r:parent>"
@@ -168,9 +155,9 @@ if_now:
   res: "past"
 
 on_if_now:
-  src: "<p do='node_name' on_if='log_at gt now'/>"
-  tem: "<p<%= @node.log_at.to_i > Time.now.to_i ? \" class='on'\" : \"\" %>><%= @node.name %></p>"
-  res: "<p>status</p>"
+  src: "<p do='node_name' on_if='log_at &gt; now'/>"
+  tem: "/@node.log_at>Time.now.*' on'/"
+  res: "<p class=''>status</p>"
 
 visitor_is_anon:
   context:
@@ -184,11 +171,3 @@ test_in_each:
   src: "<ul do='pages'><li do='each' on_if='this.node_name == \"track\"' do='node_name'/></ul>"
   tem: "/var2.node_name==\"track\"/"
   res: "<ul><li class=''>crocodiles</li><li class=''>status</li><li class=' on'>track</li></ul>"
-
-on_if_in_unknown:
-  src: "<div do='project' on_if='name eq \"cleanWater\"' do='node_name'/>"
-  res: "<div class='on'>cleanWater</div>"
-
-test_negative_value:
-  src: "<div do='void' off_if='custom_a == -10'>...</div>"
-  tem: "<div class='<%= ((@node.custom_a==-10)) ? ' off' : '' %>'>...</div>"

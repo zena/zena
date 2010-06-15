@@ -50,8 +50,16 @@ blank_on_could_be_nil:
 now:
   eval: 'now'
   tem: "<%= Time.now %>"
-  
+
 now_format:
   src: "rendering at: <r:show eval='now' format='%d.%m.%Y %H:%M:%S'/>"
   tem: "/rendering at: .*Time.now/"
   res: "/rendering at: \d/"
+
+kind_of_class:
+  eval: "kind_of?(Image)"
+  tem: "<%= @node.kpath_match?('NDI') %>"
+
+kind_of_role:
+  eval: "kind_of?(Original)"
+  tem: "<%= @node.has_role?(493147733) %>"

@@ -175,6 +175,7 @@ module Zena
 
       module ZafuMethods
         def self.included(base)
+          # TODO: move process_drag, process_toggle in 'before_wrap' callback so that 'node' properly set.
           base.before_process :process_drag, :process_toggle
           base.before_wrap    :wrap_with_drag
         end
@@ -366,7 +367,7 @@ module Zena
           opts[:default_text] = _('btn_tiny_del')
           @params[:class] ||= 'unlink'
 
-          out "<% if #{node}.can_write? && #{node}.link_id -%>#{@markup.wrap(make_link(opts))}<% end -%>"
+          out "<% if #{node}.can_write? && #{node}.link_id -%>#{wrap(make_link(opts))}<% end -%>"
 
          #tag_to_remote
          #"<%= tag_to_remote({:url => node_path(#{node_id}) + \"#{opts[:method] != :put ? '/zafu' : ''}?#{action.join('&')}\", :method => #{opts[:method].inspect}}) %>"

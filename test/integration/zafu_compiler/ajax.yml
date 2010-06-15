@@ -15,11 +15,6 @@ add:
   'ajax/add/en/children_form.erb': "/class='form' id='<%= ndom_id\(@node\) %>'/"
   'ajax/add/en/children.erb': "<li id='<%= ndom_id(@node) %>'><a href='<%= zen_path(@node) %>'><%= @node.prop['title'] %></a></li>"
 
-show_edit:
-  src: "<r:show attr='node_name' edit='true'/>"
-  tem: "<% if @node.can_write? -%><span class='show_edit' id='list1_name'><%= link_to_remote(@node.name, :url => edit_node_path(@node.zip) + \"?attribute=name&dom_id=list1_name\", :method => :get) %></span><% else -%><%= @node.name %><% end -%>"
-  res: "/span class='show_edit' id='list1_name'>.*Ajax\.Request\('/nodes/22/edit\?attribute=name/"
-
 zazen_edit:
   src: "<r:zazen attr='node_name' edit='true'/>"
   tem: "<div class='zazen' id='list1_name'><% if @node.can_write? -%><span class='zazen_edit'><%= link_to_remote(\"edit\", :url => edit_node_path(@node.zip) + \"?attribute=name&dom_id=list1_name&zazen=true\", :method => :get) %></span><% end -%><%= zazen(@node.name, :node=>@node) %></div>"
@@ -122,11 +117,11 @@ query_in_block:
 
 saved_each_block:
   src: "<ol do='pages'><li do='each' on_if='ancestor' do='link'/><li do='add'/></ol>"
-  'saved/each/en/block/list1.erb': "!/var1/"
+  'ajax/saved/en/each/block/list1.erb': "!/var1/"
 
 no_recursion_in_saved_block:
   src: "<r:void name='grp'><r:show attr='node_name'/><r:pages><r:each><r:include part='grp'/></r:each><r:add/></r:pages></r:void>"
-  'no/recursion/en/in/saved/block/grp1.erb': "!/no_recursion_in_saved_block_grp/"
+  'ajax/no/en/recursion/in/saved/block/grp1.erb': "!/no_recursion_in_saved_block_grp/"
 
 each_in_each:
   # should render correct form
@@ -216,8 +211,8 @@ each_in_each_dom_id:
   'ajax/each/en/in/each/dom/id/list1.erb': "/id='<%= %Q\{#\{ndom_id(@node)\}_#\{var2.zip\}\} %>'>/"
 
 start_id:
-  src: "<r:form><input type='hidden' name='s' set_value='[start.id]'/></r:form>"
-  res: "/<input name='s' type='hidden' value='22'/>/"
+  src: "<r:form><input type='hidden' name='s' value='#{start_id}'/></r:form>"
+  res: "/<input type='hidden' name='s' value='22'/></"
 
 drop_add_link:
   context:
@@ -273,8 +268,8 @@ link_page_list:
 
 toggle:
   src: "<span do='toggle' set='favorite' for='visitor.node'/>"
-  res: "<span id='list1_22'></span>"
-  js: "/var1 = \{\"list\":\[39\], \"source_id\":13, \"role\":\"favorite\".*\"list1_22\"\].each.function.item. \{ Zena.set_toggle/"
+  res: "<span class='toggle' id='list1_22'></span>"
+  js: "/var1 = \{\"list\":\[39\], \"url\":\"/nodes/13\", \"role\":\"favorite\".*\"list1_22\"\].each.function.item. \{ Zena.set_toggle/"
 
 toggle_attribute_in_each:
   context:

@@ -180,14 +180,14 @@ module Zena
             link = '<%= user_path(visitor) %>'
             if @markup.tag == 'a'
               @markup.set_dyn_param(:href, link)
-              out @markup.wrap(expand_with)
+              out wrap(expand_with)
             else
               markup = Zafu::Markup.new('a')
               markup.set_dyn_param(:href, link)
-              out @markup.wrap(markup.wrap(expand_with))
+              out wrap(markup.wrap(expand_with))
             end
           else
-            out @markup.wrap("<%= link_to visitor.fullname, user_path(visitor) %>")
+            out wrap("<%= link_to visitor.fullname, user_path(visitor) %>")
           end
           out "<% end -%>"
         end

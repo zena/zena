@@ -138,7 +138,7 @@ module Zena
               :main_class           => node.klass,
             }
 
-            query = node.klass.build_query(count.to_sym, pseudo_sql, query_opts)
+            node.klass.build_query(count.to_sym, pseudo_sql, query_opts)
           end
 
           # Build a finder method and class from a query (relation) and params.

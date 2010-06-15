@@ -72,6 +72,16 @@ class QueryNodeTest < Zena::Unit::TestCase
         assert subject.main_class < Document
       end
     end # with a real class filter
+    
+    context 'with root' do
+      subject do
+        Node.build_query(:all, 'root')
+      end
+
+      should 'set main_class to Project' do
+        assert subject.main_class < Project
+      end
+    end # with a real class filter
 
     context 'with a virtual class filter' do
       subject do

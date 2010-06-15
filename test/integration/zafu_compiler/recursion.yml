@@ -14,6 +14,7 @@ in_each:
       <ul do='replies' do='include' part='com'/>
     </li>
   </ul>"
+  tem: "/var1 = @node.comments.*var2.each do \|var3\|.*var3.title.*var4 = var3.replies.*com.call.*var4.*</li>.*end.*end.*com.call.*var1/"
   res: "<ul> <li><b>I agree</b> </li> <li><b>I think this is bad</b> <ul> <li><b>Why ?</b> </li></ul> </li> <li><b>OK for me</b> </li> </ul>"
 
 foo:

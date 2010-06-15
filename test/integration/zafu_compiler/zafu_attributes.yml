@@ -42,7 +42,7 @@ prefix_project_show_with_tag:
   res: "<p>Zena the wild CMS / hop</p>"
 
 show_title_with_actions_without_prefix:
-  src: "<h1 do='title' actions='all'/>"
+  src: "<h1 do='title' live='true' actions='all'/>"
   tem: "/class='s<%= @node.version.status %>/"
 
 node_actions_status_prefix_false:
@@ -104,6 +104,37 @@ store_var_in_html:
 stored_in_if_clause:
   src: "<r:parent set_base='this'><li do='void' on_if='id == base.id'>hop</li></r:parent>"
   tem: "/var1.zip==@node.zip/"
+
+on_if_in_context:
+  src: "<div do='project' on_if='node_name == \"cleanWater\"' do='node_name'/>"
+  tem: "/var1.node_name==/"
+  res: "<div class=' on'>cleanWater</div>"
+
+on_if_with_link:
+  # Make sure we do not insert an 'on_if' param in href
+  src: "<p do='link' on_if='1 == 1'/>"
+  res: "<p class=' on'><a href='/oo/projects/cleanWater/page22.html'>status title</a></p>"
+
+on_if_on_each:
+  context:
+    node: cleanWater
+  # We use 'this' to make sure we are not in a list context.
+  src: "<r:pages><p do='each' on_if='this.node_name == \"status\"' do='node_name'/></r:pages>"
+  tem: '/var2.node_name==\"status\"/'
+  res: "<p class=''>crocodiles</p><p class=' on'>status</p><p class=''>track</p>"
+
+on_if_ancestor:
+  src: "<r:root><r:pages><li do='each' on_if='ancestor?(main)' class='hello' join=', ' do='node_name'/></r:pages></r:root>"
+  res: "<li class='hello'>collections</li>, <li class='hello'>nature</li>, <li class='hello'>people</li>, <li class='hello on'>projects</li>, <li class='hello'>skins</li>"
+
+on_if_empty:
+  src: "<li do='void' on_if='custom_a.blank?'>hello</li>"
+  tem: "<li class='<%= (@node.custom_a.blank?) ? ' on' : '' %>'>hello</li>"
+  res: "<li class=' on'>hello</li>"
+
+test_negative_value:
+  src: "<div do='void' off_if='custom_a == -10'>...</div>"
+  tem: "<div class='<%= ((@node.custom_a==-10)) ? ' off' : '' %>'>...</div>"
 
 anchor_attribute:
   src: "<p do='#{id}' anchor='#{node_name}'>hello</p>"

@@ -491,7 +491,7 @@ module Zena
           @markup.append_param(:class, 'btn_add')
           node = self.node.list_context? ? self.node.up : self.node
           res = node_action_link('add_doc', "<%= #{node}.zip %>", :text => text_for_link(''))
-          "<% if #{node}.can_write? -%>#{@markup.wrap(res)}<% end -%>"
+          "<% if #{node}.can_write? -%>#{wrap(res)}<% end -%>"
         end
 
         # Find icon through a relation named 'icon' or use first image child

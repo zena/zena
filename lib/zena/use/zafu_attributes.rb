@@ -10,7 +10,7 @@ module Zena
       module ZafuMethods
         def self.included(base)
           base.before_process :filter_prefix, :filter_status, :filter_property, :filter_anchor, :filter_live, :filter_set_var, :filter_if_class
-          base.before_wrap :add_live_id
+          base.before_wrap :add_live_id, :add_if_class
           base.after_wrap  :add_anchor
         end
 
@@ -79,33 +79,39 @@ module Zena
             end
           end
 
-          def filter_if_class
-            node = pre_filter_node
-            tags_stolen = false
-            with_context(:node => node) do
-              @params.keys.each do |k|
-                if k.to_s =~ /^([\w_\W]+)_if$/
-                  # We 'steal' common html attributes here so that they are inserted before we
-                  # append.
-                  @markup.steal_html_params_from(@params) unless tags_stolen
+          def add_if_class(text)
+            if @if_class_params
+              with_context(:node => pre_filter_node) do
+                # Make sure 'each' method uses 'var' to render these attributes.
 
-                  class_name  = $1
-                  code        = @params.delete(k)
+                @if_class_params.each do |class_name, code|
                   begin
                     typed_string = ::RubyLess.translate(code, self)
-                    @markup.append_dyn_param(:class, "<%= (#{typed_string}) ? ' #{$1}' : '' %>", true)
+                    @markup.append_dyn_param(:class, "<%= (#{typed_string}) ? ' #{class_name}' : '' %>", true)
                   rescue RubyLess::NoMethodError => err
-                    out parser_error(err.message, code)
+                    text += parser_error(err.message, code)
                   end
                 end
               end
             end
+            text
+          end
+
+          def filter_if_class
+            list = []
+            @params.keys.each do |key|
+              if key.to_s =~ /^([\w_\W]+)_if$/
+                list << [$1, @params.delete(key)]
+              end
+            end
+
+            @if_class_params = list unless list.blank?
           end
 
           # Return the node that will be used inside the tag. Also used
           # by Ajax to get dom_id for drag handle.
           def pre_filter_node
-            @method == 'each' ? self.node.move_to(var, self.node.klass.first) : self.node.dup
+            (@method == 'each' && node.list_context?) ? self.node.move_to(var, self.node.klass.first) : self.node.dup
           end
 
           # If we had a 'live' parameter, wrap the result with an id.

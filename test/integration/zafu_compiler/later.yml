@@ -3,3 +3,9 @@
 if_test_param_var:
   src: "<r:set var='year'>3000</r:set><r:if test='year eq param:f'>funky!</r:if>"
   tem: "<% set_year = capture do %>3000<% end -%><% if set_year == params[:f] -%>funky!<% end -%>"
+
+# [zafu_attribute:edit] needs reimplementation with JS rendering (like drag/drop): use data attribute ? class name ?
+show_edit:
+  src: "<r:show attr='node_name' edit='true'/>"
+  tem: "<% if @node.can_write? -%><span class='show_edit' id='list1_name'><%= link_to_remote(@node.name, :url => edit_node_path(@node.zip) + \"?attribute=name&dom_id=list1_name\", :method => :get) %></span><% else -%><%= @node.name %><% end -%>"
+  res: "/span class='show_edit' id='list1_name'>.*Ajax\.Request\('/nodes/22/edit\?attribute=name/"

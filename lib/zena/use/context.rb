@@ -178,7 +178,7 @@ module Zena
             out "<% #{group}.each do |#{var}| -%>"
           end
 
-          out @markup.wrap(expand_with(:group => nil, :node => node.move_to(var, node.klass)))
+          out wrap(expand_with(:group => nil, :node => node.move_to(var, node.klass)))
           out "<% end -%>"
         end
       end # ZafuMethods

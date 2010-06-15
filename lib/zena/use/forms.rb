@@ -317,7 +317,7 @@ END_TXT
             @markup.set_param(:type, @params[:type])
             @markup.set_param(:text, @params[:text]) if @params[:text]
             @markup.set_params(html_attributes)
-            @markup.wrap(nil)
+            wrap('')
           else
             # 'text', 'hidden', ...
             @markup.tag = 'input'
@@ -325,8 +325,9 @@ END_TXT
 
             checked = html_attributes.delete(:checked)
 
-            @markup.set_params(html_attributes)
-            @markup.wrap(nil, checked)
+            @markup.set_dyn_params(html_attributes)
+            # @markup.wrap(nil, checked)
+            wrap('')
           end
         end
 
@@ -402,6 +403,7 @@ END_TXT
               if value = params[:value]
                 # On refactor, use append_markup_attr(markup, key, value)
                 value = RubyLess.translate_string(value, self)
+
                 if value.literal
                   res[:value] = value.literal.to_s.gsub("'",'&apos;')
                 else
