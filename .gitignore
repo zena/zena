@@ -22,4 +22,9 @@ test/fixtures/*.yml
 tmp/*
 vendor/apache2_upload_progress/*
 zena_console.rb
-vendor/plugins
+vendor/plugins/property
+vendor/plugins/querybuilder
+vendor/plugins/rubyless
+vendor/plugins/versions
+vendor/plugins/yamltest
+vendor/plugins/zafu

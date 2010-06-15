@@ -131,7 +131,7 @@ module Zena
 
         def login_path
           if params[:controller] == 'nodes'
-            url_for :overwrite_params => { :prefix => AUTHENTICATED_PREFIX }
+            url_for params.merge(:prefix => AUTHENTICATED_PREFIX)
           else
             super
           end
@@ -139,7 +139,7 @@ module Zena
 
         def logout_path
           if params[:controller] == 'nodes' && @node.public?
-            super :redirect => url_for(:overwrite_params => { :prefix => visitor.lang })
+            super :redirect => url_for(params.merge(:prefix => visitor.lang))
           else
             super
           end

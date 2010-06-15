@@ -162,14 +162,6 @@ ENDTXT
           trad_list
         end
 
-        def change_lang(new_lang)
-          if visitor.is_anon?
-            {:overwrite_params => { :prefix => new_lang }}
-          else
-            {:overwrite_params => { :lang => new_lang }}
-          end
-        end
-
         # This lets helpers render partials
         # TODO: make sure this is the best way to handle this problem.
         # def render_to_string(*args)

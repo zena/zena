@@ -1,4 +1,6 @@
 module GettextI18nRails
+  VERSION = File.read( File.join(File.dirname(__FILE__),'..','VERSION') ).strip
+  
   extend self
 end
 
@@ -7,8 +9,6 @@ begin
 rescue LoadError
   gem 'grosser-fast_gettext', '>=0.4.8'
 end
-
-require 'fast_gettext'
 
 # include translations into all the places it needs to go...
 Object.send(:include,FastGettext::Translation)

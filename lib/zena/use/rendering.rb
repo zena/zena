@@ -151,9 +151,10 @@ module Zena
           path = ((path.empty? || path == "/") ? "/index" : URI.unescape(path))
           ext = params[:format].blank? ? 'html' : params[:format]
           path << ".#{ext}" unless path =~ /\.#{ext}(\?\d+|)$/
-          if cachestamp_format?(params['format'])
-            path << "?" << make_cachestamp(@node, params['mode'])
-          end
+          # Do not cache filename with query or apache will not see it !
+          # if cachestamp_format?(params['format'])
+          #   path << "?" << make_cachestamp(@node, params['mode'])
+          # end
           path
         end
 

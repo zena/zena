@@ -123,7 +123,9 @@ end
 
 class Test::Unit::TestCase
   # we have to overwrite the 'default_test' dummy because we use sub-classes
-  undef default_test
+  if instance_methods.include?('default_test')
+    undef default_test
+  end
 end
 
 class ZenaTestController < ActionController::TestCase

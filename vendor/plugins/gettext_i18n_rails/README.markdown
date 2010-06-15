@@ -11,38 +11,37 @@ To use I18n calls define a `weir.rails.syntax.i.hate` translation.
 Setup
 =====
 ###Installation
-This plugin: `  script/plugin install git://github.com/grosser/gettext_i18n_rails.git  `
+As plugin: `  script/plugin install git://github.com/grosser/gettext_i18n_rails.git  `
+Or Gem: ` sudo gem install gettext_i18n_rails `
 
-[FastGettext](http://github.com/grosser/fast_gettext): `  sudo gem install grosser-fast_gettext -s http://gems.github.com/  `
+[FastGettext](http://github.com/grosser/fast_gettext): `  sudo gem install fast_gettext  `
 
+### Want to find used messages in your ruby files ?
 GetText 1.93 or GetText 2.0: `  sudo gem install gettext  `  
 GetText 2.0 will render 1.93 unusable, so only install if you do not have apps that use 1.93!
 
-RubyParser if you want to parse ruby files for gettext calls. `  sudo gem install ruby_parser  `
+`  sudo gem install ruby_parser  `
 
 ### Locales & initialisation
-Copy default locales you want from e.g.
-[rails i18n](http://github.com/svenfuchs/rails-i18n): rails/locale/de.yml into 'config/locales'
+Copy default locales with dates/sentence-connectors/AR-errors you want from e.g.
+[rails i18n](http://github.com/svenfuchs/rails-i18n/tree/master/rails/locale/) into 'config/locales'
 
     #environment.rb
     Rails::Initializer.run do |config|
       ...
-      config.gem "grosser-fast_gettext", :lib => 'fast_gettext', :version => '~>0.4.9', :source=>"http://gems.github.com/"
-      #only used for mo/po file generation in development, !do not load(:lib=>false)! since it will only eat 7mb ram
+      config.gem "fast_gettext", :version => '~>0.4.17'
+      #only used for mo/po file generation in development, !do not load(:lib=>false), will needlessly eat ram!
       config.gem "gettext", :lib => false, :version => '>=1.9.3'
     end
 
     #config/initialisers/fast_gettext.rb
     FastGettext.add_text_domain 'app', :path => 'locale'
+    FastGettext.default_available_locales = ['en','de'] #all you want to allow
+    FastGettext.default_text_domain = 'app'
 
     #application_controller
     class ApplicationController < ...
       before_filter :set_gettext_locale
-      def set_gettext_locale
-        FastGettext.text_domain = 'app'
-        FastGettext.available_locales = ['en','de'] #all you want to allow
-        super
-      end
 
 Translating
 ===========
@@ -58,8 +57,7 @@ Obsolete translations are marked with ~#, they usually can be removed since they
  - run `rake gettext:pack` to write GetText format translation files
 
 ####Option B: Database
-This is the most scalable method, since all translators can work simultanousely and online,
-it is new, so please give me feedback!
+This is the most scalable method, since all translators can work simultanousely and online.
 
 Most easy to use with the [translation database Rails engine](http://github.com/grosser/translation_db_engine).
 FastGettext setup would look like:
@@ -68,11 +66,11 @@ FastGettext setup would look like:
 Translations can be edited under `/translation_keys`
 
 ###I18n
-Through Ruby magic:
-    I18n.locale is the same as FastGettext.locale.to_sym
-    I18n.locale = :de  is the same as FastGettext.locale = 'de'
 
-Any call to I18n that matches a gettext key will be translated through gettext.
+    I18n.locale <==> FastGettext.locale.to_sym
+    I18n.locale = :de <==> FastGettext.locale = 'de'
+
+Any call to I18n that matches a gettext key will be translated through FastGettext.
 
 Namespaces
 ==========
@@ -89,9 +87,9 @@ Therefore a validation error on a BigCar's wheels_size needs `_('big car')` and 
 to display localized.
 
 The model/attribute translations can be found through `rake gettext:store_model_attributes`,
-(which ignores some commonly untranslated columnslike id,type,xxx_count,...).
+(which ignores some commonly untranslated columns like id,type,xxx_count,...).
 
-Error messages can be translated through FastGrttext, if the ':message' has a translation or the Rails I18n key is translated.
+Error messages can be translated through FastGettext, if the ':message' is a translation-id or the matching Rails I18n key is translated.
 In any other case they go through the SimpleBackend.
 
 ####Option A:
@@ -117,7 +115,7 @@ The [rails I18n guide](http://guides.rubyonrails.org/i18n.html) can help with Op
 
 Plurals
 =======
-GetText supports pluralization
+FastGettext supports pluralization
     n_('Apple','Apples',3) == 'Apples'
 
 Unfound translations
@@ -130,9 +128,12 @@ Sometimes translations like `_("x"+"u")` cannot be fond. You have 4 options:
  - add a Logger to a translation Chain, so every unfound translations is logged ([example]((http://github.com/grosser/fast_gettext)))
 
 
-Author
+Contributors
 ======
  - [ruby gettext extractor](http://github.com/retoo/ruby_gettext_extractor/tree/master) from [retoo](http://github.com/retoo)
+ - [Paul McMahon](http://github.com/pwim)
+ - [Duncan Mac-Vicar P](http://duncan.mac-vicar.com/blog/)
+ - [Ramihajamalala Hery](http://my.rails-royce.org/)
 
 [Michael Grosser](http://pragmatig.wordpress.com)  
 grosser.michael@gmail.com  

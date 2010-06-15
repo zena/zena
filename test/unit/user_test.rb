@@ -100,7 +100,7 @@ class UserTest < Zena::Unit::TestCase
 
   def test_create_admin_with_groups
     login(:lion)
-    user = secure!(User) { User.new("login"=>"john", "password"=>"isjjna78a9h", "group_ids"=>[1329663069]) }
+    user = secure!(User) { User.new("login"=>"john", "password"=>"isjjna78a9h", "group_ids" => [groups_id(:admin)]) }
     assert user.save
     user = secure!(User) { User.find(user[:id])}
     assert_equal 3, user.groups.size

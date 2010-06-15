@@ -193,6 +193,10 @@ class User < ActiveRecord::Base
   end
 
   # Returns a list of the group ids separated by commas for the user (this is used mainly in SQL clauses).
+  # TODO: Performance
+  #
+  # Zena::Db.fetch_ids("SELECT id FROM groups WHERE site_id = #{current_site.id} ORDER BY name ASC")
+  # Zena::Db.fetch_ids("SELECT group_id FROM groups_users WHERE user_id = #{id} ORDER BY name ASC", 'group_id')
   def group_ids
     @group_ids ||= if is_admin?
       site.groups.map{|g| g[:id]}
@@ -270,7 +274,6 @@ class User < ActiveRecord::Base
         :v_status      => Zena::Status[:pub]
       )}
 
-#      @contact
       @contact[:parent_id] = site[:root_id]
 
       unless @contact.save

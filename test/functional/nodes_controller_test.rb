@@ -366,7 +366,7 @@ class NodesControllerTest < Zena::Controller::TestCase
     assert_response :success
   end
 
-  def test_should_cache_document_data_with_cachestamp
+  def test_should_cache_document_data_without_cachestamp
     with_caching do
      without_files('/test.host/public') do
         login(:anon)
@@ -382,7 +382,7 @@ class NodesControllerTest < Zena::Controller::TestCase
         # cache info ok
         get 'show', :prefix => 'en', :path => ["image#{node.zip}.jpg"], :cachestamp => node.updated_at.to_i
         assert_response :success
-        assert File.exist?("#{SITES_ROOT}/test.host/public/en/image#{node.zip}.jpg?#{node.updated_at.to_i}")
+        assert File.exist?("#{SITES_ROOT}/test.host/public/en/image#{node.zip}.jpg")
       end
     end
   end
@@ -451,8 +451,7 @@ END:VCALENDAR
     node = secure!(Node) { nodes(:style_css) }
     without_files('/test.host/public') do
       name = "textdocument#{node.zip}.css"
-      base_filename = "#{SITES_ROOT}/test.host/public/en/#{name}"
-      filename = "#{base_filename}?#{node.updated_at.to_i}"
+      filename = "#{SITES_ROOT}/test.host/public/en/#{name}"
       with_caching do
         assert !File.exist?(filename)
         get 'show', :prefix => 'en', :path => [name], :cachestamp => node.updated_at.to_i
@@ -465,8 +464,6 @@ END:VCALENDAR
         assert_equal Zena::Status[:pub], node.version.status
         assert_equal versions_id(:style_css_en), node.version.id # auto publish
         assert !File.exist?(filename) # old cached page removed
-        filename = "#{base_filename}?#{node.updated_at.to_i}"
-        assert !File.exist?(filename) # not yet created
         get 'show', :prefix => 'en', :path => [name], :cachestamp => node.updated_at.to_i
         assert_response :success
         assert File.exist?(filename) # cached page created again

@@ -10,7 +10,6 @@ unless defined?(Magick)
       require 'rmagick'
     rescue LoadError
       puts "ImageMagick not found. Using dummy."
-      require 'ftools'
       # Create a dummy magick module
       module Magick
         CenterGravity = OverCompositeOp = MaxRGB = NorthGravity = SouthGravity = nil

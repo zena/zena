@@ -13,12 +13,12 @@ namespace :gettext do
   desc "Update pot/po files."
   task :find do
     load_gettext
-    $LOAD_PATH << File.join(File.dirname(__FILE__),'..','lib')
+    $LOAD_PATH << File.join(File.dirname(__FILE__),'..','..','lib')
     require 'gettext_i18n_rails/haml_parser'
 
     if GetText.respond_to? :update_pofiles_org
       GetText.update_pofiles_org(
-        "zena",
+        "app",
         Dir.glob("{app,lib,config,locale}/**/*.{rb,erb,haml}"),
         "version 0.0.1",
         :po_root => 'locale',
@@ -37,8 +37,8 @@ namespace :gettext do
 
       #parse files.. (models are simply parsed as ruby files)
       GetText.update_pofiles(
-        "zena",
-        Dir.glob("{app,lib,config,locale}/**/*.{rb,erb,haml,rhtml}"),
+        "app",
+        Dir.glob("{app,lib,config,locale}/**/*.{rb,erb,haml}"),
         "version 0.0.1",
         'locale'
       )
@@ -55,7 +55,7 @@ namespace :gettext do
   # You can get your translations from GetText::ActiveRecord
   # by adding this to you gettext:find task
   #
-  # require 'activerecord'
+  # require 'active_record'
   # gem "gettext_activerecord", '>=0.1.0' #download and install from github
   # require 'gettext_activerecord/parser'
   desc "write the locale/model_attributes.rb"
@@ -64,10 +64,11 @@ namespace :gettext do
     require 'gettext_i18n_rails/model_attributes_finder'
     storage_file = 'locale/model_attributes.rb'
     puts "writing model translations to: #{storage_file}"
+    ignore_tables = [/^sitemap_/, /_versions$/, 'schema_migrations', 'sessions']
     GettextI18nRails.store_model_attributes(
-      :to=>storage_file,
-      :ignore_columns=>[/_id$/,'id','type','created_at','updated_at'],
-      :ignore_tables=>[/^sitemap_/,/_versions$/,'schema_migrations']
+      :to => storage_file,
+      :ignore_columns => [/_id$/, 'id', 'type', 'created_at', 'updated_at'],
+      :ignore_tables => ignore_tables
     )
   end
 end

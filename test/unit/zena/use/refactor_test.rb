@@ -5,7 +5,7 @@ class RefactorTest < Zena::View::TestCase
     login(:anon)
     visiting(:status)
   end
-  
+
   def test_render_to_string
     assert_equal 'stupid test 25',  render_to_string(:inline=>'stupid <%= "test" %> <%= 5*5 %>')
   end
@@ -20,12 +20,6 @@ class RefactorTest < Zena::View::TestCase
 
   def test_rnd
     assert ((Time.now.to_i-1 <= rnd) && (rnd <= Time.now.to_i+2))
-  end
-
-  def test_change_lang
-    assert_equal ({:overwrite_params=>{:prefix=>'io'}}), change_lang('io')
-    login(:ant)
-    assert_equal ({:overwrite_params=>{:lang=>'io'}}), change_lang('io')
   end
 
   def test_traductions
