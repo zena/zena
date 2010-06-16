@@ -1,12 +1,12 @@
 require 'test_helper'
 class DbTest < Zena::Unit::TestCase
   def test_db_NOW_in_sync
-    assert res = Zena::Db.fetch_row("SELECT (#{Zena::Db::NOW} - #{Time.now.strftime('%Y%m%d%H%M%S')})")
+    assert res = Zena::Db.fetch_attribute("SELECT (#{Zena::Db::NOW} - '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}')")
     assert_equal 0.0, res.to_f
   end
 
   def test_zip_fixtures
-    assert_equal zips_zip(:zena), Zena::Db.fetch_row("select zip from zips where site_id = #{sites_id(:zena)}").to_i
+    assert_equal zips_zip(:zena), Zena::Db.fetch_attribute("select zip from zips where site_id = #{sites_id(:zena)}").to_i
   end
 
   def test_fetch_ids
@@ -32,8 +32,8 @@ class DbTest < Zena::Unit::TestCase
   end
 
   def test_fetch_row
-    assert_equal "water", Zena::Db.fetch_row("SELECT node_name FROM nodes WHERE id = #{nodes_id(:water_pdf)}")
-    assert_nil Zena::Db.fetch_row("SELECT node_name FROM nodes WHERE 0")
+    assert_equal "water", Zena::Db.fetch_attribute("SELECT node_name FROM nodes WHERE id = #{nodes_id(:water_pdf)}")
+    assert_nil Zena::Db.fetch_attribute("SELECT node_name FROM nodes WHERE false")
   end
 
   def test_fetch_attributes

@@ -162,7 +162,7 @@ module Zena
                 @hash = {}
                 @keys = {}
               else
-                sql = "SELECT `id`,`key`,`value` FROM #{table_name} WHERE owner_id = '#{@owner[:id].to_i}'"
+                sql = "SELECT id,key,value FROM #{table_name} WHERE owner_id = '#{@owner[:id].to_i}'"
                 @hash = {}
                 @keys = {}
                 rows = connection.select_all(sql, "#{table_name} Load").map! do |record|

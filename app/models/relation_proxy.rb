@@ -1,7 +1,7 @@
 class RelationProxy < Relation
   attr_accessor   :side, :link_errors, :start, :other_link, :last_target
   LINK_ATTRIBUTES = Zena::Use::Relations::LINK_ATTRIBUTES
-  LINK_ATTRIBUTES_SQL = LINK_ATTRIBUTES.map {|sym| "`#{sym}`"}.join(',')
+  LINK_ATTRIBUTES_SQL = LINK_ATTRIBUTES.map {|sym| connection.quote_column_name(sym)}.join(',')
   LINK_SELECT     = "nodes.*,links.id AS link_id,#{LINK_ATTRIBUTES.map {|l| "links.#{l} AS l_#{l}"}.join(',')}"
 
   class << self
@@ -43,35 +43,6 @@ class RelationProxy < Relation
     end
   end
 
-  # Used by relation_links
-  def records(options={})
-    return @records if defined? @records
-    opts = { :select     => LINK_SELECT,
-             :joins      => "INNER JOIN links ON nodes.id=links.#{other_side} AND links.relation_id = #{self[:id]} AND links.#{link_side} = #{@start[:id]}",
-             :group      => 'nodes.id'}
-
-    [:order, :limit, :conditions].each do |sym|
-      opts[sym] = options[sym] if options[sym]
-    end
-
-    @records = secure(Node) { Node.find(:all, opts) }
-  end
-
-  # I do not think this method is used anymore (all is done by @node.find(...)).
-  def record(options={})
-    return @record if defined?(@record) || @start.new_record?
-    opts = { :select     => LINK_SELECT,
-             :joins      => "INNER JOIN links ON nodes.id=links.#{other_side} AND links.relation_id = #{self[:id]} AND links.#{link_side} = #{@start[:id]}",
-             :group      => 'nodes.id'}
-
-    # limit overwritten options to 'order', 'limit' in case this method is used with unsafe parameters from the web.
-    [:order].each do |sym|
-      opts[sym] = options[sym] if options[sym]
-    end
-
-    @record = secure(Node) { Node.find(:first, opts) }
-  end
-
   # Define the caller's side. Changes the relation into a proxy so we can add/remove links. This sets the caller on the source side of the relation.
   def source=(start)
     @start = start
@@ -103,7 +74,7 @@ class RelationProxy < Relation
   end
 
   def other_zip
-    record ? record[:zip] : nil
+    other_zips ? other_zips.first : nil
   end
 
   def other_ids
@@ -111,7 +82,17 @@ class RelationProxy < Relation
   end
 
   def other_zips
-    (records || []).map { |r| r[:zip] }
+    return @other_zips if defined?(@other_zips)
+    @other_zips = @records ? @records.map { |r| r.zip} : Zena::Db.fetch_ids("SELECT zip FROM nodes INNER JOIN links ON nodes.id=links.#{other_side} AND links.relation_id = #{self[:id]} AND links.#{link_side} = #{@start[:id]} WHERE #{secure_scope('nodes')} GROUP BY nodes.zip", 'zip')
+  end
+
+  def records(opts = {})
+    return @records if defined?(@records)
+    options = {
+      :select => "nodes.*, #{LINK_SELECT}",
+      :joins => "INNER JOIN links ON nodes.id=links.#{other_side} AND links.relation_id = #{self[:id]} AND links.#{link_side} = #{@start[:id]}"
+    }.merge(opts)
+    @records = secure(Node) { Node.find(:all, options) }
   end
 
   LINK_ATTRIBUTES.each do |sym|
@@ -340,7 +321,7 @@ class RelationProxy < Relation
       next if hash[:id].blank?
       list << "(#{self[:id]},#{@start[:id]},#{hash[:id]},#{LINK_ATTRIBUTES.map{|sym| Link.connection.quote(hash[sym])}.join(',')})"
     end
-    Link.connection.execute "INSERT INTO links (`relation_id`,`#{link_side}`,`#{other_side}`,#{LINK_ATTRIBUTES_SQL}) VALUES #{list.join(',')}"
+    Link.connection.execute "INSERT INTO links (relation_id,#{link_side},#{other_side},#{LINK_ATTRIBUTES_SQL}) VALUES #{list.join(',')}"
     @attributes_to_update = nil
     @links_to_delete      = nil
     remove_instance_variable(:@records)     if defined?(@records)

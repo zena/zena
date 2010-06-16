@@ -57,6 +57,7 @@ class RelationProxyTest < Zena::Unit::TestCase
     login(:tiger)
     node = secure!(Node) { nodes(:opening) }
     rel  = node.relation_proxy('set_tag')
+    assert_equal [:art,:news].map{|s| nodes_zip(s)}.sort, rel.other_zips.sort
     assert_equal [:art,:news].map{|s| nodes_id(s)}.sort, rel.records.map{|r| r[:id]}.sort
   end
 

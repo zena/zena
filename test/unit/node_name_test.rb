@@ -106,7 +106,7 @@ class NodeNameTest < Zena::Unit::TestCase
   end
 
   def test_sync_node_name_on_title_change_auto_pub_no_sync
-    Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 3600 WHERE id = #{sites_id(:zena)}"
+    Site.connection.execute "UPDATE sites set auto_publish = true, redit_time = 3600 WHERE id = #{sites_id(:zena)}"
     Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE node_id IN (#{nodes_id(:status)},#{nodes_id(:people)})"
     login(:tiger)
 
@@ -123,7 +123,7 @@ class NodeNameTest < Zena::Unit::TestCase
 
   def test_sync_node_name_on_title_change_auto_pub
     test_site('zena')
-    Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 3600 WHERE id = #{sites_id(:zena)}"
+    Site.connection.execute "UPDATE sites set auto_publish = true, redit_time = 3600 WHERE id = #{sites_id(:zena)}"
     Version.connection.execute "UPDATE versions set updated_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE node_id IN (#{nodes_id(:people)})"
     login(:tiger)
     node = secure!(Node) { nodes(:people) }

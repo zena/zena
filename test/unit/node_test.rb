@@ -774,7 +774,7 @@ class NodeTest < Zena::Unit::TestCase
   end
 
   def test_zip
-    next_zip = Zena::Db.fetch_row("SELECT zip FROM zips WHERE site_id = #{sites_id(:zena)}").to_i
+    next_zip = Zena::Db.fetch_attribute("SELECT zip FROM zips WHERE site_id = #{sites_id(:zena)}").to_i
     login(:tiger)
     node = secure!(Node) { Node.create(:parent_id=>nodes_id(:zena), :node_name => "fly")}
     assert !node.new_record?, "Not a new record"

@@ -392,7 +392,7 @@ class Node < ActiveRecord::Base
       if id.to_s =~ /\A(-?)(\d+)\Z/
         # zip
         # FIXME: this is not secure
-        res = Zena::Db.fetch_row("SELECT #{sym} FROM nodes WHERE site_id = #{current_site[:id]} AND zip = '#{$2}'")
+        res = Zena::Db.fetch_attribute("SELECT #{sym} FROM nodes WHERE site_id = #{current_site[:id]} AND zip = '#{$2}'")
         res ? ($1.blank? ? res.to_i : -res.to_i) : nil
       elsif node = find_node_by_pseudo(id,base_node)
         node[sym]
@@ -1499,12 +1499,12 @@ class Node < ActiveRecord::Base
         # 'Node' does not have a position scope (need two first letters of kpath)
         if new_record?
           if self[:position].to_f == 0
-            pos = Zena::Db.fetch_row("SELECT `position` FROM #{Node.table_name} WHERE parent_id = #{Node.connection.quote(self[:parent_id])} AND kpath like #{Node.connection.quote("#{self.class.kpath[0..1]}%")} ORDER BY position DESC LIMIT 1").to_f
+            pos = Zena::Db.fetch_attribute("SELECT position FROM #{Node.table_name} WHERE parent_id = #{Node.connection.quote(self[:parent_id])} AND kpath like #{Node.connection.quote("#{self.class.kpath[0..1]}%")} ORDER BY position DESC LIMIT 1").to_f
             self[:position] = pos > 0 ? pos + 1.0 : 0.0
           end
         elsif parent_id_changed?
           # moved, update position
-          pos = Zena::Db.fetch_row("SELECT `position` FROM #{Node.table_name} WHERE parent_id = #{Node.connection.quote(self[:parent_id])} AND kpath like #{Node.connection.quote("#{self.class.kpath[0..1]}%")} ORDER BY position DESC LIMIT 1").to_f
+          pos = Zena::Db.fetch_attribute("SELECT position FROM #{Node.table_name} WHERE parent_id = #{Node.connection.quote(self[:parent_id])} AND kpath like #{Node.connection.quote("#{self.class.kpath[0..1]}%")} ORDER BY position DESC LIMIT 1").to_f
           self[:position] = pos > 0 ? pos + 1.0 : 0.0
         end
       end

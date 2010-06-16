@@ -338,7 +338,7 @@ module Zena
               break
             end
             loop_ids << curr_ref
-            curr_ref = Zena::Db.fetch_row("SELECT #{ref_field} FROM #{self.class.table_name} WHERE id=#{curr_ref}").to_i
+            curr_ref = Zena::Db.fetch_attribute("SELECT #{ref_field} FROM #{self.class.table_name} WHERE id=#{curr_ref}").to_i
           end
 
           errors.add(ref_field, 'circular reference') if in_loop

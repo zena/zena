@@ -18,11 +18,19 @@ module Zena
               select = "nodes.*, #{match} AS score"
             end
 
+            case Zena::Db.adapter
+            when 'postgresql'
+              select = "DISTINCT ON (nodes.zip, score) #{select}"
+              group  = nil
+            else
+              group = 'nodes.id'
+            end
+
             return options.merge(
               :select => select,
               :joins  => "INNER JOIN versions AS vs ON vs.node_id = nodes.id AND vs.status >= #{Zena::Status[:pub]}",
               :conditions => match,
-              :group      => "nodes.id",
+              :group      => group,
               :order  => "score DESC, zip ASC")
           else
             # error

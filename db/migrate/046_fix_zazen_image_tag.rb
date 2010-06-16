@@ -8,7 +8,7 @@ class FixZazenImageTag < ActiveRecord::Migration
       Comment.table_name        => [:text],
       DataEntry.table_name      => [:text],
     }.each do |table_name, keys|
-      select_all("SELECT `id`,#{keys.map{|k| "`#{k}`"}.join(',')} FROM #{table_name}", "#{table_name} Load").each do |record|
+      select_all("SELECT id,#{keys.join(',')} FROM #{table_name}", "#{table_name} Load").each do |record|
         new_value = {}
         keys.each do |k|
           next unless record[k.to_s]
@@ -31,7 +31,7 @@ class FixZazenImageTag < ActiveRecord::Migration
       Comment.table_name        => [:text],
       DataEntry.table_name      => [:text],
     }.each do |table_name, keys|
-      select_all("SELECT `id`,#{keys.map{|k| "`#{k}`"}.join(',')} FROM #{table_name}", "#{table_name} Load").each do |record|
+      select_all("SELECT id,#{keys.join(',')} FROM #{table_name}", "#{table_name} Load").each do |record|
         new_value = {}
         keys.each do |k|
           next unless record[k.to_s]

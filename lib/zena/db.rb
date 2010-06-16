@@ -17,6 +17,8 @@ module Zena
     case ActiveRecord::Base.configurations[RAILS_ENV]['adapter']
     when 'mysql'
       NOW = 'now()'
+    when 'postgresql'
+      NOW = 'now()'
     when 'sqlite3'
       NOW = "datetime('now')"
     end
@@ -48,6 +50,10 @@ module Zena
       ActiveRecord::Base.connection
     end
 
+    def quote_column_name(column_name)
+      connection.quote_column_name(column_name)
+    end
+
     def table_options
       case adapter
       when 'mysql'
@@ -61,8 +67,10 @@ module Zena
       tbl1, fld1 = name.split('.')
       tbl2, fld2 = opts[:from].split('.')
       case adapter
-      when 'mysql', 'postgresql'
+      when 'mysql'
         execute "UPDATE #{tbl1},#{tbl2} SET #{tbl1}.#{fld1}=#{tbl2}.#{fld2} WHERE #{opts[:where]}"
+      when 'postgresql'
+        execute "UPDATE #{tbl1} SET #{fld1}=#{tbl2}.#{fld2} FROM #{tbl2} WHERE #{opts[:where]}"
       when 'sqlite3'
         execute "UPDATE #{tbl1} SET #{fld1} = (SELECT #{fld2} FROM #{tbl2} WHERE #{opts[:where]})"
       else
@@ -81,10 +89,12 @@ module Zena
 
     def add_unique_key(table, keys)
       case adapter
-      when 'mysql', 'postgresql'
-        execute "ALTER IGNORE TABLE #{table} ADD UNIQUE KEY(#{keys})"
+      when 'mysql'
+        execute "ALTER IGNORE TABLE #{table} ADD UNIQUE KEY(#{keys.join(', ')})"
+      when 'postgresql'
+        execute "ALTER TABLE #{table} ADD CONSTRAINT #{keys.join('_')} UNIQUE (#{keys.join(', ')})"
       when 'sqlite3'
-        execute "CREATE UNIQUE INDEX IF NOT EXISTS #{(table + keys).gsub(/[^\w]/,'')} ON #{table} (#{keys})"
+        execute "CREATE UNIQUE INDEX IF NOT EXISTS #{(table + keys.join('_')).gsub(/[^\w]/,'')} ON #{table} (#{keys.join(', ')})"
       else
         raise Exception.new("Database Adapter #{adapter.inspect} not supported yet (you can probably fix this).")
       end
@@ -95,8 +105,11 @@ module Zena
       tbl1, tbl2 = opts[:from]
       fld1, fld2 = opts[:fields]
       case adapter
-      when 'mysql', 'postgresql'
+      when 'mysql'
         execute "DELETE #{table} FROM #{opts[:from].join(',')} WHERE #{tbl1}.#{fld1} = #{tbl2}.#{fld2} AND #{opts[:where]}"
+      when 'postgresql'
+        using = opts[:from].reject {|t| t == table}
+        execute "DELETE FROM #{table} USING #{using.join(', ')} WHERE #{tbl1}.#{fld1} = #{tbl2}.#{fld2} AND #{opts[:where]}"
       when 'sqlite3'
         execute "DELETE FROM #{table} WHERE #{fld1} = (SELECT #{fld2} FROM #{tbl2} WHERE #{opts[:where]})"
       else
@@ -116,19 +129,22 @@ module Zena
         end
       else
         values = values.map {|v| "(#{v.join(',')})"}.join(', ')
-        execute "INSERT INTO #{table} (#{columns.map{|c| "`#{c}`"}.join(',')}) VALUES #{values}"
+        execute "INSERT INTO #{table} (#{columns.map{|c| quote_column_name(c)}.join(',')}) VALUES #{values}"
       end
     end
 
     # Fetch a single row of raw data from db
-    def fetch_row(sql)
+    def fetch_attribute(sql)
       case adapter
       when 'sqlite3'
         res = execute(sql)
-        res.empty? ? nil : res.first[0]
+        res.empty? ? nil : res.first
       when 'mysql'
         res = execute(sql).fetch_row
-        res ? res[0] : nil
+        res.empty? ? nil : res.first
+      when 'postgresql'
+        res = connection.select_rows(sql)
+        res.empty? ? nil : res.first.first
       else
         raise Exception.new("Database Adapter #{adapter.inspect} not supported yet (you can probably fix this).")
       end
@@ -153,13 +169,6 @@ module Zena
       end
     end
 
-    def fetch_attribute(attribute, sql)
-      unless sql =~ /SELECT/i
-        sql = "SELECT `#{attribute}` FROM #{table_name} WHERE #{sql}"
-      end
-      Zena::Db.fetch_row(sql)
-    end
-
     def next_zip(site_id)
       case adapter
       when 'mysql'
@@ -170,10 +179,17 @@ module Zena
         end
         rows = execute "SELECT @zip"
         rows.fetch_row[0].to_i
+      when 'postgresql'
+        res = execute("UPDATE zips SET zip=zip+1 WHERE site_id = #{site_id} RETURNING zip").first
+        if res.nil?
+          # error
+          raise Zena::BadConfiguration, "no zip entry for (#{site_id})"
+        end
+        res['zip'].to_i
       when 'sqlite3'
         # FIXME: is there a way to make this thread safe and atomic (like it is with mysql) ?
         update "UPDATE zips SET zip=zip+1 WHERE site_id = '#{site_id}'"
-        fetch_row("SELECT zip FROM zips WHERE site_id = '#{site_id}'").to_i
+        fetch_row("SELECT zip FROM zips WHERE site_id = '#{site_id}'")[0].to_i
       else
         raise Exception.new("Database Adapter #{adapter.inspect} not supported yet (you can probably fix this).")
       end
@@ -290,9 +306,9 @@ module Zena
       connection.tables.each do |table|
         if table =~ /^idx_/ || table == 'links'
           if table =~ /^idx_nodes/
-            next if fetch_row("SELECT node_id FROM #{table} WHERE node_id = 0")
+            next if fetch_attribute("SELECT node_id FROM #{table} WHERE node_id = 0")
           else
-            next if fetch_row("SELECT id FROM #{table} WHERE id = 0")
+            next if fetch_attribute("SELECT id FROM #{table} WHERE id = 0")
           end
 
           # index table

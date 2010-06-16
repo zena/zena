@@ -22,8 +22,8 @@ class Cache < ActiveRecord::Base
     def sweep(hash)
       if kpath  = hash[:kpath]
         klasses = []
-        kpath.split(//).each_index { |i| klasses << kpath[0..i].inspect }
-        kpath_selector = " AND kpath IN (#{klasses.join(',')})"
+        kpath.split(//).each_index { |i| klasses << kpath[0..i] }
+        kpath_selector = " AND kpath IN (#{klasses.map{|k| connection.quote(k)}.join(',')})"
       else
         kpath_selector = ""
       end

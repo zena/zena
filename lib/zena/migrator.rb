@@ -51,11 +51,11 @@ module Zena
         si_table = ActiveRecord::Base.table_name_prefix + 'schema_info' + ActiveRecord::Base.table_name_suffix
         if !connection.tables.include?(sm_table) && connection.tables.include?(old_bricks_info_table_name)
           v_brick, v_schema = 0, 0
-          connection.select_all("SELECT `version` FROM #{old_bricks_info_table_name} WHERE brick = 'zena'", "Bricks_info fix").each do |record|
+          connection.select_all("SELECT version FROM #{old_bricks_info_table_name} WHERE brick = 'zena'", "Bricks_info fix").each do |record|
             v_brick = record['version'].to_i
           end
           if v_brick > 0
-            connection.select_all("SELECT `version` FROM #{si_table}", "Bricks_info fix").each do |record|
+            connection.select_all("SELECT version FROM #{si_table}", "Bricks_info fix").each do |record|
               v_schema = record['version'].to_i
             end
             if v_schema < v_brick

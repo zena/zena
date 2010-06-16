@@ -27,9 +27,9 @@ class Group < ActiveRecord::Base
     str = id.to_s
     if str =~ /\A\d+\Z/
       # id
-      Zena::Db.fetch_row("SELECT #{sym} FROM groups WHERE site_id = #{current_site[:id]} AND id = '#{str}'")
+      Zena::Db.fetch_attribute("SELECT #{sym} FROM groups WHERE site_id = #{current_site[:id]} AND id = '#{str}'")
     elsif str =~ /\A([a-zA-Z ]+)(\+*)\Z/
-      Zena::Db.fetch_row("SELECT groups.#{sym} FROM groups WHERE site_id = #{current_site[:id]} AND name LIKE #{self.connection.quote("#{$1}%")} LIMIT #{$2.size}, 1")
+      Zena::Db.fetch_attribute("SELECT groups.#{sym} FROM groups WHERE site_id = #{current_site[:id]} AND name LIKE #{self.connection.quote("#{$1}%")} LIMIT 1 OFFSET #{$2.size}")
     else
       nil
     end

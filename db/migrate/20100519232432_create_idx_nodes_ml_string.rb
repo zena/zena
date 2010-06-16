@@ -1,7 +1,7 @@
 class CreateIdxNodesMlString < ActiveRecord::Migration
   def self.up
     # index strings for nodes
-    create_table :idx_nodes_ml_strings, :options => Zena::Db.table_options, :id => false do |t|
+    create_table :idx_nodes_ml_strings, :options => Zena::Db.table_options do |t|
       t.integer 'node_id', :null => false
       t.string  'key'
       t.string  'lang', :limit => 10

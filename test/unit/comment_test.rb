@@ -147,7 +147,7 @@ class CommentTest < Zena::Unit::TestCase
   end
 
   def test_cannot_update_discussion_closed
-    Discussion.connection.execute "UPDATE discussions SET open = 0 WHERE id = #{discussions_id(:outside_discussion_on_status_en)}"
+    Discussion.connection.execute "UPDATE discussions SET open = false WHERE id = #{discussions_id(:outside_discussion_on_status_en)}"
     login(:anon)
     visitor.ip = '10.0.0.3'
     comment = comments(:public_spam_in_en)

@@ -899,7 +899,7 @@ class WorkflowTest < Zena::Unit::TestCase
   end
 
   def test_update_auto_publish_set_v_publish_from_to_nil
-    Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
+    Site.connection.execute "UPDATE sites set auto_publish = true, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
     login(:tiger)
     node = secure!(Node) { Node.create( :parent_id => nodes_id(:zena), :title => "This one should auto publish" ) }
     node = secure!(Node) { Node.find(node.id) } # reload
@@ -916,7 +916,7 @@ class WorkflowTest < Zena::Unit::TestCase
   def test_auto_publish_in_redit_time_can_publish
     # set site.auto_publish      ===> publish
     # now < created + redit_time ===> update current publication
-    Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
+    Site.connection.execute "UPDATE sites set auto_publish = true, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
     Version.connection.execute "UPDATE versions set created_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE id = #{versions_id(:tiger_en)}"
     login(:tiger)
     visitor.lang = 'en'
@@ -937,7 +937,7 @@ class WorkflowTest < Zena::Unit::TestCase
   def test_publish_after_save_in_redit_time_can_publish
     # set site.auto_publish      ===> publish
     # now < updated + redit_time ===> update current publication
-    Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
+    Site.connection.execute "UPDATE sites set auto_publish = true, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
     Version.connection.execute "UPDATE versions set created_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE id = #{versions_id(:tiger_en)}"
     login(:tiger)
     visitor.lang = 'en'
@@ -957,7 +957,7 @@ class WorkflowTest < Zena::Unit::TestCase
 
 
   def test_create_auto_publish_v_publish_from_to_nil
-    Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
+    Site.connection.execute "UPDATE sites set auto_publish = true, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
     login(:tiger)
     node = secure!(Node) { Node.create( :parent_id => nodes_id(:zena), :title => "This one should auto publish", :v_publish_from => nil ) }
     assert ! node.new_record? , "Not a new record"
@@ -990,7 +990,7 @@ class WorkflowTest < Zena::Unit::TestCase
   end
 
   def test_auto_publish_no_publish_rights
-    Site.connection.execute "UPDATE sites set auto_publish = 1, redit_time = 0 WHERE id = #{sites_id(:zena)}"
+    Site.connection.execute "UPDATE sites set auto_publish = true, redit_time = 0 WHERE id = #{sites_id(:zena)}"
     login(:ant)
     node = secure!(Node) { nodes(:cleanWater) }
     assert !node.can_publish?
