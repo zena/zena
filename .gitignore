@@ -1,6 +1,9 @@
 .DS_Store
 config/deploy_config.rb
 config/database.yml
+config/mysql.yml
+config/psql.yml
+config/sqlite3.yml
 config/*.sphinx.conf
 coverage
 db/*.sqlite3
