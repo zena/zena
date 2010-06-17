@@ -364,7 +364,7 @@ class Site < ActiveRecord::Base
           rec['fullpath'] = ''
         end
 
-        if rec['custom_base'].to_i == 1
+        if rec['custom_base'] == Zena::Db::TRUE_RESULT
           rec['basepath'] = rec['fullpath']
         else
           rec['basepath'] = parent_basepath

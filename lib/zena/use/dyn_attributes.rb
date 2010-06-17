@@ -96,7 +96,7 @@ module Zena
             elsif value && id = @keys[key]
               upd << [value,id]
             elsif value
-              add << [connection.quote(key), connection.quote(value), @owner[:id].to_i]
+              add << [key, value, @owner[:id].to_i]
             end
           end
 

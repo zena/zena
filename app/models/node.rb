@@ -449,8 +449,7 @@ class Node < ActiveRecord::Base
 
       # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
       node = klass.send(:with_exclusive_scope) do
-        klass.find(:first, :conditions => ['site_id = ? AND node_name = ? AND parent_id = ?',
-                                          current_site[:id], attributes['node_name'].url_name, attributes['parent_id']])
+        Zena::Db.insensitive_find(klass, :first, :site_id => current_site[:id], :parent_id => attributes['parent_id'], :node_name => attributes['node_name'].url_name)
       end
 
       if node
@@ -699,7 +698,7 @@ class Node < ActiveRecord::Base
     def find_by_path(path)
       return nil unless scope = scoped_methods[0]
       return nil unless scope[:find]   # not secured find. refuse.
-      self.find_by_fullpath(path)
+      Zena::Db.insensitive_find(Node, :first, :fullpath => path)
     end
 
     # FIXME: Where is this used ?

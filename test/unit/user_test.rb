@@ -90,7 +90,7 @@ class UserTest < Zena::Unit::TestCase
   end
 
   def test_create_with_auto_publish
-    Site.connection.execute "UPDATE sites SET auto_publish = true WHERE id = #{sites_id(:zena)}"
+    Site.connection.execute "UPDATE sites SET auto_publish = #{Zena::Db::TRUE} WHERE id = #{sites_id(:zena)}"
     login(:lion)
     user = secure!(User) { User.create("name"=>"Shakespeare", "status"=>"50", "group_ids"=>[""], "lang"=>"fr", "time_zone"=>"Europe/Zurich", "first_name"=>"William", "login"=>"bob", "password"=>"jsahjks894", "email"=>"") }
     assert !user.new_record?, "Saved"

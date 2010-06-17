@@ -151,7 +151,7 @@ module Bricks
           end
 
           if tags_to_add != []
-            add_tags = tags_to_add.map{|t| [self[:id], Link.connection.quote(t)]}
+            add_tags = tags_to_add.map{|t| [self[:id], t]}
             Zena::Db.insert_many('links', %W{source_id comment}, add_tags)
           end
           remove_instance_variable(:@tags) if @tags

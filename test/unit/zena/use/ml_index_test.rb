@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class EnrollableTest < Zena::Unit::TestCase
+class MLIndexTest < Zena::Unit::TestCase
   context 'A visitor with write access' do
     setup do
       login(:tiger)

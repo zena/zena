@@ -960,13 +960,13 @@ done: \"I am done\""
       login(:tiger)
       node = secure!(Page) { Page.create(:parent_id => nodes_id(:status), :title => 'Photos', :text => '![]!') }
       assert !node.new_record?
-      assert_nothing_raised { node = secure!(Node) { Node.find_by_path( 'projects/cleanWater/status/Photos') } }
+      assert_nothing_raised { node = secure!(Node) { Node.find_by_path('projects/cleanWater/status/Photos') } }
       assert_raise(ActiveRecord::RecordNotFound) { node = secure!(Node) { Node.find_by_path( 'projects/cleanWater/status/Photos/bird') } }
       assert_no_match %r{I took during my last vacations}, node.text
       v1_id = node.version.id
       secure!(Node) { Node.create_nodes_from_folder(:archive => uploaded_archive('import.tgz'), :parent_id => nodes_id(:status)) }
-      assert_nothing_raised { node = secure!(Node) { Node.find_by_path( 'projects/cleanWater/status/Photos') } }
-      assert_nothing_raised { bird = secure!(Node) { Node.find_by_path( 'projects/cleanWater/status/Photos/bird') } }
+      assert_nothing_raised { node = secure!(Node) { Node.find_by_path('projects/cleanWater/status/Photos') } }
+      assert_nothing_raised { bird = secure!(Node) { Node.find_by_path('projects/cleanWater/status/Photos/bird') } }
       assert_match %r{I took during my last vacations}, node.text
       assert_equal v1_id, node.version.id
       assert_kind_of Image, bird

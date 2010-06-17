@@ -55,11 +55,12 @@ class FulltextTest < Zena::Unit::TestCase
           end
 
           should 'rebuild fulltext for all versions' do
+            curr_v_id = subject.version.id
             flds = Zena::Use::Fulltext::FULLTEXT_FIELDS.map { |fld| "#{fld} = ''"}.join(',')
             Version.connection.execute("UPDATE versions SET #{flds} WHERE node_id = #{subject.id}")
 
             subject.rebuild_index!
-            assert_equal 'zena enhancements paper:Vert', Version.find(subject.version.id).idx_text_high
+            assert_equal 'zena enhancements paper:Vert', Version.find(curr_v_id).idx_text_high
             assert_equal 'zena enhancements paper:Kraft', versions(:letter_en).idx_text_high
           end
         end # with many versions

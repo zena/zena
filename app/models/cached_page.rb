@@ -120,7 +120,7 @@ class CachedPage < ActiveRecord::Base
       # create join values from context for automatic expire
       if (ids = @expire_with_ids || visitor.visited_node_ids) != []
         values = ids.compact.uniq.map {|id| [self[:id], id]}
-        Zena::Db.insert_many('cached_pages_nodes', ['cached_page_id', 'node_id'], values)
+        Zena::Db.insert_many('cached_pages_nodes', %w{cached_page_id node_id}, values)
       end
     end
 

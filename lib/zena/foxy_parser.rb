@@ -353,6 +353,8 @@ module Zena
             node[:header_keys] << 'node_name'
           end
 
+          node['node_name'] = node['node_name'].url_name
+
           if node.keys.include?('title') || node.keys.detect {|k| k =~ /^v_/}
             # need version defaults
             @defaults.each do |key,value|

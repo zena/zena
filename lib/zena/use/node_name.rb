@@ -67,11 +67,12 @@ module Zena
           i = 0
           batch_size = 100
           while true
-            list  = Zena::Db.fetch_attributes(['id', 'fullpath', 'basepath', 'custom_base'], 'nodes', "fullpath LIKE #{Zena::Db.quote("#{fullpath_was}%")} AND site_id = #{current_site.id} ORDER BY fullpath ASC LIMIT #{batch_size} OFFSET #{i * batch_size}")
+            list  = Zena::Db.fetch_attributes(['id', 'fullpath', 'basepath', 'custom_base'], 'nodes', "fullpath LIKE #{Zena::Db.quote("#{fullpath_was}/%")} AND site_id = #{current_site.id} ORDER BY fullpath ASC LIMIT #{batch_size} OFFSET #{i * batch_size}")
+
             break if list.empty?
             list.each do |rec|
               rec['fullpath'].sub!(fullpath_re, fullpath_new) if fullpath_re
-              if rec['custom_base'].to_i == 1
+              if rec['custom_base'] == Zena::Db::TRUE_RESULT
                 rec['basepath'] = rec['fullpath']
                 bases << rec['basepath']
               else

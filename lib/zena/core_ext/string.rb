@@ -33,8 +33,8 @@ class String
         gsub!(s, rep)
       end
     end
-    gsub!(/[^a-zA-Z0-9\.\-\+ ]/," ")
-    replace(split.join(" "))
+    gsub!(/[^a-zA-Z0-9\.\-\+ ]/,' ')
+    replace(split.join(' '))
     gsub!(/ (.)/) { $1.upcase }
     self
   end

@@ -445,7 +445,7 @@ END:VCALENDAR
 
   def test_cache_css_auto_publish
     test_site('zena')
-    Site.connection.execute    "UPDATE sites set auto_publish = true, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
+    Site.connection.execute    "UPDATE sites set auto_publish = #{Zena::Db::TRUE}, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
     Version.connection.execute "UPDATE versions set created_at = '#{Time.now.strftime('%Y-%m-%d %H:%M:%S')}' WHERE id = #{versions_id(:style_css_en)}"
     login(:tiger)
     node = secure!(Node) { nodes(:style_css) }

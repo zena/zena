@@ -319,9 +319,9 @@ class RelationProxy < Relation
     list = []
     @add_links.each do |hash|
       next if hash[:id].blank?
-      list << "(#{self[:id]},#{@start[:id]},#{hash[:id]},#{LINK_ATTRIBUTES.map{|sym| Link.connection.quote(hash[sym])}.join(',')})"
+      list << ([self[:id], @start[:id], hash[:id]] + LINK_ATTRIBUTES.map{|sym| hash[sym]})
     end
-    Link.connection.execute "INSERT INTO links (relation_id,#{link_side},#{other_side},#{LINK_ATTRIBUTES_SQL}) VALUES #{list.join(',')}"
+    Zena::Db.insert_many('links', ['relation_id', link_side, other_side] + LINK_ATTRIBUTES, list)
     @attributes_to_update = nil
     @links_to_delete      = nil
     remove_instance_variable(:@records)     if defined?(@records)

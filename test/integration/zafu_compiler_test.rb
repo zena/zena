@@ -315,15 +315,6 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     yt_do_test('zazen', 'swf_button_player')
   end
 
-  def test_basic_captcha
-    values = [
-      ["'recaptcha_pub'", "'pubkey'", sites_id(:zena)],
-      ["'recaptcha_priv'", "'privkey'", sites_id(:zena)]
-    ]
-    Zena::Db.insert_many('site_attributes', %W{key value owner_id}, values)
-    yt_do_test('basic', 'captcha')
-  end
-
   def test_dates_uses_datebox_missing_lang
     login(:ant)
     visitor.lang = 'io'

@@ -16,11 +16,23 @@ module Zena
     # constants
     case ActiveRecord::Base.configurations[RAILS_ENV]['adapter']
     when 'mysql'
-      NOW = 'now()'
+      NOW         = 'now()'
+      TRUE        = '1'
+      TRUE_RESULT = '1'
+      FALSE       = '0'
+
     when 'postgresql'
-      NOW = 'now()'
+      NOW         = 'now()'
+      TRUE        = 'true'
+      TRUE_RESULT = 't'
+      FALSE       = 'false'
+
     when 'sqlite3'
-      NOW = "datetime('now')"
+      NOW         = "datetime('now')"
+      TRUE        = '1'
+      TRUE_RESULT = 't'
+      FALSE       = '0'
+
     end
 
     def set_attribute(obj, key, value)
@@ -31,6 +43,47 @@ module Zena
 
     def quote(value)
       connection.quote(value)
+    end
+
+    def insensitive_find(klass, count, attributes)
+      case adapter
+      when 'postgresql'
+        cond = [[]]
+        attributes.each do |attribute, value|
+          cond[0] << (value.kind_of?(String) ? "#{attribute} ILIKE ?" : "#{attribute} = ?")
+          cond << value
+        end
+        cond[0] = cond[0].join(' AND ')
+        klass.find(count, :conditions => cond)
+      when 'sqlite3'
+        cond = [[]]
+        attributes.each do |attribute, value|
+          if value.kind_of?(String)
+            cond[0] << "lower(#{attribute}) = ?"
+            cond << value.downcase
+          else
+            cond[0] << "#{attribute} = ?"
+            cond << value
+          end
+        end
+        cond[0] = cond[0].join(' AND ')
+        klass.find(count, :conditions => cond)
+      else
+        klass.find(count, :conditions => attributes)
+      end
+    end
+
+    def quote_date(date)
+      if date.kind_of?(Time)
+        case adapter
+        when 'mysql'
+          date.strftime('%Y%m%d%H%M%S')
+        when 'postgresql', 'sqlite3'
+          "'#{date.strftime('%Y-%m-%d %H:%M:%S')}'"
+        end
+      else
+        "''"
+      end
     end
 
     def adapter
@@ -94,7 +147,7 @@ module Zena
       when 'postgresql'
         execute "ALTER TABLE #{table} ADD CONSTRAINT #{keys.join('_')} UNIQUE (#{keys.join(', ')})"
       when 'sqlite3'
-        execute "CREATE UNIQUE INDEX IF NOT EXISTS #{(table + keys.join('_')).gsub(/[^\w]/,'')} ON #{table} (#{keys.join(', ')})"
+        execute "CREATE UNIQUE INDEX IF NOT EXISTS #{([table] + keys).join('_').gsub(/[^\w]/,'')} ON #{table} (#{keys.join(', ')})"
       else
         raise Exception.new("Database Adapter #{adapter.inspect} not supported yet (you can probably fix this).")
       end
@@ -120,16 +173,21 @@ module Zena
     # Insert a list of values (multicolumn insert). The values should be properly escaped before
     # being passed to this method.
     def insert_many(table, columns, values)
-      values = values.compact.uniq
+      values = values.compact.uniq.map do |list|
+        list.map {|e| quote(e)}
+      end
+
+      columns = columns.map{|c| quote_column_name(c)}.join(',')
+
       case adapter
       when 'sqlite3'
-        pre_query = "INSERT INTO #{table} (#{columns.join(',')}) VALUES "
-        values.each do |v|
-          execute pre_query + "(#{v.join(',')})"
+        pre_query = "INSERT INTO #{table} (#{columns}) VALUES "
+        values.each do |value|
+          execute pre_query + "(#{value.join(',')})"
         end
       else
-        values = values.map {|v| "(#{v.join(',')})"}.join(', ')
-        execute "INSERT INTO #{table} (#{columns.map{|c| quote_column_name(c)}.join(',')}) VALUES #{values}"
+        values = values.map {|value| "(#{value.join(',')})"}.join(', ')
+        execute "INSERT INTO #{table} (#{columns}) VALUES #{values}"
       end
     end
 
@@ -138,10 +196,10 @@ module Zena
       case adapter
       when 'sqlite3'
         res = execute(sql)
-        res.empty? ? nil : res.first
+        res.empty? ? nil : res.first[0]
       when 'mysql'
         res = execute(sql).fetch_row
-        res.empty? ? nil : res.first
+        res ? res.first : nil
       when 'postgresql'
         res = connection.select_rows(sql)
         res.empty? ? nil : res.first.first
@@ -188,8 +246,12 @@ module Zena
         res['zip'].to_i
       when 'sqlite3'
         # FIXME: is there a way to make this thread safe and atomic (like it is with mysql) ?
-        update "UPDATE zips SET zip=zip+1 WHERE site_id = '#{site_id}'"
-        fetch_row("SELECT zip FROM zips WHERE site_id = '#{site_id}'")[0].to_i
+        res = update "UPDATE zips SET zip=zip+1 WHERE site_id = '#{site_id}'"
+        if res == 0
+          # error
+          raise Zena::BadConfiguration, "no zip entry for (#{site_id})"
+        end
+        fetch_attribute("SELECT zip FROM zips WHERE site_id = '#{site_id}'").to_i
       else
         raise Exception.new("Database Adapter #{adapter.inspect} not supported yet (you can probably fix this).")
       end
