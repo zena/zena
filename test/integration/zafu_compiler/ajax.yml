@@ -92,9 +92,9 @@ each_edit_with_form:
 
 make_form:
   src: "<ul do='children'><li do='each' do='node_name'/><li do='add'/></ul>"
-  tem: "/<li class='form' id='list1_form' style='display:none;'><%= form_remote_tag\(:url => nodes_path/"
-  'make/form/en/list1.erb': "<li><%= @node.name %></li>"
-  'make/form/en/list1_form.erb': "/<li class='form' id='<%= dom_id\(@node\) %>'>/"
+  tem: "/<li style='display:none;' class='form' id='list1_form'>.*remote_form_for\(:node, var2_new"
+  'ajax/make/en/form/list1.erb': "<li id='<%= ndom_id(@node) %>'><%= @node.node_name %></li>"
+  'ajax/make/en/form/list1_form.erb': "/<li class='form' id='<%= ndom_id\(@node\) %>'>/"
 
 each_edit_cannot_write:
   context:
@@ -112,7 +112,7 @@ block_edit_form:
   res: "/<p>status<\/p>.*edit/"
 
 query_in_block:
-  src: "<r:block><r:tagged where='name like \"%[param:tag]%\"' in='site'/></r:block>"
+  src: "<r:block><r:tagged where='title like \"%#{params[:tag]}%\"' in='site'/></r:block>"
   tem: "!/parser_error/"
 
 saved_each_block:
@@ -145,15 +145,15 @@ live_filter_single_element:
     node: cleanWater
   src: "<r:filter live='true'/><r:block><r:page where='node_name like \"#{params[:f]}%\"' find='first'><b do='node_name'/></r:page></r:block>"
   tem: "/, \"#\{params\[:f\]\}%\"/"
-  'live/filter/en/single/element/list1.erb': "/<div id='<%= dom_id\(@node\) %>.*params\[:f\].*var1.name/"
-  res: "/<input type='text' name='f'.*<div id='list2'><b>crocodiles</b></div>/"
+  'ajax/live/en/filter/single/element/list1.erb': "/<div id='list1.*params\[:f\].*var1.node_name/"
+  res: "/<input type='text' name='f'.*<div id='list1'><b>crocodiles</b></div>/"
 
 live_filter_select_options:
   context:
     node: cleanWater
-  src: "<r:filter live='true' do='select' name='f' values='1,2'/><r:block><ol do='pages where node_name like \"[param:f]%\"'><li do='each' do='node_name'/></ol></r:block>"
+  src: "<r:filter live='true' do='select' name='f' values='1,2'/><r:block><ol do='pages where node_name like \"#{params[:f]}%\"'><li do='each' do='node_name'/></ol></r:block>"
   tem: "/select name=.f.><%= options_for_select\(\[.1., .2.\], params\[:f\].to_s/"
-  'ajax/live/en/filter/en/list1.erb': "/<div id='<%= dom_id\(@node\) %>.*, params\[:f\].to_s/"
+  'ajax/live/en/filter/select/options/list1.erb': "/<div id='list1'.*params\[:f\]/"
   res: "/<select name='f'.*<div id='list1'><ol><li>crocodiles</li><li>status</li><li>track</li></ol></div>/"
 
 draggable_do_syntax:
@@ -177,6 +177,8 @@ unlink:
     node: 'art'
     class: Tag
   src: "<r:context select='tagged' do='each' do='unlink'/>"
+  # should set DOM_ID
+  tem: "/<div id='<%= %Q\{list1_#\{var2.zip\}\} %>'>/"
   res: "/<div id='list1_21'><a .*onclick=.*Ajax.Request.*_ID(cleanWater_in_art)\?dom_id=list1_21.*class=.unlink.*bullet_delete.png.*/"
 
 unlink_ignored_in_form:
@@ -194,21 +196,7 @@ edit_link:
   # The link_id should be sent with the url.
   res: "/link_id.*éditer/"
   'ajax/edit/fr/link/list1_form.erb': "/<input type='hidden' name='link_id' value=.<%= @node.link_id %>./>/"
-  'ajax/edit/fr/link/list1.erb': "/\#\{@node.link_id\}/"
-
-each_in_each_dom_id:
-  src: |
-    <ul class='tags' do='tags in site'>
-      <li do='each'><b do='link'/>
-        <div do='drop' set='set_tag'>
-          <ul class='tagged' do='context' select='tagged'>
-            <li do='each' draggable='true' do='link'/>
-          </ul>
-        </div>
-      </li>
-    </ul>
-  # The result should replace scoped ids "list1_#{var1.zip}_#{var2.zip}" by "#{ndom_id(@node)}_#{var2.zip}".
-  'ajax/each/en/in/each/dom/id/list1.erb': "/id='<%= %Q\{#\{ndom_id(@node)\}_#\{var2.zip\}\} %>'>/"
+  'ajax/edit/fr/link/list1.erb': "/:link_id => @node.link_id/"
 
 start_id:
   src: "<r:form><input type='hidden' name='s' value='#{start_id}'/></r:form>"
@@ -237,13 +225,9 @@ drop_param_in_each:
   src: "<r:pages do='each' do='drop' change='params' d='foo'><r:show eval='params[:d]'/></r:pages>"
   tem: "/<div class='drop' id='<%= %Q\{list1_#\{var2.zip\}\} %>'><% add_drop_id\(\"list1_#\{var2.zip\}\"/"
 
-swap_in_each:
-  src: "<r:pages><li do='each'><span do='swap' attr='d_status' states='todo,done,alert'/></li></r:pages>"
-  tem: "/<li id='list1_<%= var1.zip %>'><span>.*var1.can_write?.*tag_to_remote.*else.*var1.version.dyn\[\"status\"\]/"
-
 update_target:
   src: "UT: <div id='foo' do='block'>...</div> <r:link update='foo'/>"
-  tem: "/UT: <div id='foo'>...</div> <%= tag_to_remote.*dom_id=foo.*</a>/"
+  tem: "/UT: <div id='foo'>...</div> .*Ajax.Request.*:dom_id => \"foo\"/"
 
 include_update_target:
   src: "IUT: <r:include template='/ajax/update/target'><r:with part='foo'><r:show attr='node_name'/></r:with></r:include>"
@@ -256,8 +240,8 @@ id_in_each_group_should_be_scoped:
 link_page_next:
   context:
     pak: 2
-  src: "<div id='foo' do='block' do='nodes in site' limit='3' order='zip' paginate='pak'><r:link page='previous'/> | <r:show var='pak'/> | <r:link update='foo' page='next'/> || <r:each join=',' do='[id]'/></div>"
-  res: "/<a href='/oo/projects/cleanWater/page22.html\?pak=1'>1</a> \| 2 \| .*22/zafu\?pak=3.*dom_id=foo.*>3</a>/"
+  src: "<div id='foo' do='block' do='nodes in site' limit='3' order='zip' paginate='pak'><r:link page='previous'/> | <r:pak/> | <r:link update='foo' page='next'/> || <r:each join=',' do='[id]'/></div>"
+  res: "/<a href='/oo/projects/cleanWater/page22.html\?pak=1'>1</a> \| 2 \| .*22/zafu\?dom_id=foo.*pak=3.*>3</a>/"
 
 link_page_list:
   context:

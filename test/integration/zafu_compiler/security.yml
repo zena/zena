@@ -22,7 +22,7 @@ forbidden_methods:
 syntax_error:
   src: "<r:show eval='<% puts \"mean\" %>'/>"
   tem: "!/<% puts \"mean\" %>/"
-  res: "/parse error on value \"&lt;\"/"
+  res: "/&lt;% puts \"mean\"/"
 
 mean_eval:
   src: "<r:show eval='puts \"bad\"'/>"

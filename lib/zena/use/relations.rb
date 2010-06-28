@@ -66,6 +66,7 @@ module Zena
           base.safe_method :l_status  => {:class => Number, :nil => true}
           base.safe_method :l_comment => {:class => String, :nil => true}
           base.safe_method :l_date    => {:class => Time,   :nil => true}
+          base.safe_method :link_id   => {:class => Number, :nil => true}
 
           base.nested_attributes_alias LINK_REGEXP => Proc.new {|obj, m| obj.relation_alias(m) }
           base.class_eval <<-END

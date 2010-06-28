@@ -113,11 +113,17 @@ module Zena
             page_count = get_var_name('paginate', 'count', sub_context)
             curr_page  = get_var_name('paginate', 'current', sub_context)
 
+            # Give access to the pagination key.
+            set_context_var('set_var', pagination_key, RubyLess::TypedString.new(curr_page, Number))
+
             out "<% #{node_count} = Node.do_find(:count, #{query.to_s(:count)}); #{page_count} = (#{node_count} / #{query.page_size.to_f}).ceil; #{curr_page} = [1,params[:#{pagination_key}].to_i].max -%>"
-          elsif finder[:method].kind_of?(::RubyLess::TypedString)
+          elsif finder[:method].kind_of?(RubyLess::TypedString)
             # Hash passed with :zafu => {} is inserted into context
             sub_context.merge!(finder[:method].opts[:zafu] || {})
           end
+
+          sub_context[:has_link_id] = query && query.select.to_s =~ / AS link_id/
+
           sub_context
         end
 
@@ -162,7 +168,7 @@ module Zena
             finder = get_finder(query, count)
 
             if count != :count && else_clause = @params[:else]
-              else_clause = ::RubyLess.translate(else_clause, self)
+              else_clause = RubyLess.translate(else_clause, self)
 
               if else_clause.klass == Array
                 else_klass = else_clause.opts[:array_content_class]
@@ -337,7 +343,7 @@ module Zena
             [:updated, :created, :event, :log].each do |k|
               if value = params[k]
                 # current, same are synonym for 'today'
-                filters << Zena::Db.date_condition(value,"TABLE_NAME.#{k}_at", get_context_var('set_var', 'date')) # || ::RubyLess::TypedString('main_date', Time))
+                filters << Zena::Db.date_condition(value,"TABLE_NAME.#{k}_at", get_context_var('set_var', 'date')) # || RubyLess::TypedString('main_date', Time))
               end
             end
 

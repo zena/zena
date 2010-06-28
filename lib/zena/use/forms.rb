@@ -120,7 +120,7 @@ END_TXT
 <% if #{node}.new_record? -%>
   <p class='btn_x'><a href='#' onclick='[\"<%= params[:dom_id] %>_add\", \"<%= params[:dom_id] %>_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
 <% else -%>
-  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{node.form_name}_path(#{node}.id) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}#{@context[:need_link_id] ? "&link_id=\#{#{node}.link_id}" : ''}\", :method => :get) %></p>
+  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{node.form_name}_path(#{node}.id) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}#{@context[:has_link_id] ? "&link_id=\#{#{node}.link_id}" : ''}\", :method => :get) %></p>
 <% end -%>
 END_TXT
             end
@@ -148,7 +148,7 @@ END_TXT
               hidden_fields['submit'] = ["<input type='submit'/>"]
             end
 
-            hidden_fields['link_id'] = "<%= #{node}.link_id %>" if @context[:need_link_id]
+            hidden_fields['link_id'] = "<%= #{node}.link_id %>" if @context[:has_link_id] && node.will_be?(Node)
 
             # if upd = @params[:update] || add_params[:update]
             #   if target = find_target(upd)
@@ -326,7 +326,7 @@ END_TXT
             checked = html_attributes.delete(:checked)
 
             @markup.set_dyn_params(html_attributes)
-            # @markup.wrap(nil, checked)
+            @markup.append_attribute checked if checked
             wrap('')
           end
         end
@@ -491,20 +491,6 @@ END_TXT
             else
               @params[:publish]
             end
-          end
-
-          # Returns true if a form/edit needs to keep track of link_id (l_status or l_comment used).
-          def need_link_id
-            if (input_fields = (descendants('input') + descendants('select'))) != []
-              input_fields.each do |f|
-                return true if f.params[:name] =~ /\Al_/
-              end
-            elsif (show_fields = descendants('show')) != []
-              show_fields.each do |f|
-                return true if f.params[:attr] =~ /\Al_/
-              end
-            end
-            return false
           end
 
           # Return options for [select] tag.

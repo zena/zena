@@ -475,13 +475,15 @@ module Zena
             elsif node.will_be?(Version)
               method_args << "node"
               hash_params << ":lang => this.lang"
+            elsif node.list_context?
+              method_args << '@node'
             else
               method_args << 'this'
             end
 
             insert_ajax_args(remote_target, hash_params, opts[:action]) if remote_target
 
-            @params.each do |key, value|
+            (opts[:query_params] || @params).each do |key, value|
               next if [:href, :eval, :text, :attr].include?(key)
               if key == :anchor
                 value = get_anchor_name(value)
@@ -501,7 +503,7 @@ module Zena
 
           def insert_ajax_args(target, hash_params, action)
             hash_params << ":s => start_id"
-
+            hash_params << ":link_id => this.link_id" if @context[:has_link_id] && node.will_be?(Node)
             if target.kind_of?(String)
               # named target
               return nil unless target = find_target(target)
@@ -555,7 +557,6 @@ module Zena
             #   end
             # end
             #
-            # query_params << "link_id=\#{#{node}.link_id}" if @context[:need_link_id] && node.will_be?(Node)
             # query_params << "node[v_status]=#{Zena::Status[:pub]}" if @params[:publish] # FIXME: this acts like publish = 'force'
             # query_params << start_node_s_param(:string)
             #
@@ -578,24 +579,25 @@ module Zena
           def pagination_links
 
             return parser_error("not in pagination scope") unless pagination_key = get_context_var('paginate', 'key')
-            case @params[:page]
-            when 'previous'
-              current = get_context_var('paginate', 'current')
-              prev    = get_var_name('paginate', 'previous')
+            page_direction = @params[:page]
+            case page_direction
+            when 'previous', 'next'
+              current      = get_context_var('paginate', 'current')
+              count        = get_context_var('paginate', 'count')
+              prev_or_next = get_var_name('paginate', page_direction)
 
-              out "<% if #{prev} = (#{current} > 1 ? #{current} - 1 : nil) -%>"
-
-              # .... FIXME: continue fixing...
-              out make_link(:default_text => "<%= #{prev} %>", :query_params => {pagination_key => "[#{pagination_key}_previous]"}, :params => @params.merge(:page => nil))
-              if descendant('else')
-                out expand_with(:in_if => true, :only => ['else', 'elsif'])
+              if page_direction == 'previous'
+                out "<% if #{prev_or_next} = (#{current} > 1 ? #{current} - 1 : nil) -%>"
+              else
+                out "<% if #{prev_or_next} = (#{count} - #{current} > 0 ? #{current} + 1 : nil) -%>"
               end
-              out "<% end -%>"
-            when 'next'
-              out "<% if set_#{pagination_key}_next = (set_#{pagination_key}_count - set_#{pagination_key} > 0 ? set_#{pagination_key} + 1 : nil) -%>"
-              @context[:vars] ||= []
-              @context[:vars] << "#{pagination_key}_next"
-              out make_link(:default_text => "<%= set_#{pagination_key}_next %>", :query_params => {pagination_key => "[#{pagination_key}_next]"}, :params => @params.merge(:page => nil))
+
+              # previous_page // next_page
+              set_context_var('set_var', "#{page_direction}_page", RubyLess::TypedString.new(prev_or_next, :class => Number, :nil => true))
+
+              #, :params => @params.merge(:page => nil))
+              out make_link(:default_text => "<%= #{prev_or_next} %>", :query_params => {pagination_key => "\#{#{page_direction}_page}"})
+
               if descendant('else')
                 out expand_with(:in_if => true, :only => ['else', 'elsif'])
               end

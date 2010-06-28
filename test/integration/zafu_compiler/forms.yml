@@ -81,11 +81,13 @@ checkbox_finder:
 
 checkbox_checked_value:
   src: "<r:input type='checkbox' name='tagged[sky]'/>"
+  tem: "/@node.tagged\\[\"sky\"\\] == \"sky\"/"
   res: "<input type='checkbox' name='node[tagged][sky]' value='sky' checked='checked'/>"
 
 checkbox_unchecked_value:
   src: "<r:input type='checkbox' name='tagged[foo]'/>"
   tem: "/@node.tagged\\[\"foo\"\\] == \"foo\"/"
+  res: "<input type='checkbox' name='node[tagged][foo]' value=''/>"
 
 input_set_value:
   src: "<r:input type='hidden' name='icon_id' value='#{main.id}'/>"
@@ -96,8 +98,8 @@ input:
   context:
     node: 'ant'
   src: "<r:BaseContact><r:input name='first_name'/></r:BaseContact>"
-  tem: "<% if @node.kpath_match?('NRC') -%><input type='text' name='node[first_name]' value=\"<%= fquote @node.prop['first_name'] %>\"/><% end -%>"
-  res: "<input type='text' name='node[first_name]' value=\"Solenopsis\"/>"
+  tem: "<% if @node.kpath_match?('NRC') -%><input type='text' name='node[first_name]' value='<%= fquote @node.prop['first_name'] %>'/><% end -%>"
+  res: "<input type='text' name='node[first_name]' value='Solenopsis'/>"
 
 input_style:
   src: "<r:input style='display:none;' type='submit'/>"

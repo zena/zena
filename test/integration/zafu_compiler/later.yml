@@ -9,3 +9,23 @@ show_edit:
   src: "<r:show attr='node_name' edit='true'/>"
   tem: "<% if @node.can_write? -%><span class='show_edit' id='list1_name'><%= link_to_remote(@node.name, :url => edit_node_path(@node.zip) + \"?attribute=name&dom_id=list1_name\", :method => :get) %></span><% else -%><%= @node.name %><% end -%>"
   res: "/span class='show_edit' id='list1_name'>.*Ajax\.Request\('/nodes/22/edit\?attribute=name/"
+
+
+# The result should replace scoped ids "list1_#{var1.zip}_#{var2.zip}" by "#{ndom_id(@node)}_#{var2.zip}".
+each_in_each_dom_id:
+  src: |
+    <ul class='tags' do='tags in site'>
+      <li do='each'><b do='link'/>
+        <div do='drop' set='set_tag'>
+          <ul class='tagged' do='context' select='tagged'>
+            <li do='each' draggable='true' do='link'/>
+          </ul>
+        </div>
+      </li>
+    </ul>
+  'ajax/each/en/in/each/dom/id/list1.erb': "/id='<%= %Q\{#\{ndom_id(@node)\}_#\{var2.zip\}\} %>'>/"
+
+# [swap] needs to be reimplemented
+swap_in_each:
+  src: "<r:pages><li do='each'><span do='swap' attr='origin' states='todo,done,alert'/></li></r:pages>"
+  tem: "/<li id='list1_<%= var1.zip %>'><span>.*var1.can_write?.*tag_to_remote.*else.*var1.version.dyn\[\"status\"\]/"

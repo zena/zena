@@ -52,7 +52,7 @@ module Zafu
           end
         end
 
-        query_params << "link_id=\#{#{node}.link_id}" if @context[:need_link_id] && node.will_be?(Node)
+        query_params << "link_id=\#{#{node}.link_id}" if @context[:has_link_id] && node.will_be?(Node)
         query_params << "node[v_status]=#{Zena::Status[:pub]}" if @params[:publish] # FIXME: this acts like publish = 'force'
         query_params << start_node_s_param(:string)
 
