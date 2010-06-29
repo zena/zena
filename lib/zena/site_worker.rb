@@ -24,10 +24,10 @@ module Zena
 
       if nodes = get_nodes
         # Register next one (if we are lucky and have many workers, we can parallelize work)
-        Zena::SiteWorker.perform(site, :rebuild_index, page + 1)
+        Zena::SiteWorker.perform(site, action, page + 1)
 
         # do action on nodes
-        site.send(action, nodes)
+        site.send(action, nodes, page, page_count)
       end
     end
 
@@ -39,6 +39,10 @@ module Zena
         :order => 'id ASC'
       )
       secure_result(nodes)
+    end
+
+    def page_count
+      (Node.count(:conditions => ['site_id = ?', site_id]) / CHUNK_SIZE) + 1
     end
   end
 end # Zena

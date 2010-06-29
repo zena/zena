@@ -333,9 +333,9 @@ class Site < ActiveRecord::Base
 
   # Rebuild vhash indices for the Site. This method uses the Worker thread to rebuild and works on
   # chunks of 50 nodes.
-  def rebuild_vhash(nodes = nil)
+  def rebuild_vhash(nodes = nil, page = nil, page_count = nil)
     if !nodes
-      Site.logger.error("\n-----------------\REBUILD VHASH FOR SITE #{host}\n-----------------\n")
+      Site.logger.error("\n----------------- REBUILD VHASH FOR SITE #{host} -----------------\n")
       Zena::SiteWorker.perform(self, :rebuild_vhash)
     else
       # do things
@@ -388,9 +388,9 @@ class Site < ActiveRecord::Base
   # chunks of 50 nodes.
   #
   # The visitor used during index rebuild is the anonymous user.
-  def rebuild_index(nodes = nil)
+  def rebuild_index(nodes = nil, page = nil, page_count = nil)
     if !nodes
-      Site.logger.error("\n-----------------\REBUILD INDEX FOR SITE #{host}\n-----------------\n")
+      Site.logger.error("\n----------------- REBUILD INDEX FOR SITE #{host} -----------------\n")
       Zena::SiteWorker.perform(self, :rebuild_index)
     else
       # do things

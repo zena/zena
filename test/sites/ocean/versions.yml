@@ -1,5 +1,4 @@
 DEFAULTS:
-  type:            Version
   created_at:      2006-03-10
   updated_at:      2006-04-11
   publish_from:    2006-03-10
@@ -12,7 +11,6 @@ DEFAULTS:
 #    text:          ""
 
 ocean_en:
-  type:            Version
   node:            ocean
   user:            whale
   prop:
@@ -23,7 +21,6 @@ ocean_en:
 
 
 incognito_en:
-  type:            Version
   node:            incognito
   user:            whale
   prop:
@@ -36,7 +33,6 @@ incognito_en:
     city:          Somewhere
 
 whale_en:
-  type:            Version
   node:            whale
   user:            whale
   prop:
@@ -49,14 +45,12 @@ whale_en:
     city:          Ocean
 
 skin_en:
-  type:            TemplateVersion
   node:            default
   user:            whale
   prop:
     title:         skin
 
 Node_en:
-  type:            TemplateVersion
   node:            Node
   user:            whale
   prop:

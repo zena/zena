@@ -1,45 +1,46 @@
 require File.join(File.dirname(__FILE__), 'info')
+
+Zena::Use.module  [
+  Zena::Use::Action,
+  Zena::Use::Ajax,
+  Zena::Use::Authlogic,
+  Zena::Use::Calendar,
+  Zena::Use::Context,
+  Zena::Use::Dates,
+  Zena::Use::Display,
+  Zena::Acts::Enrollable,
+  Zena::Use::ErrorRendering,
+  Zena::Use::Forms,
+  Zena::Use::HtmlTags,
+  Zena::Use::I18n,
+  Zena::Use::NestedAttributesAlias,
+  Zena::Use::QueryBuilder,
+  Zena::Use::Refactor,
+  Zena::Use::Rendering,
+  Zena::Use::Upload,
+  Zena::Use::Urls,
+  Zena::Use::ZafuAttributes,
+  Zena::Use::ZafuSafeDefinitions,
+  Zena::Use::ZafuTemplates,
+  Zena::Use::Zazen,
+]
+
 module Zena
   module App
     def self.included(base)
       base.prepend_view_path SITES_ROOT
       base.class_eval do
-        include Zena::Use::Authlogic::ControllerMethods
-        include Zena::Use::Dates::ControllerMethods
-        include Zena::Use::ErrorRendering::ControllerMethods
-        include Zena::Use::I18n::ControllerMethods
-        include Zena::Use::Refactor::ControllerMethods
-        include Zena::Use::Rendering::ControllerMethods
-        include Zena::Use::Upload::ControllerMethods
-        include Zena::Use::Urls::ControllerMethods
-        include Zena::Use::ZafuTemplates::ControllerMethods
-        include Zena::Acts::Enrollable::ControllerMethods
+        Zena::Use.each_module_for('Controller') do |mod|
+          include mod
+        end
+
         include RubyLess
 
-        helper  Zena::Use::Authlogic::ViewMethods
         helper  Zena::Acts::Secure
-        helper  Zena::Use::Rendering::ViewMethods
-        helper  Zena::Use::Ajax::ViewMethods
-        helper  Zena::Use::Calendar::ViewMethods
-        helper  Zena::Use::Dates::ViewMethods
-        helper  Zena::Use::ErrorRendering::ViewMethods
-        helper  Zena::Use::HtmlTags::ViewMethods
-        helper  Zena::Use::I18n::ViewMethods
-        helper  Zena::Use::NestedAttributesAlias::ViewMethods
-        helper  Zena::Use::Refactor::ViewMethods
-        helper  Zena::Use::Upload::ViewMethods
-        helper  Zena::Use::Urls::ViewMethods
-        helper  Zena::Use::ZafuTemplates::ViewMethods
-        helper  Zena::Acts::Enrollable::ViewMethods
-        helper  Zena::Use::ZafuAttributes::ViewMethods
-        helper  Zena::Use::ZafuSafeDefinitions::ViewMethods
-        helper  Zena::Use::Display::ViewMethods
-        helper  Zena::Use::Context::ViewMethods
-        helper  Zena::Use::Action::ViewMethods
-        helper  Zena::Use::QueryBuilder::ViewMethods
-        helper  Zena::Use::Forms::ViewMethods
 
-        helper  Zena::Use::Zazen::ViewMethods
+        Zena::Use.each_module_for('View') do |mod|
+          helper mod
+        end
 
         helper_method :render_to_string
       end

@@ -203,8 +203,13 @@ module Zena
 
         def r_load
           if dict = @params[:dictionary]
-            dict_content, absolute_url, doc = self.class.get_template_text(dict, @options[:helper], @options[:current_dir])
-            return parser_error("dictionary #{dict.inspect} not found") unless doc
+            dict_content, absolute_url, base_path = self.class.get_template_text(dict, @options[:helper], @options[:base_path])
+            return parser_error("dictionary #{dict.inspect} not found") unless base_path
+            # TODO: How to use dict offline ?
+            # We could do:
+            # dict_name = get_var_name('dict', 'dictionary')
+            # set_context_var('set_var', 'dictionary', TypedString.new(dict_name, StringDictionary))
+            # Load with <% #{dict_name} = load_dictionary(#{dict_zip}) -%>
             @context[:dict] ||= {}
             begin
               definitions = YAML::load(dict_content)

@@ -1,4 +1,5 @@
 .DS_Store
+restart.txt
 config/deploy_config.rb
 config/database.yml
 config/mysql.yml
