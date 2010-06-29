@@ -98,23 +98,34 @@ module Zena
           opts = {:skin=>@node[:skin], :cache=>true}.merge(options)
           opts[:mode  ] ||= params[:mode]
           opts[:format] ||= params[:format].blank? ? 'html' : params[:format]
-
+          puts "OPTIONS = #{opts.inspect}"
+          puts "PARAMS = #{params.inspect}"
           # cleanup before rendering
           params.delete(:mode)
-
           if opts[:format] != 'html'
             # Document data or special renderings.
             content_type  = (Zena::EXT_TO_TYPE[opts[:format]] || ['application/octet-stream'])[0]
             template_path = template_url(opts)
             data = render_to_string(:file => template_path, :layout=>false)
             # TODO: use plugins...
-            if opts[:format] == 'pdf' && ((Zena::ENABLE_LATEX && data =~ /\A% (latex)\n/) || (Zena::ENABLE_FOP && data =~ /\A<\?(xml)/))
-              render_pdf($1 == 'xml' ? 'fop' : $1)
+            #if opts[:format] == 'pdf' && ((Zena::ENABLE_LATEX && data =~ /\A% (latex)\n/) || (Zena::ENABLE_FOP && data =~ /\A<\?(xml)/))
+             # render_pdf($1 == 'xml' ? 'fop' : $1)
+
+            if opts[:format] == 'pdf'
+              Data2pdf.engine =  'Xhtml2pdf'
+              disposition = params['disposition']   || 'inline'
+              if params.keys.include?("debug")
+                render :text => data
+              else
+                pdf = Data2pdf.render(data)
+                send_data(pdf,  :type=> 'application/pdf', :disposition=>disposition)
+              end
             else
               # send data inline
               filepath = nil
               send_data( data , :filename=>@node.title, :type => content_type, :disposition=>'inline')
             end
+
             cache_page(:content_data => data, :content_path => filepath) if opts[:cache]
           else
             # html

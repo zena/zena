@@ -18,6 +18,7 @@ development:
     switch:  OFF
     activate_if:
       gem: 'delayed_job'
+  data2pdf: ON
 
 production:
   tags:     ON
@@ -33,3 +34,4 @@ production:
     switch:  OFF
     activate_if:
       gem: 'delayed_job'
+  data2pdf: ON

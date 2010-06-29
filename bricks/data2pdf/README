@@ -1,0 +1,19 @@
+= data2pdf -- pdf rendering brick for Zena
+
+This brick is used to render pdf from html pages. It exploit existing engine such as "princexml" or "pisa".
+
+The engine must be installed on the machine and the specified in Zena config file with a class method like this : Data2pdf.engine = 'Prince'.
+
+It is possible to add more engine. See implementation in "engines" folder in for details.
+
+There is one method "render" that take input as first argument and output as second argument. Third argument is a habitual hash of options.
+
+== Exemples
+
+Data.engine = 'Xhtml2pdf'
+
+Data2pdf.render "myfile.html"                          => STDOUT       (strings)
+Data2pdf.render "myfile.html", "out.pdf"               => out.pdf      (file)
+
+Data2pdf.render "This is text to render."              => STDOUT       (strings)
+Data2pdf.render "This is text to render.", "out.pdf"   => out.pdf      (file)
