@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 require 'rubygems'
+gem 'rails', '=2.3.4'
+
 require 'zena/info'
 
 if %w(--version -v).include? ARGV.first
