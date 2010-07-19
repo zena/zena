@@ -20,7 +20,7 @@ courses_assigned_to_driver_team:
     node: driver_team
     class: Page
   src: assigned_courses
-  res: "formulate_problems, transmit_information"
+  res: "formulateProblems, transmitInformation"
 
 all_courses_in_driver:
   context:

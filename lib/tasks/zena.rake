@@ -8,7 +8,7 @@ RAILS_ENV = 'test' if ARGV.join(' ') =~ /zena:test/
 require File.join(File.dirname(__FILE__), '..', 'zena', 'info') # to have Zena::ROOT
 require File.join(File.dirname(__FILE__), '..', 'bricks') # to have Bricks
 
-Bricks.load_misc('tasks')
+Bricks.load_filename('tasks')
 
 def symlink_assets(from, to)
   from = File.expand_path(from)
@@ -254,7 +254,7 @@ namespace :zena do
         # migrate 'db/migrate'
         Zena::Migrator.migrate("#{Zena::ROOT}/db/migrate", ENV["BRICK"], ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
       else
-        mig_path = "#{Zena::ROOT}/bricks/#{ENV['BRICK']}/migrate"
+        mig_path = Bricks.migrations_for(ENV['BRICK'])
         if File.exist?(mig_path) && File.directory?(mig_path)
           Zena::Migrator.migrate(mig_path, ENV["BRICK"], ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
         else
@@ -266,9 +266,8 @@ namespace :zena do
       paths  = {'zena' => "#{RAILS_ROOT}/db/migrate"}
       bricks = ['zena']
 
-      Bricks.foreach_brick do |brick_path|
-        brick_name = brick_path.split('/').last
-        migration_path = File.join(brick_path, 'migrate')
+      Bricks.foreach_brick do |brick_name|
+        migration_path = Bricks.migrations_for(brick_name)
         next unless File.exist?(migration_path) && File.directory?(migration_path)
         paths[brick_name] = migration_path
         bricks << brick_name
@@ -372,12 +371,9 @@ namespace :zena do
     end
   end
 
-  # do not change the order in which these elements are loaded (adding 'lib/**/test/*_test.rb' fails)
-  tests = ['test/helpers/**/*_test.rb', 'test/unit/**/*_test.rb',
-           'lib/parser/test/*_test.rb', 'lib/query_builder/test/*_test.rb',
-           'test/functional/*_test.rb', 'test/integration/*_test.rb',
-           'bricks/**/test/unit/*_test.rb', 'bricks/**/test/functional/*_test.rb',
-           'bricks/**/test/integration/*_test.rb'].map {|p| "#{Zena::ROOT}/#{p}"}
+  tests = ['test/unit/**/*_test.rb', 'test/functional/*_test.rb', 'test/integration/*_test.rb'].map {|p| "#{Zena::ROOT}/#{p}"}
+
+  tests += Bricks.test_files
 
   Rake::TestTask.new(:test => ["zena:test:prepare", "zena:build_fixtures"]) do |t|
     t.libs << "test"

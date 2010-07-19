@@ -1,4 +1,3 @@
-require 'versions'
 class Version < ActiveRecord::Base
   include Zena::Use::Dates::ModelMethods
   parse_date_attribute :publish_from

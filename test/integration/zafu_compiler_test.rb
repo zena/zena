@@ -1,44 +1,45 @@
 require 'test_helper'
 
 class ZafuCompilerTest < Zena::Controller::TestCase
- OK = %w{
-    action
-    asset
-    conditional
-    dates
-    display
-    errors
-    i18n
-    off
-    recursion
-    relations
-    roles
-    rubyless
-    safe_definitions
-    search
-    site
-    urls
-    user
-    version
-    workflow
-    zafu_attributes
-    zazen
-    security
-  }
+ OK = [
+    'action',
+    'asset',
+    'conditional',
+    'dates',
+    'display',
+    'errors',
+    'i18n',
+    'off',
+    'recursion',
+    'relations',
+    'roles',
+    'rubyless',
+    'safe_definitions',
+    'search',
+    'site',
+    'tags',      # bricks/tags/zena/test/zafu
+    'urls',
+    'user',
+    'version',
+    'workflow',
+    'zafu_attributes',
+    'zazen',
+    'security',
+  ]
 
-  BUG = %w{
-    ajax
-    apphelper
-    basic
-    complex
-    data
-    eval
-    forms
-  }
+  BUG = [
+    'ajax',
+    'apphelper',
+    'basic',
+    'complex',
+    'data',
+    'eval',
+    'forms',
+  ]
 
   LATER = %w{later}
 
-  yamltest :directories => [:default, "#{Zena::ROOT}/bricks/**/test/zafu"], :files => OK #+ BUG
+  yamltest :directories => ([:default] + Bricks.zafu_tests), :files => OK #+ BUG
 
   Section # make sure we load Section links before trying relations
 

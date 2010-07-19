@@ -1,6 +1,12 @@
-unless defined?(Node.ancestors.include?('Zena::Use::Relations::ClassMethods')) # FIXME: not sure here
+require 'bricks/tags'
+
+unless Node.ancestors.map {|a| a.to_s }.include?('Zena::Use::Relations::ModelMethods')
   raise Exception.new("tags brick depends on 'Zena::Use::Relations'")
 end
+
+Node.send(:include, Bricks::Tags)
+
+# FIXME: remove this line and cleanup Bricks::Tags so that a single include is enough.
 Node.send(:has_tags)
 
 Link # make sure it is loaded before we reopen it

@@ -385,7 +385,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     get_backup
   end
 
-  Bricks.load_misc('deploy')
+  Bricks.load_filename('deploy')
 
 
   #========================== MONGREL ===============================#

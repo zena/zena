@@ -26,19 +26,41 @@ module Bricks
       bricks.map {|f| Dir["#{f}/models"] }.flatten
     end
 
-    def libs_paths
-      bricks.map {|f| Dir["#{f}/lib"] }.flatten
+    def init_paths
+      bricks.map {|f| Dir["#{f}/zena/init.rb"] }.flatten
     end
 
-    def foreach_brick(&block)
+    def migration_for(brick)
+      File.join(Zena::ROOT, 'bricks', brick, 'zena', 'migrate')
+    end
+
+    def fixtures_path_for(brick)
+      File.join(Zena::ROOT, 'bricks', brick, 'zena', 'test', 'sites')
+    end
+
+    def zafu_tests
+      ["#{Zena::ROOT}/bricks/*/zena/test/zafu", "#{RAILS_ROOT}/bricks/*/zena/test/zafu"]
+    end
+
+    def test_files
+      [
+        'bricks/*/zena/test/unit/*_test.rb',
+        'bricks/*/zena/test/functional/*_test.rb',
+        'bricks/*/zena/test/integration/*_test.rb',
+      ]
+     end
+
+    # FIXME: remove
+    def old_foreach_brick(&block)
       bricks.each do |path|
         block.call(path)
       end
     end
 
+    # FIXME: remove
     def apply_patches(file_name = nil)
       file_name ||= caller[0].split('/').last.split(':').first
-      foreach_brick do |brick_path|
+      old_foreach_brick do |brick_path|
         patch_file = File.join(brick_path, 'patch', file_name)
         if File.exist?(patch_file)
           load patch_file
@@ -46,32 +68,15 @@ module Bricks
       end
     end
 
-    def load_bricks
-      # load all libraries in bricks
-      libs_paths.each do |lib_path|
-        Dir.foreach(lib_path) do |f|
-          next unless f =~ /\A.+\.rb\Z/
-          require File.join(lib_path, f)
-        end
-      end
-
-      # FIXME: do we really need to load these now, load_path isn't enough ?
-      models_paths.each do |models_path|
-        Dir.foreach(models_path) do |f|
-          next unless f =~ /\A.+\.rb\Z/
-          require File.join(models_path, f)
-        end
-      end
-    end
-
-    def load_misc(filename)
-      bricks.map {|f| Dir["#{f}/misc/#{filename}.rb"] }.flatten.each do |file|
+    def load_filename(filename)
+      bricks.map {|f| Dir["#{f}/zena/#{filename}.rb"] }.flatten.each do |file|
         require file
       end
     end
 
+    # FIXME: remove
     def load_zafu(mod)
-      foreach_brick do |brick_path|
+      old_foreach_brick do |brick_path|
         brick_name = File.basename(brick_path)
         zafu_path  = File.join(brick_path, 'zafu')
         next unless File.exist?(zafu_path)
@@ -80,6 +85,23 @@ module Bricks
           load File.join(zafu_path, rules_name)
         end
         mod.send(:include, eval("Bricks::#{brick_name.capitalize}::ZafuMethods"))
+      end
+    end
+
+    def foreach_brick
+      bricks.each do |path|
+        yield File.basename(path)
+      end
+    end
+
+    def load_bricks
+      bricks.each do |path|
+        $LOAD_PATH << File.join(path, 'lib')
+      end
+
+      # load 'init'
+      init_paths.each do |init_path|
+        require init_path
       end
     end
   end

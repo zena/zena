@@ -147,6 +147,13 @@ module Zena
       require File.join(lib_path, 'fix_rails_layouts.rb') # FIXME: remove when https://rails.lighthouseapp.com/projects/8994/tickets/3207 approved
     end
 
+    # The dependencies listed here need to be loaded in this order to make sure
+    # AfterCommit is included before the first connection to the database.
+    def require_ordered_dependencies
+      require 'versions'
+      require 'property'
+    end
+
     def set_default_timezone(config)
       # Make Active Record use UTC-base instead of local time
       # do not change this !
@@ -184,6 +191,8 @@ module Zena
       add_load_paths(config)
       config_gems(config)
 
+      require_ordered_dependencies
+
       load_plugins if RAILS_ROOT != Zena::ROOT
       include_modules
       load_bricks
@@ -191,7 +200,6 @@ module Zena
       add_inflections
       initialize_authlogic
       initialize_gettext
-      Bricks.load_misc('init')
     end
   end
 end

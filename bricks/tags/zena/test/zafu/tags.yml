@@ -2,25 +2,26 @@
 default:
   context:
     node: 'status'
-  src: "<r:tags do='each' join=',' do='node_name'/>"
-  tem: "/list1 = @node.tags.*var1.name/"
+    visitor: 'anon'
+  src: "<r:tags do='each' join=',' do='name'/>"
+  tem: "/var1 = @node.tags.*var2.name/"
   res: "blue,sky"
 
 listing_no_tags:
   context:
     node: 'lion'
   src: "<r:tags>Nothing</r:tags>"
-  tem: "/list1 = @node.tags/"
+  tem: "/if var1 = @node.tags/"
   res: ""
 
 listing_with_link:
-  src: "<r:tags do='each' join=',' do='link' cat='[name]'/>"
-  res: "<a href='/oo/projects/cleanWater/page22.html?cat=blue'>blue</a>,<a href='/oo/projects/cleanWater/page22.html?cat=sky'>sky</a>"
+  src: "<r:tags do='each' join=',' do='link' href='main' cat='#{name}'/>"
+  res: "<a href='/en/projects/cleanWater/page22.html?cat=blue'>blue</a>,<a href='/en/projects/cleanWater/page22.html?cat=sky'>sky</a>"
 
 tagged_query:
   context:
     cat: 'blue'
-  src: "<r:context select='nodes where tag = param:cat in site' do='each' join=', ' do='node_name'/>"
+  src: "<r:context select='nodes where tag = #{params[:cat]} in site' do='each' join=', ' do='node_name'/>"
   res: "bird, status"
 
 images_tagged_blue:
@@ -31,10 +32,10 @@ tagged_keys_rubyless:
   context:
     node: 'status'
   src: "<r:tagged do='keys'><r:each join=', ' do='show'/></r:tagged>"
-  res: "sky, blue"
+  res: "/blue, sky|sky, blue/"
 
 tag_names:
   context:
     node: 'status'
-  src: "<r:tag_names><r:each join=', ' do='show'/></r:tagged>"
-  res: "sky, blue"
+  src: "<r:tag_names><r:each join=', ' do='show'/></r:tag_names>"
+  res: "blue, sky"

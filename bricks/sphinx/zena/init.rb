@@ -3,6 +3,4 @@ if errors = Bricks.runtime_requirement_errors('sphinx')
   puts "## search might not work: #{errors.join(', ')}"
 end
 
-class Node
-  include Bricks::Sphinx::NodeSearch
-end
+Node.send(:include, Bricks::Sphinx::NodeSearch)

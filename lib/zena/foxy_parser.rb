@@ -81,9 +81,9 @@ module Zena
     end
 
     def run
-
-      Dir.foreach("#{Zena::ROOT}/test/sites") do |site|
-        next if site =~ /^\./
+      base = "#{Zena::ROOT}/test/sites"
+      Dir.foreach(base) do |site|
+        next if (site =~ /^\./) || !File.directory?(File.join(base, site))
         @site = site
         parse_fixtures
         after_parse
@@ -99,9 +99,8 @@ module Zena
       def get_content(site, table)
         fixtures_paths  = {'zena' => File.join("#{Zena::ROOT}/test/sites",site,"#{table}.yml")}
         fixtures_bricks = ['zena']
-        Bricks.foreach_brick do |brick_path|
-          brick_name = brick_path.split('/').last
-          fixtures_paths[brick_name] = File.join(brick_path,'test','sites',site,"#{table}.yml")
+        Bricks.foreach_brick do |brick_name|
+          fixtures_paths[brick_name] = File.join(Bricks.fixtures_path_for(brick_name), site, "#{table}.yml")
           fixtures_bricks << brick_name
         end
 

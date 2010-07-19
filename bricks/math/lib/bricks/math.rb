@@ -89,7 +89,3 @@ module Bricks
     end # ViewMethods
   end # Math
 end # Bricks
-
-Zena::Use::Zazen::ViewMethods.asset_method 'math' => :math_asset
-
-ApplicationController.send(:helper, Bricks::Math::ViewMethods)
