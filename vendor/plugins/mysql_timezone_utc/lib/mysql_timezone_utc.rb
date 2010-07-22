@@ -1,6 +1,8 @@
 # Fixes #98
 if ActiveRecord::Base.configurations[RAILS_ENV]['adapter'] == 'mysql'
   # Fixes timezone to "+0:0"
+  raise "MySQL timezone UTC required too late, connection already active." if Class.new(ActiveRecord::Base).connected?
+
   ActiveRecord::ConnectionAdapters::MysqlAdapter.class_eval do
     def configure_connection_with_timezone
       configure_connection_without_timezone

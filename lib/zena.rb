@@ -190,13 +190,13 @@ module Zena
 
       add_load_paths(config)
       config_gems(config)
+      set_default_timezone(config)
 
       require_ordered_dependencies
 
       load_plugins if RAILS_ROOT != Zena::ROOT
       include_modules
       load_bricks
-      set_default_timezone(config)
       add_inflections
       initialize_authlogic
       initialize_gettext

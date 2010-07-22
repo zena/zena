@@ -98,8 +98,6 @@ module Zena
           opts = {:skin=>@node[:skin], :cache=>true}.merge(options)
           opts[:mode  ] ||= params[:mode]
           opts[:format] ||= params[:format].blank? ? 'html' : params[:format]
-          puts "OPTIONS = #{opts.inspect}"
-          puts "PARAMS = #{params.inspect}"
           # cleanup before rendering
           params.delete(:mode)
           if opts[:format] != 'html'
