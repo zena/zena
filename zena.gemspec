@@ -533,28 +533,6 @@ Gem::Specification.new do |s|
      "lib/zena/use/ml_index.rb",
      "lib/zena/use/nested_attributes_alias.rb",
      "lib/zena/use/node_name.rb",
-     "lib/zena/use/old_zafu/action.rb",
-     "lib/zena/use/old_zafu/ajax.rb",
-     "lib/zena/use/old_zafu/attributes.rb",
-     "lib/zena/use/old_zafu/calendar.rb",
-     "lib/zena/use/old_zafu/context.rb",
-     "lib/zena/use/old_zafu/core/html.rb",
-     "lib/zena/use/old_zafu/core/move_to_parser.rb",
-     "lib/zena/use/old_zafu/dates.rb",
-     "lib/zena/use/old_zafu/display.rb",
-     "lib/zena/use/old_zafu/eval.rb",
-     "lib/zena/use/old_zafu/experimental.rb",
-     "lib/zena/use/old_zafu/i18n.rb",
-     "lib/zena/use/old_zafu/meta.rb",
-     "lib/zena/use/old_zafu/query_node.rb",
-     "lib/zena/use/old_zafu/refactor.rb",
-     "lib/zena/use/old_zafu/support/context.rb",
-     "lib/zena/use/old_zafu/support/dom.rb",
-     "lib/zena/use/old_zafu/support/erb.rb",
-     "lib/zena/use/old_zafu/support/flow.rb",
-     "lib/zena/use/old_zafu/support/forms.rb",
-     "lib/zena/use/old_zafu/support/links.rb",
-     "lib/zena/use/old_zafu/zafu_parser.rb",
      "lib/zena/use/query_builder.rb",
      "lib/zena/use/query_comment.rb",
      "lib/zena/use/query_node.rb",
@@ -586,6 +564,28 @@ Gem::Specification.new do |s|
      "locale/fr/zena.mo",
      "locale/fr/zena.po",
      "locale/zena.pot",
+     "old_zafu/action.rb",
+     "old_zafu/ajax.rb",
+     "old_zafu/attributes.rb",
+     "old_zafu/calendar.rb",
+     "old_zafu/context.rb",
+     "old_zafu/core/html.rb",
+     "old_zafu/core/move_to_parser.rb",
+     "old_zafu/dates.rb",
+     "old_zafu/display.rb",
+     "old_zafu/eval.rb",
+     "old_zafu/experimental.rb",
+     "old_zafu/i18n.rb",
+     "old_zafu/meta.rb",
+     "old_zafu/query_node.rb",
+     "old_zafu/refactor.rb",
+     "old_zafu/support/context.rb",
+     "old_zafu/support/dom.rb",
+     "old_zafu/support/erb.rb",
+     "old_zafu/support/flow.rb",
+     "old_zafu/support/forms.rb",
+     "old_zafu/support/links.rb",
+     "old_zafu/zafu_parser.rb",
      "public/.htaccess",
      "public/calendar/calendar-brown.css",
      "public/calendar/calendar-setup.js",
@@ -2174,7 +2174,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<property>, [">= 1.1.0"])
       s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_runtime_dependency(%q<authlogic>, ["= 2.1.3"])
-      s.add_runtime_dependency(%q<zafu>, [">= 0.6.1"])
+      s.add_runtime_dependency(%q<zafu>, [">= 0.6.2"])
       s.add_runtime_dependency(%q<shoulda>, [">= 2.10.2"])
       s.add_runtime_dependency(%q<fast_gettext>, ["~> 0.4.16"])
       s.add_runtime_dependency(%q<syntax>, ["= 1.0.0"])
@@ -2196,7 +2196,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<property>, [">= 1.1.0"])
       s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_dependency(%q<authlogic>, ["= 2.1.3"])
-      s.add_dependency(%q<zafu>, [">= 0.6.1"])
+      s.add_dependency(%q<zafu>, [">= 0.6.2"])
       s.add_dependency(%q<shoulda>, [">= 2.10.2"])
       s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
       s.add_dependency(%q<syntax>, ["= 1.0.0"])
@@ -2219,7 +2219,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<property>, [">= 1.1.0"])
     s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
     s.add_dependency(%q<authlogic>, ["= 2.1.3"])
-    s.add_dependency(%q<zafu>, [">= 0.6.1"])
+    s.add_dependency(%q<zafu>, [">= 0.6.2"])
     s.add_dependency(%q<shoulda>, [">= 2.10.2"])
     s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
     s.add_dependency(%q<syntax>, ["= 1.0.0"])

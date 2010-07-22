@@ -28,8 +28,8 @@ Zena.open_window = function(url, id, event, pos_x, pos_y) {
     // popup open from within popup
     return parent.Zena.open_window(url, id, event, pos_x, pos_y);
   }
-                                                   // not in an iframe
-  if (event && (event == true || event.shiftKey || window == window.parent)) {
+                                                   // edit window, not in an iframe
+  if (event && (event == true || event.shiftKey || (window == window.parent && window.current_sel))) {
     var popup = window.open(url, name, 'location=0,width=300,height=400,resizable=1');
     if (pos_x && pos_y) {
       popup.moveTo(pos_x, pos_y);

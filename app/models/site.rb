@@ -94,11 +94,11 @@ class Site < ActiveRecord::Base
 
       # create admin group
       admin = site.send(:secure,Group) { Group.create( :name => 'admin') }
-      raise Exception.new("Could not create group for site [#{host}] (site#{site[:id]})\n#{admin.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if admin.new_record?
+      raise Exception.new("Could not create admin group for site [#{host}] (site#{site[:id]})\n#{admin.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if admin.new_record?
 
       # create site group
-      sgroup = site.send(:secure,Group) { Group.create( :name => site.name) }
-      raise Exception.new("Could not create group for site [#{host}] (site#{site[:id]})\n#{sgroup.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if sgroup.new_record?
+      sgroup = site.send(:secure,Group) { Group.create( :name => 'site') }
+      raise Exception.new("Could not create site group for site [#{host}] (site#{site[:id]})\n#{sgroup.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if sgroup.new_record?
 
       site.public_group_id = pub[:id]
       site.site_group_id   = sgroup[:id]

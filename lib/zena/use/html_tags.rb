@@ -103,16 +103,15 @@ module Zena
           "#{Time.now.to_i}_#{@counter += 1}"
         end
 
-        #TODO: test
+        # Display the list of readers (group names).
         def readers_for(obj=@node)
           readers = if obj.public?
             _('img_public')
           else
             names = []
-            names |= [truncate(obj.rgroup.name, :length => 7)] if obj.rgroup
-            names |= [truncate(obj.dgroup.name, :length => 7)] if obj.dgroup
-            names << obj.user.initials
-            names.join(', ')
+            names << obj.rgroup.name if obj.rgroup
+            names << obj.wgroup.name if obj.wgroup
+            names.uniq.join(', ')
           end
           custom = obj.inherit != 1 ? "<span class='custom'>#{_('img_custom_inherit')}</span>" : ''
           "#{custom} #{readers}"

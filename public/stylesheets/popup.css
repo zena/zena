@@ -43,8 +43,8 @@ form .infos li { clear:none;}
 .tab .validate input { font-size:0.9em; padding:0;}
 .tab .validate a { padding:0 5px; }
 .tab .validate { float:right; }
-div.readers { position:absolute; left:5px; top:55px;}
-.readers p { display: inline; font-size:0.7em; font-style:italic; color:#888;}
+#readers { position:absolute; right:30px; top:25px;}
+#readers p { display: inline; font-size:0.7em; color:#666;}
 
 .tab_content { font-size:0.9em; padding:30px 0 2px 8px; }
 /* text */

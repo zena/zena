@@ -1,6 +1,7 @@
 <%= upload_field(:type => :onclick) %>
 
-<%= @node.c_version_id == @node.v_id ? "<b id='original_caution'>#{_('you are editing the original')}</b>" : "" %>
+<%= @node.would_change_original? ? "<b id='original_caution'>#{_('you are editing the original')}</b>" : '' %>
+<%= @node.version.clone_on_change? %>
 
 <% if !Zena::Use::ImageBuilder.dummy? %>
 <label for="crop_x"><%= _("image")  %></label>

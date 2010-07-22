@@ -3,4 +3,4 @@
 <label for='node_content_type'><%= _('content type') %></label>
 <input  id='node_content_type' type='text' name='node[content_type]' value='<%= @node.content_type %>'/><br/>
 
-<%= @node.c_version_id == @node.v_id ? "<b id='original_caution'>#{_('you are editing the original')}</b>" : "" %>
+<%= @node.would_change_original? ? "<b id='original_caution'>#{_('you are editing the original')}</b>" : '' %>

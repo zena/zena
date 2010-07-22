@@ -50,10 +50,14 @@ module Zena
         # Return true if the version should clone itself before save
         def should_clone?
           edited? &&
-          ( @backup ||
-            user_id != visitor.id ||
-            lang_changed?         ||
-            Time.now > created_at + current_site[:redit_time].to_i )
+          ( @backup || clone_on_change? )
+        end
+
+        # Return true if the version should be cloned if it was changed.
+        def clone_on_change?
+          user_id != visitor.id ||
+          lang_changed?         ||
+          Time.now > created_at + current_site[:redit_time].to_i
         end
 
         # Returns true if the version has been edited (not just a status change)
@@ -251,6 +255,16 @@ module Zena
           trad.each {|t| t.node = self}
           trad
         end
+      end
+
+      # Return true if the version is the original version and we are in redit time (will not clone)
+      def would_change_original?
+        # on original
+        version.number == 1 &&
+        # redaction or pub with autopublish
+        (version.status == Zena::Status[:red] || (version.status == Zena::Status[:pub] && current_site.auto_publish?)) &&
+        # same owner, in redit time, ...
+        !version.clone_on_change?
       end
 
       def can_edit?(lang=nil)

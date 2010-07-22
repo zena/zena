@@ -149,6 +149,61 @@ class HtmlTagsTest < Zena::View::TestCase
         end
       end # receiving flash_messages
     end # on any node
+
+    context 'displaying readers list' do
+      context 'with a public node' do
+        subject do
+          nodes(:status)
+        end
+
+        should 'display public group image' do
+          assert_match %r{/images/user_pub.png}, readers_for(subject)
+        end
+      end # with a public node
+
+      context 'with a non published node' do
+        subject do
+          secure(Node) { Page.new(:parent_id => nodes_id(:zena), :title => 'new node')}
+        end
+
+        should 'not display public image' do
+          assert_no_match %r{/images/user_pub.png}, readers_for(subject)
+        end
+
+        should 'display public group name' do
+          assert_no_match %r{public}, readers_for(subject)
+        end
+      end # with a non published node
+
+
+      context 'with a node with custom rights' do
+        subject do
+          nodes(:secret)
+        end
+
+        should 'display cog sign' do
+          assert_match %r{/images/cog.png}, readers_for(subject)
+        end
+      end # with a node with custom rights
+
+      context 'with a non public node' do
+        subject do
+          nodes(:strange)
+        end
+
+        should 'show read group name' do
+          assert_match %r{admin}, readers_for(subject)
+        end
+
+        should 'show write group name' do
+          assert_match %r{managers}, readers_for(subject)
+        end
+
+        should 'not show drive group name' do
+          assert_no_match %r{workers}, readers_for(subject)
+        end
+      end # with a non public node
+    end # displaying readers list
   end # A logged in user
 
   def test_img_tag_other

@@ -168,47 +168,67 @@ class WorkflowTest < Zena::Unit::TestCase
         setup do
           login(:tiger)
           visitor.lang = 'fr'
-          @node = secure!(Node) { nodes(:opening) }
+        end
+
+        subject do
+          secure(Node) { nodes(:opening) }
         end
 
         should 'see own redaction' do
           # this is only to make sure fixtures are used correctly
-          assert_equal Zena::Status[:red], @node.version.status
-          assert_equal visitor.id, @node.version.user_id
+          assert_equal Zena::Status[:red], subject.version.status
+          assert_equal visitor.id, subject.version.user_id
         end
 
+        context 'in redit time' do
+          subject do
+            secure(Page) { Page.create(:parent_id => nodes_id(:zena), :title => 'hop')}
+          end
+
+          should 'get a warning if editing would change original' do
+            assert subject.would_change_original?
+          end
+        end # in redit time
+
+        context 'not in redit time' do
+          should 'not get a warning if editing would change original' do
+            assert !subject.would_change_original?
+          end
+        end # not in redit time
+
+
         should 'not create a new redaction when editing in redit time' do
-          @node.version.created_at = Time.now
+          subject.version.created_at = Time.now
           assert_difference('Version.count', 0) do
-            assert @node.update_attributes(:title => 'Artificial Intelligence')
+            assert subject.update_attributes(:title => 'Artificial Intelligence')
           end
         end
 
         should 'create a new redaction when editing out of redit time' do
-          @node.version.created_at = Time.now.advance(:days => -1)
+          subject.version.created_at = Time.now.advance(:days => -1)
           assert_difference('Version.count', 1) do
-            assert @node.update_attributes(:title => 'Einstein\'s brain mass is below average')
+            assert subject.update_attributes(:title => 'Einstein\'s brain mass is below average')
           end
         end
 
         should 'create a new redaction when using backup attribute' do
           assert_difference('Version.count', 1) do
-            assert @node.update_attributes(:title => 'Einstein\'s brain mass is below average', :v_backup => 'true')
+            assert subject.update_attributes(:title => 'Einstein\'s brain mass is below average', :v_backup => 'true')
           end
         end
 
         should 'be allowed to propose' do
-          assert @node.can_propose?
-          assert @node.propose
-          assert_equal Zena::Status[:prop], @node.version.status
+          assert subject.can_propose?
+          assert subject.propose
+          assert_equal Zena::Status[:prop], subject.version.status
         end
 
         should 'be allowed to remove' do
-          assert @node.can_remove?
-          assert @node.remove
-          assert_equal Zena::Status[:rem], @node.version.status
+          assert subject.can_remove?
+          assert subject.remove
+          assert_equal Zena::Status[:rem], subject.version.status
         end
-      end # A visitor with write access on a redaction that she owns
+      end # A visitor with write access on a redaction ... that she owns
 
       context 'from another author' do
         setup do
@@ -294,6 +314,24 @@ class WorkflowTest < Zena::Unit::TestCase
         # this is only to make sure fixtures are used correctly
         assert_equal Zena::Status[:pub], subject.version.status
         assert !subject.new_record?
+      end
+
+      context 'that she owns' do
+        setup do
+          login(:lion)
+        end
+
+        subject do
+          secure(Page) { Page.create(:parent_id => nodes_id(:zena), :title => 'hop', :v_status => Zena::Status[:pub]) }
+        end
+
+        should 'not get a warning if editing would change original' do
+          assert !subject.would_change_original?
+        end
+      end # that she owns
+
+      should 'not get a warning if editing would change original' do
+        assert !subject.would_change_original?
       end
 
       should 'be allowed to edit' do

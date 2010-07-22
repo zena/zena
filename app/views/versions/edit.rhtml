@@ -1,5 +1,6 @@
 <div id='number'><%= @node.version.number %></div>
 <div id='form_errors' onclick='new Element.hide("form_errors")'><%= error_messages_for 'node', :object => @node %></div>
+<div id='readers'><p><%= readers_for(@node) %></p></div>
 <div id='search'><%= search_box(:ajax=>true) %></div>
 
 <div class='selector'>
@@ -30,8 +31,6 @@
     <div><%= node_action_link('add_doc', @node.zip) %></div>
     <% if @node.full_drive? && !visitor.site.auto_publish? %><div><small><input type='checkbox' name='node[v_backup]' value='true'/> <%= _('bak') %></small> <small><input type='checkbox' name='node[v_status]' value='50'<%= params[:pub] ? " checked='checked'" : '' %>/> <%= _('pub') %></small></div><% end -%>
   </div>
-  <div class='readers'>
-  <p><%= readers_for(@node) %></p></div>
 <% partial.each_index do |i| %><div id='<%= partial[i] %>_tab' <%= i == 0 ? "" : "style='display:none;'" %> class='tab_content'>
   <%= render :partial=>"templates/edit_tabs/#{partial[i]}" %>
 </div><% end %>
