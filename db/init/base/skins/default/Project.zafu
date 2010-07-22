@@ -2,7 +2,7 @@
   <r:with part='context'/>
   <r:with part='content' class='project'>
     <r:include template='Node' part='related'/>
-    <r:text/>
+    <r:zazen attr='text' live='true'/>
     <r:include template='notes'/>
   </r:with>
 </r:include>

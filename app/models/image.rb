@@ -187,7 +187,7 @@ class Image < Document
     max        = format['max_value'].to_f * (format['max_unit'] == 'Mb' ? 1024 : 1) * 1024
 
     # crop image
-    img = Zena::Use::ImageBuilder.new(:file=>original)
+    img = Zena::Use::ImageBuilder.new(:file => original)
     img.crop!(x, y, w, h) if x && y && w && h
     img.format       = format['format'] if new_type && new_type != content_type
     img.max_filesize = max if format['max_value'] && max
@@ -226,7 +226,7 @@ class Image < Document
       end
     end
 
-    # Create a new image in File System with the new format
+    # Create a new image in memory with the new format
     def image_with_format(format=nil)
       if @new_image
         Zena::Use::ImageBuilder.new(:file => @new_image).transform!(format)
