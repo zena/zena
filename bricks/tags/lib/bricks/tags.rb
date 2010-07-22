@@ -6,26 +6,17 @@ module Bricks
       safe_method :keys => [String]
     end
 
-    module HasTags
-      # this is called when the module is included into the 'base' module
-      def self.included(base)
-        base.extend Bricks::Tags::TriggerClassMethod
-      end
-    end
+    def self.included(base)
+      base.after_save    :update_tags
+      base.safe_context  :tags => ['Link']
+      base.safe_method   :tag_list => String, :tag => String, :tagged => StringHash, :tag_names => [String]
 
-    module TriggerClassMethod
-      def has_tags
-        after_save    :update_tags
-        safe_context  :tags => ['Link']
-        safe_method   :tag_list => String, :tag => String, :tagged => StringHash, :tag_names => [String]
-
-        class_eval <<-END
-          include Bricks::Tags::InstanceMethods
-          class << self
-            include Bricks::Tags::ClassMethods
-          end
-        END
-      end
+      base.class_eval <<-END
+        include Bricks::Tags::InstanceMethods
+        class << self
+          include Bricks::Tags::ClassMethods
+        end
+      END
     end
 
     module ClassMethods
@@ -161,5 +152,3 @@ module Bricks
     end
   end
 end
-
-ActiveRecord::Base.send :include, Bricks::Tags::HasTags

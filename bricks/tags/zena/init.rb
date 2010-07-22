@@ -6,9 +6,6 @@ end
 
 Node.send(:include, Bricks::Tags)
 
-# FIXME: remove this line and cleanup Bricks::Tags so that a single include is enough.
-Node.send(:has_tags)
-
 Link # make sure it is loaded before we reopen it
 class Link
   safe_method :name => {:class => String, :nil => true}

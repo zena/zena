@@ -161,10 +161,6 @@ module Zena
       ENV['TZ'] = 'UTC'
     end
 
-    def load_bricks
-      Bricks.load_bricks
-    end
-
     def add_inflections
       ActiveSupport::Inflector.inflections do |inflect|
         inflect.uncountable %w( children )
@@ -196,7 +192,7 @@ module Zena
 
       load_plugins if RAILS_ROOT != Zena::ROOT
       include_modules
-      load_bricks
+      Bricks.load_bricks if Zena::Db.migrated_once?
       add_inflections
       initialize_authlogic
       initialize_gettext

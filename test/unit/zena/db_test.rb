@@ -47,6 +47,10 @@ class DbTest < Zena::Unit::TestCase
      {"node_name"=>"skins", "zip"=>"51"},
      {"node_name"=>"style", "zip"=>"53"}], Zena::Db.fetch_attributes(['zip','node_name'], 'nodes', "node_name like 's%' and site_id = #{sites_id(:zena)} ORDER BY zip")
   end
+  
+  def test_migrated_once
+    assert Zena::Db.migrated_once?
+  end
 
   context 'A node that needs attribute changes without validations or side effects' do
     setup do

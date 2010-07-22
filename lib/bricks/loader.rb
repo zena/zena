@@ -30,7 +30,7 @@ module Bricks
       bricks.map {|f| Dir["#{f}/zena/init.rb"] }.flatten
     end
 
-    def migration_for(brick)
+    def migrations_for(brick)
       File.join(Zena::ROOT, 'bricks', brick, 'zena', 'migrate')
     end
 

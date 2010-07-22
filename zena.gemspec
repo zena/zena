@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{zena}
-  s.version = "1.0.0.a1"
+  s.version = "1.0.0.beta1"
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2010-06-03}
+  s.date = %q{2010-07-22}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -66,6 +66,8 @@ Gem::Specification.new do |s|
      "app/models/document_content.rb",
      "app/models/dyn_attribute.rb",
      "app/models/group.rb",
+     "app/models/idx_nodes_ml_string.rb",
+     "app/models/idx_nodes_string.rb",
      "app/models/idx_template.rb",
      "app/models/iformat.rb",
      "app/models/image.rb",
@@ -250,6 +252,7 @@ Gem::Specification.new do |s|
      "app/views/virtual_classes/_li.erb",
      "app/views/virtual_classes/create.rjs",
      "app/views/virtual_classes/destroy.rjs",
+     "app/views/virtual_classes/edit.html.erb",
      "app/views/virtual_classes/index.erb",
      "app/views/virtual_classes/new.erb",
      "app/views/virtual_classes/show.rjs",
@@ -264,32 +267,51 @@ Gem::Specification.new do |s|
      "bin/zena",
      "bricks/captcha/MIT-LICENSE",
      "bricks/captcha/README",
-     "bricks/captcha/patch/application_controller.rb",
-     "bricks/captcha/patch/application_helper.rb",
-     "bricks/captcha/patch/site.rb",
-     "bricks/captcha/zafu/captcha.rb",
-     "bricks/math/patch/application_helper.rb",
+     "bricks/captcha/lib/bricks/captcha.rb",
+     "bricks/captcha/zena/init.rb",
+     "bricks/data2pdf/.document",
+     "bricks/data2pdf/README",
+     "bricks/data2pdf/Rakefile",
+     "bricks/data2pdf/VERSION",
+     "bricks/data2pdf/lib/data2pdf.rb",
+     "bricks/data2pdf/lib/engines/prince.rb",
+     "bricks/data2pdf/lib/engines/xhtml2pdf.rb",
+     "bricks/data2pdf/lib/install.rb",
+     "bricks/data2pdf/test/engines/test_prince.rb",
+     "bricks/data2pdf/test/engines/test_xhtml2pdf.rb",
+     "bricks/data2pdf/test/fixtures/application.css",
+     "bricks/data2pdf/test/fixtures/contact.html",
+     "bricks/data2pdf/test/fixtures/pisa-default.css",
+     "bricks/data2pdf/test/fixtures/sheet1.css",
+     "bricks/data2pdf/test/fixtures/sheet2.css",
+     "bricks/data2pdf/test/fixtures/simple-html.html",
+     "bricks/data2pdf/test/fixtures/simple-text.txt",
+     "bricks/data2pdf/test/helper.rb",
+     "bricks/data2pdf/test/shoulda_macros/shoulda_data2pdf.rb",
+     "bricks/data2pdf/test/unit/test_rendering.rb",
+     "bricks/math/lib/bricks/math.rb",
+     "bricks/math/zena/init.rb",
      "bricks/sphinx/MIT-LICENSE",
      "bricks/sphinx/README",
      "bricks/sphinx/lib/use_sphinx.rb",
-     "bricks/sphinx/migrate/20091102171258_add_delta_for_sphinx.rb",
-     "bricks/sphinx/misc/deploy.rb",
-     "bricks/sphinx/misc/sphinx.yml",
-     "bricks/sphinx/misc/tasks.rb",
-     "bricks/sphinx/patch/node.rb",
+     "bricks/sphinx/zena/deploy.rb",
+     "bricks/sphinx/zena/init.rb",
+     "bricks/sphinx/zena/migrate/20091102171258_add_delta_for_sphinx.rb",
+     "bricks/sphinx/zena/sphinx.yml",
+     "bricks/sphinx/zena/tasks.rb",
      "bricks/tags/README",
-     "bricks/tags/lib/has_tags.rb",
-     "bricks/tags/patch/node.rb",
-     "bricks/tags/test/sites/zena/links.yml",
-     "bricks/tags/test/unit/tags_test.rb",
-     "bricks/tags/test/zafu/tags.yml",
+     "bricks/tags/lib/bricks/tags.rb",
+     "bricks/tags/zena/init.rb",
+     "bricks/tags/zena/test/sites/zena/links.yml",
+     "bricks/tags/zena/test/unit/tags_test.rb",
+     "bricks/tags/zena/test/zafu/tags.yml",
      "bricks/toto.zip",
      "bricks/worker/README",
-     "bricks/worker/migrate/20091104191643_create_delayed_jobs_table.rb",
-     "bricks/worker/misc/deploy.rb",
-     "bricks/worker/misc/init.rb",
-     "bricks/worker/misc/tasks.rb",
-     "bricks/worker/misc/worker",
+     "bricks/worker/zena/deploy.rb",
+     "bricks/worker/zena/init.rb",
+     "bricks/worker/zena/migrate/20091104191643_create_delayed_jobs_table.rb",
+     "bricks/worker/zena/tasks.rb",
+     "bricks/worker/zena/worker",
      "config/boot.rb",
      "config/bricks.yml",
      "config/database_example.yml",
@@ -304,6 +326,7 @@ Gem::Specification.new do |s|
      "config/mongrel_upload_progress.conf",
      "config/routes.rb",
      "config/sphinx.yml",
+     "db/20100628074512_zena0x_to1x.rb",
      "db/init/base/help.en.zml",
      "db/init/base/help.fr.zml",
      "db/init/base/skins.zml",
@@ -431,7 +454,6 @@ Gem::Specification.new do |s|
      "doc/template/cache/STYLE",
      "doc/template/cache/URL",
      "doc/zafu_changes.yml",
-     "generate",
      "lib/bricks.rb",
      "lib/bricks/loader.rb",
      "lib/bricks/requirements_validation.rb",
@@ -490,6 +512,7 @@ Gem::Specification.new do |s|
      "lib/zena/site_worker.rb",
      "lib/zena/test_controller.rb",
      "lib/zena/unit/test_case.rb",
+     "lib/zena/use.rb",
      "lib/zena/use/action.rb",
      "lib/zena/use/ajax.rb",
      "lib/zena/use/authlogic.rb",
@@ -1580,6 +1603,8 @@ Gem::Specification.new do |s|
      "public/images/time_delete.png",
      "public/images/time_go.png",
      "public/images/timeline_marker.png",
+     "public/images/toggle_off.png",
+     "public/images/toggle_on.png",
      "public/images/transmit.png",
      "public/images/transmit_add.png",
      "public/images/transmit_blue.png",
@@ -1733,6 +1758,7 @@ Gem::Specification.new do |s|
      "test/functional/groups_controller_test.rb",
      "test/functional/iformats_controller_test.rb",
      "test/functional/links_controller_test.rb",
+     "test/functional/nodes_controller_commit_test.rb",
      "test/functional/nodes_controller_test.rb",
      "test/functional/note_controller_test.rb",
      "test/functional/pings_controller_test.rb",
@@ -1751,7 +1777,9 @@ Gem::Specification.new do |s|
      "test/integration/query_node/comments.yml",
      "test/integration/query_node/complex.yml",
      "test/integration/query_node/dates.yml",
+     "test/integration/query_node/errors.yml",
      "test/integration/query_node/filters.yml",
+     "test/integration/query_node/properties.yml",
      "test/integration/query_node/relations.yml",
      "test/integration/query_node_test.rb",
      "test/integration/xml_api_test.rb",
@@ -1760,6 +1788,7 @@ Gem::Specification.new do |s|
      "test/integration/zafu_compiler/apphelper.yml",
      "test/integration/zafu_compiler/asset.yml",
      "test/integration/zafu_compiler/basic.yml",
+     "test/integration/zafu_compiler/calendar.yml",
      "test/integration/zafu_compiler/complex.yml",
      "test/integration/zafu_compiler/conditional.yml",
      "test/integration/zafu_compiler/data.yml",
@@ -1769,6 +1798,7 @@ Gem::Specification.new do |s|
      "test/integration/zafu_compiler/eval.yml",
      "test/integration/zafu_compiler/forms.yml",
      "test/integration/zafu_compiler/i18n.yml",
+     "test/integration/zafu_compiler/later.yml",
      "test/integration/zafu_compiler/off/off.yml",
      "test/integration/zafu_compiler/recursion.yml",
      "test/integration/zafu_compiler/relations.yml",
@@ -1779,8 +1809,8 @@ Gem::Specification.new do |s|
      "test/integration/zafu_compiler/security.yml",
      "test/integration/zafu_compiler/site.yml",
      "test/integration/zafu_compiler/urls.yml",
+     "test/integration/zafu_compiler/user.yml",
      "test/integration/zafu_compiler/version.yml",
-     "test/integration/zafu_compiler/visitor.yml",
      "test/integration/zafu_compiler/workflow.yml",
      "test/integration/zafu_compiler/zafu_attributes.yml",
      "test/integration/zafu_compiler/zazen.yml",
@@ -1988,6 +2018,8 @@ Gem::Specification.new do |s|
      "vendor/plugins/ar_mysql_full_text/lib/ar_mysql_full_text.rb",
      "vendor/plugins/gettext_i18n_rails/README.markdown",
      "vendor/plugins/gettext_i18n_rails/Rakefile",
+     "vendor/plugins/gettext_i18n_rails/VERSION",
+     "vendor/plugins/gettext_i18n_rails/gettext_i18n_rails.gemspec",
      "vendor/plugins/gettext_i18n_rails/init.rb",
      "vendor/plugins/gettext_i18n_rails/lib/gettext_i18n_rails.rb",
      "vendor/plugins/gettext_i18n_rails/lib/gettext_i18n_rails/action_controller.rb",
@@ -1997,14 +2029,16 @@ Gem::Specification.new do |s|
      "vendor/plugins/gettext_i18n_rails/lib/gettext_i18n_rails/i18n_hacks.rb",
      "vendor/plugins/gettext_i18n_rails/lib/gettext_i18n_rails/model_attributes_finder.rb",
      "vendor/plugins/gettext_i18n_rails/lib/gettext_i18n_rails/ruby_gettext_extractor.rb",
+     "vendor/plugins/gettext_i18n_rails/lib/tasks/gettext_rails_i18n.rake",
      "vendor/plugins/gettext_i18n_rails/spec/gettext_i18n_rails/action_controller_spec.rb",
      "vendor/plugins/gettext_i18n_rails/spec/gettext_i18n_rails/active_record_spec.rb",
      "vendor/plugins/gettext_i18n_rails/spec/gettext_i18n_rails/backend_spec.rb",
      "vendor/plugins/gettext_i18n_rails/spec/gettext_i18n_rails_spec.rb",
      "vendor/plugins/gettext_i18n_rails/spec/spec_helper.rb",
-     "vendor/plugins/gettext_i18n_rails/tasks/gettext_rails_i18n.rake",
      "vendor/plugins/mysql_timezone_utc/init.rb",
      "vendor/plugins/mysql_timezone_utc/lib/mysql_timezone_utc.rb",
+     "vendor/plugins/postgresql_timezone_utc/init.rb",
+     "vendor/plugins/postgresql_timezone_utc/lib/postgresql_timezone_utc.rb",
      "vendor/plugins/responds_to_parent/MIT-LICENSE",
      "vendor/plugins/responds_to_parent/README",
      "vendor/plugins/responds_to_parent/Rakefile",
@@ -2037,6 +2071,7 @@ Gem::Specification.new do |s|
      "test/functional/groups_controller_test.rb",
      "test/functional/iformats_controller_test.rb",
      "test/functional/links_controller_test.rb",
+     "test/functional/nodes_controller_commit_test.rb",
      "test/functional/nodes_controller_test.rb",
      "test/functional/note_controller_test.rb",
      "test/functional/pings_controller_test.rb",
@@ -2134,7 +2169,7 @@ Gem::Specification.new do |s|
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
       s.add_runtime_dependency(%q<tzinfo>, [">= 0.3.12"])
-      s.add_runtime_dependency(%q<rails>, ["= 2.3.4"])
+      s.add_runtime_dependency(%q<rails>, ["= 2.3.8"])
       s.add_runtime_dependency(%q<rubyless>, [">= 0.6.0"])
       s.add_runtime_dependency(%q<property>, [">= 1.1.0"])
       s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
@@ -2143,11 +2178,11 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<shoulda>, [">= 2.10.2"])
       s.add_runtime_dependency(%q<fast_gettext>, ["~> 0.4.16"])
       s.add_runtime_dependency(%q<syntax>, ["= 1.0.0"])
-      s.add_runtime_dependency(%q<yamltest>, [">= 0.6.0"])
+      s.add_runtime_dependency(%q<yamltest>, [">= 0.7.0"])
       s.add_runtime_dependency(%q<json>, [">= 1.1.9"])
       s.add_runtime_dependency(%q<will_paginate>, ["~> 2.3.12"])
       s.add_runtime_dependency(%q<gettext>, [">= 1.93.0"])
-      s.add_runtime_dependency(%q<versions>, [">= 0.3.0"])
+      s.add_runtime_dependency(%q<versions>, [">= 0.3.1"])
       s.add_runtime_dependency(%q<jeweler>, [">= 0"])
       s.add_runtime_dependency(%q<hpricot>, [">= 0"])
       s.add_runtime_dependency(%q<differ>, [">= 0.1.1"])
@@ -2156,7 +2191,7 @@ Gem::Specification.new do |s|
     else
       s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
       s.add_dependency(%q<tzinfo>, [">= 0.3.12"])
-      s.add_dependency(%q<rails>, ["= 2.3.4"])
+      s.add_dependency(%q<rails>, ["= 2.3.8"])
       s.add_dependency(%q<rubyless>, [">= 0.6.0"])
       s.add_dependency(%q<property>, [">= 1.1.0"])
       s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
@@ -2165,11 +2200,11 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<shoulda>, [">= 2.10.2"])
       s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
       s.add_dependency(%q<syntax>, ["= 1.0.0"])
-      s.add_dependency(%q<yamltest>, [">= 0.6.0"])
+      s.add_dependency(%q<yamltest>, [">= 0.7.0"])
       s.add_dependency(%q<json>, [">= 1.1.9"])
       s.add_dependency(%q<will_paginate>, ["~> 2.3.12"])
       s.add_dependency(%q<gettext>, [">= 1.93.0"])
-      s.add_dependency(%q<versions>, [">= 0.3.0"])
+      s.add_dependency(%q<versions>, [">= 0.3.1"])
       s.add_dependency(%q<jeweler>, [">= 0"])
       s.add_dependency(%q<hpricot>, [">= 0"])
       s.add_dependency(%q<differ>, [">= 0.1.1"])
@@ -2179,7 +2214,7 @@ Gem::Specification.new do |s|
   else
     s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
     s.add_dependency(%q<tzinfo>, [">= 0.3.12"])
-    s.add_dependency(%q<rails>, ["= 2.3.4"])
+    s.add_dependency(%q<rails>, ["= 2.3.8"])
     s.add_dependency(%q<rubyless>, [">= 0.6.0"])
     s.add_dependency(%q<property>, [">= 1.1.0"])
     s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
@@ -2188,11 +2223,11 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<shoulda>, [">= 2.10.2"])
     s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
     s.add_dependency(%q<syntax>, ["= 1.0.0"])
-    s.add_dependency(%q<yamltest>, [">= 0.6.0"])
+    s.add_dependency(%q<yamltest>, [">= 0.7.0"])
     s.add_dependency(%q<json>, [">= 1.1.9"])
     s.add_dependency(%q<will_paginate>, ["~> 2.3.12"])
     s.add_dependency(%q<gettext>, [">= 1.93.0"])
-    s.add_dependency(%q<versions>, [">= 0.3.0"])
+    s.add_dependency(%q<versions>, [">= 0.3.1"])
     s.add_dependency(%q<jeweler>, [">= 0"])
     s.add_dependency(%q<hpricot>, [">= 0"])
     s.add_dependency(%q<differ>, [">= 0.1.1"])

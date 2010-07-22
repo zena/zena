@@ -404,5 +404,10 @@ module Zena
 
       tables
     end
+
+    # Return true if we can load models because the database has the basic tables.
+    def migrated_once?
+      connection.tables.include?('nodes')
+    end
   end # Db
 end # Zena

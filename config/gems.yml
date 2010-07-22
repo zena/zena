@@ -17,7 +17,7 @@ yamltest:       '>= 0.7.0'
 rubyless:       '>= 0.6.0'
 property:       '>= 1.1.0'
 versions:       '>= 0.3.1'
-zafu:           '>= 0.6.1'
+zafu:           '>= 0.6.2'
 
 jeweler:
 
