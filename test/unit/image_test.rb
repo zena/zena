@@ -64,6 +64,11 @@ class ImageTest < Zena::Unit::TestCase
       should 'build filepath from title' do
         assert_match /birdy.jpg/, subject.filepath
       end
+      
+      should 'save default text' do
+        node = secure(Node) { Node.find(subject.id) }
+        assert_equal "!#{subject.zip}!", node.text
+      end
 
       # should 'write file to filesystem' do
       # Moved to Attachment test (no transactional fixtures)

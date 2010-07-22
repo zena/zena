@@ -2,12 +2,12 @@
 
 FileUtils
 
-if RUBY_PLATFORM =~ /mswin32/
+if FileUtils.send(:fu_have_symlink?)
   class << FileUtils
-    alias symlink_or_copy cp_r
+    alias symlink_or_copy ln_s
   end
 else
   class << FileUtils
-    alias symlink_or_copy ln_s
+    alias symlink_or_copy cp_r
   end
 end

@@ -20,7 +20,7 @@ class DocumentsControllerTest < Zena::Controller::TestCase
         get_subject
         assert_response :success
       end
-    end # uploading a document
+    end # viewing a document
   end # An anonymous user
 
   context 'A user' do

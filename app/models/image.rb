@@ -221,6 +221,8 @@ class Image < Document
     def set_default_text
       if text.blank?
         self.text = "!#{zip}!"
+        # We need to rebuild the serialized data in version
+        dump_properties
       end
     end
 

@@ -110,8 +110,8 @@ class CachedPage < ActiveRecord::Base
       # create cache file
       filepath = "#{SITES_ROOT}#{path}"
       FileUtils.mkpath(File.dirname(filepath))
+      FileUtils.rm(filepath) if File.exist?(filepath)
       if content_path
-        FileUtils.rm(filepath) if File.exist?(filepath)
         FileUtils.symlink_or_copy(content_path, filepath)
       else
         File.open(filepath, "wb+") { |f| f.write(content_data) }
