@@ -462,7 +462,8 @@ namespace :zena do
     # FIXME: how to run sub-task
     ENV['RAILS_ENV'] = RAILS_ENV || 'production'
     ENV['HOST']      ||= 'localhost'
-    ENV['LANG']      ||= 'en'
+    ENV['LANG']        = ENV['LANG'].to_s
+    ENV['LANG']        = 'en' if ENV['LANG'].empty?
     ENV['PASSWORD']  ||= 'admin'
 
     Rake::Task["db:create"].invoke
