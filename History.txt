@@ -1,3 +1,16 @@
+== 1.0.0.beta1 2010-07-23
+
+* major changes
+ * complete rewrite of the storage engine (Property gem)
+ * rewrite of the template engine Zafu to use RubyLess
+ * rewrite of the query compilation engine to use RubyLess and offer better introspection
+ * XML API with support for query builder queries
+ * enhanced attributes support (indexing, inheritance, type)
+ * changed bricks layout to be like gems
+ * pdf generation support
+ * started PostgreSQL support
+ * inline JS windows instead of popup with attach/dettach support
+
 == 0.16.6 2010-04-23
 
 * 1 minor enhancement

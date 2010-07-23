@@ -24,7 +24,6 @@ class Attachment < Versions::SharedAttachment
         next if k == :updated_at
         fpath = filepath(v)
         if File.exist?(fpath)
-          puts "remove #{fpath}"
           FileUtils.rm(fpath)
           folder = File.dirname(fpath)
           if Dir.empty?(folder)
