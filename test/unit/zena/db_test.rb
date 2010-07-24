@@ -27,7 +27,7 @@ class DbTest < Zena::Unit::TestCase
   def test_insensitive_find
     assert_equal nodes_zip(:status), secure(Node) { Zena::Db.insensitive_find(Node, :first, :node_name => 'sTatuS')}.zip
   end
-  
+
   def test_next_zip_rollback
     assert_raise(Zena::BadConfiguration) { Zena::Db.next_zip(88) }
     assert_equal zips_zip(:zena ) + 1, Zena::Db.next_zip(sites_id(:zena))
@@ -47,7 +47,7 @@ class DbTest < Zena::Unit::TestCase
      {"node_name"=>"skins", "zip"=>"51"},
      {"node_name"=>"style", "zip"=>"53"}], Zena::Db.fetch_attributes(['zip','node_name'], 'nodes', "node_name like 's%' and site_id = #{sites_id(:zena)} ORDER BY zip")
   end
-  
+
   def test_migrated_once
     assert Zena::Db.migrated_once?
   end

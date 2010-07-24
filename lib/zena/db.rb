@@ -404,6 +404,36 @@ module Zena
 
       tables
     end
+    
+    def prepare_connection_for_timezone
+      # Fixes #98
+      case ActiveRecord::Base.configurations[RAILS_ENV]['adapter']
+      when 'mysql'
+        # Fixes timezone to "+0:0"
+        raise "MySQL timezone UTC required too late, connection already active." if Class.new(ActiveRecord::Base).connected?
+
+        ActiveRecord::ConnectionAdapters::MysqlAdapter.class_eval do
+          def configure_connection_with_timezone
+            configure_connection_without_timezone
+            tz = ActiveRecord::Base.default_timezone == :utc ? "+0:0" : "SYSTEM"
+            execute("SET time_zone = '#{tz}'")
+          end
+          alias_method_chain :configure_connection, :timezone
+        end
+      when 'postgresql'
+        # Fixes timezone to "+0:0"
+        raise "PostgreSQL timezone UTC required too late, connection already active." if Class.new(ActiveRecord::Base).connected?
+
+        ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.class_eval do
+          def configure_connection_with_timezone
+            configure_connection_without_timezone
+            tz = ActiveRecord::Base.default_timezone == :utc ? "UTC" : "SYSTEM"
+            execute("SET TIMEZONE = '#{tz}'")
+          end
+          alias_method_chain :configure_connection, :timezone
+        end
+      end
+    end
 
     # Return true if we can load models because the database has the basic tables.
     def migrated_once?

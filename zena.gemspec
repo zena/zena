@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{zena}
-  s.version = "1.0.0.beta1"
+  s.version = "1.0.0.beta2"
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2010-07-23}
+  s.date = %q{2010-07-24}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -2035,10 +2035,6 @@ Gem::Specification.new do |s|
      "vendor/plugins/gettext_i18n_rails/spec/gettext_i18n_rails/backend_spec.rb",
      "vendor/plugins/gettext_i18n_rails/spec/gettext_i18n_rails_spec.rb",
      "vendor/plugins/gettext_i18n_rails/spec/spec_helper.rb",
-     "vendor/plugins/mysql_timezone_utc/init.rb",
-     "vendor/plugins/mysql_timezone_utc/lib/mysql_timezone_utc.rb",
-     "vendor/plugins/postgresql_timezone_utc/init.rb",
-     "vendor/plugins/postgresql_timezone_utc/lib/postgresql_timezone_utc.rb",
      "vendor/plugins/responds_to_parent/MIT-LICENSE",
      "vendor/plugins/responds_to_parent/README",
      "vendor/plugins/responds_to_parent/Rakefile",

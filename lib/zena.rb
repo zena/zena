@@ -159,6 +159,7 @@ module Zena
       # do not change this !
       ActiveRecord::Base.default_timezone = :utc
       ENV['TZ'] = 'UTC'
+      Zena::Db.prepare_connection_for_timezone
     end
 
     def add_inflections
