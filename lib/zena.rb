@@ -212,12 +212,11 @@ unless File.exist?(File.join(RAILS_ROOT, 'config', 'database.yml'))
   FileUtils.cp(File.join(Zena::ROOT, 'config', 'database_example.yml'), File.join(RAILS_ROOT, 'config', 'database.yml'))
 end
 
-unless File.exist?(File.join(RAILS_ROOT, 'log'))
-  FileUtils.mkpath(File.join(RAILS_ROOT, 'log'))
-end
-
-unless File.exist?(File.join(RAILS_ROOT, 'sites'))
-  FileUtils.mkpath(File.join(RAILS_ROOT, 'sites'))
+%w{log sites}.each do |dir|
+  path = File.join(RAILS_ROOT, dir)
+  if !File.exist?(path) && !File.symlink?(path)
+    FileUtils.mkpath(path)
+  end
 end
 
 # this list is taken from http://www.duke.edu/websrv/file-extensions.html

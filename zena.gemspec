@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{zena}
-  s.version = "1.0.0.beta2"
+  s.version = "1.0.0.beta3"
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2010-07-24}
+  s.date = %q{2010-08-23}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -291,6 +291,12 @@ Gem::Specification.new do |s|
      "bricks/data2pdf/test/unit/test_rendering.rb",
      "bricks/math/lib/bricks/math.rb",
      "bricks/math/zena/init.rb",
+     "bricks/mongrel/README",
+     "bricks/mongrel/zena/deploy.rb",
+     "bricks/mongrel/zena/tasks.rb",
+     "bricks/passenger/README",
+     "bricks/passenger/zena/deploy.rb",
+     "bricks/passenger/zena/tasks.rb",
      "bricks/sphinx/MIT-LICENSE",
      "bricks/sphinx/README",
      "bricks/sphinx/lib/use_sphinx.rb",

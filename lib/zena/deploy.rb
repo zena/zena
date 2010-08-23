@@ -30,9 +30,12 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   set :templates, File.join(File.dirname(__FILE__), 'deploy')
   self[:app_type]   ||= :mongrel
-  self[:app_root]   ||= '/var/zena/current'
-  self[:sites_root] ||= '/var/www/zena'
+  self[:app_root]   ||= "/var/#{db_name}/current"
+  puts self[:app_root].inspect
+
+  self[:sites_root] ||= "/var/www/#{db_name}"
   self[:balancer]   ||= db_name
+  self[:db_user]    ||= db_name
   self[:runner]     ||= 'root'
   self[:on_stop]    = []
   self[:on_start]   = []
@@ -102,7 +105,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   desc "update symlink to 'sites' directory"
   task :app_update_symlinks, :roles => :app do
-    run "test ! -e #{deploy_to}/current/sites || rm #{deploy_to}/current/sites"
+    run "test ! -e #{deploy_to}/current/sites || rm -rf #{deploy_to}/current/sites || true"
     run "ln -sf #{sites_root} #{deploy_to}/current/sites"
     set_permissions
   end
@@ -114,10 +117,12 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   desc "initial app setup"
   task :app_setup, :roles => :app do
-    gem_update
-    run "test -e #{deploy_to}  || mkdir #{deploy_to}"
-    run "test -e #{sites_root} || mkdir #{sites_root}"
-    deploy::setup
+    [ deploy_to,
+      "#{deploy_to}/shared",
+      "#{deploy_to}/shared/log",
+      sites_root].each do |dir|
+      run "test -e #{dir}  || mkdir #{dir}"
+    end
   end
 
   #========================== MANAGE HOST   =========================#
@@ -173,9 +178,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       run "test -e /etc/apache2/sites-enabled/#{self[:host]} || a2ensite #{self[:host]}" if debian_host
 
       unless self[:host] =~ /^www/
-        vhost_www = render("#{templates}/vhost_www.rhtml",
-                      :host        => self[:host]
-                      )
+        vhost_www = render("#{templates}/vhost_www.rhtml", :config => self)
         put(vhost_www, "#{vhost_root}/www.#{self[:host]}")
         run "test -e /etc/apache2/sites-enabled/www.#{self[:host]} || a2ensite www.#{self[:host]}" if debian_host
       end
@@ -193,13 +196,13 @@ Capistrano::Configuration.instance(:must_exist).load do
         puts "host or password not set (use -s host=... -s pass=...)"
       else
         # create awstats config file
-        awstats_conf = render("#{templates}/awstats.conf.rhtml", :host => self[:host] )
+        awstats_conf = render("#{templates}/awstats.conf.rhtml", :config => self)
         put(awstats_conf, "/etc/awstats/awstats.#{self[:host]}.conf")
         run "chown www-data:www-data /etc/awstats/awstats.#{self[:host]}.conf"
         run "chmod 640 /etc/awstats/awstats.#{self[:host]}.conf"
 
         # create stats vhost
-        stats_vhost = render("#{templates}/stats.vhost.rhtml", :host => self[:host] )
+        stats_vhost = render("#{templates}/stats.vhost.rhtml", :config => self)
         put(stats_vhost, "#{vhost_root}/stats.#{self[:host]}")
         run "test -e /etc/apache2/sites-enabled/stats.#{self[:host]} || a2ensite stats.#{self[:host]}"
 
@@ -211,7 +214,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         run "cat /etc/cron.d/awstats | grep \"#{self[:host]}\" || echo \"0,10,20,30,40,50 * * * * www-data [ -x /usr/lib/cgi-bin/awstats.pl -a -f /etc/awstats/awstats.#{self[:host]}.conf -a -r #{sites_root}/#{self[:host]}/log/apache2.access.log ] && /usr/lib/cgi-bin/awstats.pl -config=#{self[:host]} -update >/dev/null\n\" >> /etc/cron.d/awstats"
 
         # create .htpasswd file
-        run "test ! -e #{sites_root}/#{self[:host]}/log/.awstatspw || rm #{sites_root}/#{self[:host]}/log/.awstatspw"
+        run "test ! -e #{sites_root}/#{self[:host]}/log/.awstatspw || rm #{sites_root}/#{self[:host]}/log/.awstatspw || true"
         run "htpasswd -c -b #{sites_root}/#{self[:host]}/log/.awstatspw 'admin' '#{self[:pass]}'"
         run "chmod 600 #{sites_root}/#{self[:host]}/log/.awstatspw"
         run "chown www-data:www-data #{sites_root}/#{self[:host]}/log/.awstatspw"
@@ -269,7 +272,9 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   desc "Apache2 initial setup"
   task :apache2_setup, :roles => :web do
-    self[:ports] = (mongrel_port.to_i...(mongrel_port.to_i + mongrel_count.to_i)).to_a
+    if self[:mongrel_port]
+      self[:ports] = (mongrel_port.to_i...(mongrel_port.to_i + mongrel_count.to_i)).to_a
+    end
     httpd_conf = render("#{templates}/httpd.rhtml", :config => self)
     log_rotate = render("#{templates}/logrotate_app.rhtml", :config => self)
     if debian_host
@@ -293,7 +298,6 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   desc "install zena gem on remote server"
   task :gem_update, :roles => :app do
-    run "gem sources -a http://gems.github.com"
     run "gem install zena"
   end
 
@@ -337,24 +341,6 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
   end
 
-
-  desc "Full initial setup"
-  task :initial_setup do
-    transaction do
-      app_setup
-
-      db_setup
-
-      deploy::update
-
-      apache2_setup
-
-      set_permissions
-
-      start
-    end
-  end
-
   desc "Database dump"
   task :db_dump, :roles => :db do
     run "mysqldump #{db_name} -u root -p > #{deploy_to}/current/#{db_name}.sql" do |channel, stream, data|
@@ -387,55 +373,24 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   Bricks.load_filename('deploy')
 
+  #========================== DEPLOY ===============================#
 
-  #========================== MONGREL ===============================#
-  namespace :mongrel do
+  namespace :zena do
+    desc "Prepare server for deployment"
+    task :setup, :roles => :app do
+      transaction do
+        app_setup
 
-    desc "configure mongrel"
-    task :configure, :roles => :app do
-      run "#{in_current} mongrel_rails cluster::configure -e production -p #{mongrel_port} -N #{mongrel_count} -c #{deploy_to}/current -P log/mongrel.pid -l log/mongrel.log -a 127.0.0.1 --user www-data --group www-data"
-      run "#{in_current} echo 'config_script: config/mongrel_upload_progress.conf' >> config/mongrel_cluster.yml"
-    end
+        db_setup
 
-    desc "Stop the drb upload_progress server"
-    task :upload_progress_stop , :roles => :app do
-      run "#{in_current} ruby lib/upload_progress_server.rb stop"
-    end
-
-    desc "Start the drb upload_progress server"
-    task :upload_progress_start , :roles => :app do
-      run "#{in_current} lib/upload_progress_server.rb start"
-    end
-
-    desc "Restart the upload_progress server"
-    task :upload_progress_restart, :roles => :app do
-      upload_progress_stop
-      upload_progress_start
-    end
-
-    desc "Restart mongrels"
-    task :restart, :roles => :app do
-      stop
-      start
-    end
-
-    desc "Start mongrels"
-    task :start, :roles => :app do
-      configure
-      upload_progress_start
-      run "#{in_current} mongrel_rails cluster::start"
-    end
-
-    desc "Stop mongrels"
-    task :stop, :roles => :app do
-      configure
-      upload_progress_stop
-      run "#{in_current} mongrel_rails cluster::stop"
+        apache2_setup
+      end
     end
   end
 
-  namespace :deploy do
+  before 'deploy:setup', 'zena:setup'
 
+  namespace :deploy do
     desc "Restart application"
     task :restart, :roles => :app do
 
@@ -446,12 +401,8 @@ Capistrano::Configuration.instance(:must_exist).load do
       self[:on_start].each do |block|
         block.call
       end
-      case self[:app_type]
-      when :mongrel
-        mongrel.restart
-      else
-        puts "'#{self[:app_type]}' not supported."
-      end
+
+      app.restart
     end
 
     desc "Start application"
@@ -461,12 +412,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         block.call
       end
 
-      case self[:app_type]
-      when :mongrel
-        mongrel.start
-      else
-        puts "'#{self[:app_type]}' not supported."
-      end
+      app.start
     end
 
     desc "Stop application"
@@ -476,14 +422,8 @@ Capistrano::Configuration.instance(:must_exist).load do
         block.call
       end
 
-      case self[:app_type]
-      when :mongrel
-        mongrel.stop
-      else
-        puts "'#{self[:app_type]}' not supported."
-      end
+      app.stop
     end
 
-  end
-
+  end # mongrel/deploy
 end

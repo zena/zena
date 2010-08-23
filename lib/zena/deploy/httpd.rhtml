@@ -3,7 +3,8 @@
 
 NameVirtualHost *
 <% if config[:app_type] == :passenger  %>
-LoadModule upload_progress_module <%= config[:app_root] %>/vendor/apache2_upload_progress/mod_upload_progress.so
+LoadModule upload_progress_module /usr/lib/apache2/modules/mod_upload_progress.so
+PassengerDefaultUser www-data
 <% elsif config[:app_type] == :mongrel %>
 <Proxy *>
   Order allow,deny

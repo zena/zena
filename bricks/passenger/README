@@ -1,0 +1,3 @@
+This brick contains rules to deploy a Zena application by using Passenger.
+
+You should enable this brick if and only if you intend to deploy your application with Passenger.
