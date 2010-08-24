@@ -12,6 +12,7 @@ module Zena
 
         # Group an array of records by key.
         def group_array(list)
+          return nil if list.empty?
           groups = []
           h = {}
           list.each do |e|
@@ -156,30 +157,29 @@ module Zena
           #if sort_block
           #  out "<% grp_#{list_var} = sort_array(#{group_array}) #{sort_block} -%>"
           #else
-            out "<% #{var} = group_array(#{node}) {|e| #{key}} -%>"
           #end
 
-          if descendant('each_group')
-            out expand_with(:group => var)
-          else
-            @context[:group] = var
-            r_each_group
-          end
+          out "<% if #{var} = group_array(#{node}) {|e| #{key}} -%>"
+            open_node_context("group_array(#{node}) {|e| #{key}}", :node => node.move_to(var, [node.klass])) do
+              if child['each_group']
+                out expand_with
+              else
+                @var = nil
+                r_each
+              end
+            end
+          out "<% end -%>"
+
+          #if descendant('each_group')
+          #  out expand_with(:group => var)
+          #else
+          #  @context[:group] = var
+          #  r_each_group
+          #end
         end
 
-
         def r_each_group
-          return parser_error("must be used inside a group context") unless group = @context[:group]
-          if join = @params[:join]
-            join = join.gsub(/&lt;([^%])/, '<\1').gsub(/([^%])&gt;/, '\1>')
-            out "<% #{group}.each_with_index do |#{var}, #{var}_i| -%>"
-            out "<%= #{var}_i > 0 ? #{join.inspect} : '' %>"
-          else
-            out "<% #{group}.each do |#{var}| -%>"
-          end
-
-          out wrap(expand_with(:group => nil, :node => node.move_to(var, node.klass)))
-          out "<% end -%>"
+          r_each
         end
       end # ZafuMethods
     end # Context

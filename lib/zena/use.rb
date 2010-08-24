@@ -9,16 +9,16 @@ module Zena
     class << self
       attr_accessor :modules
 
-      # Delcare a module (or list of modules) that should be used in Zena. The module should implement
+      # Declare a module (or list of modules) that should be used in Zena. The module should implement
       # sub-modules named ControllerMethods, ViewMethods or ZafuMethods in order to add features to
       # the controller, view or zafu compiler respectively.
       def module(*modules)
         create_module_hash
 
         modules.flatten.each do |mod|
-          MODULE_NAME.each do |key, module_name|
+          MODULE_NAME.each do |key, sub_module_name|
             begin
-              self.modules[key] << mod.const_get(module_name)
+              self.modules[key] << mod.const_get(sub_module_name)
             rescue NameError
               # ignore
             end

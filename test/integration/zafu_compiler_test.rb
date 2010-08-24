@@ -25,10 +25,10 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     'zafu_attributes',
     'zazen',
     'security',
+    'ajax',
   ]
 
   BUG = [
-    'ajax',
     'apphelper',
     'basic',
     'complex',
@@ -39,7 +39,7 @@ class ZafuCompilerTest < Zena::Controller::TestCase
 
   LATER = %w{later}
 
-  yamltest :directories => ([:default] + Bricks.zafu_tests), :files => OK #+ BUG
+  yamltest :directories => ([:default] + Bricks.zafu_tests), :files => OK
 
   Section # make sure we load Section links before trying relations
 

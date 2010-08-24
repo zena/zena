@@ -10,7 +10,7 @@ class Comment < ActiveRecord::Base
 
   safe_attribute    :title, :created_at, :updated_at, :status
   safe_method       :text => String, :author_name => {:class => String, :nil => true},
-                    :discussion_zip => Number
+                    :discussion_id => Number
 
   safe_context      :replies => ['Comment'], :node => 'Node'
 
@@ -62,11 +62,6 @@ class Comment < ActiveRecord::Base
   # needed by zafu for ajaxy stuff
   def zip
     self[:id]
-  end
-
-  # needed by zafu to group
-  def discussion_zip
-    self[:discussion_id]
   end
 
   # TODO: test

@@ -2,7 +2,6 @@ require File.join(File.dirname(__FILE__), 'info')
 
 Zena::Use.module  [
   Zena::Use::Action,
-  Zena::Use::Ajax,
   Zena::Use::Authlogic,
   Zena::Use::Calendar,
   Zena::Use::Context,
@@ -17,6 +16,8 @@ Zena::Use.module  [
   Zena::Use::QueryBuilder,
   Zena::Use::Refactor,
   Zena::Use::Rendering,
+  # Ajax must appear after rendering because it uses 'super' in js_render
+  Zena::Use::Ajax,
   Zena::Use::Upload,
   Zena::Use::Urls,
   Zena::Use::ZafuAttributes,

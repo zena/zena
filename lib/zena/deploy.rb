@@ -31,7 +31,6 @@ Capistrano::Configuration.instance(:must_exist).load do
   set :templates, File.join(File.dirname(__FILE__), 'deploy')
   self[:app_type]   ||= :mongrel
   self[:app_root]   ||= "/var/#{db_name}/current"
-  puts self[:app_root].inspect
 
   self[:sites_root] ||= "/var/www/#{db_name}"
   self[:balancer]   ||= db_name

@@ -15,19 +15,6 @@ add:
   'ajax/add/en/children_form.erb': "/class='form' id='<%= ndom_id\(@node\) %>'/"
   'ajax/add/en/children.erb': "<li id='<%= ndom_id(@node) %>'><a href='<%= zen_path(@node) %>'><%= @node.prop['title'] %></a></li>"
 
-zazen_edit:
-  src: "<r:zazen attr='node_name' edit='true'/>"
-  tem: "<div class='zazen' id='list1_name'><% if @node.can_write? -%><span class='zazen_edit'><%= link_to_remote(\"edit\", :url => edit_node_path(@node.zip) + \"?attribute=name&dom_id=list1_name&zazen=true\", :method => :get) %></span><% end -%><%= zazen(@node.name, :node=>@node) %></div>"
-  res: "/div class='zazen' id='list1_name'>.*Ajax\.Request\('/nodes/22/edit\?attribute=name/"
-
-zazen_edit_publish_force:
-  src: "<r:zazen attr='d_some_attr' edit='true' publish='force'/>"
-  tem: "/attribute=d_some_attr&dom_id=.*_some_attr&publish=force&zazen=true/"
-
-zazen_edit_publish_true:
-  src: "<r:zazen attr='d_some_attr' edit='true' publish='true'/>"
-  tem: "/attribute=d_some_attr&dom_id=.*_some_attr&publish=true&zazen=true/"
-
 edit_not_each:
   src: "<li class='blah'>this is a post <r:edit>edit post</r:edit></li>"
   res: "/<li class='blah'>this is a post <a href='/nodes/22/edit'>edit</a></li>/"
@@ -53,7 +40,7 @@ each_add_with_form:
       <li do='add'>add new</li>
       <li do='form'><input name='title'/> this is the form</li>
     </ol>
-  res: "/<li id='list1_30'>bird.*<li id='list1_31'>flower.*<li.*list1_add.*list1_form.*toggle.*<li style.*none.*list1_form.*Ajax.Request.*input type='hidden' name='t_url' value=.ajax/each/add/with/form/list1.*input type='hidden' name='node\[parent_id\]' value=.29./"
+  res: "/<li id='list2_30'>bird.*<li id='list2_31'>flower.*<li.*list1_add.*list1_form.*toggle.*<li style.*none.*list1_form.*Ajax.Request.*input type='hidden' name='t_url' value=.ajax/each/add/with/form/list1.*input type='hidden' name='node\[parent_id\]' value=.29./"
 
 each_add_with_form_in_sub_block:
   context:
@@ -88,7 +75,7 @@ each_edit_with_form:
   context:
     node: 'wiki'
   src: "<r:children><li do='each'><r:show attr='node_name'>blah</r:show> <r:edit>edit</r:edit></li>\n<r:form><li><form>this is the form</form></li></r:form></r:children>"
-  res: "/<li id='list1_30'>bird <a href='/nodes/30/edit' onclick='new Ajax.Request\(\"/nodes/30/edit\?.*t_url=ajax%2Feach%2Fedit%2Fwith%2Fform%2Flist1_form/"
+  res: "/<li id='list2_30'>bird <a href='/nodes/30/edit' onclick='new Ajax.Request\(\"/nodes/30/edit\?.*t_url=ajax%2Feach%2Fedit%2Fwith%2Fform%2Flist2_form/"
 
 make_form:
   src: "<ul do='children'><li do='each' do='node_name'/><li do='add'/></ul>"
@@ -101,7 +88,7 @@ each_edit_cannot_write:
     node: 'cleanWater'
     visitor: 'anon'
   src: "<r:children><li do='each'><r:show attr='node_name'>blah</r:show> <r:edit>edit</r:edit></li>\n</r:children>"
-  res: "/<li id='list1_24'>lake</li>.*/"
+  res: "/<li id='list2_24'>lake</li>.*/"
 
 add_each_publish:
   src: "<ul do='children' id='things'><li do='each'>I <p do='node_name'>blah</p></li><li do='add' publish='true'/></ul>"
@@ -167,6 +154,13 @@ draggable_true:
   src: "<r:link draggable='true'/>"
   tem: "/add_drag_id\(\"list1_\#\{@node.zip\}\", .*drag_handle/"
 
+draggable_in_block:
+  # should use 'hooba' class
+  src: "<r:block><r:link draggable='true'/></r:block>"
+  tem: "/add_drag_id\(\"list1_\#\{@node.zip\}\", .*hooba/"
+  res: "<div class='drag' id='list1_22'><a href='/oo/projects/cleanWater/page22.html'>status title</a></div>"
+  js:  "/Zena.draggable\(item, \"hooba\"\)/"
+
 draggable_with_id_set:
   # should not change original id
   src: "<h1 id='title' do='title' draggable='true'/>"
@@ -223,7 +217,7 @@ drop_param:
 
 drop_param_in_each:
   src: "<r:pages do='each' do='drop' change='params' d='foo'><r:show eval='params[:d]'/></r:pages>"
-  tem: "/<div class='drop' id='<%= %Q\{list1_#\{var2.zip\}\} %>'><% add_drop_id\(\"list1_#\{var2.zip\}\"/"
+  tem: "/<div class='drop' id='<%= %Q\{list2_#\{var2.zip\}\} %>'><% add_drop_id\(\"list2_#\{var2.zip\}\"/"
 
 update_target:
   src: "UT: <div id='foo' do='block'>...</div> <r:link update='foo'/>"
@@ -234,8 +228,8 @@ include_update_target:
   tem: "/IUT: UT: <div id='foo'><%= @node.node_name %></div> <a .*zen_path.*onclick='new Ajax.Request/"
 
 id_in_each_group_should_be_scoped:
-  src: "<ul do='comments from nodes in site' do='group' by='discussion_id'><li do='each_group'><r:node do='block' do='swap' states='1,2' attr='custom_a' do='[custom_a]'/></li></ul>"
-  tem: "/grp_list1.each.*<div id='list1_<%= var1.zip %>/"
+  src: "<ul do='comments from nodes in site' do='group' by='discussion_id'><li do='each'><r:node do='block' do='title'/></li></ul>"
+  tem: "/<div id='<%= %Q\{list1_#\{var4.zip\}\} %>'>/"
 
 link_page_next:
   context:
