@@ -33,7 +33,10 @@ module Zena
             rescue ::QueryBuilder::Error => err
               return opts[:errors] ? err : nil
             end
-            self.class.do_find(count, eval(query.to_s))
+
+            type = [:all, :first].include?(count) ? :find : count
+
+            self.class.do_find(count, eval(query.to_s(type)))
           end
         end
 

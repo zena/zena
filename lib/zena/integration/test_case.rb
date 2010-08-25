@@ -10,7 +10,7 @@ module Zena
         Page.logger
       end
 
-      # Mock request to remote service by doing a call to the integration test.
+      # Mock ActiveResource request to remote service by doing a call to the integration test.
       def request(method, path, *arguments)
         case method
         when :get, :delete, :head
@@ -21,14 +21,19 @@ module Zena
           # The params here contain an xml string representing the request body.
           params  = arguments.first
         end
-        logger.info "#{method.to_s.upcase} #{site.scheme}://#{site.host}#{path} (#{arguments.last.inspect})" if logger
+        test_request(method, path, params, headers)
+      end
+
+      # Mock HTTParty::Request request
+      def test_request(method, path, params, headers, parse_response = true)
+        logger.info "#{method.to_s.upcase} #{site.scheme}://#{site.host}#{path} (#{headers.inspect})" if logger
         result = nil
         ms = Benchmark.ms do
           @test.send(method, "#{site.scheme}://#{site.host}#{path}", params, headers)
           result = @test.response
         end
         logger.info "--> %d %s (%d %.0fms)" % [result.code, result.message, result.body ? result.body.length : 0, ms] if logger
-        handle_response(result)
+        parse_response ? handle_response(result) : result
       rescue Timeout::Error => e
         raise TimeoutError.new(e.message)
       end

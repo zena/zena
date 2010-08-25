@@ -81,5 +81,16 @@ class SerializableTest < Zena::Unit::TestCase
       end
 
     end # on a node
+
+    context 'on many nodes' do
+      subject do
+        Hash.from_xml(secure(Node) { Node.search_records(:qb => 'images in site') }.to_xml(:root => 'nodes'))
+      end
+
+      should 'use nodes as root' do
+        assert subject['nodes']
+        assert_equal 4, subject['nodes'].size
+      end
+    end # on many nodes
   end # A visitor with read access
 end

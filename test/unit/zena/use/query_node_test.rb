@@ -60,6 +60,18 @@ class QueryNodeTest < Zena::Unit::TestCase
         assert_equal Hash['versions_count', '2'], subject.db_attr
       end
     end
+
+    should 'return an array on find all' do
+      assert_kind_of Array, subject.find(:all, 'images in site')
+    end
+
+    should 'return a record on find first' do
+      assert_kind_of Node, subject.find(:first, 'images in site')
+    end
+
+    should 'return a number on find count' do
+      assert_equal 4, subject.find(:count, 'images in site')
+    end
   end # An object with QueryNode::ModelMethods
 
   context 'Building a query' do
@@ -72,7 +84,7 @@ class QueryNodeTest < Zena::Unit::TestCase
         assert subject.main_class < Document
       end
     end # with a real class filter
-    
+
     context 'with root' do
       subject do
         Node.build_query(:all, 'root')

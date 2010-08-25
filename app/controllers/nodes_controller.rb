@@ -54,7 +54,16 @@ class NodesController < ApplicationController
     do_search
     respond_to do |format|
       format.html { render_and_cache :mode => '+search', :cache => false }
-      format.xml { render :xml => @nodes ? @nodes.to_xml : []}
+      format.xml do
+        if @nodes.kind_of?(Fixnum)
+          # count
+          render :xml => "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<count type=\"integer\">#{@nodes}</count>\n"
+        elsif @nodes
+          render :xml => Array(@nodes).to_xml(:root => 'nodes')
+        else
+          render :xml => []
+        end
+      end
       format.js
     end
   end
@@ -572,9 +581,16 @@ class NodesController < ApplicationController
       end
 
       @node = current_site.root_node
-      @search_per_page = params[:per_page] ? params[:per_page].to_i : 20
-      @nodes = secure(Node) { Node.search_records(query_params, :node => @node, :page => params[:page], :per_page => @search_per_page) }
-      @search_count = 100 # FIXME: @nodes ? @nodes.total_entries : 0
+
+      if request.format != Mime::XML || params[:page] || params[:per_page]
+
+        @search_per_page = params[:per_page] ? params[:per_page].to_i : 20
+        @nodes = secure(Node) { Node.search_records(query_params, :node => @node, :page => params[:page], :per_page => @search_per_page) }
+        @search_count = 100 # FIXME: @nodes ? @nodes.total_entries : 0
+      else
+        # XML without pagination
+        @nodes = secure(Node) { Node.search_records(query_params, :node => @node) }
+      end
     end
 
     # Document data do not change session[:lang] and can point at cached content (no nee to redirect to AUTHENTICATED_PREFIX).

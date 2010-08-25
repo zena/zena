@@ -44,10 +44,11 @@ module Zena
             page = 1 if page < 1
             search_records(query, options.merge(:offset => (page - 1) * per_page, :limit => per_page))
           else
-            # Removed pagination clause
+            # Removed pagination clause or no pagination
             if query.kind_of?(Hash)
               search_index(query, options)
             else
+              # TODO: should we parse :_find (all, first, count) here ?
               search_text(query, options)
             end
           end
@@ -55,6 +56,8 @@ module Zena
 
         # Execute an index search using query builder. Either provide a full query with 'qb' or 'key'='value' parameters.
         def search_index(params, options = {})
+          count = (params.delete(:_find) || :all).to_sym
+
           query = ::QueryBuilder::Query.new(Node.query_compiler)
           query.add_table(query.main_table)
           filters = []
@@ -69,7 +72,7 @@ module Zena
             query = "nodes where #{query_args.join(' and ')} in site"
           end
 
-          res = current_site.root_node.find(:all, query, :errors => true, :rubyless_helper => self)
+          res = current_site.root_node.find(count, query, :errors => true, :rubyless_helper => self)
 
           if res.kind_of?(Exception)
             raise ActiveRecord::StatementInvalid.new("Error parsing query #{query.inspect} (#{res.message})")
