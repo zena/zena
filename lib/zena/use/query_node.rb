@@ -30,6 +30,10 @@ module Zena
           else
             begin
               query = self.class.build_query(count, rel, :node_name => 'self', :main_class => Zena::Acts::Enrollable.make_class(self.vclass), :rubyless_helper => (opts[:rubyless_helper] || self))
+              if limit = opts[:limit]
+                query.limit  = " LIMIT #{limit.to_i}"
+                query.offset = " OFFSET #{opts[:offset].to_i}"
+              end
             rescue ::QueryBuilder::Error => err
               return opts[:errors] ? err : nil
             end

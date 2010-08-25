@@ -632,7 +632,7 @@ END:VCALENDAR
     get 'search', 'qb' => 'nodes where (set_tag_id = 33 and hot_id = 22) in site'
     assert_response :success
     assert nodes = assigns(:nodes)
-    assert_equal [nodes_id(:cleanWater)], nodes.map {|r| r.id}
+    assert_equal [nodes_id(:cleanWater)], nodes.map(&:id)
   end
 
   def test_search_qb_errors
@@ -640,6 +640,14 @@ END:VCALENDAR
     assert_raise(ActiveRecord::StatementInvalid) do
       get 'search', 'qb' => 'nodes foobar error'
     end
+  end
+
+  def test_find_from_node
+    login(:anon)
+    get 'find', :id => nodes_zip(:lake_jpg), 'qb' => 'icon_for'
+    assert_response :success
+    assert nodes = assigns(:nodes)
+    assert_equal [nodes_id(:cleanWater)], nodes.map(&:id)
   end
 end
 

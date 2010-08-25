@@ -50,6 +50,7 @@ class NodesController < ApplicationController
     raise ActiveRecord::RecordNotFound
   end
 
+  # Find nodes starting from root node
   def search
     do_search
     respond_to do |format|
@@ -64,8 +65,13 @@ class NodesController < ApplicationController
           render :xml => []
         end
       end
-      format.js
+      format.js { render :action => 'search' }
     end
+  end
+
+  # Find nodes starting from a given node
+  def find
+    search
   end
 
   # this should not be needed.... but format.js never gets called otherwize.
@@ -580,10 +586,9 @@ class NodesController < ApplicationController
         end
       end
 
-      @node = current_site.root_node
+      @node ||= current_site.root_node
 
       if request.format != Mime::XML || params[:page] || params[:per_page]
-
         @search_per_page = params[:per_page] ? params[:per_page].to_i : 20
         @nodes = secure(Node) { Node.search_records(query_params, :node => @node, :page => params[:page], :per_page => @search_per_page) }
         @search_count = 100 # FIXME: @nodes ? @nodes.total_entries : 0
