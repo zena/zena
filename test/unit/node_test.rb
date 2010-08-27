@@ -1027,22 +1027,31 @@ done: \"I am done\""
   end
 
   def test_classes_for_form
-    assert_equal [["Page", "Page"],
-     ["  Project", "Project"],
-     ["  Section", "Section"],
-     ["    Skin", "Skin"]], Node.classes_for_form(:class=>'Page', :without=>'Document')
+    Node.get_class('Tag')
+    assert_equal [
+      ["Page", "Page"],
+      ["  Project", "Project"],
+      ["  Section", "Section"],
+      ["    Skin", "Skin"],
+      ["  Tag", "Tag"],
+     ], Node.classes_for_form(:class=>'Page', :without=>'Document')
   end
 
   def test_change_to_classes_for_form
-    assert_equal [["Page", "Page"],
-     ["  Project", "Project"],
-     ["  Section", "Section"],
-     ["    Skin", "Skin"]], Project.classes_for_form(:class=>'Page', :without=>'Document')
+    Node.get_class('Tag')
+    assert_equal [
+      ["Page", "Page"],
+      ["  Project", "Project"],
+      ["  Section", "Section"],
+      ["    Skin", "Skin"],
+      ["  Tag", "Tag"],
+    ], Project.classes_for_form(:class=>'Page', :without=>'Document')
   end
 
   def test_allowed_change_to_classes
+    Node.get_class('Tag')
     node_changes = Node.allowed_change_to_classes.reject{|k| k[/Dummy/]} # In case we are testing after Secure
-    assert_equal %w{Node Note Letter Post Page Project Section Skin Reference}, node_changes
+    assert_equal %w{Node Note Letter Post Page Project Section Skin Tag Reference}, node_changes
 
     assert_equal node_changes, Page.allowed_change_to_classes.reject{|k| k[/Dummy/]}
     assert_equal node_changes, Project.allowed_change_to_classes.reject{|k| k[/Dummy/]}

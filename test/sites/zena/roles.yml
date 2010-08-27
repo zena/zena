@@ -22,7 +22,6 @@ Tracker:
 Tag:
   kpath:           NPT
   real_class:      Page
-  create_group:    admin
 
 Task:
   kpath:           N

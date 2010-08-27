@@ -84,7 +84,8 @@ class SerializableTest < Zena::Unit::TestCase
 
     context 'on many nodes' do
       subject do
-        Hash.from_xml(secure(Node) { Node.search_records(:qb => 'images in site') }.to_xml(:root => 'nodes'))
+        xml = secure(Node) { Node.search_records(:qb => 'images in site') }.to_xml(:root => 'nodes')
+        Hash.from_xml(xml)
       end
 
       should 'use nodes as root' do

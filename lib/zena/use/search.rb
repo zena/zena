@@ -57,6 +57,7 @@ module Zena
         # Execute an index search using query builder. Either provide a full query with 'qb' or 'key'='value' parameters.
         def search_index(params, options = {})
           count = (params.delete(:_find) || :all).to_sym
+          node  = options[:node] || current_site.root_node
 
           unless query = params[:qb]
             query_args = []
@@ -68,7 +69,7 @@ module Zena
             query = "nodes where #{query_args.join(' and ')} in site"
           end
 
-          res = options[:node].find(count, query, options.merge(:errors => true, :rubyless_helper => self))
+          res = node.find(count, query, options.merge(:errors => true, :rubyless_helper => self))
 
           if res.kind_of?(Exception)
             raise ActiveRecord::StatementInvalid.new("Error parsing query #{query.inspect} (#{res.message})")
