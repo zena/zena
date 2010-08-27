@@ -193,7 +193,15 @@ module Zena
           def update(query, attributes)
             if nodes = all(query)
               # TODO: ask ?
-              logger.info "Updating #{nodes.size} nodes"
+              logger.info "-\n"
+              logger.info "  %-10s: %s" % ['operation', 'mass update']
+              logger.info "  %-10s: %s" % ['timestamp', Time.now]
+              logger.info "  %-10s: %s" % ['query', query.inspect]
+              logger.info "  %-10s: %s" % ['count', nodes.size]
+              logger.info "  change:"
+              attributes.each do |key, value|
+                logger.info "    #{key}: #{value.inspect}"
+              end
               nodes.each do |node|
                 if node.update_attributes(attributes)
                 else
@@ -229,10 +237,16 @@ module Zena
             saved_attributes = @attributes.dup
             self.attributes = new_attributes
             if save
-              logger.info "===== Updated node #{id} ====="
+              logger.info "-\n"
+              logger.info "  %-10s: %s" % ['operation', 'update']
+              logger.info "  %-10s: %s" % ['timestamp', Time.now]
+              logger.info "  %-10s: %i" % ['node_id', id]
+              logger.info "  changes:"
               @attributes.keys.each do |key|
                 next if saved_attributes[key] == @attributes[key]
-                logger.info "  [#{key}] #{saved_attributes[key].inspect} ==> #{@attributes[key].inspect}"
+                logger.info "    #{key}:"
+                logger.info "      old: #{saved_attributes[key].inspect}"
+                logger.info "      new: #{@attributes[key].inspect}"
               end
             else
               false
@@ -277,7 +291,11 @@ module Zena
           def destroy(query)
             if nodes = all(query)
               # TODO: ask ?
-              logger.info "Destroying #{nodes.size} nodes"
+              logger.info "-\n"
+              logger.info "  %-10s: %s" % ['operation', 'mass destroy']
+              logger.info "  %-10s: %s" % ['timestamp', Time.now]
+              logger.info "  %-10s: %s" % ['query', query.inspect]
+              logger.info "  %-10s: %s" % ['count', nodes.size]
               nodes.each do |node|
                 if node.destroy
                 else
@@ -304,7 +322,13 @@ module Zena
             @previous_id = id
             result = @connection.delete(destroy_url)
             if result.code == 200
-              logger.info "===== Destroyed node #{id} =====\n#{@attributes.inspect}"
+              logger.info "  %-10s: %s" % ['operation', 'destroy']
+              logger.info "  %-10s: %s" % ['timestamp', Time.now]
+              logger.info "  %-10s: %s" % ['node_id', id]
+              logger.info "  attributes:"
+              @attributes.keys.each do |key|
+                logger.info "    #{key}: #{@attributes[key].inspect}"
+              end
               true
             elsif errors = result['errors']
               @errors = errors
