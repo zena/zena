@@ -1,3 +1,8 @@
+== 0.16.8 2010-08-30
+
+* 1 minor enhancement
+  * using QueryBuilder 0.5.9 to fix bug in custom queries
+
 == 0.16.7 2010-07-11
 
 * 1 minor enhancement
