@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2010-08-23}
+  s.date = %q{2010-08-30}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -293,10 +293,8 @@ Gem::Specification.new do |s|
      "bricks/math/zena/init.rb",
      "bricks/mongrel/README",
      "bricks/mongrel/zena/deploy.rb",
-     "bricks/mongrel/zena/tasks.rb",
      "bricks/passenger/README",
      "bricks/passenger/zena/deploy.rb",
-     "bricks/passenger/zena/tasks.rb",
      "bricks/sphinx/MIT-LICENSE",
      "bricks/sphinx/README",
      "bricks/sphinx/lib/use_sphinx.rb",
@@ -514,6 +512,12 @@ Gem::Specification.new do |s|
      "lib/zena/parser/zazen_tags.rb",
      "lib/zena/parser/zena_rules.rb",
      "lib/zena/refactor/act_as_content.rb",
+     "lib/zena/remote.rb",
+     "lib/zena/remote/connection.rb",
+     "lib/zena/remote/interface.rb",
+     "lib/zena/remote/klass.rb",
+     "lib/zena/remote/mock.rb",
+     "lib/zena/remote/node.rb",
      "lib/zena/routes.rb",
      "lib/zena/site_worker.rb",
      "lib/zena/test_controller.rb",
@@ -1881,6 +1885,7 @@ Gem::Specification.new do |s|
      "test/unit/reference_test.rb",
      "test/unit/relation_proxy_test.rb",
      "test/unit/relation_test.rb",
+     "test/unit/remote_test.rb",
      "test/unit/role_test.rb",
      "test/unit/section_test.rb",
      "test/unit/site_test.rb",
@@ -2122,6 +2127,7 @@ Gem::Specification.new do |s|
      "test/unit/reference_test.rb",
      "test/unit/relation_proxy_test.rb",
      "test/unit/relation_test.rb",
+     "test/unit/remote_test.rb",
      "test/unit/role_test.rb",
      "test/unit/section_test.rb",
      "test/unit/site_test.rb",
@@ -2176,7 +2182,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<property>, [">= 1.1.0"])
       s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_runtime_dependency(%q<authlogic>, ["= 2.1.3"])
-      s.add_runtime_dependency(%q<zafu>, [">= 0.6.2"])
+      s.add_runtime_dependency(%q<zafu>, [">= 0.6.3"])
       s.add_runtime_dependency(%q<shoulda>, [">= 2.10.2"])
       s.add_runtime_dependency(%q<fast_gettext>, ["~> 0.4.16"])
       s.add_runtime_dependency(%q<syntax>, ["= 1.0.0"])
@@ -2189,7 +2195,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<hpricot>, [">= 0"])
       s.add_runtime_dependency(%q<differ>, [">= 0.1.1"])
       s.add_runtime_dependency(%q<RedCloth>, ["= 3.0.4"])
-      s.add_runtime_dependency(%q<querybuilder>, [">= 0.8.0"])
+      s.add_runtime_dependency(%q<querybuilder>, [">= 0.8.1"])
     else
       s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
       s.add_dependency(%q<tzinfo>, [">= 0.3.12"])
@@ -2198,7 +2204,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<property>, [">= 1.1.0"])
       s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_dependency(%q<authlogic>, ["= 2.1.3"])
-      s.add_dependency(%q<zafu>, [">= 0.6.2"])
+      s.add_dependency(%q<zafu>, [">= 0.6.3"])
       s.add_dependency(%q<shoulda>, [">= 2.10.2"])
       s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
       s.add_dependency(%q<syntax>, ["= 1.0.0"])
@@ -2211,7 +2217,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<hpricot>, [">= 0"])
       s.add_dependency(%q<differ>, [">= 0.1.1"])
       s.add_dependency(%q<RedCloth>, ["= 3.0.4"])
-      s.add_dependency(%q<querybuilder>, [">= 0.8.0"])
+      s.add_dependency(%q<querybuilder>, [">= 0.8.1"])
     end
   else
     s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
@@ -2221,7 +2227,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<property>, [">= 1.1.0"])
     s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
     s.add_dependency(%q<authlogic>, ["= 2.1.3"])
-    s.add_dependency(%q<zafu>, [">= 0.6.2"])
+    s.add_dependency(%q<zafu>, [">= 0.6.3"])
     s.add_dependency(%q<shoulda>, [">= 2.10.2"])
     s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
     s.add_dependency(%q<syntax>, ["= 1.0.0"])
@@ -2234,7 +2240,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<hpricot>, [">= 0"])
     s.add_dependency(%q<differ>, [">= 0.1.1"])
     s.add_dependency(%q<RedCloth>, ["= 3.0.4"])
-    s.add_dependency(%q<querybuilder>, [">= 0.8.0"])
+    s.add_dependency(%q<querybuilder>, [">= 0.8.1"])
   end
 end
 

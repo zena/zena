@@ -663,19 +663,12 @@ END:VCALENDAR
     assert_equal [nodes_id(:cleanWater)], nodes.map(&:id)
   end
 
-  def test_search_qb_errors
-    login(:anon)
-    assert_raise(ActiveRecord::StatementInvalid) do
-      get 'search', 'qb' => 'nodes foobar error'
-    end
-  end
-
   def test_find_from_node
     login(:anon)
-    get 'find', :id => nodes_zip(:lake_jpg), 'qb' => 'icon_for'
+    get 'find', :id => nodes_zip(:lake_jpg), 'qb' => 'icon_for', '_find' => 'first'
     assert_response :success
     assert nodes = assigns(:nodes)
-    assert_equal [nodes_id(:cleanWater)], nodes.map(&:id)
+    assert_equal nodes_id(:cleanWater), nodes.first.id
   end
 end
 

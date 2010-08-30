@@ -13,6 +13,8 @@ module Zena
           extend Zena::Remote::Interface::ConnectionMethods
 
           @found_classes = {}
+          @uri = uri
+
           def self.[](class_name)
             @found_classes[class_name] ||= Zena::Remote::Klass.new(self, class_name)
           end
@@ -22,9 +24,11 @@ module Zena
           end
 
           def self.default_logger
-            host = URI.parse(uri).host
+            host = URI.parse(@uri =~ %r{^\w+://} ? @uri : "http://#{@uri}").host
+            puts [@uri, host].inspect
             log_path = "log/#{host}.log"
-            Dir.mkdir(log_path.dirname) unless File.exist?(log_path.dirname)
+            dir = File.dirname(log_path)
+            Dir.mkdir(dir) unless File.exist?(dir)
             Logger.new(File.open(log_path, 'ab'))
           end
 

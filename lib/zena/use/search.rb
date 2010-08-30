@@ -69,7 +69,13 @@ module Zena
             query = "nodes where #{query_args.join(' and ')} in site"
           end
 
-          res = node.find(count, query, options.merge(:errors => true, :rubyless_helper => self))
+          if options[:node]
+            default_scope = 'self'
+          else
+            default_scope = 'site'
+          end
+
+          res = node.find(count, query, options.merge(:errors => true, :rubyless_helper => self, :default => {:scope => default_scope}))
 
           if res.kind_of?(::QueryBuilder::Error)
             raise ::QueryBuilder::Error.new("Error parsing query #{query.inspect} (#{res.message})")

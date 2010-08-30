@@ -123,7 +123,8 @@ class RemoteTest < Zena::Integration::TestCase
 
       context 'nodes with qb' do
         subject do
-          @app.find(:all, 'images in site')
+          # default is 'in site'
+          @app.find(:all, 'images')
         end
 
         should 'find through query builder' do
@@ -137,20 +138,20 @@ class RemoteTest < Zena::Integration::TestCase
 
       context 'nodes without specifying count' do
         should 'return an array' do
-          assert_kind_of Array, @app.find('images in site')
-          assert_equal 4, @app.find('image in site').size
+          assert_kind_of Array, @app.find('images')
+          assert_equal 4, @app.find('image').size
         end
 
         should 'return an array for singular queries' do
-          assert_kind_of Array, @app.find('image in site')
-          assert_equal 4, @app.find('image in site').size
+          assert_kind_of Array, @app.find('image')
+          assert_equal 4, @app.find('image').size
         end
       end # finding nodes without specifying count
 
       context 'nodes by using all' do
         should 'return an array' do
-          assert_kind_of Array, @app.all('images in site')
-          assert_equal 4, @app.all('image in site').size
+          assert_kind_of Array, @app.all('images')
+          assert_equal 4, @app.all('image').size
         end
 
         should 'return an array for singular queries' do
@@ -168,7 +169,7 @@ class RemoteTest < Zena::Integration::TestCase
 
       context 'nodes by using first' do
         should 'return an instance' do
-          assert_kind_of Zena::Remote::Node, @app.first('images in site')
+          assert_kind_of Zena::Remote::Node, @app.first('images')
         end
 
         context 'with an id' do
@@ -180,7 +181,7 @@ class RemoteTest < Zena::Integration::TestCase
 
       context 'node count with qb' do
         subject do
-          @app.find(:count, 'images in site')
+          @app.find(:count, 'images')
         end
 
         should 'find through query builder' do
@@ -190,7 +191,7 @@ class RemoteTest < Zena::Integration::TestCase
 
       context 'node count by using count' do
         subject do
-          @app.count('images in site')
+          @app.count('images')
         end
 
         should 'find through query builder' do
@@ -211,7 +212,7 @@ class RemoteTest < Zena::Integration::TestCase
 
     context 'paginating results' do
       subject do
-        @app.all('pages in site order by node_name asc', :page => 2, :per_page => 3)
+        @app.all('pages order by node_name asc', :page => 2, :per_page => 3)
       end
 
       should 'paginate' do
@@ -221,7 +222,7 @@ class RemoteTest < Zena::Integration::TestCase
 
     context 'and a found remote node' do
       subject do
-        @app.first('image where title like "%la%" in site')
+        @app.first('image where title like "%la%"')
       end
 
       should 'return attributes from method calls' do
@@ -241,8 +242,16 @@ class RemoteTest < Zena::Integration::TestCase
         assert_equal ["Nice Bananas", "crocodiles", "status title", "Keeping things clean !"], subject.project.pages.map(&:title)
       end
 
-      should 'map missing attributes as all queries' do
+      should 'map missing attributes as queries' do
         assert_equal "Nice Bananas", subject.project.page.title
+        assert_equal ["Nice Bananas",
+         "crocodiles",
+         "it's a lake",
+         "The lake we love",
+         "parc opening",
+         "status title",
+         "Keeping things clean !",
+         "water"], subject.parent.nodes.map(&:title)
       end
     end # and a found remote node
 
@@ -286,7 +295,7 @@ class RemoteTest < Zena::Integration::TestCase
 
     context 'mass updating' do
       subject do
-        @app.update("images in site", :summary => 'porn')
+        @app.update("images", :summary => 'porn')
       end
 
       should 'update all nodes' do
@@ -319,7 +328,7 @@ class RemoteTest < Zena::Integration::TestCase
 
     context 'mass deleting' do
       subject do
-        @app.destroy("images in site")
+        @app.destroy("images")
       end
 
       should 'delete all nodes' do
@@ -333,7 +342,7 @@ class RemoteTest < Zena::Integration::TestCase
         end
       end
     end # mass deleting
-    
+
     context 'bad requests' do
       subject do
         @app.all('foos')
@@ -343,7 +352,7 @@ class RemoteTest < Zena::Integration::TestCase
         assert_equal [], subject
       end
     end # bad requests
-    
+
   end # With a remote application
 
   private

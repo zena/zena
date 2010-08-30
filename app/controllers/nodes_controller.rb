@@ -602,8 +602,6 @@ class NodesController < ApplicationController
         end
       end
 
-      @node ||= current_site.root_node
-
       if request.format != Mime::XML || params[:page] || params[:per_page]
         @search_per_page = params[:per_page] ? params[:per_page].to_i : 20
         @nodes = secure(Node) { Node.search_records(query_params, :node => @node, :page => params[:page], :per_page => @search_per_page) }
@@ -611,6 +609,10 @@ class NodesController < ApplicationController
       else
         # XML without pagination
         @nodes = secure(Node) { Node.search_records(query_params, :node => @node) }
+      end
+
+      if @nodes.kind_of?(Node)
+        @nodes = [@nodes]
       end
     end
 
