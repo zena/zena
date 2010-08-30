@@ -1,3 +1,9 @@
+require 'active_support'
+require 'zena/remote/interface'
+require 'zena/remote/klass'
+require 'zena/remote/node'
+require 'zena/remote/connection'
+
 module Zena
   module Remote
     extend self

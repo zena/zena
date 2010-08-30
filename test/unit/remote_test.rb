@@ -333,6 +333,17 @@ class RemoteTest < Zena::Integration::TestCase
         end
       end
     end # mass deleting
+    
+    context 'bad requests' do
+      subject do
+        @app.all('foos')
+      end
+
+      should 'return an hash with error' do
+        assert_equal [], subject
+      end
+    end # bad requests
+    
   end # With a remote application
 
   private

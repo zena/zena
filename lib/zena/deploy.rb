@@ -74,7 +74,14 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   desc "set permissions to www-data"
   task :set_permissions, :roles => :app do
-    run "chown -R www-data:www-data #{deploy_to}/current/public #{deploy_to}/current/log #{deploy_to}/current/tmp"
+    directories = [
+      'current/public',
+      'current/tmp',
+      'current/log',
+      'shared/log',
+    ].map {|dir| "#{deploy_to}/#{dir}"}
+
+    run "chown -R www-data:www-data #{directories.join(' ')}"
   end
 
   "Update the currently released version of the software directly via an SCM update operation"

@@ -126,6 +126,20 @@ class NodesControllerTest < Zena::Controller::TestCase
           assert_response :unauthorized
         end
       end # creating a node
+
+      context 'accessing xml without a token' do
+        subject do
+          {:action => 'search', :qb => 'foos'}
+        end
+
+        should 'return an error' do
+          @request.env['HTTP_ACCEPT'] = 'application/xml'
+          get_subject
+          assert_response 401
+          assert_equal "Authentication token needed.", Hash.from_xml(@response.body)['error']['message']
+        end
+      end # accessing xml without a token
+
     end # with xml
   end # An anonymous user
 
@@ -261,6 +275,20 @@ class NodesControllerTest < Zena::Controller::TestCase
         end
 
       end
+
+      context 'with a bad request' do
+        subject do
+          {:action => 'search', :qb => 'foos'}
+        end
+
+        should 'return an error' do
+          @request.env['HTTP_ACCEPT'] = 'application/xml'
+          @request.env['HTTP_X_AUTHENTICATION_TOKEN'] = 'mytoken'
+          get_subject
+          assert_response 401
+          assert_equal "Error parsing query \"foos\" (Unknown relation 'foos'.)", Hash.from_xml(@response.body)['error']['message']
+        end
+      end # with a bad request
 
     end # using xml
 

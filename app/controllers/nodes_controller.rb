@@ -3,18 +3,18 @@
 
  basepath          class and zip   optional mode   format
 
- /projects/art/    project24       -print          .html
+ /projects/art/    project24       _print          .html
 
 Examples:
  /current/art/project24.html            << a project inside the 'art' page
  /note24.html                           << a Note's page
  /note24_print.html                     << a Note in 'print' mode
- /current/art.html                      << 'art' page (this page has custom base set = no class or zip shown)
- /current/art-print.html                << 'art' page in 'print' mode
+ /current/art.html                      << 'art' page (this page has custom base set, this means no class or zip shown)
+ /current/art_print.html                << 'art' page in 'print' mode
  /current/art/project24/image28.html    << image page (for comments, etc)
- /current/art/project24/image28.jpg     << full image
- /current/art/project24/image28_pv.jpg  << image in the 'pv' format
- /current/art/project24/image28_pv.html << image page in 'print' mode
+ /current/art/project24/image28.jpg     << full image data
+ /current/art/project24/image28_pv.jpg  << image in the 'pv' image format
+ /current/art/project24/image28_print.html << image page in 'print' mode
 
 =end
 class NodesController < ApplicationController
@@ -52,20 +52,36 @@ class NodesController < ApplicationController
 
   # Find nodes starting from root node
   def search
-    do_search
     respond_to do |format|
-      format.html { render_and_cache :mode => '+search', :cache => false }
+      format.html do
+        begin
+          do_search
+        rescue QueryBuilder::Error => err
+          flash[:error] = err.message
+        end
+        render_and_cache :mode => '+search', :cache => false
+      end
+
       format.xml do
-        if @nodes.kind_of?(Fixnum)
-          # count
-          render :xml => "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<count type=\"integer\">#{@nodes}</count>\n"
-        elsif @nodes
-          render :xml => Array(@nodes).to_xml(:root => 'nodes')
-        else
-          render :xml => []
+        begin
+          do_search
+          if @nodes.kind_of?(Fixnum)
+            # count
+            render :xml => "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<count type=\"integer\">#{@nodes}</count>\n"
+          elsif @nodes
+            render :xml => Array(@nodes).to_xml(:root => 'nodes')
+          else
+            render :xml => [].to_xml(:root => 'nodes')
+          end
+        rescue QueryBuilder::Error => err
+          render :xml => {:message => err.message}.to_xml(:root => 'error'), :status => 401
         end
       end
-      format.js { render :action => 'search' }
+
+      format.js do
+        do_search
+        render :action => 'search'
+      end
     end
   end
 

@@ -71,8 +71,8 @@ module Zena
 
           res = node.find(count, query, options.merge(:errors => true, :rubyless_helper => self))
 
-          if res.kind_of?(Exception)
-            raise ActiveRecord::StatementInvalid.new("Error parsing query #{query.inspect} (#{res.message})")
+          if res.kind_of?(::QueryBuilder::Error)
+            raise ::QueryBuilder::Error.new("Error parsing query #{query.inspect} (#{res.message})")
           else
             return res
           end

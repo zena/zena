@@ -155,24 +155,32 @@ module Zena
               result = get(find_url, :query => query.merge(options).merge(:_find => count))
             end
 
+            if error = result['error']
+              puts error['message']
+            end
+
             case count
             when :first
               if nodes = result['nodes']
-                build_record(nodes.first)
+                if found_first = nodes.first
+                  return build_record(found_first)
+                else
+                  nil
+                end
               else
                 nil
               end
             when :all
               if nodes = result['nodes']
-                nodes.map do |hash|
+                return nodes.map do |hash|
                   build_record(hash)
                 end
               else
-                nil
+                []
               end
             when :count
               if count = result['count']
-                count
+                return count
               else
                 nil
               end
