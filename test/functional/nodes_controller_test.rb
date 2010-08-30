@@ -136,7 +136,7 @@ class NodesControllerTest < Zena::Controller::TestCase
           @request.env['HTTP_ACCEPT'] = 'application/xml'
           get_subject
           assert_response 401
-          assert_equal "Authentication token needed.", Hash.from_xml(@response.body)['error']['message']
+          assert_equal "Authentication token needed.", Hash.from_xml(@response.body)['errors'].first['message']
         end
       end # accessing xml without a token
 
@@ -286,7 +286,7 @@ class NodesControllerTest < Zena::Controller::TestCase
           @request.env['HTTP_X_AUTHENTICATION_TOKEN'] = 'mytoken'
           get_subject
           assert_response 401
-          assert_equal "Error parsing query \"foos\" (Unknown relation 'foos'.)", Hash.from_xml(@response.body)['error']['message']
+          assert_equal "Error parsing query \"foos\" (Unknown relation 'foos'.)", Hash.from_xml(@response.body)['errors'].first['message']
         end
       end # with a bad request
 

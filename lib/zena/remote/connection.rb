@@ -7,14 +7,20 @@ module Zena
       end
 
       # Return a sub-class of Zena::Remote::Connection with the specified connection tokens built in.
+      # We create a new class because HTTParty works this way (class globals).
       def self.connect(uri, token)
         Class.new(self) do
           include HTTParty
           extend Zena::Remote::Interface::ConnectionMethods
 
+          class << self
+            alias http_delete delete
+            alias delete destroy
+          end
+
           @found_classes = {}
           @uri = uri
-          @message_logger = $STDOUT
+          @message_logger = STDOUT
 
           def self.[](class_name)
             @found_classes[class_name] ||= Zena::Remote::Klass.new(self, class_name)

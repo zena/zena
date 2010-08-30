@@ -29,6 +29,16 @@ class RemoteTest < Zena::Integration::TestCase
             assert_equal 'Banana', remote.title
           end
         end
+        
+        should 'respond to new' do
+          node = subject.new(:title => 'Banana', :parent_id => nodes_zip(:cleanWater))
+          assert_difference('Node.count', 1) do
+            node.save
+          end
+          remote = remote_node(node)
+          assert_equal 'Tag', remote.klass
+          assert_equal 'Banana', remote.title
+        end
       end # creating nodes
 
       context 'finding nodes' do

@@ -6,6 +6,10 @@ module Zena
         def logger
           @connection.logger
         end
+
+        def log_message(msg)
+          @connection.log_message(msg)
+        end
       end
 
       # Methods to create new remote nodes.
@@ -29,9 +33,13 @@ module Zena
         # Used by connection['Post'].find(...)
         module ClassMethods
           def create(attributes)
-            node = Zena::Remote::Node.new(@connection, attributes.stringify_keys.merge('class' => @name))
+            node = new(attributes)
             node.save
             node
+          end
+
+          def new(attributes)
+            Zena::Remote::Node.new(@connection, attributes.stringify_keys.merge('class' => @name))
           end
         end # ClassMethods
       end # Create
@@ -155,8 +163,10 @@ module Zena
               result = get(find_url, :query => query.merge(options).merge(:_find => count))
             end
 
-            if error = result['error']
-              log_message error['message']
+            if errors = result['errors']
+              errors.each do |error|
+                log_message error['message']
+              end
             end
 
             case count
@@ -268,20 +278,25 @@ module Zena
               result = put(update_url, :body => {:node => @attributes})
             end
 
-            if result.code == 200
+            if result.response.code =~ /^20\d$/
               if node = result['node']
                 @attributes = node
-                true
+                node
               elsif errors = result['errors']
                 @errors = errors
+                log_message errors
                 false
               else
-                log_message "Could not save.. error:"
+                log_message "Could not save:"
                 log_message result.inspect
                 false
               end
+            elsif errors = result['errors']
+              log_message "Could not save:"
+              log_message errors
+              false
             else
-              log_message "Could not save.. error:"
+              log_message "Could not save:"
               log_message result.inspect
               false
             end
@@ -328,7 +343,7 @@ module Zena
               return false
             end
             @previous_id = id
-            result = @connection.delete(destroy_url)
+            result = @connection.http_delete(destroy_url)
             if result.code == 200
               logger.info "  %-10s: %s" % ['operation', 'destroy']
               logger.info "  %-10s: %s" % ['timestamp', Time.now]

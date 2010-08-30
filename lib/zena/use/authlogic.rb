@@ -92,7 +92,7 @@ module Zena
                 # Allow xml without :prefix in NodesController because it is rendered with zafu.
 
                 # Authentication token required for xml.
-                render :xml => {:message => 'Authentication token needed.'}.to_xml(:root => 'error'), :status => 401
+                render :xml => [{:message => 'Authentication token needed.'}].to_xml(:root => 'errors'), :status => 401
               end
             end
           end

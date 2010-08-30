@@ -74,7 +74,7 @@ class NodesController < ApplicationController
             render :xml => [].to_xml(:root => 'nodes')
           end
         rescue QueryBuilder::Error => err
-          render :xml => {:message => err.message}.to_xml(:root => 'error'), :status => 401
+          render :xml => [{:message => err.message}].to_xml(:root => 'errors'), :status => 401
         end
       end
 
@@ -211,7 +211,7 @@ class NodesController < ApplicationController
         flash[:notice] = 'Node was successfully created.'
         format.html { redirect_to zen_path(@node) }
         format.js
-        format.xml  { render :xml => @node, :status => :created, :location => node_url(@node) }
+        format.xml  { render :xml => @node.to_xml(:root => 'node'), :status => :created, :location => node_url(@node) }
       else
         format.html { render :action => "new" }
         format.js
