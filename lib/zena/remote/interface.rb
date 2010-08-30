@@ -156,7 +156,7 @@ module Zena
             end
 
             if error = result['error']
-              puts error['message']
+              log_message error['message']
             end
 
             case count
@@ -213,7 +213,7 @@ module Zena
               nodes.each do |node|
                 if node.update_attributes(attributes)
                 else
-                  puts "Could not update node #{node.id} (#{node.title}): #{node.errors}"
+                  log_message "Could not update node #{node.id} (#{node.title}): #{node.errors}"
                 end
               end
               nodes
@@ -276,13 +276,13 @@ module Zena
                 @errors = errors
                 false
               else
-                puts "Could not save.. error:"
-                puts result.inspect
+                log_message "Could not save.. error:"
+                log_message result.inspect
                 false
               end
             else
-              puts "Could not save.. error:"
-              puts result.inspect
+              log_message "Could not save.. error:"
+              log_message result.inspect
               false
             end
           end
@@ -307,7 +307,7 @@ module Zena
               nodes.each do |node|
                 if node.destroy
                 else
-                  puts "Could not destroy node #{node.id} (#{node.title}): #{node.errors}"
+                  log_message "Could not destroy node #{node.id} (#{node.title}): #{node.errors}"
                 end
               end
               nodes
@@ -342,8 +342,8 @@ module Zena
               @errors = errors
               false
             else
-              puts "Could not destroy.. error:"
-              puts result.inspect
+              log_message "Could not destroy.. error:"
+              log_message result.inspect
               false
             end
           end

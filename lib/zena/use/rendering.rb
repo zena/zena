@@ -95,7 +95,7 @@ module Zena
         end
 
         def render_and_cache(options={})
-          opts = {:skin=>@node[:skin], :cache=>true}.merge(options)
+          opts = {:skin => @node[:skin], :cache => true}.merge(options)
           opts[:mode  ] ||= params[:mode]
           opts[:format] ||= params[:format].blank? ? 'html' : params[:format]
           # cleanup before rendering

@@ -595,6 +595,13 @@ class NodesController < ApplicationController
     end
 
     def do_search
+      if @node
+        default_scope = 'self'
+      else
+        @node = current_site.root_node
+        default_scope = 'site'
+      end
+
       unless query_params = params[:q]
         query_params = params.dup
         %w{controller action format}.each do |key|
@@ -604,11 +611,11 @@ class NodesController < ApplicationController
 
       if request.format != Mime::XML || params[:page] || params[:per_page]
         @search_per_page = params[:per_page] ? params[:per_page].to_i : 20
-        @nodes = secure(Node) { Node.search_records(query_params, :node => @node, :page => params[:page], :per_page => @search_per_page) }
+        @nodes = secure(Node) { Node.search_records(query_params, :node => @node, :default => {:scope => default_scope}, :page => params[:page], :per_page => @search_per_page) }
         @search_count = 100 # FIXME: @nodes ? @nodes.total_entries : 0
       else
         # XML without pagination
-        @nodes = secure(Node) { Node.search_records(query_params, :node => @node) }
+        @nodes = secure(Node) { Node.search_records(query_params, :node => @node, :default => {:scope => default_scope}) }
       end
 
       if @nodes.kind_of?(Node)

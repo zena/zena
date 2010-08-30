@@ -8,6 +8,7 @@ class RemoteTest < Zena::Integration::TestCase
       @app = Zena::Remote.connect('http://test.host:3000', 'mytoken')
       @app.send(:include, Zena::Remote::Mock::Connection)
       @app.logger = Node.logger
+      @app.message_logger = Node.logger
     end
 
     context 'and a remote class' do

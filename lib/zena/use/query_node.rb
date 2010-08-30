@@ -110,7 +110,14 @@ module Zena
           end
         end
 
-        self.filter_fields = {'id' => {:key => 'zip'}}
+        # How to treat filters like "where id = 45" or "where parent_id = #{params[:parent_id]}"
+        self.filter_fields = {
+          'id'         => {:key => 'zip'},
+          'parent_id'  => {:key => 'zip', :join => ['nodes', 'nodes', 'TABLE2.id = TABLE1.parent_id AND TABLE2.site_id = TABLE1.site_id']},
+          'project_id' => {:key => 'zip', :join => ['nodes', 'nodes', 'TABLE2.id = TABLE1.project_id AND TABLE2.site_id = TABLE1.site_id']},
+          'section_id' => {:key => 'zip', :join => ['nodes', 'nodes', 'TABLE2.id = TABLE1.section_id AND TABLE2.site_id = TABLE1.site_id']}
+        }
+
         add_filter_field 'now', Zena::Db::NOW
 
         # Scope current context with previous context.
@@ -154,6 +161,13 @@ module Zena
               return map_def
             elsif table_def = map_def[:table]
               table_to_use = needs_join_table(*table_def)
+            elsif join_def = map_def[:join]
+              # current table
+              first_table  = table(join_def[0])
+              # filter table
+              add_table('jnode', join_def[1]) # join node
+              table_to_use = table('jnode')
+              add_filter join_def[2].gsub('TABLE1', first_table).gsub('TABLE2', table_to_use)
             else
               table_to_use = table
             end

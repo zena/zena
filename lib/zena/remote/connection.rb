@@ -14,6 +14,7 @@ module Zena
 
           @found_classes = {}
           @uri = uri
+          @message_logger = $STDOUT
 
           def self.[](class_name)
             @found_classes[class_name] ||= Zena::Remote::Klass.new(self, class_name)
@@ -23,9 +24,23 @@ module Zena
             @logger ||= default_logger
           end
 
+          def self.log_message(msg)
+            logger = @message_logger || self.logger
+            if logger.respond_to?(:info)
+              logger.info "-\n"
+              logger.info "  %-10s: %s" % ['operation', 'message']
+              logger.info "  %-10s: %s" % ['message', msg.inspect]
+            else
+              @message_logger.send(:puts, msg)
+            end
+          end
+
+          def self.message_logger=(logger)
+            @message_logger = logger
+          end
+
           def self.default_logger
             host = URI.parse(@uri =~ %r{^\w+://} ? @uri : "http://#{@uri}").host
-            puts [@uri, host].inspect
             log_path = "log/#{host}.log"
             dir = File.dirname(log_path)
             Dir.mkdir(dir) unless File.exist?(dir)

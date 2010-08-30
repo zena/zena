@@ -118,8 +118,9 @@ role_as_relation_filter:
 
 filter_by_parent:
   src: "nodes where parent_id = 11 in site"
-  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.parent_id = 850927283 ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id]"
-  res: ''
+#       nodes where parent.zip = ...
+  sql: "%Q{SELECT nodes.* FROM nodes,nodes AS jn1 WHERE #{secure_scope('nodes')} AND jn1.zip = 11 AND jn1.id = nodes.parent_id AND jn1.site_id = nodes.site_id ORDER BY nodes.position ASC, nodes.node_name ASC}"
+  res: 'collections, letter, nature, people, projects, skins'
 #many_role_filter:
 # This is not working (or clause on 'indexed' fields is not supported right now)
 #  src: "nodes where role = Original or role = Task in site"
