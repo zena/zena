@@ -30,16 +30,19 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   set :templates, File.join(File.dirname(__FILE__), 'deploy')
   self[:app_type]   ||= :mongrel
-  self[:app_root]   ||= "/var/#{db_name}/current"
 
-  self[:sites_root] ||= "/var/www/#{db_name}"
+  self[:deploy_to]  ||= "/home/#{db_name}/app"
+  self[:sites_root] ||= "/home/#{db_name}/sites"
+
+  self[:app_root]   ||= "#{deploy_to}/current"
+
   self[:balancer]   ||= db_name
   self[:db_user]    ||= db_name
   self[:runner]     ||= 'root'
   self[:on_stop]    = []
   self[:on_start]   = []
 
-  set :in_current, "cd #{deploy_to}/current &&"
+  set :in_current, "cd #{app_root} &&"
 
   class RenderClass
     def initialize(path)

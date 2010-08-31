@@ -11,8 +11,9 @@ set :branch,                'master'
 if self[:server_ip]
   #================= ADVANCED SETTINGS =============#
 
-  set :deploy_to,            "/var/#{db_name}"
-  set :sites_root,           "/var/www/#{db_name}"
+  set :deploy_to,            "/home/#{db_name}/app"
+  set :sites_root,           "/home/#{db_name}/sites"
+
   set :vhost_root,           "/etc/apache2/sites-available"
   set :deflate,              true
   set :debug_deflate,        false
