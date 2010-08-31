@@ -265,13 +265,12 @@ class User < ActiveRecord::Base
 
       @contact = secure!(BaseContact) { BaseContact.new(
         # owner is the user except for anonymous and super user.
-        # TODO: not sure this is a good idea...
-        :user_id     => (self[:id] == site[:anon_id] || self[:id] == site[:su_id]) ? visitor[:id] : self[:id],
+        :user_id     => visitor[:id],
         :title       => (name.blank? || first_name.blank?) ? login : fullname,
         :first_name  => first_name,
-        :name        => (name || login ),
+        :name        => (name || login),
         :email       => email,
-        :v_status      => Zena::Status[:pub]
+        :v_status    => Zena::Status[:pub]
       )}
 
       @contact[:parent_id] = site[:root_id]
@@ -360,8 +359,8 @@ class User < ActiveRecord::Base
       g_ids.compact!
       self.groups = []
       g_ids.each do |id|
-        group = Group.find(id)
-        unless site.being_created? || group.site_id == self.site_id
+        group = Group.find(:first, :conditions => {:id => id})
+        unless group && (group.site_id == self.site_id || site.being_created?)
           errors.add('group', 'not found')
           next
         end

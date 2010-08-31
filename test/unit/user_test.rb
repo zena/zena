@@ -50,6 +50,33 @@ class UserTest < Zena::Unit::TestCase
     assert_nothing_raised( Zena::AccessViolation ) { ant.destroy }
   end
 
+  context 'Creating a new User' do
+    setup do
+      login(:lion)
+    end
+
+    subject do
+      {
+        'name'       => 'Dupont',
+        'lang'       => 'fr',
+        'time_zone'  => 'Europe/Zurich',
+        'status'     => '50',
+        'password'   => 'secret',
+        'login'      => 'bolomey',
+        'first_name' => 'Paul',
+        'group_ids'  => [groups_id(:public), ''],
+        'email'      => 'paul.bolomey@brainfuck.com',
+      }
+    end
+
+    should 'succeed' do
+      assert_difference('User.count', 1) do
+        user = secure(User) { User.new(subject) }
+        user.save
+      end
+    end
+  end # Creating a new User
+
   def test_create
     User.connection.execute "UPDATE users SET lang='ru' WHERE id IN (#{users_id(:incognito)},#{users_id(:whale)})"
     User.connection.execute "UPDATE sites SET languages='fr,ru' WHERE id=#{sites_id(:ocean)}"

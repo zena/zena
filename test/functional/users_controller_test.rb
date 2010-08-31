@@ -84,14 +84,16 @@ class UsersControllerTest < Zena::Controller::TestCase
       subject do
         {
           :user   => {
-            "name"       => "Dupont",
-            "lang"       => "fr",
-            "time_zone"  => "Europe/Zurich",
-            "status"     => "50",
-            "password"   => "secret",
-            "login"      => "bolomey",
-            "first_name" => "Paul"
-
+            'name'       => 'Dupont',
+            'lang'       => 'fr',
+            'time_zone'  => 'Europe/Zurich',
+             'status'     => '50',
+            'password'   => 'secret',
+            'login'      => 'bolomey',
+            'first_name' => 'Paul',
+            'group_ids'  => ['2', ''],
+            'email'      => 'paul.bolomey@brainfuck.com',
+            '_'          => '' # This is in the original post
           },
           :action => 'create'
         }
