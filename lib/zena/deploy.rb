@@ -30,8 +30,12 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   set :templates, File.join(File.dirname(__FILE__), 'deploy')
   self[:app_type]   ||= :mongrel
-  self[:app_root]   ||= '/var/zena/current'
-  self[:sites_root] ||= '/var/www/zena'
+
+  self[:deploy_to]  ||= "/home/#{db_name}/app"
+  self[:sites_root] ||= "/home/#{db_name}/sites"
+
+  self[:app_root]   ||= "#{deploy_to}/current"
+
   self[:balancer]   ||= db_name
   self[:runner]     ||= 'root'
   self[:on_stop]    = []

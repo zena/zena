@@ -9,8 +9,9 @@ set :repository,          "http://svn.zenadmin.org/zena/trunk"
 if self[:server_ip]
   #================= ADVANCED SETTINGS =============#
 
-  set :deploy_to,    "/var/zena"
-  set :sites_root,   "/var/www/zena"
+  set :deploy_to,    "/home/#{db_name}/app"
+  set :sites_root,   "/home/#{db_name}/sites"
+
   set :vhost_root,   "/etc/apache2/sites-available"
   set :deflate,       true
   set :debug_deflate, false
