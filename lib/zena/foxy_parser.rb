@@ -80,10 +80,12 @@ module Zena
       @options  = opts
     end
 
+    def sites
+      @sites ||= Dir["#{Zena::ROOT}/test/sites/*", "#{RAILS_ROOT}/bricks/**/sites/*"].map {|s| File.directory?(s) ? File.basename(s) : nil}.compact.uniq
+    end
+
     def run
-      base = "#{Zena::ROOT}/test/sites"
-      Dir.foreach(base) do |site|
-        next if (site =~ /^\./) || !File.directory?(File.join(base, site))
+      sites.each do |site|
         @site = site
         parse_fixtures
         after_parse
@@ -834,8 +836,7 @@ module Zena
     end
 
     def run
-      Dir.foreach("#{Zena::ROOT}/test/sites") do |site|
-        next if site =~ /^\./ || !File.directory?(File.join("#{Zena::ROOT}/test/sites",site))
+      sites.each do |site|
         @inserted_keys = []
         out ""
         out "#{site}:"

@@ -223,7 +223,7 @@ module Zena
               nodes.each do |node|
                 if node.update_attributes(attributes)
                 else
-                  log_message "Could not update node #{node.id} (#{node.title}): #{node.errors}"
+                  log_message "Could not update node #{node.id} (#{node.title}): #{node.errors.inspect}"
                 end
               end
               nodes
@@ -322,7 +322,7 @@ module Zena
               nodes.each do |node|
                 if node.destroy
                 else
-                  log_message "Could not destroy node #{node.id} (#{node.title}): #{node.errors}"
+                  log_message "Could not destroy node #{node.id} (#{node.title}): #{node.errors.inspect}"
                 end
               end
               nodes

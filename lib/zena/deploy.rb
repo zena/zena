@@ -33,6 +33,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   self[:deploy_to]  ||= "/home/#{db_name}/app"
   self[:sites_root] ||= "/home/#{db_name}/sites"
+  self[:dump_root]  ||= "/home/#{db_name}/dump"
 
   self[:app_root]   ||= "#{deploy_to}/current"
 
@@ -72,6 +73,14 @@ Capistrano::Configuration.instance(:must_exist).load do
     self[:on_start] << block
   end
 
+  def ancestry(path)
+    # Build directory ancestry ['/a', '/a/b', '/a/b/c']
+    paths = path.split('/')[1..-1].inject(['']) do |res, cur|
+      res << (res.last + "/#{cur}")
+      res
+    end[1..-1]
+  end
+
   #========================== SOURCE CODE   =========================#
 
 
@@ -84,6 +93,8 @@ Capistrano::Configuration.instance(:must_exist).load do
       'shared/log',
     ].map {|dir| "#{deploy_to}/#{dir}"}
 
+    # make sure production.log is created before so that it gets the correct permissions
+    run "touch #{app_root}/shared/log/production.log"
     run "chown -R www-data:www-data #{directories.join(' ')}"
   end
 
@@ -105,7 +116,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   desc "after code update"
   task :after_update, :roles => :app do
     app_update_symlinks
-    db_update_config
+    db::update_config
     apache2_setup
     migrate
     clear_zafu
@@ -126,11 +137,10 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   desc "initial app setup"
   task :app_setup, :roles => :app do
-    [ deploy_to,
-      "#{deploy_to}/shared",
-      "#{deploy_to}/shared/log",
-      sites_root].each do |dir|
-      run "test -e #{dir}  || mkdir #{dir}"
+    paths = ancestry(deploy_to) + ancestry(sites_root) + ancestry("#{deploy_to}/shared/log") + ancestry(dump_root)
+
+    paths.uniq.sort.each do |dir|
+      run "test -e #{dir} || mkdir #{dir}"
     end
   end
 
@@ -147,7 +157,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   desc "update code in the current version"
   task :up, :roles => :app do
     run "cd #{deploy_to}/current && #{self[:scm] == 'git' ? "git pull origin #{self[:branch] || 'master'}" : 'svn up'} && (echo #{strategy.configuration[:real_revision]} > #{deploy_to}/current/REVISION)"
-    db_update_config
+    db::update_config
     clear_zafu
     clear_cache
     migrate
@@ -312,19 +322,30 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   #========================== MYSQL   ===============================#
 
-  desc "set database.yml file according to settings"
-  task :db_update_config, :roles => :app do
-    db_app_config = render("#{templates}/database.rhtml",
-                  :db_name     => db_name,
-                  :db_user     => db_user,
-                  :db_password => db_password
-                  )
-    put(db_app_config, "#{deploy_to}/current/config/database.yml")
-  end
+  namespace :db do
+    desc "set database.yml file according to settings"
+    task :update_config, :roles => :app do
+      db_app_config = render("#{templates}/database.rhtml",
+                    :db_name     => db_name,
+                    :db_user     => db_user,
+                    :db_password => db_password
+                    )
+      put(db_app_config, "#{deploy_to}/current/config/database.yml")
+    end
 
-  desc "create database"
-  task :db_create, :roles => :db do
-    on_rollback do
+    desc "create database"
+    task :create, :roles => :db do
+      run "mysql -u root -p -e \"CREATE DATABASE #{db_name} DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci; GRANT ALL ON #{db_name}.* TO '#{db_user}'@'localhost' IDENTIFIED BY '#{db_password}';\"" do |channel, stream, data|
+        if data =~ /^Enter password:\s*/m
+          logger.info "#{channel[:host]} asked for password"
+          channel.send_data "#{password}\n"
+        end
+        puts data
+      end
+    end
+
+    desc "drop database"
+    task :drop, :roles => :db do
       run "mysql -u root -p -e \"DROP DATABASE #{db_name};\"" do |channel, stream, data|
         if data =~ /^Enter password:\s*/m
           logger.info "#{channel[:host]} asked for password"
@@ -334,51 +355,41 @@ Capistrano::Configuration.instance(:must_exist).load do
       end
     end
 
-    run "mysql -u root -p -e \"CREATE DATABASE #{db_name} DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci; GRANT ALL ON #{db_name}.* TO '#{db_user}'@'localhost' IDENTIFIED BY '#{db_password}';\"" do |channel, stream, data|
-      if data =~ /^Enter password:\s*/m
-        logger.info "#{channel[:host]} asked for password"
-        channel.send_data "#{password}\n"
+    desc "initial database setup"
+    task :setup, :roles => :db do
+      create
+    end
+
+    desc "Database dump"
+    task :dump, :roles => :db do
+      run "mysqldump #{db_name} -u root -p | /bin/gzip > #{dump_root}/`date +%Y-%m-%d_%H:%M`.sql.gz" do |channel, stream, data|
+        if data =~ /^Enter password:\s*/m
+          logger.info "#{channel[:host]} asked for password"
+          channel.send_data "#{password}\n"
+        end
+        puts data
       end
-      puts data
     end
-  end
+  end # db
 
-  desc "initial database setup"
-  task :db_setup, :roles => :db do
-    transaction do
-      db_create
-    end
-  end
-
-  desc "Database dump"
-  task :db_dump, :roles => :db do
-    run "mysqldump #{db_name} -u root -p > #{deploy_to}/current/#{db_name}.sql" do |channel, stream, data|
-      if data =~ /^Enter password:\s*/m
-        logger.info "#{channel[:host]} asked for password"
-        channel.send_data "#{password}\n"
-      end
-      puts data
-    end
-    run "#{in_current} tar czf #{db_name}.sql.tgz #{db_name}.sql"
-    run "#{in_current} rm #{db_name}.sql"
-  end
-
-  desc "Get backup file back"
-  task :get_backup, :roles => :app do
-    get "#{deploy_to}/current/#{db_name}_data.tgz", "./#{db_name}_#{Time.now.strftime '%Y-%m-%d-%H'}.tgz"
-  end
-
-  # FIXME: backup not loading data for every site...
-  desc "Backup all data and bring it backup here"
-  task :backup, :roles => :app do
-    db_dump
-    # key track of the current svn revision for app
-
-    run "#{in_current} svn info > #{deploy_to}/current/zena_version.txt"
-    run "#{in_current} rake zena:full_backup RAILS_ENV='production'"
-    run "#{in_current} tar czf #{db_name}_data.tgz #{db_name}.sql.tgz sites_data.tgz zena_version.txt"
-    get_backup
-  end
+  # Would need to be fixed before being used
+  #
+  # desc "Get backup file back"
+  # task :get_backup, :roles => :app do
+  #   get "#{deploy_to}/current/#{db_name}_data.tgz", "./#{db_name}_#{Time.now.strftime '%Y-%m-%d-%H'}.tgz"
+  # end
+  #
+  # # FIXME: backup not loading data for every site...
+  # desc "Backup all data and bring it backup here"
+  # task :backup, :roles => :app do
+  #   db_dump
+  #   # key track of the current svn revision for app
+  #
+  #   run "#{in_current} svn info > #{deploy_to}/current/zena_version.txt"
+  #   run "#{in_current} rake zena:full_backup RAILS_ENV='production'"
+  #   run "#{in_current} tar czf #{db_name}_data.tgz #{db_name}.sql.tgz sites_data.tgz zena_version.txt"
+  #   get_backup
+  # end
 
   Bricks.load_filename('deploy')
 
@@ -390,7 +401,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       transaction do
         app_setup
 
-        db_setup
+        db::setup
 
         apache2_setup
       end
