@@ -295,45 +295,49 @@ namespace :zena do
 
   desc 'Rebuild foxy fixtures for all sites'
   task :build_fixtures => :environment do
-    Dir["#{RAILS_ROOT}/test/fixtures/*.yml"].each do |f|
-      FileUtils.rm f
-    end
-
-    tables = Node.connection.tables
-    ordered_tables = %w{roles versions nodes attachments zips relations links}
-
-    tables -= ordered_tables
-    tables += ordered_tables
-    roles, versions, nodes = nil, nil, nil
-    tables.each do |table|
-      case table
-      when 'roles'
-        roles = Zena::FoxyParser.new(table)
-        roles.run
-      when 'versions'
-        versions = Zena::FoxyParser.new(table)
-        versions.run
-      when 'nodes'
-        nodes = Zena::FoxyParser.new(table, :versions => versions, :roles => roles)
-        nodes.run
-      when 'zips'
-        Zena::FoxyParser.new(table, :nodes => nodes).run
-      when 'relations'
-        Zena::FoxyParser.new(table, :roles => roles).run
-      when 'links'
-        Zena::FoxyParser.new(table, :nodes => nodes).run
-      else
-        Zena::FoxyParser.new(table).run
+    if RAILS_ENV != 'test'
+      puts "## You can only build fixtures by using the test environment to avoid loosing data (used = #{RAILS_ENV})"
+    else
+      Dir["#{RAILS_ROOT}/test/fixtures/*.yml"].each do |f|
+        FileUtils.rm f
       end
-    end
 
-    %w{db:fixtures:load zena:rebuild_index}.each do |task|
-      puts "******************************* #{task}"
-      Rake::Task[task].invoke
-    end
+      tables = Node.connection.tables
+      ordered_tables = %w{roles versions nodes attachments zips relations links}
 
-    index_tables = Node.connection.tables.select {|t| t =~ /^idx_/ }
-    Zena::FoxyParser.dump_fixtures(index_tables)
+      tables -= ordered_tables
+      tables += ordered_tables
+      roles, versions, nodes = nil, nil, nil
+      tables.each do |table|
+        case table
+        when 'roles'
+          roles = Zena::FoxyParser.new(table)
+          roles.run
+        when 'versions'
+          versions = Zena::FoxyParser.new(table)
+          versions.run
+        when 'nodes'
+          nodes = Zena::FoxyParser.new(table, :versions => versions, :roles => roles)
+          nodes.run
+        when 'zips'
+          Zena::FoxyParser.new(table, :nodes => nodes).run
+        when 'relations'
+          Zena::FoxyParser.new(table, :roles => roles).run
+        when 'links'
+          Zena::FoxyParser.new(table, :nodes => nodes).run
+        else
+          Zena::FoxyParser.new(table).run
+        end
+      end
+
+      %w{db:fixtures:load zena:rebuild_index}.each do |task|
+        puts "******************************* #{task}"
+        Rake::Task[task].invoke
+      end
+
+      index_tables = Node.connection.tables.select {|t| t =~ /^idx_/ }
+      Zena::FoxyParser.dump_fixtures(index_tables)
+    end
   end
 
   desc 'Rebuild index for all sites (without SiteWorker)'
