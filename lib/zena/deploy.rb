@@ -94,7 +94,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     ].map {|dir| "#{deploy_to}/#{dir}"}
 
     # make sure production.log is created before so that it gets the correct permissions
-    run "touch #{app_root}/shared/log/production.log"
+    run "touch #{deploy_to}/shared/log/production.log"
     run "chown -R www-data:www-data #{directories.join(' ')}"
   end
 
@@ -390,8 +390,91 @@ Capistrano::Configuration.instance(:must_exist).load do
   #   run "#{in_current} tar czf #{db_name}_data.tgz #{db_name}.sql.tgz sites_data.tgz zena_version.txt"
   #   get_backup
   # end
+  case self[:app_type]
+  when :mongrel
+    #========================== MONGREL ===============================#
+    namespace :app do
 
-  Bricks.load_filename('deploy')
+      desc "configure mongrel"
+      task :configure, :roles => :app do
+        run "#{in_current} mongrel_rails cluster::configure -e production -p #{mongrel_port} -N #{mongrel_count} -c #{deploy_to}/current -P log/mongrel.pid -l log/mongrel.log -a 127.0.0.1 --user www-data --group www-data"
+        run "#{in_current} echo 'config_script: config/mongrel_upload_progress.conf' >> config/mongrel_cluster.yml"
+      end
+
+      desc "Stop the drb upload_progress server"
+      task :upload_progress_stop , :roles => :app do
+        run "#{in_current} ruby lib/upload_progress_server.rb stop"
+      end
+
+      desc "Start the drb upload_progress server"
+      task :upload_progress_start , :roles => :app do
+        run "#{in_current} lib/upload_progress_server.rb start"
+      end
+
+      desc "Restart the upload_progress server"
+      task :upload_progress_restart, :roles => :app do
+        upload_progress_stop
+        upload_progress_start
+      end
+
+      desc "Restart mongrels"
+      task :restart, :roles => :app do
+        stop
+        start
+      end
+
+      desc "Start mongrels"
+      task :start, :roles => :app do
+        configure
+        upload_progress_start
+        run "#{in_current} mongrel_rails cluster::start"
+      end
+
+      desc "Stop mongrels"
+      task :stop, :roles => :app do
+        configure
+        upload_progress_stop
+        run "#{in_current} mongrel_rails cluster::stop"
+      end
+    end # mongrel
+  when :passenger
+    namespace :upload_progress do
+      desc "Build and install upload progress extension for Apache2"
+      task :setup, :roles => :app do
+        tmp_dir = "/tmp/mod_upload_progress.tmp"
+        c_file = File.read("#{Zena::ROOT}/vendor/apache2_upload_progress/mod_upload_progress.c")
+        run "test -e #{tmp_dir}  || mkdir #{tmp_dir}"
+        put c_file, "#{tmp_dir}/mod_upload_progress.c"
+        run "cd #{tmp_dir} && apxs2 -c -i mod_upload_progress.c && rm -rf #{tmp_dir}"
+      end
+    end
+
+    before "zena:setup", "upload_progress:setup"
+
+    namespace :app do
+
+      desc "Restart Passenger app"
+      task :restart, :roles => :app do
+        stop
+        start
+      end
+
+      desc "Start Passenger app"
+      task :start, :roles => :app do
+        run "#{in_current} touch tmp/restart.txt"
+      end
+
+      desc "Stop Passenger app (only halt upload DRB)"
+      task :stop, :roles => :app do
+        # Cannot stop
+      end
+
+      desc "Kill Passenger spawner"
+      task :kill, :roles => :app do
+        run "kill $( passenger-memory-stats | grep 'Passenger spawn server' | awk '{ print $1 }' )"
+      end
+    end # passenger
+  end
 
   #========================== DEPLOY ===============================#
 

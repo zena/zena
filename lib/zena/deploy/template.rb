@@ -15,8 +15,12 @@ rakefile("zena_tasks.rake") do
 <<-TASK
 # sync zena tasks to gem version
 env = File.read(File.join(File.dirname(__FILE__), '..', '..', 'config', 'environment.rb'))
-if env =~ /config.gem.*zena.*version.*'(.*?)'/
-  gem 'zena', "= \#{$1}"
+if env =~ /^\\s*(#|).*config.gem.*zena.*version.*'(.*?)'/
+  if $1 == '#'
+    # commented out
+  else
+    gem 'zena', "= \#{$2}"
+  end
 end
 require 'zena'
 require 'tasks/zena'

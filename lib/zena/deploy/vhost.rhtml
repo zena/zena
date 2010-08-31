@@ -63,10 +63,10 @@
   RewriteRule ^([^.]+)$ $1.html [QSA]
 
   # Redirect all non-static requests to cluster
-  RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME}%{QUERY_STRING} !-f
+	RewriteCond %{REQUEST_FILENAME} !-f
   RewriteRule ^/(.*)$ balancer://<%= config[:balancer] %>%{REQUEST_URI} [P,QSA,L]
 <% elsif config[:app_type] == :passenger %>
-  PassengerAppRoot <% config[:app_root] %>
+  PassengerAppRoot <%= config[:app_root] %>
 
   <Location />
     # enable tracking uploads in /

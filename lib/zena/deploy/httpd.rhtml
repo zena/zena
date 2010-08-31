@@ -3,7 +3,8 @@
 
 NameVirtualHost *
 <% if config[:app_type] == :passenger  %>
-LoadModule upload_progress_module <%= config[:app_root] %>/vendor/apache2_upload_progress/mod_upload_progress.so
+LoadModule upload_progress_module /usr/lib/apache2/modules/mod_upload_progress.so
+PassengerDefaultUser www-data
 <% elsif config[:app_type] == :mongrel %>
 <Proxy *>
   Order allow,deny
@@ -15,8 +16,11 @@ LoadModule upload_progress_module <%= config[:app_root] %>/vendor/apache2_upload
 <% end %>
 
 <ifmodule mode_expires.c>
-  <filesmatch "\.(jpg|gif|png|css|js)$">
-    ExpiresActive on
-    ExpiresDefault "access plus 1 year"
-  </filesmatch>
+  ExpiresActive on
+  ExpiresDefault A0
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/gif "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/x-javascript "access plus 1 year"
 </ifmodule>

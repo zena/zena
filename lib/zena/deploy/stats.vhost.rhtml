@@ -1,19 +1,19 @@
-# zena awstats vhost for <%= host %>
+# zena awstats vhost for <%= config[:host] %>
 # automatically generated file
 
 <VirtualHost *>
-  ServerName stats.<%= host %>
+  ServerName stats.<%= config[:host] %>
 
   DocumentRoot /usr/share/doc/awstats/examples
-  ErrorLog     /var/www/zena/<%= host %>/log/apache2.error.log
-  CustomLog    /var/www/zena/<%= host %>/log/apache2.access.log combined
+  ErrorLog     <%= config[:sites_root] %>/<%= config[:host] %>/log/apache2.error.log
+  CustomLog    <%= config[:sites_root] %>/<%= config[:host] %>/log/apache2.access.log combined
 
   <location />
-    SetEnv AWSTATS_FORCE_CONFIG <%= host %>
+    SetEnv AWSTATS_FORCE_CONFIG <%= config[:host] %>
 
     AuthType Basic
-    AuthName "<%= host %> stats"
-    AuthUserFile /var/www/zena/<%= host %>/log/.awstatspw
+    AuthName "<%= config[:host] %> stats"
+    AuthUserFile <%= config[:sites_root] %>/<%= config[:host] %>/log/.awstatspw
     Require valid-user
   </location>
 
