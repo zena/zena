@@ -93,8 +93,8 @@ Capistrano::Configuration.instance(:must_exist).load do
       'shared/log',
     ].map {|dir| "#{deploy_to}/#{dir}"}
 
-    # make sure production.log is created before so that it gets the correct permissions
-    run "touch #{app_root}/shared/log/production.log"
+    # make sure production.log is created before so that it gets the correct permissionsong
+    run "touch #{deploy_to}/shared/log/production.log"
     run "chown -R www-data:www-data #{directories.join(' ')}"
   end
 
