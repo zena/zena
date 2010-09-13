@@ -1456,4 +1456,13 @@ done: \"I am done\""
     note = secure(Node) { nodes(:opening) }
     assert_equal %w{text title}, note.parse_keys.sort
   end
+
+  def test_safe_send
+    node = secure(Node) { nodes(:status) }
+    assert_equal 'safe_send("title")', RubyLess.translate(Node, 'send("title")')
+
+    assert_equal 'status title', node.safe_send("title")
+    assert_equal nodes_zip(:status).to_s, node.safe_send("id")
+    assert_equal nil, node.safe_send("object_id")
+  end
 end

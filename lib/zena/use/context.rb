@@ -149,9 +149,10 @@ module Zena
           # end
 
           if %w{parent project section}.include?(key)
-            key = "e.#{key}"
+            key = "e.#{key}_id"
           else
-            key = "e.#{RubyLess.translate(key, node.klass.first)}"
+            receiver = RubyLess::TypedString.new('e', :class => node.klass.first, :query => node.opts[:query])
+            key = RubyLess.translate(receiver, key)
           end
 
           #if sort_block
@@ -160,7 +161,7 @@ module Zena
           #end
 
           out "<% if #{var} = group_array(#{node}) {|e| #{key}} -%>"
-            open_node_context("group_array(#{node}) {|e| #{key}}", :node => node.move_to(var, [node.klass])) do
+            open_node_context("group_array(#{node}) {|e| #{key}}", :node => node.move_to(var, [node.klass], :query => node.opts[:query])) do
               if child['each_group']
                 out expand_with
               else

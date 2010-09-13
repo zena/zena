@@ -91,7 +91,7 @@ class UsersControllerTest < Zena::Controller::TestCase
             'password'   => 'secret',
             'login'      => 'bolomey',
             'first_name' => 'Paul',
-            'group_ids'  => ['2', ''],
+            'group_ids'  => [groups_id(:admin), ''],
             'email'      => 'paul.bolomey@brainfuck.com',
             '_'          => '' # This is in the original post
           },
@@ -103,7 +103,6 @@ class UsersControllerTest < Zena::Controller::TestCase
         post_subject
         assert_response :success
         user = assigns(:user)
-        err user
         assert !user.new_record?
       end
 

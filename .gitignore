@@ -1,4 +1,6 @@
 .DS_Store
+*.swp
+*.gem
 restart.txt
 config/deploy_config.rb
 config/database.yml

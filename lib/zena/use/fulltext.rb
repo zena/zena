@@ -18,7 +18,7 @@ module Zena
               next unless code = self[idx_group]
 
               begin
-                ruby = RubyLess.translate_string(code, klass)
+                ruby = RubyLess.translate_string(klass, code)
 
                 unless ruby.klass <= String
                   errors.add(idx_group, _('Compilation should produce a String. Found %s.') % ruby.klass.name)

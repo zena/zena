@@ -35,7 +35,7 @@ module Zena
 
         # We overwrite safe_method_type from RubyLess to include the properties loaded
         # with load_roles!.
-        def safe_method_type(signature)
+        def safe_method_type(signature, receiver = nil)
           if signature.size == 1 && (column = loaded_role_properties[signature.first])
             RubyLess::SafeClass.safe_method_type_for_column(column, true)
           else
@@ -59,12 +59,14 @@ module Zena
         end
 
         def all_possible_roles
-          kpaths = []
+          @all_possible_roles ||= begin
+            kpaths = []
 
-          kpath = self.kpath || vclass.kpath
-          kpath.split(//).each_index { |i| kpaths << kpath[0..i] }
-          # FIXME: !! manage a memory cache for Roles
-          Role.all(:conditions => ['kpath IN (?)', kpaths])
+            kpath = self.kpath || vclass.kpath
+            kpath.split(//).each_index { |i| kpaths << kpath[0..i] }
+            # FIXME: !! manage a memory cache for Roles
+            Role.all(:conditions => ['kpath IN (?) AND site_id = ?', kpaths, current_site.id], :order => 'kpath ASC')
+          end
         end
       end # LoadRoles
 
@@ -96,6 +98,8 @@ module Zena
             after_save  :update_roles
             after_destroy :destroy_nodes_roles
             has_and_belongs_to_many :roles, :class_name => '::Role'
+            safe_context :possible_roles => {:class => [Role], :method => 'zafu_possible_roles'}
+            safe_context :roles => {:class => [Role], :method => 'zafu_roles'}
 
             property do |p|
               p.serialize :cached_role_ids, Array
@@ -124,6 +128,18 @@ module Zena
         def rebuild_index_with_enrollable!
           load_roles!
           rebuild_index_without_enrollable!
+        end
+
+        def zafu_possible_roles
+          roles = all_possible_roles
+          roles.empty? ? nil : roles
+        end
+
+        def zafu_roles
+          return nil unless role_ids = self.prop['cached_role_ids']
+          # FIXME: memory cache for roles
+          roles = Role.all(:conditions => ['id IN (?) AND site_id = ?', role_ids, current_site.id], :order => 'kpath ASC')
+          roles.empty? ? nil : roles
         end
 
         private

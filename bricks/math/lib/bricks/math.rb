@@ -26,7 +26,7 @@ module Bricks
           filename = math_id + '.png'
           filepath = node.asset_path(filename)
           unless File.exist?(filepath)
-            if opts[:preview]
+            if !Bricks::CONFIG['math']['live'] && opts[:preview]
               # do not render image during preview
               tag = content =~ /\n/ ? 'pre' : 'span'
               return "<#{tag} class='math_preview'>#{content}</#{tag}>"

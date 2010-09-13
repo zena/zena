@@ -10,7 +10,6 @@ module Zena
       class StringDictionary
         include RubyLess
         safe_method ['[]', String] => {:class => String, :nil => true}
-        disable_safe_read # ?
       end
 
       module ModelMethods

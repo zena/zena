@@ -421,7 +421,7 @@ module Zena
                 # force compilation with Node context. Why ?
                 #node_bak = @context[:node]
                 #@context[:node] = node(Node)
-                #  anchor_name = ::RubyLess.translate_string(anchor_name, self)
+                #  anchor_name = ::RubyLess.translate_string(self, anchor_name)
                 #@context[:node] = node_bak
               end
             else
@@ -445,7 +445,7 @@ module Zena
             anchor = @params[:anchor]
             if anchor && !@params[:href]
               # Link on same page
-              return ::RubyLess.translate_string("##{get_anchor_name(anchor)}", self)
+              return ::RubyLess.translate_string(self, "##{get_anchor_name(anchor)}")
             end
 
             # if opts[:action] == 'edit' && !remote_target
@@ -498,7 +498,7 @@ module Zena
 
             method = "#{method}(#{method_args.join(', ')})"
 
-            ::RubyLess.translate(method, self)
+            ::RubyLess.translate(self, method)
           end
 
           def insert_ajax_args(target, hash_params, action)

@@ -111,8 +111,6 @@ class VersionsController < ApplicationController
         source[k] || '').format_as(:html).gsub(/(\s+)<\/del>/, '</del>\1')
     end
 
-    puts target.inspect
-
     show
   end
 

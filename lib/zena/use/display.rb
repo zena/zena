@@ -423,7 +423,7 @@ module Zena
         # Display an attribute or RubyLess code
         def r_show
           if node.list_context?
-            @context[:node] = node.move_to("#{node}.first", node.klass.first)
+            @context[:node] = node.move_to("#{node}.first", node.klass.first, :query => node.opts[:query])
             return r_show
           elsif node.will_be?(String)
             return "<%= #{node} %>"
@@ -505,7 +505,7 @@ module Zena
           return unless node.will_be?(Node)
 
           if src = @params[:src]
-            finder = ::RubyLess.translate(@params[:src], self) #build_finder(:first, @params[:src])
+            finder = ::RubyLess.translate(self, @params[:src]) #build_finder(:first, @params[:src])
             return parser_error("invalid class (#{finder.klass})") unless finder.klass <= Node
 
             img = finder
@@ -522,7 +522,7 @@ module Zena
           res += ", :host => #{@context["exp_host"]}" if @context["exp_host"]
           res += ")"
           if finder = @params[:link]
-            finder = ::RubyLess.translate(finder, self)
+            finder = ::RubyLess.translate(self, finder)
 
             return parser_error("Invalid class (#{finder.klass})") unless finder.klass <= Node
 

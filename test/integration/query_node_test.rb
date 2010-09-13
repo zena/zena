@@ -6,7 +6,7 @@ class QueryNodeTest < Zena::Unit::TestCase
   safe_method :date => Time
   safe_method :params => StringDictionary
 
-  def safe_method_type(signature)
+  def safe_method_type(signature, receiver = nil)
     # TODO: we could use the @context[:node] to get real class..
     if type = Node.safe_method_type(signature)
       type.merge(:method => "@node.#{type[:method]}")

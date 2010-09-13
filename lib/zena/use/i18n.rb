@@ -195,7 +195,7 @@ module Zena
         def r_wrong_lang(params = @params)
           if @blocks.empty? || @method != 'wrong_lang'
             text = params[:text] || %q{<span class='wrong_lang'>[#{v.lang}]</span> }
-            "<%=  #{node}.version.lang == lang ? '' : #{::RubyLess.translate_string(text, self)} %>"
+            "<%=  #{node}.version.lang == lang ? '' : #{::RubyLess.translate_string(self, text)} %>"
           else
             expand_if("#{node}.version.lang != lang")
           end

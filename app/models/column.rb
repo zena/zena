@@ -12,6 +12,8 @@ class Column < ActiveRecord::Base
   validates_uniqueness_of :name, :scope => :site_id
   validate :name_not_in_models
 
+  safe_method :name => String
+
   class << self
     include Zena::Acts::Secure
 

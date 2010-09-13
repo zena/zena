@@ -12,12 +12,12 @@ will_paginate:  '~> 2.3.12'
 differ:         '>= 0.1.1'
 shoulda:        '>= 2.10.2'
 
-querybuilder:   '>= 0.8.3'
+querybuilder:   '>= 0.9.0'
 yamltest:       '>= 0.7.0'
-rubyless:       '>= 0.6.0'
+rubyless:       '>= 0.7.0'
 property:       '>= 1.1.0'
 versions:       '>= 0.3.1'
-zafu:           '>= 0.6.3'
+zafu:           '>= 0.6.4'
 
 jeweler:
 

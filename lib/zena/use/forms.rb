@@ -257,7 +257,7 @@ END_TXT
           return parser_error("missing name") unless attribute
 
           if value = @params[:selected]
-            selected = ::RubyLess.translate_string(value, self)
+            selected = ::RubyLess.translate_string(self, value)
           elsif @context[:in_filter]
             selected = "params[#{attribute.to_sym.inspect}].to_s"
           elsif %w{parent_id}.include?(attribute)
@@ -396,13 +396,13 @@ END_TXT
 
             if sub_attr
               type = node.klass.safe_method_type([attribute])
-              if sub_attr_ruby = RubyLess.translate(%Q{this.#{attribute}[#{sub_attr.inspect}]}, self)
+              if sub_attr_ruby = RubyLess.translate(self, %Q{this.#{attribute}[#{sub_attr.inspect}]})
                 res[:value] = "<%= fquote #{sub_attr_ruby} %>"
               end
             else
               if value = params[:value]
                 # On refactor, use append_markup_attr(markup, key, value)
-                value = RubyLess.translate_string(value, self)
+                value = RubyLess.translate_string(self, value)
 
                 if value.literal
                   res[:value] = value.literal.to_s.gsub("'",'&apos;')
@@ -432,6 +432,9 @@ END_TXT
             #    res[:value] = ["''"]
             #  end
             #end
+          elsif node.will_be?(Column)
+            res[:name]  = "node[<%= #{node}.name %>]"
+            res[:value] = "<%= fquote #{node(Node)}.prop[#{node}.name] %>"
           end
 
           if node.dom_prefix
@@ -474,7 +477,7 @@ END_TXT
 
           # Get current attribute in forms
           def node_attribute(attribute)
-            node_attribute = ::RubyLess.translate(attribute, node.klass)
+            node_attribute = ::RubyLess.translate(node.klass, attribute)
             "#{node}.#{node_attribute}"
           rescue ::RubyLess::NoMethodError
             if node.will_be?(Node)
@@ -517,8 +520,8 @@ END_TXT
                 nodes = finder[:method]
               end
 
-              set_attr  = ::RubyLess.translate(@params[:attr] || 'id', klass)
-              show_attr = ::RubyLess.translate(@params[:show] || 'title', klass)
+              set_attr  = ::RubyLess.translate(klass, @params[:attr] || 'id')
+              show_attr = ::RubyLess.translate(klass, @params[:show] || 'title')
 
               options_list = "[['','']] + (#{nodes} || []).map{|r| [r.#{show_attr}, r.#{set_attr}.to_s]}"
             elsif values = @params[:values]

@@ -149,12 +149,21 @@ class EnrollableTest < Zena::Unit::TestCase
             end
           end
 
+          should 'respond to zafu_roles' do
+            assert_equal %w{Original}, subject.zafu_roles.map(&:name)
+          end
+
+          should 'use cached_role_ids in zafu_roles' do
+            Role.connection.execute("DELETE FROM nodes_roles")
+            assert_equal %w{Original}, subject.zafu_roles.map(&:name)
+          end
+
           context 'with new property index defined in role' do
             setup do
               column = secure(Column) { columns(:Letter_paper) }
               column.update_attributes(:index => 'string')
             end
-            
+
             subject do
               secure(Node) { nodes(:letter) }
             end
@@ -189,7 +198,11 @@ class EnrollableTest < Zena::Unit::TestCase
             assert !subject.respond_to?(:origin)
           end
         end # with properties assigned through role
-      end # from a classwith roles
+
+        should 'respond to zafu_possible_roles' do
+          assert_equal %w{Original Task Letter}, subject.zafu_possible_roles.map {|r| r.name}
+        end
+      end # from a class with roles
     end # on a node
 
     context 'creating a node' do

@@ -808,7 +808,7 @@ class Node < ActiveRecord::Base
       transform_attributes(attributes, base_node)
     end
 
-    def safe_method_type(signature)
+    def safe_method_type(signature, receiver = nil)
       if signature.size > 1
         RubyLess::SafeClass.safe_method_type_for(self, signature)
       else
@@ -818,6 +818,13 @@ class Node < ActiveRecord::Base
         elsif method =~ /^(.+)_((id|zip|status|comment)(s?))\Z/ && !instance_methods.include?(method)
           key = $3 == 'id' ? "zip#{$4}" : $2
           {:method => "rel[#{$1.inspect}].try(:other_#{key})", :nil => true, :class => ($4.blank? ? Number : [Number])}
+        elsif receiver && query = receiver.opts[:query]
+          # Resolve by using information in the SELECT part of the query that found this node
+          if query.select_keys.include?(method)
+            {:class => String, :method => "attributes[#{method.inspect}]", :nil => true}
+          else
+            nil
+          end
         else
           nil
         end
@@ -1395,6 +1402,19 @@ class Node < ActiveRecord::Base
     secure(Node) { Node.find_node_by_pseudo(string, base_node || self) }
   end
 
+  safe_method [:send, String] => {:class => String, :nil => true, :method => 'safe_send'}
+
+  # Safe dynamic method dispatching when the method is not known during compile time. Currently this
+  # only works for methods without arguments.
+  def safe_send(method)
+    # We need to load roles or all properties will be ignored
+    load_roles!
+
+    return nil unless type = safe_method_type([method])
+    res = eval(type[:method])
+    res ? res.to_s : nil
+  end
+
   protected
 
     # after node is saved, make sure it's children have the correct section set
@@ -1721,7 +1741,6 @@ class Node < ActiveRecord::Base
         end
       end
     end
-
 end
 
 Bricks.apply_patches

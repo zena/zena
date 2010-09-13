@@ -30,7 +30,7 @@ module Zena
       #   <r:images in='site'>
       #
       # 2. r_unknown
-      #   try RubyLess.translate(xxxxxx, node) <-- pass context
+      #   try RubyLess.translate(node, xxxxxx) <-- pass context
       #
       # 3. helper (view) tries to resolve safe_method_type as RubyLess or PseudoSQL
       module ZafuMethods
@@ -55,12 +55,12 @@ module Zena
           klass = [default_query.main_class]
 
           if sql = @params[:eval]
-            sql = RubyLess.translate(sql, self)
+            sql = RubyLess.translate(self, sql)
             unless sql.klass <= String
               return parser_error("Invalid compilation result for #{sql.inspect} (#{sql.klass})")
             end
           elsif sql = @params[:text]
-            sql = RubyLess.translate_string(sql, self)
+            sql = RubyLess.translate_string(self, sql)
           else
             sql = "params[:qb]"
           end
@@ -168,7 +168,7 @@ module Zena
             finder = get_finder(query, count)
 
             if count != :count && else_clause = @params[:else]
-              else_clause = RubyLess.translate(else_clause, self)
+              else_clause = RubyLess.translate(self, else_clause)
 
               if else_clause.klass == Array
                 else_klass = else_clause.opts[:array_content_class]

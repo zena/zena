@@ -8,6 +8,10 @@ class Role < ActiveRecord::Base
   before_validation :set_defaults
   validate :check_can_save
 
+  include RubyLess
+  safe_method :columns => {:class => ['Column'], :method => 'columns.values', :nil => false}
+  safe_method :name => String
+
   private
     def set_defaults
       self.site_id = visitor.site.id

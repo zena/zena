@@ -26,3 +26,31 @@ show_property_filter_role_has_role:
 show_bad_role:
   src: "<r:Foo>abc</r:Foo>"
   tem: "/Invalid role or class 'Foo'/"
+
+form_with_all_roles:
+  context:
+    node: tree_jpg
+  src: |
+    <r:possible_roles>
+      <fieldset do='each'>
+        <legend do='name'/>
+        <ul do='columns'>
+          <li do='each'><label do='name'/> <r:input/></li>
+        </ul>
+      </fieldset>
+    </r:possible_roles>
+  res: "/label.weight.*node\[weight\].*origin.*value='Big Bang'.*assigned/"
+
+show_all_properties:
+  context:
+    node: tree_jpg
+  src: |
+    <r:roles>
+      <fieldset do='each'>
+        <legend do='name'/>
+        <ul do='columns'>
+          <li do='each' do='if' test='@node.send(name)'><label do='name'/> <r:eval>@node.send(name)</r:eval></li>
+        </ul>
+      </fieldset>
+    </r:roles>
+  res: "/<label>origin</label> Big Bang</li>/"

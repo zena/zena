@@ -5,6 +5,9 @@ test:
   worker:   OFF
 
 development:
+  math:
+    switch: ON
+    live:   ON
   tags:     ON
   captcha:  ON
   sphinx:
@@ -21,6 +24,9 @@ development:
   data2pdf: ON
 
 production:
+  math:
+    switch: ON
+    live:   ON
   tags:     ON
   captcha:  ON
   sphinx:

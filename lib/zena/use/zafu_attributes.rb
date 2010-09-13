@@ -69,7 +69,7 @@ module Zena
                   var  = $1
                   code = params.delete(k)
                   begin
-                    typed_string = ::RubyLess.translate(code, self)
+                    typed_string = ::RubyLess.translate(self, code)
                     set_context_var('set_var', var, typed_string)
                   rescue RubyLess::NoMethodError => err
                     parser_error(err.message, code)
@@ -86,7 +86,7 @@ module Zena
 
                 @if_class_params.each do |class_name, code|
                   begin
-                    typed_string = ::RubyLess.translate(code, self)
+                    typed_string = ::RubyLess.translate(self, code)
                     @markup.append_dyn_param(:class, "<%= (#{typed_string}) ? ' #{class_name}' : '' %>", true)
                   rescue RubyLess::NoMethodError => err
                     text += parser_error(err.message, code)

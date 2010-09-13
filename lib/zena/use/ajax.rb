@@ -297,7 +297,7 @@ module Zena
           return parser_error("missing 'set' or 'add' parameter") unless role = @params.delete(:set) || @params.delete(:add)
           return parser_error("missing 'for' parameter") unless finder = @params.delete(:for)
 
-          finder = RubyLess.translate(finder, self)
+          finder = RubyLess.translate(self, finder)
           return parser_error("Invalid class 'for' parameter: #{finder.klass}") unless finder.klass <= Node
 
           set_dom_prefix
@@ -315,7 +315,7 @@ module Zena
             return
           end
 
-          finder = RubyLess.translate(finder, self)
+          finder = RubyLess.translate(self, finder)
           unless finder.klass <= Node
             out parser_error("Invalid class 'for' parameter: #{finder.klass}")
             return

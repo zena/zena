@@ -14,6 +14,10 @@ add_btn:
   </table>"
   res: "/<tr class='btn_add' id='list1_add'><td><b><a href='#' onclick/"
 
+form_put:
+  src: "<r:form></r:form>"
+  tem: "."
+
 translate_id_to_zip:
   src: "<b do='hot_id'/><i do='parent_id'/>"
   tem: "<b><%= @node.rel[\"hot\"].try(:other_zip) %></b><i><%= @node.parent_zip %></i>"
