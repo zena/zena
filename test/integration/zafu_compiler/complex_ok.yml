@@ -1,0 +1,19 @@
+it_should_compile_custom_select:
+  context:
+    node_name: '@node'
+    node: roger
+    visitor: complex_admin
+    site: complex
+    ref_date: 2004-09-01
+  src: "<r:emp_form_dates do='each' join=', '><r:show attr='node_name'/>(<r:priority/>)</r:emp_form_dates>"
+  res: 'secureASite(10), winchUsage(10), dangerousTransportations(10), engine(5), transmitInformation(5), fiberJunction(5), formulateProblems(5), radioUsage(1)'
+
+it_should_group_by_custom_select:
+  context:
+    node_name: '@node'
+    node: roger
+    visitor: complex_admin
+    site: complex
+    ref_date: 2004-09-01
+  src: "<r:emp_form_dates do='group' by='priority' do='each_group' join=', '><r:show attr='priority'/></r:emp_form_dates>"
+  res: '10, 5, 1'
