@@ -22,7 +22,7 @@ module Zena
           elsif res = find_document_for_template(path, base_path)
             doc, base_path = res
             # text, fullpath (for recursion testing), base_path
-            return doc.text, doc.fullpath, base_path
+            return doc.text, doc.fullpath, base_path, doc
           else
             nil
           end

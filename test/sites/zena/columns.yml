@@ -8,5 +8,8 @@ Original_origin:
 Original_weight:
   ptype:           integer
 
+Original_tz:
+  ptype:           string
+
 Letter_paper:
   ptype:           string

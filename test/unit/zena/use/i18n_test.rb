@@ -1,14 +1,14 @@
 require 'test_helper'
 
 class I18nTest < Zena::View::TestCase
-  
+
   context 'With a logged in user' do
     setup do
       login(:lion)
       visiting(:cleanWater)
       I18n.locale = 'en'
     end
-    
+
     context 'translating with _' do
       should 'return translation for current lang' do
         assert_equal '%A, %B %d %Y', _('full_date')
@@ -20,7 +20,7 @@ class I18nTest < Zena::View::TestCase
         assert_equal 'yoba', _('yoba')
       end
     end # translating with _
-    
+
     context 'on lang_links' do
       should 'highlight current lang with em' do
         assert_match %r{<em>en</em>}, lang_links
@@ -38,7 +38,7 @@ class I18nTest < Zena::View::TestCase
       I18n.locale = 'en'
       visiting(:cleanWater)
     end
-    
+
     context 'translating with _' do
       should 'return translation for current lang' do
         assert_equal '%A, %B %d %Y', _('full_date')
@@ -50,7 +50,7 @@ class I18nTest < Zena::View::TestCase
         assert_equal 'yoba', _('yoba')
       end
     end # translating with _
-    
+
     context 'on lang_links' do
       should 'highlight current lang with em' do
         assert_match %r{<em>en</em>}, lang_links
@@ -61,4 +61,31 @@ class I18nTest < Zena::View::TestCase
       end
     end # on lang_links
   end # Without a login
+
+  context 'With a translation dict' do
+    setup do
+      login(:anon)
+      visitor.lang = 'fr'
+    end
+
+    subject do
+      Zena::Use::I18n::TranslationDict.new(nodes_id(:translations))
+    end
+
+    should 'load data on first request' do
+      assert_nil subject.instance_variable_get(:@dict)
+      assert_equal "j'aime", subject['I love']
+      assert_kind_of Hash, subject.instance_variable_get(:@dict)
+      assert_equal "foo", subject.get('foo')
+    end
+
+    should 'load data in new object' do
+      visitor.lang = 'de'
+      assert_equal "Ich liebe", subject.get('I love')
+      visitor.lang = 'fr'
+      # should not reload
+      assert_equal "Ich liebe", subject.get('I love')
+    end
+  end # With a translation dict
+
 end

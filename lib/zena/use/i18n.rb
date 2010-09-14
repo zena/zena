@@ -5,6 +5,67 @@ module Zena
     module I18n
       ::ENV['LANG'] = 'C'
 
+      class TranslationDict
+        attr_reader :last_error
+
+        include Zena::Acts::Secure
+        include RubyLess
+
+        # never returns nil
+        safe_method [:get, String] => {:class => String, :accept_nil => true}
+
+        def initialize(node_id)
+          @node_id = node_id
+        end
+
+        def get(key)
+          load!
+          get_without_loading(key)
+        end
+
+        def get_without_loading(key)
+          @dict[key] || ApplicationController.send(:_, key)
+        end
+
+        def load!(text = nil)
+          unless text
+            unless dict = secure(Node) { Node.find(:first, :conditions => {:id => @node_id}) }
+              return error("missing 'dictionary'")
+            end
+            text = dict.prop['text']
+          end
+
+          begin
+            definitions = YAML::load(text)
+            if translations = definitions['translations']
+              if translations.kind_of?(Hash)
+                # ok
+                @dict = translations
+                true
+              else
+                return error("bad 'translations' content (should be a dictionary)")
+              end
+            else
+              return error("missing 'translations' top-level key in dictionary")
+            end
+          rescue
+            return error("invalid dictionary content #{dict.inspect}")
+          end
+
+          class << self
+            alias get get_without_loading
+          end
+
+          true
+        end
+
+        private
+          def error(message)
+            @last_error = message
+            nil
+          end
+      end
+
       module FormatDate
 
         # display the time with the format provided by the translation of 'long_time'
@@ -125,12 +186,7 @@ module Zena
 
       module ViewMethods
         include RubyLess
-        translate = { :class  => String,
-                      :method => 'trans',
-                      :pre_processor => Proc.new {|str| self.rubyless_translate(str)}
-                    }
-        safe_method [:trans, String] => translate
-        safe_method [:t,     String] => translate
+
         safe_method [:lang_links, {:wrap => String, :join => String}] => String
 
         def self.included(base)
@@ -144,11 +200,6 @@ module Zena
           will_paginate_without_i18n(collection, options.merge(:prev_label => _('img_prev_page'), :next_label => _('img_next_page')))
         end
 
-        def self.rubyless_translate(str)
-          str = str.kind_of?(Hash) ? str['text'] : str
-          ApplicationController.send(:_, str)
-        end
-
         # translation of static text using gettext
         # FIXME: I do not know why this is needed in order to have <%= _('blah') %> find the translations on some servers
         def _(str)
@@ -159,6 +210,9 @@ module Zena
           ApplicationController.send(:_, str)
         end
 
+        def load_dictionary(node_id)
+          Zena::Use::I18n::TranslationDict.new(node_id)
+        end
 
         # show language selector
         def lang_links(opts={})
@@ -189,6 +243,9 @@ module Zena
       end # ViewMethods
 
       module ZafuMethods
+        include RubyLess
+        safe_method [:trans, String] => :translate
+        safe_method [:t,     String] => :translate
 
         # Show a little [xx] next to the title if the desired language could not be found. You can
         # use a :text => '(lang)' option. The word 'lang' will be replaced by the real value.
@@ -203,33 +260,59 @@ module Zena
 
         def r_load
           if dict = @params[:dictionary]
-            dict_content, absolute_url, base_path = self.class.get_template_text(dict, @options[:helper], @options[:base_path])
+            dict_content, absolute_url, base_path, doc = @options[:helper].send(:get_template_text, dict, @options[:base_path])
             return parser_error("dictionary #{dict.inspect} not found") unless base_path
-            # TODO: How to use dict offline ?
-            # We could do:
-            # dict_name = get_var_name('dict', 'dictionary')
-            # set_context_var('set_var', 'dictionary', TypedString.new(dict_name, StringDictionary))
-            # Load with <% #{dict_name} = load_dictionary(#{dict_zip}) -%>
-            @context[:dict] ||= {}
-            begin
-              definitions = YAML::load(dict_content)
-              definitions['translations'].each do |elem|
-                @context[:dict][elem[0]] = elem[1]
-              end
-            rescue
-              return parser_error("invalid dictionary content #{dict.inspect}")
+            # Lazy dictionary used for literal resolution
+            dict = TranslationDict.new(doc.id)
+
+            if dict.load!(dict_content)
+              # Save dictionary in template for dynamic uses
+              dict_name = get_var_name('dictionary', 'dict')
+
+              # This is to use in RubyLess translations and static translations in Zafu
+              set_context_var('set_var', 'dictionary', RubyLess::TypedString.new(dict_name, :class => TranslationDict, :literal => dict))
+
+              # Lazy loading (loads file on first request)
+              out "<% #{dict_name} = load_dictionary(#{doc.id}) -%>"
+            else
+              return parser_error(dict.last_error)
             end
           else
             return parser_error("missing 'dictionary'")
           end
+
           expand_with
         end
 
-        def _(text)
-          if @context[:dict]
-            @context[:dict][text] || helper.send(:_,text)
+        # Resolve RubyLess 't' and 'trans' methods
+        def translate(signature, receiver = nil)
+          return nil unless signature.size == 2 && signature[1] <= String
+
+          dict = get_context_var('set_var', 'dictionary')
+
+          if dict && dict.klass <= TranslationDict
+            { :class  => String,
+              :method => "#{dict}.get",
+              :accept_nil => true,
+              :pre_processor => Proc.new {|str| trans(str)}
+            }
           else
-            helper.send(:_,text)
+            { :class  => String,
+              :method => 'trans',
+              :accept_nil => true,
+              :pre_processor => Proc.new {|str| trans(str)}
+            }
+          end
+        end
+
+        def trans(text)
+          dict = get_context_var('set_var', 'dictionary')
+
+          if dict && dict.klass <= TranslationDict && lit = dict.literal
+            # will call ApplicationController(:_) if key is not found
+            lit.get(text)
+          else
+            helper.send(:_, text)
           end
         end
 
@@ -239,8 +322,12 @@ module Zena
           klass = method.klass
           return parser_error("Cannot translate a '#{klass}'.") unless klass <= String
 
+          dict = get_context_var('set_var', 'dictionary')
+
           if method.literal
-            helper.send(:_, method.literal)
+            trans(method.literal)
+          elsif dict && dict.klass <= TranslationDict
+            "<%= #{dict}.get(#{method}) %>"
           else
             "<%= trans(#{method}) %>"
           end

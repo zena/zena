@@ -34,6 +34,8 @@ module Zena
       #
       # 3. helper (view) tries to resolve safe_method_type as RubyLess or PseudoSQL
       module ZafuMethods
+        QB_KEYS = [:find, :from, :else, :in, :where, :or, :limit, :order]
+
         include RubyLess
         # The :class argument in this method is only used when the String is not a literal value
         safe_method [:find, String] => {:method => 'nil', :pre_processor => :get_finder_type, :class => NilClass}
@@ -94,7 +96,7 @@ module Zena
 
         # Select the most pertinent error between RubyLess processing errors and QueryBuilder errors.
         def show_errors
-          if @method =~ / in | where | from / || ([:find, :from, :else, :in, :where, :or, :limit, :order] & @params.keys != [])
+          if @method =~ / in | where | from / || (QB_KEYS & @params.keys != [])
             # probably a query
             @errors.detect {|e| e =~ /Syntax/} || @errors.last
           else

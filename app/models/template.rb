@@ -93,14 +93,14 @@ class Template < TextDocument
               self.text = <<END_TXT
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="en" set_lang='[v_lang]' xml:lang='en'>
+<html xmlns='http://www.w3.org/1999/xhtml' do='void' lang='#{v.lang}' xml:lang='en'>
 <head do='void' name='head'>
   <title do='title_for_layout' do='show' attr='title' name='page_title'>page title</title>
   <!-- link href='favicon.png' rel='shortcut icon' type='image/png' / -->
-  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+  <meta http-equiv='Content-type' content='text/html; charset=utf-8' />
   <r:void name='stylesheets'>
     <r:stylesheets/>
-    <link href="style.css" rel="Stylesheet" type="text/css"/>
+    <link href='style.css' rel='Stylesheet' type='text/css'/>
   </r:void>
 
   <r:javascripts/>

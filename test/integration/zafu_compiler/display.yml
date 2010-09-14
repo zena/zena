@@ -63,21 +63,21 @@ show_live_no_tag:
 
 show_format:
   old_src: "<b do='[id]' format='%.2f'/>"
-  src: "<b do='#{id}' format='%.2f'/>"
+  src: "<b do='id' format='%.2f'/>"
   res: "<b>22.00</b>"
 
 show_format_nil:
   context:
     node: 'bird_jpg'
   old_src: "<b do='[d_id]' format='%.2f'/>"
-  src: "<b do='#{weight}' format='%.2f'/>"
+  src: "<b do='weight' format='%.2f'/>"
   res: "<b>0.00</b>"
 
 show_format_hide_zero:
   context:
     node: 'bird_jpg'
   old_src: "<b do='[d_id]' format='%.2f' zero='hide'/>"
-  src: "<b do='#{weight}' format='%.2f' zero='hide'/>"
+  src: "<b do='weight' format='%.2f' zero='hide'/>"
   res: "<b></b>"
 
 show_edit_preview:
@@ -93,7 +93,7 @@ title_in_version_context:
 
 show_shortcut:
   old_src: "<p do='[title]'>hello</p>"
-  src: "<p do='#{title}'>hello</p>"
+  src: "<p do='title'>hello</p>"
   tem: "<p><%= @node.prop['title'] %></p>"
   res: "<p>status title</p>"
 

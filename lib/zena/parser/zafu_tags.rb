@@ -125,7 +125,7 @@ module Zena
               $&
             else
               quote   = $1
-              new_src = @options[:helper].send(:template_url_for_asset, :current_dir=>@options[:current_dir], :src => $2)
+              new_src = @options[:helper].send(:template_url_for_asset, :base_path => @options[:base_path], :src => $2)
               "url(#{quote}#{new_src}#{quote})"
             end
           end
@@ -136,7 +136,7 @@ module Zena
 
         src = @params[key]
         if src && src[0..0] != '/' && src[0..6] != 'http://'
-          @params[key] = @options[:helper].send(:template_url_for_asset, :src => src, :current_dir => @options[:current_dir], :type => type)
+          @params[key] = @options[:helper].send(:template_url_for_asset, :src => src, :base_path => @options[:base_path], :type => type)
         end
 
         res   = "<#{@html_tag}#{params_to_html(@params)}"

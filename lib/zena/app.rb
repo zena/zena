@@ -6,14 +6,15 @@ Zena::Use.module  [
   Zena::Use::Calendar,
   Zena::Use::Context,
   Zena::Use::Dates,
-  Zena::Use::Display,
   Zena::Acts::Enrollable,
   Zena::Use::ErrorRendering,
   Zena::Use::Forms,
   Zena::Use::HtmlTags,
   Zena::Use::I18n,
   Zena::Use::NestedAttributesAlias,
+  # Must appear before Display so that we first try to resolve as QB before r_show fallback.
   Zena::Use::QueryBuilder,
+  Zena::Use::Display,
   Zena::Use::Refactor,
   Zena::Use::Rendering,
   # Ajax must appear after rendering because it uses 'super' in js_render

@@ -21,10 +21,10 @@ end
       @skin_names = ['wiki', 'default']
     end
 
-    notes_template, url = @controller.send(:find_document_for_template, :current_dir=>"", :src=>"default/notes")
+    notes_template, url = @controller.send(:find_document_for_template, :base_path=>"", :src=>"default/notes")
     assert_kind_of Template, notes_template
     assert_equal 'default/notes', url
-    default_css, url    = @controller.send(:find_document_for_template, :current_dir=>"default", :src=>"default.css", :type=>:stylesheet)
+    default_css, url    = @controller.send(:find_document_for_template, :base_path=>"default", :src=>"default.css", :type=>:stylesheet)
     assert_kind_of TextDocument, default_css
     assert_equal 'default/default.css', url
   end

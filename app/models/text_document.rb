@@ -43,7 +43,7 @@ class TextDocument < Document
         return text
       end
 
-      current_dir = parent.fullpath
+      base_path = parent.fullpath
 
       res.gsub!(/url\(\s*(.*?)\s*\)/) do
         match, src = $&, $1
@@ -71,7 +71,7 @@ class TextDocument < Document
         else
           if new_src = helper.send(:template_url_for_asset,
               :src          => src,
-              :base_path    => current_dir,
+              :base_path    => base_path,
               :parse_assets => true )
 
             "url(#{quote}#{new_src}#{quote})"
@@ -118,7 +118,7 @@ class TextDocument < Document
     if key == 'text' && prop['content_type'] == 'text/css'
       res = text.dup
       # use parent as relative root
-      current_dir = parent.fullpath
+      base_path = parent.fullpath
 
       res.gsub!(/url\(('|")(.*?)\1\)/) do
         if $2[0..6] == 'http://'
@@ -128,7 +128,7 @@ class TextDocument < Document
           if url =~ /\A\/\w\w\/.*?(\d+)(_\w+|)\./
             zip, mode = $1, $2
             if asset = secure(Node) { Node.find_by_zip(zip) }
-              if asset.fullpath =~ /\A#{current_dir}\/(.+)/
+              if asset.fullpath =~ /\A#{base_path}\/(.+)/
                 "url(#{quote}#{$1}#{mode}.#{asset.prop['ext']}#{quote})"
               else
                 "url(#{quote}/#{asset.fullpath}#{mode}.#{asset.prop['ext']}#{quote})"

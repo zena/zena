@@ -28,9 +28,14 @@ module Zena
 
       def each_module_for(name)
         create_module_hash
-        (self.modules[name] || []).each do |mod|
+        modules_for(name).each do |mod|
           yield(mod)
         end
+      end
+
+      def modules_for(name)
+        create_module_hash
+        self.modules[name] || []
       end
 
       private

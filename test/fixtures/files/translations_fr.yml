@@ -2,3 +2,6 @@ translations:
   I love: "j'aime"
   words: les mots
   date_format: '[%d.%m]'
+  # used to translate dynamic key
+  status: statut
+  lang_en: anglais

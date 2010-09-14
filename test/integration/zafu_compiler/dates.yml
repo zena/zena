@@ -56,3 +56,64 @@ show_date_foo:
   src: "<r:show eval='date' format='%A %d.%m.%Y'/>"
   tem: "/main_date/"
   res: 'dimanche 16.05.2010'
+
+strftime:
+  src: "<p do='log_at.strftime(\"%d-%m\")'/>"
+  res: "<p>05-04</p>"
+
+date_tformat:
+  context:
+    node: 'people'
+    lang: 'fr'
+  src: "<r:show date='created_at' tformat='%d %B %Y'/>"
+  tem: "<%= format_date(@node.created_at, :format => \"%d %B %Y\") %>"
+  res: "10 mars 2006"
+
+date_tz:
+  context:
+    visitor: 'ant'
+    node: 'people'
+    lang: 'en'
+  src: "<r:show date='created_at' format='%H:%M'/> / <r:show date='created_at' format='%H:%M' tz='Asia/Jakarta'/>"
+  res: "01:00 / 07:00"
+
+date_tz_field:
+  context:
+    node: nature
+  src: "<r:nodes do='each' join=', '><r:show attr='node_name'/>: <r:show date='created_at' format='%H:%M' tz='#{tz || \"Europe/Zurich\"}'/> | <r:show date='created_at' format='%H:%M' tz='UTC'/></r:nodes>"
+  res: "forest: 01:00 | 00:00, tree: 07:00 | 00:00"
+
+date_fr:
+  context:
+    visitor: ant
+    lang: 'fr'
+  src: "<r:show date='created_at' format='%a'/>"
+  res: "ven"
+
+date_fr_lang:
+  context:
+    lang: 'fr'
+  old_src: "<r:show date='created_at' format='%a' lang='en'/>"
+  src: "<r:show attr='created_at' format='%a' lang='en'/>"
+  tem: "<%= format_date(@node.created_at, :lang => \"en\", :format => \"%a\") %>"
+  res: "Fri"
+
+date_context:
+  old_src: "<r:date select='2008-03-02'><r:show date='current_date' format='%A %d.%m.%Y'/></r:date>"
+  src: "<r:show eval='parse_date(\"2008-03-02\")' format='%A %d.%m.%Y'/>"
+  res: "Sunday 02.03.2008"
+
+date_from_params:
+  context:
+    year: 1975
+  old_src: "<r:date select='[param:year]-01-01'><r:show date='current_date' format='%A %d.%m.%Y'/></r:date>"
+  src: "<r:show eval='parse_date(\"#{params[:year]}-01-01\")' format='%A %d.%m.%Y'/>"
+  tem: "<%= format_date(parse_date(\"#{params[:year]}-01-01\"), :format => \"%A %d.%m.%Y\") %>"
+  res: "Wednesday 01.01.1975"
+
+date_from_params_in_query:
+  context:
+    year: 2006
+  src: "<r:date select='[param:year]-01-01'><r:nodes in='site' log='year' do='each' join=', ' do='node_name'/></r:date>"
+  tem: "/(date_format|strftime).*format_date.*params\[:year\].*%Y/"
+  res: "letter, opening"

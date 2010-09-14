@@ -78,9 +78,17 @@ trans_attr:
   res: "english"
 
 trans_text_dyn_string:
+  context:
+    lang: 'fr'
   src: "<r:trans text='lang_#{ref_lang}'/>"
   tem: "<%= trans(\"lang_#{@node.ref_lang}\") %>"
   res: "lang_en"
+
+trans_rubyless_dyn_string:
+  context:
+    lang: 'fr'
+  src: "<r:load dictionary='/default/translations'><p do='t(\"lang_#{ref_lang}\")'/></r:load>"
+  res: "<p>anglais</p>"
 
 trans_literal_string:
   src: "<r:trans text='e#{\"\"}n'/>"
@@ -105,3 +113,50 @@ complex_lang_list:
       <li do='each' class='#{this == visitor.lang ? "on" : "off"}' do='zen_path(@node, :lang =&gt; this)'/>
     </ul>
   res: "/li class='on'>/oo/projects/cleanWater/page22.html\?lang=en</"
+
+html_lang_and_dict:
+  src: "<html xmlns='http://www.w3.org/1999/xhtml' lang='#{v.lang}' do='load' dictionary='/default/translations' xml:lang='en'></html>"
+  res: "<html xmlns='http://www.w3.org/1999/xhtml' lang='en'></html>"
+
+dictionary_fr:
+  context:
+    lang: 'fr'
+  src: "<r:load dictionary='/default/translations'><r:trans>foo</r:trans>: <r:t>I love</r:t> <r:trans>words</r:trans></r:load>"
+  tem: "<% _zdict = load_dictionary(828931430) -%>foo: j'aime les mots"
+  res: "foo: j'aime les mots"
+
+dynamic_dictionary_eval_fr:
+  context:
+    lang: 'fr'
+    node: status
+  src: "<r:load dictionary='/default/translations'><r:eval>trans(node_name)</r:eval></r:load>"
+  tem: "<% _zdict = load_dictionary(828931430) -%><%= _zdict.get(@node.node_name) %>"
+  res: "statut"
+
+dynamic_dictionary_t_fr:
+  context:
+    lang: 'fr'
+    node: status
+  src: "<r:load dictionary='/default/translations'><r:t attr='node_name'/></r:load>"
+  tem: "<% _zdict = load_dictionary(828931430) -%><%= _zdict.get(@node.node_name) %>"
+  res: "statut"
+
+dynamic_dictionary_literal_fr:
+  context:
+    lang: 'fr'
+    node: status
+  src: "<r:load dictionary='/default/translations'><r:eval>trans('status')</r:eval></r:load>"
+  tem: "<% _zdict = load_dictionary(828931430) -%>statut"
+  res: "statut"
+
+dictionary_de:
+  context:
+    lang: 'de'
+  src: "<r:load dictionary='/default/translations'><r:trans>foo</r:trans>: <r:trans>I love</r:trans> <r:trans>words</r:trans></r:load>"
+  tem: "foo: Ich liebe Wörter"
+  res: "foo: Ich liebe Wörter"
+
+dictionary_tformat:
+  src: "<r:load dictionary='/default/translations'><r:show date='created_at' tformat='date_format'/></r:load>"
+  tem: "<% _zdict = load_dictionary(828931430) -%><%= format_date(@node.created_at, :format => \"[%d.%m]\") %>"
+  res: "[10.03]"

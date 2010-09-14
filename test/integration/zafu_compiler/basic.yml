@@ -334,45 +334,7 @@ comments_shown_if_empty_but_can_comment:
   src: "<r:comments><r:each do='[title]'/><r:add/></r:comments>"
   tem: "/if \(list1 = @node.comments\) \|\| \(@node.can_comment\? && list1=\[\]\) -%>/"
 
-date_tformat:
-  context:
-    node: 'people'
-    lang: 'fr'
-  src: "<r:show date='created_at' tformat='%d %B %Y'/>"
-  tem: "<%= format_date(@node.created_at, :format => \"%d %B %Y\") %>"
-  res: "10 mars 2006"
 
-date_tz:
-  context:
-    visitor: 'ant'
-    node: 'people'
-    lang: 'en'
-  src: "<r:show date='created_at' format='%H:%M'/> / <r:show date='created_at' format='%H:%M' time_zone='Asia/Jakarta'/>"
-  res: "01:00 / 07:00"
-
-date_tz_field:
-  context:
-    node: 'projects'
-  src: "<r:pages do='each' join=', '><r:show attr='node_name'/>: <r:show date='created_at' format='%H:%M' time_zone='[d_tz]' time_zone='Europe/Zurich'/> | <r:show date='created_at' format='%H:%M' time_zone='UTC'/></r:pages>"
-  res: "cleanWater: 07:00 | 00:00, wiki: 01:00 | 00:00"
-
-dictionary_fr:
-  context:
-    lang: 'fr'
-  src: "<r:load dictionary='translations'><r:trans>foo</r:trans>: <r:t>I love</r:t> <r:trans>words</r:trans></r:load>"
-  tem: "foo: j'aime les mots"
-  res: "foo: j'aime les mots"
-
-dictionary_de:
-  context:
-    lang: 'de'
-  src: "<r:load dictionary='translations'><r:trans>foo</r:trans>: <r:trans>I love</r:trans> <r:trans>words</r:trans></r:load>"
-  tem: "foo: Ich liebe Wörter"
-  res: "foo: Ich liebe Wörter"
-
-dictionary_tformat:
-  src: "<r:load dictionary='translations'><r:show date='created_at' tformat='date_format'/></r:load>"
-  res: "[10.03]"
 
 captcha:
   context:
@@ -381,40 +343,6 @@ captcha:
   src: "<r:captcha theme='clean'/>"
   res: "/RecaptchaOptions .* theme : .clean./"
 
-date_fr:
-  context:
-    visitor: ant
-    lang: 'fr'
-  src: "<r:show date='created_at' format='%a'/>"
-  res: "ven"
-
-date_fr_lang:
-  context:
-    lang: 'fr'
-  old_src: "<r:show date='created_at' format='%a' lang='en'/>"
-  src: "<r:show attr='created_at' format='%a' lang='en'/>"
-  tem: "<%= format_date(@node.created_at, :lang => \"en\", :format => \"%a\") %>"
-  res: "Fri"
-
-date_context:
-  old_src: "<r:date select='2008-03-02'><r:show date='current_date' format='%A %d.%m.%Y'/></r:date>"
-  src: "<r:show eval='parse_date(\"2008-03-02\")' format='%A %d.%m.%Y'/>"
-  res: "Sunday 02.03.2008"
-
-date_from_params:
-  context:
-    year: 1975
-  old_src: "<r:date select='[param:year]-01-01'><r:show date='current_date' format='%A %d.%m.%Y'/></r:date>"
-  src: "<r:show eval='parse_date(\"#{params[:year]}-01-01\")' format='%A %d.%m.%Y'/>"
-  tem: "<%= format_date(parse_date(\"#{params[:year]}-01-01\"), :format => \"%A %d.%m.%Y\") %>"
-  res: "Wednesday 01.01.1975"
-
-date_from_params_in_query:
-  context:
-    year: 2006
-  src: "<r:date select='[param:year]-01-01'><r:nodes in='site' log='year' do='each' join=', ' do='node_name'/></r:date>"
-  tem: "/(date_format|strftime).*format_date.*params\[:year\].*%Y/"
-  res: "letter, opening"
 
 paginate:
   context:

@@ -392,6 +392,23 @@ module Zena
 
         safe_method [:zazen, String] => :r_zazen
 
+        # As a last resort, if the method cannot be compilated, use <r:show eval='...'/>
+        def self.included(base)
+          base.process_unknown :show_eval
+        end
+
+        # Transform <p do='created_at' format='%d'/> into
+        #           <p do='show' eval='created_at' format='%d'/>
+        def show_eval(method = @method)
+          if !@params.empty?
+            # try to use r_show without using params as arguments
+            params[:eval] = @method
+            r_show
+          else
+            nil
+          end
+        end
+
         # Parse text with zazen helper
         def r_zazen(signature = nil)
           @markup.prepend_param(:class, 'zazen')
@@ -586,8 +603,15 @@ module Zena
           end
 
           def show_time(method)
+            if tformat = @params.delete(:tformat)
+              tformat = RubyLess.translate(self, "t(%Q{#{tformat}})")
+              method = "#{method}, :format => #{tformat}"
+            end
+
             if hash_arguments = extract_from_params(:tz, :lang, :format)
               "<%= format_date(#{method}, #{hash_arguments.join(', ')}) %>"
+            elsif tformat
+              "<%= format_date(#{method}) %>"
             else
               "<%= #{method} %>"
             end

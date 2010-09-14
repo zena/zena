@@ -1800,6 +1800,7 @@ Gem::Specification.new do |s|
      "test/integration/zafu_compiler/basic.yml",
      "test/integration/zafu_compiler/calendar.yml",
      "test/integration/zafu_compiler/complex.yml",
+     "test/integration/zafu_compiler/complex_ok.yml",
      "test/integration/zafu_compiler/conditional.yml",
      "test/integration/zafu_compiler/data.yml",
      "test/integration/zafu_compiler/dates.yml",
@@ -2182,7 +2183,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<property>, [">= 1.1.0"])
       s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_runtime_dependency(%q<authlogic>, ["= 2.1.3"])
-      s.add_runtime_dependency(%q<zafu>, [">= 0.6.4"])
+      s.add_runtime_dependency(%q<zafu>, [">= 0.7.1"])
       s.add_runtime_dependency(%q<shoulda>, [">= 2.10.2"])
       s.add_runtime_dependency(%q<fast_gettext>, ["~> 0.4.16"])
       s.add_runtime_dependency(%q<syntax>, ["= 1.0.0"])
@@ -2204,7 +2205,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<property>, [">= 1.1.0"])
       s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_dependency(%q<authlogic>, ["= 2.1.3"])
-      s.add_dependency(%q<zafu>, [">= 0.6.4"])
+      s.add_dependency(%q<zafu>, [">= 0.7.1"])
       s.add_dependency(%q<shoulda>, [">= 2.10.2"])
       s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
       s.add_dependency(%q<syntax>, ["= 1.0.0"])
@@ -2227,7 +2228,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<property>, [">= 1.1.0"])
     s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
     s.add_dependency(%q<authlogic>, ["= 2.1.3"])
-    s.add_dependency(%q<zafu>, [">= 0.6.4"])
+    s.add_dependency(%q<zafu>, [">= 0.7.1"])
     s.add_dependency(%q<shoulda>, [">= 2.10.2"])
     s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
     s.add_dependency(%q<syntax>, ["= 1.0.0"])

@@ -420,6 +420,7 @@ tree_jpg_en:
     summary:       "photography © André Karwath 2004"
     text:          ""
     origin:        Big Bang
+    tz:            Asia/Jakarta
     cached_role_ids: Original
     content_type:  image/jpeg
     ext:           jpg
