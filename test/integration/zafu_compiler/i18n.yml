@@ -153,7 +153,7 @@ dictionary_de:
   context:
     lang: 'de'
   src: "<r:load dictionary='/default/translations'><r:trans>foo</r:trans>: <r:trans>I love</r:trans> <r:trans>words</r:trans></r:load>"
-  tem: "foo: Ich liebe Wörter"
+  tem: "<% _zdict = load_dictionary(828931430) -%>foo: Ich liebe Wörter"
   res: "foo: Ich liebe Wörter"
 
 dictionary_tformat:

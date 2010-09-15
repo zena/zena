@@ -279,9 +279,32 @@ EOL
         end
 
         # Select a date for the current context
-        # def r_date
-        #   set_context_var('set_var', 'date', get_attribute_or_eval)
-        # end
+        def r_date
+          return nil unless code = get_attribute_or_eval
+
+          if format = @params[:format]
+            format = RubyLess.translate_string(self, format)
+          else
+            format = "'%Y-%m-%d %H:%M:%S'"
+          end
+
+          if code.klass <= String
+            if code.could_be_nil?
+              code = "(#{code} || '').to_utc(#{format})"
+            else
+              code = "#{code}.to_utc(#{format})"
+            end
+            could_be_nil = true
+          elsif code.klass <= Time
+            could_be_nil = code.could_be_nil?
+          else
+            return parser_error("should evaluate to a String or Time (found #{code.klass})")
+          end
+          v = get_var_name('set_var', 'date')
+          out "<% #{v} = #{code} -%>"
+          set_context_var('set_var', 'date', RubyLess::TypedString.new(v, :class => Time, :nil => could_be_nil))
+          out expand_with
+        end
 
       end
     end # Dates

@@ -114,6 +114,6 @@ date_from_params:
 date_from_params_in_query:
   context:
     year: 2006
-  src: "<r:date select='[param:year]-01-01'><r:nodes in='site' log='year' do='each' join=', ' do='node_name'/></r:date>"
-  tem: "/(date_format|strftime).*format_date.*params\[:year\].*%Y/"
-  res: "letter, opening"
+  src: "<r:date text='#{params[:year]}/04/03' format='%Y/%m/%d' do='show' eval='date' format='%Y-%m-%d'/>"
+  tem: "/_zdate = \"#\{params\[:year\]\}/04/03\".to_utc\(\"%Y/%m/%d\"\) -%>/"
+  res: "2006-04-03"

@@ -137,7 +137,7 @@ test_negative_value:
   tem: "<div class='<%= ((@node.custom_a==-10)) ? ' off' : '' %>'>...</div>"
 
 anchor_attribute:
-  src: "<p do='#{id}' anchor='#{node_name}'>hello</p>"
+  src: "<p do='id' anchor='#{node_name}'>hello</p>"
   res: "<a class='anchor' name='status'></a><p>22</p>"
 
 anchor_true:

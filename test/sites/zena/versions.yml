@@ -175,6 +175,7 @@ cleanWater_en:
   prop:
     assigned:      gaspard
     tz:            Asia/Jakarta
+    foo:           Some old legacy stuff
     title:         Clean Water project
 
 

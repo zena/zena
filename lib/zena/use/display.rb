@@ -387,6 +387,8 @@ module Zena
       end # ViewMethods
 
       module ZafuMethods
+        SHOW_KEYS = [:tz, :tformat, :format, :lang, :zero]
+
         include Common
         include RubyLess
 
@@ -399,14 +401,16 @@ module Zena
 
         # Transform <p do='created_at' format='%d'/> into
         #           <p do='show' eval='created_at' format='%d'/>
-        def show_eval(method = @method)
-          if !@params.empty?
+        def show_eval
+          if !@params.empty? && !(@method =~ /. ./) && (@params.keys - SHOW_KEYS == [])
             # try to use r_show without using params as arguments
-            params[:eval] = @method
-            r_show
+            code = RubyLess.translate(self, @method)
+            r_show(code)
           else
             nil
           end
+        rescue RubyLess::Error
+          nil
         end
 
         # Parse text with zazen helper
@@ -438,7 +442,7 @@ module Zena
         end
 
         # Display an attribute or RubyLess code
-        def r_show
+        def r_show(code = nil)
           if node.list_context?
             @context[:node] = node.move_to("#{node}.first", node.klass.first, :query => node.opts[:query])
             return r_show
@@ -446,7 +450,7 @@ module Zena
             return "<%= #{node} %>"
           end
 
-          return nil unless method = get_attribute_or_eval
+          return nil unless method = code || get_attribute_or_eval
 
           klass = method.klass
 

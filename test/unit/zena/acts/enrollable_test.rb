@@ -105,10 +105,16 @@ class EnrollableTest < Zena::Unit::TestCase
           subject do
             secure(Node) { nodes(:tree_jpg) }
           end
-
-          should 'remove role on property set to blank' do
-            assert_difference('NodesRoles.count', -1) do
+          
+          should 'not remove role until last prop is blank' do
+            assert_difference('NodesRoles.count', 0) do
               assert subject.update_attributes('origin' => '')
+            end
+          end
+          
+          should 'remove role when all prop are blank' do
+            assert_difference('NodesRoles.count', -1) do
+              assert subject.update_attributes('origin' => '', 'tz' => '')
               assert_nil subject.origin
               assert_nil subject.cached_role_ids
             end
@@ -135,7 +141,7 @@ class EnrollableTest < Zena::Unit::TestCase
 
             # 2. create a new version and publish
             assert_difference('NodesRoles.count', -1) do
-              subject.update_attributes('origin' => '')
+              subject.update_attributes('origin' => '', 'tz' => '')
               assert subject.publish
             end
 

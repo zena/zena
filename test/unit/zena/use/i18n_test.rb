@@ -74,7 +74,7 @@ class I18nTest < Zena::View::TestCase
 
     should 'load data on first request' do
       assert_nil subject.instance_variable_get(:@dict)
-      assert_equal "j'aime", subject['I love']
+      assert_equal "j'aime", subject.get('I love')
       assert_kind_of Hash, subject.instance_variable_get(:@dict)
       assert_equal "foo", subject.get('foo')
     end

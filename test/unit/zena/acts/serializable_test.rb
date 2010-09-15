@@ -75,8 +75,8 @@ class SerializableTest < Zena::Unit::TestCase
 
         should 'ignore legacy properties in xml' do
           hash = Hash.from_xml(subject.to_xml)['node']
-          assert_not_nil subject.prop['tz']
-          assert_nil hash['tz']
+          assert_not_nil subject.prop['foo']
+          assert_nil hash['foo']
         end
       end
 

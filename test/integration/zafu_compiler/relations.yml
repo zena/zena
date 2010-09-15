@@ -336,7 +336,7 @@ else:
 
 incompatible_else:
   src: "<r:letters where='node_name = 1' in='site' else='this' do='each' join=',' do='node_name'/>"
-  tem: "/\(Node\).*finder \(\[Letter\]\)/"
+  tem: "/Incompatible.*\(Node\).*finder \(\[Letter\]\)/"
 
 where_not:
   context:
