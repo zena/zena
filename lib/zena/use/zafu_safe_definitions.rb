@@ -12,6 +12,7 @@ module Zena
         safe_method :now    => {:method => 'Time.now', :class => Time}
         safe_method_for String, [:gsub, Regexp, String] => {:class => String, :pre_processor => true}
         safe_method_for String, :upcase => {:class => String, :pre_processor => true}
+        safe_method_for Number, :to_s   => {:class => String, :pre_processor => true}
         safe_method_for Object, :blank? => Boolean
 
         safe_method_for Node, [:kind_of?, String] => {:method => 'kpath_match?', :class => Boolean}

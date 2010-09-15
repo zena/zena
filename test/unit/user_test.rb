@@ -338,7 +338,7 @@ class UserTest < Zena::Unit::TestCase
     end
 
     should 'be authorized access to API' do
-      assert !subject.api_authorized?
+      assert subject.api_authorized?
     end
   end # A user in the api_group
 end

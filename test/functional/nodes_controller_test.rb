@@ -214,12 +214,12 @@ class NodesControllerTest < Zena::Controller::TestCase
         setup do
           visitor.site.api_group_id = nil
         end
-        
+
         context 'asking for show' do
           subject do
             {:action => 'show', :controller => 'nodes', :id => nodes_zip(:projects).to_s, :format => 'xml'}
           end
-          
+
           should 'fail' do
             get_subject
             assert_response :unauthorized
@@ -227,12 +227,12 @@ class NodesControllerTest < Zena::Controller::TestCase
 
           should 'return an xml error' do
             get_subject
-            assert_match %r{<title>projects list</title>}, @response.body
+            assert_match %r{<message>Not in API group.</message>}, @response.body
           end
         end
-        
+
       end # without being in the api_group
-      
+
       context 'asking for show' do
         subject do
           {:action => 'show', :controller => 'nodes', :id => nodes_zip(:projects).to_s, :format => 'xml'}
