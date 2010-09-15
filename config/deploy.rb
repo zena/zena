@@ -41,6 +41,10 @@ if self[:server_ip]
     require deploy_path
   else
     # Zena app, using zena as gem
+    env = File.read(File.join(File.dirname(__FILE__), 'environment.rb'))
+    if env =~ /config.gem.*zena.*version.*'(.*?)'/
+      gem 'zena', "= #{$1}"
+    end
     require 'zena/deploy'
   end
 

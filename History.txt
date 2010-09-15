@@ -1,7 +1,7 @@
 == 0.16.9 2010-08-31
 
-* 1 minor enhancement
-  * changed deploy rules to deploy in '/home'
+* 1 major enhancement
+  * fixed deploy rules for mongrel and passenger
 
 == 0.16.8 2010-08-30
 
