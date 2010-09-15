@@ -19,6 +19,7 @@ Examples:
 =end
 class NodesController < ApplicationController
   before_filter :check_is_admin,  :only => [:export]
+  before_filter :check_api_group
   before_filter :find_node, :except => [:index, :create, :not_found, :catch_all, :search]
   before_filter :check_can_drive, :only => [:edit]
   before_filter :check_path,      :only => [:index, :show]
@@ -653,6 +654,13 @@ class NodesController < ApplicationController
 
     def check_can_drive
       raise ActiveRecord::RecordNotFound unless @node.can_drive?
+    end
+
+    def check_api_group
+      return true if request.format != Mime::XML || visitor.api_authorized?
+
+      render :xml => [{:message => 'Not in API group.'}].to_xml(:root => 'errors'), :status => 401
+      false
     end
 end
 

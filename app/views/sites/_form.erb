@@ -5,7 +5,7 @@
     link_to_function _('btn_x'), "['add_site', 'add_site_form'].each(Element.toggle)"
   end %>
 </td>
-<td class='add' colspan='8'>
+<td class='add' colspan='9'>
   <div id='site_errors'><%= error_messages_for(:site, :object => @site) %></div>
   <% unless @site.new_record? %>
   <%= form_remote_tag(:url => site_path(@site), :method => :put ) %>
@@ -20,6 +20,8 @@
     <tr><td class='label'><%= _('redit_time') %></td><td><%= text_field('site', :redit_time, :size=>15, :value => @site.redit_time) %></td></tr>
     <tr><td class='label'><%= _('public group') %></td><td><%= @site.public_group.name %></td></tr>
     <tr><td class='label'><%= _('site group') %></td><td><%= @site.site_group.name %></td></tr>
+    <tr><td class='label'><%= _('API group') %></td><td><%= select('site', 'api_group_id',  visitor.all_groups.map{|g| [g.name, g.id]}, {:include_blank => true, :selected => @site.api_group_id} ) %></td></tr>
+
     <tr><td class='label'><%= _('options') %></td><td>
     <% Site.attributes_for_form[:bool].each do |sym| -%>
     <input type='hidden' name='site[<%= sym %>]' value=''/>

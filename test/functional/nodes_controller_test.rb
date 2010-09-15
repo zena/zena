@@ -210,6 +210,29 @@ class NodesControllerTest < Zena::Controller::TestCase
     end # creating a node
 
     context 'using xml' do
+      context 'without being in the api_group' do
+        setup do
+          visitor.site.api_group_id = nil
+        end
+        
+        context 'asking for show' do
+          subject do
+            {:action => 'show', :controller => 'nodes', :id => nodes_zip(:projects).to_s, :format => 'xml'}
+          end
+          
+          should 'fail' do
+            get_subject
+            assert_response :unauthorized
+          end
+
+          should 'return an xml error' do
+            get_subject
+            assert_match %r{<title>projects list</title>}, @response.body
+          end
+        end
+        
+      end # without being in the api_group
+      
       context 'asking for show' do
         subject do
           {:action => 'show', :controller => 'nodes', :id => nodes_zip(:projects).to_s, :format => 'xml'}

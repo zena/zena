@@ -192,6 +192,11 @@ class User < ActiveRecord::Base
     status == User::Status[:deleted]
   end
 
+  # Return true if the visitor is allowed API acces
+  def api_authorized?
+    group_ids.include?(current_site.api_group_id)
+  end
+
   # Returns a list of the group ids separated by commas for the user (this is used mainly in SQL clauses).
   # TODO: Performance
   #
@@ -199,9 +204,18 @@ class User < ActiveRecord::Base
   # Zena::Db.fetch_ids("SELECT group_id FROM groups_users WHERE user_id = #{id} ORDER BY name ASC", 'group_id')
   def group_ids
     @group_ids ||= if is_admin?
-      site.groups.map{|g| g[:id]}
+      site.groups.map(&:id)
     else
-      groups.find(:all, :order=>'name').map{ |g| g[:id] }
+      groups.all(:order=>'name').map(&:id)
+    end
+  end
+
+  # Return all groups (used in forms) managed by the user.
+  def all_groups
+    if is_admin?
+      site.groups
+    else
+      groups.all(:order=>'name').map(&:id)
     end
   end
 

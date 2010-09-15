@@ -321,4 +321,24 @@ class UserTest < Zena::Unit::TestCase
       end
     end
   end
+
+  context 'A user not in the api_group' do
+    subject do
+      users(:ant)
+    end
+
+    should 'not be authorized access to API' do
+      assert !subject.api_authorized?
+    end
+  end # A user not in the api_group
+
+  context 'A user in the api_group' do
+    subject do
+      users(:tiger)
+    end
+
+    should 'be authorized access to API' do
+      assert !subject.api_authorized?
+    end
+  end # A user in the api_group
 end

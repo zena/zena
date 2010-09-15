@@ -23,7 +23,7 @@ class Site < ActiveRecord::Base
 
   validate :valid_site
   validates_uniqueness_of :host
-  attr_accessible :name, :languages, :default_lang, :authentication, :http_auth, :auto_publish, :redit_time
+  attr_accessible :name, :languages, :default_lang, :authentication, :http_auth, :auto_publish, :redit_time, :api_group_id
   has_many :groups, :order => "name"
   has_many :nodes
   has_many :users
@@ -227,6 +227,11 @@ class Site < ActiveRecord::Base
   # Return the site group: the one in which every visitor except 'anonymous' belongs (= all logged in users).
   def site_group
     @site_group ||= Group.find(self[:site_group_id])
+  end
+
+  # Return the API group: the one in which API visitors must be to use the API.
+  def api_group
+    @api_group ||= Group.find_by_id(self[:api_group_id])
   end
 
   # Return true if the given user is an administrator for this site.

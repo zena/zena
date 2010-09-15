@@ -8,6 +8,7 @@
   <% end -%>
   <td class='public_group'><%= li.public_group.name %></td>
   <td class='site_group'  ><%= li.site_group.name   %></td>
+  <td class='api_group'   ><%= li.api_group ? li.api_group.name : _('no API')    %></td>
   <td class='redit_time'  ><%= li.redit_time %></td>
   <td class='options'><%= Site.attributes_for_form[:bool].reject{|sym| !li.send(sym)}.join(', ') %></td>
 </tr>
