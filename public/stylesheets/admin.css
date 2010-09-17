@@ -49,6 +49,7 @@ table.admin td:first-child { border-left: 1px solid #999; }
 .admin .ruby .constant { font-weight:bold;}
 .admin .real_class .ruby .constant { color:#333;}
 .admin .spacer {font-family:monospace;color:#ccc;}
+.admin .spacer span {color:#555; font-weight:bold;}
 .destroy { margin:5px;}
 .destroy input, .destroy form { display:inline; }
 .destroy { border:1px solid #300; padding:3px; background:#fdd; float:right;}

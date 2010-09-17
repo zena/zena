@@ -6,7 +6,7 @@ class VirtualClassesController < ApplicationController
 
   def index
     secure(VirtualClass) do
-      @virtual_classes = VirtualClass.paginate(:all, :order => 'kpath', :per_page => 20, :page => params[:page])
+      @virtual_classes = Role.paginate(:all, :order => 'kpath', :per_page => 20, :page => params[:page])
     end
 
     last_kpath = @virtual_classes.last.kpath
@@ -16,7 +16,14 @@ class VirtualClassesController < ApplicationController
       end
     end
 
-    @virtual_classes.sort! {|a, b| a.kpath <=> b.kpath }
+    @virtual_classes.sort! do |a, b|
+      if a.kpath == b.kpath
+        # Order VirtualClass first
+        a.class.to_s <=> b.class.to_s
+      else
+        a.kpath <=> b.kpath
+      end
+    end
 
     @virtual_class  = VirtualClass.new('')
 

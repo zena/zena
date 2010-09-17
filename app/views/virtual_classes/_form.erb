@@ -14,6 +14,15 @@
   <% end %>
   <table cellspacing='0' class='edit_virtual_class'>
     <tr><td class='label'><%= _('name')%>      </td><td><%= text_field('virtual_class', 'name',        :size=>15 ) %></td></tr>
+    <tr>
+      <td class='label'><%= _('type')%>      </td>
+      <% if @virtual_class.new_record? %><td>
+        <%= select('virtual_class', 'type',  ['Class', 'Role'], :selected => 'Class' ) %></td>
+      <% else -%>
+      <td><%= @virtual_class.kind_of?(VirtualClass) ? 'Class' : 'Role' %></td>
+      <% end -%>
+    </tr>
+
     <tr><td class='label'><%= _('superclass')%></td><td><%= select('virtual_class', 'superclass',  Node.classes_for_form(:without => (@virtual_class.new_record? ? nil : @virtual_class.to_s)), :selected => @virtual_class.superclass.to_s ) %></td></tr>
 
 <% Zena::Use::Fulltext::FULLTEXT_FIELDS.reverse_each do |fld| -%>
