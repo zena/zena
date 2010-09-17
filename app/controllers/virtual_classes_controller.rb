@@ -91,10 +91,10 @@ class VirtualClassesController < ApplicationController
 
   def create
     type = params[:virtual_class].delete(:type)
-    if type == 'Class'
-      @virtual_class = VirtualClass.new(params[:virtual_class])
-    else
+    if type == 'Role'
       @virtual_class = Role.new(params[:virtual_class])
+    else
+      @virtual_class = VirtualClass.new(params[:virtual_class])
     end
 
     respond_to do |format|
