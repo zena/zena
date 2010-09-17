@@ -7,8 +7,18 @@ class ColumnsController < ApplicationController
   # GET /columns
   # GET /columns.xml
   def index
+    roles = {}
     secure(Column) do
-      @columns = Column.paginate(:all, :order => 'name', :per_page => 20, :page => params[:page])
+      @columns = Column.paginate(:all, :order => 'role_id ASC, name ASC', :per_page => 20, :page => params[:page]).sort! do |a, b|
+        role_a = (roles[a.role_id] ||= a.role).name
+        role_b = (roles[b.role_id] ||= b.role).name
+
+        if role_a == role_b
+          a.name <=> b.name
+        else
+          role_a <=> role_b
+        end
+      end
     end
 
     @column  = Column.new

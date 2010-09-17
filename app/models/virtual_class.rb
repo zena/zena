@@ -89,14 +89,6 @@ class VirtualClass < Role
     end
   end
 
-  def superclass=(klass)
-    if k = Node.get_class(klass)
-      @superclass = k
-    else
-      errors.add('superclass', 'invalid')
-    end
-  end
-
   # Build new nodes instances of this VirtualClass
   def new_instance(hash={})
     real_class.new(hash.merge(:kpath => self.kpath, :vclass_id => self.id))
@@ -136,41 +128,6 @@ class VirtualClass < Role
   end
 
   private
-    def valid_virtual_class
-      return if !errors.empty?
-      @superclass ||= self.superclass
-
-      if new_record? || name_changed? || @superclass != old.superclass
-        index = 0
-        kpath = nil
-        while index < self[:name].length
-          try_kpath = @superclass.kpath + self[:name][index..index].upcase
-          if found = Node.get_class_from_kpath(try_kpath)
-            if found.kind_of?(VirtualClass) && found[:id] == self[:id]
-              kpath = try_kpath
-              break
-            end
-          else
-            kpath = try_kpath
-            break
-          end
-          index += 1
-        end
-        errors.add('name', 'invalid (could not build unique kpath)') unless kpath
-        self[:kpath] = kpath
-      end
-
-      self[:real_class] = get_real_class(@superclass)
-
-      unless (secure!(Group) { Group.find(self[:create_group_id]) } rescue nil)
-        errors.add('create_group_id', 'invalid group')
-      end
-
-      unless self[:real_class]
-        errors.add('superclass', 'invalid')
-      end
-
-    end
 
     def get_real_class(klass)
       klass.kind_of?(VirtualClass) ? get_real_class(klass.superclass) : klass.to_s

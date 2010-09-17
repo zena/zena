@@ -19,7 +19,10 @@ class VirtualClassesController < ApplicationController
     @virtual_classes.sort! do |a, b|
       if a.kpath == b.kpath
         # Order VirtualClass first
-        a.class.to_s <=> b.class.to_s
+        b_type = b.kind_of?(Role) ? b.class.to_s : 'V' # sort real classes like VirtualClass
+        a_type = a.kind_of?(Role) ? a.class.to_s : 'V'
+
+        b_type <=> a_type
       else
         a.kpath <=> b.kpath
       end
@@ -87,7 +90,12 @@ class VirtualClassesController < ApplicationController
   end
 
   def create
-    @virtual_class = VirtualClass.new(params[:virtual_class])
+    type = params[:virtual_class].delete(:type)
+    if type == 'Class'
+      @virtual_class = VirtualClass.new(params[:virtual_class])
+    else
+      @virtual_class = Role.new(params[:virtual_class])
+    end
 
     respond_to do |format|
       if @virtual_class.save
@@ -104,8 +112,6 @@ class VirtualClassesController < ApplicationController
   end
 
   def update
-    @virtual_class = VirtualClass.find(params[:id])
-
     respond_to do |format|
       if @virtual_class.update_attributes(params[:virtual_class])
         flash[:notice] = 'VirtualClass was successfully updated.'
@@ -132,6 +138,6 @@ class VirtualClassesController < ApplicationController
 
   protected
     def find_virtual_class
-      @virtual_class = secure!(VirtualClass) { VirtualClass.find(params[:id])}
+      @virtual_class = secure!(VirtualClass) { Role.find(params[:id])}
     end
 end

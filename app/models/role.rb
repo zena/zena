@@ -12,6 +12,23 @@ class Role < ActiveRecord::Base
   safe_method :columns => {:class => ['Column'], :method => 'columns.values', :nil => false}
   safe_method :name => String
 
+  def superclass
+    if new_record?
+      Node
+    else
+      Node.get_class_from_kpath(kpath)
+    end
+  end
+
+  def superclass=(klass)
+    if k = Node.get_class(klass)
+      self.kpath = k.kpath
+    else
+      errors.add('superclass', 'invalid')
+    end
+  end
+
+
   private
     def set_defaults
       self.site_id = visitor.site.id

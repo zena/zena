@@ -23,7 +23,7 @@
       <% end -%>
     </tr>
 
-    <tr><td class='label'><%= _('superclass')%></td><td><%= select('virtual_class', 'superclass',  Node.classes_for_form(:without => (@virtual_class.new_record? ? nil : @virtual_class.to_s)), :selected => @virtual_class.superclass.to_s ) %></td></tr>
+    <tr><td class='label'><%= _('superclass')%></td><td><%= select('virtual_class', 'superclass',  Node.classes_for_form(:without => ((@virtual_class.new_record? || @virtual_class.kind_of?(Role)) ? nil : @virtual_class.to_s)), :selected => @virtual_class.superclass.to_s ) %></td></tr>
 
 <% Zena::Use::Fulltext::FULLTEXT_FIELDS.reverse_each do |fld| -%>
     <tr><td class='label'><%= _(fld)%></td><td><%= text_area('virtual_class', fld, :rows => 2, :cols => 30) %></td></tr>

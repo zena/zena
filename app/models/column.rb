@@ -18,7 +18,9 @@ class Column < ActiveRecord::Base
     include Zena::Acts::Secure
 
     def roles_for_form
-      secure(Role) { Role.all(:order => 'kpath ASC') }.map {|r| [r.name, r.id]}
+      secure(Role) { Role.all(:order => 'name ASC') }.map do |role|
+        [role.name, role.id]
+      end
     end
 
     # Import a hash of virtual class definitions and try to build the virtual classes.

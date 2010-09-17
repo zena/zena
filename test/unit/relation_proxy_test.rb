@@ -7,7 +7,7 @@ class RelationProxyTest < Zena::Unit::TestCase
     assert_equal relations_id(:note_has_calendars), RelationProxy.find_by_role('calendar')[:id]
     assert_nil RelationProxy.find_by_role('badrole')
   end
-  
+
   def test_get_proxy
     proj = secure(Node) { nodes(:cleanWater) }
     note = secure(Note) { nodes(:opening)    }
@@ -109,7 +109,9 @@ class RelationProxyTest < Zena::Unit::TestCase
   def test_bad_attribute_raises
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
-    assert_raises(ActiveRecord::UnknownAttributeError) { node.update_attributes( 'tralala_ids' => ['33'])}
+    #assert_raises(ActiveRecord::UnknownAttributeError) {
+    assert !node.update_attributes( 'tralala_ids' => ['33'])
+    #}
   end
 
   def test_relations_for_form
@@ -292,7 +294,8 @@ class RelationProxyTest < Zena::Unit::TestCase
 
   def test_create_invalid_target_or_empty
     login(:lion)
-    node = assert_raises(ActiveRecord::UnknownAttributeError) {secure!(Node) { Node.create_node('parent_id' => nodes_zip(:cleanWater),'klass'=>'Page', 'foo_id'=>'342', 'title'=>'hello') }}
+    node = secure(Node) { Node.create_node('parent_id' => nodes_zip(:cleanWater),'klass'=>'Page', 'foo_id'=>'342', 'title'=>'hello') }
+    assert node.new_record?
     # invalid target
     node = secure!(Node) { Node.create_node('parent_id' => nodes_zip(:cleanWater),'klass'=>'Page', 'icon_id'=>nodes_zip(:cleanWater), 'title'=>'two') }
     assert node.errors['icon']
@@ -343,7 +346,7 @@ class RelationProxyTest < Zena::Unit::TestCase
     assert_equal 2, references.size
     assert references.select {|r| r[:zip] == nodes_zip(:letter)}.empty?
   end
-  
+
   def test_toggle_link_negative_id
     login(:lion)
     node = secure!(Node) { nodes(:cleanWater) }

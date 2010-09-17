@@ -17,7 +17,7 @@ add_btn:
 form_put:
   # default should be a put method
   src: "<r:form></r:form>"
-  tem: "/form_for.*:url.*node_path\(@node\)/"
+  tem: "/form_for.*:url.*node_path\(@node\.zip\)/"
   res: '/<form action="/nodes/\d+".*method="post".*input name="_method" type="hidden" value="put"/'
 
 form_post:
