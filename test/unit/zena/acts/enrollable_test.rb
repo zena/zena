@@ -105,13 +105,13 @@ class EnrollableTest < Zena::Unit::TestCase
           subject do
             secure(Node) { nodes(:tree_jpg) }
           end
-          
+
           should 'not remove role until last prop is blank' do
             assert_difference('NodesRoles.count', 0) do
               assert subject.update_attributes('origin' => '')
             end
           end
-          
+
           should 'remove role when all prop are blank' do
             assert_difference('NodesRoles.count', -1) do
               assert subject.update_attributes('origin' => '', 'tz' => '')
@@ -184,9 +184,19 @@ class EnrollableTest < Zena::Unit::TestCase
         end # with roles assigned
 
         should 'not allow arbitrary attributes' do
-          assert_raise(ActiveRecord::UnknownAttributeError) do
-            assert subject.update_attributes('assigned' => 'flat Eric', 'bad' => 'property')
+          assert !subject.update_attributes('assigned' => 'flat Eric', 'bad' => 'property')
+        end
+        
+        should 'not raise on bad attributes' do
+          assert_nothing_raised do
+            subject.attributes = {'elements' => 'Statistical Learning'}
           end
+        end
+
+        should 'add an error on first bad attributes' do
+          subject.attributes = {'elements' => 'Statistical Learning'}
+          assert !subject.save
+          assert_equal 'unknown attribute', subject.errors[:elements]
         end
 
         should 'not allow property bypassing' do

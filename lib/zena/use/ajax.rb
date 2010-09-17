@@ -232,7 +232,7 @@ module Zena
 
           dom_id = node.dom_id(:erb => false)
 
-          out %Q{<%= form_remote_tag(:url => zafu_node_path(#{node}), :method => :get, :html => {:id => \"#{dom_id}_f\"}) %>
+          out %Q{<%= form_remote_tag(:url => zafu_node_path(#{node}.zip), :method => :get, :html => {:id => \"#{dom_id}_f\"}) %>
           <div class='hidden'>
             <input type='hidden' name='t_url' value='#{template_url(upd)}'/>
             <input type='hidden' name='dom_id' value='#{upd}'/>

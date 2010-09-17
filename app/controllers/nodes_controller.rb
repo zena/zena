@@ -344,13 +344,19 @@ class NodesController < ApplicationController
           end
         end
       end # parent iframe (upload)
-    elsif @node.errors.empty?
+    else
       respond_to do |format|
         format.html do
-          if params[:edit] == 'popup'
-            redirect_to edit_node_version_path(:node_id => @node[:zip], :id => 0, :close => (params[:validate] ? true : nil))
+          if @node.errors.empty?
+            if params[:edit] == 'popup'
+              redirect_to edit_node_version_path(:node_id => @node[:zip], :id => 0, :close => (params[:validate] ? true : nil))
+            else
+              redirect_to zen_path(@node, :mode => params[:mode])
+            end
           else
-            redirect_to zen_path(@node, :mode => params[:mode])
+            # FIXME: Render referring page would be better
+            # Get mode and details from request.referer
+            render_and_cache :mode => 'edit', :cache => false
           end
         end # html
 

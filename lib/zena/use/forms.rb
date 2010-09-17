@@ -78,6 +78,11 @@ module Zena
           )
         end
 
+        def r_errors
+          # Very basic for the moment
+          "<%= error_messages_for(#{node.form_name}, :object => #{node}) %>"
+        end
+
         def make_input(form_helper, name, type, textarea = false)
           if type == Time
             "<%= date_box(#{node}, :#{name}) %>"
@@ -152,22 +157,28 @@ module Zena
               opts[:id]          = "<%= ndom_id(#{node}) %>"
 
               opts[:form_tag]    = %Q{
-<% remote_form_for(:#{node.form_name}, #{node}, :url => #{node}.new_record? ? #{node.form_name.pluralize}_path : #{node.form_name}_path(#{node}), :html => {:method => #{node}.new_record? ? :post : :put, :id => \"\#{ndom_id(#{node})}_form_t\"}) do |f| %>
+<% remote_form_for(:#{node.form_name}, #{node}, :url => #{node}.new_record? ? #{node.form_name.pluralize}_path : #{node.form_name}_path(#{node}.zip), :html => {:method => #{node}.new_record? ? :post : :put, :id => \"\#{ndom_id(#{node})}_form_t\"}) do |f| %>
 }
 
               opts[:form_cancel] = %Q{
 <% if #{node}.new_record? -%>
   <p class='btn_x'><a href='#' onclick='[\"<%= params[:dom_id] %>_add\", \"<%= params[:dom_id] %>_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
 <% else -%>
-  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{node.form_name}_path(#{node}.id) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}#{@context[:has_link_id] ? "&link_id=\#{#{node}.link_id}" : ''}\", :method => :get) %></p>
+  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{node.form_name}_path(#{node}.zip) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}#{@context[:has_link_id] ? "&link_id=\#{#{node}.link_id}" : ''}\", :method => :get) %></p>
 <% end -%>
 }
             end
           else
             # no ajax
+            if descendants('errors')
+              error_messages = ''
+            else
+              error_messages = r_errors + "\n"
+            end
+
             opts[:form_tag]    = %Q{
-<% form_for(:#{node.form_name}, #{node}, :url => #{node}.new_record? ? #{node.form_name.pluralize}_path : #{node.form_name}_path(#{node}), :html => {:method => #{node}.new_record? ? :post : :put, :id => \"\#{ndom_id(#{node})}_form_t\"}) do |f| %>
-}
+<% form_for(:#{node.form_name}, #{node}, :url => #{node}.new_record? ? #{node.form_name.pluralize}_path : #{node.form_name}_path(#{node}.zip), :html => {:method => #{node}.new_record? ? :post : :put, :id => \"\#{ndom_id(#{node})}_form_t\"}) do |f| %>
+#{error_messages}}
           end
 
           opts

@@ -94,6 +94,7 @@ module Zena
             alias_method_chain :properties=, :enrollable
             alias_method_chain :rebuild_index!, :enrollable
 
+            before_validation  :check_unknown_attributes
             before_validation  :prepare_roles
             after_save  :update_roles
             after_destroy :destroy_nodes_roles
@@ -110,6 +111,8 @@ module Zena
         def attributes_with_enrollable=(attrs)
           load_roles!
           self.attributes_without_enrollable = attrs
+        rescue ActiveRecord::UnknownAttributeError => err
+          @unknown_attribute_error = err
         end
 
         def properties_with_enrollable=(attrs)
@@ -143,6 +146,18 @@ module Zena
         end
 
         private
+          # Do not go any further if the object contains errors
+          def check_unknown_attributes
+            if @unknown_attribute_error
+              name = @unknown_attribute_error.message[%r{unknown attribute: (.+)}, 1]
+              errors.add(name, "unknown attribute")
+              @unknown_attribute_error = nil
+              false
+            else
+              true
+            end
+          end
+
           # Prepare roles to add/remove to object.
           def prepare_roles
             return unless prop.changed?
