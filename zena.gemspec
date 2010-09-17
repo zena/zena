@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2010-09-14}
+  s.date = %q{2010-09-17}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -434,6 +434,7 @@ Gem::Specification.new do |s|
      "db/migrate/20100526090140_renamed_contact_model_to_base_contact.rb",
      "db/migrate/20100527130937_change_column_index_to_string.rb",
      "db/migrate/20100531135128_add_fulltext_builder_fields.rb",
+     "db/migrate/20100915062903_add_api_group_id_to_site.rb",
      "doc/README_FOR_APP",
      "doc/fixtures.graffle",
      "doc/fixtures.pdf",

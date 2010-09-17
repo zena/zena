@@ -13,8 +13,9 @@ class NavigationTest < Zena::Integration::TestCase
     get 'http://test.host/'
     assert_redirected_to 'http://test.host/login'
 
-    reset!
     post 'http://test.host/session', :login=>'tiger', :password=>'tiger'
+    assert_redirected_to "http://test.host/"
+    follow_redirect!
     assert_redirected_to "http://test.host/oo"
 
     # 2. navigating out of '/oo' but logged in and format is not data
@@ -24,6 +25,17 @@ class NavigationTest < Zena::Integration::TestCase
     assert_response :success
     get 'http://test.host/fr/textdocument53.css?1144713600' # data with timestamp
     assert_response :success
+  end
+
+  def test_should_not_redirect_to_css
+
+    # 1. site forces authentication
+    Site.connection.execute "UPDATE sites SET authentication = 1 WHERE id = #{sites_id(:zena)}"
+    get 'http://test.host/en/textdocument53.css' # style_css
+    assert_redirected_to 'http://test.host/login'
+
+    post 'http://test.host/session', :login=>'tiger', :password=>'tiger'
+    assert_redirected_to "http://test.host/oo"
   end
 
   # HTTP_AUTH disabled

@@ -20,6 +20,13 @@ module Zena
         private
 
           def save_after_login_url
+            # prevent redirect to favicon or css
+            return unless request.format == Mime::HTML
+            path = params[:path]
+            if path && path.last =~ /\.(.+)\Z/
+              return if $1 != 'html'
+            end
+
             session[:after_login_url] = request.parameters
           end
 
