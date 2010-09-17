@@ -44,3 +44,10 @@ zazen_edit_publish_force:
 zazen_edit_publish_true:
   src: "<r:zazen attr='node_name' edit='true' publish='true'/>"
   tem: "/attribute=node_name&dom_id=.*_node_name&publish=true&zazen=true/"
+
+# Update query builder for DataEntry
+select_nodes_data_list:
+  context:
+    node: status
+  src: "<r:data><r:each><r:form><select nodes='projects in site' name='node_a_id'/></r:form></r:each></r:data>"
+  res: "/option\s* value=.29.\s* selected=.selected.>wiki/"

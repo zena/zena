@@ -15,8 +15,22 @@ add_btn:
   res: "/<tr class='btn_add' id='list1_add'><td><b><a href='#' onclick/"
 
 form_put:
+  # default should be a put method
   src: "<r:form></r:form>"
-  tem: "."
+  tem: "/form_for.*:url.*node_path\(@node\)/"
+  res: '/<form action="/nodes/\d+".*method="post".*input name="_method" type="hidden" value="put"/'
+
+form_post:
+  # Should make a post on new objects
+  src: "<r:new klass='Post' title='Joe'><r:form></r:form></r:new>"
+  tem: "/if var1 = new_instance\(\"Post\", :title => \"Joe\"\)/"
+  res: "!/\"put\"/"
+
+new:
+  # Should accept allowed params (from class and roles) and transform ids to zip (back and forth)
+  src: "<r:new klass='Letter' title='Joe' parent_id='#{project.id}' paper='white' origin='Mars' bad='value'><r:form><r:input name='title'/> <r:input name='parent_id'/></r:form></r:new>"
+  tem: "/:title => \"Joe\", :parent_id => .*@node.project.zip.*, :paper => \"white\", :origin => \"Mars\"/"
+  res: "/<input type='text' name='node\[title\]' value='Joe'/> <input type='text' name='node\[parent_id\]' value='21'/><div class='hidden'><input type='hidden' name='node\[klass\]' value='Letter'/><input type='hidden' name='node\[paper\]' value='white'/><input type='hidden' name='node\[origin\]' value='Mars'/></div>/"
 
 translate_id_to_zip:
   src: "<b do='hot_id'/><i do='parent_id'/>"
@@ -51,12 +65,6 @@ select_nodes_in_ajax:
 select_nodes_show_attr:
   src: "<r:form><r:select name='title' nodes='images in site' attr='ext' show='title'/></r:form>"
   res: "/name=.node\[title\].>.*<option value=\"jpg\">flower</option>\n<option value=\"jpg\">it's a lake</option>/"
-
-select_nodes_data_list:
-  context:
-    node: status
-  src: "<r:data><r:each><r:form><select nodes='projects in site' name='node_a_id'/></r:form></r:each></r:data>"
-  res: "/option\s* value=.29.\s* selected=.selected.>wiki/"
 
 select_time_zone:
   src: "<r:form><r:select type='time_zone' name='d_tz'/></r:form>"

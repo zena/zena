@@ -27,6 +27,7 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     'security',
     'ajax',
     'complex_ok',
+    'forms',
   ]
 
   BUG = [
@@ -35,7 +36,6 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     'complex',
     'data',
     'eval',
-    'forms',
     'complex',
   ]
 

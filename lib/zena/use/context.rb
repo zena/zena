@@ -159,9 +159,9 @@ module Zena
           #  out "<% grp_#{list_var} = sort_array(#{group_array}) #{sort_block} -%>"
           #else
           #end
-
-          out "<% if #{var} = group_array(#{node}) {|e| #{key}} -%>"
-            open_node_context("group_array(#{node}) {|e| #{key}}", :node => node.move_to(var, [node.klass], :query => node.opts[:query])) do
+          method = "group_array(#{node}) {|e| #{key}}"
+          out "<% if #{var} = #{method} -%>"
+            open_node_context({:method => method}, :node => node.move_to(var, [node.klass], :query => node.opts[:query])) do
               if child['each_group']
                 out expand_with
               else

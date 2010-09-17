@@ -2,6 +2,13 @@ module Zena
   module Use
     module Forms
       module ViewMethods
+
+        # Create a new instance of the given class name
+        def new_instance(class_name, params = {})
+          return nil unless klass = Node.get_class(class_name, :create => true)
+          klass.new_instance(Node.transform_attributes(params))
+        end
+
         def make_checkbox(node, values, relation_name, attribute)
           relation_proxy = node.relation_proxy(relation_name)
           return nil unless values && relation_proxy
@@ -39,6 +46,38 @@ module Zena
       end # ViewMethods
 
       module ZafuMethods
+
+        # Enter the context of a newly created object
+        def r_new
+          return parser_error("missing 'klass' parameter") unless class_name = @params[:klass]
+          return parser_error("invalid 'klass' parameter (not a Node)") unless klass = get_class(class_name)
+
+          res  = []
+          keys = {:klass => 'klass'}
+          @params.each do |key, value|
+            next if key == :klass
+            # TODO: maybe it would be safer to check with [:"key="] and change safe_property to
+            # authorize both ?
+            next unless type = klass.safe_method_type([key.to_s])
+            # Store how to access current value to show hidden field in form.
+            keys[key] = type[:method]
+            res << ":#{key} => #{RubyLess.translate_string(self, value)}"
+          end
+
+          if res == []
+            method = "new_instance(#{class_name.inspect})"
+          else
+            method = "new_instance(#{class_name.inspect}, #{res.join(', ')})"
+          end
+
+          expand_with_finder(
+            :method   => method,
+            :class    => klass,
+            :nil      => true,
+            :new_keys => keys
+          )
+        end
+
         def make_input(form_helper, name, type, textarea = false)
           if type == Time
             "<%= date_box(#{node}, :#{name}) %>"
@@ -112,19 +151,25 @@ module Zena
               # Saved form
               opts[:id]          = "<%= ndom_id(#{node}) %>"
 
-              opts[:form_tag]    = <<-END_TXT
-<% remote_form_for(:#{node.form_name}, #{node}, :url => #{node}.new_record? ? #{node.form_name.pluralize}_path : #{node.form_name}_path(#{node}), :method => #{node}.new_record? ? :post : :put, :html => {:id => \"\#{ndom_id(#{node})}_form_t\"}) do |f| %>
-END_TXT
+              opts[:form_tag]    = %Q{
+<% remote_form_for(:#{node.form_name}, #{node}, :url => #{node}.new_record? ? #{node.form_name.pluralize}_path : #{node.form_name}_path(#{node}), :html => {:method => #{node}.new_record? ? :post : :put, :id => \"\#{ndom_id(#{node})}_form_t\"}) do |f| %>
+}
 
-              opts[:form_cancel] = <<-END_TXT
+              opts[:form_cancel] = %Q{
 <% if #{node}.new_record? -%>
   <p class='btn_x'><a href='#' onclick='[\"<%= params[:dom_id] %>_add\", \"<%= params[:dom_id] %>_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
 <% else -%>
   <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{node.form_name}_path(#{node}.id) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}#{@context[:has_link_id] ? "&link_id=\#{#{node}.link_id}" : ''}\", :method => :get) %></p>
 <% end -%>
-END_TXT
+}
             end
+          else
+            # no ajax
+            opts[:form_tag]    = %Q{
+<% form_for(:#{node.form_name}, #{node}, :url => #{node}.new_record? ? #{node.form_name.pluralize}_path : #{node.form_name}_path(#{node}), :html => {:method => #{node}.new_record? ? :post : :put, :id => \"\#{ndom_id(#{node})}_form_t\"}) do |f| %>
+}
           end
+
           opts
         end
 
@@ -234,8 +279,27 @@ END_TXT
 
           hidden_fields['node[v_status]'] = Zena::Status[:pub].to_s if add_params[:publish] || auto_publish_param
 
+          # All default values set in the <r:new> field should at least appear as hidden fields
+          if new_keys = node.opts[:new_keys]
+            input_keys = (
+              (descendants('input') || []).map {|e| e.params[:name]} +
+              hidden_fields.keys.map do |e|
+                if e =~ /.*\[(.*)\]/
+                  $1.to_sym
+                else
+                  nil
+                end
+              end
+            ).compact.uniq
+
+            new_keys.each do |key, value|
+              next if input_keys.include?(key)
+              hidden_fields["node[#{key}]"] = "<%= #{node}.#{value} %>"
+            end
+          end
           # ===
           # TODO: reject set_fields from hidden_fields
+          # ? what is this ?
           # ===
 
           hidden_fields.reject! do |k,v|
