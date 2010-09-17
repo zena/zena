@@ -1,3 +1,15 @@
+== 1.0.0.beta3 2010-09-17
+
+* major changes
+ * created Zena::Remote API
+ * fixed Ajax operations and tests
+ * fixed forms to create/update new objects
+ * added dynamic translations
+ * better querybuilder integration relative to SELECT clauses
+ * fixed date parsing
+ * added safe 'send' method
+ * added support to create and update Roles
+
 == 1.0.0.beta2 2010-07-24
 
 * major changes
