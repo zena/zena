@@ -39,6 +39,22 @@ module Zena
         safe_method :login_path  => String
         safe_method :logout_path => String
 
+        # These methods are used by swap to create the href
+        safe_method [:next_in_list, String, String] => {:class => String, :method => 'next_in_list_s', :accept_nil => true}
+        safe_method [:next_in_list, Number, String] => {:class => Number, :method => 'next_in_list_i', :accept_nil => true}
+
+        def next_in_list_s(str, list)
+          list = list.to_s.split(',').map(&:strip)
+          str  = str.to_s
+          list[((list.index(str) || -1) + 1) % list.size]
+        end
+
+        def next_in_list_i(nb, list)
+          list = list.to_s.split(',').map(&:to_f)
+          nb   = nb.to_f
+          list[((list.index(nb) || -1) + 1) % list.size]
+        end
+
         # Shows 'login' or 'logout' button.
         # Is this used ? Or do we just use the zafu tag alone ?
         # def login_link(opts={})
@@ -223,6 +239,40 @@ module Zena
               out_post " <%= node_actions(#{node}, :actions => #{actions.inspect}) %>"
             end
           end
+        end
+
+
+        # TODO: test
+        def r_swap
+          if upd = @params[:update]
+            if upd == '_page'
+              block = '_page'
+            elsif block = find_target(upd)
+              # ok
+              if ancestor('block') || ancestor('each')
+                # FIXME: not used
+                upd_both = '&upd_both=true'
+              else
+                upd_both = ''
+              end
+            else
+              return
+            end
+          elsif ancestor('block') || ancestor('each')
+            # ancestor: ok
+            block = self
+          elsif parent && block = parent.descendant('block')
+            # sibling: ok
+            upd_both = ''
+          else
+            return parser_error("missing 'block' in same parent")
+          end
+
+          return parser_error("missing 'states' parameter") unless @params[:states]
+
+          # This will be RubyLess evaluated
+          query_params = {"node[#{@params[:attr]}]" => "\#{next_in_list(this.#{@params[:attr]}, %Q{#{@params[:states]}})}"}
+          out make_link(:update => block, :action => 'update', :query_params => query_params, :method => :put)
         end
       end # ZafuMethods
     end # Action

@@ -34,3 +34,34 @@ optional_hash:
 build_query:
   src: "<div id='notes' do='notes' in='project' limit='10' order='log_at DESC'>"
   tem: "/SELECT nodes\.\* FROM nodes/"
+
+next_in_list_s:
+  context:
+    node: letter
+    class: Letter
+  eval: "next_in_list(paper, %q{Kraft, Tyvek})"
+  tem: "<%= next_in_list_s(@node.prop['paper'], \"Kraft, Tyvek\") %>"
+  res: 'Tyvek'
+
+next_in_list_new_value:
+  context:
+    node: letter
+    class: Letter
+  eval: "next_in_list(paper, %q{Foo, Tyvek})"
+  tem: "<%= next_in_list_s(@node.prop['paper'], \"Foo, Tyvek\") %>"
+  res: 'Foo'
+  
+next_in_list_nil:
+  context:
+    node: letter
+    class: Letter
+  eval: "next_in_list(paper, %q{Kraft, })"
+  tem: "<%= next_in_list_s(@node.prop['paper'], \"Kraft, \") %>"
+  res: ''
+  
+next_in_list_i:
+  context:
+    node: wiki
+  eval: "next_in_list(id, %q{12, 29, 36})"
+  tem: "<%= next_in_list_i(@node.zip, \"12, 29, 36\") %>"
+  res: '36.0'

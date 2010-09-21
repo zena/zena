@@ -21,6 +21,11 @@ module Zena
             if !@node.errors.empty?
               page << "alert(#{@node.errors.first.join(': ')});"
               page << "return false;" # How to avoid 'onSuccess' ?
+            elsif params[:udom_id] == '_page'
+              # reload page
+              page << "document.location.href = document.location.href;"
+            else
+              # ?
             end
             return
           end

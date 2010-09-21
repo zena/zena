@@ -13,9 +13,9 @@ module Zena
 
         # We overwrite some url writers that might use Node so that they use
         # zip instead of id.
-        %w{edit delete drop zafu}.each do |method|
+        ['', 'edit_', 'delete_', 'drop_', 'zafu_'].each do |method|
           class_eval %Q{
-            def #{method}_node_path(node, options={}) # def edit_node_path(node, options={})
+            def #{method}node_path(node, options={}) # def edit_node_path(node, options={})
               if node.kind_of?(Node)                  #   if node.kind_of?(Node)
                 super(node.zip, options)              #     super(node.zip, options)
               else                                    #   else
@@ -200,6 +200,9 @@ module Zena
 
         safe_method [:zafu_node_path, Node, Hash]   => {:class => String, :accept_nil => true}
         safe_method [:zafu_node_path, Node]         => {:class => String, :accept_nil => true}
+        safe_method [:update_node_path, Node, Hash]   => {:class => String, :accept_nil => true, :method => 'node_path'}
+        safe_method [:update_node_path, Node]         => {:class => String, :accept_nil => true, :method => 'node_path'}
+
         safe_method [:edit_node_path, Node, Hash]   => {:class => String, :accept_nil => true}
         safe_method [:edit_node_path, Node]         => {:class => String, :accept_nil => true}
         safe_method [:delete_node_path, Node, Hash] => {:class => String, :accept_nil => true}
@@ -266,6 +269,7 @@ module Zena
         #
         def make_link(options = {})
           remote_target = (options[:update] || @params.delete(:update))
+          options[:action] ||= @params.delete(:action)
 
           @markup.tag ||= 'a'
 
@@ -453,6 +457,8 @@ module Zena
             # els
             if %w{edit drop unlink}.include?(opts[:action])
               method = "#{opts[:action]}_node_path"
+            elsif %w{update}.include?(opts[:action])
+              method = 'update_node_path'
             elsif remote_target
               method = 'zafu_node_path'
             else
@@ -504,7 +510,11 @@ module Zena
           def insert_ajax_args(target, hash_params, action)
             hash_params << ":s => start_id"
             hash_params << ":link_id => this.link_id" if @context[:has_link_id] && node.will_be?(Node)
-            if target.kind_of?(String)
+            if target == '_page'
+              # reload full page
+              hash_params << ":udom_id => '_page'"
+              return
+            elsif target.kind_of?(String)
               # named target
               return nil unless target = find_target(target)
             end
@@ -676,7 +686,7 @@ module Zena
             case action
             when 'delete', 'unlink'
               'delete'
-            when 'drop'
+            when 'drop', 'update'
               'put'
             else
               'get'

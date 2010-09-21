@@ -17,6 +17,7 @@ module Zena
 
         safe_method_for Node, [:kind_of?, String] => {:method => 'kpath_match?', :class => Boolean}
         safe_method_for Node, [:kind_of?, Number] => {:method => 'has_role?',    :class => Boolean}
+        safe_method_for Array, [:index, String]   => {:class => Number, :nil => true}
       end # ViewMethods
 
 

@@ -25,12 +25,6 @@ each_in_each_dom_id:
     </ul>
   'ajax/each/en/in/each/dom/id/list1.erb': "/id='<%= %Q\{#\{ndom_id(@node)\}_#\{var2.zip\}\} %>'>/"
 
-# [swap] needs to be reimplemented
-swap_in_each:
-  src: "<r:pages><li do='each'><span do='swap' attr='origin' states='todo,done,alert'/></li></r:pages>"
-  tem: "/<li id='list1_<%= var1.zip %>'><span>.*var1.can_write?.*tag_to_remote.*else.*var1.version.dyn\[\"status\"\]/"
-
-
 # [ajax] zazen edit=true (maybe should implement in zafu_attributes with filter_edit)
 zazen_edit:
   src: "<r:zazen attr='node_name' edit='true'/>"

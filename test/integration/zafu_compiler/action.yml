@@ -65,3 +65,11 @@ visitor_link_blocks:
 action:
   src: "<p do='action' select='edit' do='t'>hello</p>"
   res: "/nodes/22/versions/0/edit.*Open the edition window to edit the node.*Zena.open_window/"
+
+swap_in_each:
+  src: "<r:pages><li do='each'><span do='swap' attr='origin' states='todo,done,alert'/></li></r:pages>"
+  tem: "/\"node\[origin\]\" => \"#\{next_in_list_s\(var2.prop\['origin'\], \"todo,done,alert\"/"
+
+hand_made_swap:
+  src: "<r:link update='_page' node[origin]='#{next_in_list(origin, \"todo,done\")}' action='update'/>"
+  tem: ".."
