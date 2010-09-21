@@ -1,7 +1,8 @@
-== 0.16.9 2010-08-31
+== 0.16.9 2010-09-29
 
 * 1 major enhancement
   * fixed deploy rules for mongrel and passenger
+  * fixed RubyLess dependency (breaks with newer versions)
 
 == 0.16.8 2010-08-30
 

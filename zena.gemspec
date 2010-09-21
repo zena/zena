@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2010-08-31}
+  s.date = %q{2010-09-21}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -2020,7 +2020,7 @@ Gem::Specification.new do |s|
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
       s.add_runtime_dependency(%q<tzinfo>, [">= 0.3.12"])
-      s.add_runtime_dependency(%q<rubyless>, [">= 0.3.5"])
+      s.add_runtime_dependency(%q<rubyless>, ["= 0.3.5"])
       s.add_runtime_dependency(%q<rails>, ["= 2.3.4"])
       s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_runtime_dependency(%q<authlogic>, ["= 2.1.3"])
@@ -2039,7 +2039,7 @@ Gem::Specification.new do |s|
     else
       s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
       s.add_dependency(%q<tzinfo>, [">= 0.3.12"])
-      s.add_dependency(%q<rubyless>, [">= 0.3.5"])
+      s.add_dependency(%q<rubyless>, ["= 0.3.5"])
       s.add_dependency(%q<rails>, ["= 2.3.4"])
       s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_dependency(%q<authlogic>, ["= 2.1.3"])
@@ -2059,7 +2059,7 @@ Gem::Specification.new do |s|
   else
     s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
     s.add_dependency(%q<tzinfo>, [">= 0.3.12"])
-    s.add_dependency(%q<rubyless>, [">= 0.3.5"])
+    s.add_dependency(%q<rubyless>, ["= 0.3.5"])
     s.add_dependency(%q<rails>, ["= 2.3.4"])
     s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
     s.add_dependency(%q<authlogic>, ["= 2.1.3"])
