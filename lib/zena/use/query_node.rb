@@ -155,7 +155,12 @@ module Zena
 
         # Overwrite this and take car to check for valid fields.
         def process_field(field_name)
-          if processing_filter? && map_def = self.class.filter_fields[field_name]
+
+          if fld = @query.attributes_alias[field_name]
+            # use custom query alias value defined in select clause: 'custom_a AS validation'
+            return processing_filter? ? "(#{fld})" : fld
+          elsif processing_filter? && map_def = self.class.filter_fields[field_name]
+            # Special filter fields such as 'role', 'tag' or 'class'
             if map_def.kind_of?(String)
               return map_def
             elsif table_def = map_def[:table]
@@ -196,6 +201,7 @@ module Zena
               return res
             end
 
+            # property or real column
             column = @query.main_class.schema.columns[field_name]
             if column && column.indexed?
               if column.index == true

@@ -19,11 +19,11 @@ module Zena::Use::Conditional
           # Saved templates can be rendered with anything...
           # FIXME: Make sure saved templates from 'block' start with the proper node type ?
           cond     = "#{node}.has_role?(#{role.id})"
-          new_node = node.move_to(node.name, klass)
+          new_node = node.move_to(node.name, node.klass)
         else
           # render nothing: incompatible classes
           cond     = 'false'
-          new_node = node.move_to(node.name, klass)
+          new_node = node.move_to(node.name, node.klass)
         end
       else
         return parser_error("Invalid role or class '#{class_name}'")

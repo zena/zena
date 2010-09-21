@@ -85,7 +85,12 @@ class Site
           elsif node.kind_of?(Template)
             prop['ext'] = 'zafu'
             prop['content_type'] = 'text/zafu'
-
+            if doc = version.content(TemplateContent)
+              prop['target_klass'] = doc.klass
+              prop['format']       = doc.format
+              prop['mode']         = doc.mode
+              prop['tkpath']       = doc.tkpath
+            end
           elsif node.kind_of?(TextDocument)
             doc = version.content(DocumentContent)
             transfer_document_attributes(version, doc, prop)

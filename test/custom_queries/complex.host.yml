@@ -171,3 +171,10 @@ Node:
     where:
       - formations.kpath like 'NNF%'
     group: formations.id
+
+  alias_query:
+    main_table: nodes
+    select:
+      - "(log_at + INTERVAL 6 months) AS event_at"
+    tables:
+      - nodes

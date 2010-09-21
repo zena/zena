@@ -155,7 +155,7 @@ class Node < ActiveRecord::Base
                 :wgroup_id => Number, :dgroup_id => Number, :custom_base => Boolean, :klass => String,
                 :m_text => String, :m_title => String, :m_author => String,
                 :id => {:class => Number, :method => 'zip'},
-                :skin => 'Skin', :lang => String, :content_lang => {:class => String, :nil => true},
+                :skin => 'Skin', :ref_lang => String, :content_lang => {:class => String, :nil => true},
                 :visitor => 'User',
                 [:ancestor?, Node] => Boolean
   safe_method   :defaults => {:nil => true},

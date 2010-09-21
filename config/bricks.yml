@@ -5,6 +5,9 @@ test:
   worker:   OFF
 
 development:
+  mongrel:   ON
+  passenger: OFF
+
   math:
     switch: ON
     live:   ON
@@ -24,6 +27,8 @@ development:
   data2pdf: ON
 
 production:
+  mongrel:   ON
+  passenger: OFF
   math:
     switch: ON
     live:   ON

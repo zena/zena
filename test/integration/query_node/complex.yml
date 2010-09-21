@@ -109,3 +109,7 @@ all_course_emp_date:
 courses_with_rep:
   src: "courses where custom_a is not null in site order by node_name ASC"
   res: "dangerousTransportations, engine, fiberJunction, radioUsage, respManagement, secureASite, teamMotivation, transmitInformation, vision, winchUsage"
+  
+it_should_use_alias_in_filters:
+  src: "alias_query where event_at < now in site"
+  sql: "%Q{SELECT (log_at + INTERVAL 6 months) AS event_at FROM nodes WHERE #{secure_scope('nodes')} AND ((log_at + INTERVAL 6 months)) < now() ORDER BY nodes.position ASC, nodes.node_name ASC}"
