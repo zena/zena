@@ -38,8 +38,26 @@ module Zena
         def safe_method_type(signature, receiver = nil)
           if signature.size == 1 && (column = loaded_role_properties[signature.first])
             RubyLess::SafeClass.safe_method_type_for_column(column, true)
-          else
-            super
+          elsif type = super
+            if type[:enroll]
+              klass = type[:class]
+              if klass.kind_of?(Array)
+                if klass = Enrollable::Common.get_class(klass.first.to_s)
+                  klass = [klass]
+                else
+                  return nil
+                end
+              elsif klass
+                unless klass = Enrollable::Common.get_class(klass.to_s)
+                  return nil
+                end
+              else
+                return nil
+              end
+              type.merge(:class => klass)
+            else
+              type
+            end
           end
         end
 
@@ -76,9 +94,21 @@ module Zena
 
           class << base
             attr_accessor :loaded_role_properties
+            attr_accessor :declared_node_contexts, :declared_node_contexts_proc
 
             def loaded_role_properties
               @loaded_role_properties ||= {}
+            end
+
+            # Declare a safe context resulting in a (virtual) sub-class of Node. This method
+            # ensures that the returned class will load the Roles available. If you need to
+            # use a virtual-class, you must declare it by using a Symbol or RubyLess will try
+            # to resolve it as a real class resulting in a NameError.
+            def safe_node_context(methods_hash)
+              methods_hash[:defaults] ||= {}
+              methods_hash[:defaults][:nil]    = true
+              methods_hash[:defaults][:enroll] = true
+              safe_method(methods_hash)
             end
           end
 
@@ -205,6 +235,7 @@ module Zena
       end # ModelMethods
 
       module Common
+        extend self
         def get_class(class_name)
           if klass = Node.get_class(class_name)
             Enrollable.make_class(klass)

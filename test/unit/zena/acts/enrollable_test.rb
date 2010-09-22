@@ -186,7 +186,7 @@ class EnrollableTest < Zena::Unit::TestCase
         should 'not allow arbitrary attributes' do
           assert !subject.update_attributes('assigned' => 'flat Eric', 'bad' => 'property')
         end
-        
+
         should 'not raise on bad attributes' do
           assert_nothing_raised do
             subject.attributes = {'elements' => 'Statistical Learning'}
@@ -235,6 +235,32 @@ class EnrollableTest < Zena::Unit::TestCase
       end # with properties from roles
 
     end # creating a node
+
+    context 'A safe method returning a sub-class of Node' do
+      subject do
+        ['section']
+      end
+
+      should 'return a fully loaded class on safe_method_type' do
+        type = Node.safe_method_type(subject)
+        assert type[:class] < Section
+        assert_equal %w{assigned cached_role_ids comment origin summary text title tz weight}, type[:class].schema.columns.keys.sort
+      end
+    end # A safe method returning a sub-class of Node
+
+    context 'A class with a safe_node_context to a virtual class' do
+      subject do
+        Class.new(Page) do
+          safe_node_context :foo => :Post
+        end
+      end
+
+      should 'properly resolve type' do
+        type = subject.safe_method_type(['foo'])
+        assert_equal type[:class].kpath, roles(:Post).kpath
+      end
+    end # A class with a safe_node_context to a virtual class
+
 
   end # A visitor with write access
 end

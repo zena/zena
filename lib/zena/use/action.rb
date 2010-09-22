@@ -169,6 +169,16 @@ module Zena
           base.before_process :filter_actions
         end
 
+        def r_debug
+          %Q{
+<pre style='background:white; color:black; border:1px solid red; display:table;'>
+class #{node.klass}: #{Array(node.klass).first.schema.columns.keys.join(', ')}
+</pre>
+          }
+        end
+
+        alias r_d r_debug
+
         def r_login_link
           if dynamic_blocks?
             @markup.tag ||= 'a'

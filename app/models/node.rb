@@ -168,9 +168,11 @@ class Node < ActiveRecord::Base
   #nested_attributes_alias %r{^c_(\w+)} => ['version', 'content']
   #nested_attributes_alias %r{^d_(\w+)} => ['version', 'dyn']
 
-  safe_context       :parent => 'Node', :project => 'Project', :section => 'Section',
-                     :real_project => 'Project', :real_section => 'Section',
-                     :comments => ['Comment'],
+  # safe_node_context defined in Enrollable
+  safe_node_context  :parent => 'Node', :project => 'Project', :section => 'Section',
+                     :real_project => 'Project', :real_section => 'Section'
+
+  safe_context       :comments => ['Comment'],
                      :data   => {:class => ['DataEntry'], :zafu => {:data_root => 'node_a'}},
                      :data_a => {:class => ['DataEntry'], :zafu => {:data_root => 'node_a'}},
                      :data_b => {:class => ['DataEntry'], :zafu => {:data_root => 'node_b'}},

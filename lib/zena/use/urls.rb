@@ -665,7 +665,12 @@ module Zena
             if dynamic_blocks?
               expand_with
             else
-              if method = get_attribute_or_eval(false)
+              method = get_attribute_or_eval(false)
+              if !method && @params.keys - [:attr, :eval, :text] != []
+                out @errors.last
+              end
+
+              if method
                 method.literal || "<%= #{method} %>"
               elsif default
                 default
