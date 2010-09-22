@@ -85,7 +85,9 @@ class VersionsController < ApplicationController
   def custom_tab
     render :file => template_url(:mode=>'+edit', :format=>'html'), :layout=>false
   rescue ActiveRecord::RecordNotFound
-    render :inline => "no custom form for this class (#{@node.klass})"
+    @node.load_roles!
+#    render :inline => "no custom form for this class (#{@node.klass})"
+    render :action => 'custom_tab'
   end
 
   # TODO: test/improve or remove (experiments)
