@@ -9,6 +9,6 @@ ZENA_CALENDAR_LANGS = ["en", "fr", "de"] # FIXME: build this dynamically from ex
 ENABLE_XSENDFILE = false
 
 module Zena
-  VERSION = '1.0.0.beta3'
+  VERSION = '1.0.0.beta4'
   ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
 end

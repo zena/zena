@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{zena}
-  s.version = "1.0.0.beta3"
+  s.version = "1.0.0.beta4"
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2010-09-21}
+  s.date = %q{2010-09-22}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -241,6 +241,7 @@ Gem::Specification.new do |s|
      "app/views/versions/_tr.rhtml",
      "app/views/versions/backup.rjs",
      "app/views/versions/css_preview.rjs",
+     "app/views/versions/custom_tab.rhtml",
      "app/views/versions/destroy.rjs",
      "app/views/versions/diff.rjs",
      "app/views/versions/edit.rhtml",
@@ -2184,7 +2185,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<property>, [">= 1.1.0"])
       s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_runtime_dependency(%q<authlogic>, ["= 2.1.3"])
-      s.add_runtime_dependency(%q<zafu>, [">= 0.7.1"])
+      s.add_runtime_dependency(%q<zafu>, [">= 0.7.3"])
       s.add_runtime_dependency(%q<shoulda>, [">= 2.10.2"])
       s.add_runtime_dependency(%q<fast_gettext>, ["~> 0.4.16"])
       s.add_runtime_dependency(%q<syntax>, ["= 1.0.0"])
@@ -2197,7 +2198,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<hpricot>, [">= 0"])
       s.add_runtime_dependency(%q<differ>, [">= 0.1.1"])
       s.add_runtime_dependency(%q<RedCloth>, ["= 3.0.4"])
-      s.add_runtime_dependency(%q<querybuilder>, [">= 0.9.0"])
+      s.add_runtime_dependency(%q<querybuilder>, [">= 0.9.1"])
     else
       s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
       s.add_dependency(%q<tzinfo>, [">= 0.3.12"])
@@ -2206,7 +2207,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<property>, [">= 1.1.0"])
       s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_dependency(%q<authlogic>, ["= 2.1.3"])
-      s.add_dependency(%q<zafu>, [">= 0.7.1"])
+      s.add_dependency(%q<zafu>, [">= 0.7.3"])
       s.add_dependency(%q<shoulda>, [">= 2.10.2"])
       s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
       s.add_dependency(%q<syntax>, ["= 1.0.0"])
@@ -2219,7 +2220,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<hpricot>, [">= 0"])
       s.add_dependency(%q<differ>, [">= 0.1.1"])
       s.add_dependency(%q<RedCloth>, ["= 3.0.4"])
-      s.add_dependency(%q<querybuilder>, [">= 0.9.0"])
+      s.add_dependency(%q<querybuilder>, [">= 0.9.1"])
     end
   else
     s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
@@ -2229,7 +2230,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<property>, [">= 1.1.0"])
     s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
     s.add_dependency(%q<authlogic>, ["= 2.1.3"])
-    s.add_dependency(%q<zafu>, [">= 0.7.1"])
+    s.add_dependency(%q<zafu>, [">= 0.7.3"])
     s.add_dependency(%q<shoulda>, [">= 2.10.2"])
     s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
     s.add_dependency(%q<syntax>, ["= 1.0.0"])
@@ -2242,7 +2243,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<hpricot>, [">= 0"])
     s.add_dependency(%q<differ>, [">= 0.1.1"])
     s.add_dependency(%q<RedCloth>, ["= 3.0.4"])
-    s.add_dependency(%q<querybuilder>, [">= 0.9.0"])
+    s.add_dependency(%q<querybuilder>, [">= 0.9.1"])
   end
 end
 
