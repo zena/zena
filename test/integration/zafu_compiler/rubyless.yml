@@ -50,7 +50,7 @@ next_in_list_new_value:
   eval: "next_in_list(paper, %q{Foo, Tyvek})"
   tem: "<%= next_in_list_s(@node.prop['paper'], \"Foo, Tyvek\") %>"
   res: 'Foo'
-  
+
 next_in_list_nil:
   context:
     node: letter
@@ -58,10 +58,16 @@ next_in_list_nil:
   eval: "next_in_list(paper, %q{Kraft, })"
   tem: "<%= next_in_list_s(@node.prop['paper'], \"Kraft, \") %>"
   res: ''
-  
+
 next_in_list_i:
   context:
     node: wiki
   eval: "next_in_list(id, %q{12, 29, 36})"
   tem: "<%= next_in_list_i(@node.zip, \"12, 29, 36\") %>"
   res: '36.0'
+
+ancestors:
+  src: "<ul id='path' do='ancestors'><li do='each' do='link'/></ul>"
+  tem: "/if var1 = @node.ancestors/"
+  res: "/<ul id='path'><li>.*Zena.*<li>.*en/page18.html.*<li><.*/projects/cleanWater.*Clean Water project</a></li></ul>/"
+

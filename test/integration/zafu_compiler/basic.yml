@@ -9,16 +9,6 @@ default:
 
 #----------- fixed up to here
 
-show_path:
-  src: "<ul id='path' do='show_path'><ul><li><a href='#'>first</a></li> / <li><a href='#'>second</a></li> / <li><a href='#' class='current'>here</a></li></ul></div>"
-  tem: "<ul id='path'><%= show_path(:node=>@node) %></ul>"
-  res: "/<ul id='path'><li>.*zena.*<li>.*oo/page18.html.*<li><.*/projects/cleanWater.*cleanWater</a>.*/oo/projects/cleanWater/page22.html.*class='current'>status</a>/"
-
-show_path_options:
-  src: "<div id='path' do='show_path' wrap='p'/>"
-  res: "/<div id='path'><p>.*zena.*<p>.*oo/page18.html.*<p><.*/projects/cleanWater.*cleanWater</a>.*/oo/projects/cleanWater/page22.html.*class='current'>status</a>/"
-
-
 flash_messages_both:
   src: "<r:flash_messages/>"
   tem: "/id.*messages.*notice.*flash.*notice.*error.*flash.*error/"

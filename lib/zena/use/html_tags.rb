@@ -153,29 +153,6 @@ module Zena
           res << ">"
           res
         end
-
-
-        # show current path with links to ancestors
-        def show_path(opts={})
-          node = opts.delete(:node) || @node
-          tag  = opts.delete(:wrap) || 'li'
-          join = opts.delete(:join) || ''
-          if tag != ''
-            open_tag  = "<#{tag}>"
-            close_tag = "</#{tag}>"
-          else
-            open_tag  = ""
-            close_tag = ""
-          end
-          nav = []
-          node.ancestors.each do |obj|
-            nav << link_to(obj.title, zen_path(obj, opts))
-          end
-
-          nav << "<a href='#{url_for(zen_path(node))}' class='current'>#{node.title}</a>"
-          res = "#{res}#{open_tag}#{nav.join("#{close_tag}#{open_tag}#{join}")}#{close_tag}"
-        end
-
       end # LinkTags
 
       module ViewMethods

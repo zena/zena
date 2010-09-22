@@ -25,44 +25,13 @@ Node (manages access and publication cycle)
   |                    +--- Template  (entry for rendering)
   |
   +-- Note (date related information, event)
-  |     |
-  |     +--- Post (blog entry)
-  |     |
-  |     +--- Task
-  |     |      |
-  |     |      +--- Letter
-  |     |      |
-  |     |      +--- Request
-  |     |             |
-  |     |             +--- Bug
-  |     |
-  |     +--- Milestone
-  |
-  +-- Reference
         |
-        +-- BaseContact (address, name, phone)
+        +--- Post (blog entry)
 
-=== Node, Version and Content
 
-The +nodes+ table only holds columns to secure the access. This table does not hold every possible data for every sub-class of Node. The text data is stored into the +versions+ table and any other specific content goes in its own table (+document_contents+ for example). This is an example of how an Image is stored :
+=== Properties
 
-Node         o-----------   Version   o---------  Content
-dgroup_id                   title                 width
-wgroup_id                   text                  height
-user_id                     summary               content_type
-...                         ...                   ...
-
-=== Acessing version and content data
-
-To ease the work to set/retrieve the data from the version and or content, we use some special notation. This notation abstracts this Node/Version/Content structure so you can use a version's attribute as if it was in the node directly.
-
-TODO: DOC removed (was out of sync)
-
-=== Dynamic attributes
-
-The Version class uses dynamic attributes. These let you add any attribute you like to the versions (see DynAttribute for details). These attributes can be accessed by using the +d_+ prefix :
-
- @node.d_whatever  ===> @node.version.prop[:whatever]
+The Version class stores the node's properties (attributes). You need to declare the attributes either in the virtual class or as a Role attached to an existing class in order to use them.
 
 === Attributes
 
@@ -74,10 +43,12 @@ zip:: unique id (incremented in each site's scope).
 node_name:: used to build the node's url when 'custom_base' is set.
 site_id:: site to which this node belongs to.
 parent_id:: parent node (every node except root is inserted in a unique place through this attribute).
-user_id:: owner of the node.
+user_id:: creator of the node.
 ref_lang:: original node language.
 created_at:: creation date.
 updated_at:: modification date.
+log_at:: announcement date.
+event_at:: event date.
 custom_base:: boolean value. When set to true, the node's url becomes it's fullpath. All it descendants will use this node's fullpath as their base url. See below for an example.
 inherit:: inheritance mode (0=custom, 1=inherit, -1=private).
 
@@ -95,7 +66,9 @@ fullpath:: cached full path made of ancestors' node_names (<gdparent node_name>/
 basepath:: cached base path (the base path is used to build the url depending on the 'custom_base' flag).
 
 === Node url
+
 A node's url is made of it's class and +zip+. For the examples below, this is our site tree:
+
  root
    |
    +--- projects (Page)
@@ -149,21 +122,21 @@ class Node < ActiveRecord::Base
   safe_attribute :created_at, :updated_at, :event_at, :log_at, :publish_from, :basepath, :inherit, :position
 
   # we use safe_method because the columns can be null, but the values are never null
-  safe_method   :node_name => String, :kpath => String, :user_zip => Number, :parent_zip => Number,
-                :project_zip => Number, :section_zip => Number, :skin => String, :ref_lang => String,
-                :fullpath => String, :rootpath => String, :position => Number, :rgroup_id => Number,
-                :wgroup_id => Number, :dgroup_id => Number, :custom_base => Boolean, :klass => String,
+  safe_method   :node_name => String, :kpath => String, :user_zip => Number,
+                :parent_zip => Number, :project_zip => Number, :section_zip => Number,
+                :skin => String, :ref_lang => String, :fullpath => String,
+                :rootpath => String, :position => Number, :rgroup_id => Number,
+                :wgroup_id => Number, :dgroup_id => Number, :custom_base => Boolean,
+                :klass => String,
                 :m_text => String, :m_title => String, :m_author => String,
                 :id => {:class => Number, :method => 'zip'},
-                :skin => 'Skin', :ref_lang => String, :content_lang => {:class => String, :nil => true},
-                :visitor => 'User',
-                [:ancestor?, Node] => Boolean
-  safe_method   :defaults => {:nil => true},
+                :skin => 'Skin', :ref_lang => String,
+                # Code language for syntax highlighting
+                :content_lang => {:class => String, :nil => true},
+                :visitor => 'User', [:ancestor?, Node] => Boolean,
                 :score => Number, :comments_count => Number,
                 :custom_a => Number, :custom_b => Number
-
-  # same with parent_zip, section_zip, etc...
-
+  safe_context  :ancestors => ['Node']
 
   # This is used to load roles in an instance or on a class during compilation. Module
   # inclusion has to come *after* RubyLess because we overwrite safe_method_type.
@@ -938,6 +911,12 @@ class Node < ActiveRecord::Base
         parent.ancestors(start)
       end
     end
+  end
+
+  # Return the list of ancestors as a Zafu compatible context.
+  def zafu_ancestors
+    anc = ancestors
+    anc.empty? ? nil : anc
   end
 
   # Return true if the current node is an ancestor for the given child
