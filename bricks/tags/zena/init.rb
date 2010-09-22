@@ -17,5 +17,5 @@ end
 
 Node.query_compiler.add_filter_field('tag',
   :key   => 'comment',
-  :table => ['nodes', 'INNER', 'links', 'TABLE1.id = TABLE2.source_id AND TABLE2.relation_id IS NULL']
+  :table => ['tags', 'nodes', 'links', 'TABLE1.id = TABLE2.source_id AND TABLE2.relation_id IS NULL']
 )

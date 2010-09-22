@@ -109,15 +109,14 @@ module Zena
           end
         end
 
-        # How to treat filters like "where id = 45" or "where parent_id = #{params[:parent_id]}"
+        # Enables filters like "where id = 45" or "where parent_id = #{params[:parent_id]}"
         self.filter_fields = {
-          'id'         => {:key => 'zip'},
-          'parent_id'  => {:key => 'zip', :join => ['nodes', 'nodes', 'TABLE2.id = TABLE1.parent_id AND TABLE2.site_id = TABLE1.site_id']},
-          'project_id' => {:key => 'zip', :join => ['nodes', 'nodes', 'TABLE2.id = TABLE1.project_id AND TABLE2.site_id = TABLE1.site_id']},
-          'section_id' => {:key => 'zip', :join => ['nodes', 'nodes', 'TABLE2.id = TABLE1.section_id AND TABLE2.site_id = TABLE1.site_id']}
+          'id'         => {:key => 'zip'},          # alias   source   target   filter
+          'parent_id'  => {:key => 'zip', :table => ['jnode', 'nodes', 'nodes', 'TABLE2.id = TABLE1.parent_id AND TABLE2.site_id = TABLE1.site_id']},
+          'project_id' => {:key => 'zip', :table => ['jnode', 'nodes', 'nodes', 'TABLE2.id = TABLE1.project_id AND TABLE2.site_id = TABLE1.site_id']},
+          'section_id' => {:key => 'zip', :table => ['jnode', 'nodes', 'nodes', 'TABLE2.id = TABLE1.section_id AND TABLE2.site_id = TABLE1.site_id']},
+          'now'        => Zena::Db::NOW,
         }
-
-        add_filter_field 'now', Zena::Db::NOW
 
         # Scope current context with previous context.
         # For example:
@@ -164,14 +163,15 @@ module Zena
             if map_def.kind_of?(String)
               return map_def
             elsif table_def = map_def[:table]
-              table_to_use = needs_join_table(*table_def)
-            elsif join_def = map_def[:join]
-              # current table
-              first_table  = table(join_def[0])
-              # filter table
-              add_table('jnode', join_def[1]) # join node
-              table_to_use = table('jnode')
-              add_filter join_def[2].gsub('TABLE1', first_table).gsub('TABLE2', table_to_use)
+              use_name, source, target, filter = table_def
+              table_to_use = add_key_value_table(use_name, target, map_def[:key]) do |tbl_name|
+                # This block is only executed once
+                add_filter filter.gsub(
+                  'TABLE1', table(source)
+                ).gsub(
+                  'TABLE2', tbl_name
+                )
+              end
             else
               table_to_use = table
             end
@@ -211,15 +211,21 @@ module Zena
               end
 
               index_table = @query.main_class.index_table_name(group_name)
-              add_table(index_table)
 
-              add_filter "#{table(index_table)}.node_id = #{table}.id"
-              add_filter "#{table(index_table)}.key = #{quote(field_name)}"
-              if group_name.to_s =~ /^ml_/
-                add_filter "#{table(index_table)}.lang = #{quote(visitor.lang)}"
+              # We use the add_key_value_table rule to avoid inserting the
+              # same index access twice.
+
+              tbl = add_key_value_table('idx', index_table, field_name) do |tbl_name|
+                # This block is only executed once
+                add_filter "#{tbl_name}.node_id = #{table}.id"
+                add_filter "#{tbl_name}.key = #{quote(field_name)}"
+                if group_name.to_s =~ /^ml_/
+                  add_filter "#{tbl_name}.lang = #{quote(visitor.lang)}"
+                end
+                distinct!
               end
-              distinct!
-              "#{table(index_table)}.value"
+
+              "#{tbl}.value"
             else
               super # raises an error
             end
@@ -309,7 +315,7 @@ module Zena
         # This is used to avoid finding random indexed objects or links in clauses with and without link filters
         # like this: "image or icon" ('image' is a filter in 'parent' scope, 'icon' is a
         # relation found through links).
-        def resolve_missing_table(query, table_alias, table_name)
+        def resolve_missing_table(query, table_name, table_alias)
           if table_name =~ /^idx_nodes/
             # index tables
             query.where.insert 0, "#{table_alias}.node_id = 0"

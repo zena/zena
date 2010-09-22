@@ -126,3 +126,5 @@ filter_by_parent:
 #  src: "nodes where role = Original or role = Task in site"
 #  sql: "%Q{SELECT nodes.* FROM nodes,nodes_roles WHERE #{secure_scope('nodes')} AND ((nodes_roles.node_id = nodes.id AND nodes_roles.role_id = 493147733) OR (nodes_roles.node_id = nodes.id AND nodes_roles.role_id = 1793452896)) ORDER BY nodes.position ASC, nodes.node_name ASC}"
 #  res: 'nature'
+
+# filters on ml strings are in properties.yml
