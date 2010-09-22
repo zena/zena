@@ -666,7 +666,7 @@ module Zena
               expand_with
             else
               method = get_attribute_or_eval(false)
-              if !method && @params.keys - [:attr, :eval, :text] != []
+              if !method && (@params.keys & [:attr, :eval, :text]) != []
                 out @errors.last
               end
 
