@@ -72,4 +72,4 @@ swap_in_each:
 
 hand_made_swap:
   src: "<r:link update='_page' node[origin]='#{next_in_list(origin, \"todo,done\")}' action='update'/>"
-  tem: ".."
+  tem: "/:_method => .put., :.node\[origin\]. => .#\{next_in_list_s\(@node.prop\['origin'\], .todo,done.\)/"

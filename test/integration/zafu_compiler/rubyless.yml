@@ -67,7 +67,13 @@ next_in_list_i:
   res: '36.0'
 
 ancestors:
+  # used to be implemented with 'show_path'
   src: "<ul id='path' do='ancestors'><li do='each' do='link'/></ul>"
-  tem: "/if var1 = @node.ancestors/"
+  tem: "/if var1 = @node.z_ancestors/"
   res: "/<ul id='path'><li>.*Zena.*<li>.*en/page18.html.*<li><.*/projects/cleanWater.*Clean Water project</a></li></ul>/"
 
+ancestors_on_root:
+  context:
+    node: 'zena'
+  src: "<ul id='path' do='ancestors'><li do='each' do='link'/></ul>"
+  res: ''

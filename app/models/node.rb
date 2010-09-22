@@ -134,9 +134,9 @@ class Node < ActiveRecord::Base
                 # Code language for syntax highlighting
                 :content_lang => {:class => String, :nil => true},
                 :visitor => 'User', [:ancestor?, Node] => Boolean,
-                :score => Number, :comments_count => Number,
-                :custom_a => Number, :custom_b => Number
-  safe_context  :ancestors => ['Node']
+                :comments_count => Number
+  safe_context  :ancestors => {:class => ['Node'], :method => 'z_ancestors'},
+                :custom_a => Number, :custom_b => Number #, :score => Number
 
   # This is used to load roles in an instance or on a class during compilation. Module
   # inclusion has to come *after* RubyLess because we overwrite safe_method_type.
@@ -916,7 +916,7 @@ class Node < ActiveRecord::Base
   end
 
   # Return the list of ancestors as a Zafu compatible context.
-  def zafu_ancestors
+  def z_ancestors
     anc = ancestors
     anc.empty? ? nil : anc
   end

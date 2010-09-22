@@ -22,7 +22,7 @@ url_with_param:
   src: "<p do='eval'>url(parent)</p>"
   res: "<p>http://test.host/oo/projects/cleanWater</p>"
 
-show_path:
+path:
   src: "<a href='#{path}'>blah</a>"
   res: "<a href='/oo/projects/cleanWater/page22.html'>blah</a>"
 
@@ -175,7 +175,7 @@ link_format_data:
     node: bird_jpg
   src: "<r:link format='data'/>"
   res: "<a href='/en/image30.jpg?1144713600'>bird</a>"
-  
+
 live_link_format:
   old_src: "<h2 do='title' link='details.xml'/>"
   src: "<h2 do='link' live='true' format='xml' mode='details'/>"

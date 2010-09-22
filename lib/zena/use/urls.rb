@@ -295,7 +295,7 @@ module Zena
             # ajax link (link_to_remote)
 
             # Add href to non-ajax method.
-            markup.set_param(:href, "<%= #{make_href(nil, options.merge(:update => false))} %>")
+            markup.set_dyn_param(:href, "<%= #{make_href(nil, options.merge(:update => false))} %>")
 
 
             # Use onclick with Ajax.

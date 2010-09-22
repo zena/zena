@@ -383,11 +383,11 @@ group_by_project_sort_zip:
   context:
     visitor: ant
   old_src: "<r:images in='site' order='node_name ASC' do='group' by='project' sort='zip'><b do='project' do='node_name'/>: <r:each join=',' do='node_name'/></r:images>"
-  src: "<r:images in='site' order='zip ASC' do='group' by='project'><b do='project' do='node_name'/>: <r:each join=',' do='node_name'/></r:images>"
+  src: "<r:images in='site' order='zip ASC' do='group' by='project' sort='id'><b do='project' do='node_name'/>: <r:each join=',' do='node_name'/></r:images>"
   res: "<b>cleanWater</b>: lake<b>wiki</b>: bird,flower<b>zena</b>: tree"
 
 group_by_parent_sort:
-  src: "<r:images in='site' order='node_name ASC' do='group' by='parent'><b do='parent' do='node_name'/>: <r:each join=',' do='node_name'/></r:images>"
+  src: "<r:images in='site' order='node_name ASC' do='group' by='parent' sort='title'><b do='parent' do='node_name'/>: <r:each join=',' do='node_name'/></r:images>"
   res: "<b>wiki</b>: bird,flower<b>cleanWater</b>: lake"
 
 nodes_in_site_group_by_year:
@@ -485,3 +485,8 @@ query_eval:
     scope: 'self'
   src: "<r:query text='pages in #{params[:scope] || \"project\"}' default='pages in project' do='each' join=', ' do='node_name'/>"
   res: 'bananas, crocodiles, status, track'
+
+count:
+  src: "<p do='nodes in site' find='count'/>"
+  tem: "<p><%= Node.do_find(:count, %Q{SELECT COUNT(*) FROM nodes WHERE #{secure_scope('nodes')}}) %></p>"
+  res: "<p>42</p>"

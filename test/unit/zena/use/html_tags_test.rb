@@ -246,20 +246,6 @@ class HtmlTagsTest < Zena::View::TestCase
   #   assert_match %r{<select[^>]*></select>}, select
   # end
 
-  def test_show_path_root
-    login(:anon)
-    @node = secure!(Node) { Node.find(nodes_id(:zena))}
-    assert_equal "<li><a href='/en' class='current'>Zena the wild CMS</a></li>", show_path
-    @node = secure!(Node) { Node.find(nodes_id(:status))}
-    assert_match %r{.*Zena.*projects.*Clean Water.*li.*page22\.html' class='current'>status}m, show_path
-  end
-
-  def test_show_path_root_with_login
-    login(:ant)
-    @node = secure!(Node) { Node.find(nodes_id(:zena))}
-    assert_equal "<li><a href='/#{AUTHENTICATED_PREFIX}' class='current'>Zena the wild CMS</a></li>", show_path
-  end
-
   def map_actions(version)
     version_actions(version, :actions => :all
     ).split(%r{<.*/nodes/#{version.node.zip}/versions/#{version.number}/}).map{|l| l.gsub(/\?.*/,'').strip

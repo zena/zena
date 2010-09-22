@@ -40,7 +40,7 @@ each_add_with_form:
       <li do='add'>add new</li>
       <li do='form'><input name='title'/> this is the form</li>
     </ol>
-  res: "/<li id='list2_30'>bird.*<li id='list2_31'>flower.*<li.*list1_add.*list1_form.*toggle.*<li style.*none.*list1_form.*Ajax.Request.*input type='hidden' name='t_url' value=.ajax/each/add/with/form/list1.*input type='hidden' name='node\[parent_id\]' value=.29./"
+  res: "/<li id='list1_30'>bird.*<li id='list1_31'>flower.*<li.*list1_add.*list1_form.*toggle.*<li style.*none.*list1_form.*Ajax.Request.*input type='hidden' name='t_url' value=.ajax/each/add/with/form/list1.*input type='hidden' name='node\[parent_id\]' value=.29./"
 
 each_add_with_form_in_sub_block:
   context:
@@ -75,7 +75,7 @@ each_edit_with_form:
   context:
     node: 'wiki'
   src: "<r:children><li do='each'><r:show attr='node_name'>blah</r:show> <r:edit>edit</r:edit></li>\n<r:form><li><form>this is the form</form></li></r:form></r:children>"
-  res: "/<li id='list2_30'>bird <a href='/nodes/30/edit' onclick='new Ajax.Request\(\"/nodes/30/edit\?.*t_url=ajax%2Feach%2Fedit%2Fwith%2Fform%2Flist2_form/"
+  res: "/<li id='list1_30'>bird <a href='/nodes/30/edit' onclick='new Ajax.Request\(\"/nodes/30/edit\?.*t_url=ajax%2Feach%2Fedit%2Fwith%2Fform%2Flist1_form/"
 
 make_form:
   src: "<ul do='children'><li do='each' do='node_name'/><li do='add'/></ul>"
@@ -88,7 +88,7 @@ each_edit_cannot_write:
     node: 'cleanWater'
     visitor: 'anon'
   src: "<r:children><li do='each'><r:show attr='node_name'>blah</r:show> <r:edit>edit</r:edit></li>\n</r:children>"
-  res: "/<li id='list2_24'>lake</li>.*/"
+  res: "/<li id='list1_24'>lake</li>.*/"
 
 add_each_publish:
   src: "<ul do='children' id='things'><li do='each'>I <p do='node_name'>blah</p></li><li do='add' publish='true'/></ul>"
@@ -156,9 +156,9 @@ draggable_true:
 
 draggable_in_block:
   # should use 'hooba' class
-  src: "<r:block><r:link draggable='true'/></r:block>"
+  src: "<r:block><r:link draggable='hooba'/></r:block>"
   tem: "/add_drag_id\(\"list1_\#\{@node.zip\}\", .*hooba/"
-  res: "<div class='drag' id='list1_22'><a href='/oo/projects/cleanWater/page22.html'>status title</a></div>"
+  res: "<div id='list1'><div class='drag' id='list1_22'><a href='/oo/projects/cleanWater/page22.html'>status title</a></div></div>"
   js:  "/Zena.draggable\(item, \"hooba\"\)/"
 
 draggable_with_id_set:
@@ -217,7 +217,7 @@ drop_param:
 
 drop_param_in_each:
   src: "<r:pages do='each' do='drop' change='params' d='foo'><r:show eval='params[:d]'/></r:pages>"
-  tem: "/<div class='drop' id='<%= %Q\{list2_#\{var2.zip\}\} %>'><% add_drop_id\(\"list2_#\{var2.zip\}\"/"
+  tem: "/<div class='drop' id='<%= %Q\{list1_#\{var2.zip\}\} %>'><% add_drop_id\(\"list1_#\{var2.zip\}\"/"
 
 update_target:
   src: "UT: <div id='foo' do='block'>...</div> <r:link update='foo'/>"

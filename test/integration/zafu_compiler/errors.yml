@@ -52,7 +52,7 @@ bad_argument_list_in_eval:
   res: "/unterminated string meets end of file/"
 
 nil_value:
-  src: "<r:show eval='4 * custom_a'/>"
+  eval: "4 * custom_a"
   res: ""
 
 not_finished_block:

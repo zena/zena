@@ -209,7 +209,9 @@ module Zena
           node = pre_filter_node
 
           # We do not want to have duplicate ids so we use our own dom prefix.
-          set_dom_prefix(node)
+          if node.dom_prefix.blank?
+            set_dom_prefix(node)
+          end
 
           markup.set_id(node.dom_id)
           markup.append_param(:class, 'drag')
@@ -391,6 +393,16 @@ module Zena
          #  out "<%= link_to_remote(#{text.inspect}, {:url => \"/data_entries/\#{#{node}[:id]}?dom_id=#{dom_id}#{upd_url}\", :method => :delete}, :class=>#{(@params[:class] || 'unlink').inspect}) %>"
          #end
         end
+
+        protected
+
+          def need_ajax?(each_block)
+            return false unless each_block
+            # Inline editable
+            super ||
+            # unlink
+            each_block.descendant('unlink')
+          end
 
       end
     end # Ajax

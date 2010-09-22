@@ -89,7 +89,11 @@ module Zena
             finder = build_finder(count, method, @params)
           end
 
-          expand_with_finder(finder)
+          if count == :count && @blocks.empty?
+            out "<%= #{finder[:method]} %>"
+          else
+            expand_with_finder(finder)
+          end
         rescue ::QueryBuilder::Error => err
           parser_continue(err.message)
         end
