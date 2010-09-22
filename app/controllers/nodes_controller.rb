@@ -317,7 +317,7 @@ class NodesController < ApplicationController
   end
 
   def export
-    send_file(@node.archive.path, :filename=>"#{@node.name}.tgz", :type => 'application/x-gzip', :x_sendfile => ENABLE_XSENDFILE)
+    send_file(@node.archive.path, :filename=>"#{@node.title}.tgz", :type => 'application/x-gzip', :x_sendfile => ENABLE_XSENDFILE)
   end
 
   def update
