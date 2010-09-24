@@ -15,7 +15,7 @@ shoulda:        '>= 2.10.2'
 querybuilder:   '>= 0.9.1'
 yamltest:       '>= 0.7.0'
 rubyless:       '>= 0.7.0'
-property:       '>= 1.1.0'
+property:       '>= 1.2.0'
 versions:       '>= 0.3.1'
 zafu:           '>= 0.7.3'
 

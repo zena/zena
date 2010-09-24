@@ -14,6 +14,14 @@ Post:
   dyn_keys:        reading, book
   auto_create_discussion: yes
 
+Reference:
+  kpath:           NR
+  real_class:      Node
+
+Contact:
+  kpath:           NRC
+  real_class:      Node
+
 Tracker:
   kpath:           NPA
   real_class:      Page

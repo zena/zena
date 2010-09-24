@@ -26,6 +26,29 @@ class SiteTest < Zena::Unit::TestCase
     end
   end
 
+  context 'Calling usr_prototype' do
+    subject do
+      login(:anon)
+      current_site.usr_prototype
+    end
+
+    should 'return a new record' do
+      assert subject.new_record?
+    end
+    
+    should 'return a Node of the same type as the prototype' do
+      assert_equal 'NRC', subject.kpath
+      assert_equal nodes(:anonymous).klass, subject.klass
+    end
+    
+    should 'copy prototype properties' do
+      nodes(:anonymous).prop.each do |key, value|
+        assert_equal value, subject.prop[key]
+      end
+    end
+  end # Calling usr_prototype
+  
+
   def test_create_site_with_opts
     site = nil
     assert_nothing_raised { site = Site.create_for_host('super.host', 'secret', :default_lang => 'fr') }

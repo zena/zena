@@ -790,7 +790,9 @@ module Zena
         super
         elements.each do |name, col|
           if !col['role']
-            col['role'], col['name'] = name.split('_')
+            if name =~ %r{^([^_]+)_(.+)$}
+              col['role'], col['name'] = $1, $2
+            end
             col[:header_keys] << :role
             col[:header_keys] << :name
           end

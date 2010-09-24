@@ -83,7 +83,7 @@ vlcass_or_pages:
 find_relation:
   context:
     node: 'ant'
-    class: BaseContact
+    class: Contact
   src: "favorites"
   res: "nature"
 

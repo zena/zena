@@ -260,7 +260,35 @@ class EnrollableTest < Zena::Unit::TestCase
         assert_equal type[:class].kpath, roles(:Post).kpath
       end
     end # A class with a safe_node_context to a virtual class
-
-
   end # A visitor with write access
+
+  context 'A class with Named included' do
+    subject do
+      Class.new(Node) do
+        include Zena::Acts::Enrollable::Named
+      end.tap do |c|
+        c.to_s  = 'Papa'
+        c.kpath = 'NRC'
+      end
+    end
+
+    should 'return name on to_s' do
+      assert_equal 'Papa', subject.to_s
+    end
+
+    should 'load roles including _name_ in instance' do
+      # This used to break on 'name' property defined somewhere in a superclass
+      assert_nothing_raised { subject.new }
+    end
+
+    # This is because we include a module and the module would hide the method
+    should 'be allowed to define a _name_ property' do
+      assert_nothing_raised do
+        subject.class_eval do
+          property.string 'name'
+        end
+      end
+    end
+  end # A class with Named included
+
 end

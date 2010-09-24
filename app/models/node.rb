@@ -269,7 +269,7 @@ class Node < ActiveRecord::Base
     def native_classes
       # this is to make sure subclasses are loaded before the first call
       # TODO: find a better way to make sure they are all loaded
-      [Note,Page,Project,Section,Reference,BaseContact,Document,Image,TextDocument,Skin,Template]
+      [Note,Page,Project,Section,Document,Image,TextDocument,Skin,Template]
 
       while child = @@unhandled_children.pop
         @@native_node_classes[child.kpath] = child
@@ -285,7 +285,7 @@ class Node < ActiveRecord::Base
 
     # Class list to which this class can change to
     def change_to_classes_for_form
-      classes_for_form(:class => 'Node', :without => 'Document, BaseContact')
+      classes_for_form(:class => 'Node', :without => 'Document')
     end
 
     # List of classes that a node can change to.

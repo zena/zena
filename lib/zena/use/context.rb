@@ -5,7 +5,7 @@ module Zena
         include RubyLess
         safe_method :start => {:method => 'start_node', :class => Node}
         safe_method :visitor => User
-        safe_method :visitor_node => {:method => 'visitor.contact', :class => BaseContact, :nil => true}
+        safe_method :visitor_node => {:method => 'visitor.contact', :class => Node, :nil => true}
         safe_method :main => {:method => '@node', :class => Node}
         safe_method :root => {:method => 'visitor.site.root_node', :class => Node, :nil => true}
         safe_method :site => {:class => Site, :method => 'visitor.site'}

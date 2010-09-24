@@ -4,29 +4,21 @@ DEFAULTS:
   lang:            en
 
 incognito:
-  first_name:      Miss
-  name:            Incognito
   groups:          public
   status:          moderated
 
 ocean_su:
-  first_name:      Hyper
-  name:            Super
   login:           ocean_su
   crypted_password:        <%= Zena::CryptoProvider::Initial.encrypt('ocean_su') %>
   status:          su
 
 whale:
-  first_name:      Miss
-  name:            Whale
   login:           whale
   crypted_password:        <%= Zena::CryptoProvider::Initial.encrypt('whale') %>
   groups:          public, aqua, masters
   status:          admin
 
 messy:
-  first_name:      Very
-  name:            Messy
   login:           messy
   crypted_password:        <%= Zena::CryptoProvider::Initial.encrypt('messy') %>
   groups:          aqua, masters

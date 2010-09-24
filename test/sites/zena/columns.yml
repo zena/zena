@@ -1,15 +1,21 @@
-Task_assigned:
+DEFAULTS:
   ptype:           string
 
+
+Task_assigned:
+
 Original_origin:
-  ptype:           string
   index:           string
 
 Original_weight:
   ptype:           integer
 
 Original_tz:
-  ptype:           string
 
 Letter_paper:
-  ptype:           string
+
+Contact_name:
+
+Contact_first_name:
+
+Contact_email:

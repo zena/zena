@@ -4,8 +4,6 @@ DEFAULTS:
   lang:            en
 
 anon:
-  first_name:      Anonymous
-  name:            User
   groups:          public
   status:          moderated
   contact:         anonymous
@@ -13,16 +11,11 @@ anon:
 su:
   login:           su
   crypted_password: <%= Zena::CryptoProvider::Initial.encrypt('su') %>
-  first_name:      Super
-  name:            User
   status:          su
   contact:         anonymous
   single_access_token: HORIZONS
 
 ant:
-  first_name:      Solenopsis
-  name:            Invicta
-  email:           ant@zenadmin.info
   login:           ant
   crypted_password: <%= Zena::CryptoProvider::Initial.encrypt('ant') %>
   time_zone:       Europe/Zurich
@@ -31,9 +24,6 @@ ant:
   lang:            fr
 
 tiger:
-  first_name:      Panther
-  name:            Tigris Sumatran
-  email:           tiger@zenadmin.info
   login:           tiger
   crypted_password: <%= Zena::CryptoProvider::Initial.encrypt('tiger') %>
   single_access_token: mytoken
@@ -41,9 +31,6 @@ tiger:
   status:          user
 
 lion:
-  first_name:      Panthera
-  name:            Leo Verneyi
-  email:           lion@zenadmin.info
   login:           lion
   crypted_password: <%= Zena::CryptoProvider::Initial.encrypt('lion') %>
   groups:          public, workers, admin

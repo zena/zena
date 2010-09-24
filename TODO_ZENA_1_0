@@ -1,23 +1,11 @@
-List of things to discuss
-=========================
+TODO
+====
 
-Relation between zena, custom applications and bricks:
-
-1. custom models
-2. custom migrations
-3. custom zafu rules
-4. custom tests
-
-Folder structure should be like a rails application with some elements missing (all zena controllers, views, helpers, etc). It
-should still launch in Passenger and all other servers like mongrel.
-
-my_app
-  +-- app             (same structure as a brick)
-  |    +-- models     (custom application stuff)
-  |    +-- controllers
-  |    +-- helpers
-  |    +-- zafu       (custom zafu tags)
-  +-- bricks
-  +-- config
-  +-- sites
-  +-- vendor
+1. Remove BaseContact & Reference classes
+  1.1. This implies to create a virtual "Contact" class in every new site
+  1.2. migration to make BaseContact virtual
+  1.3. setting in Site: new user class
+  1.4. create new User: show "Contact-+edit" form or all properties
+2. POST ! instead of GET during preview (long articles !!!)
+3. Only keep title/text/summary fields
+4. Change fullpath to zip/zip/zip

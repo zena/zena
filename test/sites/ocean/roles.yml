@@ -1,0 +1,8 @@
+DEFAULTS:
+  create_group:    public
+  icon:            ""
+  type:            VirtualClass
+
+Contact:
+  kpath:           NC
+  real_class:      Node

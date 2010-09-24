@@ -31,6 +31,7 @@ ant_en:
     summary:       I am an ant
     text:          Ant works hard
     first_name:    Solenopsis
+    email:         ant@zenadmin.info
     name:          Invicta
     address:       Deep Hole 54
     postal_code:   2001
@@ -56,6 +57,7 @@ tiger_en:
     summary:       "\"panthera tigris on wikipedia\":http://en.wikipedia.org/wiki/Image:Panthera_tigris_sumatran_subspecies.jpg"
     first_name:    Panther
     name:          Tigris Sumatran
+    email:         tiger@zenadmin.info
     address:       "Small Island\nIn the Wild"
     postal_code:   1998
     city:          Sumatra
@@ -69,8 +71,7 @@ lion_en:
   user:            lion
   prop:
     title:         Lion
-    first_name:    Panthera
-    name:          Leo Verneyi
+    email:         lion@zenadmin.info
     address:       Kalahari Desert
     postal_code:   2036
     city:          Africa

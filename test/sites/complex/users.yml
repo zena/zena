@@ -5,14 +5,11 @@ DEFAULTS:
   lang:            fr
 
 complex_anon:
-  first_name:      Anonymous
-  name:            User
   status:          moderated
   contact:         anonymous
 
 complex_admin:
   login:           admin
-  first_name:      admin
   crypted_password:        <%= Zena::CryptoProvider::Initial.encrypt('admin') %>
   status:          admin
   contact:         admin

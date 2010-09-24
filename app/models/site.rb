@@ -221,17 +221,36 @@ class Site < ActiveRecord::Base
 
   # Return the public group: the one in which every visitor belongs.
   def public_group
-    @public_group ||= Group.find(self[:public_group_id])
+    @public_group ||= secure(Group) { Group.find(self[:public_group_id]) }
   end
 
   # Return the site group: the one in which every visitor except 'anonymous' belongs (= all logged in users).
   def site_group
-    @site_group ||= Group.find(self[:site_group_id])
+    @site_group ||= secure(Group) { Group.find(self[:site_group_id]) }
   end
 
   # Return the API group: the one in which API visitors must be to use the API.
   def api_group
-    @api_group ||= Group.find_by_id(self[:api_group_id])
+    @api_group ||= secure(Group) { Group.find_by_id(self[:api_group_id]) }
+  end
+
+  # Return a new Node to be used by a new User as base for creating the visitor Node.
+  def usr_prototype
+    @prototype_user ||= begin
+      if self[:usr_prototype_id]
+        node = secure(Node) { Node.find_by_id(self[:usr_prototype_id]) }
+      end
+      node ||= secure(Node) { Node.new }
+      node.load_roles!
+      node.instance_eval do
+        # make sure the field is removed so that it does not break DB insert (PostgreSQL)
+        @attributes.delete('id')
+        self[:created_at] = nil
+        self[:updated_at] = nil
+        @new_record = true
+      end
+      node
+    end
   end
 
   # Return true if the given user is an administrator for this site.

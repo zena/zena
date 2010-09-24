@@ -47,12 +47,12 @@ class User < ActiveRecord::Base
 
   include RubyLess
 
-  safe_attribute          :login, :name, :first_name, :email, :time_zone, :created_at, :updated_at, :lang, :id
+  safe_attribute          :login, :time_zone, :created_at, :updated_at, :lang, :id
   safe_method             :initials => String, :fullname => String, :status => Number, :status_name => String,
                           :is_anon? => Boolean, :is_admin? => Boolean, :user? => Boolean, :commentator? => Boolean,
                           :moderated? => Boolean
 
-  safe_context            :contact => 'BaseContact', :node => {:method => 'contact', :class => 'BaseContact'},
+  safe_context            :contact => 'Node', :node => {:method => 'contact', :class => 'Node'},
                           :to_publish => ['Version'], :redactions => ['Version'], :proposed => ['Version'],
                           :comments_to_publish => ['Comment']
 
@@ -61,7 +61,7 @@ class User < ActiveRecord::Base
   attr_accessor           :ip
 
   belongs_to              :site
-  belongs_to              :contact, :dependent => :destroy, :class_name => 'BaseContact'
+  belongs_to              :contact, :dependent => :destroy, :class_name => 'Node'
   has_and_belongs_to_many :groups
   has_many                :nodes
   has_many                :versions
@@ -111,7 +111,7 @@ class User < ActiveRecord::Base
   end
 
   def contact_with_secure
-    @contact ||= secure(BaseContact) { contact_without_secure }
+    @contact ||= secure(Node) { contact_without_secure }
   end
   alias_method_chain :contact, :secure
 
@@ -277,7 +277,8 @@ class User < ActiveRecord::Base
     def create_contact
       return unless visitor.site[:root_id] # do not try to create a contact if the root node is not created yet
 
-      @contact = secure!(BaseContact) { BaseContact.new(
+      # GET INFO FROM prototype !!!!!!
+      @contact = secure!(Node) { Node.new(
         # owner is the user except for anonymous and super user.
         :user_id     => visitor[:id],
         :title       => (name.blank? || first_name.blank?) ? login : fullname,

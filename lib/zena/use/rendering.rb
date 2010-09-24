@@ -183,7 +183,7 @@ module Zena
         # Use the current visitor as master node.
         def visitor_node
           @node = visitor.contact
-          zafu_node('@node', BaseContact)
+          zafu_node('@node', Node)
         end
 
         def render_pdf(rendering_egine)

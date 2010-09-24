@@ -198,7 +198,7 @@ start_id:
 
 drop_add_link:
   context:
-    class: BaseContact
+    class: Contact
   src: "<div do='drop' add='favorite'></div>"
   # without the ugly inspect, this would be '#{id}' or "\#{id}"
   tem: "/drop_node_path.*\"node\[favorite_id\]\" => \"\\\\#\{id\}\"/"
