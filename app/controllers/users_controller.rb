@@ -59,8 +59,12 @@ class UsersController < ApplicationController
     if params[:groups]
       params[:user][:group_ids] = params[:groups].values
     end
+
     get_groups_list
-    @user = User.create(params[:user])
+
+    params[:user][:node] = params[:node]
+
+    @user = secure(User) { User.create(params[:user]) }
   end
 
   # TODO: test
@@ -130,7 +134,7 @@ class UsersController < ApplicationController
     end
 
     def get_groups_list
-      @groups = secure!(Group) { Group.find(:all, :order=>'name') }
+      @groups = secure!(Group) { Group.find(:all, :order => 'name ASC') }
     end
 
     # Only allow if user is admin or the current user is the visitor
@@ -142,7 +146,7 @@ class UsersController < ApplicationController
         if params[:user]
           # visitor changing his/her own info : restrict fields
           params[:user].keys.each do |k|
-            params[:user].delete(k) unless [:login, :first_name, :name, :time_zone, :lang, :email, :password, :time_zone].include?(k.to_sym)
+            params[:user].delete(k) unless [:login, :time_zone, :lang, :password, :time_zone].include?(k.to_sym)
           end
         end
       else

@@ -12,3 +12,4 @@ ocean:
   languages:       en,fr
   default_lang:    en
   formats_updated_at: 2008-05-02
+  usr_prototype:   incognito

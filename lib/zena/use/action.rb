@@ -213,7 +213,7 @@ class #{node.klass}: #{Array(node.klass).first.schema.columns.keys.join(', ')}
               out wrap(markup.wrap(expand_with))
             end
           else
-            out wrap("<%= link_to visitor.fullname, user_path(visitor) %>")
+            out wrap("<%= link_to visitor.login, user_path(visitor) %>")
           end
           out "<% end -%>"
         end

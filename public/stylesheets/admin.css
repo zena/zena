@@ -82,3 +82,6 @@ ul.actions select { width:186px; }
 #preferences .errors ul { margin:0 -5px 5px;}
 .actions .errors ul { background:#DDC8C8; margin:0 0 5px; padding:4px 0; border-bottom:1px solid #5A3231;}
 .actions .errors li { margin-left:0.4em; background:inherit; line-height:1.2em;}
+
+/* forms */
+label { font-size:0.9em; font-weight:bold; display:block; color:#5C1515; margin:10px 0 5px; clear:both;}

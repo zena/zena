@@ -1,5 +1,5 @@
 <% @node.schema.columns.each do |name, col| -%>
-<% next if %w{title text summary comment}.include?(name) || !@node.safe_method_type([name]) -%>
+<% next if %w{title text summary}.include?(name) || !@node.safe_method_type([name]) -%>
   <label for='<%= col.name %>'><%= _(col.name) %></label>
   <%= text_area 'node', col.name, :cols => nil, :rows => 1, :value => @node.prop[col.name], :class => 'full_width' %>
 <% end -%>

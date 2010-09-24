@@ -346,7 +346,7 @@ if defined?(IRB)
       cond[0] = cond.first.join(' AND ')
       if visitor = User.find(:first, finder)
         Thread.current[:visitor] = visitor
-        puts "Logged #{visitor.fullname.inspect} (#{visitor.login}) in #{visitor.site.host}"
+        puts "Logged #{visitor.login} in #{visitor.site.host}"
       else
         raise ActiveRecord::RecordNotFound
       end

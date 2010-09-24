@@ -247,6 +247,8 @@ class Site < ActiveRecord::Base
         @attributes.delete('id')
         self[:created_at] = nil
         self[:updated_at] = nil
+        # so that we get the default value
+        self.title        = nil
         @new_record = true
       end
       node

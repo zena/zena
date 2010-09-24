@@ -56,24 +56,30 @@ class UserTest < Zena::Unit::TestCase
     end
 
     subject do
-      {
-        'name'       => 'Dupont',
+      attrs = {
         'lang'       => 'fr',
         'time_zone'  => 'Europe/Zurich',
         'status'     => '50',
         'password'   => 'secret',
         'login'      => 'bolomey',
-        'first_name' => 'Paul',
         'group_ids'  => [groups_id(:public), ''],
-        'email'      => 'paul.bolomey@brainfuck.com',
+        'node'       => {
+          'name'       => 'Dupont',
+          'first_name' => 'Paul',
+          'email'      => 'paul.bolomey@brainfuck.com'
+        }
       }
+      secure(User) { User.create(attrs) }
     end
 
     should 'succeed' do
       assert_difference('User.count', 1) do
-        user = secure(User) { User.new(subject) }
-        user.save
+        subject
       end
+    end
+
+    should 'copy missing attributes from prototype' do
+      assert_equal 'Iping', subject.contact.prop['address']
     end
   end # Creating a new User
 
@@ -83,7 +89,7 @@ class UserTest < Zena::Unit::TestCase
     User.connection.execute "UPDATE users SET time_zone='US/Hawaii' WHERE id=#{users_id(:incognito)}"
     login(:whale)
 
-    user = secure!(User) { User.create("login"=>"john", "password"=>"isjjna78a9h") }
+    user = secure!(User) { User.create("login"=>"john", "password"=>"isjjna78a9h", 'node' => {'v_lang' => 'ru'}) }
 
     assert !user.new_record?, "Not a new record"
     assert !user.contact.new_record?, "Users's contact node is not a new record"

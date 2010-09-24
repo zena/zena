@@ -11,7 +11,7 @@ end %>
   <% else -%>
     <p class="btn_x"><%= link_to_function _('btn_x'), "['add_comment#{node.zip}', 'add_comment_form#{node.zip}'].each(Element.toggle);" %></p>
   <% end  -%>
-  <label for="author_name"><%= _("author")  %></label> <%= visitor.is_anon? ? text_field('comment', 'author_name', :size=>25) : visitor.fullname %>
+  <label for="author_name"><%= _("author")  %></label> <%= visitor.is_anon? ? text_field('comment', 'author_name', :size=>25) : visitor.login %>
   <label for="title"><%= _("title")  %></label> <%= text_field('comment', 'title', :size=>25) %>
 </div>
 <div class='body'>

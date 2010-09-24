@@ -48,7 +48,7 @@ class User < ActiveRecord::Base
   include RubyLess
 
   safe_attribute          :login, :time_zone, :created_at, :updated_at, :lang, :id
-  safe_method             :initials => String, :fullname => String, :status => Number, :status_name => String,
+  safe_method             :initials => String, :status => Number, :status_name => String,
                           :is_anon? => Boolean, :is_admin? => Boolean, :user? => Boolean, :commentator? => Boolean,
                           :moderated? => Boolean
 
@@ -56,7 +56,7 @@ class User < ActiveRecord::Base
                           :to_publish => ['Version'], :redactions => ['Version'], :proposed => ['Version'],
                           :comments_to_publish => ['Comment']
 
-  attr_accessible         :login, :lang, :first_name, :name, :email, :time_zone, :status, :group_ids, :site_ids, :crypted_password, :password
+  attr_accessible         :login, :lang, :node, :time_zone, :status, :group_ids, :site_ids, :crypted_password, :password
   attr_accessor           :visited_node_ids
   attr_accessor           :ip
 
@@ -69,6 +69,7 @@ class User < ActiveRecord::Base
   before_validation       :user_before_validation
   validate                :valid_groups
   validate                :valid_user
+  validate                :valid_contact
   validates_uniqueness_of :login, :scope => :site_id
 
   before_destroy          :dont_destroy_protected_users
@@ -111,7 +112,7 @@ class User < ActiveRecord::Base
   end
 
   def contact_with_secure
-    @contact ||= secure(Node) { contact_without_secure }
+    @node ||= secure(Node) { contact_without_secure }
   end
   alias_method_chain :contact, :secure
 
@@ -131,16 +132,13 @@ class User < ActiveRecord::Base
     @visited_node_ids ||= []
   end
 
-  def fullname
-    (first_name ? (first_name + " ") : '') + name.to_s
-  end
-
-  def initials
-    fullname.split(" ").map {|w| w[0..0].capitalize}.join("")
-  end
-
-  def email
-    self[:email] || ""
+  def node=(node_attrs)
+    if self[:contact_id]
+      @node = secure!(Node) { contact_without_secure }
+    else
+      @node = current_site.usr_prototype
+    end
+    @node.attributes = node_attrs || {}
   end
 
   def status_name
@@ -277,29 +275,18 @@ class User < ActiveRecord::Base
     def create_contact
       return unless visitor.site[:root_id] # do not try to create a contact if the root node is not created yet
 
-      # GET INFO FROM prototype !!!!!!
-      @contact = secure!(Node) { Node.new(
-        # owner is the user except for anonymous and super user.
-        :user_id     => visitor[:id],
-        :title       => (name.blank? || first_name.blank?) ? login : fullname,
-        :first_name  => first_name,
-        :name        => (name || login),
-        :email       => email,
-        :v_status    => Zena::Status[:pub]
-      )}
+      @node.version.status = Zena::Status[:pub]
 
-      @contact[:parent_id] = site[:root_id]
-
-      unless @contact.save
+      unless @node.save
         # What do we do with this error ?
-        raise Zena::InvalidRecord, "Could not create contact node for user #{self.id} in site #{site_id} (#{@contact.errors.map{|k,v| [k,v]}.join(', ')})"
+        raise Zena::InvalidRecord, "Could not create contact node for user #{self.id} in site #{site_id} (#{@node.errors.map{|k,v| [k,v]}.join(', ')})"
       end
 
-      unless @contact.publish_from
-        raise Zena::InvalidRecord, "Could not publish contact node for user #{user_id} in site #{site_id} (#{@contact.errors.map{|k,v| [k,v]}.join(', ')})"
+      unless @node.publish_from
+        raise Zena::InvalidRecord, "Could not publish contact node for user #{user_id} in site #{site_id} (#{@node.errors.map{|k,v| [k,v]}.join(', ')})"
       end
 
-      self[:contact_id] = @contact[:id]
+      self[:contact_id] = @node[:id]
     end
 
     # Set user defaults.
@@ -360,6 +347,25 @@ class User < ActiveRecord::Base
       if @password_too_short
         errors.add(:password, 'too short')
         remove_instance_variable :@password_too_short
+      end
+    end
+
+    def valid_contact
+      return unless visitor.site[:root_id] # do not validate contact if the root node is not created yet
+      return if !new_record? && !@node
+      if !@node
+        # force creation of node, even if it is a plain copy of the prototype
+        self.node = {'title' => login}
+      else
+        @node.title ||= login
+      end
+
+      if @node.valid?
+        # ok
+      else
+        @node.errors.each_error do |err, msg|
+          errors.add("node[#{err}]", msg)
+        end
       end
     end
 
