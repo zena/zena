@@ -11,8 +11,8 @@ class VersionTest < Zena::Unit::TestCase
       end
 
       context 'receiving author' do
-        should 'return a BaseContact' do
-          assert_kind_of BaseContact, subject.author
+        should 'return a Node' do
+          assert_kind_of Node, subject.author
         end
 
         should 'return the contact node of the author' do

@@ -109,7 +109,7 @@ input_set_value:
 input:
   context:
     node: 'ant'
-  src: "<r:BaseContact><r:input name='first_name'/></r:BaseContact>"
+  src: "<r:Contact><r:input name='first_name'/></r:Contact>"
   tem: "<% if @node.kpath_match?('NRC') -%><input type='text' name='node[first_name]' value='<%= fquote @node.prop['first_name'] %>'/><% end -%>"
   res: "<input type='text' name='node[first_name]' value='Solenopsis'/>"
 
@@ -120,20 +120,20 @@ input_style:
 textarea:
   context:
     node: 'ant'
-  src: "<r:BaseContact do='textarea' name='first_name'/>"
+  src: "<r:Contact do='textarea' name='first_name'/>"
   res: "<textarea name='node[first_name]'>Solenopsis</textarea>"
 
 textarea_with_blocks:
   context:
     node: 'ant'
-  src: "<r:BaseContact do='textarea' name='first_name'>Sir <r:show attr='first_name'/></r:BaseContact>"
+  src: "<r:Contact do='textarea' name='first_name'>Sir <r:show attr='first_name'/></r:Contact>"
   tem: "/<textarea name='node\[first_name\]'>Sir <%= @node.prop\['first_name'\] %></textarea>/"
   res: "<textarea name='node[first_name]'>Sir Solenopsis</textarea>"
 
 input_new:
   context:
     node: 'ant'
-  src: "<r:base_contacts><r:each/><r:form><r:input name='first_name'/></r:form><r:add/></r:base_contacts>"
+  src: "<r:contacts><r:each/><r:form><r:input name='first_name'/></r:form><r:add/></r:contacts>"
   res: "/name='node\[first_name\]' [^>]*id='list1_first_name'/"
 
 show_in_form:

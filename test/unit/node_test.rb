@@ -1056,13 +1056,10 @@ done: \"I am done\""
     assert_equal node_changes, Page.allowed_change_to_classes.reject{|k| k[/Dummy/]}
     assert_equal node_changes, Project.allowed_change_to_classes.reject{|k| k[/Dummy/]}
     assert_equal node_changes, Note.allowed_change_to_classes.reject{|k| k[/Dummy/]}
-    assert_equal node_changes, Reference.allowed_change_to_classes.reject{|k| k[/Dummy/]}
 
     assert_equal %w{Document TextDocument Template}, Document.allowed_change_to_classes.reject{|k| k[/Dummy/]}
 
     assert_equal ["Image"], Image.allowed_change_to_classes.reject{|k| k[/Dummy/]}
-
-    assert_equal ["BaseContact"], BaseContact.allowed_change_to_classes.reject{|k| k[/Dummy/]}
   end
 
   def test_match_one_node_only
@@ -1303,7 +1300,7 @@ done: \"I am done\""
     context 'for safe methods in class' do
       should 'return method name' do
         ['m_text', 'inherit', 'l_status', 'l_comment', 'm_text', 'inherit', 'v_status'].each do |k|
-          assert_equal k, BaseContact.safe_method_type([k])[:method]
+          assert_equal k, Page.safe_method_type([k])[:method]
         end
       end
     end
@@ -1311,29 +1308,29 @@ done: \"I am done\""
     context 'for methods not declared as safe in the class' do
       should 'return nil' do
         ['puts', 'raise', 'blah', 'system'].each do |k|
-          assert_nil BaseContact.safe_method_type([k])
+          assert_nil Page.safe_method_type([k])
         end
       end
     end
 
     context 'for id' do
       should 'return zip' do
-        assert_equal Hash[:class=>Number, :method=>'zip'], BaseContact.safe_method_type(['id'])
+        assert_equal Hash[:class=>Number, :method=>'zip'], Page.safe_method_type(['id'])
       end
     end
 
     context 'for relation pseudo-methods' do
       should 'use rel and try' do
         ['hot_status', 'blah_comment', 'blah_zips', 'blah_id', 'blah_ids'].each do |k|
-          assert_match %r{rel\[.#{k.gsub(/_.+/,'')}.\]\.try}, BaseContact.safe_method_type([k])[:method]
+          assert_match %r{rel\[.#{k.gsub(/_.+/,'')}.\]\.try}, Page.safe_method_type([k])[:method]
         end
       end
     end
 
     context 'for safe properties' do
       should 'return version and method name when safe' do
-        ['text', 'title', 'first_name', 'name'].each do |k|
-          assert_equal "prop['#{k}']", BaseContact.safe_method_type([k])[:method]
+        ['text', 'title'].each do |k|
+          assert_equal "prop['#{k}']", Page.safe_method_type([k])[:method]
         end
       end
 

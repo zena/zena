@@ -44,6 +44,19 @@ class User < ActiveRecord::Base
     c.require_password_confirmation = false
     c.validate_password_field = false
   end
+  
+  # Dynamic resolution of the author class from the usr_prototype
+  def self.node_user_proc
+    Proc.new do |h, s|
+      res = {:method => 'node', :nil => true}
+      if prototype = current_site.usr_prototype
+        res[:class] = Zena::Acts::Enrollable.make_class(prototype.vclass)
+      else
+        res[:class] = Node
+      end
+      res
+    end
+  end
 
   include RubyLess
 
@@ -52,7 +65,7 @@ class User < ActiveRecord::Base
                           :is_anon? => Boolean, :is_admin? => Boolean, :user? => Boolean, :commentator? => Boolean,
                           :moderated? => Boolean
 
-  safe_context            :contact => 'Node', :node => {:method => 'contact', :class => 'Node'},
+  safe_context            :node => node_user_proc,
                           :to_publish => ['Version'], :redactions => ['Version'], :proposed => ['Version'],
                           :comments_to_publish => ['Comment']
 
@@ -61,7 +74,7 @@ class User < ActiveRecord::Base
   attr_accessor           :ip
 
   belongs_to              :site
-  belongs_to              :contact, :dependent => :destroy, :class_name => 'Node'
+  belongs_to              :node, :dependent => :destroy
   has_and_belongs_to_many :groups
   has_many                :nodes
   has_many                :versions
@@ -69,12 +82,12 @@ class User < ActiveRecord::Base
   before_validation       :user_before_validation
   validate                :valid_groups
   validate                :valid_user
-  validate                :valid_contact
+  validate                :valid_node
   validates_uniqueness_of :login, :scope => :site_id
 
   before_destroy          :dont_destroy_protected_users
   validates_presence_of   :site_id
-  before_create           :create_contact
+  before_create           :create_node
 
   Status = {
     :su          => 80,
@@ -111,10 +124,10 @@ class User < ActiveRecord::Base
 
   end
 
-  def contact_with_secure
-    @node ||= secure(Node) { contact_without_secure }
+  def node_with_secure
+    @node ||= secure(Node) { node_without_secure }
   end
-  alias_method_chain :contact, :secure
+  alias_method_chain :node, :secure
 
 
   # Each time a node is found using secure (Zena::Acts::Secure or Zena::Acts::SecureNode), this method is
@@ -133,8 +146,8 @@ class User < ActiveRecord::Base
   end
 
   def node=(node_attrs)
-    if self[:contact_id]
-      @node = secure!(Node) { contact_without_secure }
+    if self[:node_id]
+      @node = secure!(Node) { node_without_secure }
     else
       @node = current_site.usr_prototype
     end
@@ -272,8 +285,8 @@ class User < ActiveRecord::Base
       self.site || visitor.site # site when User is new
     end
 
-    def create_contact
-      return unless visitor.site[:root_id] # do not try to create a contact if the root node is not created yet
+    def create_node
+      return unless visitor.site[:root_id] # do not try to create a node if the root node is not created yet
 
       @node.version.status = Zena::Status[:pub]
 
@@ -286,7 +299,7 @@ class User < ActiveRecord::Base
         raise Zena::InvalidRecord, "Could not publish contact node for user #{user_id} in site #{site_id} (#{@node.errors.map{|k,v| [k,v]}.join(', ')})"
       end
 
-      self[:contact_id] = @node[:id]
+      self[:node_id] = @node[:id]
     end
 
     # Set user defaults.
@@ -350,8 +363,8 @@ class User < ActiveRecord::Base
       end
     end
 
-    def valid_contact
-      return unless visitor.site[:root_id] # do not validate contact if the root node is not created yet
+    def valid_node
+      return unless visitor.site[:root_id] # do not validate node if the root node is not created yet
       return if !new_record? && !@node
       if !@node
         # force creation of node, even if it is a plain copy of the prototype

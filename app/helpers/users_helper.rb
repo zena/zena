@@ -1,9 +1,9 @@
 module UsersHelper
 
-  def contact_form
+  def node_form
     node_back = @node # store contextual node
     begin
-      @node = @user.contact || current_site.usr_prototype
+      @node = @user.node || current_site.usr_prototype
       begin
         res =render :file => template_url(:mode => '+user', :format => 'html')
       rescue ActiveRecord::RecordNotFound

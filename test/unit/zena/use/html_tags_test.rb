@@ -76,7 +76,7 @@ class HtmlTagsTest < Zena::View::TestCase
     end # with a document
 
     {
-      'basecontact' => :lake,
+      'contact' => :lake,
       'project' => :cleanWater,
       'post'    => :opening,
       'tag'     => :art,

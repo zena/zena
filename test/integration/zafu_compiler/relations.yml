@@ -103,8 +103,9 @@ author_visitor:
   res: "myLife, nature, status"
 
 author:
-  src: "my master: <r:author do='fullname'/> my version master: <r:version do='author' do='fullname'/>"
-  res: "my master: Solenopsis Invicta my version master: Solenopsis Invicta"
+  src: "my master: <r:author><r:name/> <r:first_name/></r:author> my version master: <r:version do='author'><r:name/> <r:first_name/></r:version>"
+  tem: "/var1 = @node.author.*var1 = @node.version.*var2 = var1.author/"
+  res: "my master: Invicta Solenopsis my version master: Invicta Solenopsis"
 
 public_readable_link:
   src: "<r:show attr='set_tag_ids'/>"

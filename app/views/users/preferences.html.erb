@@ -14,11 +14,8 @@
       <ul>
         <li id='user_info_errors'></li>
         <li class='align'><%= _('login')%>      <span><%= text_field('user', 'login',        :size=>25 ) %></span></li>
-        <li class='align'><%= _('first name')%> <span><%= text_field('user', 'first_name',   :size=>25 ) %></span></li>
-        <li class='align'><%= _('name')%>       <span><%= text_field('user', 'name',         :size=>25 ) %></span></li>
         <li class='align'><%= _('language')%>   <span><%= select('user', 'lang', current_site.lang_list.map{|l| [_(l),l]} ) %></span></li>
         <li class='align'><%= _('time zone')%>  <span><select name='user[time_zone]'><%= options_for_select([''] + TZInfo::Timezone.all_identifiers, @user[:time_zone] || '') %></select></span></li>
-        <li class='align'><%= _('email')%>      <span><%= text_field('user', 'email',        :size=>25 ) %></span></li>
         <li><p class='btn_validate'><input type='submit' value='<%= _('validate') %>'/></p></li>
       </ul>
       </form>

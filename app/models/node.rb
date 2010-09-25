@@ -117,26 +117,6 @@ class Node < ActiveRecord::Base
   include Zena::Use::MLIndex::ModelMethods
 
   include RubyLess
-  safe_property  :title, :text, :summary, :comment
-
-  safe_attribute :created_at, :updated_at, :event_at, :log_at, :publish_from, :basepath, :inherit, :position
-
-  # we use safe_method because the columns can be null, but the values are never null
-  safe_method   :node_name => String, :kpath => String, :user_zip => Number,
-                :parent_zip => Number, :project_zip => Number, :section_zip => Number,
-                :skin => String, :ref_lang => String, :fullpath => String,
-                :rootpath => String, :position => Number, :rgroup_id => Number,
-                :wgroup_id => Number, :dgroup_id => Number, :custom_base => Boolean,
-                :klass => String,
-                :m_text => String, :m_title => String, :m_author => String,
-                :id => {:class => Number, :method => 'zip'},
-                :skin => 'Skin', :ref_lang => String,
-                # Code language for syntax highlighting
-                :content_lang => {:class => String, :nil => true},
-                :visitor => 'User', [:ancestor?, Node] => Boolean,
-                :comments_count => Number
-  safe_context  :ancestors => {:class => ['Node'], :method => 'z_ancestors'},
-                :custom_a => Number, :custom_b => Number #, :score => Number
 
   # This is used to load roles in an instance or on a class during compilation. Module
   # inclusion has to come *after* RubyLess because we overwrite safe_method_type.
@@ -164,27 +144,58 @@ class Node < ActiveRecord::Base
   # A possible solution could be to use the other syntax exclusively ('rel' => {'friend' => [4,5,6]})
   include Zena::Use::NestedAttributesAlias::ModelMethods
 
-  #nested_attributes_alias %r{^v_(\w+)} => ['version']
-  #nested_attributes_alias %r{^c_(\w+)} => ['version', 'content']
-  #nested_attributes_alias %r{^d_(\w+)} => ['version', 'dyn']
+  # Dynamic resolution of the author class from the usr_prototype
+  def self.author_proc
+    Proc.new do |h, s|
+      res = {:method => 'author', :nil => true}
+      if prototype = current_site.usr_prototype
+        res[:class] = Zena::Acts::Enrollable.make_class(prototype.vclass)
+      else
+        res[:class] = Node
+      end
+      res
+    end
+  end
+
+  safe_property  :title, :text, :summary
+
+  safe_attribute :created_at, :updated_at, :event_at, :log_at, :publish_from, :basepath, :inherit, :position
+
 
   # safe_node_context defined in Enrollable
   safe_node_context  :parent => 'Node', :project => 'Project', :section => 'Section',
                      :real_project => 'Project', :real_section => 'Section'
 
-  safe_context       :comments => ['Comment'],
+  safe_context       :ancestors => {:class => ['Node'], :method => 'z_ancestors'},
+                     :custom_a => Number, :custom_b => Number, #, :score => Number
+                     :comments => ['Comment'],
+                     # Code language for syntax highlighting
+                     :content_lang => String,
                      :data   => {:class => ['DataEntry'], :zafu => {:data_root => 'node_a'}},
                      :data_a => {:class => ['DataEntry'], :zafu => {:data_root => 'node_a'}},
                      :data_b => {:class => ['DataEntry'], :zafu => {:data_root => 'node_b'}},
                      :data_c => {:class => ['DataEntry'], :zafu => {:data_root => 'node_c'}},
                      :data_d => {:class => ['DataEntry'], :zafu => {:data_root => 'node_d'}},
-                     :traductions => ['Version'],
-                     :discussion  => 'Discussion'
-  safe_method        :v => {:class => 'Version', :method => 'version'},
+                     :traductions => ['Version'], :discussion  => 'Discussion'
+
+  # we use safe_method because the columns can be null, but the values are never null
+  safe_method        :node_name => String, :kpath => String, :user_zip => Number,
+                     :parent_zip => Number, :project_zip => Number, :section_zip => Number,
+                     :skin => String, :ref_lang => String, :fullpath => String,
+                     :rootpath => String, :position => Number, :rgroup_id => Number,
+                     :wgroup_id => Number, :dgroup_id => Number, :custom_base => Boolean,
+                     :klass => String,
+                     :m_text => String, :m_title => String, :m_author => String,
+                     :id => {:class => Number, :method => 'zip'},
+                     :skin => 'Skin', :ref_lang => String,
+                     :visitor => 'User', [:ancestor?, Node] => Boolean,
+                     :comments_count => Number,
+                     :v => {:class => 'Version', :method => 'version'},
                      :version => 'Version', :v_status => Number, :v_lang => String,
                      :v_publish_from => Time, :v_backup => Boolean,
                      :zip => Number, :parent_id => {:class => Number, :nil => true, :method => 'parent_zip'},
-                     :author => {:method => 'user', :class => 'User'}, :user => 'User'
+                     :user => 'User',
+                     :author => author_proc
 
   # This is needed so that we can use secure_scope and secure in search.
   extend  Zena::Acts::Secure
@@ -1066,9 +1077,8 @@ class Node < ActiveRecord::Base
   end
 
   # ACCESSORS
-  # FIXME: remove
   def author
-    user.contact
+    user.node
   end
 
   alias o_user user

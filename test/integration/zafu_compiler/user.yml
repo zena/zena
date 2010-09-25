@@ -21,12 +21,27 @@ is_anon:
   eval: "visitor.is_anon?"
   res: "false"
 
-author_is_a_user:
-  src: "<b do='author.login'/>"
+user_is_a_user:
+  src: "<b do='user.login'/>"
   tem: "<b><%= @node.user.login %></b>"
   res: '<b>ant</b>'
 
-version_author_is_a_user:
-  src: "<b do='v.author.login'/>"
+user_node_is_a_node:
+  src: "<b do='user.node.title'/>"
+  tem: "<b><%= (@node.user.node ? @node.user.node.prop['title'] : nil) %></b>"
+  res: '<b>Solenopsis Invicta</b>'
+  
+version_user_is_a_user:
+  src: "<b do='v.user.login'/>"
   tem: "<b><%= @node.version.user.login %></b>"
   res: '<b>ant</b>'
+
+author_is_a_node:
+  src: "<b do='author.title'/>"
+  tem: "<b><%= (@node.author ? @node.author.prop['title'] : nil) %></b>"
+  res: '<b>Solenopsis Invicta</b>'
+
+version_author_is_a_node:
+  src: "<b do='v.author.title'/>"
+  tem: "<b><%= (@node.version.author ? @node.version.author.prop['title'] : nil) %></b>"
+  res: '<b>Solenopsis Invicta</b>'

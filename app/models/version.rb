@@ -6,7 +6,7 @@ class Version < ActiveRecord::Base
   safe_attribute     :created_at, :updated_at, :publish_from, :status, :lang
   safe_method        :node => 'Node', :id => {:class => Number, :method => 'number'},
                      :number => Number, :user => 'User',
-                     :author => {:class => 'User', :method => 'user'}
+                     :author => Node.author_proc
 
   # We need to include Property::Base so that we can read the properties that
   # we store (useful when listing versions or comparing them).
@@ -54,7 +54,7 @@ class Version < ActiveRecord::Base
   end
 
   def author
-    user.contact
+    user.node
   end
 
   def mark_for_destruction

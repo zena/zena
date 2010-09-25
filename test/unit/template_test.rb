@@ -390,39 +390,39 @@ class TemplateTest < Zena::Unit::TestCase
 
   def test_set_blank_node_name_not_unique
     login(:tiger)
-    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'mode' => '', 'target_klass' => 'BaseContact', 'node_name' => '', 'format' => '')}
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'mode' => '', 'target_klass' => 'Contact', 'node_name' => '', 'format' => '')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     assert_nil doc.mode
     assert_equal 'html', doc.format
     assert_equal 'NRC', doc.tkpath
-    assert_equal 'BaseContact', doc.target_klass
-    assert_equal 'BaseContact', doc.node_name
-    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'mode' => '', 'target_klass' => 'BaseContact', 'node_name' => '', 'format' => 'vcard')}
+    assert_equal 'Contact', doc.target_klass
+    assert_equal 'Contact', doc.node_name
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'mode' => '', 'target_klass' => 'Contact', 'node_name' => '', 'format' => 'vcard')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     assert_nil doc.mode
     assert_equal 'vcard', doc.format
     assert_equal 'NRC', doc.tkpath
-    assert_equal 'BaseContact', doc.target_klass
-    assert_equal 'BaseContact--vcard', doc.node_name
+    assert_equal 'Contact', doc.target_klass
+    assert_equal 'Contact--vcard', doc.node_name
   end
 
   def test_update_format_updates_node_name
     login(:lion)
-    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'mode' => '', 'target_klass' => 'BaseContact', 'node_name' => '', 'format' => 'vcard')}
+    doc = secure!(Template) { Template.create(:parent_id=>nodes_id(:default), 'mode' => '', 'target_klass' => 'Contact', 'node_name' => '', 'format' => 'vcard')}
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     assert_nil doc.mode
     assert_equal 'vcard', doc.format
     assert_equal 'NRC', doc.tkpath
-    assert_equal 'BaseContact', doc.target_klass
-    assert_equal 'BaseContact--vcard', doc.node_name
+    assert_equal 'Contact', doc.target_klass
+    assert_equal 'Contact--vcard', doc.node_name
     assert doc.update_attributes(:format => 'vcf')
     assert_equal 'vcf', doc.format
     assert_equal 'NRC', doc.tkpath
-    assert_equal 'BaseContact', doc.target_klass
-    assert_equal 'BaseContact--vcf', doc.node_name
+    assert_equal 'Contact', doc.target_klass
+    assert_equal 'Contact--vcf', doc.node_name
   end
 
   def test_default_text_Node

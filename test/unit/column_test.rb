@@ -51,24 +51,24 @@ class ColumnTest < Zena::Unit::TestCase
 
     context 'with the name of a hardwire property' do
       subject do
-        Column.create(:role_id => roles_id(:Task), :ptype => 'string', :name => 'first_name')
+        Column.create(:role_id => roles_id(:Task), :ptype => 'string', :name => 'title')
       end
 
       should 'fail with an error' do
         assert_difference('Column.count', 0) do
-          assert_equal 'has already been taken in BaseContact', subject.errors[:name]
+          assert_equal 'has already been taken in Node', subject.errors[:name]
         end
       end
     end # with an existing name
 
     context 'with the name of a hardwire property' do
       subject do
-        Column.create(:role_id => roles_id(:Task), :ptype => 'string', :name => 'title')
+        Column.create(:role_id => roles_id(:Task), :ptype => 'string', :name => 'width')
       end
 
       should 'fail with an error and return class' do
         assert_difference('Column.count', 0) do
-          assert_equal 'has already been taken in Node', subject.errors[:name]
+          assert_equal 'has already been taken in Image', subject.errors[:name]
         end
       end
     end # with an existing name

@@ -137,8 +137,8 @@ show_width:
 
 show_else:
   old_src: "<r:show attr='comment' else='name'/>"
-  src: "<r:show eval='comment || node_name'/>"
-  tem: "<%= (@node.prop['comment'] or @node.node_name) %>"
+  src: "<r:show eval='origin || node_name'/>"
+  tem: "<%= (@node.prop['origin'] or @node.node_name) %>"
   res: "status"
 
 show_default:

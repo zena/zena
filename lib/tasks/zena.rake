@@ -3,7 +3,7 @@ require 'fileutils'
 
 # We need to make sure the RAILS_ENV is set before brick activation or the wrong bricks will
 # be loaded.
-RAILS_ENV = 'test' if ARGV.join(' ') =~ /zena:test/
+RAILS_ENV = 'test' if ARGV.join(' ') =~ /zena:(test|build_fixtures)/
 
 require File.join(File.dirname(__FILE__), '..', 'zena', 'info') # to have Zena::ROOT
 require File.join(File.dirname(__FILE__), '..', 'bricks') # to have Bricks

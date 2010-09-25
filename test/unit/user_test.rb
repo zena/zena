@@ -117,8 +117,8 @@ class UserTest < Zena::Unit::TestCase
     assert user.errors[:base] #.any?
     login(:lion)
     user = secure!(User) { User.create("name"=>"Shakespeare", "status"=>"50", "group_ids"=>[""], "lang"=>"fr", "time_zone"=>"Bern", "first_name"=>"William", "login"=>"bob", "password"=>"jsahjks894", "email"=>"") }
-    assert !user.new_record?, "Saved"
-    assert !user.contact.new_record?, "BaseContact saved"
+    assert !user.new_record?
+    assert !user.contact.new_record?
     assert_equal sites_id(:zena), user.contact.site_id
   end
 
@@ -126,8 +126,8 @@ class UserTest < Zena::Unit::TestCase
     Site.connection.execute "UPDATE sites SET auto_publish = #{Zena::Db::TRUE} WHERE id = #{sites_id(:zena)}"
     login(:lion)
     user = secure!(User) { User.create("name"=>"Shakespeare", "status"=>"50", "group_ids"=>[""], "lang"=>"fr", "time_zone"=>"Europe/Zurich", "first_name"=>"William", "login"=>"bob", "password"=>"jsahjks894", "email"=>"") }
-    assert !user.new_record?, "Saved"
-    assert !user.contact.new_record?, "BaseContact saved"
+    assert !user.new_record?
+    assert !user.contact.new_record?
     assert_equal sites_id(:zena), user.contact.site_id
   end
 

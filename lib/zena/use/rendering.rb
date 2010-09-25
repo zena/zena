@@ -182,7 +182,7 @@ module Zena
 
         # Use the current visitor as master node.
         def visitor_node
-          @node = visitor.contact
+          @node = visitor.node
           zafu_node('@node', Node)
         end
 

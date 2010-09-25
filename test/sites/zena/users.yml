@@ -6,13 +6,13 @@ DEFAULTS:
 anon:
   groups:          public
   status:          moderated
-  contact:         anonymous
+  node:            anonymous
 
 su:
   login:           su
   crypted_password: <%= Zena::CryptoProvider::Initial.encrypt('su') %>
   status:          su
-  contact:         anonymous
+  node:            anonymous
   single_access_token: HORIZONS
 
 ant:

@@ -1,8 +1,0 @@
-<% [:first_name, :name, :address, :zip, :city, :country, :telephone, :mobile, :email, :birthday].each do |sym| %>
-<label for="<%= sym %>"><%= _(sym.to_s) %></label>
-<% if [:address].include?(sym) -%>
-<%= text_area 'node', sym, :cols=>30, :rows=>3 %>
-<% else -%>
-<%= text_field 'node', sym, :size=>30 %>
-<% end -%>
-<% end %>

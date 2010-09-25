@@ -35,8 +35,8 @@ node:
 author:
   context:
     node: 'opening'
-  src: "<r:traductions do='each' join=', '><r:lang/>:<r:eval>author.login</r:eval></r:traductions>"
-  res: "en:tiger, fr:ant"
+  src: "<r:traductions do='each' join=', '><r:lang/>:<r:eval>author.name</r:eval></r:traductions>"
+  res: "en:Tigris Sumatran, fr:Invicta"
 
 created_at:
   src: "<p do='show' date='v.created_at' format='%d %b %y'/>"

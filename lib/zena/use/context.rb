@@ -2,10 +2,25 @@ module Zena
   module Use
     module Context
       module ViewMethods
+
+        # Dynamic resolution of the author class from the usr_prototype
+        def self.visitor_node_proc
+          Proc.new do |h, s|
+            res = {:method => 'visitor.node', :nil => true}
+            if prototype = current_site.usr_prototype
+              res[:class] = Zena::Acts::Enrollable.make_class(prototype.vclass)
+            else
+              res[:class] = Node
+            end
+            res
+          end
+        end
+
+
         include RubyLess
         safe_method :start => {:method => 'start_node', :class => Node}
         safe_method :visitor => User
-        safe_method :visitor_node => {:method => 'visitor.contact', :class => Node, :nil => true}
+        safe_method :visitor_node => visitor_node_proc
         safe_method :main => {:method => '@node', :class => Node}
         safe_method :root => {:method => 'visitor.site.root_node', :class => Node, :nil => true}
         safe_method :site => {:class => Site, :method => 'visitor.site'}

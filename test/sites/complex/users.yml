@@ -6,12 +6,12 @@ DEFAULTS:
 
 complex_anon:
   status:          moderated
-  contact:         anonymous
+  node:            anonymous
 
 complex_admin:
   login:           admin
   crypted_password:        <%= Zena::CryptoProvider::Initial.encrypt('admin') %>
   status:          admin
-  contact:         admin
+  node:            admin
 
 

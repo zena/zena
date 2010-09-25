@@ -315,8 +315,8 @@ module Zena
             v[:header_keys] << 'groups'
           end
 
-          v[:header_keys] << 'contact'
-          v['contact'] ||= k
+          v[:header_keys] << 'node'
+          v['node'] ||= k
 
           if v['status']
             v[:header_keys] << 'status'

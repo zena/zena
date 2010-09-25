@@ -380,7 +380,7 @@ module Zena
               # Special pseudo-context
               add_table(main_table)
               make_and_set_main_class(Node)
-              add_filter "#{table}.id = #{insert_bind("visitor.contact_id")}"
+              add_filter "#{table}.id = #{insert_bind("visitor.node_id")}"
               return true
             end
 

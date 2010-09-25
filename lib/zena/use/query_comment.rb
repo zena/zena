@@ -45,7 +45,7 @@ module Zena
               if $3 == 'user_id'
                 value = "visitor.id"
               else
-                value = "Node.zafu_attribute(visitor.contact, #{$3.inspect})"
+                value = "Node.zafu_attribute(visitor.node, #{$3.inspect})"
               end
             when 'node'
               if $3 == 'user_id'
