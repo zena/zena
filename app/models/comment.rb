@@ -9,8 +9,11 @@ class Comment < ActiveRecord::Base
   include RubyLess
 
   safe_attribute    :title, :created_at, :updated_at, :status
-  safe_method       :text => String, :author_name => {:class => String, :nil => true},
-                    :discussion_id => Number
+  safe_method       :text => String,
+                    :discussion_id => Number,
+                    :user_name => {:class => String, :nil => true},
+                    :user => {:class => 'User', :nil => true},
+                    :author => Node.author_proc
 
   safe_context      :replies => ['Comment'], :node => 'Node'
 
@@ -23,8 +26,14 @@ class Comment < ActiveRecord::Base
 
   include Zena::Use::QueryComment::ModelMethods
 
+  # Who wrote the comment (author's User model)
+  def user
+    @user ||= secure(User) { User.find(self[:user_id]) }
+  end
+
+  # Who wrote the comment (author's Node model)
   def author
-    @author ||= secure(User) { User.find(self[:user_id]) }
+    @author ||= (user ? user.node : nil)
   end
 
   def node
@@ -32,7 +41,7 @@ class Comment < ActiveRecord::Base
   end
 
   def author_name
-    self[:author_name] || (self[:user_id] ? author.fullname : nil)
+    self[:author_name] || (author ? author.title : nil)
   end
 
   def parent
@@ -111,7 +120,7 @@ class Comment < ActiveRecord::Base
       errors.add('text', "can't be blank") if self[:text].blank?
       errors.add('discussion', 'invalid') unless discussion
       errors.add('ip', "can't be blank") unless self[:ip] || !visitor.is_anon?
-      if author.is_anon?
+      if user.is_anon?
         errors.add('author_name', "can't be blank") unless self[:author_name] && self[:author_name] != ""
       end
     end

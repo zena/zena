@@ -623,6 +623,7 @@ class NodesController < ApplicationController
       else
         # XML without pagination
         @nodes = secure(Node) { Node.search_records(query_params, :node => @node, :default => {:scope => default_scope}) }
+        deb @nodes
       end
 
       if @nodes.kind_of?(Node)

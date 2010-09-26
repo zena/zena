@@ -21,13 +21,13 @@ class SiteTest < Zena::Unit::TestCase
     end
   end
 
-  context 'Calling usr_prototype' do
+  context 'Calling new_user_node' do
     setup do
       login(:anon)
     end
 
     subject do
-      current_site.usr_prototype
+      current_site.new_user_node
     end
 
     should 'return a new record' do
@@ -51,8 +51,8 @@ class SiteTest < Zena::Unit::TestCase
 
     context 'more then once' do
       setup do
-        @first = current_site.usr_prototype
-        @second = current_site.usr_prototype
+        @first = current_site.new_user_node
+        @second = current_site.new_user_node
       end
 
       should 'return a new node on each call' do
@@ -60,7 +60,7 @@ class SiteTest < Zena::Unit::TestCase
       end
     end # more then once
 
-  end # Calling usr_prototype
+  end # Calling new_user_node
 
 
   def test_create_site_with_opts

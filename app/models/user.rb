@@ -151,7 +151,7 @@ class User < ActiveRecord::Base
     if self[:node_id]
       @node = secure!(Node) { node_without_secure }
     else
-      @node = current_site.usr_prototype
+      @node = current_site.new_user_node
     end
     @node.attributes = node_attrs || {}
   end

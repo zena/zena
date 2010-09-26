@@ -2,10 +2,10 @@ require 'test_helper'
 
 class UsersControllerTest < Zena::Controller::TestCase
 
-  context "on GET index" do
-    context " if visitor is admin" do
+  context "Accessing index" do
+    context "with an admin user" do
       setup do
-        login(:su)
+        login(:lion)
         get :index
       end
 
@@ -14,7 +14,7 @@ class UsersControllerTest < Zena::Controller::TestCase
       should_respond_with :success
     end
 
-    context " if visitor is not admin" do
+    context "with a regular user" do
       setup do
         login(:ant)
         get :index
@@ -25,7 +25,7 @@ class UsersControllerTest < Zena::Controller::TestCase
       should_respond_with 404
     end
 
-    context " if layout is invalid" do
+    context "with an invalid layout" do
       setup do
         login(:lion)
         Version.connection.execute "UPDATE #{Version.table_name} SET properties = '{\"data\":{\"text\":\"empty\"},\"json_class\":\"Property::Properties\"}' WHERE id = #{versions_id(:Node_admin_layout_zafu_en)}"
@@ -35,14 +35,15 @@ class UsersControllerTest < Zena::Controller::TestCase
       end
 
       should_respond_with :success
+      # Renders with default layout "default/Node-+adminLayout.zafu" => compilation as "_main"
       should_render_with_layout :_main
     end
 
   end
 
-  context "on GET show" do
+  context "Accessing a user" do
     setup do
-      login(:su)
+      login(:lion)
       get(:show, {'id'=>visitor.id})
     end
 
@@ -121,9 +122,9 @@ class UsersControllerTest < Zena::Controller::TestCase
   end # With an admin user
 
 
-  context 'on GET preferences' do
+  context 'Accessing preferences' do
     setup do
-      login(:su)
+      login(:ant)
       get(:preferences, {'id'=>visitor.id})
     end
 
@@ -131,19 +132,15 @@ class UsersControllerTest < Zena::Controller::TestCase
     should_render_with_layout :_main
   end
 
-  context "on PUT" do
-    context "in order to update parameters" do
-      setup do
-        login(:lion)
-        put 'update', 'id' => users_id(:lion), 'user'=>{'name'=>'Leo Verneyi', 'lang'=>'en', 'time_zone'=>'Africa/Algiers', 'first_name'=>'Panthera', 'login'=>'lion', 'email'=>'lion@zenadmin.info'}
-      end
-      should_assign_to :user
-      should_respond_with :success
-      should "be able to set timezone" do
-        assert_equal 'Africa/Algiers', assigns(:user)[:time_zone]
-      end
+  context "Updating a user" do
+    setup do
+      login(:lion)
+      put 'update', 'id' => users_id(:lion), 'user'=>{'name'=>'Leo Verneyi', 'lang'=>'en', 'time_zone'=>'Africa/Algiers', 'first_name'=>'Panthera', 'login'=>'lion', 'email'=>'lion@zenadmin.info'}
     end
-  end
-
-
+    should_assign_to :user
+    should_respond_with :success
+    should "be able to set timezone" do
+      assert_equal 'Africa/Algiers', assigns(:user)[:time_zone]
+    end
+  end # Updating a user
 end

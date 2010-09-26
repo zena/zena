@@ -15,7 +15,7 @@ ml_title_where_with_or:
   res: 'letter, status'
 
 name_where:
-  src: "base_contacts where name like 'Inv%' in site"
+  src: "contacts where name like 'Inv%' in site"
   sql: "%Q{SELECT nodes.* FROM idx_nodes_strings AS id1,nodes WHERE #{secure_scope('nodes')} AND id1.value LIKE 'Inv%' AND id1.key = 'name' AND id1.node_id = nodes.id AND nodes.kpath LIKE 'NRC%' GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
   res: 'ant'
 

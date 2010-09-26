@@ -297,8 +297,8 @@ class RemoteTest < Zena::Integration::TestCase
             subject.set_tag = [tag]
             subject.save
           end
-
-          assert_equal subject.id, tag.first("tagged where title = 'lion'").id
+          
+          assert_equal subject.id, tag.first("tagged where title = 'Lion'").id
         end
       end # with a new relation
 

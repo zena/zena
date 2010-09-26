@@ -6,6 +6,10 @@ class RemoveBaseContact < ActiveRecord::Migration
     add_column :sites, :usr_prototype_id, :integer
     rename_column :users, :contact_id, :node_id
 
+    # 0. make sure there is no 'Contact' and 'Reference' roles defined.
+    execute "update roles set name='Contact2' where name = 'Contact'"
+    execute "update roles set name='Reference2' where name = 'Reference'"
+
     # 1. create a new virtual class 'Contact' with kpath 'NRC'
     Site.all.each do |site|
       Thread.current[:visitor] = User.find(:first, :conditions => ["status = ? AND site_id = ?", User::Status[:admin], site.id])

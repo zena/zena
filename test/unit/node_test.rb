@@ -358,10 +358,10 @@ class NodeTest < Zena::Unit::TestCase
     login(:tiger)
     node = secure!(Node) { nodes(:cleanWater) }
     assert_equal node.user.node_id, node.author[:id]
-    assert_equal 'Panther Tigris Sumatran', node.author.fullname
+    assert_equal 'Tiger', node.author.title
     login(:anon)
     node = secure!(Node) { nodes(:status) }
-    assert_equal 'Solenopsis Invicta', node.author.fullname
+    assert_equal 'Solenopsis Invicta', node.author.title
   end
 
   def test_set_node_name_with_title
@@ -1090,7 +1090,7 @@ done: \"I am done\""
 
   context 'A class\' native classes hash' do
     should 'be indexed by kpath' do
-      assert_equal [], %w{N ND NDI NDT NDTT NN NP NPP NPS NPSS NR NRC NU NUS} - Node.native_classes.keys
+      assert_equal [], %w{N ND NDI NDT NDTT NN NP NPP NPS NPSS NU NUS} - Node.native_classes.keys
       assert_equal [], %w{ND NDI NDT NDTT} - Document.native_classes.keys
     end
 

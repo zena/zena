@@ -379,7 +379,7 @@ module Zena
             when 'visitor'
               # Special pseudo-context
               add_table(main_table)
-              make_and_set_main_class(Node)
+              make_and_set_main_class(current_site.usr_prototype.vclass)
               add_filter "#{table}.id = #{insert_bind("visitor.node_id")}"
               return true
             end

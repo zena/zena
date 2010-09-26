@@ -218,12 +218,21 @@ class Site < ActiveRecord::Base
     @api_group ||= secure(Group) { Group.find_by_id(self[:api_group_id]) }
   end
 
-  # Return a new Node to be used by a new User as base for creating the visitor Node.
+  # Return the prototype user (used by Zafu and QueryBuilder to know what the class of
+  # the visitor is)
   def usr_prototype
-    if self[:usr_prototype_id]
-      node = secure(Node) { Node.find_by_id(self[:usr_prototype_id]) }
+    @usr_prototype ||= begin
+      if self[:usr_prototype_id]
+        node = secure(Node) { Node.find_by_id(self[:usr_prototype_id]) }
+      end
+      node ||= secure(Node) { Node.new }
     end
-    node ||= secure(Node) { Node.new }
+  end
+
+  # Return a new Node to be used by a new User as base for creating the visitor Node.
+  def new_user_node
+    node = usr_prototype.dup
+    node.instance_variable_set(:@version, nil)
     node.load_roles!
     node.instance_eval do
       # make sure the field is removed so that it does not break DB insert (PostgreSQL)
@@ -236,6 +245,7 @@ class Site < ActiveRecord::Base
     end
     node
   end
+
 
   # Return true if the given user is an administrator for this site.
   def is_admin?(user)

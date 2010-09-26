@@ -15,6 +15,7 @@ Original_tz:
 Letter_paper:
 
 Contact_name:
+  index:           string
 
 Contact_first_name:
 
