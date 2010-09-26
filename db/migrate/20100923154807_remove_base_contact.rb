@@ -10,6 +10,9 @@ class RemoveBaseContact < ActiveRecord::Migration
     execute "update roles set name='Contact2' where name = 'Contact'"
     execute "update roles set name='Reference2' where name = 'Reference'"
 
+    # Removed class now resolved as vclass
+    execute "update nodes set type='Node' where type='Reference' or type='BaseContact'"
+
     # 1. create a new virtual class 'Contact' with kpath 'NRC'
     Site.all.each do |site|
       Thread.current[:visitor] = User.find(:first, :conditions => ["status = ? AND site_id = ?", User::Status[:admin], site.id])
