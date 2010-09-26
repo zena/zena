@@ -110,7 +110,6 @@ class Node < ActiveRecord::Base
 
     p.string  'text'
     p.string  'summary'
-    p.string  'comment'
   end
 
   # This is used to enable multilingual indexes

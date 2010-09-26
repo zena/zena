@@ -17,6 +17,3 @@
 <%= date_box(@node, 'v_publish_from') %>
 <label for="summary"><%= _("summary")  %></label>
 <%= text_area 'node', 'summary', :cols => nil, :rows => 6, :value => @node.summary, :class => 'full_width' %>
-
-<label for="comment"><%= _("comment") %></label>
-<%= text_area 'node', 'comment', :cols => nil, :rows => 2, :class => 'full_width' %>
