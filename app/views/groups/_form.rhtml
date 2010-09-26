@@ -18,7 +18,7 @@
       <tr><td class='label'><%= _('name')%>       </td><td><%= text_field('group', 'name',        :size=>15 ) %></td></tr>
       <tr><td class='label'><%= _('users')%>      </td><td>
         <%= @users.inject([]) do |list, u|
-          unless u.is_anon? || u.is_su?
+          unless u.is_anon?
             if (@group[:id] == visitor.site.public_group_id) || (@group[:id] == visitor.site.site_group_id)
               list << "<input type='checkbox' name='group[user_ids][]' value='#{u.id}' class='box' checked='1' disabled='1'/>#{u.login}"
             else

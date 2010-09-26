@@ -7,11 +7,6 @@ incognito:
   groups:          public
   status:          moderated
 
-ocean_su:
-  login:           ocean_su
-  crypted_password:        <%= Zena::CryptoProvider::Initial.encrypt('ocean_su') %>
-  status:          su
-
 whale:
   login:           whale
   crypted_password:        <%= Zena::CryptoProvider::Initial.encrypt('whale') %>

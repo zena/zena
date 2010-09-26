@@ -1,7 +1,6 @@
 complex:
   host:            complex.host
   root:            complex
-  su:              su
   anon:            anon
   public_group:    public
   site_group:      complex

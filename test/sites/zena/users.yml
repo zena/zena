@@ -8,13 +8,6 @@ anon:
   status:          moderated
   node:            anonymous
 
-su:
-  login:           su
-  crypted_password: <%= Zena::CryptoProvider::Initial.encrypt('su') %>
-  status:          su
-  node:            anonymous
-  single_access_token: HORIZONS
-
 ant:
   login:           ant
   crypted_password: <%= Zena::CryptoProvider::Initial.encrypt('ant') %>

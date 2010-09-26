@@ -7,7 +7,6 @@ The #Site model holds configuration information for a site:
 
 +host+::            Unique host name. (teti.ch, zenadmin.org, dev.example.org, ...)
 +root_id+::         Site root node id. This is the only node in the site without a parent.
-+su_id+::           Super User id. This user has extended priviledges on the site. It should only be used in case of emergency.
 +anon_id+::         Anonymous user id. This user is the 'public' user of the site. Even if +authorize+ is set to true, this user is needed to configure the defaults for all newly created users.
 +public_group_id+:: Id of the 'public' group. Every user of the site (with 'anonymous user') belongs to this group.
 +site_group_id+::   Id of the 'site' group. Every user except anonymous are part of this group. This group can be seen as the 'logged in users' group.
@@ -69,23 +68,21 @@ class Site < ActiveRecord::Base
       # =========== CREATE zip counter ==========================
       connection.execute "INSERT INTO zips (site_id, zip) VALUES (#{site[:id]},0)"
 
-      # =========== CREATE Super User ===========================
-      # create su user
-      su = User.new_no_defaults( :login => host, :password => su_password,
-        :first_name => "Super", :name => "User", :lang => site.default_lang, :status => User::Status[:su])
-      su.site = site
+      # =========== CREATE Admin User ===========================
 
-      Thread.current[:visitor] = su
+      # create admin user
+      admin_user = User.new_no_defaults( :login => 'admin',           :password => su_password,
+                                         :lang  => site.default_lang, :status => User::Status[:admin])
+      admin_user.site = site
 
-      unless su.save
+      Thread.current[:visitor] = admin_user
+
+      unless admin_user.save
         # rollback
         Site.connection.execute "DELETE FROM #{Site.table_name} WHERE id = #{site.id}"
         Site.connection.execute "DELETE FROM zips WHERE site_id = #{site.id}"
-        raise Exception.new("Could not create super user for site [#{host}] (site#{site[:id]})\n#{su.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}")
+        raise Exception.new("Could not create admin user for site [#{host}] (site#{site[:id]})\n#{admin_user.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}")
       end
-
-      site[:su_id] = su[:id]
-
 
       # =========== CREATE PUBLIC, ADMIN, SITE GROUPS ===========
       # create public group
@@ -96,6 +93,9 @@ class Site < ActiveRecord::Base
       admin = site.send(:secure,Group) { Group.create( :name => 'admin') }
       raise Exception.new("Could not create admin group for site [#{host}] (site#{site[:id]})\n#{admin.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if admin.new_record?
 
+      # add admin to the 'admin group'
+      admin.users << admin_user
+
       # create site group
       sgroup = site.send(:secure,Group) { Group.create( :name => 'site') }
       raise Exception.new("Could not create site group for site [#{host}] (site#{site[:id]})\n#{sgroup.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if sgroup.new_record?
@@ -104,39 +104,27 @@ class Site < ActiveRecord::Base
       site.site_group_id   = sgroup[:id]
       site.groups << pub << sgroup << admin
 
-      # =========== CREATE Anonymous, admin =====================
-      # create anon user
-      # FIXME: make sure user_id = admin user
+      # Reload group_ids in admin
+      admin_user.instance_variable_set(:@group_ids, nil)
 
-      anon = site.send(:secure, User) {User.new_no_defaults( :login => nil, :password => nil,
-        :first_name => "Anonymous", :name => "User", :lang => site.default_lang, :status => User::Status[:moderated])}
+      # =========== CREATE Anonymous User =====================
+      # create anon user
+
+      anon = site.send(:secure, User) do
+        User.new_no_defaults( :login => nil, :password => nil,
+        :lang => site.default_lang, :status => User::Status[:moderated])
+      end
 
       anon.site = site
       raise Exception.new("Could not create anonymous user for site [#{host}] (site#{site[:id]})\n#{anon.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless anon.save
       site[:anon_id] = anon[:id]
 
-      # create admin user
-      admin_user = site.send(:secure,User) { User.new_no_defaults( :login => 'admin', :password => su_password,
-        :first_name => "Admin", :name => "User", :lang => site.default_lang, :status => User::Status[:admin]) }
-      admin_user.site = site
-      raise Exception.new("Could not create admin user for site [#{host}] (site#{site[:id]})\n#{admin_user.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless admin_user.save
-      class << admin_user
-        # until participation is created
-        def status; User::Status[:admin]; end
-        def lang; site.default_lang; end
-      end
-      # add admin to the 'admin group'
-      admin.users << admin_user
-
       # =========== CREATE ROOT NODE ============================
-      # reload admin so all groups are set
 
-      #admin_user = site.send(:secure, User) { User.find(admin_user[:id]) }
+      root = site.send(:secure,Project) do
+        Project.create( :node_name => site.name, :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :dgroup_id => admin[:id], :title => site.name, :v_status => Zena::Status[:pub])
+      end
 
-      # make admin the current visitor
-      Thread.current[:visitor] = admin_user
-
-      root = site.send(:secure,Project) { Project.create( :node_name => site.name, :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :dgroup_id => admin[:id], :title => site.name, :v_status => Zena::Status[:pub]) }
       raise Exception.new("Could not create root node for site [#{host}] (site#{site[:id]})\n#{root.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if root.new_record?
 
       Node.connection.execute "UPDATE nodes SET section_id = id, project_id = id WHERE id = '#{root[:id]}'"
@@ -150,8 +138,10 @@ class Site < ActiveRecord::Base
       raise Exception.new("Could not save site definition for site [#{host}] (site#{site[:id]})\n#{site.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless site.save
 
       # =========== CREATE CONTACT PAGES ==============
-      [su, admin_user, anon].each do |user|
-        user.send(:create_contact)
+      {admin_user => 'Admin', anon => 'Anonymous User'}.each do |user, title|
+        # forces @node creation
+        user.node = {'title' => title, 'parent_id' => root[:id] }
+        user.send(:create_node)
         user.save
       end
 
@@ -208,12 +198,6 @@ class Site < ActiveRecord::Base
     @anon ||= User.find_by_id_and_site_id(self[:anon_id], self.id)
   end
 
-  # Return the super user. This user has extended priviledges on the data (has access to private other's data).
-  # This is an emergency user.
-  def su
-    @su ||= User.find_by_id_and_site_id(self[:su_id], self.id)
-  end
-
   # TODO: test
   def root_node
     secure(Node) { Node.find(self[:root_id]) }
@@ -236,23 +220,21 @@ class Site < ActiveRecord::Base
 
   # Return a new Node to be used by a new User as base for creating the visitor Node.
   def usr_prototype
-    @prototype_user ||= begin
-      if self[:usr_prototype_id]
-        node = secure(Node) { Node.find_by_id(self[:usr_prototype_id]) }
-      end
-      node ||= secure(Node) { Node.new }
-      node.load_roles!
-      node.instance_eval do
-        # make sure the field is removed so that it does not break DB insert (PostgreSQL)
-        @attributes.delete('id')
-        self[:created_at] = nil
-        self[:updated_at] = nil
-        # so that we get the default value
-        self.title        = nil
-        @new_record = true
-      end
-      node
+    if self[:usr_prototype_id]
+      node = secure(Node) { Node.find_by_id(self[:usr_prototype_id]) }
     end
+    node ||= secure(Node) { Node.new }
+    node.load_roles!
+    node.instance_eval do
+      # make sure the field is removed so that it does not break DB insert (PostgreSQL)
+      @attributes.delete('id')
+      self[:created_at] = nil
+      self[:updated_at] = nil
+      # so that we get the default value
+      self.title        = nil
+      @new_record = true
+    end
+    node
   end
 
   # Return true if the given user is an administrator for this site.
@@ -298,7 +280,7 @@ class Site < ActiveRecord::Base
 
   # ids of the users that cannot be removed
   def protected_user_ids
-    [anon_id, su_id]
+    [anon_id, visitor.id] # cannot remove self
   end
 
   # Return an array with the languages for the site.

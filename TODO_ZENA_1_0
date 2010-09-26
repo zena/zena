@@ -9,3 +9,4 @@ TODO
 2. POST ! instead of GET during preview (long articles !!!)
 3. Only keep title/text/summary fields
 4. Change fullpath to zip/zip/zip
+5. Remove 'su'

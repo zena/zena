@@ -90,7 +90,7 @@ class CommentsController < ApplicationController
 
   # TODO:test
   def index
-    @node = visitor.contact
+    @node = visitor.node
     secure!(Node) do
       # TODO: preload node
       @comments = Comment.paginate :all,

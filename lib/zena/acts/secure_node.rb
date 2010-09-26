@@ -89,7 +89,6 @@ module Zena
         # * members of +read_group+ if the node is published and the current date is greater or equal to the publication date
         # * members of +write_group+
         def can_read?(vis = visitor, ugps=visitor.group_ids)
-          ( vis.is_su? ) || # super user
           ( ugps.include?(rgroup_id) && publish_from && Time.now >= publish_from ) ||
           ( ugps.include?(wgroup_id) )
         end
@@ -98,7 +97,6 @@ module Zena
         # * super user
         # * members of +write_group+ if there status is at least 'user'.
         def can_write?(vis=visitor, ugps=visitor.group_ids)
-          ( vis.is_su? ) ||             # super user
           ( ugps.include?(wgroup_id) && visitor.user?)  # write group
         end
 
@@ -128,25 +126,21 @@ module Zena
         # * super user
         # * members of +drive_group+ if member status is at least 'user'
         def can_drive?(vis=visitor, ugps=visitor.group_ids)
-          ( vis.is_su? ) || # super user
           ( vis.user? && (ugps.include?(dgroup_id) || draft?) )
         end
 
         # 'can_drive?' before attribute change
         def can_drive_was_true?(vis=visitor, ugps=visitor.group_ids)
-          ( vis.is_su? ) || # super user
           ( vis.user? && (ugps.include?(dgroup_id_was) || draft_was_true?) )
         end
 
         # 'can_drive?' without draft? exceptions
         def full_drive?(vis=visitor, ugps=visitor.group_ids)
-          ( vis.is_su? ) || # super user
           ( vis.user? && ugps.include?(dgroup_id) )
         end
 
         # 'full_drive?' before attribute change
         def full_drive_was_true?(vis=visitor, ugps=visitor.group_ids)
-          ( vis.is_su? ) || # super user
           ( vis.user? && ugps.include?(dgroup_id_was) )
         end
 

@@ -68,7 +68,7 @@ start_as_tag:
 
 from_visitor:
   src: 'favorites from visitor'
-  sql: '/visitor.contact_id/'
+  sql: '/visitor.node_id/'
   res: 'nature'
 
 # l_date_as_date:

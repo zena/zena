@@ -1,7 +1,6 @@
 zena:
   host:            test.host
   root:            zena
-  su:              su
   anon:            anon
   public_group:    public
   site_group:      workers

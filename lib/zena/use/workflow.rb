@@ -353,7 +353,6 @@ module Zena
 
       # Returns false is the current visitor does not have enough rights to perform the action.
       def can_apply?(method)
-        return true  if visitor.is_su?
         case method
         when :edit
           can_edit?

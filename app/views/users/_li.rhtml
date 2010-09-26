@@ -1,8 +1,6 @@
 <% icon = 'user'
 if li.is_anon?
   icon += '_pub'
-elsif li.is_su?
-  icon += '_su'
 elsif li.is_admin?
   icon += '_admin'
 end %>
@@ -12,7 +10,7 @@ end %>
           :url    => edit_user_path(li),
           :method => :get) %></td>
   <td class="login"><%= if li.is_anon? then '<i>public</i>' else li.login end %></td>
-  <td class="fullname" ><a href='<%= zen_path(li.contact) %>'><%= li.contact ? li.contact.title : '' %></a></td>
+  <td class="fullname" ><a href='<%= zen_path(li.node) %>'><%= li.node ? li.node.title : '' %></a></td>
   <td class="login"><%= _(User::Num_to_status[li.status].to_s) %></td>
   <td class="groups"><%= li.groups.map {|g| g.name }.join(', ') %></td>
 </tr>

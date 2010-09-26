@@ -84,7 +84,7 @@ class DataEntry < ActiveRecord::Base
   end
 
   def author
-    user.contact
+    user.node
   end
 
   def nodes

@@ -357,7 +357,7 @@ class NodeTest < Zena::Unit::TestCase
   def test_author
     login(:tiger)
     node = secure!(Node) { nodes(:cleanWater) }
-    assert_equal node.user.contact_id, node.author[:id]
+    assert_equal node.user.node_id, node.author[:id]
     assert_equal 'Panther Tigris Sumatran', node.author.fullname
     login(:anon)
     node = secure!(Node) { nodes(:status) }
@@ -1051,7 +1051,7 @@ done: \"I am done\""
   def test_allowed_change_to_classes
     Node.get_class('Tag')
     node_changes = Node.allowed_change_to_classes.reject{|k| k[/Dummy/]} # In case we are testing after Secure
-    assert_equal %w{Node Note Letter Post Page Project Section Skin Tag Reference}, node_changes
+    assert_equal %w{Node Note Letter Post Page Project Section Skin Tag Reference Contact}, node_changes
 
     assert_equal node_changes, Page.allowed_change_to_classes.reject{|k| k[/Dummy/]}
     assert_equal node_changes, Project.allowed_change_to_classes.reject{|k| k[/Dummy/]}

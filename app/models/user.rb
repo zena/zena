@@ -44,7 +44,7 @@ class User < ActiveRecord::Base
     c.require_password_confirmation = false
     c.validate_password_field = false
   end
-  
+
   # Dynamic resolution of the author class from the usr_prototype
   def self.node_user_proc
     Proc.new do |h, s|
@@ -74,7 +74,7 @@ class User < ActiveRecord::Base
   attr_accessor           :ip
 
   belongs_to              :site
-  belongs_to              :node, :dependent => :destroy
+  belongs_to              :node, :dependent => :destroy # Do we want this ? (won't work if there are sub-nodes...)
   has_and_belongs_to_many :groups
   has_many                :nodes
   has_many                :versions
@@ -102,6 +102,8 @@ class User < ActiveRecord::Base
 
 
   class << self
+    # This method is used by authlogic and is only called from withing a Secure scope that
+    # enforces the proper site_id.
     def find_allowed_user_by_login(login)
       first(:conditions=>["login = ? and status > 0", login])
     end
@@ -160,19 +162,13 @@ class User < ActiveRecord::Base
 
   # Return true if the user is in the admin group or if the user is the super user.
   def is_admin?
-    is_su? || status.to_i >= User::Status[:admin]
+    status.to_i >= User::Status[:admin]
   end
 
   # Return true if the user is the anonymous user for the current visited site
   def is_anon?
     # tested in site_test
     user_site.anon_id == self[:id] && (!new_record? || self[:login].nil?) # (when creating a new site, anon_id == nil)
-  end
-
-  # Return true if the user is the super user for the current visited site
-  def is_su?
-    # tested in site_test
-    user_site.su_id == self[:id]
   end
 
   # Return true if the user's status is high enough to start editing nodes.
@@ -255,13 +251,8 @@ class User < ActiveRecord::Base
   end
 
   def comments_to_publish
-    if is_su?
-      # su can view all
-      secure(Comment) { Comment.find(:all, :conditions => ['status = ?', Zena::Status[:prop]]) }
-    else
-      secure(Comment) { Comment.find(:all, :select=>'comments.*, nodes.node_name', :from=>'comments, nodes, discussions',
+    secure(Comment) { Comment.find(:all, :select=>'comments.*, nodes.node_name', :from=>'comments, nodes, discussions',
                    :conditions => ['comments.status = ? AND discussions.node_id = nodes.id AND comments.discussion_id = discussions.id AND nodes.dgroup_id IN (?)', Zena::Status[:prop], visitor.group_ids]) }
-    end
   end
 
   # List all versions proposed for publication that the user has the right to publish.

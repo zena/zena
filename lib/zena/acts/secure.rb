@@ -106,21 +106,17 @@ Just doing the above will filter all result according to the logged in user.
 
       # Secure scope for read access
       def secure_scope(table_name)
-        if visitor.is_su?
-          "#{table_name}.site_id = #{visitor.site.id}"
-        else
-          # site_id AND...
-          "#{table_name}.site_id = #{visitor.site.id} AND ("+
-          # READER if published
-          "(#{table_name}.rgroup_id IN (#{visitor.group_ids.join(',')}) AND #{table_name}.publish_from <= #{Zena::Db::NOW} ) OR " +
-          # OR writer
-          "#{table_name}.wgroup_id IN (#{visitor.group_ids.join(',')}))"
-        end
+        # site_id AND...
+        "#{table_name}.site_id = #{visitor.site.id} AND ("+
+        # READER if published
+        "(#{table_name}.rgroup_id IN (#{visitor.group_ids.join(',')}) AND #{table_name}.publish_from <= #{Zena::Db::NOW} ) OR " +
+        # OR writer
+        "#{table_name}.wgroup_id IN (#{visitor.group_ids.join(',')}))"
       end
 
       def secure_write_scope
         scope = {:nodes => {:site_id => visitor.site[:id]}}
-        scope[:nodes] = {:wgroup_id => visitor.group_ids} unless visitor.is_su?
+        scope[:nodes] = {:wgroup_id => visitor.group_ids}
         scope
       end
 
@@ -203,7 +199,7 @@ Just doing the above will filter all result according to the logged in user.
         # * members of +write_group+ if node is published and the current date is greater or equal to the publication date
         def secure_write(obj, &block)
           scope = {:nodes => {:site_id => visitor.site[:id]}}
-          scope[:nodes] = {:wgroup_id => visitor.group_ids} unless visitor.is_su?
+          scope[:nodes] = {:wgroup_id => visitor.group_ids}
           secure_with_scope(obj, scope, &block)
         rescue ActiveRecord::RecordNotFound
           # Rails generated exceptions
@@ -230,13 +226,8 @@ Just doing the above will filter all result according to the logged in user.
         # * owner if +max_status+ <= red
         # * owner if private
         def secure_drive(obj, &block)
-          # scope = if visitor.is_su? # super user
-          #   "site_id = #{visitor.site.id}"
-          # else
-          #   "site_id = #{visitor.site.id} AND dgroup_id IN (#{visitor.group_ids.join(',')})"
-          # end
           scope = { :nodes => {:site_id => visitor.site.id } }
-          scope[:nodes][:dgroup_id] = visitor.group_ids unless visitor.is_su?
+          scope[:nodes][:dgroup_id] = visitor.group_ids
           secure_with_scope(obj, scope, &block)
         rescue ActiveRecord::RecordNotFound
           # Rails generated exceptions

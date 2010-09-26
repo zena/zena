@@ -3,7 +3,10 @@ require 'test_helper'
 class UserTest < Zena::Unit::TestCase
 
   def test_find_allowed_user_by_login
-    assert_equal users_id(:su), User.find_allowed_user_by_login('su').id
+    login(:anon)
+    secure(User) do
+      assert_equal users_id(:lion), User.find_allowed_user_by_login('lion').id
+    end
   end
 
   def test_deleted_user_should_not_be_allowed
@@ -32,23 +35,27 @@ class UserTest < Zena::Unit::TestCase
     end
   end
 
-  def test_cannot_destroy_su
-    login(:su)
-    su = users(:su)
-    assert_raise(Zena::AccessViolation){ su.destroy }
-  end
+  context 'Destroying a user' do
+    context 'with admin rights' do
+      setup do
+        login(:lion)
+      end
 
-  def test_cannot_destroy_anon
-    login(:su)
-    anon = users(:anon)
-    assert_raise(Zena::AccessViolation){ anon.destroy }
-  end
-
-  def test_can_destroy_ant
-    login(:lion)
-    ant = users(:ant)
-    assert_nothing_raised( Zena::AccessViolation ) { ant.destroy }
-  end
+      should 'not allow anon destruction' do
+        assert_raise(Zena::AccessViolation){ users(:anon).destroy }
+      end
+      
+      should 'not allow destruction of self' do
+        assert_raise(Zena::AccessViolation){ users(:lion).destroy }
+      end
+      
+      should 'allow destruction of regular users' do
+        assert_difference('User.count', -1) do
+          assert_nothing_raised { users(:ant).destroy }
+        end
+      end
+    end # with admin rights
+  end # Destroying a user
 
   context 'Creating a new User' do
     setup do
@@ -79,7 +86,7 @@ class UserTest < Zena::Unit::TestCase
     end
 
     should 'copy missing attributes from prototype' do
-      assert_equal 'Iping', subject.contact.prop['address']
+      assert_equal 'Iping', subject.node.prop['address']
     end
   end # Creating a new User
 
@@ -92,7 +99,7 @@ class UserTest < Zena::Unit::TestCase
     user = secure!(User) { User.create("login"=>"john", "password"=>"isjjna78a9h", 'node' => {'v_lang' => 'ru'}) }
 
     assert !user.new_record?, "Not a new record"
-    assert !user.contact.new_record?, "Users's contact node is not a new record"
+    assert !user.node.new_record?, "Users's contact node is not a new record"
 
     user = secure!(User) { User.find(user[:id]) } # reload
     assert_equal sites_id(:ocean), user.site_id
@@ -105,7 +112,7 @@ class UserTest < Zena::Unit::TestCase
     assert !user.user?, "Not a real user yet"
     assert visitor.user?, "Whale is a user"
 
-    contact = user.contact
+    contact = user.node
     assert_equal "john", contact.title
   end
 
@@ -118,8 +125,8 @@ class UserTest < Zena::Unit::TestCase
     login(:lion)
     user = secure!(User) { User.create("name"=>"Shakespeare", "status"=>"50", "group_ids"=>[""], "lang"=>"fr", "time_zone"=>"Bern", "first_name"=>"William", "login"=>"bob", "password"=>"jsahjks894", "email"=>"") }
     assert !user.new_record?
-    assert !user.contact.new_record?
-    assert_equal sites_id(:zena), user.contact.site_id
+    assert !user.node.new_record?
+    assert_equal sites_id(:zena), user.node.site_id
   end
 
   def test_create_with_auto_publish
@@ -127,8 +134,8 @@ class UserTest < Zena::Unit::TestCase
     login(:lion)
     user = secure!(User) { User.create("name"=>"Shakespeare", "status"=>"50", "group_ids"=>[""], "lang"=>"fr", "time_zone"=>"Europe/Zurich", "first_name"=>"William", "login"=>"bob", "password"=>"jsahjks894", "email"=>"") }
     assert !user.new_record?
-    assert !user.contact.new_record?
-    assert_equal sites_id(:zena), user.contact.site_id
+    assert !user.node.new_record?
+    assert_equal sites_id(:zena), user.node.site_id
   end
 
   def test_create_admin_with_groups
@@ -152,13 +159,13 @@ class UserTest < Zena::Unit::TestCase
   def test_only_self_or_admin_can_update
     login(:tiger)
     user = secure!(User) { users(:ant) }
-    user.email = "eat@spam.com"
+    user.lang = 'de'
     assert !user.save
     assert user.errors[:base] #.any?
     user = secure!(User) { users(:tiger) }
-    user.email = "socr@isa.man"
+    user.lang = 'de'
     assert user.save
-    assert_equal "socr@isa.man", user.email
+    assert_equal 'de', user.lang
   end
 
   def test_only_admin_can_create

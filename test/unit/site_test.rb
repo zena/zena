@@ -7,18 +7,13 @@ class SiteTest < Zena::Unit::TestCase
       @site = Site.create_for_host('super.host', 'secret')
     end
 
-    should 'populate super user' do
-      assert_equal "Super User", @site.su.fullname
-      assert_not_equal users(:su), @site.su[:id]
+    should 'create anonymous user' do
+      assert_nil @site.anon.login
+      assert_equal 'Anonymous User', @site.anon.node.title
     end
 
-    should 'populate anonymous user' do
-      assert_equal "Anonymous User", @site.anon.fullname
-      assert_not_equal users(:anon), @site.anon[:id]
-    end
-
-    should 'populate 2 admin users' do
-      assert_equal 2, @site.admin_user_ids.size
+    should 'create an admin users' do
+      assert_equal 1, @site.admin_user_ids.size
     end
 
     should 'return a new project as root node' do
@@ -27,27 +22,46 @@ class SiteTest < Zena::Unit::TestCase
   end
 
   context 'Calling usr_prototype' do
-    subject do
+    setup do
       login(:anon)
+    end
+
+    subject do
       current_site.usr_prototype
     end
 
     should 'return a new record' do
       assert subject.new_record?
     end
-    
+
     should 'return a Node of the same type as the prototype' do
       assert_equal 'NRC', subject.kpath
       assert_equal nodes(:anonymous).klass, subject.klass
     end
-    
+
     should 'copy prototype properties' do
       nodes(:anonymous).prop.each do |key, value|
-        assert_equal value, subject.prop[key]
+        if key == 'title'
+          assert_nil subject.prop[key]
+        else
+          assert_equal value, subject.prop[key], "Should copy '#{key}'"
+        end
       end
     end
+
+    context 'more then once' do
+      setup do
+        @first = current_site.usr_prototype
+        @second = current_site.usr_prototype
+      end
+
+      should 'return a new node on each call' do
+        assert_not_equal @first.object_id, @second.object_id
+      end
+    end # more then once
+
   end # Calling usr_prototype
-  
+
 
   def test_create_site_with_opts
     site = nil
@@ -126,7 +140,7 @@ class SiteTest < Zena::Unit::TestCase
     anon = site.anon
     assert_kind_of User, anon
     assert anon.is_anon?
-    assert_equal 'Anonymous', anon.first_name
+    assert_equal 'Mr nobody', anon.node.title
     assert_equal users_id(:anon), anon[:id]
     anon.site = site
     assert anon.is_anon?
@@ -134,51 +148,34 @@ class SiteTest < Zena::Unit::TestCase
     login(:incognito)
     site = sites(:ocean)
     anon = site.anon
-    assert_equal 'Miss', anon.first_name
+    assert_equal 'Miss incognito', anon.node.title
     assert_equal users_id(:incognito), anon[:id]
     anon.site = site
     assert anon.is_anon?
   end
 
-  def test_su
-    login(:anon)
-    site = sites(:zena)
-    su = site.su
-    assert_kind_of User, su
-    assert_equal 'Super', su.first_name
-    assert_equal users_id(:su), su[:id]
-    su.site = site
-    assert su.is_su?
-
-    login(:incognito)
-    site = sites(:ocean)
-    su = site.su
-    assert_kind_of User, su
-    assert_equal 'Hyper', su.first_name
-    assert_equal users_id(:ocean_su), su[:id]
-    su.site = site
-    assert su.is_su?
-  end
-
   def test_public_group
+    login(:anon)
     site = sites(:zena)
     grp = site.public_group
     assert_kind_of Group, grp
     assert_equal groups_id(:public), grp[:id]
 
+    login(:incognito)
     site = sites(:ocean)
-    $_test_site = 'ocean'
     grp = site.public_group
     assert_kind_of Group, grp
     assert_equal groups_id(:public), grp[:id]
   end
 
   def test_site_group
+    login(:anon)
     site = sites(:zena)
     grp = site.site_group
     assert_kind_of Group, grp
     assert_equal groups_id(:workers), grp[:id]
-    $_test_site = 'ocean'
+
+    login(:incognito)
     site = sites(:ocean)
     grp = site.site_group
     assert_kind_of Group, grp
