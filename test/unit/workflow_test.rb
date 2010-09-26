@@ -356,7 +356,7 @@ class WorkflowTest < Zena::Unit::TestCase
           assert node.update_attributes(:title => 'Mea Lua', :country => 'Brazil')
           node = secure!(Node) { nodes(:lake) } # reload
           assert_equal 'Mea Lua', node.title
-          assert_equal 'Brazil', node.country
+          assert_equal 'Brazil', node.prop['country']
         end
       end
 

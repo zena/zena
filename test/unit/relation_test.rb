@@ -144,7 +144,7 @@ class RelationTest < Zena::Unit::TestCase
         end
 
         should 'use target class as target name' do
-          assert_equal 'base_contact', subject.target_role
+          assert_equal 'contact', subject.target_role
         end
       end # with blank source_role
     end # on relation create

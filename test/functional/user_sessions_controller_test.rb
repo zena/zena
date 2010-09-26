@@ -26,11 +26,11 @@ class UserSessionsControllerTest < Zena::Controller::TestCase
   context "with login Test Case" do
 
     setup do
-      login('su')
+      login('lion')
     end
 
     should "visitor be accessible" do
-      assert_equal 'su', visitor.login
+      assert_equal 'lion', visitor.login
     end
 
     should "site be accessible" do
