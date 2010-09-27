@@ -6,12 +6,11 @@ DEFAULTS:
 Letter:
   kpath:           NNL
   real_class:      Note
-  idx_text_high:   "#{title} paper:#{paper}"
+  idx_text_high:   "%Q{#{title} paper:#{paper}}"
 
 Post:
   kpath:           NNP
   real_class:      Note
-  dyn_keys:        reading, book
   auto_create_discussion: yes
 
 Reference:
@@ -21,6 +20,7 @@ Reference:
 Contact:
   kpath:           NRC
   real_class:      Node
+  prop_eval:       "{'title' => \"#{name} #{first_name}\"}"
 
 Tracker:
   kpath:           NPA

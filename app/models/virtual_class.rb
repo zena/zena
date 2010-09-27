@@ -5,6 +5,7 @@ class VirtualClass < Role
   validate      :valid_virtual_class
   include Zena::Use::Relations::ClassMethods
   include Zena::Use::Fulltext::VirtualClassMethods
+  include Zena::Use::PropEval::VirtualClassMethods
 
   # Import a hash of virtual class definitions and try to build the virtual classes.
   def self.import(data)

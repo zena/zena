@@ -295,7 +295,6 @@ module Zena
 
           query_params << ", :url => #{make_href(self.name, :action => 'drop')}"
           markup.pre_wrap[:drop] = "<% add_drop_id(\"#{dom_id}\"#{query_params}) -%>"
-
           r_block
         end
 

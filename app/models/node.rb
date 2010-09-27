@@ -215,6 +215,9 @@ class Node < ActiveRecord::Base
   # fulltext indices
   include Zena::Use::Fulltext::ModelMethods
 
+  # computed properties (vclass prop_eval)
+  include Zena::Use::PropEval::ModelMethods
+
   # List of version attributes that should be accessed as proxies 'v_lang', 'v_status', etc
   VERSION_ATTRIBUTES = %w{status lang publish_from backup}
 
@@ -1468,7 +1471,7 @@ class Node < ActiveRecord::Base
 
   private
     def set_defaults
-      self.title     = self.node_name if title.blank?
+      # FIXME: always sync node_name and basta!
       self.node_name = self.title     if node_name.blank?
 
       self[:custom_base] = false unless kind_of?(Page)
@@ -1519,6 +1522,11 @@ class Node < ActiveRecord::Base
 
     # Make sure the node is complete before creating it (check parent and project references)
     def validate_node
+      # temporary hack until import/export does not rely on node_name anymore
+      # FIXME: remove this once 'node_name' is just a sync of title and is not set in import/export and
+      # such.
+      self.title = self.node_name if title.blank?
+
       # when creating root node, self[:id] and :root_id are both nil, so it works.
       if parent_id_changed? && self[:id] == current_site[:root_id]
         errors.add("parent_id", "root should not have a parent") unless self[:parent_id].blank?

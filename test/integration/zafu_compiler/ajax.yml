@@ -205,6 +205,10 @@ drop_add_link:
   res: "<div class='drop' id='list1'>drop</div>"
   js: "/Droppables.add\('list1'.*/nodes/22/drop.*node%5Bfavorite_id%5D=%23%7Bid%7D"
 
+drop_var_scope:
+  src: "<div do='visitor.node'><div do='drop' add='favorite' change='receiver'><r:favorites>.</r:favorites></div></div>"
+  tem: "/var2 = Node.do_find.*nodes.node_name ASC\}, var1.id\]\)/"
+
 drop_done_remove:
   src: "<div do='drop' set='reference' done='remove'></div>"
   js: "/done=remove/"

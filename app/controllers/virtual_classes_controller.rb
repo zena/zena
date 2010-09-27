@@ -5,7 +5,7 @@ class VirtualClassesController < ApplicationController
   layout :admin_layout
 
   def index
-    secure(VirtualClass) do
+    secure(Role) do
       @virtual_classes = Role.paginate(:all, :order => 'kpath', :per_page => 20, :page => params[:page])
     end
 
@@ -37,8 +37,8 @@ class VirtualClassesController < ApplicationController
   end
 
   def export
-    data = secure(VirtualClass) do
-      VirtualClass.export
+    data = secure(Role) do
+      Role.export
     end
 
     ### TODO

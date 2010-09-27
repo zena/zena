@@ -198,17 +198,6 @@ class VirtualClassTest < Zena::Unit::TestCase
     assert_equal 'NPU', vclass.kpath
   end
 
-  def test_update
-    # add a sub class
-    login(:lion)
-    vclass = roles(:Post)
-    assert_equal "reading, book", vclass.dyn_keys
-    assert_equal "NNP", vclass.kpath
-    assert vclass.update_attributes(:dyn_keys => 'foo, bar')
-    assert_equal "foo, bar", vclass.dyn_keys
-    assert_equal "NNP", vclass.kpath
-  end
-
   def test_update_name
     # add a sub class
     login(:lion)

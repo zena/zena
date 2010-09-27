@@ -18,9 +18,16 @@ class FulltextTest < Zena::Unit::TestCase
 
       context 'with valid code' do
         should 'succeed' do
-          assert subject.update_attributes(:idx_text_high => %q{sender:#{title} paper:#{paper}})
+          assert subject.update_attributes(:idx_text_high => %q{%Q{sender:#{title} paper:#{paper}}})
         end
       end # with valid code
+
+      context 'with invalid return type' do
+        should 'fail' do
+          assert !subject.update_attributes(:idx_text_high => %q[89])
+          assert_match %r{Compilation should produce a String. Found Number.}, subject.errors[:idx_text_high]
+        end
+      end # with invalid return type
 
       context 'with syntax errors' do
         should 'fail' do

@@ -15,7 +15,7 @@
     <span class='spacer'><%= li.kpath[1..-1].gsub(/./, '| ') %><%= li.kind_of?(VirtualClass) ? '+ ' : '| <span>* </span>' %></span>
     <span class='constant'><%= li.name %><%= (li.kind_of?(VirtualClass) && li.import_result) ? " (#{li.import_result})" : ''%></span>
   </td>
-  <td class='idx'><%= Zena::Use::Fulltext::FULLTEXT_FIELDS.map {|fld| li[fld].blank? ? nil : fld.gsub('idx_text_','')}.compact.join(', ') %>
+  <td class='idx'><%= (Zena::Use::Fulltext::FULLTEXT_FIELDS.map {|fld| li[fld].blank? ? nil : fld.gsub('idx_text_','')} + li[:prop_eval] ? ['prop'] : []).compact.join(', ') %>
   <td class="auto_create_discussion" ><%= li.auto_create_discussion ? _('auto discussion') : '' %></td>
 </tr>
 <% end -%>

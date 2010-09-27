@@ -18,9 +18,11 @@ module Zena
               next unless code = self[idx_group]
 
               begin
-                ruby = RubyLess.translate_string(klass, code)
+                ruby = RubyLess.translate(klass, code)
 
-                unless ruby.klass <= String
+                klass = ruby.klass
+
+                unless klass.kind_of?(Class) && klass <= String
                   errors.add(idx_group, _('Compilation should produce a String. Found %s.') % ruby.klass.name)
                 end
               rescue RubyLess::Error => err
@@ -75,7 +77,7 @@ module Zena
               code = klass[idx_group]
               if !code.blank?
                 begin
-                  version[idx_group] = safe_eval_string(code)
+                  version[idx_group] = safe_eval(code)
                 rescue RubyLess::Error => err
                   errors.add('base', "Error while building '#{idx_group}' index: #{err.message}")
                 end
