@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2010-09-26}
+  s.date = %q{2010-09-28}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -434,6 +434,7 @@ Gem::Specification.new do |s|
      "db/migrate/20100915062903_add_api_group_id_to_site.rb",
      "db/migrate/20100923154807_remove_base_contact.rb",
      "db/migrate/20100926192223_remove_su_user.rb",
+     "db/migrate/20100927141658_add_eval_attributes_to_v_class.rb",
      "doc/README_FOR_APP",
      "doc/fixtures.graffle",
      "doc/fixtures.pdf",
@@ -542,6 +543,7 @@ Gem::Specification.new do |s|
      "lib/zena/use/ml_index.rb",
      "lib/zena/use/nested_attributes_alias.rb",
      "lib/zena/use/node_name.rb",
+     "lib/zena/use/prop_eval.rb",
      "lib/zena/use/query_builder.rb",
      "lib/zena/use/query_comment.rb",
      "lib/zena/use/query_node.rb",
@@ -1922,6 +1924,7 @@ Gem::Specification.new do |s|
      "test/unit/zena/use/ml_index_test.rb",
      "test/unit/zena/use/nested_attributes_alias_model_test.rb",
      "test/unit/zena/use/nested_attributes_alias_view_test.rb",
+     "test/unit/zena/use/prop_eval_test.rb",
      "test/unit/zena/use/query_node_test.rb",
      "test/unit/zena/use/refactor_test.rb",
      "test/unit/zena/use/rendering_test.rb",
@@ -2158,6 +2161,7 @@ Gem::Specification.new do |s|
      "test/unit/zena/use/ml_index_test.rb",
      "test/unit/zena/use/nested_attributes_alias_model_test.rb",
      "test/unit/zena/use/nested_attributes_alias_view_test.rb",
+     "test/unit/zena/use/prop_eval_test.rb",
      "test/unit/zena/use/query_node_test.rb",
      "test/unit/zena/use/refactor_test.rb",
      "test/unit/zena/use/rendering_test.rb",
@@ -2181,7 +2185,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<property>, [">= 1.2.0"])
       s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_runtime_dependency(%q<authlogic>, ["= 2.1.3"])
-      s.add_runtime_dependency(%q<zafu>, [">= 0.7.4"])
+      s.add_runtime_dependency(%q<zafu>, [">= 0.7.5"])
       s.add_runtime_dependency(%q<shoulda>, [">= 2.10.2"])
       s.add_runtime_dependency(%q<fast_gettext>, ["~> 0.4.16"])
       s.add_runtime_dependency(%q<syntax>, ["= 1.0.0"])
@@ -2203,7 +2207,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<property>, [">= 1.2.0"])
       s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_dependency(%q<authlogic>, ["= 2.1.3"])
-      s.add_dependency(%q<zafu>, [">= 0.7.4"])
+      s.add_dependency(%q<zafu>, [">= 0.7.5"])
       s.add_dependency(%q<shoulda>, [">= 2.10.2"])
       s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
       s.add_dependency(%q<syntax>, ["= 1.0.0"])
@@ -2226,7 +2230,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<property>, [">= 1.2.0"])
     s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
     s.add_dependency(%q<authlogic>, ["= 2.1.3"])
-    s.add_dependency(%q<zafu>, [">= 0.7.4"])
+    s.add_dependency(%q<zafu>, [">= 0.7.5"])
     s.add_dependency(%q<shoulda>, [">= 2.10.2"])
     s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
     s.add_dependency(%q<syntax>, ["= 1.0.0"])

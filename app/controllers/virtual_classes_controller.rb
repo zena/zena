@@ -5,8 +5,8 @@ class VirtualClassesController < ApplicationController
   layout :admin_layout
 
   def index
-    secure(Role) do
-      @virtual_classes = Role.paginate(:all, :order => 'kpath', :per_page => 20, :page => params[:page])
+    secure(::Role) do
+      @virtual_classes = ::Role.paginate(:all, :order => 'kpath', :per_page => 20, :page => params[:page])
     end
 
     last_kpath = @virtual_classes.last.kpath
@@ -19,8 +19,8 @@ class VirtualClassesController < ApplicationController
     @virtual_classes.sort! do |a, b|
       if a.kpath == b.kpath
         # Order VirtualClass first
-        b_type = b.kind_of?(Role) ? b.class.to_s : 'V' # sort real classes like VirtualClass
-        a_type = a.kind_of?(Role) ? a.class.to_s : 'V'
+        b_type = b.kind_of?(::Role) ? b.class.to_s : 'V' # sort real classes like VirtualClass
+        a_type = a.kind_of?(::Role) ? a.class.to_s : 'V'
 
         b_type <=> a_type
       else
@@ -37,8 +37,8 @@ class VirtualClassesController < ApplicationController
   end
 
   def export
-    data = secure(Role) do
-      Role.export
+    data = secure(::Role) do
+      ::Role.export
     end
 
     ### TODO
@@ -92,7 +92,7 @@ class VirtualClassesController < ApplicationController
   def create
     type = params[:virtual_class].delete(:type)
     if type == 'Role'
-      @virtual_class = Role.new(params[:virtual_class])
+      @virtual_class = ::Role.new(params[:virtual_class])
     else
       @virtual_class = VirtualClass.new(params[:virtual_class])
     end
@@ -138,6 +138,6 @@ class VirtualClassesController < ApplicationController
 
   protected
     def find_virtual_class
-      @virtual_class = secure!(VirtualClass) { Role.find(params[:id])}
+      @virtual_class = secure!(VirtualClass) { ::Role.find(params[:id])}
     end
 end
