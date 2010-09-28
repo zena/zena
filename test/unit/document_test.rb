@@ -102,12 +102,12 @@ class DocumentTest < Zena::Unit::TestCase
         subject do
           secure!(Document) { Document.create(
             :parent_id => nodes_id(:cleanWater),
-            :node_name => 'stupid.jpg',
+            :title     => 'stupid',
             :file      => uploaded_pdf('water.pdf'))
           }
         end
 
-        should 'fix extension but use node_name' do
+        should 'fix extension but use title' do
           err subject
           assert !subject.new_record?
           assert_equal 'pdf', subject.ext

@@ -3,6 +3,8 @@ class VirtualClass < Role
   attr_accessor :import_result
   belongs_to    :create_group, :class_name => 'Group', :foreign_key => 'create_group_id'
   validate      :valid_virtual_class
+  attr_accessible :create_group_id, :auto_create_discussion
+
   include Zena::Use::Relations::ClassMethods
   include Zena::Use::Fulltext::VirtualClassMethods
   include Zena::Use::PropEval::VirtualClassMethods

@@ -45,7 +45,7 @@ class CommentTest < Zena::Unit::TestCase
   def test_author
     login(:anon)
     comment = secure!(Comment) { comments(:lion_says_inside) }
-    assert_equal 'Lion', comment.author.title
+    assert_equal 'Panthera Leo Verneyi', comment.author.title
   end
 
   def test_node
@@ -114,7 +114,7 @@ class CommentTest < Zena::Unit::TestCase
     comment = secure!(Comment) { Comment.create( :title=>'boo', :text=>'blah', :discussion_id => discussions_id(:outside_discussion_on_status_en) ) }
     assert ! comment.new_record?, "Not a new record"
     assert_nil comment[:author_name], "Author name is nil"
-    assert_equal 'Tiger', comment.author_name
+    assert_equal 'Panthera Tigris Sumatran', comment.author_name
   end
 
 

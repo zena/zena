@@ -800,6 +800,25 @@ module Zena
       end
   end
 
+
+  class FoxyRolesParser < FoxyParser
+    private
+      def set_defaults
+        super
+
+        elements.each do |name, col|
+          if prop = col.delete('prop')
+            col[:header_keys] << :properties
+            col['properties'] = make_prop(prop) unless prop.blank?
+          end
+        end
+      end
+
+      def make_prop(prop)
+        Role.encode_properties(Property::Properties[prop])
+      end
+  end
+
   class FoxyNodesRolesParser < FoxyParser
     private
       def set_defaults

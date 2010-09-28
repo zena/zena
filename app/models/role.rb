@@ -7,10 +7,14 @@ class Role < ActiveRecord::Base
 
   before_validation :set_defaults
   validate :check_can_save
+  attr_accessible :name, :superclass, :icon
 
   include RubyLess
   safe_method :columns => {:class => ['Column'], :method => 'columns.values', :nil => false}
   safe_method :name => String
+
+  # We use property to store index information, default values and such
+  include Property
 
   def superclass
     if new_record?

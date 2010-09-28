@@ -244,7 +244,7 @@ class EnrollableTest < Zena::Unit::TestCase
       should 'return a fully loaded class on safe_method_type' do
         type = Node.safe_method_type(subject)
         assert type[:class] < Section
-        assert_equal %w{assigned cached_role_ids comment origin summary text title tz weight}, type[:class].schema.columns.keys.sort
+        assert_equal %w{assigned cached_role_ids origin summary text title tz weight}, type[:class].schema.columns.keys.sort
       end
     end # A safe method returning a sub-class of Node
 

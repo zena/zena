@@ -6,7 +6,8 @@ DEFAULTS:
 Letter:
   kpath:           NNL
   real_class:      Note
-  idx_text_high:   "%Q{#{title} paper:#{paper}}"
+  prop:
+    idx_text_high: "%Q{#{title} paper:#{paper}}"
 
 Post:
   kpath:           NNP
@@ -20,7 +21,8 @@ Reference:
 Contact:
   kpath:           NRC
   real_class:      Node
-  prop_eval:       "{'title' => \"#{name} #{first_name}\"}"
+  prop:
+    prop_eval:     "{'title' => \"#{first_name} #{name}\"}"
 
 Tracker:
   kpath:           NPA

@@ -1,14 +1,9 @@
 TODO
 ====
 
-1. Remove BaseContact & Reference classes
-  1.1. This implies to create a virtual "Contact" class in every new site
-  1.2. migration to make BaseContact virtual
-  1.3. setting in Site: new user class
-  1.4. create new User: show "Contact-+edit" form or all properties
-2. POST ! instead of GET during preview (long articles !!!)
-3. Only keep title/text/summary fields
-4. Change fullpath to zip/zip/zip
-5. Rename virtual_classes_controller to roles_controller
-6. node_name always == title.url_name (no setting of title from node_name)
+0. change url ! to /fr/pasdfj94859
+1. POST ! instead of GET during preview (long articles !!!)
+2. Change fullpath to zip/zip/zip
+3. Rename virtual_classes_controller to roles_controller
+4. kill node_name
 

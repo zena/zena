@@ -353,9 +353,9 @@ class WorkflowTest < Zena::Unit::TestCase
       should 'be able to write new attributes using properties' do
         assert_difference('Version.count', 1) do
           node = secure!(Node) { nodes(:lake) }
-          assert node.update_attributes(:title => 'Mea Lua', :country => 'Brazil')
+          assert node.update_attributes(:first_name => 'Mea Lua', :country => 'Brazil')
           node = secure!(Node) { nodes(:lake) } # reload
-          assert_equal 'Mea Lua', node.title
+          assert_equal 'Mea Lua we love', node.title
           assert_equal 'Brazil', node.prop['country']
         end
       end
@@ -960,16 +960,16 @@ class WorkflowTest < Zena::Unit::TestCase
     visitor.lang = 'en'
     node = secure!(Node) { nodes(:tiger) }
     assert_equal Zena::Status[:pub], node.version.status
-    assert_equal 'Tiger', node.title
+    assert_equal 'Panthera Tigris Sumatran', node.title
     assert_equal 1, node.version.number
     assert_equal users_id(:tiger), node.version.user_id
     assert node.version.created_at < Time.now + 600
     assert node.version.created_at > Time.now - 600
-    assert node.update_attributes(:title => "Puma")
+    assert node.update_attributes(:name => "Puma")
     assert_equal Zena::Status[:pub], node.version.status
     assert_equal 1, node.version.number
     assert_equal versions_id(:tiger_en), node.version.id
-    assert_equal 'Puma', node.title
+    assert_equal 'Panthera Puma', node.title
   end
 
   def test_publish_after_save_in_redit_time_can_publish
@@ -981,16 +981,16 @@ class WorkflowTest < Zena::Unit::TestCase
     visitor.lang = 'en'
     node = secure!(Node) { nodes(:tiger) }
     assert_equal Zena::Status[:pub], node.version.status
-    assert_equal 'Tiger', node.title
+    assert_equal 'Panthera Tigris Sumatran', node.title
     assert_equal 1, node.version.number
     assert_equal users_id(:tiger), node.version.user_id
     assert node.version.created_at < Time.now + 600
     assert node.version.created_at > Time.now - 600
-    assert node.update_attributes(:title => "Puma", :v_status => Zena::Status[:pub])
+    assert node.update_attributes(:name => "Puma", :v_status => Zena::Status[:pub])
     assert_equal Zena::Status[:pub], node.version.status
     assert_equal 1, node.version.number
     assert_equal versions_id(:tiger_en), node.version.id
-    assert_equal 'Puma', node.title
+    assert_equal 'Panthera Puma', node.title
   end
 
 

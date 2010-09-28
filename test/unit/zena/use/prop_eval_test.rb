@@ -53,14 +53,14 @@ class PropEvalTest < Zena::Unit::TestCase
 
         should 'update evaluated prop on save' do
           subject.update_attributes(:first_name => 'Dan', :name => 'Simmons')
-          assert_equal 'Simmons Dan', subject.title
+          assert_equal 'Dan Simmons', subject.title
         end
       end # from a class with evaluated properties
 
       context 'from a class with eval prop used as default' do
         setup do
           vclass = secure(Role) { roles(:Contact) }
-          assert vclass.update_attributes(:prop_eval => %q[{'title' => (title.blank? ? 'Bakukan' : title)}])
+          assert vclass.update_attributes(:prop_eval => %q[{'title' => (title.blank? ? 'Bikura' : title)}])
         end
 
         subject do
@@ -74,7 +74,7 @@ class PropEvalTest < Zena::Unit::TestCase
 
         should 'set default if blank' do
           assert subject.update_attributes(:title => '')
-          assert_equal 'Bakukan', subject.title
+          assert_equal 'Bikura', subject.title
         end
       end # from a class with eval prop used as default
 

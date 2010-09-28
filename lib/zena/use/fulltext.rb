@@ -6,7 +6,15 @@ module Zena
 
       module VirtualClassMethods
         def self.included(base)
-          base.validate :validate_fulltext_indices
+          base.class_eval do
+            validate :validate_fulltext_indices
+            attr_accessible *FULLTEXT_FIELDS
+            property do |p|
+              FULLTEXT_FIELDS.each do |fld|
+                p.string fld
+              end
+            end
+          end
         end
 
         private
@@ -15,7 +23,7 @@ module Zena
             klass = Zena::Acts::Enrollable.make_class(self)
 
             FULLTEXT_FIELDS.each do |idx_group|
-              next unless code = self[idx_group]
+              next unless code = self.prop[idx_group]
 
               begin
                 ruby = RubyLess.translate(klass, code)
@@ -71,18 +79,23 @@ module Zena
               version = self.version
             end
 
-            klass = self.virtual_class || {}
+            if vclass = self.virtual_class
+              vclass_prop = vclass.prop
+            else
+              vclass_prop = {}
+            end
 
             FULLTEXT_FIELDS.each do |idx_group|
-              code = klass[idx_group]
-              if !code.blank?
+              code = vclass_prop[idx_group]
+              if code.blank?
+                # default fulltext index
+                version[idx_group] = prop[DEFAULT_INDEX[idx_group]]
+              else
                 begin
                   version[idx_group] = safe_eval(code)
                 rescue RubyLess::Error => err
                   errors.add('base', "Error while building '#{idx_group}' index: #{err.message}")
                 end
-              else
-                version[idx_group] = prop[DEFAULT_INDEX[idx_group]]
               end
             end
           end

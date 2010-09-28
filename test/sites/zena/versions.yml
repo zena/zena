@@ -28,6 +28,8 @@ ant_en:
   user:            ant
   prop:
     title:         Solenopsis Invicta
+    first_name:    Solenopsis
+    name:          Invicta
     summary:       I am an ant
     text:          Ant works hard
     first_name:    Solenopsis
@@ -53,9 +55,9 @@ tiger_en:
   node:            tiger
   user:            tiger
   prop:
-    title:         Tiger
+    title:         Panthera Tigris Sumatran
     summary:       "\"panthera tigris on wikipedia\":http://en.wikipedia.org/wiki/Image:Panthera_tigris_sumatran_subspecies.jpg"
-    first_name:    Panther
+    first_name:    Panthera
     name:          Tigris Sumatran
     email:         tiger@zenadmin.info
     address:       "Small Island\nIn the Wild"
@@ -70,7 +72,9 @@ lion_en:
   node:            lion
   user:            lion
   prop:
-    title:         Lion
+    title:         Panthera Leo Verneyi
+    first_name:    Panthera
+    name:          Leo Verneyi
     email:         lion@zenadmin.info
     address:       Kalahari Desert
     postal_code:   2036
@@ -203,7 +207,7 @@ lake_en:
   node:            lake
   user:            ant
   prop:
-    title:         Tanganyika
+    title:         Lake Tanganyika
     summary:       "More information on \"wikipedia\":http://en.wikipedia.org/wiki/Lake_Tanganyika."
     text:          "!014!"
     first_name:    Lake
@@ -332,8 +336,8 @@ lake_red_en:
   number:          2
   prop:
     title:         The lake we love
-    first_name:    Lake
-    name:          Tanganyika
+    first_name:    The lake
+    name:          we love
 
 opening_en:
   node:            opening

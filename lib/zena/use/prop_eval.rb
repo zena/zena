@@ -3,7 +3,13 @@ module Zena
     module PropEval
       module VirtualClassMethods
         def self.included(base)
-          base.validate :validate_prop_eval
+          base.class_eval do
+            validate :validate_prop_eval
+            attr_accessible :prop_eval
+            property do |p|
+              p.string 'prop_eval'
+            end
+          end
         end
 
         private
@@ -11,9 +17,9 @@ module Zena
             # Create a temporary class and load roles
             klass = Zena::Acts::Enrollable.make_class(self)
 
-            code = self[:prop_eval]
+            code = self.prop_eval
             if code.blank?
-              self[:prop_eval] = nil
+              self.prop_eval = nil
               return
             end
 
@@ -38,7 +44,7 @@ module Zena
 
         def merge_prop_eval
           return unless self[:vclass_id]
-          if code = vclass[:prop_eval]
+          if code = vclass.prop_eval
             hash = safe_eval(code)
             if hash.kind_of?(Hash)
               # forces a check on valid properties
