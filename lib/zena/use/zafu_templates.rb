@@ -141,7 +141,7 @@ module Zena
         def default_template_url(opts = {})
           if opts[:format] && opts[:format] != 'html'
             raise ActiveRecord::RecordNotFound
-          elsif %w{+login +index +adminLayout +popupLayout}.include?(opts[:mode])
+          elsif %w{+login +index +adminLayout +popupLayout +notFound}.include?(opts[:mode])
             zafu_url ="$default/Node-#{opts[:mode]}"
           elsif opts[:mode]
             raise ActiveRecord::RecordNotFound

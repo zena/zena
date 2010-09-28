@@ -134,6 +134,11 @@ module Zena
 
         # Cache page content into a static file in the current sites directory : SITES_ROOT/test.host/public
         def cache_page(opts={})
+          if cachestamp_format?(params['format'])
+            headers['Expires'] = (Time.now + 365*24*3600).strftime("%a, %d %b %Y %H:%M:%S GMT")
+            headers['Cache-Control'] = (!current_site.authentication? && @node.public?) ? 'public' : 'private'
+          end
+
           return unless perform_caching && caching_allowed(:authenticated => opts.delete(:authenticated))
           url = page_cache_file(opts.delete(:url))
           opts = {:expire_after  => nil,
@@ -142,10 +147,6 @@ module Zena
                   :node_id       => @node[:id]
                   }.merge(opts)
           secure!(CachedPage) { CachedPage.create(opts) }
-          if cachestamp_format?(params['format'])
-            headers['Expires'] = (Time.now + 365*24*3600).strftime("%a, %d %b %Y %H:%M:%S GMT")
-            headers['Cache-Control'] = 'public'
-          end
         end
 
         # Return true if we can cache the current page

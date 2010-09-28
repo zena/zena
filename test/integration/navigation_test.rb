@@ -239,6 +239,14 @@ class NavigationTest < Zena::Integration::TestCase
     get 'http://test.host/en/node1.html'
     assert_response :missing
   end
+  
+  def test_bad_url_without_notFound_template
+    $_test_site = 'zena'
+    Node.connection.execute "UPDATE nodes SET kpath='N' where id = #{nodes_id(:Node_not_found_zafu)}"
+    post 'http://test.host/session', :login=>'tiger', :password=>'tiger'
+    get 'http://test.host/oo/node1.html'
+    assert_response :missing
+  end
 
   def test_bad_zip
     get 'http://test.host/1'
