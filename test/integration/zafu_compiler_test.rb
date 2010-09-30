@@ -1,6 +1,7 @@
 require 'test_helper'
 
 class ZafuCompilerTest < Zena::Controller::TestCase
+  include Zena::Use::Urls::Common
  OK = [
     'action',
     'asset',
@@ -80,28 +81,20 @@ class ZafuCompilerTest < Zena::Controller::TestCase
 
   def yt_do_test(file, test)
     # Disable defined tests without loaded files
-    return unless (@@test_strings[file] || {})[test]
+    return unless test_data = (@@test_strings[file] || {})[test]
 
-    if @@test_strings[file][test].keys.include?('src')
+    if test_data.keys.include?('src')
       # we do not want src built from title
       src = yt_get('src', file, test)
     elsif src = yt_get('eval', file, test)
-      src = @@test_strings[file][test]['src'] = "<r:eval>#{src}</r:eval>"
+      src = test_data['src'] = "<r:eval>#{src}</r:eval>"
     end
 
-    tem = yt_get('tem', file, test)
-    res = yt_get('res', file, test)
-    js  = yt_get('js',  file, test)
-
-    compiled_files = {}
-    @@test_strings[file][test].each do |k,v|
-      next if ['src','tem','res','context','eval','js'].include?(k) || k =~ /^old/
-      compiled_files[k] = v
-    end
     context = yt_get('context', file, test)
     site = sites(context.delete('site') || 'zena')
     $_test_site = site.name
     @request.host = site.host
+
     # set context
     params = {}
     #params[:user_id] = users_id(context.delete('visitor').to_sym)
@@ -111,6 +104,17 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     params['date']    = context['ref_date'] ? context.delete('ref_date').to_s : nil
     params['url'] = "#{file}/#{test.to_s.gsub('_', '/')}"
     params.merge!(context) # merge the rest of the context as query parameters
+    
+    compiled_files = {}
+    test_data.each do |k,v|
+      next if ['src','tem','res','context','eval','js'].include?(k) || k =~ /^old/
+      compiled_files[k] = v
+    end
+
+    tem = yt_get('tem', file, test)
+    res = yt_get('res', file, test)
+    js  = yt_get('js',  file, test)
+
     Zena::TestController.templates = @@test_strings[file]
     if src
       post 'test_compile', params

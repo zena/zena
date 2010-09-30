@@ -151,7 +151,7 @@ module Zena
           return parser_error("cannot be used outside of a list") unless node.list_context?
           return parser_error("missing 'by' clause") unless key = @params[:by]
 
-          #sort_key = @params[:sort] || 'node_name'
+          #sort_key = @params[:sort] || 'title'
           # if node.will_be?(DataEntry) && DataEntry::NodeLinkSymbols.include?(key.to_sym)
           #   key = "#{key}_id"
           #   #sort_block = "{|e| (e.#{key} || {})[#{sort_key.to_sym.inspect}]}"

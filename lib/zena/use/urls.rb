@@ -1,6 +1,8 @@
 module Zena
   module Use
     module Urls
+      ALLOWED_REGEXP = /\A(([a-zA-Z]+)([0-9]+)|([#{String::ALLOWED_CHARS_IN_FILENAME}]+))(_[a-zA-Z]+|)(\..+|)\Z/
+      
       module Common
         CACHESTAMP_FORMATS = ['jpg', 'png', 'gif', 'css', 'js']
         def prefix
@@ -80,13 +82,13 @@ module Zena
             "#{abs_url_prefix}/#{pre}" # index page
           elsif node[:custom_base]
             "#{abs_url_prefix}/#{pre}/" +
-            node.basepath +
+            basepath_as_url(node.basepath) +
             (mode  ? "_#{mode}"  : '') +
             (asset ? ".#{asset}" : '') +
             (format == 'html' ? '' : ".#{format}")
           else
             "#{abs_url_prefix}/#{pre}/" +
-            ((node.basepath != '' && !node.basepath.nil? )? "#{node.basepath}/" : '') +
+            (node.basepath.blank? ? '' : "#{basepath_as_url(node.basepath)}/") +
             (node.klass.downcase   ) +
             (node[:zip].to_s       ) +
             (mode  ? "_#{mode}"  : '') +
@@ -94,6 +96,16 @@ module Zena
             ".#{format}"
           end
           append_query_params(path, opts)
+        end
+        
+        def basepath_as_url(path)
+          path.split('/').map do |zip|
+            if n = secure(Node) { Node.find_by_zip(zip) }
+              n.title.url_name
+            else
+              nil
+            end
+          end.compact.join('/')
         end
 
         def append_query_params(path, opts)
@@ -421,6 +433,7 @@ module Zena
               elsif node.will_be?(Version)
                 'version#{node.id}_#{id}'
               else
+                # ???
                 anchor_name
                 # force compilation with Node context. Why ?
                 #node_bak = @context[:node]
@@ -449,7 +462,7 @@ module Zena
             anchor = @params[:anchor]
             if anchor && !@params[:href]
               # Link on same page
-              return ::RubyLess.translate_string(self, "##{get_anchor_name(anchor)}")
+              return ::RubyLess.translate(self, "%Q{##{get_anchor_name(anchor)}}")
             end
 
             # if opts[:action] == 'edit' && !remote_target

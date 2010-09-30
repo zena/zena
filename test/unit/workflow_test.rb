@@ -4,7 +4,7 @@ require 'test_helper'
 class WorkflowTest < Zena::Unit::TestCase
 
   def defaults
-    { :node_name => 'hello',
+    { :title     => 'hello',
       :parent_id => nodes_id(:zena) }
   end
 
@@ -790,7 +790,7 @@ class WorkflowTest < Zena::Unit::TestCase
 
   def test_can_man_cannot_publish
     login(:ant)
-    node = secure!(Note) { Note.create(:node_name => 'hello', :parent_id=>nodes_id(:cleanWater)) }
+    node = secure!(Note) { Note.create(:title => 'hello', :parent_id=>nodes_id(:cleanWater)) }
     assert !node.new_record?
     assert node.can_drive?, "Can drive"
     assert node.can_drive?, "Can manage"
@@ -815,7 +815,7 @@ class WorkflowTest < Zena::Unit::TestCase
     node = secure!(Node) { nodes(:lion) }
     pub_version = node.version
     assert node.can_unpublish?
-    assert node.update_attributes(:title=>'leopard')
+    assert node.update_attributes(:name => 'Leopard')
     assert_equal Zena::Status[:red], node.version.status
     assert !node.can_unpublish?
   end

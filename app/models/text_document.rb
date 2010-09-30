@@ -43,8 +43,6 @@ class TextDocument < Document
         return text
       end
 
-      base_path = parent.fullpath
-
       res.gsub!(/url\(\s*(.*?)\s*\)/) do
         match, src = $&, $1
         if src =~ /('|")(.*?)\1/
@@ -71,7 +69,7 @@ class TextDocument < Document
         else
           if new_src = helper.send(:template_url_for_asset,
               :src          => src,
-              :base_path    => base_path,
+              :parent       => parent,
               :parse_assets => true )
 
             "url(#{quote}#{new_src}#{quote})"
@@ -129,9 +127,10 @@ class TextDocument < Document
             zip, mode = $1, $2
             if asset = secure(Node) { Node.find_by_zip(zip) }
               if asset.fullpath =~ /\A#{base_path}\/(.+)/
-                "url(#{quote}#{$1}#{mode}.#{asset.prop['ext']}#{quote})"
+                path = fullpath_as_title($1)
+                "url(#{quote}#{path}#{mode}.#{asset.prop['ext']}#{quote})"
               else
-                "url(#{quote}/#{asset.fullpath}#{mode}.#{asset.prop['ext']}#{quote})"
+                "url(#{quote}/#{asset.fullpath_as_title.map(&:to_filename).join('/')}#{mode}.#{asset.prop['ext']}#{quote})"
               end
             else
               errors.add('asset', '{{zip}} not found', :zip => zip)

@@ -112,7 +112,7 @@ module Zena
           else
             store @helper._('[documents]')
           end
-        elsif @text =~ /\A\!([^0-9]{0,2})(#{PSEUDO_ID_REGEXP})(_([^\/\!]+)|)(\/([^\!]*)|)\!(:([^\s]+)|)/m
+        elsif @text =~ /\A\!([^0-9:]{0,2})(#{PSEUDO_ID_REGEXP})(_([^\/\!]+)|)(\/([^\!]*)|)\!(:([^:\(][^\s]+|#{PSEUDO_ID_REGEXP}(_[a-zA-Z]+|))|)/m
           # image !<.:art++_pv/blah blah!:12
           #puts "SHORCUT IMAGE:#{$~.to_a.inspect}"
           eat $&
@@ -136,7 +136,7 @@ module Zena
               if node.kind_of?(Document)
                 store @helper.make_image(:style=>style, :id=>node[:zip].to_s, :node=>node, :mode=>mode, :title=>title, :link=>link, :images=>@context[:images])
               else
-                store "[#{node.fullpath} is not a document]"
+                store "[#{node.fullpath_as_title.join('/')} is not a document]"
               end
             end
           elsif @translate_ids
@@ -144,7 +144,7 @@ module Zena
           else
             store "[#{id} not found]"
           end
-        elsif @text =~ /\A\!([^0-9]{0,2})([0-9]+)(_([^\/\!]+)|)(\/([^\!]*)|)\!(:([^\s]+)|)/m
+        elsif @text =~ /\A\!([^0-9]{0,2})([0-9]+)(_([^\/\!]+)|)(\/([^\!]*)|)\!(:([^:\(][^\s]+|#{PSEUDO_ID_REGEXP}(_[a-zA-Z]+|))|)/m
           # image !<.12_pv/blah blah!:12
           #puts "IMAGE:[#{$&}]"
           eat $&
@@ -204,9 +204,9 @@ module Zena
             else
               id = "#{node.zip}#{mode_format}"
               if format == '.data'
-                title = "#{node.fullpath}#{mode}.#{node.ext}#{dash}"
+                title = "#{node.fullpath_as_title.join('/')}#{mode}.#{node.ext}#{dash}"
               else
-                title = "#{node.fullpath}#{mode_format}"
+                title = "#{node.fullpath_as_title.join('/')}#{mode_format}"
               end
               if id =~ /(.*?)#(.*)/
                 id, anchor = $1, $2

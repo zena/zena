@@ -38,6 +38,8 @@ class QueryNodeTest < Zena::Unit::TestCase
     login @context[:visitor].to_sym
 
     @context[:rubyless_helper] = self
+    defaults = (@context[:default] ||= {})
+    defaults[:order] ||= 'zip asc'
 
     if klass = @context.delete(:class)
       klass = Node.get_class(klass)
@@ -72,11 +74,7 @@ class QueryNodeTest < Zena::Unit::TestCase
 
           res = node_class.do_find(:all, sql)
 
-          if node_class == Comment
-            res = res ? res.map {|r| r[:title]}.join(', ') : ''
-          else
-            res = res ? res.map {|r| r[:node_name]}.join(', ') : ''
-          end
+          res = res ? res.map(&:title).join(', ') : ''
 
           yt_assert test_res, class_prefix + res
         else
@@ -145,7 +143,7 @@ class QueryNodeTest < Zena::Unit::TestCase
     login(:ant)
     page = secure!(Node) { nodes(:cleanWater) }
 
-    sql = Node.build_query(:all, 'nodes where node_name like "a%" in site').to_s(:count)
+    sql = Node.build_query(:all, 'nodes where title like "a%" in site').to_s(:count)
     assert_equal 3, Node.do_find(:count, eval(sql))
   end
 

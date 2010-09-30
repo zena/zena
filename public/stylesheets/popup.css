@@ -121,7 +121,7 @@ ul.infos li { padding:0.4em 0.4em; list-style:none; display:block; }
 .drive ul { list-style:none; padding:5px;}
 .drive li p { font-weight:normal;}
 .drive li select { width: 100%;}
-.drive li #node_name  { width: 95%;}
+.drive li #title  { width: 95%;}
 .drive li.submit { text-align:right; padding-top:1em;}
 .select_id span { margin-left:0.2em;}
 

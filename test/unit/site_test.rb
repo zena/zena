@@ -256,19 +256,19 @@ class SiteTest < Zena::Unit::TestCase
     opening = secure(Node) { nodes(:opening) }
     cleanWater = secure(Node) { nodes(:cleanWater) }
     art = secure(Node) { nodes(:art) }
-    assert_equal 'projects/cleanWater/status', status.fullpath
-    assert_equal 'projects/cleanWater', status.basepath
+    assert_equal fullpath(:projects, :cleanWater, :status), status.fullpath
+    assert_equal fullpath(:projects, :cleanWater), status.basepath
     assert_equal false, status.custom_base
 
-    assert_equal 'projects/cleanWater/opening', opening.fullpath
-    assert_equal 'projects/cleanWater', opening.basepath
+    assert_equal fullpath(:projects, :cleanWater, :opening), opening.fullpath
+    assert_equal fullpath(:projects, :cleanWater), opening.basepath
     assert_equal false, opening.custom_base
 
-    assert_equal 'projects/cleanWater', cleanWater.fullpath
-    assert_equal 'projects/cleanWater', cleanWater.basepath
+    assert_equal fullpath(:projects, :cleanWater), cleanWater.fullpath
+    assert_equal fullpath(:projects, :cleanWater), cleanWater.basepath
     assert_equal true, cleanWater.custom_base
 
-    assert_equal 'collections/art', art.fullpath
+    assert_equal fullpath(:collections, :art), art.fullpath
     assert_equal '', art.basepath
     assert_equal false, art.custom_base
   end
@@ -284,10 +284,10 @@ class SiteTest < Zena::Unit::TestCase
 
     should 'not alter fullpath' do
       node = secure!(Node) { nodes(:status) }
-      assert_equal 'projects/cleanWater/status', node.fullpath
+      assert_equal fullpath(:projects, :cleanWater, :status), node.fullpath
       subject.clear_cache
       node = secure!(Node) { nodes(:status) }
-      assert_equal 'projects/cleanWater/status', node.fullpath
+      assert_equal fullpath(:projects, :cleanWater, :status), node.fullpath
     end
   end
 
@@ -308,7 +308,12 @@ class SiteTest < Zena::Unit::TestCase
     end
 
     should 'rebuild visible entries for all objects' do
-      assert_difference('IdxNodesMlString.count', subject.lang_list.count * Node.count(:conditions => {:site_id => subject.id})) do
+      assert_difference('IdxNodesMlString.count', 
+        # title index on all nodes
+        subject.lang_list.count * Node.count(:conditions => {:site_id => subject.id}) + 
+        # search index on Letter nodes
+        subject.lang_list.count * Node.count(:conditions => ['site_id = ? AND kpath like ?', subject.id, 'NNL%'])
+        ) do
         subject.rebuild_index
       end
     end
@@ -323,4 +328,10 @@ class SiteTest < Zena::Unit::TestCase
         'en'=>'status title'], ml_indices
     end
   end
+  
+  
+  private
+    def fullpath(*args)
+      args.map {|sym| nodes_zip(sym).to_s}.join('/')
+    end
 end

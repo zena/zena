@@ -84,6 +84,21 @@ class RelationProxyTest < Zena::Unit::TestCase
     assert_equal [nodes_zip(:art)], node.set_tag_zips
   end
 
+  context 'On a new node' do
+    subject do
+      secure(Node) { Node.new_instance(:class => 'Contact')}
+    end
+
+    should 'not fail to find node proxy' do
+      assert_kind_of RelationProxy, subject.rel['icon']
+    end
+
+    should 'resolve zip values without query' do
+      assert_nil subject.rel['icon'].other_zip
+    end
+  end # On a new node
+
+
   def test_relation_proxy
     node = secure!(Node) { nodes(:status) }
     assert node.relation_proxy('hot_for')
@@ -117,7 +132,7 @@ class RelationProxyTest < Zena::Unit::TestCase
   def test_relations_for_form
     login(:tiger)
     {
-      Note    => ["blog", "calendar", "favorite_for", "home_for", "hot_for", "icon", "reference", "reference_for", "set_tag"],
+      Note    => ["calendar", "favorite_for", "home_for", "hot_for", "icon", "reference", "reference_for", "set_tag"],
       Image   => ["favorite_for", "home_for", "hot_for", "icon", "icon_for", "reference", "reference_for", "set_tag"],
       Project => ["added_note", "collaborator", "favorite_for", "home", "home_for", "hot", "hot_for", "icon", "news", "reference", "reference_for", "set_tag"],
     }.each do |klass, roles|

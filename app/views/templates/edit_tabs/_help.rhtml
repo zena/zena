@@ -1,6 +1,6 @@
 <%=
 begin
-  node = secure!(Node) { Node.find_by_node_name('help') }
+  node = secure!(Node) { Node.find_by_title('help') }
   zazen(node.summary)
 rescue
   _('help not found')

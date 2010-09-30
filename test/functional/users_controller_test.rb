@@ -28,8 +28,10 @@ class UsersControllerTest < Zena::Controller::TestCase
     context "with an invalid layout" do
       setup do
         login(:lion)
-        Version.connection.execute "UPDATE #{Version.table_name} SET properties = '{\"data\":{\"text\":\"empty\"},\"json_class\":\"Property::Properties\"}' WHERE id = #{versions_id(:Node_admin_layout_zafu_en)}"
+        # Make a bad admin layout
+        Version.connection.execute "UPDATE #{Version.table_name} SET properties = '{\"data\":{\"title\":\"foo\",\"text\":\"empty\"},\"json_class\":\"Property::Properties\"}' WHERE id = #{versions_id(:Node_admin_layout_zafu_en)}"
         without_files('test.host/zafu') do
+            get 'index'
           get 'index'
         end
       end

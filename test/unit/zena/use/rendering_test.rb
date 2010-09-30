@@ -18,7 +18,7 @@ class RenderingTest < Zena::View::TestCase
       end
 
       should 'return a relative path on admin_layout' do
-        assert_equal "/test.host/zafu/default/Node-+adminLayout/en/_main.erb", controller.admin_layout
+        assert_equal "/test.host/zafu/Default skin/Node-%2BadminLayout/en/_main.erb", controller.admin_layout
       end
     end # Rendering
 

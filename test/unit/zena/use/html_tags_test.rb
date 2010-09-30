@@ -218,7 +218,7 @@ class HtmlTagsTest < Zena::View::TestCase
 
   def test_alt_with_apos
     doc = secure!(Node) { nodes(:lake_jpg) }
-    assert_equal "<img src='/en/projects/cleanWater/image24.jpg?1144713600' width='600' height='440' alt='it&apos;s a lake' class='full'/>", img_tag(doc)
+    assert_equal "<img src='/en/projects-list/Clean-Water-project/image24.jpg?1144713600' width='600' height='440' alt='it&apos;s a lake' class='full'/>", img_tag(doc)
   end
 
   def test_select_id

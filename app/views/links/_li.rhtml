@@ -1,6 +1,6 @@
 <tr id='link<%= li.link_id %>'>
   <td class="box"><%= link_to_remote( relation.other_icon.blank? ? _('img_link') : relation.other_icon, :update=>"link#{li.link_id}", :url => edit_node_link_path(:node_id => @node[:zip], :id => li.link_id), :method=>:get) %></td>
-  <td class="path" ><%= link_to( li.rootpath, zen_path(li), :popup=>true ) %></td>
+  <td class="path" ><%= link_to( li.short_path, zen_path(li), :popup=>true ) %></td>
   <td class="status" ><%= li.l_status %></td>
   <td class="comment" ><%= li.l_comment %></td>
   <td class="actions"> <%= link_to_remote(_('btn_tiny_del'), :url => node_link_path(:node_id => @node[:zip],:id => li.link_id), :method => :delete) %> </td>

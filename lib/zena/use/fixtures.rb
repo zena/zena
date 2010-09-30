@@ -122,21 +122,24 @@ module Zena
               end
             end
 
-            define_method(table_name + "_id") do |fixture|
+            define_method(table_name + "_id") do |*fixtures|
               raise Exception.new("$_test_site is blank!") if $_test_site.blank?
-              Zena::FoxyParser::id($_test_site, fixture)
+              res = fixtures.map {|f| Zena::FoxyParser::id($_test_site, f) }
+              fixtures.size > 1 ? res : res.first
             end
           end
 
           if table_name == 'nodes' || table_name == 'zips'
-            define_method(table_name + "_zip") do |fixture|
-              # needed by additions_test
-              fixture_name = table_name == 'zips' ? fixture.to_s : "#{$_test_site}_#{fixture}"
-              if fix = @@loaded_fixtures[table_name][fixture_name]
-                fix.instance_eval { @fixture['zip'].to_i }
-              else
-                raise StandardError, "No fixture with name '#{fixture_name}' found for table '#{table_name}'"
+            define_method(table_name + "_zip") do |*fixtures|
+              res = fixtures.map do |fixture|
+                fixture_name = table_name == 'zips' ? fixture.to_s : "#{$_test_site}_#{fixture}"
+                if fix = @@loaded_fixtures[table_name][fixture_name]
+                  fix.instance_eval { @fixture['zip'].to_i }
+                else
+                  raise StandardError, "No fixture with name '#{fixture_name}' found for table '#{table_name}'"
+                end
               end
+              fixtures.size > 1 ? res : res.first
             end
           end
 

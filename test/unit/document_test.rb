@@ -47,15 +47,11 @@ class DocumentTest < Zena::Unit::TestCase
         assert_equal 'pdf', subject.ext
       end
 
-      should 'set node_name from original_filename' do
-        assert_equal 'life', subject.node_name
-      end
-
       should 'set title from original_filename' do
-        assert_equal 'life', subject.node_name
+        assert_equal 'life', subject.title
       end
 
-      context 'with same node_name' do
+      context 'with same title' do
         subject do
           secure!(Document) { Document.create(
             :parent_id => nodes_id(:cleanWater),
@@ -63,11 +59,10 @@ class DocumentTest < Zena::Unit::TestCase
           }
         end
 
-        should 'save node_name and title with increment' do
-          assert_equal 'water-1', subject.node_name
+        should 'save title with increment' do
           assert_equal 'water-1', subject.title
         end
-      end # with same node_name
+      end # with same title
 
       context 'without a file' do
         subject do
@@ -98,11 +93,11 @@ class DocumentTest < Zena::Unit::TestCase
         end
       end # with content_type
 
-      context 'with a wrong extension in node_name' do
+      context 'with a wrong extension in title' do
         subject do
           secure!(Document) { Document.create(
             :parent_id => nodes_id(:cleanWater),
-            :title     => 'stupid',
+            :title     => 'stupid.jpg',
             :file      => uploaded_pdf('water.pdf'))
           }
         end
@@ -111,11 +106,10 @@ class DocumentTest < Zena::Unit::TestCase
           err subject
           assert !subject.new_record?
           assert_equal 'pdf', subject.ext
-          assert_equal 'stupid', subject.node_name
-          assert_equal 'stupid', subject.title
-          assert_equal 'stupid.pdf', subject.filename
+          assert_equal 'stupid.jpg', subject.title
+          assert_equal 'stupid.jpg.pdf', subject.filename
         end
-      end # with wrong extension in node_name
+      end # with wrong extension in title
 
       context 'with title ending with dots' do
         subject do
@@ -128,10 +122,6 @@ class DocumentTest < Zena::Unit::TestCase
 
         should 'keep dots in title' do
           assert_equal 'report...', subject.title
-        end
-
-        should 'keep dots in node_name' do
-          assert_equal 'report...', subject.node_name
         end
 
         should 'append extension afert dots' do
@@ -222,13 +212,12 @@ class DocumentTest < Zena::Unit::TestCase
         end
       end # with a wrong file type
 
-      context 'with existing node_name' do
-        should 'save node_name and title with increment' do
+      context 'with existing title' do
+        should 'save title with increment' do
           assert subject.update_attributes(:title => 'flower', :v_status => Zena::Status[:pub])
-          assert_equal 'flower-1', subject.node_name
           assert_equal 'flower-1', subject.title
         end
-      end # with existing node_name
+      end # with existing title
 
       context 'with a new file' do
         # All tests relying on commit (filename, size, attachment) have been
@@ -270,11 +259,6 @@ class DocumentTest < Zena::Unit::TestCase
           assert_match /bird\.jpg$/, subject.filepath
         end
 
-        should 'change document node_name on publish' do
-          subject.update_attributes(:title => 'hopla', :v_status => Zena::Status[:pub])
-          assert_equal 'hopla', subject.node_name
-        end
-
         should 'not alter content_type' do
           subject.update_attributes(:title => 'New title')
           assert_equal 'image/jpeg', subject.content_type
@@ -299,10 +283,6 @@ class DocumentTest < Zena::Unit::TestCase
         assert subject.valid?
       end
 
-      should 'get node_name' do
-        assert_equal 'water', subject.node_name
-      end
-
       should 'get title' do
         assert_equal 'water', subject.title
       end
@@ -311,16 +291,8 @@ class DocumentTest < Zena::Unit::TestCase
         assert_equal 'water.pdf', subject.filename
       end
 
-      should 'get fullpath' do
-        assert_equal 'projects/cleanWater/water', subject.fullpath
-      end
-
       should 'get filepath' do
          assert_match /water.pdf$/, subject.filepath
-      end
-
-      should 'get rootpath' do
-          assert_equal 'zena/projects/cleanWater/water.pdf', subject.rootpath
       end
 
       should 'get the file size' do
@@ -359,7 +331,7 @@ class DocumentTest < Zena::Unit::TestCase
     end
 
     should 'find document by path' do
-      subject = secure!(Document) { Document.find_by_path("projects/cleanWater/water") }
+      subject = secure(Document) { Document.find_by_path("projects list/Clean Water project/water") }
       assert_kind_of Document, subject
       assert_equal nodes_id(:water_pdf), subject.id
     end

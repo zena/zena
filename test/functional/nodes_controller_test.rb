@@ -445,7 +445,7 @@ class NodesControllerTest < Zena::Controller::TestCase
       with_caching do
         assert !File.exist?("#{SITES_ROOT}/test.host/public/fr/#{name}")
         login(:lion)
-        doc = secure!(Template) { Template.create('node_name'=>'Node', 'format'=>'xml', 'text' => '<?xml version="1.0" encoding="utf-8"?><node><title do="title"/></node>', 'parent_id'=>nodes_id(:default))}
+        doc = secure!(Template) { Template.create('title'=>'Node', 'format'=>'xml', 'text' => '<?xml version="1.0" encoding="utf-8"?><node><title do="title"/></node>', 'parent_id'=>nodes_id(:default))}
         assert !doc.new_record?, "Not a new record"
         assert doc.publish
         login(:anon)
@@ -474,7 +474,7 @@ class NodesControllerTest < Zena::Controller::TestCase
   def test_ics_format_not_anon
     preserving_files('test.host/zafu') do
       login(:lion)
-      doc = secure!(Template) { Template.create("node_name"=>"Project", "format"=>"ics", "summary"=>"", 'text' => "<r:notes in='site' order='event_at asc'>
+      doc = secure!(Template) { Template.create("title"=>"Project", "format"=>"ics", "summary"=>"", 'text' => "<r:notes in='site' order='event_at asc'>
 BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//hacksw/handcal//NONSGML v1.0//EN
@@ -526,7 +526,7 @@ END:VCALENDAR
   def test_create_nodes_from_folder
     login(:tiger)
     preserving_files('/test.host/data') do
-      parent = secure!(Project) { Project.create(:node_name => 'import', :parent_id => nodes_id(:zena)) }
+      parent = secure!(Project) { Project.create(:title => 'import', :parent_id => nodes_id(:zena)) }
       assert !parent.new_record?, "Not a new record"
 
       nodes = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(Zena::ROOT, 'test', 'fixtures', 'import'), :parent_id => parent[:id] )}.values
@@ -537,14 +537,14 @@ END:VCALENDAR
       assert_equal 4, nodes.size
       bird, doc   = nil, nil
       nodes.each do |n|
-        bird = n if n.node_name == 'bird'
-        doc  = n if n.node_name == 'document'
+        bird = n if n.title == 'bird'
+        doc  = n if n.title == 'document'
       end
-      simple = secure!(Node) { Node.find_by_node_name_and_parent_id('simple', parent[:id]) }
-      photos = secure!(Node) { Node.find_by_node_name_and_parent_id('photos', parent[:id]) }
+      simple = secure!(Node) { Node.find_by_parent_title_and_kpath(parent.id, 'simple') }
+      photos = secure!(Node) { Node.find_by_parent_title_and_kpath(parent.id, 'Photos !') }
 
-      assert_equal 'bird', bird.node_name
-      assert_equal 'simple', simple.node_name
+      assert_equal 'bird', bird.title
+      assert_equal 'simple', simple.title
       assert_equal 'jpg', bird.ext
       assert_equal 'Le septième ciel', bird.text
       versions = secure!(Node) { Node.find(bird[:id]) }.versions
@@ -607,7 +607,7 @@ END:VCALENDAR
     get 'edit', :id => nodes_zip(:zena)
     assert_response :success
     assert_template 'nodes/edit'
-    assert_match %r{/default/Node-\+popupLayout/en/_main$}, @response.layout
+    assert_match %r{/Default skin/Node-%2BpopupLayout/en/_main$}, @response.layout
   end
 
   def test_crop_image
@@ -666,7 +666,7 @@ END:VCALENDAR
 
   def test_search_klass
     login(:anon)
-    get 'search', 'class' => 'Project', 'title' => 'a wiki with zena'
+    get 'search', 'class' => 'Project', 'title' => 'a wiki with Zena'
     assert nodes = assigns(:nodes)
     assert_equal [nodes_id(:wiki)], nodes.map {|r| r.id}
   end

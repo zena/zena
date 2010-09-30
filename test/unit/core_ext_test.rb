@@ -1,10 +1,5 @@
-require 'rubygems'
-require 'tzinfo'
-require 'test/unit'
-require 'fileutils'
-require File.join(File.dirname(__FILE__), '../../lib/zena/core_ext/string')
-require File.join(File.dirname(__FILE__), '../../lib/zena/core_ext/fixnum')
-require File.join(File.dirname(__FILE__), '../../lib/zena/core_ext/dir')
+# encoding: utf-8
+require 'test_helper'
 
 class StringExtTest < Test::Unit::TestCase
   def test_abs_rel_path
@@ -33,6 +28,21 @@ class StringExtTest < Test::Unit::TestCase
 
     assert_equal "/a/b/c", ''.abs_path('/a/b/c')
   end
+    
+  context 'A string with accents' do
+    subject do
+      "aïl en août"
+    end
+
+    should 'remove accents on to_filename' do
+      assert_equal 'a%C3%AFl en ao%C3%BBt', subject.to_filename
+    end
+    
+    should 'recover original name on from_filename' do
+      assert_equal subject, String.from_filename(subject.to_filename)
+    end
+  end # A string with accents
+  
 end
 
 class DirExtTest < Test::Unit::TestCase

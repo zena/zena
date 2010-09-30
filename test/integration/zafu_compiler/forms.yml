@@ -9,7 +9,7 @@ default:
 
 add_btn:
   src: "<table do='pages' in='site' limit='1'>
-  <tr do='each'><td do='node_name'/></tr>
+  <tr do='each'><td do='title'/></tr>
   <tr do='add'><td><b><r:add_btn/></b></td></tr>
   </table>"
   res: "/<tr class='btn_add' id='list1_add'><td><b><a href='#' onclick/"
@@ -48,10 +48,10 @@ select_class_new_node:
 
 select_nodes:
   src: "<r:form><select nodes='images in site' name='foo'></select></r:form>"
-  res: "/name='node\[foo\]'><option value=\"\" selected=\"selected\"></option>\n<option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
+  res: "/name='node\[foo\]'><option value=\"\" selected=\"selected\"></option>\n<option value=\"40\">Autumn Tree</option>\n<option value=\"30\">bird</option>/"
 
 do_not_set_parent_id_if_form_contains_parent_id:
-  src: "<r:children><r:each do='node_name'/><r:add/><r:form><r:select name='parent_id' nodes='projects in site'/><input name='title'/></r:form></r:children>"
+  src: "<r:children><r:each do='title'/><r:add/><r:form><r:select name='parent_id' nodes='projects in site'/><input name='title'/></r:form></r:children>"
   res: "!/node\[parent_id\].\s+value/"
 
 select_nodes_selected:
@@ -59,8 +59,8 @@ select_nodes_selected:
   res: "/option\s* value=.21.\s* selected=.selected.>Clean Water/"
 
 select_nodes_in_ajax:
-  src: "<r:pages><r:each do='node_name'/><r:add/><r:form><r:select nodes='images in site' name='d_ref'/></r:form></r:pages>"
-  res: "/name=.node\[d_ref\].><option value=\"\" selected=\"selected\"></option>\n<option value=\"30\">bird</option>\n<option value=\"31\">flower</option>/"
+  src: "<r:pages><r:each do='title'/><r:add/><r:form><r:select nodes='images in site' name='d_ref'/></r:form></r:pages>"
+  res: "/name=.node\[d_ref\].><option value=\"\" selected=\"selected\"></option>\n<option value=\"40\">Autumn Tree</option>\n<option value=\"30\">bird</option>/"
 
 select_nodes_show_attr:
   src: "<r:form><r:select name='title' nodes='images in site' attr='ext' show='title'/></r:form>"
@@ -89,7 +89,7 @@ checkbox_finder:
   context:
     node: 'opening'
   src: "<r:checkbox role='calendar' nodes='projects in site'/>"
-  res: "/value=.21.*Clean Water.*input type=.checkbox. name=.node\[calendar_ids\]\[\]. value=.29. checked=.checked.*wiki/"
+  res: "/input type=.checkbox. name=.node\[calendar_ids\]\[\]. value=.29. checked=.checked.*wiki.*value=.21.*Clean Water/"
 
 checkbox_checked_value:
   src: "<r:input type='checkbox' name='tagged[sky]'/>"
@@ -140,3 +140,13 @@ show_in_form:
   src: "<r:form><b do='title'/></r:form>"
   tem: "/<b><%= @node.prop\['title'\] %></b>/"
   res: '/<b>status title</b>/'
+
+set_parent_id:
+  src: "<r:form></r:form>"
+  tem: "/node\[parent_id\].*@node.parent_zip/"
+  res: "/<input type='hidden' name='node\[parent_id\]' value='21'/>/"
+  
+set_parent_id_in_new:
+  src: "<r:new klass='Page' do='form'></r:new>"
+  tem: "/node\[parent_id\].*@node.zip/"
+  res: "/<input type='hidden' name='node\[parent_id\]' value='22'/>/"

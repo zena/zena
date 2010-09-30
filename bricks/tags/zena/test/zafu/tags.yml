@@ -16,16 +16,16 @@ listing_no_tags:
 
 listing_with_link:
   src: "<r:tags do='each' join=',' do='link' href='main' cat='#{name}'/>"
-  res: "<a href='/en/projects/cleanWater/page22.html?cat=blue'>blue</a>,<a href='/en/projects/cleanWater/page22.html?cat=sky'>sky</a>"
+  res: "<a href='/en/projects-list/Clean-Water-project/page22.html?cat=blue'>blue</a>,<a href='/en/projects-list/Clean-Water-project/page22.html?cat=sky'>sky</a>"
 
 tagged_query:
   context:
     cat: 'blue'
-  src: "<r:context select='nodes where tag = #{params[:cat]} in site' do='each' join=', ' do='node_name'/>"
-  res: "bird, status"
+  src: "<r:context select='nodes where tag = #{params[:cat]} in site' do='each' join=', ' do='title'/>"
+  res: "bird, status title"
 
 images_tagged_blue:
-  src: "<r:images where='tag=\"blue\"' in='site' do='each' join=', ' do='node_name'/>"
+  src: "<r:images where='tag=\"blue\"' in='site' do='each' join=', ' do='title'/>"
   res: "bird"
 
 tagged_keys_rubyless:

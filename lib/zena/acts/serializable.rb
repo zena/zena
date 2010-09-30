@@ -75,7 +75,7 @@ module Zena
         end
       end
 
-      module NodeMethods
+      module ModelMethods
         def to_xml(options = {}, &block)
           options = default_serialization_options.merge(options)
           serializer = XmlNodeSerializer.new(self, options)
@@ -83,7 +83,7 @@ module Zena
         end
 
         def default_serialization_options
-          { :only       => %w{node_name created_at updated_at log_at event_at kpath ref_lang fullpath position},
+          { :only       => %w{created_at updated_at log_at event_at kpath ref_lang fullpath position},
             :methods    => %w{v_status klass},
             :properties => export_properties,
             :ids        => export_ids,

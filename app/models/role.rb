@@ -1,6 +1,9 @@
 require 'property/stored_role'
 
 class Role < ActiveRecord::Base
+  # Only store partial class name in 'type' field (not ::Role)
+  self.store_full_sti_class = false
+
   include Property::StoredRole
   has_many :stored_columns, :class_name => 'Column', :dependent => :destroy
   has_and_belongs_to_many :nodes

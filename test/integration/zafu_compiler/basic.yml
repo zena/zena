@@ -50,50 +50,50 @@ each_traductions_only_list:
 each_alternate_class:
   context:
     node: 'cleanWater'
-  src: "<ol do='pages'><li do='each' alt_class='blue' do='node_name'/></ol>"
-  res: "<ol><li class=''>crocodiles</li><li class='blue'>status</li><li class=''>track</li></ol>"
+  src: "<ol do='pages'><li do='each' alt_class='blue' do='title'/></ol>"
+  res: "<ol><li class=''>crocodiles</li><li class='blue'>status title</li><li class=''>Keeping things clean !</li></ol>"
 
 each_alternate_class_reverse:
   context:
     node: 'cleanWater'
-  src: "<ol do='pages' limit='2'><li do='each' alt_class='blue' alt_reverse='true' do='node_name'/></ol>"
-  res: "<ol><li class='blue'>crocodiles</li><li class=''>status</li></ol>"
+  src: "<ol do='pages' limit='2'><li do='each' alt_class='blue' alt_reverse='true' do='title'/></ol>"
+  res: "<ol><li class='blue'>crocodiles</li><li class=''>status title</li></ol>"
 
 each_alternate_class_two:
   context:
     node: 'collections'
-  src: "<ol do='pages'><li class='post' do='each' alt_class='stripe' do='node_name'/></ol>"
+  src: "<ol do='pages'><li class='post' do='each' alt_class='stripe' do='title'/></ol>"
   res: "<ol><li class='post '>art</li><li class='post stripe'>menu</li><li class='post '>news</li><li class='post stripe'>wikiSkin</li></ol>"
 
 each_alternate_class_ajax:
   context:
     node: 'cleanWater'
-  src: "<ol do='pages' limit='2'><li do='each' alt_class='blue' do='node_name'/><li do='add'/></ol>"
+  src: "<ol do='pages' limit='2'><li do='each' alt_class='blue' do='title'/><li do='add'/></ol>"
   res: "/<li>crocodiles<\/li><li class=\"blue\">status/"
 
 each_else:
   context:
     node: 'opening'
-  src: "<div do='pages'>has pages (<r:each join=', ' do='node_name'/>)<r:else>no pages</r:else></div>"
-  tem: "/<% if var1.* -%><div>has pages \(<% var1.each_with_index .* -%><%= var2.node_name %><% end -%>\)</div><% elsif true -%><div>no pages</div><% end -%>/"
+  src: "<div do='pages'>has pages (<r:each join=', ' do='title'/>)<r:else>no pages</r:else></div>"
+  tem: "/<% if var1.* -%><div>has pages \(<% var1.each_with_index .* -%><%= var2.prop\['title'\] %><% end -%>\)</div><% elsif true -%><div>no pages</div><% end -%>/"
   res: "<div>no pages</div>"
 
 
 simple_each:
-  src: "<r:children><r:each><r:show attr='node_name'/></r:each></r:children>"
-  tem: "/.*if var1.*each.*var2.node_name/"
+  src: "<r:children><r:each><r:show attr='title'/></r:each></r:children>"
+  tem: "/.*if var1.*each.*var2.prop\['title'\]/"
   res: ""
 
 each_join:
   context:
     node: 'wiki'
-  src: "<r:children><r:each join=', '><r:show attr='node_name'/></r:each></r:children>"
+  src: "<r:children><r:each join=', '><r:show attr='title'/></r:each></r:children>"
   res: "bird, flower"
 
 each_join_if:
   context:
     node: 'status'
-  src: "<r:pages in='site' order='name'><r:each join=', ' join_if='prev.id ne main.id and id ne main.id'><r:show attr='node_name'/></r:each></r:pages>"
+  src: "<r:pages in='site' order='name'><r:each join=', ' join_if='prev.id ne main.id and id ne main.id'><r:show attr='title'/></r:each></r:pages>"
   res: "/projects, skinsstatustalk, track/"
 
 set_attribute:
@@ -114,27 +114,27 @@ set_node_param_main_other_class:
   res: "<p class='class_22'></p>"
 
 set_attribute_with_inner:
-  src: "<p set_id='node[id]' do='show' attr='node_name' set_class='s[v_status]'>some blah blah</p>"
-  res: "<p class='s50' id='node22'>status</p>"
+  src: "<p set_id='node[id]' do='show' attr='title' set_class='s[v_status]'>some blah blah</p>"
+  res: "<p class='s50' id='node22'>status title</p>"
 
 set_in_ztag:
-  src: "<r:show attr='node_name' set_id='node[id]'/>"
-  res: "<div id='node22'>status</div>"
+  src: "<r:show attr='title' set_id='node[id]'/>"
+  res: "<div id='node22'>status title</div>"
 
 set_attribute_stored_node:
-  src: "<r:void store='foo'><r:parent><p do='node_name' set_id='test_[foo.id]'>hey</p></r:parent></r:void>"
-  res: "<p id='test_22'>cleanWater</p>"
+  src: "<r:void store='foo'><r:parent><p do='title' set_id='test_[foo.id]'>hey</p></r:parent></r:void>"
+  res: "<p id='test_22'>Clean Water project</p>"
 
 set_attribute_main_node:
-  src: "<r:parent><p id='test_#{main.node_name}' do='node_name'>hey</p></r:parent>"
-  res: "<p id='test_status'>cleanWater</p>"
+  src: "<r:parent><p id='test_#{main.zip}' do='title'>hey</p></r:parent>"
+  res: "<p id='test_22'>Clean Water project</p>"
 
 set_attribute_in_list:
   context:
     node: 'projects'
-  src: "<div do='pages'><p id='#{node_name}'>...</p></div>"
+  src: "<div do='pages'><p id='#{id}'>...</p></div>"
   tem: /var1.first/
-  res: "<div><p id='cleanWater'>...</p></div>"
+  res: "<div><p id='21'>...</p></div>"
 
 set_attribute_with_namespace:
   src: "<entry do='void' set_xml:base='[name]'>..</entry>"
@@ -143,13 +143,13 @@ set_attribute_with_namespace:
 each_join_html:
   context:
     node: 'wiki'
-  src: "<r:children><r:each join='&lt;br/&gt;'><r:show attr='node_name'/></r:each></r:children>"
+  src: "<r:children><r:each join='&lt;br/&gt;'><r:show attr='title'/></r:each></r:children>"
   res: "bird<br/>flower"
 
 each_join_nasty_erb:
   context:
     node: 'wiki'
-  src: "<r:children><r:each join='&lt;% puts \'nasty\' -%&gt;'><r:show attr='node_name'/></r:each></r:children>"
+  src: "<r:children><r:each join='&lt;% puts \'nasty\' -%&gt;'><r:show attr='title'/></r:each></r:children>"
   res: "bird&lt;% puts 'nasty' -%&gt;flower"
 
 test_children_plural:
@@ -159,7 +159,7 @@ test_children_plural:
 each_do:
   context:
     node: 'wiki'
-  src: "<r:children><r:each join=', ' do='show' attr='node_name'/></r:children>"
+  src: "<r:children><r:each join=', ' do='show' attr='title'/></r:children>"
   res: "bird, flower"
 
 parent_do:
@@ -177,7 +177,7 @@ do_each:
 do_with_inner:
   context:
     node: 'wiki'
-  src: "<ul do='children' do='each' tag='li'><r:show attr='node_name'/></ul>"
+  src: "<ul do='children' do='each' tag='li'><r:show attr='title'/></ul>"
   res: "<ul><li>bird</li><li>flower</li></ul>"
 
 do_each_do:
@@ -197,8 +197,8 @@ do_ignore:
   res: ""
 
 name_title:
-  src: "title: <h1 id='lala' do='show' name='title' attr='node_name'>blah</h1>"
-  res: "title: <h1 id='lala'>status</h1>"
+  src: "title: <h1 id='lala' do='show' name='title' attr='title'>blah</h1>"
+  res: "title: <h1 id='lala'>status title</h1>"
 
 include_with:
   src: "include_with: <r:include template='/basic/name/title'><h1 do='with' part='title' attr='id'/>"
@@ -218,11 +218,11 @@ include_named:
 
 # this test is a dummy used by include_context
 context_dummy:
-  src: "CD: <r:pages in='site' where='name like \"s%\"' node_name='pages'><r:each join=', ' do='node_name'/></r:pages>"
+  src: "CD: <r:pages in='site' where='title like \"s%\"' name='pages'><r:each join=', ' do='title'/></r:pages>"
   res: "CD: skins, status"
 
 include_context:
-  src: "IC: <r:include template='/context/dummy'><r:with part='pages'><r:each join=' / ' do='node_name'/></r:with></r:include>"
+  src: "IC: <r:include template='/context/dummy'><r:with part='pages'><r:each join=' / ' do='title'/></r:with></r:include>"
   res: "IC: CD: skins / status"
 
 content_for_layout:
@@ -232,7 +232,7 @@ content_for_layout:
 
 title_for_layout:
   src: "<r:title_for_layout>blah blih</r:title_for_layout>"
-  res: "zena/projects/cleanWater/status"
+  res: "zena/projects-list/Clean-Water-project/status"
 
 tada:
   context:
@@ -347,12 +347,12 @@ find_count:
 link_page_next:
   context:
     pak: 2
-  src: "<r:nodes in='site' limit='3' order='zip' paginate='pak'><r:link page='previous'/> | <r:show var='pak'/> | <r:link page='next'/> || <r:each join=',' do='node_name'/></r:nodes>"
-  res: "<a href='/oo/projects/cleanWater/page22.html?pak=1'>1</a> | 2 | <a href='/oo/projects/cleanWater/page22.html?pak=3'>3</a> || tiger,lion,myLife"
+  src: "<r:nodes in='site' limit='3' order='zip' paginate='pak'><r:link page='previous'/> | <r:show var='pak'/> | <r:link page='next'/> || <r:each join=',' do='title'/></r:nodes>"
+  res: "<a href='/oo/projects-list/Clean-Water-project/page22.html?pak=1'>1</a> | 2 | <a href='/oo/projects-list/Clean-Water-project/page22.html?pak=3'>3</a> || tiger,lion,myLife"
 
 link_page_next_with_block:
   src: "<r:nodes in='site' limit='3' order='zip' paginate='pak'><r:link page='next' do='t'>next</r:link></r:nodes>"
-  res: "<a href='/oo/projects/cleanWater/page22.html?pak=2'>next</a>"
+  res: "<a href='/oo/projects-list/Clean-Water-project/page22.html?pak=2'>next</a>"
 
 link_page_list:
   context:
@@ -398,7 +398,7 @@ link_page_previous_else_page2:
   context:
     pak: 2
   src: "<r:nodes in='site' limit='3' order='zip' paginate='pak'><r:link page='previous' do='else'>noprev</r:link></r:nodes>"
-  res: "<a href='/oo/projects/cleanWater/page22.html?pak=1'>1</a>"
+  res: "<a href='/oo/projects-list/Clean-Water-project/page22.html?pak=1'>1</a>"
 
 link_page_list_else:
   context:
@@ -410,14 +410,14 @@ debug_params:
   context:
     foo: 'bar'
     dev: true
-  src: "DEBUG: <r:debug title='no idea for a title' show='params'/><r:debug do='node_name'/>"
+  src: "DEBUG: <r:debug title='no idea for a title' show='params'/><r:debug do='title'/>"
   tem: "DEBUG: <div class='debug'><p>no idea for a title</p><pre><%= params.inspect %></pre></div><div class='debug'><%= @node.name %></div>"
-  res: "/DEBUG: <div class='debug'><p>no idea for a title</p><pre>.*\"foo\"=>\"bar\".*</pre></div><div class='debug'>status</div>/"
+  res: "/DEBUG: <div class='debug'><p>no idea for a title</p><pre>.*\"foo\"=>\"bar\".*</pre></div><div class='debug'>status title</div>/"
 
 debug_params_not_in_dev_mode:
   context:
     foo: 'bar'
-  src: "DEBUG: <r:debug show='params'/><r:debug do='node_name'/><r:debug title='help needed'/>"
+  src: "DEBUG: <r:debug show='params'/><r:debug do='title'/><r:debug title='help needed'/>"
   tem: 'DEBUG: '
   res: 'DEBUG: '
 

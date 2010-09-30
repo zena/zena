@@ -92,7 +92,7 @@ module Zena
         set_main_table 'nodes'
         set_main_class 'Node'
         set_default :scope,   'self'
-        set_default :order,   'position ASC, node_name ASC'
+        set_default :order,   'position ASC, title ASC'
         set_default :context, 'self'
         after_process :insert_links_fields
         after_process :secure_query
@@ -215,14 +215,14 @@ module Zena
               # We use the add_key_value_table rule to avoid inserting the
               # same index access twice.
 
-              tbl = add_key_value_table('idx', index_table, field_name) do |tbl_name|
+              tbl = add_key_value_table(group_name, index_table, field_name) do |tbl_name|
                 # This block is only executed once
                 add_filter "#{tbl_name}.node_id = #{table}.id"
                 add_filter "#{tbl_name}.key = #{quote(field_name)}"
                 if group_name.to_s =~ /^ml_/
                   add_filter "#{tbl_name}.lang = #{quote(visitor.lang)}"
                 end
-                distinct!
+                # no need for distinct, the new table makes a 1-1 relation
               end
 
               "#{tbl}.value"
@@ -278,7 +278,7 @@ module Zena
         # ******** And maybe overwrite these **********
         def parse_custom_query_argument(key, value)
           return nil unless value
-          super.gsub(/(RELATION_ID|NODE_ATTR)\(([^)]+)\)|(REF_DATE|NODE_ID)/) do
+          super.gsub(/(RELATION_ID|NODE_ATTR)\(([^)]+)\)|(REF_DATE|NODE_ID|VISITOR_LANG)/) do
             type, value = $1, $2
             type ||= $3
             case type
@@ -302,6 +302,8 @@ module Zena
               context[:ref_date] ? insert_bind(context[:ref_date]) : 'now()'
             when 'NODE_ID'
               insert_bind("#{node_name}.id")
+            when 'VISITOR_LANG'
+              insert_bind("visitor.lang")
             end
           end
         end

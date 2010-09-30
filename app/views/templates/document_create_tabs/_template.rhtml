@@ -4,8 +4,8 @@
 
 <input type='hidden' name='node[klass]' value='Template'/>
 
-<label for='node_name'><%= _('name') %></label>
-<input  id='node_name' type='text' name='node[node_name]'/><br/>
+<label for='title'><%= _('name') %></label>
+<input  id='title' type='text' name='node[title]'/><br/>
 
 <label for='node_target_klass'><%= _('class scope') %></label>
 <%= select('node', 'target_klass', Node.classes_for_form, {:include_blank => true} ) %><br/>

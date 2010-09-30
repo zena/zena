@@ -5,8 +5,8 @@ default:
     node: 'status'
 
 basic:
-  src: "<r:void name='grp'><r:show attr='node_name'/><r:parent> -- <r:include part='grp'/></r:parent></r:void>"
-  res: "status -- cleanWater -- projects -- zena"
+  src: "<r:void name='grp'><r:show attr='title'/><r:parent> -- <r:include part='grp'/></r:parent></r:void>"
+  res: "status title -- Clean Water project -- projects list -- Zena the wild CMS"
 
 in_each:
   src: "<ul do='comments'>

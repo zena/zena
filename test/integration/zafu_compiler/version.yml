@@ -8,7 +8,7 @@ link:
   context:
     node: 'opening'
   src: "<r:traductions><r:each join=', '><r:link eval='trans(lang)'/></r:each></r:traductions>"
-  res: "<a href='/oo/projects/cleanWater/post27.html?lang=en'>english</a>, <a href='/oo/projects/cleanWater/post27.html?lang=fr'>french</a>"
+  res: "<a href='/oo/projects-list/Clean-Water-project/post27.html?lang=en'>english</a>, <a href='/oo/projects-list/Clean-Water-project/post27.html?lang=fr'>french</a>"
 
 link_not_same_node:
   # version link where 'up' node is not the version's node
@@ -24,13 +24,13 @@ anchor:
   context:
     node: 'opening'
   src: "<r:traductions><r:each join=', '><r:anchor do='link' eval='trans(lang)'/></r:each></r:traductions>"
-  res: "<a class='anchor' name='version27_2'></a><a href='/oo/projects/cleanWater/post27.html?lang=en'>english</a>, <a class='anchor' name='version27_1'></a><a href='/oo/projects/cleanWater/post27.html?lang=fr'>french</a>"
+  res: "<a class='anchor' name='version27_2'></a><a href='/oo/projects-list/Clean-Water-project/post27.html?lang=en'>english</a>, <a class='anchor' name='version27_1'></a><a href='/oo/projects-list/Clean-Water-project/post27.html?lang=fr'>french</a>"
 
 node:
   context:
     node: 'opening'
-  src: "<r:traductions do='each' join=', '><r:lang/>:<r:eval>node.node_name</r:eval></r:traductions>"
-  res: "en:opening, fr:opening"
+  src: "<r:traductions do='each' join=', '><r:lang/>:<r:eval>node.id</r:eval></r:traductions>"
+  res: "en:27, fr:27"
 
 author:
   context:

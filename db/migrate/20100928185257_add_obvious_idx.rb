@@ -8,8 +8,8 @@ class AddObviousIdx < ActiveRecord::Migration
     :data_entries         => DataEntry::NodeLinkSymbolsId,
     :discussions          => %w{node_id},
     :groups_users         => %w{group_id user_id},
-    :idx_nodes_ml_strings => %w{node_id key lang value},
-    :idx_nodes_strings    => %w{node_id key value},
+    :idx_nodes_ml_strings => %w{value},
+    :idx_nodes_strings    => %w{value},
     :idx_templates        => %w{tkpath format mode site_id node_id version_id},
     # :iformats
     :links                => %w{source_id target_id relation_id status date},
@@ -26,6 +26,8 @@ class AddObviousIdx < ActiveRecord::Migration
 
   def self.up
     add_index(:nodes, [:zip, :site_id])
+    add_index(:idx_nodes_ml_strings, [:node_id, :key, :lang])
+    add_index(:idx_nodes_strings, [:node_id, :key])
 
     INDICES.each do |table, indices|
       indices.each do |key|
@@ -38,6 +40,9 @@ class AddObviousIdx < ActiveRecord::Migration
 
   def self.down
     remove_index(:nodes, :column => [:zip, :site_id])
+    remove_index(:idx_nodes_ml_strings, :column => [:node_id, :key, :lang])
+    remove_index(:idx_nodes_strings, :column => [:node_id, :key])
+    
     INDICES.each do |table, indices|
       indices.each do |key|
         remove_index(table, key)

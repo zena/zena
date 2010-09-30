@@ -51,7 +51,17 @@ class MLIndexTest < Zena::Unit::TestCase
       subject do
         secure(Node) { nodes(:news) }
       end
-
+      
+      should 'rebuild index for current lang' do
+        assert_difference('IdxNodesMlString.count', 0) do
+          subject.update_attributes(:title => 'fabula', :v_status => Zena::Status[:pub])
+        end
+        idx = IdxNodesMlString.find(:first, 
+          :conditions => {:node_id => subject.id, :lang => visitor.lang, :key => 'title'}
+        )
+        assert_equal 'fabula', idx.value
+      end
+      
       context 'with std indices removed' do
         setup do
           IdxNodesString.connection.execute 'DELETE from idx_nodes_strings'
@@ -77,6 +87,34 @@ class MLIndexTest < Zena::Unit::TestCase
           end
         end
       end # with multi lingual indices removed
+      
+      context 'in a class with evaluated properties' do
+        subject do
+          secure(Node) { nodes(:ant) }
+        end
+
+        should 'index commputed value' do
+          assert subject.update_attributes(:first_name => 'Superman')
+          assert_equal 'Superman Invicta', subject.title
+          idx = IdxNodesMlString.find(:first, :conditions => ["lang = ? AND `key` = ? AND node_id = ?", visitor.lang, 'title', subject.id])
+          assert_equal 'Superman Invicta', idx.value
+        end
+        
+        context 'with changes overwritten by computed values' do
+          should 'not touch index' do
+            assert_difference('IdxNodesMlString.count', 0) do
+              subject.update_attributes(:title => 'fabula', :v_status => Zena::Status[:pub])
+            end
+            idx = IdxNodesMlString.find(:first, 
+              :conditions => {:node_id => subject.id, :lang => visitor.lang, :key => 'title'}
+            )
+            
+            assert_equal 'Solenopsis Invicta', idx.value
+          end
+        end # with changes overwritten by computed values
+        
+      end # in a class with evaluated properties
+      
     end # updating a node
 
     context 'on a node' do
@@ -105,17 +143,17 @@ class MLIndexTest < Zena::Unit::TestCase
             'en'=>'status title'], ml_indices
         end
 
-        context 'with idx_text_high defined for vclass' do
+        context 'with prop_eval defined for vclass' do
           subject do
             secure(Node) { nodes(:letter) }
           end
 
-          should 'set title index from idx_text_high' do
+          should 'set index from computed value' do
             subject.rebuild_index!
-            ml_indices = Hash[*IdxNodesMlString.find(:all, :conditions => {:node_id => subject.id, :key => 'title'}).map {|r| [r.lang, r.value]}.flatten]
+            ml_indices = Hash[*IdxNodesMlString.find(:all, :conditions => {:node_id => subject.id, :key => 'search'}).map {|r| [r.lang, r.value]}.flatten]
             assert_equal Hash[
-              'de'=>'zena enhancements paper:Kraft',
               'fr'=>'zena enhancements paper:Kraft',
+              'de'=>'zena enhancements paper:Kraft',
               'es'=>'zena enhancements paper:Kraft',
               'en'=>'zena enhancements paper:Kraft'], ml_indices
           end

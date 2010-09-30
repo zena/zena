@@ -260,6 +260,7 @@ module Zena
 
         def r_load
           if dict = @params[:dictionary]
+            # FIXME: replace @options[:base_path] by @options[:skin_id]
             dict_content, absolute_url, base_path, doc = @options[:helper].send(:get_template_text, dict, @options[:base_path])
             return parser_error("dictionary #{dict.inspect} not found") unless base_path
             # Lazy dictionary used for literal resolution

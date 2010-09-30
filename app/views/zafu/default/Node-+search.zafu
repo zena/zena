@@ -11,7 +11,7 @@
           <r:else do='link' do='img' alt_src='icon' mode='pv'/>
         </p>
         <p class='result_name'><r:link/></p>
-        <p class='result_path'><r:show attr='rootpath'/></p>
+        <p class='result_path'><r:show attr='short_path'/></p>
         <r:summary/>
         <div class='clear'></div>
       </li>

@@ -46,9 +46,10 @@ class Document < Node
   safe_property :size, :content_type, :ext
   safe_method   :filename => String, :file => File, :filepath => String
 
-  validate :valid_file
-  validate :valid_content_type
-  after_save :clear_new_file
+  validate          :make_unique_title
+  validate          :valid_file
+  validate          :valid_content_type
+  after_save        :clear_new_file
 
   class << self
 
@@ -71,8 +72,6 @@ class Document < Node
         content_type = file.content_type
       elsif ct = attrs['content_type']
         content_type = ct
-      elsif attrs['node_name'] =~ /^.*\.(\w+)$/ && types = Zena::EXT_TO_TYPE[$1.downcase]
-        content_type = types[0]
       elsif attrs['title'] =~ /^.*\.(\w+)$/ && types = Zena::EXT_TO_TYPE[$1.downcase]
         content_type = types[0]
       end
@@ -144,6 +143,7 @@ class Document < Node
   end
 
   # Get the document's public filename using the name and the file extension.
+  # FIXME: shouldn't we use title here ?
   def filename
     version.attachment.filename
   end
@@ -151,11 +151,6 @@ class Document < Node
   # Get the file path defined in attachment.
   def filepath(format=nil)
     version.attachment.filepath(format)
-  end
-
-  # Get the node's rootpath with the file's extention.
-  def rootpath
-    super + ".#{prop['ext']}"
   end
 
   protected
@@ -166,10 +161,6 @@ class Document < Node
 
       if title.to_s =~ /\A(.*)\.#{self.ext}$/i
         self.title = $1
-      end
-
-      if node_name.to_s =~ /\A(.*)\.#{self.ext}$/i
-        self.node_name = $1
       end
 
       super
@@ -224,20 +215,14 @@ class Document < Node
       return unless @new_file
       self.content_type = @new_file.content_type unless prop.content_type_changed?
 
-      if base = node_name || title || @new_file.original_filename
-        if base =~ /(.*)\.(\w+)$/
-          self.node_name = $1 if new_record?
-        else
-          self.node_name = base if new_record?
-        end
+      if base = @new_file.original_filename
+        self.title = base if title.blank?
       end
     end
 
-    # Make sure node_name is unique. This should be run after sync_node_name, this is why we
-    # hack around the name and use super.
-    def sync_node_name
-      super
-      get_unique_node_name_in_scope('ND%')
+    # Make sure title is unique. This should be run after prop_eval.
+    def make_unique_title
+      get_unique_title_in_scope('ND')
     end
 
     def get_extension

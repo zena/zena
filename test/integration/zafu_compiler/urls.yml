@@ -6,72 +6,72 @@ default:
 
 url:
   src: "<r:url/>"
-  res: "http://test.host/oo/projects/cleanWater/page22.html"
+  res: "http://test.host/oo/projects-list/Clean-Water-project/page22.html"
 
 use_url_in_attribute:
   src: "<a href='#{url}'>blah</a>"
-  res: "<a href='http://test.host/oo/projects/cleanWater/page22.html'>blah</a>"
+  res: "<a href='http://test.host/oo/projects-list/Clean-Water-project/page22.html'>blah</a>"
 
 show_url_in_script:
   src: "<script type='text/javascript'>
   digg_url = '<r:url/>';
   </script>"
-  res: "/http://test.host/oo/projects/cleanWater/page22.html/"
+  res: "/http://test.host/oo/projects-list/Clean-Water-project/page22.html/"
 
 url_with_param:
   src: "<p do='eval'>url(parent)</p>"
-  res: "<p>http://test.host/oo/projects/cleanWater</p>"
+  res: "<p>http://test.host/oo/projects-list/Clean-Water-project</p>"
 
 path:
   src: "<a href='#{path}'>blah</a>"
-  res: "<a href='/oo/projects/cleanWater/page22.html'>blah</a>"
+  res: "<a href='/oo/projects-list/Clean-Water-project/page22.html'>blah</a>"
 
 link:
   src: "<r:link/>"
   tem: "<a href='<%= zen_path(@node) %>'><%= @node.prop['title'] %></a>"
-  res: "<a href='/oo/projects/cleanWater/page22.html'>status title</a>"
+  res: "<a href='/oo/projects-list/Clean-Water-project/page22.html'>status title</a>"
 
 link_not_logged:
   context:
     visitor: anon
   src: "<r:link/>"
-  res: "<a href='/en/projects/cleanWater/page22.html'>status title</a>"
+  res: "<a href='/en/projects-list/Clean-Water-project/page22.html'>status title</a>"
 
 do_link:
   src: "<li class='super' do='link'>sample text</li>"
-  res: "<li class='super'><a href='/oo/projects/cleanWater/page22.html'>status title</a></li>"
+  res: "<li class='super'><a href='/oo/projects-list/Clean-Water-project/page22.html'>status title</a></li>"
 
 do_link_t:
   src: "<li class='super' do='link' do='t'>blah</li>"
-  res: "<li class='super'><a href='/oo/projects/cleanWater/page22.html'>blah</a></li>"
+  res: "<li class='super'><a href='/oo/projects-list/Clean-Water-project/page22.html'>blah</a></li>"
 
 a_link:
   src: "<a class='bob' do='link'>sample text</a> <a id='bar' do='link' do='t'>click here</a>"
-  res: "<a class='bob' href='/oo/projects/cleanWater/page22.html'>status title</a> <a id='bar' href='/oo/projects/cleanWater/page22.html'>click here</a>"
+  res: "<a class='bob' href='/oo/projects-list/Clean-Water-project/page22.html'>status title</a> <a id='bar' href='/oo/projects-list/Clean-Water-project/page22.html'>click here</a>"
 
 zafu_link_with_blocks:
   src: "<a id='branding' do='link'><div do='zazen(text)'/></a>"
-  res: "/<a id='branding' href='/oo/projects/cleanWater/page22.html'>.*zazen.*<\/a>/"
+  res: "/<a id='branding' href='/oo/projects-list/Clean-Water-project/page22.html'>.*zazen.*<\/a>/"
 
 link_class:
   src: "<r:link class='hello'/>"
-  res: "<a class='hello' href='/oo/projects/cleanWater/page22.html'>status title</a>"
+  res: "<a class='hello' href='/oo/projects-list/Clean-Water-project/page22.html'>status title</a>"
 
 link_set_class:
-  src: "<r:link class='#{node_name}_foo'/>"
-  tem: "<a class='<%= \"#{@node.node_name}_foo\" %>' href='<%= zen_path(@node) %>'><%= @node.prop['title'] %></a>"
-  res: "<a class='status_foo' href='/oo/projects/cleanWater/page22.html'>status title</a>"
+  src: "<r:link class='#{title}_foo'/>"
+  tem: "<a class='<%= \"#{@node.prop['title']}_foo\" %>' href='<%= zen_path(@node) %>'><%= @node.prop['title'] %></a>"
+  res: "<a class='status title_foo' href='/oo/projects-list/Clean-Water-project/page22.html'>status title</a>"
 
 link_attr:
   src: "<r:link attr='ref_lang'/>"
   tem: "<a href='<%= zen_path(@node) %>'><%= @node.ref_lang %></a>"
-  res: "<a href='/oo/projects/cleanWater/page22.html'>en</a>"
+  res: "<a href='/oo/projects-list/Clean-Water-project/page22.html'>en</a>"
 
 link_tattr:
   old_src: "<r:link tattr='ref_lang'/>"
   src: "<r:link eval='trans(ref_lang)'/>"
   tem: "<a href='<%= zen_path(@node) %>'><%= trans(@node.ref_lang) %></a>"
-  res: "<a href='/oo/projects/cleanWater/page22.html'>english</a>"
+  res: "<a href='/oo/projects-list/Clean-Water-project/page22.html'>english</a>"
 
 link_trans:
   context:
@@ -79,17 +79,17 @@ link_trans:
   old_src: "<r:link trans='Monday'/>"
   src: "<r:link do='t' text='Monday'/>"
   tem: "<a href='<%= zen_path(@node) %>'>lundi</a>"
-  res: "<a href='/oo/projects/cleanWater/page22.html'>lundi</a>"
+  res: "<a href='/oo/projects-list/Clean-Water-project/page22.html'>lundi</a>"
 
 link_parent:
   src: "<r:link href='parent' text='click here'/>"
   tem: "<a href='<%= zen_path(@node.parent) %>'>click here</a>"
-  res: "<a href='/oo/projects/cleanWater'>click here</a>"
+  res: "<a href='/oo/projects-list/Clean-Water-project'>click here</a>"
 
 link_with_block:
-  src: "<r:link href='parent'>look at <b do='node_name'>her</b></r:link>"
-  tem: "<a href='<%= zen_path(@node.parent) %>'>look at <b><%= @node.node_name %></b></a>"
-  res: "<a href='/oo/projects/cleanWater'>look at <b>status</b></a>"
+  src: "<r:link href='parent'>look at <b do='title'>her</b></r:link>"
+  tem: "<a href='<%= zen_path(@node.parent) %>'>look at <b><%= @node.prop['title'] %></b></a>"
+  res: "<a href='/oo/projects-list/Clean-Water-project'>look at <b>status title</b></a>"
 
 link_project:
   context:
@@ -107,24 +107,24 @@ link_anchor:
   src: "<r:link anchor='true'/>"
   res: "<a href='#node22'>status title</a>"
 
-link_anchor_name:
+link_anchor_title:
   old_src: "<r:link anchor='[name]'/>"
-  src: "<r:link anchor='#{node_name}'/>"
-  res: "<a href='#status'>status title</a>"
+  src: "<r:link anchor='#{title.urlencode}'/>"
+  res: "<a href='#status-title'>status title</a>"
 
 link_anchor_in:
   src: "<r:link anchor='true' href='project' mode='tree'/>"
-  res: "<a href='/oo/projects/cleanWater_tree#node22'>status title</a>"
+  res: "<a href='/oo/projects-list/Clean-Water-project_tree#node22'>status title</a>"
 
 link_anchor_name_in:
   old_src: "<r:link anchor='[name]' in='parent'/>"
-  src: "<r:link anchor='#{node_name}' href='parent'/>"
-  res: "<a href='/oo/projects/cleanWater#status'>status title</a>"
+  src: "<r:link anchor='#{title.urlencode}' href='parent'/>"
+  res: "<a href='/oo/projects-list/Clean-Water-project#status-title'>status title</a>"
 
 link_stored:
-  old_src: "<r:void store='foo'><r:parent><r:link href='foo' do='node_name'/></r:parent></r:void>"
+  old_src: "<r:void store='foo'><r:parent><r:link href='foo' do='title'/></r:parent></r:void>"
   src: "<r:void set_foo='this'><r:parent><r:link href='foo' do='title'/></r:parent></r:void>"
-  res: "<a href='/oo/projects/cleanWater/page22.html'>Clean Water project</a>"
+  res: "<a href='/oo/projects-list/Clean-Water-project/page22.html'>Clean Water project</a>"
 
 link_stored_not_a_node:
   src: "<r:void set_foo='45'><r:parent><r:link href='foo' do='title'/></r:parent></r:void>"
@@ -148,27 +148,27 @@ link_date:
   old_src: "<r:link date='current_date'/>"
   src: "<r:link date='#{date}'/>"
   tem: '/:date => "#\{main_date\}"'
-  res: "<a href='/oo/projects/cleanWater/page22.html?date=2008-06-27T00%3A00%3A00%2B00%3A00'>status title</a>"
+  res: "<a href='/oo/projects-list/Clean-Water-project/page22.html?date=2008-06-27T00%3A00%3A00%2B00%3A00'>status title</a>"
 
 link_url_params:
   src: "<r:link plob='hopla'/>"
-  res: "<a href='/oo/projects/cleanWater/page22.html?plob=hopla'>status title</a>"
+  res: "<a href='/oo/projects-list/Clean-Water-project/page22.html?plob=hopla'>status title</a>"
 
 link_url_params_parsed_values:
   src: "<r:link plob='haha #{title}'/>"
-  res: "<a href='/oo/projects/cleanWater/page22.html?plob=haha+status+title'>status title</a>"
+  res: "<a href='/oo/projects-list/Clean-Water-project/page22.html?plob=haha+status+title'>status title</a>"
 
 title_link_mode:
   old_src: "<h2 do='title' link='details'/>"
   src: "<h2 do='link' mode='details' do='title' live='true'/>"
-  res: "<h2><a href='/oo/projects/cleanWater/page22_details.html'><span id='_title22'>status title</span></a></h2>"
+  res: "<h2><a href='/oo/projects-list/Clean-Water-project/page22_details.html'><span id='_title22'>status title</span></a></h2>"
 
 link_with_custom_params:
   context:
     year: 2010
   src: "<r:link class='foo' href='main' y='#{params[:year]}'/>"
   tem: "<a class='foo' href='<%= zen_path(@node, {:y => \"#{params[:year]}\"}) %>'><%= @node.prop['title'] %></a>"
-  res: "<a class='foo' href='/oo/projects/cleanWater/page22.html?y=2010'>status title</a>"
+  res: "<a class='foo' href='/oo/projects-list/Clean-Water-project/page22.html?y=2010'>status title</a>"
 
 link_format_data:
   context:
@@ -179,7 +179,7 @@ link_format_data:
 live_link_format:
   old_src: "<h2 do='title' link='details.xml'/>"
   src: "<h2 do='link' live='true' format='xml' mode='details'/>"
-  res: "<h2><a id='_title22' href='/oo/projects/cleanWater/page22_details.xml'>status title</a></h2>"
+  res: "<h2><a id='_title22' href='/oo/projects-list/Clean-Water-project/page22_details.xml'>status title</a></h2>"
 
 live_link_data_mode:
   context:

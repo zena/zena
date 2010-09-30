@@ -29,7 +29,7 @@ zen_url:
   context:
     node: status
   tem: "<%= zen_url(@node, :mode=>'rss', :format=>'xml') %>"
-  res: "http://test.host/oo/projects/cleanWater/page22_rss.xml"
+  res: "http://test.host/oo/projects-list/Clean-Water-project/page22_rss.xml"
 
 zen_url_root_mode_format:
   context:

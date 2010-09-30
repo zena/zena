@@ -12,7 +12,13 @@ Original_weight:
 
 Original_tz:
 
-Letter_paper:
+Letter_paper:  
+
+Letter_search:
+  index:           ml_string
+
+Letter_search_mono:
+  index:           string
 
 Contact_name:
   index:           string
@@ -24,3 +30,4 @@ Contact_email:
 Contact_address:
 
 Contact_country:
+  

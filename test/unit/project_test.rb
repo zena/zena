@@ -5,11 +5,11 @@ class ProjectTest < Zena::Unit::TestCase
 
   def test_project_id_on_create
     login(:tiger)
-    node = secure!(Project) { Project.create(:parent_id=>nodes_id(:status), :node_name =>'SuperProject') }
+    node = secure!(Project) { Project.create(:parent_id=>nodes_id(:status), :title =>'SuperProject') }
     assert ! node.new_record?, 'Not a new record'
     assert_equal node[:id], node.get_project_id
     assert_equal nodes_id(:cleanWater), node[:project_id]
-    child = secure!(Page) { Page.create(:parent_id=>node[:id], :node_name =>'child')}
+    child = secure!(Page) { Page.create(:parent_id=>node[:id], :title =>'child')}
     assert ! node.new_record?, "Not a new record"
     assert_equal node[:id], child[:project_id]
   end

@@ -9,16 +9,16 @@ tagged_relation:
     node: 'art'
     class: Tag
     dev: 'true'
-  src: "<r:context select='tagged'><r:each join=', '><r:show attr='node_name'/></r:each></r:context>"
-  res: "cleanWater, opening"
+  src: "<r:context select='tagged'><r:each join=', '><r:show attr='title'/></r:each></r:context>"
+  res: "Clean Water project, parc opening"
 
 tagged_relation:
   context:
     node:  art
     class: Tag
     dev: 'true'
-  src: "<r:tagged foo='bar'><r:each join=', '><r:show attr='node_name'/></r:each></r:tagged>"
-  res: "cleanWater, opening"
+  src: "<r:tagged foo='bar'><r:each join=', '><r:show attr='title'/></r:each></r:tagged>"
+  res: "Clean Water project, parc opening"
 
 tagged_rubyless:
   context:
@@ -70,7 +70,7 @@ ancestors:
   # used to be implemented with 'show_path'
   src: "<ul id='path' do='ancestors'><li do='each' do='link'/></ul>"
   tem: "/if var1 = @node.z_ancestors/"
-  res: "/<ul id='path'><li>.*Zena.*<li>.*en/page18.html.*<li><.*/projects/cleanWater.*Clean Water project</a></li></ul>/"
+  res: "/<ul id='path'><li>.*Zena.*<li>.*en/page18.html.*<li><.*/projects-list/Clean-Water-project.*Clean Water project</a></li></ul>/"
 
 ancestors_on_root:
   context:

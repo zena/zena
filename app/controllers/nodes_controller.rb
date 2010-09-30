@@ -227,7 +227,7 @@ class NodesController < ApplicationController
 
     respond_to do |format|
       format.html do
-        @title_for_layout = @node.rootpath
+        @title_for_layout = @node.title
       end
 
       format.js do
@@ -366,7 +366,7 @@ class NodesController < ApplicationController
           if @node.errors.empty?
             render :xml => @node.to_xml, :status => :ok, :location => node_url(@node)
           else
-            render :xml => @page.errors, :status => :unprocessable_entity
+            render :xml => @node.errors, :status => :unprocessable_entity
           end
         end # xml
       end
@@ -389,6 +389,9 @@ class NodesController < ApplicationController
       node_id = secure!(Node) { Node.translate_pseudo_id(id_query, :id, @node)}
       @node = secure!(Node) { Node.find(node_id) }
     elsif name_query = params[:name]
+      # ????
+      raise Exception.new "Attribute by name should be fixed or removed"
+      
       if name_query =~ /^(.*)\.[a-z]{2,3}$/
         name_query = $1
       end
@@ -400,7 +403,7 @@ class NodesController < ApplicationController
         conditions << "#{kpath}%"
       end
 
-      conditions[0] << "node_name LIKE ?"
+      conditions[0] << "title LIKE ?" # ???
       conditions << "#{name_query}%"
 
       conditions[0] = conditions[0].join(' AND ')
@@ -484,7 +487,7 @@ class NodesController < ApplicationController
     #  archive      ---> fullpath
     def find_node
       if path = params[:path]
-        if path.last =~ /\A(([a-zA-Z]+)([0-9]+)|([a-zA-Z0-9\-\*]+))(_[a-zA-Z]+|)(\..+|)\Z/
+        if path.last =~ Zena::Use::Urls::ALLOWED_REGEXP
           zip    = $3
           name   = $4
           params[:mode] = $5 == '' ? nil : $5[1..-1]
@@ -499,7 +502,7 @@ class NodesController < ApplicationController
           if name =~ /^\d+$/
             @node = secure!(Node) { Node.find_by_zip(name) }
           elsif name
-            basepath = (path[0..-2] + [name]).join('/')
+            basepath = (path[0..-2] + [name]).map! {|p| String.from_url_name(p) }.join('/')
             @node = secure!(Node) { Node.find_by_path(basepath) }
           else
             @node = secure!(Node) { Node.find_by_zip(zip) }
@@ -516,7 +519,7 @@ class NodesController < ApplicationController
         @link = Link.find_through(@node, params[:link_id])
       end
 
-      @title_for_layout = @node.rootpath if @node
+      @title_for_layout = @node.title if @node
     end
 
     def set_format(format)

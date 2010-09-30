@@ -27,7 +27,7 @@ class VersionsControllerTest < Zena::Controller::TestCase
     should 'get a page rendered with zafu when getting a version' do
       get 'show', version_hash(:lake_red_en)
       assert_response :success
-      assert_match %r{default/Node/fr/_main.erb$}, @response.rendered[:template].to_s
+      assert_match %r{Default skin/Node/fr/_main.erb$}, @response.rendered[:template].to_s
     end
   end
 
@@ -78,7 +78,7 @@ class VersionsControllerTest < Zena::Controller::TestCase
     start =<<-END_CSS
     body { font-size:10px; }
     #header { background:url('bird.jpg') }
-    #footer { background:url('/projects/wiki/flower.jpg') }
+    #footer { background:url('/projects list/a wiki with Zena/flower.jpg') }
     END_CSS
 
     assert node.update_attributes(:text => start.dup)

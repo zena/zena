@@ -349,7 +349,7 @@ if defined?(IRB)
       if zip_or_name.kind_of?(Fixnum)
         secure(Node) { Node.find_by_zip(zip_or_name) }
       else
-        secure(Node) { Node.first(:conditions => ['node_name LIKE ?', "#{zip_or_name}%"]) }
+        secure(Node) { Node.find_by_title(zip_or_name) }
       end
     end
   end

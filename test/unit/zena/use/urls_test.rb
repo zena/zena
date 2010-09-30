@@ -18,11 +18,11 @@ class UrlsTest < Zena::View::TestCase
     assert_equal '/en/section12_test.html', zen_path(node, :mode=>'test')
     assert_match %r{/tt/section12_test.jpg}, zen_path(node, :mode=>'test', :prefix=>'tt', :format=>'jpg')
     node = secure!(Node) { nodes(:cleanWater) }
-    assert_equal '/en/projects/cleanWater', zen_path(node)
-    assert_equal '/en/projects/cleanWater_test', zen_path(node, :mode=>'test')
+    assert_equal '/en/projects-list/Clean-Water-project', zen_path(node)
+    assert_equal '/en/projects-list/Clean-Water-project_test', zen_path(node, :mode=>'test')
     node = secure!(Node) { nodes(:status) }
-    assert_equal '/en/projects/cleanWater/page22.html', zen_path(node)
-    assert_equal '/en/projects/cleanWater/page22_test.html', zen_path(node, :mode=>'test')
+    assert_equal '/en/projects-list/Clean-Water-project/page22.html', zen_path(node)
+    assert_equal '/en/projects-list/Clean-Water-project/page22_test.html', zen_path(node, :mode=>'test')
   end
 
   def test_zen_path_cache_stamp
@@ -36,7 +36,7 @@ class UrlsTest < Zena::View::TestCase
 
     login(:anon)
     node = secure!(Node) { nodes(:cleanWater) }
-    assert_equal '/en/projects/cleanWater.jpg', zen_path(node, :format => 'jpg')
+    assert_equal '/en/projects-list/Clean-Water-project.jpg', zen_path(node, :format => 'jpg')
   end
 
   def test_make_cachestamp
@@ -84,9 +84,9 @@ class UrlsTest < Zena::View::TestCase
     assert_equal "/en/section12.kls.html", zen_path(node, :asset=>'kls')
     assert_equal "/tt/section12.foo.jpg?1144713600", zen_path(node, :mode=>'test', :prefix=>'tt', :format=>'jpg', :asset => 'foo')
     node = secure!(Node) { nodes(:cleanWater) }
-    assert_equal "/en/projects/cleanWater.kls", zen_path(node, :asset => 'kls')
+    assert_equal "/en/projects-list/Clean-Water-project.kls", zen_path(node, :asset => 'kls')
     node = secure!(Node) { nodes(:status) }
-    assert_equal "/en/projects/cleanWater/page22.abcd.png?1144713600", zen_path(node, :asset => 'abcd', :format => 'png')
+    assert_equal "/en/projects-list/Clean-Water-project/page22.abcd.png?1144713600", zen_path(node, :asset => 'abcd', :format => 'png')
   end
 
   def test_zen_url
@@ -99,15 +99,15 @@ class UrlsTest < Zena::View::TestCase
   def test_data_path_for_public_documents
     login(:ant)
     node = secure!(Node) { nodes(:water_pdf) }
-    assert_equal "/en/projects/cleanWater/document25.pdf", data_path(node)
+    assert_equal "/en/projects-list/Clean-Water-project/document25.pdf", data_path(node)
     node = secure!(Node) { nodes(:status) }
-    assert_equal "/oo/projects/cleanWater/page22.html", data_path(node)
+    assert_equal "/oo/projects-list/Clean-Water-project/page22.html", data_path(node)
 
     login(:anon)
     node = secure!(Node) { nodes(:water_pdf) }
-    assert_equal "/en/projects/cleanWater/document25.pdf", data_path(node)
+    assert_equal "/en/projects-list/Clean-Water-project/document25.pdf", data_path(node)
     node = secure!(Node) { nodes(:status) }
-    assert_equal "/en/projects/cleanWater/page22.html", data_path(node)
+    assert_equal "/en/projects-list/Clean-Water-project/page22.html", data_path(node)
   end
 
   def test_data_path_for_non_public_documents
@@ -115,9 +115,9 @@ class UrlsTest < Zena::View::TestCase
     node = secure!(Node) { nodes(:water_pdf) }
     assert node.update_attributes( :rgroup_id => groups_id(:workers), :inherit => 0 )
     assert !node.public?
-    assert_equal "/oo/projects/cleanWater/document25.pdf", data_path(node)
+    assert_equal "/oo/projects-list/Clean-Water-project/document25.pdf", data_path(node)
     node = secure!(Node) { nodes(:status) }
-    assert_equal "/oo/projects/cleanWater/page22.html", data_path(node)
+    assert_equal "/oo/projects-list/Clean-Water-project/page22.html", data_path(node)
 
     login(:anon)
     assert_raise(ActiveRecord::RecordNotFound) { secure!(Node) { nodes(:water_pdf) } }

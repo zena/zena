@@ -349,19 +349,17 @@ module Zena
             add_template(template, name)
           end
 
-          if !node.has_key?('node_name')
-            node['node_name'] = name
-            node[:header_keys] << 'node_name'
-          end
-
-          node['node_name'] = node['node_name'].url_name
-
           if node.keys.include?('title') || node.keys.detect {|k| k =~ /^v_/}
             # need version defaults
             @defaults.each do |key,value|
               next unless key =~ /^v_/
               node[key] = value
             end
+          end
+
+          if !node.has_key?('_id')
+            node['_id'] = name
+            node[:header_keys] << '_id'
           end
 
           # FIXME: better filtering, in a hurry right now
@@ -426,11 +424,6 @@ module Zena
         end
 
         build_inherited_fields
-
-        # build fullpath
-        elements.each do |k, node|
-          make_paths(node, k)
-        end
       end
 
       def make_paths(node, name)
@@ -439,7 +432,7 @@ module Zena
             parent_fullpath = make_paths(parent, node['parent'])
             # Unquote content if it was an empty quoted string.
             parent_fullpath = '' if parent_fullpath == "''"
-            node['fullpath'] = (parent_fullpath.split('/') + [node['node_name'] || name]).join('/')
+            node['fullpath'] = (parent_fullpath.split('/') + [node['zip']]).join('/')
             klass = if roles[site] && vc = roles[site][node['class']]
               vc['real_class']
             else
@@ -519,7 +512,7 @@ module Zena
 
       def insert_headers
         node  = elements[name]
-        # we compute 'zip' here so that the order of the file is kept
+        # we compute 'zip' here so that the order of the elements in file is kept
         @zip_counter[site] ||= 0
         if node['zip']
           if node['zip'] > @zip_counter[site]
@@ -529,6 +522,9 @@ module Zena
           @zip_counter[site] += 1
           node['zip'] = @zip_counter[site]
         end
+
+        # build fullpath
+        make_paths(node, name)
 
         super
       end
@@ -641,7 +637,7 @@ module Zena
           version['status'] = Zena::Status[version['status'].to_sym]
 
           version['prop'] ||= {}
-          version['prop']['title'] ||= raw_nodes[version['node']]['node_name'] || version['node']
+          version['prop']['title'] ||= version['node']
 
           if prop = version.delete('prop')
             version['properties'] = make_prop(prop) unless prop.blank?

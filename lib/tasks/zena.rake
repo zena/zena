@@ -155,7 +155,7 @@ namespace :zena do
         next if File.exist?("#{host_path}/#{dir}")
         FileUtils.mkpath("#{host_path}/#{dir}")
       end
-
+       # FIXME! should not symlink RAILS_ROOT but /home/app_name/app/current ...
       symlink_assets(RAILS_ROOT, host_path)
     end
   end
@@ -351,6 +351,17 @@ namespace :zena do
         :conditions => ['site_id = ?', site.id]
       )
       site.rebuild_index(secure_result(nodes))
+    end
+  end
+
+  desc 'Rebuild fullpath for all sites (without SiteWorker)'
+  task :rebuild_fullpath => :environment do
+    include Zena::Acts::Secure
+
+    Site.all.each do |site|
+      # We avoid SiteWorker because it's async.
+      Thread.current[:visitor] = User.find_by_login_and_site_id(nil, site.id)
+      site.rebuild_fullpath
     end
   end
 

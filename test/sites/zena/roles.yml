@@ -8,6 +8,9 @@ Letter:
   real_class:      Note
   prop:
     idx_text_high: "%Q{#{title} paper:#{paper}}"
+    # We build a 'search' property that is indexed to do funky searching without
+    # fulltext
+    prop_eval:     "{'search' => %Q{#{title} paper:#{paper}}, 'search_mono' => %Q{#{paper} mono}}"
 
 Post:
   kpath:           NNP

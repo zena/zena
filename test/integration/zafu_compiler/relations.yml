@@ -5,41 +5,41 @@ default:
     node: 'status'
 
 set_tags:
-  src: "<r:project><r:show attr='node_name'/>: <r:set_tags><r:each join=', '><r:show attr='node_name'/></r:each></r:set_tags></r:project>"
-  res: "cleanWater: art"
+  src: "<r:project><r:show attr='title'/>: <r:set_tags><r:each join=', '><r:show attr='title'/></r:each></r:set_tags></r:project>"
+  res: "Clean Water project: Art"
 
 documents:
   context:
     node: 'nature'
     visitor: ant
-  src: "<r:documents><r:each join=', '><r:show attr='node_name'/></r:each></r:documents>"
-  res: "forest, tree"
+  src: "<r:documents><r:each join=', '><r:show attr='title'/></r:each></r:documents>"
+  res: "Autumn Tree, Forest"
 
 documents_only:
   context:
     node: 'nature'
     visitor: ant
-  src: "<r:documents where='kpath not like \"NDI%\"'><r:each join=', '><r:show attr='node_name'/></r:each></r:documents>"
-  res: "forest"
+  src: "<r:documents where='kpath not like \"NDI%\"'><r:each join=', '><r:show attr='title'/></r:each></r:documents>"
+  res: "Forest"
 
 images:
   context:
     node: 'wiki'
-  src: "<r:images><r:each join=', '><r:show attr='node_name'/></r:each></r:images>"
+  src: "<r:images><r:each join=', '><r:show attr='title'/></r:each></r:images>"
   res: "bird, flower"
 
 icon:
   context:
     node: 'cleanWater'
-  src: "<r:icon do='node_name'/>"
+  src: "<r:icon do='title'/>"
   tem: "/ORDER BY links.id DESC/"
-  res: "lake"
+  res: "it's a lake"
 
 pages:
   context:
     node: 'cleanWater'
-  src: "<r:pages><r:each join=', '><r:show attr='node_name'/></r:each></r:pages>"
-  res: "status, track"
+  src: "<r:pages><r:each join=', '><r:show attr='title'/></r:each></r:pages>"
+  res: "Keeping things clean !, status title"
 
 root:
   src: "<r:root do='[title]'/>"
@@ -48,59 +48,59 @@ root:
 notes:
   context:
     node: 'cleanWater'
-  src: "<r:notes><r:each join=', '><r:show attr='node_name'/></r:each></r:notes>"
-  res: "opening"
+  src: "<r:notes><r:each join=', '><r:show attr='title'/></r:each></r:notes>"
+  res: "parc opening"
 
 blog_with_news:
   context:
     node: 'zena'
     class: Project
-  src: "<r:notes or='news' do='each' join=', ' do='node_name'/>"
-  res: "letter, opening"
+  src: "<r:notes or='news' do='each' join=', ' do='title'/>"
+  res: "parc opening, zena enhancements"
 
 blog_with_bad_relation:
   context:
     node: 'zena'
-  src: "<r:notes or='whatever' do='each' join=', ' do='node_name'/>"
+  src: "<r:notes or='whatever' do='each' join=', ' do='title'/>"
   res: "/Unknown relation 'whatever'/"
 
 pages_do_syntax:
-  src: "<ol do='pages where node_name like \"c%\" in site'><li do='each' do='node_name'/></ol>"
-  res: "<ol><li>cleanWater</li><li>collections</li></ol>"
+  src: "<ol do='pages where title like \"c%\" in site'><li do='each' do='title'/></ol>"
+  res: "<ol><li>Clean Water project</li><li>Collections</li></ol>"
 
 pages_limit:
   context:
     node: 'cleanWater'
-  src: "<r:pages limit='2' order='node_name DESC'><r:each join=', '><r:show attr='node_name'/></r:each></r:pages>"
-  res: "track, status"
+  src: "<r:pages limit='2' order='title DESC'><r:each join=', '><r:show attr='title'/></r:each></r:pages>"
+  res: "status title, Keeping things clean !"
 
 pages_random:
   context:
     node: 'cleanWater'
-  src: "<r:pages limit='3' order='random'><r:each join=', '><r:show attr='node_name'/></r:each></r:pages>"
+  src: "<r:pages limit='3' order='random'><r:each join=', '><r:show attr='title'/></r:each></r:pages>"
   tem: "/ORDER BY RAND/"
 
 nodes_in_project:
-  src: "<r:nodes in='project' limit='2'><r:each join=', '><r:show attr='node_name'/></r:each></r:nodes>"
-  res: "lake, lakeAddress"
+  src: "<r:nodes in='project' limit='2'><r:each join=', '><r:show attr='title'/></r:each></r:nodes>"
+  res: "it's a lake, Keeping things clean !"
 
 nodes_in_project_stored:
-  src: "<r:void set_foo='this'><r:node where='id = 29 in site'>from <r:show attr='node_name'/>, look at <r:foo do='node_name'/>: <r:foo do='pages in project' do='each' join=', ' do='node_name'/></r:node></r:void>"
-  res: "from wiki, look at status: status, track"
+  src: "<r:void set_foo='this'><r:node where='id = 29 in site'>from <r:show attr='title'/>, look at <r:foo do='title'/>: <r:foo do='pages in project' do='each' join=', ' do='title'/></r:node></r:void>"
+  res: "from a wiki with Zena, look at status title: Keeping things clean !, status title"
 
 nodes_in_site:
-  src: "<r:nodes in='site' limit='3'><r:each join=', ' do='show' attr='node_name'/></r:nodes>"
-  res: "anonymous, ant, art"
+  src: "<r:nodes in='site' limit='3'><r:each join=', ' do='show' attr='title'/></r:nodes>"
+  res: "a wiki with Zena, Art, bird"
 
 context:
-  src: "<r:context select='nodes' in='site' limit='3'><r:each join=', ' do='show' attr='node_name'/></r:context>"
-  res: "anonymous, ant, art"
+  src: "<r:context select='nodes' in='site' limit='3'><r:each join=', ' do='show' attr='title'/></r:context>"
+  res: "a wiki with Zena, Art, bird"
 
 author_visitor:
   context:
     visitor: ant
-  src: "<r:pages in='site' where='user_id = #{visitor.id}' limit='5'><r:each join=', ' do='show' attr='node_name'/></r:pages>"
-  res: "myLife, nature, status"
+  src: "<r:pages in='site' where='user_id = #{visitor.id}' limit='5'><r:each join=', ' do='show' attr='title'/></r:pages>"
+  res: "My Life, Nature, status title"
 
 author:
   src: "my master: <r:author><r:name/> <r:first_name/></r:author> my version master: <r:version do='author'><r:name/> <r:first_name/></r:version>"
@@ -121,13 +121,13 @@ public_readable_link_id:
   tem: '<%= @node.rel["icon"].try(:other_zip) %>'
 
 node_id:
-  old_src: "I (<r:show attr='node_name'/>) know: <r:context select='12'><r:show attr='node_name'/> with <r:children><span do='each' join=', '><r:show attr='node_name'>child</r:show></span></r:children></r:context>"
-  src: "I (<r:show attr='node_name'/>) know: <r:node where='id = 12 in site'><r:show attr='node_name'/> with <r:children><span do='each' join=', '><r:show attr='node_name'>child</r:show></span></r:children></r:node>"
-  res: "I (status) know: people with <span>anonymous</span>, <span>ant</span>, <span>lion</span>, <span>tiger</span>"
+  old_src: "I (<r:show attr='title'/>) know: <r:context select='12'><r:show attr='title'/> with <r:children><span do='each' join=', '><r:show attr='title'>child</r:show></span></r:children></r:context>"
+  src: "I (<r:show attr='title'/>) know: <r:node where='id = 12 in site'><r:show attr='title'/> with <r:children><span do='each' join=', '><r:show attr='title'>child</r:show></span></r:children></r:node>"
+  res: "I (status title) know: people with <span>Panthera Leo Verneyi</span>, <span>Panthera Tigris Sumatran</span>, <span>Solenopsis Invicta</span>, <span>Mr nobody</span>"
 
 context_root:
-  src: "<r:context select='root'><r:show attr='node_name'/></r:context>"
-  res: "zena"
+  src: "<r:context select='root'><r:show attr='title'/></r:context>"
+  res: "Zena the wild CMS"
 
 parent:
   src: "<r:parent do='title'/>"
@@ -135,7 +135,7 @@ parent:
   res: "Clean Water project"
 
 parent_no_parent:
-  src: "result=<r:root><r:parent><r:show attr='node_name'/></r:parent></r:root>="
+  src: "result=<r:root><r:parent><r:show attr='title'/></r:parent></r:root>="
   res: "result=="
 
 node_not_found:
@@ -157,8 +157,8 @@ children_else_block:
   res: "I am not tired."
 
 each_not_in_list:
-  src: "<r:each><r:show attr='node_name'/></r:each>"
-  res: "status"
+  src: "<r:each><r:show attr='title'/></r:each>"
+  res: "status title"
 
 hot_else_block:
   context:
@@ -174,75 +174,75 @@ hot_not_else_block:
   res: "I am hot funny"
 
 children_else:
-  src: "<r:children find='first' where='node_name like \"%asdfg\"' else='this'><r:show attr='node_name'/></r:children>"
-  res: "status"
+  src: "<r:children find='first' where='title like \"%asdfg\"' else='this'><r:show attr='title'/></r:children>"
+  res: "status title"
 
 hot_else:
   context:
     class: Project
-  src: "<r:hot else='project'><r:show attr='node_name'/></r:hot>"
-  res: "cleanWater"
+  src: "<r:hot else='project'><r:show attr='title'/></r:hot>"
+  res: "Clean Water project"
 
 updated_today:
   # date set in ZafuCompilerTest
-  src: "<r:pages in='site' updated='today' do='each' join=', ' do='show' attr='node_name'/>"
-  src: "<r:pages in='site' where='updated_at.day = now.day' do='each' join=', ' do='show' attr='node_name'/>"
-  res: "art, status"
+  src: "<r:pages in='site' updated='today' do='each' join=', ' do='show' attr='title'/>"
+  src: "<r:pages in='site' where='updated_at.day = now.day' do='each' join=', ' do='show' attr='title'/>"
+  res: "Art, status title"
 
 upcoming_events:
   # date set in ZafuCompilerTest
-  src: "<r:pages in='site' log='upcoming' do='each' join=', ' do='show' attr='node_name'/>"
-  src: "<r:pages in='site' where='log_at gt now' do='each' join=', ' do='show' attr='node_name'/>"
+  src: "<r:pages in='site' log='upcoming' do='each' join=', ' do='show' attr='title'/>"
+  src: "<r:pages in='site' where='log_at gt now' do='each' join=', ' do='show' attr='title'/>"
   res: "people"
 
 in_7_days:
   # date set in ZafuCompilerTest
-  old_src: "<r:pages in='site' log='+7days' do='each' join=', ' do='show' attr='node_name'/>"
-  src: "<r:pages in='site' where='log_at gt now and log_at lt now + 7 days' do='each' join=', ' do='show' attr='node_name'/>"
-  res: "cleanWater, projects"
+  old_src: "<r:pages in='site' log='+7days' do='each' join=', ' do='show' attr='title'/>"
+  src: "<r:pages in='site' where='log_at gt now and log_at lt now + 7 days' do='each' join=', ' do='show' attr='title'/>"
+  res: "Clean Water project, projects list"
 
 logged_7_days_ago:
   # date set in ZafuCompilerTest
-  old_src: "<r:pages in='site' log='-7days' do='each' join=', ' do='show' attr='node_name'/>"
-  src: "<r:pages in='site' where='log_at gt now - 7 days and log_at lt now' do='each' join=', ' do='show' attr='node_name'/>"
-  res: "cleanWater, projects"
+  old_src: "<r:pages in='site' log='-7days' do='each' join=', ' do='show' attr='title'/>"
+  src: "<r:pages in='site' where='log_at gt now - 7 days and log_at lt now' do='each' join=', ' do='show' attr='title'/>"
+  res: "Clean Water project, projects list"
 
 around_7_days:
   # date set in ZafuCompilerTest
-  old_src: "<r:pages in='site' log='7days' do='each' join=', ' do='show' attr='node_name'/>"
-  src: "<r:pages in='site' where='log_at gt now - 7 days and log_at lt now + 7 days' do='each' join=', ' do='show' attr='node_name'/>"
-  res: "art, cleanWater, projects, status"
+  old_src: "<r:pages in='site' log='7days' do='each' join=', ' do='show' attr='title'/>"
+  src: "<r:pages in='site' where='log_at gt now - 7 days and log_at lt now + 7 days' do='each' join=', ' do='show' attr='title'/>"
+  res: "Art, Clean Water project, projects list, status title"
 
 in_37_hours:
   # date set in ZafuCompilerTest
-  old_src: "<r:pages in='site' log='+37hours' do='each' join=', ' do='show' attr='node_name'/>"
-  src: "<r:pages in='site' where='log_at gt now and log_at lt now + 37 hours' do='each' join=', ' do='show' attr='node_name'/>"
-  res: "art, cleanWater"
+  old_src: "<r:pages in='site' log='+37hours' do='each' join=', ' do='show' attr='title'/>"
+  src: "<r:pages in='site' where='log_at gt now and log_at lt now + 37 hours' do='each' join=', ' do='show' attr='title'/>"
+  res: "Art, Clean Water project"
 
 this_week:
   # date set in ZafuCompilerTest
-  old_src: "<r:pages in='site' event='week' do='each' join=', ' do='show' attr='node_name'/>"
-  src: "<r:pages in='site' where='event_at.week = now.week' do='each' join=', ' do='show' attr='node_name'/>"
-  res: "art, projects"
+  old_src: "<r:pages in='site' event='week' do='each' join=', ' do='show' attr='title'/>"
+  src: "<r:pages in='site' where='event_at.week = now.week' do='each' join=', ' do='show' attr='title'/>"
+  res: "Art, projects list"
 
 this_month:
   # date set in ZafuCompilerTest
-  old_src: "<r:pages in='site' event='month' do='each' join=', ' do='show' attr='node_name'/>"
-  src: "<r:pages in='site' where='event_at.month = now.month' do='each' join=', ' do='show' attr='node_name'/>"
-  res: "art, projects"
+  old_src: "<r:pages in='site' event='month' do='each' join=', ' do='show' attr='title'/>"
+  src: "<r:pages in='site' where='event_at.month = now.month' do='each' join=', ' do='show' attr='title'/>"
+  res: "Art, projects list"
 
 this_year:
   # date set in ZafuCompilerTest
-  old_src: "<r:pages in='site' event='year' do='each' join=', ' do='show' attr='node_name'/>"
-  src: "<r:pages in='site' where='event_at.year = now.year' do='each' join=', ' do='show' attr='node_name'/>"
-  res: "art, projects"
+  old_src: "<r:pages in='site' event='year' do='each' join=', ' do='show' attr='title'/>"
+  src: "<r:pages in='site' where='event_at.year = now.year' do='each' join=', ' do='show' attr='title'/>"
+  res: "Art, projects list"
 
 date_select:
   context:
     visitor: tiger
-  old_src: "<r:date select='2006-04-05'><r:nodes in='site' log='current' do='each' join=', ' do='show' attr='node_name'/>"
-  src: "<r:void set_strdate='\"2006-04-05\"'><r:nodes where='log_at.day eq #{strdate}' in='site' do='each' join=', ' do='node_name'/></r:void>"
-  res: "letter, proposition"
+  old_src: "<r:date select='2006-04-05'><r:nodes in='site' log='current' do='each' join=', ' do='show' attr='title'/>"
+  src: "<r:void set_strdate='\"2006-04-05\"'><r:nodes where='log_at.day eq #{strdate}' in='site' do='each' join=', ' do='title'/></r:void>"
+  res: "Proposition, zena enhancements"
 
 empty_list:
   context:
@@ -254,27 +254,27 @@ order_limit:
   context:
     node: 'zena'
   src: "<ul do='news' in='site' limit='5' order='updated_at desc'><li do='each'><r:link/></li></ul>"
-  res: "<ul><li><a href='/en/projects/cleanWater/post27.html'>parc opening</a></li></ul>"
+  res: "<ul><li><a href='/en/projects-list/Clean-Water-project/post27.html'>parc opening</a></li></ul>"
 
 relation_not_in_current_node:
   src: "<ul do='news' in='site' limit='5' order='updated_at desc'><li do='each'><r:link/></li></ul>"
-  res: "<ul><li><a href='/en/projects/cleanWater/post27.html'>parc opening</a></li></ul>"
+  res: "<ul><li><a href='/en/projects-list/Clean-Water-project/post27.html'>parc opening</a></li></ul>"
 
 pages_anchor:
-  src: "<r:pages in='site' limit='3' do='each' join=', '><r:show attr='node_name' anchor='true'/></r:pages>"
-  res: "<a class='anchor' name='node33'></a>art, <a class='anchor' name='node21'></a>cleanWater, <a class='anchor' name='node32'></a>collections"
+  src: "<r:pages in='site' limit='3' do='each' join=', '><r:show attr='title' anchor='true'/></r:pages>"
+  res: "<a class='anchor' name='node29'></a>a wiki with Zena, <a class='anchor' name='node33'></a>Art, <a class='anchor' name='node21'></a>Clean Water project"
 
 projects_in_site:
-  src: "<div class='all_projects' do='projects' in='site'><r:each join=', ' do='show' attr='node_name'/></div>"
-  res: "<div class='all_projects'>cleanWater, wiki, zena</div>"
+  src: "<div class='all_projects' do='projects' in='site'><r:each join=', ' do='show' attr='title'/></div>"
+  res: "<div class='all_projects'>a wiki with Zena, Clean Water project, Zena the wild CMS</div>"
 
 projects:
-  src: "<r:projects in='site'><r:each join=', ' do='show' attr='node_name'/></r:projects>"
-  res: "cleanWater, wiki, zena"
+  src: "<r:projects in='site'><r:each join=', ' do='show' attr='title'/></r:projects>"
+  res: "a wiki with Zena, Clean Water project, Zena the wild CMS"
 
 nodes:
-  src: "<r:nodes in='project'><r:each join=', ' do='show' attr='node_name'/></r:nodes>"
-  res: "lake, lakeAddress, opening, status, track, water"
+  src: "<r:nodes in='project'><r:each join=', ' do='show' attr='title'/></r:nodes>"
+  res: "it's a lake, Keeping things clean !, Lake Tanganyika, parc opening, status title, water"
 
 menu_with_favorites:
   context:
@@ -299,60 +299,60 @@ checkbox_unique:
   res: "/<input type='radio' name='node\[icon_id\]' value='30'/> bird/"
 
 direction_both:
-  src: "<r:references or='reference_for' do='each' join=', ' do='node_name'/>"
-  res: "art, projects"
+  src: "<r:references or='reference_for' do='each' join=', ' do='title'/>"
+  res: "Art, projects list"
 
 direction_both_self_auto_ref:
-  src: "<r:references or='reference_for' do='each' join=', ' do='node_name'/>"
-  res: "art, projects, status"
+  src: "<r:references or='reference_for' do='each' join=', ' do='title'/>"
+  res: "Art, projects list, status title"
 
 direction_both_else:
-  src: "<r:references direction='both' else='[parent]' do='each' join=', ' do='node_name'/>"
-  res: "cleanWater"
+  src: "<r:references direction='both' else='[parent]' do='each' join=', ' do='title'/>"
+  res: "Clean Water project"
 
 visitor_node:
   src: "<r:visitor_node><b do='title'/></r:visitor_node>"
   res: "<b>Mr nobody</b>"
 
 relation_in_site:
-  src: "<r:tagged in='site' limit='10' do='each' join=',' do='node_name'/>"
-  res: "cleanWater,opening"
+  src: "<r:tagged in='site' limit='10' do='each' join=',' do='title'/>"
+  res: "Clean Water project,parc opening"
 
 relation_in_site_find_first:
-  src: "<r:tagged find='first' in='site' do='node_name'/>"
-  res: "cleanWater"
+  src: "<r:tagged find='first' in='site' do='title'/>"
+  res: "Clean Water project"
 
 where:
-  src: "<r:tagged where=\"node_name ='opening'\" in='site' do='each' join=',' do='node_name'/>"
-  res: "opening"
+  src: "<r:tagged where=\"id = 27\" in='site' do='each' join=',' do='id'/>"
+  res: "27"
 
 where_like:
-  src: "<r:images where='node_name like \"%ke\"' in='site' do='each' join=',' do='node_name'/>"
-  res: "lake"
+  src: "<r:images where='title like \"%ke\"' in='site' do='each' join=',' do='title'/>"
+  res: "it's a lake"
 
 else:
-  src: "<r:nodes where='node_name = 1' in='site' else='[this]' do='each' join=',' do='node_name'/>"
+  src: "<r:nodes where='id = 1' in='site' else='[this]' do='each' join=',' do='title'/>"
   tem: "/ false\) || \[@node\]\)/"
-  res: "status"
+  res: "status title"
 
 incompatible_else:
-  src: "<r:letters where='node_name = 1' in='site' else='this' do='each' join=',' do='node_name'/>"
+  src: "<r:letters where='id = 1' in='site' else='this' do='each' join=',' do='title'/>"
   tem: "/Incompatible.*\(Node\).*finder \(\[Letter\]\)/"
 
 where_not:
   context:
     node: 'cleanWater'
-  src: "<r:nodes where='node_name ne \"status\"' do='each' join=',' do='node_name'/>"
-  res: "lake,lakeAddress,opening,track,water"
+  src: "<r:nodes where='title ne \"status title\"' do='each' join=',' do='title'/>"
+  res: "it's a lake,Keeping things clean !,Lake Tanganyika,parc opening,water"
 
 where_two_attributes:
-  src: "<r:nodes where='log_at ne event_at' in='site' do='each' join=', ' do='node_name'/>"
+  src: "<r:nodes where='log_at ne event_at' in='site' do='each' join=', ' do='title'/>"
   tem: "/nodes.log_at <> nodes.event_at/"
-  res: "letter, opening"
+  res: "parc opening, zena enhancements"
 
 many_or:
-  src: "<r:tagged in='site' or='images in site' or='tags in site' do='each' join=',' do='node_name'/>"
-  res: "art,bird,cleanWater,flower,lake,menu,news,opening"
+  src: "<r:tagged in='site' or='images in site' or='tags in site' do='each' join=',' do='title'/>"
+  res: "Art,bird,Clean Water project,flower,it's a lake,News list,parc opening,Top menu"
 
 hot_or_page:
   context:
@@ -361,39 +361,39 @@ hot_or_page:
   tem: "/:first.*.*links.relation_id = _ID(project_has_a_hot_element).*nodes.kpath LIKE 'NP%' AND nodes.project_id = ?.*LIMIT 1.*@node.get_project_id"
 
 node_in_version:
-  src: "<r:version><r:node do='node_name'/></r:version>"
-  res: "status"
+  src: "<r:version><r:node do='title'/></r:version>"
+  res: "status title"
 
 where_with_param:
-  src: "<r:nodes where='node_name like \"%#{params[:t]}%\"' in='site'/>"
-  tem: "/node_name LIKE \?.*\"%\#\{params\[:t\]\}%\"/"
+  src: "<r:nodes where='title like \"%#{params[:t]}%\"' in='site'/>"
+  tem: "/ml1.value LIKE \?.*\"%\#\{params\[:t\]\}%\"/"
 
 group_by_secret_project:
   context:
     visitor: ant
-  src: "<r:pages where='node_name like \"t%\"' in='site' order='node_name ASC' do='group' by='project'><b do='project' do='node_name'/>: <r:each join=',' do='node_name'/></r:pages>"
-  res: ": talk<b>cleanWater</b>: track"
+  src: "<r:pages where='title like \"t%\"' in='site' order='title ASC' do='group' by='project'><b do='project' do='title'/>: <r:each join=',' do='title'/></r:pages>"
+  res: ": Talk<b>Zena the wild CMS</b>: Top menu"
 
 group_by_project:
   context:
     visitor: lion
-  src: "<r:notes in='site' order='node_name ASC' do='group' by='project'><b do='project' do='node_name'/>: <r:each join=',' do='node_name'/></r:notes>"
-  res: "<b>zena</b>: letter<b>cleanWater</b>: opening<b>secret</b>: proposition"
-
+  src: "<r:notes in='site' order='title ASC' do='group' by='project'><b do='project' do='title'/>: <r:each join=',' do='title'/></r:notes>"
+  res: "<b>Clean Water project</b>: parc opening<b>Secret</b>: Proposition<b>Zena the wild CMS</b>: zena enhancements"
+  
 group_by_project_sort_zip:
   context:
     visitor: ant
-  old_src: "<r:images in='site' order='node_name ASC' do='group' by='project' sort='zip'><b do='project' do='node_name'/>: <r:each join=',' do='node_name'/></r:images>"
-  src: "<r:images in='site' order='zip ASC' do='group' by='project' sort='id'><b do='project' do='node_name'/>: <r:each join=',' do='node_name'/></r:images>"
-  res: "<b>cleanWater</b>: lake<b>wiki</b>: bird,flower<b>zena</b>: tree"
+  old_src: "<r:images in='site' order='title ASC' do='group' by='project' sort='zip'><b do='project' do='title'/>: <r:each join=',' do='title'/></r:images>"
+  src: "<r:images in='site' order='zip ASC' do='group' by='project' sort='id'><b do='project' do='title'/>: <r:each join=',' do='title'/></r:images>"
+  res: "<b>Clean Water project</b>: it's a lake<b>a wiki with Zena</b>: bird,flower<b>Zena the wild CMS</b>: Autumn Tree"
 
 group_by_parent_sort:
-  src: "<r:images in='site' order='node_name ASC' do='group' by='parent' sort='title'><b do='parent' do='node_name'/>: <r:each join=',' do='node_name'/></r:images>"
-  res: "<b>wiki</b>: bird,flower<b>cleanWater</b>: lake"
+  src: "<r:images in='site' order='title ASC' do='group' by='parent' sort='title'><b do='parent' do='title'/>: <r:each join=',' do='title'/></r:images>"
+  res: "<b>a wiki with Zena</b>: bird,flower<b>Clean Water project</b>: it's a lake"
 
 nodes_in_site_group_by_year:
-  old_src: "<r:nodes in='site' group='log_at:year' order='log_at:year asc, node_name ASC' do='each' join=', '><r:show date='log_at' format='%Y'/></r:nodes>"
-  src: "<r:nodes in='site' group='log_at.year' order='log_at.year asc, node_name ASC' do='each' join=', '><r:show date='log_at' format='%Y'/></r:nodes>"
+  old_src: "<r:nodes in='site' group='log_at:year' order='log_at:year asc, title ASC' do='each' join=', '><r:show date='log_at' format='%Y'/></r:nodes>"
+  src: "<r:nodes in='site' group='log_at.year' order='log_at.year asc, title ASC' do='each' join=', '><r:show date='log_at' format='%Y'/></r:nodes>"
   res: ", 2006, 2007"
 
 comments_order_desc:
@@ -419,8 +419,8 @@ comments_previous_node:
   tem: "/zazen\(var2.text, :node => @node/"
 
 comments_in_site_node:
-  src: "<r:comments from='nodes in site' order='created_at desc' limit='2' do='each' join=', '><r:node do='node_name'/>: <r:show attr='title'/></r:comments>"
-  res: "status: re: What about rivers ?, status: What about rivers ?"
+  src: "<r:comments from='nodes in site' order='created_at desc' limit='2' do='each' join=', '><r:node do='title'/>: <r:show attr='title'/></r:comments>"
+  res: "status title: re: What about rivers ?, status title: What about rivers ?"
 
 find_by_zip:
   src: "<div do='find(30)' do='img'/>"
@@ -456,7 +456,7 @@ query:
     visitor: lion
     node: cleanWater
     qb: "nodes where updated_at.year = 2007 in project"
-  src: "<r:query default='nodes in project' do='each' join=', ' do='node_name'/>"
+  src: "<r:query default='nodes in project' do='each' join=', ' do='title'/>"
   tem: "/if var1 = query\('Node', \"@node\", params\[:qb\] \|\| \"nodes in project\"\)/"
   res: 'crocodiles'
 
@@ -465,8 +465,8 @@ query_with_default:
   context:
     visitor: lion
     node: cleanWater
-  src: "<r:query default='nodes in project' do='each' join=', ' do='node_name'/>"
-  res: 'bananas, crocodiles, lake, lakeAddress, opening, status, track, water'
+  src: "<r:query default='nodes in project' do='each' join=', ' do='title'/>"
+  res: "crocodiles, it's a lake, Keeping things clean !, The lake we love, Nice Bananas, parc opening, status title, water"
 
 query_with_param:
   # Live compile and query from params
@@ -475,7 +475,7 @@ query_with_param:
     node: cleanWater
     qb: "nodes where updated_at.year = #{params[:p]} in project"
     p: 2007
-  src: "<r:query default='nodes in project' do='each' join=', ' do='node_name'/>"
+  src: "<r:query default='nodes in project' do='each' join=', ' do='title'/>"
   res: 'crocodiles'
 
 query_eval:
@@ -484,10 +484,10 @@ query_eval:
     visitor: lion
     node: cleanWater
     scope: 'self'
-  src: "<r:query text='pages in #{params[:scope] || \"project\"}' default='pages in project' do='each' join=', ' do='node_name'/>"
-  res: 'bananas, crocodiles, status, track'
+  src: "<r:query text='pages in #{params[:scope] || \"project\"}' default='pages in project' do='each' join=', ' do='title'/>"
+  res: 'crocodiles, Keeping things clean !, Nice Bananas, status title'
 
 count:
-  src: "<p do='nodes in site' find='count'/>"
+  src: "<p do='nodes in site order by id' find='count'/>"
   tem: "<p><%= Node.do_find(:count, %Q{SELECT COUNT(*) FROM nodes WHERE #{secure_scope('nodes')}}) %></p>"
   res: "<p>42</p>"

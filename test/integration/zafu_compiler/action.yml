@@ -12,7 +12,7 @@ logout_link:
     # Forces NodesController type of url and params
     fake_controller: 'nodes'
   src: "<r:login_link/>"
-  res: '<a href="/logout?redirect=%2Fen%2Fprojects%2FcleanWater%2Fpage22.html">logout</a>'
+  res: '<a href="/logout?redirect=%2Fen%2Fprojects-list%2FClean-Water-project%2Fpage22.html">logout</a>'
 
 login_link:
   context:
@@ -20,7 +20,7 @@ login_link:
     # Forces NodesController type of url and params
     fake_controller: 'nodes'
   src: "<r:login_link/>"
-  res: '<a href="/oo/projects/cleanWater/page22.html">login</a>'
+  res: '<a href="/oo/projects-list/Clean-Water-project/page22.html">login</a>'
 
 logout_link_other_controller:
   src: "<r:login_link/>"
@@ -33,13 +33,13 @@ login_link_other_controller:
   res: '<a href="/login">login</a>'
 
 login_link_with_blocks:
-  src: "<r:login_link>ONE ONE<r:else do='node_name'/></r:login_link>"
-  res: "<a href='/logout'>status</a>"
+  src: "<r:login_link>ONE ONE<r:else do='title'/></r:login_link>"
+  res: "<a href='/logout'>status title</a>"
 
 login_link_with_blocks_not_logged_in:
   context:
     visitor: 'anon'
-  src: "<r:login_link><r:title/><r:else do='node_name'/></r:login_link>"
+  src: "<r:login_link><r:title/><r:else do='title'/></r:login_link>"
   res: "<a href='/login'>status title</a>"
 
 visitor_link_not_logged_in:

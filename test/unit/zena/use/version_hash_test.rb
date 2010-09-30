@@ -41,7 +41,7 @@ class VersionHashTest < Zena::Unit::TestCase
     setup do
       login(:tiger)
       visitor.lang = 'de'
-      @attributes = {'title' => 'Tigris Tigris'}
+      @attributes = {'name' => 'Tigris'}
     end
 
     subject do
@@ -66,7 +66,7 @@ class VersionHashTest < Zena::Unit::TestCase
 
     context 'with auto publish' do
       setup do
-        @attributes = {'title' => 'Tigris Tigris', :v_status => Zena::Status[:pub]}
+        @attributes = {'name' => 'Tigris Tigris', :v_status => Zena::Status[:pub]}
       end
 
       should 'set a readers and writers entry for the current lang' do

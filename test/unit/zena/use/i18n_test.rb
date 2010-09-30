@@ -27,7 +27,7 @@ class I18nTest < Zena::View::TestCase
       end
 
       should 'change lang with lang param' do
-        assert_match %r{href=.*/oo/projects/cleanWater\?lang=.*fr.*}, lang_links
+        assert_match %r{href=.*/oo/projects-list/Clean-Water-project\?lang=.*fr.*}, lang_links
       end
     end # on lang_links
   end # With a logged in user
@@ -57,7 +57,7 @@ class I18nTest < Zena::View::TestCase
       end
 
       should 'change lang with prefix' do
-        assert_match %r{href=.*/fr/projects/cleanWater.*fr.*}, lang_links
+        assert_match %r{href=.*/fr/projects-list/Clean-Water-project.*fr.*}, lang_links
       end
     end # on lang_links
   end # Without a login

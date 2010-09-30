@@ -77,6 +77,7 @@ Node:
         # all formations are created inside the course = project. This is why
         # form.project_id == course_id.
         - LEFT JOIN (SELECT nodes.project_id AS course_id, flink.target_id AS emp_id, MAX(nodes.event_at) AS last_date FROM nodes INNER JOIN links AS flink ON nodes.id = flink.source_id AND flink.relation_id = RELATION_ID(assigned_formation) AND (flink.status IS NULL OR flink.status = 100) GROUP BY flink.target_id, nodes.project_id) AS form ON courses.id = form.course_id AND form.emp_id = NODE_ID
+        - INNER JOIN idx_nodes_ml_strings AS _ml1 ON courses.id = _ml1.node_id AND _ml1.key = 'title' AND _ml1.lang = VISITOR_LANG
     where:
       # get all assigned jobs (links)
       - links.source_id = NODE_ID
@@ -88,13 +89,12 @@ Node:
       - li1.relation_id = RELATION_ID(assigned_course)
       - courses.id = li1.source_id
     group: courses.id
-    order: priority DESC, last_date ASC, courses.node_name ASC
+    order: priority DESC, last_date ASC, _ml1.value ASC
 
   course_emp_date:
     main_table: employees
     select:
       - employees.id
-      - employees.node_name
       - employees.publish_from
       - employees.zip
       - employees.vclass_id
@@ -118,11 +118,12 @@ Node:
     join_tables:
       employees:
         - LEFT JOIN (SELECT nodes.project_id AS project_id, flink.target_id AS emp_id, MAX(nodes.event_at) AS last_date FROM nodes INNER JOIN links AS flink ON nodes.id = flink.source_id AND flink.relation_id = RELATION_ID(assigned_formation) AND (flink.status IS NULL OR flink.status = 100) GROUP BY flink.target_id, nodes.project_id) AS form ON form.emp_id = employees.id AND form.project_id = NODE_ID
+        - INNER JOIN idx_nodes_ml_strings AS _ml1 ON employees.id = _ml1.node_id AND _ml1.key = 'title' AND _ml1.lang = VISITOR_LANG
     where:
       - employees.id = li1.source_id AND li1.relation_id = RELATION_ID(assigned_employee) AND li1.target_id = assigned_pages.project_id
       - assigned_pages.id = links.target_id AND links.relation_id = RELATION_ID(assigned_page) AND links.source_id = NODE_ID
     group: employees.id
-    order: employees.node_name ASC, IF(form.last_date,form.last_date,0) ASC
+    order: _ml1.value ASC, IF(form.last_date,form.last_date,0) ASC
 
 
   all_course_emp_date:
@@ -131,7 +132,6 @@ Node:
     main_table: courses
     select:
       - courses.id
-      - courses.node_name
       - courses.publish_from
       - courses.zip
       - courses.vclass_id

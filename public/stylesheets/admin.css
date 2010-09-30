@@ -8,8 +8,8 @@
 /* ADMIN USERS, GROUPS */
 .admin_links { margin:18px; border:1px solid #35462B; background:#ccc; padding:0;}
 .admin_links li { padding:0;}
-#context .admin_links li a { margin:0; border-top:1px solid #35462B; padding:3px; font-size:90%; color:black;  display:block;}
-#context .admin_links li:first-child a { border:0; }
+.admin_links li a { margin:0; border-top:1px solid #35462B; padding:3px; font-size:90%; color:black;  display:block;}
+.admin_links li:first-child a { border:0; }
 .admin_links li a:hover { background:#999; }
 .admin_links li a.on {background:#eee;}
 .disabled img { opacity:0.4;}

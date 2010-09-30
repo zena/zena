@@ -6,38 +6,38 @@ default:
 
 ml_title_where:
   src: "nodes where title like 'Etat%' in site"
-  sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings AS id1,nodes WHERE #{secure_scope('nodes')} AND id1.value LIKE 'Etat%' AND id1.lang = 'fr' AND id1.key = 'title' AND id1.node_id = nodes.id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
-  res: 'status'
+  sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings AS ml1,nodes WHERE #{secure_scope('nodes')} AND ml1.value LIKE 'Etat%' AND ml1.lang = 'fr' AND ml1.key = 'title' AND ml1.node_id = nodes.id ORDER BY nodes.zip ASC}"
+  res: 'Etat des travaux'
 
 ml_title_where_with_or:
   src: "nodes where title like 'Etat%' or class = Letter in site"
-  sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings AS id1,nodes WHERE #{secure_scope('nodes')} AND ((id1.value LIKE 'Etat%' AND id1.lang = 'fr' AND id1.key = 'title' AND id1.node_id = nodes.id) OR (nodes.kpath = 'NNL' AND id1.node_id = 0)) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
-  res: 'letter, status'
+  sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings AS ml1,nodes WHERE #{secure_scope('nodes')} AND ((ml1.value LIKE 'Etat%' AND ml1.lang = 'fr' AND ml1.key = 'title' AND ml1.node_id = nodes.id) OR (nodes.kpath = 'NNL' AND ml1.node_id = 0)) GROUP BY nodes.id ORDER BY nodes.zip ASC}"
+  res: 'Etat des travaux, zena enhancements'
 
 name_where:
   src: "contacts where name like 'Inv%' in site"
-  sql: "%Q{SELECT nodes.* FROM idx_nodes_strings AS id1,nodes WHERE #{secure_scope('nodes')} AND id1.value LIKE 'Inv%' AND id1.key = 'name' AND id1.node_id = nodes.id AND nodes.kpath LIKE 'NRC%' GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
-  res: 'ant'
+  sql: "%Q{SELECT nodes.* FROM idx_nodes_strings AS st1,nodes WHERE #{secure_scope('nodes')} AND st1.value LIKE 'Inv%' AND st1.key = 'name' AND st1.node_id = nodes.id AND nodes.kpath LIKE 'NRC%' ORDER BY nodes.zip ASC}"
+  res: 'Solenopsis Invicta'
 
 # TODO: Only implement with a proper use case. Ref [#190]
 #       this is really more complex then it seems if we do not want too bad performance. Easiest way:
 #       NOT EXISTS (SELECT 'x' FROM idx_nodes_ml_strings AS im WHERE im.node_id = nodes.id AND im.key = 'title' AND im.lang = 'fr')
 # indexed_value_is_null:
 #   src: "projects where title is null in site"
-#   sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings,nodes WHERE #{secure_scope('nodes')} AND idx_nodes_ml_strings.value IS NULL AND idx_nodes_ml_strings.key = 'title' AND idx_nodes_ml_strings.node_id = nodes.id AND nodes.kpath LIKE 'NPP%' GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
+#   sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings,nodes WHERE #{secure_scope('nodes')} AND idx_nodes_ml_strings.value IS NULL AND idx_nodes_ml_strings.key = 'title' AND idx_nodes_ml_strings.node_id = nodes.id AND nodes.kpath LIKE 'NPP%' ORDER BY nodes.zip ASC}"
 #   res: "wiki, zena"
 
 ml_title_order:
   context:
     node: 'cleanWater'
   src: "pages in site order by title asc limit 7"
-  sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings AS id1,nodes WHERE #{secure_scope('nodes')} AND id1.lang = 'fr' AND id1.key = 'title' AND id1.node_id = nodes.id AND nodes.kpath LIKE 'NP%' GROUP BY nodes.id ORDER BY id1.value ASC LIMIT 7}"
-  res: "wiki, art, cleanWater, collections, crocodiles, default, status"
+  sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings AS ml1,nodes WHERE #{secure_scope('nodes')} AND ml1.lang = 'fr' AND ml1.key = 'title' AND ml1.node_id = nodes.id AND nodes.kpath LIKE 'NP%' ORDER BY ml1.value ASC LIMIT 7}"
+  res: "a wiki with Zena, Art, Clean Water project, Collections, crocodiles, Default skin, Etat des travaux"
 
 
 ml_title_filter_in_relation:
   src: "references where title = 'important'"
-  sql: "/idx_nodes_ml_strings AS id1.*id1.value = 'important'.*lang = 'fr'.*key = 'title'.*nodes.id = links.target_id.*source_id = \?/"
+  sql: "/idx_nodes_ml_strings AS ml1.*ml1.value = 'important'.*lang = 'fr'.*key = 'title'.*nodes.id = links.target_id.*source_id = \?/"
   res: ""
 
 
@@ -45,16 +45,33 @@ filter_ml_string:
   context:
     lang: 'de'
   src: "nodes where title = 'foo' in site"
-  sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings AS id1,nodes WHERE #{secure_scope('nodes')} AND id1.value = 'foo' AND id1.lang = 'fr' AND id1.key = 'title' AND id1.node_id = nodes.id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
+  sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings AS ml1,nodes WHERE #{secure_scope('nodes')} AND ml1.value = 'foo' AND ml1.lang = 'fr' AND ml1.key = 'title' AND ml1.node_id = nodes.id ORDER BY nodes.zip ASC}"
 
 filter_ml_string_order:
   context:
     lang: 'de'
   src: "nodes where title = 'foo' in site order by title"
-  sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings AS id1,nodes WHERE #{secure_scope('nodes')} AND id1.value = 'foo' AND id1.lang = 'fr' AND id1.key = 'title' AND id1.node_id = nodes.id GROUP BY nodes.id ORDER BY id1.value}"
+  sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings AS ml1,nodes WHERE #{secure_scope('nodes')} AND ml1.value = 'foo' AND ml1.lang = 'fr' AND ml1.key = 'title' AND ml1.node_id = nodes.id ORDER BY ml1.value}"
 
 filter_ml_string_twice:
   context:
     lang: 'de'
   src: "nodes where title = 'foo' and title = 'baz' in site"
-  sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings AS id1,nodes WHERE #{secure_scope('nodes')} AND id1.value = 'foo' AND id1.value = 'baz' AND id1.lang = 'fr' AND id1.key = 'title' AND id1.node_id = nodes.id GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
+  sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings AS ml1,nodes WHERE #{secure_scope('nodes')} AND ml1.value = 'foo' AND ml1.value = 'baz' AND ml1.lang = 'fr' AND ml1.key = 'title' AND ml1.node_id = nodes.id ORDER BY nodes.zip ASC}"
+
+  
+ml_title_with_name:
+  src: "contacts where title like '%Invicta%' or name = 'Leo Verneyi' in site"
+  sql: "/ml1.*st1/"
+  res: 'Solenopsis Invicta, Panthera Leo Verneyi'
+  
+ml_title_with_name_with_sort:
+  src: "contacts where title like '%Invicta%' or name = 'Leo Verneyi' in site order by title"
+  sql: "/ml1.*ml2.*st1/"
+  res: 'Panthera Leo Verneyi, Solenopsis Invicta'
+  
+# Group by property
+group_by_ml_title:
+  src: 'contacts in site group by title'
+  sql: "%Q{SELECT nodes.* FROM idx_nodes_ml_strings AS ml1,nodes WHERE #{secure_scope('nodes')} AND ml1.lang = 'fr' AND ml1.key = 'title' AND ml1.node_id = nodes.id AND nodes.kpath LIKE 'NRC%' GROUP BY ml1.value ORDER BY nodes.zip ASC}"
+  res: "Solenopsis Invicta, Panthera Tigris Sumatran, Panthera Leo Verneyi, The lake we love, Mr nobody"

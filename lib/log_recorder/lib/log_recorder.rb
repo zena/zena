@@ -88,9 +88,9 @@ class LogRecorder
     puts parse_date("10/Oct/2000:13:55:36 -0100")
     puts parse_path("GET /apache_pb.gif HTTP/1.0")
     puts get_site_id("test.host").inspect
-    puts find_zip_by_path("projects/cleanWater")
+    puts find_zip_by_path("projects-list/Clean-Water-project")
     insert_combined_record('213.3.85.165 - - [29/Feb/2008:11:34:22 +0100] "GET /en/image133_tiny.jpg HTTP/1.1" 200 4039 "http://zenadmin.org/en" "Mozilla/5.0 (Macintosh; U; PPC Mac OS X; fr) AppleWebKit/419.3 (KHTML, like Gecko) Safari/419.3"')
-    insert_combined_record('213.3.85.165 - - [29/Feb/2008:11:38:09 +0100] "GET /fr/projects/cleanWater.html HTTP/1.1" 200 4760 "http://zenadmin.org/en" "Mozilla/5.0 (Macintosh; U; PPC Mac OS X; fr) AppleWebKit/419.3 (KHTML, like Gecko) Safari/419.3"')
+    insert_combined_record('213.3.85.165 - - [29/Feb/2008:11:38:09 +0100] "GET /fr/projects-list/Clean-Water-project.html HTTP/1.1" 200 4760 "http://zenadmin.org/en" "Mozilla/5.0 (Macintosh; U; PPC Mac OS X; fr) AppleWebKit/419.3 (KHTML, like Gecko) Safari/419.3"')
   end
   private
     def get_site_id(vhost_name)

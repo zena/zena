@@ -35,13 +35,23 @@ gsub_newline:
   src: "<r:Contact do='address.gsub(/\\n/, \"\\\\n\")'/>"
   res: 'Small Island\nIn the Wild'
 
+upcase:
+  eval: "title.upcase"
+  tem: "<%= (@node.prop['title'] ? @node.prop['title'].upcase : nil) %>"
+  res: "STATUS TITLE"
+
+strip:
+  eval: "%Q{ #{id}}.strip"
+  tem: "<%= \" #{@node.zip}\".strip %>"
+  res: "22"
+
 blank:
   eval: 'this.blank?'
   tem:  "<%= @node.blank? %>"
 
 blank_on_string:
-  eval: 'node_name.blank?'
-  tem:  "<%= @node.node_name.blank? %>"
+  eval: 'id.blank?'
+  tem:  "<%= @node.zip.blank? %>"
 
 blank_on_could_be_nil:
   eval: 'parent.blank?'

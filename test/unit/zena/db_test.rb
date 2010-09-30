@@ -25,7 +25,7 @@ class DbTest < Zena::Unit::TestCase
   end
 
   def test_insensitive_find
-    assert_equal nodes_zip(:status), secure(Node) { Zena::Db.insensitive_find(Node, :first, :node_name => 'sTatuS')}.zip
+    assert_equal nodes_zip(:status), secure(Node) { Zena::Db.insensitive_find(Node, :first, :_id => 'sTatuS')}.zip
   end
 
   def test_next_zip_rollback
@@ -36,16 +36,16 @@ class DbTest < Zena::Unit::TestCase
   end
 
   def test_fetch_row
-    assert_equal "water", Zena::Db.fetch_attribute("SELECT node_name FROM nodes WHERE id = #{nodes_id(:water_pdf)}")
-    assert_nil Zena::Db.fetch_attribute("SELECT node_name FROM nodes WHERE #{Zena::Db::FALSE}")
+    assert_equal "water_pdf", Zena::Db.fetch_attribute("SELECT _id FROM nodes WHERE id = #{nodes_id(:water_pdf)}")
+    assert_nil Zena::Db.fetch_attribute("SELECT _id FROM nodes WHERE #{Zena::Db::FALSE}")
   end
 
   def test_fetch_attributes
-    assert_equal [{"node_name"=>"secret", "zip"=>"19"},
-     {"node_name"=>"status", "zip"=>"22"},
-     {"node_name"=>"strange", "zip"=>"36"},
-     {"node_name"=>"skins", "zip"=>"51"},
-     {"node_name"=>"style", "zip"=>"53"}], Zena::Db.fetch_attributes(['zip','node_name'], 'nodes', "node_name like 's%' and site_id = #{sites_id(:zena)} ORDER BY zip")
+    assert_equal [{"_id"=>"secret", "zip"=>"19"},
+     {"_id"=>"status", "zip"=>"22"},
+     {"_id"=>"strange", "zip"=>"36"},
+     {"_id"=>"skins", "zip"=>"51"},
+     {"_id"=>"style_css", "zip"=>"53"}], Zena::Db.fetch_attributes(['zip','_id'], 'nodes', "_id like 's%' and site_id = #{sites_id(:zena)} ORDER BY zip")
   end
 
   def test_migrated_once
@@ -60,25 +60,25 @@ class DbTest < Zena::Unit::TestCase
 
     should 'not change updated_at date' do
       old_updated_at = @node.updated_at
-      Zena::Db.set_attribute(@node, :node_name, 'flop')
+      Zena::Db.set_attribute(@node, :_id, 'flop')
       @node = secure!(Node) { nodes(:status) } # reload
       assert_equal old_updated_at, @node.updated_at
     end
 
     should 'set attribute in node' do
-      Zena::Db.set_attribute(@node, :node_name, 'flop')
-      assert_equal 'flop', @node.node_name
+      Zena::Db.set_attribute(@node, :_id, 'flop')
+      assert_equal 'flop', @node._id
     end
 
     should 'not mark as dirty' do
-      Zena::Db.set_attribute(@node, :node_name, 'flop')
+      Zena::Db.set_attribute(@node, :_id, 'flop')
       assert !@node.changed?
     end
 
     should 'set attribute in db' do
-      Zena::Db.set_attribute(@node, :node_name, 'flop')
+      Zena::Db.set_attribute(@node, :_id, 'flop')
       @node = secure!(Node) { nodes(:status) } # reload
-      assert_equal 'flop', @node.node_name
+      assert_equal 'flop', @node._id
     end
 
     should 'set a time' do

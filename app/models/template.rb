@@ -6,11 +6,11 @@ Definitions:
 
 Render ---> Master template --include--> helper template --include--> ...
 
-For master templates, the node_name is build from the different filters (target_klass, mode, format):
+For master templates, the title is build from the different filters (target_klass, mode, format):
 
 Klass-mode-format. Examples: Node-index, Node--xml, Project-info. Note how the format is omitted when it is 'html'.
 
-Other templates have a node_name built from the given name, just like any other node.
+Other templates have a title built from the given name, just like any other node.
 
 =end
 class Template < TextDocument
@@ -63,14 +63,14 @@ class Template < TextDocument
       # Force template content-type to 'text/zafu'
       self.content_type = 'text/zafu'
 
-      if node_name_changed?
-        if node_name =~ /^([A-Z][a-zA-Z]+?)(-(([a-zA-Z_\+]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/
-          # node_name/title changed force  update
+      if prop.title_changed?
+        if title =~ /^([A-Z][a-zA-Z]+?)(-(([a-zA-Z_\+]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/
+          # title changed force  update
           prop['target_klass']  = $1            unless prop.target_klass_changed?
           prop['mode']   = ($4 || '').url_name  unless prop.mode_changed?
           prop['format'] = ($6 || 'html')       unless prop.format_changed?
         else
-          # node_name set but it is not a master template name
+          # title set but it is not a master template name
           prop['target_klass']  = nil
           prop['mode']   = nil
           prop['format'] = nil
@@ -78,13 +78,12 @@ class Template < TextDocument
       end
 
       if version.edited?
-         prop['mode'] = prop['mode'].url_name if prop['mode']
+         prop['mode'] = prop['mode'].gsub(/[^a-zA-Z]/, '') if prop['mode']
 
         if !prop['target_klass'].blank?
-          # update node_name
+          # update title
           prop['format'] = 'html' if prop['format'].blank?
-          self.node_name = node_name_from_mode_and_format
-          self.title = self.node_name
+          self.title = title_from_mode_and_format
 
           if text.blank? && prop['format'] == 'html' && prop['mode'] != '+edit'
             # set a default text
@@ -121,7 +120,7 @@ END_TXT
       end
     end
 
-    def node_name_from_mode_and_format(opts={})
+    def title_from_mode_and_format(opts={})
       opts[:format]  ||= prop['format']
       opts[:mode  ]  ||= prop['mode']
       opts[:target_klass ]  ||= prop['target_klass']

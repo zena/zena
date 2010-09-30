@@ -10,25 +10,28 @@ module Zena
         # Return a template's content from an url. If the url does not start with a '/', we try by replacing the
         # first element with the current skin_name and if it does not work, we try with the full url. If the url
         # start with a '/' we use the full url directly.
-        def get_template_text(path, base_path)
+        def get_template_text(path, section_id = nil)
           if path =~ DEFAULT_PATH
             filepath = File.join(DEFAULT_TEMPLATES_PATH, "#{$1}.zafu")
             text = File.exist?(filepath) ? File.read(filepath) : nil
-            return text, path, base_path
+            return text, path, nil
           elsif @skin.nil? && path == 'Node'
             filepath = File.join(DEFAULT_TEMPLATES_PATH, "default/#{path}.zafu")
             text = File.exist?(filepath) ? File.read(filepath) : nil
-            return text, path, base_path
-          elsif res = find_document_for_template(path, base_path)
-            doc, base_path = res
-            # text, fullpath (for recursion testing), base_path
-            return doc.text, doc.fullpath, base_path, doc
+            return text, path, nil
           else
-            nil
+            path = path.split('/').map {|s| String.from_filename(s) }
+            if doc = find_document_for_template(path, section_id)
+              # text, fullpath (for recursion testing), base_path
+              return doc.text, doc.fullpath, doc.section_id, doc
+            else
+              nil
+            end
           end
         end
 
-        # Return the zen_path ('/en/image34.png') for an asset given its name ('img/footer.png').
+        # Return the zen_path ('/en/image34.png') for an asset given its (urlencoded)
+        # path ('img/footer.png').
         # The rule is not the same whether we are rendering a template and find <img/> <link rel='stylesheet'/> tags
         # or if we are parsing assets in a CSS file.
         def template_url_for_asset(opts)
@@ -38,8 +41,7 @@ module Zena
           end
 
           if opts[:parse_assets]
-            base_path = opts[:base_path] || ''
-            base_path = base_path[1..-1] if base_path[0..0] == '/'
+            parent_id = opts[:parent].id
 
             if source =~ /\A(.*)_(\w+)\Z/
               # if the element was not found, maybe it was not a name with underscore but it was an image mode
@@ -48,48 +50,55 @@ module Zena
 
             paths = []
             if source[0..0] == '/'
+              # ignore parent
+              parent_id = current_site.root_id
               paths << source[1..-1]
               paths << src2[1..-1] if src2
             else
-              paths << (base_path + '/' + source)
-              paths << (base_path + '/' + src2) if src2
+              paths << source
+              paths << src2 if src2
             end
 
-            # make sure path elements are url_names
+            # Retrieve titles from urlencoding
             paths.map! do |path|
-              res = []
+              res    = nil
+              par_id = parent_id
               path.split('/').each do |e|
                 if e == '..'
+                  # forces absolute path
+                  par_id = current_site.root_id
+                  res ||= opts[:parent].fullpath_as_title
                   res.pop
                 else
-                  res << e.url_name
+                  res ||= []
+                  res << String.from_filename(e)
                 end
               end
-              res.join('/')
+              [res, par_id]
             end
 
-            if asset = secure(Document) { Document.find_by_path(paths[0]) }
-            elsif src2 && (asset = secure(Document) { Document.find_by_path(paths[1]) })
+            if asset = secure(Document) { Document.find_by_path(*paths[0]) }
+            elsif src2 && (asset = secure(Document) { Document.find_by_path(*paths[1]) })
               mode = mode2
             else
               return nil
             end
           else
-            src2 = source.split('/').map {|s| s.url_name!}.join('/')
+            src2 = source.split('/').map {|s| String.from_filename(s) }
 
             if source =~ /\A(.*)_(\w+)\Z/
               source, mode = $1, $2
             end
 
+            source = source.split('/').map {|f| String.from_filename(f) }
 
-            unless res = find_document_for_template(source, opts[:base_path])
+            unless asset = find_document_for_template(source, opts[:base_path])
               # '_...' did not mean mode but was an old name.
               mode = nil
-              return nil unless res = find_document_for_template(src2, opts[:base_path])
+              return nil unless asset = find_document_for_template(src2, opts[:base_path])
             end
 
-            asset, base_path = res
-            self.renamed_assets[asset.fullpath] = asset
+            self.renamed_assets[[asset.section_id, asset.title]] = asset
           end
 
           data_path(asset, :mode => mode)
@@ -113,7 +122,7 @@ module Zena
         # Return the template path without '.erb' extension in case we need to append '_form'
         # from a template's url. The expected url is of the form '/skin/Klass-mode/partial'
         def template_path_from_template_url(template_url=params[:t_url])
-          if template_url =~ /\A\.|[^\w\+\._\-\/\$]/
+          if template_url =~ /\A\.|[^ #{String::ALLOWED_CHARS_IN_FILEPATH}]/
             raise Zena::AccessViolation.new("'template_url' contains illegal characters : #{template_url.inspect}")
           end
 
@@ -170,41 +179,35 @@ module Zena
         # Without a leading slash "special/Node"
         # 1. Search for a Document with fullpath [current directory]/special/Node
         # 2. Search anywhere in the master skin for a document named 'Node'
-        def find_document_for_template(src, base_path = nil)
-          if src =~ /^\//
-            # Starts with '/' : first part of the path is a Skin
-            url = src[1..-1].split('/')
-          else
-            # does not start with '/' : look in current directory
-            folder = base_path.blank? ? [] : base_path.split('/')
-            url = folder + src.split('/')
-          end
+        def find_document_for_template(src, section_id = nil)
+          src = src.split('/') unless src.kind_of?(Array)
 
-          skin_name = url.shift
+          if src[0] == ''
+            # Starts with '/' : first part of the path is a Skin
+            section_id = nil
+            # remove blank
+            src.shift
+            # get skin
+            return nil unless skin = get_skin(src.shift)
+            section_id = skin.id
+          elsif section_id.nil? && @skin
+            section_id = @skin.id
+            # does not start with '/' : look in current directory
+          end
 
           # TODO: can we move this initialization somewhere else ?
           self.expire_with_nodes ||= {}
           self.renamed_assets ||= {}
 
-          return nil unless skin = get_skin(skin_name)
-
-          fullpath = (skin.fullpath.split('/') + url).join('/')
-
-          unless document = self.expire_with_nodes[fullpath]
-            unless document = secure(Document) { Document.find_by_path(fullpath) }
-              document = secure(Document) { Document.first(:conditions => ['node_name = ? AND section_id = ?', url.last, skin.id]) }
-              self.expire_with_nodes[document.fullpath] = document if document
+          unless document = self.expire_with_nodes[[section_id, src]]
+            unless document = secure(Document) { Document.find_by_path(src, section_id) }
+              # find anywhere in Skin
+              document = secure(Document) { Document.find_by_title(src.last, :conditions => ['section_id = ?', section_id]) }
             end
-            self.expire_with_nodes[fullpath] = document if document
+            self.expire_with_nodes[[section_id, src]] = document if document
           end
 
-          if document
-            # Return document and base_path to document
-            base_path = "#{([skin.node_name] + url[0..-2]).join('/')}"
-            [document, base_path]
-          else
-            nil
-          end
+          document
         end
 
       end # Common
@@ -241,11 +244,16 @@ module Zena
               :order      => "length(tkpath) DESC"
             )}
 
-
             # Path as seen from zafu:
-            zafu_url  = template.fullpath.gsub(/^#{@skin.fullpath}/, @skin.node_name)
+            path_in_skin = template.fullpath.gsub(/^#{@skin.fullpath}\//, '')
 
-            rel_path  = current_site.zafu_path + "/#{zafu_url}/#{lang_path}/_main.erb"
+            if path_in_skin == template.zip.to_s
+              zafu_url = [@skin.title, template.title]
+            else
+              zafu_url = [@skin.title] + Node.fullpath_map(path_in_skin, :title)
+            end
+
+            rel_path  = current_site.zafu_path + "/#{zafu_url.map(&:to_filename).join('/')}/#{lang_path}/_main.erb"
             path      = SITES_ROOT + rel_path
 
             if !File.exists?(path) || params[:rebuild]
@@ -255,7 +263,7 @@ module Zena
                 nil
               end
 
-              unless rebuild_template(template, opts.merge(:zafu_url => zafu_url, :rel_path => rel_path, :dev_mode => (dev_box?(mode, format))))
+              unless rebuild_template(template, opts.merge(:zafu_url => zafu_url.join('/'), :rel_path => rel_path, :dev_mode => (dev_box?(mode, format))))
                 return default_template_url(opts)
               end
             end
@@ -314,11 +322,11 @@ module Zena
           elsif skin = @skins[skin_name]
             return skin
           else
-            skin =secure(Skin) { Skin.find_by_node_name(skin_name)}
+            skin =secure(Skin) { Skin.find_by_title(skin_name) }
           end
 
           if skin
-            @skins[skin.node_name] = skin
+            @skins[skin.title] = skin
           end
 
           skin
@@ -353,13 +361,14 @@ module Zena
           # a filesystem path inside SITES_ROOT where the built template should be compiled.
           def rebuild_template(template, opts = {})
             zafu_url, rel_path, insert_dev = opts[:zafu_url], opts[:rel_path], opts[:dev_mode]
+            
             # clear :
             FileUtils::rmtree(File.dirname(SITES_ROOT + rel_path))
 
             # Cache loaded templates and skins
             if template
               self.expire_with_nodes = {
-                template.fullpath => template
+                template.fullpath_as_title => template
               }
             end
 
@@ -449,7 +458,7 @@ module Zena
           [
             ['off',    nil ],
             ['any',    0   ],
-          ] + skins.map {|s| [ s.node_name, s.zip ] } + [
+          ] + skins.map {|s| [ s.title, s.zip ] } + [
             ['rescue', -1  ],
           ]
         end

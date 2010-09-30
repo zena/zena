@@ -35,21 +35,21 @@ class MultipleHostsTest < ActionController::IntegrationTest
   end
 
   def test_cache
-    status_zip = nodes(:zena, :status).zip
+    node_zip = nodes(:zena, :people).zip
     without_files('/test.host/public') do
       with_caching do
-        path = "/en/projects/cleanWater/page#{status_zip}.html"
+        path = "/en/section#{node_zip}.html"
         filepath = "#{RAILS_ROOT}/sites/test.host/public#{path}"
         assert !File.exist?(filepath)
         anon.get "http://test.host#{path}"
         assert_equal 200, anon.status
         assert File.exist?(filepath), "Cache file created"
-        node = nodes(:zena, :status)
-        assert_equal 1, CachedPage.count(:conditions => "path like '%page#{status_zip}%'")
+        node = nodes(:zena, :people)
+        assert_equal 1, CachedPage.count(:conditions => "path like '%section#{node_zip}%'")
         assert_not_equal 0, Zena::Db.fetch_attribute("SELECT COUNT(*) as count_all FROM cached_pages_nodes WHERE node_id = #{node[:id]}").to_i
         node.visitor = Thread.current[:visitor]
         node.sweep_cache
-        assert_equal 0, CachedPage.count(:conditions => "path like '%page#{status_zip}%'")
+        assert_equal 0, CachedPage.count(:conditions => "path like '%section#{node_zip}%'")
         assert_equal 0, Zena::Db.fetch_attribute("SELECT COUNT(*) as count_all FROM cached_pages_nodes WHERE node_id = #{node[:id]}").to_i
         assert !File.exist?(filepath)
       end

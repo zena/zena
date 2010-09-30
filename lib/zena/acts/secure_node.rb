@@ -235,7 +235,7 @@ module Zena
             # Node hasn't been changed (only version edits)
             return true
           end
-
+          
           if !can_drive_was_true?
             errors.add(:base, 'You do not have the rights to do this.') unless errors[:base]
             return false

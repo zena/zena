@@ -71,8 +71,8 @@ class NavigationTest < Zena::Integration::TestCase
     assert_redirected_to "http://test.host/oo"
     # 2. navigating out of '/oo' but logged in and format is not data, custom_base url (format not in path)
     assert_equal 'en', session[:lang]
-    get 'http://test.host/fr/projects/cleanWater'
-    assert_redirected_to 'http://test.host/oo/projects/cleanWater'
+    get 'http://test.host/fr/page18.html'
+    assert_redirected_to 'http://test.host/oo/page18.html'
     assert_equal 'fr', session[:lang]
     follow_redirect!
     assert_response :success
@@ -188,6 +188,11 @@ class NavigationTest < Zena::Integration::TestCase
     assert_response :success
     assert_equal 'fr', session[:lang]
   end
+  
+  def test_url_with_custom_base
+    get 'http://test.host/en/projects-list/Clean-Water-project'
+    assert_response :success
+  end
 
   def test_nodes_redirect
     get 'http://test.host/nodes/30'
@@ -227,10 +232,10 @@ class NavigationTest < Zena::Integration::TestCase
   end
 
   def test_url_by_path_without_lang_redirect
-    get 'http://test.host/projects/wiki'
-    assert_redirected_to 'http://test.host/en/projects/wiki'
+    get 'http://test.host/people'
+    assert_redirected_to 'http://test.host/en/people'
     follow_redirect!
-    assert_redirected_to 'http://test.host/en/project29.html'
+    assert_redirected_to 'http://test.host/en/section12.html'
     follow_redirect!
     assert_response :success
   end

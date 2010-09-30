@@ -6,7 +6,7 @@ if_test_param_var:
 
 # [zafu_attribute:edit] needs reimplementation with JS rendering (like drag/drop): use data attribute ? class name ?
 show_edit:
-  src: "<r:show attr='node_name' edit='true'/>"
+  src: "<r:show attr='title' edit='true'/>"
   tem: "<% if @node.can_write? -%><span class='show_edit' id='list1_name'><%= link_to_remote(@node.name, :url => edit_node_path(@node.zip) + \"?attribute=name&dom_id=list1_name\", :method => :get) %></span><% else -%><%= @node.name %><% end -%>"
   res: "/span class='show_edit' id='list1_name'>.*Ajax\.Request\('/nodes/22/edit\?attribute=name/"
 
@@ -27,17 +27,17 @@ each_in_each_dom_id:
 
 # [ajax] zazen edit=true (maybe should implement in zafu_attributes with filter_edit)
 zazen_edit:
-  src: "<r:zazen attr='node_name' edit='true'/>"
-  tem: "<div class='zazen' id='list1_name'><% if @node.can_write? -%><span class='zazen_edit'><%= link_to_remote(\"edit\", :url => edit_node_path(@node.zip) + \"?attribute=name&dom_id=list1_name&zazen=true\", :method => :get) %></span><% end -%><%= zazen(@node.node_name, :node=>@node) %></div>"
+  src: "<r:zazen attr='title' edit='true'/>"
+  tem: "<div class='zazen' id='list1_name'><% if @node.can_write? -%><span class='zazen_edit'><%= link_to_remote(\"edit\", :url => edit_node_path(@node.zip) + \"?attribute=name&dom_id=list1_name&zazen=true\", :method => :get) %></span><% end -%><%= zazen(@node.prop['title'], :node=>@node) %></div>"
   res: "/div class='zazen' id='list1_name'>.*Ajax\.Request\('/nodes/22/edit\?attribute=name/"
 
 zazen_edit_publish_force:
-  src: "<r:zazen attr='node_name' edit='true' publish='force'/>"
-  tem: "/attribute=node_name&dom_id=.*_node_name&publish=force&zazen=true/"
+  src: "<r:zazen attr='title' edit='true' publish='force'/>"
+  tem: "/attribute=title&dom_id=.*_title&publish=force&zazen=true/"
 
 zazen_edit_publish_true:
-  src: "<r:zazen attr='node_name' edit='true' publish='true'/>"
-  tem: "/attribute=node_name&dom_id=.*_node_name&publish=true&zazen=true/"
+  src: "<r:zazen attr='title' edit='true' publish='true'/>"
+  tem: "/attribute=title&dom_id=.*_title&publish=true&zazen=true/"
 
 # Update query builder for DataEntry
 select_nodes_data_list:

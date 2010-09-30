@@ -120,7 +120,7 @@ module Zena
             if %w{true [id] [zip]}.include?(anchor)
               anchor_value = "node#{node.zip}"
             elsif anchor =~ /\[(.+)\]/
-              anchor_value = $1 == 'node_name' ? node.node_name : node.prop[$1]
+              anchor_value = node.prop[$1].url_name
             else
               anchor_value = anchor
             end
@@ -208,11 +208,12 @@ module Zena
 
         # Create a gallery from a list of images. See ApplicationHelper#zazen for details.
         def make_gallery(ids=[], opts={})
+          node = opts[:node] || @node
           if ids == []
-            images = secure(Image) { Image.find(:all, :conditions => ["parent_id = ?", (opts[:node] || @node)[:id]], :order => "position ASC, node_name ASC")}
+            images = node.find(:all, 'images')
           else
             ids = ids.map{|i| i.to_i}
-            images = ids == [] ? nil : secure(Document) { Document.find(:all, :conditions=>"zip IN (#{ids.join(',')})") }
+            images = secure(Document) { Document.find(:all, :conditions=>"zip IN (#{ids.join(',')})") }
             # order like ids :
             images.sort! {|a,b| ids.index(a[:zip].to_i) <=> ids.index(b[:zip].to_i) } if images
           end
@@ -244,7 +245,7 @@ module Zena
             docs = node.find(:all, 'images')
           else
             ids = ids.map{|i| i.to_i}
-            docs = ids == [] ? nil : secure!(Document) { Document.find(:all, :order=>'node_name ASC', :conditions=>"zip IN (#{ids.join(',')})") }
+            docs = ids == [] ? nil : secure!(Document) { Document.find(:all, :conditions=>"zip IN (#{ids.join(',')})") }
             # order like ids :
             docs.sort! {|a,b| ids.index(a[:zip].to_i) <=> ids.index(b[:zip].to_i) } if docs
           end

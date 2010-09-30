@@ -65,7 +65,7 @@ class CachedPageTest < Zena::Unit::TestCase
           login(:tiger)
           # edit node only
           node = secure!(Node) { nodes(:bird_jpg) }
-          assert node.update_attributes(:node_name => 'hey'), "Can save"
+          assert node.update_attributes(:title => 'hey'), "Can save"
           assert !File.exists?(path), "Cache file removed"
         end
       end

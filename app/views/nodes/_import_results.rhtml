@@ -6,7 +6,7 @@
     <% @nodes.each do |node| -%>
       <tr class='import_<%= node.errors.empty? ? (node[:create_or_update]) : 'error' %>'>
         <td><%= img_tag(node, :mode=>'tiny') %></td>
-        <td><%= node.rootpath %></td>
+        <td><%= node.short_path %></td>
         <% if node[:create_or_update] == 'same' && node.errors.empty? -%>
         <td colspan='3'><%= _('same') %></td>
         <% else -%>

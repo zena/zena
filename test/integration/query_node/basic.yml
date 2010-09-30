@@ -4,39 +4,39 @@ default:
     node: 'cleanWater'
     visitor: 'ant'
   src: ""
-  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.parent_id = ? ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id]"
-  res: "crocodiles, lake, lakeAddress, opening, status, track, water"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.parent_id = ? ORDER BY nodes.zip ASC}, @node.id]"
+  res: "Etat des travaux, The lake we love, it's a lake, water, crocodiles, super ouverture, Keeping things clean !"
 
 nodes:
   src: "nodes"
-  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.parent_id = ? ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id]"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.parent_id = ? ORDER BY nodes.zip ASC}, @node.id]"
 
 pages:
   src: "pages"
-  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NP%' AND nodes.parent_id = ? ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id]"
-  res: "crocodiles, status, track"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NP%' AND nodes.parent_id = ? ORDER BY nodes.zip ASC}, @node.id]"
+  res: "Etat des travaux, crocodiles, Keeping things clean !"
 
 letters:
   src: "letters"
-  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NNL%' AND nodes.parent_id = ? ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id]"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NNL%' AND nodes.parent_id = ? ORDER BY nodes.zip ASC}, @node.id]"
 
 nodes_in_site:
-  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} ORDER BY nodes.position ASC, nodes.node_name ASC}"
+  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} ORDER BY nodes.zip ASC}"
 
 pages_in_project:
-  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NP%' AND nodes.project_id = ? ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.get_project_id]"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NP%' AND nodes.project_id = ? ORDER BY nodes.zip ASC}, @node.get_project_id]"
 
 nodes_in_section:
-  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.section_id = ? ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.get_section_id]"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.section_id = ? ORDER BY nodes.zip ASC}, @node.get_section_id]"
 
 nodes_in_self:
-  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.parent_id = ? ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id]"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.parent_id = ? ORDER BY nodes.zip ASC}, @node.id]"
 
 nodes_in_parent:
-  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.parent_id = ? ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.parent_id]"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.parent_id = ? ORDER BY nodes.zip ASC}, @node.parent_id]"
 
 children:
-  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.parent_id = ? ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id]"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.parent_id = ? ORDER BY nodes.zip ASC}, @node.id]"
 
 # --- fixed up to here
 
@@ -44,80 +44,80 @@ pages_or_letters:
   context:
     node: zena
   src: pages or letters
-  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND ((nodes.kpath LIKE 'NP%' AND nodes.parent_id = ?) OR (nodes.kpath LIKE 'NNL%' AND nodes.parent_id = ?)) GROUP BY id ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id, @node.id]"
-  res: "collections, letter, nature, people, projects, skins"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND ((nodes.kpath LIKE 'NP%' AND nodes.parent_id = ?) OR (nodes.kpath LIKE 'NNL%' AND nodes.parent_id = ?)) GROUP BY id ORDER BY nodes.zip ASC}, @node.id, @node.id]"
+  res: "people, projects list, Collections, Nature, zena enhancements, Skins (layout themes)"
 
 project:
-  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.id = ? ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.get_project_id]"
-  res: 'cleanWater'
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.id = ? ORDER BY nodes.zip ASC}, @node.get_project_id]"
+  res: 'Clean Water project'
 
 many_alternatives:
   src: tagged in site or images in site or tags in site
-  sql: "%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND ((nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags)) OR (nodes.kpath LIKE 'NDI%' AND links.id = 0) OR (nodes.kpath LIKE 'NPT%' AND links.id = 0)) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}"
-#  res: 'art, bird, cleanWater, flower, lake, menu, news, opening, tree'
+  sql: "%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND ((nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags)) OR (nodes.kpath LIKE 'NDI%' AND links.id = 0) OR (nodes.kpath LIKE 'NPT%' AND links.id = 0)) GROUP BY nodes.id ORDER BY nodes.zip ASC}"
+#  res: "art, bird, Clean Water project, flower, it's a lake, menu, news, opening, tree"
 
 alternatives_same_join:
   src: tagged in site or icons
-  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND ((nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags)) OR (nodes.id = links.target_id AND links.relation_id = _ID(node_has_an_icon) AND links.source_id = ?)) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id]"
-  res: "cleanWater, lake, opening"
+  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND ((nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags)) OR (nodes.id = links.target_id AND links.relation_id = _ID(node_has_an_icon) AND links.source_id = ?)) GROUP BY nodes.id ORDER BY nodes.zip ASC}, @node.id]"
+  res: "Clean Water project, it's a lake, super ouverture"
 
 same_name_as_class:
   context:
     node: 'opening'
   src: "set_tags"
-  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND nodes.id = links.target_id AND links.relation_id = _ID(node_has_tags) AND links.source_id = ? ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id]"
-  res: "art, news"
+  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND nodes.id = links.target_id AND links.relation_id = _ID(node_has_tags) AND links.source_id = ? ORDER BY nodes.zip ASC}, @node.id]"
+  res: "Art, News list"
 
 
 notes_in_project:
-  res: "opening"
+  res: "super ouverture"
 
 vclass_in_project:
   src: "posts in project"
-  res: "opening"
+  res: "super ouverture"
 
 vlcass_or_pages:
   src: "(posts in project) or pages"
-  res: "crocodiles, opening, status, track"
+  res: "Etat des travaux, crocodiles, super ouverture, Keeping things clean !"
 
 find_relation:
   context:
     node: 'ant'
     class: Contact
   src: "favorites"
-  res: "nature"
+  res: "Nature"
 
 root:
-  res: "zena"
+  res: "Zena the wild CMS"
 
 children_with_order_clause:
-  src: "children order by node_name ASC"
-  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.parent_id = ? ORDER BY nodes.node_name ASC}, @node.id]"
+  src: "children order by position ASC"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.parent_id = ? ORDER BY nodes.position ASC}, @node.id]"
 
 notes_or_news:
   context:
     class: Project
-  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND ((nodes.kpath LIKE 'NN%' AND nodes.parent_id = ? AND links.id = 0) OR (nodes.id = links.source_id AND links.relation_id = _ID(note_has_calendars) AND links.target_id = ?)) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id, @node.id]"
+  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND ((nodes.kpath LIKE 'NN%' AND nodes.parent_id = ? AND links.id = 0) OR (nodes.id = links.source_id AND links.relation_id = _ID(note_has_calendars) AND links.target_id = ?)) GROUP BY nodes.id ORDER BY nodes.zip ASC}, @node.id, @node.id]"
 
 news_or_notes:
   context:
     class: Project
-  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND ((nodes.id = links.source_id AND links.relation_id = _ID(note_has_calendars) AND links.target_id = ?) OR (nodes.kpath LIKE 'NN%' AND nodes.parent_id = ? AND links.id = 0)) GROUP BY nodes.id ORDER BY nodes.position ASC, nodes.node_name ASC}, @node.id, @node.id]"
+  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND ((nodes.id = links.source_id AND links.relation_id = _ID(note_has_calendars) AND links.target_id = ?) OR (nodes.kpath LIKE 'NN%' AND nodes.parent_id = ? AND links.id = 0)) GROUP BY nodes.id ORDER BY nodes.zip ASC}, @node.id, @node.id]"
 
 order_l_status:
   context:
     node:  art
     class: Tag
-  src: "tagged order by l_status ASC, node_name ASC"
-  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags) AND links.target_id = ? ORDER BY links.status ASC, nodes.node_name ASC}, @node.id]"
-  res: "opening, cleanWater"
+  src: "tagged order by l_status ASC, zip ASC"
+  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags) AND links.target_id = ? ORDER BY links.status ASC, nodes.zip ASC}, @node.id]"
+  res: "super ouverture, Clean Water project"
 
 paginate_one:
   src: "nodes in site order by zip limit 2 paginate p"
   # we sort by zip to avoid collation problems when some DB sort Capital letters first
   # and others are case-insensitive.
   sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} ORDER BY nodes.zip LIMIT 2 OFFSET ?}, ((params[:p].to_i > 0 ? params[:p].to_i : 1)-1)*2]"
-  res: "zena, people"
+  res: "Zena the wild CMS, people"
 
 paginate_two:
   context:
@@ -125,4 +125,4 @@ paginate_two:
       p: 2
   src: "nodes in site order by zip limit 2 paginate p"
   sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} ORDER BY nodes.zip LIMIT 2 OFFSET ?}, ((params[:p].to_i > 0 ? params[:p].to_i : 1)-1)*2]"
-  res: "ant, tiger"
+  res: "Solenopsis Invicta, Panthera Tigris Sumatran"

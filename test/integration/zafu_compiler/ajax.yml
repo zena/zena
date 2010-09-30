@@ -5,9 +5,9 @@ default:
     node: 'status'
 
 block:
-  src: "<r:parent><r:block name='foobar' do='node_name'/></r:parent>"
-  tem: "<% if var1 = @node.parent -%><div id='foobar'><%= var1.node_name %></div><% end -%>"
-  'ajax/block/en/foobar.erb': "<div id='foobar'><%= @node.node_name %></div>"
+  src: "<r:parent><r:block name='foobar' do='title'/></r:parent>"
+  tem: "<% if var1 = @node.parent -%><div id='foobar'><%= var1.prop['title'] %></div><% end -%>"
+  'ajax/block/en/foobar.erb': "<div id='foobar'><%= @node.prop['title'] %></div>"
 
 add:
   src: "<ul id='children' do='nodes'><li do='each' do='link'/><li do='add'/></ul>"
@@ -20,8 +20,8 @@ edit_not_each:
   res: "/<li class='blah'>this is a post <a href='/nodes/22/edit'>edit</a></li>/"
 
 add_each_no_form:
-  src: "<ul do='children' id='things'><li do='each'>I <p do='node_name'>blah</p></li><li do='add'/></ul>"
-  res: "/<ul><li.*id='things_add'.*li.*class='form' id='things_form'.*form.*I <p><input id=.things_node_name. name=.node\[node_name\]. .*type=.text..*hidden/"
+  src: "<ul do='children' id='things'><li do='each'>I <p do='title'>blah</p></li><li do='add'/></ul>"
+  res: "/<ul><li.*id='things_add'.*li.*class='form' id='things_form'.*form.*I <p><input id=.things_title. name=.node\[title\]. .*type=.text..*hidden/"
 
 add_each_no_form_date:
   src: "<ul do='children' id='things'><li do='each'>I <p do='show' date='event_at' tformat='short_date'>blah</p></li><li do='add'/></ul>"
@@ -36,7 +36,7 @@ each_add_with_form:
     node: 'wiki'
   src: |
     <ol do='children'>
-      <li do='each' do='node_name'>blah</li>
+      <li do='each' do='title'>blah</li>
       <li do='add'>add new</li>
       <li do='form'><input name='title'/> this is the form</li>
     </ol>
@@ -48,7 +48,7 @@ each_add_with_form_in_sub_block:
   src: |
     <r:children>
     <ol do='void' name='boo'>
-      <li do='each' do='node_name'>blah</li>
+      <li do='each' do='title'>blah</li>
       <li do='add'>add new</li>
       <li do='form'><input name='title'/> this is the form</li>
     </ol>
@@ -60,43 +60,43 @@ each_add_with_form_klass_set:
     node: 'wiki'
   src: |
     <r:children>
-      <li do='each' do='node_name'>blah</li>
+      <li do='each' do='title'>blah</li>
       <li do='add'>add new</li>
       <li do='form'><input name='title'/> <select name='klass' root_class='Note' selected='Post'/> this is the form</li>
     </r:children>
   res: "!/hidden.*node\[klass\].*Node.*select.*node\[klass\]/"
 
 each_add_with_select:
-  src: "<r:children><r:each do='node_name'/><r:add/><r:form><select name='icon_id' nodes='images in project' selected='[main.icon_id]_abc'/></r:form></r:children>"
+  src: "<r:children><r:each do='title'/><r:add/><r:form><select name='icon_id' nodes='images in project' selected='[main.icon_id]_abc'/></r:form></r:children>"
   'ajax/each/en/add/with/select/list1_form.erb': '/map.|r| \[r.name, r.zip.to_s\]., \"#.@node.icon_zip._abc\"\)/'
   tem: "/nodes.kpath LIKE 'NDI%'/"
 
 each_edit_with_form:
   context:
     node: 'wiki'
-  src: "<r:children><li do='each'><r:show attr='node_name'>blah</r:show> <r:edit>edit</r:edit></li>\n<r:form><li><form>this is the form</form></li></r:form></r:children>"
+  src: "<r:children><li do='each'><r:show attr='title'>blah</r:show> <r:edit>edit</r:edit></li>\n<r:form><li><form>this is the form</form></li></r:form></r:children>"
   res: "/<li id='list1_30'>bird <a href='/nodes/30/edit' onclick='new Ajax.Request\(\"/nodes/30/edit\?.*t_url=ajax%2Feach%2Fedit%2Fwith%2Fform%2Flist1_form/"
 
 make_form:
-  src: "<ul do='children'><li do='each' do='node_name'/><li do='add'/></ul>"
+  src: "<ul do='children'><li do='each' do='title'/><li do='add'/></ul>"
   tem: "/<li style='display:none;' class='form' id='list1_form'>.*remote_form_for\(:node, var2_new"
-  'ajax/make/en/form/list1.erb': "<li id='<%= ndom_id(@node) %>'><%= @node.node_name %></li>"
+  'ajax/make/en/form/list1.erb': "<li id='<%= ndom_id(@node) %>'><%= @node.prop['title'] %></li>"
   'ajax/make/en/form/list1_form.erb': "/<li class='form' id='<%= ndom_id\(@node\) %>'>/"
 
 each_edit_cannot_write:
   context:
     node: 'cleanWater'
     visitor: 'anon'
-  src: "<r:children><li do='each'><r:show attr='node_name'>blah</r:show> <r:edit>edit</r:edit></li>\n</r:children>"
-  res: "/<li id='list1_24'>lake</li>.*/"
+  src: "<r:children><li do='each'><r:show attr='title'>blah</r:show> <r:edit>edit</r:edit></li>\n</r:children>"
+  res: "/<li id='list1_24'>it's a lake</li>.*/"
 
 add_each_publish:
-  src: "<ul do='children' id='things'><li do='each'>I <p do='node_name'>blah</p></li><li do='add' publish='true'/></ul>"
+  src: "<ul do='children' id='things'><li do='each'>I <p do='title'>blah</p></li><li do='add' publish='true'/></ul>"
   res: "/hidden.*name=.node\[v_status\]. value=.50./"
 
 block_edit_form:
-  src: "<r:block><p do='node_name'/> <r:edit/> <r:form>please enter name: <input name='name'/> <r:input type='submit'/></r:form></r:block>"
-  res: "/<p>status<\/p>.*edit/"
+  src: "<r:block><p do='title'/> <r:edit/> <r:form>please enter name: <input name='name'/> <r:input type='submit'/></r:form></r:block>"
+  res: "/<p>status title<\/p>.*edit/"
 
 query_in_block:
   src: "<r:block><r:tagged where='title like \"%#{params[:tag]}%\"' in='site'/></r:block>"
@@ -107,7 +107,7 @@ saved_each_block:
   'ajax/saved/en/each/block/list1.erb': "!/var1/"
 
 no_recursion_in_saved_block:
-  src: "<r:void name='grp'><r:show attr='node_name'/><r:pages><r:each><r:include part='grp'/></r:each><r:add/></r:pages></r:void>"
+  src: "<r:void name='grp'><r:show attr='title'/><r:pages><r:each><r:include part='grp'/></r:each><r:add/></r:pages></r:void>"
   'ajax/no/en/recursion/in/saved/block/grp1.erb': "!/no_recursion_in_saved_block_grp/"
 
 each_in_each:
@@ -122,32 +122,32 @@ default_focus_field:
 live_filter:
   context:
     node: cleanWater
-  src: "<r:filter live='true'/><r:block><ol do='pages where node_name like \"#{params[:f]}%\"'><li do='each' do='node_name'/></ol></r:block>"
-  tem: "/nodes.node_name LIKE \?.*, \"#\{params\[:f\]\}%\"/"
-  'ajax/live/en/filter/list1.erb': "/<div id='list1.*, \"#\{params\[:f\]\}%\".*var2.node_name/"
-  res: "/<input type='text' name='f'.*<div id='list1'><ol><li>crocodiles</li><li>status</li><li>track</li></ol></div>/"
+  src: "<r:filter live='true'/><r:block><ol do='pages where title like \"#{params[:f]}%\"'><li do='each' do='title'/></ol></r:block>"
+  tem: "/ml1.value LIKE \?.*, \"#\{params\[:f\]\}%\"/"
+  'ajax/live/en/filter/list1.erb': "/<div id='list1.*, \"#\{params\[:f\]\}%\".*var2.prop\['title'\]/"
+  res: "/<input type='text' name='f'.*<div id='list1'><ol><li>crocodiles</li><li>Keeping things clean !</li><li>status title</li></ol></div>/"
 
 live_filter_single_element:
   context:
     node: cleanWater
-  src: "<r:filter live='true'/><r:block><r:page where='node_name like \"#{params[:f]}%\"' find='first'><b do='node_name'/></r:page></r:block>"
+  src: "<r:filter live='true'/><r:block><r:page where='title like \"#{params[:f]}%\"' find='first'><b do='title'/></r:page></r:block>"
   tem: "/, \"#\{params\[:f\]\}%\"/"
-  'ajax/live/en/filter/single/element/list1.erb': "/<div id='list1.*params\[:f\].*var1.node_name/"
+  'ajax/live/en/filter/single/element/list1.erb': "/<div id='list1.*params\[:f\].*var1.prop\['title'\]/"
   res: "/<input type='text' name='f'.*<div id='list1'><b>crocodiles</b></div>/"
 
 live_filter_select_options:
   context:
     node: cleanWater
-  src: "<r:filter live='true' do='select' name='f' values='1,2'/><r:block><ol do='pages where node_name like \"#{params[:f]}%\"'><li do='each' do='node_name'/></ol></r:block>"
+  src: "<r:filter live='true' do='select' name='f' values='1,2'/><r:block><ol do='pages where title like \"#{params[:f]}%\"'><li do='each' do='title'/></ol></r:block>"
   tem: "/select name=.f.><%= options_for_select\(\[.1., .2.\], params\[:f\].to_s/"
   'ajax/live/en/filter/select/options/list1.erb': "/<div id='list1'.*params\[:f\]/"
-  res: "/<select name='f'.*<div id='list1'><ol><li>crocodiles</li><li>status</li><li>track</li></ol></div>/"
+  res: "/<select name='f'.*<div id='list1'><ol><li>crocodiles</li><li>Keeping things clean !</li><li>status title</li></ol></div>/"
 
 draggable_do_syntax:
   src: "<r:images in='site' do='each' draggable='all' do='img' mode='pv'/>"
   tem: "/add_drag_id\(\"list1_#\{var2.zip\}\"/"
   res: "/id='list1_30'><img src='/en/image30_pv.jpg\?967816914293'/"
-  js: '/"list1_40"\].each.*Zena.draggable\(item, false\)/'
+  js: '/"list1_24"\].each.*Zena.draggable\(item, false\)/'
 
 draggable_true:
   # should use 'drag_handle' class
@@ -158,7 +158,7 @@ draggable_in_block:
   # should use 'hooba' class
   src: "<r:block><r:link draggable='hooba'/></r:block>"
   tem: "/add_drag_id\(\"list1_\#\{@node.zip\}\", .*hooba/"
-  res: "<div id='list1'><div class='drag' id='list1_22'><a href='/oo/projects/cleanWater/page22.html'>status title</a></div></div>"
+  res: "<div id='list1'><div class='drag' id='list1_22'><a href='/oo/projects-list/Clean-Water-project/page22.html'>status title</a></div></div>"
   js:  "/Zena.draggable\(item, \"hooba\"\)/"
 
 draggable_with_id_set:
@@ -186,7 +186,7 @@ edit_link:
     node: 'art'
     class: Tag
     lang: 'fr'
-  src: "<r:context select='tagged'><r:each><r:show attr='node_name'/>: <r:show attr='l_status'/> <r:edit/></r:each></r:context>"
+  src: "<r:context select='tagged'><r:each><r:show attr='title'/>: <r:show attr='l_status'/> <r:edit/></r:each></r:context>"
   # The link_id should be sent with the url.
   res: "/link_id.*éditer/"
   'ajax/edit/fr/link/list1_form.erb': "/<input type='hidden' name='link_id' value=.<%= @node.link_id %>./>/"
@@ -207,7 +207,7 @@ drop_add_link:
 
 drop_var_scope:
   src: "<div do='visitor.node'><div do='drop' add='favorite' change='receiver'><r:favorites>.</r:favorites></div></div>"
-  tem: "/var2 = Node.do_find.*nodes.node_name ASC\}, var1.id\]\)/"
+  tem: "/var2 = Node.do_find.*ml1.value ASC\}, var1.id\]\)/"
 
 drop_done_remove:
   src: "<div do='drop' set='reference' done='remove'></div>"
@@ -228,8 +228,8 @@ update_target:
   tem: "/UT: <div id='foo'>...</div> .*Ajax.Request.*:dom_id => \"foo\"/"
 
 include_update_target:
-  src: "IUT: <r:include template='/ajax/update/target'><r:with part='foo'><r:show attr='node_name'/></r:with></r:include>"
-  tem: "/IUT: UT: <div id='foo'><%= @node.node_name %></div> <a .*zen_path.*onclick='new Ajax.Request/"
+  src: "IUT: <r:include template='/ajax/update/target'><r:with part='foo'><r:show attr='title'/></r:with></r:include>"
+  tem: "/IUT: UT: <div id='foo'><%= @node.prop\['title'\] %></div> <a .*zen_path.*onclick='new Ajax.Request/"
 
 id_in_each_group_should_be_scoped:
   src: "<ul do='comments from nodes in site' do='group' by='discussion_id'><li do='each'><r:node do='block' do='title'/></li></ul>"
@@ -239,7 +239,7 @@ link_page_next:
   context:
     pak: 2
   src: "<div id='foo' do='block' do='nodes in site' limit='3' order='zip' paginate='pak'><r:link page='previous'/> | <r:pak/> | <r:link update='foo' page='next'/> || <r:each join=',' do='[id]'/></div>"
-  res: "/<a href='/oo/projects/cleanWater/page22.html\?pak=1'>1</a> \| 2 \| .*22/zafu\?dom_id=foo.*pak=3.*>3</a>/"
+  res: "/<a href='/oo/projects-list/Clean-Water-project/page22.html\?pak=1'>1</a> \| 2 \| .*22/zafu\?dom_id=foo.*pak=3.*>3</a>/"
 
 link_page_list:
   context:

@@ -29,7 +29,7 @@ class RemoteTest < Zena::Integration::TestCase
             assert_equal 'Banana', remote.title
           end
         end
-        
+
         should 'respond to new' do
           node = subject.new(:title => 'Banana', :parent_id => nodes_zip(:cleanWater))
           assert_difference('Node.count', 1) do
@@ -47,7 +47,7 @@ class RemoteTest < Zena::Integration::TestCase
         end
 
         should 'find with all' do
-          assert_equal ["Art", "Top menu", "News list"], subject.all.map(&:title)
+          assert_equal ["Art", "News list", "Top menu"], subject.all.map(&:title)
         end
 
         should 'find with filters' do
@@ -223,7 +223,7 @@ class RemoteTest < Zena::Integration::TestCase
 
     context 'paginating results' do
       subject do
-        @app.all('pages order by node_name asc', :page => 2, :per_page => 3)
+        @app.all('pages order by title asc', :page => 2, :per_page => 3)
       end
 
       should 'paginate' do
@@ -250,18 +250,18 @@ class RemoteTest < Zena::Integration::TestCase
 
       should 'map missing attributes as first queries' do
         assert_equal 'Clean Water project', subject.icon_for.title
-        assert_equal ["Nice Bananas", "crocodiles", "status title", "Keeping things clean !"], subject.project.pages.map(&:title)
+        assert_equal ["crocodiles", "Keeping things clean !", "Nice Bananas", "status title"], subject.project.pages.map(&:title)
       end
 
       should 'map missing attributes as queries' do
-        assert_equal "Nice Bananas", subject.project.page.title
-        assert_equal ["Nice Bananas",
-         "crocodiles",
+        assert_equal "crocodiles", subject.project.page.title
+        assert_equal ["crocodiles",
          "it's a lake",
+         "Keeping things clean !",
          "The lake we love",
+         "Nice Bananas",
          "parc opening",
          "status title",
-         "Keeping things clean !",
          "water"], subject.parent.nodes.map(&:title)
       end
     end # and a found remote node
@@ -297,8 +297,8 @@ class RemoteTest < Zena::Integration::TestCase
             subject.set_tag = [tag]
             subject.save
           end
-          
-          assert_equal subject.id, tag.first("tagged where title = 'Lion'").id
+
+          assert_equal subject.id, tag.first("tagged where title = 'Panthera Leo Verneyi'").id
         end
       end # with a new relation
 

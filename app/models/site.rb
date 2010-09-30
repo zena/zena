@@ -122,7 +122,7 @@ class Site < ActiveRecord::Base
       # =========== CREATE ROOT NODE ============================
 
       root = site.send(:secure,Project) do
-        Project.create( :node_name => site.name, :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :dgroup_id => admin[:id], :title => site.name, :v_status => Zena::Status[:pub])
+        Project.create( :title => site.name, :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :dgroup_id => admin[:id], :title => site.name, :v_status => Zena::Status[:pub])
       end
 
       raise Exception.new("Could not create root node for site [#{host}] (site#{site[:id]})\n#{root.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if root.new_record?
@@ -366,17 +366,20 @@ class Site < ActiveRecord::Base
     true
   end
 
-  # TODO: replace fullpath defined from names by '/zip/zip/zip'
-  def rebuild_fullpath(parent_id = nil, parent_fullpath = "", parent_basepath = "")
+  # Recreates the fullpath ('/zip/zip/zip').
+  # TODO: find a way to use SiteWorker (need to remove get_nodes)
+  def rebuild_fullpath(parent_id = nil, parent_fullpath = "", parent_basepath = "", start=[])
+    raise Zena::InvalidRecord, "Infinit loop in 'ancestors' (#{start.inspect} --> #{parent_id})" if start.include?(parent_id)
+    start += [parent_id]
     i = 0
     batch_size = 100
     children = []
     while true
-      rec = Zena::Db.fetch_attributes(['id', 'fullpath', 'basepath', 'custom_base', 'node_name'], 'nodes', "parent_id #{parent_id ? "= #{parent_id}" : "IS NULL"} AND site_id = #{self.id} ORDER BY id ASC LIMIT #{batch_size} OFFSET #{i * batch_size}")
+      rec = Zena::Db.fetch_attributes(['id', 'fullpath', 'basepath', 'custom_base', 'zip'], 'nodes', "parent_id #{parent_id ? "= #{parent_id}" : "IS NULL"} AND site_id = #{self.id} ORDER BY id ASC LIMIT #{batch_size} OFFSET #{i * batch_size}")
       break if rec.empty?
       rec.each do |rec|
         if parent_id
-          rec['fullpath'] = parent_fullpath == '' ? rec['node_name'] : "#{parent_fullpath}/#{rec['node_name']}"
+          rec['fullpath'] = parent_fullpath == '' ? rec['zip'] : "#{parent_fullpath}/#{rec['zip']}"
         else
           # root node
           rec['fullpath'] = ''
@@ -389,7 +392,7 @@ class Site < ActiveRecord::Base
         end
 
         id = rec.delete('id')
-        children << [id, rec['fullpath'], rec['basepath']]
+        children << [id, rec['fullpath'], rec['basepath'], start]
         Zena::Db.execute "UPDATE nodes SET #{rec.map {|k,v| "#{Zena::Db.connection.quote_column_name(k)}=#{Zena::Db.quote(v)}"}.join(', ')} WHERE id = #{id}"
       end
       # 50 more

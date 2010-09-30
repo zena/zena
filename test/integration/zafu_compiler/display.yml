@@ -29,9 +29,11 @@ show_title_link_http:
   res: "<a href='http://example.com'>status title</a>"
 
 show_title_link_attribute:
+  context:
+    node: 'bird_jpg'
   old_src: "<r:title link='http://[name].com'/>"
-  src: "<a href='http://#{node_name}.com' do='title'/>"
-  res: "<a href='http://status.com'>status title</a>"
+  src: "<a href='http://#{title}.com' do='title'/>"
+  res: "<a href='http://bird.com'>bird</a>"
 
 show_title_link_id:
   old_src: "<r:title link='32'/>"
@@ -50,12 +52,12 @@ do_title:
 show_title_link_id_from_stored:
   # disabled
   old_src: "<r:parent><r:title link='[main.id]'/></r:parent>"
-  old_res: "<a href='/oo/projects/cleanWater/page22.html'><span id='title21'>Clean Water project</span></a>"
+  old_res: "<a href='/oo/projects-list/Clean-Water-project/page22.html'><span id='title21'>Clean Water project</span></a>"
 
 show_title_link_id_from_stored_mode_and_format:
   # disabled
   old_src: "<r:parent><r:title link='[main.id]_blog.rss'/></r:parent>"
-  old_res: "<a href='/oo/projects/cleanWater/page22_blog.rss'><span id='_title21'>Clean Water project</span></a>"
+  old_res: "<a href='/oo/projects-list/Clean-Water-project/page22_blog.rss'><span id='_title21'>Clean Water project</span></a>"
 
 show_live_no_tag:
   src: "<r:show attr='title' live='true'/>"
@@ -120,8 +122,8 @@ zazen_code:
   res: "/<code class='css'><span class=\"tag\">body</span>/"
 
 show_name:
-  src: "my <r:show attr='node_name'/>"
-  res: "my status"
+  src: "my <r:show attr='title'/>"
+  res: "my status title"
 
 show_text:
   old_src: "my <r:show attr='text'/>"
@@ -137,9 +139,9 @@ show_width:
 
 show_else:
   old_src: "<r:show attr='comment' else='name'/>"
-  src: "<r:show eval='origin || node_name'/>"
-  tem: "<%= (@node.prop['origin'] or @node.node_name) %>"
-  res: "status"
+  src: "<r:show eval='origin || title'/>"
+  tem: "<%= (@node.prop['origin'] or @node.prop['title']) %>"
+  res: "status title"
 
 show_default:
   old_src: "<r:show attr='d_foo' default='baz'/>"
@@ -193,7 +195,7 @@ img_tag_icon:
   context:
     node: 'cleanWater'
   src: "<r:img alt_src='icon'/>"
-  res: "<img src='/en/projects/cleanWater/image24_std.jpg?929831698949' width='545' height='400' alt='it&apos;s a lake' class='std'/>"
+  res: "<img src='/en/projects-list/Clean-Water-project/image24_std.jpg?929831698949' width='545' height='400' alt='it&apos;s a lake' class='std'/>"
 
 icon:
   context:

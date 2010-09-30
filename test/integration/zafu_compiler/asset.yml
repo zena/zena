@@ -9,5 +9,5 @@ default:
 
 
 rename_asset:
-  src: "<link href='/default/style.css' rel='Stylesheet' type='text/css'/>"
+  src: "<link href='/Default skin/style.css' rel='Stylesheet' type='text/css'/>"
   tem: "<link href='/en/textdocument53.css?1144713600' rel='Stylesheet' type='text/css'/>"

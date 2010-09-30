@@ -16,20 +16,20 @@ link_anchor:
   res: "<p>see <a href=\"#node22\">status title</a></p>"
 
 link_anchor_attribute:
-  tem: "<%= zazen('see \"\":22#[node_name]') %>"
-  res: "<p>see <a href=\"#status\">status title</a></p>"
+  tem: "<%= zazen('see \"\":22#[title]') %>"
+  res: "<p>see <a href=\"#status-title\">status title</a></p>"
 
 link_anchor_in:
   tem: "<%= zazen('see \"\":22#[parent/]') %>"
-  res: "<p>see <a href=\"/oo/projects/cleanWater#node22\">status title</a></p>"
+  res: "<p>see <a href=\"/oo/projects-list/Clean-Water-project#node22\">status title</a></p>"
 
 link_anchor_in_name:
-  tem: "<%= zazen('see \"\":22#[parent/node_name]') %>"
-  res: "<p>see <a href=\"/oo/projects/cleanWater#status\">status title</a></p>"
+  tem: "<%= zazen('see \"\":22#[parent/title]') %>"
+  res: "<p>see <a href=\"/oo/projects-list/Clean-Water-project#status-title\">status title</a></p>"
 
 complex_link:
   tem: <%= zazen("p<. !<.31_pv!:22\n\nh4(clear). \"\":22") %>
-  res: "<p style=\"text-align:left;\"><div class='img_left'><a href=\"/oo/projects/cleanWater/page22.html\"><img src='/en/image31_pv.jpg?967816914293' width='70' height='70' alt='flower' class='pv'/></a></div></p>\n\n\n\t<h4 class=\"clear\"><a href=\"/oo/projects/cleanWater/page22.html\">status title</a></h4>"
+  res: "<p style=\"text-align:left;\"><div class='img_left'><a href=\"/oo/projects-list/Clean-Water-project/page22.html\"><img src='/en/image31_pv.jpg?967816914293' width='70' height='70' alt='flower' class='pv'/></a></div></p>\n\n\n\t<h4 class=\"clear\"><a href=\"/oo/projects-list/Clean-Water-project/page22.html\">status title</a></h4>"
 
 at_code:
   tem: "<%= zazen(\"Try this: @ruby|puts 'Hello'@ or this @zafu|<r:link/>@\") %>"
@@ -45,19 +45,19 @@ line_break_list:
 
 zip_shortcut_link:
   tem: "<%= zazen('Look \"here\"::lake or \"\"::lake+') %>"
-  res: "/<p>Look <a href.*contact23.html.*projects/cleanWater/lakeAddress.*href=.*image24.html.*projects/cleanWater/lake/"
+  res: "/<p>Look <a href.*contact23.html.*projects list/Clean Water project/Lake Tanganyika.*href=.*image24.html.*projects list/Clean Water project/it&#8217;s a lake/"
 
 zip_shortcut_link_with_mode_format:
   tem: "<%= zazen('Look \"here\"::lake_life.rss, \"\"::lake+_life.data.') %>"
-  res: "/<p>Look <a href.*contact23_life.rss.*projects/cleanWater/lakeAddress_life.rss</a>, <a href=.*image24_life.jpg.*projects/cleanWater/lake_life.jpg</a>./"
+  res: "/<p>Look <a href.*contact23_life.rss.*projects list/Clean Water project/Lake Tanganyika_life.rss</a>, <a href=.*image24_life.jpg.*projects list/Clean Water project/it&#8217;s a lake_life.jpg</a>./"
 
 zip_shortcut_image:
   tem: "<%= zazen('Look !:lake! or !:lake+!') %>"
-  res: "/<p>Look \[projects/cleanWater/lakeAddress is not a document\] or <img src=.*image24_std.jpg/"
+  res: "/<p>Look \[projects list/Clean Water project/Lake Tanganyika is not a document\] or <img src=.*image24_std.jpg/"
 
 zip_shortcut_image_with_options:
   tem: "<%= zazen('Look !<.:lake_med! or !=.:lake+_pv!') %>"
-  res: "/<p>Look \[projects/cleanWater/lakeAddress is not a document\] or .*center.*<img src=.*image24_pv.jpg/"
+  res: "/<p>Look \[projects list/Clean Water project/Lake Tanganyika is not a document\] or .*center.*<img src=.*image24_pv.jpg/"
 
 zip_shortcut_gallery:
   tem: "<%= zazen('Look ![30,:lake+]!') %>"

@@ -12,8 +12,8 @@ date:
     visitor: ant
     node: 'letter'
     lang: 'fr'
-  src: "<r:void set_date='log_at'>nouvelles <r:show eval='trans(date.strftime(\"%B\"))'/> <r:show eval='date' format='%Y'/>: <r:notes where='log_at.month eq #{date}.month' in='site' do='each' join=', ' do='node_name'/></r:void>"
-  res: "nouvelles avril 2006: letter"
+  src: "<r:void set_date='log_at'>nouvelles <r:show eval='trans(date.strftime(\"%B\"))'/> <r:show eval='date' format='%Y'/>: <r:notes where='log_at.month eq #{date}.month' in='site' do='each' join=', ' do='title'/></r:void>"
+  res: "nouvelles avril 2006: zena enhancements"
 
 select_date_attr:
   src: "<p do='void' set_date='log_at'><span do='show' eval='date.year'/></p>"
@@ -80,8 +80,8 @@ date_tz:
 date_tz_field:
   context:
     node: nature
-  src: "<r:nodes do='each' join=', '><r:show attr='node_name'/>: <r:show date='created_at' format='%H:%M' tz='#{tz || \"Europe/Zurich\"}'/> | <r:show date='created_at' format='%H:%M' tz='UTC'/></r:nodes>"
-  res: "forest: 01:00 | 00:00, tree: 07:00 | 00:00"
+  src: "<r:nodes do='each' join=', '><r:show attr='title'/>: <r:show date='created_at' format='%H:%M' tz='#{tz || \"Europe/Zurich\"}'/> | <r:show date='created_at' format='%H:%M' tz='UTC'/></r:nodes>"
+  res: "Autumn Tree: 07:00 | 00:00, Forest: 01:00 | 00:00"
 
 date_fr:
   context:

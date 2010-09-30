@@ -602,13 +602,13 @@ Zena.Div_editor.prototype = {
 
 Zena.draggable = function(dom_id, drag_handle, revert) {
   revert = revert == undefined ? true : revert
-  new Draggable(dom_id, {ghosting:true, revert:revert, handle:drag_handle});
   if (drag_handle) {
-    if ($(dom_id).select('.' + drag_handle) != []) {
+    if ($(dom_id).select('.' + drag_handle) == []) {
       // insert span
       $(dom_id).insert({top: "<span class='" + drag_handle + "'>&nbsp;</span>"});
     }
   }
+  new Draggable(dom_id, {ghosting:true, revert:revert, handle:drag_handle});
 }
 
 Zena.select_tab = function(name) {

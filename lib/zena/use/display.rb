@@ -8,7 +8,7 @@ module Zena
           else
             finder = 'image'
           end
-          "#{finder} group by id,l_id order by l_id desc, position asc, node_name asc"
+          "#{finder} group by id,l_id order by l_id desc, position asc"
         end
       end # Common
 
@@ -500,7 +500,7 @@ module Zena
 
         # Display the page's default title
         def r_title_for_layout
-          "<% if @title_for_layout -%><%= @title_for_layout %><% elsif @node && !@node.new_record? -%><%= @node.rootpath %><% elsif @node.parent -%><%= @node.parent.rootpath %><% else -%>" +
+          "<% if @title_for_layout -%><%= @title_for_layout %><% elsif @node && !@node.new_record? -%><%= @node.title %><% elsif @node.parent -%><%= @node.parent.short_path %><% else -%>" +
           expand_with +
           "<% end -%>"
         end

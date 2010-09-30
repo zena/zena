@@ -20,7 +20,7 @@
     <%= img_tag(node, :mode=>'mini') %>
     <p class='result_name'><%= link_to(node.title, zen_path(node), :popup=>true) %> <em><%= check_lang(node) %></em></p>
     <p class='result_id'><%= node[:zip] %></p>
-    <p class='result_path'><%= node.rootpath.split('/').join(' / ') %></p>
+    <p class='result_path'><%= node.short_path %></p>
     <div class='clear'></div>
   </li>
   <% end %>

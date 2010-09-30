@@ -63,7 +63,7 @@ class VersionsController < ApplicationController
       end
       render :action=>'update'
     else
-      @title_for_layout = @node.rootpath
+      @title_for_layout = @node.title
       if @node.kind_of?(TextDocument)
         if params['parse_assets']
           @node.text = @node.parse_assets(@node.text, self, 'text')

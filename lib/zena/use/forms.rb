@@ -276,7 +276,14 @@ module Zena
             end
           else
             # no ajax
-            # FIXME
+
+            if node.will_be?(Node)
+              # Nested contexts:
+              # 1. @node
+              # 2. var1 = @node.children
+              # 3. var1_new = Node.new
+              hidden_fields['node[parent_id]'] = "<%= #{node.opts[:new_keys] ? "#{node.up}.zip" : "#{node}.parent_zip"} %>"
+            end
             cancel = "" # link to normal node ?
           end
 

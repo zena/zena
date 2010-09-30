@@ -24,7 +24,6 @@ cskin:
 Node_zafu:
   class:           Template
   parent:          cskin
-  node_name:       Node
   title:           Node
   v_prop:
     target_klass:  Node
@@ -106,7 +105,6 @@ chief:
   class:           Job
   parent:          jobs
   title:           chief
-  node_name:       chief
 
 chief_motivation:
   class:           Page

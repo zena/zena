@@ -1,5 +1,8 @@
 require 'test_helper'
 
+# Cache has been thrown to hell.
+
+=begin
 class CacheTest < Zena::Unit::TestCase
 
   def setup
@@ -42,6 +45,34 @@ class CacheTest < Zena::Unit::TestCase
     assert_equal "content 6", Cache.with(2,[3,8]  , 'NP', 'first' , 'test') { "content #{i}" }
   end
 
+  def test_after_all_cache_sweep
+    login(:lion)
+    i = 1
+    assert_equal "content 1", Cache.with(visitor.id, visitor.group_ids, 'NP', 'pages')  { "content #{i}" }
+    assert_equal "content 1", Cache.with(visitor.id, visitor.group_ids, 'NN', 'notes')  { "content #{i}" }
+    i = 2
+    assert_equal "content 1", Cache.with(visitor.id, visitor.group_ids, 'NP', 'pages')  { "content #{i}" }
+    assert_equal "content 1", Cache.with(visitor.id, visitor.group_ids, 'NN', 'notes')  { "content #{i}" }
+
+    # do something on a project
+    node = secure!(Node) { nodes(:wiki) }
+    assert_equal 'NPP', node.class.kpath
+    assert node.update_attributes(:title=>'new title'), "Can change attributes"
+    # sweep only kpath NPP
+    i = 3
+    assert_equal "content 3", Cache.with(visitor.id, visitor.group_ids, 'NP', 'pages')  { "content #{i}" }
+    assert_equal "content 1", Cache.with(visitor.id, visitor.group_ids, 'NN', 'notes')  { "content #{i}" }
+
+    # do something on a note
+    node = secure!(Node) { nodes(:proposition) }
+    assert_equal 'NNP', node.vclass.kpath
+    assert node.update_attributes(:log_at => Time.now), "Can change attributes"
+    # sweep only kpath NN
+    i = 4
+    assert_equal "content 3", Cache.with(visitor.id, visitor.group_ids, 'NP', 'pages')  { "content #{i}" }
+    assert_equal "content 4", Cache.with(visitor.id, visitor.group_ids, 'NN', 'notes')  { "content #{i}" }
+  end
+
   def test_kpath
     i = 1
     assert_equal "content 1", Cache.with(1,[2,3,4], 'NP', 'pages')  { "content #{i}" }
@@ -60,3 +91,4 @@ class CacheTest < Zena::Unit::TestCase
     assert_equal "content 2", Cache.with(1,[2,3,4], 'NN', 'notes')  { "content #{i}" }
   end
 end
+=end

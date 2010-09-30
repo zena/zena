@@ -45,16 +45,70 @@ class PropEvalTest < Zena::Unit::TestCase
       login(:lion)
     end
 
+    context 'creating a node from a class with eval prop' do
+      subject do
+        secure(Node) { Node.create_node(:class => 'Contact', :name => 'foo', :parent_id => nodes_id(:projects)) }
+      end
+
+      should 'set evaluated prop on create' do
+        assert_difference('Node.count', 1) do
+          node = subject
+          assert_equal ' foo', node.title
+        end
+      end
+    end # creating a node from a class with eval prop
+
+
+    context 'unpublishing a node from a class with eval prop' do
+      subject do
+        secure(Node) { nodes(:ant) }
+      end
+
+      should 'succeed' do
+        assert subject.unpublish
+      end
+    end # unpublishing a node from a class with eval prop
+
     context 'on a node' do
       context 'from a class with evaluated properties' do
         subject do
-          secure(Node) { nodes(:ant) }
+          secure(Node) { nodes(:ant) }.tap do |n|
+            n.update_attributes(:first_name => 'Dan', :name => 'Simmons')
+          end
         end
+        
+        context 'updating attributes' do
+          should 'update evaluated prop on save' do
+            assert_equal 'Dan Simmons', subject.title
+          end
 
-        should 'update evaluated prop on save' do
-          subject.update_attributes(:first_name => 'Dan', :name => 'Simmons')
-          assert_equal 'Dan Simmons', subject.title
-        end
+          should 'use evaluated prop in fulltext indices' do
+            assert_equal 'Dan Simmons', subject.version.idx_text_high
+          end
+          
+          context 'with property indices' do
+            subject do
+              secure(Node) { nodes(:letter) }.tap do |n|
+                assert n.update_attributes(:paper => 'Origami', :v_status => Zena::Status[:pub])
+              end
+            end
+
+            should 'use evaluated prop in ml prop indices' do
+              idx = IdxNodesMlString.find(:first, 
+                :conditions => {:node_id => subject.id, :lang => visitor.lang, :key => 'search'}
+              )
+              assert_equal 'zena enhancements paper:Origami', idx.value
+            end
+
+            should 'use evaluated prop in prop indices' do
+              idx = IdxNodesString.find(:first, 
+                :conditions => {:node_id => subject.id, :key => 'search_mono'}
+              )
+              assert_equal 'Origami mono', idx.value
+            end
+          end # with property indices
+          
+        end # updating attributes
       end # from a class with evaluated properties
 
       context 'from a class with eval prop used as default' do

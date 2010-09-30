@@ -19,16 +19,16 @@ class Page < Node
       # we are in a scope, we cannot just use the normal validates_...
       # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
       test_same_name = nil
-      if node_name_changed? || parent_id_changed? || kpath_changed?
+      if prop.title_changed? || parent_id_changed? || kpath_changed?
         Node.send(:with_exclusive_scope) do
-          if new_record?
-            cond = ["node_name = ? AND parent_id = ? AND kpath LIKE 'NP%'",              self[:node_name], self[:parent_id]]
+          if !new_record?
+            cond = ['id != ?', id]
           else
-            cond = ["node_name = ? AND parent_id = ? AND kpath LIKE 'NP%' AND id != ? ", self[:node_name], self[:parent_id], self[:id]]
+            cond = nil
           end
-          test_same_name = Node.find(:all, :conditions => cond)
+          test_same_name = Node.find_by_parent_title_and_kpath(parent_id, title, 'NP')
         end
-        errors.add("node_name", "has already been taken") unless test_same_name == []
+        errors.add("title", "has already been taken") if test_same_name
       end
     end
 

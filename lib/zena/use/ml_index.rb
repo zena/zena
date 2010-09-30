@@ -8,7 +8,7 @@ module Zena
 
         def rebuild_index_with_multi_lingual!
           # We call rebuild_index_without_multi_lingual first with our hack
-          # to avoid inclusion order probles with fulltext index.
+          # to avoid inclusion order problems with fulltext index.
 
           # Skip multi lingual indices
           @index_langs = []
@@ -23,7 +23,8 @@ module Zena
             self.version = version
             @properties  = version.prop
             @index_langs = nil # force rebuild
-            property_index
+            # Build ml index for each version
+            rebuild_index_without_multi_lingual!
           end
         end
 
@@ -40,11 +41,12 @@ module Zena
         end
 
         private
+          # Return the list of languages for which the current version is returned.
           def index_langs
             @index_langs ||= begin
-              v_id = version.id
+              v_id     = version.id
               ref_lang = self.ref_lang
-              read = vhash['w'].merge(vhash['r'])
+              read     = vhash['w'].merge(vhash['r'])
               current_site.lang_list.select do |lang|
                 (read[lang] || read[ref_lang] || read.values.first) == v_id
               end

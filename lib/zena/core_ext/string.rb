@@ -1,5 +1,5 @@
 # encoding: utf-8
-# FIXME: do we really need to monkey patch String ?
+require 'cgi'
 
 # Avoid incompatibility with rails 'chars' version in Ruby 1.8.7
 unless '1.9'.respond_to?(:force_encoding)
@@ -13,29 +13,45 @@ unless '1.9'.respond_to?(:force_encoding)
 end
 
 class String
-  # could not name this extension 'camelize'. 'camelize' is a Rails core extension to String.
+  ALLOWED_CHARS_IN_URL      = " a-zA-Z0-9_\\."
+  # in filename, allow '-' because it does not represent a space
+  ALLOWED_CHARS_IN_FILENAME = "#{ALLOWED_CHARS_IN_URL}\\-"
+  # Everything apart from a-zA-Z0-9_.-/$ are not allowed in template paths
+  ALLOWED_CHARS_IN_FILEPATH = "#{ALLOWED_CHARS_IN_FILENAME}+/$"
+  TO_FILENAME_REGEXP = %r{([^ #{ALLOWED_CHARS_IN_FILENAME}]+)}n
+  TO_URL_NAME_REGEXP = %r{([^ #{ALLOWED_CHARS_IN_URL}])}
+
+  # Change a title into a valid url name
   def url_name
-    dup.url_name!
+    gsub(TO_URL_NAME_REGEXP) do
+      '%' + $1.unpack('H2' * $1.size).join('%').upcase
+    end.tr(' ', '-')
+  end
+  
+  # Retrieve original title from an url_name
+  def self.from_url_name(str)
+    CGI.unescape(str.tr('-', ' '))
+  end
+
+  # Change a title into a valid filename
+  def to_filename
+    gsub(TO_FILENAME_REGEXP) do
+      '%' + $1.unpack('H2' * $1.size).join('%').upcase
+    end
+  end
+  
+  # Retrieve original title from filename
+  def self.from_filename(str)
+    CGI.unescape(str.gsub('+', '%2B'))
   end
 
   def url_name!
-    accents = {
-      ['á',    'à','À','â','Â','ä','Ä','ã','Ã'] => 'a',
-      ['é','É','è','È','ê','Ê','ë','Ë',       ] => 'e',
-      ['í',    'ì','Ì','î','Î','ï','Ï'        ] => 'i',
-      ['ó',    'ò','Ò','ô','Ô','ö','Ö','õ','Õ'] => 'o',
-      ['ú',    'ù','Ù','û','Û','ü','Ü'        ] => 'u',
-      ['œ'] => 'oe',
-      ['ß'] => 'ss',
-    }
-    accents.each do |ac,rep|
-      ac.each do |s|
-        gsub!(s, rep)
-      end
-    end
-    gsub!(/[^a-zA-Z0-9\.\-\+ ]/,' ')
-    replace(split.join(' '))
-    gsub!(/ (.)/) { $1.upcase }
+    replace(url_name)
+    self
+  end
+  
+  def to_filename!
+    replace(to_filename)
     self
   end
 

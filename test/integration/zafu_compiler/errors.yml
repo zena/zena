@@ -20,15 +20,15 @@ bad_query:
   tem: "<span class='parser_error'><span class='method'>images</span> <span class='message'>Syntax error near \"oo bar baz\".</span></span>"
 
 bad_field_in_query:
-  src: "<r:images where='node_name = baz'>ok</r:images>"
+  src: "<r:images where='title = baz'>ok</r:images>"
   res: "<span class='parser_error'><span class='method'>images</span> <span class='message'>Unknown field 'baz'.</span></span>"
 
 bad_relation:
-  src: "<div do='categories in site' do='each' join=', ' do='node_name'/>"
+  src: "<div do='categories in site' do='each' join=', ' do='title'/>"
   tem: "<div><span class='parser_error'><span class='method'>categories in site</span> <span class='message'>Unknown relation 'categories'.</span></span></div>"
 
 bad_order_clause:
-  src: "<r:images order='l_status ASC' do='each' join=',' do='node_name'/>"
+  src: "<r:images order='l_status ASC' do='each' join=',' do='title'/>"
   res: "/Unknown field 'l_status'./"
 
 show_var:
@@ -56,7 +56,7 @@ nil_value:
   res: ""
 
 not_finished_block:
-  src: "<r:if kind_of='Document'><r:link format='data'><r:img mode='tiny'/> <r:show attr='node_name'/>.<r:show attr='ext'/></r:link><r:else do='link'/></r:if>"
+  src: "<r:if kind_of='Document'><r:link format='data'><r:img mode='tiny'/> <r:show attr='title'/>.<r:show attr='ext'/></r:link><r:else do='link'/></r:if>"
 
 missing_template:
   src: "<r:include template='Foo'/>"

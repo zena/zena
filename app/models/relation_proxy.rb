@@ -82,11 +82,13 @@ class RelationProxy < Relation
   end
 
   def other_zips
+    return nil unless @start[:id]
     return @other_zips if defined?(@other_zips)
     @other_zips = @records ? @records.map { |r| r.zip} : Zena::Db.fetch_ids("SELECT zip FROM nodes INNER JOIN links ON nodes.id=links.#{other_side} AND links.relation_id = #{self[:id]} AND links.#{link_side} = #{@start[:id]} WHERE #{secure_scope('nodes')} GROUP BY nodes.zip", 'zip')
   end
 
   def records(opts = {})
+    return nil unless @start[:id]
     return @records if defined?(@records)
     options = {
       :select => "nodes.*, #{LINK_SELECT}",

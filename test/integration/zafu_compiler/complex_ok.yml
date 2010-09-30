@@ -5,8 +5,8 @@ it_should_compile_custom_select:
     visitor: complex_admin
     site: complex
     ref_date: 2004-09-01
-  src: "<r:emp_form_dates do='each' join=', '><r:show attr='node_name'/>(<r:priority/>)</r:emp_form_dates>"
-  res: 'secureASite(10), winchUsage(10), dangerousTransportations(10), engine(5), transmitInformation(5), fiberJunction(5), formulateProblems(5), radioUsage(1)'
+  src: "<r:emp_form_dates do='each' join=', '><r:show attr='title'/>(<r:priority/>)</r:emp_form_dates>"
+  res: 'how to use the winch(10), secure a site(10), dangerous transportations(10), engine maintenance(5), information transmission(5), fiber junction(5), problem formulation(5), how to use the radio(1)'
 
 it_should_group_by_custom_select:
   context:

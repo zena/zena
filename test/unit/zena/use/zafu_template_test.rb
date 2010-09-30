@@ -31,7 +31,7 @@ class ZafuTemplateTest < Zena::View::TestCase
     end
 
     should 'find best template based on class' do
-      assert_match %r{default/Node}, @controller.send(:template_url)
+      assert_match %r{Default skin/Node}, @controller.send(:template_url)
     end
 
     context 'with an admin visitor' do
@@ -41,7 +41,7 @@ class ZafuTemplateTest < Zena::View::TestCase
 
       should 'use visitor chosen dev skin' do
         visitor.dev_skin_id = nodes_zip(:wikiSkin)
-        assert_match %r{/wikiSkin/Node}, @controller.send(:template_url)
+        assert_match %r{/wiki skin/Node}, @controller.send(:template_url)
       end
 
       should 'use rescue skin' do
@@ -51,9 +51,9 @@ class ZafuTemplateTest < Zena::View::TestCase
 
       should 'use any skin' do
         visitor.dev_skin_id = User::ANY_SKIN_ID
-        assert_match %r{/default/Node}, @controller.send(:template_url)
+        assert_match %r{/Default skin/Node}, @controller.send(:template_url)
         visiting(:wiki)
-        assert_match %r{/wikiSkin/Node}, @controller.send(:template_url)
+        assert_match %r{/wiki skin/Node}, @controller.send(:template_url)
       end
 
       should 'not insert dev_box for non html content' do
@@ -74,9 +74,21 @@ class ZafuTemplateTest < Zena::View::TestCase
 
       should 'not use visitor skin mode' do
         visitor.dev_skin_id = nodes_zip(:wikiSkin)
-        assert_match %r{/default/Node}, @controller.send(:template_url)
+        assert_match %r{/Default skin/Node}, @controller.send(:template_url)
       end
     end # without an admin visitor
+    
+    context 'on get_template_text' do
+      should 'find template' do
+        assert_match %r{include template='Node'}, get_template_text('Project', nodes_id(:default)).first
+      end
+    end # on get_template_text
+    
+    context 'on get_template_text with fullpath' do
+      should 'find template' do
+        assert_match %r{include template='Node'}, get_template_text('/Default skin/Project').first
+      end
+    end # on get_template_text
     #def test_template_url_virtual_class
     #  without_files('zafu') do
     #    node = @controller.send(:secure,Node) { nodes(:opening) }

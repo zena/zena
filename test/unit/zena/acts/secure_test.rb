@@ -6,7 +6,7 @@ class SecureTest < Zena::Unit::TestCase
     login(opts[:login] || :ant)
     # create new node
     attrs =  {
-      :node_name => 'hello',
+      :title     => 'hello',
       :parent_id => nodes_id(:cleanWater)
     }.merge(opts[:node] || {})
 
@@ -293,13 +293,13 @@ class SecureTest < Zena::Unit::TestCase
     should 'be allowed to drive' do
       node = secure!(Node) { nodes(:bananas) }
       assert node.can_drive?
-      assert node.update_attributes(:node_name => 'NamWa')
+      assert node.update_attributes(:log_at => Time.now)
     end
   end # A visitor in the read and drive groups
 
 
   def defaults
-    { :node_name => 'hello',
+    { :title => 'hello',
       :parent_id => nodes_id(:zena) }
   end
 
@@ -403,7 +403,7 @@ class SecureTest < Zena::Unit::TestCase
     end
 
     should 'not be allowed to create circular references' do
-      # status is a child of projects/cleanWater
+      # status is a child of projects-list/Clean-Water-project
       node = secure!(Node) { nodes(:projects) }
       assert !node.update_attributes(:parent_id => nodes_id(:status))
       assert_equal 'circular reference', node.errors[:parent_id]
@@ -526,12 +526,6 @@ class SecureTest < Zena::Unit::TestCase
 
     should 'not be allowed to change groups' do
       @node.dgroup_id = groups_id(:public)
-      assert !@node.save
-      assert_equal 'You do not have the rights to do this.', @node.errors[:base]
-    end
-
-    should 'not be allowed to change node_name' do
-      @node.node_name = 'slitherin'
       assert !@node.save
       assert_equal 'You do not have the rights to do this.', @node.errors[:base]
     end
@@ -821,7 +815,7 @@ class SecureTest < Zena::Unit::TestCase
           versions_id(:status_en),
           versions_id(:strange_en_red),
           versions_id(:ant_en)]],
-        :order      => 'node_name ASC')
+        :order      => 'zip ASC')
     end
 
     context 'with secure' do
@@ -856,7 +850,7 @@ class SecureTest < Zena::Unit::TestCase
 
   context 'Using clean_options to prepare queries' do
     should 'remove anything that might disturb ActiveRecord' do
-      assert_equal Hash[:conditions => ['id = ?', 3], :order => 'node_name ASC'], Node.clean_options(:conditions => ['id = ?', 3], :funky => 'bad', :order => 'node_name ASC', :from => 'users')
+      assert_equal Hash[:conditions => ['id = ?', 3], :order => 'zip ASC'], Node.clean_options(:conditions => ['id = ?', 3], :funky => 'bad', :order => 'zip ASC', :from => 'users')
     end
   end # Using clean_options to prepare queries
 

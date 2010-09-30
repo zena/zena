@@ -248,6 +248,8 @@ crocodiles_en:
   user:            ant
   publish_from:
   status:          red
+  prop:
+    title:         crocodiles
 
 opening_fr:
   node:            opening
@@ -270,7 +272,7 @@ wiki_en:
   node:            wiki
   user:            lion
   prop:
-    title:         a wiki with zena
+    title:         a wiki with Zena
 
 bird_jpg_en:
   node:            bird_jpg
@@ -477,11 +479,11 @@ wiki_project_changes_xml_en:
     summary:       Layout for the wiki skin.
     text:          |
       <?xml version="1.0" encoding="UTF-8"?>
-      <name><r:show attr='node_name'/></name>
+      <name><r:show attr='title'/></name>
       <changes do='nodes' in='project' order='updated_at DESC' limit='10'>
         <node do='each'>
           <type><r:show attr='type'/></type>
-          <name><r:show attr='node_name'/></name>
+          <name><r:show attr='title'/></name>
           <id><r:show attr='id'/></id>
         </note>
       </notes>
@@ -526,10 +528,10 @@ wiki_node_en:
   user:            tiger
   prop:
     comment:       master template for wiki
-    title:         main template
+    title:         Node
     summary:       master template for wiki skin.
     text:          |
-      <r:include template='/default/Node'>
+      <r:include template='/Default skin/Node'>
         <r:with part='main'>
           WIKI
         </r:with>
@@ -576,6 +578,7 @@ style_css_en:
   user:            tiger
   prop:
     text:          "[FILE:db/init/base/skins/default/style.css]"
+    title:         style
     content_type:  text/css
     ext:           css
     size:          5262
@@ -585,6 +588,7 @@ Node_zafu_en:
   user:            tiger
   prop:
     text:          "[FILE:app/views/zafu/default/Node.zafu]"
+    title:         Node
     format:        html
     tkpath:        N
     target_klass:  Node
@@ -594,6 +598,7 @@ Node_admin_layout_zafu_en:
   user:            tiger
   prop:
     text:          "[FILE:app/views/zafu/default/Node-+adminLayout.zafu]"
+    title:         Node-+adminLayout
     format:        html
     tkpath:        N
     mode:          "+adminLayout"
@@ -604,6 +609,7 @@ Node_index_zafu_en:
   user:            tiger
   prop:
     text:          "[FILE:db/init/base/skins/default/Node-+index.zafu]"
+    title:         Node-+index
     format:        html
     tkpath:        N
     mode:          "+index"
@@ -614,6 +620,7 @@ Node_not_found_zafu_en:
   user:            tiger
   prop:
     text:          "[FILE:app/views/zafu/default/Node-+notFound.zafu]"
+    title:         Node-+notFound
     format:        html
     tkpath:        N
     mode:          "+notFound"
@@ -624,6 +631,7 @@ Node_popup_layout_zafu_en:
   user:            tiger
   prop:
     text:          "[FILE:app/views/zafu/default/Node-+popupLayout.zafu]"
+    title:         Node-+popupLayout
     format:        html
     tkpath:        N
     mode:          "+popupLayout"
@@ -634,6 +642,7 @@ Node_test_en:
   user:            tiger
   prop:
     text:          "[FILE:test/fixtures/files/Node-test.zafu]"
+    title:         Node-test
     format:        html
     tkpath:        N
     mode:          test
@@ -644,6 +653,7 @@ notes_zafu_en:
   user:            tiger
   prop:
     text:          "[FILE:db/init/base/skins/default/notes.zafu]"
+    title:         notes
     format:        html
 
 Project_zafu_en:
@@ -651,6 +661,7 @@ Project_zafu_en:
   user:            tiger
   prop:
     text:          "[FILE:db/init/base/skins/default/Project.zafu]"
+    title:         Project
     format:        html
     tkpath:        NPP
     target_klass:  Project
@@ -660,6 +671,7 @@ Node_login_zafu_en:
   user:            tiger
   prop:
     text:          "[FILE:app/views/zafu/default/Node-+login.zafu]"
+    title:         Node-+login
     format:        html
     tkpath:        N
     mode:          "+login"
@@ -671,6 +683,7 @@ translations_de:
   lang:            de
   prop:
     text:          "[FILE:test/fixtures/files/translations_de.yml]"
+    title:         translations
     content_type:  text/yaml
     ext:           yml
     size:          50
@@ -681,6 +694,7 @@ translations_fr:
   lang:            fr
   prop:
     text:          "[FILE:test/fixtures/files/translations_fr.yml]"
+    title:         translations
     content_type:  text/yaml
     ext:           yml
     size:          50

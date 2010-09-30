@@ -84,18 +84,18 @@ do_if:
   res: "<b>it's false</b>"
 
 if_has_discussion:
-  src: "<r:show attr='node_name'/>:<r:if test='discussion'>yes<r:else>no</r:else></r:if> <r:context select='42'><r:show attr='node_name'/>:<r:if test='discussion'>yes<r:else>no</r:else></r:if></r:context>"
-  res: "status:yes letter:no"
+  src: "<r:show attr='title'/>:<r:if test='discussion'>yes<r:else>no</r:else></r:if> <r:context select='42'><r:show attr='title'/>:<r:if test='discussion'>yes<r:else>no</r:else></r:if></r:context>"
+  res: "status title:yes zena enhancements:no"
 
 case_ancestor:
-  src: "<r:root><r:pages><r:each join=', '><r:case><r:when eval='ancestor?(main)'><b><r:show attr='node_name'/></b></r:when><r:else><r:show attr='node_name'/></r:else></r:case></r:each></r:pages></r:root>"
-  res: "collections, nature, people, <b>projects</b>, skins"
+  src: "<r:root><r:pages><r:each join=', '><r:case><r:when eval='ancestor?(main)'><b><r:show attr='title'/></b></r:when><r:else><r:show attr='title'/></r:else></r:case></r:each></r:pages></r:root>"
+  res: "Collections, Nature, people, <b>projects list</b>, Skins (layout themes)"
 
 on_if_ancestor_no_class:
-  old_src: "<r:root><r:pages><li do='each' on_if_node='ancestor' join=', '><r:show attr='node_name'/></li></r:pages></r:root>"
-  src: "<r:root><r:pages><li do='each' on_if='ancestor?(main)' join=', '><r:show attr='node_name'/></li></r:pages></r:root>"
+  old_src: "<r:root><r:pages><li do='each' on_if_node='ancestor' join=', '><r:show attr='title'/></li></r:pages></r:root>"
+  src: "<r:root><r:pages><li do='each' on_if='ancestor?(main)' join=', '><r:show attr='title'/></li></r:pages></r:root>"
   tem: '/var3.ancestor\?\(@node\)/'
-  res: "<li class=''>collections</li>, <li class=''>nature</li>, <li class=''>people</li>, <li class=' on'>projects</li>, <li class=''>skins</li>"
+  res: "<li class=''>Collections</li>, <li class=''>Nature</li>, <li class=''>people</li>, <li class=' on'>projects list</li>, <li class=''>Skins (layout themes)</li>"
 
 multiple_class_conditions:
   src: "<li class='unknown' do='void' one_if='custom_a == 1' two_if='custom_a == 2'>Agrippina</li>"
@@ -108,9 +108,9 @@ multiple_class_conditions_true_in_middle:
 
 # var1 = stored 'papa'
 test_ancestor_with_stored:
-  src: "<r:parent do='parent' set_papa='this' do='pages'><div do='each' super_if='papa.ancestor?(this)' do='node_name'/></r:parent>"
+  src: "<r:parent do='parent' set_papa='this' do='pages'><div do='each' super_if='papa.ancestor?(this)' do='title'/></r:parent>"
   tem: "/\(var1\.ancestor\?\(var4\)\)/"
-  res: "<div class=' super'>cleanWater</div><div class=''>wiki</div>"
+  res: "<div class=''>a wiki with Zena</div><div class=' super'>Clean Water project</div>"
 
 on_if_kind_of:
   context:
@@ -119,21 +119,21 @@ on_if_kind_of:
   res: "<b class=' popo'>parc opening</b>"
 
 on_if_attribute:
-  src: "<r:projects in='site'><div do='each' on_if='assigned' do='node_name'/></r:projects>"
+  src: "<r:projects in='site'><div do='each' on_if='assigned' do='title'/></r:projects>"
   tem: "/var2.prop\['assigned'\]. \? ' on'/"
-  res: "<div class=' on'>cleanWater</div><div class=''>wiki</div><div class=''>zena</div>"
+  res: "<div class=''>a wiki with Zena</div><div class=' on'>Clean Water project</div><div class=''>Zena the wild CMS</div>"
 
 on_if_attribute_with_edit:
-  src: "<r:projects in='site'><div do='each' on_if='assigned'><r:show attr='node_name'/><r:edit/></div></r:projects>"
+  src: "<r:projects in='site'><div do='each' on_if='assigned'><r:show attr='title'/><r:edit/></div></r:projects>"
   tem: "/var2.prop\['assigned'\]. \? ' on'/"
 
 on_if_node_main:
-  src: "<r:parent><r:pages><div do='each' on_if='id == main.id' do='node_name'>hello</div></r:pages></r:parent>"
-  res: "<div class=''>crocodiles</div><div class=' on'>status</div><div class=''>track</div>"
+  src: "<r:parent><r:pages><div do='each' on_if='id == main.id' do='title'>hello</div></r:pages></r:parent>"
+  res: "<div class=''>crocodiles</div><div class=''>Keeping things clean !</div><div class=' on'>status title</div>"
 
 if_in_tag:
-  src: "<r:form><p do='if' in='form' do='node_name'/></r:form><i do='if' in='form' do='node_name'/>done."
-  res: "/<p>status</p>.*</form>done./"
+  src: "<r:form><p do='if' in='form' do='title'/></r:form><i do='if' in='form' do='title'/>done."
+  res: "/<p>status title</p>.*</form>done./"
 
 if_in_tag_else:
   src: "<r:if in='form'>in form<r:else>not in form</r:else></r:if>"
@@ -155,9 +155,9 @@ if_now:
   res: "past"
 
 on_if_now:
-  src: "<p do='node_name' on_if='log_at &gt; now'/>"
+  src: "<p do='title' on_if='log_at &gt; now'/>"
   tem: "/@node.log_at>Time.now.*' on'/"
-  res: "<p class=''>status</p>"
+  res: "<p class=''>status title</p>"
 
 visitor_is_anon:
   context:
@@ -168,6 +168,6 @@ visitor_is_anon:
 test_in_each:
   context:
     node: 'cleanWater'
-  src: "<ul do='pages'><li do='each' on_if='this.node_name == \"track\"' do='node_name'/></ul>"
-  tem: "/var2.node_name==\"track\"/"
-  res: "<ul><li class=''>crocodiles</li><li class=''>status</li><li class=' on'>track</li></ul>"
+  src: "<ul do='pages'><li do='each' on_if='this.title == \"Keeping things clean !\"' do='title'/></ul>"
+  tem: "/var2.prop\['title'\]==\"Keeping things clean !\"/"
+  res: "<ul><li class=''>crocodiles</li><li class=' on'>Keeping things clean !</li><li class=''>status title</li></ul>"

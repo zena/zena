@@ -3,5 +3,5 @@ translations:
   words: les mots
   date_format: '[%d.%m]'
   # used to translate dynamic key
-  status: statut
+  'status title': statut
   lang_en: anglais

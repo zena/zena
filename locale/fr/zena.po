@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: version 0.0.1\n"
 "POT-Creation-Date: 2010-06-02 16:42+0200\n"
-"PO-Revision-Date: 2010-06-02 16:43+0100\n"
+"PO-Revision-Date: 2010-09-28 17:41+0100\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: fr <gaspard@teti.ch>\n"
 "MIME-Version: 1.0\n"
@@ -311,7 +311,7 @@ msgstr "modifier la relation"
 #: app/views/relations/index.erb:1
 #: lib/zena/use/display.rb:267
 msgid "manage relations"
-msgstr "gestion des rôles"
+msgstr "gestion des relations"
 
 #: app/views/relations/new.erb:1
 #, fuzzy

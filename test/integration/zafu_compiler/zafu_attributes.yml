@@ -66,36 +66,36 @@ prefix_lang_show:
 
 set_attribute:
   old_src: "<div do='void' set_class='[name]'>hop</div>"
-  src: "<div class='#{node_name}'>hop</div>"
-  res: "<div class='status'>hop</div>"
+  src: "<div class='#{title}'>hop</div>"
+  res: "<div class='status title'>hop</div>"
 
 set_attribute_empty_tag:
   old_src: "<div do='void' set_class='[name]'>hop</div>"
-  src: "<div class='#{node_name}'/>"
-  res: "<div class='status'></div>"
+  src: "<div class='#{title}'/>"
+  res: "<div class='status title'></div>"
 
 store_node:
-  src: "<r:void set_baz='this'><r:parent><r:show attr='node_name'/>: <r:baz do='node_name'/> + <r:main do='show' attr='id'/></r:parent></r:void>"
-  res: "cleanWater: status + 22"
+  src: "<r:void set_baz='this'><r:parent><r:show attr='title'/>: <r:baz do='title'/> + <r:main do='show' attr='id'/></r:parent></r:void>"
+  res: "Clean Water project: status title + 22"
 
 store_in_block:
-  src: "<r:block><r:void set_found='this' do='node' where='id = 18 in site' do='page'><r:found do='node_name'/>: <r:show attr='node_name'/></r:void></r:block>"
-  res: "<div id='list1'>status: cleanWater</div>"
-  'zafu_attributes/store/en/in/block/list1.erb': '/<% var3 = @node -%><%= var3.node_name %>:/'
+  src: "<r:block><r:void set_found='this' do='node' where='id = 18 in site' do='page'><r:found do='title'/>: <r:show attr='title'/></r:void></r:block>"
+  res: "<div id='list1'>status title: a wiki with Zena</div>"
+  'zafu_attributes/store/en/in/block/list1.erb': "/<% var3 = @node -%><%= var3.prop\['title'\] %>:/"
 
 set_var_outside_block:
-  old_src: "<r:node select='18' set_found='this' do='pages'><r:block><r:show attr='node_name'/>: <r:context select='found' do='node_name'/></r:block></r:node>"
-  src: "<r:void set_found='this' do='pages from node where id = 18 in site' do='each' join=', '><r:block><r:found do='node_name'/>: <r:show attr='node_name'/></r:block></r:void>"
-  res: "<div id='list1_21'>status: cleanWater</div>, <div id='list1_29'>status: wiki</div>"
+  old_src: "<r:node select='18' set_found='this' do='pages'><r:block><r:show attr='title'/>: <r:context select='found' do='title'/></r:block></r:node>"
+  src: "<r:void set_found='this' do='pages from node where id = 18 in site' do='each' join=', '><r:block><r:found do='title'/>: <r:show attr='title'/></r:block></r:void>"
+  res: "<div id='list1_29'>status title: a wiki with Zena</div>, <div id='list1_21'>status title: Clean Water project</div>"
   'zafu_attributes/set/en/var/outside/block/list1.erb': "/unknown method <span class='type'>found\(\)/"
 
 store_node_as_relation:
-  src: "<r:void set_baz='this'><r:parent><r:show attr='node_name'/>: <r:baz do='node_name'/> + <r:main do='show' attr='id'/></r:parent></r:void>"
-  res: "cleanWater: status + 22"
+  src: "<r:void set_baz='this'><r:parent><r:show attr='title'/>: <r:baz do='title'/> + <r:main do='show' attr='id'/></r:parent></r:void>"
+  res: "Clean Water project: status title + 22"
 
 store_img:
-  src: "<r:parent><r:icon set_bob='this'><r:show attr='node_name'/><r:img link='bob'/></r:icon></r:parent>"
-  tem: "/if var1 = @node.parent.*var2 = Node.do_find.*relation_id = _ID(node_has_an_icon).*LIKE 'NDI%'.*var2.node_name.*zen_path\(var1\).*img_tag\(var2/"
+  src: "<r:parent><r:icon set_bob='this'><r:show attr='title'/><r:img link='bob'/></r:icon></r:parent>"
+  tem: "/if var1 = @node.parent.*var2 = Node.do_find.*relation_id = _ID(node_has_an_icon).*LIKE 'NDI%'.*var2.prop\['title'\].*zen_path\(var1\).*img_tag\(var2/"
 
 store_var_in_html:
   src: "<p set_foo='this' do='parent' do='foo' do='title'/>"
@@ -106,26 +106,26 @@ stored_in_if_clause:
   tem: "/var1.zip==@node.zip/"
 
 on_if_in_context:
-  src: "<div do='project' on_if='node_name == \"cleanWater\"' do='node_name'/>"
-  tem: "/var1.node_name==/"
-  res: "<div class=' on'>cleanWater</div>"
+  src: "<div do='project' on_if='title == \"Clean Water project\"' do='title'/>"
+  tem: "/var1.prop\['title'\]==/"
+  res: "<div class=' on'>Clean Water project</div>"
 
 on_if_with_link:
   # Make sure we do not insert an 'on_if' param in href
   src: "<p do='link' on_if='1 == 1'/>"
-  res: "<p class=' on'><a href='/oo/projects/cleanWater/page22.html'>status title</a></p>"
+  res: "<p class=' on'><a href='/oo/projects-list/Clean-Water-project/page22.html'>status title</a></p>"
 
 on_if_on_each:
   context:
     node: cleanWater
   # We use 'this' to make sure we are not in a list context.
-  src: "<r:pages><p do='each' on_if='this.node_name == \"status\"' do='node_name'/></r:pages>"
-  tem: '/var2.node_name==\"status\"/'
-  res: "<p class=''>crocodiles</p><p class=' on'>status</p><p class=''>track</p>"
+  src: "<r:pages><p do='each' on_if='this.title == \"status title\"' do='title'/></r:pages>"
+  tem: "/var2.prop\['title'\]==\"status title\"/"
+  res: "<p class=''>crocodiles</p><p class=''>Keeping things clean !</p><p class=' on'>status title</p>"
 
 on_if_ancestor:
-  src: "<r:root><r:pages><li do='each' on_if='ancestor?(main)' class='hello' join=', ' do='node_name'/></r:pages></r:root>"
-  res: "<li class='hello'>collections</li>, <li class='hello'>nature</li>, <li class='hello'>people</li>, <li class='hello on'>projects</li>, <li class='hello'>skins</li>"
+  src: "<r:root><r:pages><li do='each' on_if='ancestor?(main)' class='hello' join=', ' do='title'/></r:pages></r:root>"
+  res: "<li class='hello'>Collections</li>, <li class='hello'>Nature</li>, <li class='hello'>people</li>, <li class='hello on'>projects list</li>, <li class='hello'>Skins (layout themes)</li>"
 
 on_if_empty:
   src: "<li do='void' on_if='custom_a.blank?'>hello</li>"
@@ -138,24 +138,24 @@ test_negative_value:
 
 anchor_attribute:
   # Use to_s so that the method executed replaces the dummy text.
-  src: "<p do='id.to_s' anchor='#{node_name}'>hello</p>"
-  res: "<a class='anchor' name='status'></a><p>22</p>"
+  src: "<p do='id.to_s' anchor='#{title.urlencode}'>hello</p>"
+  res: "<a class='anchor' name='status-title'></a><p>22</p>"
 
 anchor_true:
   src: "<r:title live='true' anchor='true'/>"
   res: "<a class='anchor' name='node22'></a><span id='_title22'>status title</span>"
 
 show_attr_anchor:
-  src: "<r:show attr='node_name' anchor='true'/>"
-  res: "<a class='anchor' name='node22'></a>status"
+  src: "<r:show attr='title' anchor='true'/>"
+  res: "<a class='anchor' name='node22'></a>status title"
 
 anchor_in_link:
   src: "<r:link class='xx' anchor='true'/>"
   res: "<a class='xx' href='#node22'>status title</a>"
 
 anchor_tag:
-  src: "<r:anchor/> <r:anchor anchor='#{node_name}'/>"
-  res: "<a class='anchor' name='node22'></a> <a class='anchor' name='status'></a>"
+  src: "<r:anchor/> <r:anchor anchor='#{title.urlencode}'/>"
+  res: "<a class='anchor' name='node22'></a> <a class='anchor' name='status-title'></a>"
 
 live_with_show:
   src: "<r:title live='true'/>"
@@ -167,4 +167,4 @@ live_with_zazen:
 
 live_with_link:
   src: "<h2 do='link' attr='title' live='true'>super titre</h2>"
-  res: "<h2><a id='_title22' href='/oo/projects/cleanWater/page22.html'>status title</a></h2>"
+  res: "<h2><a id='_title22' href='/oo/projects-list/Clean-Water-project/page22.html'>status title</a></h2>"

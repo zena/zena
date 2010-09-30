@@ -29,7 +29,7 @@ class NodesControllerCommitTest < ActionController::TestCase
         node_list = assigns(:nodes)
         nodes = {}
         node_list.each do |n|
-          nodes[n.node_name] = n
+          nodes[n.title] = n
         end
         assert skin = nodes['jet30']
         assert_kind_of Skin, skin

@@ -26,7 +26,7 @@ class TextDocumentTest < Zena::Unit::TestCase
           body { font-size:10px; }
           #header { background:url('bird.jpg') }
           #pv     { background:url('bird_pv.jpg') }
-          #footer { background:url('/projects/wiki/flower.jpg') }
+          #footer { background:url('/projects list/a wiki with Zena/flower.jpg') }
           #no_stamp { background:url('/en/image30_pv.jpg?100001001345') }
           END_CSS
 
@@ -48,24 +48,24 @@ class TextDocumentTest < Zena::Unit::TestCase
         end
       end # in a folder with an image
     end # on a css text_document
-    
+
     context 'creating a text document' do
       context 'with a content_type' do
         subject do
           secure!(TextDocument) { TextDocument.create(
-            :node_name => "yoba",
+            :title => "yoba",
             :parent_id => nodes_id(:wiki),
             :text => "#header { color:red; }\n#footer { color:blue; }",
-            :content_type => 'text/css') 
+            :content_type => 'text/css')
           }
         end
-        
+
         should 'create a new TextDocument' do
           assert_difference('TextDocument.count', 1) do
             subject
           end
         end
-        
+
         should 'set extension from content_type' do
           assert_equal 'css', subject.ext
         end
@@ -75,11 +75,11 @@ class TextDocumentTest < Zena::Unit::TestCase
 
   def test_create_simplest
     login(:tiger)
-    doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :node_name => 'skiny')}
+    doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :title => 'skiny')}
     assert_equal TextDocument, doc.class
     assert !doc.new_record?, "Not a new record"
     assert_equal 0, doc.size
-    doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :node_name => 'medium', :text=>"12345678901234567890")}
+    doc = secure!(Document) { Document.create(:parent_id=>nodes_id(:cleanWater), :title => 'medium', :text=>"12345678901234567890")}
     assert_equal TextDocument, doc.class
     assert !doc.new_record?, "Not a new record"
     assert_equal 20, doc.size
@@ -91,6 +91,7 @@ class TextDocumentTest < Zena::Unit::TestCase
     file = uploaded_text('some.txt')
     doc = secure!(Document) { Document.create( :parent_id => nodes_id(:cleanWater),
                                                :file => file ) }
+
     assert_equal TextDocument, doc.class
     # reload
     doc = secure!(Document) { Document.find(doc[:id])}
@@ -127,8 +128,8 @@ class TextDocumentTest < Zena::Unit::TestCase
     body { font-size:10px; behavior:url("/stylesheets/csshover2.htc"); }
     #header { background:url('bird.jpg') }
     #pv     { background:url('bird_pv.jpg') }
-    #footer { background:url('/projects/wiki/flower.jpg') }
-    #back   { background:url('../../projects/wiki/flower.jpg') }
+    #footer { background:url('/projects list/a wiki with Zena/flower.jpg') }
+    #back   { background:url('../../projects list/a wiki with Zena/flower.jpg') }
     #no_stamp { background:url('/en/image30_pv.jpg') }
     END_CSS
     node.text = start.dup
@@ -154,8 +155,8 @@ class TextDocumentTest < Zena::Unit::TestCase
     body { font-size:10px; behavior:url("/stylesheets/csshover2.htc"); }
     #header { background:url('bird.jpg') }
     #pv     { background:url('bird_pv.jpg') }
-    #footer { background:url('/projects/wiki/flower.jpg') }
-    #back   { background:url('/projects/wiki/flower.jpg') }
+    #footer { background:url('/projects list/a wiki with Zena/flower.jpg') }
+    #back   { background:url('/projects list/a wiki with Zena/flower.jpg') }
     #no_stamp { background:url('bird_pv.jpg') }
     END_CSS
     assert_equal unparsed, text
@@ -169,13 +170,13 @@ class TextDocumentTest < Zena::Unit::TestCase
     bird = secure!(Node) { nodes(:bird_jpg)}
     b_at = bird.updated_at
     # We need to publish so that the title is used for fullpath
-    assert bird.update_attributes(:parent_id => node[:parent_id], :title => "greenBird", :v_status => Zena::Status[:pub])
+    assert bird.update_attributes(:parent_id => node[:parent_id], :title => "green_bird", :v_status => Zena::Status[:pub])
     Zena::Db.set_attribute(bird, :updated_at, b_at)
     start =<<-END_CSS
     body { font-size:10px; }
     #header { background:url('green_bird.jpg') }
     #tiny   { background:url('green_bird_tiny.jpg') }
-    #footer { background:url('/projects/wiki/flower.jpg') }
+    #footer { background:url('/projects list/a wiki with Zena/flower.jpg') }
     END_CSS
     node.text = start.dup
     # dummy controller

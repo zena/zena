@@ -8,7 +8,6 @@ DEFAULTS:
 
 ocean:
   class:           Project
-  node_name:       other
   inherit:         no
   rgroup:          public
   wgroup:          masters
@@ -22,13 +21,11 @@ incognito:
 
 whale:
   class:           Contact
-  node_name:       whale
   parent:          ocean
   skin:            default
 
 default:
   class:           Skin
-  node_name:       default
   parent:          ocean
 
 Node:
