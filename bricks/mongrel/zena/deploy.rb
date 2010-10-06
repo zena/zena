@@ -12,6 +12,15 @@ Capistrano::Configuration.instance(:must_exist).load do
 
       desc "configure mongrel"
       task :configure, :roles => :app do
+        if Zena::ASSET_PORT == self[:mongrel_port].to_i - 1
+          mongrel_port  = Zena::ASSET_PORT
+          mongrel_count = self[:mongrel_count] + 1
+        elsif Zena::ASSET_PORT.nil?
+          # no asset port: OK.
+        else
+          raise "Invalid asset_port setting in bricks.yml: the port should be equal to mongrel_port minus one. (expected #{self[:mongrel_port].to_i - 1}, found #{Zena::ASSET_PORT})"
+        end
+
         run "#{in_current} mongrel_rails cluster::configure -e production -p #{mongrel_port} -N #{mongrel_count} -c #{deploy_to}/current -P log/mongrel.pid -l log/mongrel.log -a 127.0.0.1 --user www-data --group www-data"
         run "#{in_current} echo 'config_script: config/mongrel_upload_progress.conf' >> config/mongrel_cluster.yml"
       end

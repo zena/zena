@@ -38,6 +38,58 @@ class NavigationTest < Zena::Integration::TestCase
     assert_redirected_to "http://test.host/oo"
   end
 
+  context 'Asset rendering' do
+    setup do
+      post 'http://test.host/session', :login=>'tiger', :password=>'tiger'
+      @visitor = users(:tiger)
+      Thread.current[:visitor] = nil
+    end
+
+    context 'with valid http auth' do
+      setup do
+        @headers = {
+          'HTTP_AUTHORIZATION' => 'Basic ' + Base64::encode64("#{@visitor.id}:#{@visitor.persistence_token}")
+        }
+      end
+
+      subject do
+        [
+          "http://localhost:1234/oo/project19.html",
+          {},
+          @headers
+        ]
+      end
+
+      should 'set host and login wth given user' do
+        reset!
+        get *subject
+        assert_response :success
+        assert users_id(:tiger), visitor.id
+        assert_match %r{Secret}, response.body
+      end
+
+      context 'but invalid host' do
+        subject do
+          [
+            "http://test.host:1234/oo/project19.html",
+            {},
+            @headers
+          ]
+
+        end
+
+        should 'redirect to login' do
+          reset!
+          get *subject
+          assert_response :redirect
+          assert_redirected_to 'http://test.host/login'
+          assert_equal users_id(:anon), visitor.id
+        end
+      end # but invalid host
+    end # with a valid http auth
+  end # With render_token in url
+
+
   # HTTP_AUTH disabled
   # def test_authorize_http_auth
   #   Site.connection.execute "UPDATE sites SET http_auth = 1 WHERE id = #{sites_id(:zena)}"
@@ -188,7 +240,7 @@ class NavigationTest < Zena::Integration::TestCase
     assert_response :success
     assert_equal 'fr', session[:lang]
   end
-  
+
   def test_url_with_custom_base
     get 'http://test.host/en/projects-list/Clean-Water-project'
     assert_response :success
@@ -244,7 +296,7 @@ class NavigationTest < Zena::Integration::TestCase
     get 'http://test.host/en/node1.html'
     assert_response :missing
   end
-  
+
   def test_bad_url_without_notFound_template
     $_test_site = 'zena'
     Node.connection.execute "UPDATE nodes SET kpath='N' where id = #{nodes_id(:Node_not_found_zafu)}"

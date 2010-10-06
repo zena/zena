@@ -294,7 +294,7 @@ module Zena
 
         # Return true if we should display the dev box
         def dev_box?(mode, format)
-          format == 'html' && mode != '+popupLayout' && dev_mode?
+          ((format == 'html' && mode != '+popupLayout') || params.keys.include?('debug')) && dev_mode?
         end
 
         def lang_path
@@ -361,7 +361,7 @@ module Zena
           # a filesystem path inside SITES_ROOT where the built template should be compiled.
           def rebuild_template(template, opts = {})
             zafu_url, rel_path, insert_dev = opts[:zafu_url], opts[:rel_path], opts[:dev_mode]
-            
+
             # clear :
             FileUtils::rmtree(File.dirname(SITES_ROOT + rel_path))
 

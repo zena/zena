@@ -292,6 +292,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   desc "Apache2 initial setup"
   task :apache2_setup, :roles => :web do
+    # TODO: can we move this into the mongrel brick?
     if self[:mongrel_port]
       self[:ports] = (mongrel_port.to_i...(mongrel_port.to_i + mongrel_count.to_i)).to_a
     end

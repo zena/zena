@@ -1,0 +1,33 @@
+= pdf -- pdf rendering brick for Zena
+
+This brick is used to render pdf from html pages. It exploit existing engine such as "princexml" or "pisa".
+
+The required engine must be installed on the server and the bricks configuration file must specify which engine to use. Example:
+
+    pdf:
+      switch: ON
+      engine: prince
+
+You must also provide an asset host dedicated to serving the files needed by pdf generation (css documents, embedded images, etc). Set the asset host port in the bricks.yml file:
+
+    asset_host: 7999
+
+It is possible to add more engines. See implementations in "engine" folder in for details.
+
+There is one method "render" that takes a hash as argument.
+
+== Examples
+
+    Bricks::PDF.engine = 'prince'
+
+    Bricks::PDF.render :input => "myfile.html"
+    => STDOUT
+
+    Bricks::PDF.render :input => "myfile.html", :output => "out.pdf"
+    => out.pdf      (file)
+
+    Bricks::PDF.render :data  => "This is text to render."
+    => STDOUT       (strings)
+
+    Bricks::PDF.render :data  => "This is text to render.", :output => "out.pdf"
+    => out.pdf      (file)

@@ -18,7 +18,7 @@ module Zena
 
       module ControllerMethods
         def self.included(base)
-          base.send(:helper_attr, :js_data)
+          base.send(:helper_attr,   :js_data)
           base.send(:layout, false)
         end
 
@@ -101,30 +101,40 @@ module Zena
           # cleanup before rendering
           params.delete(:mode)
           if opts[:format] != 'html'
-            # Document data or special renderings.
-            content_type  = (Zena::EXT_TO_TYPE[opts[:format]] || ['application/octet-stream'])[0]
-            template_path = template_url(opts)
-            data = render_to_string(:file => template_path, :layout=>false)
-            # TODO: use plugins...
-            #if opts[:format] == 'pdf' && ((Zena::ENABLE_LATEX && data =~ /\A% (latex)\n/) || (Zena::ENABLE_FOP && data =~ /\A<\?(xml)/))
-             # render_pdf($1 == 'xml' ? 'fop' : $1)
 
-            if opts[:format] == 'pdf'
-              Data2pdf.engine =  'Xhtml2pdf'
-              disposition = params['disposition']   || 'inline'
-              if params.keys.include?("debug")
-                render :text => data
-              else
-                pdf = Data2pdf.render(data)
-                send_data(pdf,  :type=> 'application/pdf', :disposition=>disposition)
-              end
+            method = "render_to_#{opts[:format]}"
+            if params.keys.include?('debug')
+              template_path = template_url(opts)
+              result = {
+                :data         => render_to_string(:file => template_path, :layout=>false),
+                :disposition  => params['disposition'] || 'inline',
+                :type         => 'text/html',
+              }
+              opts[:cache] = false
+            elsif respond_to?(method)
+              # Call custom rendering engine 'render_to_pdf' for example.
+              result = send(method, opts)
             else
-              # send data inline
-              filepath = nil
-              send_data( data , :filename=>@node.title, :type => content_type, :disposition=>'inline')
+              template_path = template_url(opts)
+              content_type  = (Zena::EXT_TO_TYPE[opts[:format]] || ['application/octet-stream'])[0]
+              result = {
+                :data         => render_to_string(:file => template_path, :layout=>false),
+                :disposition  => 'inline',
+                :type         => content_type,
+                :filename     => @node.title
+              }
             end
 
-            cache_page(:content_data => data, :content_path => filepath) if opts[:cache]
+            if data = result.delete(:data)
+              send_data(data , result)
+            elsif file = result.delete(:file)
+              send_file(file , result)
+            else
+              # Should never happen
+              raise Exception.new("Render '#{params[:format]}' should return either :file or :data (none found).")
+            end
+
+            cache_page(:content_data => result[:data], :content_path => result[:file]) if opts[:cache]
           else
             # html
             render :file => template_url(opts), :layout=>false, :status => opts[:status]
@@ -190,107 +200,29 @@ module Zena
           zafu_node('@node', Node)
         end
 
-        def render_pdf(rendering_egine)
-          # 1. find cached PDF. If found, send data.
-          if @node[:user_id] == visitor[:id]
-            # owner
-            filename = "u#{@node[:user_id]}.pdf"
-          else
-            # group
-            filename = "g#{@node[:rgroup_id]}.pdf"
-          end
-          filepath = @node.asset_path(filename)
-          if File.exist?(filepath)
-            # ok send data
-            data = File.read(filepath)
-            send_data( data , :filename=>@node.title, :type => content_type, :disposition=>'inline')
-          else
-            # generate pdf
-            FileUtils::mkpath(File.dirname(filepath)) unless File.exist?(File.dirname(filepath))
-
-            tempf = Tempfile.new("#{@node[:id]}_#{@node.version.lang}")
-            pdf_path = "#{tempf.path}.pdf"
-            failure  = nil
-            case rendering_egine
-            when 'latex'
-              # Parse data to produce LateX
-              data = data.gsub(/\\input/,'input not supported')
-              data = data.gsub(/\\includegraphics(\*|)(\[[^\{]*\]|)\{([^\}]*?)(\.(\w+)|)\}/) do
-                cmd_name = "includegraphics#{$1}"
-                img_opts = $2
-                img_id   = $3
-                img_mode = $5
-                if id = Node.translate_pseudo_id(img_id)
-                  img = secure(Image) { Image.find_by_id(id) }
-                  if img
-                    if img_mode
-                      format = Iformat[img_mode]
-                      img_path = img.filepath(format)
-                      if !File.exists?(img_path)
-                        img_file = img.file(format) # force rendering of image
-                        img_file.close
-                      end
-                    else
-                      img_path = img.filepath(nil)
-                    end
-                  end
-                  "\\includegraphics#{img_opts}{#{img_path}}"
-                else
-                  "(image '#{img_id}' not found)"
-                end
-              end
-
-              tempf = Tempfile.new("#{@node[:id]}_#{@node.version.lang}")
-              tex_path = "#{tempf.path}.tex"
-              pdf_path = "#{tempf.path}.pdf"
-              File.open(tex_path, 'wb') { |f| f.syswrite(data) }
-              if !system("pdflatex -halt-on-error -output-directory '#{File.dirname(tex_path)}' '#{tex_path}' &> '#{tempf.path}'")
-                failure = tempf.read
-              end
-            when 'fop'
-              # FOP rendering
-              xml_path  = "#{tempf.path}.xml"
-              fo_path   = "#{tempf.path}.fo"
-
-              # write xml to file
-              File.open(xml_path, 'wb') { |f| f.syswrite(data) }
-
-              # find stylesheet path is in the zafu folder
-              xsl_path = template_path.sub(/\.erb\Z/,'.xsl')
-              raise Excpetion.new("xsl content not found #{xsl_path.inspect} while rendering #{template_path.inspect} (node #{@node[:id]})") unless File.exist?(xsl_path)
-
-              # run xsl with 'xml' content and stylesheet ==> 'xsl-fo' file
-              if !system("xsltproc -o '#{fo_path}' '#{xsl_path}' '#{xml_path}' &> '#{tempf.path}'")
-                failure = tempf.read
+        private
+          # This is called before rendering for special formats (pdf) in order to rewrite
+          # urls to localhost (the rendering engine is external to Zena and will need to
+          # make calls to get assets).
+          def baseurl
+            if Zena::ASSET_PORT
+              if Zena::ASSET_PORT == request.port
+                raise Exception.new("Custom rendering not allowed on this process (port == asset_port).")
               else
-                # run fop ==> PDF
-                if !system("fop '#{fo_path}' '#{pdf_path}' &> '#{tempf.path}'")
-                  failure = tempf.read
-                end
+                "http://localhost:#{Zena::ASSET_PORT}"
               end
-            end
-
-            if !failure
-              if data =~ /<!-- xsl_id:(\d+)/
-                # make sure changes in xsl stylesheet expires cached PDF
-                expire_with_ids = visitor.visited_node_ids + [$1.to_i]
-              else
-                expire_with_ids = visitor.visited_node_ids
-              end
-
-              data = File.read(pdf_path)
-              # cache pdf data
-              filepath = filepath[(SITES_ROOT.size)..-1]
-              secure!(CachedPage) { CachedPage.create(:expire_after => nil, :path => filepath, :content_data => data, :node_id => @node[:id], :expire_with_ids => expire_with_ids) }
-              send_data( data , :filename=>@node.title, :type => content_type, :disposition=>'inline')
             else
-              # failure: send log
-              send_data( failure , :filename=>"#{@node.title} - error", :type => 'text/plain', :disposition=>'inline')
+              raise Exception.new("Using custom rendering without an asset host ('asset_port' setting in bricks.yml).")
             end
-            #system("rm -rf #{tempf.path.inspect} #{(tempf.path + '.*').inspect}")
           end
-        end
 
+          def get_render_auth_params
+            {
+              :http_user     => visitor.id,
+              :http_password => visitor.persistence_token,
+              :baseurl       => baseurl
+            }
+          end
       end # ControllerMethods
     end # Rendering
   end # Use

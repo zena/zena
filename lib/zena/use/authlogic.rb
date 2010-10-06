@@ -1,6 +1,10 @@
 module Zena
   module Use
     module Authlogic
+      class RenderSession < ActiveRecord::Base
+        set_table_name :sessions
+      end
+
       module Common
 
         def visitor
@@ -31,7 +35,7 @@ module Zena
           end
 
           def set_visitor
-            unless site = Site.find_by_host(request.host)
+            unless site = forge_cookie_with_http_auth || Site.find_by_host(request.host)
               raise ActiveRecord::RecordNotFound.new("host not found #{request.host}")
             end
 
@@ -71,6 +75,31 @@ module Zena
           def token_visitor
             if user_token = (request.headers['HTTP_X_AUTHENTICATION_TOKEN'] || params[:user_token])
               User.find_by_single_access_token(user_token)
+            end
+          end
+
+          # Create a fake cookie based on HTTP_AUTH using session_id and render_token. This is
+          # only used for requests to localhost.
+          def forge_cookie_with_http_auth
+            if request.host == 'localhost' && request.port == Zena::ASSET_PORT
+              authenticate_with_http_basic do |login, password|
+                # login    = visitor.id
+                # password = persistence_token
+
+                # Temporary user to find site
+                user = User.find(login)
+                if user && site = user.site
+                  # OK, we can set host
+                  request.env['HTTP_HOST'] = "#{site.host}:#{Zena::ASSET_PORT}"
+                  # forge cookie
+                  cookies['user_credentials'] = "#{password}::#{login}"
+                  site
+                else
+                  raise ActiveRecord::RecordNotFound
+                end
+              end
+            else
+              nil
             end
           end
 

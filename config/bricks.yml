@@ -1,16 +1,24 @@
 test:
+  # Port used only to provide assets during custom rendering (pdf).
+  # We need this to avoid deadlocks.
+  asset_port: 1234
   tags:     ON
   captcha:  ON
   sphinx:   OFF
   worker:   OFF
 
 development:
+  asset_port: 7999
   mongrel:   ON
   passenger: OFF
+  pdf:
+    switch: ON
+    engine: prince
 
   math:
     switch: ON
     live:   ON
+
   tags:     ON
   captcha:  ON
   sphinx:
@@ -24,11 +32,14 @@ development:
     switch:  OFF
     activate_if:
       gem: 'delayed_job'
-  data2pdf: ON
 
 production:
+  asset_port: 7999
   mongrel:   ON
   passenger: OFF
+  pdf:
+    switch: ON
+    engine: prince
   math:
     switch: ON
     live:   ON
@@ -45,4 +56,3 @@ production:
     switch:  OFF
     activate_if:
       gem: 'delayed_job'
-  data2pdf: ON
