@@ -389,9 +389,8 @@ class NodesController < ApplicationController
       node_id = secure!(Node) { Node.translate_pseudo_id(id_query, :id, @node)}
       @node = secure!(Node) { Node.find(node_id) }
     elsif name_query = params[:name]
-      # ????
-      raise Exception.new "Attribute by name should be fixed or removed"
-      
+      # Get attribute by name
+      # TODO: test
       if name_query =~ /^(.*)\.[a-z]{2,3}$/
         name_query = $1
       end
@@ -403,11 +402,8 @@ class NodesController < ApplicationController
         conditions << "#{kpath}%"
       end
 
-      conditions[0] << "title LIKE ?" # ???
-      conditions << "#{name_query}%"
-
-      conditions[0] = conditions[0].join(' AND ')
-      @node = secure!(Node) { Node.find(:first, :conditions => conditions, :order => "zip DESC")}
+      name_query = "#{name_query}%"
+      @node = secure!(Node) { Node.find_by_title(name_query, :conditions => conditions, :order => "zip DESC", :like => true)}
     end
 
     if %w{path short_path}.include?(method)

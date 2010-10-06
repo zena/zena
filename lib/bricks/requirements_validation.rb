@@ -34,12 +34,17 @@ module Bricks
       errors.empty? ? nil : errors
     end
 
+    def raw_config
+      @raw_config ||=
+        if File.exist?("#{RAILS_ROOT}/config/bricks.yml")
+          raw_config = YAML.load_file("#{RAILS_ROOT}/config/bricks.yml")[RAILS_ENV] || {}
+        else
+          raw_config = YAML.load_file("#{Zena::ROOT}/config/bricks.yml")[RAILS_ENV] || {}
+        end
+    end
+
     def config_for_active_bricks
-      if File.exist?("#{RAILS_ROOT}/config/bricks.yml")
-        raw_config = YAML.load_file("#{RAILS_ROOT}/config/bricks.yml")[RAILS_ENV] || {}
-      else
-        raw_config = YAML.load_file("#{Zena::ROOT}/config/bricks.yml")[RAILS_ENV] || {}
-      end
+      raw_config = self.raw_config
 
       config = {}
 

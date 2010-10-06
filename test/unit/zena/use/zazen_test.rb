@@ -155,7 +155,7 @@ class ZazenTest < Zena::View::TestCase
     end
 
     should 'resolve as image without using the current node' do
-      assert_match %Q{img[@src='/en/image30_std.jpg?929831698949]}, zazen(%Q{See !#{subject}!})
+      assert_match %Q{img[@src='/en/image30_std.jpg?929831698949']}, zazen(%Q{See !#{subject}!})
     end
 
 

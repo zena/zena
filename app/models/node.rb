@@ -307,7 +307,11 @@ class Node < ActiveRecord::Base
         cond = opts[:conditions] = [[]]
       end
 
-      cond[0] << "id1.value = ?"
+      if opts.delete(:like)
+        cond[0] << "id1.value LIKE ?"
+      else
+        cond[0] << "id1.value = ?"
+      end
       cond << title
 
       cond[0] = cond[0].join(' AND ')

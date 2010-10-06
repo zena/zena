@@ -76,7 +76,7 @@ class TextDocument < Document
           elsif !(src =~ /\.\./) && File.exist?(File.join(SITES_ROOT, current_site.public_path, src))
             "url(#{quote}#{src}?#{File.mtime(File.join(SITES_ROOT, current_site.public_path, src)).to_i}#{quote})"
           else
-            errors.add('asset', '{{asset}} not found', :asset => src.inspect)
+            errors.add('asset', _('%{asset} not found') % {:asset => src.inspect})
             "url(#{quote}#{src}#{quote})"
           end
         end

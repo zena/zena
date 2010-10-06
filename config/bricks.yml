@@ -1,7 +1,6 @@
 test:
-  # Port used only to provide assets during custom rendering (pdf).
-  # We need this to avoid deadlocks.
-  asset_port: 1234
+  # Integration testing does not use 'port' settings so we must use 80...
+  asset_port: 80
   tags:     ON
   captcha:  ON
   sphinx:   OFF
@@ -34,6 +33,8 @@ development:
       gem: 'delayed_job'
 
 production:
+  # Port used only to provide assets during custom rendering (pdf).
+  # We need this to avoid deadlocks.
   asset_port: 7999
   mongrel:   ON
   passenger: OFF

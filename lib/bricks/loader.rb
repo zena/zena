@@ -96,7 +96,10 @@ module Bricks
 
     def load_bricks
       bricks.each do |path|
-        $LOAD_PATH << File.join(path, 'lib')
+        path = File.join(path, 'lib')
+        ActiveSupport::Dependencies.load_paths      << path
+        ActiveSupport::Dependencies.load_once_paths << path
+        $LOAD_PATH                                  << path
       end
 
       # load 'init'

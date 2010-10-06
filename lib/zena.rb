@@ -17,10 +17,28 @@ module Zena
   ENABLE_LATEX   = true  && has_executable('pdflatex') # enable LateX post-rendering
   ENABLE_FOP     = true  && has_executable('fop', 'xsltproc') # enable xsl-fo post-rendering
   ENABLE_MATH    = true  && has_executable('latex', 'dvips', 'convert', 'gs')
+  ASSET_PORT     = Bricks.raw_config['asset_port']
+
+  module DbHelper
+  end
 
   # VERSION is defined in root.rb
   class << self
     attr_accessor :tools_enabled
+
+    # Resolve a fully defined constant like 'Bricks::PDF::Engine::Prince'
+    def resolve_const(klass)
+      if klass.kind_of?(String)
+        constant = nil
+        klass.split('::').each do |m|
+          constant = constant ? constant.const_get(m) : Module.const_get(m)
+        end
+        constant
+      else
+        klass
+      end
+    end
+
     def add_load_paths(config = nil)
       paths_to_add = (
         Dir["#{Zena::ROOT}/vendor/gems/*/lib"] +
@@ -28,7 +46,11 @@ module Zena
         Bricks.models_paths
       )
       if config
-        config.load_paths += ["#{Zena::ROOT}/vendor"]
+        ["#{Zena::ROOT}/vendor", "#{Zena::ROOT}/lib"].each do |path|
+          ActiveSupport::Dependencies.load_paths      << path
+          ActiveSupport::Dependencies.load_once_paths << path
+          $LOAD_PATH                                  << path
+        end
       else
         paths_to_add.each do |path|
           $LOAD_PATH.push path
