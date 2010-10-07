@@ -27,6 +27,7 @@ require 'erb'
 require File.join(File.dirname(__FILE__), 'info')
 require File.join(File.dirname(__FILE__), '..', 'bricks')
 
+
 Capistrano::Configuration.instance(:must_exist).load do
 
   set :templates, File.join(File.dirname(__FILE__), 'deploy')

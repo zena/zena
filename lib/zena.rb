@@ -11,13 +11,10 @@ def has_executable(*list)
   end
 end
 
-require 'bricks'
-
 module Zena
   ENABLE_LATEX   = true  && has_executable('pdflatex') # enable LateX post-rendering
   ENABLE_FOP     = true  && has_executable('fop', 'xsltproc') # enable xsl-fo post-rendering
   ENABLE_MATH    = true  && has_executable('latex', 'dvips', 'convert', 'gs')
-  ASSET_PORT     = Bricks.raw_config['asset_port']
 
   module DbHelper
   end
