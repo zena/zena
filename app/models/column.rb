@@ -83,8 +83,13 @@ class Column < ActiveRecord::Base
     end
 
     def name_not_in_models
-      Node.native_classes.each do |kpath, klass|
-        if column = klass.schema.columns[self.name]
+      Node.native_classes.to_a.sort{|a,b| a[0] <=> b[0]}.each do |kpath, klass|
+        name, set_name = self.name, "#{self.name}="
+        if klass.method_defined?(name)     || klass.protected_method_defined?(name)     || klass.private_method_defined?(name) ||
+           klass.method_defined?(set_name) || klass.protected_method_defined?(set_name) || klass.private_method_defined?(set_name)
+          errors.add(:name, _('illegal property name (method defined in %s)') % klass.to_s)
+          break
+        elsif column = klass.schema.columns[self.name]
           # find column origin
           errors.add(:name, _('has already been taken in %s') % column.role.name)
           break

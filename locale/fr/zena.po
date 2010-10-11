@@ -1512,7 +1512,7 @@ msgstr ""
 
 #: lib/zena/use/display.rb:166
 msgid "%{ext} node"
-msgstr "objet %{type}"
+msgstr "objet %{ext}"
 
 #: lib/zena/use/display.rb:252
 msgid "my home"

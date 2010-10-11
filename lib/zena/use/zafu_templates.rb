@@ -3,6 +3,37 @@ require 'zafu/controller_methods'
 module Zena
   module Use
     module ZafuTemplates
+      class AssetCache
+        attr_accessor :used_assets
+
+        def initialize
+          @used_assets  = {}
+          @cached_nodes = {}
+          @used_assets['']
+          @used_assets['zafu'] = []
+        end
+
+        def cache_with_path(section_id, path)
+          @cached_nodes[[section_id, path]] ||= begin
+            if document = yield
+              if document.kind_of?(Template)
+                (@used_assets['zafu'] ||= [])   << [path, document]
+              elsif document.kind_of?(Image)
+                (@used_assets['images'] ||= []) << [path, document]
+              else
+                (@used_assets['assets'] ||= []) << [path, document]
+              end
+            end
+            document
+          end
+        end
+
+        def used_nodes
+          @cached_nodes.values
+        end
+      end # DevBox
+
+
       module Common
         DEFAULT_PATH = %r{^\/?\$([\+\-\w\/]+)}
         DEFAULT_TEMPLATES_PATH = "#{Zena::ROOT}/app/views/zafu"
@@ -98,7 +129,6 @@ module Zena
               return nil unless asset = find_document_for_template(src2, opts[:base_path])
             end
 
-            self.renamed_assets[[asset.section_id, asset.title]] = asset
           end
 
           data_path(asset, :mode => mode)
@@ -195,31 +225,24 @@ module Zena
             # does not start with '/' : look in current directory
           end
 
-          # TODO: can we move this initialization somewhere else ?
-          self.expire_with_nodes ||= {}
-          self.renamed_assets ||= {}
-
-          unless document = self.expire_with_nodes[[section_id, src]]
+          self.asset_cache.cache_with_path(section_id, src) do
             unless document = secure(Document) { Document.find_by_path(src, section_id) }
               # find anywhere in Skin
               document = secure(Document) { Document.find_by_title(src.last, :conditions => ['section_id = ?', section_id]) }
             end
-            self.expire_with_nodes[[section_id, src]] = document if document
+            document
           end
-
-          document
         end
-
       end # Common
 
       module ControllerMethods
 
         def self.included(base)
-          base.send(:helper_attr, :expire_with_nodes, :renamed_assets)
+#          base.send(:helper_attr, :asset_cache)
           if base.respond_to?(:helper_method)
             base.send(:helper_method, :dev_mode?, :lang_path, :rebuild_template, :get_template_text, :template_url, :template_url_for_asset, :zafu_helper)
           end
-          base.send(:attr_accessor, :expire_with_nodes, :renamed_assets)
+          base.send(:attr_accessor, :asset_cache)
           base.send(:include, ::Zafu::ControllerMethods)
           # Needs to be inserted after Zafu::ControllerMethods since we overwrite get_template_text and such
           base.send(:include, Common)
@@ -365,14 +388,19 @@ module Zena
             # clear :
             FileUtils::rmtree(File.dirname(SITES_ROOT + rel_path))
 
+            self.asset_cache = AssetCache.new
+
             # Cache loaded templates and skins
             if template
-              self.expire_with_nodes = {
-                template.fullpath_as_title => template
-              }
+              # Store template in expiry list and dev_box
+              if fullpath = template.fullpath[/^#{@skin.fullpath}\/(.*)/,1]
+                # absolute path with skin
+                fullpath = [@skin.title] + template.fullpath_as_title(fullpath)
+                self.asset_cache.cache_with_path(@skin.id, fullpath) do
+                  template
+                end
+              end
             end
-
-            self.renamed_assets = {}
 
             res = ZafuCompiler.new_with_url(zafu_url, :helper => zafu_helper).to_erb(:dev => dev_mode?, :node => get_node_context)
 
@@ -396,7 +424,7 @@ module Zena
               secure!(CachedPage) { CachedPage.create(
                 :path            => rel_path,
                 :expire_after    => nil,
-                :expire_with_ids => self.expire_with_nodes.values.map{|n| n[:id]}.uniq,
+                :expire_with_ids => self.asset_cache.used_nodes.map(&:id).uniq,
                 :node_id         => template[:id],
                 :content_data    => res) }
             else
@@ -408,29 +436,14 @@ module Zena
           end
 
           def dev_box
-            used_nodes  = []
-            zafu_nodes  = []
-            image_nodes = []
-            asset_nodes = []
-            self.expire_with_nodes.merge(self.renamed_assets).each do |k, n|
-              if n.kind_of?(Image)
-                image_nodes << [k,n]
-              elsif n.kind_of?(Template)
-                zafu_nodes  << [k,n]
-              else
-                asset_nodes << [k,n]
-              end
-            end
-            used_nodes << ['zafu',    zafu_nodes] unless zafu_nodes.empty?
-            used_nodes << ['images', image_nodes] unless image_nodes.empty?
-            used_nodes << ['assets', asset_nodes] unless asset_nodes.empty?
+            used_nodes = self.asset_cache.used_assets
 
             res = "<div id='dev'><ul>\n"
             used_nodes.each do |name, nodes|
               res << "  <li><a class='group' onclick='$(\"dev_#{name}\").toggle();' href='#'>#{name}</a>\n"
               res << "  <table class='dev_pop' id='dev_#{name}'#{name == 'images' ? " style='display:none;'" : ''}>\n"
-              nodes.each do |k,n|
-                res << "    <tr><td class='actions'>#{zafu_helper.send(:node_actions, n)}</td><td>#{zafu_helper.send(:link_to,k,zen_path(n))}</td></tr>\n"
+              nodes.each do |path, node|
+                res << "    <tr><td class='actions'>#{zafu_helper.send(:node_actions, node)}</td><td>&nbsp;#{zafu_helper.send(:link_to, path.join('/'), zen_path(node))}</td></tr>\n"
               end
               res << "  </table>\n"
               res << "  </li>\n"

@@ -59,19 +59,19 @@ class ColumnTest < Zena::Unit::TestCase
           assert_equal 'has already been taken in Node', subject.errors[:name]
         end
       end
-    end # with an existing name
+    end # with the name of a hardwire property
 
-    context 'with the name of a hardwire property' do
+    context 'with the name of a method in a model' do
       subject do
-        Column.create(:role_id => roles_id(:Task), :ptype => 'string', :name => 'width')
+        Column.create(:role_id => roles_id(:Task), :ptype => 'string', :name => 'secure_on_destroy')
       end
 
       should 'fail with an error and return class' do
         assert_difference('Column.count', 0) do
-          assert_equal 'has already been taken in Image', subject.errors[:name]
+          assert_equal 'illegal property name (method defined in Node)', subject.errors[:name]
         end
       end
-    end # with an existing name
+    end # with the name of a hardwire property
   end # Creating a column
 
 end
