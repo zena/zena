@@ -97,6 +97,7 @@ module Zena
           res  = {}
           prop = self.prop
           schema.column_names.each do |key|
+            next if key == 'cached_role_ids' # FIXME: use a flag to mark as non-exportable
             value = prop[key]
             next if value.blank?
             res[key] = value

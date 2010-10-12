@@ -156,8 +156,10 @@ module Zena
         # FIXME: this method does an 'update' not only 'add'
         def add_link(role, hash)
           if rel = relation_proxy(role)
-            rel.other_id  = hash[:other_id]  if hash.has_key?(:other_id)
-            rel.other_ids = hash[:other_ids] if hash.has_key?(:other_ids)
+            rel.other_id   = hash[:other_id]   if hash.has_key?(:other_id)
+            rel.other_ids  = hash[:other_ids]  if hash.has_key?(:other_ids)
+            rel.other_zip  = hash[:other_zip]  if hash.has_key?(:other_zip)
+            rel.other_zips = hash[:other_zips] if hash.has_key?(:other_zips)
             LINK_ATTRIBUTES.each do |k|
               rel.send("other_#{k}=", hash[k]) if hash.has_key?(k)
             end
@@ -296,12 +298,6 @@ module Zena
               if rel = relation_proxy(role)
                 if mode == '='
                   # set
-                  case field
-                  when 'zip', 'zips'
-                    # not used to set relations (must use 'translate_attributes' to chagen zip into id before call)
-                    raise err
-                  end
-                  # set value
                   rel.send("other_#{field}=", args[0])
                 else
                   # get
@@ -341,7 +337,7 @@ module Zena
             @relation_proxies.each do |role, rel|
               next unless rel
               unless rel.attributes_to_update_valid?
-                errors.add(role, rel.link_errors.join(', '))
+                errors.add(role, rel.link_errors.map {|k,v| "#{k} => #{v}"}.join(', '))
               end
             end
           end

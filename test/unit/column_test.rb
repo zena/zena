@@ -68,7 +68,31 @@ class ColumnTest < Zena::Unit::TestCase
 
       should 'fail with an error and return class' do
         assert_difference('Column.count', 0) do
-          assert_equal 'illegal property name (method defined in Node)', subject.errors[:name]
+          assert_equal 'invalid (method defined in Node)', subject.errors[:name]
+        end
+      end
+    end # with the name of a hardwire property
+    
+    context 'ending with _ids' do
+      subject do
+        Column.create(:role_id => roles_id(:Task), :ptype => 'string', :name => 'secure_on_destroy_ids')
+      end
+
+      should 'fail with an error and return class' do
+        assert_difference('Column.count', 0) do
+          assert_equal 'invalid (cannot end with _id or _ids)', subject.errors[:name]
+        end
+      end
+    end # with the name of a hardwire property
+    
+    context 'ending with _id' do
+      subject do
+        Column.create(:role_id => roles_id(:Task), :ptype => 'string', :name => 'secure_on_destroy_id')
+      end
+
+      should 'fail with an error and return class' do
+        assert_difference('Column.count', 0) do
+          assert_equal 'invalid (cannot end with _id or _ids)', subject.errors[:name]
         end
       end
     end # with the name of a hardwire property

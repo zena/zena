@@ -34,14 +34,7 @@ class DocumentsController < ApplicationController
 
     respond_to do |format|
       if @node.new_record?
-        # If skin id could not be set (invalid parent), make sure we have something to render.
         @node.skin_id ||= current_site.root_node.skin_id
-        parent_id = (params[:node] || {})[:parent_id] || 0
-        class << @node
-          def parent_zip
-            parent_id
-          end
-        end
 
         flash[:error] = _("Upload failed.")
         format.html { render :action => 'new'}

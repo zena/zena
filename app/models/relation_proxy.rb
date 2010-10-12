@@ -122,6 +122,7 @@ class RelationProxy < Relation
 
   # set
   def other_id=(v)
+    attributes_to_update[:errors] = {}
     if !v.kind_of?(Array) && v.to_i < 0
       # removing a link
       # TODO: support Array
@@ -135,8 +136,56 @@ class RelationProxy < Relation
     end
   end
 
+  # set
+  def other_zip=(zip_values)
+    # Translate ids and then set
+    errors    = attributes_to_update[:errors]    = {}
+    id_to_zip = attributes_to_update[:id_to_zip] = {}
+
+    if zip_values.kind_of?(Array)
+      attributes_to_update[:id] = []
+      zip_values.each do |zip|
+        if id = secure(Node) { Node.translate_pseudo_id(zip,  :id, @start) }
+          # ok
+          id_to_zip[id] = zip
+          attributes_to_update[:id] << id
+        else
+          # error
+          errors[zip] = _('could not be found')
+        end
+      end
+    elsif zip_values.blank?
+      # remove all
+      attributes_to_update[:id] = nil
+    else
+      if id = secure(Node) { Node.translate_pseudo_id(zip_values, :id, @start) }
+        if id < 0
+          # removing a link
+          # TODO: support Array
+          if link = other_links.select { |l| l[other_side] == -id }.first
+            remove_link(link)
+          else
+            # ignore
+          end
+        else
+          id_to_zip[id] = zip_values
+          attributes_to_update[:id] = id
+        end
+      else
+        # error
+        # do not try to add
+        attributes_to_update[:id] = :ignore
+        errors[zip_values] = _('could not be found')
+      end
+    end
+  end
+
   def other_ids=(v)
     self.other_id = v
+  end
+
+  def other_zips=(v)
+    self.other_zip = v
   end
 
   def remove_link(link)
@@ -169,7 +218,7 @@ class RelationProxy < Relation
   def attributes_to_update_valid?
     return true unless @attributes_to_update || @links_to_delete
 
-    @link_errors  = []
+    @link_errors  = {}
     @add_links    = []
     @del_links    = []
     @update_links = []
@@ -181,7 +230,7 @@ class RelationProxy < Relation
     else
 
       # check if we have an update/create
-      unless @attributes_to_update.has_key?(:id)
+      unless @attributes_to_update.has_key?(:id) # set during other_id=
         # try to find current id/ids
         if @other_link
           @attributes_to_update[:id] = @other_link[other_side]
@@ -194,25 +243,28 @@ class RelationProxy < Relation
           elsif @attributes_to_update.keys == [:id]
             # ignore (set icon_id = nil when already == nil)
           else
-            @link_errors << "invalid target"
+            @link_errors['update'] = _('missing target')
           end
         else
           # error: cannot set other attributes (status/comment) on multiple nodes
-          @link_errors << "invalid target"
+          @link_errors['update'] = _('cannot update multiple targets')
         end
       end
 
       if @attributes_to_update[:id].kind_of?(Array)
         if unique?
-          @link_errors << "Cannot set multiple targets on #{as_unique? ? 'one' : 'many'}-to-one relation '#{this_role}'."
+          # TODO: translate
+          @link_errors['arity'] = "Cannot set multiple targets on #{as_unique? ? 'one' : 'many'}-to-one relation '#{this_role}'."
         elsif (@attributes_to_update.keys & LINK_ATTRIBUTES) != []
           keys = @attributes_to_update.keys
           keys.delete(:id)
-          @link_errors << "Cannot set attributes #{keys.join(', ')} on multiple targets."
+          # TODO: translate
+          @link_errors['arity'] = "Cannot set attributes #{keys.join(', ')} on multiple targets."
         end
       end
 
-      return false if @link_errors != []
+      return false if @link_errors != {}
+      @link_errors = @attributes_to_update[:errors] || {}
 
       # 1. find what changed
       if @attributes_to_update[:id].kind_of?(Array)
@@ -264,6 +316,8 @@ class RelationProxy < Relation
                 end
               end
             end
+          elsif @attributes_to_update[:id] == :ignore
+            # bad id set, just used for error reporting
           else
             # add
             @add_links << @attributes_to_update
@@ -271,6 +325,8 @@ class RelationProxy < Relation
         end
       end
     end
+
+    id_to_zip = attributes_to_update[:id_to_zip] || {}
 
     # 2. can write in new target ? (and remove targets previous link)
     @add_links.each do |hash|
@@ -283,19 +339,35 @@ class RelationProxy < Relation
           end
         end
       else
-        @link_errors << 'invalid target'
+        if zip = id_to_zip[hash[:id]]
+          key = zip
+        elsif node = secure(Node) { Node.find_by_id(hash[:id]) }
+          key = node.zip
+        else
+          key = 'id'
+        end
+
+        @link_errors[key] = _('invalid target')
       end
     end
 
     # 1. can remove old link ?
     @del_links.each do |link|
       unless find_node(link[other_side], unique?)
-        @link_errors << 'cannot remove link'
+        if zip = id_to_zip[link[other_side]]
+          key = zip
+        elsif node = secure(Node) { Node.find_by_id(hash[:id]) }
+          key = node.zip
+        else
+          key = 'id'
+        end
+
+        @link_errors[key] = _('cannot remove link')
       end
     end
 
     @update_links.compact!
-    return @link_errors == []
+    return @link_errors == {}
   end
 
   # Return updated link if changed or nil when nothing changed

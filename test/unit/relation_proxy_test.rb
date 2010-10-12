@@ -242,22 +242,64 @@ class RelationProxyTest < Zena::Unit::TestCase
     assert_equal 'woopi', wiki.comment
   end
 
+  context 'Adding a link' do
+    setup do
+      login(:lion)
+    end
+
+    subject do
+      secure(Node) { nodes(:letter) }
+    end
+
+    context 'with an invalid id' do
+      setup do
+        subject.add_link('calendar', :other_id => 1)
+      end
+
+      should 'not save' do
+        assert !subject.save
+      end
+
+      should 'set an error on the relation' do
+        assert !subject.save
+        assert_equal 'id => invalid target', subject.errors['calendar']
+      end
+    end # with an invalid id
+
+    context 'with an invalid zip' do
+      setup do
+        subject.add_link('calendar', :other_zip => 1, :comment => 'haha')
+      end
+
+      should 'not create links' do
+        assert_difference('Link.count', 0) do
+          assert !subject.save
+        end
+      end
+
+      should 'set an error on the relation' do
+        subject.save
+        assert_equal '1 => could not be found', subject.errors['calendar']
+      end
+    end # with an invalid zip
+  end # Adding a link
+
   def test_add_link_bad_target
     login(:lion)
     node = secure!(Node) { nodes(:letter) }
     node.add_link('calendar', :other_id => 1) # bad id
     assert !node.save
-    assert_equal 'invalid target', node.errors['calendar']
+    assert_equal 'id => invalid target', node.errors['calendar']
 
     node = secure!(Node) { nodes(:letter) }
     node.add_link('calendar', :other_id => 1, :comment => 'woopi')
     assert !node.save
-    assert_equal 'invalid target', node.errors['calendar']
+    assert_equal 'id => invalid target', node.errors['calendar']
 
     node = secure!(Node) { nodes(:letter) }
     node.add_link('calendar', :other_id => nil, :comment => 'woopi')
     assert !node.save
-    assert_equal 'invalid target', node.errors['calendar']
+    assert_equal 'id => invalid target', node.errors['calendar']
   end
 
   def test_set_link_many_targets

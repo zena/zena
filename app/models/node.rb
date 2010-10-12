@@ -483,6 +483,17 @@ class Node < ActiveRecord::Base
 
     def create_or_update_node(new_attributes)
       attributes = transform_attributes(new_attributes)
+
+      if zip = attributes.delete('parent_zip')
+        if id = secure(Node) { Node.translate_pseudo_id(zip, :id, self) }
+          attributes['parent_id'] = id
+        else
+          node = Node.new
+          node.errors.add('parent_id', 'could not be found')
+          return node
+        end
+      end
+
       unless attributes['title'] && attributes['parent_id']
         node = Node.new
         node.errors.add('title', "can't be blank") unless attributes['title']
@@ -787,11 +798,11 @@ class Node < ActiveRecord::Base
       end
 
       if !res['parent_id'] && p = attributes['parent_id']
-        res['parent_id'] = Node.translate_pseudo_id(p, :id, base_node) || p
+        res['parent_zip'] = p
       end
 
       attributes.each do |key, value|
-        next if ['_parent_id', 'parent_id'].include?(key)
+        next if ['parent_id', 'parent_zip', '_parent_id'].include?(key)
 
         if %w{rgroup_id wgroup_id dgroup_id}.include?(key)
           res[key] = Group.translate_pseudo_id(value, :id) || value
@@ -814,20 +825,9 @@ class Node < ActiveRecord::Base
             end
           end
         elsif key =~ /^(\w+)_id$/
-          if key[0..1] == 'd_'
-            res[key] = Node.translate_pseudo_id(value, :zip, base_node) || value
-          else
-            res[key] = Node.translate_pseudo_id(value,  :id, base_node) || value
-          end
+          res["#{$1}_zip"] = value
         elsif key =~ /^(\w+)_ids$/
-          # Id list. Bad ids are removed.
-          values = value.kind_of?(Array) ? value : value.split(',')
-          if key[0..1] == 'd_'
-            values.map! {|v| Node.translate_pseudo_id(v, :zip, base_node) }
-          else
-            values.map! {|v| Node.translate_pseudo_id(v,  :id, base_node) }
-          end
-          res[key] = values.compact
+          res["#{$1}_zips"] = value.kind_of?(Array) ? value : value.split(',')
         elsif key == 'file'
           unless value.blank?
             res[key] = value
@@ -1129,7 +1129,12 @@ class Node < ActiveRecord::Base
 
   # Id to zip mapping for parent_id. Used by zafu and forms.
   def parent_zip
-    parent ? parent[:zip] : nil
+    @parent_zip || (parent ? parent[:zip] : nil)
+  end
+
+  # When setting parent trough controllers, we receive parent_zip=.
+  def parent_zip=(zip)
+    @parent_zip = zip
   end
 
   # Id to zip mapping for section_id. Used by zafu and forms.
@@ -1409,6 +1414,9 @@ class Node < ActiveRecord::Base
     # after node is saved, make sure it's children have the correct section set
     # FIXME: move this into Ancestry
     def spread_project_and_section
+      # clear parent_zip
+      @parent_zip = nil
+
       if @spread_section_id || @spread_project_id
         # update children
         sync_section_and_project(@spread_section_id, @spread_project_id)
@@ -1474,6 +1482,14 @@ class Node < ActiveRecord::Base
     end
 
     def node_before_validation
+      if @parent_zip
+        if id = secure(Node) { Node.translate_pseudo_id(@parent_zip, :id, new_record? ? nil : self) }
+          self.parent_id = id
+        else
+          @parent_zip_error = _('could not be found')
+        end
+      end
+
       self[:kpath] = self.vclass.kpath
 
       # make sure section is the same as the parent
@@ -1517,6 +1533,11 @@ class Node < ActiveRecord::Base
 
     # Make sure the node is complete before creating it (check parent and project references)
     def validate_node
+      if @parent_zip_error
+        errors.add('parent_id', @parent_zip_error)
+        @parent_zip_error = nil
+      end
+
       # when creating root node, self[:id] and :root_id are both nil, so it works.
       if parent_id_changed? && self[:id] == current_site[:root_id]
         errors.add("parent_id", "root should not have a parent") unless self[:parent_id].blank?

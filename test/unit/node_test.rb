@@ -109,6 +109,38 @@ class NodeTest < Zena::Unit::TestCase
           assert_equal nodes_id(:art), node.id
         end
       end # setting an indexed field
+
+      context 'setting with transformations' do
+        subject do
+          secure(Node) { nodes(:letter) }
+        end
+
+        should 'transform zip in parent_id' do
+          assert subject.update_attributes_with_transformation('parent_id' => 'lake+')
+          assert_equal nodes_id(:lake_jpg), subject.parent_id
+        end
+
+        should 'add error on bad zip in parent_id' do
+          assert !subject.update_attributes_with_transformation('parent_id' => '999')
+          assert_equal 'could not be found', subject.errors['parent_id']
+        end
+
+        should 'create links from pseudo ids' do
+          assert_difference('Link.count', 2) do
+            assert subject.update_attributes_with_transformation('set_tag_ids' => '33,news')
+            assert_equal [nodes_id(:art), nodes_id(:news)], subject.rel['set_tag'].other_ids
+          end
+        end
+
+        should 'add errors for bad ids' do
+          assert_difference('Link.count', 0) do
+            assert !subject.update_attributes_with_transformation('set_tag_ids' => '33,news,999,11')
+            assert_match %r'11 => invalid target', subject.errors['set_tag']
+            assert_match %r'999 => could not be found', subject.errors['set_tag']
+          end
+        end
+      end # setting with transformations
+
     end # on a node with write access
   end # A logged in user
 
@@ -552,7 +584,7 @@ class NodeTest < Zena::Unit::TestCase
       subject.update_attributes('title' => 'new publication', :v_status => Zena::Status[:pub])
       subject.reload
     end
-    
+
     subject do
       # has an open discussion in 'en'
       secure(Node) { nodes(:status) }
@@ -568,7 +600,7 @@ class NodeTest < Zena::Unit::TestCase
         assert !subject.discussion.inside?
       end
     end # visited in another language
-    
+
     context 'that is closed' do
       setup do
         discussions(:outside_discussion_on_status_en).update_attributes(:open => false)
@@ -584,7 +616,7 @@ class NodeTest < Zena::Unit::TestCase
         end
       end # visited in another language
     end # that is closed
-    
+
   end # A node with a closed discussion
 
   def test_inside_discussion
@@ -703,7 +735,6 @@ class NodeTest < Zena::Unit::TestCase
   def test_create_node
     login(:ant)
     node = secure!(Node) { Node.create_node(:parent_id => nodes_zip(:secret), :title => 'funny') }
-    assert_equal nodes_id(:secret), node[:parent_id]
     assert node.new_record?, "Not saved"
     assert_equal 'invalid reference', node.errors[:parent_id]
   end
@@ -711,7 +742,6 @@ class NodeTest < Zena::Unit::TestCase
   def test_create_node_with__parent_id
     login(:ant)
     node = secure!(Node) { Node.create_node(:_parent_id => nodes_id(:secret), :title => 'funny') }
-    assert_equal nodes_id(:secret), node[:parent_id]
     assert node.new_record?, "Not saved"
     assert_equal 'invalid reference', node.errors[:parent_id]
   end
@@ -723,6 +753,7 @@ class NodeTest < Zena::Unit::TestCase
     assert_equal 'funny', node.title
     assert !node.new_record?
   end
+  
   context 'Create or update from parent and title' do
     setup do
       login(:tiger)
@@ -868,10 +899,10 @@ done: \"I am done\""
     setup do
       login(:tiger)
     end
-    
+
     subject do
       secure(Node) { Node.create_nodes_from_folder(
-        :archive   => uploaded_archive('import.tgz'), 
+        :archive   => uploaded_archive('import.tgz'),
         :parent_id => nodes_id(:status)).values
       }
     end
@@ -881,7 +912,7 @@ done: \"I am done\""
         subject
       end
     end
-    
+
     context 'updating existing pages' do
       setup do
         @photos = secure!(Page) { Page.create(:parent_id => nodes_id(:status), :title => 'Photos !', :text => '![]!') }
@@ -892,18 +923,18 @@ done: \"I am done\""
           subject
         end
       end
-      
+
       should 'create entries of correct type' do
         subject
         assert_kind_of Image, secure(Node) { Node.find_by_parent_title_and_kpath(@photos.id, 'bird')}
       end
-      
+
       should 'update existing entries' do
         subject
         assert_match %r{I took during my last vacations}, @photos.reload.text
       end
     end # updating existing pages
-    
+
     context 'with specified class' do
       subject do
         secure(Node) { Node.create_nodes_from_folder(
@@ -919,7 +950,7 @@ done: \"I am done\""
         assert_equal 'Letter', letter.klass
       end
     end # with instances of vclass
-    
+
   end # With an archive
 
   def test_to_yaml
@@ -1151,9 +1182,9 @@ done: \"I am done\""
     }
 
     new_attributes = secure(Node) { Node.transform_attributes(attributes) }
-    assert_equal Hash['icon_id' => nodes_id(:bird_jpg),
-                      'm_title' => 'Changed icon to "bird"',
-                      'm_text'  => 'By lion'], new_attributes
+    assert_equal Hash['icon_zip' => nodes_zip(:bird_jpg).to_s,
+                      'm_title'  => 'Changed icon to "bird"',
+                      'm_text'   => 'By lion'], new_attributes
 
     assert node.update_attributes_with_transformation(attributes)
     assert_equal nodes_id(:bird_jpg), node.find(:first, 'icon')[:id]
@@ -1373,30 +1404,22 @@ done: \"I am done\""
         login(:tiger)
       end
 
-      should 'parse pseudo_ids in parent_id' do
-        assert_transforms Hash['parent_id' => nodes_id(:lake_jpg)],
-                          Hash['parent_id' => 'lake+']
+      should 'transform parent_id to parent_zip' do
+        assert_transforms Hash['parent_zip' => 'lake+'],
+                          Hash['parent_id'  => 'lake+']
+        # nodes_id(:lake_jpg)
       end
 
-      should 'parse pseudo_ids in links' do
-        assert_transforms Hash['tag_ids' => [nodes_id(:art), nodes_id(:news)]],
+      should 'transform link ids to zip' do
+        assert_transforms Hash['tag_zips' => %w{33 news}],
                           Hash['tag_ids' => '33,news']
-      end
-
-      should 'leave single bad ids' do
-        assert_transforms Hash['parent_id' => '999', 'hot_id' => '999'],
-                          Hash['parent_id' => '999', 'hot_id' => '999']
-      end
-
-      should 'remove bad values from id lists' do
-        assert_transforms Hash['tag_ids' => [nodes_id(:news),nodes_id(:art)]],
-                          Hash['tag_ids' => '999,34,art']
+        # [nodes_id(:art), nodes_id(:news)]
       end
 
       should 'parse dates and ids in rel' do
         # this should be 14:58 when #255 is fixed (tz support).
-        assert_transforms Hash['link' => {'hot' => {'other_id' => nodes_id(:status), 'date' => Time.gm(2009,7,15,16,58)}}],
-                          Hash['link' => {'hot' => {'other_id' => '22', 'date' => '2009-7-15 16:58' }}]
+        assert_transforms Hash['link' => {'hot' => {'other_zip' => '22', 'date' => Time.gm(2009,7,15,16,58)}}],
+                          Hash['link' => {'hot' => {'other_id'  => '22', 'date' => '2009-7-15 16:58' }}]
       end
     end # with ids
   end # Transforming attributes

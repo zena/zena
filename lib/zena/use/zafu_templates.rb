@@ -7,24 +7,27 @@ module Zena
         attr_accessor :used_assets
 
         def initialize
-          @used_assets  = {}
+          @used_assets  = {'zafu' => [], 'images' => [], 'assets' => []}
           @cached_nodes = {}
-          @used_assets['']
           @used_assets['zafu'] = []
         end
 
         def cache_with_path(section_id, path)
-          @cached_nodes[[section_id, path]] ||= begin
+          if cached = @cached_nodes[[section_id, path]]
+            return cached
+          else
             if document = yield
               if document.kind_of?(Template)
-                (@used_assets['zafu'] ||= [])   << [path, document]
+                @used_assets['zafu']   << [path, document]
               elsif document.kind_of?(Image)
-                (@used_assets['images'] ||= []) << [path, document]
+                @used_assets['images'] << [path, document]
               else
-                (@used_assets['assets'] ||= []) << [path, document]
+                @used_assets['assets'] << [path, document]
               end
+              @cached_nodes[[section_id, path]] = document
+            else
+              nil
             end
-            document
           end
         end
 
@@ -242,7 +245,7 @@ module Zena
           if base.respond_to?(:helper_method)
             base.send(:helper_method, :dev_mode?, :lang_path, :rebuild_template, :get_template_text, :template_url, :template_url_for_asset, :zafu_helper)
           end
-          base.send(:attr_accessor, :asset_cache)
+
           base.send(:include, ::Zafu::ControllerMethods)
           # Needs to be inserted after Zafu::ControllerMethods since we overwrite get_template_text and such
           base.send(:include, Common)
@@ -355,6 +358,10 @@ module Zena
           skin
         end
 
+        def asset_cache
+          @asset_cache ||= AssetCache.new
+        end
+
         private
           # Return the node_context to use in zafu compilation from the current controller and action.
           # FIXME: Use information on template target_class to get class !
@@ -388,7 +395,7 @@ module Zena
             # clear :
             FileUtils::rmtree(File.dirname(SITES_ROOT + rel_path))
 
-            self.asset_cache = AssetCache.new
+            @asset_cache = AssetCache.new
 
             # Cache loaded templates and skins
             if template
@@ -440,6 +447,7 @@ module Zena
 
             res = "<div id='dev'><ul>\n"
             used_nodes.each do |name, nodes|
+              next if nodes.empty?
               res << "  <li><a class='group' onclick='$(\"dev_#{name}\").toggle();' href='#'>#{name}</a>\n"
               res << "  <table class='dev_pop' id='dev_#{name}'#{name == 'images' ? " style='display:none;'" : ''}>\n"
               nodes.each do |path, node|

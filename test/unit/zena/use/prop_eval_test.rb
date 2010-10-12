@@ -47,7 +47,7 @@ class PropEvalTest < Zena::Unit::TestCase
 
     context 'creating a node from a class with eval prop' do
       subject do
-        secure(Node) { Node.create_node(:class => 'Contact', :name => 'foo', :parent_id => nodes_id(:projects)) }
+        secure(Node) { Node.create_node(:class => 'Contact', :name => 'foo', :parent_id => nodes_zip(:projects)) }
       end
 
       should 'set evaluated prop on create' do
