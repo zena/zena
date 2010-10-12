@@ -90,6 +90,7 @@ module Bricks
           {
             :type        => 'text/html',
             # Compile html to pdf
+            :disposition => 'inline',
             :data        => "Could not render pdf file..."
           }
         end

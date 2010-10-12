@@ -13,10 +13,10 @@ class AddObviousIdx < ActiveRecord::Migration
     :idx_templates        => %w{tkpath format mode site_id node_id version_id},
     # :iformats
     :links                => %w{source_id target_id relation_id status date},
-    :nodes                => %w{kpath parent_id project_id section_id rgroup_id wgroup_id publish_from},
+    :nodes                => %w{kpath parent_id project_id section_id rgroup_id wgroup_id publish_from site_id},
     :nodes_roles          => %w{node_id role_id},
     :relations            => %w{source_role target_role site_id},
-    :roles                => %w{name kpath},
+    :roles                => %w{name kpath site_id},
     # :sessions
     :sites                => %w{host},
     # :users

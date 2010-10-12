@@ -55,6 +55,10 @@ module Zena
       end
     end
 
+    def log_path
+      "#{RAILS_ROOT}/log/#{RAILS_ENV}.log"
+    end
+
     def enable_tools
       # TODO: move all code from environment.rb here...
       @tools_enabled ||= {:Latex => Zena::ENABLE_LATEX, :fop => Zena::ENABLE_FOP, :math => Zena::ENABLE_MATH}.map{|k,v| v ? k : nil}.compact

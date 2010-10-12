@@ -125,13 +125,19 @@ module Zena
               }
             end
 
-            if data = result.delete(:data)
-              send_data(data , result)
-            elsif file = result.delete(:file)
-              send_file(file , result)
+            if result[:type] == 'text/html'
+              # error reporting from rendering engine
+              opts[:cache] = false
+              render :text => result[:data]
             else
-              # Should never happen
-              raise Exception.new("Render '#{params[:format]}' should return either :file or :data (none found).")
+              if data = result.delete(:data)
+                send_data(data , result)
+              elsif file = result.delete(:file)
+                send_file(file , result)
+              else
+                # Should never happen
+                raise Exception.new("Render '#{params[:format]}' should return either :file or :data (none found).")
+              end
             end
 
             cache_page(:content_data => result[:data], :content_path => result[:file]) if opts[:cache]

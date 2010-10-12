@@ -10,6 +10,7 @@ module Zena
         include RubyLess
         safe_method :params => ParamsDictionary
         safe_method :now    => {:method => 'Time.now', :class => Time}
+        safe_method [:h, String] => {:class => String, :nil => true}
         safe_method_for String, [:gsub, Regexp, String] => {:class => String, :pre_processor => true}
         safe_method_for String, :upcase    => {:class => String, :pre_processor => true}
         safe_method_for String, :strip     => {:class => String, :pre_processor => true}

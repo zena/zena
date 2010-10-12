@@ -12,6 +12,9 @@ module Bricks
             cmd << "#{cmd_key}#{opts[key]}"
           end
 
+          # FIXME: find a way to redirect errors on screen instead of main log.
+          cmd << "--log=#{Zena.log_path}"
+
           if file = opts[:input]
             cmd << file
           else

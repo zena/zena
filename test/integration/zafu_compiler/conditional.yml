@@ -12,6 +12,10 @@ class_conditional:
   src: "<r:Image><b do='#{size}' format='%.2f'/></r:Image>"
   tem: "/@node.kpath_match\?\('NDI'\)/"
 
+class_conditional_in_array:
+  src: "<r:nodes><r:Image><b do='#{size}' format='%.2f'/></r:Image></r:nodes>"
+  tem: "/Cannot scope class in list .use each before filtering./"
+
 case_when:
   src: "<r:case><r:Document>this is a document</r:Document><r:Page>Page</r:Page><r:when test='v.status == 50'>Pub</r:when></r:case>"
   tem: "<% if false -%><% elsif @node.kpath_match?('ND') -%>this is a document<% elsif @node.kpath_match?('NP') -%>Page<% elsif (@node.version.status==50) -%>Pub<% end -%>"
