@@ -45,6 +45,11 @@ strip:
   tem: "<%= \" #{@node.zip}\".strip %>"
   res: "22"
 
+to_i:
+  eval: "%Q{ #{id}}.to_i"
+  tem: "<%= \" #{@node.zip}\".to_i %>"
+  res: "22"
+
 blank:
   eval: 'this.blank?'
   tem:  "<%= @node.blank? %>"

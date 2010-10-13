@@ -15,6 +15,7 @@ module Zena
         safe_method_for String, :upcase    => {:class => String, :pre_processor => true}
         safe_method_for String, :strip     => {:class => String, :pre_processor => true}
         safe_method_for String, :urlencode => {:class => String, :pre_processor => true, :method => :url_name}
+        safe_method_for String, :to_i      => {:class => Number, :pre_processor => true}
         safe_method_for Number, :to_s      => {:class => String, :pre_processor => true}
         safe_method_for Object, :blank?    => Boolean
 
