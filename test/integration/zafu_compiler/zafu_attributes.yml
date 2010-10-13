@@ -101,6 +101,11 @@ store_var_in_html:
   src: "<p set_foo='this' do='parent' do='foo' do='title'/>"
   res: "<p>status title</p>"
 
+store_number:
+  src: "<p set_foo='34' do='void'><r:eval>foo + 15</r:eval></p>"
+  tem: "<p><% _zfoo = 34 -%><%= (_zfoo+15) %></p>"
+  res: "<p>49</p>"
+
 stored_in_if_clause:
   src: "<r:parent set_base='this'><li do='void' on_if='id == base.id'>hop</li></r:parent>"
   tem: "/var1.zip==@node.zip/"

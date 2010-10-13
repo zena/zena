@@ -70,7 +70,9 @@ module Zena
                   code = params.delete(k)
                   begin
                     typed_string = ::RubyLess.translate(self, code)
-                    set_context_var('set_var', var, typed_string)
+                    name = get_var_name('set_var', var)
+                    out "<% #{name} = #{typed_string} -%>"
+                    set_context_var('set_var', var, RubyLess::TypedString.new(name, typed_string.opts))
                   rescue RubyLess::NoMethodError => err
                     parser_error(err.message, code)
                   end
