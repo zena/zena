@@ -2,66 +2,25 @@ require 'test_helper'
 
 class PageTest < Zena::Unit::TestCase
 
-  def test_create_just_title
-    login(:tiger)
-    node = secure!(Page) { Page.create(:parent_id=>nodes_id(:projects), :title=>'lazy node')}
-    err node
-    assert !node.new_record?
-    assert_equal 'lazy node', node.title
-  end
-
-  def test_create_same_title
-    login(:tiger)
-    node = secure!(Page) { Page.create(:parent_id=>nodes_id(:projects), :title =>'a wiki with Zena')}
-    assert node.new_record?
-    assert_equal 'has already been taken', node.errors[:title]
-  end
-
-  def test_create_same_title_other_parent
-    login(:tiger)
-    node = secure!(Page) { Page.create(:parent_id=>nodes_id(:cleanWater), :title =>'a wiki with Zena')}
-    err node
-    assert ! node.new_record?, 'Not a new record'
-    assert_nil node.errors[:title] #.empty?
-  end
-
-  def test_create_same_title_other_parent_with_cache
-    with_caching do
+  context 'Creating a page' do
+    setup do
       login(:tiger)
-      node = secure!(Page) { Page.create(:parent_id=>nodes_id(:cleanWater), :title =>'a wiki with Zena')}
-      err node
-      assert ! node.new_record?, 'Not a new record'
-      assert_nil node.errors[:title] #.empty?
     end
-  end
 
-  def test_update_same_title
-    login(:tiger)
-    node = secure!(Node) { nodes(:cleanWater) }
-    # publish so that we change title and check uniqueness
-    assert !node.update_attributes('title' => 'a wiki with Zena', :v_status => Zena::Status[:pub])
-    assert_equal 'has already been taken', node.errors[:title]
-  end
-
-  def test_update_same_title_other_parent
-    login(:tiger)
-    node = secure!(Node) { nodes(:cleanWater) }
-    node.title = 'a wiki with Zena'
-    node[:parent_id] = nodes_id(:zena)
-    assert node.save
-    assert_nil node.errors[:title] #.empty?
-  end
-
-  def test_update_same_title_other_parent_with_cache
-    with_caching do
-      login(:tiger)
-      node = secure!(Node) { nodes(:cleanWater) }
-      node.title = 'a wiki with Zena'
-      node[:parent_id] = nodes_id(:zena)
-      assert node.save
-      assert_nil node.errors[:title] #.empty?
+    should 'work with just a title' do
+      assert_difference('Node.count', 1) do
+        secure(Page) { Page.create(:parent_id=>nodes_id(:projects), :title=>'lazy node')}
+      end
     end
-  end
+
+    should 'allow same title' do
+      wiki_title = nodes(:wiki).title
+      assert_difference('Node.count', 1) do
+        page = secure(Page) { Page.create(:parent_id=>nodes_id(:projects), :title => wiki_title)}
+        assert_equal page.title, wiki_title
+      end
+    end
+  end # Creating a page
 
   def test_custom_base_path
     login(:tiger)
