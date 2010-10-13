@@ -57,7 +57,7 @@ module Zena
             path = path.split('/').map {|s| String.from_filename(s) }
             if doc = find_document_for_template(path, section_id)
               # text, fullpath (for recursion testing), base_path
-              return doc.text, doc.fullpath, doc.section_id, doc
+              return (doc.text || ''), doc.fullpath, doc.section_id, doc
             else
               nil
             end
