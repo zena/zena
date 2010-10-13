@@ -379,7 +379,7 @@ group_by_project:
     visitor: lion
   src: "<r:notes in='site' order='title ASC' do='group' by='project'><b do='project' do='title'/>: <r:each join=',' do='title'/></r:notes>"
   res: "<b>Clean Water project</b>: parc opening<b>Secret</b>: Proposition<b>Zena the wild CMS</b>: zena enhancements"
-  
+
 group_by_project_sort_zip:
   context:
     visitor: ant
@@ -425,6 +425,12 @@ comments_in_site_node:
 find_by_zip:
   src: "<div do='find(30)' do='img'/>"
   res: '/image30_std.jpg/'
+
+find_count:
+  context:
+    node: 'cleanWater'
+  src: "<div do='count(\"nodes\")'/>"
+  res: '<div>6</div>'
 
 same_name_as_class:
   # we create a relation with 'page' role from Letter.

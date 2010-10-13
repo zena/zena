@@ -38,8 +38,9 @@ module Zena
 
         include RubyLess
         # The :class argument in this method is only used when the String is not a literal value
-        safe_method [:find, String] => {:method => 'nil', :pre_processor => :get_finder_type, :class => NilClass}
-        safe_method [:find, Number] => {:method => :find_node_by_zip, :class => Node, :nil => true, :accept_nil => true}
+        safe_method [:find,  String] => {:method => 'nil', :pre_processor => :get_type_for_find,  :class => NilClass}
+        safe_method [:count, String] => {:method => '0',   :pre_processor => :get_type_for_count, :class => Number  }
+        safe_method [:find,  Number] => {:method => :find_node_by_zip, :class => Node, :nil => true, :accept_nil => true}
 
         def self.included(base)
           base.process_unknown :querybuilder_eval
@@ -73,8 +74,14 @@ module Zena
         end
 
         # Pre-processing of the 'find("...")' method.
-        def get_finder_type(string)
+        def get_type_for_find(string)
           finder = build_finder(:first, string, {})
+          TypedString.new(finder.delete(:method), finder)
+        end
+
+        # Pre-processing of the 'count("...")' method.
+        def get_type_for_count(string)
+          finder = build_finder(:count, string, {})
           TypedString.new(finder.delete(:method), finder)
         end
 
