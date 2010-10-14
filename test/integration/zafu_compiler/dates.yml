@@ -17,7 +17,7 @@ date:
 
 select_date_attr:
   src: "<p do='void' set_date='log_at'><span do='show' eval='date.year'/></p>"
-  tem: "<p><span><%= (@node.log_at ? @node.log_at.year : nil) %></span></p>"
+  tem: "<p><% _zdate = @node.log_at -%><span><%= (_zdate ? _zdate.year : nil) %></span></p>"
   res: '<p><span>2006</span></p>'
 
 date_in_link:
@@ -36,7 +36,7 @@ could_be_nil:
   context:
     node: 'status'
   src: "*<r:void set_date='log_at'><r:eval>date.year</r:eval></r:void>*"
-  tem: "*<%= (@node.log_at ? @node.log_at.year : nil) %>*"
+  tem: "*<% _zdate = @node.log_at -%><%= (_zdate ? _zdate.year : nil) %>*"
   res: '**' # no errors
 
 uses_datebox:

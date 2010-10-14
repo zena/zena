@@ -188,6 +188,15 @@ class WorkflowTest < Zena::Unit::TestCase
           should 'get a warning if editing would change original' do
             assert subject.would_change_original?
           end
+
+          should 'not create a new redaction' do
+            # Create page
+            subject
+            assert_difference('Version.count', 0) do
+              # update in redit time
+              assert subject.update_attributes(:title => 'Artificial Intelligence')
+            end
+          end
         end # in redit time
 
         context 'not in redit time' do
@@ -195,14 +204,6 @@ class WorkflowTest < Zena::Unit::TestCase
             assert !subject.would_change_original?
           end
         end # not in redit time
-
-
-        should 'not create a new redaction when editing in redit time' do
-          subject.version.created_at = Time.now
-          assert_difference('Version.count', 0) do
-            assert subject.update_attributes(:title => 'Artificial Intelligence')
-          end
-        end
 
         should 'create a new redaction when editing out of redit time' do
           subject.version.created_at = Time.now.advance(:days => -1)
@@ -328,6 +329,23 @@ class WorkflowTest < Zena::Unit::TestCase
         should 'not get a warning if editing would change original' do
           assert !subject.would_change_original?
         end
+
+        context 'in redit time' do
+          subject do
+            secure(Page) { Page.create(:parent_id => nodes_id(:zena), :title => 'hop', :v_status => Zena::Status[:pub])}
+          end
+
+          should 'create a new redaction on edit' do
+            # create page and make sure it is published
+            assert_equal Zena::Status[:pub], subject.v_status
+            # reload
+            page = secure(Node) { Node.find(subject.id) }
+            assert_difference('Version.count', 1) do
+              page.update_attributes(:title => 'hip')
+            end
+          end
+        end # in redit time
+
       end # that she owns
 
       should 'not get a warning if editing would change original' do

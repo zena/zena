@@ -113,7 +113,7 @@ multiple_class_conditions_true_in_middle:
 # var1 = stored 'papa'
 test_ancestor_with_stored:
   src: "<r:parent do='parent' set_papa='this' do='pages'><div do='each' super_if='papa.ancestor?(this)' do='title'/></r:parent>"
-  tem: "/\(var1\.ancestor\?\(var4\)\)/"
+  tem: "/_zpapa = var1.*\(_zpapa\.ancestor\?\(var4\)\)/"
   res: "<div class=''>a wiki with Zena</div><div class=' super'>Clean Water project</div>"
 
 on_if_kind_of:

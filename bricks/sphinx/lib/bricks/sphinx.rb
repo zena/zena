@@ -46,7 +46,7 @@ module Bricks
 
         klass.class_eval do
           define_index do
-            indexes name
+            indexes zip
 
             Zena::Use::Fulltext::FULLTEXT_FIELDS.each do |fld|
               indexes versions.send(fld), :as => fld

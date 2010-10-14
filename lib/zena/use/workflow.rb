@@ -55,8 +55,13 @@ module Zena
 
         # Return true if the version should be cloned if it was changed.
         def clone_on_change?
+          # not same user
           user_id != visitor.id ||
+          # changed lang
           lang_changed?         ||
+          # new version on top of publication
+          status_changed?       ||
+          # not in redit time
           Time.now > created_at + current_site[:redit_time].to_i
         end
 

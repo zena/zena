@@ -209,6 +209,28 @@ class NodesControllerTest < Zena::Controller::TestCase
       end
     end # creating a node
 
+    context 'updating a node' do
+      
+      context 'that she owns' do
+        setup do
+          @node = secure(Page) { Page.create(:parent_id => nodes_id(:zena), :title => 'hop', :v_status => Zena::Status[:pub]) }
+        end
+        
+        context 'in redit time' do
+          subject do
+            {:action => 'update', :controller => 'nodes', :id => @node.zip, :node => {:title => 'hip'}}
+          end
+
+          should 'create a new version' do
+            assert_difference('Version.count', 1) do
+              put_subject
+              assert_redirected_to "/oo/page#{subject[:id]}.html"
+            end
+          end
+        end # in redit time
+      end # that she owns
+    end # updating a node
+    
     context 'using xml' do
       context 'without being in the api_group' do
         setup do

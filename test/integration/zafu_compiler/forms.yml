@@ -22,13 +22,13 @@ form_put:
 
 form_post:
   # Should make a post on new objects
-  src: "<r:new klass='Post' title='Joe'><r:form></r:form></r:new>"
+  src: "<r:new klass='Post' title='\"Joe\"'><r:form></r:form></r:new>"
   tem: "/if var1 = new_instance\(\"Post\", :title => \"Joe\"\)/"
   res: "!/\"put\"/"
 
 new:
   # Should accept allowed params (from class and roles) and transform ids to zip (back and forth)
-  src: "<r:new klass='Letter' title='Joe' parent_id='#{project.id}' paper='white' origin='Mars' bad='value'><r:form><r:input name='title'/> <r:input name='parent_id'/></r:form></r:new>"
+  src: "<r:new klass='Letter' title='%q{Joe}' parent_id='project.id' paper='%q{white}' origin='%q{Mars}' bad='%q{value}'><r:form><r:input name='title'/> <r:input name='parent_id'/></r:form></r:new>"
   tem: "/:title => \"Joe\", :parent_id => .*@node.project.zip.*, :paper => \"white\", :origin => \"Mars\"/"
   res: "/<input type='text' name='node\[title\]' value='Joe'/> <input type='text' name='node\[parent_id\]' value='21'/><div class='hidden'><input type='hidden' name='node\[klass\]' value='Letter'/><input type='hidden' name='node\[paper\]' value='white'/><input type='hidden' name='node\[origin\]' value='Mars'/></div>/"
 
@@ -113,6 +113,10 @@ input:
   tem: "<% if @node.kpath_match?('NRC') -%><input type='text' name='node[first_name]' value='<%= fquote @node.prop['first_name'] %>'/><% end -%>"
   res: "<input type='text' name='node[first_name]' value='Solenopsis'/>"
 
+input_raw_name:
+  src: "<r:input param='first_name'/>"
+  tem: "<input type='text' name='first_name'/>"
+
 input_style:
   src: "<r:input style='display:none;' type='submit'/>"
   res: "<input type='submit' style='display:none;'/>"
@@ -145,7 +149,7 @@ set_parent_id:
   src: "<r:form></r:form>"
   tem: "/node\[parent_id\].*@node.parent_zip/"
   res: "/<input type='hidden' name='node\[parent_id\]' value='21'/>/"
-  
+
 set_parent_id_in_new:
   src: "<r:new klass='Page' do='form'></r:new>"
   tem: "/node\[parent_id\].*@node.zip/"

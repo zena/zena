@@ -68,7 +68,7 @@ each_add_with_form_klass_set:
 
 each_add_with_select:
   src: "<r:children><r:each do='title'/><r:add/><r:form><select name='icon_id' nodes='images in project' selected='[main.icon_id]_abc'/></r:form></r:children>"
-  'ajax/each/en/add/with/select/list1_form.erb': '/map.|r| \[r.name, r.zip.to_s\]., \"#.@node.icon_zip._abc\"\)/'
+  'ajax/each/add/with/select/en/list1_form.erb': '/map.|r| \[r.name, r.zip.to_s\]., \"#.@node.icon_zip._abc\"\)/'
   tem: "/nodes.kpath LIKE 'NDI%'/"
 
 each_edit_with_form:
@@ -80,8 +80,8 @@ each_edit_with_form:
 make_form:
   src: "<ul do='children'><li do='each' do='title'/><li do='add'/></ul>"
   tem: "/<li style='display:none;' class='form' id='list1_form'>.*remote_form_for\(:node, var2_new"
-  'ajax/make/en/form/list1.erb': "<li id='<%= ndom_id(@node) %>'><%= @node.prop['title'] %></li>"
-  'ajax/make/en/form/list1_form.erb': "/<li class='form' id='<%= ndom_id\(@node\) %>'>/"
+  'ajax/make/form/en/list1.erb': "<li id='<%= ndom_id(@node) %>'><%= @node.prop['title'] %></li>"
+  'ajax/make/form/en/list1_form.erb': "/<li class='form' id='<%= ndom_id\(@node\) %>'>/"
 
 each_edit_cannot_write:
   context:
@@ -104,11 +104,11 @@ query_in_block:
 
 saved_each_block:
   src: "<ol do='pages'><li do='each' on_if='ancestor' do='link'/><li do='add'/></ol>"
-  'ajax/saved/en/each/block/list1.erb': "!/var1/"
+  'ajax/saved/each/block/en/list1.erb': "!/var1/"
 
 no_recursion_in_saved_block:
   src: "<r:void name='grp'><r:show attr='title'/><r:pages><r:each><r:include part='grp'/></r:each><r:add/></r:pages></r:void>"
-  'ajax/no/en/recursion/in/saved/block/grp1.erb': "!/no_recursion_in_saved_block_grp/"
+  'ajax/no/recursion/in/saved/block/en/grp1.erb': "!/no_recursion_in_saved_block_grp/"
 
 each_in_each:
   # should render correct form
@@ -124,7 +124,7 @@ live_filter:
     node: cleanWater
   src: "<r:filter live='true'/><r:block><ol do='pages where title like \"#{params[:f]}%\"'><li do='each' do='title'/></ol></r:block>"
   tem: "/ml1.value LIKE \?.*, \"#\{params\[:f\]\}%\"/"
-  'ajax/live/en/filter/list1.erb': "/<div id='list1.*, \"#\{params\[:f\]\}%\".*var2.prop\['title'\]/"
+  'ajax/live/filter/en/list1.erb': "/<div id='list1.*, \"#\{params\[:f\]\}%\".*var2.prop\['title'\]/"
   res: "/<input type='text' name='f'.*<div id='list1'><ol><li>crocodiles</li><li>Keeping things clean !</li><li>status title</li></ol></div>/"
 
 live_filter_single_element:
@@ -132,7 +132,7 @@ live_filter_single_element:
     node: cleanWater
   src: "<r:filter live='true'/><r:block><r:page where='title like \"#{params[:f]}%\"' find='first'><b do='title'/></r:page></r:block>"
   tem: "/, \"#\{params\[:f\]\}%\"/"
-  'ajax/live/en/filter/single/element/list1.erb': "/<div id='list1.*params\[:f\].*var1.prop\['title'\]/"
+  'ajax/live/filter/single/element/en/list1.erb': "/<div id='list1.*params\[:f\].*var1.prop\['title'\]/"
   res: "/<input type='text' name='f'.*<div id='list1'><b>crocodiles</b></div>/"
 
 live_filter_select_options:
@@ -140,7 +140,7 @@ live_filter_select_options:
     node: cleanWater
   src: "<r:filter live='true' do='select' name='f' values='1,2'/><r:block><ol do='pages where title like \"#{params[:f]}%\"'><li do='each' do='title'/></ol></r:block>"
   tem: "/select name=.f.><%= options_for_select\(\[.1., .2.\], params\[:f\].to_s/"
-  'ajax/live/en/filter/select/options/list1.erb': "/<div id='list1'.*params\[:f\]/"
+  'ajax/live/filter/select/options/en/list1.erb': "/<div id='list1'.*params\[:f\]/"
   res: "/<select name='f'.*<div id='list1'><ol><li>crocodiles</li><li>Keeping things clean !</li><li>status title</li></ol></div>/"
 
 draggable_do_syntax:
@@ -189,8 +189,8 @@ edit_link:
   src: "<r:context select='tagged'><r:each><r:show attr='title'/>: <r:show attr='l_status'/> <r:edit/></r:each></r:context>"
   # The link_id should be sent with the url.
   res: "/link_id.*éditer/"
-  'ajax/edit/fr/link/list1_form.erb': "/<input type='hidden' name='link_id' value=.<%= @node.link_id %>./>/"
-  'ajax/edit/fr/link/list1.erb': "/:link_id => @node.link_id/"
+  'ajax/edit/link/fr/list1_form.erb': "/<input type='hidden' name='link_id' value=.<%= @node.link_id %>./>/"
+  'ajax/edit/link/fr/list1.erb': "/:link_id => @node.link_id/"
 
 start_id:
   src: "<r:form><input type='hidden' name='s' value='#{start_id}'/></r:form>"

@@ -294,9 +294,6 @@ class NodeTest < Zena::Unit::TestCase
   def test_new_child
     login(:ant)
     node = secure!(Node) { nodes(:cleanWater)  }
-    child = node.new_child(:title => 'Etat des travaux', :class => Page )
-    assert !child.save, "Save fails"
-    assert child.errors[:title].any?
 
     child = node.new_child(:title => 'new_name', :class => Page )
     assert child.save , "Save succeeds"
@@ -753,7 +750,7 @@ class NodeTest < Zena::Unit::TestCase
     assert_equal 'funny', node.title
     assert !node.new_record?
   end
-  
+
   context 'Create or update from parent and title' do
     setup do
       login(:tiger)

@@ -2,7 +2,7 @@ module Zena
   module Use
     module Urls
       ALLOWED_REGEXP = /\A(([a-zA-Z]+)([0-9]+)|([#{String::ALLOWED_CHARS_IN_FILENAME}]+))(_[a-zA-Z]+|)(\..+|)\Z/
-      
+
       module Common
         CACHESTAMP_FORMATS = ['jpg', 'png', 'gif', 'css', 'js']
         def prefix
@@ -97,7 +97,7 @@ module Zena
           end
           append_query_params(path, opts)
         end
-        
+
         def basepath_as_url(path)
           path.split('/').map do |zip|
             if n = secure(Node) { Node.find_by_zip(zip) }
@@ -508,6 +508,7 @@ module Zena
                 value = get_anchor_name(value)
               end
 
+              # FIXME: Do not force string interpolation.
               hash_params << "#{key.inspect} => %Q{#{value}}"
             end
 

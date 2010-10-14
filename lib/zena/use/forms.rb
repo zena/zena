@@ -61,7 +61,12 @@ module Zena
             next unless type = klass.safe_method_type([key.to_s])
             # Store how to access current value to show hidden field in form.
             keys[key] = type[:method]
-            res << ":#{key} => #{RubyLess.translate_string(self, value)}"
+            code = RubyLess.translate(self, value)
+            if code.klass == type[:class]
+              res << ":#{key} => #{code}"
+            else
+              out parser_error("invalid type for '#{key}' (found #{code.klass}, expected #{type[:class]})")
+            end
           end
 
           if res == []
@@ -144,6 +149,12 @@ module Zena
           dom_name = node.dom_prefix
           opts[:form_helper] = 'f'
 
+          if upd = @params[:update]
+            if target = find_target(upd)
+              @context[:template_url] = target.template_url
+            end
+          end
+
           if template_url = @context[:template_url]
             # Ajax
 
@@ -194,7 +205,7 @@ module Zena
             set_fields << "#{node.form_name}[#{tag.params[:name]}]"
           end
 
-          if template_url = @context[:template_url] # @context[:dom_prefix] || @params[:update]
+          if template_url = @context[:template_url]
             # Ajax
 
             if (descendants('input') || []).detect {|elem| elem.params[:type] == 'submit'}
@@ -206,21 +217,23 @@ module Zena
 
             hidden_fields['link_id'] = "<%= #{node}.link_id %>" if @context[:has_link_id] && node.will_be?(Node)
 
-            # if upd = @params[:update] || add_params[:update]
-            #   if target = find_target(upd)
-            #     hidden_fields['u_url']   = target.template_url
-            #     hidden_fields['udom_id'] = target.erb_dom_id
-            #     hidden_fields['u_id']    = "<%= #{@context[:parent_node]}.zip %>" if @context[:in_add]
-            #     hidden_fields['s']       = start_node_s_param(:value)
-            #   end
+            if upd = @params[:update]
+              if target = find_target(upd)
+                hidden_fields['u_url']   = target.template_url
+                hidden_fields['udom_id'] = upd # target.node.dom_prefix ? (but target.node is not set yet...)
+                # hidden_fields['u_id']    = "<%= #{@context[:parent_node]}.zip %>" if @context[:in_add]
+                hidden_fields['s']       = "<%= start_node_zip %>"
+              end
             # elsif (block = ancestor('block')) && node.will_be?(DataEntry)
             #   # updates template url
             #   hidden_fields['u_url']   = block.template_url
             #   hidden_fields['udom_id'] = block.erb_dom_id
-            # end
+            end
 
             hidden_fields['t_url'] = template_url
 
+
+            # t_id = node zip to use when rendering partial (enable back when we have a use case).
             # if t_id = @params[:t_id]
             #   hidden_fields['t_id']  = parse_attributes_in_value(t_id)
             # end
@@ -458,21 +471,24 @@ module Zena
         # TODO: refactor and pass the @markup so that attributes are added directly
         def get_input_params(params = @params)
           res = Zafu::OrderedHash.new
-          if name = (params[:name] || params[:date])
+          if name = (params[:param] || params[:name] || params[:date])
             res[:name] = name
-            if res[:name] =~ /\A([\w_]+)\[(.*?)\]/
-              # Sub attributes are used with tags or might be used for other features. It
-              # enables things like 'tagged[foo]'
-              attribute, sub_attr = $1, $2
-            else
-              attribute = res[:name]
-            end
-
-            unless @context[:in_filter] || attribute == 's'
-              if sub_attr
-                res[:name] = "#{node.form_name}[#{attribute}][#{sub_attr}]"
+            unless params[:param]
+              # build name
+              if res[:name] =~ /\A([\w_]+)\[(.*?)\]/
+                # Sub attributes are used with tags or might be used for other features. It
+                # enables things like 'tagged[foo]'
+                attribute, sub_attr = $1, $2
               else
-               res[:name] = "#{node.form_name}[#{attribute}]"
+                attribute = res[:name]
+              end
+
+              unless @context[:in_filter] || attribute == 's'
+                if sub_attr
+                  res[:name] = "#{node.form_name}[#{attribute}][#{sub_attr}]"
+                else
+                 res[:name] = "#{node.form_name}[#{attribute}]"
+                end
               end
             end
 

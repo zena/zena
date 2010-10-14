@@ -160,9 +160,10 @@ module Zena
           end
 
           template_url = template_url.split('/')
-          path = "/#{template_url[0]}/#{template_url[1]}/#{dev_mode? ? "dev_#{lang}" : lang}/#{template_url[2..-1].join('/')}"
+          template_url.insert(-2, dev_mode? ? "dev_#{lang}" : lang)
+          path = template_url.join('/')
 
-          "/#{current_site.host}/zafu#{path}"
+          "/#{current_site.host}/zafu/#{path}"
         end
 
         # Make sure some vital templates never get broken

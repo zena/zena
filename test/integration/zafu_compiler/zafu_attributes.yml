@@ -81,13 +81,13 @@ store_node:
 store_in_block:
   src: "<r:block><r:void set_found='this' do='node' where='id = 18 in site' do='page'><r:found do='title'/>: <r:show attr='title'/></r:void></r:block>"
   res: "<div id='list1'>status title: a wiki with Zena</div>"
-  'zafu_attributes/store/en/in/block/list1.erb': "/<% var3 = @node -%><%= var3.prop\['title'\] %>:/"
+  'zafu_attributes/store/in/block/en/list1.erb': "/_zfound = @node.*<% var3 = _zfound -%><%= var3.prop\['title'\] %>:/"
 
 set_var_outside_block:
   old_src: "<r:node select='18' set_found='this' do='pages'><r:block><r:show attr='title'/>: <r:context select='found' do='title'/></r:block></r:node>"
   src: "<r:void set_found='this' do='pages from node where id = 18 in site' do='each' join=', '><r:block><r:found do='title'/>: <r:show attr='title'/></r:block></r:void>"
   res: "<div id='list1_29'>status title: a wiki with Zena</div>, <div id='list1_21'>status title: Clean Water project</div>"
-  'zafu_attributes/set/en/var/outside/block/list1.erb': "/unknown method <span class='type'>found\(\)/"
+  'zafu_attributes/set/var/outside/block/en/list1.erb': "/unknown method <span class='type'>found\(\)/"
 
 store_node_as_relation:
   src: "<r:void set_baz='this'><r:parent><r:show attr='title'/>: <r:baz do='title'/> + <r:main do='show' attr='id'/></r:parent></r:void>"
@@ -95,7 +95,7 @@ store_node_as_relation:
 
 store_img:
   src: "<r:parent><r:icon set_bob='this'><r:show attr='title'/><r:img link='bob'/></r:icon></r:parent>"
-  tem: "/if var1 = @node.parent.*var2 = Node.do_find.*relation_id = _ID(node_has_an_icon).*LIKE 'NDI%'.*var2.prop\['title'\].*zen_path\(var1\).*img_tag\(var2/"
+  tem: "/if var1 = @node.parent.*_zbob = var1.*var2 = Node.do_find.*relation_id = _ID(node_has_an_icon).*LIKE 'NDI%'.*var2.prop\['title'\].*zen_path\(_zbob\).*img_tag\(var2/"
 
 store_var_in_html:
   src: "<p set_foo='this' do='parent' do='foo' do='title'/>"
@@ -108,7 +108,11 @@ store_number:
 
 stored_in_if_clause:
   src: "<r:parent set_base='this'><li do='void' on_if='id == base.id'>hop</li></r:parent>"
-  tem: "/var1.zip==@node.zip/"
+  tem: "/var1.zip==_zbase.zip/"
+
+syntax_error_in_store:
+  src: "<div do='void' set_foo='34)'></div>"
+  tem: "/parse error/"
 
 on_if_in_context:
   src: "<div do='project' on_if='title == \"Clean Water project\"' do='title'/>"

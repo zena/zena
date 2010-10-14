@@ -45,4 +45,6 @@ ts-delayed-delta:
 delayed_job:
   optional:     yes
   brick:        worker
-  version:      '>= 1.8.4'
+  # 2.0.3 does not work.
+  # TODO: fix.
+  version:      '= 1.8.4'

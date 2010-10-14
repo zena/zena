@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2010-10-12}
+  s.date = %q{2010-10-13}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -295,7 +295,7 @@ Gem::Specification.new do |s|
      "bricks/pdf/zena/tasks.rb",
      "bricks/sphinx/MIT-LICENSE",
      "bricks/sphinx/README",
-     "bricks/sphinx/lib/use_sphinx.rb",
+     "bricks/sphinx/lib/bricks/sphinx.rb",
      "bricks/sphinx/zena/deploy.rb",
      "bricks/sphinx/zena/init.rb",
      "bricks/sphinx/zena/migrate/20091102171258_add_delta_for_sphinx.rb",
