@@ -5,3 +5,5 @@ translations:
   # used to translate dynamic key
   'status title': statut
   lang_en: anglais
+  mean: "<%= 5 + 8 %>"
+  mean_m: "<"

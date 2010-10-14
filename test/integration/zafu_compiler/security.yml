@@ -28,3 +28,30 @@ mean_eval:
   src: "<r:show eval='puts \"bad\"'/>"
   tem: "/unknown method 'puts\(String\)'/"
 
+mean_in_translation:
+  context:
+    lang: fr
+  src: "<r:load dictionary='/Default skin/translations'><r:t>mean</r:t></r:load>"
+  tem: "<% _zdict = load_dictionary(828931430) -%>&lt;%= 5 + 8 %&gt;"
+
+build_erb_with_trans:
+  context:
+    lang: fr
+  src: "<r:load dictionary='/Default skin/translations'><r:t>mean_m</r:t><r:void>%= 5+8 %</r:void><r:void>></r:void></r:load>"
+  tem: "<% _zdict = load_dictionary(828931430) -%>&lt;%= 5+8 %>"
+
+mean_inc:
+  src: '<'
+  res: '&lt;'
+
+build_erb_with_include:
+  context:
+    lang: fr
+  src: "<r:include template='/security/mean/inc'/><r:void>%= 5+8 %</r:void><r:void>></r:void>"
+  tem: "&lt;%= 5+8 %>"
+
+build_erb_with_void:
+  context:
+    lang: fr
+  src: "<r:void><</r:void><r:void>%= 5+8 %</r:void><r:void>></r:void></r:load>"
+  tem: "/>%= 5\+8 %>/"

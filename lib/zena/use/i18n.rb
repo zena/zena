@@ -317,6 +317,12 @@ module Zena
           end
         end
 
+        # Make sure translations cannot be used to build erb.
+        def secure_output(text)
+          # Do not only replace '<%' ! or <r:t>min</r:t>% ==> <% ...
+          text.gsub('<', '&lt;').gsub('>', '&gt;')
+        end
+
         def r_trans
           # _1 ==> insert this param ==> trans(@params[:text])
           return nil unless method = get_attribute_or_eval
@@ -326,7 +332,7 @@ module Zena
           dict = get_context_var('set_var', 'dictionary')
 
           if method.literal
-            trans(method.literal)
+            secure_output trans(method.literal)
           elsif dict && dict.klass <= TranslationDict
             "<%= #{dict}.get(#{method}) %>"
           else
