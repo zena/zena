@@ -9,7 +9,7 @@ module Zena
           else
             res = RubyLess.translate(self, text)
             if res.literal.kind_of?(String)
-              res.literal
+              erb_escape res.literal
             else
               "<%= #{res} %>"
             end

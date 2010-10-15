@@ -503,7 +503,7 @@ module Zena
                 value = RubyLess.translate_string(self, value)
 
                 if value.literal
-                  res[:value] = value.literal.to_s.gsub("'",'&apos;')
+                  res[:value] = form_quote(value.literal.to_s)
                 else
                   res[:value] = "<%= fquote #{value} %>"
                 end

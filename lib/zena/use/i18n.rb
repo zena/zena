@@ -307,20 +307,14 @@ module Zena
         end
 
         def trans(text)
-          dict = get_context_var('set_var', 'dictionary')
+          dictionary = get_context_var('set_var', 'dictionary')
 
-          if dict && dict.klass <= TranslationDict && lit = dict.literal
+          if dictionary && dictionary.klass <= TranslationDict && dict = dictionary.literal
             # will call ApplicationController(:_) if key is not found
-            lit.get(text)
+            dict.get(text)
           else
             helper.send(:_, text)
           end
-        end
-
-        # Make sure translations cannot be used to build erb.
-        def secure_output(text)
-          # Do not only replace '<%' ! or <r:t>min</r:t>% ==> <% ...
-          text.gsub('<', '&lt;').gsub('>', '&gt;')
         end
 
         def r_trans
@@ -332,7 +326,7 @@ module Zena
           dict = get_context_var('set_var', 'dictionary')
 
           if method.literal
-            secure_output trans(method.literal)
+            erb_escape trans(method.literal)
           elsif dict && dict.klass <= TranslationDict
             "<%= #{dict}.get(#{method}) %>"
           else

@@ -685,7 +685,7 @@ module Zena
               end
 
               if method
-                method.literal || "<%= #{method} %>"
+                method.literal ? erb_escape(method.literal) : "<%= #{method} %>"
               elsif default
                 default
               elsif node.will_be?(Node)
