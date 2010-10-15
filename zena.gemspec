@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2010-10-13}
+  s.date = %q{2010-10-15}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -439,6 +439,7 @@ Gem::Specification.new do |s|
      "db/migrate/20100928185257_add_obvious_idx.rb",
      "db/migrate/20100929143111_remove_node_name.rb",
      "db/migrate/20101006090454_store_properties_in_long_text.rb",
+     "db/migrate/20101014185753_remove_user_prototype_id.rb",
      "doc/README_FOR_APP",
      "doc/fixtures.graffle",
      "doc/fixtures.pdf",

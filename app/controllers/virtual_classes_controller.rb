@@ -9,9 +9,15 @@ class VirtualClassesController < ApplicationController
       @virtual_classes = ::Role.paginate(:all, :order => 'kpath', :per_page => 20, :page => params[:page])
     end
 
-    last_kpath = @virtual_classes.last.kpath
-    Node.native_classes.each do |kpath, klass|
-      if kpath < last_kpath
+    if last = @virtual_classes.last
+      last_kpath = last.kpath
+      Node.native_classes.each do |kpath, klass|
+        if kpath < last_kpath
+          @virtual_classes << klass
+        end
+      end
+    else  
+      Node.native_classes.each do |kpath, klass|
         @virtual_classes << klass
       end
     end

@@ -22,7 +22,7 @@ class CommentsController < ApplicationController
   def create
     @discussion.save if @discussion.new_record? && @node.can_comment?
 
-    @comment = secure!(Comment) { Comment.new(filter_attributes(params[:comment])) }
+    @comment = secure(Comment) { Comment.new(filter_attributes(params[:comment])) }
 
     save_if_not_spam(@comment, params)
 
@@ -91,7 +91,7 @@ class CommentsController < ApplicationController
   # TODO:test
   def index
     @node = visitor.node
-    secure!(Node) do
+    secure(Node) do
       # TODO: preload node
       @comments = Comment.paginate :all,
                         :select => "comments.*, nodes.zip AS node_zip",
@@ -100,6 +100,7 @@ class CommentsController < ApplicationController
                         :conditions=>"status > #{Zena::Status[:rem]} AND (#{secure_scope('nodes')})",
                         :per_page => 10, :page => params[:page]
     end
+    @comments ||= []
   end
 
   # TODO: test

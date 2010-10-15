@@ -13,7 +13,7 @@ class SiteTest < Zena::Unit::TestCase
 
     should 'create valid site' do
       # should populate site
-      assert_difference('Node.count', 19) do
+      assert_difference('Node.count', 18) do
         subject
       end
 

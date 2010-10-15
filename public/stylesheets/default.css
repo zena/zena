@@ -22,11 +22,11 @@ input { padding:3px 4px;}
 #header a { color: inherit; }
 
 #title { margin:60px 42px 15px 200px; color:black;}
-#content #title {margin-left:0;}
 #title h1 { font-size:35px; margin:0;}
 .summary p { margin:0; font-style:italic; font-family:Georgia,Times,serif;}
 #context { width:180px; float:left; border-right:1px solid grey;}
 #context a { color:#aaa; }
+#context .admin_links a { color:inherit; }
 #context a:hover { color:#04a; }
 ol { padding-left:14px;}
 

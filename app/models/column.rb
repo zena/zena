@@ -18,8 +18,12 @@ class Column < ActiveRecord::Base
     include Zena::Acts::Secure
 
     def roles_for_form
-      secure(Role) { Role.all(:order => 'name ASC') }.map do |role|
-        [role.name, role.id]
+      if roles = secure(Role) { Role.all(:order => 'name ASC') }
+        roles.map do |role|
+          [role.name, role.id]
+        end
+      else
+        []
       end
     end
 
