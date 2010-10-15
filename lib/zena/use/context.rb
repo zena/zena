@@ -3,11 +3,11 @@ module Zena
     module Context
       module ViewMethods
 
-        # Dynamic resolution of the author class from the usr_prototype
+        # Dynamic resolution of the author class from the user prototype
         def self.visitor_node_proc
           Proc.new do |h, s|
             res = {:method => 'visitor.node', :nil => true}
-            if prototype = current_site.usr_prototype
+            if prototype  = visitor.prototype
               res[:class] = Zena::Acts::Enrollable.make_class(prototype.vclass)
             else
               res[:class] = Node

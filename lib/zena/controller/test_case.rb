@@ -48,11 +48,6 @@ module Zena
           "expected not tag, but tag found matching #{match.inspect} in:\n#{target.inspect}"
       end
 
-      def err(obj)
-        obj.errors.each_error do |er,msg|
-          puts "[#{er}] #{msg}"
-        end
-      end
     end
   end
 end

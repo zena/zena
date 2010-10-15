@@ -1,5 +1,3 @@
-require File.join(File.dirname(__FILE__), 'info')
-
 Zena::Use.module  [
   Zena::Use::Action,
   Zena::Use::Authlogic,

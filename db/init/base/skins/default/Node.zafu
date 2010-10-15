@@ -69,17 +69,17 @@
             </li>
           </ol>
         </r:pages>
-        <r:references name='references'><h3 do='trans'>references</h3>
+        <r:nodes where='kpath not like "ND%" and kpath not like "NP%"'><h3 do='trans'>references</h3>
           <ol>
             <li do='each' class='li_s#{v.status}' do='link'/>
             <li do='add' before='self'/>
             <li class='inline_form' do='form'>
-              <p class='node_klass'>  <r:select name='klass' root_class='Reference'/></p>
+              <p class='node_klass'>  <r:select name='klass' root_class='Node'/></p>
               <p class='node_title'><input type='text' name='title' value=''/></p>
               <p class='btn_validate'><input type="submit" value='#{trans("validate")}'/></p>
             </li>
           </ol>
-        </r:references>
+        </r:nodes>
 
       </div> <!-- related -->
       <div id='main'>

@@ -14,6 +14,13 @@ rescue Exception => err
   end
 end
 
+def err(obj)
+  obj.errors.each_error do |er,msg|
+    puts "[#{er}] #{msg}"
+  end
+end
+
+
 class PagerDummy < Node
   def self.ksel
     self == PagerDummy ? 'U' : super

@@ -146,11 +146,11 @@ class Node < ActiveRecord::Base
   # A possible solution could be to use the other syntax exclusively ('rel' => {'friend' => [4,5,6]})
   include Zena::Use::NestedAttributesAlias::ModelMethods
 
-  # Dynamic resolution of the author class from the usr_prototype
+  # Dynamic resolution of the author class from the user prototype
   def self.author_proc
     Proc.new do |h, s|
       res = {:method => 'author', :nil => true}
-      if prototype = current_site.usr_prototype
+      if prototype = visitor.prototype
         res[:class] = Zena::Acts::Enrollable.make_class(prototype.vclass)
       else
         res[:class] = Node
@@ -484,6 +484,11 @@ class Node < ActiveRecord::Base
     def create_or_update_node(new_attributes)
       attributes = transform_attributes(new_attributes)
 
+      v_lang = attributes['v_lang']
+      if !current_site.lang_list.include?(v_lang)
+        attributes['v_lang'] = current_site.lang_list.first
+      end
+
       if zip = attributes.delete('parent_zip')
         if id = secure(Node) { Node.translate_pseudo_id(zip, :id, self) }
           attributes['parent_id'] = id
@@ -496,8 +501,8 @@ class Node < ActiveRecord::Base
 
       unless attributes['title'] && attributes['parent_id']
         node = Node.new
-        node.errors.add('title', "can't be blank") unless attributes['title']
-        node.errors.add('parent_id', "can't be blank") unless attributes['parent_id']
+        node.errors.add('title', "can't be blank")     if attributes['title'].blank?
+        node.errors.add('parent_id', "can't be blank") if attributes['parent_id'].blank?
         return node
       end
 
@@ -535,12 +540,8 @@ class Node < ActiveRecord::Base
     end
 
     # TODO: cleanup and rename with something indicating the attrs cleanup that this method does.
-    def create_node(new_attributes, transform = true)
+    def new_node(new_attributes, transform = true)
       attributes = transform ? transform_attributes(new_attributes) : new_attributes
-
-      # TODO: replace this hack with a proper class method 'secure' behaving like the
-      # instance method. It would get the visitor and scope from the same hack below.
-      scope   = self.scoped_methods[0] || {}
 
       klass_name = attributes.delete('class') || attributes.delete('klass') || 'Page'
       unless klass = get_class(klass_name, :create => true)
@@ -553,13 +554,20 @@ class Node < ActiveRecord::Base
         return node
       end
 
-      if klass != self
-        # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
-        node = klass.send(:with_exclusive_scope, scope) { klass.create_instance(attributes) }
+      if klass.kind_of?(VirtualClass)
+        node = secure(klass.real_class) { klass.new_instance(attributes) }
       else
-        node = self.create_instance(attributes)
+        node = secure(klass) { klass.new_instance(attributes) }
       end
+      node
+    end
 
+    # TODO: cleanup and rename with something indicating the attrs cleanup that this method does.
+    def create_node(new_attributes, transform = true)
+      node = new_node(new_attributes, transform)
+      if node.errors.empty?
+        node.save
+      end
       node
     end
 

@@ -3,7 +3,7 @@ module UsersHelper
   def node_form
     node_back = @node # store contextual node
     begin
-      @node = @user.node || current_site.usr_prototype
+      @node = @user.node || visitor.prototype
       begin
         res =render :file => template_url(:mode => '+user', :format => 'html')
       rescue ActiveRecord::RecordNotFound

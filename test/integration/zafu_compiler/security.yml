@@ -40,18 +40,28 @@ build_erb_with_trans:
   src: "<r:load dictionary='/Default skin/translations'><r:t>mean_m</r:t><r:void>%= 5+8 %</r:void><r:void>></r:void></r:load>"
   tem: "<% _zdict = load_dictionary(828931430) -%>&lt;%= 5+8 %>"
 
-mean_inc:
-  src: '<'
-  res: '&lt;'
-
-build_erb_with_include:
-  context:
-    lang: fr
-  src: "<r:include template='/security/mean/inc'/><r:void>%= 5+8 %</r:void><r:void>></r:void>"
-  tem: "&lt;%= 5+8 %>"
-
 build_erb_with_void:
   context:
     lang: fr
   src: "<r:void><</r:void><r:void>%= 5+8 %</r:void><r:void>></r:void></r:load>"
   tem: "/>%= 5\+8 %>/"
+  
+mean_inc:
+  src: '<'
+  res: '&lt;'
+
+build_erb_with_include:
+  src: "<r:include template='/security/mean/inc'/><r:void>%= 5+8 %</r:void><r:void>></r:void>"
+  tem: "!/<%= 5/"
+
+mean_part:
+  src: "<<div id='foo'></div>"
+  res: "<<div id='foo'></div>"
+  
+build_erb_with_include_remove_part:
+  src: "<r:include template='/security/mean/part'><r:with part='foo'/></r:include><r:void>%= 5+8 %</r:void><r:void>></r:void>"
+  tem: "!/<%= 5/"
+
+build_erb_with_rubyless:
+  src: "<r:void do='\"<\"'/><r:void>%= 5+8 %</r:void><r:void>></r:void>"
+  tem: "!/<%= 5/"

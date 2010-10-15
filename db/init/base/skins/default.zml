@@ -1,7 +1,6 @@
 class: Skin
 title: default
 summary: official default skin
-comment: version 0.9
 text: |
   This is the default skin for zena. You should be *very careful* if you change this skin: it is used to display/edit itself.
 

@@ -61,7 +61,6 @@ class Document < Node
 
     # Return a new Document or a sub-class of Document depending on the file's content type. Returns a TextDocument if there is no file.
     def new(attrs = {})
-
       scope = self.scoped_methods[0] || {}
 
       attrs = attrs.stringify_keys
@@ -86,6 +85,9 @@ class Document < Node
         klass.o_new(attrs)
       end
     end
+
+    # Compatibility with VirtualClass
+    alias new_instance new
 
     # Class list to which this class can change to
     def change_to_classes_for_form

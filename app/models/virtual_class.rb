@@ -107,31 +107,15 @@ class VirtualClass < Role
 
   # Create new nodes instances of this VirtualClass
   def create_instance(*args)
-    if @scope
-      # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
-      real_class.send(:with_exclusive_scope, @scope) {
-        obj = self.new_instance(*args)
-        obj.save
-        obj
-      }
-    else
-      obj = self.new_instance(*args)
-      obj.save
-      obj
-    end
+    obj = self.new_instance(*args)
+    obj.save
+    obj
   end
 
   def real_class
     klass = Module::const_get(self[:real_class])
     raise NameError unless klass.ancestors.include?(Node)
     klass
-  end
-
-  def with_exclusive_scope(scope, &block)
-    @scope = scope
-    res = yield
-    @scope = nil
-    res
   end
 
   def import_result

@@ -62,7 +62,7 @@ class UsersController < ApplicationController
 
     get_groups_list
 
-    params[:user][:node] = params[:node]
+    params[:user][:node_attributes] = params[:node]
 
     @user = secure(User) { User.create(params[:user]) }
   end

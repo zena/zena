@@ -4,64 +4,35 @@ class SiteTest < Zena::Unit::TestCase
 
   context 'on site creation' do
     setup do
-      @site = Site.create_for_host('super.host', 'secret')
-    end
-
-    should 'create anonymous user' do
-      assert_nil @site.anon.login
-      assert_equal 'Anonymous User', @site.anon.node.title
-    end
-
-    should 'create an admin users' do
-      assert_equal 1, @site.admin_user_ids.size
-    end
-
-    should 'return a new project as root node' do
-      assert_kind_of Project, @site.root_node
-    end
-  end
-
-  context 'Calling new_user_node' do
-    setup do
-      login(:anon)
+      Thread.current[:visitor] = nil
     end
 
     subject do
-      current_site.new_user_node
+      Site.create_for_host('super.host', 'secret')
     end
 
-    should 'return a new record' do
-      assert subject.new_record?
-    end
-
-    should 'return a Node of the same type as the prototype' do
-      assert_equal 'NRC', subject.kpath
-      assert_equal nodes(:anonymous).klass, subject.klass
-    end
-
-    should 'copy prototype properties' do
-      nodes(:anonymous).prop.each do |key, value|
-        if key == 'title'
-          assert_nil subject.prop[key]
-        else
-          assert_equal value, subject.prop[key], "Should copy '#{key}'"
-        end
-      end
-    end
-
-    context 'more then once' do
-      setup do
-        @first = current_site.new_user_node
-        @second = current_site.new_user_node
+    should 'create valid site' do
+      # should populate site
+      assert_difference('Node.count', 19) do
+        subject
       end
 
-      should 'return a new node on each call' do
-        assert_not_equal @first.object_id, @second.object_id
-      end
-    end # more then once
+      # should create anon user
+      assert_nil subject.anon.login
 
-  end # Calling new_user_node
+      assert_equal 'Anonymous User', subject.anon.node.title
 
+      # should create an admin user
+      assert_equal 1, subject.admin_user_ids.size
+
+      admin = secure(User) { User.find(:first, :conditions => "status >= #{User::Status[:admin]}") }
+
+      assert_equal 'Admin User', admin.node.title
+
+      # should return a new project as root node
+      assert_kind_of Project, subject.root_node
+    end
+  end
 
   def test_create_site_with_opts
     site = nil
@@ -308,9 +279,9 @@ class SiteTest < Zena::Unit::TestCase
     end
 
     should 'rebuild visible entries for all objects' do
-      assert_difference('IdxNodesMlString.count', 
+      assert_difference('IdxNodesMlString.count',
         # title index on all nodes
-        subject.lang_list.count * Node.count(:conditions => {:site_id => subject.id}) + 
+        subject.lang_list.count * Node.count(:conditions => {:site_id => subject.id}) +
         # search index on Letter nodes
         subject.lang_list.count * Node.count(:conditions => ['site_id = ? AND kpath like ?', subject.id, 'NNL%'])
         ) do
@@ -328,8 +299,8 @@ class SiteTest < Zena::Unit::TestCase
         'en'=>'status title'], ml_indices
     end
   end
-  
-  
+
+
   private
     def fullpath(*args)
       args.map {|sym| nodes_zip(sym).to_s}.join('/')

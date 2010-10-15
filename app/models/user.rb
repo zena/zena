@@ -45,11 +45,11 @@ class User < ActiveRecord::Base
     c.validate_password_field = false
   end
 
-  # Dynamic resolution of the author class from the usr_prototype
+  # Dynamic resolution of the author class from the prototype
   def self.node_user_proc
     Proc.new do |h, s|
       res = {:method => 'node', :nil => true}
-      if prototype = current_site.usr_prototype
+      if prototype = visitor.prototype
         res[:class] = Zena::Acts::Enrollable.make_class(prototype.vclass)
       else
         res[:class] = Node
@@ -147,11 +147,49 @@ class User < ActiveRecord::Base
     @visited_node_ids ||= []
   end
 
-  def node=(node_attrs)
+  # Return the prototype user (used by Zafu and QueryBuilder to know the class
+  # of the visitor and during user creation)
+  def prototype
+    @prototype ||= begin
+      secure(Node) { Node.new_node(prototype_attributes) }
+    end
+  end
+
+  # Return a new Node to be used by a new User as base for creating the visitor Node.
+  def prototype_attributes
+    @prototype_attributes ||= begin
+      attrs = begin
+        if code = current_site.prop['usr_prototype_attributes']
+          hash = safe_eval(code)
+          if hash.kind_of?(Hash)
+            hash
+          else
+            {}
+          end
+        else
+          {}
+        end
+      rescue RubyLess::Error => err
+        {}
+      end
+
+      # This is a security feature to avoid :_parent_id set manually in usr_prototype_attributes.
+      attrs.stringify_keys!
+      unless attrs['parent_id']
+        attrs[:_parent_id] = current_site[:root_id]
+      end
+
+      attrs['klass'] ||= attrs.delete('class') || 'Node'
+
+      attrs
+    end
+  end
+
+  def node_attributes=(node_attrs)
     if self[:node_id]
       @node = secure!(Node) { node_without_secure }
     else
-      @node = current_site.new_user_node
+      @node = secure(Node) { Node.new_node(prototype_attributes) }
     end
     @node.attributes = node_attrs || {}
   end
@@ -359,7 +397,7 @@ class User < ActiveRecord::Base
       return if !new_record? && !@node
       if !@node
         # force creation of node, even if it is a plain copy of the prototype
-        self.node = {'title' => login}
+        self.node_attributes = {'title' => login}
       else
         @node.title ||= login
       end

@@ -2,16 +2,25 @@
 require 'yaml'
 require 'date'
 require 'fileutils'
-require File.join(File.dirname(__FILE__), 'zena', 'info')
+require 'zena/info'
+require 'bricks'
 
-def has_executable(*list)
-  return false if RUBY_PLATFORM =~ /mswin32/
-  list.inject(true) do |s,e|
-    s && !(`which #{e} || echo 'no #{e}'` =~ /^no #{e}/)
-  end
-end
+SITES_ROOT = "#{RAILS_ROOT}/sites"
+AUTHENTICATED_PREFIX = "oo"
+PASSWORD_SALT = "jf93jfnvnas09093nas0923" # type anything here (but change this line !)
+ZENA_CALENDAR_LANGS = ["en", "fr", "de"] # FIXME: build this dynamically from existing files
+ENABLE_XSENDFILE = false
 
 module Zena
+  def self.has_executable(*list)
+    return false if RUBY_PLATFORM =~ /mswin32/
+    list.inject(true) do |s,e|
+      s && !(`which #{e} || echo 'no #{e}'` =~ /^no #{e}/)
+    end
+  end
+
+  ASSET_PORT     = Bricks.raw_config['asset_port']
+
   ENABLE_LATEX   = true  && has_executable('pdflatex') # enable LateX post-rendering
   ENABLE_FOP     = true  && has_executable('fop', 'xsltproc') # enable xsl-fo post-rendering
   ENABLE_MATH    = true  && has_executable('latex', 'dvips', 'convert', 'gs')
@@ -27,10 +36,8 @@ module Zena
     def resolve_const(klass)
       if klass.kind_of?(String)
         constant = nil
-        klass.split('::').each do |m|
-          constant = constant ? constant.const_get(m) : Module.const_get(m)
-        end
-        constant
+        # Foo.const_get('Bar') is not guaranteed to find/load Foo::Bar, it can return just Bar.
+        eval "::#{klass}"
       else
         klass
       end

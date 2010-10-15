@@ -44,11 +44,11 @@ class UserTest < Zena::Unit::TestCase
       should 'not allow anon destruction' do
         assert_raise(Zena::AccessViolation){ users(:anon).destroy }
       end
-      
+
       should 'not allow destruction of self' do
         assert_raise(Zena::AccessViolation){ users(:lion).destroy }
       end
-      
+
       should 'allow destruction of regular users' do
         assert_difference('User.count', -1) do
           assert_nothing_raised { users(:ant).destroy }
@@ -70,7 +70,7 @@ class UserTest < Zena::Unit::TestCase
         'password'   => 'secret',
         'login'      => 'bolomey',
         'group_ids'  => [groups_id(:public), ''],
-        'node'       => {
+        'node_attributes' => {
           'name'       => 'Dupont',
           'first_name' => 'Paul',
           'email'      => 'paul.bolomey@brainfuck.com'
@@ -85,10 +85,57 @@ class UserTest < Zena::Unit::TestCase
       end
     end
 
-    should 'copy missing attributes from prototype' do
+    should 'use missing attributes from prototype' do
       assert_equal 'Iping', subject.node.prop['address']
     end
   end # Creating a new User
+
+  context 'Setting node attributes' do
+    setup do
+      login(:anon)
+      subject.node_attributes = {'title' => 'bar'}
+    end
+
+    subject do
+      User.new
+    end
+
+    should 'create a new record' do
+      assert subject.node.new_record?
+    end
+
+    should 'create a Node of the type defined in prototype attributes' do
+      assert_equal 'Contact', subject.node.klass
+    end
+
+    context 'more then once' do
+      setup do
+        @first  = subject.node
+        second = User.new
+        second.node_attributes = {}
+        @second = second.node
+      end
+
+      should 'return a new node on each call' do
+        assert_not_equal @first.object_id, @second.object_id
+      end
+    end # more then once
+
+  end # Setting node attributes
+
+  context 'On a user' do
+    subject do
+      users(:lion)
+    end
+
+    should 'evaluate rubyless code in prototype_attributes' do
+      assert_equal Hash[
+        :_parent_id => subject.site.root_id,
+        'klass'     => 'Contact',
+        'address'   => 'Iping',
+        'name'      => 'lion'], subject.prototype_attributes
+    end
+  end # On a user
 
   def test_create
     User.connection.execute "UPDATE users SET lang='ru' WHERE id IN (#{users_id(:incognito)},#{users_id(:whale)})"
@@ -96,7 +143,7 @@ class UserTest < Zena::Unit::TestCase
     User.connection.execute "UPDATE users SET time_zone='US/Hawaii' WHERE id=#{users_id(:incognito)}"
     login(:whale)
 
-    user = secure!(User) { User.create("login"=>"john", "password"=>"isjjna78a9h", 'node' => {'v_lang' => 'ru'}) }
+    user = secure!(User) { User.create("login"=>"john", "password"=>"isjjna78a9h", 'node_attributes' => {'v_lang' => 'ru'}) }
 
     assert !user.new_record?, "Not a new record"
     assert !user.node.new_record?, "Users's contact node is not a new record"
@@ -140,9 +187,9 @@ class UserTest < Zena::Unit::TestCase
 
   def test_create_admin_with_groups
     login(:lion)
-    user = secure!(User) { User.new("login"=>"john", "password"=>"isjjna78a9h", "group_ids" => [groups_id(:admin)]) }
+    user = secure(User) { User.new("login"=>"john", "password"=>"isjjna78a9h", "group_ids" => [groups_id(:admin)]) }
     assert user.save
-    user = secure!(User) { User.find(user[:id])}
+    user = secure(User) { User.find(user[:id])}
     assert_equal 3, user.groups.size
   end
 

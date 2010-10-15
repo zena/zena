@@ -138,17 +138,16 @@ class Site < ActiveRecord::Base
       raise Exception.new("Could not save site definition for site [#{host}] (site#{site[:id]})\n#{site.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless site.save
 
       # =========== CREATE CONTACT PAGES ==============
-      {admin_user => 'Admin', anon => 'Anonymous User'}.each do |user, title|
+      {admin_user => 'Admin User', anon => 'Anonymous User'}.each do |user, title|
         # forces @node creation
-        user.node = {'title' => title, 'parent_id' => root[:id] }
+        user.node_attributes = {'title' => title, 'parent_id' => root[:id] }
         user.send(:create_node)
         user.save
       end
 
       # =========== LOAD INITIAL DATA (default skin) =============
 
-      nodes = site.send(:secure,Node) { Node.create_nodes_from_folder(:folder => File.join(Zena::ROOT, 'db', 'init', 'base'), :parent_id => root[:id], :defaults => { :v_status => Zena::Status[:pub], :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :dgroup_id => admin[:id] } ) }.values
-
+      nodes = site.send(:secure, Node) { Node.create_nodes_from_folder(:folder => File.join(Zena::ROOT, 'db', 'init', 'base'), :parent_id => root[:id], :defaults => { :v_status => Zena::Status[:pub], :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :dgroup_id => admin[:id] } ) }.values
       # == set skin name to 'default' for all elements in the site == #
       skin = nodes.detect {|n| n.kind_of?(Skin) }
       Node.connection.execute "UPDATE nodes SET skin_id = '#{skin.id}' WHERE site_id = '#{site[:id]}'"
@@ -173,6 +172,10 @@ class Site < ActiveRecord::Base
       @@attributes_for_form
     end
   end
+
+  property.string 'usr_prototype_attributes'
+
+  Site.attributes_for_form[:text] << 'usr_prototype_attributes'
 
   # Return path for static/cached content served by proxy: RAILS_ROOT/sites/_host_/public
   # If you need to serve from another directory, we do not store the path into the sites table
@@ -218,35 +221,6 @@ class Site < ActiveRecord::Base
     @api_group ||= secure(Group) { Group.find_by_id(self[:api_group_id]) }
   end
 
-  # Return the prototype user (used by Zafu and QueryBuilder to know what the class of
-  # the visitor is)
-  def usr_prototype
-    @usr_prototype ||= begin
-      if self[:usr_prototype_id]
-        node = secure(Node) { Node.find_by_id(self[:usr_prototype_id]) }
-      end
-      node ||= secure(Node) { Node.new }
-    end
-  end
-
-  # Return a new Node to be used by a new User as base for creating the visitor Node.
-  def new_user_node
-    node = usr_prototype.dup
-    node.instance_variable_set(:@version, nil)
-    node.load_roles!
-    node.instance_eval do
-      # make sure the field is removed so that it does not break DB insert (PostgreSQL)
-      @attributes.delete('id')
-      self[:created_at] = nil
-      self[:updated_at] = nil
-      # so that we get the default value
-      self.title        = nil
-      @new_record = true
-    end
-    node
-  end
-
-
   # Return true if the given user is an administrator for this site.
   def is_admin?(user)
     admin_user_ids.include?(user[:id])
@@ -254,7 +228,7 @@ class Site < ActiveRecord::Base
 
   # Return the ids of the administrators of the current site.
   def admin_user_ids
-    # TODO: admin_user_ids could be cached in the 'site' record.
+    # TODO: PERFORMANCE admin_user_ids could be cached in the 'site' record.
     @admin_user_ids ||= secure!(User) { User.find(:all, :conditions => "status >= #{User::Status[:admin]}") }.map {|r| r[:id]}
   end
 

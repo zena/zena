@@ -131,7 +131,6 @@ module Zena
           end
         end # date_condition
 
-
         def prepare_connection_for_timezone
           # Fixes timezone to "+0:0"
           raise "prepare_connection_for_timezone executed too late, connection already active." if Class.new(ActiveRecord::Base).connected?
