@@ -1039,7 +1039,7 @@ msgstr "ouvert"
 
 #: lib/gettext_strings.rb:63
 msgid "closed"
-msgstr "vermé"
+msgstr "fermé"
 
 #: lib/gettext_strings.rb:65
 #: lib/zena/use/i18n.rb:144

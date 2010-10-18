@@ -12,6 +12,11 @@ class_conditional:
   src: "<r:Image><b do='#{size}' format='%.2f'/></r:Image>"
   tem: "/@node.kpath_match\?\('NDI'\)/"
 
+class_conditional_in_if:
+  src: "<r:parent do='Image'>image<r:else>not an image</r:else></r:parent>"
+  tem: "<% if var1 = @node.parent -%><% if var1.kpath_match?('NDI') -%>image<% elsif true -%>not an image<% end -%><% end -%>"
+  res: "not an image"
+
 class_conditional_in_array:
   src: "<r:nodes><r:Image><b do='#{size}' format='%.2f'/></r:Image></r:nodes>"
   tem: "/Cannot scope class in list .use each before filtering./"

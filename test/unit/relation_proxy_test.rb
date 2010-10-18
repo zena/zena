@@ -484,4 +484,28 @@ class RelationProxyTest < Zena::Unit::TestCase
     assert Node.safe_method_type(['l_comment'])
     assert Node.safe_method_type(['l_date'])
   end
+
+  context 'With many links' do
+    subject do
+      node = secure(Node) { nodes(:cleanWater)}
+    end
+
+    setup do
+      login(:lion)
+      node = secure(Node) { nodes(:cleanWater)}
+      assert_difference('Link.count', 3) do
+        node.update_attributes_with_transformation('reference_ids' => [:art, :menu, :bird_jpg].map {|s| nodes_zip(s)})
+      end
+    end
+
+    should 'use other_id to update status' do
+      assert_difference('Link.count', 0) do
+        assert subject.update_attributes_with_transformation('rel' => {'reference' => {'other_id' => nodes_zip(:art), :status => 100}})
+        err subject
+      end
+
+      assert_equal 100, subject.find(:first, 'reference where l_status = 100').l_status
+    end
+  end # With many links
+
 end

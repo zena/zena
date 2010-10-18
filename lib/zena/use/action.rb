@@ -268,7 +268,7 @@ class #{node.klass}: #{Array(node.klass).first.schema.columns.keys.join(', ')}
             else
               return
             end
-          elsif ancestor('block') || ancestor('each')
+          elsif block = (ancestor('block') || ancestor('each'))
             # ancestor: ok
             block = self
           elsif parent && block = parent.descendant('block')

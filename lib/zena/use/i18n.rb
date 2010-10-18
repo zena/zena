@@ -271,7 +271,7 @@ module Zena
               dict_name = get_var_name('dictionary', 'dict')
 
               # This is to use in RubyLess translations and static translations in Zafu
-              set_context_var('set_var', 'dictionary', RubyLess::TypedString.new(dict_name, :class => TranslationDict, :literal => dict))
+              set_context_var('set_var', 'dictionary', RubyLess::TypedString.new(dict_name, :class => TranslationDict, :literal => dict, :dictionary_id => doc.id))
 
               # Lazy loading (loads file on first request)
               out "<% #{dict_name} = load_dictionary(#{doc.id}) -%>"
@@ -314,6 +314,31 @@ module Zena
             dict.get(text)
           else
             helper.send(:_, text)
+          end
+        end
+
+        def r_block
+          # when saving template, add loaded dictionary
+          if @context[:block] == self
+            if @dict
+              # pass loaded dictionary to ajax templates
+
+              # Save dictionary in template for dynamic uses
+              dict_name = get_var_name('dictionary', 'dict')
+
+              # This is to use in RubyLess translations and static translations in Zafu
+              set_context_var('set_var', 'dictionary', @dict)
+
+              # Lazy loading (loads file on first request)
+              out "<% #{dict_name} = load_dictionary(#{@dict.opts[:dictionary_id]}) -%>"
+            end
+            super
+          else
+            @dict = get_context_var('set_var', 'dictionary')
+            res = super
+            @dict = nil
+
+            res
           end
         end
 

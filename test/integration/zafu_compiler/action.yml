@@ -66,6 +66,11 @@ action:
   src: "<p do='action' select='edit' do='t'>hello</p>"
   res: "/nodes/22/versions/0/edit.*Open the edition window to edit the node.*Zena.open_window/"
 
+swap:
+  src: "<span do='block' do='swap' attr='custom_a' states='100,-100' do='custom_a'/>"
+  tem: '/:dom_id => "list1", :t_url => "action/swap/list1"/'
+  '/action/swap/en/list1.erb': "/<span id='list1'>/"
+
 swap_in_each:
   src: "<r:pages><li do='each'><span do='swap' attr='origin' states='todo,done,alert'/></li></r:pages>"
   tem: "/\"node\[origin\]\" => \"#\{next_in_list_s\(var2.prop\['origin'\], \"todo,done,alert\"/"
