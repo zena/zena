@@ -200,6 +200,12 @@ module Zena
           template_url(:mode=>'+popupLayout')
         end
 
+        # Return the window title to use.
+        def title_for_layout
+          return '' unless @node
+          @node.title + (@node.kind_of?(Document) ? ".#{@node.ext}" : '')
+        end
+
         # Use the current visitor as master node.
         def visitor_node
           @node = visitor.node

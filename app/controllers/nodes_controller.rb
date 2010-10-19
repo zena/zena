@@ -227,7 +227,7 @@ class NodesController < ApplicationController
 
     respond_to do |format|
       format.html do
-        @title_for_layout = @node.title
+        @title_for_layout = title_for_layout
       end
 
       format.js do
@@ -515,7 +515,7 @@ class NodesController < ApplicationController
         @link = Link.find_through(@node, params[:link_id])
       end
 
-      @title_for_layout = @node.title if @node
+      @title_for_layout = title_for_layout
     end
 
     def set_format(format)
