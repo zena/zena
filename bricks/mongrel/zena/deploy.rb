@@ -12,13 +12,18 @@ Capistrano::Configuration.instance(:must_exist).load do
 
       desc "configure mongrel"
       task :configure, :roles => :app do
-        if Zena::ASSET_PORT == self[:mongrel_port].to_i - 1
-          mongrel_port  = Zena::ASSET_PORT
+        if !defined?(RAILS_ENV)
+          RAILS_ENV = 'production'
+        end
+        require 'bricks'
+        asset_port = Bricks.raw_config['asset_port']
+        if asset_port == self[:mongrel_port].to_i - 1
+          mongrel_port  = asset_port
           mongrel_count = self[:mongrel_count] + 1
-        elsif Zena::ASSET_PORT.nil?
+        elsif asset_port.nil?
           # no asset port: OK.
         else
-          raise "Invalid asset_port setting in bricks.yml: the port should be equal to mongrel_port minus one. (expected #{self[:mongrel_port].to_i - 1}, found #{Zena::ASSET_PORT})"
+          raise "Invalid asset_port setting in bricks.yml: the port should be equal to mongrel_port minus one. (expected #{self[:mongrel_port].to_i - 1}, found #{asset_port})"
         end
 
         run "#{in_current} mongrel_rails cluster::configure -e production -p #{mongrel_port} -N #{mongrel_count} -c #{deploy_to}/current -P log/mongrel.pid -l log/mongrel.log -a 127.0.0.1 --user www-data --group www-data"
