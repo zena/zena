@@ -82,3 +82,11 @@ line_break_gallery:
 swf_button_player:
   tem: "<%= zazen(\"!25!\") %>"
   res: "/<object.*application\/x-shockwave-flash.*data=.*musicplayer.swf.*song_url=.*document25.mp3/"
+
+filter_html:
+  src: "<r:zazen attr='v_text' filter='html,css'/>"
+  tem: "/:filter_html, :filter_styles/"
+
+filter_html_tag:
+  tem: "<%= zazen(\"<p>foo</p><iframe src='xx'></iframe>\", :filter => [:filter_html, :filter_styles]) %>"
+  res: "<p>foo</p>"

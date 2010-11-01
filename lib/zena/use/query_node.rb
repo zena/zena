@@ -317,7 +317,7 @@ module Zena
             @errors << "invalid paginate clause '#{paginate}' (used without limit)"
             nil
           elsif (fld = map_literal("[param:#{paginate}]", :ruby)) && (page_size = @limit[/ LIMIT (\d+)/,1])
-            @page_size = [2,page_size.to_i].max
+            @page_size = [1,page_size.to_i].max
             " OFFSET #{insert_bind("((#{fld}.to_i > 0 ? #{fld}.to_i : 1)-1)*#{page_size.to_i}")}"
           else
             @errors << "invalid paginate clause '#{paginate}'"

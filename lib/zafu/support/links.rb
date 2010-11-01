@@ -18,6 +18,10 @@ module Zafu
         end
       end
 
+      def r_url
+        out make_link(:url_only => true)
+      end
+
       def make_link(options = {})
         query_params = options[:query_params] || {}
         default_text = options[:default_text]
@@ -143,7 +147,11 @@ module Zafu
 
           opts_str += ", :host => #{@context["exp_host"]}" if @context["exp_host"]
 
-          pre_space + "<a#{params_to_html(html_params)} href='<%= zen_path(#{lnode}#{opts_str}) %>'>#{text_for_link(default_text)}</a>"
+          if options[:url_only]
+            pre_space + "<%= zen_path(#{lnode}#{opts_str}) %>"
+          else
+            pre_space + "<a#{params_to_html(html_params)} href='<%= zen_path(#{lnode}#{opts_str}) %>'>#{text_for_link(default_text)}</a>"
+          end
         end
       end
 

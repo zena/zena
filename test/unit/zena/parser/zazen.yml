@@ -209,3 +209,7 @@ wiki_link_partial_url:
 make_asset:
   src: "my email: [email]bob@example.com[/email]."
   res: "<p>my email: [make_asset asset_tag:|email| content:|bob@example.com| output:|html|].</p>"
+
+filter_html:
+  src: ""
+  res: "."

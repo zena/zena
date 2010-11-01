@@ -20,13 +20,13 @@ class UploadTest < Zena::View::TestCase
 
       context 'to a file too large' do
         setup do
-          @params = {'attachment_url' => "http://ftp.acc.umu.se/debian-cd/5.0.4/i386/iso-cd/debian-504-i386-CD-1.iso"}
+          @params = {'attachment_url' => "http://zenadmin.org/zena_playground.zip"}
         end
 
         should 'return an error about file being too big, without a download' do
           file, error = get_attachment
           assert_nil file
-          assert_equal 'size (645.8 MB) too big to fetch url', error
+          assert_equal 'size (631.6 MB) too big to fetch url', error
         end
       end
 

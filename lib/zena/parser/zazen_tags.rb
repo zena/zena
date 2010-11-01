@@ -25,7 +25,7 @@ module Zena
           case @context[:output]
           when 'html'
             # TODO: we should write our own parser for textile with rendering formats...
-            @text = RedCloth.new(@blocks).to_html
+            @text = RedCloth.new(@blocks, @context[:filter] || []).to_html
           when 'latex'
             # replace RedCloth markup by latex equivalent
             @text = RedCloth.new(@blocks).to_latex

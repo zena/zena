@@ -139,6 +139,11 @@ show_dyn_attribute:
   tem: "<%= @node.version.dyn[\"assigned\"] %>"
   res: "gaspard"
 
+show_sanitize:
+  src: "<r:show attr='v_text' sanitize='true'/>"
+  tem: "<%= h(@node.version.text) %>"
+  res: "status text"
+
 trans:
   context:
     lang: 'fr'
@@ -207,6 +212,12 @@ zafu_link_t:
 a_link:
   src: "<a class='bob' do='link'>sample text</a> <a id='bar' do='link' do='t'>click here</a>"
   res: "<a class='bob' href='/oo/projects/cleanWater/page22.html'>status title</a> <a id='bar' href='/oo/projects/cleanWater/page22.html'>click here</a>"
+
+url:
+  context:
+    node: 'bird_jpg'
+  src: "<r:url format='data'/>"
+  res: "/en/image30.jpg?1144713600"
 
 zafu_link_with_blocks:
   src: "<a id='branding' do='link'><img src='sample.png' do='img' src='30'/></a>"

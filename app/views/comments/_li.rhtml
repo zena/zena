@@ -4,10 +4,10 @@
     <%= link_to_remote(_('btn_publish'), :url=> publish_comment_path(:id=>li[:id], :bin=>@admin), :method => :put) if li[:status] < Zena::Status[:pub] %>
     </span>
     <span class='date'><%= long_date(li.created_at) + " " + short_time(li.created_at) %></span>
-    <span class='sign'><%= li.author_name || li.author.fullname %></span>
-    <span class='title'><%= make_link(:node => li.discussion.node, :title => "#{li.discussion.node.name}#{li.title.blank? ? '' : " / #{li.title}"}") %></span>
+    <span class='sign'><%= h li.author_name || li.author.fullname %></span>
+    <span class='title'><%= make_link(:node => li.discussion.node, :title => "#{li.discussion.node.name}#{li.title.blank? ? '' : " / #{h li.title}"}") %></span>
   </div>
   <div class='body'>
-    <div class='zazen'><%= zazen(li.text) %></div>
+    <div class='zazen'><%= zazen(li.text, :filter => [:filter_html, :filter_styles]) %></div>
   </div>
 </li>

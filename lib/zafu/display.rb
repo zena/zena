@@ -180,6 +180,12 @@ module Zafu
         @html_tag ||= 'span'
       end
 
+      if sanitize = @params[:sanitize]
+        if sanitize == 'true'
+          attribute_method = "h(#{attribute_method})"
+        end
+      end
+
       if @params[:edit] == 'true' && !['url','path'].include?(attribute)
         "<% if #{node}.can_write? -%><span class='show_edit' id='#{erb_dom_id("_#{attribute}")}'>#{actions}<%= link_to_remote(#{attribute_method}, :url => edit_node_path(#{node_id}) + \"?attribute=#{attribute}&dom_id=#{dom_id("_#{attribute}")}#{auto_publish_param(true)}\", :method => :get) %></span><% else -%>#{actions}<%= #{attribute_method} %><% end -%>"
       else
@@ -190,16 +196,27 @@ module Zafu
     def r_zazen
       attribute = @params[:attr] || @params[:tattr]
       limit  = @params[:limit] ? ", :limit=>#{@params[:limit].to_i}" : ""
+      if filter = @params[:filter]
+        filter = filter.split(',').map do |f|
+          {
+            'html' => :filter_html,
+            'css'  => :filter_styles
+          }[f]
+        end.compact
+        filter = ", :filter => #{filter.inspect}"
+      else
+        filter = ''
+      end
       if @context[:trans]
         # TODO: what do we do here with dates ?
         return "#{node_attribute(attribute)}"
       elsif @params[:tattr]
-        return "<%= zazen(_(#{node_attribute(attribute)})#{limit}, :node=>#{node(Node)}) %>"
+        return "<%= zazen(_(#{node_attribute(attribute)})#{limit}, :node=>#{node(Node)}#{filter}) %>"
       elsif @params[:attr]
         if output_format == 'html'
-          res = "<%= zazen(#{node_attribute(attribute)}#{limit}, :node=>#{node(Node)}) %>"
+          res = "<%= zazen(#{node_attribute(attribute)}#{limit}, :node=>#{node(Node)}#{filter}) %>"
         else
-          return "<%= zazen(#{node_attribute(attribute)}#{limit}, :node=>#{node(Node)}, :output=>#{output_format.inspect}) %>"
+          return "<%= zazen(#{node_attribute(attribute)}#{limit}, :node=>#{node(Node)}, :output=>#{output_format.inspect}#{filter}) %>"
         end
       elsif @params[:date]
         # date can be any attribute v_created_at or updated_at etc.
