@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2010-10-20}
+  s.date = %q{2010-11-02}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -284,7 +284,6 @@ Gem::Specification.new do |s|
      "config/initializers/mime_types.rb",
      "config/initializers/zena.rb",
      "config/mongrel_upload_progress.conf",
-     "config/routes.rb",
      "config/sphinx.yml",
      "db/init/base/help.en.zml",
      "db/init/base/help.fr.zml",
@@ -1577,6 +1576,7 @@ Gem::Specification.new do |s|
      "public/images/zoom_out.png",
      "public/img/logo.png",
      "public/javascripts/application.js",
+     "public/javascripts/autocomplete.js",
      "public/javascripts/builder.js",
      "public/javascripts/controls.js",
      "public/javascripts/dragdrop.js",
