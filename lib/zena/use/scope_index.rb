@@ -4,18 +4,19 @@ module Zena
       AVAILABLE_MODELS = []
 
       def self.models_for_form
-        AVAILABLE_MODELS.map(:to_s)
+        [''] + AVAILABLE_MODELS.map(&:to_s)
       end
 
       module VirtualClassMethods
         def self.included(base)
-          AVAILABLE_MODELS << base
           base.validate :valid_scope_index
           base.attr_accessible :scope_index
         end
 
         protected
           def valid_scope_index
+            self[:scope_index] = nil if self[:scope_index].blank?
+
             if model_name = self[:scope_index]
               if model_name =~ /\A[A-Z][a-zA-Z]+\Z/
                 if klass = Zena.const_get(model_name) rescue NilClass
@@ -44,6 +45,7 @@ module Zena
 
       module IndexMethods
         def self.included(base)
+          AVAILABLE_MODELS << base
           class << base
             attr_accessor :groups
           end
@@ -131,6 +133,7 @@ module Zena
         protected
           # Update scope indices (project/section).
           def update_model_indices
+            return unless version.status == Zena::Status[:pub]
             if kind_of?(Project) || kind_of?(Section)
               update_model_indices_for(self.id, force_create = true)
             else

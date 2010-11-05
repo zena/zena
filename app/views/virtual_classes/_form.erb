@@ -33,7 +33,7 @@
 
     <tr><td class='label'><%= _('create group')%></td><td><%= select('virtual_class', 'create_group_id',  visitor.all_groups.map{|g| [g.name, g.id]} ) %></td></tr>
     <tr><td class='label'><%= _('auto create discussion')%></td><td><%= check_box('virtual_class', 'auto_create_discussion') %></td></tr>
-<% if Bricks::CONFIG['scope_index'] && (@virtual_class.new_record? || @virtual_class.real_class.kind_of?(Section) || @virtual_class.real_class.kind_of?(Project)) -%>
+<% if Bricks::CONFIG['scope_index'] && (@virtual_class.new_record? || @virtual_class.real_class <= Section || @virtual_class.real_class <= Project) -%>
     <tr><td class='label'><%= _('scope_index')%></td><td><%= select('virtual_class', 'scope_index', Zena::Use::ScopeIndex.models_for_form) %></td></tr>
 <% end -%>
 <% end -%>

@@ -38,6 +38,7 @@ production:
   # Port used only to provide assets during custom rendering (pdf).
   # We need this to avoid deadlocks.
   asset_port: 7999
+  scope_index: OFF
   mongrel:   ON
   passenger: OFF
   pdf:
