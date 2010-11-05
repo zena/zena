@@ -811,7 +811,7 @@ end
       ['2006','page18.html'],
       ['2006.xml','page18.xml'],
       ['p12','page12.html'],
-      ['25-10-2006','project29.html'],
+      ['25-10-2006','blog29.html'],
       ['archive-1','image30.html'],
       ['archive', 404],
     ].each do |name, result|

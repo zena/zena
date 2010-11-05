@@ -132,7 +132,7 @@ class RelationProxyTest < Zena::Unit::TestCase
   def test_relations_for_form
     login(:tiger)
     {
-      Note    => ["calendar", "favorite_for", "home_for", "hot_for", "icon", "reference", "reference_for", "set_tag"],
+      Note    => ["blog", "calendar", "favorite_for", "home_for", "hot_for", "icon", "reference", "reference_for", "set_tag"],
       Image   => ["favorite_for", "home_for", "hot_for", "icon", "icon_for", "reference", "reference_for", "set_tag"],
       Project => ["added_note", "collaborator", "favorite_for", "home", "home_for", "hot", "hot_for", "icon", "news", "reference", "reference_for", "set_tag"],
     }.each do |klass, roles|

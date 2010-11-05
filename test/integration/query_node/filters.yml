@@ -92,7 +92,7 @@ filter_with_fullpath:
 class_filter:
   src: "nodes where class like Image or class = Project in site"
   sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND (nodes.kpath LIKE 'NDI%' OR nodes.kpath = 'NPP') GROUP BY id ORDER BY nodes.zip ASC}"
-  res: "Zena the wild CMS, Clean Water project, it's a lake, a wiki with Zena, bird, flower, Autumn Tree"
+  res: "Zena the wild CMS, Clean Water project, it's a lake, bird, flower, Autumn Tree"
 
 class_filter_with_quotes:
   src: "nodes where class = 'Project' and title = 'k' in site"

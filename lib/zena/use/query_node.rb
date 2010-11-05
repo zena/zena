@@ -154,10 +154,28 @@ module Zena
 
         # Overwrite this and take car to check for valid fields.
         def process_field(field_name)
-
           if fld = @query.attributes_alias[field_name]
             # use custom query alias value defined in select clause: 'custom_a AS validation'
             return processing_filter? ? "(#{fld})" : fld
+          elsif processing_filter? && field_name =~ /\A[A-Z]+_\w+\Z/
+            # scope_index
+            klass = @query.main_class.klass
+            if index_model = klass.kind_of?(VirtualClass) ? klass.scope_index : nil
+              index_model = Zena.resolve_const(index_model) rescue NilClass
+              if index_model < Zena::Use::ScopeIndex::IndexMethods && index_model.column_names.include?(field_name)
+                table_to_use = add_key_value_table('scope_index', index_model.table_name) do |tbl_name|
+                  # This block is only executed once
+                  add_filter "#{table('nodes')}.id = #{tbl_name}.node_id"
+                end
+                "#{table_to_use}.#{field_name}"
+              else
+                # invalid field_name: raise an error
+                raise ::QueryBuilder::SyntaxError.new("Unknown field '#{field_name}' in index #{index_model}.")
+              end
+            else
+              # no index model: raise an error
+              raise ::QueryBuilder::SyntaxError.new("Invalid field '#{field_name}' (no index_model for #{klass}).")
+            end
           elsif processing_filter? && map_def = self.class.filter_fields[field_name]
             # Special filter fields such as 'role', 'tag' or 'class'
             if map_def.kind_of?(String)

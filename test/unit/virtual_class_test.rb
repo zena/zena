@@ -6,7 +6,7 @@ class VirtualClassTest < Zena::Unit::TestCase
   def test_virtual_subclasse
     # add a sub class
     login(:lion)
-    vclass = VirtualClass.create(:superclass => 'Post', :name => 'Super', :create_group_id =>  groups_id(:public))
+    vclass = VirtualClass.create(:superclass => 'Post', :name => 'Super', :create_group_id => groups_id(:public))
     assert !vclass.new_record?
     assert_equal "NNPS", vclass.kpath
   end
@@ -42,7 +42,7 @@ class VirtualClassTest < Zena::Unit::TestCase
   def test_post_classes_for_form
     # add a sub class
     login(:lion)
-    vclass = VirtualClass.create(:superclass => 'Post', :name => 'Super', :create_group_id =>  groups_id(:public))
+    vclass = VirtualClass.create(:superclass => 'Post', :name => 'Super', :create_group_id => groups_id(:public))
     assert !vclass.new_record?
 
     login(:anon)
@@ -61,7 +61,7 @@ class VirtualClassTest < Zena::Unit::TestCase
   def test_post_classes_for_form_opt
     # add a sub class
     login(:lion)
-    vclass = VirtualClass.create(:superclass => 'Post', :name => 'Super', :create_group_id =>  groups_id(:public))
+    vclass = VirtualClass.create(:superclass => 'Post', :name => 'Super', :create_group_id => groups_id(:public))
     assert !vclass.new_record?
 
     login(:anon)
@@ -80,7 +80,7 @@ class VirtualClassTest < Zena::Unit::TestCase
   def test_post_classes_for_form_opt
     # add a sub class
     login(:lion)
-    vclass = VirtualClass.create(:superclass => 'Post', :name => 'Super', :create_group_id =>  groups_id(:public))
+    vclass = VirtualClass.create(:superclass => 'Post', :name => 'Super', :create_group_id => groups_id(:public))
     assert !vclass.new_record?
 
     login(:anon)
@@ -221,6 +221,41 @@ class VirtualClassTest < Zena::Unit::TestCase
     assert !roles(:Letter).auto_create_discussion
     assert roles(:Post).auto_create_discussion
   end
+
+  context 'Creating a virtual class' do
+    setup do
+      login(:lion)
+    end
+
+    context 'with a valid scope_index' do
+      subject do
+        {:name => 'Concert', :superclass => 'Project', :scope_index => 'IdxProject', :create_group_id => groups_id(:public) }
+      end
+
+      should 'create' do
+        assert_difference('VirtualClass.count', 1) do
+          VirtualClass.create(subject)
+        end
+      end
+    end # with a valid scope_index
+
+    context 'with an invalid scope_index' do
+      subject do
+        {:name => 'Concert', :superclass => 'Project', :scope_index => 'Page', :create_group_id => groups_id(:public) }
+      end
+
+      should 'not create' do
+        assert_difference('VirtualClass.count', 0) do
+          VirtualClass.create(subject)
+        end
+      end
+
+      should 'add errors to scope_index' do
+        vclass = VirtualClass.create(subject)
+        assert_equal 'invalid model (should include ScopeIndex::IndexMethods)', vclass.errors[:scope_index]
+      end
+    end # with a valid scope_index
+  end # Creating a virtual class
 
   context 'importing virtual class definitions' do
     setup do

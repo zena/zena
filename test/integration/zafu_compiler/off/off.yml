@@ -12,4 +12,4 @@ trans_show:
 
 node_path:
   src: "<r:context select='/projects/wiki'><r:link/></r:context>"
-  res: "<a href='/en/project29.html'>a wiki with Zena</a>"
+  res: "<a href='/en/blog29.html'>a wiki with Zena</a>"

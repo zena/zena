@@ -96,7 +96,7 @@ link_project:
     node: 'bird_jpg'
   src: "<r:link href='project'/>"
   tem: "<a href='<%= zen_path(@node.project) %>'><%= @node.prop['title'] %></a>"
-  res: "<a href='/oo/project29.html'>bird</a>"
+  res: "<a href='/oo/blog29.html'>bird</a>"
 
 link_root:
   src: "<r:link href='root'/>"

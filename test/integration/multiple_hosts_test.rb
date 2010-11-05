@@ -78,7 +78,7 @@ class MultipleHostsTest < ActionController::IntegrationTest
       if @node[:id] == @site.root_id
         name = []
       else
-        name = "#{@node.class.to_s.downcase}#{@node[:zip]}.html"
+        name = "#{@node.klass.downcase}#{@node[:zip]}.html"
       end
       prefix = (!request || session[:user] == @site.anon_id) ? 'en' : AUTHENTICATED_PREFIX
       url = "http://#{host}/#{prefix}/#{name}"

@@ -8,6 +8,7 @@ class VirtualClass < Role
   include Zena::Use::Relations::ClassMethods
   include Zena::Use::Fulltext::VirtualClassMethods
   include Zena::Use::PropEval::VirtualClassMethods
+  include Zena::Use::ScopeIndex::VirtualClassMethods
 
   # Import a hash of virtual class definitions and try to build the virtual classes.
   def self.import(data)
@@ -156,7 +157,6 @@ class VirtualClass < Role
       unless self[:real_class]
         errors.add('superclass', 'invalid')
       end
-
     end
 
     def get_real_class(klass)

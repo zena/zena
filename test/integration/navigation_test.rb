@@ -254,22 +254,22 @@ class NavigationTest < Zena::Integration::TestCase
   end
 
   def test_url_without_lang_redirect
-    get 'http://test.host/project29.html'
-    assert_redirected_to 'http://test.host/en/project29.html'
+    get 'http://test.host/blog29.html'
+    assert_redirected_to 'http://test.host/en/blog29.html'
     follow_redirect!
     assert_response :success
   end
 
   def test_url_without_lang_redirect_keeps_url_params
-    get 'http://test.host/project29.html?page=2'
-    assert_redirected_to 'http://test.host/en/project29.html?page=2'
+    get 'http://test.host/blog29.html?page=2'
+    assert_redirected_to 'http://test.host/en/blog29.html?page=2'
     follow_redirect!
     assert_response :success
   end
 
   def test_url_bad_class_redirect_keeps_url_params
     get 'http://test.host/en/page29.html?page=2'
-    assert_redirected_to 'http://test.host/en/project29.html?page=2'
+    assert_redirected_to 'http://test.host/en/blog29.html?page=2'
     follow_redirect!
     assert_response :success
   end
@@ -278,7 +278,7 @@ class NavigationTest < Zena::Integration::TestCase
     get 'http://test.host/29'
     assert_redirected_to 'http://test.host/en/29'
     follow_redirect!
-    assert_redirected_to 'http://test.host/en/project29.html'
+    assert_redirected_to 'http://test.host/en/blog29.html'
     follow_redirect!
     assert_response :success
   end
@@ -337,7 +337,7 @@ class NavigationTest < Zena::Integration::TestCase
   def test_show_with_mode
     get "http://test.host/en/section12_changes.html"
     assert_response :missing # people is not rendered with 'wiki' mode where 'changes' is defined.
-    get "http://test.host/en/project29_changes.html"
+    get "http://test.host/en/blog29_changes.html"
     assert_response :success
     get 'http://test.host/en/section12_index.html'
     assert_response :missing

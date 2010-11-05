@@ -1,15 +1,17 @@
 test:
   # Integration testing does not use 'port' settings so we must use 80...
-  asset_port: 80
-  tags:     ON
-  captcha:  ON
-  sphinx:   OFF
-  worker:   OFF
+  asset_port:  80
+  tags:        ON
+  captcha:     ON
+  sphinx:      OFF
+  worker:      OFF
+  scope_index: ON
 
 development:
   asset_port: 7999
   mongrel:   ON
   passenger: OFF
+  scope_index: ON
   pdf:
     switch: ON
     engine: prince

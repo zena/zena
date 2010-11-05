@@ -144,7 +144,7 @@ bananas:
 
 wiki:
   zip:             29
-  class:           Project
+  class:           Blog
   parent:          projects
   user:            lion
   inherit:         no

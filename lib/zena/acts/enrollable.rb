@@ -5,7 +5,7 @@ module Zena
         def self.included(base)
           class << base
             # Pseudo class name
-            attr_accessor :to_s
+            attr_accessor :to_s, :klass
           end
         end
       end
@@ -26,6 +26,7 @@ module Zena
 
         res_class.to_s  = klass.name
         res_class.kpath = klass.kpath
+        res_class.klass = klass
 
         res_class.load_roles!
         res_class

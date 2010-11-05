@@ -1,0 +1,18 @@
+default:
+  context:
+    node_name: '@node'
+    node: 'cleanWater'
+    visitor: 'ant'
+  src: "blogs where NPP_title = 'a wiki with Zena' in site"
+  sql: "%Q{SELECT nodes.* FROM idx_projects AS id1,nodes WHERE #{secure_scope('nodes')} AND id1.NPP_title = 'a wiki with Zena' AND nodes.id = id1.node_id AND nodes.kpath LIKE 'NPPB%' ORDER BY nodes.zip ASC}"
+  res: 'a wiki with Zena'
+
+many_keys:
+  src: "blogs where NPP_title = 'a wiki with Zena' and NNP_origin = 'foobar' in site"
+  sql: "%Q{SELECT nodes.* FROM idx_projects AS id1,nodes WHERE #{secure_scope('nodes')} AND id1.NPP_title = 'a wiki with Zena' AND id1.NNP_origin = 'foobar' AND nodes.id = id1.node_id AND nodes.kpath LIKE 'NPPB%' ORDER BY nodes.zip ASC}"
+  res: 'a wiki with Zena'
+
+or_keys:
+  src: "blogs where NPP_title = 'bad' or NNP_origin = 'foobar' in site"
+  sql: "%Q{SELECT nodes.* FROM idx_projects AS id1,nodes WHERE #{secure_scope('nodes')} AND ((id1.NPP_title = 'bad' AND nodes.id = id1.node_id) OR (id1.NNP_origin = 'foobar' AND nodes.id = id1.node_id)) AND nodes.kpath LIKE 'NPPB%' GROUP BY nodes.id ORDER BY nodes.zip ASC}"
+  res: 'a wiki with Zena'

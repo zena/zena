@@ -1010,6 +1010,7 @@ done: \"I am done\""
     assert_equal [
       ["Page", "Page"],
       ["  Project", "Project"],
+      ["    Blog", "Blog"],
       ["  Section", "Section"],
       ["    Skin", "Skin"],
       ["  Tag", "Tag"],
@@ -1021,6 +1022,7 @@ done: \"I am done\""
     assert_equal [
       ["Page", "Page"],
       ["  Project", "Project"],
+      ["    Blog", "Blog"],
       ["  Section", "Section"],
       ["    Skin", "Skin"],
       ["  Tag", "Tag"],
@@ -1030,7 +1032,7 @@ done: \"I am done\""
   def test_allowed_change_to_classes
     Node.get_class('Tag')
     node_changes = Node.allowed_change_to_classes.reject{|k| k[/Dummy/]} # In case we are testing after Secure
-    assert_equal %w{Node Note Letter Post Page Project Section Skin Tag Reference Contact}, node_changes
+    assert_equal %w{Node Note Letter Post Page Project Blog Section Skin Tag Reference Contact}, node_changes
 
     assert_equal node_changes, Page.allowed_change_to_classes.reject{|k| k[/Dummy/]}
     assert_equal node_changes, Project.allowed_change_to_classes.reject{|k| k[/Dummy/]}

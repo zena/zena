@@ -19,7 +19,8 @@
   <%= (
     Zena::Use::Fulltext::FULLTEXT_FIELDS.map {|fld| li.prop[fld].blank? ? nil : fld.gsub('idx_text_','')} +
     (li.prop_eval ? ['prop'] : []) +
-    (li.auto_create_discussion? ? [_('discussion')] : [])
+    (li.auto_create_discussion? ? [_('discussion')] : []) +
+    (li.)
     ).compact.join(', ') %>
   </td>
 <% else -%>

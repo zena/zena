@@ -222,6 +222,9 @@ class Node < ActiveRecord::Base
   # fulltext indices (must come after PropEval)
   include Zena::Use::Fulltext::ModelMethods
 
+  # model based indices
+  include Zena::Use::ScopeIndex::ModelMethods
+
   # List of version attributes that should be accessed as proxies 'v_lang', 'v_status', etc
   VERSION_ATTRIBUTES = %w{status lang publish_from backup}
 
