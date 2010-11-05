@@ -26,6 +26,8 @@ begin
     gemspec.version = Zena::VERSION
     gemspec.rubyforge_project = 'zena'
 
+    gemspec.files.exclude 'config/routes.rb'
+
     # Gem dependecies
     Zena.gem_configuration.each do |gem_name, gem_config|
       if gem_config
