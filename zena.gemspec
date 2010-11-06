@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2010-11-02}
+  s.date = %q{2010-11-06}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -50,7 +50,6 @@ Gem::Specification.new do |s|
      "app/helpers/documents_helper.rb",
      "app/helpers/nodes_helper.rb",
      "app/helpers/versions_helper.rb",
-     "app/models/book.rb",
      "app/models/cache.rb",
      "app/models/cached_page.rb",
      "app/models/comment.rb",
