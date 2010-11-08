@@ -15,14 +15,19 @@
   <table cellspacing='0' class='edit_virtual_class'>
     <tr><td class='label'><%= _('name')%>      </td><td><%= text_field('virtual_class', 'name',        :size=>15 ) %></td></tr>
     <tr>
-      <td class='label'><%= _('type')%>      </td>
-      <% if @virtual_class.new_record? %><td>
-        <%= select('virtual_class', 'type',  ['Class', 'Role'], :selected => 'Class' ) %></td>
-      <% else -%>
-      <td><%= @virtual_class.kind_of?(VirtualClass) ? 'Class' : 'Role' %></td>
-      <% end -%>
+      <td class='label'><%= _('type') %></td>
+      <td>
+        <% if @virtual_class.new_record? %>
+          <%= select('virtual_class', 'type',  ['Class', 'Role'], :selected => 'Class' ) %>
+        <% else -%>
+          <%= @virtual_class.kind_of?(VirtualClass) ? 'Class' : 'Role' %>
+        <% end -%>
+      </td>
     </tr>
-
+    <tr>
+      <td class='label'><%= _('kpath') %></td>
+      <td><b><%= @virtual_class.kpath %></b><td>
+    </tr>
     <tr><td class='label'><%= _('superclass')%></td><td><%= select('virtual_class', 'superclass',  Node.classes_for_form(:without => ((@virtual_class.new_record? || @virtual_class.kind_of?(Role)) ? nil : @virtual_class.to_s)), :selected => @virtual_class.superclass.to_s ) %></td></tr>
 
 <% if @virtual_class.kind_of?(VirtualClass) -%>

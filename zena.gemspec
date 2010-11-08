@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2010-10-18}
+  s.date = %q{2010-11-08}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -53,7 +53,6 @@ Gem::Specification.new do |s|
      "app/helpers/users_helper.rb",
      "app/helpers/versions_helper.rb",
      "app/models/attachment.rb",
-     "app/models/book.rb",
      "app/models/cache.rb",
      "app/models/cached_page.rb",
      "app/models/column.rb",
@@ -66,6 +65,7 @@ Gem::Specification.new do |s|
      "app/models/group.rb",
      "app/models/idx_nodes_ml_string.rb",
      "app/models/idx_nodes_string.rb",
+     "app/models/idx_project.rb",
      "app/models/idx_template.rb",
      "app/models/iformat.rb",
      "app/models/image.rb",
@@ -326,7 +326,6 @@ Gem::Specification.new do |s|
      "config/initializers/mime_types.rb",
      "config/initializers/zena.rb",
      "config/mongrel_upload_progress.conf",
-     "config/routes.rb",
      "config/sphinx.yml",
      "db/20100628074512_zena0x_to1x.rb",
      "db/init/base/help.en.zml",
@@ -440,6 +439,7 @@ Gem::Specification.new do |s|
      "db/migrate/20100929143111_remove_node_name.rb",
      "db/migrate/20101006090454_store_properties_in_long_text.rb",
      "db/migrate/20101014185753_remove_user_prototype_id.rb",
+     "db/migrate/20101101084318_create_scope_index.rb",
      "doc/README_FOR_APP",
      "doc/fixtures.graffle",
      "doc/fixtures.pdf",
@@ -560,6 +560,7 @@ Gem::Specification.new do |s|
      "lib/zena/use/refactor.rb",
      "lib/zena/use/relations.rb",
      "lib/zena/use/rendering.rb",
+     "lib/zena/use/scope_index.rb",
      "lib/zena/use/search.rb",
      "lib/zena/use/test_helper.rb",
      "lib/zena/use/upload.rb",
@@ -1801,6 +1802,7 @@ Gem::Specification.new do |s|
      "test/integration/query_node/filters.yml",
      "test/integration/query_node/properties.yml",
      "test/integration/query_node/relations.yml",
+     "test/integration/query_node/scope_index.yml",
      "test/integration/query_node_test.rb",
      "test/integration/xml_api_test.rb",
      "test/integration/zafu_compiler/action.yml",
@@ -1858,6 +1860,7 @@ Gem::Specification.new do |s|
      "test/sites/zena/data_entries.yml",
      "test/sites/zena/discussions.yml",
      "test/sites/zena/groups.yml",
+     "test/sites/zena/idx_projects.yml",
      "test/sites/zena/iformats.yml",
      "test/sites/zena/links.yml",
      "test/sites/zena/nodes.yml",
@@ -1937,6 +1940,7 @@ Gem::Specification.new do |s|
      "test/unit/zena/use/query_node_test.rb",
      "test/unit/zena/use/refactor_test.rb",
      "test/unit/zena/use/rendering_test.rb",
+     "test/unit/zena/use/scope_index_test.rb",
      "test/unit/zena/use/upload_test.rb",
      "test/unit/zena/use/urls_test.rb",
      "test/unit/zena/use/version_hash_test.rb",
@@ -2076,7 +2080,7 @@ Gem::Specification.new do |s|
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{zena}
-  s.rubygems_version = %q{1.3.6}
+  s.rubygems_version = %q{1.3.7}
   s.summary = %q{CMS with super natural powers, based on Ruby on Rails}
   s.test_files = [
     "spec/controllers/versions_controller_spec.rb",
@@ -2174,6 +2178,7 @@ Gem::Specification.new do |s|
      "test/unit/zena/use/query_node_test.rb",
      "test/unit/zena/use/refactor_test.rb",
      "test/unit/zena/use/rendering_test.rb",
+     "test/unit/zena/use/scope_index_test.rb",
      "test/unit/zena/use/upload_test.rb",
      "test/unit/zena/use/urls_test.rb",
      "test/unit/zena/use/version_hash_test.rb",
@@ -2186,7 +2191,7 @@ Gem::Specification.new do |s|
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
 
-    if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
+    if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
       s.add_runtime_dependency(%q<tzinfo>, [">= 0.3.12"])
       s.add_runtime_dependency(%q<rails>, ["= 2.3.8"])

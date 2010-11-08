@@ -7,9 +7,10 @@
 <% else -%>
 <tr id='virtual_class<%= li[:id] %>'>
   <td class="adm_icon"><%= (li.new_record? || !li.errors.empty?) ? _('virtual_class_error_img') : link_to_remote( !li.icon.blank? ? "<img src='#{li.icon}'/>" : _('virtual_class_img'),
-          :update =>"virtual_class#{li[:id]}",
+        { :update => "virtual_class#{li[:id]}",
           :url    => edit_virtual_class_path(li),
-          :method => :get) %></td>
+          :method => :get},
+        { :title  => li.kpath}) %></td>
 <% if li.kind_of?(VirtualClass) -%>
   <td class='ruby'>
     <span class='spacer'><%= li.kpath[1..-1].gsub(/./, '| ') %>+ </span>
