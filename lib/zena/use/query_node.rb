@@ -158,9 +158,9 @@ module Zena
             # use custom query alias value defined in select clause: 'custom_a AS validation'
             return processing_filter? ? "(#{fld})" : fld
           elsif processing_filter? && field_name =~ /\A[A-Z]+_\w+\Z/
-            # scope_index
+            # scope index
             klass = @query.main_class.klass
-            if index_model = klass.kind_of?(VirtualClass) ? klass.scope_index : nil
+            if index_model = klass.kind_of?(VirtualClass) ? klass.idx_class : nil
               index_model = Zena.resolve_const(index_model) rescue NilClass
               if index_model < Zena::Use::ScopeIndex::IndexMethods && index_model.column_names.include?(field_name)
                 table_to_use = add_key_value_table('scope_index', index_model.table_name) do |tbl_name|
@@ -288,9 +288,51 @@ module Zena
           end
         end
 
+        def resolve_scope_idx_fields(arg1, arg2)
+          if arg1.first == :function
+            # contact.log_at.year
+            # arg1 = [:function, [:field, "tag"], [:method, "created_at"]]
+            # arg2 = [:method, "year"]
+            class_name = arg1[1][1]
+            field_name = arg1[2][1]
+            function  = arg2
+          elsif arg1[0] == :field && arg2[0] == :method
+            # contact.log_at  or  log_at.year
+            # arg1 = [:field, "contact"]
+            # arg2 = [:method, "name"]
+            class_or_field    = arg1[1]
+            field_or_function = arg2[1]
+            if @query.main_class.schema.columns[class_or_field]
+              # log_at.year
+              return [arg1, arg2]
+            else
+              class_name = class_or_field
+              field_name = field_or_function
+              function   = nil
+            end
+          else
+            return [arg1, arg2]
+          end
+            
+          if klass = Node.get_class(class_name.camelize)
+            return [[:field, "#{klass.kpath}_#{field_name}"], function]
+          elsif function
+            # function in function
+            return [arg1, arg2]
+          else
+            raise ::QueryBuilder::SyntaxError.new("Unknown class '#{class_name.camelize}'.")
+          end
+        end
+
         def process_function(arg, method)
-          arg, method = process(arg), process(method)
-          Zena::Db.sql_function(method, arg)
+          # Resolve scope index fields
+          arg, method = resolve_scope_idx_fields(arg, method)
+          if method
+            arg, method = process(arg), process(method)
+            Zena::Db.sql_function(method, arg)
+          else
+            process(arg)
+          end
         end
 
         # ******** And maybe overwrite these **********

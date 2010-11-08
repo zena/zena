@@ -7,12 +7,20 @@ default:
   sql: "%Q{SELECT nodes.* FROM idx_projects AS sc1,nodes WHERE #{secure_scope('nodes')} AND sc1.NPP_title = 'a wiki with Zena' AND nodes.id = sc1.node_id AND nodes.kpath LIKE 'NPPB%' ORDER BY nodes.zip ASC}"
   res: 'a wiki with Zena'
 
+get_kpath_from_class:  
+  src: "blogs where contact.name = 'xx' in site"
+  sql: "%Q{SELECT nodes.* FROM idx_projects AS sc1,nodes WHERE #{secure_scope('nodes')} AND sc1.NRC_name = 'xx' AND nodes.id = sc1.node_id AND nodes.kpath LIKE 'NPPB%' ORDER BY nodes.zip ASC}"
+
+get_kpath_from_class_with_function:  
+  src: "blogs where tag.created_at.year = 'xx' in site"
+  sql: "%Q{SELECT nodes.* FROM idx_projects AS sc1,nodes WHERE #{secure_scope('nodes')} AND year(sc1.NPT_created_at) = 'xx' AND nodes.id = sc1.node_id AND nodes.kpath LIKE 'NPPB%' ORDER BY nodes.zip ASC}"
+  
 many_keys:
-  src: "blogs where NPP_title = 'a wiki with Zena' and NNP_origin = 'foobar' in site"
-  sql: "%Q{SELECT nodes.* FROM idx_projects AS sc1,nodes WHERE #{secure_scope('nodes')} AND sc1.NPP_title = 'a wiki with Zena' AND sc1.NNP_origin = 'foobar' AND nodes.id = sc1.node_id AND nodes.kpath LIKE 'NPPB%' ORDER BY nodes.zip ASC}"
+  src: "blogs where project.title = 'a wiki with Zena' and contact.name = 'foobar' in site"
+  sql: "%Q{SELECT nodes.* FROM idx_projects AS sc1,nodes WHERE #{secure_scope('nodes')} AND sc1.NPP_title = 'a wiki with Zena' AND sc1.NRC_name = 'foobar' AND nodes.id = sc1.node_id AND nodes.kpath LIKE 'NPPB%' ORDER BY nodes.zip ASC}"
   res: 'a wiki with Zena'
 
 or_keys:
-  src: "blogs where NPP_title = 'bad' or NNP_origin = 'foobar' in site"
-  sql: "%Q{SELECT nodes.* FROM idx_projects AS sc1,nodes WHERE #{secure_scope('nodes')} AND ((sc1.NPP_title = 'bad' AND nodes.id = sc1.node_id) OR (sc1.NNP_origin = 'foobar' AND nodes.id = sc1.node_id)) AND nodes.kpath LIKE 'NPPB%' GROUP BY nodes.id ORDER BY nodes.zip ASC}"
+  src: "blogs where project.title = 'bad' or contact.name = 'foobar' in site"
+  sql: "%Q{SELECT nodes.* FROM idx_projects AS sc1,nodes WHERE #{secure_scope('nodes')} AND ((sc1.NPP_title = 'bad' AND nodes.id = sc1.node_id) OR (sc1.NRC_name = 'foobar' AND nodes.id = sc1.node_id)) AND nodes.kpath LIKE 'NPPB%' GROUP BY nodes.id ORDER BY nodes.zip ASC}"
   res: 'a wiki with Zena'
