@@ -164,10 +164,16 @@ class ScopeIndexTest < Zena::Unit::TestCase
       Zena::Acts::Enrollable.make_class(roles(:Blog))
     end
 
-    should 'return model class' do
+    should 'return model class on scope_index' do
       code = RubyLess.translate(subject, 'scope_index')
       assert_equal 'scope_index', code.to_s
       assert_equal IdxProject, code.klass
+    end
+    
+    should 'allow index access on scope_index object' do
+      code = RubyLess.translate(subject, 'scope_index.NNP_title')
+      assert_equal '(scope_index ? scope_index.NNP_title : nil)', code.to_s
+      assert_equal String, code.klass
     end
   end # Using RubyLess with an indexed model
 

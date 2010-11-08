@@ -46,23 +46,27 @@ module Zena
       module IndexMethods
         def self.included(base)
           AVAILABLE_MODELS << base
+          
           class << base
             attr_accessor :groups
           end
-
+          
+          base.class_eval do
+            include RubyLess
+            extend IndexClassMethods
+            before_validation     :set_site_id
+            validates_presence_of :node_id
+          end
+          
           groups = base.groups = {}
-
           base.column_names.each do |name|
             next if %{created_at updated_at id node_id}.include?(name)
             if name =~ %r{\A([A-Z]+)_(.+)\Z}
               (groups[$1] ||= []) << $2
+              unless $2 == 'id'
+                base.safe_attribute name
+              end
             end
-          end
-
-          base.class_eval do
-            extend IndexClassMethods
-            before_validation     :set_site_id
-            validates_presence_of :node_id
           end
         end
 
