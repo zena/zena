@@ -37,7 +37,7 @@ module Zena
       if klass.kind_of?(String)
         constant = nil
         # Foo.const_get('Bar') is not guaranteed to find/load Foo::Bar, it can return just Bar.
-        eval "::#{klass}"
+        eval "::#{klass.gsub(/[^a-zA-Z\:]/, '')}"
       else
         klass
       end

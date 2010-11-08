@@ -419,9 +419,11 @@ module Zena
           def context_relation(relation)
             # Not sure we need all these anymore...
             case relation
-            #when 'self'
-            #  # Dummy context
-            #  fields = ['id', 'id']
+            when 'self'
+              # Special pseudo-context
+              add_table(main_table)
+              add_filter "#{field_or_attr('id')} = #{field_or_attr('id', table(main_table, -1))}"
+              return true
             #when 'parent', 'project', 'section'
             #  # Core contexts
             #  fields = ['id', "#{relation}_id"]

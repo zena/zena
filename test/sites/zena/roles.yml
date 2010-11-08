@@ -24,6 +24,7 @@ Reference:
 Contact:
   kpath:           NRC
   real_class:      Node
+  idx_scope:       references or project
   prop:
     prop_eval:     "{'title' => \"#{first_name} #{name}\"}"
 
@@ -35,6 +36,7 @@ Tracker:
 Tag:
   kpath:           NPT
   real_class:      Page
+  idx_scope:       project
 
 Task:
   kpath:           N
@@ -47,4 +49,5 @@ Original:
 Blog:
   kpath:           NPPB
   real_class:      Project
-  scope_index:     IdxProject
+  idx_class:       IdxProject
+  idx_scope:       self

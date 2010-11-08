@@ -21,7 +21,7 @@
     Zena::Use::Fulltext::FULLTEXT_FIELDS.map {|fld| li.prop[fld].blank? ? nil : fld.gsub('idx_text_','')} +
     (li.prop_eval ? [_('prop')] : []) +
     (li.auto_create_discussion? ? [_('discussion')] : []) +
-    (li.scope_index ? [_('scope_index')] : [])
+    (li.idx_class ? [li.idx_class] : [])
     ).compact.join(', ') %>
   </td>
 <% else -%>

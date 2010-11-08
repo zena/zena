@@ -9,27 +9,46 @@ module Zena
 
       module VirtualClassMethods
         def self.included(base)
-          base.validate :valid_scope_index
-          base.attr_accessible :scope_index
+          base.validate :validate_idx_class, :validate_idx_scope
+          base.attr_accessible :idx_class
+          base.attr_accessible :idx_scope
         end
 
         protected
-          def valid_scope_index
-            self[:scope_index] = nil if self[:scope_index].blank?
+          def validate_idx_class
+            self[:idx_class] = nil if self[:idx_class].blank?
 
-            if model_name = self[:scope_index]
+            if model_name = self[:idx_class]
               if model_name =~ /\A[A-Z][a-zA-Z]+\Z/
                 if klass = Zena.const_get(model_name) rescue NilClass
                   if klass < Zena::Use::ScopeIndex::IndexMethods
                     # ok
                   else
-                    errors.add('scope_index', 'invalid model (should include ScopeIndex::IndexMethods)')
+                    errors.add('idx_class', 'invalid class (should include ScopeIndex::IndexMethods)')
                   end
                 else
-                  errors.add('scope_index', 'invalid model')
+                  errors.add('idx_class', 'invalid class')
                 end
               else
-                errors.add('scope_index', 'invalid model name')
+                errors.add('idx_class', 'invalid class name')
+              end
+            end
+          end
+
+          def validate_idx_scope
+            self[:idx_scope] = nil if self[:idx_scope].blank?
+
+            if pseudo_sql = self[:idx_scope]
+              # Try to compile query in instance of class self
+              begin
+                klass = Zena::Acts::Enrollable.make_class(self)
+                query = real_class.build_query(:all, pseudo_sql,
+                  :node_name       => 'self',
+                  :main_class      => klass,
+                  :rubyless_helper => klass
+                )
+              rescue ::QueryBuilder::Error => err
+                errors.add('idx_scope', "Invalid query: #{err.message}")
               end
             end
           end
@@ -46,18 +65,18 @@ module Zena
       module IndexMethods
         def self.included(base)
           AVAILABLE_MODELS << base
-          
+
           class << base
             attr_accessor :groups
           end
-          
+
           base.class_eval do
             include RubyLess
             extend IndexClassMethods
             before_validation     :set_site_id
             validates_presence_of :node_id
           end
-          
+
           groups = base.groups = {}
           base.column_names.each do |name|
             next if %{created_at updated_at id node_id}.include?(name)
@@ -99,23 +118,17 @@ module Zena
 
       module ModelMethods
         def self.included(base)
-          if Bricks::CONFIG['scope_index']
-            base.after_save :update_model_indices
-            base.safe_context :scope_index => scope_index_proc
-          end
+          base.after_save :update_scope_indices
+          base.safe_context :scope_index => scope_index_proc
         end
 
         def self.scope_index_proc
           Proc.new do |helper, signature|
-            if helper < Project || helper < Section
-              vclass = helper.klass
-              if vclass && vclass.scope_index && klass = Zena.resolve_const(vclass.scope_index)
-                {:method => 'scope_index', :nil => true, :class => klass}
-              else
-                raise RubyLess::NoMethodError.new(helper, helper, signature)
-              end
+            vclass = helper.klass
+            if vclass && vclass.idx_class && klass = Zena.resolve_const(vclass.idx_class)
+              {:method => 'scope_index', :nil => true, :class => klass}
             else
-              raise RubyLess::Error.new("#{helper} is not a Project or Section: cannot have a scope_index.")
+              raise RubyLess::NoMethodError.new(helper, helper, signature)
             end
           end
         end
@@ -124,9 +137,11 @@ module Zena
         def scope_index
           @scope_index ||= begin
             vclass = virtual_class
-            if vclass && klass = vclass.scope_index
-              if klass = Zena.const_get(klass.gsub(/[^a-zA-Z]/, ''))
-                klass.find(:first, :conditions => {:node_id => self.id, :site_id => current_site.id})
+            if vclass && klass = vclass.idx_class
+              if klass = Zena.resolve_const(klass)
+                klass.find(:first, :conditions => {:node_id => self.id, :site_id => current_site.id}) || klass.new(:node_id => self.id)
+              else
+                nil
               end
             else
               nil
@@ -136,30 +151,24 @@ module Zena
 
         protected
           # Update scope indices (project/section).
-          def update_model_indices
+          def update_scope_indices
             return unless version.status == Zena::Status[:pub]
-            if kind_of?(Project) || kind_of?(Section)
-              update_model_indices_for(self.id, force_create = true)
-            else
-              update_model_indices_for(self.project_id)
-              update_model_indices_for(self.section_id)
-            end
-          end
+            if virtual_class && query = virtual_class.idx_scope
+              if query.strip == 'self'
+                models_to_update = [self]
+              else
+                models_to_update = find(:all, query)
+              end
 
-          # Update Project/Section index inside the sub-nodes.
-          def update_model_indices_for(model_id, force_create = false)
-            if vclass = VirtualClass.find(:first,
-                :joins => ["INNER JOIN nodes ON nodes.vclass_id = roles.id AND nodes.id = #{model_id}"]
-              )
-              if model_name = vclass.scope_index
-                klass = Zena.const_get(model_name.gsub(/[^a-zA-Z]/, ''))
-                unless scope_index = klass.find(:first, :conditions => ['node_id = ?', model_id])
-                  scope_index = klass.new(:node_id => model_id)
+              models_to_update.each do |m|
+                if idx_model = m.scope_index
+                  # force creation of index record
+                  idx_model.update_with(self, true)
                 end
-                @scope_index = scope_index
-                scope_index.update_with(self, force_create)
               end
             end
+          # rescue QueryBuilder::Error
+            # ignore
           end
       end # ModelMethods
     end # ScopeIndex

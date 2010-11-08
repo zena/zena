@@ -90,6 +90,9 @@ find_relation:
 root:
   res: "Zena the wild CMS"
 
+self:
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.id = ? ORDER BY nodes.zip ASC}, @node.id]"
+
 children_with_order_clause:
   src: "children order by position ASC"
   sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.parent_id = ? ORDER BY nodes.position ASC}, @node.id]"

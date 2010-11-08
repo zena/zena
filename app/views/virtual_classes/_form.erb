@@ -38,9 +38,8 @@
 
     <tr><td class='label'><%= _('create group')%></td><td><%= select('virtual_class', 'create_group_id',  visitor.all_groups.map{|g| [g.name, g.id]} ) %></td></tr>
     <tr><td class='label'><%= _('auto create discussion')%></td><td><%= check_box('virtual_class', 'auto_create_discussion') %></td></tr>
-<% if Bricks::CONFIG['scope_index'] && (@virtual_class.new_record? || @virtual_class.real_class <= Section || @virtual_class.real_class <= Project) -%>
-    <tr><td class='label'><%= _('scope_index')%></td><td><%= select('virtual_class', 'scope_index', Zena::Use::ScopeIndex.models_for_form) %></td></tr>
-<% end -%>
+    <tr><td class='label'><%= _('scope index')%></td><td><%= select('virtual_class', 'idx_class', Zena::Use::ScopeIndex.models_for_form) %></td></tr>
+    <tr><td class='label'><%= _('indices to update')%></td><td><%= text_area('virtual_class', 'idx_scope', :rows => 2, :cols => 30) %></td></tr>
 <% end -%>
     <tr><td class='label'><%= _('icon')%>      </td><td><%= text_field('virtual_class', 'icon',        :size=>15 ) %></td></tr>
     <tr><td colspan='2'><p class='btn_validate'><input type='submit' value='<%= _('validate') %>'/></p></td></tr>
