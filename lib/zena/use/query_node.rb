@@ -313,14 +313,12 @@ module Zena
           else
             return [arg1, arg2]
           end
-            
-          if klass = Node.get_class(class_name.camelize)
+          
+          if klass = Node.get_class(class_name.camelize) rescue nil
             return [[:field, "#{klass.kpath}_#{field_name}"], function]
-          elsif function
-            # function in function
-            return [arg1, arg2]
           else
-            raise ::QueryBuilder::SyntaxError.new("Unknown class '#{class_name.camelize}'.")
+            # not a scope index field
+            return [arg1, arg2]
           end
         end
 

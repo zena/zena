@@ -33,13 +33,13 @@
 <% if @virtual_class.kind_of?(VirtualClass) -%>
 <% Zena::Use::Fulltext::FULLTEXT_FIELDS.reverse_each do |fld| -%>
     <tr><td class='label'><%= _(fld)%></td><td><%= text_area('virtual_class', fld, :rows => 2, :cols => 30) %></td></tr>
-<% end -%>
+<% end -%>    
+    <tr><td class='label'><%= _('idx_class')%></td><td><%= select('virtual_class', 'idx_class', Zena::Use::ScopeIndex.models_for_form) %></td></tr>
+    <tr><td class='label'><%= _('idx_scope')%></td><td><%= text_area('virtual_class', 'idx_scope', :rows => 2, :cols => 30) %></td></tr>
     <tr><td class='label'><%= _('prop eval')%></td><td><%= text_area('virtual_class', 'prop_eval', :rows => 2, :cols => 30) %></td></tr>
 
     <tr><td class='label'><%= _('create group')%></td><td><%= select('virtual_class', 'create_group_id',  visitor.all_groups.map{|g| [g.name, g.id]} ) %></td></tr>
     <tr><td class='label'><%= _('auto create discussion')%></td><td><%= check_box('virtual_class', 'auto_create_discussion') %></td></tr>
-    <tr><td class='label'><%= _('scope index')%></td><td><%= select('virtual_class', 'idx_class', Zena::Use::ScopeIndex.models_for_form) %></td></tr>
-    <tr><td class='label'><%= _('indices to update')%></td><td><%= text_area('virtual_class', 'idx_scope', :rows => 2, :cols => 30) %></td></tr>
 <% end -%>
     <tr><td class='label'><%= _('icon')%>      </td><td><%= text_field('virtual_class', 'icon',        :size=>15 ) %></td></tr>
     <tr><td colspan='2'><p class='btn_validate'><input type='submit' value='<%= _('validate') %>'/></p></td></tr>

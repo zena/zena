@@ -125,7 +125,7 @@ module Zena
         def self.scope_index_proc
           Proc.new do |helper, signature|
             vclass = helper.klass
-            if vclass && vclass.idx_class && klass = Zena.resolve_const(vclass.idx_class)
+            if vclass && vclass.idx_class && klass = Zena.resolve_const(vclass.idx_class) rescue nil
               {:method => 'scope_index', :nil => true, :class => klass}
             else
               raise RubyLess::NoMethodError.new(helper, helper, signature)
@@ -138,7 +138,7 @@ module Zena
           @scope_index ||= begin
             vclass = virtual_class
             if vclass && klass = vclass.idx_class
-              if klass = Zena.resolve_const(klass)
+              if klass = Zena.resolve_const(klass) rescue nil
                 klass.find(:first, :conditions => {:node_id => self.id, :site_id => current_site.id}) || klass.new(:node_id => self.id)
               else
                 nil
