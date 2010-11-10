@@ -2,8 +2,11 @@ class Column < ActiveRecord::Base
   attr_accessor :import_result
   include RubyLess
   include Property::StoredColumn
-  TYPES_FOR_FORM   = %w{string datetime integer}
-  INDICES_FOR_FORM = %w{string ml_string}
+  TYPES_FOR_FORM   = %w{string datetime float}
+
+  INDICES_FOR_FORM = %w{string ml_string datetime float}
+
+  FIELD_INDICES = []
 
   belongs_to :role
   before_validation :set_defaults
@@ -24,6 +27,22 @@ class Column < ActiveRecord::Base
         end
       else
         []
+      end
+    end
+
+    def indices_for_form
+      [
+        ['key/value',
+          INDICES_FOR_FORM.map {|i| [i, i]}],
+        ['field',
+          FIELD_INDICES.map {|i| [i, ".#{i}"]}]
+      ]
+    end
+
+    # Declare a new index table or field
+    def add_field_index(*args)
+      args.flatten.each do |idx|
+        FIELD_INDICES << idx
       end
     end
 
@@ -79,6 +98,11 @@ class Column < ActiveRecord::Base
 
   def kpath
     @kpath ||= role.kpath
+  end
+
+  # Used to display index name in forms
+  def index_name
+    self.index.to_s.gsub(/\A\./,'')
   end
 
   protected

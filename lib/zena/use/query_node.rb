@@ -224,6 +224,9 @@ module Zena
             if column && column.indexed?
               if column.index == true
                 group_name = column.type
+              elsif column.index =~ Property::Index::FIELD_INDEX_REGEXP
+                # field in nodes
+                return "#{table}.#{$1}"
               else
                 group_name = column.index
               end
@@ -313,7 +316,7 @@ module Zena
           else
             return [arg1, arg2]
           end
-          
+
           if klass = Node.get_class(class_name.camelize) rescue nil
             return [[:field, "#{klass.kpath}_#{field_name}"], function]
           else
@@ -499,7 +502,7 @@ module Zena
                 true
               elsif role = Node.get_role(relation)
                 klass = Zena::Acts::Enrollable.make_class(@query.main_class)
-                klass.has_role role
+                klass.include_role role
                 set_main_class(klass)
 
                 add_table(main_table)

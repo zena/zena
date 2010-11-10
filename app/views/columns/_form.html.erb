@@ -23,7 +23,7 @@
       <td><span class='constant'><%= select('column', 'role_id', Column.roles_for_form  ) %></span></td>
       <td><span class='text'><%= select('column', 'ptype',   Column::TYPES_FOR_FORM ) %></span></td>
       <td><%= text_field('column', 'name',  :size=>15 ) %></td>
-      <td><span class='text'><%= select('column', 'index',   Column::INDICES_FOR_FORM, :include_blank => true ) %></span></td>
+      <td><span class='text'><%= select_tag "column[index]", grouped_options_for_select(Column.indices_for_form, @column.index, '') %></span></td>
     </tr>
     <tr><td colspan='4'><p class='btn_validate'><input type='submit' value='<%= _('validate') %>'/></p></td></tr>
   </table>

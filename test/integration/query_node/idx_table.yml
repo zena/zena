@@ -6,6 +6,8 @@ default:
   src: "blogs where NPP_title = 'a wiki with Zena' in site"
   sql: "%Q{SELECT nodes.* FROM idx_projects AS sc1,nodes WHERE #{secure_scope('nodes')} AND sc1.NPP_title = 'a wiki with Zena' AND nodes.id = sc1.node_id AND nodes.kpath LIKE 'NPPB%' ORDER BY nodes.zip ASC}"
   res: 'a wiki with Zena'
+  
+# CUSTOM TABLE BASED INDEX
 
 get_kpath_from_class:  
   src: "blogs where contact.name = 'xx' in site"
@@ -24,3 +26,4 @@ or_keys:
   src: "blogs where project.title = 'bad' or contact.name = 'foobar' in site"
   sql: "%Q{SELECT nodes.* FROM idx_projects AS sc1,nodes WHERE #{secure_scope('nodes')} AND ((sc1.NPP_title = 'bad' AND nodes.id = sc1.node_id) OR (sc1.NRC_name = 'foobar' AND nodes.id = sc1.node_id)) AND nodes.kpath LIKE 'NPPB%' GROUP BY nodes.id ORDER BY nodes.zip ASC}"
   res: 'a wiki with Zena'
+  

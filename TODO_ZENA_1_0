@@ -7,4 +7,6 @@ TODO
 3. Rename virtual_classes_controller to roles_controller
 4. kill node_name
 
-10. secure XML API (get cookie: do not send login each time)
+5. secure XML API (get cookie: do not send login each time)
+6. index log_at/event_at/custom_a/custom_b with idx_datetime1, ...
+7. move values from log_at/event_at/custom_a/custom_b in properties

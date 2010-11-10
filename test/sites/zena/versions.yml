@@ -163,6 +163,7 @@ proposition_en:
   created_at:      2008-08-10
   prop:
     title:         Proposition
+    date:          2006-04-05
 
 proposition_rep_en:
   node:            proposition

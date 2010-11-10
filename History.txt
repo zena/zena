@@ -3,6 +3,9 @@
 * major changes
  * Removed BaseContact and Reference classes.
  * Removed super user (not needed anymore).
+ * Upgraded to Property 2.0 (should resolve memory leak)
+ * Added support for Scoped indices.
+ * Added support for field indices.
 
 == 1.0.0.beta3 2010-09-17
 

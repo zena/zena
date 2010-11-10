@@ -117,6 +117,9 @@ class Node < ActiveRecord::Base
 
   # This is used to enable multilingual indexes
   include Zena::Use::MLIndex::ModelMethods
+  
+  # Must come after Property
+  include Zena::Use::FieldIndex::ModelMethods
 
   include RubyLess
 
@@ -547,7 +550,7 @@ class Node < ActiveRecord::Base
       attributes = transform ? transform_attributes(new_attributes) : new_attributes
 
       klass_name = attributes.delete('class') || attributes.delete('klass') || 'Page'
-      unless klass = get_class(klass_name, :create => true)
+      unless klass = klass_name.kind_of?(Class) ? klass_name : get_class(klass_name, :create => true)
         node = Node.new
         node.instance_eval { @attributes = attributes }
         node.errors.add('klass', 'invalid')
@@ -1072,13 +1075,12 @@ class Node < ActiveRecord::Base
 
   # Create a child and let him inherit from rwp groups and section_id
   def new_child(opts={})
-    klass = opts.delete(:class) || Page
-    c = klass.new(opts)
+    c = Node.new_node(opts)
     c.parent_id  = self[:id]
     c.instance_variable_set(:@parent, self)
 
     c.visitor    = visitor
-
+    
     c.inherit = 1
     c.rgroup_id  = self.rgroup_id
     c.wgroup_id  = self.wgroup_id

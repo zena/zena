@@ -688,7 +688,7 @@ END:VCALENDAR
 
   def test_search_klass
     login(:anon)
-    get 'search', 'class' => 'Project', 'title' => 'a wiki with Zena'
+    get 'search', 'class' => 'Blog', 'title' => 'a wiki with Zena'
     assert nodes = assigns(:nodes)
     assert_equal [nodes_id(:wiki)], nodes.map {|r| r.id}
   end

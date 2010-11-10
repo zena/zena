@@ -120,6 +120,7 @@ module Zena
         def self.included(base)
           base.after_save :update_scope_indices
           base.safe_context :scope_index => scope_index_proc
+          base.alias_method_chain :rebuild_index!, :scope_index
         end
 
         def self.scope_index_proc
@@ -131,6 +132,12 @@ module Zena
               raise RubyLess::NoMethodError.new(helper, helper, signature)
             end
           end
+        end
+
+        # FIXME: test !
+        def rebuild_index_with_scope_index!
+          rebuild_index_without_scope_index!
+          update_scope_indices
         end
 
         # Access the index model inside the Project or Section.
@@ -157,7 +164,7 @@ module Zena
               if query.strip == 'self'
                 models_to_update = [self]
               else
-                models_to_update = find(:all, query)
+                models_to_update = find(:all, query) || []
               end
 
               models_to_update.each do |m|

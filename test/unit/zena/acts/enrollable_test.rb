@@ -175,10 +175,16 @@ class EnrollableTest < Zena::Unit::TestCase
             end
 
             should 'rebuild property index on rebuild_index' do
-              # Make sure that load_roles! is called before index rebuild
+              # Makes sure that load_roles! is called before index rebuilt
               assert_difference('IdxNodesString.count', 1) do
+                # New key = paper
                 subject.rebuild_index!
               end
+              
+              indices = Hash[*IdxNodesString.find(:all, :conditions => {:node_id => subject.id}).map {|r| [r.key, r.value]}.flatten]
+              assert_equal Hash[
+                'search_mono'=>'Kraft mono',
+                'paper'=>'Kraft'], indices
             end
           end # with new property index defined in role
         end # with roles assigned

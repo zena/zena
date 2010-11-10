@@ -63,6 +63,8 @@ module Zena
         end
 
         # Load all possible roles for the current class or instance.
+        # FIXME: optimization: this could be as simple as @own_schema = VirtualClass[kpath].schema
+        #        if the VirtualClass[] returns a fully loaded vclass with all Roles.
         def load_roles!
           return if @roles_loaded
           load_roles(all_possible_roles)
@@ -72,7 +74,7 @@ module Zena
         def load_roles(*roles)
           safe_properties = self.loaded_role_properties
           roles.flatten.each do |role|
-            has_role role
+            include_role role
             safe_properties.merge!(role.columns)
           end
         end

@@ -1,0 +1,11 @@
+default:
+  context:
+    node_name: '@node'
+    node: 'cleanWater'
+    visitor: 'ant'
+
+# FIELD BASED INDEX (= alias)
+
+find_datetime:
+  src: "posts where date.year = '2006' in site"
+  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND year(nodes.idx_datetime1) = '2006' AND nodes.kpath LIKE 'NNP%' ORDER BY nodes.zip ASC}"

@@ -23,6 +23,9 @@ Letter_search_mono:
 Contact_name:
   index:           string
 
+Post_date:
+  index:           '.idx_datetime1'
+  
 Contact_first_name:
 
 Contact_email:

@@ -285,9 +285,9 @@ module Zena
           # icon_comment::  get comment field for link to icon
           # icon_for_ids::  get all node ids for which the image is an icon
           # icon_for_zips:: get all node zips for which the image is an icon
-          def method_missing(meth, *args)
+          def method_missing(meth, *args, &block)
             # first try rails' version of method missing
-            super
+            super(meth, *args, &block)
           rescue NoMethodError => err
             # 1. is this a method related to a relation ?
             if meth.to_s =~ LINK_REGEXP
