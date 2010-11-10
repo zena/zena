@@ -94,6 +94,8 @@ and the 'photos' url is now in the worldTour project's basepath:
 Setting 'custom_base' on a node should be done with caution as the node's zip is on longer in the url and when you move the node around, there is no way to find the new location from the old url. Custom_base should therefore only be used for nodes that are not going to move.
 =end
 class Node < ActiveRecord::Base
+  attr_writer :virtual_class
+
   # Only store partial class name in 'type' field (Page instead of ::Page)
   self.store_full_sti_class = false
 
@@ -101,6 +103,21 @@ class Node < ActiveRecord::Base
   extend Zena::Use::Search::NodeClassMethods
 
   include Property
+
+  def virtual_class
+    @virtual_class ||= if self[:vclass_id]
+      VirtualClass.find_by_id(self[:vclass_id])
+    else
+      VirtualClass[self.class.name]
+    end
+  end
+
+  alias schema virtual_class
+
+  # We use the virtual_class as proxy for method type resolution.
+  def safe_eval(code)
+    eval RubyLess.translate(schema, code)
+  end
 
   # Should be the same serialization as in Version and Site
   include Property::Serialization::JSON
@@ -117,7 +134,7 @@ class Node < ActiveRecord::Base
 
   # This is used to enable multilingual indexes
   include Zena::Use::MLIndex::ModelMethods
-  
+
   # Must come after Property
   include Zena::Use::FieldIndex::ModelMethods
 
@@ -254,12 +271,12 @@ class Node < ActiveRecord::Base
       super
     end
   end
-  
+
   include Zena::Use::Relations::ModelMethods
 
   # model based indices (must come after Relations)
   include Zena::Use::ScopeIndex::ModelMethods
-  
+
   include Zena::Use::QueryNode::ModelMethods
 
   @@native_node_classes = {'N' => self}
@@ -385,21 +402,26 @@ class Node < ActiveRecord::Base
     end
 
     # Return class or virtual class from name.
+    # FIXME: remove once everything can use VirtualClass[name]
     def get_class(rel, opts={})
       # mushroom_types ==> MushroomType
       class_name = rel =~ /\A[a-z]/ ? rel.singularize.camelize : rel
-      begin
-        klass = Module.const_get(class_name)
-        raise NameError unless klass.ancestors.include?(Node)
-      rescue NameError
-        # find the virtual class
-        if opts[:create]
-          klass = VirtualClass.find(:first, :conditions=>["site_id = ? AND create_group_id IN (?) AND name = ?",current_site[:id], visitor.group_ids, class_name])
-        else
-          klass = VirtualClass.find(:first, :conditions=>["site_id = ? AND name = ?",current_site[:id], class_name])
-        end
+      vclass = VirtualClass.find_by_name(class_name)
+      if opts[:create]
+        visitor.group_ids.include?(vclass.create_group_id) ? vclass : nil
+      else
+        vclass
       end
-      klass
+    end
+
+    # Find a sub class from Node from it's name
+    def get_sub_class(name)
+      # mushroom_types ==> MushroomType
+      class_name = name =~ /\A[a-z]/ ? name.singularize.camelize : name
+      klass = Module.const_get(class_name)
+      klass.ancestors.include?(Node) ? klass : nil
+    rescue NameError
+      nil
     end
 
     # Find a role by name.
@@ -937,6 +959,8 @@ class Node < ActiveRecord::Base
   end
 
   # virtual class
+  # FIXME: alias vclass to virtual_class
+  # alias vclass virtual_class
   def vclass
     virtual_class || self.class
   end
@@ -1080,7 +1104,7 @@ class Node < ActiveRecord::Base
     c.instance_variable_set(:@parent, self)
 
     c.visitor    = visitor
-    
+
     c.inherit = 1
     c.rgroup_id  = self.rgroup_id
     c.wgroup_id  = self.wgroup_id

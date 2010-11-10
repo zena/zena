@@ -220,7 +220,7 @@ module Zena
             end
 
             # property or real column
-            column = @query.main_class.schema.columns[field_name]
+            column = @query.main_class.columns[field_name]
             if column && column.indexed?
               if column.index == true
                 group_name = column.type
@@ -231,7 +231,7 @@ module Zena
                 group_name = column.index
               end
 
-              index_table = @query.main_class.index_table_name(group_name)
+              index_table = @query.main_class.real_class.index_table_name(group_name)
 
               # We use the add_key_value_table rule to avoid inserting the
               # same index access twice.
@@ -305,7 +305,7 @@ module Zena
             # arg2 = [:method, "name"]
             class_or_field    = arg1[1]
             field_or_function = arg2[1]
-            if @query.main_class.schema.columns[class_or_field]
+            if @query.main_class.columns[class_or_field]
               # log_at.year
               return [arg1, arg2]
             else
@@ -435,7 +435,7 @@ module Zena
             when 'root'
               # Special pseudo-context
               add_table(main_table)
-              make_and_set_main_class(Project)
+              set_main_class(VirtualClass['Project'])
               add_filter "#{table}.id = #{current_site.root_id}"
               return true
             #when 'author', 'traductions', 'versions'
@@ -444,7 +444,7 @@ module Zena
             when 'visitor'
               # Special pseudo-context
               add_table(main_table)
-              make_and_set_main_class(visitor.prototype.vclass)
+              set_main_class(VirtualClass.find_by_kpath(visitor.prototype.kpath))
               add_filter "#{table}.id = #{insert_bind("visitor.node_id")}"
               return true
             end
@@ -462,7 +462,7 @@ module Zena
             if class_name
               # We have named the relation, set main_class
               if klass = Node.get_class(class_name)
-                make_and_set_main_class(klass)
+                set_main_class(klass)
               else
                 raise QueryBuilder::QueryException.new("Unknown class #{klass} in scope '#{class_name}:#{scope}'.")
               end
@@ -495,7 +495,8 @@ module Zena
               if klass = @filter_relation_class || Node.get_class(relation)
                 # Relation was found in 'join_relation'
                 @filter_relation_class = nil
-                res_class = make_and_set_main_class(klass)
+                set_main_class(klass)
+                res_class = klass
 
                 add_table(main_table)
                 add_filter "#{table}.kpath LIKE #{quote("#{res_class.kpath}%")}" unless res_class.kpath == 'N'
@@ -536,7 +537,7 @@ module Zena
                 add_table(use_name, main_table)
               else
                 add_table(main_table)
-                make_and_set_main_class(rel.other_klass)
+                set_main_class(Node.get_class(rel.other_klass))
               end
 
               add_table('links')
@@ -584,12 +585,6 @@ module Zena
 
           def node_name
             @context[:node_name]
-          end
-
-          def make_and_set_main_class(klass)
-            res_class = Zena::Acts::Enrollable.make_class(klass)
-            set_main_class(res_class)
-            res_class
           end
       end # Compiler
     end # QueryNode

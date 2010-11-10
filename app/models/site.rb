@@ -297,6 +297,24 @@ class Site < ActiveRecord::Base
       $iformats[self[:id]] = @iformats = nil
     end
   end
+  
+  def virtual_classes
+   @iformats ||= begin
+     $iformats ||= {} # mem cache
+     site_formats = $iformats[self[:id]]
+     if !site_formats || self[:formats_updated_at] != site_formats[:updated_at]
+       site_formats = $iformats[self[:id]] = Iformat.formats_for_site(self[:id]) # reload
+     end
+     site_formats
+    end
+  end
+
+  def iformats_updated!
+    Site.connection.execute "UPDATE sites SET formats_updated_at = (SELECT updated_at FROM iformats WHERE site_id = #{self[:id]} ORDER BY iformats.updated_at DESC LIMIT 1) WHERE id = #{self[:id]}"
+    if $iformats
+      $iformats[self[:id]] = @iformats = nil
+    end
+  end
 
   def clear_cache(clear_zafu = true)
     path = "#{SITES_ROOT}#{self.public_path}"

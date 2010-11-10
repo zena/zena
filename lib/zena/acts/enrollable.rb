@@ -9,37 +9,35 @@ module Zena
           end
         end
       end
-
-      def self.make_class(klass)
-        if klass.kind_of?(VirtualClass)
-          res_class = Class.new(klass.real_class) do
-            include Named
-          end
-        elsif klass <= Node
-          res_class = Class.new(klass) do
-            include Named
-          end
-        else
-          return klass
-        end
-
-
-        res_class.to_s  = klass.name
-        res_class.kpath = klass.kpath
-        res_class.klass = klass
-
-        res_class.load_roles!
-        res_class
-      end
+      
+      # FIXME: remove all this and simply use VirtualClass['NNP'] in RubyLess:
+      #        write 'safe_method_type' for VirtualClass and forward from there to the real_class
+      # def self.make_class(klass)
+      #   if klass.kind_of?(VirtualClass)
+      #     res_class = Class.new(klass.real_class) do
+      #       include Named
+      #     end
+      #   elsif klass <= Node
+      #     res_class = Class.new(klass) do
+      #       include Named
+      #     end
+      #   else
+      #     return klass
+      #   end
+      # 
+      # 
+      #   res_class.to_s  = klass.name
+      #   res_class.kpath = klass.kpath
+      #   res_class.klass = klass
+      # 
+      #   res_class.load_roles!
+      #   res_class
+      # end
 
       module LoadRoles
-
-        # We overwrite safe_method_type from RubyLess to include the properties loaded
-        # with load_roles!.
+        # FIXME: can we remove or move the 'enroll' stuff to VirtualClass ?
         def safe_method_type(signature, receiver = nil)
-          if signature.size == 1 && (column = loaded_role_properties[signature.first])
-            RubyLess::SafeClass.safe_method_type_for_column(column, true)
-          elsif type = super
+          if type = super
             if type[:enroll]
               klass = type[:class]
               if klass.kind_of?(Array)
@@ -62,31 +60,11 @@ module Zena
           end
         end
 
-        # Load all possible roles for the current class or instance.
-        # FIXME: optimization: this could be as simple as @own_schema = VirtualClass[kpath].schema
-        #        if the VirtualClass[] returns a fully loaded vclass with all Roles.
-        def load_roles!
-          return if @roles_loaded
-          load_roles(all_possible_roles)
-          @roles_loaded = true
-        end
-
         def load_roles(*roles)
           safe_properties = self.loaded_role_properties
           roles.flatten.each do |role|
             include_role role
             safe_properties.merge!(role.columns)
-          end
-        end
-
-        def all_possible_roles
-          @all_possible_roles ||= begin
-            kpaths = []
-
-            kpath = self.kpath || vclass.kpath
-            kpath.split(//).each_index { |i| kpaths << kpath[0..i] }
-            # FIXME: !! manage a memory cache for Roles
-            Role.all(:conditions => ['kpath IN (?) AND site_id = ?', kpaths, current_site.id], :order => 'kpath ASC')
           end
         end
       end # LoadRoles
@@ -123,11 +101,6 @@ module Zena
               @loaded_role_properties ||= {}
             end
 
-            alias_method_chain :attributes=, :enrollable
-            alias_method_chain :properties=, :enrollable
-            alias_method_chain :rebuild_index!, :enrollable
-
-            before_validation  :check_unknown_attributes
             before_validation  :prepare_roles
             after_save  :update_roles
             after_destroy :destroy_nodes_roles
@@ -141,18 +114,6 @@ module Zena
           end
         end
 
-        def attributes_with_enrollable=(attrs)
-          load_roles!
-          self.attributes_without_enrollable = attrs
-        rescue ActiveRecord::UnknownAttributeError => err
-          @unknown_attribute_error = err
-        end
-
-        def properties_with_enrollable=(attrs)
-          load_roles!
-          self.properties_without_enrollable = attrs
-        end
-
         def has_role?(role_id)
           if role_id.kind_of?(Fixnum)
             (cached_role_ids || []).include?(role_id)
@@ -161,35 +122,33 @@ module Zena
           end
         end
 
-        def rebuild_index_with_enrollable!
-          load_roles!
-          rebuild_index_without_enrollable!
-        end
-
         def zafu_possible_roles
-          roles = all_possible_roles
+          roles = virtual_class.roles.reject {|r| r.class == Role }
           roles.empty? ? nil : roles
         end
 
         def zafu_roles
           return nil unless role_ids = self.prop['cached_role_ids']
-          # FIXME: memory cache for roles
-          roles = Role.all(:conditions => ['id IN (?) AND site_id = ?', role_ids, current_site.id], :order => 'kpath ASC')
+          role_ids = role_ids.split(',').map(&:to_i)
+          roles = (zafu_possible_roles || []).select do |role|
+            role_ids.include?(role.id)
+          end
           roles.empty? ? nil : roles
         end
 
         private
+          
           # Do not go any further if the object contains errors
-          def check_unknown_attributes
-            if @unknown_attribute_error
-              name = @unknown_attribute_error.message[%r{unknown attribute: (.+)}, 1]
-              errors.add(name, "unknown attribute")
-              @unknown_attribute_error = nil
-              false
-            else
-              true
-            end
-          end
+          # def check_unknown_attributes
+          #   if @unknown_attribute_error
+          #     name = @unknown_attribute_error.message[%r{unknown attribute: (.+)}, 1]
+          #     errors.add(name, "unknown attribute")
+          #     @unknown_attribute_error = nil
+          #     false
+          #   else
+          #     true
+          #   end
+          # end
 
           # Prepare roles to add/remove to object.
           def prepare_roles
@@ -201,7 +160,7 @@ module Zena
             end
 
             role_ids = []
-            schema.roles.flatten.uniq.each do |role|
+            virtual_class.roles.flatten.uniq.each do |role|
               next unless role.class == Role # Do not index VirtualClasses (information exists through kpath).
               role_ids << role.id if role.column_names & keys != []
             end
@@ -240,11 +199,7 @@ module Zena
       module Common
         extend self
         def get_class(class_name)
-          if klass = Node.get_class(class_name)
-            Enrollable.make_class(klass)
-          else
-            nil
-          end
+          VirtualClass.find_by_name(class_name)
         end
       end # Common
 

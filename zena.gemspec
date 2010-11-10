@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2010-11-11}
+  s.date = %q{2010-11-15}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -63,6 +63,8 @@ Gem::Specification.new do |s|
      "app/models/document_content.rb",
      "app/models/dyn_attribute.rb",
      "app/models/group.rb",
+     "app/models/idx_nodes_datetime.rb",
+     "app/models/idx_nodes_float.rb",
      "app/models/idx_nodes_ml_string.rb",
      "app/models/idx_nodes_string.rb",
      "app/models/idx_project.rb",
@@ -440,6 +442,8 @@ Gem::Specification.new do |s|
      "db/migrate/20101006090454_store_properties_in_long_text.rb",
      "db/migrate/20101014185753_remove_user_prototype_id.rb",
      "db/migrate/20101101084318_create_scope_index.rb",
+     "db/migrate/20101109074232_create_idx_nodes_tables.rb",
+     "db/migrate/20101110184235_add_role_update_to_site.rb",
      "doc/README_FOR_APP",
      "doc/fixtures.graffle",
      "doc/fixtures.pdf",
@@ -543,6 +547,7 @@ Gem::Specification.new do |s|
      "lib/zena/use/display.rb",
      "lib/zena/use/dyn_attributes.rb",
      "lib/zena/use/error_rendering.rb",
+     "lib/zena/use/field_index.rb",
      "lib/zena/use/fixtures.rb",
      "lib/zena/use/forms.rb",
      "lib/zena/use/fulltext.rb",
@@ -1800,9 +1805,10 @@ Gem::Specification.new do |s|
      "test/integration/query_node/dates.yml",
      "test/integration/query_node/errors.yml",
      "test/integration/query_node/filters.yml",
-     "test/integration/query_node/properties.yml",
+     "test/integration/query_node/idx_fields.yml",
+     "test/integration/query_node/idx_key_value.yml",
+     "test/integration/query_node/idx_table.yml",
      "test/integration/query_node/relations.yml",
-     "test/integration/query_node/scope_index.yml",
      "test/integration/query_node_test.rb",
      "test/integration/xml_api_test.rb",
      "test/integration/zafu_compiler/action.yml",
@@ -2196,7 +2202,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<tzinfo>, [">= 0.3.12"])
       s.add_runtime_dependency(%q<rails>, ["= 2.3.8"])
       s.add_runtime_dependency(%q<rubyless>, [">= 0.7.0"])
-      s.add_runtime_dependency(%q<property>, ["= 1.3.0"])
+      s.add_runtime_dependency(%q<property>, [">= 2.1.0"])
       s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_runtime_dependency(%q<authlogic>, ["= 2.1.3"])
       s.add_runtime_dependency(%q<zafu>, [">= 0.7.5"])
@@ -2218,7 +2224,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<tzinfo>, [">= 0.3.12"])
       s.add_dependency(%q<rails>, ["= 2.3.8"])
       s.add_dependency(%q<rubyless>, [">= 0.7.0"])
-      s.add_dependency(%q<property>, ["= 1.3.0"])
+      s.add_dependency(%q<property>, [">= 2.1.0"])
       s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_dependency(%q<authlogic>, ["= 2.1.3"])
       s.add_dependency(%q<zafu>, [">= 0.7.5"])
@@ -2241,7 +2247,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<tzinfo>, [">= 0.3.12"])
     s.add_dependency(%q<rails>, ["= 2.3.8"])
     s.add_dependency(%q<rubyless>, [">= 0.7.0"])
-    s.add_dependency(%q<property>, ["= 1.3.0"])
+    s.add_dependency(%q<property>, [">= 2.1.0"])
     s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
     s.add_dependency(%q<authlogic>, ["= 2.1.3"])
     s.add_dependency(%q<zafu>, [">= 0.7.5"])

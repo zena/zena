@@ -14,8 +14,8 @@ module Zena
 
         private
           def validate_prop_eval
-            # Create a temporary class and load roles
-            klass = Zena::Acts::Enrollable.make_class(self)
+            # Make sure the class is fully loaded
+            load_attached_roles!
 
             code = self.prop_eval
             if code.blank?
@@ -24,7 +24,7 @@ module Zena
             end
 
             begin
-              ruby = RubyLess.translate(klass, code)
+              ruby = RubyLess.translate(self, code)
               klass = ruby.klass
 
               if !klass.kind_of?(Hash)

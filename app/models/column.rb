@@ -15,6 +15,9 @@ class Column < ActiveRecord::Base
   validates_uniqueness_of :name, :scope => :site_id
   validate :name_not_in_models
 
+  after_save :expire_vclass_cache
+  after_destroy :expire_vclass_cache
+
   safe_method :name => String
 
   class << self
@@ -126,5 +129,9 @@ class Column < ActiveRecord::Base
           break
         end
       end
+    end
+
+    def expire_vclass_cache
+      VirtualClass.expire_cache!
     end
 end

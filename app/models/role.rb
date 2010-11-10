@@ -12,6 +12,9 @@ class Role < ActiveRecord::Base
   validate :check_can_save
   attr_accessible :name, :superclass, :icon
 
+  after_save :expire_vclass_cache
+  after_destroy :expire_vclass_cache
+
   include RubyLess
   safe_method :columns => {:class => ['Column'], :method => 'columns.values', :nil => false}
   safe_method :name => String
@@ -43,5 +46,9 @@ class Role < ActiveRecord::Base
 
     def check_can_save
       errors.add('base', 'You do not have the rights to change roles.') unless visitor.is_admin?
+    end
+
+    def expire_vclass_cache
+      VirtualClass.expire_cache!
     end
 end

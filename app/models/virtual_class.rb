@@ -5,17 +5,108 @@ class VirtualClass < Role
   validate      :valid_virtual_class
   attr_accessible :create_group_id, :auto_create_discussion
 
+  include Property::StoredSchema
   include Zena::Use::Relations::ClassMethods
   include Zena::Use::Fulltext::VirtualClassMethods
   include Zena::Use::PropEval::VirtualClassMethods
   include Zena::Use::ScopeIndex::VirtualClassMethods
 
-  # Import a hash of virtual class definitions and try to build the virtual classes.
-  def self.import(data)
-    data.keys.map do |klass|
-      build_virtual_class(klass, data)
+  class Cache
+    def initialize
+      clear_cache!
+    end
+
+    def find_by_id(id)
+      clear_cache! if stale?
+
+      @cache_by_id[id] || load_vclass(:id => id)
+    end
+
+    def find_by_kpath(kpath)
+      clear_cache! if stale?
+
+      @cache_by_kpath[kpath] || load_vclass(:kpath => kpath)
+    end
+
+    def find_by_name(name)
+      clear_cache! if stale?
+
+      @cache_by_name[name] || load_vclass(:name => name)
+    end
+
+    def clear_cache!
+      @updated_at = current_site[:roles_updated_at].to_f
+      @cache_by_id    = {}
+      @cache_by_kpath = {}
+      @cache_by_name  = {}
+    end
+
+    def stale?
+      @updated_at < current_site[:roles_updated_at].to_f
+    end
+
+    def load_vclass(conditions)
+      if kpath = conditions[:kpath]
+        real_class = Node.native_classes[kpath]
+      elsif name = conditions[:name]
+        raise if name.kind_of?(Fixnum)
+        real_class = Node.get_sub_class(name)
+      end
+
+      if real_class
+        # Build vclass
+        vclass = VirtualClass.new(:name => real_class.name)
+        vclass.kpath      = real_class.kpath
+        vclass.real_class = real_class
+        vclass.include_role real_class
+      else
+        vclass = VirtualClass.first(:conditions => conditions.merge(:site_id => current_site.id))
+      end
+
+      if vclass
+        vclass.load_attached_roles!
+        @cache_by_id[vclass.id] = vclass if vclass.id
+        @cache_by_kpath[vclass.kpath] = vclass
+        @cache_by_kpath[vclass.name]  = vclass
+      end
+
+      vclass
+    end
+  end # Cache
+
+  class << self
+    attr_accessor :caches_by_site
+
+    # Import a hash of virtual class definitions and try to build the virtual classes.
+    def import(data)
+      data.keys.map do |klass|
+        build_virtual_class(klass, data)
+      end
+    end
+
+    def [](name)
+      find_by_name(name)
+    end
+
+    def find_by_id(id)
+      (self.caches_by_site[current_site.id] ||= Cache.new).find_by_id(id)
+    end
+
+    def find_by_kpath(kpath)
+      (self.caches_by_site[current_site.id] ||= Cache.new).find_by_kpath(kpath)
+    end
+
+    def find_by_name(name)
+      (self.caches_by_site[current_site.id] ||= Cache.new).find_by_name(name)
+    end
+
+    def expire_cache!
+      Zena::Db.set_attribute(current_site, 'roles_updated_at', Time.now.utc)
+      self.caches_by_site[current_site.id] = Cache.new
     end
   end
+
+  self.caches_by_site ||= {}
 
   # Build a virtual class from a name and a hash of virtual class definitions. If
   # the superclass is in the data hash, it is built first.
@@ -47,7 +138,7 @@ class VirtualClass < Role
       end
 
       # build
-      create_group_id = superclass.kind_of?(VirtualClass) ? superclass.create_group_id : current_site.public_group_id
+      create_group_id = superclass.id ? superclass.create_group_id : current_site.public_group_id
       virtual_class = create(data[klass].merge(:name => klass, :create_group_id => create_group_id))
       virtual_class.import_result = 'new'
       return data[klass]['result'] = virtual_class
@@ -56,6 +147,33 @@ class VirtualClass < Role
 
   def self.export
     # TODO
+  end
+
+  # We use the VirtualClass to act as a proxy for the real class when resolving
+  # RubyLess methods.
+  def safe_method_type(signature, receiver = nil)
+    if signature.size == 1 && (column = columns[signature.first])
+      RubyLess::SafeClass.safe_method_type_for_column(column, true)
+    else
+      real_class.safe_method_type(signature, receiver)
+    end
+  end
+
+  # Include all roles into the this schema. By including the superclass
+  # and all roles related to this class.
+  def load_attached_roles!
+    return if @attached_roles_loaded
+
+    super_kpath = kpath[0..-2]
+    if super_kpath != ''
+      include_role VirtualClass.find_by_kpath(super_kpath)
+    end
+
+    attached_roles.each do |role|
+      include_role role
+    end
+
+    @attached_roles_loaded = true
   end
 
   def to_s
@@ -103,7 +221,12 @@ class VirtualClass < Role
 
   # Build new nodes instances of this VirtualClass
   def new_instance(hash={})
-    real_class.new(hash.merge(:kpath => self.kpath, :vclass_id => self.id))
+    real_class.new.tap do |obj|
+      obj.kpath = self.kpath
+      obj.vclass_id = self.id
+      obj.virtual_class = self
+      obj.attributes = hash
+    end
   end
 
   # Create new nodes instances of this VirtualClass
@@ -124,6 +247,14 @@ class VirtualClass < Role
   end
 
   private
+    def attached_roles
+      ::Role.all(
+        :conditions => ['kpath = ? AND site_id = ? AND type != ?',
+          kpath, current_site.id, 'VirtualClass'],
+        :order => 'kpath ASC'
+      )
+    end
+
     def valid_virtual_class
       return if !errors.empty?
       @superclass ||= self.superclass

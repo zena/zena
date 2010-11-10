@@ -151,8 +151,10 @@ class VirtualClassTest < Zena::Unit::TestCase
 
   def test_new_instance
     login(:ant)
-    klass = roles(:Letter)
+    klass = VirtualClass['Letter']
     assert node = secure!(Node) { klass.new_instance(:title => 'my letter', :parent_id => nodes_id(:cleanWater)) }
+    node.save
+    err node
     assert node.save
     assert_kind_of Note, node
     assert !node.new_record?
@@ -221,6 +223,253 @@ class VirtualClassTest < Zena::Unit::TestCase
     assert !roles(:Letter).auto_create_discussion
     assert roles(:Post).auto_create_discussion
   end
+
+  context 'Loading a virtual class' do
+    context 'with a kpath' do
+      subject do
+        VirtualClass['Post']
+      end
+
+      should 'return a virtual class' do
+        assert_kind_of VirtualClass, subject
+        assert_equal 'Post', subject.name
+      end
+
+      should 'cache found virtual class' do
+        assert_equal VirtualClass['Post'], subject
+      end
+
+      should 'return a loaded virtual class' do
+        assert_equal %w{assigned cached_role_ids date origin summary text title tz weight}, subject.column_names.sort
+      end
+
+      context 'related to a real class' do
+        subject do
+          VirtualClass.find_by_kpath('NN')
+        end
+
+        should 'return a virtual class' do
+          assert_kind_of VirtualClass, subject
+          assert_equal 'Note', subject.name
+        end
+
+        should 'return a loaded virtual class' do
+          assert_equal %w{assigned cached_role_ids origin summary text title tz weight}, subject.column_names.sort
+        end
+      end # related to a real class
+
+    end # with a kpath
+
+    context 'with an id' do
+      subject do
+        VirtualClass.find_by_id roles_id(:Post)
+      end
+
+      should 'return a virtual class' do
+        assert_kind_of VirtualClass, subject
+        assert_equal 'Post', subject.name
+      end
+
+      should 'cache found virtual class' do
+        assert_equal VirtualClass.find_by_id(roles_id(:Post)), subject
+        assert_equal VirtualClass['Post'], subject
+      end
+
+      should 'return a loaded virtual class' do
+        assert_equal %w{assigned cached_role_ids date origin summary text title tz weight}, subject.column_names.sort
+      end
+    end # with an id
+    
+
+    context 'with a name' do
+      subject do
+        VirtualClass.find_by_name 'Post'
+      end
+
+      should 'return a virtual class' do
+        assert_kind_of VirtualClass, subject
+        assert_equal 'Post', subject.name
+      end
+
+      should 'cache found virtual class' do
+        assert_equal VirtualClass.find_by_id(roles_id(:Post)), subject
+        assert_equal VirtualClass['Post'], subject
+      end
+
+      should 'return a loaded virtual class' do
+        assert_equal %w{assigned cached_role_ids date origin summary text title tz weight}, subject.column_names.sort
+      end
+      
+      context 'related to a real class' do
+        subject do
+          VirtualClass.find_by_name('Note')
+        end
+
+        should 'return a virtual class' do
+          assert_kind_of VirtualClass, subject
+          assert_equal 'Note', subject.name
+        end
+
+        should 'return a loaded virtual class' do
+          assert_equal %w{assigned cached_role_ids origin summary text title tz weight}, subject.column_names.sort
+        end
+      end # related to a real class
+    end # with a name
+
+  end # Loading a virtual class
+
+  def self.should_clear_cache
+
+    should 'update roles_updated_at date' do
+      subject
+      date = current_site.roles_updated_at
+      assert_equal date.to_i, Site.find(current_site.id).roles_updated_at.to_i # to_i because of the precision in db
+      assert_kind_of Time, date
+      assert @before < current_site.roles_updated_at
+    end
+
+    should 'empty process cache' do
+      # in same process
+      subject
+      cache = VirtualClass.caches_by_site[current_site.id]
+      assert cache.instance_variable_get(:@cache_by_id).empty?
+      assert cache.instance_variable_get(:@cache_by_kpath).empty?
+      assert cache.instance_variable_get(:@cache_by_name).empty?
+    end
+
+    should 'mark cache' do
+      subject
+      # This is needed for other processes
+      assert @cache.stale?
+    end
+  end
+
+  def setup_cache_test
+    login(:lion)
+    Site.connection.execute 'UPDATE sites SET roles_updated_at = NULL'
+    # preload in cache
+    VirtualClass['Post'].column_names
+    @before = Time.now.utc
+    @cache  = VirtualClass.caches_by_site[current_site.id]
+  end
+
+  context 'Creating a Role' do
+    setup do
+      setup_cache_test
+    end
+
+    subject do
+      role = VirtualClass.create(:name => 'Flop', :superclass => 'Note', :create_group_id => groups_id(:public))
+      err role
+      assert !role.new_record?
+    end
+
+    should_clear_cache
+
+    should 'load new role from cache' do
+      subject
+      assert_kind_of VirtualClass, VirtualClass.find_by_name('Flop')
+    end
+
+  end # Creating a Role
+
+  context 'Creating a Column' do
+    setup do
+      setup_cache_test
+    end
+
+    subject do
+      column = Column.create(:role_id => roles_id(:Original), :ptype => 'string', :name => 'foo')
+      err column
+      assert !column.new_record?
+    end
+
+    should_clear_cache
+
+    should 'load new role from cache' do
+      subject
+      # no more linked to assigned
+      assert_equal %w{assigned cached_role_ids date foo origin summary text title tz weight}, VirtualClass['Post'].column_names.sort
+    end
+
+  end # Creating a Column
+
+  context 'Updating a Role' do
+    setup do
+      setup_cache_test
+    end
+
+    subject do
+      assert roles(:Original).update_attributes(:superclass => 'Page')
+    end
+
+    should_clear_cache
+
+    should 'load new role from cache' do
+      subject
+      # no more linked to Original
+      assert_equal %w{assigned cached_role_ids date summary text title}, VirtualClass['Post'].column_names.sort
+    end
+
+  end # Updating a Role
+
+
+  context 'Updating a Column' do
+    setup do
+      setup_cache_test
+    end
+
+    subject do
+      assert columns(:Original_tz).update_attributes(:name => 'toz')
+    end
+
+    should_clear_cache
+
+    should 'load new role from cache' do
+      subject
+      # change name
+      assert_equal %w{assigned cached_role_ids date origin summary text title toz weight}, VirtualClass['Post'].column_names.sort
+    end
+
+  end # Updating a Column
+
+  context 'Deleting a Role' do
+    setup do
+      setup_cache_test
+    end
+
+    subject do
+      assert roles(:Original).destroy
+    end
+
+    should_clear_cache
+
+    should 'load new role from cache' do
+      subject
+      # no more linked to Original
+      assert_equal %w{assigned cached_role_ids date summary text title}, VirtualClass['Post'].column_names.sort
+    end
+
+  end # Deleting a Role
+
+  context 'Deleting a Column' do
+    setup do
+      setup_cache_test
+    end
+
+    subject do
+      assert columns(:Original_tz).destroy
+    end
+
+    should_clear_cache
+
+    should 'load new role from cache' do
+      subject
+      # no more linked to assigned
+      assert_equal %w{assigned cached_role_ids date origin summary text title weight}, VirtualClass['Post'].column_names.sort
+    end
+
+  end # Deleting a Column
 
   context 'importing virtual class definitions' do
     setup do

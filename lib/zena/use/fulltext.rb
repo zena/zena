@@ -19,14 +19,15 @@ module Zena
 
         private
           def validate_fulltext_indices
-            # Create a temporary class and load roles
-            klass = Zena::Acts::Enrollable.make_class(self)
+            # Load attached roles to test RubyLess
+            load_attached_roles!
 
             FULLTEXT_FIELDS.each do |idx_group|
               next unless code = self.prop[idx_group]
 
               begin
-                ruby = RubyLess.translate(klass, code)
+                # Use the VirtualClass as a proxy for the real class
+                ruby = RubyLess.translate(self, code)
 
                 klass = ruby.klass
 
@@ -38,7 +39,6 @@ module Zena
               end
             end
           end
-
       end # VirtualClassMethods
 
       module ModelMethods
@@ -68,7 +68,6 @@ module Zena
           # Prepare roles to add/remove to object.
           def build_fulltext_indices(rebuild_version = nil)
             # Make sure roles are loaded because we compile RubyLess.
-            load_roles!
 
             if rebuild_version
               version = rebuild_version
