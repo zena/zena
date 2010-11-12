@@ -30,8 +30,8 @@ module Zena
             begin
               query = self.class.build_query(count, rel,
                 :node_name       => 'self',
-                :main_class      => Zena::Acts::Enrollable.make_class(self.vclass),
-                :rubyless_helper => (opts[:rubyless_helper] || self),
+                :main_class      => virtual_class,
+                :rubyless_helper => (opts[:rubyless_helper] || virtual_class), # should it be || self ?
                 :default         => opts[:default]
               )
 
@@ -100,7 +100,12 @@ module Zena
         load_custom_queries ["#{RAILS_ROOT}/bricks/*/queries"]
 
         CORE_CONTEXTS = %w{parent project section}
-
+        
+        # Resolve 'main_class' from a class name.
+        def resolve_main_class(class_name)
+          VirtualClass[class_name]
+        end
+        
         class << self
           attr_accessor :filter_fields
 
@@ -537,7 +542,7 @@ module Zena
                 add_table(use_name, main_table)
               else
                 add_table(main_table)
-                set_main_class(Node.get_class(rel.other_klass))
+                set_main_class(rel.other_vclass)
               end
 
               add_table('links')

@@ -777,7 +777,7 @@ class NodeTest < Zena::Unit::TestCase
 
       should 'create a new node' do
         assert_difference('Node.count', 1) do
-          subject
+          err subject
         end
       end
     end # without a matching node
@@ -794,11 +794,11 @@ class NodeTest < Zena::Unit::TestCase
   end
 
   def test_get_class
-    assert_equal Node, Node.get_class('node')
-    assert_equal Node, Node.get_class('nodes')
-    assert_equal Node, Node.get_class('Node')
+    assert_equal Node, Node.get_class('node').real_class
+    assert_equal Node, Node.get_class('nodes').real_class
+    assert_equal Node, Node.get_class('Node').real_class
     assert_equal roles(:Letter), Node.get_class('Letter')
-    assert_equal TextDocument, Node.get_class('TextDocument')
+    assert_equal TextDocument, Node.get_class('TextDocument').real_class
   end
 
   def test_get_class_without_plural
@@ -1069,17 +1069,30 @@ done: \"I am done\""
     assert_equal BigDecimal.new("56"), entries[0].value
   end
 
-  context 'A class\' native classes hash' do
-    should 'be indexed by kpath' do
-      assert_equal [], %w{N ND NDI NDT NDTT NN NP NPP NPS NPSS NU NUS} - Node.native_classes.keys
-      assert_equal [], %w{ND NDI NDT NDTT} - Document.native_classes.keys
-    end
-
-    should 'should point to real (ruby) sub-classes and self' do
-      assert Page.native_classes.values.include?(Page)
-      assert Page.native_classes.values.include?(Project)
-      assert !Project.native_classes.values.include?(Page)
-    end
+  context 'Finding real classes' do
+    context 'by kpath' do
+      should 'find class' do
+        assert_equal Page, Node.native_classes['NP']
+        assert_equal Document, Node.native_classes['ND']
+        assert_equal Image, Node.native_classes['NDI']
+      end
+      
+      should 'return nil for vclass kpath' do
+        assert_nil Node.native_classes['NNP']
+      end
+    end # by kpath
+    
+    context 'by name' do
+      should 'find class' do
+        assert_equal Page, Node.native_classes_by_name['Page']
+        assert_equal Document, Node.native_classes_by_name['Document']
+        assert_equal Image, Node.native_classes_by_name['Image']
+      end
+      
+      should 'return nil for vclass kpath' do
+        assert_nil Node.native_classes['Post']
+      end
+    end # by name
   end
 
   context 'A node' do

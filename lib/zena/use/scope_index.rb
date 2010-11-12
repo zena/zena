@@ -41,11 +41,10 @@ module Zena
             if pseudo_sql = self[:idx_scope]
               # Try to compile query in instance of class self
               begin
-                klass = Zena::Acts::Enrollable.make_class(self)
                 query = real_class.build_query(:all, pseudo_sql,
                   :node_name       => 'self',
-                  :main_class      => klass,
-                  :rubyless_helper => klass
+                  :main_class      => virtual_class,
+                  :rubyless_helper => virtual_class
                 )
               rescue ::QueryBuilder::Error => err
                 errors.add('idx_scope', "Invalid query: #{err.message}")

@@ -94,8 +94,6 @@ and the 'photos' url is now in the worldTour project's basepath:
 Setting 'custom_base' on a node should be done with caution as the node's zip is on longer in the url and when you move the node around, there is no way to find the new location from the old url. Custom_base should therefore only be used for nodes that are not going to move.
 =end
 class Node < ActiveRecord::Base
-  attr_writer :virtual_class
-
   # Only store partial class name in 'type' field (Page instead of ::Page)
   self.store_full_sti_class = false
 
@@ -108,8 +106,14 @@ class Node < ActiveRecord::Base
     @virtual_class ||= if self[:vclass_id]
       VirtualClass.find_by_id(self[:vclass_id])
     else
-      VirtualClass[self.class.name]
+      VirtualClass.find_by_name(self.class.name)
     end
+  end
+  
+  def virtual_class=(vclass)
+    @virtual_class = vclass
+    self[:vclass_id] = vclass.id
+    self[:kpath] = vclass.kpath
   end
 
   alias schema virtual_class
@@ -148,7 +152,6 @@ class Node < ActiveRecord::Base
   has_many           :discussions, :dependent => :destroy
   has_many           :links
   has_and_belongs_to_many :cached_pages
-  belongs_to         :virtual_class, :foreign_key => 'vclass_id'
   belongs_to         :site
   belongs_to         :skin
   before_validation  :set_defaults
@@ -280,13 +283,14 @@ class Node < ActiveRecord::Base
   include Zena::Use::QueryNode::ModelMethods
 
   @@native_node_classes = {'N' => self}
+  @@native_node_classes_by_name = {'Node' => self}
   @@unhandled_children  = []
-  class << self
 
-    def new(hash={})
+  class << self
+    def new(hash={}, vclass = nil)
       node = super()
-      # set kpath before loading roles
-      node.kpath = hash[:kpath] || self.kpath
+      # set virtual_class (acts as schema) before setting attributes
+      node.virtual_class = vclass || VirtualClass[self.name]
       node.attributes = hash
       node
     end
@@ -347,15 +351,24 @@ class Node < ActiveRecord::Base
 
     # Return the list of (kpath,subclasses) for the current class.
     def native_classes
+      load_unhandled_children
+      @@native_node_classes
+    end
+
+    # Return the list of (name,class) for the current class.
+    def native_classes_by_name
+      load_unhandled_children
+      @@native_node_classes_by_name
+    end
+
+    def load_unhandled_children
       # this is to make sure subclasses are loaded before the first call
       # TODO: find a better way to make sure they are all loaded
       [Note,Page,Project,Section,Document,Image,TextDocument,Skin,Template]
-
       while child = @@unhandled_children.pop
         @@native_node_classes[child.kpath] = child
+        @@native_node_classes_by_name[child.name] = child
       end
-
-      @@native_node_classes.reject {|kpath,klass| !(kpath =~ /^#{self.kpath}/) }
     end
 
     # check inheritance chain through kpath
@@ -372,33 +385,20 @@ class Node < ActiveRecord::Base
     def allowed_change_to_classes
       change_to_classes_for_form.map {|k,v| v}
     end
-
-    # FIXME: how to make sure all sub-classes of Node are loaded before this is called ?
+    
+    # TODO: remove and use VirtualClass[...].classes_for_form directly
     def classes_for_form(opts={})
-      if klass = opts.delete(:class)
-        if klass = get_class(klass)
-          klass.classes_for_form(opts)
-        else
-          return ['', ''] # bad class
-        end
-      else
-        all_classes(opts).map{|a,b| [a[0..-1].sub(/^#{self.kpath}/,'').gsub(/./,'  ') + b.to_s, b.to_s] } # white spaces are insecable spaces (not ' ')
-      end
+      VirtualClass[self.name].classes_for_form(opts)
     end
 
     # FIXME: how to make sure all sub-classes of Node are loaded before this is called ?
+    # TODO: move into helper
     def kpaths_for_form(opts={})
-      all_classes(opts).map{|a,b| [a[1..-1].gsub(/./,'  ') + b.to_s, a.to_s] } # white spaces are insecable spaces (not ' ')
-    end
-
-    def all_classes(opts={})
-      virtual_classes = VirtualClass.find(:all, :conditions => ["site_id = ? AND create_group_id IN (?) AND kpath LIKE '#{self.kpath}%'", current_site[:id], visitor.group_ids])
-      classes = (virtual_classes.map{|r| [r.kpath, r.name]} + native_classes.to_a).sort{|a,b| a[0] <=> b[0]}
-      if opts[:without]
-        reject_kpath =  opts[:without].split(',').map(&:strip).map {|name| Node.get_class(name) }.compact.map { |kla| kla.kpath }.join('|')
-        classes.reject! {|k,c| k =~ /^#{reject_kpath}/ }
+      VirtualClass.all_classes(opts).map do |vclass|
+        # white spaces are insecable spaces (not ' ')
+        a, b = vclass.kpath, vclass.name
+        [a[1..-1].gsub(/./,'  ') + b, a]
       end
-      classes
     end
 
     # Return class or virtual class from name.
@@ -407,21 +407,12 @@ class Node < ActiveRecord::Base
       # mushroom_types ==> MushroomType
       class_name = rel =~ /\A[a-z]/ ? rel.singularize.camelize : rel
       vclass = VirtualClass.find_by_name(class_name)
-      if opts[:create]
+      if opts[:create] && vclass.id
+        # TODO: how do we deal with real class ? (Currently = pass).
         visitor.group_ids.include?(vclass.create_group_id) ? vclass : nil
       else
         vclass
       end
-    end
-
-    # Find a sub class from Node from it's name
-    def get_sub_class(name)
-      # mushroom_types ==> MushroomType
-      class_name = name =~ /\A[a-z]/ ? name.singularize.camelize : name
-      klass = Module.const_get(class_name)
-      klass.ancestors.include?(Node) ? klass : nil
-    rescue NameError
-      nil
     end
 
     # Find a role by name.
@@ -534,15 +525,8 @@ class Node < ActiveRecord::Base
         return node
       end
 
-      begin
-        klass = Node.get_class(attributes['klass'] || 'Node')
-        klass = klass.real_class if klass.kind_of?(VirtualClass)
-      rescue NameError
-        klass = Node
-      end
-
       # FIXME: remove 'with_exclusive_scope' once scopes are clarified and removed from 'secure'
-      node = klass.send(:with_exclusive_scope) do
+      node = Node.send(:with_exclusive_scope) do
         find_by_parent_title_and_kpath(attributes['parent_id'], attributes['title'], nil)
       end
 
@@ -572,14 +556,18 @@ class Node < ActiveRecord::Base
       attributes = transform ? transform_attributes(new_attributes) : new_attributes
 
       klass_name = attributes.delete('class') || attributes.delete('klass') || 'Page'
-      unless klass = klass_name.kind_of?(Class) ? klass_name : get_class(klass_name, :create => true)
-        node = Node.new
-        node.instance_eval { @attributes = attributes }
-        node.errors.add('klass', 'invalid')
-        # This is to show the klass in the form seizure
-        node.instance_variable_set(:@klass, klass_name.to_s)
-        def node.klass; @klass; end
-        return node
+      if klass_name.kind_of?(VirtualClass) || klass_name.kind_of?(Class)
+        klass = klass_name
+      else
+        unless klass = get_class(klass_name, :create => true)
+          node = Node.new
+          node.instance_eval { @attributes.merge!(attributes) }
+          node.errors.add('klass', 'invalid')
+          # This is to show the klass in the form seizure
+          node.instance_variable_set(:@klass, klass_name.to_s)
+          def node.klass; @klass; end
+          return node
+        end
       end
 
       if klass.kind_of?(VirtualClass)
@@ -994,7 +982,6 @@ class Node < ActiveRecord::Base
 
   # Replace [id], [title], etc in attributes values
   def replace_attributes_in_values(hash)
-    load_roles!
     hash.each do |k,v|
       hash[k] = safe_eval_string(v)
     end
@@ -1438,10 +1425,7 @@ class Node < ActiveRecord::Base
   # Safe dynamic method dispatching when the method is not known during compile time. Currently this
   # only works for methods without arguments.
   def safe_send(method)
-    # We need to load roles or all properties will be ignored
-    load_roles!
-
-    return nil unless type = safe_method_type([method])
+    return nil unless type = virtual_class.safe_method_type([method])
     res = eval(type[:method])
     res ? res.to_s : nil
   end
@@ -1705,7 +1689,7 @@ class Node < ActiveRecord::Base
     def change_klass
       if @new_klass && !new_record?
         old_kpath = self.kpath
-
+# FIXME ! (new virtual_class as schema...)
         klass = Node.get_class(@new_klass)
         if klass.kind_of?(VirtualClass)
           self[:vclass_id] = klass.kind_of?(VirtualClass) ? klass[:id] : nil

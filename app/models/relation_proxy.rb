@@ -116,8 +116,8 @@ class RelationProxy < Relation
   end
 
   # Get class of other element (used by QueryNode to properly set resulting class).
-  def other_klass
-    Node.get_class_from_kpath(@side == :source ? self[:target_kpath] : self[:source_kpath])
+  def other_vclass
+    VirtualClass.find_by_kpath(@side == :source ? self[:target_kpath] : self[:source_kpath])
   end
 
   # set

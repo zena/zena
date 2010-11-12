@@ -69,7 +69,7 @@ module Zena
 
             query = "nodes where #{query_args.join(' and ')} in site"
           end
-
+          
           res = node.find(count, query, options.merge(:errors => true, :rubyless_helper => self, :default => default))
 
           if res.kind_of?(::QueryBuilder::Error)

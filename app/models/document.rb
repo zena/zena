@@ -60,9 +60,7 @@ class Document < Node
     alias o_new new
 
     # Return a new Document or a sub-class of Document depending on the file's content type. Returns a TextDocument if there is no file.
-    def new(attrs = {})
-      scope = self.scoped_methods[0] || {}
-
+    def new(attrs = {}, vclass = nil)
       attrs = attrs.stringify_keys
       file  = attrs['file'] || ((attrs['version_attributes'] || {})['content_attributes'] || {})['file']
       if attrs['content_type']
@@ -74,21 +72,26 @@ class Document < Node
       elsif attrs['title'] =~ /^.*\.(\w+)$/ && types = Zena::EXT_TO_TYPE[$1.downcase]
         content_type = types[0]
       end
+      
+      real_class = document_class_from_content_type(content_type)
 
-      klass = document_class_from_content_type(content_type)
+      unless vclass && vclass.kpath =~ /\A#{real_class.kpath}/
+        # vclass is not compatible (force kpath)
+        vclass = VirtualClass[real_class.to_s]
+      end
 
       attrs['content_type'] = content_type
 
-      if klass != self
-        klass.with_scope(scope) { klass.o_new(attrs) }
+      if real_class != self
+        secure(real_class) { real_class.o_new(attrs, vclass) }
       else
-        klass.o_new(attrs)
+        super(attrs, vclass)
       end
     end
 
     # Compatibility with VirtualClass
     alias new_instance new
-
+    
     # Class list to which this class can change to
     def change_to_classes_for_form
       classes_for_form(:class => 'Document', :without => 'Image')

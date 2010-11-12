@@ -34,6 +34,7 @@ class VirtualClassTest < Zena::Unit::TestCase
     assert classes_for_form.include?(["  Letter", "Letter"])
     assert classes_for_form.include?(["  Post", "Post"])
     classes_for_form.map!{|k,c| c}
+
     assert !classes_for_form.include?("Node")
     assert !classes_for_form.include?("Page")
     assert !classes_for_form.include?("Reference")
@@ -86,6 +87,7 @@ class VirtualClassTest < Zena::Unit::TestCase
     login(:anon)
 
     classes_for_form = Node.classes_for_form(:class => 'Post', :without=>'Super')
+
     assert classes_for_form.include?(["Post", "Post"])
     classes_for_form.map!{|k,c| c}
     assert !classes_for_form.include?("Node")
@@ -149,21 +151,6 @@ class VirtualClassTest < Zena::Unit::TestCase
     assert_equal "NNL", node[:kpath]
   end
 
-  def test_new_instance
-    login(:ant)
-    klass = VirtualClass['Letter']
-    assert node = secure!(Node) { klass.new_instance(:title => 'my letter', :parent_id => nodes_id(:cleanWater)) }
-    node.save
-    err node
-    assert node.save
-    assert_kind_of Note, node
-    assert !node.new_record?
-    assert node.virtual_class
-    assert_equal roles_id(:Letter), node.vclass_id
-    assert_equal 'Letter', node.klass
-    assert node.vkind_of?('Letter')
-    assert_equal "NNL", node[:kpath]
-  end
 
   def test_relation
     login(:ant)
@@ -236,7 +223,7 @@ class VirtualClassTest < Zena::Unit::TestCase
       end
 
       should 'cache found virtual class' do
-        assert_equal VirtualClass['Post'], subject
+        assert_equal VirtualClass['Post'].object_id, subject.object_id
       end
 
       should 'return a loaded virtual class' do
@@ -272,14 +259,14 @@ class VirtualClassTest < Zena::Unit::TestCase
 
       should 'cache found virtual class' do
         assert_equal VirtualClass.find_by_id(roles_id(:Post)), subject
-        assert_equal VirtualClass['Post'], subject
+        assert_equal VirtualClass['Post'].object_id, subject.object_id
       end
 
       should 'return a loaded virtual class' do
         assert_equal %w{assigned cached_role_ids date origin summary text title tz weight}, subject.column_names.sort
       end
     end # with an id
-    
+
 
     context 'with a name' do
       subject do
@@ -292,14 +279,14 @@ class VirtualClassTest < Zena::Unit::TestCase
       end
 
       should 'cache found virtual class' do
-        assert_equal VirtualClass.find_by_id(roles_id(:Post)), subject
-        assert_equal VirtualClass['Post'], subject
+        assert_equal VirtualClass.find_by_id(roles_id(:Post)).object_id, subject.object_id
+        assert_equal VirtualClass['Post'].object_id, subject.object_id
       end
 
       should 'return a loaded virtual class' do
         assert_equal %w{assigned cached_role_ids date origin summary text title tz weight}, subject.column_names.sort
       end
-      
+
       context 'related to a real class' do
         subject do
           VirtualClass.find_by_name('Note')
@@ -315,6 +302,27 @@ class VirtualClassTest < Zena::Unit::TestCase
         end
       end # related to a real class
     end # with a name
+
+    context 'from a node instance' do
+      subject do
+        nodes(:proposition)
+      end
+
+      should 'load from cache' do
+        assert_equal VirtualClass['Post'].object_id, subject.virtual_class.object_id
+      end
+
+      context 'that is not a virtual class instance' do
+        subject do
+          nodes(:projects)
+        end
+
+        should 'load from cache' do
+          assert_equal VirtualClass['Page'].object_id, subject.virtual_class.object_id
+        end
+      end # that is not a virtual class instance
+
+    end # from a node instance
 
   end # Loading a virtual class
 
@@ -413,7 +421,6 @@ class VirtualClassTest < Zena::Unit::TestCase
 
   end # Updating a Role
 
-
   context 'Updating a Column' do
     setup do
       setup_cache_test
@@ -470,6 +477,74 @@ class VirtualClassTest < Zena::Unit::TestCase
     end
 
   end # Deleting a Column
+
+  context 'Finding all classes' do
+    subject do
+      VirtualClass.all_classes
+    end
+
+    context 'without base or filter' do
+      should 'load all classes' do
+        assert_equal %w{N ND NDI NDT NDTT NN NNL NNP NP NPA NPP NPPB NPS NPSS NPT NR NRC}, subject.map(&:kpath).reject{|k| k =~ /\ANU/}.sort
+      end
+    end # without base or filter
+
+    context 'with a base' do
+      subject do
+        VirtualClass.all_classes('ND')
+      end
+
+      should 'load sub classes and self' do
+        assert_equal %w{ND NDI NDT NDTT}, subject.map(&:kpath).sort
+      end
+    end # with a base
+
+    context 'with a filter' do
+      subject do
+        VirtualClass.all_classes('N', 'Document')
+      end
+
+      should 'description' do
+        assert_equal %w{N NN NNL NNP NP NPA NPP NPPB NPS NPSS NPT NR NRC}, subject.map(&:kpath).reject{|k| k =~ /\ANU/}.sort
+      end
+    end # with a filter
+
+  end # Finding all classes
+
+  context 'A Document vclass' do
+    context 'on new_instance' do
+      subject do
+        VirtualClass['Document'].new_instance(
+            :parent_id => nodes_id(:cleanWater),
+            :file      => uploaded_jpg('bird.jpg')
+        )
+      end
+
+      should 'select class from content type' do
+        assert_kind_of Image, subject
+      end
+    end # on new_instance
+  end # A Document vclass
+
+  context 'A note vclass' do
+    context 'on new_instance' do
+      subject do
+        VirtualClass['Letter'].new_instance(
+          :parent_id => nodes_id(:cleanWater),
+          :title     => 'lambda'
+        )
+      end
+
+      should 'use real_class' do
+        assert_kind_of Note, subject
+      end
+
+      should 'set virtual class' do
+        assert_equal VirtualClass['Letter'].object_id, subject.vclass.object_id
+      end
+    end # on new_instance
+  end # A note vclass
+
 
   context 'importing virtual class definitions' do
     setup do
