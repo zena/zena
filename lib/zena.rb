@@ -37,7 +37,10 @@ module Zena
       if klass.kind_of?(String)
         constant = nil
         # Foo.const_get('Bar') is not guaranteed to find/load Foo::Bar, it can return just Bar.
-        eval "::#{klass.gsub(/[^a-zA-Z\:]/, '')}"
+        if klass =~ /\A[^A-Z\:]|[^0-9a-zA-Z\:]/
+          raise NameError.new("Invalid constant name: #{klass.inspect}.")
+        end
+        eval "::#{klass}"
       else
         klass
       end

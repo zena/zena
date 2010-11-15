@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{zena}
-  s.version = "1.0.0.beta4"
+  s.version = "1.0.0.beta5"
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2010-11-09}
+  s.date = %q{2010-11-11}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -2196,7 +2196,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<tzinfo>, [">= 0.3.12"])
       s.add_runtime_dependency(%q<rails>, ["= 2.3.8"])
       s.add_runtime_dependency(%q<rubyless>, [">= 0.7.0"])
-      s.add_runtime_dependency(%q<property>, [">= 1.3.0"])
+      s.add_runtime_dependency(%q<property>, ["= 1.3.0"])
       s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_runtime_dependency(%q<authlogic>, ["= 2.1.3"])
       s.add_runtime_dependency(%q<zafu>, [">= 0.7.5"])
@@ -2218,7 +2218,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<tzinfo>, [">= 0.3.12"])
       s.add_dependency(%q<rails>, ["= 2.3.8"])
       s.add_dependency(%q<rubyless>, [">= 0.7.0"])
-      s.add_dependency(%q<property>, [">= 1.3.0"])
+      s.add_dependency(%q<property>, ["= 1.3.0"])
       s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_dependency(%q<authlogic>, ["= 2.1.3"])
       s.add_dependency(%q<zafu>, [">= 0.7.5"])
@@ -2241,7 +2241,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<tzinfo>, [">= 0.3.12"])
     s.add_dependency(%q<rails>, ["= 2.3.8"])
     s.add_dependency(%q<rubyless>, [">= 0.7.0"])
-    s.add_dependency(%q<property>, [">= 1.3.0"])
+    s.add_dependency(%q<property>, ["= 1.3.0"])
     s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
     s.add_dependency(%q<authlogic>, ["= 2.1.3"])
     s.add_dependency(%q<zafu>, [">= 0.7.5"])
