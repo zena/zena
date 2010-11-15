@@ -62,7 +62,7 @@ class VirtualClassesControllerTest < Zena::Controller::TestCase
           post_subject
           vclass = assigns(:virtual_class)
           assert_equal 'Xkcd',  vclass.name
-          assert_equal Section, vclass.superclass
+          assert_equal VirtualClass['Section'], vclass.superclass
           assert_equal 'NPSX',  vclass.kpath
         end
 
@@ -90,7 +90,7 @@ class VirtualClassesControllerTest < Zena::Controller::TestCase
           post_subject
           vclass = assigns(:virtual_class)
           assert_equal 'Xkcd',  vclass.name
-          assert_equal Section, vclass.superclass
+          assert_equal VirtualClass['Section'], vclass.superclass
           assert_equal 'NPS',  vclass.kpath
         end
 

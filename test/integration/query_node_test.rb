@@ -42,7 +42,7 @@ class QueryNodeTest < Zena::Unit::TestCase
     defaults[:order] ||= 'zip asc'
 
     if klass = @context.delete(:class)
-      @context[:main_class] = VirtualClass.find_by_name[klass]
+      @context[:main_class] = VirtualClass[klass]
     end
 
     begin

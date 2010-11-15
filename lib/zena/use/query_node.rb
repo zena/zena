@@ -164,7 +164,7 @@ module Zena
             return processing_filter? ? "(#{fld})" : fld
           elsif processing_filter? && field_name =~ /\A[A-Z]+_\w+\Z/
             # scope index
-            klass = @query.main_class.klass
+            klass = @query.main_class
             if index_model = klass.kind_of?(VirtualClass) ? klass.idx_class : nil
               index_model = Zena.resolve_const(index_model) rescue NilClass
               if index_model < Zena::Use::ScopeIndex::IndexMethods && index_model.column_names.include?(field_name)
@@ -507,9 +507,9 @@ module Zena
                 add_filter "#{table}.kpath LIKE #{quote("#{res_class.kpath}%")}" unless res_class.kpath == 'N'
                 true
               elsif role = Node.get_role(relation)
-                klass = Zena::Acts::Enrollable.make_class(@query.main_class)
-                klass.include_role role
-                set_main_class(klass)
+                if klass = VirtualClass.find_by_kpath(role.kpath)
+                  set_main_class(klass)
+                end
 
                 add_table(main_table)
                 add_table('nodes_roles')

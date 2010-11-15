@@ -93,7 +93,6 @@ module Zena
         end
 
         def export_properties
-          load_roles!
           res  = {}
           prop = self.prop
           schema.column_names.each do |key|

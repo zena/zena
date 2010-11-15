@@ -86,7 +86,7 @@ class RelationProxyTest < Zena::Unit::TestCase
 
   context 'On a new node' do
     subject do
-      secure(Node) { Node.new_instance(:class => 'Contact')}
+      secure(Node) { Node.new_node(:class => 'Contact')}
     end
 
     should 'not fail to find node proxy' do
@@ -111,12 +111,12 @@ class RelationProxyTest < Zena::Unit::TestCase
   end
 
   def test_relation_proxy_new_node
-    node = secure!(Node) { Node.new_from_class('Post') }
+    node = secure!(Node) { Node.new_node('class' => 'Post') }
     assert rel = node.relation_proxy('blog')
     assert_equal relations_id(:post_has_blogs), rel[:id]
 
     # Any new node can have a relation_proxy (used when forms contain the 'klass' attribute selected by the user).
-    node = secure!(Node) { Node.new_from_class('Node') }
+    node = secure!(Node) { Node.new_node('class' => 'Node') }
     assert rel = node.relation_proxy('blog')
     assert_equal relations_id(:post_has_blogs), rel[:id]
   end

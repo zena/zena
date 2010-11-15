@@ -284,8 +284,8 @@ module Zena
             path      = SITES_ROOT + rel_path
 
             if !File.exists?(path) || params[:rebuild]
-              if @node && klass = Node.get_class_from_kpath(template.tkpath)
-                zafu_node('@node', Zena::Acts::Enrollable.make_class(klass))
+              if @node && klass = VirtualClass.find_by_kpath(template.tkpath)
+                zafu_node('@node', klass)
               else
                 nil
               end
@@ -373,7 +373,11 @@ module Zena
               ivar = "@#{$1.downcase}"
               if var = self.instance_variable_get(ivar.to_sym)
                 name  = ivar
-                klass = Zena::Acts::Enrollable.make_class(var.class)
+                if ivar.kind_of?(Node)
+                  klass = VirtualClass['Node'] # we could use $1
+                else
+                  klass = ivar.class
+                end
               elsif var = self.instance_variable_get(ivar + 's')
                 name = ivar + 's'
                 klass = [Zena::Acts::Enrollable.make_class(var.first.class)]
@@ -382,7 +386,7 @@ module Zena
             end
 
             if defined?(@node)
-              return Zafu::NodeContext.new('@node', Zena::Acts::Enrollable.make_class(Node))
+              return Zafu::NodeContext.new('@node', VirtualClass['Node'])
             else
               raise Exception.new("Could not guess node context from request parameters, please add something like \"zafu_node('@var_name', Page)\" in your action.")
             end

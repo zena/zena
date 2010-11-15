@@ -223,8 +223,6 @@ class NodesController < ApplicationController
 
   # modifications of the node itself (dates, groups, revert editions, etc)
   def edit
-    @node.load_roles!
-
     respond_to do |format|
       format.html do
         @title_for_layout = title_for_layout

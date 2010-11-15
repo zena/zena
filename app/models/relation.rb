@@ -31,25 +31,25 @@ class Relation < ActiveRecord::Base
       end
 
       if self[:source_role].blank?
-        if klass = Node.get_class_from_kpath(source_kpath)
+        if klass = VirtualClass.find_by_kpath(source_kpath)
           self.source_role = klass.to_s.underscore
         else
           klass = nil
         end
       else
-        klass = Node.get_class_from_kpath(source_kpath)
+        klass = VirtualClass.find_by_kpath(source_kpath)
       end
 
       errors.add(:source_kpath, 'invalid (could not find class)') unless klass
 
       if self[:target_role].blank?
-        if klass = Node.get_class_from_kpath(target_kpath)
+        if klass = VirtualClass.find_by_kpath(target_kpath)
           self.target_role = klass.to_s.underscore
         else
           klass = nil
         end
       else
-        klass = Node.get_class_from_kpath(target_kpath)
+        klass = VirtualClass.find_by_kpath(target_kpath)
       end
 
       errors.add(:target_kpath, 'invalid (could not find class)') unless klass

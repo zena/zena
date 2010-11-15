@@ -9,7 +9,7 @@ module Zena
           end
         end
       end
-      
+
       # FIXME: remove all this and simply use VirtualClass['NNP'] in RubyLess:
       #        write 'safe_method_type' for VirtualClass and forward from there to the real_class
       # def self.make_class(klass)
@@ -24,12 +24,12 @@ module Zena
       #   else
       #     return klass
       #   end
-      # 
-      # 
+      #
+      #
       #   res_class.to_s  = klass.name
       #   res_class.kpath = klass.kpath
       #   res_class.klass = klass
-      # 
+      #
       #   res_class.load_roles!
       #   res_class
       # end
@@ -123,13 +123,12 @@ module Zena
         end
 
         def zafu_possible_roles
-          roles = virtual_class.roles.reject {|r| r.class == Role }
+          roles = virtual_class.roles.flatten.uniq.select {|r| r.class == Role }
           roles.empty? ? nil : roles
         end
 
         def zafu_roles
           return nil unless role_ids = self.prop['cached_role_ids']
-          role_ids = role_ids.split(',').map(&:to_i)
           roles = (zafu_possible_roles || []).select do |role|
             role_ids.include?(role.id)
           end
@@ -137,7 +136,7 @@ module Zena
         end
 
         private
-          
+
           # Do not go any further if the object contains errors
           # def check_unknown_attributes
           #   if @unknown_attribute_error

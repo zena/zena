@@ -7,7 +7,6 @@ module UsersHelper
       begin
         res =render :file => template_url(:mode => '+user', :format => 'html')
       rescue ActiveRecord::RecordNotFound
-        @node.load_roles!
         res = render :file => 'versions/custom_tab'
       end
     ensure

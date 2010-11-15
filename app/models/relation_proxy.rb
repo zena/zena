@@ -33,7 +33,7 @@ class RelationProxy < Relation
     def get_proxy(node, role)
       # TODO: use find_by_role(role, node.kpath) when all tests are clear
       rel = find_by_role(role)
-      if rel && (node.new_record? || node.vclass.kpath =~ /\A#{rel.this_kpath}/)
+      if rel && (node.new_record? || node.kpath =~ /\A#{rel.this_kpath}/)
         rel.start = node
         rel
       else

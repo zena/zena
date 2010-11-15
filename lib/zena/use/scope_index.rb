@@ -43,8 +43,8 @@ module Zena
               begin
                 query = real_class.build_query(:all, pseudo_sql,
                   :node_name       => 'self',
-                  :main_class      => virtual_class,
-                  :rubyless_helper => virtual_class
+                  :main_class      => self,
+                  :rubyless_helper => self
                 )
               rescue ::QueryBuilder::Error => err
                 errors.add('idx_scope', "Invalid query: #{err.message}")
@@ -124,8 +124,7 @@ module Zena
 
         def self.scope_index_proc
           Proc.new do |helper, signature|
-            vclass = helper.klass
-            if vclass && vclass.idx_class && klass = Zena.resolve_const(vclass.idx_class) rescue nil
+            if helper.idx_class && klass = Zena.resolve_const(helper.idx_class) rescue nil
               {:method => 'scope_index', :nil => true, :class => klass}
             else
               raise RubyLess::NoMethodError.new(helper, helper, signature)

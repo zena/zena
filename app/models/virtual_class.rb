@@ -239,9 +239,9 @@ class VirtualClass < Role
     else
       base_kpath = self.kpath
     end
-    
+
     kpath_len = base_kpath.size
-    
+
     VirtualClass.all_classes(base_kpath, opts[:without]).map do |vclass|
       if vclass.create_group_id.nil? || group_ids.include?(vclass.create_group_id)
         # white spaces are insecable spaces (not ' ')
@@ -283,16 +283,59 @@ class VirtualClass < Role
     self.kpath =~ /^#{kpath}/
   end
 
+  # Proxy methods for real class --------------
+
   def superclass
     if new_record?
-      Node
+      real_class || Node
     else
-      Node.get_class_from_kpath(kpath[0..-2])
+      VirtualClass.find_by_kpath(kpath[0..-2])
     end
   end
 
+  # This is used by RubyLess in method signatures: [:zen_path, #<VirtualClass 'Post'>] ---> [:zen_path, Node]
+  def ancestors
+    @ancestors ||= [real_class] + real_class.ancestors
+  end
+
+  # Test ancestry
+  def <=(other_class)
+    if other_class.kind_of?(VirtualClass)
+      kpath = other_class.kpath
+      self.kpath[0..(kpath.length-1)] == kpath
+    else
+      real_class <= other_class
+    end
+  end
+
+  # Test ancestry
+  def <(other_class)
+    if other_class.kind_of?(VirtualClass)
+      kpath = other_class.kpath
+      self.kpath != kpath && self.kpath[0..(kpath.length-1)] == kpath
+    else
+      real_class < other_class
+    end
+  end
+
+
+  # Return the pseudo sql query compiler.
+  def query_compiler
+    real_class.query_compiler
+  end
+  
+  # Build pseudo sql query.
+  def build_query(*args)
+    real_class.build_query(*args)
+  end
+  
+  # Execute find
+  def do_find(*args)
+    real_class.do_find(*args)
+  end
+
   def superclass=(klass)
-    if k = Node.get_class(klass)
+    if k = VirtualClass[klass]
       @superclass = k
     else
       errors.add('superclass', 'invalid')
@@ -313,7 +356,7 @@ class VirtualClass < Role
 
   def real_class
     @real_class ||= begin
-      klass = Module::const_get(self[:real_class])
+      klass = Module::const_get(self[:real_class] || 'Node')
       raise NameError unless klass.ancestors.include?(Node)
       klass
     end
@@ -345,8 +388,8 @@ class VirtualClass < Role
         kpath = nil
         while index < self[:name].length
           try_kpath = @superclass.kpath + self[:name][index..index].upcase
-          if found = Node.get_class_from_kpath(try_kpath)
-            if found.kind_of?(VirtualClass) && found[:id] == self[:id]
+          if found = VirtualClass.find_by_kpath(try_kpath)
+            if found.id && found.id == self[:id]
               kpath = try_kpath
               break
             end

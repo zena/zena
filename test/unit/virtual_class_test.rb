@@ -164,9 +164,9 @@ class VirtualClassTest < Zena::Unit::TestCase
   end
 
   def test_superclass
-    assert_equal Note, roles(:Post).superclass
-    assert_equal Note, roles(:Letter).superclass
-    assert_equal Page, roles(:Tracker).superclass
+    assert_equal VirtualClass['Note'], roles(:Post).superclass
+    assert_equal VirtualClass['Note'], roles(:Letter).superclass
+    assert_equal VirtualClass['Page'], roles(:Tracker).superclass
   end
 
   def test_new_conflict_virtual_kpath
@@ -200,9 +200,9 @@ class VirtualClassTest < Zena::Unit::TestCase
     # add a sub class
     login(:lion)
     vclass = roles(:Post)
-    assert_equal Note, vclass.superclass
+    assert_equal VirtualClass['Note'], vclass.superclass
     assert vclass.update_attributes(:superclass => 'Project')
-    assert_equal Project, vclass.superclass
+    assert_equal VirtualClass['Project'], vclass.superclass
     assert_equal "NPPP", vclass.kpath
   end
 
@@ -485,6 +485,7 @@ class VirtualClassTest < Zena::Unit::TestCase
 
     context 'without base or filter' do
       should 'load all classes' do
+        VirtualClass.expire_cache!
         assert_equal %w{N ND NDI NDT NDTT NN NNL NNP NP NPA NPP NPPB NPS NPSS NPT NR NRC}, subject.map(&:kpath).reject{|k| k =~ /\ANU/}.sort
       end
     end # without base or filter
@@ -495,6 +496,7 @@ class VirtualClassTest < Zena::Unit::TestCase
       end
 
       should 'load sub classes and self' do
+        VirtualClass.expire_cache!
         assert_equal %w{ND NDI NDT NDTT}, subject.map(&:kpath).sort
       end
     end # with a base
@@ -544,6 +546,20 @@ class VirtualClassTest < Zena::Unit::TestCase
       end
     end # on new_instance
   end # A note vclass
+  
+  context 'A virtual class' do
+    subject do
+      VirtualClass['Post']
+    end
+
+    should 'respond to less or equal' do
+      assert subject <= Note
+      assert subject <= Node
+      assert subject <= VirtualClass['Note']
+      assert !(subject <= Project)
+    end
+  end # A virtual class
+  
 
 
   context 'importing virtual class definitions' do

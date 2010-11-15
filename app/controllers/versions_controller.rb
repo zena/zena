@@ -85,7 +85,6 @@ class VersionsController < ApplicationController
   def custom_tab
     render :file => template_url(:mode=>'+edit', :format=>'html'), :layout=>false
   rescue ActiveRecord::RecordNotFound
-    @node.load_roles!
     render :action => 'custom_tab'
   end
 

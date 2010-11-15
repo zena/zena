@@ -8,9 +8,9 @@ module Zena
           Proc.new do |h, s|
             res = {:method => 'visitor.node', :nil => true}
             if prototype  = visitor.prototype
-              res[:class] = Zena::Acts::Enrollable.make_class(prototype.vclass)
+              res[:class] = prototype.vclass
             else
-              res[:class] = Node
+              res[:class] = VirtualClass['Node']
             end
             res
           end

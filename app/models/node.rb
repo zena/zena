@@ -174,9 +174,9 @@ class Node < ActiveRecord::Base
     Proc.new do |h, s|
       res = {:method => 'author', :nil => true}
       if prototype = visitor.prototype
-        res[:class] = Zena::Acts::Enrollable.make_class(prototype.vclass)
+        res[:class] = prototype.vclass
       else
-        res[:class] = Node
+        res[:class] = VirtualClass['Node']
       end
       res
     end
@@ -420,19 +420,6 @@ class Node < ActiveRecord::Base
       # mushroom_types ==> MushroomType
       role_name = rel =~ /\A[a-z]/ ? rel.singularize.camelize : rel
       Role.first(:conditions => ['name = ? AND site_id = ?', role_name, current_site.id])
-    end
-
-    # Return a new object of the class name or nil if the class name does not exist.
-    def new_from_class(rel)
-      if k = get_class(rel, :create => true)
-        k.new_instance
-      else
-        nil
-      end
-    end
-
-    def get_class_from_kpath(kp)
-      native_classes[kp] || VirtualClass.find(:first, :conditions=>["site_id = ? AND kpath = ?",current_site[:id], kp])
     end
 
     # Find a node's attribute based on a pseudo (id or path). Used by zazen to create a link for ""::art or "":(people/ant) for example.

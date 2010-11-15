@@ -115,7 +115,7 @@ module Zena
           if name
             type ||= node.klass.safe_method_type([name])
             # do we have a property ?
-            if type && (node.klass.column_names.include?(name) || node.klass.schema.column_names.include?(name))
+            if type && (node.real_class.column_names.include?(name) || node.klass.column_names.include?(name))
               # create an input field
               out make_input(form_helper, name, type[:class], textarea)
             else

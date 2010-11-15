@@ -26,7 +26,7 @@ class Role < ActiveRecord::Base
     if new_record?
       Node
     else
-      Node.get_class_from_kpath(kpath)
+      VirtualClass.find_by_kpath(kpath)
     end
   end
 

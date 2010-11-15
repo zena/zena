@@ -91,7 +91,7 @@ class QueryNodeTest < Zena::Unit::TestCase
       end
 
       should 'set main_class to Project' do
-        assert subject.main_class < Project
+        assert subject.main_class <= Project
       end
     end # with a real class filter
 

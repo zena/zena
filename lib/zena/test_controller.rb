@@ -31,13 +31,8 @@ module Zena
 
     def test_compile
 
-      if klass = params.delete(:class)
-        klass = Node.get_class(klass)
-      else
-        klass = Node
-      end
+      klass = VirtualClass[params.delete(:class) || 'Node']
 
-      klass = Zena::Acts::Enrollable.make_class(klass)
       render :text => Zena::ZafuCompiler.new_with_url(@test_url, :helper => zafu_helper).to_erb(:dev => params['dev'], :node => Zafu::NodeContext.new('@node', klass))
     rescue => err
       render :text => ([err.message] + err.backtrace[0..4]).join("    \n").tap {|x| puts x}

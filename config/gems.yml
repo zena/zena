@@ -14,7 +14,7 @@ shoulda:        '= 2.10.3'
 
 querybuilder:   '>= 0.9.3'
 yamltest:       '>= 0.7.0'
-rubyless:       '>= 0.7.0'
+rubyless:       '>= 0.8.0'
 property:       '>= 2.1.0'
 versions:       '>= 0.3.1'
 zafu:           '>= 0.7.5'

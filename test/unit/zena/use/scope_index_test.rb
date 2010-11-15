@@ -201,7 +201,7 @@ class ScopeIndexTest < Zena::Unit::TestCase
 
   context 'Using RubyLess with an indexed model' do
     subject do
-      Zena::Acts::Enrollable.make_class(roles(:Blog))
+      VirtualClass['Blog']
     end
 
     should 'return model class on scope_index' do
@@ -219,11 +219,11 @@ class ScopeIndexTest < Zena::Unit::TestCase
 
   context 'Using RubyLess without an indexed model' do
     subject do
-      Zena::Acts::Enrollable.make_class(Project)
+      VirtualClass['Project']
     end
 
     should 'raise an error' do
-      assert_raise(::RubyLess::Error) do
+      assert_raise(::RubyLess::NoMethodError) do
         RubyLess.translate(subject, 'scope_index')
       end
     end
@@ -231,11 +231,11 @@ class ScopeIndexTest < Zena::Unit::TestCase
 
   context 'Using RubyLess not on a Project or Section' do
     subject do
-      Zena::Acts::Enrollable.make_class(Page)
+      VirtualClass['Page']
     end
 
     should 'raise an error' do
-      assert_raise(::RubyLess::Error) do
+      assert_raise(::RubyLess::NoMethodError) do
         RubyLess.translate(subject, 'scope_index')
       end
     end

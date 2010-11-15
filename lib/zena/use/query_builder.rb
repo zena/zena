@@ -8,21 +8,24 @@ module Zena
         end
 
         def query(class_name, node_name, pseudo_sql)
-          klass = get_class(class_name)
-          begin
-            query = klass.build_query(:all, pseudo_sql,
-              :node_name       => node_name,
-              :main_class      => klass,
-              # We use 'zafu_helper' (which is slower) instead of 'self' because our helper needs to have helper modules
-              # mixed in and strangely RubyLess cannot access the helpers from 'self'.
-              :rubyless_helper => zafu_helper.helpers
-            )
-          rescue ::QueryBuilder::Error => err
-            # FIXME: how to return error messages to the user ?
+          if klass = VirtualClass[class_name]
+            begin
+              query = klass.build_query(:all, pseudo_sql,
+                :node_name       => node_name,
+                :main_class      => klass,
+                # We use 'zafu_helper' (which is slower) instead of 'self' because our helper needs to have helper modules
+                # mixed in and strangely RubyLess cannot access the helpers from 'self'.
+                :rubyless_helper => zafu_helper.helpers
+              )
+            rescue ::QueryBuilder::Error => err
+              # FIXME: how to return error messages to the user ?
+              nil
+            end
+
+            klass.do_find(:all, eval(query.to_s))
+          else
             nil
           end
-
-          klass.do_find(:all, eval(query.to_s))
         end
       end # ViewMethods
 
@@ -51,7 +54,6 @@ module Zena
         def r_query
           return parser_error("Cannot be used in list context (#{node.class_name})") if node.list_context?
           return parser_error("Missing 'default' query") unless default = @params[:default]
-          return parser_error("No query compiler for (#{node.class_name})") if !node.klass.respond_to?(:build_query)
 
 
           default_query = build_query(:all, default)
