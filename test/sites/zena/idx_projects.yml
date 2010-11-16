@@ -1,4 +1,5 @@
 wiki_index:
   node:            wiki
-  NPP_title:       "a wiki with Zena"
-  NRC_name:        foobar
+  blog_title:      "a wiki with Zena"
+  reference_name:  ref
+  contact_name:    cont

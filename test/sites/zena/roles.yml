@@ -20,11 +20,12 @@ Post:
 Reference:
   kpath:           NR
   real_class:      Node
+  idx_scope:       "{'reference' => 'references'}"
 
 Contact:
   kpath:           NRC
   real_class:      Node
-  idx_scope:       references or project
+  idx_scope:       "{'reference' => 'references', 'contact' => 'project'}"
   prop:
     prop_eval:     "{'title' => \"#{first_name} #{name}\"}"
 
@@ -36,7 +37,7 @@ Tracker:
 Tag:
   kpath:           NPT
   real_class:      Page
-  idx_scope:       project
+  idx_scope:       "{'tag' => 'project'}"
 
 Task:
   kpath:           N
@@ -50,4 +51,4 @@ Blog:
   kpath:           NPPB
   real_class:      Project
   idx_class:       IdxProject
-  idx_scope:       self
+  idx_scope:       "{'blog' => 'self'}"

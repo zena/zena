@@ -23,7 +23,8 @@ class ScopeIndexTest < Zena::Unit::TestCase
     should 'insert entries related to project' do
       subject
       index = subject.scope_index
-      assert_equal 'NewThoughts', index.NPP_title
+      assert_equal 'NewThoughts', index.blog_title
+      assert_equal subject.id, index.blog_id
     end
   end # Creating a scope indexed project
 
@@ -41,37 +42,43 @@ class ScopeIndexTest < Zena::Unit::TestCase
       should 'not update project index' do
         assert_difference('IdxProject.count', 0) do
           subject
-          assert_nil IdxProject.find(@project.scope_index).NPT_created_at
+          assert_nil IdxProject.find(@project.scope_index).tag_created_at
         end
       end
     end # inserting a sub node
 
     context 'creating a sub node' do
       subject do
-        secure(Node) { Node.create_node(:klass => 'Tag', :title => 'Knock Knock', :parent_id => @project.zip, :v_status => Zena::Status[:pub])}
+        secure(Node) { Node.create_node(:klass => 'Contact', :name => 'Gods', :first_name => 'Young', :parent_id => @project.zip, :v_status => Zena::Status[:pub])}
       end
 
-      should 'update project index' do
+      should 'update project index through relation' do
         assert_difference('IdxProject.count', 0) do
           subject
-          assert_equal subject.title, IdxProject.find(@project.scope_index).NPT_title
-          assert_equal subject.created_at.to_s, IdxProject.find(@project.scope_index).NPT_created_at.to_s
+          idx = IdxProject.find(@project.scope_index)
+          assert_equal 'Young',    idx.contact_first_name
+          assert_equal 'Gods',     idx.contact_name
+        end
+      end
+      
+      should 'not update other relations' do
+        assert_difference('IdxProject.count', 0) do
+          subject
+          idx = IdxProject.find(@project.scope_index)
+          assert_equal 'ref',      idx.reference_name
+          assert_nil               idx.reference_title
+          assert_nil               idx.reference_id
         end
       end
 
       should 'set group key id' do
-        assert_equal subject.id, IdxProject.find(@project.scope_index).NPT_id
-      end
-
-      should 'not update elements not matching kpath' do
-        subject
-        assert_equal 'a wiki with Zena', IdxProject.find(@project.scope_index).NPP_title
+        assert_equal subject.id, IdxProject.find(@project.scope_index).contact_id
       end
     end # creating a sub node
 
     context 'updating a sub node' do
       setup do
-        @old_tag = secure(Node) { Node.create_node(:klass => 'Tag', :title => 'Tadam', :parent_id => @project.zip, :v_status => Zena::Status[:pub])}
+        @old_tag = secure(Node) { Node.create_node(:klass => 'Contact', :title => 'Tadam', :parent_id => @project.zip, :v_status => Zena::Status[:pub])}
         @tag = secure(Node) { Node.create_node(:klass => 'Tag', :title => 'Friendly ghosts', :parent_id => @project.zip, :v_status => Zena::Status[:pub])}
       end
 
@@ -79,26 +86,26 @@ class ScopeIndexTest < Zena::Unit::TestCase
         @tag
       end
 
-      should 'update project index' do
+      should 'update project index through relation' do
         subject.update_attributes(:title => 'Mean ghosts', :v_status => Zena::Status[:pub])
-        assert_equal 'Mean ghosts', IdxProject.find(@project.scope_index).NPT_title
+        assert_equal 'Mean ghosts', IdxProject.find(@project.scope_index).tag_title
       end
 
       should 'keep group key id' do
         subject.update_attributes(:title => 'Mean ghosts', :v_status => Zena::Status[:pub])
-        assert_equal @tag.id, IdxProject.find(@project.scope_index).NPT_id
+        assert_equal @tag.id, IdxProject.find(@project.scope_index).tag_id
       end
 
       should 'not update project index if not published' do
         subject.update_attributes(:title => 'Mean ghosts')
-        assert_equal 'Friendly ghosts', IdxProject.find(@project.scope_index).NPT_title
+        assert_equal 'Friendly ghosts', IdxProject.find(@project.scope_index).tag_title
       end
 
       should 'update project index on publish' do
         subject.update_attributes(:title => 'Mean ghosts')
-        assert_equal 'Friendly ghosts', IdxProject.find(@project.scope_index).NPT_title
+        assert_equal 'Friendly ghosts', IdxProject.find(@project.scope_index).tag_title
         subject.publish
-        assert_equal 'Mean ghosts', IdxProject.find(@project.scope_index).NPT_title
+        assert_equal 'Mean ghosts', IdxProject.find(@project.scope_index).tag_title
       end
 
       context 'that is not the latest of its kind' do
@@ -108,12 +115,12 @@ class ScopeIndexTest < Zena::Unit::TestCase
 
         should 'not update project index' do
           subject.update_attributes(:title => 'China', :v_status => Zena::Status[:pub])
-          assert_equal 'Friendly ghosts', IdxProject.find(@project.scope_index).NPT_title
+          assert_equal 'Friendly ghosts', IdxProject.find(@project.scope_index).tag_title
         end
 
         should 'not change group id' do
           subject.update_attributes(:title => 'China', :v_status => Zena::Status[:pub])
-          assert_equal @tag.id, IdxProject.find(@project.scope_index).NPT_id
+          assert_equal @tag.id, IdxProject.find(@project.scope_index).tag_id
         end
       end # that is not the latest of its kind
 
@@ -127,13 +134,24 @@ class ScopeIndexTest < Zena::Unit::TestCase
       should 'update related index' do
         assert_difference('IdxProject.count', 0) do
           subject
-          assert_equal subject.name, IdxProject.find(@project.scope_index).NRC_name
-          assert_equal subject.first_name, IdxProject.find(@project.scope_index).NRC_first_name
+          idx = IdxProject.find(@project.scope_index)
+          assert_equal 'Gods',       idx.reference_name
+          assert_equal 'Young Gods', idx.reference_title
+        end
+      end
+      
+      should 'not update other relations' do
+        assert_difference('IdxProject.count', 0) do
+          subject
+          idx = IdxProject.find(@project.scope_index)
+          assert_nil                 idx.contact_first_name
+          assert_equal 'cont',       idx.contact_name
+          assert_nil                 idx.contact_id
         end
       end
 
       should 'set group key id' do
-        assert_equal subject.id, IdxProject.find(@project.scope_index).NRC_id
+        assert_equal subject.id, IdxProject.find(@project.scope_index).reference_id
       end
     end # creating a related node
 
@@ -142,10 +160,11 @@ class ScopeIndexTest < Zena::Unit::TestCase
         secure(Node) { Node.create_node(:klass => 'Contact', :name => 'Gods', :first_name => 'Young', :parent_id => nodes_zip(:zena), :reference_id => @project.zip, :v_status => Zena::Status[:pub])}
       end
 
-      should 'update related index' do
+      should 'update all entries in related index' do
         assert_difference('IdxProject.count', 0) do
           subject.update_attributes(:first_name => 'Old', :v_status => Zena::Status[:pub])
-          assert_equal 'Old', IdxProject.find(@project.scope_index).NRC_first_name
+          assert_equal 'Old Gods', IdxProject.find(@project.scope_index).reference_title
+          assert_equal 'Gods', IdxProject.find(@project.scope_index).reference_name
         end
       end
 
@@ -153,10 +172,25 @@ class ScopeIndexTest < Zena::Unit::TestCase
         should 'not update related index' do
           assert_difference('IdxProject.count', 0) do
             subject.update_attributes(:first_name => 'Old')
-            assert_equal 'Young', IdxProject.find(@project.scope_index).NRC_first_name
+            assert_equal 'Young Gods', IdxProject.find(@project.scope_index).reference_title
           end
         end
       end # without publishing
+      
+      context 'without all attributes' do
+        subject do
+          secure(Node) { Node.create_node(:klass => 'Reference', :title => 'Burn these tests', :parent_id => nodes_zip(:zena), :reference_id => @project.zip, :v_status => Zena::Status[:pub])}
+        end
+
+        should 'update related index' do
+          assert_difference('IdxProject.count', 0) do
+            assert subject.update_attributes(:title => 'Ashes', :v_status => Zena::Status[:pub])
+            assert_equal 'Ashes', IdxProject.find(@project.scope_index).reference_title
+            assert_equal 'ref', IdxProject.find(@project.scope_index).reference_name
+          end
+        end
+      end # without all attributes
+      
     end # updating a related node
 
     context 'updating the project' do
@@ -166,13 +200,9 @@ class ScopeIndexTest < Zena::Unit::TestCase
 
       should 'update index' do
         subject.update_attributes(:title => 'Wacky', :v_status => Zena::Status[:pub])
-        assert_equal 'Wacky', IdxProject.find(@project.scope_index).NPP_title
+        assert_equal 'Wacky', IdxProject.find(@project.scope_index).blog_title
       end
     end # updating the project
-
-    should 'return idx model on scope_index' do
-      assert_equal IdxProject, @project.scope_index.class
-    end
   end # In an indexed project
 
   context 'In a non-indexed project' do
@@ -195,7 +225,7 @@ class ScopeIndexTest < Zena::Unit::TestCase
     end
 
     should 'build key groups' do
-      assert_equal Hash['NPP' => %w{id title}, 'NPT' => %w{id created_at title}, 'NRC' => %w{id first_name name}], subject.groups
+      assert_equal Hash['reference' => %w{id name title}, 'blog' => %w{id title}, 'tag' => %w{id created_at title}, 'contact' => %w{id first_name name}], subject.groups
     end
   end # With an index model
 
@@ -211,8 +241,8 @@ class ScopeIndexTest < Zena::Unit::TestCase
     end
 
     should 'allow index access on scope_index object' do
-      code = RubyLess.translate(subject, 'scope_index.NPT_title')
-      assert_equal '(scope_index ? scope_index.NPT_title : nil)', code.to_s
+      code = RubyLess.translate(subject, 'scope_index.tag_title')
+      assert_equal '(scope_index ? scope_index.tag_title : nil)', code.to_s
       assert_equal String, code.klass
     end
   end # Using RubyLess with an indexed model
@@ -283,7 +313,7 @@ class ScopeIndexTest < Zena::Unit::TestCase
 
     context 'with a valid idx_scope' do
       subject do
-        {:name => 'Song', :superclass => 'Post', :idx_scope => 'project', :create_group_id => groups_id(:public) }
+        {:name => 'Song', :superclass => 'Post', :idx_scope => "{'reference' => 'project'}", :create_group_id => groups_id(:public) }
       end
 
       should 'create' do
@@ -295,7 +325,41 @@ class ScopeIndexTest < Zena::Unit::TestCase
 
     context 'with an invalid idx_scope' do
       subject do
-        {:name => 'Song', :superclass => 'Post', :idx_scope => 'project where foo is null', :create_group_id => groups_id(:public) }
+        {:name => 'Song', :superclass => 'Post', :idx_scope => "{1 => 'project'}", :create_group_id => groups_id(:public) }
+      end
+
+      should 'not create' do
+        assert_difference('VirtualClass.count', 0) do
+          VirtualClass.create(subject)
+        end
+      end
+
+      should 'add errors to idx_scope' do
+        vclass = VirtualClass.create(subject)
+        assert_equal "Invalid entry: keys and query should be of type String (1 => \"project\")", vclass.errors[:idx_scope]
+      end
+    end # with an invalid idx_scope
+    
+    context 'with an invalid idx_scope type' do
+      subject do
+        {:name => 'Song', :superclass => 'Post', :idx_scope => "project", :create_group_id => groups_id(:public) }
+      end
+
+      should 'not create' do
+        assert_difference('VirtualClass.count', 0) do
+          VirtualClass.create(subject)
+        end
+      end
+
+      should 'add errors to idx_scope' do
+        vclass = VirtualClass.create(subject)
+        assert_equal "Invalid type: should be a hash.", vclass.errors[:idx_scope]
+      end
+    end # with an invalid idx_scope type
+    
+    context 'with an invalid query in idx_scope' do
+      subject do
+        {:name => 'Song', :superclass => 'Post', :idx_scope => "{'reference' => 'project where foo is null'}", :create_group_id => groups_id(:public) }
       end
 
       should 'not create' do
@@ -308,7 +372,7 @@ class ScopeIndexTest < Zena::Unit::TestCase
         vclass = VirtualClass.create(subject)
         assert_equal "Invalid query: Unknown field 'foo'.", vclass.errors[:idx_scope]
       end
-    end # with an invalid idx_scope
+    end # with an invalid query in idx_scope
   end # Creating a virtual class
-
+  
 end

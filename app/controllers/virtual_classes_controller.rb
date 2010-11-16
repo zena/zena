@@ -6,7 +6,7 @@ class VirtualClassesController < ApplicationController
 
   def index
     secure(::Role) do
-      @virtual_classes = ::Role.paginate(:all, :order => 'kpath', :per_page => 20, :page => params[:page])
+      @virtual_classes = ::Role.paginate(:all, :order => 'kpath', :per_page => 200, :page => params[:page])
     end
 
     if last = @virtual_classes.last

@@ -2201,7 +2201,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
       s.add_runtime_dependency(%q<tzinfo>, [">= 0.3.12"])
       s.add_runtime_dependency(%q<rails>, ["= 2.3.8"])
-      s.add_runtime_dependency(%q<rubyless>, [">= 0.7.0"])
+      s.add_runtime_dependency(%q<rubyless>, [">= 0.8.0"])
       s.add_runtime_dependency(%q<property>, [">= 2.1.0"])
       s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_runtime_dependency(%q<authlogic>, ["= 2.1.3"])
@@ -2218,12 +2218,12 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<hpricot>, [">= 0"])
       s.add_runtime_dependency(%q<differ>, [">= 0.1.1"])
       s.add_runtime_dependency(%q<RedCloth>, ["= 3.0.4"])
-      s.add_runtime_dependency(%q<querybuilder>, [">= 0.9.1"])
+      s.add_runtime_dependency(%q<querybuilder>, [">= 0.9.3"])
     else
       s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
       s.add_dependency(%q<tzinfo>, [">= 0.3.12"])
       s.add_dependency(%q<rails>, ["= 2.3.8"])
-      s.add_dependency(%q<rubyless>, [">= 0.7.0"])
+      s.add_dependency(%q<rubyless>, [">= 0.8.0"])
       s.add_dependency(%q<property>, [">= 2.1.0"])
       s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_dependency(%q<authlogic>, ["= 2.1.3"])
@@ -2240,13 +2240,13 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<hpricot>, [">= 0"])
       s.add_dependency(%q<differ>, [">= 0.1.1"])
       s.add_dependency(%q<RedCloth>, ["= 3.0.4"])
-      s.add_dependency(%q<querybuilder>, [">= 0.9.1"])
+      s.add_dependency(%q<querybuilder>, [">= 0.9.3"])
     end
   else
     s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
     s.add_dependency(%q<tzinfo>, [">= 0.3.12"])
     s.add_dependency(%q<rails>, ["= 2.3.8"])
-    s.add_dependency(%q<rubyless>, [">= 0.7.0"])
+    s.add_dependency(%q<rubyless>, [">= 0.8.0"])
     s.add_dependency(%q<property>, [">= 2.1.0"])
     s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
     s.add_dependency(%q<authlogic>, ["= 2.1.3"])
@@ -2263,7 +2263,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<hpricot>, [">= 0"])
     s.add_dependency(%q<differ>, [">= 0.1.1"])
     s.add_dependency(%q<RedCloth>, ["= 3.0.4"])
-    s.add_dependency(%q<querybuilder>, [">= 0.9.1"])
+    s.add_dependency(%q<querybuilder>, [">= 0.9.3"])
   end
 end
 

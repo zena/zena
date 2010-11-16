@@ -485,8 +485,7 @@ class VirtualClassTest < Zena::Unit::TestCase
 
     context 'without base or filter' do
       should 'load all classes' do
-        VirtualClass.expire_cache!
-        assert_equal %w{N ND NDI NDT NDTT NN NNL NNP NP NPA NPP NPPB NPS NPSS NPT NR NRC}, subject.map(&:kpath).reject{|k| k =~ /\ANU/}.sort
+        assert_equal %w{N ND NDI NDT NDTT NN NNL NNP NP NPA NPP NPPB NPS NPSS NPT NR NRC}, subject.map(&:kpath).reject{|k| k =~ /\ANU|\ANDD/}.sort
       end
     end # without base or filter
 
@@ -497,7 +496,7 @@ class VirtualClassTest < Zena::Unit::TestCase
 
       should 'load sub classes and self' do
         VirtualClass.expire_cache!
-        assert_equal %w{ND NDI NDT NDTT}, subject.map(&:kpath).sort
+        assert_equal %w{ND NDI NDT NDTT}, subject.map(&:kpath).sort.reject{|k| k == 'NDD'} # test leakage
       end
     end # with a base
 
@@ -546,7 +545,7 @@ class VirtualClassTest < Zena::Unit::TestCase
       end
     end # on new_instance
   end # A note vclass
-  
+
   context 'A virtual class' do
     subject do
       VirtualClass['Post']
@@ -559,7 +558,7 @@ class VirtualClassTest < Zena::Unit::TestCase
       assert !(subject <= Project)
     end
   end # A virtual class
-  
+
 
 
   context 'importing virtual class definitions' do

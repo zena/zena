@@ -37,29 +37,35 @@ module Zena
 
           def validate_idx_scope
             self[:idx_scope] = nil if self[:idx_scope].blank?
-
-            if pseudo_sql = self[:idx_scope]
+            if scopes = self[:idx_scope]
               # Try to compile query in instance of class self
               begin
-                query = real_class.build_query(:all, pseudo_sql,
-                  :node_name       => 'self',
-                  :main_class      => self,
-                  :rubyless_helper => self
-                )
-              rescue ::QueryBuilder::Error => err
-                errors.add('idx_scope', "Invalid query: #{err.message}")
+                scopes = new_instance.safe_eval self[:idx_scope]
+                if scopes.kind_of?(Hash)
+                  scopes.each do |keys, query|
+                    unless keys.kind_of?(String) && query.kind_of?(String)
+                      errors.add('idx_scope', "Invalid entry: keys and query should be of type String (#{keys.inspect} => #{query.inspect})")
+                      next
+                    end
+                    begin
+                      real_class.build_query(:all, query,
+                        :node_name       => 'self',
+                        :main_class      => self,
+                        :rubyless_helper => self
+                      )
+                    rescue ::QueryBuilder::Error => err
+                      errors.add('idx_scope', "Invalid query: #{err.message}")
+                    end
+                  end
+                else
+                  errors.add('idx_scope', "Invalid type: should be a hash.")
+                end
+              rescue ::RubyLess::Error => err
+                errors.add('idx_scope', "Invalid rubyless: #{err.message}")
               end
             end
           end
       end # VirtualClassMethods
-
-      module IndexClassMethods
-        # Return the column groups for which the node with the given kpath should
-        # be used alter index values.
-        def match_groups(kpath)
-          groups.keys.select {|key| kpath =~ %r{\A#{key}}}
-        end
-      end # ClassMethods
 
       module IndexMethods
         def self.included(base)
@@ -71,15 +77,14 @@ module Zena
 
           base.class_eval do
             include RubyLess
-            extend IndexClassMethods
             before_validation     :set_site_id
             validates_presence_of :node_id
           end
 
           groups = base.groups = {}
           base.column_names.each do |name|
-            next if %{created_at updated_at id node_id}.include?(name)
-            if name =~ %r{\A([A-Z]+)_(.+)\Z}
+            next if %{created_at updated_at id node_id site_id}.include?(name)
+            if name =~ %r{\A([^_]+)_(.+)\Z}
               (groups[$1] ||= []) << $2
               unless $2 == 'id'
                 base.safe_attribute name
@@ -90,12 +95,19 @@ module Zena
 
         # The given node has been updated in the owner's project. Update index
         # entries with this node's content if necessary.
-        def update_with(node, force_create = false)
+        def update_with(node, keys, force_create = false)
           attrs = {}
-          self.class.match_groups(node.kpath).each do |group_key|
+          prop_column_names = node.schema.column_names
+          groups = self.class.groups
+          keys.each do |group_key|
+            next unless list = groups[group_key]
             next unless should_update_group?(group_key, node)
-            self.class.groups[group_key].each do |key|
-              attrs["#{group_key}_#{key}"] = node.send(key)
+            list.each do |key|
+              if prop_column_names.include?(key)
+                attrs["#{group_key}_#{key}"] = node.prop[key]
+              elsif node.respond_to?(key)
+                attrs["#{group_key}_#{key}"] = node.send(key)
+              end
             end
           end
 
@@ -158,17 +170,22 @@ module Zena
           # Update scope indices (project/section).
           def update_scope_indices
             return unless version.status == Zena::Status[:pub]
-            if virtual_class && query = virtual_class.idx_scope
-              if query.strip == 'self'
-                models_to_update = [self]
-              else
-                models_to_update = find(:all, query) || []
-              end
+            if virtual_class && scopes = virtual_class.idx_scope
+              scopes = safe_eval(scopes)
+              return unless scopes.kind_of?(Hash)
+              scopes.each do |keys, query|
+                next unless query.kind_of?(String) && keys.kind_of?(String)
+                if query.strip == 'self'
+                  models_to_update = [self]
+                else
+                  models_to_update = find(:all, query) || []
+                end
 
-              models_to_update.each do |m|
-                if idx_model = m.scope_index
-                  # force creation of index record
-                  idx_model.update_with(self, true)
+                models_to_update.each do |m|
+                  if idx_model = m.scope_index
+                    # force creation of index record
+                    idx_model.update_with(self, keys.split(',').map(&:strip), true)
+                  end
                 end
               end
             end

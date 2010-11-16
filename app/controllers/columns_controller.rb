@@ -9,7 +9,7 @@ class ColumnsController < ApplicationController
   def index
     roles = {}
     secure(Column) do
-      @columns = Column.paginate(:all, :order => 'role_id ASC, name ASC', :per_page => 20, :page => params[:page]).sort! do |a, b|
+      @columns = Column.paginate(:all, :order => 'role_id ASC, name ASC', :per_page => 200, :page => params[:page]).sort! do |a, b|
         role_a = (roles[a.role_id] ||= a.role).name
         role_b = (roles[b.role_id] ||= b.role).name
 
