@@ -1115,12 +1115,12 @@ done: \"I am done\""
 
   context 'A class (real or virtual)' do
     should 'be found from its kpath' do
-      assert_equal Node, VirtualClass.find_by_kpath('N')
-      assert_equal Page, VirtualClass.find_by_kpath('NP')
-      assert_equal Image, VirtualClass.find_by_kpath('NDI')
+      assert_equal VirtualClass['Node'], VirtualClass.find_by_kpath('N')
+      assert_equal VirtualClass['Page'], VirtualClass.find_by_kpath('NP')
+      assert_equal VirtualClass['Image'], VirtualClass.find_by_kpath('NDI')
       assert_equal roles(:Post), VirtualClass.find_by_kpath('NNP')
       assert_equal roles(:Letter), VirtualClass.find_by_kpath('NNL')
-      assert_equal TextDocument, VirtualClass.find_by_kpath('NDT')
+      assert_equal VirtualClass['TextDocument'], VirtualClass.find_by_kpath('NDT')
     end
   end
 

@@ -45,7 +45,7 @@ class PropEvalTest < Zena::Unit::TestCase
       login(:lion)
     end
 
-    context 'creating a node from a class with eval prop' do
+    context 'creating a node from a class with prop eval' do
       subject do
         secure(Node) { Node.create_node(:class => 'Contact', :name => 'foo', :parent_id => nodes_zip(:projects)) }
       end
@@ -56,10 +56,10 @@ class PropEvalTest < Zena::Unit::TestCase
           assert_equal ' foo', node.title
         end
       end
-    end # creating a node from a class with eval prop
+    end # creating a node from a class with prop eval
 
 
-    context 'unpublishing a node from a class with eval prop' do
+    context 'unpublishing a node from a class with prop eval' do
       subject do
         secure(Node) { nodes(:ant) }
       end
@@ -67,16 +67,20 @@ class PropEvalTest < Zena::Unit::TestCase
       should 'succeed' do
         assert subject.unpublish
       end
-    end # unpublishing a node from a class with eval prop
+    end # unpublishing a node from a class with prop eval
 
     context 'on a node' do
+      setup do
+        VirtualClass.expire_cache!
+      end
+
       context 'from a class with evaluated properties' do
         subject do
           secure(Node) { nodes(:ant) }.tap do |n|
             n.update_attributes(:first_name => 'Dan', :name => 'Simmons')
           end
         end
-        
+
         context 'updating attributes' do
           should 'update evaluated prop on save' do
             assert_equal 'Dan Simmons', subject.title
@@ -85,7 +89,7 @@ class PropEvalTest < Zena::Unit::TestCase
           should 'use evaluated prop in fulltext indices' do
             assert_equal 'Dan Simmons', subject.version.idx_text_high
           end
-          
+
           context 'with property indices' do
             subject do
               secure(Node) { nodes(:letter) }.tap do |n|
@@ -94,24 +98,24 @@ class PropEvalTest < Zena::Unit::TestCase
             end
 
             should 'use evaluated prop in ml prop indices' do
-              idx = IdxNodesMlString.find(:first, 
+              idx = IdxNodesMlString.find(:first,
                 :conditions => {:node_id => subject.id, :lang => visitor.lang, :key => 'search'}
               )
               assert_equal 'zena enhancements paper:Origami', idx.value
             end
 
             should 'use evaluated prop in prop indices' do
-              idx = IdxNodesString.find(:first, 
+              idx = IdxNodesString.find(:first,
                 :conditions => {:node_id => subject.id, :key => 'search_mono'}
               )
               assert_equal 'Origami mono', idx.value
             end
           end # with property indices
-          
+
         end # updating attributes
       end # from a class with evaluated properties
 
-      context 'from a class with eval prop used as default' do
+      context 'from a class with prop eval used as default' do
         setup do
           vclass = secure(Role) { roles(:Contact) }
           assert vclass.update_attributes(:prop_eval => %q[{'title' => (title.blank? ? 'Bikura' : title)}])
@@ -130,7 +134,23 @@ class PropEvalTest < Zena::Unit::TestCase
           assert subject.update_attributes(:title => '')
           assert_equal 'Bikura', subject.title
         end
-      end # from a class with eval prop used as default
+      end # from a class with prop eval used as default
+
+      context 'from a class with query in prop eval' do
+        setup do
+          vclass = secure(Role) { roles(:Contact) }
+          assert vclass.update_attributes(:prop_eval => %q[{'title' => first('project in site').title}])
+        end
+
+        subject do
+          secure(Node) { nodes(:ant) }
+        end
+
+        should 'execute query to set property' do
+          assert subject.update_attributes(:title => '')
+          assert_equal 'Zena the wild CMS', subject.title
+        end
+      end # from a class with prop eval used as default
 
       context 'from a native class' do
         subject do

@@ -29,6 +29,12 @@ class QueryNodeTest < Zena::Unit::TestCase
       assert_equal Hash[:class => Zena::Use::QueryNode::StringDictionary, :method => 'db_attr'],
         subject.safe_method_type(['db_attr'])
     end
+
+    should 'declare first as safe RubyLess' do
+      assert_equal Hash[:class => Node, :method => 'safe_first', :nil => true],
+        subject.safe_method_type(['first', String])
+      assert_kind_of Image, subject.new.safe_eval('first("image in site")')
+    end
   end # A class with QueryNode::ModelMethods included
 
   context 'An object with QueryNode::ModelMethods' do

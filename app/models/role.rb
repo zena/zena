@@ -41,6 +41,7 @@ class Role < ActiveRecord::Base
 
   private
     def set_defaults
+      self[:type] = self.class.to_s
       self.site_id = visitor.site.id
     end
 

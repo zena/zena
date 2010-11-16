@@ -14,10 +14,17 @@ module Zena
 
       module ModelMethods
         def self.included(base)
-          base.send(:include, ::QueryBuilder)
-          base.extend ClassMethods
-          base.query_compiler = Zena::Use::QueryNode::Compiler
-          base.safe_method :db_attr => StringDictionary
+          base.class_eval do
+            include ::QueryBuilder
+            extend ClassMethods
+            self.query_compiler = Zena::Use::QueryNode::Compiler
+            safe_method :db_attr => StringDictionary
+            safe_method [:first, String]  => {:class => Node, :nil => true, :method => 'safe_first'}
+          end
+        end
+
+        def safe_first(query)
+          find(:first, query, :skip_rubyless => true)
         end
 
         # Find related nodes.
@@ -43,7 +50,7 @@ module Zena
               return opts[:errors] ? err : nil
             end
 
-            type = [:all, :first].include?(count) ? :find : count
+            type = [:all, :first].include?(count) ? :find : :count
 
             self.class.do_find(count, eval(query.to_s(type)))
           end
@@ -100,12 +107,12 @@ module Zena
         load_custom_queries ["#{RAILS_ROOT}/bricks/*/queries"]
 
         CORE_CONTEXTS = %w{parent project section}
-        
+
         # Resolve 'main_class' from a class name.
         def resolve_main_class(class_name)
           VirtualClass[class_name]
         end
-        
+
         class << self
           attr_accessor :filter_fields
 
@@ -156,8 +163,9 @@ module Zena
             super
           end
         end
-        
+
         def get_scope_index_field(field_name)
+          return nil if @query.main_class.real_class.column_names.include?(field_name)
           # scope index
           klass = @query.main_class
           if index_model = klass.kind_of?(VirtualClass) ? klass.idx_class : nil
@@ -177,7 +185,7 @@ module Zena
             nil
           end
         end
-        
+
         # Overwrite this and take car to check for valid fields.
         def process_field(field_name)
           if fld = @query.attributes_alias[field_name]
@@ -325,7 +333,7 @@ module Zena
           else
             return [arg1, arg2]
           end
-          
+
           scope_idx_field = "#{class_name}_#{field_name}"
           if get_scope_index_field(scope_idx_field)
             return [[:field, scope_idx_field], function]

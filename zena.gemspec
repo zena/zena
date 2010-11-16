@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2010-11-15}
+  s.date = %q{2010-11-16}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -444,6 +444,7 @@ Gem::Specification.new do |s|
      "db/migrate/20101101084318_create_scope_index.rb",
      "db/migrate/20101109074232_create_idx_nodes_tables.rb",
      "db/migrate/20101110184235_add_role_update_to_site.rb",
+     "db/migrate/20101116103920_change_scope_index.rb",
      "doc/README_FOR_APP",
      "doc/fixtures.graffle",
      "doc/fixtures.pdf",
@@ -1807,7 +1808,7 @@ Gem::Specification.new do |s|
      "test/integration/query_node/filters.yml",
      "test/integration/query_node/idx_fields.yml",
      "test/integration/query_node/idx_key_value.yml",
-     "test/integration/query_node/idx_table.yml",
+     "test/integration/query_node/idx_scope.yml",
      "test/integration/query_node/relations.yml",
      "test/integration/query_node_test.rb",
      "test/integration/xml_api_test.rb",

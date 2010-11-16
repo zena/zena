@@ -323,6 +323,12 @@ if defined?(IRB)
   class << self
     include Zena::Acts::Secure
 
+    def err(obj)
+      obj.errors.each_error do |er,msg|
+        puts "[#{er}] #{msg}"
+      end
+    end
+
     def login(name, host = nil)
       finder = {}
       finder[:conditions] = cond = [[]]
