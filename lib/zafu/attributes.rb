@@ -38,6 +38,8 @@ module Zafu
           params[:mode]   = @params[:mode]   if @params[:mode]
           params[:format] = @params[:format] if @params[:format]
           res = "zen_#{real_attribute}(#{node}#{params_to_erb(params)})"
+        elsif real_attribute == 'lang'
+          res = 'lang'
         elsif type = safe_method_type([real_attribute])
           res = type[:method]
         elsif type = klass.safe_method_type([real_attribute])

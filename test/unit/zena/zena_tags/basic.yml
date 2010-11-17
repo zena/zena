@@ -144,6 +144,18 @@ show_sanitize:
   tem: "<%= h(@node.version.text) %>"
   res: "status text"
 
+lang:
+  src: "<r:show attr='lang'/>"
+  tem: "<%= lang %>"
+  res: "en"
+
+lang_in_test:
+  context:
+    lang: 'de'
+  src: "<r:if test='lang ne \"fr\"'>xxx</r:if>"
+  tem: '<% if lang != "fr" -%>xxx<% end -%>'
+  res: 'xxx'
+
 trans:
   context:
     lang: 'fr'
