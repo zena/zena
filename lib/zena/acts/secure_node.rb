@@ -10,7 +10,7 @@ module Zena
         belongs_to :user
         before_validation  :secure_reference_before_validation
         # we move all before_validation on update and create here so that it is triggered before multiversion's before_validation
-        before_validation  :secure_before_validation
+        before_validation_on_create  :secure_before_validation_on_create
 
         validate :record_must_be_secured
         #validate {|r| r.errors.add(:base, 'record not secured') unless r.instance_variable_get(:@visitor)}
@@ -25,32 +25,6 @@ module Zena
         before_destroy :secure_on_destroy
 
         include Zena::Acts::SecureNode::InstanceMethods
-
-        class << self
-
-          # kpath is a class shortcut to avoid tons of 'OR type = Page OR type = Document'
-          # we build this path with the first letter of each class. The example bellow
-          # shows how the kpath is built:
-          #           class hierarchy
-          #                Node --> N
-          #       Note --> NN          Page --> NP
-          #                    Document   Form   Section
-          #                       NPD      NPF      NPP
-          # So now, to get all Pages, your sql becomes : WHERE kpath LIKE 'NP%'
-          # to get all Documents : WHERE kpath LIKE 'NPD%'
-          # all pages without Documents : WHERE kpath LIKE 'NP%' AND NOT LIKE 'NPD%'
-          attr_accessor :kpath
-
-          def kpath
-            @kpath ||= make_kpath
-          end
-
-          private
-            def make_kpath
-              superclass.respond_to?(:kpath) ? (superclass.kpath + ksel) : ksel
-            end
-        end
-
         extend  Zena::Acts::SecureNode::ClassMethods
       end
 
@@ -144,14 +118,6 @@ module Zena
           ( vis.user? && ugps.include?(dgroup_id_was) )
         end
 
-        def secure_before_validation
-          if new_record?
-            secure_before_validation_on_create
-          else
-            secure_before_validation_on_update
-          end
-        end
-
         def secure_before_validation_on_create
           # set defaults before validation
           self[:site_id]  = visitor.site.id
@@ -174,7 +140,6 @@ module Zena
         end
 
         def secure_before_validation_on_update
-          self[:kpath] = self.vclass.kpath if vclass_id_changed? or type_changed?
           true
         end
 
@@ -461,15 +426,6 @@ module Zena
           end
         end
 
-        # kpath selector for the current class
-        def ksel
-          self.to_s[0..0]
-        end
-
-        # Replace Rails subclasses normal behavior
-        def type_condition
-          " #{table_name}.kpath LIKE '#{kpath}%' "
-        end
       end # ClassMethods
 
     end #SecureNode

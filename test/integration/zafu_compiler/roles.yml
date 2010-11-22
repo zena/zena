@@ -54,3 +54,41 @@ show_all_properties:
       </fieldset>
     </r:roles>
   res: "/<label>origin</label> Big Bang</li>/"
+
+vclass_name:
+  context:
+    node: letter
+  src: "<r:vclass do='name'/>"
+  tem: "<% var1 = @node.virtual_class -%><%= var1.name %>"
+  res: "Letter"
+
+vclass_roles:
+  context:
+    node: letter
+  src: "<r:vclass do='roles' do='each' join=', '><r:name/> (<r:columns do='each' join=',' do='name'/>)</r:vclass>"
+  tem: "/var1 = @node\.virtual_class .* var2 = var1.zafu_roles/"
+  res: "Node (summary,text,title), Original (origin,tz,weight), Task (assigned)"
+
+vclass_column_size:
+  context:
+    node: letter
+  src: "<r:vclass do='roles' do='each' join=', '><r:name/> (<r:columns do='size'/>)</r:vclass>"
+  res: "Node (3), Original (3), Task (1)"
+
+vclass_context:
+  src: "<r:ImageClass><r:name/></r:ImageClass>"
+  tem: "<% if var1 = VirtualClass['Image'] -%><%= var1.name %><% end -%>"
+  res: "Image"
+  
+grid_manual:
+  src: |
+    <table do='images in site'>
+      <tr do='ImageClass' do='roles'><th colspan='#{columns.size}' do='each' do='name'/></tr>
+      <tr do='ImageClass' do='roles' do='each' do='columns'><th do='each' do='name'/></tr>
+      <tr do='each'><r:ImageClass do='roles' do='each' do='columns'><td do='each' do='@node.send(name)'/></r:ImageClass></tr>
+    </table>
+  res: "/<th colspan='3'>Node.*<th colspan='3'>Original.*<th>exif</th><th>height</th><th>width</th>.*<td>image/jpeg</td><td>jpg</td>/"
+
+grid:
+  src: "<r:images in='site' do='grid'/>"
+  res: "/<table class='grid'>.*<th class='role' colspan='3'>Node.*<th class='role' colspan='3'>Original.*<th>exif</th><th>height</th><th>width</th>.*<td>image/jpeg</td><td>jpg</td>/"

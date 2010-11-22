@@ -573,7 +573,19 @@ module Zena
             "<a class='zena' href='http://zenadmin.org' title='Zena <%= Zena::VERSION %>'>#{text}</a>"
           end
         end
-
+        
+        def r_grid
+          return parser_error("not in a list context") unless node.list_context?
+          return parser_error("not a Node list") unless node.single_class <= Node
+          klass = "#{node.single_class.name}Class"
+          @blocks = [make(:void, :method => 'void', :text => %Q{<table class='grid'>
+            <tr do='#{klass}' do='roles'><th class='role' colspan='\#{columns.size}' do='each' do='name'/></tr>
+            <tr do='#{klass}' do='roles' do='each' do='columns'><th do='each' do='name'/></tr>
+            <tr do='each'><r:#{klass} do='roles' do='each' do='columns'><td do='each' do='@node.send(name)'/></r:#{klass}></tr>
+          </table>})]
+          expand_with
+        end
+        
         private
           def show_number(method)
             if fmt = @params[:format]

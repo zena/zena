@@ -95,8 +95,8 @@ module Zena
         def export_properties
           res  = {}
           prop = self.prop
-          schema.column_names.each do |key|
-            next if key == 'cached_role_ids' # FIXME: use a flag to mark as non-exportable
+          schema.zafu_all_columns.each do |col|
+            key = col.name
             value = prop[key]
             next if value.blank?
             res[key] = value

@@ -80,6 +80,24 @@ class SerializableTest < Zena::Unit::TestCase
         end
       end
 
+      context 'with cached role ids' do
+        setup do
+          login(:tiger)
+          assert subject.update_attributes('properties' => {'assigned' => 'flat Eric'})
+          assert_equal [roles_id(:Task)], subject.cached_role_ids
+        end
+
+        subject do
+          secure(Node) { nodes(:letter) }
+        end
+
+        should_not_change_object_on_rewrite
+
+        should 'ignore cached_role_ids in xml' do
+          hash = Hash.from_xml(subject.to_xml)['node']
+          assert_nil hash['cached_role_ids']
+        end
+      end
     end # on a node
 
     context 'on many nodes' do

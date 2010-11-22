@@ -16,7 +16,12 @@ class Role < ActiveRecord::Base
   after_destroy :expire_vclass_cache
 
   include RubyLess
-  safe_method :columns => {:class => ['Column'], :method => 'columns.values', :nil => false}
+  # All columns defined for a VirtualClass (kpath based).
+  safe_method :all_columns => {:class => ['Column'], :method => 'zafu_all_columns'}
+  
+  # Columns defined in the role.
+  safe_method :columns     => {:class => ['Column'], :method => 'zafu_columns'}
+  
   safe_method :name => String
 
   # We use property to store index information, default values and such
@@ -37,7 +42,17 @@ class Role < ActiveRecord::Base
       errors.add('superclass', 'invalid')
     end
   end
+  
+  def zafu_all_columns
+    @zafu_all_columns ||= (roles.flatten.map{|r| r.zafu_columns}).flatten.sort {|a,b| a.name <=> b.name}
+  end
 
+  def zafu_columns
+    @zafu_columns ||= defined_columns.values.select do |c|
+      # Allow all dynamic properties and all safe static properties
+      !real_class || real_class.safe_method_type([c.name])
+    end.sort {|a,b| a.name <=> b.name}
+  end
 
   private
     def set_defaults

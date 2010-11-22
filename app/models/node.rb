@@ -102,6 +102,9 @@ class Node < ActiveRecord::Base
 
   include Property
 
+  # This must come before the first call to make_schema.
+  include Zena::Use::Kpath::InstanceMethods 
+  
   def virtual_class
     @virtual_class ||= if self[:vclass_id]
       VirtualClass.find_by_id(self[:vclass_id])
@@ -109,18 +112,30 @@ class Node < ActiveRecord::Base
       VirtualClass.find_by_name(self.class.name)
     end
   end
-  
+
   def virtual_class=(vclass)
     @virtual_class = vclass
     self[:vclass_id] = vclass.id
     self[:kpath] = vclass.kpath
   end
 
+  # We want to use a Role as schema for properties defined in the real_class instead of Property::Schema.
+  def self.make_schema
+    ::Role.new(:name => name).tap do |role|
+      role.kpath = self.kpath
+      role.real_class = self
+    end
+  end
+
   alias schema virtual_class
 
   # We use the virtual_class as proxy for method type resolution.
-  def safe_eval(code)
-    eval RubyLess.translate(schema, code)
+  # def safe_eval(code)
+  #   eval RubyLess.translate(schema, code)
+  # end
+  
+  def safe_method_type(signature, receiver = nil)
+    schema.safe_method_type(signature, receiver)
   end
 
   # Should be the same serialization as in Version and Site
@@ -156,7 +171,6 @@ class Node < ActiveRecord::Base
   belongs_to         :skin
   before_validation  :set_defaults
   before_validation  :node_before_validation
-  validates_presence_of :title
   validate           :validate_node
   before_create      :node_before_create
   before_save        :change_klass
@@ -219,7 +233,8 @@ class Node < ActiveRecord::Base
                      :v_publish_from => Time, :v_backup => Boolean,
                      :zip => Number, :parent_id => {:class => Number, :nil => true, :method => 'parent_zip'},
                      :user => 'User',
-                     :author => author_proc
+                     :author => author_proc,
+                     :vclass => {:class => 'VirtualClass', :method => 'virtual_class'}
 
   # This is needed so that we can use secure_scope and secure in search.
   extend  Zena::Acts::Secure
@@ -385,7 +400,7 @@ class Node < ActiveRecord::Base
     def allowed_change_to_classes
       change_to_classes_for_form.map {|k,v| v}
     end
-    
+
     # TODO: remove and use VirtualClass[...].classes_for_form directly
     def classes_for_form(opts={})
       VirtualClass[self.name].classes_for_form(opts)
@@ -872,6 +887,9 @@ class Node < ActiveRecord::Base
         method = signature.first
         if type = super
           type
+        elsif method == 'cached_role_ids'
+          # TODO: how to avoid everything ending in '_id' being caught as relations ?
+          nil
         elsif method =~ /^(.+)_((id|zip|status|comment)(s?))\Z/ && !instance_methods.include?(method)
           key = $3 == 'id' ? "zip#{$4}" : $2
           {:method => "rel[#{$1.inspect}].try(:other_#{key})", :nil => true, :class => ($4.blank? ? Number : [Number])}
@@ -1541,6 +1559,8 @@ class Node < ActiveRecord::Base
 
     # Make sure the node is complete before creating it (check parent and project references)
     def validate_node
+      errors.add(:title, "Can't be blank.") if title.blank?
+      
       if @parent_zip_error
         errors.add('parent_id', @parent_zip_error)
         @parent_zip_error = nil

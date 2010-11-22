@@ -17,6 +17,8 @@ class VirtualClass < Role
   include Zena::Use::Fulltext::VirtualClassMethods
   include Zena::Use::PropEval::VirtualClassMethods
   include Zena::Use::ScopeIndex::VirtualClassMethods
+  
+  safe_method :roles => {:class => ['Role'], :method => 'zafu_roles'}
 
   class Cache
     def initialize
@@ -123,7 +125,7 @@ class VirtualClass < Role
       vclass = VirtualClass.new(:name => real_class.name)
       vclass.kpath      = real_class.kpath
       vclass.real_class = real_class
-      vclass.include_role real_class
+      vclass.include_role real_class.schema
       vclass
     end
 
@@ -370,6 +372,19 @@ class VirtualClass < Role
     @import_result || errors[:base]
   end
 
+  # List all roles ordered by ascending kpath and name
+  def zafu_roles
+    @zafu_roles ||= roles.flatten.uniq.reject do |r|
+      r.zafu_columns.empty?
+    end.sort do |a, b|
+      if a.kpath == b.kpath
+        a.name <=> b.name
+      else
+        a.kpath <=> b.kpath
+      end
+    end
+  end
+  
   private
     def attached_roles
       ::Role.all(

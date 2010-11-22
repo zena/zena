@@ -123,7 +123,7 @@ module Zena
         end
 
         def zafu_possible_roles
-          roles = virtual_class.roles.flatten.uniq.select {|r| r.class == Role }
+          roles = virtual_class.zafu_roles.select {|r| r.class == Role }
           roles.empty? ? nil : roles
         end
 
@@ -159,8 +159,10 @@ module Zena
             end
 
             role_ids = []
-            virtual_class.roles.flatten.uniq.each do |role|
-              next unless role.class == Role # Do not index VirtualClasses (information exists through kpath).
+            virtual_class.zafu_roles.each do |role|
+              # Do not index VirtualClasses (information exists through kpath) and do not
+              # index static roles.
+              next unless role.class == Role && role.id
               role_ids << role.id if role.column_names & keys != []
             end
 
