@@ -123,6 +123,9 @@ class Node < ActiveRecord::Base
   def self.make_schema
     ::Role.new(:name => name).tap do |role|
       role.kpath = self.kpath
+      # Enable property method definitions.
+      role.klass      = self
+      # Used for property inheritance.
       role.real_class = self
     end
   end
@@ -1559,7 +1562,7 @@ class Node < ActiveRecord::Base
 
     # Make sure the node is complete before creating it (check parent and project references)
     def validate_node
-      errors.add(:title, "Can't be blank.") if title.blank?
+      errors.add(:title, "can't be blank") if title.blank?
       
       if @parent_zip_error
         errors.add('parent_id', @parent_zip_error)

@@ -3,7 +3,7 @@ require 'test_helper'
 class MLIndexTest < Zena::Unit::TestCase
   context 'A visitor with write access' do
     setup do
-      login(:tiger)
+      login(:lion)
     end
 
     context 'creating a node' do
@@ -22,21 +22,31 @@ class MLIndexTest < Zena::Unit::TestCase
       end
 
       context 'with non ML indices' do
+        setup do
+          buz = VirtualClass.create(:superclass => 'Node', :name => 'Buz', :create_group_id => groups_id(:public))
+          assert !buz.new_record?
+          col = Column.create(:role_id => buz.id, :ptype => 'string', :name => 'foo', :index => 'string')
+          assert !col.new_record?
+        end
+        
+        teardown do
+          # avoid test leakage
+          VirtualClass.expire_cache!
+        end
+        
         subject do
-          k = Class.new(Node) do
-            property.string 'foo', :index => true
-          end
-          secure(k) { k.create(
+          secure(Node) { Node.create_node(
+            :class     => 'Buz',
             :title     => 'Zanzibar',
             :foo       => 'bar',
-            :parent_id => nodes_id(:cleanWater)
+            :parent_id => nodes_zip(:cleanWater)
           )}
         end
 
         should 'insert single value' do
           assert_difference('IdxNodesString.count', 1) do
-            # title = 4, name = 1
-            assert subject
+            # title = 4, foo = 1
+            assert !subject.new_record?
           end
         end
       end # with non ML indices
@@ -51,17 +61,17 @@ class MLIndexTest < Zena::Unit::TestCase
       subject do
         secure(Node) { nodes(:news) }
       end
-      
+
       should 'rebuild index for current lang' do
         assert_difference('IdxNodesMlString.count', 0) do
           subject.update_attributes(:title => 'fabula', :v_status => Zena::Status[:pub])
         end
-        idx = IdxNodesMlString.find(:first, 
+        idx = IdxNodesMlString.find(:first,
           :conditions => {:node_id => subject.id, :lang => visitor.lang, :key => 'title'}
         )
         assert_equal 'fabula', idx.value
       end
-      
+
       context 'with std indices removed' do
         setup do
           IdxNodesString.connection.execute 'DELETE from idx_nodes_strings'
@@ -87,7 +97,7 @@ class MLIndexTest < Zena::Unit::TestCase
           end
         end
       end # with multi lingual indices removed
-      
+
       context 'in a class with evaluated properties' do
         subject do
           secure(Node) { nodes(:ant) }
@@ -99,22 +109,22 @@ class MLIndexTest < Zena::Unit::TestCase
           idx = IdxNodesMlString.find(:first, :conditions => ["lang = ? AND `key` = ? AND node_id = ?", visitor.lang, 'title', subject.id])
           assert_equal 'Superman Invicta', idx.value
         end
-        
+
         context 'with changes overwritten by computed values' do
           should 'not touch index' do
             assert_difference('IdxNodesMlString.count', 0) do
               subject.update_attributes(:title => 'fabula', :v_status => Zena::Status[:pub])
             end
-            idx = IdxNodesMlString.find(:first, 
+            idx = IdxNodesMlString.find(:first,
               :conditions => {:node_id => subject.id, :lang => visitor.lang, :key => 'title'}
             )
-            
+
             assert_equal 'Solenopsis Invicta', idx.value
           end
         end # with changes overwritten by computed values
-        
+
       end # in a class with evaluated properties
-      
+
     end # updating a node
 
     context 'on a node' do

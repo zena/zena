@@ -621,8 +621,27 @@ class WorkflowTest < Zena::Unit::TestCase
               assert subject.update_attributes(:title => 'Equal.', :v_status => Zena::Status[:pub])
             end
           end
+        end # setting v_status to autopublish
+      end # that she owns
+      
+      # Basic tests for property integration in Node.
+      context 'changing attributes' do
+        should 'mark version as edited' do
+          subject.attributes = {'title' => 'foo'}
+          assert subject.version.edited?
         end
-      end
+        
+        should 'mark properties as changed' do
+          subject.attributes = {'title' => 'foo'}
+          assert subject.prop.changed?
+        end
+        
+        should 'show property changes on chages' do
+          subject.attributes = {'title' => 'foo'}
+          assert_equal Hash['title'=> ['status title', 'foo']], subject.changes
+        end
+      end # changing attributes
+      
     end # A visitor with drive access on a publication
 
 

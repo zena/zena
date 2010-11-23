@@ -31,15 +31,15 @@ form_with_all_roles:
   context:
     node: tree_jpg
   src: |
-    <r:possible_roles>
+    <r:vclass do='roles'>
       <fieldset do='each'>
         <legend do='name'/>
         <ul do='columns'>
           <li do='each'><label do='name'/> <r:input/></li>
         </ul>
       </fieldset>
-    </r:possible_roles>
-  res: "/label.weight.*node\[weight\].*origin.*value='Big Bang'.*assigned/"
+    </r:vclass>
+  res: "/label.origin.*node\[origin\].*value='Big Bang'.*weight.*assigned/"
 
 show_all_properties:
   context:
@@ -66,7 +66,7 @@ vclass_roles:
   context:
     node: letter
   src: "<r:vclass do='roles' do='each' join=', '><r:name/> (<r:columns do='each' join=',' do='name'/>)</r:vclass>"
-  tem: "/var1 = @node\.virtual_class .* var2 = var1.zafu_roles/"
+  tem: "/var1 = @node\.virtual_class .* var2 = var1.sorted_roles/"
   res: "Node (summary,text,title), Original (origin,tz,weight), Task (assigned)"
 
 vclass_column_size:
@@ -79,7 +79,7 @@ vclass_context:
   src: "<r:ImageClass><r:name/></r:ImageClass>"
   tem: "<% if var1 = VirtualClass['Image'] -%><%= var1.name %><% end -%>"
   res: "Image"
-  
+
 grid_manual:
   src: |
     <table do='images in site'>

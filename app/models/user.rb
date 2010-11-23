@@ -69,7 +69,7 @@ class User < ActiveRecord::Base
                           :to_publish => ['Version'], :redactions => ['Version'], :proposed => ['Version'],
                           :comments_to_publish => ['Comment']
 
-  attr_accessible         :login, :lang, :node, :time_zone, :status, :group_ids, :site_ids, :crypted_password, :password
+  attr_accessible         :login, :lang, :node, :time_zone, :status, :group_ids, :site_ids, :crypted_password, :password, :dev_skin_id
   attr_accessor           :visited_node_ids
   attr_accessor           :ip
 

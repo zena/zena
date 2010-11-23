@@ -179,7 +179,7 @@ class UserTest < Zena::Unit::TestCase
   def test_create_with_auto_publish
     Site.connection.execute "UPDATE sites SET auto_publish = #{Zena::Db::TRUE} WHERE id = #{sites_id(:zena)}"
     login(:lion)
-    user = secure!(User) { User.create("name"=>"Shakespeare", "status"=>"50", "group_ids"=>[""], "lang"=>"fr", "time_zone"=>"Europe/Zurich", "first_name"=>"William", "login"=>"bob", "password"=>"jsahjks894", "email"=>"") }
+    user = secure!(User) { User.create('status'=>'50', 'group_ids'=>[''], 'lang'=>'fr', 'time_zone'=>'Europe/Zurich', 'node_attributes' => {'first_name'=>'William', 'name'=>'Shakespeare'}, 'login'=>'bob', 'password'=>'jsahjks894') }
     assert !user.new_record?
     assert !user.node.new_record?
     assert_equal sites_id(:zena), user.node.site_id

@@ -1,6 +1,10 @@
 require 'property/stored_role'
 
 class Role < ActiveRecord::Base
+  # We define 'klass' in the Role used by the real classes so that property methods can be
+  # defined.
+  attr_accessor :klass
+  
   # Only store partial class name in 'type' field (not ::Role)
   self.store_full_sti_class = false
 

@@ -87,7 +87,7 @@ class QueryNodeTest < Zena::Unit::TestCase
       end
 
       should 'set main_class' do
-        assert subject.main_class < Document
+        assert_equal VirtualClass['Document'], subject.main_class
       end
     end # with a real class filter
 
@@ -107,6 +107,7 @@ class QueryNodeTest < Zena::Unit::TestCase
       end
 
       should 'set main_class with real_class' do
+        assert_equal VirtualClass['Letter'], subject.main_class
         assert subject.main_class < Note
       end
 

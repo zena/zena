@@ -37,6 +37,7 @@ class UsersController < ApplicationController
   # xx  ==> fixed skin
   def dev_skin(skin_id = params['skin_id'])
     visitor.update_attributes('dev_skin_id' => skin_id)
+    
     if request.referer && !(request.referer =~ /login/)
       redirect_to request.referer
     else

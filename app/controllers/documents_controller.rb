@@ -11,10 +11,8 @@ class DocumentsController < ApplicationController
 
   # add a new document to the current node
   def new
-    @node = @parent.new_child(:class => Document)
-
-    # Add Template role so that we can use the same object in forms which need the Template properties.
-    @node.include_role Template
+    # Use the Template class so that we can use the same object in forms which need the Template properties.
+    @node = @parent.new_child(:class => Template)
 
     respond_to do |format|
       format.html

@@ -35,7 +35,11 @@ class MultipleHostsTest < ActionController::IntegrationTest
   end
 
   def test_cache
+    # We need the visitor to load VirtualClass cache.
+    Thread.current[:visitor] = users(:anon)
     node_zip = nodes(:zena, :people).zip
+    Thread.current[:visitor] = nil
+    
     without_files('/test.host/public') do
       with_caching do
         path = "/en/section#{node_zip}.html"
@@ -78,7 +82,14 @@ class MultipleHostsTest < ActionController::IntegrationTest
       if @node[:id] == @site.root_id
         name = []
       else
-        name = "#{@node.klass.downcase}#{@node[:zip]}.html"
+        name = case node_sym
+        when :wiki
+          'blog29.html'
+        when :status
+          'page22.html'
+        else
+          raise 'Please set page in get_node.'
+        end
       end
       prefix = (!request || session[:user] == @site.anon_id) ? 'en' : AUTHENTICATED_PREFIX
       url = "http://#{host}/#{prefix}/#{name}"

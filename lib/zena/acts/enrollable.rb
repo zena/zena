@@ -59,14 +59,6 @@ module Zena
             end
           end
         end
-
-        def load_roles(*roles)
-          safe_properties = self.loaded_role_properties
-          roles.flatten.each do |role|
-            include_role role
-            safe_properties.merge!(role.columns)
-          end
-        end
       end # LoadRoles
 
       module ModelMethods
@@ -105,8 +97,7 @@ module Zena
             after_save  :update_roles
             after_destroy :destroy_nodes_roles
             has_and_belongs_to_many :roles, :class_name => '::Role'
-            safe_context :possible_roles => {:class => [Role], :method => 'zafu_possible_roles'}
-            safe_context :roles => {:class => [Role], :method => 'zafu_roles'}
+            safe_context :roles  => {:class => [Role], :method => 'assigned_roles'}
 
             property do |p|
               p.serialize :cached_role_ids, Array
@@ -123,13 +114,14 @@ module Zena
         end
 
         def zafu_possible_roles
-          roles = virtual_class.zafu_roles.select {|r| r.class == Role }
+          # Only select database stored roles
+          roles = virtual_class.sorted_roles.select {|r| r.id && r.class == Role }
           roles.empty? ? nil : roles
         end
 
-        def zafu_roles
+        def assigned_roles
           return nil unless role_ids = self.prop['cached_role_ids']
-          roles = (zafu_possible_roles || []).select do |role|
+          roles = (schema.sorted_roles || []).select do |role|
             role_ids.include?(role.id)
           end
           roles.empty? ? nil : roles
@@ -159,7 +151,7 @@ module Zena
             end
 
             role_ids = []
-            virtual_class.zafu_roles.each do |role|
+            virtual_class.sorted_roles.each do |role|
               # Do not index VirtualClasses (information exists through kpath) and do not
               # index static roles.
               next unless role.class == Role && role.id

@@ -244,9 +244,6 @@ Just doing the above will filter all result according to the logged in user.
           end
         end
 
-        def driveable?
-          respond_to?(:dgroup_id)
-        end
 
       # This module does two things:
       # 1. make the visitor visit each node

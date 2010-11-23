@@ -17,8 +17,8 @@ class VirtualClass < Role
   include Zena::Use::Fulltext::VirtualClassMethods
   include Zena::Use::PropEval::VirtualClassMethods
   include Zena::Use::ScopeIndex::VirtualClassMethods
-  
-  safe_method :roles => {:class => ['Role'], :method => 'zafu_roles'}
+
+  safe_context :roles => {:class => ['Role'], :method => 'sorted_roles'}
 
   class Cache
     def initialize
@@ -315,7 +315,11 @@ class VirtualClass < Role
     if other_class.kind_of?(VirtualClass)
       kpath = other_class.kpath
       self.kpath != kpath && self.kpath[0..(kpath.length-1)] == kpath
+    elsif real_class.kpath != self.kpath
+      # Sub class of real_class
+      real_class <= other_class
     else
+      # VirtualClass of the real_class
       real_class < other_class
     end
   end
@@ -325,12 +329,12 @@ class VirtualClass < Role
   def query_compiler
     real_class.query_compiler
   end
-  
+
   # Build pseudo sql query.
   def build_query(*args)
     real_class.build_query(*args)
   end
-  
+
   # Execute find
   def do_find(*args)
     real_class.do_find(*args)
@@ -373,18 +377,26 @@ class VirtualClass < Role
   end
 
   # List all roles ordered by ascending kpath and name
-  def zafu_roles
-    @zafu_roles ||= roles.flatten.uniq.reject do |r|
-      r.zafu_columns.empty?
-    end.sort do |a, b|
-      if a.kpath == b.kpath
-        a.name <=> b.name
-      else
-        a.kpath <=> b.kpath
+  def sorted_roles
+    @sorted_roles ||= begin
+      res = roles.flatten.uniq.reject do |r|
+        r.zafu_columns.empty?
+      end.sort do |a, b|
+        if a.kpath == b.kpath
+          a.name <=> b.name
+        else
+          a.kpath <=> b.kpath
+        end
       end
+      res.empty? ? nil : res
     end
   end
-  
+
+  # Cache index groups
+  def index_groups
+    @index_groups ||= super
+  end
+
   private
     def attached_roles
       ::Role.all(

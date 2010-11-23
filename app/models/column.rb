@@ -2,9 +2,9 @@ class Column < ActiveRecord::Base
   attr_accessor :import_result
   include RubyLess
   include Property::StoredColumn
-  TYPES_FOR_FORM   = %w{string datetime float}
+  TYPES_FOR_FORM   = %w{string datetime integer float}
 
-  INDICES_FOR_FORM = %w{string ml_string datetime float}
+  INDICES_FOR_FORM = %w{string ml_string datetime integer float}
 
   FIELD_INDICES = []
 

@@ -551,15 +551,100 @@ class VirtualClassTest < Zena::Unit::TestCase
       VirtualClass['Post']
     end
 
-    should 'respond to less or equal' do
+    should 'respond to less or equal then' do
       assert subject <= Note
       assert subject <= Node
       assert subject <= VirtualClass['Note']
       assert !(subject <= Project)
     end
+    
+    should 'respond to less then' do
+      assert subject < Note
+      assert subject < Node
+      assert subject < VirtualClass['Note']
+      assert !(subject < Project)
+      assert !(subject < VirtualClass['Post'])
+    end
+    
+    should 'consider role methods as safe' do
+      assert_equal Hash[:class=>String, :method=>"prop['assigned']", :nil=>true], subject.safe_method_type(['assigned'])
+    end
   end # A virtual class
 
+  context 'A visitor with write access' do
+    setup do
+      login(:tiger)
+    end
+    
+    context 'on a node' do
+      context 'from a class with roles' do
+        subject do
+          secure(Node) { nodes(:letter) }
+        end
 
+        should 'use method missing to assign properties' do
+          assert_nothing_raised do
+            subject.assigned = 'flat Eric'
+          end
+        end
+
+        should 'use property filter on set attributes' do
+          assert_nothing_raised do
+            subject.attributes = {'assigned' => 'flat Eric'}
+          end
+        end
+
+        should 'accept properties' do
+          subject.properties = {'assigned' => 'flat Eric'}
+          assert subject.save
+          assert_equal 'flat Eric', subject.assigned
+        end
+
+        should 'use property filter on update_attributes' do
+          assert_nothing_raised do
+            assert subject.update_attributes('assigned' => 'flat Eric', 'origin' => '2D')
+          end
+        end
+
+        should 'accept properties in update_attributes' do
+          assert_nothing_raised do
+            assert subject.update_attributes('properties' => {'assigned' => 'flat Eric'})
+            assert_equal 'flat Eric', subject.assigned
+          end
+        end
+      
+        should 'consider role methods as safe' do
+          assert_equal Hash[:class=>String, :method=>"prop['paper']", :nil=>true], subject.safe_method_type(['paper'])
+        end
+        
+        should 'not consider VirtualClass own methods as safe' do
+          assert_nil subject.safe_method_type(['name'])
+        end
+        
+        should 'not allow arbitrary attributes' do
+          assert !subject.update_attributes('assigned' => 'flat Eric', 'bad' => 'property')
+        end
+
+        should 'not raise on bad attributes' do
+          assert_nothing_raised do
+            subject.attributes = {'elements' => 'Statistical Learning'}
+          end
+        end
+
+        should 'add an error on first bad attributes' do
+          subject.attributes = {'elements' => 'Statistical Learning'}
+          assert !subject.save
+          assert_equal 'property not declared', subject.errors[:elements]
+        end
+
+        should 'not allow property bypassing' do
+          assert !subject.update_attributes('properties' => {'bad' => 'property'})
+          assert_equal 'property not declared', subject.errors[:bad]
+        end
+        
+      end # from a class with roles
+    end # on a node
+  end # A visitor with write access
 
   context 'importing virtual class definitions' do
     setup do

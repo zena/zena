@@ -10,7 +10,7 @@ module Zena
         belongs_to :user
         before_validation  :secure_reference_before_validation
         # we move all before_validation on update and create here so that it is triggered before multiversion's before_validation
-        before_validation_on_create  :secure_before_validation_on_create
+        before_validation  :secure_before_validation
 
         validate :record_must_be_secured
         #validate {|r| r.errors.add(:base, 'record not secured') unless r.instance_variable_get(:@visitor)}
@@ -117,8 +117,13 @@ module Zena
         def full_drive_was_true?(vis=visitor, ugps=visitor.group_ids)
           ( vis.user? && ugps.include?(dgroup_id_was) )
         end
-
-        def secure_before_validation_on_create
+        
+        # Secure before validation on create (we use the 'before_validation' hook instead of 'before_validation_on_create'
+        # to trigger secure_before_validation before multiversion's before_validation).
+        def secure_before_validation
+          return true unless new_record?
+          
+          # Secure before validation on create.
           # set defaults before validation
           self[:site_id]  = visitor.site.id
           self[:user_id]  = visitor.id

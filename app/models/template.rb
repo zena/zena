@@ -29,7 +29,7 @@ class Template < TextDocument
         'skin_id'   => record[:section_id],
       }
     end
-
+    
     safe_property :tkpath, :mode, :target_klass, :format
   end
 

@@ -133,7 +133,7 @@ class TextDocument < Document
                 "url(#{quote}/#{asset.fullpath_as_title.map(&:to_filename).join('/')}#{mode}.#{asset.prop['ext']}#{quote})"
               end
             else
-              errors.add('asset', '{{zip}} not found', :zip => zip)
+              errors.add('asset', '%{zip} not found', :zip => zip)
               "url(#{quote}#{url}#{quote})"
             end
           elsif File.exist?(File.join(SITES_ROOT, current_site.public_path, url.sub(/\?\d+\Z/,'')))
