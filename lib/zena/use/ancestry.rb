@@ -94,7 +94,7 @@ module Zena
             []
           else
             path = fullpath.split('/')[0..-2]
-            [current_site.root_node].compact + secure(Node) { Node.fullpath_map(path, :node) }
+            [current_site.root_node].compact + (secure(Node) { Node.fullpath_map(path, :node) } || [])
           end
         end
 

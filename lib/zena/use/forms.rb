@@ -9,39 +9,61 @@ module Zena
           klass.new_instance(Node.transform_attributes(params))
         end
 
-        def make_checkbox(node, values, relation_name, attribute)
-          relation_proxy = node.relation_proxy(relation_name)
-          return nil unless values && relation_proxy
+        def make_checkbox(node, opts)
+          if relation_name = opts[:role]
+            values, attribute = opts[:list], opts[:attr]
+            relation_proxy = node.relation_proxy(relation_name)
+            return nil unless values && relation_proxy
 
-          res = []
-          role = relation_proxy.other_role
+            res = []
+            role = relation_proxy.other_role
 
-          if relation_proxy.unique?
-            current_value = relation_proxy.other_id
+            if relation_proxy.unique?
+              current_value = relation_proxy.other_id
 
-            res << "<div class='input_radio'>"
-            values.each do |value|
-              res << "<span><input type='radio' name='node[#{role}_id]' value='#{value.zip}'"
-              res << (current_value == value.id ? " checked='checked'/> " : '/> ')
-              res << value.prop[attribute]
-              res << '</span> '
+              res << "<div class='input_radio'>"
+              values.each do |value|
+                res << "<span><input type='radio' name='node[#{role}_id]' value='#{value.zip}'"
+                res << (current_value == value.id ? " checked='checked'/> " : '/> ')
+                res << value.prop[attribute]
+                res << '</span> '
+              end
+              res << '</div>'
+
+              res << "<span><input type='radio' name='node[#{role}_id]' value=''/> #{_('none')}</span>"
+            else
+              current_values = relation_proxy.other_ids
+              res << "<div class='input_checkbox'>"
+              values.each do |value|
+                res << "<span><input type='checkbox' name='node[#{role}_ids][]' value='#{value.zip}'"
+                res << (current_values.include?(value.id) ? " checked='checked'/> " : '/> ')
+                res << value.prop[attribute]
+                res << '</span> '
+              end
+              res << '</div>'
+              res << "<input type='hidden' name='node[#{role}_ids][]' value=''/>"
             end
-            res << '</div>'
-
-            res << "<span><input type='radio' name='node[#{role}_id]' value=''/> #{_('none')}</span>"
+            res.join('')
           else
-            current_values = relation_proxy.other_ids
-            res << "<div class='input_checkbox'>"
-            values.each do |value|
-              res << "<span><input type='checkbox' name='node[#{role}_ids][]' value='#{value.zip}'"
-              res << (current_values.include?(value.id) ? " checked='checked'/> " : '/> ')
-              res << value.prop[attribute]
+            # literal values
+            list, name, selected = opts[:list], opts[:name], opts[:selected]
+            if opts[:selected].kind_of?(Array)
+              name = "node[#{name}][]"
+            else
+              selected = [selected]
+              name = "node[#{name}]"
+            end
+            res = ["<div class='input_checkbox'>"]
+            list.each do |value|
+              
+              res << "<span><input type='checkbox' name='#{name}' value='#{value}'"
+              res << (selected.include?(value.to_s) ? " checked='checked'/> " : '/> ')
+              res << value.to_s
               res << '</span> '
             end
             res << '</div>'
-            res << "<input type='hidden' name='node[#{role}_ids][]' value=''/>"
+            res << "<input type='hidden' name='#{name}' value=''/>"
           end
-          res.join('')
         end
       end # ViewMethods
 
@@ -428,26 +450,45 @@ module Zena
 
         # <r:checkbox role='collaborator_for' values='projects' in='site'/>"
         def r_checkbox
-          return parser_error("missing 'nodes'") unless values = @params[:values] || @params[:nodes]
-          return parser_error("missing 'role'")  unless   role = (@params[:role]  || @params[:name])
-          attribute = @params[:attr] || 'title'
-          if role =~ /(.*)_ids?\Z/
-            role = $1
-          end
-          meth = role.singularize
+          nodes  = @params[:nodes]
+          values = @params[:values]
+          return parser_error("missing 'nodes' or 'values'") unless nodes || values
 
-          if values =~ /^\d+\s*($|,)/
-            # ids
-            # TODO generate the full query instead of using secure.
-            values = values.split(',').map{|v| v.to_i}
-            finder = "secure(Node) { Node.all(:conditions => 'zip IN (#{values.join(',')})') }"
+          if values
+            return parser_error("missing attribute 'name'") unless name = @params[:name]
+            # parse literal values
+            finder = values.split(',').map(&:strip).inspect
+            meth = RubyLess.translate(node.klass, name)
+            meth = "#{node}.#{meth}"
+            
+            out "<%= make_checkbox(#{node}, :list => #{finder}, :name => #{name.inspect}, :selected => #{meth}) %>"
           else
-            # relation
-            return unless finder = build_finder(:all, values, @params)
-            return parser_error("invalid class (#{finder[:class]})") unless finder[:class].first <= Node
-            finder = finder[:method]
+            if name = @params[:name]
+              if name =~ /(.*)_ids?\Z/
+                role = $1
+              else
+                role = name
+              end
+            else
+              role = @params[:role]
+            end
+            return parser_error("missing 'role'") unless role
+            # nodes
+            meth = role.singularize
+
+            if nodes =~ /^\d+\s*($|,)/
+              values = values.split(',').map{|v| v.to_i}
+              finder = "secure(Node) { Node.all(:conditions => 'zip IN (#{values.join(',')})') }"
+            else
+              return unless finder = build_finder(:all, values, @params)
+              return parser_error("invalid class (#{finder[:class]})") unless finder[:class].first <= Node
+              finder = finder[:method]
+            end
           end
-          out "<%= make_checkbox(#{node}, #{finder}, #{meth.inspect}, #{attribute.inspect}) %>"
+
+          attribute = @params[:attr] || 'title'
+
+          out "<%= make_checkbox(#{node}, :list => #{finder}, :role => #{meth.inspect}, :attr => #{attribute.inspect}) %>"
         end
 
         alias r_radio r_checkbox

@@ -4,6 +4,7 @@ TODO
 0. change url ! to /fr/pasdfj94859
 1. POST ! instead of GET during preview (long articles !!!)
 2. Change fullpath to zip/zip/zip
+3. Update tags API: tags => [String] (tag_names), tag_list => String, tag_links => ['Link']
 3. Rename virtual_classes_controller to roles_controller
 4. kill node_name
 

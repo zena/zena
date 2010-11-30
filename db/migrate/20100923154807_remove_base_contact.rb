@@ -12,10 +12,25 @@ class RemoveBaseContact < ActiveRecord::Migration
 
     # Removed class now resolved as vclass
     execute "update nodes set type='Node' where type='Reference' or type='BaseContact'"
-
+    
     # 1. create a new virtual class 'Contact' with kpath 'NRC'
     Site.all.each do |site|
-      Thread.current[:visitor] = User.find(:first, :conditions => ["status = ? AND site_id = ?", User::Status[:admin], site.id])
+      visitor = Thread.current[:visitor] = User.find(:first, :conditions => ["status = ? AND site_id = ?", User::Status[:admin], site.id])
+      
+      # Fake roles_updated_at= in site in case we migrate with new VirtualClass caching.
+      VirtualClass
+      unless visitor.site.respond_to?(:roles_updated_at=)
+        VirtualClass.class_eval do
+          def self.expire_cache!
+            # ignore
+          end
+          
+          def idx_scope
+            nil
+          end
+        end
+      end
+      
       ref = secure(VirtualClass) do
         VirtualClass.create(:superclass => 'Node', :name => 'Reference', :create_group_id => site.public_group_id)
       end

@@ -45,6 +45,37 @@ class DocumentsControllerTest < Zena::Controller::TestCase
       end
     end # uploading a document
 
+    context 'adding a document' do
+      subject do
+        { :action => 'new', :controller => 'documents',
+          :parent_id => nodes_zip(:zena)
+        }
+      end
+
+      should 'show popup form' do
+        get_subject
+        assert_response :success
+      end
+      
+      should 'show tab for new templates' do
+        get_subject
+        assert_match %r{node_target_klass}, @response.body
+      end
+
+      context 'with errors' do
+        subject do
+          { :action => 'create', :controller => 'documents',
+            :node   => {:parent_id => 0, :file => uploaded_jpg('bird.jpg')}
+          }
+        end
+
+        should 'render new form' do
+          post_subject
+          assert_template 'documents/new'
+        end
+      end
+    end # creating a document
+    
     context 'creating a document' do
       subject do
         { :action => 'create', :controller => 'documents',

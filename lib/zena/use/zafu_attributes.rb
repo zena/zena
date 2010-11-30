@@ -151,7 +151,7 @@ module Zena
           # Rewrite things like <tt><h1 do='age' live='true'/></tt> to
           # <tt><h1 do='show' attr='age' live='true'/></tt>
           def filter_property
-            return if node.list_context?
+            return if node.list_context? || !(node.klass <= Node)
             keys = @params.keys
             return if keys & [:live, :edit] == []
             if type = node.klass.safe_method_type([@method])
@@ -180,14 +180,14 @@ module Zena
           def filter_status
             status = @params.delete(:status)
             if status == 'true' || (@params[:actions] && status != 'false')
-              node = @method == 'each' ? self.node.move_to(var, self.node.klass.first) : self.node
+              node = (@method == 'each' && self.node.list_context?) ? self.node.move_to(var, self.node.single_class) : self.node
 
-              if node.will_be? Node
-                accessor = "#{node}.version"
-              elsif node.will_be? Version
+              if node.will_be? Version
                 accessor = node
+              elsif node_name = node(Node)
+                accessor = "#{node_name}.version"
               else
-                accessor = "#{node(Node)}.version"
+                raise 'No Node context !'
               end
 
               @markup.tag ||= 'span'

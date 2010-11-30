@@ -89,6 +89,20 @@ class NavigationTest < Zena::Integration::TestCase
     end # with a valid http auth
   end # With render_token in url
 
+  context 'Rescue template rendering' do
+    setup do
+      post 'http://test.host/session', :login=>'lion', :password=>'lion'
+      get  'http://test.host/rescue'
+      @visitor = users(:tiger)
+      Thread.current[:visitor] = nil
+    end
+    
+    should 'render home page' do
+      get 'http://test.host/oo'
+      assert_response :success
+    end
+  end # Rescue template rendering
+
 
   # HTTP_AUTH disabled
   # def test_authorize_http_auth

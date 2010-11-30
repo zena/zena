@@ -85,6 +85,12 @@ checkbox:
   src: "<r:checkbox role='calendar' values='11'/>"
   res: "/input type='checkbox' name='node\[calendar_ids\]\[\]' value='11' checked='checked'.*Zena.*hidden.*node\[calendar_ids\]\[\]' value=''/"
 
+checkbox_literal:
+  context:
+    node: 'people'
+  src: "<r:checkbox name='assigned' values='gaspard,sophie'/>"
+  res: "/value='gaspard' checked='checked'/> gaspard/"
+
 checkbox_finder:
   context:
     node: 'opening'

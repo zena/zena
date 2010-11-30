@@ -7,9 +7,6 @@ module DocumentsHelper
     Dir.entries(File.join(Zena::ROOT, 'app', 'views', 'templates', 'document_create_tabs')).sort.each do |file|
       next unless file =~ /^_(.*).rhtml$/
       tab_name = $1
-      if !%w{file import}.include?(tab_name) && !@node.has_role?(tab_name.camelize.constantize)
-        next
-      end
       tabs << tab_name
     end
     tabs

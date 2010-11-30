@@ -371,17 +371,22 @@ module Zena
 
             if self.class.to_s =~ /\A([A-Z]\w+?)s?[A-Z]/
               ivar = "@#{$1.downcase}"
-              if var = self.instance_variable_get(ivar.to_sym)
+              if var = instance_variable_get(ivar.to_sym)
                 name  = ivar
-                if ivar.kind_of?(Node)
+                if var.kind_of?(Node)
                   klass = VirtualClass['Node'] # we could use $1
                 else
-                  klass = ivar.class
+                  klass = var.class
                 end
               elsif var = self.instance_variable_get(ivar + 's')
                 name = ivar + 's'
-                klass = [Zena::Acts::Enrollable.make_class(var.first.class)]
+                if var.first.kind_of?(Node)
+                  klass = [VirtualClass['Node']] # we could use $1
+                else
+                  klass = [var.class]
+                end
               end
+              
               return Zafu::NodeContext.new(name, klass) if name
             end
 

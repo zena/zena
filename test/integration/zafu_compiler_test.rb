@@ -6,6 +6,7 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     'action',
     'asset',
     'conditional',
+#    'calendar',
     'dates',
     'display',
     'errors',
@@ -104,7 +105,7 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     params['date']    = context['ref_date'] ? context.delete('ref_date').to_s : nil
     params['url'] = "#{file}/#{test.to_s.gsub('_', '/')}"
     params.merge!(context) # merge the rest of the context as query parameters
-    
+
     compiled_files = {}
     test_data.each do |k,v|
       next if ['src','tem','res','context','eval','js'].include?(k) || k =~ /^old/
