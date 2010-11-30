@@ -47,22 +47,25 @@ module Zena
           else
             # literal values
             list, name, selected = opts[:list], opts[:name], opts[:selected]
-            if opts[:selected].kind_of?(Array)
+            show = opts[:show] || list
+            if selected.kind_of?(Array)
+              selected = selected.map(&:to_s)
               name = "node[#{name}][]"
             else
-              selected = [selected]
+              selected = [selected.to_s]
               name = "node[#{name}]"
             end
             res = ["<div class='input_checkbox'>"]
-            list.each do |value|
-              
+            list.each_with_index do |value, i|
+
               res << "<span><input type='checkbox' name='#{name}' value='#{value}'"
               res << (selected.include?(value.to_s) ? " checked='checked'/> " : '/> ')
-              res << value.to_s
+              res << show[i]
               res << '</span> '
             end
             res << '</div>'
             res << "<input type='hidden' name='#{name}' value=''/>"
+            res.join('')
           end
         end
       end # ViewMethods
@@ -457,11 +460,14 @@ module Zena
           if values
             return parser_error("missing attribute 'name'") unless name = @params[:name]
             # parse literal values
-            finder = values.split(',').map(&:strip).inspect
+            opts = [":name => #{name.inspect}", ":list => #{values.split(',').map(&:strip).inspect}"]
+            if show_values = @params[:show]
+              opts << ":show => #{show_values.split(',').map(&:strip).inspect}"
+            end
             meth = RubyLess.translate(node.klass, name)
-            meth = "#{node}.#{meth}"
-            
-            out "<%= make_checkbox(#{node}, :list => #{finder}, :name => #{name.inspect}, :selected => #{meth}) %>"
+            opts << ":selected => #{node}.#{meth}"
+
+            out "<%= make_checkbox(#{node}, #{opts.join(', ')}) %>"
           else
             if name = @params[:name]
               if name =~ /(.*)_ids?\Z/
@@ -484,11 +490,10 @@ module Zena
               return parser_error("invalid class (#{finder[:class]})") unless finder[:class].first <= Node
               finder = finder[:method]
             end
+            
+            attribute = @params[:attr] || 'title'
+            out "<%= make_checkbox(#{node}, :list => #{finder}, :role => #{meth.inspect}, :attr => #{attribute.inspect}) %>"
           end
-
-          attribute = @params[:attr] || 'title'
-
-          out "<%= make_checkbox(#{node}, :list => #{finder}, :role => #{meth.inspect}, :attr => #{attribute.inspect}) %>"
         end
 
         alias r_radio r_checkbox

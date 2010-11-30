@@ -91,6 +91,12 @@ checkbox_literal:
   src: "<r:checkbox name='assigned' values='gaspard,sophie'/>"
   res: "/value='gaspard' checked='checked'/> gaspard/"
 
+checkbox_literal_show:
+  context:
+    node: 'people'
+  src: "<r:checkbox name='assigned' values='gaspard,sophie' show='slave,master'/>"
+  res: "/value='gaspard' checked='checked'/> slave/"
+
 checkbox_finder:
   context:
     node: 'opening'
