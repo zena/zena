@@ -445,6 +445,8 @@ Gem::Specification.new do |s|
      "db/migrate/20101109074232_create_idx_nodes_tables.rb",
      "db/migrate/20101110184235_add_role_update_to_site.rb",
      "db/migrate/20101116103920_change_scope_index.rb",
+     "db/migrate/20101123125822_add_integer_idx.rb",
+     "db/migrate/20101130134522_add_index_field.rb",
      "doc/README_FOR_APP",
      "doc/fixtures.graffle",
      "doc/fixtures.pdf",

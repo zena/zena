@@ -7,7 +7,6 @@ else
   ref = params[:reference] || "#{params[:dom_id]}_add"
   page.insert_html pos.to_sym, ref, :file => template_path_from_template_url + ".erb"
   @node = @node.parent.new_child(:class => @node.klass)
-  puts @node.kpath
   page.replace "#{params[:dom_id]}_form", :file => template_path_from_template_url + "_form.erb"
   if params[:done]
     page << params[:done]

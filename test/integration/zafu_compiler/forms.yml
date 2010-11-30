@@ -20,6 +20,12 @@ form_put:
   tem: "/form_for.*:url.*node_path\(@node\.zip\)/"
   res: '/<form action="/nodes/\d+".*method="post".*input name="_method" type="hidden" value="put"/'
 
+form_should_not_insert_parent_id:
+  context:
+    node: 'zena'
+  src: "<r:form></r:form>"
+  tem: "!/parent_id/"
+
 form_post:
   # Should make a post on new objects
   src: "<r:new klass='Post' title='\"Joe\"'><r:form></r:form></r:new>"
@@ -89,14 +95,20 @@ checkbox_literal:
   context:
     node: 'people'
   src: "<r:checkbox name='assigned' values='gaspard,sophie'/>"
-  res: "/value='gaspard' checked='checked'/> gaspard/"
+  res: "/value='gaspard' checked='checked'/> <span>gaspard</span>/"
 
 checkbox_literal_show:
   context:
     node: 'people'
   src: "<r:checkbox name='assigned' values='gaspard,sophie' show='slave,master'/>"
-  res: "/value='gaspard' checked='checked'/> slave/"
+  res: "/value='gaspard' checked='checked'/> <span>slave</span>/"
 
+checkbox_literal_tshow:
+  context:
+    node: 'people'
+  src: "<r:checkbox name='assigned' values='gaspard,sophie' tshow='fr,en'/>"
+  res: "/value='gaspard' checked='checked'/> <span>french</span>/"
+  
 checkbox_finder:
   context:
     node: 'opening'

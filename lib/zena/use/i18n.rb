@@ -18,13 +18,13 @@ module Zena
           @node_id = node_id
         end
 
-        def get(key)
+        def get(key, use_global = true)
           load!
-          get_without_loading(key)
+          get_without_loading(key, use_global)
         end
 
-        def get_without_loading(key)
-          @dict[key] || ApplicationController.send(:_, key)
+        def get_without_loading(key, use_global = true)
+          @dict[key] || (use_global && ApplicationController.send(:_, key))
         end
 
         def load!(text = nil)
@@ -306,14 +306,16 @@ module Zena
           end
         end
 
-        def trans(text)
+        def trans(text, use_global = true)
           dictionary = get_context_var('set_var', 'dictionary')
 
           if dictionary && dictionary.klass <= TranslationDict && dict = dictionary.literal
             # will call ApplicationController(:_) if key is not found
-            dict.get(text)
-          else
+            dict.get(text, use_global)
+          elsif use_global
             helper.send(:_, text)
+          else
+            nil
           end
         end
 

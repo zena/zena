@@ -20,28 +20,20 @@ module Zena
 
             if relation_proxy.unique?
               current_value = relation_proxy.other_id
-
-              res << "<div class='input_radio'>"
               values.each do |value|
-                res << "<span><input type='radio' name='node[#{role}_id]' value='#{value.zip}'"
-                res << (current_value == value.id ? " checked='checked'/> " : '/> ')
-                res << value.prop[attribute]
-                res << '</span> '
+                res << ("<input type='radio' name='node[#{role}_id]' value='#{value.zip}'" +
+                (current_value == value.id ? " checked='checked'/> " : '/> ') +
+                "<span>#{value.prop[attribute]}</span>")
               end
-              res << '</div>'
-
-              res << "<span><input type='radio' name='node[#{role}_id]' value=''/> #{_('none')}</span>"
+              res << "<input type='radio' name='node[#{role}_id]' value=''/> <span>#{_('none')}</span>"
             else
               current_values = relation_proxy.other_ids
-              res << "<div class='input_checkbox'>"
-              values.each do |value|
-                res << "<span><input type='checkbox' name='node[#{role}_ids][]' value='#{value.zip}'"
-                res << (current_values.include?(value.id) ? " checked='checked'/> " : '/> ')
-                res << value.prop[attribute]
-                res << '</span> '
-              end
-              res << '</div>'
               res << "<input type='hidden' name='node[#{role}_ids][]' value=''/>"
+              values.each do |value|
+                res << ("<span><input type='checkbox' name='node[#{role}_ids][]' value='#{value.zip}'" +
+                (current_values.include?(value.id) ? " checked='checked'/> " : '/> ') +
+                "<span>#{value.prop[attribute]}</span>")
+              end
             end
             res.join('')
           else
@@ -55,16 +47,13 @@ module Zena
               selected = [selected.to_s]
               name = "node[#{name}]"
             end
-            res = ["<div class='input_checkbox'>"]
-            list.each_with_index do |value, i|
-
-              res << "<span><input type='checkbox' name='#{name}' value='#{value}'"
-              res << (selected.include?(value.to_s) ? " checked='checked'/> " : '/> ')
-              res << show[i]
-              res << '</span> '
-            end
-            res << '</div>'
+            res = []
             res << "<input type='hidden' name='#{name}' value=''/>"
+            list.each_with_index do |value, i|
+              res << ("<input type='checkbox' name='#{name}' value='#{value}'" +
+              (selected.include?(value.to_s) ? " checked='checked'/> " : '/> ') +
+              "<span>#{show[i]}</span>")
+            end
             res.join('')
           end
         end
@@ -273,7 +262,9 @@ module Zena
               # 1. @node
               # 2. var1 = @node.children
               # 3. var1_new = Node.new
-              hidden_fields['node[parent_id]'] = "<%= #{@context[:in_add] ? "#{node.up.up}.zip" : "#{node}.parent_zip"} %>"
+              if node.opts[:new_keys]
+                hidden_fields['node[parent_id]'] = "<%= #{@context[:in_add] ? "#{node.up.up}.zip" : "#{node}.parent_zip"} %>"
+              end
             elsif node.will_be?(Comment)
               # FIXME: the "... || '@node'" is a hack and I don't understand why it's needed...
               hidden_fields['node_id'] = "<%= #{node.up || '@node'}.zip %>"
@@ -320,7 +311,9 @@ module Zena
               # 1. @node
               # 2. var1 = @node.children
               # 3. var1_new = Node.new
-              hidden_fields['node[parent_id]'] = "<%= #{node.opts[:new_keys] ? "#{node.up}.zip" : "#{node}.parent_zip"} %>"
+              if node.opts[:new_keys]
+                hidden_fields['node[parent_id]'] = "<%= #{node.opts[:new_keys] ? "#{node.up}.zip" : "#{node}.parent_zip"} %>"
+              end
             end
             cancel = "" # link to normal node ?
           end
@@ -463,6 +456,13 @@ module Zena
             opts = [":name => #{name.inspect}", ":list => #{values.split(',').map(&:strip).inspect}"]
             if show_values = @params[:show]
               opts << ":show => #{show_values.split(',').map(&:strip).inspect}"
+            elsif show_values = @params[:tshow]
+              if trad = trans(show_values, false)
+                show_values = trad.split(',').map(&:strip)
+              else
+                show_values = show_values.split(',').map(&:strip).map{|v| trans(v)}
+              end
+              opts << ":show => #{show_values.inspect}"
             end
             meth = RubyLess.translate(node.klass, name)
             opts << ":selected => #{node}.#{meth}"
@@ -490,7 +490,7 @@ module Zena
               return parser_error("invalid class (#{finder[:class]})") unless finder[:class].first <= Node
               finder = finder[:method]
             end
-            
+
             attribute = @params[:attr] || 'title'
             out "<%= make_checkbox(#{node}, :list => #{finder}, :role => #{meth.inspect}, :attr => #{attribute.inspect}) %>"
           end
@@ -674,9 +674,7 @@ module Zena
               if show = @params[:show]
                 show_values = show.split(',').map(&:strip)
               elsif show = @params[:tshow]
-                show_values = show.split(',').map do |s|
-                  _(s.strip)
-                end
+                show_values = _(show).split(',').map(&:strip)
               end
 
               if show_values
