@@ -35,6 +35,12 @@ class DocumentsController < ApplicationController
         @node.skin_id ||= current_site.root_node.skin_id
 
         flash[:error] = _("Upload failed.")
+        unless @node.respond_to?('target_klass')
+          # Could we find another way to fake the new object as acting like a template ?
+          class << @node
+            def target_klass; nil; end
+          end
+        end
         format.html { render :action => 'new'}
       else
         flash[:notice] = _("Upload succeeded.")

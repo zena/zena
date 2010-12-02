@@ -1,0 +1,142 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'cleanWater'
+  src: "simple text"
+  tem: "simple text"
+  res: "simple text"
+
+# ============= query_parse_param ========
+empty:
+  tem: "<%= query_parse('para' => %{}) %>"
+  res: "true"
+
+empty_quotes:
+  tem: "<%= query_parse('para' => %{\"\"}) %>"
+  res: "para = \"\""
+
+empty_single_quotes:
+  tem: "<%= query_parse('para' => %{''}) %>"
+  res: "para = ''"
+
+null_quoted:
+  tem: "<%= query_parse('para' => %{\"null\"}) %>"
+  res: "para = \"null\""
+
+is_null:
+  tem: "<%= query_parse('para' => %{null}) %>"
+  res: "para is null"
+
+literal:
+  tem: "<%= query_parse('para' => %{hello}) %>"
+  res: "para = \"hello\""
+
+number:
+  tem: "<%= query_parse('para' => %{45}) %>"
+  res: "para = 45"
+
+greater_then:
+  tem: "<%= query_parse('para' => %{>32}) %>"
+  res: "para >32"
+
+greater_or_equal_then:
+  tem: "<%= query_parse('para' => %{>=32}) %>"
+  res: "para >=32"
+
+smaller_then:
+  tem: "<%= query_parse('para' => %{< 32}) %>"
+  res: "para < 32"
+
+smaller_or_equal_then:
+  tem: "<%= query_parse('para' => %{<=32}) %>"
+  res: "para <=32"
+
+equal:
+  tem: "<%= query_parse('para' => %{=32+3}) %>"
+  res: "para =32+3"
+
+interval:
+  tem: "<%= query_parse('para' => %{10..20}) %>"
+  res: "para >= 10 and para <= 20"
+
+like:
+  tem: "<%= query_parse('para' => %{%bar}) %>"
+  res: "para like \"%bar\""
+
+like_at_end:
+  tem: "<%= query_parse('para' => %{bar%}) %>"
+  res: "para like \"bar%\""
+
+literal_with_percent:
+  tem: "<%= query_parse('para' => %{'%bar'}) %>"
+  res: "para = '%bar'"
+
+many_params:
+  tem: "<%= query_parse('anti' => %{'%bar'}, 'gone' => %{> 13}) %>"
+  res: "/anti = '%bar' and gone > 13|gone > 13 and anti = '%bar'/"
+
+rubyless_query_parse:
+  context:
+    p:
+      id: '> 45'
+      name: 'foo'
+  src: "<r:eval>query_parse(params[:p])</r:eval>"
+  res: "/id > 45 and name = \"foo\"|name = \"foo\" and id > 45/"
+
+# ============= Dynamic query ========
+
+query:
+  # Live compile and query from params
+  context:
+    visitor: lion
+    node: cleanWater
+    qb: "nodes where updated_at.year = 2007 in project"
+  src: "<r:query default='nodes in project' do='each' join=', ' do='title'/>"
+  tem: "/if var1 = query\('Node', \"@node\", params\[:qb\] \|\| \"nodes in project\"\)/"
+  res: 'crocodiles'
+
+query_with_default:
+  # Live compile and query from params
+  context:
+    visitor: lion
+    node: cleanWater
+  src: "<r:query default='nodes in project' do='each' join=', ' do='title'/>"
+  res: "crocodiles, it's a lake, Keeping things clean !, The lake we love, Nice Bananas, parc opening, status title, water"
+
+query_with_param:
+  # Live compile and query from params
+  context:
+    visitor: lion
+    node: cleanWater
+    qb: "nodes where updated_at.year = #{params[:p]} in project"
+    p: 2007
+  src: "<r:query default='nodes in project' do='each' join=', ' do='title'/>"
+  res: 'crocodiles'
+
+query_eval:
+  # Live compile and query from params
+  context:
+    visitor: lion
+    node: cleanWater
+    scope: 'self'
+  src: "<r:query text='pages in #{params[:scope] || \"project\"}' default='pages in project' do='each' join=', ' do='title'/>"
+  res: 'crocodiles, Keeping things clean !, Nice Bananas, status title'
+
+query_with_parse:
+  context:
+    filter:
+      title: 'status title'
+  src: "<r:query default='pages in site' text='pages where #{query_parse(params[:filter])} in site' do='each' join=', ' do='title'/>"
+  tem: '/pages where #\{query_parse\(params\[:filter\]\)\} in site\"\)/'
+  res: 'status title'
+
+query_can_be_nil_bad_argument_type:
+  context:
+    filter:
+      title: 'status title'
+  src: "<r:query default='pages in site' eval='params[:filter]' do='each' join=', ' do='title'/>"
+  tem: '/params\[:filter\] \|\| \"pages in site\"/'
+  res: ''
+
+

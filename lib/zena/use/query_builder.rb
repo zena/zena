@@ -2,6 +2,9 @@ module Zena
   module Use
     module QueryBuilder
       module ViewMethods
+        include RubyLess
+        safe_method [:query_parse, String] => {:class => String, :accept_nil => true}
+
         def find_node_by_zip(zip)
           return nil unless zip
           secure(Node) { Node.find_by_zip(zip) }
@@ -17,16 +20,71 @@ module Zena
                 # mixed in and strangely RubyLess cannot access the helpers from 'self'.
                 :rubyless_helper => zafu_helper.helpers
               )
+              klass.do_find(:all, eval(query.to_s))
             rescue ::QueryBuilder::Error => err
               # FIXME: how to return error messages to the user ?
               nil
             end
-
-            klass.do_find(:all, eval(query.to_s))
           else
             nil
           end
         end
+
+        # Takes a hash of parameters and builds query arguments for pseudo sql
+        # the query ends up like ' AND param_name = "foo" AND param_name > 35'...
+        def query_parse(params)
+          params ||= {}
+          res = []
+          if params.kind_of?(String)
+            return params
+          elsif params.kind_of?(Hash)
+            params.each do |k,v|
+              clause = query_build_clause(k,v)
+              res << clause unless clause.blank?
+            end
+          end
+          res.empty? ? 'true' : res.join(' and ')
+        end
+
+        private
+          # Transforms special syntax into pseudo sql. Argument can be
+          #
+          #    ''          ==> (empty fields are ignored)
+          #    '""'        ==> key = ""
+          #    '"null"'    ==> key = "null"
+          #    'null'      ==> key is null
+          #    'foobar'    ==> key = "foobar"
+          #    '> 45'      ==> key > 45
+          #    '10..20'    ==> key >= 10 and key <= 20
+          #    '%bar'      ==> key like "%bar"
+          #    '"foo%"'    ==> key = "foo%"
+          def query_build_clause(key, arg)
+            first = arg.first
+            case arg.first
+            when "'", '"'
+              return "#{key} = #{arg}"
+            when '>','<','='
+              return "#{key} #{arg}"
+            end
+
+            if arg == 'null'
+              return "#{key} is null"
+            elsif arg == ''
+              # ignore
+              return ''
+            elsif arg =~ /%/
+              # like
+              return "#{key} like #{arg.inspect}"
+            elsif arg =~ /^(.+)\.\.(.+)$/
+              # interval
+              return "#{key} >= #{$1} and #{key} <= #{$2}"
+            elsif arg =~ /^\d+$/
+              # number
+              return "#{key} = #{arg}"
+            else
+              return "#{key} = #{arg.inspect}"
+            end
+          end
       end # ViewMethods
 
       # 1. try Zafu
@@ -59,18 +117,25 @@ module Zena
           default_query = build_query(:all, default)
           klass = [default_query.main_class]
 
+          can_be_nil = true
           if sql = @params[:eval]
             sql = RubyLess.translate(self, sql)
             unless sql.klass <= String
               return parser_error("Invalid compilation result for #{sql.inspect} (#{sql.klass})")
             end
+            can_be_nil = sql.opts[:nil]
           elsif sql = @params[:text]
             sql = RubyLess.translate_string(self, sql)
+            can_be_nil = sql.opts[:nil]
           else
             sql = "params[:qb]"
           end
 
-          method = "query('#{node.klass}', #{node.to_s.inspect}, #{sql} || #{default.inspect})"
+          if can_be_nil
+            sql = "#{sql} || #{default.inspect}"
+          end
+
+          method = "query('#{node.klass}', #{node.to_s.inspect}, #{sql})"
 
           expand_with_finder(:method => method, :class => klass, :nil => true)
         end

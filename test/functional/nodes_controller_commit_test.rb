@@ -63,9 +63,5 @@ class NodesControllerCommitTest < ActionController::TestCase
         assert_match %r{posuere eleifend arcu</p>\s*<img [^>]*src\s*=\s*./en/image#{topIcon.zip}.gif}, @response.body
       end
     end
-
-  rescue => err
-    puts err
-    puts err.backtrace
   end
 end

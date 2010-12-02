@@ -290,13 +290,13 @@ visitor_favorites:
   res: "<ul><li><a href='/oo/page39.html'>Nature</a></li></ul>"
 
 checkbox:
-  src: "<r:checkbox role='hot_for' values='projects' in='site'/>"
-  res: "/<input type='checkbox' name='node\[hot_for_ids\]\[\]' value='21' checked='checked'\/> Clean Water project/"
+  src: "<r:checkbox role='hot_for' nodes='projects' in='site'/>"
+  res: "/<input type='checkbox' name='node\[hot_for_ids\]\[\]' value='21' checked='checked'\/> <span>Clean Water project</span>/"
 
 checkbox_unique:
-  src: "<r:checkbox role='icon' values='images' in='site'/>"
+  src: "<r:checkbox role='icon' nodes='images' in='site'/>"
   tem: '/make_checkbox/'
-  res: "/<input type='radio' name='node\[icon_id\]' value='30'/> bird/"
+  res: "/<input type='radio' name='node\[icon_id\]' value='30'/> <span>bird</span>/"
 
 direction_both:
   src: "<r:references or='reference_for' do='each' join=', ' do='title'/>"
@@ -455,43 +455,6 @@ final_class:
   # Only projects (calendars) have a 'hot' relation
   src: "<div do='calendars from notes' do='each' do='hot' do='link'/>"
   tem: "!/unknown method/"
-
-query:
-  # Live compile and query from params
-  context:
-    visitor: lion
-    node: cleanWater
-    qb: "nodes where updated_at.year = 2007 in project"
-  src: "<r:query default='nodes in project' do='each' join=', ' do='title'/>"
-  tem: "/if var1 = query\('Node', \"@node\", params\[:qb\] \|\| \"nodes in project\"\)/"
-  res: 'crocodiles'
-
-query_with_default:
-  # Live compile and query from params
-  context:
-    visitor: lion
-    node: cleanWater
-  src: "<r:query default='nodes in project' do='each' join=', ' do='title'/>"
-  res: "crocodiles, it's a lake, Keeping things clean !, The lake we love, Nice Bananas, parc opening, status title, water"
-
-query_with_param:
-  # Live compile and query from params
-  context:
-    visitor: lion
-    node: cleanWater
-    qb: "nodes where updated_at.year = #{params[:p]} in project"
-    p: 2007
-  src: "<r:query default='nodes in project' do='each' join=', ' do='title'/>"
-  res: 'crocodiles'
-
-query_eval:
-  # Live compile and query from params
-  context:
-    visitor: lion
-    node: cleanWater
-    scope: 'self'
-  src: "<r:query text='pages in #{params[:scope] || \"project\"}' default='pages in project' do='each' join=', ' do='title'/>"
-  res: 'crocodiles, Keeping things clean !, Nice Bananas, status title'
 
 count:
   src: "<p do='nodes in site order by id' find='count'/>"

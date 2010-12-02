@@ -88,8 +88,8 @@ form_publish:
 checkbox:
   context:
     node: 'opening'
-  src: "<r:checkbox role='calendar' values='11'/>"
-  res: "/input type='checkbox' name='node\[calendar_ids\]\[\]' value='11' checked='checked'.*Zena.*hidden.*node\[calendar_ids\]\[\]' value=''/"
+  src: "<r:checkbox role='calendar' nodes='11'/>"
+  res: "/hidden.*node\[calendar_ids\]\[\]' value=''.*input type='checkbox' name='node\[calendar_ids\]\[\]' value='11' checked='checked'.*Zena/"
 
 checkbox_literal:
   context:
@@ -108,7 +108,7 @@ checkbox_literal_tshow:
     node: 'people'
   src: "<r:checkbox name='assigned' values='gaspard,sophie' tshow='fr,en'/>"
   res: "/value='gaspard' checked='checked'/> <span>french</span>/"
-  
+
 checkbox_finder:
   context:
     node: 'opening'
@@ -169,10 +169,9 @@ show_in_form:
   tem: "/<b><%= @node.prop\['title'\] %></b>/"
   res: '/<b>status title</b>/'
 
-set_parent_id:
+not_set_parent_id:
   src: "<r:form></r:form>"
-  tem: "/node\[parent_id\].*@node.parent_zip/"
-  res: "/<input type='hidden' name='node\[parent_id\]' value='21'/>/"
+  tem: "!/node\[parent_id\]/"
 
 set_parent_id_in_new:
   src: "<r:new klass='Page' do='form'></r:new>"

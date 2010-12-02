@@ -12,7 +12,7 @@ will_paginate:  '~> 2.3.12'
 differ:         '>= 0.1.1'
 shoulda:        '= 2.10.3'
 
-querybuilder:   '>= 0.9.3'
+querybuilder:   '>= 0.9.4'
 yamltest:       '>= 0.7.0'
 rubyless:       '>= 0.8.1'
 property:       '>= 2.1.1'

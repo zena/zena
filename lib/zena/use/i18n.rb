@@ -319,6 +319,16 @@ module Zena
           end
         end
 
+        # Translate a string representing a list of values separated with a comma ('dog,cat,house')
+        # to a list of strings.
+        def translate_list(str)
+          if trad = trans(str, false)
+            trad.split(',').map(&:strip)
+          else
+            str.split(',').map(&:strip).map{|v| trans(v)}
+          end
+        end
+
         def r_block
           # when saving template, add loaded dictionary
           if @context[:block] == self

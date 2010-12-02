@@ -90,10 +90,11 @@ module Zena
           end
 
           expand_with_finder(
-            :method   => method,
-            :class    => klass,
-            :nil      => true,
-            :new_keys => keys
+            :method     => method,
+            :class      => klass,
+            :nil        => true,
+            :new_record => true,
+            :new_keys   => keys
           )
         end
 
@@ -262,7 +263,7 @@ module Zena
               # 1. @node
               # 2. var1 = @node.children
               # 3. var1_new = Node.new
-              if node.opts[:new_keys]
+              if node.opts[:new_record]
                 hidden_fields['node[parent_id]'] = "<%= #{@context[:in_add] ? "#{node.up.up}.zip" : "#{node}.parent_zip"} %>"
               end
             elsif node.will_be?(Comment)
@@ -311,8 +312,8 @@ module Zena
               # 1. @node
               # 2. var1 = @node.children
               # 3. var1_new = Node.new
-              if node.opts[:new_keys]
-                hidden_fields['node[parent_id]'] = "<%= #{node.opts[:new_keys] ? "#{node.up}.zip" : "#{node}.parent_zip"} %>"
+              if node.opts[:new_record]
+                hidden_fields['node[parent_id]'] = "<%= #{node.up}.zip %>"
               end
             end
             cancel = "" # link to normal node ?
@@ -457,12 +458,7 @@ module Zena
             if show_values = @params[:show]
               opts << ":show => #{show_values.split(',').map(&:strip).inspect}"
             elsif show_values = @params[:tshow]
-              if trad = trans(show_values, false)
-                show_values = trad.split(',').map(&:strip)
-              else
-                show_values = show_values.split(',').map(&:strip).map{|v| trans(v)}
-              end
-              opts << ":show => #{show_values.inspect}"
+              opts << ":show => #{translate_list(show_values).inspect}"
             end
             meth = RubyLess.translate(node.klass, name)
             opts << ":selected => #{node}.#{meth}"
@@ -483,10 +479,10 @@ module Zena
             meth = role.singularize
 
             if nodes =~ /^\d+\s*($|,)/
-              values = values.split(',').map{|v| v.to_i}
+              values = nodes.split(',').map{|v| v.to_i}
               finder = "secure(Node) { Node.all(:conditions => 'zip IN (#{values.join(',')})') }"
             else
-              return unless finder = build_finder(:all, values, @params)
+              return unless finder = build_finder(:all, nodes, @params)
               return parser_error("invalid class (#{finder[:class]})") unless finder[:class].first <= Node
               finder = finder[:method]
             end
@@ -674,7 +670,7 @@ module Zena
               if show = @params[:show]
                 show_values = show.split(',').map(&:strip)
               elsif show = @params[:tshow]
-                show_values = _(show).split(',').map(&:strip)
+                show_values = translate_list(show)
               end
 
               if show_values
