@@ -129,7 +129,7 @@ module Zena
           self[:user_id]  = visitor.id
           self[:ref_lang] = visitor.lang
 
-          [:rgroup_id, :wgroup_id, :dgroup_id, :skin].each do |sym|
+          [:rgroup_id, :wgroup_id, :dgroup_id, :skin_id].each do |sym|
             # not defined => inherit
             self[sym] ||= ref[sym]
           end
@@ -171,7 +171,7 @@ module Zena
             self[:rgroup_id] = ref.rgroup_id
             self[:wgroup_id] = ref.wgroup_id
             self[:dgroup_id] = ref.dgroup_id
-            self[:skin     ] = ref.skin
+            self[:skin_id  ] = ref.skin_id
           when 0
             # custom access rights
             if ref.full_drive?
@@ -183,7 +183,7 @@ module Zena
               errors.add('rgroup_id', "you cannot change this") unless rgroup_id == ref.rgroup_id
               errors.add('wgroup_id', "you cannot change this") unless wgroup_id == ref.wgroup_id
               errors.add('dgroup_id', "you cannot change this") unless dgroup_id == ref.dgroup_id
-              errors.add('skin' , "you cannot change this") unless skin  == ref.skin
+              errors.add('skin_id' , "you cannot change this") unless skin_id  == ref.skin_id
             end
           else
             errors.add(:inherit, "bad inheritance mode")

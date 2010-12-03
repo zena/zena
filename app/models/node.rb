@@ -222,7 +222,7 @@ class Node < ActiveRecord::Base
   # we use safe_method because the columns can be null, but the values are never null
   safe_method        :kpath => String, :user_zip => Number,
                      :parent_zip => Number, :project_zip => Number, :section_zip => Number,
-                     :skin => String, :ref_lang => String,
+                     :ref_lang => String,
                      :position => Number, :rgroup_id => Number,
                      :wgroup_id => Number, :dgroup_id => Number, :custom_base => Boolean,
                      :klass => String,
