@@ -158,6 +158,16 @@ link_url_params_parsed_values:
   src: "<r:link plob='haha #{title}'/>"
   res: "<a href='/oo/projects-list/Clean-Water-project/page22.html?plob=haha+status+title'>status title</a>"
 
+encode_params:
+  context:
+    a:
+      b: 'Bee'
+    c: 'Sea'
+    x: ''
+  src: "<r:link encode_params='a,c,x,y'/>"
+  tem: "/:encode_params => \"a,c,x,y\"/"
+  res: "/page22\.html\?a%5Bb%5D=Bee&c=Sea'/"
+
 title_link_mode:
   old_src: "<h2 do='title' link='details'/>"
   src: "<h2 do='link' mode='details' do='title' live='true'/>"

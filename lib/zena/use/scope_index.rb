@@ -135,11 +135,11 @@ module Zena
         end
 
         def self.scope_index_proc
-          Proc.new do |helper, signature|
-            if helper.idx_class && klass = Zena.resolve_const(helper.idx_class) rescue nil
+          Proc.new do |helper, receiver, signature|
+            if receiver.respond_to?('idx_class') && receiver.idx_class && klass = Zena.resolve_const(receiver.idx_class) rescue nil
               {:method => 'scope_index', :nil => true, :class => klass}
             else
-              raise RubyLess::NoMethodError.new(helper, helper, signature)
+              raise RubyLess::NoMethodError.new(receiver, receiver, signature)
             end
           end
         end

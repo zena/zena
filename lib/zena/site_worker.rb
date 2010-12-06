@@ -2,8 +2,8 @@ module Zena
   class SiteWorker < Struct.new(:site_id, :action, :page)
     include Zena::Acts::Secure
 
-    # Execute operations on 50 nodes at a time
-    CHUNK_SIZE = 50
+    # Execute operations on 250 nodes at a time
+    CHUNK_SIZE = 250
 
     def self.perform(site, action, page = 1)
       action = new(site.id, action, page)

@@ -103,8 +103,8 @@ class Node < ActiveRecord::Base
   include Property
 
   # This must come before the first call to make_schema.
-  include Zena::Use::Kpath::InstanceMethods 
-  
+  include Zena::Use::Kpath::InstanceMethods
+
   def virtual_class
     @virtual_class ||= if self[:vclass_id]
       VirtualClass.find_by_id(self[:vclass_id])
@@ -136,7 +136,7 @@ class Node < ActiveRecord::Base
   # def safe_eval(code)
   #   eval RubyLess.translate(schema, code)
   # end
-  
+
   def safe_method_type(signature, receiver = nil)
     schema.safe_method_type(signature, receiver)
   end
@@ -188,7 +188,7 @@ class Node < ActiveRecord::Base
 
   # Dynamic resolution of the author class from the user prototype
   def self.author_proc
-    Proc.new do |h, s|
+    Proc.new do |h, r, s|
       res = {:method => 'author', :nil => true}
       if prototype = visitor.prototype
         res[:class] = prototype.vclass
@@ -841,13 +841,15 @@ class Node < ActiveRecord::Base
           res[key] = User.translate_pseudo_id(value, :id) || value
         elsif %w{id create_at updated_at}.include?(key)
           # ignore (can be present in xml)
-        elsif %w{log_at event_at v_publish_from date}.include?(key)
+        elsif %w{log_at event_at v_publish_from}.include?(key)
           if value.kind_of?(Time)
             res[key] = value
           elsif value
             # parse date
-            if key == 'date'
+            if key == 'date' # never true, 'date' is not in list anymore
               # TODO: this is a temporary hack because date in links do not support timezones/formats properly
+              # Do not reanable this hack: it caused lots of other problems with properties called 'date' (use another
+              # name for link dates...)
               res[key] = value.to_utc("%Y-%m-%d %H:%M:%S")
             else
               res[key] = value.to_utc(_('datetime'), change_timezone ? visitor.tz : nil)
@@ -1563,7 +1565,7 @@ class Node < ActiveRecord::Base
     # Make sure the node is complete before creating it (check parent and project references)
     def validate_node
       errors.add(:title, "can't be blank") if title.blank?
-      
+
       if @parent_zip_error
         errors.add('parent_id', @parent_zip_error)
         @parent_zip_error = nil

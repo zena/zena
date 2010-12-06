@@ -3,6 +3,8 @@ require 'test_helper'
 class UrlsTest < Zena::View::TestCase
   include Zena::Use::Urls::ViewMethods
 
+  attr_reader :params
+
   def test_zen_path
     login(:ant)
     node = secure!(Node) { nodes(:zena) }
@@ -23,6 +25,14 @@ class UrlsTest < Zena::View::TestCase
     node = secure!(Node) { nodes(:status) }
     assert_equal '/en/projects-list/Clean-Water-project/page22.html', zen_path(node)
     assert_equal '/en/projects-list/Clean-Water-project/page22_test.html', zen_path(node, :mode=>'test')
+  end
+
+  def test_zen_path_query_params
+    login(:anon)
+    node = secure!(Node) { nodes(:status) }
+    assert_equal '/en/projects-list/Clean-Water-project/page22.html?p=5', zen_path(node, :p => 5)
+    @params = {'p' => 'Pepe', 'a' => {'b' => 'Bee'}}
+    assert_equal '/en/projects-list/Clean-Water-project/page22.html?a%5Bb%5D=Bee&p=Pepe', zen_path(node, :encode_params => 'p,a')
   end
 
   def test_zen_path_cache_stamp

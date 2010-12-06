@@ -110,10 +110,15 @@ no_recursion_in_saved_block:
   src: "<r:void name='grp'><r:show attr='title'/><r:pages><r:each><r:include part='grp'/></r:each><r:add/></r:pages></r:void>"
   'ajax/no/recursion/in/saved/block/en/grp1.erb': "!/no_recursion_in_saved_block_grp/"
 
-each_in_each:
+each_in_each_form:
   # should render correct form
   src: "<r:pages><r:form>FORM1</r:form><r:each><r:pages>sub-pages <r:form>FORM2</r:form></r:pages></r:each><r:add/></r:pages>"
   res: "/FORM1/"
+
+each_in_each_dom_id:
+  # should render correct form
+  src: "<r:pages do='each'><r:title/><r:edit/><r:pages do='each'><r:title/><r:edit/></r:pages></r:pages>"
+  tem: "/list2_#\{var.\.zip\}_#\{var.\.zip\}/"
 
 default_focus_field:
   src: "<ol do='comments'><li do='each'/><li do='form'><input name='author_name'/> ... <input name='text'/></li><li do='add'/></ol>"
@@ -145,26 +150,53 @@ live_filter_select_options:
 
 draggable_do_syntax:
   src: "<r:images in='site' do='each' draggable='all' do='img' mode='pv'/>"
-  tem: "/add_drag_id\(\"list1_#\{var2.zip\}\"/"
-  res: "/id='list1_30'><img src='/en/image30_pv.jpg\?967816914293'/"
-  js: '/"list1_24"\].each.*Zena.draggable\(item, false\)/'
+  tem: "/add_drag_id\(\"drag_#\{var2.zip\}\"/"
+  res: "/id='drag_30'><img src='/en/image30_pv.jpg\?967816914293'/"
+  js: '/"drag_24"\].each.*Zena.draggable\(item, false\)/'
 
 draggable_true:
   # should use 'drag_handle' class
-  src: "<r:link draggable='true'/>"
-  tem: "/add_drag_id\(\"list1_\#\{@node.zip\}\", .*drag_handle/"
+  src: "<r:link draggable='true'><b do='title'/></r:link>"
+  tem: "/span class='drag_handle'.*add_drag_id\(\"drag_\#\{@node.zip\}\", .*drag_handle/"
+
+draggable_on_each_with_id:
+  src: "<ul do='pages in site'><li do='each'><b do='link' draggable='true'/> <r:edit/></li></ul>"
+  # should not use each id
+  tem: "/li id='<%= %Q\{list1_#\{var2.zip\}\}.*%Q\{drag_#\{var2.zip\}\}.*add_drag_id\(\"drag_#\{var2.zip\}\"/"
+
+drag_with_form:
+  src: "<table do='pages in site'>
+      <tr do='add'/>
+      <tr do='each'>
+        <td><r:link draggable='true'><b do='title'/></r:link></td>
+        <td class='edit'> <r:edit class='edit'>éditer</r:edit></td>
+      </tr>
+    </table>"
+  tem: "/tr id='<%= %Q\{list1_#\{var2.zip\}\}.*<div[^>]+id='<%= %Q\{drag_#\{var2.zip\}\}.*add_drag_id\(\"drag_#\{var2.zip\}\"/"
+
+draggable_existing_class:
+  # should use 'drag_handle' class
+  src: "<r:link draggable='true'><r:img class='drag_handle' mode='tiny'/> <r:title/></r:link>"
+  tem: "!/span class='drag_handle'/"
+  res: "/div class='drag' id='drag_22'><a href='.*22.*img src='/images/ext/page_tiny.png' .*class='drag_handle'/> status title/"
+
+draggable_existing_class_do:
+  # should use 'drag_handle' class
+  src: "<r:link draggable='drag_img'><b class='drag_img' do='img' mode='tiny'/> blah</r:link>"
+  tem: "!/span class='drag_handle'|span class='drag_img'/"
+  res: "/div class='drag' id='drag_22'><a href='.*22.*<b class='drag_img'.*img src='/images/ext/page_tiny.png'/"
 
 draggable_in_block:
   # should use 'hooba' class
   src: "<r:block><r:link draggable='hooba'/></r:block>"
-  tem: "/add_drag_id\(\"list1_\#\{@node.zip\}\", .*hooba/"
-  res: "<div id='list1'><div class='drag' id='list1_22'><a href='/oo/projects-list/Clean-Water-project/page22.html'>status title</a></div></div>"
+  tem: "/add_drag_id\(\"drag_\#\{@node.zip\}\", .*hooba/"
+  res: "<div id='list1'><div class='drag' id='drag_22'><span class='hooba'>&nbsp;</span><a href='/oo/projects-list/Clean-Water-project/page22.html'>status title</a></div></div>"
   js:  "/Zena.draggable\(item, \"hooba\"\)/"
 
 draggable_with_id_set:
   # should not change original id
   src: "<h1 id='title' do='title' draggable='true'/>"
-  tem: "/<h1 id='title'><span class='drag' id='<%= %Q\{title_#\{@node.zip\}\} %>'><% add_drag_id\(\"title_#\{@node.zip\}/"
+  tem: "/<h1 id='title'><span class='drag' id='<%= %Q\{drag_#\{@node.zip\}\} %>'><span class='drag_handle'>&nbsp;</span><% add_drag_id\(\"drag_#\{@node.zip\}/"
 
 unlink:
   context:
@@ -226,6 +258,13 @@ drop_param_in_each:
 update_target:
   src: "UT: <div id='foo' do='block'>...</div> <r:link update='foo'/>"
   tem: "/UT: <div id='foo'>...</div> .*Ajax.Request.*:dom_id => \"foo\"/"
+
+update_target_encode_params:
+  context:
+    a:
+      b: 'c'
+  src: "UT: <div id='foo' do='block'>...</div> <r:link update='foo' encode_params='a'/>"
+  res: "/Ajax.Request\([^\)]+a%5Bb%5D=c/"
 
 include_update_target:
   src: "IUT: <r:include template='/ajax/update/target'><r:with part='foo'><r:show attr='title'/></r:with></r:include>"

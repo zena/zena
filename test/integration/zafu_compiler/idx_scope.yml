@@ -1,0 +1,7 @@
+default:
+  context:
+    lang: 'en'
+    visitor: 'ant'
+    node: 'status'
+  src: "<b do='blog in site' do='scope_index.tag_title'/>"
+  tem: "/var1\.scope_index \? var1\.scope_index\.tag_title : nil/"

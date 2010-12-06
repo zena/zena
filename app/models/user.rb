@@ -47,7 +47,7 @@ class User < ActiveRecord::Base
 
   # Dynamic resolution of the author class from the prototype
   def self.node_user_proc
-    Proc.new do |h, s|
+    Proc.new do |h, r, s|
       res = {:method => 'node', :nil => true}
       if prototype = visitor.prototype
         res[:class] = prototype.vclass

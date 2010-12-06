@@ -127,4 +127,8 @@ filter_by_parent:
 #  sql: "%Q{SELECT nodes.* FROM nodes,nodes_roles WHERE #{secure_scope('nodes')} AND ((nodes_roles.node_id = nodes.id AND nodes_roles.role_id = 493147733) OR (nodes_roles.node_id = nodes.id AND nodes_roles.role_id = 1793452896)) ORDER BY nodes.zip ASC}"
 #  res: 'nature'
 
+quoted_literal:
+  src: "nodes where tag=\"10'000\" in site"
+  sql: "%Q{SELECT nodes.* FROM links AS ta1,nodes WHERE #{secure_scope('nodes')} AND ta1.comment = '10\\\\'000' AND nodes.id = ta1.source_id AND ta1.relation_id IS NULL ORDER BY nodes.zip ASC}"
+  res: ''
 # filters on ml strings are in properties.yml

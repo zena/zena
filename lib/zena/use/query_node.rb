@@ -87,7 +87,8 @@ module Zena
             res = find_by_sql(query).first
             secure_result(res)
           when :count
-            count_by_sql(query)
+            # query can be a number when we use the 'query' helper to count.
+            query.kind_of?(Fixnum) ? query : count_by_sql(query)
           else
             nil
           end

@@ -10,7 +10,8 @@ class ZafuTemplateTest < Zena::View::TestCase
 
     should 'receive page_numbers' do
       s = ""
-      page_numbers(2, 3, ',') {|p,j| s << "#{j}#{p}"}
+      # page, join, display
+      page_numbers(2, 3, ',') {|p,j,d| s << "#{j}#{p}"}
       assert_equal "1,2,3", s
       s = ""
       page_numbers(2, 30, ',') {|p,j| s << "#{j}#{p}"}
@@ -19,8 +20,8 @@ class ZafuTemplateTest < Zena::View::TestCase
       page_numbers(14, 30, ',') {|p,j| s << "#{j}#{p}"}
       assert_equal "10,11,12,13,14,15,16,17,18,19", s
       s = ""
-      page_numbers(28, 30, ' | ') {|p,j| s << "#{j}#{p}"}
-      assert_equal "21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30", s
+      page_numbers(24, 30, ' | ', 6) {|p,j,d| s << "#{j}#{d}"}
+      assert_equal "… | 23 | 24 | 25 | 26 | …", s
     end
   end # Without a logged in user
 
@@ -77,13 +78,13 @@ class ZafuTemplateTest < Zena::View::TestCase
         assert_match %r{/Default skin/Node}, @controller.send(:template_url)
       end
     end # without an admin visitor
-    
+
     context 'on get_template_text' do
       should 'find template' do
         assert_match %r{include template='Node'}, get_template_text('Project', nodes_id(:default)).first
       end
     end # on get_template_text
-    
+
     context 'on get_template_text with fullpath' do
       should 'find template' do
         assert_match %r{include template='Node'}, get_template_text('/Default skin/Project').first

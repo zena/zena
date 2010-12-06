@@ -172,7 +172,7 @@ module Zena
         def r_debug
           %Q{
 <pre style='background:white; color:black; border:1px solid red; display:table;'>
-class #{node.klass}: #{Array(node.klass).first.schema.columns.keys.join(', ')}
+class #{node.klass}: #{Array(node.klass).first.columns.keys.join(', ')}
 </pre>
           }
         end

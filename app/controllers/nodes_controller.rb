@@ -57,7 +57,7 @@ class NodesController < ApplicationController
       format.html do
         begin
           do_search
-        rescue QueryBuilder::Error => err
+        rescue ::QueryBuilder::Error => err
           flash[:error] = err.message
         end
         render_and_cache :mode => '+search', :cache => false
@@ -74,7 +74,7 @@ class NodesController < ApplicationController
           else
             render :xml => [].to_xml(:root => 'nodes')
           end
-        rescue QueryBuilder::Error => err
+        rescue ::QueryBuilder::Error => err
           render :xml => [{:message => err.message}].to_xml(:root => 'errors'), :status => 401
         end
       end

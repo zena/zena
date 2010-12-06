@@ -11,6 +11,7 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     'display',
     'errors',
     'i18n',
+    'idx_scope',
     'query',
     'recursion',
     'relations',

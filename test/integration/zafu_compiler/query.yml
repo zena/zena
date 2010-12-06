@@ -10,7 +10,7 @@ default:
 # ============= query_parse_param ========
 empty:
   tem: "<%= query_parse('para' => %{}) %>"
-  res: "true"
+  res: "1=1"
 
 empty_quotes:
   tem: "<%= query_parse('para' => %{\"\"}) %>"
@@ -84,6 +84,23 @@ rubyless_query_parse:
   src: "<r:eval>query_parse(params[:p])</r:eval>"
   res: "/id > 45 and name = \"foo\"|name = \"foo\" and id > 45/"
 
+paginate_list:
+  src: "<r:pages in='site' limit='10' paginate='p' do='link' page='list'/>"
+  # should define page_name
+  res: "1 <a href='/oo/projects-list/Clean-Water-project?p=2'>2</a>"
+
+paginate_count:
+  src: "<r:pages in='site' paginate='p' do='count'/>"
+  # should properly pass the query to sub-contexts.
+  tem: '/<%= _znodes %>/'
+  res: "18"
+
+paginate_page_name:
+  context:
+    p: 5
+  src: "<r:pages in='site' limit='3' paginate='p' do='link' page='list' page_count='4' do='each'><r:page_name/>(<r:this/>)</r:pages>"
+  # should define page_name
+  res: "…(3) 4(4) 5 6(6)"
 # ============= Dynamic query ========
 
 query:
@@ -120,16 +137,22 @@ query_eval:
     visitor: lion
     node: cleanWater
     scope: 'self'
-  src: "<r:query text='pages in #{params[:scope] || \"project\"}' default='pages in project' do='each' join=', ' do='title'/>"
+  src: "<r:query select='pages in #{params[:scope] || \"project\"}' default='pages in project' do='each' join=', ' do='title'/>"
   res: 'crocodiles, Keeping things clean !, Nice Bananas, status title'
 
 query_with_parse:
   context:
     filter:
       title: 'status title'
-  src: "<r:query default='pages in site' text='pages where #{query_parse(params[:filter])} in site' do='each' join=', ' do='title'/>"
-  tem: '/pages where #\{query_parse\(params\[:filter\]\)\} in site\"\)/'
+  src: "<r:query default='pages in site' select='pages where #{query_parse(params[:filter])} in site' do='each' join=', ' do='title'/>"
+  tem: '/query.*pages where #\{query_parse\(params\[:filter\]\)\} in site\"\)/'
   res: 'status title'
+
+query_with_parse_paginate:
+  src: "<r:query default='pages in site limit 4 paginate p' select='pages where #{query_parse(params[:q])} in site limit 2 paginate p' do='link' page='list'/>"
+  # should properly pass the query to sub-contexts.
+  tem: '/page_numbers/'
+  res: "/1.*2.*3.*4.*5/"
 
 query_can_be_nil_bad_argument_type:
   context:
@@ -139,4 +162,6 @@ query_can_be_nil_bad_argument_type:
   tem: '/params\[:filter\] \|\| \"pages in site\"/'
   res: ''
 
-
+query_truc:
+  tem: '<%= query("Page", "@node", "pages in site", :type => :count) %>'
+  res: '18'

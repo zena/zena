@@ -48,7 +48,7 @@ class QueryNodeTest < Zena::Unit::TestCase
     begin
       query  = Node.build_query(:all, yt_get('src', file, test), @context)
       sql, node_class = query.to_s, query.main_class
-    rescue QueryBuilder::Error => err
+    rescue ::QueryBuilder::Error => err
       errors = err.message
     end
 

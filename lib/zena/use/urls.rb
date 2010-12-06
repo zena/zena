@@ -18,6 +18,12 @@ module Zena
         ['', 'edit_', 'delete_', 'drop_', 'zafu_'].each do |method|
           class_eval %Q{
             def #{method}node_path(node, options={}) # def edit_node_path(node, options={})
+              if ep = options.delete(:encode_params)
+                ep.split(',').map(&:strip).each do |key|
+                  value = params[key]
+                  options[key] = value unless value.blank?
+                end
+              end
               if node.kind_of?(Node)                  #   if node.kind_of?(Node)
                 super(node.zip, options)              #     super(node.zip, options)
               else                                    #   else
@@ -114,17 +120,33 @@ module Zena
           else
             cachestamp = opts.delete(:cachestamp)
             list = opts.keys.map do |k|
-              if value = opts[k]
+              # FIXME: DOC
+              if k.to_s == 'encode_params'
+                opts[k].split(',').map(&:strip).map do |key|
+                  value = params[key]
+                  if value.kind_of?(Hash)
+                    {key => value}.to_query
+                  elsif !value.blank?
+                    "#{key}=#{CGI.escape(value)}"
+                  else
+                    nil
+                  end
+                end
+              elsif value = opts[k]
                 if value.respond_to?(:strftime)
                   # FIXME: I think this is not needed anymore (and removing time might not be a good idea).
                   "#{k}=#{value.strftime('%Y-%m-%d')}"
+                elsif value.kind_of?(Hash)
+                  "#{k}=#{value.to_query}"
+                elsif !value.blank?
+                  "#{k}=#{CGI.escape(value.to_s)}"
                 else
-                  "#{k}=#{CGI.escape(opts[k].to_s)}"
+                  nil
                 end
               else
                 nil
               end
-            end.compact
+            end.flatten.compact
             if cachestamp
               result = path + "?#{cachestamp}" + (list.empty? ? '' : "&#{list.sort.join('&')}")
               result
@@ -640,6 +662,10 @@ module Zena
               curr_page   = get_context_var('paginate', 'current')
               page_number = get_var_name('paginate', 'page')
               page_join   = get_var_name('paginate', 'join')
+              page_name   = get_var_name('paginate', 'page_name')
+              # give access to page_name
+              # FIXME: DOC
+              set_context_var('set_var', 'page_name', RubyLess::TypedString.new(page_name, String))
 
               if @blocks == [] || (@blocks.size == 1 && !@blocks.first.kind_of?(String) && @blocks.first.method == 'else')
                 # We need to insert the default 'link' tag: <r:link href='@node' #{pagination_key}='#{this}' ... do='this'/>
@@ -653,7 +679,7 @@ module Zena
 
                 link[:html_tag] = tag if tag
                 link[:href] = '@node'
-                link[:eval] = 'this'
+                link[:eval] = 'page_name'
                 link[pagination_key.to_sym] = '#{this}'
 
                 # <r:link href='@node' href='@node' p='#{this}' ... eval='this'/>
@@ -671,7 +697,7 @@ module Zena
                 remove_instance_variable(:@all_descendants)
               end
 
-              out "<% page_numbers(#{curr_page}, #{page_count}, #{(@params[:join] || ' ').inspect}, #{@params[:page_count] ? @params[:page_count].to_i : 'nil'}) do |#{page_number}, #{page_join}| %>"
+              out "<% page_numbers(#{curr_page}, #{page_count}, #{(@params[:join] || ' ').inspect}, #{@params[:page_count] ? @params[:page_count].to_i : 'nil'}) do |#{page_number}, #{page_join}, #{page_name}| %>"
               out "<%= #{page_join} %>"
               with_context(:node => node.move_to(page_number, Number)) do
                 out expand_if("#{page_number} != #{curr_page}")

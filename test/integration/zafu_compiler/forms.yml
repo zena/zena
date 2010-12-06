@@ -139,7 +139,15 @@ input:
 
 input_raw_name:
   src: "<r:input param='first_name'/>"
-  tem: "<input type='text' name='first_name'/>"
+  tem: "<input type='text' name='first_name' value='<%= fquote params[:first_name] %>'/>"
+
+input_param_value:
+  context:
+    foo:
+      "bar.baz": 'xyz'
+  src: "<r:input param='foo[bar.baz]'/>"
+  tem: "<input type='text' name='foo[bar.baz]' value='<%= fquote param_value(\"foo[bar.baz]\") %>'/>"
+  res: "<input type='text' name='foo[bar.baz]' value='xyz'/>"
 
 input_style:
   src: "<r:input style='display:none;' type='submit'/>"

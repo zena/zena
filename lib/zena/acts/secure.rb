@@ -326,6 +326,16 @@ if defined?(IRB)
       end
     end
 
+    def rename_prop(list, old_key, new_key)
+      list.each do |rec|
+        prop  = rec.prop
+        if value = prop.delete(old_key)
+          prop[new_key] = value
+          Zena::Db.execute "UPDATE #{rec.class.table_name} SET properties=#{Zena::Db.quote(rec.class.encode_properties(prop))} WHERE id=#{rec[:id]}"
+        end
+      end
+    end
+
     def login(name, host = nil)
       finder = {}
       finder[:conditions] = cond = [[]]

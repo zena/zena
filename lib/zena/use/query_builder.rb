@@ -10,7 +10,8 @@ module Zena
           secure(Node) { Node.find_by_zip(zip) }
         end
 
-        def query(class_name, node_name, pseudo_sql)
+        def query(class_name, node_name, pseudo_sql, opts = {})
+          type = opts[:type] || :find
           if klass = VirtualClass[class_name]
             begin
               query = klass.build_query(:all, pseudo_sql,
@@ -20,14 +21,17 @@ module Zena
                 # mixed in and strangely RubyLess cannot access the helpers from 'self'.
                 :rubyless_helper => zafu_helper.helpers
               )
-              klass.do_find(:all, eval(query.to_s))
+              if type == :count
+                return klass.do_find(:count, eval(query.to_s(:count)))
+              else
+                return klass.do_find(:all, eval(query.to_s))
+              end
             rescue ::QueryBuilder::Error => err
               # FIXME: how to return error messages to the user ?
-              nil
             end
-          else
-            nil
           end
+          # error
+          type == :count ? 0 : nil
         end
 
         # Takes a hash of parameters and builds query arguments for pseudo sql
@@ -43,7 +47,7 @@ module Zena
               res << clause unless clause.blank?
             end
           end
-          res.empty? ? 'true' : res.join(' and ')
+          res.empty? ? '1=1' : res.join(' and ')
         end
 
         private
@@ -107,14 +111,41 @@ module Zena
           base.process_unknown :querybuilder_eval
         end
 
+        # Dynamic query mocks the QueryBuilder::Query
+        class DynamicQuery
+          def initialize(default, node, sql)
+            @default, @node, @sql = default, node, sql
+          end
+
+          def to_s(type = :find)
+            base = "'#{@node.klass}', #{@node.to_s.inspect}, #{@sql}"
+            case type
+            when :find
+              return "query(#{base})"
+            else
+              return "query(#{base}, :type => #{type.inspect})"
+            end
+          end
+
+          # Pass all other methods to the default query.
+          def method_missing(meth, *args)
+            @default.send(meth, *args)
+          end
+        end
+
         # Open a list context with a query comming from the url params. Default param name is
         # "qb"
         def r_query
           return parser_error("Cannot be used in list context (#{node.class_name})") if node.list_context?
-          return parser_error("Missing 'default' query") unless default = @params[:default]
+          return parser_error("Missing 'default' query") unless default_psql = @params[:default]
 
+          begin
+            default = build_finder(:all, default_psql, {})
+            default_query = default[:query]
+          rescue ::QueryBuilder::Error => err
+            return parser_error(err.message)
+          end
 
-          default_query = build_query(:all, default)
           klass = [default_query.main_class]
 
           can_be_nil = true
@@ -124,7 +155,7 @@ module Zena
               return parser_error("Invalid compilation result for #{sql.inspect} (#{sql.klass})")
             end
             can_be_nil = sql.opts[:nil]
-          elsif sql = @params[:text]
+          elsif sql = @params[:select]
             sql = RubyLess.translate_string(self, sql)
             can_be_nil = sql.opts[:nil]
           else
@@ -132,12 +163,11 @@ module Zena
           end
 
           if can_be_nil
-            sql = "#{sql} || #{default.inspect}"
+            sql = "#{sql} || #{default_psql.inspect}"
           end
 
-          method = "query('#{node.klass}', #{node.to_s.inspect}, #{sql})"
-
-          expand_with_finder(:method => method, :class => klass, :nil => true)
+          query = DynamicQuery.new(default_query, node, sql)
+          expand_with_finder(:method => query.to_s, :class => [query.main_class], :nil => true, :query => query)
         end
 
         # Pre-processing of the 'find("...")' method.
@@ -193,8 +223,12 @@ module Zena
             page_count = get_var_name('paginate', 'count', sub_context)
             curr_page  = get_var_name('paginate', 'current', sub_context)
 
-            # Give access to the pagination key.
+            # Give access to the page number through the pagination key.
             set_context_var('set_var', pagination_key, RubyLess::TypedString.new(curr_page, Number))
+            # Give access to page_count and count
+            # FIXME: DOC
+            set_context_var('set_var', 'page_count', RubyLess::TypedString.new(page_count, Number))
+            set_context_var('set_var', 'count', RubyLess::TypedString.new(node_count, Number))
 
             out "<% #{node_count} = Node.do_find(:count, #{query.to_s(:count)}); #{page_count} = (#{node_count} / #{query.page_size.to_f}).ceil; #{curr_page} = [1,params[:#{pagination_key}].to_i].max -%>"
           elsif finder[:method].kind_of?(RubyLess::TypedString)

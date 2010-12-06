@@ -208,23 +208,34 @@ module Zena
 
           node = pre_filter_node
 
-          # We do not want to have duplicate ids so we use our own dom prefix.
-          if node.dom_prefix.blank?
+          if @name.blank?
+            # make sure we have a scope
             set_dom_prefix(node)
           end
 
-          markup.set_id(node.dom_id)
+          # We do not want to use the same id as the 'each' loop but we also want to
+          # avoid changing the node context
+          @drag_prefix ||= root.get_unique_name('drag', true).gsub(/[^\d\w\/]/,'_')
+          markup.set_id(node.dom_id(:dom_prefix => @drag_prefix))
+
           markup.append_param(:class, 'drag')
 
           drag = 'drag_handle' if drag == 'true'
 
-          js_options = drag == 'all' ? ['false'] : [drag.inspect]
+          if drag == 'all'
+            js_options = ['false']
+          else
+            unless @blocks.detect{|b| b.kind_of?(String) ? b =~ /class=.#{drag}/ : (b.params[:class] == drag || (b.markup && b.markup.params[:class] == drag))}
+              handle = "<span class='#{drag}'>&nbsp;</span>"
+            end
+            js_options = [drag.inspect]
+          end
 
           if revert = @params.delete(:revert)
             js_options << (%w{true false}.include?(revert) ? revert : revert.inspect)
           end
 
-          markup.pre_wrap[:drag] = "<% add_drag_id(\"#{node.dom_id(:erb => false)}\", #{js_options.join(', ').inspect}) -%>"
+          markup.pre_wrap[:drag] = "#{handle}<% add_drag_id(\"#{node.dom_id(:dom_prefix => @drag_prefix, :erb => false)}\", #{js_options.join(', ').inspect}) -%>"
         end
 
         # Display an input field to filter a remote block

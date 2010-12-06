@@ -5,7 +5,7 @@ module Zena
 
         # Dynamic resolution of the author class from the user prototype
         def self.visitor_node_proc
-          Proc.new do |h, s|
+          Proc.new do |h, r, s|
             res = {:method => 'visitor.node', :nil => true}
             if prototype  = visitor.prototype
               res[:class] = prototype.vclass
@@ -113,21 +113,30 @@ module Zena
           join_str = ''
           if count <= max_count
             1.upto(count) do |p|
-              yield(p, join_str)
+              yield(p, join_str, p)
               join_str = join_string
             end
           else
             # only first pages (centered around current page)
             if current - (max_count/2) > 0
-              finish = [current + (max_count/2),count].min
+              max = current + (max_count/2)
             else
-              finish = [max_count,count].min
+              max = max_count
+            end
+
+            if count > max
+              finish = end_dots = max
+            else
+              finish = count
             end
 
             start  = [finish - max_count + 1,1].max
+            if start > 1
+              start_dots = start
+            end
 
             start.upto(finish) do |p|
-              yield(p, join_str)
+              yield(p, join_str, (p == start_dots || p == end_dots) ? '…' : p.to_s)
               join_str = join_string
             end
           end

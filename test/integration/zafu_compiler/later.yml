@@ -12,7 +12,7 @@ show_edit:
 
 
 # The result should replace scoped ids "list1_#{var1.zip}_#{var2.zip}" by "#{ndom_id(@node)}_#{var2.zip}".
-each_in_each_dom_id:
+saved_each_in_each_dom_id:
   src: |
     <ul class='tags' do='tags in site'>
       <li do='each'><b do='link'/>

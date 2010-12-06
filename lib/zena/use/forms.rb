@@ -57,6 +57,24 @@ module Zena
             res.join('')
           end
         end
+
+        # Find a params value from an input name (q[foo] ==> safe params[q][foo])
+        def param_value(name)
+          # q[foo.bar][xxx]
+          list = name.gsub(']','').split('[')
+          # q foo.bar xxx
+          base = params
+          while true
+            key = list.shift
+            if base.kind_of?(Hash)
+              base = base[key]
+            else
+              return nil
+            end
+            break if list.empty?
+          end
+          base
+        end
       end # ViewMethods
 
       module ZafuMethods
@@ -549,7 +567,13 @@ module Zena
                 else
                   res[:value] = "<%= fquote #{value} %>"
                 end
-              elsif type = node.klass.safe_method_type([attribute])
+              elsif params[:param]
+                if name =~ /^[a-z_]+$/
+                  res[:value] = "<%= fquote params[:#{name}] %>"
+                else
+                  res[:value] = "<%= fquote param_value(#{name.inspect}) %>"
+                end
+              elsif attribute && type = node.klass.safe_method_type([attribute])
                 res[:value] = "<%= fquote #{node}.#{type[:method]} %>"
               end
             end
