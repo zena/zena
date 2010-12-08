@@ -82,6 +82,12 @@ class RemoteTest < Zena::Integration::TestCase
             subject
           end
         end
+        
+        should 'return node zip as id' do
+          subject
+          last = Node.find(:first, :order => 'id desc')
+          assert_equal last.zip, subject.id
+        end
 
         should 'use attributes to create node' do
           node = remote_node(subject.id)

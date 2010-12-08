@@ -284,6 +284,53 @@ class RelationProxyTest < Zena::Unit::TestCase
     end # with an invalid zip
   end # Adding a link
 
+  context 'With a user' do
+    setup do
+      login(:tiger)
+    end
+
+    context 'adding many links from qb' do
+      subject do
+        visitor.node
+      end
+
+      should 'create links' do
+        assert_difference('Link.count', 4) do
+          subject.update_attributes('rel' => {'reference' => "images in site"})
+        end
+
+        # clear
+        assert_difference('Link.count', -4) do
+          subject.update_attributes('rel' => {'reference' => ''})
+        end
+
+        # clear with empty query
+        assert_difference('Link.count', -4) do
+          subject.update_attributes('rel' => {'reference' => ''})
+        end
+      end
+
+      should 'clear with empty qb' do
+        subject.update_attributes('rel' => {'reference' => "images in site"})
+
+        # clear
+        assert_difference('Link.count', -4) do
+          subject.update_attributes('rel' => {'reference' => ''})
+        end
+      end
+
+      should 'clear with empty found list' do
+        subject.update_attributes('rel' => {'reference' => "images in site"})
+
+        # clear
+        assert_difference('Link.count', -4) do
+          subject.update_attributes('rel' => {'reference' => 'nodes where title = "scrumbled eggs" in site'})
+        end
+      end
+    end # Adding many links from qb
+  end # With a user
+
+
   def test_add_link_bad_target
     login(:lion)
     node = secure!(Node) { nodes(:letter) }

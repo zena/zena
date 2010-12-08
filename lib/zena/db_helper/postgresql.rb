@@ -53,7 +53,7 @@ module Zena
           res['zip'].to_i
         end
 
-        # Return a string matching the pseudo sql function.
+        # Return a string matching the sqless function.
         def sql_function(function, key)
           return key unless function
           # TODO

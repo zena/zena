@@ -156,6 +156,7 @@ module Zena
         # FIXME: this method does an 'update' not only 'add'
         def add_link(role, hash)
           if rel = relation_proxy(role)
+            rel.qb         = hash[:qb]         if hash.has_key?(:qb)
             rel.other_id   = hash[:other_id]   if hash.has_key?(:other_id)
             rel.other_ids  = hash[:other_ids]  if hash.has_key?(:other_ids)
             rel.other_zip  = hash[:other_zip]  if hash.has_key?(:other_zip)
@@ -189,11 +190,15 @@ module Zena
             elsif role =~ /^(.+)_attributes$/
               # key used as role
               definition['role'] ||= $1
-            else
+            elsif definition.kind_of?(Hash)
               # key used as role, without the '_attributes'
               definition['role'] ||= role
+            else
+              # qb
+              definition = {'role' => role, 'qb' => definition}
             end
-            add_link(definition.delete('role'), definition.symbolize_keys)  # TODO: only use string keys
+            # TODO: only use string keys
+            add_link(definition.delete('role'), definition.symbolize_keys)
           end
         end
 

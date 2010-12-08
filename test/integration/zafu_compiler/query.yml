@@ -28,17 +28,35 @@ is_null:
   tem: "<%= query_parse('para' => %{null}) %>"
   res: "para is null"
 
+is_not_null:
+  tem: "<%= query_parse('para' => %{!null}) %>"
+  res: "not (para is null)"
+
 literal:
   tem: "<%= query_parse('para' => %{hello}) %>"
   res: "para = \"hello\""
+
+literal_date:
+  tem: "<%= query_parse('para' => %{2.12.1983}) %>"
+  res: "para = '1983-12-02'"
 
 number:
   tem: "<%= query_parse('para' => %{45}) %>"
   res: "para = 45"
 
+not_number:
+  tem: "<%= query_parse('para' => %{!45}) %>"
+  res: "not (para = 45)"
+
 greater_then:
   tem: "<%= query_parse('para' => %{>32}) %>"
   res: "para >32"
+
+greater_then_date:
+  context:
+    lang: fr
+  tem: "<%= query_parse('para' => %{>7.5.1965}) %>"
+  res: "para >'1965-05-07'"
 
 greater_or_equal_then:
   tem: "<%= query_parse('para' => %{>=32}) %>"
@@ -56,25 +74,47 @@ equal:
   tem: "<%= query_parse('para' => %{=32+3}) %>"
   res: "para =32+3"
 
+not_equal:
+  tem: "<%= query_parse('para' => %{!=32}) %>"
+  res: "not (para =32)"
+
 interval:
   tem: "<%= query_parse('para' => %{10..20}) %>"
   res: "para >= 10 and para <= 20"
 
+interval_date:
+  context:
+    lang: fr
+  tem: "<%= query_parse('para' => %{1.1.2010..31.12.2010}) %>"
+  res: "para >= '2010-01-01' and para <= '2010-12-31'"
+
+not_interval_date:
+  context:
+    lang: fr
+  tem: "<%= query_parse('para' => %{!1.1.2010..31.12.2010}) %>"
+  res: "not (para >= '2010-01-01' and para <= '2010-12-31')"
+
+interval_date_en:
+  context:
+    lang: en
+  tem: "<%= query_parse('para' => %{2010/1/1..2010/12/31}) %>"
+  res: "para >= '2010-01-01' and para <= '2010-12-31'"
+
 like:
-  tem: "<%= query_parse('para' => %{%bar}) %>"
-  res: "para like \"%bar\""
+  tem: "<%= query_parse('para' => %{*bar}) %>"
+  res: "para like \"*bar\""
 
 like_at_end:
-  tem: "<%= query_parse('para' => %{bar%}) %>"
-  res: "para like \"bar%\""
+  tem: "<%= query_parse('para' => %{bar*}) %>"
+  res: "para like \"bar*\""
 
-literal_with_percent:
-  tem: "<%= query_parse('para' => %{'%bar'}) %>"
-  res: "para = '%bar'"
+literal_with_star:
+  tem: "<%= query_parse('para' => %{'*bar'}) %>"
+  res: "para = '*bar'"
 
 many_params:
-  tem: "<%= query_parse('anti' => %{'%bar'}, 'gone' => %{> 13}) %>"
-  res: "/anti = '%bar' and gone > 13|gone > 13 and anti = '%bar'/"
+  tem: "<%= query_parse('anti' => %{'*bar'}, 'gone' => %{> 13}) %>"
+  res: "/anti = '\*bar' and gone > 13|gone > 13 and anti = '\*bar'/"
 
 rubyless_query_parse:
   context:

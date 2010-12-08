@@ -1,6 +1,7 @@
 module Zena
   module Use
     module QueryBuilder
+      DATE_FIELD_REGEXP = %r{\d+[\.-/]\d+[\.-/]\d+}
       module ViewMethods
         include RubyLess
         safe_method [:query_parse, String] => {:class => String, :accept_nil => true}
@@ -34,7 +35,7 @@ module Zena
           type == :count ? 0 : nil
         end
 
-        # Takes a hash of parameters and builds query arguments for pseudo sql
+        # Takes a hash of parameters and builds query arguments for sqless
         # the query ends up like ' AND param_name = "foo" AND param_name > 35'...
         def query_parse(params)
           params ||= {}
@@ -51,7 +52,7 @@ module Zena
         end
 
         private
-          # Transforms special syntax into pseudo sql. Argument can be
+          # Transforms special syntax into sqless. Argument can be
           #
           #    ''          ==> (empty fields are ignored)
           #    '""'        ==> key = ""
@@ -64,29 +65,46 @@ module Zena
           #    '"foo%"'    ==> key = "foo%"
           def query_build_clause(key, arg)
             first = arg.first
-            case arg.first
-            when "'", '"'
+            return "not (#{query_build_clause(key, arg[1..-1])})" if first == '!'
+            if ["'", '"'].include?(first)
               return "#{key} = #{arg}"
-            when '>','<','='
-              return "#{key} #{arg}"
             end
 
-            if arg == 'null'
-              return "#{key} is null"
+            if arg =~ DATE_FIELD_REGEXP
+              arg = query_parse_dates(arg)
+              first = arg.first
+            end
+
+            if ['>','<','='].include?(first)
+              "#{key} #{arg}"
+            elsif arg == 'null'
+              "#{key} is null"
             elsif arg == ''
               # ignore
-              return ''
-            elsif arg =~ /%/
+              ''
+            elsif arg =~ /\*/
               # like
-              return "#{key} like #{arg.inspect}"
+              "#{key} like #{arg.gsub('%','*').inspect}"
             elsif arg =~ /^(.+)\.\.(.+)$/
               # interval
-              return "#{key} >= #{$1} and #{key} <= #{$2}"
+              "#{key} >= #{$1} and #{key} <= #{$2}"
             elsif arg =~ /^\d+$/
               # number
-              return "#{key} = #{arg}"
+              "#{key} = #{arg}"
+            elsif first == "'"
+              "#{key} = #{arg}"
             else
-              return "#{key} = #{arg.inspect}"
+              "#{key} = #{arg.inspect}"
+            end
+          end
+
+          def query_parse_dates(str)
+            str.gsub(DATE_FIELD_REGEXP) do |date_str|
+              if date = DateTime.parse(date_str) rescue nil
+                date.strftime("'%Y-%m-%d'")
+              else
+                date_str
+              end
             end
           end
       end # ViewMethods
@@ -242,7 +260,7 @@ module Zena
         end
 
         private
-          # Build a Query object from pseudo sql.
+          # Build a Query object from sqless.
           def build_query(count, pseudo_sql, raw_filters = [])
 
             if !node.klass.respond_to?(:build_query)
@@ -344,7 +362,7 @@ module Zena
             ((params[:paginate] || child['each'] || child['group'] || Node.plural_relation?(method)) ? :all : :first)
           end
 
-          # Build pseudo sql from the parameters
+          # Build sqless from the parameters
           # comments where ... from ... in ... order ... limit
           def get_pseudo_sql(rel, params)
             parts   = [rel.dup]

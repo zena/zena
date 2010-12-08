@@ -60,7 +60,7 @@ class ScopeIndexTest < Zena::Unit::TestCase
           assert_equal 'Gods',     idx.contact_name
         end
       end
-      
+
       should 'not update other relations' do
         assert_difference('IdxProject.count', 0) do
           subject
@@ -75,6 +75,42 @@ class ScopeIndexTest < Zena::Unit::TestCase
         assert_equal subject.id, IdxProject.find(@project.scope_index).contact_id
       end
     end # creating a sub node
+
+    context 'moving a sub node' do
+      subject do
+        secure(Node) { VirtualClass['Contact'].create_instance(:first_name => 'Friedrich', :name => 'Hölderlin', :parent_id => nodes_id(:zena), :v_status => Zena::Status[:pub]) }
+      end
+
+      should 'update project index' do
+        assert_equal 'cont', @project.scope_index.contact_name
+        assert subject.update_attributes(:parent_id => @project.id)
+        assert_equal 'Hölderlin', IdxProject.find(@project.scope_index).contact_name
+      end
+    end # moving a sub node
+
+    context 'linking a remote node' do
+      subject do
+        secure(Node) { VirtualClass['Contact'].create_instance(:first_name => 'Friedrich', :name => 'Hölderlin', :parent_id => nodes_id(:zena), :v_status => Zena::Status[:pub]) }
+      end
+
+      should 'update project index' do
+        assert_equal 'ref', @project.scope_index.reference_name
+        assert subject.update_attributes(:reference_id => @project.id)
+        assert_equal 'Hölderlin', IdxProject.find(@project.scope_index).reference_name
+      end
+    end # linking a remote node
+    
+    context 'reverse linking a remote node' do
+      subject do
+        secure(Node) { VirtualClass['Contact'].create_instance(:first_name => 'Friedrich', :name => 'Hölderlin', :parent_id => nodes_id(:zena), :v_status => Zena::Status[:pub]) }
+      end
+
+      should 'trigger remote update idx' do
+        assert_equal 'ref', @project.scope_index.reference_name
+        assert @project.update_attributes(:reference_for_id => subject.id)
+        assert_equal 'Hölderlin', IdxProject.find(@project.scope_index).reference_name
+      end
+    end # reverse linking a remote node
 
     context 'updating a sub node' do
       setup do
@@ -139,7 +175,7 @@ class ScopeIndexTest < Zena::Unit::TestCase
           assert_equal 'Young Gods', idx.reference_title
         end
       end
-      
+
       should 'not update other relations' do
         assert_difference('IdxProject.count', 0) do
           subject
@@ -176,7 +212,7 @@ class ScopeIndexTest < Zena::Unit::TestCase
           end
         end
       end # without publishing
-      
+
       context 'without all attributes' do
         subject do
           secure(Node) { Node.create_node(:klass => 'Reference', :title => 'Burn these tests', :parent_id => nodes_zip(:zena), :reference_id => @project.zip, :v_status => Zena::Status[:pub])}
@@ -190,7 +226,7 @@ class ScopeIndexTest < Zena::Unit::TestCase
           end
         end
       end # without all attributes
-      
+
     end # updating a related node
 
     context 'updating the project' do
@@ -339,7 +375,7 @@ class ScopeIndexTest < Zena::Unit::TestCase
         assert_equal "Invalid entry: keys and query should be of type String (1 => \"project\")", vclass.errors[:idx_scope]
       end
     end # with an invalid idx_scope
-    
+
     context 'with an invalid idx_scope type' do
       subject do
         {:name => 'Song', :superclass => 'Post', :idx_scope => "project", :create_group_id => groups_id(:public) }
@@ -356,7 +392,7 @@ class ScopeIndexTest < Zena::Unit::TestCase
         assert_equal "Invalid type: should be a hash.", vclass.errors[:idx_scope]
       end
     end # with an invalid idx_scope type
-    
+
     context 'with an invalid query in idx_scope' do
       subject do
         {:name => 'Song', :superclass => 'Post', :idx_scope => "{'reference' => 'project where foo is null'}", :create_group_id => groups_id(:public) }
@@ -374,5 +410,5 @@ class ScopeIndexTest < Zena::Unit::TestCase
       end
     end # with an invalid query in idx_scope
   end # Creating a virtual class
-  
+
 end

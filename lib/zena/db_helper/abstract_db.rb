@@ -116,7 +116,7 @@ module Zena
         raise Exception.new("Database Adapter #{adapter.inspect} not supported yet (you can probably fix this).")
       end
 
-      # Return a string matching the pseudo sql function.
+      # Return a string matching the sqless function.
       def sql_function(function, key)
         raise Exception.new("Database Adapter #{adapter.inspect} does not support function #{function.inspect}.")
       end

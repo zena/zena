@@ -319,6 +319,7 @@ class NodesController < ApplicationController
   end
 
   def update
+    params['node'] ||= {}
     file, file_error = get_attachment
     params['node']['file'] = file if file
 

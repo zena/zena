@@ -4,6 +4,8 @@
  * Using VirtualClass as proxy for type compilation (RubyLess, Zafu).
  * Caching Roles and VirtualClass.
  * Added 'integer' property with index.
+ * Added query_parse (parse form content such as '>34' or '10..34').
+ * Enable setting relations with sqless.
 
 == 1.0.0.beta4
 

@@ -325,12 +325,12 @@ class VirtualClass < Role
   end
 
 
-  # Return the pseudo sql query compiler.
+  # Return the sqless query compiler.
   def query_compiler
     real_class.query_compiler
   end
 
-  # Build pseudo sql query.
+  # Build sqless query.
   def build_query(*args)
     real_class.build_query(*args)
   end

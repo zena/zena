@@ -129,7 +129,7 @@ module Zena
 
       module ModelMethods
         def self.included(base)
-          base.after_save :update_scope_indices
+          base.after_save  :update_scope_indices
           base.safe_context :scope_index => scope_index_proc
           base.alias_method_chain :rebuild_index!, :scope_index
         end
@@ -170,6 +170,14 @@ module Zena
           # Update scope indices (project/section).
           def update_scope_indices
             return unless version.status == Zena::Status[:pub]
+            update_scope_indices_on_prop_change
+            update_scope_indices_on_link_change
+           rescue ::QueryBuilder::Error
+             # log and ignore: we cannot recover here ?
+             # FIXME: raise when we have transactional save.
+          end
+
+          def update_scope_indices_on_prop_change
             if virtual_class && scopes = virtual_class.idx_scope
               scopes = safe_eval(scopes)
               return unless scopes.kind_of?(Hash)
@@ -189,8 +197,18 @@ module Zena
                 end
               end
             end
-          # rescue QueryBuilder::Error
-            # ignore
+          end
+
+          def update_scope_indices_on_link_change
+            (@relation_proxies || {}).values.compact.each do |rel|
+              if add_links = rel.add_links
+                add_links.each do |hash|
+                  if node = hash[:node]
+                    node.update_scope_indices
+                  end
+                end
+              end
+            end
           end
       end # ModelMethods
     end # ScopeIndex

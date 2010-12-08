@@ -72,7 +72,7 @@ module Zena
           fetch_attribute("SELECT zip FROM zips WHERE site_id = '#{site_id}'").to_i
         end
 
-        # Return a string matching the pseudo sql function.
+        # Return a string matching the sqless function.
         def sql_function(function, key)
           return key unless function
           case function

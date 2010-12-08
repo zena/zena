@@ -1,5 +1,5 @@
 class RelationProxy < Relation
-  attr_accessor   :side, :link_errors, :start, :other_link, :last_target
+  attr_accessor   :side, :link_errors, :start, :other_link, :last_target, :add_links
   LINK_ATTRIBUTES = Zena::Use::Relations::LINK_ATTRIBUTES
   LINK_ATTRIBUTES_SQL = LINK_ATTRIBUTES.map {|sym| connection.quote_column_name(sym)}.join(',')
   LINK_SELECT     = "nodes.*,links.id AS link_id,#{LINK_ATTRIBUTES.map {|l| "links.#{l} AS l_#{l}"}.join(',')}"
@@ -120,6 +120,23 @@ class RelationProxy < Relation
     VirtualClass.find_by_kpath(@side == :source ? self[:target_kpath] : self[:source_kpath])
   end
 
+  # set from query builder
+  def qb=(qb)
+    if qb.blank?
+      self.other_id = []
+    else
+      query = @start.class.build_query(:all, qb,
+        :node_name       => '@start',
+        :main_class      => @start.virtual_class,
+        :rubyless_helper => @start.virtual_class,
+        :default         => {:order => 'id asc'}
+      )
+      self.other_id = secure(Node) {Node.find_by_sql(eval(query.to_s))} || []
+    end
+  rescue ::QueryBuilder::Error => err
+    attributes_to_update[:errors] = {'base' => err.message}
+  end
+
   # set
   def other_id=(v)
     attributes_to_update[:errors] = {}
@@ -131,8 +148,18 @@ class RelationProxy < Relation
       else
         # ignore
       end
+    elsif v.kind_of?(Array)
+      if v.first.kind_of?(Node)
+        node_by_id = attributes_to_update[:nodes] = {}
+        v.each do |r|
+          node_by_id[r.id.to_i] = r
+        end
+        attributes_to_update[:id] = v.map{|r| r.id.to_i}
+      else
+        attributes_to_update[:id] = v.map(&:to_i)
+      end
     else
-      attributes_to_update[:id] = v.kind_of?(Array) ? v.uniq.compact.map {|v| v.to_i} : (v.blank? ? nil : v.to_i)
+      attributes_to_update[:id] = v.blank? ? nil : v.to_i
     end
   end
 
@@ -332,6 +359,8 @@ class RelationProxy < Relation
     @add_links.each do |hash|
       # last_target is used by "linked_node" from Node to get hold of the last linked node
       if @last_target = find_target(hash[:id])
+        # store remote node so that we can use in index rebuild (scope_index)
+        hash[:node] = @last_target
         # make sure we can overwrite previous link if as_unique
         if as_unique?
           if previous_link = Link.find(:first, :conditions => ["relation_id = ? AND #{other_side} = ?", self[:id], @last_target[:id]])
@@ -438,10 +467,14 @@ class RelationProxy < Relation
 
     def find_target(obj_id)
       if as_unique?
-        secure_drive(relation_class) { relation_class.find(:first, :conditions=>['id = ? AND kpath LIKE ?', obj_id, "#{other_kpath}%"]) }
+        cache[obj_id] ||= secure_drive(relation_class) { relation_class.find(:first, :conditions=>['id = ? AND kpath LIKE ?', obj_id, "#{other_kpath}%"]) }
       else
-        secure_write(relation_class) { relation_class.find(:first, :conditions=>['id = ? AND kpath LIKE ?', obj_id, "#{other_kpath}%"]) }
+        cache[obj_id] ||= secure_write(relation_class) { relation_class.find(:first, :conditions=>['id = ? AND kpath LIKE ?', obj_id, "#{other_kpath}%"]) }
       end
+    end
+
+    def cache
+      @cache ||= attributes_to_update[:nodes] || {}
     end
 
     def attributes_to_update
