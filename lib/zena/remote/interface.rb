@@ -147,7 +147,7 @@ module Zena
         private
           def process_find(count, query, options)
             if query.kind_of?(String)
-              # Consider string as sqless
+              # Consider string as SQLiss
               result = get(find_url, :query => options.merge(:qb => query, :_find => count))
 
             elsif query.kind_of?(Fixnum)

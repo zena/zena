@@ -77,7 +77,7 @@ module Zena
           rows.fetch_row[0].to_i
         end
 
-        # Return a string matching the sqless function.
+        # Return a string matching the SQLiss function.
         def sql_function(function, key)
           return key unless function
           case function

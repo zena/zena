@@ -35,7 +35,7 @@ module Zena
           type == :count ? 0 : nil
         end
 
-        # Takes a hash of parameters and builds query arguments for sqless
+        # Takes a hash of parameters and builds query arguments for SQLiss
         # the query ends up like ' AND param_name = "foo" AND param_name > 35'...
         def query_parse(params)
           params ||= {}
@@ -52,7 +52,7 @@ module Zena
         end
 
         private
-          # Transforms special syntax into sqless. Argument can be
+          # Transforms special syntax into SQLiss. Argument can be
           #
           #    ''          ==> (empty fields are ignored)
           #    '""'        ==> key = ""
@@ -260,7 +260,7 @@ module Zena
         end
 
         private
-          # Build a Query object from sqless.
+          # Build a Query object from SQLiss.
           def build_query(count, pseudo_sql, raw_filters = [])
 
             if !node.klass.respond_to?(:build_query)
@@ -362,7 +362,7 @@ module Zena
             ((params[:paginate] || child['each'] || child['group'] || Node.plural_relation?(method)) ? :all : :first)
           end
 
-          # Build sqless from the parameters
+          # Build SQLiss from the parameters
           # comments where ... from ... in ... order ... limit
           def get_pseudo_sql(rel, params)
             parts   = [rel.dup]

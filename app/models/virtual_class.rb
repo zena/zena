@@ -325,12 +325,12 @@ class VirtualClass < Role
   end
 
 
-  # Return the sqless query compiler.
+  # Return the SQLiss query compiler.
   def query_compiler
     real_class.query_compiler
   end
 
-  # Build sqless query.
+  # Build SQLiss query.
   def build_query(*args)
     real_class.build_query(*args)
   end

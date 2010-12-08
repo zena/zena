@@ -298,16 +298,6 @@ class RelationProxyTest < Zena::Unit::TestCase
         assert_difference('Link.count', 4) do
           subject.update_attributes('rel' => {'reference' => "images in site"})
         end
-
-        # clear
-        assert_difference('Link.count', -4) do
-          subject.update_attributes('rel' => {'reference' => ''})
-        end
-
-        # clear with empty query
-        assert_difference('Link.count', -4) do
-          subject.update_attributes('rel' => {'reference' => ''})
-        end
       end
 
       should 'clear with empty qb' do
