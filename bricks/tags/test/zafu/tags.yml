@@ -1,6 +1,8 @@
-# test_file: ../../../../test/helpers/zena_parser_test.rb
+# test_file: ../../../../test/unit/zena/zena_tags_test.rb
 default:
   context:
+    lang: 'en'
+    visitor: 'lion'
     node: 'status'
   src: "<r:tags do='each' join=',' do='[name]'/>"
   tem: "/list1 = @node.tags.*var1.name/"
@@ -8,7 +10,7 @@ default:
 
 listing_no_tags:
   context:
-    node: 'lion'
+    node: lion
   src: "<r:tags>Nothing</r:tags>"
   tem: "/list1 = @node.tags/"
   res: ""
@@ -19,7 +21,7 @@ listing_with_link:
 
 tagged_query:
   context:
-    cat: 'blue'
+    cat: blue
   src: "<r:context select='nodes where tag = param:cat in site' do='each' join=', ' do='[name]'/>"
   res: "bird, status"
 
@@ -29,12 +31,23 @@ images_tagged_blue:
 
 tagged_keys_rubyless:
   context:
-    node: 'status'
+    node: status
   src: "<r:tagged do='keys'><r:each join=', ' do='show'/></r:tagged>"
   res: "sky, blue"
 
 tag_names:
   context:
-    node: 'status'
-  src: "<r:tag_names><r:each join=', ' do='show'/></r:tagged>"
-  res: "sky, blue"
+    node: status
+  src: "<r:tag_names><r:each join=', ' do='show'/></r:tag_names>"
+  res: "blue, sky"
+
+tag_cloud:
+  src: "<r:tag_cloud in='project'><span do='each' join=' '><r:name/>(<r:show attr='count'/>)</span></r:tag_cloud>"
+  res: "<span>sky(2)</span>"
+
+input_tag:
+  context:
+    node: status
+  src: "<r:input type='checkbox' name='tagged[]' value='sky'/>"
+  tem: "<input name='node[tagged][]' type='checkbox' value='sky'<%= @node.tagged[\"sky\"] == \"sky\" ? \" checked='checked'\" : '' %>/>"
+  res: "<input name='node[tagged][]' type='checkbox' value='sky' checked='checked'/>"

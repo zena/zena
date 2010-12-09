@@ -1,9 +1,6 @@
 require 'test_helper'
 
-
-
 class ZenaTagsTest < Zena::Controller::TestCase
-
 
   yamltest :directories => [:default, "#{Zena::ROOT}/bricks/**/test/zafu"]
   Section # make sure we load Section links before trying relations

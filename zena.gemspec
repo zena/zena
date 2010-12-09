@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2010-11-17}
+  s.date = %q{2010-12-07}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -264,6 +264,7 @@ Gem::Specification.new do |s|
      "bricks/tags/test/sites/zena/links.yml",
      "bricks/tags/test/unit/tags_test.rb",
      "bricks/tags/test/zafu/tags.yml",
+     "bricks/tags/zafu/tags.rb",
      "bricks/toto.zip",
      "bricks/worker/README",
      "bricks/worker/migrate/20091104191643_create_delayed_jobs_table.rb",

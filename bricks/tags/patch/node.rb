@@ -6,9 +6,14 @@ Node.send(:has_tags)
 Link # make sure it is loaded before we reopen it
 class Link
   safe_method :name => {:class => String, :nil => true}
+  safe_method :count => {:class => Number, :nil => true}
 
   def name
     self[:comment]
+  end
+
+  def count
+    self[:count]
   end
 end
 

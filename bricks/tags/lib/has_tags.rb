@@ -50,12 +50,17 @@ module Bricks
 
       # Set/unset a named tag
       def tagged=(hash)
-        # named tags
-        hash.each do |k, v|
-          if v.empty?
-            remove_tag(k.to_s)
-          else
-            add_tag(k.to_s)
+        if hash.kind_of?(Array) || hash.kind_of?(String)
+          # input from form
+          @tag_names = tags_as_list(hash)
+        else
+          # named tags
+          hash.each do |k, v|
+            if v.empty?
+              remove_tag(k.to_s)
+            else
+              add_tag(k.to_s)
+            end
           end
         end
       end
@@ -132,7 +137,7 @@ module Bricks
       private
 
         def tags_as_list(str)
-          str.split(',').map(&:strip).reject{|t| t.blank? }
+          (str.kind_of?(String) ? str.split(',') : str).map(&:strip).reject{|t| t.blank? }
         end
 
         # Update/create links defined in relation proxies

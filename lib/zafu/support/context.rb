@@ -85,7 +85,12 @@ module Zafu
           if klass == self.node_class
             (@context[:saved_template] && @context[:main_node]) ? "@#{base_class.to_s.underscore}" : (@context[:node] || '@node')
           elsif klass == Node
-            @context[:previous_node] || '@node'
+            if @context[:saved_template]
+              # hack to prevent Comment based forms creation: should work.
+              '@node'
+            else
+              @context[:previous_node] || '@node'
+            end
           else
             # ?
             out parser_error("could not find node_name for #{klass} (current class is #{node_class})")

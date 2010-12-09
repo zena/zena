@@ -323,6 +323,9 @@ module Zafu
 
             if sub_attr
               if (nattr = node_attribute(attribute)) != 'nil'
+                if sub_attr == ''
+                  sub_attr = params[:value] || ''
+                end
                 nattr = "#{nattr}[#{sub_attr.inspect}]"
               end
             else
