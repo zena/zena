@@ -34,10 +34,7 @@ module Zafu
       if klass.ancestors.include?(Node)
         if ['url','path'].include?(real_attribute)
           # pseudo attribute 'url'
-          params = {}
-          params[:mode]   = @params[:mode]   if @params[:mode]
-          params[:format] = @params[:format] if @params[:format]
-          res = "zen_#{real_attribute}(#{node}#{params_to_erb(params)})"
+          res = make_link(:url_only => true, :in_erb => true, :is_url => real_attribute == 'url', :skip_html => true)
         elsif real_attribute == 'lang'
           res = 'lang'
         elsif type = safe_method_type([real_attribute])

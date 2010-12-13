@@ -229,7 +229,7 @@ url:
   context:
     node: 'bird_jpg'
   src: "<r:url format='data'/>"
-  res: "/en/image30.jpg?1144713600"
+  res: "/en/image30.jpg\?1144713600"
 
 zafu_link_with_blocks:
   src: "<a id='branding' do='link'><img src='sample.png' do='img' src='30'/></a>"
@@ -1327,3 +1327,15 @@ expand_with_set_host:
   src: "relative:<r:link/> absolute:<r:expand_with set_host='[site.host]' do='link'/>"
   tem: "/relative:.*zen_path\(@node\).*absolute:.*zen_path\(@node, :host => \"#\{current_site.host\}\"/"
   res: "relative:<a href='/oo/page18.html'>projects list</a> absolute:<a href='http://test.host/oo/page18.html'>projects list</a>"
+
+url_with_format:
+  context:
+    node: 'bird_jpg'
+  src: "<link rel='image_src' do='void' set_href='[url]' format='data'/>"
+  tem: "<link href='<%= zen_url(@node,:format=>@node.c_ext) %>' rel='image_src'></link>"
+  res: "<link href='http://test.host/en/image30.jpg?1144713600' rel='image_src'></link>"
+
+url_with_prefix:
+  src: "<link rel='image_src' do='void' set_href='[url]' prefix='fr'/>"
+  tem: "<link href='<%= zen_url(@node,:prefix=>\"fr\") %>' rel='image_src'></link>"
+  res: "<link href='http://test.host/fr/projects/cleanWater/page22.html' rel='image_src'></link>"

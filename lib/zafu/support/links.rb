@@ -64,6 +64,10 @@ module Zafu
           end
         end
 
+        if prefix = params.delete(:prefix)
+          opts[:prefix] = prefix.inspect
+        end
+
         if mode = params.delete(:mode)
           opts[:mode] = mode.inspect
         end
@@ -79,7 +83,7 @@ module Zafu
           opts[:anchor_in] = finder
         end
 
-        if @html_tag && @html_tag != 'a'
+        if options[:skip_html] || (@html_tag && @html_tag != 'a')
           # FIXME: can we remove this ?
           # html attributes do not belong to anchor
           pre_space = ''
@@ -147,10 +151,19 @@ module Zafu
 
           opts_str += ", :host => #{@context["exp_host"]}" if @context["exp_host"]
 
-          if options[:url_only]
-            pre_space + "<%= zen_path(#{lnode}#{opts_str}) %>"
+          method = options[:is_url] ? 'zen_url' : 'zen_path'
+          if options[:in_erb]
+            if options[:url_only]
+              pre_space + "#{method}(#{lnode}#{opts_str})"
+            else
+              pre_space + "%Q{<a#{params_to_html(html_params)} href='\#{#{method}(#{lnode}#{opts_str})}'>#{text_for_link(default_text)}</a>}"
+            end
           else
-            pre_space + "<a#{params_to_html(html_params)} href='<%= zen_path(#{lnode}#{opts_str}) %>'>#{text_for_link(default_text)}</a>"
+            if options[:url_only]
+              pre_space + "<%= #{method}(#{lnode}#{opts_str}) %>"
+            else
+              pre_space + "<a#{params_to_html(html_params)} href='<%= #{method}(#{lnode}#{opts_str}) %>'>#{text_for_link(default_text)}</a>"
+            end
           end
         end
       end

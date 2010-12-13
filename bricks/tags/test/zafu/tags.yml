@@ -43,7 +43,7 @@ tag_names:
 
 tag_cloud:
   src: "<r:tag_cloud in='project'><span do='each' join=' '><r:name/>(<r:show attr='count'/>)</span></r:tag_cloud>"
-  res: "<span>sky(2)</span>"
+  res: "<span>blue(1)</span> <span>sky(1)</span>"
 
 input_tag:
   context:
