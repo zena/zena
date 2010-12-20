@@ -37,11 +37,21 @@ module Zena
       module ClassMethods
 
         # All relations related to the current class/virtual_class with its ancestors.
-        def all_relations(start=nil)
-          rel_as_source = RelationProxy.find(:all, :conditions => ["site_id = ? AND source_kpath IN (?)", current_site[:id], split_kpath])
-          rel_as_target = RelationProxy.find(:all, :conditions => ["site_id = ? AND target_kpath IN (?)", current_site[:id], split_kpath])
-          rel_as_source.each {|rel| rel.source = start } if start
-          rel_as_target.each {|rel| rel.target = start } if start
+        def all_relations(start=nil, group_filter=nil)
+          if group_filter
+            group_filter = "#{group_filter}%"
+            rel_as_source = RelationProxy.find(:all,
+              :conditions => ["site_id = ? AND source_kpath IN (?) AND rel_group LIKE ?", current_site[:id], split_kpath, group_filter])
+            rel_as_target = RelationProxy.find(:all,
+              :conditions => ["site_id = ? AND target_kpath IN (?) AND rel_group LIKE ?", current_site[:id], split_kpath, group_filter])
+          else
+            rel_as_source = RelationProxy.find(:all,
+              :conditions => ["site_id = ? AND source_kpath IN (?)", current_site[:id], split_kpath])
+            rel_as_target = RelationProxy.find(:all,
+              :conditions => ["site_id = ? AND target_kpath IN (?)", current_site[:id], split_kpath])
+          end
+          rel_as_source.each {|rel| rel.source = start }
+          rel_as_target.each {|rel| rel.target = start }
           (rel_as_source + rel_as_target).sort {|a,b| a.other_role <=> b.other_role}
         end
 

@@ -11,12 +11,14 @@ node_has_tags:
   source_role:     tagged
   target_role:     set_tag
   target_icon:     "<img src='/images/tag_blue.png' alt='tag'/>"
+  rel_group:       'doc.tags'
 
 node_has_references:
   source_kpath:    N
   target_kpath:    N
   source_role:     reference_for
   target_role:     reference
+  rel_group:       'doc.ref'
 
 node_has_an_icon:
   source_kpath:    N
@@ -34,6 +36,7 @@ project_has_a_hot_element:
   target_kpath:    N
   target_unique:   yes
   target_icon:     "<img src='/images/lightbulb.png' alt='hot'/>"
+  rel_group:       'web'
 
 project_has_a_home:
   source_kpath:    NPP
@@ -43,6 +46,7 @@ project_has_a_home:
   source_role:     home_for
   target_role:     home
   target_icon:     "<img src='/images/home.png' alt='home'/>"
+  rel_group:       'web'
 
 project_has_collaborators:
   source_kpath:    NPP
@@ -51,6 +55,7 @@ project_has_collaborators:
   source_role:     collaborator_for
   target_role:     collaborator
   target_icon:     "<img src='/images/user.png' alt='collaborator'/>"
+  rel_group:       'people'
 
 post_has_blogs:
   source_kpath:    NNP

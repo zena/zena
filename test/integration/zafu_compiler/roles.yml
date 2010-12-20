@@ -76,9 +76,21 @@ vclass_column_size:
   res: "Node (3), Original (3), Task (1)"
 
 vclass_context:
-  src: "<r:ImageClass><r:name/></r:ImageClass>"
+  src: "<r:Image><r:name/></r:Image>"
   tem: "<% if var1 = VirtualClass['Image'] -%><%= var1.name %><% end -%>"
   res: "Image"
+
+vclass_scope:
+  context:
+    node: bird_jpg
+  src: "<r:Image?>I am an image</r:Image?>"
+  tem: "<% if @node.kpath_match?('NDI') -%>I am an image<% end -%>"
+  res: "I am an image"
+
+vclass_in_rubyless:
+  src: "<b do='Contact.name'/>"
+  tem: "<b><%= (VirtualClass[\"Contact\"] ? VirtualClass[\"Contact\"].name : nil) %></b>"
+  res: "<b>Contact</b>"
 
 grid_manual:
   src: |
@@ -92,3 +104,15 @@ grid_manual:
 grid:
   src: "<r:images in='site' do='grid'/>"
   res: "/<table class='grid'>.*<th class='role' colspan='3'>Node.*<th class='role' colspan='3'>Original.*<th>exif</th><th>height</th><th>width</th>.*<td>image/jpeg</td><td>jpg</td>/"
+
+list_relations:
+  src: "<r:Contact do='relations' do='each' join=', ' do='name'/>"
+  res: "collaborator_for, favorite, favorite_for, home_for, hot_for, icon, reference, reference_for, set_tag"
+
+list_relations_filter_group:
+  src: "<r:Contact do='relations(\"doc\")' do='each' join=', ' do='name'/>"
+  res: "reference, reference_for, set_tag"
+
+input_relation_name:
+  src: "<r:select name='link[role]' values='Contact.relations(\"doc\")'/>"
+  tem: "xx"

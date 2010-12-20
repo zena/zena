@@ -527,7 +527,22 @@ class VirtualClassTest < Zena::Unit::TestCase
     end # on new_instance
   end # A Document vclass
 
-  context 'A note vclass' do
+  context 'A vclass' do
+    context 'on relations' do
+      subject do
+        VirtualClass['Letter'].relations
+      end
+
+      should 'return a list of relation proxies on relations' do
+        assert_kind_of RelationProxy, subject.first
+      end
+
+      should 'return a list of relation proxies on relations' do
+        assert_equal %w{xx}, subject.map(&:other_role).sort
+      end
+    end # on relations
+
+
     context 'on new_instance' do
       subject do
         VirtualClass['Letter'].new_instance(
@@ -557,7 +572,7 @@ class VirtualClassTest < Zena::Unit::TestCase
       assert subject <= VirtualClass['Note']
       assert !(subject <= Project)
     end
-    
+
     should 'respond to less then' do
       assert subject < Note
       assert subject < Node
@@ -565,7 +580,7 @@ class VirtualClassTest < Zena::Unit::TestCase
       assert !(subject < Project)
       assert !(subject < VirtualClass['Post'])
     end
-    
+
     should 'consider role methods as safe' do
       assert_equal Hash[:class=>String, :method=>"prop['assigned']", :nil=>true], subject.safe_method_type(['assigned'])
     end
@@ -575,7 +590,7 @@ class VirtualClassTest < Zena::Unit::TestCase
     setup do
       login(:tiger)
     end
-    
+
     context 'on a node' do
       context 'from a class with roles' do
         subject do
@@ -612,15 +627,15 @@ class VirtualClassTest < Zena::Unit::TestCase
             assert_equal 'flat Eric', subject.assigned
           end
         end
-      
+
         should 'consider role methods as safe' do
           assert_equal Hash[:class=>String, :method=>"prop['paper']", :nil=>true], subject.safe_method_type(['paper'])
         end
-        
+
         should 'not consider VirtualClass own methods as safe' do
           assert_nil subject.safe_method_type(['name'])
         end
-        
+
         should 'not allow arbitrary attributes' do
           assert !subject.update_attributes('assigned' => 'flat Eric', 'bad' => 'property')
         end
@@ -641,7 +656,7 @@ class VirtualClassTest < Zena::Unit::TestCase
           assert !subject.update_attributes('properties' => {'bad' => 'property'})
           assert_equal 'property not declared', subject.errors[:bad]
         end
-        
+
       end # from a class with roles
     end # on a node
   end # A visitor with write access

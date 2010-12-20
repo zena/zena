@@ -19,6 +19,8 @@ class VirtualClass < Role
   include Zena::Use::ScopeIndex::VirtualClassMethods
 
   safe_context :roles => {:class => ['Role'], :method => 'sorted_roles'}
+  safe_method  :relations => {:class => ['RelationProxy'], :method => 'all_relations'}
+  safe_method  [:relations, String] => {:class => ['RelationProxy'], :method => 'zafu_all_relations'}
 
   class Cache
     def initialize
@@ -390,6 +392,12 @@ class VirtualClass < Role
       end
       res.empty? ? nil : res
     end
+  end
+
+  # List all relations that can be set for this class, filtering by
+  # relation group.
+  def zafu_all_relations(group_filter)
+    all_relations(nil, group_filter)
   end
 
   # Cache index groups

@@ -102,11 +102,11 @@ interval_date_en:
 
 like:
   tem: "<%= query_parse('para' => %{*bar}) %>"
-  res: "para like \"*bar\""
+  res: "para like \"%bar\""
 
 like_at_end:
   tem: "<%= query_parse('para' => %{bar*}) %>"
-  res: "para like \"bar*\""
+  res: "para like \"bar%\""
 
 literal_with_star:
   tem: "<%= query_parse('para' => %{'*bar'}) %>"

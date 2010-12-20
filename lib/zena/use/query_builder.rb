@@ -84,7 +84,7 @@ module Zena
               ''
             elsif arg =~ /\*/
               # like
-              "#{key} like #{arg.gsub('%','*').inspect}"
+              "#{key} like #{arg.gsub('*','%').inspect}"
             elsif arg =~ /^(.+)\.\.(.+)$/
               # interval
               "#{key} >= #{$1} and #{key} <= #{$2}"

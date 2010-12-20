@@ -61,6 +61,26 @@ class RelationTest < Zena::Unit::TestCase
         assert_equal sites_id(:zena), subject.site_id
       end
 
+      context 'with a relation group' do
+        subject do
+          Relation.create(
+            :source_role  => 'wife',
+            :target_role  => 'husband',
+            :source_kpath => 'NRC',
+            :target_kpath => 'NRC',
+            :rel_group    => 'marital'
+          )
+        end
+
+        should 'succeed' do
+          assert !subject.new_record?
+        end
+
+        should 'store rel_group info in relation' do
+          assert_equal 'marital', Relation.find(subject).rel_group
+        end
+      end # with a group
+
       context 'with blank source_role' do
         subject do
           Relation.create(
@@ -98,7 +118,7 @@ class RelationTest < Zena::Unit::TestCase
         should 'singularize source role' do
           assert_equal 'wife', subject[:source_role]
         end
-        
+
         should 'show source role as plural' do
           assert_equal 'wives', subject.source_role
         end
@@ -122,7 +142,7 @@ class RelationTest < Zena::Unit::TestCase
         should 'singularize target role' do
           assert_equal 'husband', subject[:target_role]
         end
-        
+
         should 'show target role as plural' do
           assert_equal 'husbands', subject.target_role
         end

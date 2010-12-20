@@ -1,4 +1,8 @@
 class RelationProxy < Relation
+  include RubyLess
+
+  safe_method :name => {:class => String, :method => 'other_role'}
+
   attr_accessor   :side, :link_errors, :start, :other_link, :last_target, :add_links
   LINK_ATTRIBUTES = Zena::Use::Relations::LINK_ATTRIBUTES
   LINK_ATTRIBUTES_SQL = LINK_ATTRIBUTES.map {|sym| connection.quote_column_name(sym)}.join(',')
