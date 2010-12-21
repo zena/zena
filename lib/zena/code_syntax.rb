@@ -150,7 +150,7 @@ class ZafuTokenizer < Syntax::Tokenizer
         start_group :value, v
       end
       start_group :tag, "#{trailing}>"
-    elsif dotag = scan(/<([^>]+)do\s*=([^>]+)>/)
+    elsif dotag = scan(/<(\w+)([^>]*?)do\s*=('|")([^\3]*?[^\\])\3([^>]*?)(\/?)>/)
         if dotag =~ /\A<(\w+)([^>]*?)do\s*=('|")([^\3]*?[^\\])\3([^>]*?)(\/?)>/
           start_group :tag, "<#{$1}#{$2}"
           start_group :tag, "do="

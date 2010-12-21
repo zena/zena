@@ -1,3 +1,5 @@
+=begin
+FIXME: remove if tests pass.
 module Zena
   module Parser
 
@@ -22,6 +24,7 @@ module Zena
 
         # puts "[#{@space_before}(#{@method})#{@space_after}]"
         if @params =~ /\A([^>]*?)do\s*=('|")([^\2]*?[^\\])\2([^>]*)\Z/
+          #puts $~.to_a.inspect
           # we have a sub 'do'
           @params = parse_params($1)
           @sub_do = $3 # this is used by replace_with
@@ -150,11 +153,12 @@ module Zena
           opts.merge!(:method=>$1, :params=>$2)
           opts.merge!(:text=>'') if $3 != ''
           make(:void, opts)
-        elsif @text =~ /\A<(\w+)([^>]*?)do\s*=('([^>]*?[^\\]|)'|"([^>]*?[^\\]|)")([^>]*?)(\/?)>/
-          #puts "DO:#{$~.to_a.inspect}" # do tag
+        #elsif @text =~ /\A<(\w+)([^>]*?)do\s*=('([^>]*?[^\\]|)'|"([^>]*?[^\\]|)")([^>]*?)(\/?)>/
+        elsif @text =~ /\A<(\w+)([^>]*?)do\s*=('|")([^\3]*?[^\\])\3([^>]*?)(\/?)>/
+          puts "DO:#{$~.to_a.inspect}" # do tag
           eat $&
-          opts.merge!(:method=>($4||$5), :html_tag=>$1, :html_tag_params=>$2, :params=>$6)
-          opts.merge!(:text=>'') if $7 != ''
+          opts.merge!(:method=> $4, :html_tag=>$1, :html_tag_params=>$2, :params=>$5)
+          opts.merge!(:text=>'') if $6 != ''
           make(:void, opts)
         elsif @options[:form] && @text =~ /\A<(input|select|textarea|form)([^>]*?)(\/?)>/
           eat $&
@@ -237,3 +241,4 @@ module Zena
     end # ZafuRules
   end # Parser
 end # Zena
+=end

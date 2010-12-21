@@ -27,7 +27,7 @@ class String
       '%' + $1.unpack('H2' * $1.size).join('%').upcase
     end.tr(' ', '-')
   end
-  
+
   # Retrieve original title from an url_name
   def self.from_url_name(str)
     CGI.unescape(str.tr('-', ' '))
@@ -39,7 +39,7 @@ class String
       '%' + $1.unpack('H2' * $1.size).join('%').upcase
     end
   end
-  
+
   # Retrieve original title from filename
   def self.from_filename(str)
     CGI.unescape(str.gsub('+', '%2B'))
@@ -49,7 +49,7 @@ class String
     replace(url_name)
     self
   end
-  
+
   def to_filename!
     replace(to_filename)
     self
@@ -86,6 +86,18 @@ class String
       path.shift
     end
     (root + path).join('/')
+  end
+
+  # Limit the number of characters and append the 'readmore' argument
+  # or "…" by default if the string is longer then limit.
+  # If you limit to '20' characters, the final size will max 20 + the size
+  # of the readmore argument.
+  def limit(size, readmore = '…')
+    if self.size > size
+      self[0..(size-1)] + readmore
+    else
+      self
+    end
   end
 
 end

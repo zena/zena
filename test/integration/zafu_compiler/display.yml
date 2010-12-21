@@ -272,4 +272,7 @@ admin_links_for_anon:
   src: "<r:admin_links>hello</r:admin_links>"
   res: ''
 
-# ---- fixed to here
+string_limit:
+  src: "<div do=\"text.limit(10, %Q{<a href='#{url}'>read more</a>})\"/>"
+  tem: "<div><%= (@node.prop['text'] ? @node.prop['text'].limit(10, \"<a href='#{zen_url(@node)}'>read more</a>\") : nil) %></div>"
+  res: "<div>status tex<a href='http://test.host/oo/projects-list/Clean-Water-project/page22.html'>read more</a></div>"
