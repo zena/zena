@@ -112,15 +112,14 @@ module Zena
           res   = {}
           roles = {}
 
-          sql = [%Q{SELECT nodes.zip, links.relation_id, links.source_id FROM nodes,links WHERE ((nodes.id = links.target_id AND links.source_id = ?) OR (nodes.id = links.source_id AND links.target_id = ?) OR (nodes.id = ? AND links.id = 0)) AND #{secure_scope('nodes')}}, self.id, self.id, self.parent_id]
+          # Yes, UNION is the fastest way to do this (54k data, 600 links). UNION = 0.02s, OR = 124s !!
+          sql = [%Q{SELECT nodes.zip, links.relation_id, links.source_id FROM nodes INNER JOIN links ON nodes.id = links.target_id AND links.source_id = ? WHERE #{secure_scope('nodes')} UNION SELECT nodes.zip, links.relation_id, links.source_id FROM nodes INNER JOIN links ON nodes.id = links.source_id AND links.target_id = ? WHERE #{secure_scope('nodes')}}, self.id, self.id]
 
           Zena::Db.select_all(sql).each do |record|
-            if record['relation_id'].to_i > 0
-              (roles[record['relation_id']] ||= []) << record
-            else
-              res["parent_id"] = record['zip']
-            end
+            (roles[record['relation_id']] ||= []) << record
           end
+
+          res["parent_id"] = parent_zip.to_s
 
           roles.each do |relation_id, records|
             relation = secure(Relation) { Relation.find(relation_id) }

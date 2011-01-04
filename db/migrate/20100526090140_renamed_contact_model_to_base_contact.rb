@@ -1,6 +1,6 @@
 class RenamedContactModelToBaseContact < ActiveRecord::Migration
   def self.up
-    unless $migrating_new_site
+    unless $migrating_new_db
       execute "UPDATE nodes SET type = 'BaseContact' WHERE type = 'Contact'"
       execute "UPDATE roles SET real_class = 'BaseContact' WHERE real_class = 'Contact'"
     end

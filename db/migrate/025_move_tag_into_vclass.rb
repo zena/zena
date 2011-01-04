@@ -1,6 +1,6 @@
 class MoveTagIntoVclass < ActiveRecord::Migration
   def self.up
-    if !$migrating_new_site
+    unless $migrating_new_db
       # create a new virtual class for each site and assign all tags to this class.
       Site.find(:all).each do |site|
         VirtualClass.connection.execute("INSERT INTO virtual_classes (name,kpath,real_class,icon,allowed_attributes,create_group_id,site_id) VALUES ('Tag','NPT','Page',NULL,NULL,#{site[:site_group_id]},#{site[:id]})")

@@ -1,4 +1,4 @@
-$migrating_new_site = true
+$migrating_new_db = true
 class CreateBase < ActiveRecord::Migration
   def self.up
     create_table("users", :options => Zena::Db.table_options) do |t|

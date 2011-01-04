@@ -1,6 +1,6 @@
 class FixZazenImageTag < ActiveRecord::Migration
   def self.up
-    if !$migrating_new_site
+    unless $migrating_new_db
       # Change all zazen image tags from !34.pv! to !34_pv! for better consistency with 'modes'.
       {
         Version.table_name        => [:text, :summary],
