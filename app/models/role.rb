@@ -53,8 +53,7 @@ class Role < ActiveRecord::Base
 
   def zafu_columns
     @zafu_columns ||= defined_columns.values.select do |c|
-      # Allow all dynamic properties and all safe static properties
-      !real_class || real_class.safe_method_type([c.name])
+      safe_method_type([c.name])
     end.sort {|a,b| a.name <=> b.name}
   end
 
