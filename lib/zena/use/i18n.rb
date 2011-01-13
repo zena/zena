@@ -295,13 +295,13 @@ module Zena
             { :class  => String,
               :method => "#{dict}.get",
               :accept_nil => true,
-              :pre_processor => Proc.new {|str| trans(str)}
+              :pre_processor => Proc.new {|this, str| trans(str)}
             }
           else
             { :class  => String,
               :method => 'trans',
               :accept_nil => true,
-              :pre_processor => Proc.new {|str| trans(str)}
+              :pre_processor => Proc.new {|this, str| trans(str)}
             }
           end
         end

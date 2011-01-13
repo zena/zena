@@ -133,7 +133,7 @@ input_set_value:
 input:
   context:
     node: 'ant'
-  src: "<r:Contact><r:input name='first_name'/></r:Contact>"
+  src: "<r:Contact?><r:input name='first_name'/></r:Contact?>"
   tem: "<% if @node.kpath_match?('NRC') -%><input type='text' name='node[first_name]' value='<%= fquote @node.prop['first_name'] %>'/><% end -%>"
   res: "<input type='text' name='node[first_name]' value='Solenopsis'/>"
 
@@ -156,13 +156,13 @@ input_style:
 textarea:
   context:
     node: 'ant'
-  src: "<r:Contact do='textarea' name='first_name'/>"
+  src: "<r:Contact? do='textarea' name='first_name'/>"
   res: "<textarea name='node[first_name]'>Solenopsis</textarea>"
 
 textarea_with_blocks:
   context:
     node: 'ant'
-  src: "<r:Contact do='textarea' name='first_name'>Sir <r:show attr='first_name'/></r:Contact>"
+  src: "<r:Contact? do='textarea' name='first_name'>Sir <r:show attr='first_name'/></r:Contact?>"
   tem: "/<textarea name='node\[first_name\]'>Sir <%= @node.prop\['first_name'\] %></textarea>/"
   res: "<textarea name='node[first_name]'>Sir Solenopsis</textarea>"
 

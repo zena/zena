@@ -4,7 +4,7 @@ class Role < ActiveRecord::Base
   # We define 'klass' in the Role used by the real classes so that property methods can be
   # defined.
   attr_accessor :klass
-  
+
   # Only store partial class name in 'type' field (not ::Role)
   self.store_full_sti_class = false
 
@@ -20,12 +20,9 @@ class Role < ActiveRecord::Base
   after_destroy :expire_vclass_cache
 
   include RubyLess
-  # All columns defined for a VirtualClass (kpath based).
-  safe_method :all_columns => {:class => ['Column'], :method => 'zafu_all_columns'}
-  
   # Columns defined in the role.
-  safe_method :columns     => {:class => ['Column'], :method => 'zafu_columns'}
-  
+  safe_method :columns     => {:class => ['Column'], :method => 'defined_safe_columns'}
+
   safe_method :name => String
 
   # We use property to store index information, default values and such
@@ -46,15 +43,10 @@ class Role < ActiveRecord::Base
       errors.add('superclass', 'invalid')
     end
   end
-  
-  def zafu_all_columns
-    @zafu_all_columns ||= (roles.flatten.map{|r| r.zafu_columns}).flatten.sort {|a,b| a.name <=> b.name}
-  end
 
-  def zafu_columns
-    @zafu_columns ||= defined_columns.values.select do |c|
-      safe_method_type([c.name])
-    end.sort {|a,b| a.name <=> b.name}
+  # By default, all defined columns are safe (see )
+  def defined_safe_columns
+    @safe_column ||= defined_columns.values.sort {|a,b| a.name <=> b.name}
   end
 
   private

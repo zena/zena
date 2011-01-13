@@ -528,6 +528,105 @@ class VirtualClassTest < Zena::Unit::TestCase
   end # A Document vclass
 
   context 'A vclass' do
+    context 'of a real class' do
+      subject do
+        VirtualClass['Page']
+      end
+
+      should 'return true on real_class?' do
+        assert subject.real_class?
+      end
+
+      should 'return super vclass' do
+        assert_equal VirtualClass['Node'], subject.superclass
+      end
+
+      should 'return safe column types' do
+        assert_equal %w{assigned origin summary text title tz weight}, subject.safe_column_types.keys.sort
+      end
+
+      should 'return nil on unsafe method type' do
+        assert_nil subject.safe_method_type(['cached_role_ids'])
+      end
+
+      should 'return type on safe method type' do
+        assert_equal Hash[:class => String, :nil => true, :method => "prop['title']"], subject.safe_method_type(['title'])
+      end
+
+      should 'return list of roles' do
+        assert_equal %w{Node Original Task}, subject.sorted_roles.map(&:name)
+      end
+
+      context 'that is a Node' do
+        subject do
+          VirtualClass['Node']
+        end
+
+        should 'return nil on super vclass' do
+          assert_nil subject.superclass
+        end
+
+        should 'return safe columns' do
+          assert_equal %w{summary text title assigned origin tz weight}, subject.safe_columns.map(&:name)
+        end
+
+        should 'return defined safe columns' do
+          assert_equal %w{summary text title}, subject.defined_safe_columns.map(&:name)
+        end
+
+        should 'return safe column types' do
+          assert_equal %w{assigned origin summary text title tz weight}, subject.safe_column_types.keys.sort
+        end
+
+        should 'not include unsafe properties in safe column types' do
+          unsafe_prop = 'cached_role_ids'
+          assert subject.columns[unsafe_prop]
+          assert !subject.safe_column_types[unsafe_prop]
+        end
+
+        should 'return list of roles' do
+          assert_equal %w{Node Original Task}, subject.sorted_roles.map(&:name)
+        end
+      end
+    end # of a real class
+
+
+    context 'of a virtual class' do
+      subject do
+        VirtualClass['Post']
+      end
+
+      should 'return false on real_class?' do
+        assert !subject.real_class?
+      end
+
+      should 'return safe columns' do
+        assert_equal %w{summary text title assigned origin tz weight date}, subject.safe_columns.map(&:name)
+      end
+
+      should 'return defined safe columns' do
+        assert_equal %w{date}, subject.defined_safe_columns.map(&:name)
+      end
+
+      should 'return safe column types' do
+        assert_equal %w{assigned date origin summary text title tz weight}, subject.safe_column_types.keys.sort
+      end
+
+      should 'return type on safe method type' do
+        assert_equal Hash[:class => String, :nil => true, :method => "prop['title']"], subject.safe_method_type(['title'])
+        assert_equal Hash[:class => Time, :nil => true, :method => "prop['date']"], subject.safe_method_type(['date'])
+      end
+
+      should 'return type of ruby method on safe method type' do
+        assert_equal Hash[:class => Time, :nil => true, :method => "created_at"], subject.safe_method_type(['created_at'])
+      end
+
+      should 'return list of roles' do
+        assert_equal %w{Node Original Task Post}, subject.sorted_roles.map(&:name)
+      end
+    end # of a virtual class
+
+
     context 'on relations' do
       subject do
         VirtualClass['Letter'].relations

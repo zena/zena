@@ -95,7 +95,7 @@ module Zena
         def export_properties
           res  = {}
           prop = self.prop
-          schema.zafu_all_columns.each do |col|
+          schema.safe_columns.each do |col|
             key = col.name
             value = prop[key]
             next if value.blank?

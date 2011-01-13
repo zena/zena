@@ -133,7 +133,7 @@ show_text:
 show_width:
   context:
     node: "bird_jpg"
-  src: "width = <r:Image do='width'/>"
+  src: "width = <r:Image? do='width'/>"
   tem: "/@node.prop\['width'\]/"
   res: "width = 660"
 

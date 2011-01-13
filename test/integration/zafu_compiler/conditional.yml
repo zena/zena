@@ -9,7 +9,7 @@ default:
 
 class_conditional:
   old_src: "<r:if kind_of='Image'><b do='#{size}' format='%.2f'/></r:if>"
-  src: "<r:Image><b do='#{size}' format='%.2f'/></r:Image>"
+  src: "<r:Image?><b do='#{size}' format='%.2f'/></r:Image?>"
   tem: "/@node.kpath_match\?\('NDI'\)/"
 
 class_conditional_in_if:
@@ -18,7 +18,7 @@ class_conditional_in_if:
   res: "not an image"
 
 class_conditional_in_array:
-  src: "<r:nodes><r:Image><b do='#{size}' format='%.2f'/></r:Image></r:nodes>"
+  src: "<r:nodes><r:Image?><b do='#{size}' format='%.2f'/></r:Image?></r:nodes>"
   tem: "/Cannot scope class in list .use each before filtering./"
 
 case_when:

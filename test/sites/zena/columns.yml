@@ -25,6 +25,7 @@ Contact_name:
 
 Post_date:
   index:           '.idx_datetime1'
+  ptype:           datetime
   
 Contact_first_name:
 

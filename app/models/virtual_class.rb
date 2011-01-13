@@ -6,6 +6,29 @@
 # Since this class also _uses_ Property to store some of it's data, confusion must not
 # be made between the VirtualClass as a schema (containing Node property definitions) and
 # the VirtualClass' own schema.
+#
+# The roles in the vclass contain self, super and all the attached roles like this (roles for
+# the Letter virtual class):
+#
+#     [
+#       <VirtualClass:'Letter' paper, search_mono, search>,
+#       [
+#         <VirtualClass:'Note' >,
+#    -->  <Role:'Note' >,
+#         [
+#           <VirtualClass:'Node' >,
+#    -->    <Role:'Node' cached_role_ids, title, text, summary>,
+#           <Role:'Original' weight, origin, tz>,
+#           <Role:'Task' assigned>
+#         ]
+#       ]
+#     ]
+#
+# Elements marked with '-->' above are the 'schema' roles used by the real classes to store
+# ruby declared properties. Since Zena is multi-site, there is one VirtualClass instance of
+# the real classes for each site: this is why the ruby declarations are not stored in the
+# VirtualClass itself for real classes.
+#
 class VirtualClass < Role
   attr_accessor :import_result
   belongs_to    :create_group, :class_name => 'Group', :foreign_key => 'create_group_id'
@@ -18,9 +41,11 @@ class VirtualClass < Role
   include Zena::Use::PropEval::VirtualClassMethods
   include Zena::Use::ScopeIndex::VirtualClassMethods
 
-  safe_context :roles => {:class => ['Role'], :method => 'sorted_roles'}
+  safe_method  :roles => {:class => ['Role'], :method => 'sorted_roles'}
   safe_method  :relations => {:class => ['RelationProxy'], :method => 'all_relations'}
   safe_method  [:relations, String] => {:class => ['RelationProxy'], :method => 'zafu_all_relations'}
+  # All columns defined for a VirtualClass (kpath based).
+  safe_method :all_columns => {:class => ['Column'], :method => 'safe_columns'}
 
   class Cache
     def initialize
@@ -128,6 +153,7 @@ class VirtualClass < Role
       vclass.kpath      = real_class.kpath
       vclass.real_class = real_class
       vclass.include_role real_class.schema
+      vclass.instance_variable_set(:@is_real_class, true)
       vclass
     end
 
@@ -219,17 +245,6 @@ class VirtualClass < Role
 
   self.caches_by_site ||= {}
 
-
-  # We use the VirtualClass to act as a proxy for the real class when resolving
-  # RubyLess methods.
-  def safe_method_type(signature, receiver = nil)
-    if signature.size == 1 && (column = columns[signature.first])
-      RubyLess::SafeClass.safe_method_type_for_column(column, true)
-    else
-      real_class.safe_method_type(signature, receiver)
-    end
-  end
-
   # FIXME: how to make sure all sub-classes of Node are loaded before this is called ?
   # TODO: move into helper
   def classes_for_form(opts={})
@@ -287,13 +302,81 @@ class VirtualClass < Role
     self.kpath =~ /^#{kpath}/
   end
 
+  # Return true if the class reflects a real class (proxy for Ruby class).
+  def real_class?
+    @is_real_class
+  end
+
   # Proxy methods for real class --------------
 
-  def superclass
-    if new_record?
-      real_class || Node
+  # We use the VirtualClass to act as a proxy for the real class when resolving
+  # RubyLess methods. If the class reflects a 'real' class, only the methods
+  # explicitely declared as safe are safe. If the VirtualClass reflects a virtual
+  # class, all properties are considered safe.
+  def safe_method_type(signature, receiver = nil)
+    if signature.size == 1 && (type = safe_column_types[signature.first])
+      type
     else
+      real_class.safe_method_type(signature, receiver)
+    end
+  end
+
+  # Return safe columns including super class's safe columns
+  def defined_safe_columns
+    @defined_safe_columns ||= if real_class?
+      # Get columns from the 'native' schema of the real class (this schema is a Property::Role,
+      # not a VirtualClass or ::Role).
+      #
+      # Only columns explicitly declared safe are safe here
+      real_class.schema.defined_columns.values.select do |col|
+        real_class.safe_method_type([col.name])
+      end.sort {|a,b| a.name <=> b.name}
+    else
+      super
+    end
+  end
+
+  # Return safe columns including super class's safe columns. The columns are
+  # sorted by kpath, origin (VirtualClass first, Role next) and name.
+  def safe_columns
+    @safe_columns ||= begin
+      (superclass ? superclass.safe_columns : []) +
+      defined_safe_columns +
+      attached_roles.map(&:defined_safe_columns).flatten.sort {|a,b| a.name <=> b.name}
+    end
+  end
+
+  # Returns a hash of all column types that are RubyLess safe (declared as safe in a real class
+  # or just dynamic properties declared in the DB). In the Role: everything is safe
+  # (see VirtualClass#safe_column_types).
+  def safe_column_types
+    @safe_column_types ||= Hash[*safe_columns.map do |column|
+      [column.name, RubyLess::SafeClass.safe_method_type_for_column(column, true)]
+    end.flatten]
+  end
+
+  # List all roles ordered by ascending kpath and name
+  def sorted_roles
+    @sorted_roles ||= begin
+      res = []
+      if up = superclass
+        res << up.sorted_roles
+      end
+      res << self unless defined_safe_columns.empty?
+      attached_roles.sort{|a,b| a.name <=> b.name}.each do |role|
+        res << role unless role.defined_safe_columns.empty?
+      end
+      res.flatten!
+      res
+    end
+  end
+
+  # Return virtual class' super class.
+  def superclass
+    if kpath.size > 1
       VirtualClass.find_by_kpath(kpath[0..-2])
+    else
+      nil
     end
   end
 
@@ -378,22 +461,6 @@ class VirtualClass < Role
     @import_result || errors[:base]
   end
 
-  # List all roles ordered by ascending kpath and name
-  def sorted_roles
-    @sorted_roles ||= begin
-      res = roles.flatten.uniq.reject do |r|
-        r.zafu_columns.empty?
-      end.sort do |a, b|
-        if a.kpath == b.kpath
-          a.name <=> b.name
-        else
-          a.kpath <=> b.kpath
-        end
-      end
-      res.empty? ? nil : res
-    end
-  end
-
   # List all relations that can be set for this class, filtering by
   # relation group.
   def zafu_all_relations(group_filter)
@@ -418,7 +485,7 @@ class VirtualClass < Role
       return if !errors.empty?
       @superclass ||= self.superclass
 
-      if new_record? || name_changed? || @superclass != old.superclass
+      if real_class? || name_changed? || @superclass != old.superclass
         index = 0
         kpath = nil
         while index < self[:name].length
