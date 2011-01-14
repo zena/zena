@@ -118,33 +118,13 @@ class RoleTest < Zena::Unit::TestCase
     end # with an admin visitor
   end # Creating a new Role
   
-  context 'with a virtual class' do
-    subject do
-      roles(:Letter)
-    end
-
-    should 'return all safe columns' do
-      assert_equal %w{paper search search_mono}, subject.zafu_columns.map(&:name)
-    end
-  end # with a virtual class
-  
-  context 'with a real class' do
-    subject do
-      VirtualClass['Node']
-    end
-
-    should 'return all safe columns' do
-      assert_equal %w{title text}, subject.columns.keys
-    end
-  end # with a virtual class
-  
   context 'with a role' do
     subject do
       roles(:Original)
     end
 
-    should 'return all safe columns' do
-      assert_equal %w{paper search search_mono}, subject.zafu_columns.map(&:name)
+    should 'return all defined safe columns' do
+      assert_equal %w{origin tz weight}, subject.defined_safe_columns.map(&:name)
     end
   end # with a virtual class
   # Indexed columns in role tested in NodeTest

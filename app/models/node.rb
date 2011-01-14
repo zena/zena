@@ -814,7 +814,7 @@ class Node < ActiveRecord::Base
 
     # Translate attributes from the visitor's reference to the application.
     # This method translates dates, zazen shortcuts and zips and returns a stringified hash.
-    def transform_attributes(new_attributes, base_node = nil, change_timezone = true)
+    def transform_attributes(new_attributes, base_node = nil, change_timezone = true, is_link = false)
       res = {}
       res['parent_id'] = new_attributes[:_parent_id] if new_attributes[:_parent_id] # real id set inside zena.
 
@@ -841,15 +841,15 @@ class Node < ActiveRecord::Base
           res[key] = User.translate_pseudo_id(value, :id) || value
         elsif %w{id create_at updated_at}.include?(key)
           # ignore (can be present in xml)
-        elsif %w{log_at event_at v_publish_from}.include?(key)
+        elsif %w{log_at event_at v_publish_from}.include?(key) || (is_link && %w{date}.include?(key))
+          # FIXME: !!! We need to fix timezone parsing in dates depending on the Schema used. This means
+          # that we probably need to do this at the property level (during write).
           if value.kind_of?(Time)
             res[key] = value
           elsif value
             # parse date
-            if key == 'date' # never true, 'date' is not in list anymore
+            if key == 'date'
               # TODO: this is a temporary hack because date in links do not support timezones/formats properly
-              # Do not reanable this hack: it caused lots of other problems with properties called 'date' (use another
-              # name for link dates...)
               res[key] = value.to_utc("%Y-%m-%d %H:%M:%S")
             else
               res[key] = value.to_utc(_('datetime'), change_timezone ? visitor.tz : nil)
@@ -864,7 +864,7 @@ class Node < ActiveRecord::Base
             res[key] = value
           end
         elsif value.kind_of?(Hash)
-          res[key] = transform_attributes(value, base_node, change_timezone)
+          res[key] = transform_attributes(value, base_node, change_timezone, %w{link rel rel_attributes}.include?(key) || is_link)
         else
           # translate zazen
           if value.kind_of?(String)

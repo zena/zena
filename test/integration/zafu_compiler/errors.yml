@@ -77,3 +77,9 @@ zazen_bad_attr:
 toggle_bad_finder_class:
   src: "<span do='toggle' set='favorite' for='visitor'/>"
   res: "/Invalid class 'for' parameter: User/"
+
+map_join:
+  context:
+    node: 'cleanWater'
+  src: "<r:children do='map(:flobo).join(\",\")'/>"
+  tem: "/unknown method .*flobo\(\)/"

@@ -298,3 +298,20 @@ toggle_attribute_in_each:
   src: "<ul do='pages'><li do='each' toggle='favorite' for='visitor.node' do='title'/></ul>"
   res: "/<ul><li class='toggle' id='list1_26'>crocodiles</li>/"
   js: "/list1_26.*each/"
+
+toggle_dyn_attribute_in_each:
+  context:
+    node: cleanWater
+    rel: favorite
+  src: "<ul do='pages'><li do='each' toggle='#{params[:rel]}' for='visitor.node' do='title'/></ul>"
+  tem: "/add_toggle_id\(\"list1_#\{var2.zip\}\", \"var2_tog\", \"#\{params\[:rel\]\}\"\)/"
+  res: "/<ul><li class='toggle' id='list1_26'>crocodiles</li>/"
+  js: "/list1_26.*each/"
+
+toggle_bad_rel:
+  context:
+    node: cleanWater
+    rel: bad
+  src: "<ul do='pages'><li do='each' toggle='#{params[:rel]}' for='visitor.node' do='title'/></ul>"
+  res: "/<ul><li class='toggle' id='list1_26'>crocodiles</li>/"
+  js: "/list1_26.*each/"

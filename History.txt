@@ -6,6 +6,11 @@
  * Added 'integer' property with index.
  * Added query_parse (parse form content such as '>34' or '10..34').
  * Enable setting relations with SQLiss.
+ * Changed class filter from '<r:Contact>' to '<r:Contact?>'.
+ * Added VirtualClass introspection from zafu with [grid] and Node [send] methods.
+ * Added relation groups.
+ * Added 'map' and 'join' support to Array in RubyLess.
+ * Added dynamic values support for [toggle].
 
 == 1.0.0.beta4
 

@@ -41,9 +41,9 @@ class VirtualClass < Role
   include Zena::Use::PropEval::VirtualClassMethods
   include Zena::Use::ScopeIndex::VirtualClassMethods
 
-  safe_method  :roles => {:class => ['Role'], :method => 'sorted_roles'}
+  safe_method  :roles     => {:class => ['Role'], :method => 'sorted_roles'}
   safe_method  :relations => {:class => ['RelationProxy'], :method => 'all_relations'}
-  safe_method  [:relations, String] => {:class => ['RelationProxy'], :method => 'zafu_all_relations'}
+  safe_method  [:relations, String] => {:class => ['RelationProxy'], :method => 'filtered_relations'}
   # All columns defined for a VirtualClass (kpath based).
   safe_method :all_columns => {:class => ['Column'], :method => 'safe_columns'}
 
@@ -340,7 +340,7 @@ class VirtualClass < Role
   # sorted by kpath, origin (VirtualClass first, Role next) and name.
   def safe_columns
     @safe_columns ||= begin
-      (superclass ? superclass.safe_columns : []) +
+      (superclass.kind_of?(VirtualClass) ? superclass.safe_columns : []) +
       defined_safe_columns +
       attached_roles.map(&:defined_safe_columns).flatten.sort {|a,b| a.name <=> b.name}
     end
@@ -359,8 +359,8 @@ class VirtualClass < Role
   def sorted_roles
     @sorted_roles ||= begin
       res = []
-      if up = superclass
-        res << up.sorted_roles
+      if superclass.kind_of?(VirtualClass)
+        res << superclass.sorted_roles
       end
       res << self unless defined_safe_columns.empty?
       attached_roles.sort{|a,b| a.name <=> b.name}.each do |role|
@@ -371,12 +371,13 @@ class VirtualClass < Role
     end
   end
 
-  # Return virtual class' super class.
+  # Return virtual class' super class or Node for the virtual class of
+  # Node.
   def superclass
-    if kpath.size > 1
+    if kpath && kpath.size > 1
       VirtualClass.find_by_kpath(kpath[0..-2])
     else
-      nil
+      Node
     end
   end
 
@@ -463,7 +464,7 @@ class VirtualClass < Role
 
   # List all relations that can be set for this class, filtering by
   # relation group.
-  def zafu_all_relations(group_filter)
+  def filtered_relations(group_filter)
     all_relations(nil, group_filter)
   end
 

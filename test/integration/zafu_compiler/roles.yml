@@ -9,22 +9,22 @@ default:
 
 
 show_property_filter_vclass:
-  src: "<r:Letter do='paper'/>"
+  src: "<r:Letter? do='paper'/>"
   tem: "<% if @node.kpath_match?('NNL') -%><%= @node.prop['paper'] %><% end -%>"
 
 show_property_filter_role_no_role:
-  src: "<r:Original>Has an origin</r:Original>"
+  src: "<r:Original?>Has an origin</r:Original?>"
   res: ''
 
 show_property_filter_role_has_role:
   context:
     node: tree_jpg
-  src: "<r:Original>Has an original</r:Original>"
+  src: "<r:Original?>Has an original</r:Original?>"
   tem: "<% if @node.has_role?(493147733) -%>Has an original<% end -%>"
   res: 'Has an original'
 
 show_bad_role:
-  src: "<r:Foo>abc</r:Foo>"
+  src: "<r:Foo?>abc</r:Foo?>"
   tem: "/Invalid role or class 'Foo'/"
 
 form_with_all_roles:
@@ -73,7 +73,7 @@ vclass_column_size:
   context:
     node: letter
   src: "<r:vclass do='roles' do='each' join=', '><r:name/> (<r:columns do='size'/>)</r:vclass>"
-  res: "Node (3), Original (3), Task (1), Letter(3)"
+  res: "Node (3), Original (3), Task (1), Letter (3)"
 
 vclass_context:
   src: "<r:Image><r:name/></r:Image>"
@@ -95,8 +95,8 @@ vclass_in_rubyless:
 grid_manual:
   src: |
     <table do='images in site'>
-      <tr do='ImageClass' do='roles'><th colspan='#{columns.size}' do='each' do='name'/></tr>
-      <tr do='ImageClass' do='roles' do='each' do='columns'><th do='each' do='name'/></tr>
+      <tr do='Image' do='roles'><th colspan='#{columns.size}' do='each' do='name'/></tr>
+      <tr do='Image' do='roles' do='each' do='columns'><th do='each' do='name'/></tr>
       <tr do='each'><r:Image do='roles' do='each' do='columns'><td do='each' do='@node.send(name)'/></r:Image></tr>
     </table>
   res: "/<th colspan='3'>Node.*<th colspan='3'>Original.*<th>exif</th><th>height</th><th>width</th>.*<td>image/jpeg</td><td>jpg</td>/"
@@ -106,13 +106,17 @@ grid:
   res: "/<table class='grid'>.*<th class='role' colspan='3'>Node.*<th class='role' colspan='3'>Original.*<th>exif</th><th>height</th><th>width</th>.*<td>image/jpeg</td><td>jpg</td>/"
 
 list_relations:
-  src: "<r:Contact? do='relations' do='each' join=', ' do='name'/>"
+  src: "<r:Contact do='relations' do='each' join=', ' do='name'/>"
   res: "collaborator_for, favorite, favorite_for, home_for, hot_for, icon, reference, reference_for, set_tag"
 
 list_relations_filter_group:
-  src: "<r:Contact? do='relations(\"doc\")' do='each' join=', ' do='name'/>"
+  src: "<r:Contact do='relations(\"doc\")' do='each' join=', ' do='name'/>"
   res: "reference, reference_for, set_tag"
 
 input_relation_name:
-  src: "<r:select name='link[role]' values='Contact.relations(\"doc\")'/>"
-  tem: "xx"
+  src: "<r:select param='rel' eval='Contact.relations(\"doc\").map(:name)'/>"
+  res: "<select name='node[rel]'><option value=\"reference\">reference</option>\n<option value=\"reference_for\">reference_for</option>\n<option value=\"set_tag\">set_tag</option></select>"
+
+manual_select:
+  src: "<select name='node[rel]' do='Contact.relations(\"doc\")'><option value='#{name}' do='each' do='eval'>trans(\"rel_#{name}\")</option></select>"
+  res: "<select name='node[rel]'><option value='reference'>rel_reference</option><option value='reference_for'>rel_reference_for</option><option value='set_tag'>rel_set_tag</option></select>"

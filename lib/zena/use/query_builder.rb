@@ -303,7 +303,7 @@ module Zena
               else_clause = RubyLess.translate(self, else_clause)
 
               if else_clause.klass == Array
-                else_klass = else_clause.opts[:array_content_class]
+                else_klass = else_clause.opts[:elem]
                 if count == :all
                   # Get first common ancestor
                   common_klass = (klass.ancestors & else_klass.ancestors).detect {|x| x.kind_of?(Class)}

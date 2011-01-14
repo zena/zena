@@ -13,7 +13,7 @@ class_conditional:
   tem: "/@node.kpath_match\?\('NDI'\)/"
 
 class_conditional_in_if:
-  src: "<r:parent do='Image'>image<r:else>not an image</r:else></r:parent>"
+  src: "<r:parent do='Image?'>image<r:else>not an image</r:else></r:parent>"
   tem: "<% if var1 = @node.parent -%><% if var1.kpath_match?('NDI') -%>image<% elsif true -%>not an image<% end -%><% end -%>"
   res: "not an image"
 
@@ -22,16 +22,16 @@ class_conditional_in_array:
   tem: "/Cannot scope class in list .use each before filtering./"
 
 case_when:
-  src: "<r:case><r:Document>this is a document</r:Document><r:Page>Page</r:Page><r:when test='v.status == 50'>Pub</r:when></r:case>"
+  src: "<r:case><r:Document?>this is a document</r:Document?><r:Page?>Page</r:Page?><r:when test='v.status == 50'>Pub</r:when></r:case>"
   tem: "<% if false -%><% elsif @node.kpath_match?('ND') -%>this is a document<% elsif @node.kpath_match?('NP') -%>Page<% elsif (@node.version.status==50) -%>Pub<% end -%>"
   res: "Page"
 
 case_when_else:
-  src: "<r:case><r:Document>Document</r:Document><r:else>Not a document</r:else></r:case>"
+  src: "<r:case><r:Document?>Document</r:Document?><r:else>Not a document</r:else></r:case>"
   res: "Not a document"
 
 case_when_else_text:
-  src: "<r:case><r:Document>Document</r:Document><r:else do='t' text='Not a document'/></r:case>"
+  src: "<r:case><r:Document?>Document</r:Document?><r:else do='t' text='Not a document'/></r:case>"
   res: "Not a document"
 
 case_when_test:

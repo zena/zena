@@ -11,7 +11,8 @@ module Zena
         DUMMY = Class.new do
           def other_id;   nil; end
           def other_ids;  [];  end
-          def other_zids; [];  end
+          def other_zips; [];  end
+          def to_s; 'nil'; end
         end.new.freeze
 
         def initialize(node)

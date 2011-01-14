@@ -500,22 +500,32 @@ class RelationProxyTest < Zena::Unit::TestCase
     assert_equal Time.gm(2009,7,17), references.first.l_date
   end
 
-  def test_remove_link_many_targets_different_dates
-    login(:lion)
-    node = secure!(Node) { nodes(:cleanWater) }
-    assert node.update_attributes_with_transformation('rel_attributes' => {'reference_attributes' => {'other_id' => 33, 'date' => '2009-7-17'}})
-    assert node.update_attributes_with_transformation('rel_attributes' => {'reference_attributes' => {'other_id' => 33, 'date' => '2009-7-18 8:0'}})
-    assert node.update_attributes_with_transformation('rel_attributes' => {'reference_attributes' => {'other_id' => 33, 'date' => '2009-7-18 9:0'}})
-    node = secure!(Node) { nodes(:cleanWater) }
-    # remove 9:0
-    assert node.update_attributes_with_transformation('rel_attributes' => {'reference_attributes' => {'other_id' => '', 'date' => '2009-7-18 9:0'}})
+  context 'with many dates for a given target' do
+    setup do
+      login(:lion)
+      node = secure!(Node) { nodes(:cleanWater) }
+      assert node.update_attributes_with_transformation('rel_attributes' => {'reference_attributes' => {'other_id' => 33, 'date' => '2009-7-17'}})
+      assert node.update_attributes_with_transformation('rel_attributes' => {'reference_attributes' => {'other_id' => 33, 'date' => '2009-7-18 8:0'}})
+      assert node.update_attributes_with_transformation('rel_attributes' => {'reference_attributes' => {'other_id' => 33, 'date' => '2009-7-18 9:0'}})
+    end
+    
+    subject do
+      secure!(Node) { nodes(:cleanWater) }
+    end
 
-    assert references = node.find(:all, 'references')
-    assert_equal 2, references.size
-    assert_equal Time.gm(2009,7,17), references.first.l_date
-    assert_equal Time.gm(2009,7,18,8), references.last.l_date
-  end
-
+    should 'remove matching date when setting other_id to blank' do
+      assert_difference('Link.count', -1) do
+        # remove 9:0
+        assert subject.update_attributes_with_transformation('rel_attributes' => {'reference_attributes' => {'other_id' => '', 'date' => '2009-7-18 9:0'}})
+      end      
+      
+      assert references = subject.find(:all, 'references')
+      assert_equal 2, references.size
+      assert_equal Time.gm(2009,7,17), references.first.l_date
+      assert_equal Time.gm(2009,7,18,8), references.last.l_date
+    end
+  end # with many dates for a given target
+  
   def test_attr_public
     assert Node.safe_method_type(['l_status'])
     assert Node.safe_method_type(['l_comment'])

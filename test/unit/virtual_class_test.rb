@@ -562,8 +562,8 @@ class VirtualClassTest < Zena::Unit::TestCase
           VirtualClass['Node']
         end
 
-        should 'return nil on super vclass' do
-          assert_nil subject.superclass
+        should 'return Node on super vclass' do
+          assert_equal Node, subject.superclass
         end
 
         should 'return safe columns' do
@@ -627,21 +627,35 @@ class VirtualClassTest < Zena::Unit::TestCase
     end # of a virtual class
 
 
-    context 'on relations' do
+    context 'on all_relations' do
       subject do
-        VirtualClass['Letter'].relations
+        VirtualClass['Letter'].all_relations
       end
 
-      should 'return a list of relation proxies on relations' do
+      should 'return a list of relation proxies' do
         assert_kind_of RelationProxy, subject.first
       end
 
-      should 'return a list of relation proxies on relations' do
-        assert_equal %w{xx}, subject.map(&:other_role).sort
+      should 'return a list of relation names when mapped with other_role' do
+        assert subject.map(&:other_role).include?('icon')
       end
     end # on relations
 
 
+    context 'on filtered_relations' do
+      subject do
+        VirtualClass['Letter'].filtered_relations('doc')
+      end
+
+      should 'filter relation proxies' do
+        assert_kind_of RelationProxy, subject.first
+      end
+
+      should 'return a list of relation names on other_role' do
+        assert_equal %w{reference reference_for set_tag}, subject.map(&:other_role).sort
+      end
+    end # on relations
+    
     context 'on new_instance' do
       subject do
         VirtualClass['Letter'].new_instance(

@@ -434,7 +434,7 @@ find_count:
 
 same_name_as_class:
   # we create a relation with 'page' role from Letter.
-  src: "<r:Letter do='pages'/>"
+  src: "<r:Letter? do='pages'/>"
   tem: '/nodes.id = links.source_id AND links.relation_id/'
 
 start:

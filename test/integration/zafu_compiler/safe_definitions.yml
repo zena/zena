@@ -78,3 +78,17 @@ kind_of_class:
 kind_of_role:
   eval: "kind_of?(Original)"
   tem: "<%= @node.has_role?(493147733) %>"
+
+map_join:
+  context:
+    node: 'cleanWater'
+  src: "<r:children do='map(:title).join(\",\")'/>"
+  tem: "/var1.map\{\|_map_obj\| _map_obj.prop\['title'\]\}/"
+  res: "crocodiles,it's a lake,Keeping things clean !,The lake we love,parc opening,status title,water"
+
+map_on_can_be_nil:
+  context:
+    node: 'cleanWater'
+  eval: "Contact.relations.map(:name).join('-')"
+  tem: "/VirtualClass\[\"Contact\"\] \? VirtualClass\[\"Contact\"\].all_relations.map\(&:other_role\).compact.join\(\"-\"\)/"
+  res: "/collaborator_for-favorite-favorite_for/"

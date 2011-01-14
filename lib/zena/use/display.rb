@@ -577,7 +577,7 @@ module Zena
         def r_grid
           return parser_error("not in a list context") unless node.list_context?
           return parser_error("not a Node list") unless node.single_class <= Node
-          klass = "#{node.single_class.name}Class"
+          klass = "#{node.single_class.name}"
           @blocks = [make(:void, :method => 'void', :text => %Q{<table class='grid'>
             <tr do='#{klass}' do='roles'><th class='role' colspan='\#{columns.size}' do='each' do='name'/></tr>
             <tr do='#{klass}' do='roles' do='each' do='columns'><th do='each' do='name'/></tr>

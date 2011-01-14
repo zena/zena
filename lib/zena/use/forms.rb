@@ -382,25 +382,33 @@ module Zena
         end
 
         # <r:select name='klass' root_class='...'/>
-        # <r:select name='parent_id' values='projects in site'/>
+        # <r:select name='parent_id' nodes='projects in site'/>
+        # <r:select name='parent_id' values='a,b,c'/>
         # TODO: optimization (avoid loading full AR to only use [id, name])
         def r_select
           html_attributes, attribute = get_input_params()
-          return parser_error("missing name") unless attribute
-
-          if value = @params[:selected]
-            selected = ::RubyLess.translate_string(self, value)
-          elsif @context[:in_filter]
-            selected = "params[#{attribute.to_sym.inspect}].to_s"
-          elsif %w{parent_id}.include?(attribute)
-            selected = "#{node}.parent_zip.to_s"
-          elsif attribute == 'copy_id'
-            selected = 'nil'
-          elsif attribute =~ /^(.*)_id$/
-            # relation
-            selected = "#{node}.rel[#{$1.inspect}].other_zip.to_s"
+          # TEMPORARY HACK UNTIL WE FIX get_input_params to return a single hash with
+          # {:html => { prepared html attributes }, :raw => {:value => '..', :name => '..', :param => '..'}}
+          if param = @params[:param]
+            selected  = "params[#{param.to_sym.inspect}].to_s"
+            attribute = param
           else
-            selected = "#{node}.prop[#{attribute.inspect}].to_s"
+            return parser_error("missing name") unless attribute
+
+            if value = @params[:selected]
+              selected = ::RubyLess.translate_string(self, value)
+            elsif @context[:in_filter]
+              selected = "params[#{attribute.to_sym.inspect}].to_s"
+            elsif %w{parent_id}.include?(attribute)
+              selected = "#{node}.parent_zip.to_s"
+            elsif attribute == 'copy_id'
+              selected = 'nil'
+            elsif attribute =~ /^(.*)_id$/
+              # relation
+              selected = "#{node}.rel[#{$1.inspect}].other_zip.to_s"
+            else
+              selected = "#{node}.prop[#{attribute.inspect}].to_s"
+            end
           end
 
           html_id = html_attributes[:id] ? " id='#{html_attributes[:id]}'" : ''
@@ -703,6 +711,18 @@ module Zena
                 end
               end
               options_list.inspect
+            elsif code = @params[:eval]
+              ruby = ::RubyLess.translate(self, code)
+              if !ruby.klass.kind_of?(Array)
+                return parser_error("invalid eval: should return an Array (found #{ruby.klass})")
+              end
+
+              if ruby.klass.first <= String
+                # ok
+                ruby
+              else
+                return parser_error("cannot extract values from eval (not a String list: [#{ruby.klass.first}])")
+              end
             end
           end
 
