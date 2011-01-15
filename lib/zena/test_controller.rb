@@ -33,7 +33,7 @@ module Zena
 
       klass = VirtualClass[params.delete(:class) || 'Node']
 
-      render :text => Zena::ZafuCompiler.new_with_url(@test_url, :helper => zafu_helper).to_erb(:dev => params['dev'], :node => Zafu::NodeContext.new('@node', klass))
+      render :text => Zena::ZafuCompiler.new_with_url(@test_url, :helper => zafu_helper).to_erb(:dev => params['dev'], :node => Zena::Use::NodeContext.new('@node', klass))
     rescue => err
       render :text => ([err.message] + err.backtrace[0..4]).join("    \n").tap {|x| puts x}
     end

@@ -237,6 +237,10 @@ module Zena
             document
           end
         end
+        
+        def zafu_node(name, klass)
+          zafu_context[:node] = Zena::Use::NodeContext.new(name, klass)
+        end
       end # Common
 
       module ControllerMethods
@@ -387,11 +391,11 @@ module Zena
                 end
               end
               
-              return Zafu::NodeContext.new(name, klass) if name
+              return Zena::Use::NodeContext.new(name, klass) if name
             end
 
             if defined?(@node)
-              return Zafu::NodeContext.new('@node', VirtualClass['Node'])
+              return Zena::Use::NodeContext.new('@node', VirtualClass['Node'])
             else
               raise Exception.new("Could not guess node context from request parameters, please add something like \"zafu_node('@var_name', Page)\" in your action.")
             end

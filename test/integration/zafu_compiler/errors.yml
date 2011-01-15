@@ -82,4 +82,4 @@ map_join:
   context:
     node: 'cleanWater'
   src: "<r:children do='map(:flobo).join(\",\")'/>"
-  tem: "/unknown method .*flobo\(\)/"
+  tem: "/unknown method .*map\(:flobo\)/"
