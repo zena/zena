@@ -1,5 +1,6 @@
 =begin
 FIXME: remove if tests pass.
+=end
 module Zena
   module Parser
 
@@ -155,7 +156,7 @@ module Zena
           make(:void, opts)
         #elsif @text =~ /\A<(\w+)([^>]*?)do\s*=('([^>]*?[^\\]|)'|"([^>]*?[^\\]|)")([^>]*?)(\/?)>/
         elsif @text =~ /\A<(\w+)([^>]*?)do\s*=('|")([^\3]*?[^\\])\3([^>]*?)(\/?)>/
-          puts "DO:#{$~.to_a.inspect}" # do tag
+          #puts "DO:#{$~.to_a.inspect}" # do tag
           eat $&
           opts.merge!(:method=> $4, :html_tag=>$1, :html_tag_params=>$2, :params=>$5)
           opts.merge!(:text=>'') if $6 != ''
@@ -241,4 +242,3 @@ module Zena
     end # ZafuRules
   end # Parser
 end # Zena
-=end
