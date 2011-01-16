@@ -297,3 +297,8 @@ show_with_custom_tlabel_shortcut:
   src: "<li do='show' tlabel='en' blank='hide' attr='title'/>"
   tem: "/anglais/"
   res: "<li><label>anglais</label> <span>Etat des travaux</span></li>"
+
+s:
+  src: "<b do='s' date='created_at' tformat='short_date'/>"
+  res: "<b>03.10</b>"
+  

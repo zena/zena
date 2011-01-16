@@ -185,3 +185,28 @@ set_parent_id_in_new:
   src: "<r:new klass='Page' do='form'></r:new>"
   tem: "/node\[parent_id\].*@node.zip/"
   res: "/<input type='hidden' name='node\[parent_id\]' value='22'/>/"
+
+
+label_on_input:
+  context:
+    lang: fr
+  src: "<r:input label='t' name='title'/>"
+  res: "<label>titre</label> <span><input type='text' name='node[title]' value='Etat des travaux'/></span>"
+
+label_on_textarea:
+  context:
+    lang: fr
+  src: "<r:textarea label='t' name='title'/>"
+  res: "<label>titre</label> <span><textarea name='node[title]'>Etat des travaux</textarea></span>"
+
+label_on_checkbox:
+  context:
+    lang: fr
+  src: "<r:checkbox label='t' name='title' values='1,2'/>"
+  res: "/<label>titre</label>.*input type='checkbox'"
+
+label_on_select:
+  context:
+    lang: fr
+  src: "<r:select label='t' name='title' values='1,2'/>"
+  res: "/<label>titre</label> <span><select name='node\[title\]'/"

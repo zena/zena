@@ -117,3 +117,10 @@ date_from_params_in_query:
   src: "<r:date text='#{params[:year]}/04/03' format='%Y/%m/%d' do='show' eval='date' format='%Y-%m-%d'/>"
   tem: "/_zdate = \"#\{params\[:year\]\}/04/03\".to_utc\(\"%Y/%m/%d\"\) -%>/"
   res: "2006-04-03"
+
+input_date:
+  context:
+    node: opening
+  src: "<r:Post?><r:input type='date' name='date'/></r:Post?>"
+  tem: '/date_box\(@node, "date", :size=>15, :value => @node.prop\[.date.\]\)/'
+  res: "/value='2011-01-16 00:00'/"

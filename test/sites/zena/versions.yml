@@ -259,6 +259,7 @@ opening_fr:
   prop:
     comment:       french opening
     title:         ouverture du parc
+    date:          2011-01-16
 
 bananas_en:
   node:            bananas
@@ -349,6 +350,7 @@ opening_en:
   number:          2
   prop:
     title:         parc opening
+    date:          2011-01-16
     text:          |
       We are glad to announce the opening of our new project !
       
@@ -362,6 +364,7 @@ opening_red_fr:
   status:          red
   number:          3
   prop:
+    date:          2011-01-16
     comment:       new redaction for opening
     title:         super ouverture
 

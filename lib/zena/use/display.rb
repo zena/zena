@@ -466,30 +466,34 @@ module Zena
             res = show_string(method)
           end
 
-          if (label = @params[:label] || @params[:tlabel]) && (attribute = @params[:attr])
-            case label
-            when 'true'
-              res = "<label>#{attribute}</label> <span>#{res}</span>"
-            when 't'
-              res = "<label>#{trans(attribute)}</label> <span>#{res}</span>"
-            else
-              if @params[:tlabel]
-                code = ::RubyLess.translate(self, "t(%Q{#{label}})")
-              else
-                code = ::RubyLess.translate_string(self, label)
-              end
-              if code.literal
-                res = "<label>#{code.literal}</label> <span>#{res}</span>"
-              else
-                res = "<label><%= #{code} %></label> <span>#{res}</span>"
-              end
-            end
-          end
+          res = extract_label(res, @params, @params[:attr])
 
           if @params[:blank] == 'hide'
             "<% if !#{method}.blank? -%>#{@markup.wrap(res)}<% end -%>"
           else
             res
+          end
+        end
+
+        def extract_label(res, params, attribute)
+          if (label = params[:label] || params[:tlabel]) && attribute
+            case label
+            when 'true'
+              "<label>#{attribute}</label> <span>#{res}</span>"
+            when 't'
+              "<label>#{trans(attribute)}</label> <span>#{res}</span>"
+            else
+              if params[:tlabel]
+                code = ::RubyLess.translate(self, "t(%Q{#{label}})")
+              else
+                code = ::RubyLess.translate_string(self, label)
+              end
+              if code.literal
+                "<label>#{code.literal}</label> <span>#{res}</span>"
+              else
+                "<label><%= #{code} %></label> <span>#{res}</span>"
+              end
+            end
           end
         end
 

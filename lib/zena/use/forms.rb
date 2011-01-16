@@ -378,7 +378,9 @@ module Zena
         end
 
         def r_textarea
-          out make_textarea(@markup.params.merge(@params))
+          params = @markup.params.merge(@params)
+          res = make_textarea(params)
+          extract_label(res, params, params[:name])
         end
 
         # <r:select name='klass' root_class='...'/>
@@ -418,7 +420,7 @@ module Zena
             select_tag = "<select#{html_id} name='#{node.form_name}[#{attribute}]'>"
           end
 
-          if klass = @params[:root_class]
+          res = if klass = @params[:root_class]
             class_opts = ''
             class_opts << ", :without => #{@params[:without].inspect}" if @params[:without]
             # do not use 'selected' if the node is not new
@@ -431,19 +433,24 @@ module Zena
           else
             parser_error("missing 'nodes', 'root_class' or 'values'")
           end
+
+          extract_label(res, @params, attribute)
         end
 
 
         def r_input
           html_attributes, attribute = get_input_params()
-          case @params[:type]
+          # TODO: get attribute type from get_input_params
+          res = case @params[:type]
           when 'select' # FIXME: why is this only for classes ?
             out parser_error("please use [select] here")
             r_select
           when 'date_box', 'date'
             return parser_error("date_box without name") unless attribute
+            code = ::RubyLess.translate(self, "this.#{attribute}")
             input_id = @context[:dom_prefix] ? ", :id=>\"#{dom_id}_#{attribute}\"" : ''
-            "<%= date_box #{node}, #{attribute.inspect}, :size=>15#{@context[:in_add] ? ", :value=>''" : ''}#{input_id} %>"
+            value = @context[:in_add] ? "''" : code
+            "<%= date_box(#{node}, #{attribute.inspect}, :size=>15, :value => #{value}#{input_id}) %>"
           when 'id'
             return parser_error("select id without name") unless attribute
             name = "#{attribute}_id" unless attribute[-3..-1] == '_id'
@@ -460,6 +467,7 @@ module Zena
             wrap('')
           else
             # 'text', 'hidden', ...
+            return parser_error('Missing name.') unless attribute
             @markup.tag = 'input'
             @markup.set_param(:type, @params[:type] || 'text')
 
@@ -469,6 +477,8 @@ module Zena
             @markup.append_attribute checked if checked
             wrap('')
           end
+
+          extract_label(res, @params, attribute)
         end
 
         # <r:checkbox role='collaborator_for' values='projects' in='site'/>"
@@ -486,10 +496,10 @@ module Zena
             elsif show_values = @params[:tshow]
               opts << ":show => #{translate_list(show_values).inspect}"
             end
-            meth = RubyLess.translate(node.klass, name)
-            opts << ":selected => #{node}.#{meth}"
-
-            out "<%= make_checkbox(#{node}, #{opts.join(', ')}) %>"
+            meth = RubyLess.translate(self, "this.#{name}")
+            opts << ":selected => #{meth}"
+            attribute = name
+            res = "<%= make_checkbox(#{node}, #{opts.join(', ')}) %>"
           else
             if name = @params[:name]
               if name =~ /(.*)_ids?\Z/
@@ -514,8 +524,10 @@ module Zena
             end
 
             attribute = @params[:attr] || 'title'
-            out "<%= make_checkbox(#{node}, :list => #{finder}, :role => #{meth.inspect}, :attr => #{attribute.inspect}) %>"
+            res = "<%= make_checkbox(#{node}, :list => #{finder}, :role => #{meth.inspect}, :attr => #{attribute.inspect}) %>"
           end
+
+          extract_label(res, @params, attribute)
         end
 
         alias r_radio r_checkbox
@@ -537,6 +549,7 @@ module Zena
 
         # Parse params to extract everything that is relevant to building input fields.
         # TODO: refactor and pass the @markup so that attributes are added directly
+        # TODO: get attribute type in get_input_params (safe_method_type)
         def get_input_params(params = @params)
           res = Zafu::OrderedHash.new
           if name = (params[:param] || params[:name] || params[:date])

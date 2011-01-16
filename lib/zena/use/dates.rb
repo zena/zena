@@ -116,7 +116,7 @@ module Zena
       	  rnd_id = rand(100000000000)
       	  defaults = {  :id=>"datef#{rnd_id}", :button=>"dateb#{rnd_id}", :display=>"dated#{rnd_id}" }
       	  opts = defaults.merge(opts)
-      	  date = obj.send(name)
+      	  date = opts[:value] || obj.safe_send(name)
       	  value = tformat_date(date,'datetime')
           if opts[:size]
             fld = "<input id='#{opts[:id]}' name='node[#{name}]' type='text' size='#{opts[:size]}' value='#{value}' />"
