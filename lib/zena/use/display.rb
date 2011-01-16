@@ -466,7 +466,31 @@ module Zena
             res = show_string(method)
           end
 
-          res
+          if (label = @params[:label] || @params[:tlabel]) && (attribute = @params[:attr])
+            case label
+            when 'true'
+              res = "<label>#{attribute}</label> <span>#{res}</span>"
+            when 't'
+              res = "<label>#{trans(attribute)}</label> <span>#{res}</span>"
+            else
+              if @params[:tlabel]
+                code = ::RubyLess.translate(self, "t(%Q{#{label}})")
+              else
+                code = ::RubyLess.translate_string(self, label)
+              end
+              if code.literal
+                res = "<label>#{code.literal}</label> <span>#{res}</span>"
+              else
+                res = "<label><%= #{code} %></label> <span>#{res}</span>"
+              end
+            end
+          end
+
+          if @params[:blank] == 'hide'
+            "<% if !#{method}.blank? -%>#{@markup.wrap(res)}<% end -%>"
+          else
+            res
+          end
         end
 
         # Insert javascript asset tags
@@ -573,7 +597,7 @@ module Zena
             "<a class='zena' href='http://zenadmin.org' title='Zena <%= Zena::VERSION %>'>#{text}</a>"
           end
         end
-        
+
         def r_grid
           return parser_error("not in a list context") unless node.list_context?
           return parser_error("not a Node list") unless node.single_class <= Node
@@ -585,7 +609,7 @@ module Zena
           </table>})]
           expand_with
         end
-        
+
         private
           def show_number(method)
             if fmt = @params[:format]

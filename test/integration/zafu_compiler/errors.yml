@@ -83,3 +83,13 @@ map_join:
     node: 'cleanWater'
   src: "<r:children do='map(:flobo).join(\",\")'/>"
   tem: "/unknown method .*map\(:flobo\)/"
+
+query_on_vclass:
+  # typical syntax error (should be Contact?)
+  src: "<r:Contact><div do='pages in site'>...</div></r:Contact>"
+  # should not crash
+  tem: "<% if var1 = VirtualClass[\"Contact\"] -%><span class='parser_error'><span class='method'>pages in site</span> <span class='message'>No query builder for class VirtualClass</span></span><% end -%>"
+
+datebox_on_vclass:
+  src: "<r:Contact><p do='show' date='log_at'/></r:Contact>"
+  tem: "/unknown method 'log_at\(\)' for 'var1' of type VirtualClass./"

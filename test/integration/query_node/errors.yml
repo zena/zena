@@ -8,5 +8,11 @@ site:
   err: "Unknown relation 'site'."
 
 pages_from_site_or_images:
+  # should be 'in site'
   src: '(project from site) or images'
   err: "Unknown relation 'site'."
+
+pagination_without_limit:
+  src: "pages in site paginate p"
+  # qb processor.rb 571
+  err: 'Invalid paginate clause (used without limit).'

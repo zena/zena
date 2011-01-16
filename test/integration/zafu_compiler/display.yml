@@ -276,3 +276,24 @@ string_limit:
   src: "<div do=\"text.limit(10, %Q{<a href='#{url}'>read more</a>})\"/>"
   tem: "<div><%= (@node.prop['text'] ? @node.prop['text'].limit(10, \"<a href='#{zen_url(@node)}'>read more</a>\") : nil) %></div>"
   res: "<div>status tex<a href='http://test.host/oo/projects-list/Clean-Water-project/page22.html'>read more</a></div>"
+
+show_with_label_shortcut:
+  context:
+    lang: fr
+  src: "<li do='show' label='t' blank='hide' attr='title'/>"
+  tem: "<% if !@node.prop['title'].blank? -%><li><label>titre</label> <span><%= @node.prop['title'] %></span></li><% end -%>"
+  res: "<li><label>titre</label> <span>Etat des travaux</span></li>"
+
+show_with_custom_label_shortcut:
+  context:
+    lang: fr
+  src: "<li do='show' label='#{t(\"en\")}' blank='hide' attr='title'/>"
+  tem: "/anglais/"
+  res: "<li><label>anglais</label> <span>Etat des travaux</span></li>"
+
+show_with_custom_tlabel_shortcut:
+  context:
+    lang: fr
+  src: "<li do='show' tlabel='en' blank='hide' attr='title'/>"
+  tem: "/anglais/"
+  res: "<li><label>anglais</label> <span>Etat des travaux</span></li>"

@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2010-12-08}
+  s.date = %q{2011-01-16}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -447,6 +447,7 @@ Gem::Specification.new do |s|
      "db/migrate/20101116103920_change_scope_index.rb",
      "db/migrate/20101123125822_add_integer_idx.rb",
      "db/migrate/20101130134522_add_index_field.rb",
+     "db/migrate/20101213133816_add_group_to_relation.rb",
      "doc/README_FOR_APP",
      "doc/fixtures.graffle",
      "doc/fixtures.pdf",
@@ -561,6 +562,7 @@ Gem::Specification.new do |s|
      "lib/zena/use/kpath.rb",
      "lib/zena/use/ml_index.rb",
      "lib/zena/use/nested_attributes_alias.rb",
+     "lib/zena/use/node_context.rb",
      "lib/zena/use/prop_eval.rb",
      "lib/zena/use/query_builder.rb",
      "lib/zena/use/query_comment.rb",
@@ -2209,11 +2211,11 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
       s.add_runtime_dependency(%q<tzinfo>, [">= 0.3.12"])
       s.add_runtime_dependency(%q<rails>, ["= 2.3.8"])
-      s.add_runtime_dependency(%q<rubyless>, [">= 0.8.1"])
+      s.add_runtime_dependency(%q<rubyless>, [">= 0.8.2"])
       s.add_runtime_dependency(%q<property>, [">= 2.1.2"])
       s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_runtime_dependency(%q<authlogic>, ["= 2.1.3"])
-      s.add_runtime_dependency(%q<zafu>, [">= 0.7.5"])
+      s.add_runtime_dependency(%q<zafu>, [">= 0.7.6"])
       s.add_runtime_dependency(%q<shoulda>, ["= 2.10.3"])
       s.add_runtime_dependency(%q<fast_gettext>, ["~> 0.4.16"])
       s.add_runtime_dependency(%q<syntax>, ["= 1.0.0"])
@@ -2226,16 +2228,16 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<hpricot>, [">= 0"])
       s.add_runtime_dependency(%q<differ>, [">= 0.1.1"])
       s.add_runtime_dependency(%q<RedCloth>, ["= 3.0.4"])
-      s.add_runtime_dependency(%q<querybuilder>, [">= 0.9.4"])
+      s.add_runtime_dependency(%q<querybuilder>, [">= 0.9.5"])
     else
       s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
       s.add_dependency(%q<tzinfo>, [">= 0.3.12"])
       s.add_dependency(%q<rails>, ["= 2.3.8"])
-      s.add_dependency(%q<rubyless>, [">= 0.8.1"])
+      s.add_dependency(%q<rubyless>, [">= 0.8.2"])
       s.add_dependency(%q<property>, [">= 2.1.2"])
       s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_dependency(%q<authlogic>, ["= 2.1.3"])
-      s.add_dependency(%q<zafu>, [">= 0.7.5"])
+      s.add_dependency(%q<zafu>, [">= 0.7.6"])
       s.add_dependency(%q<shoulda>, ["= 2.10.3"])
       s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
       s.add_dependency(%q<syntax>, ["= 1.0.0"])
@@ -2248,17 +2250,17 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<hpricot>, [">= 0"])
       s.add_dependency(%q<differ>, [">= 0.1.1"])
       s.add_dependency(%q<RedCloth>, ["= 3.0.4"])
-      s.add_dependency(%q<querybuilder>, [">= 0.9.4"])
+      s.add_dependency(%q<querybuilder>, [">= 0.9.5"])
     end
   else
     s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
     s.add_dependency(%q<tzinfo>, [">= 0.3.12"])
     s.add_dependency(%q<rails>, ["= 2.3.8"])
-    s.add_dependency(%q<rubyless>, [">= 0.8.1"])
+    s.add_dependency(%q<rubyless>, [">= 0.8.2"])
     s.add_dependency(%q<property>, [">= 2.1.2"])
     s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
     s.add_dependency(%q<authlogic>, ["= 2.1.3"])
-    s.add_dependency(%q<zafu>, [">= 0.7.5"])
+    s.add_dependency(%q<zafu>, [">= 0.7.6"])
     s.add_dependency(%q<shoulda>, ["= 2.10.3"])
     s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
     s.add_dependency(%q<syntax>, ["= 1.0.0"])
@@ -2271,7 +2273,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<hpricot>, [">= 0"])
     s.add_dependency(%q<differ>, [">= 0.1.1"])
     s.add_dependency(%q<RedCloth>, ["= 3.0.4"])
-    s.add_dependency(%q<querybuilder>, [">= 0.9.4"])
+    s.add_dependency(%q<querybuilder>, [">= 0.9.5"])
   end
 end
 
