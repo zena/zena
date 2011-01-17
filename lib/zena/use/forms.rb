@@ -414,7 +414,7 @@ module Zena
           end
 
           html_id = html_attributes[:id] ? " id='#{html_attributes[:id]}'" : ''
-          if @context[:in_filter]
+          if @context[:in_filter] || @params[:param]
             select_tag = "<select#{html_id} name='#{attribute}'>"
           else
             select_tag = "<select#{html_id} name='#{node.form_name}[#{attribute}]'>"
@@ -467,7 +467,7 @@ module Zena
             wrap('')
           else
             # 'text', 'hidden', ...
-            return parser_error('Missing name.') unless attribute
+            return parser_error('Missing name.') unless attribute || html_attributes[:name]
             @markup.tag = 'input'
             @markup.set_param(:type, @params[:type] || 'text')
 
@@ -478,7 +478,7 @@ module Zena
             wrap('')
           end
 
-          extract_label(res, @params, attribute)
+          extract_label(res, @params, attribute || html_attributes[:name])
         end
 
         # <r:checkbox role='collaborator_for' values='projects' in='site'/>"

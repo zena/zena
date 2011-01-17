@@ -210,3 +210,7 @@ label_on_select:
     lang: fr
   src: "<r:select label='t' name='title' values='1,2'/>"
   res: "/<label>titre</label> <span><select name='node\[title\]'/"
+
+param_on_select:
+  src: "<r:select param='q[contact.status]' values='0,-5,-10' tshow='active, being registered, inactive'/>"
+  res: "<select name='q[contact.status]'><option value=\"0\">active</option>\n<option value=\"-5\">being registered</option>\n<option value=\"-10\">inactive</option></select>"

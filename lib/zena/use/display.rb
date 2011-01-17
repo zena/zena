@@ -494,6 +494,8 @@ module Zena
                 "<label><%= #{code} %></label> <span>#{res}</span>"
               end
             end
+          else
+            res
           end
         end
 
