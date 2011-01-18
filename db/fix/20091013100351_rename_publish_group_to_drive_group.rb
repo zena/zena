@@ -1,8 +1,6 @@
 class RenamePublishGroupToDriveGroup < ActiveRecord::Migration
   def self.up
-    unless $migrating_new_db
-      remove_column :nodes, :dgroup_id  # old stuff
-    end
+    remove_column :nodes, :dgroup_id  # old stuff
     rename_column :nodes, :pgroup_id, :dgroup_id
   end
 

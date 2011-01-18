@@ -170,7 +170,7 @@ class NodesController < ApplicationController
               @node.file(img_format)
             end
           elsif @node.kind_of?(TextDocument)
-            send_data(@node.text, :filename => @node.filename, :type => 'text/css', :disposition => 'inline')
+            send_data(@node.text, :filename => render_opts[:filename] || @node.filename, :type => @node.content_type, :disposition => 'inline')
           else
             content_path = @node.filepath
           end

@@ -2,9 +2,7 @@
 # make sure there exists a link with NULL content and id == -1 (used in queries using query order sorting)
 class ChangeDefaultLinkIdToZero < ActiveRecord::Migration
   def self.up
-    unless $migrating_new_db
-      Link.connection.execute "UPDATE #{Link.table_name} SET id = 0 WHERE id = -1"
-    end
+    Link.connection.execute "UPDATE #{Link.table_name} SET id = 0 WHERE id = -1"
     Zena::Db.insert_dummy_ids
   end
 
