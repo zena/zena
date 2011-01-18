@@ -61,7 +61,7 @@ module Bricks
           end
           config[brick] = opts unless errors
         else
-          if opts == true
+          if opts == true || brick == 'zena' # zena always ON
             config[brick] = {}
           end
         end

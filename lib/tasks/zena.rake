@@ -250,22 +250,15 @@ namespace :zena do
     if ENV['VERSION'] || ENV['BRICK']
       ENV['BRICK']    ||= 'zena'
       # migrate specific bricks only
-      if ENV['BRICK'] == 'zena'
-        # migrate 'db/migrate'
-        Zena::Migrator.migrate("#{Zena::ROOT}/db/migrate", ENV["BRICK"], ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
+      mig_path = Bricks.migrations_for(ENV['BRICK'])
+      if File.exist?(mig_path) && File.directory?(mig_path)
+        Zena::Migrator.migrate(mig_path, ENV["BRICK"], ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
       else
-        mig_path = Bricks.migrations_for(ENV['BRICK'])
-        if File.exist?(mig_path) && File.directory?(mig_path)
-          Zena::Migrator.migrate(mig_path, ENV["BRICK"], ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
-        else
-          puts "Could not find migrations for brick '#{ENV['BRICK']}' ('#{mig_path}' not found)."
-        end
+        puts "Could not find migrations for brick '#{ENV['BRICK']}' ('#{mig_path}' not found)."
       end
     else
       # migrate all to latest
-      paths  = {'zena' => "#{RAILS_ROOT}/db/migrate"}
-      bricks = ['zena']
-
+      
       Bricks.foreach_brick do |brick_name|
         migration_path = Bricks.migrations_for(brick_name)
         next unless File.exist?(migration_path) && File.directory?(migration_path)
