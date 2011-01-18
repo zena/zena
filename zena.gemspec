@@ -2088,6 +2088,7 @@ Gem::Specification.new do |s|
      "vendor/plugins/rjs-assertions/init.rb",
      "vendor/plugins/rjs-assertions/lib/rjs-assertions.rb",
      "vendor/rails_patches/support_for_inverse_relationships_on_active_record_objects.diff",
+     "zena",
      "zena.gemspec",
      "zena_console.rb"
   ]

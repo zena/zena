@@ -46,7 +46,7 @@ def copy_assets(from, to)
   from = File.expand_path(from)
   to = File.expand_path(to)
   return if from == to
-  ['config/mongrel_upload_progress.conf', 'lib/upload_progress_server.rb', 'config/deploy.rb', 'config/bricks.yml', 'db/migrate/*.rb', 'public/**/*'].each do |base_path|
+  ['config/mongrel_upload_progress.conf', 'lib/upload_progress_server.rb', 'config/deploy.rb', 'config/bricks.yml', 'db/migrate/zena/*.rb', 'public/**/*'].each do |base_path|
     if base_path =~ /\*/
       Dir["#{from}/#{base_path}"].each do |path|
         path = path[(from.length + 1)..-1]
