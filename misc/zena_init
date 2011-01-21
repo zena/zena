@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+#
+# Zena Startup script
+#
+# chkconfig: - 85 15
+# description: zena manages Zena
+#
+apps = Dir['/var/*/app/current']
+
+cmd = ARGV.first
+
+operations = [
+  'ruby lib/upload_progress_server.rb ',
+  'rake worker:',
+  'mongrel_rails cluster::',
+]
+
+if %w{stop restart}.include?(cmd)
+  apps.each do |app|
+    puts "Stopping #{app}..."
+    operations.each do |op|
+      `cd #{app} && #{op}stop`
+    end
+  end
+end
+
+if %w{start restart}.include?(cmd)
+  apps.each do |app|
+    puts "Starting #{app}..."
+    operations.each do |op|
+      `cd #{app} && #{op}start`
+    end
+  end
+end
+
+unless %w{start stop restart}.include?(cmd)
+  puts "Usage: zena {start|stop|restart}"
+  exit
+end
+
+
