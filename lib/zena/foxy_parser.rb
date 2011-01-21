@@ -294,6 +294,8 @@ module Zena
         prop.each do |key, value|
           if key == 'cached_role_ids'
             prop[key] = value.split(',').map {|role_name| FoxyParser.id(site, role_name.strip)}
+          elsif value.kind_of?(Date)
+            prop[key] = Time.utc(value.year, value.month, value.day)
           elsif value.kind_of?(String)
             value.gsub!(%r{\[FILE:(.*?)\]}) do
               File.read("#{Zena::ROOT}/#{$1}")
