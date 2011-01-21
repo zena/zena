@@ -19,6 +19,7 @@ module Zena
     Zena::Use::Dates::ZafuMethods,
     Zena::Use::Forms::ZafuMethods,
     Zena::Use::Recursion::ZafuMethods,
+    Zena::Use::Rendering::ZafuMethods,
     Zena::Use::Search::ZafuMethods,
     Zena::Use::Ajax::ZafuMethods,
     Zena::Use::ZafuSafeDefinitions::ZafuMethods,

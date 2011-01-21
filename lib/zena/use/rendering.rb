@@ -14,16 +14,24 @@ module Zena
             js
           end
         end
+
+        def set_headers(params)
+          zafu_headers.merge!(params)
+        end
       end
 
       module ControllerMethods
         def self.included(base)
-          base.send(:helper_attr,   :js_data)
+          base.send(:helper_attr, :js_data, :zafu_headers)
           base.send(:layout, false)
         end
 
         def js_data
           @js_data ||= []
+        end
+
+        def zafu_headers
+          @zafu_headers ||= {}
         end
 
         # TODO: test
@@ -98,6 +106,7 @@ module Zena
           opts = {:skin => @node[:skin], :cache => true}.merge(options)
           opts[:mode  ] ||= params[:mode]
           opts[:format] ||= params[:format].blank? ? 'html' : params[:format]
+          #
           # cleanup before rendering
           params.delete(:mode)
           if opts[:format] != 'html'
@@ -116,6 +125,7 @@ module Zena
               result = send(method, opts)
             else
               template_path = template_url(opts)
+              # FIXME: Use Mime types to resolve content type...
               content_type  = (Zena::EXT_TO_TYPE[opts[:format]] || ['application/octet-stream'])[0]
               result = {
                 :data         => render_to_string(:file => template_path, :layout=>false),
@@ -130,6 +140,23 @@ module Zena
               opts[:cache] = false
               render :text => result[:data]
             else
+              if zafu_headers
+                if disposition = zafu_headers.delete('Content-Disposition')
+                  result.delete(:filename) if disposition =~ /filename\s*=/
+                  result[:disposition] = disposition
+                end
+
+                if type = zafu_headers.delete('Content-Type')
+                  result[:type] = type
+                end
+
+                if filename = zafu_headers.delete('filename')
+                  result[:filename] = filename
+                end
+
+                headers.merge!(zafu_headers)
+              end
+
               if data = result.delete(:data)
                 send_data(data , result)
               elsif file = result.delete(:file)
@@ -144,6 +171,7 @@ module Zena
           else
             # html
             render :file => template_url(opts), :layout=>false, :status => opts[:status]
+            headers.merge!(zafu_headers)
             cache_page(:url => opts[:cache_url]) if opts[:cache]
           end
         end
@@ -236,6 +264,20 @@ module Zena
             }
           end
       end # ControllerMethods
+
+      module ZafuMethods
+        def r_headers
+          headers = []
+          @params.each do |k, v|
+            headers << "#{k.to_s.inspect} => #{RubyLess.translate_string(self, v)}"
+          end
+          if headers.empty?
+            out ""
+          else
+            out "<% set_headers(#{headers.join(', ')}) -%>"
+          end
+        end
+      end # ZafuMethods
     end # Rendering
   end # Use
 end # Zena

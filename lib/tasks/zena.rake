@@ -46,7 +46,7 @@ def copy_assets(from, to)
   from = File.expand_path(from)
   to = File.expand_path(to)
   return if from == to
-  ['config/mongrel_upload_progress.conf', 'lib/upload_progress_server.rb', 'config/deploy.rb', 'config/bricks.yml', 'db/migrate/zena/*.rb', 'public/**/*'].each do |base_path|
+  ['config/mongrel_upload_progress.conf', 'lib/upload_progress_server.rb', 'config/deploy.rb', 'config/bricks.yml', 'public/**/*'].each do |base_path|
     if base_path =~ /\*/
       Dir["#{from}/#{base_path}"].each do |path|
         path = path[(from.length + 1)..-1]
@@ -258,13 +258,19 @@ namespace :zena do
       end
     else
       # migrate all to latest
-      
+      # Always start with zena migrations
+      paths  = {'zena' => Bricks.migrations_for('zena')}
+      bricks = %w{zena}
       Bricks.foreach_brick do |brick_name|
         migration_path = Bricks.migrations_for(brick_name)
         next unless File.exist?(migration_path) && File.directory?(migration_path)
         paths[brick_name] = migration_path
         bricks << brick_name
       end
+
+      # Always end with app migrations
+      bricks += %w{_app}
+      paths['_app'] = "#{RAILS_ROOT}/db/migrate"
 
       bricks.each do |brick_name, path|
         Zena::Migrator.migrate(paths[brick_name], brick_name, nil)
