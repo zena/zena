@@ -42,7 +42,7 @@ module Bricks
         return parser_error("recaptcha keys not set") unless current_site.prop['recaptcha_pub'] && current_site.prop['recaptcha_priv']
         res = "<%= get_captcha(:rcc_pub => #{visitor.site.prop['recaptcha_pub'].inspect}, :rcc_priv => #{visitor.site.prop['recaptcha_priv'].inspect}#{get_recaptcha_params}) %>"
         res += expand_with
-        "<% if visitor.is_anon? -%>#{@markup.wrap(res)}<% end -%>"
+        "<% if visitor.is_anon? %>#{@markup.wrap(res)}<% end %>"
       end
 
       def r_mail_hide

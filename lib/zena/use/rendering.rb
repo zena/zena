@@ -274,7 +274,7 @@ module Zena
           if headers.empty?
             out ""
           else
-            out "<% set_headers(#{headers.join(', ')}) -%>"
+            out "<% set_headers(#{headers.join(', ')}) %>"
           end
         end
       end # ZafuMethods

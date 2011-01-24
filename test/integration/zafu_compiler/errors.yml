@@ -93,3 +93,7 @@ query_on_vclass:
 datebox_on_vclass:
   src: "<r:Contact><r:input type='date' name='log_at'/></r:Contact>"
   tem: "/unknown method 'log_at\(\)' for .* VirtualClass./"
+
+bad_iconv:
+  src: "<r:iconv to='foobar'>écrit</r:iconv>"
+  tem: "/invalid encoding \"foobar\"/"

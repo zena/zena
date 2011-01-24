@@ -13,12 +13,12 @@ sprintf:
 
 set_var:
   src: "<r:set var='foo'>I am <r:show attr='title'/></r:set> <p do='show' var='foo'/>"
-  tem: "<% set_foo = capture do %>I am <%= @node.name %><% end -%> <p><%= set_foo %></p>"
+  tem: "<% set_foo = capture do %>I am <%= @node.name %><% end %> <p><%= set_foo %></p>"
   res: " <p>I am status</p>"
 
 eval_mult:
   src: "<r:set var='foo'>134</r:set><r:show eval='foo * 0.1'/>"
-  tem: "<% set_foo = capture do %>134<% end -%><%= (set_foo.to_f * 0.1) %>"
+  tem: "<% set_foo = capture do %>134<% end %><%= (set_foo.to_f * 0.1) %>"
   res: "13.4"
 
 eval_with_attr:

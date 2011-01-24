@@ -614,16 +614,16 @@ module Zena
             # query_params << start_node_s_param(:string)
             #
             # res = ''
-            # res += "<% if #{opts[:cond]} -%>" if opts[:cond]
+            # res += "<% if #{opts[:cond]} %>" if opts[:cond]
             # res += "<%= tag_to_remote({:url => \"#{url}?#{query_params.join('&')}\", :method => #{method.inspect}}#{params_to_erb(html_params)}) %>"
             # res += text_for_link(opts[:default_text])
             # res += "</a>"
             # if opts[:cond]
             #   if opts[:else] != :void
-            #     res += "<% else -%>"
+            #     res += "<% else %>"
             #     res += text_for_link(opts[:default_text])
             #   end
-            #   res += "<% end -%>"
+            #   res += "<% end %>"
             # end
             # res
           end
@@ -640,9 +640,9 @@ module Zena
               prev_or_next = get_var_name('paginate', page_direction)
 
               if page_direction == 'previous'
-                out "<% if #{prev_or_next} = (#{current} > 1 ? #{current} - 1 : nil) -%>"
+                out "<% if #{prev_or_next} = (#{current} > 1 ? #{current} - 1 : nil) %>"
               else
-                out "<% if #{prev_or_next} = (#{count} - #{current} > 0 ? #{current} + 1 : nil) -%>"
+                out "<% if #{prev_or_next} = (#{count} - #{current} > 0 ? #{current} + 1 : nil) %>"
               end
 
               # previous_page // next_page
@@ -654,7 +654,7 @@ module Zena
               if descendant('else')
                 out expand_with(:in_if => true, :only => ['else', 'elsif'])
               end
-              out "<% end -%>"
+              out "<% end %>"
             when 'list'
 
               node_count  = get_context_var('paginate', 'nodes')
@@ -702,7 +702,7 @@ module Zena
               with_context(:node => node.move_to(page_number, Number)) do
                 out expand_if("#{page_number} != #{curr_page}")
               end
-              out "<% end -%>"
+              out "<% end %>"
             else
               parser_error("unkown option for 'page' #{@params[:page].inspect} should be ('previous', 'next' or 'list')")
             end

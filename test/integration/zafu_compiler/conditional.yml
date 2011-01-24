@@ -14,7 +14,7 @@ class_conditional:
 
 class_conditional_in_if:
   src: "<r:parent do='Image?'>image<r:else>not an image</r:else></r:parent>"
-  tem: "<% if var1 = @node.parent -%><% if var1.kpath_match?('NDI') -%>image<% elsif true -%>not an image<% end -%><% end -%>"
+  tem: "<% if var1 = @node.parent %><% if var1.kpath_match?('NDI') %>image<% elsif true %>not an image<% end %><% end %>"
   res: "not an image"
 
 class_conditional_in_array:
@@ -23,7 +23,7 @@ class_conditional_in_array:
 
 case_when:
   src: "<r:case><r:Document?>this is a document</r:Document?><r:Page?>Page</r:Page?><r:when test='v.status == 50'>Pub</r:when></r:case>"
-  tem: "<% if false -%><% elsif @node.kpath_match?('ND') -%>this is a document<% elsif @node.kpath_match?('NP') -%>Page<% elsif (@node.version.status==50) -%>Pub<% end -%>"
+  tem: "<% if false %><% elsif @node.kpath_match?('ND') %>this is a document<% elsif @node.kpath_match?('NP') %>Page<% elsif (@node.version.status==50) %>Pub<% end %>"
   res: "Page"
 
 case_when_else:
@@ -52,7 +52,7 @@ if_html_tag_false_html_params:
 
 if_html_tag_elsif:
   src: "<div do='if' test='2 == 1'>A<r:elsif test='1'>B</r:elsif><r:else>C</r:else></div>"
-  tem: '<% if (2==1) -%><div>A</div><% elsif 1 -%><div>B</div><% elsif true -%><div>C</div><% end -%>'
+  tem: '<% if (2==1) %><div>A</div><% elsif 1 %><div>B</div><% elsif true %><div>C</div><% end %>'
   res: "<div>B</div>"
 
 case_when_html_tag:
@@ -80,12 +80,12 @@ if_test_param:
   context:
     f: '3'
   src: "<r:if test='params[:f] == \"3\"'>three</r:if> / <r:if test='!params[:f].blank?'>exist</r:if>"
-  tem: "<% if (params[:f]==\"3\") -%>three<% end -%> / <% if not params[:f].blank? -%>exist<% end -%>"
+  tem: "<% if (params[:f]==\"3\") %>three<% end %> / <% if not params[:f].blank? %>exist<% end %>"
   res: 'three / exist'
 
 if_in_if:
   src: "<r:if eval='id == 22'><r:if eval='1 == 2'>strange...<r:else>wrong!</r:else></r:if><r:else>other node</r:else></r:if>"
-  tem: "<% if (@node.zip==22) -%><% if (1==2) -%>strange...<% elsif true -%>wrong!<% end -%><% elsif true -%>other node<% end -%>"
+  tem: "<% if (@node.zip==22) %><% if (1==2) %>strange...<% elsif true %>wrong!<% end %><% elsif true %>other node<% end %>"
   res: "wrong!"
 
 do_if:
@@ -150,17 +150,17 @@ if_in_tag_else:
 
 if_or:
   src: "<r:if eval='can_write?' or_test='origin'>hello</r:if>"
-  tem: "/<% if @node.can_write? || !@node.version.prop[\"foo\"].blank? -%>hello<% end -%>|<% if !@node.version.prop[\"foo\"].blank? || @node.can_write? -%>hello<% end -%>/"
+  tem: "/<% if @node.can_write? || !@node.version.prop[\"foo\"].blank? %>hello<% end %>|<% if !@node.version.prop[\"foo\"].blank? || @node.can_write? %>hello<% end %>/"
   res: "hello"
 
 if_or_same:
   src: "<r:if test='origin' test='d_bar'>hello</r:if>"
-  tem: "/<% if !@node.version.prop[\"foo\"].blank? || !@node.version.prop[\"bar\"].blank? -%>hello<% end -%>|<% if !@node.version.prop[\"bar\"].blank? || !@node.version.prop[\"foo\"].blank? -%>hello<% end -%>/"
+  tem: "/<% if !@node.version.prop[\"foo\"].blank? || !@node.version.prop[\"bar\"].blank? %>hello<% end %>|<% if !@node.version.prop[\"bar\"].blank? || !@node.version.prop[\"foo\"].blank? %>hello<% end %>/"
   res: ""
 
 if_now:
   src: "<r:if test='log_at &gt; now'>future<r:else>past</r:else></r:if>"
-  tem: "<% if (@node.log_at ? (@node.log_at>Time.now) : nil) -%>future<% elsif true -%>past<% end -%>"
+  tem: "<% if (@node.log_at ? (@node.log_at>Time.now) : nil) %>future<% elsif true %>past<% end %>"
   res: "past"
 
 on_if_now:

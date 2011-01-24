@@ -1,3 +1,5 @@
+require 'iconv'
+
 module Zena
   module Use
     # On load this module changes ENV['LANG'] to 'C' in order to behave consitently without
@@ -258,6 +260,21 @@ module Zena
           end
         end
 
+        def r_iconv
+          return parser_error("missing 'to' parameter") unless to = @params[:to]
+          begin
+            Iconv.iconv(to, 'utf8', 'éaïl')
+          rescue
+            return parser_error("invalid encoding #{to.inspect}")
+          end
+
+          data_name = get_var_name('iconv', 'data')
+          out "<% #{data_name} = capture do %>"
+          out expand_with
+          out "<% end %>"
+          out "<%= Iconv.iconv(#{to.inspect}, 'utf8', #{data_name}) %>"
+        end
+
         def r_load
           if dict = @params[:dictionary]
             # FIXME: replace @options[:base_path] by @options[:skin_id]
@@ -274,7 +291,7 @@ module Zena
               set_context_var('set_var', 'dictionary', RubyLess::TypedString.new(dict_name, :class => TranslationDict, :literal => dict, :dictionary_id => doc.id))
 
               # Lazy loading (loads file on first request)
-              out "<% #{dict_name} = load_dictionary(#{doc.id}) -%>"
+              out "<% #{dict_name} = load_dictionary(#{doc.id}) %>"
             else
               return parser_error(dict.last_error)
             end
@@ -342,7 +359,7 @@ module Zena
               set_context_var('set_var', 'dictionary', @dict)
 
               # Lazy loading (loads file on first request)
-              out "<% #{dict_name} = load_dictionary(#{@dict.opts[:dictionary_id]}) -%>"
+              out "<% #{dict_name} = load_dictionary(#{@dict.opts[:dictionary_id]}) %>"
             end
             super
           else

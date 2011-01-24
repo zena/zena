@@ -299,7 +299,7 @@ EOL
             return parser_error("should evaluate to a String or Time (found #{code.klass})")
           end
           v = get_var_name('set_var', 'main_date')
-          out "<% #{v} = #{code} -%>"
+          out "<% #{v} = #{code} %>"
           set_context_var('set_var', 'main_date', RubyLess::TypedString.new(v, :class => Time, :nil => could_be_nil))
           out expand_with
         end

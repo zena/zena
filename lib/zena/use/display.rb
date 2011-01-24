@@ -469,7 +469,7 @@ module Zena
           res = extract_label(res, @params, @params[:attr])
 
           if @params[:blank] == 'hide'
-            "<% if !#{method}.blank? -%>#{@markup.wrap(res)}<% end -%>"
+            "<% if !#{method}.blank? %>#{@markup.wrap(res)}<% end %>"
           else
             res
           end
@@ -523,16 +523,16 @@ module Zena
         # Used by zafu templates that act as layouts (adminLayout for example) to insert the content if present
         # or render.
         def r_content_for_layout
-          "<% if content_for_layout = yield -%><%= content_for_layout %><% else -%>" +
+          "<% if content_for_layout = yield %><%= content_for_layout %><% else %>" +
           expand_with +
-          "<% end -%>"
+          "<% end %>"
         end
 
         # Display the page's default title
         def r_title_for_layout
-          "<% if @title_for_layout -%><%= @title_for_layout %><% elsif @node && !@node.new_record? -%><%= @node.title %><% elsif @node.parent -%><%= @node.parent.short_path %><% else -%>" +
+          "<% if @title_for_layout %><%= @title_for_layout %><% elsif @node && !@node.new_record? %><%= @node.title %><% elsif @node.parent %><%= @node.parent.short_path %><% else %>" +
           expand_with +
-          "<% end -%>"
+          "<% end %>"
         end
 
         # Show html to add open a popup window to add a document.
@@ -542,7 +542,7 @@ module Zena
           @markup.append_param(:class, 'btn_add')
           node = self.node.list_context? ? self.node.up : self.node
           res = node_action_link('add_doc', "<%= #{node}.zip %>", :text => text_for_link(''))
-          "<% if #{node}.can_write? -%>#{wrap(res)}<% end -%>"
+          "<% if #{node}.can_write? %>#{wrap(res)}<% end %>"
         end
 
         # Find icon through a relation named 'icon' or use first image child

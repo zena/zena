@@ -16,13 +16,12 @@ module Zena
           end
         end
 
-
         include RubyLess
-        safe_method :start => {:method => 'start_node', :class => Node}
+        safe_method :start => Proc.new {|h, r, s| {:method => 'start_node', :class => VirtualClass['Node']}}
         safe_method :visitor => User
         safe_method :visitor_node => visitor_node_proc
-        safe_method :main => {:method => '@node', :class => Node}
-        safe_method :root => {:method => 'visitor.site.root_node', :class => Node, :nil => true}
+        safe_method :main => Proc.new {|h, r, s| {:method => '@node', :class => VirtualClass['Node']}}
+        safe_method :root => Proc.new {|h, r, s| {:method => 'visitor.site.root_node', :class => VirtualClass['Node'], :nil => true}}
         safe_method :site => {:class => Site, :method => 'visitor.site'}
 
         # Group an array of records by key.
@@ -145,6 +144,13 @@ module Zena
 
       module ZafuMethods
 
+        # Resolve class for @post ==> Post, etc.
+        def get_class(class_name)
+          VirtualClass[class_name] || super
+        rescue
+          nil
+        end
+
         # Enter a new context (<r:context find='all' select='pages'>). This is the same as '<r:pages>...</r:pages>'). It is
         # considered better style to use '<r:pages>...</r:pages>' instead of the more general '<r:context>' because the tags
         # give a clue on the context at start and end. Another way to open a context is the 'do' syntax: "<div do='pages'>...</div>".
@@ -180,11 +186,11 @@ module Zena
           end
 
           #if sort_block
-          #  out "<% grp_#{list_var} = sort_array(#{group_array}) #{sort_block} -%>"
+          #  out "<% grp_#{list_var} = sort_array(#{group_array}) #{sort_block} %>"
           #else
           #end
           method = "group_array(#{node}) {|e| #{key}}"
-          out "<% if #{var} = #{method} -%>"
+          out "<% if #{var} = #{method} %>"
             open_node_context({:method => method}, :node => node.move_to(var, [node.klass], :query => node.opts[:query])) do
               if child['each_group']
                 out expand_with
@@ -193,7 +199,7 @@ module Zena
                 r_each
               end
             end
-          out "<% end -%>"
+          out "<% end %>"
 
           #if descendant('each_group')
           #  out expand_with(:group => var)

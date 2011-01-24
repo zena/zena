@@ -134,7 +134,7 @@ input:
   context:
     node: 'ant'
   src: "<r:Contact?><r:input name='first_name'/></r:Contact?>"
-  tem: "<% if @node.kpath_match?('NRC') -%><input type='text' name='node[first_name]' value='<%= fquote @node.prop['first_name'] %>'/><% end -%>"
+  tem: "<% if @node.kpath_match?('NRC') %><input type='text' name='node[first_name]' value='<%= fquote @node.prop['first_name'] %>'/><% end %>"
   res: "<input type='text' name='node[first_name]' value='Solenopsis'/>"
 
 input_raw_name:

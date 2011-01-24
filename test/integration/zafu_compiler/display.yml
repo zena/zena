@@ -281,7 +281,7 @@ show_with_label_shortcut:
   context:
     lang: fr
   src: "<li do='show' label='t' blank='hide' attr='title'/>"
-  tem: "<% if !@node.prop['title'].blank? -%><li><label>titre</label> <span><%= @node.prop['title'] %></span></li><% end -%>"
+  tem: "<% if !@node.prop['title'].blank? %><li><label>titre</label> <span><%= @node.prop['title'] %></span></li><% end %>"
   res: "<li><label>titre</label> <span>Etat des travaux</span></li>"
 
 show_with_custom_label_shortcut:
@@ -300,6 +300,11 @@ show_with_custom_tlabel_shortcut:
 
 rendering:
   src: "==<r:headers Content-Disposition='attachment; filename=special_#{title}.csv'/>=="
-  tem: "==<% set_headers(\"Content-Disposition\" => \"attachment; filename=special_#{@node.prop['title']}.csv\") -%>=="
+  tem: "==<% set_headers(\"Content-Disposition\" => \"attachment; filename=special_#{@node.prop['title']}.csv\") %>=="
   res: '===='
-  
+
+each_whitespace:
+  src: |
+    <r:pages in='site' order='id asc' limit='3'><r:each><r:id/><r:node></r:node></r:each>
+    </r:pages>.
+  res: "12\n34\n16\n.\n"

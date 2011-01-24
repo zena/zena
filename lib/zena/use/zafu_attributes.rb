@@ -71,7 +71,7 @@ module Zena
                   begin
                     typed_string = ::RubyLess.translate(self, code)
                     name = get_var_name('set_var', var)
-                    out "<% #{name} = #{typed_string} -%>"
+                    out "<% #{name} = #{typed_string} %>"
                     set_context_var('set_var', var, RubyLess::TypedString.new(name, typed_string.opts))
                   rescue RubyLess::NoMethodError => err
                     parser_error(err.message, code)
@@ -192,13 +192,6 @@ module Zena
 
               @markup.tag ||= 'span'
               @markup.append_dyn_param(:class, "s<%= #{accessor}.status %>")
-            end
-          end
-
-          def steal_and_eval_html_params_for(markup, params)
-            markup.steal_keys.each do |key|
-              next unless value = params.delete(key)
-              append_markup_attr(markup, key, value)
             end
           end
       end # ZafuMethods

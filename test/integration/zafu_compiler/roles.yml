@@ -10,7 +10,7 @@ default:
 
 show_property_filter_vclass:
   src: "<r:Letter? do='paper'/>"
-  tem: "<% if @node.kpath_match?('NNL') -%><%= @node.prop['paper'] %><% end -%>"
+  tem: "<% if @node.kpath_match?('NNL') %><%= @node.prop['paper'] %><% end %>"
 
 show_property_filter_role_no_role:
   src: "<r:Original?>Has an origin</r:Original?>"
@@ -20,7 +20,7 @@ show_property_filter_role_has_role:
   context:
     node: tree_jpg
   src: "<r:Original?>Has an original</r:Original?>"
-  tem: "<% if @node.has_role?(493147733) -%>Has an original<% end -%>"
+  tem: "<% if @node.has_role?(493147733) %>Has an original<% end %>"
   res: 'Has an original'
 
 show_bad_role:
@@ -59,7 +59,7 @@ vclass_name:
   context:
     node: letter
   src: "<r:vclass do='name'/>"
-  tem: "<% var1 = @node.virtual_class -%><%= var1.name %>"
+  tem: "<% var1 = @node.virtual_class %><%= var1.name %>"
   res: "Letter"
 
 vclass_roles:
@@ -77,14 +77,14 @@ vclass_column_size:
 
 vclass_context:
   src: "<r:Image><r:name/></r:Image>"
-  tem: "<% if var1 = VirtualClass[\"Image\"] -%><%= var1.name %><% end -%>"
+  tem: "<% if var1 = VirtualClass[\"Image\"] %><%= var1.name %><% end %>"
   res: "Image"
 
 vclass_scope:
   context:
     node: bird_jpg
   src: "<r:Image?>I am an image</r:Image?>"
-  tem: "<% if @node.kpath_match?('NDI') -%>I am an image<% end -%>"
+  tem: "<% if @node.kpath_match?('NDI') %>I am an image<% end %>"
   res: "I am an image"
 
 vclass_in_rubyless:
@@ -120,3 +120,13 @@ input_relation_name:
 manual_select:
   src: "<select name='node[rel]' do='Contact.relations(\"doc\")'><option value='#{name}' do='each' do='eval'>trans(\"rel_#{name}\")</option></select>"
   res: "<select name='node[rel]'><option value='reference'>rel_reference</option><option value='reference_for'>rel_reference_for</option><option value='set_tag'>rel_set_tag</option></select>"
+
+inspect_display_links:
+  src: |
+    <r:Template do='relations' do='each' set_rel='name' do='main'>
+      <h3 do='rel'/>
+      <ul do='query' default='nodes' select='#{rel}s'>
+        <li do='each' do='link'/>
+      </ul>
+    </r:Template>
+  tem: '/<h3><%= _zrel %></h3>/'

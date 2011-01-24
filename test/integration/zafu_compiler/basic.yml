@@ -36,7 +36,7 @@ show_author_large:
 
 each_traductions:
   src: "<r:traductions except='current'><ul><li do='each'><r:show attr='title'/></li></ul></r:traductions>"
-  tem: "<% if list1 = @node.traductions(:conditions=>\"lang != 'en'\") -%><ul><% list1.each do |var1| -%><li><%= var1.title %></li><% end -%></ul><% end -%>"
+  tem: "<% if list1 = @node.traductions(:conditions=>\"lang != 'en'\") %><ul><% list1.each do |var1| %><li><%= var1.title %></li><% end %></ul><% end %>"
   res: "<ul><li>Etat des travaux</li></ul>"
 
 each_traductions_except_list:
@@ -75,7 +75,7 @@ each_else:
   context:
     node: 'opening'
   src: "<div do='pages'>has pages (<r:each join=', ' do='title'/>)<r:else>no pages</r:else></div>"
-  tem: "/<% if var1.* -%><div>has pages \(<% var1.each_with_index .* -%><%= var2.prop\['title'\] %><% end -%>\)</div><% elsif true -%><div>no pages</div><% end -%>/"
+  tem: "/<% if var1.* %><div>has pages \(<% var1.each_with_index .* %><%= var2.prop\['title'\] %><% end %>\)</div><% elsif true %><div>no pages</div><% end %>/"
   res: "<div>no pages</div>"
 
 
@@ -227,7 +227,7 @@ include_context:
 
 content_for_layout:
   src: "<r:content_for_layout>blah blah</r:content_for_layout>"
-  tem: "<% if content_for_layout = yield -%><%= content_for_layout %><% else -%>blah blah<% end -%>"
+  tem: "<% if content_for_layout = yield %><%= content_for_layout %><% else %>blah blah<% end %>"
   res: "blah blah"
 
 title_for_layout:
@@ -322,7 +322,7 @@ design_by_options:
 
 comments_shown_if_empty_but_can_comment:
   src: "<r:comments><r:each do='[title]'/><r:add/></r:comments>"
-  tem: "/if \(list1 = @node.comments\) \|\| \(@node.can_comment\? && list1=\[\]\) -%>/"
+  tem: "/if \(list1 = @node.comments\) \|\| \(@node.can_comment\? && list1=\[\]\) %>/"
 
 
 

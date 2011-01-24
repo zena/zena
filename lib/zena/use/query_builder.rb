@@ -248,7 +248,7 @@ module Zena
             set_context_var('set_var', 'page_count', RubyLess::TypedString.new(page_count, Number))
             set_context_var('set_var', 'count', RubyLess::TypedString.new(node_count, Number))
 
-            out "<% #{node_count} = Node.do_find(:count, #{query.to_s(:count)}); #{page_count} = (#{node_count} / #{query.page_size.to_f}).ceil; #{curr_page} = [1,params[:#{pagination_key}].to_i].max -%>"
+            out "<% #{node_count} = Node.do_find(:count, #{query.to_s(:count)}); #{page_count} = (#{node_count} / #{query.page_size.to_f}).ceil; #{curr_page} = [1,params[:#{pagination_key}].to_i].max %>"
           elsif finder[:method].kind_of?(RubyLess::TypedString)
             # Hash passed with :zafu => {} is inserted into context
             sub_context.merge!(finder[:method].opts[:zafu] || {})

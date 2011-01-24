@@ -475,9 +475,9 @@ module Zena
             res << "    <ul class='dev_pop' id='dev_tools'><li>\n"
             res << %Q{    <div style='float:right'><% form_for(:user, visitor, :url => user_path(visitor), :html => { :method => :put }) do |f| %>
               <%= f.select(:dev_skin_id, dev_skin_options, {}, {:onchange => 'this.form.submit()'}) %> <input style='display:none;' type='submit' value='<%= _('validate') %>'/>
-            <% end -%></div>}
+            <% end %></div>}
             res << "      <a style='float:right; margin:0 8px;' href='?rebuild=true'>#{_('rebuild_btn')}</a>\n"
-            res << "<% if @node.kind_of?(Skin) -%><a href='<%= export_node_path(@node[:zip]) %>'>#{_('export')}</a>\n<% end -%>"
+            res << "<% if @node.kind_of?(Skin) %><a href='<%= export_node_path(@node[:zip]) %>'>#{_('export')}</a>\n<% end %>"
             res << "      <a style='float:right' href='/dev_skin'>#{_('turn_dev_off_btn')}</a>\n"
             res << "    </li></ul>\n  </li>\n</ul></div>"
             res

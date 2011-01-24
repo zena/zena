@@ -194,7 +194,7 @@ module Zena
             return unless finder
             return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
 
-            cell_code = "<% if #{list_var} = nodes_#{list_var}[cal_#{list_var}.strftime('%Y-%m-%d %H')] -%>#{expand_with(:in_if => true, :list => list_var, :date => "cal_#{list_var}", :saved_template => nil, :dom_prefix => nil, :in_calendar => true)}<% end -%>"
+            cell_code = "<% if #{list_var} = nodes_#{list_var}[cal_#{list_var}.strftime('%Y-%m-%d %H')] %>#{expand_with(:in_if => true, :list => list_var, :date => "cal_#{list_var}", :saved_template => nil, :dom_prefix => nil, :in_calendar => true)}<% end %>"
 
             render_html_tag(calendar_code(finder, "", cell_code, "", params))
           end
@@ -226,7 +226,7 @@ module Zena
             # ... B (other node)
             #     calendar (in B context) ---- role --->
 
-            cell_prefix_code = "<span><%= day_#{list_var}.strftime('%d').to_i -%></span><ul>"
+            cell_prefix_code = "<span><%= day_#{list_var}.strftime('%d').to_i %></span><ul>"
             cell_code = "<%= #{list_var} = nodes_#{list_var}[cal_#{list_var}.strftime('%Y-%m-%d %H')]; #{node}.linked_node = #{list_var} ? #{list_var}.first : nil; cal_assign_cell(#{node}, #{role.inspect}, #{@params[:used].inspect}, params[:s] || @node.zip, cal_#{list_var}, #{template_url.inspect}) %>"
             cell_postfix_code = "</ul>"
             render_html_tag(calendar_code(finder, cell_prefix_code, cell_code, cell_postfix_code, params))
@@ -255,15 +255,15 @@ module Zena
               hours << 0
               hours = hours.uniq.sort
               # I feel all this would be much better if we could use "each_group" but then how do we access hours ?
-              week_code = "<% week.step(week+6,1) do |day_#{list_var}| -%>
-              <td<%= cal_class(day_#{list_var},#{current_date}) %>>#{cell_prefix_code}<% #{hours.inspect}.each do |set_hour|; cal_#{list_var} = Time.utc(day_#{list_var}.year,day_#{list_var}.month,day_#{list_var}.day,set_hour) -%>#{cell_code}<% end -%>#{cell_postfix_code}</td>
-              <% end -%>"
+              week_code = "<% week.step(week+6,1) do |day_#{list_var}| %>
+              <td<%= cal_class(day_#{list_var},#{current_date}) %>>#{cell_prefix_code}<% #{hours.inspect}.each do |set_hour|; cal_#{list_var} = Time.utc(day_#{list_var}.year,day_#{list_var}.month,day_#{list_var}.day,set_hour) %>#{cell_code}<% end %>#{cell_postfix_code}</td>
+              <% end %>"
               (@context[:vars] ||= []) << "hour"
             else
               hours = nil
-              week_code = "<% week.step(week+6,1) do |day_#{list_var}| -%>
-              <td<%= cal_class(day_#{list_var},#{current_date}) %>><% cal_#{list_var} = Time.utc(day_#{list_var}.year,day_#{list_var}.month,day_#{list_var}.day) -%>#{cell_prefix_code}#{cell_code}#{cell_postfix_code}</td>
-              <% end -%>"
+              week_code = "<% week.step(week+6,1) do |day_#{list_var}| %>
+              <td<%= cal_class(day_#{list_var},#{current_date}) %>><% cal_#{list_var} = Time.utc(day_#{list_var}.year,day_#{list_var}.month,day_#{list_var}.day) %>#{cell_prefix_code}#{cell_code}#{cell_postfix_code}</td>
+              <% end %>"
             end
 
             res = %Q{
@@ -274,12 +274,12 @@ module Zena
               </h3>
               <table cellspacing='0' class='#{size}cal#{@params[:assign_as] ? " assign" : ''}'>
                 <tr class='head'><%= cal_day_names(#{size.inspect}) %></tr>
-                  <% start_date, end_date = cal_start_end(#{current_date}, #{type.inspect}) -%>
-                  <% cal_weeks(#{ref_date.to_sym.inspect}, #{finder}, start_date, end_date, #{hours.inspect}) do |week, nodes_#{list_var}| -%>
+                  <% start_date, end_date = cal_start_end(#{current_date}, #{type.inspect}) %>
+                  <% cal_weeks(#{ref_date.to_sym.inspect}, #{finder}, start_date, end_date, #{hours.inspect}) do |week, nodes_#{list_var}| %>
                   <tr class='body'>
                     #{week_code}
                   </tr>
-                <% end -%>
+                <% end %>
               </table>}
           end
 =end

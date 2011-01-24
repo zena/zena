@@ -191,16 +191,16 @@ class #{node.klass}: #{Array(node.klass).first.columns.keys.join(', ')}
 
             out markup.wrap(expand_if("visitor.is_anon?", self.node, else_markup))
           else
-            out "<% if visitor.is_anon? -%>"
+            out "<% if visitor.is_anon? %>"
             out "<%= link_to #{_('login').inspect}, login_path %>"
-            out "<% else -%>"
+            out "<% else %>"
             out "<%= link_to #{_('logout').inspect}, logout_path %>"
-            out "<% end -%>"
+            out "<% end %>"
           end
         end
 
         def r_visitor_link
-          out "<% if !visitor.is_anon? -%>"
+          out "<% if !visitor.is_anon? %>"
           if dynamic_blocks?
             @markup.tag ||= 'a'
             link = '<%= user_path(visitor) %>'
@@ -215,7 +215,7 @@ class #{node.klass}: #{Array(node.klass).first.columns.keys.join(', ')}
           else
             out wrap("<%= link_to visitor.node.title, user_path(visitor) %>")
           end
-          out "<% end -%>"
+          out "<% end %>"
         end
 
         def r_action

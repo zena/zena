@@ -20,7 +20,7 @@ gsub:
     node: 'tiger'
   old_src: "<r:Contact? do='addres.gsub(/\\n/,\";\";')'/>"
   src: "<r:Contact? do='eval'>address.gsub(/\\n/, ';')</r:Contact?>"
-  tem: "<% if @node.kpath_match?('NRC') -%><%= (@node.prop['address'] ? @node.prop['address'].gsub(/\\n/, \";\") : nil) %><% end -%>"
+  tem: "<% if @node.kpath_match?('NRC') %><%= (@node.prop['address'] ? @node.prop['address'].gsub(/\\n/, \";\") : nil) %><% end %>"
   res: "Small Island;In the Wild"
 
 gsub_static:

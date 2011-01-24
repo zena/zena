@@ -9,5 +9,5 @@ default:
 
 search_results_without_values:
   src: "<r:search_results>..</r:search_results>"
-  tem: '<% if var1 = @nodes -%>..<% end -%>'
+  tem: '<% if var1 = @nodes %>..<% end %>'
   res: ''

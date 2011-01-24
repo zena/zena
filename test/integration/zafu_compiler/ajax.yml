@@ -6,7 +6,7 @@ default:
 
 block:
   src: "<r:parent><r:block name='foobar' do='title'/></r:parent>"
-  tem: "<% if var1 = @node.parent -%><div id='foobar'><%= var1.prop['title'] %></div><% end -%>"
+  tem: "<% if var1 = @node.parent %><div id='foobar'><%= var1.prop['title'] %></div><% end %>"
   'ajax/block/en/foobar.erb': "<div id='foobar'><%= @node.prop['title'] %></div>"
 
 add:

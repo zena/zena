@@ -51,8 +51,8 @@ module Zena
               set_context_var('recursion', @name, {:proc_name => proc_name, :klass => klass})
               depth = get_var_name('recursion', 'depth')
               out "<% #{proc_name} = Proc.new do |#{depth}, #{var}| %>"
-              out "<% next if #{depth} > #{inc.params[:depth] ? [inc.params[:depth].to_i,30].min : 5} -%>"
-              @recursion_call =  "<% end -%><% #{proc_name}.call(0,#{node}) %>"
+              out "<% next if #{depth} > #{inc.params[:depth] ? [inc.params[:depth].to_i,30].min : 5} %>"
+              @recursion_call =  "<% end %><% #{proc_name}.call(0,#{node}) %>"
               @context[:node] = node.move_to(var, node.klass)
               @var = nil # avoid reuse of our 'var' as new var name
             end

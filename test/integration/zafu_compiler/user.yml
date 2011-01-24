@@ -10,7 +10,7 @@ default:
 
 login:
   src: "<r:visitor do='login'/>"
-  tem: "<% var1 = visitor -%><%= var1.login %>"
+  tem: "<% var1 = visitor %><%= var1.login %>"
   res: "ant"
 
 lang:

@@ -32,13 +32,13 @@ mean_in_translation:
   context:
     lang: fr
   src: "<r:load dictionary='/Default skin/translations'><r:t>mean</r:t></r:load>"
-  tem: "<% _zdict = load_dictionary(828931430) -%>&lt;%= 5 + 8 %&gt;"
+  tem: "<% _zdict = load_dictionary(828931430) %>&lt;%= 5 + 8 %&gt;"
 
 build_erb_with_trans:
   context:
     lang: fr
   src: "<r:load dictionary='/Default skin/translations'><r:t>mean_m</r:t><r:void>%= 5+8 %</r:void><r:void>></r:void></r:load>"
-  tem: "<% _zdict = load_dictionary(828931430) -%>&lt;%= 5+8 %>"
+  tem: "<% _zdict = load_dictionary(828931430) %>&lt;%= 5+8 %>"
 
 build_erb_with_void:
   context:

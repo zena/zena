@@ -42,7 +42,8 @@ pages:
   res: "Keeping things clean !, status title"
 
 root:
-  src: "<r:root do='[title]'/>"
+  src: "<r:root do='title'/>"
+  tem: "<% if var1 = visitor.site.root_node %><%= var1.prop['title'] %><% end %>"
   res: 'Zena the wild CMS'
 
 notes:
@@ -131,7 +132,7 @@ context_root:
 
 parent:
   src: "<r:parent do='title'/>"
-  tem: "<% if var1 = @node.parent -%><%= var1.prop['title'] %><% end -%>"
+  tem: "<% if var1 = @node.parent %><%= var1.prop['title'] %><% end %>"
   res: "Clean Water project"
 
 parent_no_parent:
@@ -439,7 +440,7 @@ same_name_as_class:
 
 start:
   src: "<r:start do='title'/>"
-  tem: "<% var1 = start_node -%><%= var1.prop['title'] %>"
+  tem: "<% var1 = start_node %><%= var1.prop['title'] %>"
   res: 'status title'
 
 foo:

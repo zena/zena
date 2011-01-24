@@ -234,7 +234,7 @@ module Zena
             js_options << (%w{true false}.include?(revert) ? revert : revert.inspect)
           end
 
-          markup.pre_wrap[:drag] = "#{handle}<% add_drag_id(\"#{node.dom_id(:dom_prefix => @drag_prefix, :erb => false)}\", #{js_options.join(', ').inspect}) -%>"
+          markup.pre_wrap[:drag] = "#{handle}<% add_drag_id(\"#{node.dom_id(:dom_prefix => @drag_prefix, :erb => false)}\", #{js_options.join(', ').inspect}) %>"
         end
 
         # Display an input field to filter a remote block
@@ -263,7 +263,7 @@ module Zena
           end
           out "</div></form>"
           if @params[:live] || @params[:update]
-            out "<% filter_form(#{node}, \"#{dom_id}_f\") -%>"
+            out "<% filter_form(#{node}, \"#{dom_id}_f\") %>"
           end
         end
 
@@ -304,7 +304,7 @@ module Zena
           end
 
           query_params << ", :url => #{make_href(self.name, :action => 'drop')}"
-          markup.pre_wrap[:drop] = "<% add_drop_id(\"#{dom_id}\"#{query_params}) -%>"
+          markup.pre_wrap[:drop] = "<% add_drop_id(\"#{dom_id}\"#{query_params}) %>"
           r_block
         end
 
@@ -320,7 +320,7 @@ module Zena
           dom_id = node.dom_id(:erb => false)
           markup.set_id(node.dom_id)
           markup.append_param(:class, 'toggle')
-          out "<% add_toggle_id(\"#{dom_id}\", #{var.inspect}, #{RubyLess.translate_string(self, role)}) { #{finder} } -%>#{expand_with}"
+          out "<% add_toggle_id(\"#{dom_id}\", #{var.inspect}, #{RubyLess.translate_string(self, role)}) { #{finder} } %>#{expand_with}"
         end
 
         def process_toggle
@@ -350,7 +350,7 @@ module Zena
           markup.tag ||= 'div'
 
           markup.append_param(:class, 'toggle')
-          markup.pre_wrap[:toggle] = "<% add_toggle_id(\"#{dom_id}\", #{"#{var}_tog".inspect}, #{RubyLess.translate_string(self, role)}) { #{finder} } -%>"
+          markup.pre_wrap[:toggle] = "<% add_toggle_id(\"#{dom_id}\", #{"#{var}_tog".inspect}, #{RubyLess.translate_string(self, role)}) { #{finder} } %>"
         end
 
         def r_unlink
@@ -383,7 +383,7 @@ module Zena
           opts[:default_text] = _('btn_tiny_del')
           @params[:class] ||= 'unlink'
 
-          out "<% if #{node}.can_write? && #{node}.link_id -%>#{wrap(make_link(opts))}<% end -%>"
+          out "<% if #{node}.can_write? && #{node}.link_id %>#{wrap(make_link(opts))}<% end %>"
 
          #tag_to_remote
          #"<%= tag_to_remote({:url => node_path(#{node_id}) + \"#{opts[:method] != :put ? '/zafu' : ''}?#{action.join('&')}\", :method => #{opts[:method].inspect}}) %>"
@@ -393,7 +393,7 @@ module Zena
          #  else
          #    inner = _('btn_tiny_del')
          #  end
-         #  out "#{inner}</a><% else -%>#{inner}<% end -%>"
+         #  out "#{inner}</a><% else %>#{inner}<% end %>"
          #elsif node.will_be?(DataEntry)
          #  text = get_text_for_erb
          #  if text.blank?

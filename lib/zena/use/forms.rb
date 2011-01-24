@@ -205,11 +205,11 @@ module Zena
 }
 
               opts[:form_cancel] = %Q{
-<% if #{node}.new_record? -%>
+<% if #{node}.new_record? %>
   <p class='btn_x'><a href='#' onclick='[\"<%= params[:dom_id] %>_add\", \"<%= params[:dom_id] %>_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
-<% else -%>
+<% else %>
   <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{node.form_name}_path(#{node}.zip) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}#{@context[:has_link_id] ? "&link_id=\#{#{node}.link_id}" : ''}\", :method => :get) %></p>
-<% end -%>
+<% end %>
 }
             end
           else
