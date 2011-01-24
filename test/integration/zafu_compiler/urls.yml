@@ -146,7 +146,7 @@ link_date:
   context:
     ref_date: '2008-06-27'
   old_src: "<r:link date='current_date'/>"
-  src: "<r:link date='#{date}'/>"
+  src: "<r:link date='#{main_date}'/>"
   tem: '/:date => "#\{main_date\}"'
   res: "<a href='/oo/projects-list/Clean-Water-project/page22.html?date=2008-06-27T00%3A00%3A00%2B00%3A00'>status title</a>"
 

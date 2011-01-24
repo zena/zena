@@ -53,7 +53,7 @@ show_date_foo:
   context:
     date: '2010-05-16'
     lang: fr
-  src: "<r:show eval='date' format='%A %d.%m.%Y'/>"
+  src: "<r:show eval='main_date' format='%A %d.%m.%Y'/>"
   tem: "/main_date/"
   res: 'dimanche 16.05.2010'
 
@@ -114,8 +114,8 @@ date_from_params:
 date_from_params_in_query:
   context:
     year: 2006
-  src: "<r:date text='#{params[:year]}/04/03' format='%Y/%m/%d' do='show' eval='date' format='%Y-%m-%d'/>"
-  tem: "/_zdate = \"#\{params\[:year\]\}/04/03\".to_utc\(\"%Y/%m/%d\"\) -%>/"
+  src: "<r:main_date text='#{params[:year]}/04/03' format='%Y/%m/%d' do='show' eval='main_date' format='%Y-%m-%d'/>"
+  tem: "/_zmaindate = \"#\{params\[:year\]\}/04/03\".to_utc\(\"%Y/%m/%d\"\) -%>/"
   res: "2006-04-03"
 
 input_date:
@@ -123,4 +123,12 @@ input_date:
     node: opening
   src: "<r:Post?><r:input type='date' name='date'/></r:Post?>"
   tem: '/date_box\(@node, "date", :size=>15, :value => @node.prop\[.date.\]\)/'
-  res: "/value='2011-01-16 00:00'/"
+  res: "/value='2011-01-16 01:00'/"
+
+test_date:
+  src: "<r:Post?><r:if test='date'></r:if></r:Post?>"
+  tem: "/@node.prop\['date'\]/"
+  
+format_date_empty_string:
+  tem: "<%= format_date('') %>"
+  res: ""

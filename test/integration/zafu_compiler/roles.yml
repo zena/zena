@@ -114,7 +114,7 @@ list_relations_filter_group:
   res: "reference, reference_for, set_tag"
 
 input_relation_name:
-  src: "<r:select param='rel' eval='Contact.relations(\"doc\").map(:name)'/>"
+  src: "<r:select name='rel' eval='Contact.relations(\"doc\").map(:name)'/>"
   res: "<select name='node[rel]'><option value=\"reference\">reference</option>\n<option value=\"reference_for\">reference_for</option>\n<option value=\"set_tag\">set_tag</option></select>"
 
 manual_select:

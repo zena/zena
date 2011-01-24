@@ -5,7 +5,7 @@ module Zena
 
         # This is like strftime but with better support for i18n (translate day names, month abbreviations, etc)
         def format_date(thedate, opts = {})
-          return '' unless thedate
+          return '' if thedate.blank?
 
           theformat, tz_name, lang = opts[:format], opts[:tz], opts[:lang]
           format = theformat || '%Y-%m-%d %H:%M:%S'
@@ -28,10 +28,8 @@ module Zena
             begin
               adate    = Date.parse(thedate)
               utc_date = adate
-
             rescue
-              # only return error if there is a format (without = used in sql query)
-              return theformat ? "<span class='parser_error'>invalid date #{thedate.inspect}</span>" : Time.now.strftime('%Y-%m-%d %H:%M:%S')
+              return "<span class='parser_error'>invalid date #{thedate.inspect}</span>"
             end
           else
             adate    = thedate
@@ -250,11 +248,11 @@ module Zena
         include RubyLess
         safe_method_for Time, :year       => {:class => Number, :pre_processor => true}
         safe_method_for Time, [:strftime, String] => {:class => String, :pre_processor => true}
-        safe_method :date                 => :get_date
+        safe_method :main_date            => :get_date
         safe_method [:parse_date, String] => {:class => Time, :nil => true, :accept_nil => true}
 
         def get_date(signature)
-          if var = get_context_var('set_var', 'date')
+          if var = get_context_var('set_var', 'main_date')
             {:class => var.klass, :method => var, :nil => var.could_be_nil?}
           else
             {:class => Time, :method => 'main_date'}
@@ -279,7 +277,7 @@ EOL
         end
 
         # Select a date for the current context
-        def r_date
+        def r_main_date
           return nil unless code = get_attribute_or_eval
 
           if format = @params[:format]
@@ -300,9 +298,9 @@ EOL
           else
             return parser_error("should evaluate to a String or Time (found #{code.klass})")
           end
-          v = get_var_name('set_var', 'date')
+          v = get_var_name('set_var', 'main_date')
           out "<% #{v} = #{code} -%>"
-          set_context_var('set_var', 'date', RubyLess::TypedString.new(v, :class => Time, :nil => could_be_nil))
+          set_context_var('set_var', 'main_date', RubyLess::TypedString.new(v, :class => Time, :nil => could_be_nil))
           out expand_with
         end
 
