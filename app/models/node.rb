@@ -1163,12 +1163,21 @@ class Node < ActiveRecord::Base
 
   # Id to zip mapping for parent_id. Used by zafu and forms.
   def parent_zip
-    @parent_zip || (parent ? parent[:zip] : nil)
+    @parent_zip || parent.try(:zip)
   end
 
   # When setting parent trough controllers, we receive parent_zip=.
   def parent_zip=(zip)
     @parent_zip = zip
+  end
+
+  # When setting skin trough controllers, we receive skin_zip=.
+  def skin_zip=(zip)
+    @skin_zip = zip.to_i
+  end
+
+  def skin_zip
+    @skin_zip || skin.try(:zip)
   end
 
   # Id to zip mapping for section_id. Used by zafu and forms.
@@ -1521,6 +1530,19 @@ class Node < ActiveRecord::Base
         end
       end
 
+      if @skin_zip
+        if node = secure(Node) { Node.find_by_zip(@skin_zip) }
+          if !node.kind_of?(Skin)
+            @skin_zip_error = _('type mismatch (%{type} is not a Skin)') % {:type => node.klass}
+          else
+            self.skin_id = node.id
+          end
+        else
+          @skin_zip_error = _('could not be found')
+        end
+      end
+
+
       self[:kpath] = self.vclass.kpath
 
       # make sure section is the same as the parent
@@ -1569,6 +1591,11 @@ class Node < ActiveRecord::Base
       if @parent_zip_error
         errors.add('parent_id', @parent_zip_error)
         @parent_zip_error = nil
+      end
+
+      if @skin_zip_error
+        errors.add('skin_id', @skin_zip_error)
+        @skin_zip_error = nil
       end
 
       # when creating root node, self[:id] and :root_id are both nil, so it works.

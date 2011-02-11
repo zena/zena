@@ -43,16 +43,21 @@ module Zena
                 scopes = new_instance.safe_eval self[:idx_scope]
                 if scopes.kind_of?(Hash)
                   scopes.each do |keys, query|
-                    unless keys.kind_of?(String) && query.kind_of?(String)
-                      errors.add('idx_scope', "Invalid entry: keys and query should be of type String (#{keys.inspect} => #{query.inspect})")
+                    unless keys.kind_of?(String) &&
+                      (
+                        query.kind_of?(String) ||
+                       (query.kind_of?(Array) && query.inject(true){|s,k| s && k.kind_of?(String)}))
+                      errors.add('idx_scope', "Invalid entry: keys should be a String and query should be a String or an Array of strings (#{keys.inspect} => #{query.inspect})")
                       next
                     end
                     begin
-                      real_class.build_query(:all, query,
-                        :node_name       => 'self',
-                        :main_class      => self,
-                        :rubyless_helper => self
-                      )
+                      Array(query).each do |q|
+                        real_class.build_query(:all, q,
+                          :node_name       => 'self',
+                          :main_class      => self,
+                          :rubyless_helper => self
+                        )
+                      end
                     rescue ::QueryBuilder::Error => err
                       errors.add('idx_scope', "Invalid query: #{err.message}")
                     end
@@ -181,8 +186,17 @@ module Zena
             if virtual_class && scopes = virtual_class.idx_scope
               scopes = safe_eval(scopes)
               return unless scopes.kind_of?(Hash)
-              scopes.each do |keys, query|
-                next unless query.kind_of?(String) && keys.kind_of?(String)
+              mapped_scopes = []
+              scopes.each do |keys, queries|
+                # Change key ('project,contract') to an array
+                keys = keys.split(',').map(&:strip) if keys.kind_of?(String)
+                Array(queries).each do |query|
+                  mapped_scopes << [keys, query]
+                end
+              end
+
+              mapped_scopes.each do |keys, query|
+                next unless query.kind_of?(String) && keys.kind_of?(Array) && keys.inject(true) {|s,k| s && k.kind_of?(String) }
                 if query.strip == 'self'
                   models_to_update = [self]
                 else
@@ -192,7 +206,7 @@ module Zena
                 models_to_update.each do |m|
                   if idx_model = m.scope_index
                     # force creation of index record
-                    idx_model.update_with(self, keys.split(',').map(&:strip), true)
+                    idx_model.update_with(self, keys, true)
                   end
                 end
               end

@@ -178,6 +178,8 @@ module Zena
           end # filter_prefix
 
           def filter_status
+            # Do not filter or we cannot set any 'status' attribute in <r:new>.
+            return if %w{new link}.include?(@method)
             status = @params.delete(:status)
             if status == 'true' || (@params[:actions] && status != 'false')
               node = (@method == 'each' && self.node.list_context?) ? self.node.move_to(var, self.node.single_class) : self.node

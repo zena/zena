@@ -210,12 +210,12 @@ class NodesControllerTest < Zena::Controller::TestCase
     end # creating a node
 
     context 'updating a node' do
-      
+
       context 'that she owns' do
         setup do
           @node = secure(Page) { Page.create(:parent_id => nodes_id(:zena), :title => 'hop', :v_status => Zena::Status[:pub]) }
         end
-        
+
         context 'in redit time' do
           subject do
             {:action => 'update', :controller => 'nodes', :id => @node.zip, :node => {:title => 'hip'}}
@@ -229,8 +229,33 @@ class NodesControllerTest < Zena::Controller::TestCase
           end
         end # in redit time
       end # that she owns
+
+      context 'by changing skin' do
+        subject do
+          {:action => 'update', :controller => 'nodes', :id => nodes_zip(:people), :node => {:skin_zip => nodes_zip(:wikiSkin), :inherit => 0}}
+        end
+
+        should 'update skin_id' do
+          put_subject
+          assert_equal nodes_id(:wikiSkin), nodes(:people).skin_id
+        end
+
+        context 'with a bad value' do
+          subject do
+            {:action => 'update', :controller => 'nodes', :id => nodes_zip(:people), :node => {:skin_zip => nodes_zip(:status), :inherit => 0}}
+          end
+
+          should 'set error message on skin_id' do
+            put_subject
+            assert_response :success
+            assert_equal 'type mismatch (Page is not a Skin)', assigns(:node).errors[:skin_id]
+          end
+        end # with a bad value
+
+      end # by changing skin
+
     end # updating a node
-    
+
     context 'using xml' do
       context 'without being in the api_group' do
         setup do

@@ -82,6 +82,10 @@ module Zena
         safe_method_for String, [:limit, Number]  => {:class => String, :pre_processor => true}
         safe_method_for String, [:limit, Number, String]  => {:class => String, :pre_processor => true}
         safe_method_for Number, :to_s      => {:class => String, :pre_processor => true}
+        safe_method_for Number, :to_f      => {:class => Number, :pre_processor => true}
+        safe_method_for Number, :to_i      => {:class => Number, :pre_processor => true}
+        safe_method_for NilClass, :to_f      => {:class => Number, :pre_processor => true}
+        safe_method_for NilClass, :to_i      => {:class => Number, :pre_processor => true}
         safe_method_for Object, :blank?    => Boolean
 
         safe_method_for Node,  [:kind_of?, VirtualClass] =>

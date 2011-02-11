@@ -499,6 +499,11 @@ module Zena
           end
         end
 
+        # ??? <r:h do='foasfa'/> ?
+        # def r_h
+        #   out "<%= h ??? %>"
+        # end
+
         # Insert javascript asset tags
         def r_javascripts
           if @params[:list] == 'all' || @params[:list].nil?

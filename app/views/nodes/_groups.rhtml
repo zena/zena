@@ -15,7 +15,7 @@
     <li><label><%= _('publishers') %></label><%= select('node', 'dgroup_id', form_groups, { :include_blank => true }, {:disabled=>(@node[:inherit] != 0)}) %></li>
     <li><label><%= _('writers') %></label><%= select('node', 'wgroup_id',    form_groups, { :include_blank => true }, {:disabled=>(@node[:inherit] != 0)}) %></li>
     <li><label><%= _('readers') %></label><%= select('node', 'rgroup_id',    form_groups, { :include_blank => true }, {:disabled=>(@node[:inherit] != 0)}) %></li>
-    <li><label><%= _('skin') %></label><%= select('node',    'skin_id',      form_skins,  {},                         {:disabled=>(@node[:inherit] == 1)}) %></li>
+    <li><label><%= _('skin') %></label><%= select('node',    'skin_id',      form_skins, {:selected => @node.skin_zip}, {:disabled=>(@node[:inherit] == 1)}) %></li>
     <li class='submit'><%= submit_tag _('change') %></li>
   </form>
   <% else %>

@@ -601,7 +601,7 @@ Zena.Div_editor.prototype = {
 }
 
 Zena.draggable = function(dom_id, drag_handle, revert) {
-  revert = revert == undefined ? true : revert
+  revert = revert == undefined ? true : revert;
   if (drag_handle) {
     if ($(dom_id).select('.' + drag_handle) == []) {
       // insert span
@@ -800,10 +800,7 @@ Zena.put = function(tag) {
   f.appendChild(m);
   f.submit();
 }
-function test()
-{
-	alert("test!");
-}
+
 Zena.set_toggle = function(dom_id, definition) {
   var elem = $(dom_id);
   var id = dom_id.replace(/^.*_/,'') * 1;
@@ -860,5 +857,36 @@ Zena.toggle = function(elem, definition, id) {
         Zena.set_toggle(elem.id, definition);
       }
     });
+  }
+}
+
+Zena.m_toggle = function(id) {
+  var txt_id = 'txt_' + id;
+  $('off_'+id, 'on_'+id, txt_id).invoke('toggle');
+  if ($(txt_id).style.display != 'none') {
+    $$('#' + txt_id + ' iframe').each(function(s) {
+      s.src = s.src;
+    });
+  }
+  fleXenv.updateScrollBars();
+}
+
+var pm_counter = 1;
+Zena.plus_minus = function(elem, start, plus, minus) {
+  plus  = plus  == undefined ? '[+]' : plus;
+  minus = minus == undefined ? '[-]' : minus;
+
+  var tag = elem.tagName;
+  pm_counter = pm_counter + 1;
+  var id = "m_" + pm_counter;
+  var show = start == 'on' ? 'display:none;' : '';
+  var hide = start == 'on' ? '' : 'display:none;';
+  var trigger_tag = " <a id='off_"+id+"' style='"+show+"' onclick='Zena.m_toggle(\"" + id +"\")' class='plus_btn'>"+plus+"</a><a id='on_"+id+"' style='"+hide+"' onclick='Zena.m_toggle(\"" + id +"\")' class='minus_btn'>"+minus+"</a>";
+  var new_tag = "<"+tag+" style='"+hide+"' id='txt_"+id+"' class='txt'>" + elem.innerHTML + "</"+tag+">";
+  if (tag.toUpperCase() == 'SPAN' || !elem.previous()) {
+    Element.replace(elem, trigger_tag + ' ' + new_tag);
+  } else {
+    Element.insert(elem.previous(), {bottom:trigger_tag});
+    Element.replace(elem, new_tag);
   }
 }

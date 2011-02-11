@@ -99,7 +99,7 @@ class ScopeIndexTest < Zena::Unit::TestCase
         assert_equal 'Hölderlin', IdxProject.find(@project.scope_index).reference_name
       end
     end # linking a remote node
-    
+
     context 'reverse linking a remote node' do
       subject do
         secure(Node) { VirtualClass['Contact'].create_instance(:first_name => 'Friedrich', :name => 'Hölderlin', :parent_id => nodes_id(:zena), :v_status => Zena::Status[:pub]) }
@@ -357,6 +357,44 @@ class ScopeIndexTest < Zena::Unit::TestCase
           VirtualClass.create(subject)
         end
       end
+
+      context 'containing array keys' do
+        subject do
+          {:name => 'Song', :superclass => 'Post', :idx_scope => "{'reference,baz' => 'project'}", :create_group_id => groups_id(:public) }
+        end
+
+        should 'create' do
+          assert_difference('VirtualClass.count', 1) do
+            # RubyLess does not allow Array as key (%w{reference baz}).
+            VirtualClass.create(subject)
+          end
+        end
+      end # containing array keys
+
+      context 'containing array scopes' do
+        subject do
+          {:name => 'Song', :superclass => 'Post', :idx_scope => "{'reference' => %w{project self}}", :create_group_id => groups_id(:public) }
+        end
+
+        should 'create' do
+          assert_difference('VirtualClass.count', 1) do
+            VirtualClass.create(subject)
+          end
+        end
+      end # containing array keys
+
+      context 'containing array keys and scopes' do
+        subject do
+          {:name => 'Song', :superclass => 'Post', :idx_scope => "{'reference,baz' => %w{project self}}", :create_group_id => groups_id(:public) }
+        end
+
+        should 'create' do
+          assert_difference('VirtualClass.count', 1) do
+            # RubyLess does not allow Array as key (%w{reference baz}).
+            VirtualClass.create(subject)
+          end
+        end
+      end # containing array keys
     end # with a valid idx_scope
 
     context 'with an invalid idx_scope' do
@@ -372,8 +410,20 @@ class ScopeIndexTest < Zena::Unit::TestCase
 
       should 'add errors to idx_scope' do
         vclass = VirtualClass.create(subject)
-        assert_equal "Invalid entry: keys and query should be of type String (1 => \"project\")", vclass.errors[:idx_scope]
+        assert_equal "Invalid entry: keys should be a String and query should be a String or an Array of strings (1 => \"project\")", vclass.errors[:idx_scope]
       end
+      
+      context 'with array keys' do
+        subject do
+          {:name => 'Song', :superclass => 'Post', :idx_scope => "{%w{self project} => 'project'}", :create_group_id => groups_id(:public) }
+        end
+
+        should 'add errors to idx_scope' do
+          vclass = VirtualClass.create(subject)
+          assert_equal "Invalid rubyless: Invalid key type for hash (should be a literal value, was :array)", vclass.errors[:idx_scope]
+        end
+      end # with array keys
+      
     end # with an invalid idx_scope
 
     context 'with an invalid idx_scope type' do

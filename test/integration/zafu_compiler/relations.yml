@@ -461,3 +461,8 @@ count:
   src: "<p do='nodes in site order by id' find='count'/>"
   tem: "<p><%= Node.do_find(:count, %Q{SELECT COUNT(*) FROM nodes WHERE #{secure_scope('nodes')}}) %></p>"
   res: "<p>42</p>"
+
+nodes_main_class:
+  src: "<r:nodes do='each' do='Document?' do='title'/>"
+  tem: "xx"
+  

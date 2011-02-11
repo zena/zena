@@ -37,7 +37,7 @@ Tracker:
 Tag:
   kpath:           NPT
   real_class:      Page
-  idx_scope:       "{'tag' => 'project'}"
+  idx_scope:       "{'tag' => %w{project self}}"
 
 Task:
   kpath:           N

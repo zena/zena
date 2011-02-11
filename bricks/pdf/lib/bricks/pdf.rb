@@ -87,11 +87,18 @@ module Bricks
           }
         else
           # did not work
+          query_string = request.query_string
+          if query_string == ''
+            debug_url = "#{request.path}?debug"
+          else
+            debug_url = "#{request.path}?#{query_string}&debug"
+          end
+
           {
             :type        => 'text/html',
             # Compile html to pdf
             :disposition => 'inline',
-            :data        => "Could not render pdf file..."
+            :data        => "Could not render pdf file... <a href='#{debug_url}'>debug</a>"
           }
         end
       end

@@ -350,11 +350,16 @@ class NodesController < ApplicationController
             if params[:edit] == 'popup'
               redirect_to edit_node_version_path(:node_id => @node[:zip], :id => 0, :close => (params[:validate] ? true : nil))
             else
+              # FIXME: use a redir param......
               redirect_to zen_path(@node, :mode => params[:mode])
             end
           else
             begin
-              route = ActionController::Routing::Routes.recognize_path(request.referer[%r{https?://[^/]+(.*)},1])
+              if request.referer
+                route = ActionController::Routing::Routes.recognize_path(request.referer[%r{https?://[^/]+(.*)},1])
+              else
+                route = {:action => 'show'}
+              end
               if route[:action] == 'index'
                 mode = '+index'
               elsif route[:action] == 'search'

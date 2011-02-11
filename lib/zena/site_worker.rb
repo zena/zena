@@ -36,7 +36,7 @@ module Zena
         :conditions => ['site_id = ?', site_id],
         :limit  => CHUNK_SIZE,
         :offset => (page - 1) * CHUNK_SIZE,
-        :order => 'id ASC'
+        :order => 'id DESC'
       )
       secure_result(nodes)
     end
