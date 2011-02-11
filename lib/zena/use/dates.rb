@@ -116,10 +116,13 @@ module Zena
       	  opts = defaults.merge(opts)
       	  date = opts[:value] || obj.safe_send(name)
       	  value = tformat_date(date,'datetime')
-          if opts[:size]
-            fld = "<input id='#{opts[:id]}' name='node[#{name}]' type='text' size='#{opts[:size]}' value='#{value}' />"
+      	  # TODO: migrate code to Zafu::Markup (needs Zafu 0.7.7)
+      	  # fld = Zafu::Markup.new('input')
+      	  # fld.params = (opts[:html] || {}).merge(:name => "node[#{name}]", :id => opts[:id], :type => 'text', :value => value)
+      	  if opts[:size]
+            fld = "<input id='#{opts[:id]}' name='node[#{name}]' type='text' size='#{opts[:size]}' value='#{value}' class='#{opts[:class]}'/>"
           else
-            fld = "<input id='#{opts[:id]}' name='node[#{name}]' type='text' value='#{value}' />"
+            fld = "<input id='#{opts[:id]}' name='node[#{name}]' type='text' value='#{value}' class='#{opts[:class]}'/>"
           end
       		<<-EOL
       <span class="date_box"><img src="/calendar/iconCalendar.gif" id="#{opts[:button]}" alt='#{_('date selection')}'/>

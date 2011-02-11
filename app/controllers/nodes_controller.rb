@@ -210,7 +210,9 @@ class NodesController < ApplicationController
     respond_to do |format|
       if @node.errors.empty?
         flash[:notice] = 'Node was successfully created.'
-        format.html { redirect_to zen_path(@node) }
+        format.html {
+          redirect_to  params[:redir] || zen_path(@node, :mode => params[:mode])
+        }
         format.js
         format.xml  { render :xml => @node.to_xml(:root => 'node'), :status => :created, :location => node_url(@node) }
       else
@@ -350,8 +352,7 @@ class NodesController < ApplicationController
             if params[:edit] == 'popup'
               redirect_to edit_node_version_path(:node_id => @node[:zip], :id => 0, :close => (params[:validate] ? true : nil))
             else
-              # FIXME: use a redir param......
-              redirect_to zen_path(@node, :mode => params[:mode])
+              redirect_to params[:redir] || zen_path(@node, :mode => params[:mode])
             end
           else
             begin

@@ -122,7 +122,7 @@ input_date:
   context:
     node: opening
   src: "<r:Post?><r:input type='date' name='date'/></r:Post?>"
-  tem: '/date_box\(@node, "date", :size=>15, :value => @node.prop\[.date.\]\)/'
+  tem: '/date_box\(@node, "date", :value => @node.prop\[.date.\], :size => 15\)/'
   res: "/value='2011-01-16 01:00'/"
 
 test_date:

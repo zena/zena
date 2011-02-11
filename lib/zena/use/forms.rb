@@ -448,9 +448,13 @@ module Zena
           when 'date_box', 'date'
             return parser_error("date_box without name") unless attribute
             code = ::RubyLess.translate(self, "this.#{attribute}")
-            input_id = @context[:dom_prefix] ? ", :id=>\"#{dom_id}_#{attribute}\"" : ''
             value = @context[:in_add] ? "''" : code
-            "<%= date_box(#{node}, #{attribute.inspect}, :size=>15, :value => #{value}#{input_id}) %>"
+            html_params = [':size => 15']
+            [:style, :class, :onclick, :size].each do |key|
+              html_params << ":#{key} => #{@params[key].inspect}" if @params[key]
+            end
+            html_params << ":id=>\"#{dom_id}_#{attribute}\"" if @context[:dom_prefix]
+            "<%= date_box(#{node}, #{attribute.inspect}, :value => #{value}, #{html_params.join(', ')}) %>"
           when 'id'
             return parser_error("select id without name") unless attribute
             name = "#{attribute}_id" unless attribute[-3..-1] == '_id'

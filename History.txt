@@ -1,3 +1,9 @@
+== 1.0.0.rc1 2011-02-11
+
+* major changes
+ * Changed 'date' for 'main_date'
+ * Added 'redir' option on node update/create (also added 'mode')
+
 == 1.0.0.beta5
 
 * major changes

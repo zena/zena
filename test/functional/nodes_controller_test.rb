@@ -230,6 +230,17 @@ class NodesControllerTest < Zena::Controller::TestCase
         end # in redit time
       end # that she owns
 
+      context 'with a redir param' do
+        subject do
+          {:action => 'update', :controller => 'nodes', :id => nodes_zip(:people), :node => {:title => 'friends'}, :redir => '/foo/bar/baz'}
+        end
+
+        should 'redirect to "redir" param' do
+          put_subject
+          assert_redirected_to '/foo/bar/baz'
+        end
+      end # with a redir param
+
       context 'by changing skin' do
         subject do
           {:action => 'update', :controller => 'nodes', :id => nodes_zip(:people), :node => {:skin_zip => nodes_zip(:wikiSkin), :inherit => 0}}
@@ -335,6 +346,28 @@ class NodesControllerTest < Zena::Controller::TestCase
           zip = assigns(:node).zip
           assert_match %r{<id[^>]*>#{zip}</id>}, @response.body
         end
+
+        context 'with a redir param' do
+          subject do
+            {:action => 'create', :controller => 'nodes', :node => {:parent_id => nodes_zip(:zena), :title => 'hello'}, :redir => '/foo/bar/baz'}
+          end
+
+          should 'redirect to "redir" param' do
+            post_subject
+            assert_redirected_to '/foo/bar/baz'
+          end
+        end # with a redir param
+
+        context 'with a mode param' do
+          subject do
+            {:action => 'create', :controller => 'nodes', :node => {:parent_id => nodes_zip(:zena), :title => 'hello'}, :mode => 'info'}
+          end
+
+          should 'redirect to node with mode' do
+            post_subject
+            assert_redirected_to "/oo/page#{assigns(:node).zip}_info.html"
+          end
+        end # with a redir param
       end # creating a node
 
       context 'deleting a node' do
