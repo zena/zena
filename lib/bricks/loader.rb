@@ -21,13 +21,18 @@ module Bricks
         !File.exist?(f)
       end
     end
-
+    
+    # Find all paths matching 'sub_path' in the active bricks.
+    def paths_for(sub_path)
+      bricks.map {|f| Dir["#{f}/#{sub_path}"] }.flatten
+    end
+    
     def models_paths
-      bricks.map {|f| Dir["#{f}/models"] }.flatten
+      paths_for('models')
     end
 
     def init_paths
-      bricks.map {|f| Dir["#{f}/zena/init.rb"] }.flatten
+      paths_for('zena/init.rb')
     end
 
     def migrations_for(brick)
@@ -39,15 +44,13 @@ module Bricks
     end
 
     def zafu_tests
-      ["#{Zena::ROOT}/bricks/*/zena/test/zafu", "#{RAILS_ROOT}/bricks/*/zena/test/zafu"]
+      paths_for('zena/test/zafu')
     end
 
     def test_files
-      [
-        'bricks/*/zena/test/unit/*_test.rb',
-        'bricks/*/zena/test/functional/*_test.rb',
-        'bricks/*/zena/test/integration/*_test.rb',
-      ]
+      paths_for('zena/test/unit/*_test.rb') +
+      paths_for('zena/test/functional/*_test.rb') +
+      paths_for('zena/test/integration/*_test.rb')
      end
 
     # FIXME: remove

@@ -19,7 +19,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         asset_port = Bricks.raw_config['asset_port']
         if asset_port == self[:mongrel_port].to_i - 1
           mongrel_port  = asset_port
-          mongrel_count = self[:mongrel_count] + 1
+          mongrel_count = self[:mongrel_count].to_i + 1
         elsif asset_port.nil?
           # no asset port: OK.
         else
