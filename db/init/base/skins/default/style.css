@@ -26,7 +26,9 @@ input { padding:3px 4px;}
 .summary p { margin:0; font-style:italic; font-family:Georgia,Times,serif;}
 #context { width:180px; float:left; border-right:1px solid grey;}
 #context a { color:#aaa; }
+#context .admin_links a { color:inherit; }
 #context a:hover { color:#04a; }
+#context .admin_links a:hover { color:inherit; }
 ol { padding-left:14px;}
 
 #content { margin-left: 200px; }

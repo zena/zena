@@ -264,9 +264,21 @@ class NodesControllerTest < Zena::Controller::TestCase
         end # with a bad value
 
       end # by changing skin
-
+      
     end # updating a node
+    
+    # ======================================= Template update
+    context 'updating a template' do
+      subject do
+        {:action => 'update', :controller => 'nodes', :id => nodes_zip(:Node_zafu), :node => {:mode => '+index'}}
+      end
 
+      should 'update template with new mode' do
+        put_subject
+        assert_equal '+index', assigns(:node).mode
+      end
+    end # updating a template
+    
     context 'using xml' do
       context 'without being in the api_group' do
         setup do

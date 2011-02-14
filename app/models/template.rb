@@ -29,7 +29,7 @@ class Template < TextDocument
         'skin_id'   => record[:section_id],
       }
     end
-    
+
     safe_property :tkpath, :mode, :target_klass, :format
   end
 
@@ -67,7 +67,7 @@ class Template < TextDocument
         if title =~ /^([A-Z][a-zA-Z]+?)(-(([a-zA-Z_\+]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/
           # title changed force  update
           prop['target_klass']  = $1            unless prop.target_klass_changed?
-          prop['mode']   = ($4 || '').url_name  unless prop.mode_changed?
+          prop['mode']   = ($4 || '')           unless prop.mode_changed?
           prop['format'] = ($6 || 'html')       unless prop.format_changed?
         else
           # title set but it is not a master template name
@@ -78,7 +78,7 @@ class Template < TextDocument
       end
 
       if version.edited?
-         prop['mode'] = prop['mode'].gsub(/[^a-zA-Z]/, '') if prop['mode']
+         prop['mode'] = prop['mode'].gsub(/[^a-zA-Z\+]/, '') if prop['mode']
 
         if !prop['target_klass'].blank?
           # update title

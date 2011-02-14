@@ -273,7 +273,7 @@ namespace :zena do
       paths['_app'] = "#{RAILS_ROOT}/db/migrate"
 
       bricks.each do |brick_name, path|
-        Zena::Migrator.migrate(paths[brick_name], brick_name, nil)
+        Zena::Migrator.migrate(paths[brick_name], brick_name == '_app' ? nil : brick_name, nil)
       end
       #ActiveRecord::Migrator.migrate("db/migrate/", nil)
     end

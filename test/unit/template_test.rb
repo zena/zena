@@ -134,7 +134,7 @@ class TemplateTest < Zena::Unit::TestCase
 
       context 'with a format' do
         subject do
-          secure(Template) { Template.create(:parent_id=>nodes_id(:default), :title => 'Node-tree', :format => 'xml') }
+          secure(Template) { Template.create(:parent_id => nodes_id(:default), :title => 'Node-tree', :format => 'xml') }
         end
 
         should 'use format in title' do
@@ -142,6 +142,30 @@ class TemplateTest < Zena::Unit::TestCase
           assert_equal 'Node-tree-xml', subject.title
         end
       end # with a blank title
+
+      context 'with a special mode' do
+        subject do
+          secure(Template) { Template.create(:parent_id => nodes_id(:default), :title => 'Node', :mode => '+edit') }
+        end
+
+        should 'use mode in title' do
+          assert !subject.new_record?
+          assert_equal 'Node-+edit', subject.title
+        end
+        
+        context 'in the title' do
+          subject do
+            secure(Template) { Template.create(:parent_id => nodes_id(:default), :title => 'Node-+index') }
+          end
+
+          should 'description' do
+            assert_difference('Template.count', 1) do
+              assert_equal '+index', subject.mode
+            end
+          end
+        end # in the title
+        
+      end # with a special mode
 
       context 'with class format and mode in title' do
         subject do

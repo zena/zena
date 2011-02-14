@@ -1,3 +1,11 @@
+== 1.0.0.rc2 2011-02-14
+
+* major changes
+ * Fixed Template bug with special '+' modes.
+ * Fixed migration bug (should use NULL as brick name for app).
+ * Fixed custom query loading bug (when brick is not activated).
+ * Fixed Mongrel bug (incompatibility with Rails 2.3.8).
+
 == 1.0.0.rc1 2011-02-11
 
 * major changes

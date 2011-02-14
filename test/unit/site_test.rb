@@ -31,6 +31,11 @@ class SiteTest < Zena::Unit::TestCase
 
       # should return a new project as root node
       assert_kind_of Project, subject.root_node
+
+      # should install base skin
+      index_zafu = secure(Node) { subject.root_node.find(:first, "template where title like 'Node%login' in site") }
+      assert_kind_of Template, index_zafu
+      assert_equal '+login', index_zafu.mode
     end
   end
 
