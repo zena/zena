@@ -1,3 +1,8 @@
+== 1.0.0.rc3
+
+* major changes
+ * Included tag in xml serialization (tag_names)
+
 == 1.0.0.rc2 2011-02-14
 
 * major changes

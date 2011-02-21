@@ -7,6 +7,11 @@ class XmlApiTest < Zena::Integration::TestCase
     include Zena::Integration::MockResource
     self.site         = 'http://test.host'
     self.element_name = 'node'
+    def initialize(*args)
+      super
+      hash = self.attributes
+      hash['tag_names'] = Zena::Remote::SerializableArray.new('tag_names', 'tag', hash['tag_names'] || [])
+    end
   end
 
   class BadTokenResource < ActiveResource::Base
@@ -61,7 +66,7 @@ class XmlApiTest < Zena::Integration::TestCase
 
         assert_equal [nodes_zip(:status)], result
       end
-      
+
       should 'find the list of nodes with qb' do
         subject # create index entry for art
         # create index entry for status
@@ -108,6 +113,7 @@ class XmlApiTest < Zena::Integration::TestCase
       end
 
       should 'save content to remote db' do
+        deb subject.attributes
         subject.attributes.merge!('title' => 'cloud')
         assert subject.save
         assert_equal 'cloud', nodes(:status).title

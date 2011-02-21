@@ -24,6 +24,18 @@ module Bricks
     end
 
     module InstanceMethods
+      def self.included(base)
+        # TODO: when we use to_xml instead of XmlSerializer, we can
+        # use 'tag_names' => SerializableArray.new('tag_names', 'tag', tag_names)
+        base.export_xml(Proc.new do |opts|
+          builder, rec = opts[:builder], opts[:record]
+          builder.tag!('tag_names', :type => :array) do
+            rec.tag_names.each do |tag|
+              builder.tag!('tag', tag, :type => :string)
+            end
+          end
+        end)
+      end
 
       def l_tag
         l_comment
@@ -77,6 +89,10 @@ module Bricks
         @tag_names ||= (tags || []).map {|t| t[:comment]}
       end
 
+      def tag_names=(tag_array)
+        @tag_names = tag_array
+      end
+
       # List of Links that are tags for the current node.
       def tags
         return @tags if defined?(@tags)
@@ -117,7 +133,6 @@ module Bricks
           @del_tags << link
         end
       end
-
 
       private
 

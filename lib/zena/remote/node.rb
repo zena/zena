@@ -10,10 +10,17 @@ module Zena
         self.attributes = hash
       end
 
+      def to_xml(*args)
+        deb args
+      end
+
       def attributes=(new_attributes)
         raise Exception.new("Invalid attributes. Expecting a hash, found #{new_attributes.inspect}") unless new_attributes.kind_of?(Hash)
         new_attributes.stringify_keys.each do |key, value|
-          if value.kind_of?(Array)
+          writer = "#{key}=".to_sym
+          if self.respond_to?(writer)
+            self.send(writer, value)
+          elsif value.kind_of?(Array)
             # setting multiple ids
             key = "#{key}_ids" unless key =~ /_ids$/
             @attributes[key] = value.map do |elem|
@@ -32,6 +39,10 @@ module Zena
             @attributes[key] = value
           end
         end
+      end
+
+      def tag_names=(list)
+        @attributes['tag_names'] = SerializableArray.new('tag_names', 'tag', list)
       end
 
       def id

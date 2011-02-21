@@ -1,6 +1,7 @@
 require 'active_support'
 require 'zena/remote/interface'
 require 'zena/remote/klass'
+require 'zena/remote/serializable_array'
 require 'zena/remote/node'
 require 'zena/remote/connection'
 

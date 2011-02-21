@@ -12,7 +12,6 @@ module Zena
         end
 
         protected
-
           def raw_value
             @raw_value ||= @record.prop[name]
           end
@@ -76,6 +75,17 @@ module Zena
       end
 
       module ModelMethods
+        def self.included(base)
+          class << base
+            cattr_accessor :export_procs
+
+            def export_xml(proc)
+              self.export_procs << proc
+            end
+          end
+          base.export_procs = []
+        end
+
         def to_xml(options = {}, &block)
           options = default_serialization_options.merge(options)
           serializer = XmlNodeSerializer.new(self, options)
@@ -85,6 +95,8 @@ module Zena
         def default_serialization_options
           { :only       => %w{created_at updated_at log_at event_at kpath ref_lang fullpath position},
             :methods    => %w{v_status klass},
+            :procs      => self.class.export_procs,
+            :record     => self, # needed by procs
             :properties => export_properties,
             :ids        => export_ids,
             :dasherize  => false,

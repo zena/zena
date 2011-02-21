@@ -100,4 +100,19 @@ class TagsTest < Zena::Unit::TestCase
     assert_equal 'big, brown, socks', node.tag_list
   end
 
+  context 'A node with tags' do
+    setup do
+      login(:tiger)
+    end
+
+    subject do
+      secure(Node) { nodes(:status) }
+    end
+
+    should 'serialize tag values in xml' do
+      assert_equal %w{blue sky}, Hash.from_xml(subject.to_xml)['node']['tag_names']
+    end
+  end # A node with tags
+
+
 end
