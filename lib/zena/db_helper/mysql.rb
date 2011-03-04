@@ -37,7 +37,7 @@ module Zena
         end
 
         def table_options
-          'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci'
+          'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci'
         end
 
         def update_value(name, opts)
@@ -131,17 +131,18 @@ module Zena
           end
         end # date_condition
 
-        def prepare_connection_for_timezone
+        def prepare_connection
           # Fixes timezone to "+0:0"
-          raise "prepare_connection_for_timezone executed too late, connection already active." if Class.new(ActiveRecord::Base).connected?
+          raise "prepare_connection executed too late, connection already active." if Class.new(ActiveRecord::Base).connected?
 
           ActiveRecord::ConnectionAdapters::MysqlAdapter.class_eval do
-            def configure_connection_with_timezone
-              configure_connection_without_timezone
+            def configure_connection_with_zena
+              configure_connection_without_zena
               tz = ActiveRecord::Base.default_timezone == :utc ? "+0:0" : "SYSTEM"
               execute("SET time_zone = '#{tz}'")
+              execute("SET collation_connection = 'utf8_unicode_ci'")
             end
-            alias_method_chain :configure_connection, :timezone
+            alias_method_chain :configure_connection, :zena
           end
         end
       end # class << self

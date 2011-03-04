@@ -2,9 +2,17 @@
 # to Zerox1Schema.
 class Zerox1Data < ActiveRecord::Migration
   def self.up
-    if $Zerox1SchemaRunning
-      raise "Restart migration: Zerox1Schema and Zerox1Data should not be run in a single go."
+    if connection.tables.include?('contact_contents')
+      # Need to migrate data
+      if $Zerox1SchemaRunning
+        raise "=> Please restart migration: a restart is needed before running Zerox1Data."
+      end
+    else
+      # Nothing to be done here
+      puts "=>  No legacy data to migrate."
+      return
     end
+    puts "Plop!"
     # ============================================ contact_contents
     # migrate content to properties
 

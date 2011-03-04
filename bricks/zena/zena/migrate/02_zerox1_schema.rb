@@ -1,9 +1,19 @@
-# This migration should be run in the 0.x branch.
+# This migration should be run in the 0.x branch with:
+# 1. all brickes turned to OFF (important)
+# 2. YOU *MUST* alter schema migrations before running this
 # DelayedJobs migration not taken into account here.
 class Zerox1Schema < ActiveRecord::Migration
   def self.up
     $Zerox1SchemaRunning = true
-    table_options = 'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci'
+
+    if connection.tables.include?('idx_templates')
+      # New app based on 1.0: do nothing
+      puts "=>  Detected 1.0+ schema: not running Zerox1Schema."
+      return
+    end
+
+    table_options = Zena::Db.table_options
+
     # ============================================ access_hits
     # removed in cleanup migration
 
@@ -18,20 +28,20 @@ class Zerox1Schema < ActiveRecord::Migration
     end
 
     # ============================================ cached_pages
-    execute "ALTER TABLE cached_pages COLLATE utf8_unicode_ci;"
-    execute "ALTER TABLE cached_pages MODIFY path TEXT COLLATE utf8_unicode_ci;"
+    execute "ALTER TABLE cached_pages COLLATE utf8_unicode_ci"
+    execute "ALTER TABLE cached_pages MODIFY path TEXT COLLATE utf8_unicode_ci"
     add_index "cached_pages", ["node_id"], :name => "index_cached_pages_on_node_id"
 
     # ============================================ cached_pages_nodes
-    execute "ALTER TABLE cached_pages_nodes COLLATE utf8_unicode_ci;"
+    execute "ALTER TABLE cached_pages_nodes COLLATE utf8_unicode_ci"
     add_index "cached_pages_nodes", ["node_id"], :name => "index_cached_pages_nodes_on_node_id"
     add_index "cached_pages_nodes", ["cached_page_id"], :name => "index_cached_pages_nodes_on_cached_page_id"
 
     # ============================================ caches
-    execute "ALTER TABLE caches COLLATE utf8_unicode_ci;"
-    execute "ALTER TABLE caches MODIFY visitor_groups VARCHAR(200) COLLATE utf8_unicode_ci DEFAULT NULL;"
-    execute "ALTER TABLE caches MODIFY kpath VARCHAR(200) COLLATE utf8_unicode_ci DEFAULT NULL;"
-    execute "ALTER TABLE caches MODIFY content TEXT COLLATE utf8_unicode_ci;"
+    execute "ALTER TABLE caches COLLATE utf8_unicode_ci"
+    execute "ALTER TABLE caches MODIFY visitor_groups VARCHAR(200) COLLATE utf8_unicode_ci DEFAULT NULL"
+    execute "ALTER TABLE caches MODIFY kpath VARCHAR(200) COLLATE utf8_unicode_ci DEFAULT NULL"
+    execute "ALTER TABLE caches MODIFY content TEXT COLLATE utf8_unicode_ci"
 
     # ============================================ comments
     create_table "columns", :options => table_options, :force => true do |t|
@@ -48,11 +58,11 @@ class Zerox1Schema < ActiveRecord::Migration
     add_index "columns", ["name"], :name => "index_columns_on_name"
 
     # ============================================ comments
-    execute "ALTER TABLE comments COLLATE utf8_unicode_ci;"
-    execute "ALTER TABLE comments MODIFY title VARCHAR(250) COLLATE utf8_unicode_ci NOT NULL DEFAULT '';"
-    execute "ALTER TABLE comments MODIFY `text` TEXT COLLATE utf8_unicode_ci NOT NULL;"
-    execute "ALTER TABLE comments MODIFY author_name VARCHAR(300) COLLATE utf8_unicode_ci DEFAULT NULL;"
-    execute "ALTER TABLE comments MODIFY ip VARCHAR(200) COLLATE utf8_unicode_ci DEFAULT NULL;"
+    execute "ALTER TABLE comments COLLATE utf8_unicode_ci"
+    execute "ALTER TABLE comments MODIFY title VARCHAR(250) COLLATE utf8_unicode_ci NOT NULL DEFAULT ''"
+    execute "ALTER TABLE comments MODIFY `text` TEXT COLLATE utf8_unicode_ci NOT NULL"
+    execute "ALTER TABLE comments MODIFY author_name VARCHAR(300) COLLATE utf8_unicode_ci DEFAULT NULL"
+    execute "ALTER TABLE comments MODIFY ip VARCHAR(200) COLLATE utf8_unicode_ci DEFAULT NULL"
 
     add_index "comments", ["discussion_id"], :name => "index_comments_on_discussion_id"
     add_index "comments", ["reply_to"], :name => "index_comments_on_reply_to"
@@ -62,8 +72,8 @@ class Zerox1Schema < ActiveRecord::Migration
     # content migrated in zero99_to_one
 
     # ============================================ data_entries
-    execute "ALTER TABLE data_entries COLLATE utf8_unicode_ci;"
-    execute "ALTER TABLE data_entries MODIFY `text` TEXT COLLATE utf8_unicode_ci;"
+    execute "ALTER TABLE data_entries COLLATE utf8_unicode_ci"
+    execute "ALTER TABLE data_entries MODIFY `text` TEXT COLLATE utf8_unicode_ci"
 
     add_index "data_entries", ["node_a_id"], :name => "index_data_entries_on_node_a_id"
     add_index "data_entries", ["node_b_id"], :name => "index_data_entries_on_node_b_id"
@@ -74,8 +84,8 @@ class Zerox1Schema < ActiveRecord::Migration
     # ignore
 
     # ============================================ discussions
-    execute "ALTER TABLE discussions COLLATE utf8_unicode_ci;"
-    execute "ALTER TABLE discussions MODIFY `lang` VARCHAR(10) COLLATE utf8_unicode_ci NOT NULL DEFAULT '';"
+    execute "ALTER TABLE discussions COLLATE utf8_unicode_ci"
+    execute "ALTER TABLE discussions MODIFY `lang` VARCHAR(10) COLLATE utf8_unicode_ci NOT NULL DEFAULT ''"
 
     add_index "discussions", ["node_id"], :name => "index_discussions_on_node_id"
 
@@ -89,11 +99,13 @@ class Zerox1Schema < ActiveRecord::Migration
     # removed in cleanup migration
 
     # ============================================ groups
-    execute "ALTER TABLE groups COLLATE utf8_unicode_ci;"
-    execute "ALTER TABLE groups MODIFY `name` VARCHAR(20) COLLATE utf8_unicode_ci NOT NULL DEFAULT '';"
+    execute "ALTER TABLE groups COLLATE utf8_unicode_ci"
+    execute "ALTER TABLE groups MODIFY `name` VARCHAR(20) COLLATE utf8_unicode_ci NOT NULL DEFAULT ''"
 
     # ============================================ groups_users
-    execute "ALTER TABLE groups_users COLLATE utf8_unicode_ci;"
+    execute "ALTER TABLE groups_users COLLATE utf8_unicode_ci"
+    execute "ALTER TABLE groups_users MODIFY `group_id` INT(11) NOT NULL"
+    execute "ALTER TABLE groups_users MODIFY `user_id` INT(11) NOT NULL"
 
     add_index "groups_users", ["group_id"], :name => "index_groups_users_on_group_id"
     add_index "groups_users", ["user_id"], :name => "index_groups_users_on_user_id"
@@ -191,13 +203,13 @@ class Zerox1Schema < ActiveRecord::Migration
     # content migrated in zero99_to_one
 
     # ============================================ iformats
-    execute "ALTER TABLE iformats COLLATE utf8_unicode_ci;"
-    execute "ALTER TABLE iformats MODIFY `name`  VARCHAR(40) COLLATE utf8_unicode_ci DEFAULT NULL;"
-    execute "ALTER TABLE iformats MODIFY `popup` VARCHAR(120) COLLATE utf8_unicode_ci DEFAULT NULL;"
+    execute "ALTER TABLE iformats COLLATE utf8_unicode_ci"
+    execute "ALTER TABLE iformats MODIFY `name`  VARCHAR(40) COLLATE utf8_unicode_ci DEFAULT NULL"
+    execute "ALTER TABLE iformats MODIFY `popup` VARCHAR(120) COLLATE utf8_unicode_ci DEFAULT NULL"
 
     # ============================================ links
-    execute "ALTER TABLE links COLLATE utf8_unicode_ci;"
-    execute "ALTER TABLE links MODIFY `comment` VARCHAR(60) COLLATE utf8_unicode_ci DEFAULT NULL;"
+    execute "ALTER TABLE links COLLATE utf8_unicode_ci"
+    execute "ALTER TABLE links MODIFY `comment` VARCHAR(60) COLLATE utf8_unicode_ci DEFAULT NULL"
 
     add_index "links", ["source_id"], :name => "index_links_on_source_id"
     add_index "links", ["target_id"], :name => "index_links_on_target_id"
@@ -207,17 +219,17 @@ class Zerox1Schema < ActiveRecord::Migration
 
 
     # ============================================ nodes
-    execute "ALTER TABLE nodes COLLATE utf8_unicode_ci;"
-    execute "ALTER TABLE nodes MODIFY `type` VARCHAR(32) COLLATE utf8_unicode_ci DEFAULT NULL;"
-    execute "ALTER TABLE nodes MODIFY `kpath` VARCHAR(16) COLLATE utf8_unicode_ci DEFAULT NULL;"
-    execute "ALTER TABLE nodes MODIFY `user_id` INT(11) NOT NULL;"
-    execute "ALTER TABLE nodes MODIFY `ref_lang` VARCHAR(10) COLLATE utf8_unicode_ci NOT NULL DEFAULT '';"
-    execute "ALTER TABLE nodes MODIFY `vhash` TEXT COLLATE utf8_unicode_ci;"
-    execute "ALTER TABLE nodes MODIFY `fullpath` TEXT COLLATE utf8_unicode_ci;"
-    execute "ALTER TABLE nodes MODIFY `basepath` TEXT COLLATE utf8_unicode_ci;"
+    execute "ALTER TABLE nodes COLLATE utf8_unicode_ci"
+    execute "ALTER TABLE nodes MODIFY `type` VARCHAR(32) COLLATE utf8_unicode_ci DEFAULT NULL"
+    execute "ALTER TABLE nodes MODIFY `kpath` VARCHAR(16) COLLATE utf8_unicode_ci DEFAULT NULL"
+    execute "ALTER TABLE nodes MODIFY `user_id` INT(11) NOT NULL"
+    execute "ALTER TABLE nodes MODIFY `ref_lang` VARCHAR(10) COLLATE utf8_unicode_ci NOT NULL DEFAULT ''"
+    execute "ALTER TABLE nodes MODIFY `vhash` TEXT COLLATE utf8_unicode_ci"
+    execute "ALTER TABLE nodes MODIFY `fullpath` TEXT COLLATE utf8_unicode_ci"
+    execute "ALTER TABLE nodes MODIFY `basepath` TEXT COLLATE utf8_unicode_ci"
     # new
     add_column :nodes, 'skin_id', :integer
-    add_column :nodes, "_id",           , :string   , :limit => 40
+    add_column :nodes, "_id"            , :string   , :limit => 40
     add_column :nodes, "idx_datetime1"  , :datetime
     add_column :nodes, "idx_datetime2"  , :datetime
     add_column :nodes, "idx_float1"     , :float
@@ -256,14 +268,14 @@ class Zerox1Schema < ActiveRecord::Migration
     add_index "nodes_roles", ["role_id"], :name => "index_nodes_roles_on_role_id"
 
     # ============================================ relations
-    execute "ALTER TABLE relations COLLATE utf8_unicode_ci;"
-    execute "ALTER TABLE relations MODIFY `source_role` VARCHAR(32) COLLATE utf8_unicode_ci DEFAULT NULL;"
-    execute "ALTER TABLE relations MODIFY `source_kpath` VARCHAR(16) COLLATE utf8_unicode_ci DEFAULT NULL;"
-    execute "ALTER TABLE relations MODIFY `source_icon` VARCHAR(200) COLLATE utf8_unicode_ci DEFAULT NULL;"
+    execute "ALTER TABLE relations COLLATE utf8_unicode_ci"
+    execute "ALTER TABLE relations MODIFY `source_role` VARCHAR(32) COLLATE utf8_unicode_ci DEFAULT NULL"
+    execute "ALTER TABLE relations MODIFY `source_kpath` VARCHAR(16) COLLATE utf8_unicode_ci DEFAULT NULL"
+    execute "ALTER TABLE relations MODIFY `source_icon` VARCHAR(200) COLLATE utf8_unicode_ci DEFAULT NULL"
 
-    execute "ALTER TABLE relations MODIFY `target_role` VARCHAR(32) COLLATE utf8_unicode_ci DEFAULT NULL;"
-    execute "ALTER TABLE relations MODIFY `target_kpath` VARCHAR(16) COLLATE utf8_unicode_ci DEFAULT NULL;"
-    execute "ALTER TABLE relations MODIFY `target_icon` VARCHAR(200) COLLATE utf8_unicode_ci DEFAULT NULL;"
+    execute "ALTER TABLE relations MODIFY `target_role` VARCHAR(32) COLLATE utf8_unicode_ci DEFAULT NULL"
+    execute "ALTER TABLE relations MODIFY `target_kpath` VARCHAR(16) COLLATE utf8_unicode_ci DEFAULT NULL"
+    execute "ALTER TABLE relations MODIFY `target_icon` VARCHAR(200) COLLATE utf8_unicode_ci DEFAULT NULL"
 
     add_column :relations, :rel_group, :string
 
@@ -272,12 +284,12 @@ class Zerox1Schema < ActiveRecord::Migration
     add_index "relations", ["site_id"], :name => "index_relations_on_site_id"
 
     # ============================================ roles (virtual_classes)
-    execute "RENAME TABLE virtual_classes TO roles;"
-    execute "ALTER TABLE roles COLLATE utf8_unicode_ci;"
-    execute "ALTER TABLE roles MODIFY `name` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL;"
-    execute "ALTER TABLE roles MODIFY `kpath` VARCHAR(16) COLLATE utf8_unicode_ci DEFAULT NULL;"
-    execute "ALTER TABLE roles MODIFY `real_class` VARCHAR(16) COLLATE utf8_unicode_ci DEFAULT NULL;"
-    execute "ALTER TABLE roles MODIFY `icon` VARCHAR(200) COLLATE utf8_unicode_ci DEFAULT NULL;"
+    execute "RENAME TABLE virtual_classes TO roles"
+    execute "ALTER TABLE roles COLLATE utf8_unicode_ci"
+    execute "ALTER TABLE roles MODIFY `name` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL"
+    execute "ALTER TABLE roles MODIFY `kpath` VARCHAR(16) COLLATE utf8_unicode_ci DEFAULT NULL"
+    execute "ALTER TABLE roles MODIFY `real_class` VARCHAR(16) COLLATE utf8_unicode_ci DEFAULT NULL"
+    execute "ALTER TABLE roles MODIFY `icon` VARCHAR(200) COLLATE utf8_unicode_ci DEFAULT NULL"
     # new
     add_column :roles, :type, :string
     add_column :roles, :created_at, :datetime
@@ -291,22 +303,22 @@ class Zerox1Schema < ActiveRecord::Migration
     add_index "roles", ["site_id"], :name => "index_roles_on_site_id"
 
     # ============================================ schema_migrations
-    execute "ALTER TABLE schema_migrations COLLATE utf8_unicode_ci;"
-    execute "ALTER TABLE schema_migrations MODIFY `version` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL;"
-    execute "ALTER TABLE schema_migrations MODIFY `brick` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL;"
+    execute "ALTER TABLE schema_migrations COLLATE utf8_unicode_ci"
+    execute "ALTER TABLE schema_migrations MODIFY `version` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL"
+    execute "ALTER TABLE schema_migrations MODIFY `brick` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL"
 
     # ============================================ sessions
-    execute "ALTER TABLE sessions COLLATE utf8_unicode_ci;"
-    execute "ALTER TABLE sessions MODIFY `session_id` VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL;"
-    execute "ALTER TABLE sessions MODIFY `data` TEXT COLLATE utf8_unicode_ci NOT NULL;"
+    execute "ALTER TABLE sessions COLLATE utf8_unicode_ci"
+    execute "ALTER TABLE sessions MODIFY `session_id` VARCHAR(255) COLLATE utf8_unicode_ci NOT NULL"
+    execute "ALTER TABLE sessions MODIFY `data` TEXT COLLATE utf8_unicode_ci NOT NULL"
 
     # ============================================ sites
-    execute "ALTER TABLE sites COLLATE utf8_unicode_ci;"
-    execute "ALTER TABLE sites MODIFY `host` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL;"
-    execute "ALTER TABLE sites MODIFY `host` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL;"
-    execute "ALTER TABLE sites MODIFY `name` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL;"
-    execute "ALTER TABLE sites MODIFY `languages` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL;"
-    execute "ALTER TABLE sites MODIFY `default_lang` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL;"
+    execute "ALTER TABLE sites COLLATE utf8_unicode_ci"
+    execute "ALTER TABLE sites MODIFY `host` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL"
+    execute "ALTER TABLE sites MODIFY `host` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL"
+    execute "ALTER TABLE sites MODIFY `name` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL"
+    execute "ALTER TABLE sites MODIFY `languages` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL"
+    execute "ALTER TABLE sites MODIFY `default_lang` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL"
 
     remove_column :sites, :su_id
     add_column :sites, :properties,       :text
@@ -323,51 +335,52 @@ class Zerox1Schema < ActiveRecord::Migration
     end
 
     # ============================================ users
-    execute "ALTER TABLE users COLLATE utf8_unicode_ci;"
-    execute "ALTER TABLE users MODIFY `login` VARCHAR(20) COLLATE utf8_unicode_ci DEFAULT NULL;"
-    execute "ALTER TABLE users MODIFY `crypted_password` VARCHAR(40) COLLATE utf8_unicode_ci DEFAULT NULL;"
-    execute "ALTER TABLE users MODIFY `time_zone` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL;"
-    execute "ALTER TABLE users MODIFY `lang` VARCHAR(10) COLLATE utf8_unicode_ci NOT NULL DEFAULT '';"
-    execute "ALTER TABLE users MODIFY `password_salt` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL;"
-    execute "ALTER TABLE users MODIFY `persistence_token` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL;"
-    execute "ALTER TABLE users MODIFY `single_access_token` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL;"
+    execute "ALTER TABLE users COLLATE utf8_unicode_ci"
+    execute "ALTER TABLE users MODIFY `login` VARCHAR(20) COLLATE utf8_unicode_ci DEFAULT NULL"
+    execute "ALTER TABLE users MODIFY `crypted_password` VARCHAR(40) COLLATE utf8_unicode_ci DEFAULT NULL"
+    execute "ALTER TABLE users MODIFY `time_zone` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL"
+    execute "ALTER TABLE users MODIFY `lang` VARCHAR(10) COLLATE utf8_unicode_ci NOT NULL DEFAULT ''"
+    execute "ALTER TABLE users MODIFY `password_salt` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL"
+    execute "ALTER TABLE users MODIFY `persistence_token` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL"
+    execute "ALTER TABLE users MODIFY `single_access_token` VARCHAR(255) COLLATE utf8_unicode_ci DEFAULT NULL"
 
     rename_column :users, :contact_id, :node_id
 
     add_column :users, :properties, :text
 
     # ============================================ versions
-    execute "ALTER TABLE versions COLLATE utf8_unicode_ci;"
-    execute "ALTER TABLE versions MODIFY `type` VARCHAR(32) COLLATE utf8_unicode_ci DEFAULT NULL;"
-    execute "ALTER TABLE versions MODIFY `node_id` INT(11) NOT NULL;"
-    execute "ALTER TABLE versions MODIFY `user_id` INT(11) NOT NULL;"
-    execute "ALTER TABLE versions MODIFY `lang` VARCHAR(10) COLLATE utf8_unicode_ci NOT NULL DEFAULT '';"
+    execute "DROP INDEX index_versions_on_title_and_text_and_summary ON versions" rescue nil
+    execute "ALTER TABLE versions ENGINE=InnoDB COLLATE utf8_unicode_ci"
+    execute "ALTER TABLE versions MODIFY `type` VARCHAR(32) COLLATE utf8_unicode_ci DEFAULT NULL"
+    execute "ALTER TABLE versions MODIFY `node_id` INT(11) NOT NULL"
+    execute "ALTER TABLE versions MODIFY `user_id` INT(11) NOT NULL"
+    execute "ALTER TABLE versions MODIFY `lang` VARCHAR(10) COLLATE utf8_unicode_ci NOT NULL DEFAULT ''"
 
 
     remove_index :versions, :column => [:title, :text, :summary]
 
-    execute "ALTER TABLE versions MODIFY `comment` TEXT COLLATE utf8_unicode_ci;"
+    execute "ALTER TABLE versions MODIFY `comment` TEXT COLLATE utf8_unicode_ci"
 
     rename_column :versions, :title, :idx_text_high
-    execute "ALTER TABLE versions MODIFY `idx_text_high` TEXT COLLATE utf8_unicode_ci;"
+    execute "ALTER TABLE versions MODIFY `idx_text_high` TEXT COLLATE utf8_unicode_ci"
 
     rename_column :versions, :summary, :idx_text_medium
-    execute "ALTER TABLE versions MODIFY `idx_text_medium` TEXT COLLATE utf8_unicode_ci;"
+    execute "ALTER TABLE versions MODIFY `idx_text_medium` TEXT COLLATE utf8_unicode_ci"
 
     rename_column :versions, :text, :idx_text_low
-    execute "ALTER TABLE versions MODIFY `idx_text_low` TEXT COLLATE utf8_unicode_ci;"
+    execute "ALTER TABLE versions MODIFY `idx_text_low` TEXT COLLATE utf8_unicode_ci"
 
-    execute "ALTER TABLE versions MODIFY `status` INT(11) NOT NULL;"
+    execute "ALTER TABLE versions MODIFY `status` INT(11) NOT NULL"
 
     # LONGTEXT
-    add_column :versions, :properties, :limit => 2147483647
+    add_column :versions, :properties,    :text, :limit => 2147483647
     add_column :versions, :attachment_id, :integer
 
     add_index "versions", ["node_id"], :name => "index_versions_on_node_id"
     add_index "versions", ["user_id"], :name => "index_versions_on_user_id"
 
     # ============================================ zips
-    execute "ALTER TABLE zips COLLATE utf8_unicode_ci;"
+    execute "ALTER TABLE zips COLLATE utf8_unicode_ci"
 
     add_index "zips", ["site_id"], :name => "index_zips_on_site_id"
   end

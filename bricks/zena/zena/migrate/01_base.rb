@@ -1,6 +1,13 @@
 class Base < ActiveRecord::Migration
   def self.up
-    create_table "attachments", :force => true do |t|
+    if connection.tables.include?('nodes')
+      # Legacy: do nothing
+      puts "=>  Detected existing 'nodes' table: not running base migration."
+      return
+    end
+    table_options = Zena::Db.table_options
+
+    create_table "attachments", :options => table_options, :force => true do |t|
       t.string   "filename"
       t.integer  "site_id"
       t.integer  "user_id"
@@ -8,7 +15,7 @@ class Base < ActiveRecord::Migration
       t.datetime "updated_at"
     end
 
-    create_table "cached_pages", :force => true do |t|
+    create_table "cached_pages", :options => table_options, :force => true do |t|
       t.text     "path"
       t.datetime "expire_after"
       t.datetime "created_at"
@@ -18,7 +25,7 @@ class Base < ActiveRecord::Migration
 
     add_index "cached_pages", ["node_id"], :name => "index_cached_pages_on_node_id"
 
-    create_table "cached_pages_nodes", :id => false, :force => true do |t|
+    create_table "cached_pages_nodes", :id => false, :options => table_options, :force => true do |t|
       t.integer "cached_page_id"
       t.integer "node_id"
     end
@@ -26,7 +33,7 @@ class Base < ActiveRecord::Migration
     add_index "cached_pages_nodes", ["node_id"], :name => "index_cached_pages_nodes_on_node_id"
     add_index "cached_pages_nodes", ["cached_page_id"], :name => "index_cached_pages_nodes_on_cached_page_id"
 
-    create_table "caches", :force => true do |t|
+    create_table "caches", :options => table_options, :force => true do |t|
       t.datetime "updated_at"
       t.integer  "visitor_id"
       t.string   "visitor_groups", :limit => 200
@@ -36,7 +43,7 @@ class Base < ActiveRecord::Migration
       t.integer  "context"
     end
 
-    create_table "columns", :force => true do |t|
+    create_table "columns", :options => table_options, :force => true do |t|
       t.integer  "role_id"
       t.string   "name"
       t.string   "ptype"
@@ -49,7 +56,7 @@ class Base < ActiveRecord::Migration
     add_index "columns", ["role_id"], :name => "index_columns_on_role_id"
     add_index "columns", ["name"], :name => "index_columns_on_name"
 
-    create_table "comments", :force => true do |t|
+    create_table "comments", :options => table_options, :force => true do |t|
       t.datetime "created_at"
       t.datetime "updated_at"
       t.integer  "status",                       :default => 70, :null => false
@@ -67,24 +74,7 @@ class Base < ActiveRecord::Migration
     add_index "comments", ["reply_to"], :name => "index_comments_on_reply_to"
     add_index "comments", ["user_id"], :name => "index_comments_on_user_id"
 
-    create_table "contact_contents", :force => true do |t|
-      t.datetime "created_at"
-      t.datetime "updated_at"
-      t.integer  "version_id"
-      t.string   "first_name", :limit => 60,  :default => "", :null => false
-      t.string   "name",       :limit => 60,  :default => "", :null => false
-      t.text     "address"
-      t.string   "zip",        :limit => 20,  :default => "", :null => false
-      t.string   "city",       :limit => 60,  :default => "", :null => false
-      t.string   "telephone",  :limit => 60,  :default => "", :null => false
-      t.string   "mobile",     :limit => 60,  :default => "", :null => false
-      t.string   "email",      :limit => 60,  :default => "", :null => false
-      t.date     "birthday"
-      t.integer  "site_id"
-      t.string   "country",    :limit => 100
-    end
-
-    create_table "data_entries", :force => true do |t|
+    create_table "data_entries", :options => table_options, :force => true do |t|
       t.integer  "site_id"
       t.datetime "created_at"
       t.datetime "updated_at"
@@ -104,7 +94,7 @@ class Base < ActiveRecord::Migration
     add_index "data_entries", ["node_c_id"], :name => "index_data_entries_on_node_c_id"
     add_index "data_entries", ["node_d_id"], :name => "index_data_entries_on_node_d_id"
 
-    create_table "discussions", :force => true do |t|
+    create_table "discussions", :options => table_options, :force => true do |t|
       t.datetime "created_at"
       t.datetime "updated_at"
       t.integer  "node_id"
@@ -116,27 +106,14 @@ class Base < ActiveRecord::Migration
 
     add_index "discussions", ["node_id"], :name => "index_discussions_on_node_id"
 
-    create_table "document_contents", :force => true do |t|
-      t.string  "type",         :limit => 32
-      t.integer "version_id"
-      t.string  "name",         :limit => 200, :default => "", :null => false
-      t.string  "content_type", :limit => 40
-      t.string  "ext",          :limit => 20
-      t.integer "size"
-      t.integer "width"
-      t.integer "height"
-      t.integer "site_id"
-      t.text    "exif_json"
-    end
-
-    create_table "groups", :force => true do |t|
+    create_table "groups", :options => table_options, :force => true do |t|
       t.datetime "created_at"
       t.datetime "updated_at"
       t.string   "name",       :limit => 20, :default => "", :null => false
       t.integer  "site_id"
     end
 
-    create_table "groups_users", :id => false, :force => true do |t|
+    create_table "groups_users", :id => false, :options => table_options, :force => true do |t|
       t.integer "group_id", :null => false
       t.integer "user_id",  :null => false
     end
@@ -144,7 +121,7 @@ class Base < ActiveRecord::Migration
     add_index "groups_users", ["group_id"], :name => "index_groups_users_on_group_id"
     add_index "groups_users", ["user_id"], :name => "index_groups_users_on_user_id"
 
-    create_table "idx_nodes_datetimes", :force => true do |t|
+    create_table "idx_nodes_datetimes", :options => table_options, :force => true do |t|
       t.integer  "node_id", :null => false
       t.string   "key"
       t.datetime "value"
@@ -154,7 +131,7 @@ class Base < ActiveRecord::Migration
     add_index "idx_nodes_datetimes", ["value"], :name => "index_idx_nodes_datetimes_on_value"
     add_index "idx_nodes_datetimes", ["node_id"], :name => "index_idx_nodes_datetimes_on_node_id"
 
-    create_table "idx_nodes_floats", :force => true do |t|
+    create_table "idx_nodes_floats", :options => table_options, :force => true do |t|
       t.integer "node_id", :null => false
       t.string  "key"
       t.float   "value"
@@ -164,7 +141,7 @@ class Base < ActiveRecord::Migration
     add_index "idx_nodes_floats", ["value"], :name => "index_idx_nodes_floats_on_value"
     add_index "idx_nodes_floats", ["node_id"], :name => "index_idx_nodes_floats_on_node_id"
 
-    create_table "idx_nodes_integers", :force => true do |t|
+    create_table "idx_nodes_integers", :options => table_options, :force => true do |t|
       t.integer "node_id", :null => false
       t.string  "key"
       t.integer "value"
@@ -174,7 +151,7 @@ class Base < ActiveRecord::Migration
     add_index "idx_nodes_integers", ["value"], :name => "index_idx_nodes_integers_on_value"
     add_index "idx_nodes_integers", ["node_id"], :name => "index_idx_nodes_integers_on_node_id"
 
-    create_table "idx_nodes_ml_strings", :force => true do |t|
+    create_table "idx_nodes_ml_strings", :options => table_options, :force => true do |t|
       t.integer "node_id",               :null => false
       t.string  "key"
       t.string  "lang",    :limit => 10
@@ -185,7 +162,7 @@ class Base < ActiveRecord::Migration
     add_index "idx_nodes_ml_strings", ["value"], :name => "index_idx_nodes_ml_strings_on_value"
     add_index "idx_nodes_ml_strings", ["node_id"], :name => "index_idx_nodes_ml_strings_on_node_id"
 
-    create_table "idx_nodes_strings", :force => true do |t|
+    create_table "idx_nodes_strings", :options => table_options, :force => true do |t|
       t.integer "node_id", :null => false
       t.string  "key"
       t.string  "value"
@@ -195,7 +172,7 @@ class Base < ActiveRecord::Migration
     add_index "idx_nodes_strings", ["value"], :name => "index_idx_nodes_strings_on_value"
     add_index "idx_nodes_strings", ["node_id"], :name => "index_idx_nodes_strings_on_node_id"
 
-    create_table "idx_projects", :force => true do |t|
+    create_table "idx_projects", :options => table_options, :force => true do |t|
       t.integer  "site_id"
       t.integer  "node_id"
       t.integer  "blog_id"
@@ -211,7 +188,7 @@ class Base < ActiveRecord::Migration
       t.string   "tag_title"
     end
 
-    create_table "idx_templates", :force => true do |t|
+    create_table "idx_templates", :options => table_options, :force => true do |t|
       t.integer "site_id"
       t.integer "node_id"
       t.string  "format"
@@ -228,7 +205,7 @@ class Base < ActiveRecord::Migration
     add_index "idx_templates", ["node_id"], :name => "index_idx_templates_on_node_id"
     add_index "idx_templates", ["version_id"], :name => "index_idx_templates_on_version_id"
 
-    create_table "iformats", :force => true do |t|
+    create_table "iformats", :options => table_options, :force => true do |t|
       t.string   "name",       :limit => 40
       t.integer  "site_id"
       t.datetime "created_at"
@@ -240,7 +217,7 @@ class Base < ActiveRecord::Migration
       t.string   "popup",      :limit => 120
     end
 
-    create_table "links", :force => true do |t|
+    create_table "links", :options => table_options, :force => true do |t|
       t.integer  "source_id"
       t.integer  "target_id"
       t.integer  "relation_id"
@@ -255,7 +232,7 @@ class Base < ActiveRecord::Migration
     add_index "links", ["status"], :name => "index_links_on_status"
     add_index "links", ["date"], :name => "index_links_on_date"
 
-    create_table "nodes", :force => true do |t|
+    create_table "nodes", :options => table_options, :force => true do |t|
       t.string   "type",          :limit => 32
       t.datetime "event_at"
       t.string   "kpath",         :limit => 16
@@ -313,7 +290,7 @@ class Base < ActiveRecord::Migration
     add_index "nodes", ["idx_integer1"], :name => "index_nodes_on_idx_integer1"
     add_index "nodes", ["idx_integer2"], :name => "index_nodes_on_idx_integer2"
 
-    create_table "nodes_roles", :id => false, :force => true do |t|
+    create_table "nodes_roles", :id => false, :options => table_options, :force => true do |t|
       t.integer "node_id", :default => 0, :null => false
       t.integer "role_id", :default => 0, :null => false
     end
@@ -321,7 +298,7 @@ class Base < ActiveRecord::Migration
     add_index "nodes_roles", ["node_id"], :name => "index_nodes_roles_on_node_id"
     add_index "nodes_roles", ["role_id"], :name => "index_nodes_roles_on_role_id"
 
-    create_table "relations", :force => true do |t|
+    create_table "relations", :options => table_options, :force => true do |t|
       t.string  "source_role",   :limit => 32
       t.string  "source_kpath",  :limit => 16
       t.boolean "source_unique"
@@ -338,7 +315,7 @@ class Base < ActiveRecord::Migration
     add_index "relations", ["target_role"], :name => "index_relations_on_target_role"
     add_index "relations", ["site_id"], :name => "index_relations_on_site_id"
 
-    create_table "roles", :force => true do |t|
+    create_table "roles", :options => table_options, :force => true do |t|
       t.string   "name"
       t.string   "kpath",                  :limit => 16
       t.string   "real_class",             :limit => 16
@@ -358,7 +335,7 @@ class Base < ActiveRecord::Migration
     add_index "roles", ["kpath"], :name => "index_roles_on_kpath"
     add_index "roles", ["site_id"], :name => "index_roles_on_site_id"
 
-    create_table "sessions", :force => true do |t|
+    create_table "sessions", :options => table_options, :force => true do |t|
       t.string   "session_id", :null => false
       t.text     "data"
       t.datetime "created_at"
@@ -368,7 +345,7 @@ class Base < ActiveRecord::Migration
     add_index "sessions", ["session_id"], :name => "index_sessions_on_session_id"
     add_index "sessions", ["updated_at"], :name => "index_sessions_on_updated_at"
 
-    create_table "sites", :force => true do |t|
+    create_table "sites", :options => table_options, :force => true do |t|
       t.string   "host"
       t.integer  "root_id"
       t.integer  "anon_id"
@@ -389,13 +366,13 @@ class Base < ActiveRecord::Migration
 
     add_index "sites", ["host"], :name => "index_sites_on_host"
 
-    create_table "stored_columns", :force => true do |t|
+    create_table "stored_columns", :options => table_options, :force => true do |t|
       t.integer "stored_role_id"
       t.string  "name"
       t.string  "ptype"
     end
 
-    create_table "users", :force => true do |t|
+    create_table "users", :options => table_options, :force => true do |t|
       t.datetime "created_at"
       t.datetime "updated_at"
       t.string   "login",               :limit => 20
@@ -411,7 +388,7 @@ class Base < ActiveRecord::Migration
       t.text     "properties"
     end
 
-    create_table "versions", :force => true do |t|
+    create_table "versions", :options => table_options, :force => true do |t|
       t.string   "type",            :limit => 32
       t.datetime "created_at"
       t.datetime "updated_at"
@@ -438,7 +415,7 @@ class Base < ActiveRecord::Migration
       execute "CREATE FULLTEXT INDEX index_versions_on_title_and_text_and_summary ON versions (idx_text_high,idx_text_low,idx_text_medium)"
     end
 
-    create_table "zips", :id => false, :force => true do |t|
+    create_table "zips", :id => false, :options => table_options, :force => true do |t|
       t.integer "site_id"
       t.integer "zip"
     end

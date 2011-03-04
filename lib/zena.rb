@@ -192,7 +192,6 @@ module Zena
       # do not change this !
       ActiveRecord::Base.default_timezone = :utc
       ENV['TZ'] = 'UTC'
-      Zena::Db.prepare_connection_for_timezone
     end
 
     def add_inflections
@@ -221,12 +220,13 @@ module Zena
       add_load_paths(config)
       config_gems(config)
       set_default_timezone(config)
+      Zena::Db.prepare_connection
 
       require_ordered_dependencies
 
       load_plugins if RAILS_ROOT != Zena::ROOT
       include_modules
-      Bricks.load_bricks if Zena::Db.migrated_once?
+      Bricks.load_bricks
       add_inflections
       initialize_authlogic
       initialize_gettext

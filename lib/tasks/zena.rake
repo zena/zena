@@ -245,8 +245,14 @@ namespace :zena do
     puts `#{cmd}`
   end
 
+  desc "Load environment without running brick init code."
+  task :environment_without_bricks do
+    Bricks.no_init = true
+    Rake::Task["environment"].invoke
+  end
+
   desc "Migrate the database through scripts in db/migrate. Target specific brick and version with BRICK=x and VERSION=x"
-  task :migrate => :environment do
+  task :migrate => :environment_without_bricks do
     if ENV['VERSION'] || ENV['BRICK']
       ENV['BRICK']    ||= 'zena'
       # migrate specific bricks only

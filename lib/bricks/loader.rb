@@ -21,12 +21,12 @@ module Bricks
         !File.exist?(f)
       end
     end
-    
+
     # Find all paths matching 'sub_path' in the active bricks.
     def paths_for(sub_path)
       bricks.map {|f| Dir["#{f}/#{sub_path}"] }.flatten
     end
-    
+
     def models_paths
       paths_for('models')
     end
@@ -97,6 +97,16 @@ module Bricks
       end
     end
 
+    def no_init=(v)
+      @@no_init = v
+    end
+
+    # Returns true if the Bricks code should not be executed (such
+    # as during the initial migrations, legacy cleanup, etc).
+    def no_init
+      !Zena::Db.migrated_once? || @@no_init
+    end
+
     def load_bricks
       bricks.each do |path|
         path = File.join(path, 'lib')
@@ -105,6 +115,10 @@ module Bricks
         $LOAD_PATH                                  << path
       end
 
+      if @@no_init
+        puts "=> Not executing bricks init code."
+        return
+      end
       # load 'init'
       init_paths.each do |init_path|
         require init_path
