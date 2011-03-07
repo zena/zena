@@ -351,10 +351,11 @@ class Zerox1Schema < ActiveRecord::Migration
     # ============================================ versions
     execute "DROP INDEX index_versions_on_title_and_text_and_summary ON versions" rescue nil
     execute "ALTER TABLE versions ENGINE=InnoDB COLLATE utf8_unicode_ci"
+    execute "ALTER TABLE versions MODIFY `type` VARCHAR(32) COLLATE utf8_unicode_ci DEFAULT NULL"
     execute "ALTER TABLE versions MODIFY `node_id` INT(11) NOT NULL"
     execute "ALTER TABLE versions MODIFY `user_id` INT(11) NOT NULL"
     execute "ALTER TABLE versions MODIFY `lang` VARCHAR(10) COLLATE utf8_unicode_ci NOT NULL DEFAULT ''"
-
+    
     # Version is not inherited anymore
     remove_column(:versions, :type) rescue nil
 

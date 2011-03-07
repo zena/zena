@@ -22,7 +22,7 @@ class AttachmentMig < Versions::SharedAttachment
   set_table_name :attachments
 
   def filepath(format=nil)
-    "#{SITES_ROOT}#{$size.data_path}/full_new/#{super()}"
+    "#{SITES_ROOT}#{$site.data_path}/full/#{super()}"
   end
 end
 
@@ -31,7 +31,7 @@ class VClassMig < ActiveRecord::Base
 end
 
 class UploadedFile < File
-  attr_accessor original_filename
+  attr_accessor :original_filename
 end
 
 # migrate content to properties
@@ -52,16 +52,25 @@ class DocumentContent < ActiveRecord::Base
       # make sure name is not corrupted
       fname = name.gsub(/[^a-zA-Z\-_0-9]/,'')
 
-      old_path = "#{SITES_ROOT}#{$site.data_path}/full/#{digest[0..0]}/#{digest[1..1]}/#{digest[2..2]}/#{fname}"
+      if File.exist?("#{SITES_ROOT}#{$site.data_path}/full") && !File.exist?("#{SITES_ROOT}#{$site.data_path}/full_old")
+        File.mv("#{SITES_ROOT}#{$site.data_path}/full","#{SITES_ROOT}#{$site.data_path}/full_old")
+      end
+      old_path = "#{SITES_ROOT}#{$site.data_path}/full_old/#{digest[0..0]}/#{digest[1..1]}/#{digest[2..2]}/#{fname}"
 
       atta = AttachmentMig.new
       atta['user_id'] = version.user_id
       atta['site_id'] = version.site_id
-      file = UploadedFile.new(old_path)
-      file.original_filename = fname
-      atta.file = file
-      atta.save
-      self.attachment_id = atta.id
+      if type != 'TextDocumentContent'
+        if File.exist?(old_path)
+          file = UploadedFile.new(old_path)
+          file.original_filename = fname
+          atta.file = file
+          atta.save
+          self.attachment_id = atta.id
+        else
+          puts "Missing attachment file for node_id #{version.node_id} (#{version.idx_text_high})"
+        end
+      end
       self.save
     end
     version.attachment_id = self.attachment_id
@@ -70,7 +79,7 @@ class DocumentContent < ActiveRecord::Base
   def migrate(version)
     exif = self['exif_json']
     if !exif.blank?
-      value.prop['exif'] = ExifData.json_create('data' => exif)
+      version.prop['exif'] = ExifData.json_create('data' => exif)
     end
     %w{size content_type ext width height}.each do |key|
       value = self[key]
@@ -126,7 +135,20 @@ class VersionMig < ActiveRecord::Base
     migrate_document
     migrate_template
     migrate_dyn_attributes
-    save
+    # Allow any property
+    class << self.prop
+      def validate
+        # do nothing
+        true
+      end
+    end
+
+    if !save
+      puts "Could not save version #{id} (#{idx_text_high}):"
+      errors.each_error do |er,msg|
+        puts "  [#{er}] #{msg}"
+      end
+    end
   end
 
   def migrate_base
@@ -185,6 +207,8 @@ end
 # This migration should be run in the 1.0 branch *AFTER* the migration
 # to Zerox1Schema.
 class Zerox1Data < ActiveRecord::Migration
+  extend Zena::Acts::Secure
+
   CHUNK_SIZE = 200
   def self.up
     if connection.tables.include?('contact_contents')
@@ -203,45 +227,45 @@ class Zerox1Data < ActiveRecord::Migration
 
     DocumentContent.reset_column_information
 
-    execute "UPDATE roles SET type = 'VirtualClass'"
     execute "UPDATE roles SET real_class = 'Node' WHERE real_class = 'Reference' OR real_class = 'Contact'"
 
     # sites = SiteMig.all
-    sites = [SiteMig.find(:first, :conditions => ['host = ?', 'zenadmin.org'])]
-    sites.each do |s|
-      puts "===================== Migrating #{s.host} to 1.0 data format (#{NodeMig.count(:conditions =>['site_id = ?', s.id])} nodes)"
+    sites = [SiteMig.find(:first, :conditions => ['host = ?', 'lubyk.org'])]
+    sites.each do |site|
+      node_count = NodeMig.count(:conditions =>['site_id = ?', site.id])
+      puts "========================================== Start data migration to 1.0 for #{site.host} (#{node_count} nodes)"
       puts "========== creating virtual classes (Contact, Reference)"
       # Create Contact + Reference virtual classes
       ref_class = VClassMig.create(
         :name       => 'Reference',
         :kpath      => 'NR',
         :real_class => 'Node',
-        :create_group_id => s.public_group_id,
-        :site_id    => s.id
+        :create_group_id => site.public_group_id,
+        :site_id    => site.id
       )
       contact_class = VClassMig.create(
         :name       => 'Contact',
         :kpath      => 'NRC',
         :real_class => 'Node',
-        :create_group_id => s.public_group_id,
-        :site_id    => s.id
+        :create_group_id => site.public_group_id,
+        :site_id    => site.id
       )
       # Update nodes depending on Contact + Reference classes
-      execute "UPDATE nodes SET vclass_id = #{ref_class.id} WHERE type = 'Reference' AND vclass_id IS NULL AND site_id = #{s.id}"
-      execute "UPDATE nodes SET vclass_id = #{contact_class.id} WHERE type = 'Contact' AND vclass_id IS NULL AND site_id = #{s.id}"
-      execute "UPDATE nodes SET type = 'Node' WHERE (type = 'Reference' or type = 'Contact') AND site_id = #{s.id}"
+      execute "UPDATE nodes SET vclass_id = #{ref_class.id} WHERE type = 'Reference' AND vclass_id IS NULL AND site_id = #{site.id}"
+      execute "UPDATE nodes SET vclass_id = #{contact_class.id} WHERE type = 'Contact' AND vclass_id IS NULL AND site_id = #{site.id}"
+      execute "UPDATE nodes SET type = 'Node' WHERE (type = 'Reference' or type = 'Contact') AND site_id = #{site.id}"
 
-      $site = s
+      $site = site
       page  = 0
       while true do
-        puts "========== migrate nodes #{(page * CHUNK_SIZE) + 1} to #{((page+1) * CHUNK_SIZE)}"
         nodes = NodeMig.find(:all,
-          :conditions => ['site_id = ?', s.id],
+          :conditions => ['site_id = ?', site.id],
           :limit  => CHUNK_SIZE,
           :offset => page * CHUNK_SIZE,
           :order  => 'id ASC'
         )
         break if nodes == []
+        puts "========== migrating nodes #{(page * CHUNK_SIZE) + 1} to #{[((page+1) * CHUNK_SIZE), node_count].min}"
         nodes.each do |n|
           n.versions.each do |v|
             v.migrate!
@@ -249,17 +273,27 @@ class Zerox1Data < ActiveRecord::Migration
         end
         page += 1
       end
-    end
 
-    # ============================================ nodes
-    # 1. Set skin_id from skin name
-    # 2. Set _id from current title
+      # ============================================ nodes
+      # 1. Set skin_id from skin name
+      NodeMig.find(:all,
+        :conditions => ['site_id = ? AND type = ?', site.id, 'Skin']
+      ).each do |skin|
+        execute "UPDATE nodes SET skin_id = #{skin.id} WHERE skin = '#{skin.name}'"
+      end
 
+      # 2. Set _id from name
+      execute "UPDATE nodes SET _id = name WHERE site_id = #{site.id}"
+    end # sites.each
 
     # ============================================ roles
     # make properties from dyn_keys list ?
 
+    execute "UPDATE roles SET type = 'VirtualClass'"
+
     # ============================================ site_attributes
     # migrate to properties
+
+    puts "\n\n======== Migration succeded.\n****************** You need to rebuild vhash, fullpath and index now! *************\n=> rake zena:rebuild_vhash && rake zena:rebuild_fullpath && rake zena:rebuild_index\n\n"
   end
 end

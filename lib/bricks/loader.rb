@@ -1,5 +1,7 @@
 module Bricks
   module Loader
+    @@no_init = false
+    
     def bricks
       @@bricks ||= bricks_folders.map do |bricks_folder|
         if File.exist?(bricks_folder)

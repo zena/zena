@@ -19,7 +19,7 @@ module Zena
     def perform(site = nil)
       if site.nil?
         site ||= Site.find(site_id)
-        Thread.current[:visitor] = site.anon
+        Thread.current[:visitor] = site.any_admin
       end
 
       if nodes = get_nodes
