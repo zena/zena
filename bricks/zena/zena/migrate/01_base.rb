@@ -389,7 +389,6 @@ class Base < ActiveRecord::Migration
     end
 
     create_table "versions", :options => table_options, :force => true do |t|
-      t.string   "type",            :limit => 32
       t.datetime "created_at"
       t.datetime "updated_at"
       t.integer  "node_id",                                               :null => false
