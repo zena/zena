@@ -201,6 +201,11 @@ class Site < ActiveRecord::Base
     @anon ||= User.find_by_id_and_site_id(self[:anon_id], self.id)
   end
 
+  # Return an admin user, this user is used to rebuild index/vhash/etc.
+  def any_admin
+    @any_admin ||= User.find_by_status_and_site_id(User::Status[:admin], self.id)
+  end
+
   # TODO: test
   def root_node
     secure(Node) { Node.find(self[:root_id]) }
@@ -297,7 +302,7 @@ class Site < ActiveRecord::Base
       $iformats[self[:id]] = @iformats = nil
     end
   end
-  
+
   def virtual_classes
    @iformats ||= begin
      $iformats ||= {} # mem cache
@@ -359,7 +364,7 @@ class Site < ActiveRecord::Base
   end
 
   # Recreates the fullpath ('/zip/zip/zip').
-  # TODO: find a way to use SiteWorker (need to remove get_nodes)
+  # TODO: find a way to use SiteWorker (need to remove get_nodes): fix rake when this is done.
   def rebuild_fullpath(parent_id = nil, parent_fullpath = "", parent_basepath = "", start=[])
     raise Zena::InvalidRecord, "Infinit loop in 'ancestors' (#{start.inspect} --> #{parent_id})" if start.include?(parent_id)
     start += [parent_id]
@@ -400,7 +405,8 @@ class Site < ActiveRecord::Base
   # Rebuild property indices for the Site. This method uses the Worker thread to rebuild and works on
   # chunks of 50 nodes.
   #
-  # The visitor used during index rebuild is the anonymous user.
+  # The visitor used during index rebuild should be an admin user (to index
+  # unpublished templates).
   def rebuild_index(nodes = nil, page = nil, page_count = nil)
     if !nodes
       Site.logger.error("\n----------------- REBUILD INDEX FOR SITE #{host} -----------------\n")

@@ -345,13 +345,17 @@ namespace :zena do
     end
   end
 
-  desc 'Rebuild index for all sites (without SiteWorker)'
+  desc 'Rebuild index for all sites or site defined by HOST param.'
   task :rebuild_index => :environment do
     include Zena::Acts::Secure
-
-    Site.all.each do |site|
-      # We avoid SiteWorker because it's async.
-      Thread.current[:visitor] = User.find_by_login_and_site_id(nil, site.id)
+    if ENV['HOST']
+      sites = [Site.find_by_host(ENV['HOST'])]
+    else
+      sites = Site.all
+    end
+    sites.each do |site|
+      # We avoid SiteWorker by passing nodes.
+      Thread.current[:visitor] = site.any_admin
       nodes = Node.find(:all,
         :conditions => ['site_id = ?', site.id]
       )
@@ -359,14 +363,35 @@ namespace :zena do
     end
   end
 
-  desc 'Rebuild fullpath for all sites (without SiteWorker)'
+  desc 'Rebuild fullpath for all sites or site defined by HOST param.'
   task :rebuild_fullpath => :environment do
     include Zena::Acts::Secure
-
-    Site.all.each do |site|
-      # We avoid SiteWorker because it's async.
-      Thread.current[:visitor] = User.find_by_login_and_site_id(nil, site.id)
+    if ENV['HOST']
+      sites = [Site.find_by_host(ENV['HOST'])]
+    else
+      sites = Site.all
+    end
+    sites.each do |site|
+      # Does not use SiteWorker.
       site.rebuild_fullpath
+    end
+  end
+
+  desc 'Rebuild vhash for all sites or site defined by HOST param.'
+  task :rebuild_vhash => :environment do
+    include Zena::Acts::Secure
+    if ENV['HOST']
+      sites = [Site.find_by_host(ENV['HOST'])]
+    else
+      sites = Site.all
+    end
+    sites.each do |site|
+      # We avoid SiteWorker by passing nodes.
+      Thread.current[:visitor] = site.any_admin
+      nodes = Node.find(:all,
+        :conditions => ['site_id = ?', site.id]
+      )
+      site.rebuild_vhash(secure_result(nodes))
     end
   end
 

@@ -129,6 +129,18 @@ class SiteTest < Zena::Unit::TestCase
     anon.site = site
     assert anon.is_anon?
   end
+  
+  context 'A site' do
+    subject do
+      Site.first
+    end
+
+    should 'respond to any_admin' do
+      assert_kind_of User, subject.any_admin
+      assert_equal users(:lion), subject.any_admin
+    end
+  end # A site
+  
 
   def test_public_group
     login(:anon)
