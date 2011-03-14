@@ -37,7 +37,7 @@ class UsersController < ApplicationController
   # xx  ==> fixed skin
   def dev_skin(skin_id = params['skin_id'])
     visitor.update_attributes('dev_skin_id' => skin_id)
-    
+
     if request.referer && !(request.referer =~ /login/)
       redirect_to request.referer
     else
@@ -78,7 +78,6 @@ class UsersController < ApplicationController
     end
   end
 
-  # TODO: test
   def update
     if skin_id = params['user']['dev_skin_id']
       return dev_skin(skin_id)
@@ -86,26 +85,29 @@ class UsersController < ApplicationController
 
     @update = params.delete(:update)
 
-    # TODO: test
-    unless params[:user][:password].blank?
-      if params[:user][:password].strip.size < 6
+    opts = params[:user]
+    unless opts[:password].blank?
+      if opts[:password].strip.size < 6
         @user.errors.add('password', 'too short')
       end
-      if !visitor.is_admin? || params[:user][:retype_password]
-        if params[:user][:password] != params[:user][:retype_password]
+
+      if !visitor.is_admin? || opts[:retype_password]
+        if opts[:password] != opts[:retype_password]
           @user.errors.add('retype_password', 'does not match new password')
         end
       end
-      unless visitor.is_admin?
-        if !@user.password_is?(params[:user][:old_password])
+
+      if !visitor.is_admin? || @user.id == visitor.id
+        if !@user.valid_password?(opts[:old_password])
           @user.errors.add('old_password', "not correct")
         end
       end
+
       if @user.errors.empty?
-        @user.password = params[:user][:password]
-        params[:user].delete(:password)
-        params[:user].delete(:retype_password)
-        params[:user].delete(:old_passowrd)
+        @user.password = opts[:password]
+        opts.delete(:password)
+        opts.delete(:retype_password)
+        opts.delete(:old_password)
       end
     end
 
@@ -147,7 +149,7 @@ class UsersController < ApplicationController
         if params[:user]
           # visitor changing his/her own info : restrict fields
           params[:user].keys.each do |k|
-            params[:user].delete(k) unless [:login, :time_zone, :lang, :password, :time_zone].include?(k.to_sym)
+            params[:user].delete(k) unless [:login, :time_zone, :lang, :password, :time_zone, :retype_password, :old_password].include?(k.to_sym)
           end
         end
       else

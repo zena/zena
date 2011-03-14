@@ -140,12 +140,141 @@ class UsersControllerTest < Zena::Controller::TestCase
   context "Updating a user" do
     setup do
       login(:lion)
-      put 'update', 'id' => users_id(:lion), 'user'=>{'name'=>'Leo Verneyi', 'lang'=>'en', 'time_zone'=>'Africa/Algiers', 'first_name'=>'Panthera', 'login'=>'lion', 'email'=>'lion@zenadmin.info'}
+      put 'update',
+        'id' => users_id(:lion),
+        'user'=> {
+          'lang'=>'en',
+          'time_zone'=>'Africa/Algiers',
+          'login'=>'lion',
+        }
     end
+    
     should_assign_to :user
+    
     should_respond_with :success
-    should "be able to set timezone" do
-      assert_equal 'Africa/Algiers', assigns(:user)[:time_zone]
+    
+    should "set timezone" do
+      err assigns(:user)
+      assert_equal 'Africa/Algiers', users(:lion)[:time_zone]
     end
   end # Updating a user
+
+  context "Changing password" do
+    setup do
+      login(:ant)
+    end
+
+    subject do
+      put 'update',
+        'id'     => users_id(:ant),
+        'update' => 'pass',
+        'user'   => {
+          'password'        => 'superman',
+          'retype_password' => 'superman',
+          'old_password'    => 'ant'
+        }
+    end
+
+    should 'set password' do
+      subject
+      assert_response :success
+      assert users(:ant).valid_password?('superman')
+    end
+
+    context 'with an invalid previous password' do
+      subject do
+        put 'update',
+          'id'     => users_id(:ant),
+          'update' => 'pass',
+          'user'   => {
+            'password'        => 'superman',
+            'retype_password' => 'superman',
+            'old_password'    => 'antaddf'
+          }
+      end
+
+      should 'not change password' do
+        subject
+        assert_response :success
+        assert !users(:ant).valid_password?('superman')
+        assert users(:ant).valid_password?('ant')
+      end
+      
+      should 'set an error' do
+        subject
+        assert_equal 'not correct', assigns(:user).errors[:old_password]
+      end
+    end # with an invalid previous password
+
+    context 'by an admin' do
+      setup do
+        login(:lion)
+      end
+
+      subject do
+        put 'update',
+          'id'     => users_id(:lion),
+          'update' => 'pass',
+          'user'   => {
+            'password'        => 'superman',
+            'retype_password' => 'superman',
+            'old_password'    => 'lion'
+          }
+      end
+
+      should 'set password' do
+        subject
+        assert_response :success
+        assert users(:lion).valid_password?('superman')
+      end
+      
+      should 'set other user password' do
+        put 'update',
+          'id'     => users_id(:ant),
+          'update' => 'pass',
+          'user'   => {
+            'password'        => 'cymbal'
+          }
+        assert_response :success
+        assert users(:ant).valid_password?('cymbal')
+      end
+      
+      should 'not set own password without previous password' do
+        put 'update',
+          'id'     => users_id(:lion),
+          'update' => 'pass',
+          'user'   => {
+            'password'        => 'cymbal'
+          }
+        assert_response :success
+        assert_equal 'not correct', assigns(:user).errors[:old_password]
+      end
+
+      context 'with an invalid previous password' do
+        subject do
+          put 'update',
+            'id'     => users_id(:lion),
+            'update' => 'pass',
+            'user'   => {
+              'password'        => 'superman',
+              'retype_password' => 'superman',
+              'old_password'    => 'antaddf'
+            }
+        end
+
+        should 'not change password' do
+          subject
+          assert_response :success
+          assert !assigns(:user).valid_password?('superman')
+          assert assigns(:user).valid_password?('lion')
+        end
+
+        should 'set an error' do
+          subject
+          assert_equal 'not correct', assigns(:user).errors[:old_password]
+        end
+      end # with an invalid previous password
+    end # by an admin
+
+  end # Changing password
 end
