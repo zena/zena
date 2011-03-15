@@ -155,8 +155,12 @@ namespace :zena do
         next if File.exist?("#{host_path}/#{dir}")
         FileUtils.mkpath("#{host_path}/#{dir}")
       end
-       # FIXME! should not symlink RAILS_ROOT but /home/app_name/app/current ...
-      symlink_assets(RAILS_ROOT, host_path)
+      if RAILS_ROOT =~ /releases\/\d+/
+        root = (Pathname(RAILS_ROOT) + '../../current').to_s
+      else
+        root = RAILS_ROOT
+      end
+      symlink_assets(root, host_path)
     end
   end
 

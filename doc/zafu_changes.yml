@@ -27,3 +27,10 @@ CHANGESET2:
         new: "<r:anchor do='link'/>"
 
 
+show_path: "<ul id='path' do='ancestors'><li do='each' do='link'/></ul>"
+start_node: "start"
+# [v_title]: "title"
+v_title: "title"
+"<r:if kind_of='Section'": "<r:Section?>"
+"<r:text/>": "mat"
+"on_if_node='ancestor'": "on_if='ancestor?(main)'"

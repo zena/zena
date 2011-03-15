@@ -1,7 +1,8 @@
 # This fixes a bug between Rails 2.3.8 and Mongrel
 # Error calling Dispatcher.dispatch #<NoMethodError: undefined method `[]' for nil:NilClass>
 #
-if Rails.version == '2.3.8' && Gem.available?('mongrel', Gem::Requirement.new('~>1.1.5')) && self.class.const_defined?(:Mongrel)
+
+if Rails.version =~ /2\.3\.\d+/ && Gem.available?('mongrel', Gem::Requirement.new('~>1.1.5')) && self.class.const_defined?(:Mongrel)
 
   # Pulled right from latest rack. Old looked like this in 1.1.0 version.
   #

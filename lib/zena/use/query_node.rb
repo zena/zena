@@ -187,7 +187,7 @@ module Zena
           end
         end
 
-        # Overwrite this and take car to check for valid fields.
+        # Overwrite this and take care to check for valid fields.
         def process_field(field_name)
           if fld = @query.attributes_alias[field_name]
             # use custom query alias value defined in select clause: 'custom_a AS validation'
@@ -320,17 +320,10 @@ module Zena
           elsif arg1[0] == :field && arg2[0] == :method
             # contact.log_at  or  log_at.year
             # arg1 = [:field, "contact"]
+            class_name = arg1[1]
             # arg2 = [:method, "name"]
-            class_or_field    = arg1[1]
-            field_or_function = arg2[1]
-            if @query.main_class.columns[class_or_field]
-              # log_at.year
-              return [arg1, arg2]
-            else
-              class_name = class_or_field
-              field_name = field_or_function
-              function   = nil
-            end
+            field_name = arg2[1]
+            function   = nil
           else
             return [arg1, arg2]
           end
