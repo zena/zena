@@ -90,11 +90,11 @@ class Site < ActiveRecord::Base
       raise Exception.new("Could not create public group for site [#{host}] (site#{site[:id]})\n#{pub.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if pub.new_record?
 
       # create admin group
-      admin = site.send(:secure,Group) { Group.create( :name => 'admin') }
-      raise Exception.new("Could not create admin group for site [#{host}] (site#{site[:id]})\n#{admin.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if admin.new_record?
+      editors = site.send(:secure,Group) { Group.create( :name => 'editors') }
+      raise Exception.new("Could not create editors group for site [#{host}] (site#{site[:id]})\n#{editors.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if editors.new_record?
 
-      # add admin to the 'admin group'
-      admin.users << admin_user
+      # add admin to the 'editors group'
+      editors.users << admin_user
 
       # create site group
       sgroup = site.send(:secure,Group) { Group.create( :name => 'site') }
@@ -102,7 +102,7 @@ class Site < ActiveRecord::Base
 
       site.public_group_id = pub[:id]
       site.site_group_id   = sgroup[:id]
-      site.groups << pub << sgroup << admin
+      site.groups << pub << sgroup << editors
 
       # Reload group_ids in admin
       admin_user.instance_variable_set(:@group_ids, nil)
@@ -122,7 +122,7 @@ class Site < ActiveRecord::Base
       # =========== CREATE ROOT NODE ============================
 
       root = site.send(:secure,Project) do
-        Project.create( :title => site.name, :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :dgroup_id => admin[:id], :title => site.name, :v_status => Zena::Status[:pub])
+        Project.create( :title => site.name, :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :dgroup_id => editors[:id], :title => site.name, :v_status => Zena::Status[:pub])
       end
 
       raise Exception.new("Could not create root node for site [#{host}] (site#{site[:id]})\n#{root.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if root.new_record?
@@ -147,7 +147,7 @@ class Site < ActiveRecord::Base
 
       # =========== LOAD INITIAL DATA (default skin) =============
 
-      nodes = site.send(:secure, Node) { Node.create_nodes_from_folder(:folder => File.join(Zena::ROOT, 'db', 'init', 'base'), :parent_id => root[:id], :defaults => { :v_status => Zena::Status[:pub], :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :dgroup_id => admin[:id] } ) }.values
+      nodes = site.send(:secure, Node) { Node.create_nodes_from_folder(:folder => File.join(Zena::ROOT, 'db', 'init', 'base'), :parent_id => root[:id], :defaults => { :v_status => Zena::Status[:pub], :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :dgroup_id => editors[:id] } ) }.values
       # == set skin id to 'default' for all elements in the site == #
       skin = nodes.detect {|n| n.kind_of?(Skin) }
       Node.connection.execute "UPDATE nodes SET skin_id = '#{skin.id}' WHERE site_id = '#{site[:id]}'"

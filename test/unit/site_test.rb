@@ -132,7 +132,7 @@ class SiteTest < Zena::Unit::TestCase
   
   context 'A site' do
     subject do
-      Site.first
+      sites(:zena)
     end
 
     should 'respond to any_admin' do
