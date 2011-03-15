@@ -257,7 +257,7 @@ class Node < ActiveRecord::Base
   # compute vhash (must come before Fulltext)
   include Zena::Use::VersionHash::ModelMethods
 
-  # computed properties (vclass prop_eval)
+  # computed properties (vclass prop_eval, must come after MLIndex)
   include Zena::Use::PropEval::ModelMethods
 
   # fulltext indices (must come after PropEval)

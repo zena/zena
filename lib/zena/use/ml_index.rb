@@ -24,8 +24,12 @@ module Zena
             @properties  = version.prop
             @index_langs = nil # force rebuild
             # Build ml index for each version
-            rebuild_index_without_multi_lingual!
+            rebuild_index_for_version(version)
           end
+        end
+
+        def rebuild_index_for_version(v)
+          rebuild_index_without_multi_lingual!
         end
 
         # Hash used to read current values

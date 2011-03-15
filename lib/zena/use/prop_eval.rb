@@ -42,12 +42,14 @@ module Zena
           base.before_validation  :merge_prop_eval
           base.before_validation  :need_set__id
           base.before_save        :set__id
-          base.alias_method_chain :rebuild_index!, :prop_eval
+          base.alias_method_chain :rebuild_index_for_version, :prop_eval
         end
 
-        def rebuild_index_with_prop_eval!
+        def rebuild_index_for_version_with_prop_eval(v)
           merge_prop_eval(true)
-          rebuild_index_without_prop_eval!
+          # Only save properties, without changing updated_at date or other callbacks
+          Zena::Db.set_attribute(v, 'properties', encode_properties(@properties)) if v.changed?
+          rebuild_index_for_version_without_prop_eval(v)
         end
 
         def need_set__id

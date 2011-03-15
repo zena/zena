@@ -6,6 +6,18 @@ class PropEvalTest < Zena::Unit::TestCase
     set_table_name :nodes_roles
   end
 
+  def idx_ml_value(obj_id, key, lang=visitor.lang)
+    IdxNodesMlString.find(:first,
+      :conditions => {:node_id => obj_id, :lang => lang, :key => key}
+    ).value
+  end
+
+  def idx_value(obj_id, key)
+    IdxNodesString.find(:first,
+      :conditions => {:node_id => obj_id, :key => key}
+    ).value
+  end
+
   context 'A visitor with admin rights' do
     setup do
       login(:lion)
@@ -98,21 +110,35 @@ class PropEvalTest < Zena::Unit::TestCase
             end
 
             should 'use evaluated prop in ml prop indices' do
-              idx = IdxNodesMlString.find(:first,
-                :conditions => {:node_id => subject.id, :lang => visitor.lang, :key => 'search'}
-              )
-              assert_equal 'zena enhancements paper:Origami', idx.value
+              assert_equal 'zena enhancements paper:Origami', idx_ml_value(subject.id, 'search')
             end
 
             should 'use evaluated prop in prop indices' do
-              idx = IdxNodesString.find(:first,
-                :conditions => {:node_id => subject.id, :key => 'search_mono'}
-              )
-              assert_equal 'Origami mono', idx.value
+              assert_equal 'Origami mono', idx_value(subject.id, 'search_mono')
             end
           end # with property indices
 
         end # updating attributes
+
+        context 'rebuilding index' do
+          setup do
+            login(:lion)
+            vclass = secure(Role) { roles(:Contact) }
+            # changed prop_eval
+            assert vclass.update_attributes(:prop_eval => %q[{'title' => "LAST:#{name} FIRST:#{first_name}"}])
+          end
+
+          subject do
+            secure(Node) { nodes(:ant) }
+          end
+
+          should 'evaluate prop' do
+            subject.rebuild_index!
+            assert_equal 'LAST:Invicta FIRST:Solenopsis', idx_ml_value(subject.id, 'title')
+            assert_equal 'LAST:Invicta FIRST:Solenopsis', nodes(:ant).title
+          end
+        end # rebuilding index
+
       end # from a class with evaluated properties
 
       context 'from a class with prop eval used as default' do

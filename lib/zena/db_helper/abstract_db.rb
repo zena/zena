@@ -11,7 +11,7 @@ module Zena
 
       # Set a single attribute directly in the database.
       def set_attribute(obj, key, value)
-        obj.send("#{key}=", value)
+        obj.write_attribute(key, value)
         execute "UPDATE #{obj.class.table_name} SET #{key}=#{quote(value)} WHERE id=#{obj[:id]}"
         obj.send(:changed_attributes).delete(key.to_s)
       end
@@ -171,7 +171,7 @@ module Zena
       end
 
       # Fixes #98
-      def prepare_connection_for_timezone
+      def prepare_connection
         # do nothing by default ?
       end
 
