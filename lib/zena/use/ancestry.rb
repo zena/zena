@@ -107,7 +107,7 @@ module Zena
 
         # (slow). Return an array with the node title and the last two parents' titles.
         def short_path
-          path = fullpath.split('/')
+          path = (fullpath || '').split('/')
           if path.size > 2
             ['..'] + fullpath_as_title(path[-2..-1])
           else

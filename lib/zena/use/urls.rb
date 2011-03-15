@@ -338,6 +338,8 @@ module Zena
             markup.set_dyn_param(:href, "<%= #{href} %>")
           end
 
+          # We wrap without callbacks (before_wrap, after_wrap) so that the link
+          # is used as raw text in these callbacks.
           markup.wrap(text)
 =begin
           query_params = options[:query_params] || {}

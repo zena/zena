@@ -31,6 +31,8 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     'ajax',
     'complex_ok',
     'forms',
+    'meta',
+    'context',
   ]
 
   BUG = [

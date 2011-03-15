@@ -57,7 +57,7 @@ module Zena
 
           # Remove 'live' param so that it does not alter RubyLess method building.
           def filter_live
-            @live_param = @params.delete(:live)
+            @live_param = @params.delete(:live) unless %w{filter}.include?(@method)
           end
 
           # Evaluate 'set_xxx' param and store result in context with 'var' name. This name

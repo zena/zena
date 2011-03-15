@@ -84,6 +84,7 @@ module Zena
         safe_method_for Number, :to_s      => {:class => String, :pre_processor => true}
         safe_method_for Number, :to_f      => {:class => Number, :pre_processor => true}
         safe_method_for Number, :to_i      => {:class => Number, :pre_processor => true}
+        safe_method_for String, :to_f      => {:class => Number, :pre_processor => true}
         safe_method_for NilClass, :to_f      => {:class => Number, :pre_processor => true}
         safe_method_for NilClass, :to_i      => {:class => Number, :pre_processor => true}
         safe_method_for Object, :blank?    => Boolean
@@ -99,7 +100,17 @@ module Zena
           {:method => 'nil', :nil => true, :pre_processor => join_proc}
         safe_method_for Array, [:map, Symbol]     => # supports map(:name)
           {:method => 'nil', :nil => true, :pre_processor => map_proc}
+        safe_method [:min, Number, Number]        => {:method => 'zafu_min', :class => Number}
+        safe_method [:max, Number, Number]        => {:method => 'zafu_max', :class => Number}
+        # Returns the smallest of two values.
+        def zafu_min(a, b)
+          [a, b].min
+        end
 
+        # Returns the largest of two values.
+        def zafu_max(a, b)
+          [a, b].max
+        end
       end # ViewMethods
 
 

@@ -92,3 +92,17 @@ map_on_can_be_nil:
   eval: "Contact.relations.map(:name).join('-')"
   tem: "/VirtualClass\[\"Contact\"\] \? VirtualClass\[\"Contact\"\].all_relations.map\(&:other_role\).compact.join\(\"-\"\)/"
   res: "/collaborator_for-favorite-favorite_for/"
+
+min:
+  context:
+    h: 10
+    w: 0.1
+  src: "<r:show format='%.2f CHF' eval='params[:h].to_f * min(0.25, params[:w].to_f)'/>"
+  res: "1.00 CHF"
+
+max:
+  context:
+    h: 10
+    w: 0.1
+  src: "<r:show format='%.2f CHF' eval='params[:h].to_f * max(0.25, 10 * params[:w].to_f)'/>"
+  res: "10.00 CHF"

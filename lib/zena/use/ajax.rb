@@ -179,43 +179,46 @@ module Zena
 
       module ZafuMethods
         def self.included(base)
-          # TODO: move process_drag, process_toggle in 'before_wrap' callback so that 'node' properly set.
+          # TODO: move process_toggle in 'before_wrap' callback so that 'node' is properly set.
           base.before_process :process_drag, :process_toggle
           base.before_wrap    :wrap_with_drag
         end
 
-        def wrap_with_drag(text)
-          if @wrap_with_drag
-            @wrap_with_drag.wrap(text)
-          else
-            text
-          end
+        def process_drag
+          @drag_param = @params.delete(:draggable)
         end
 
         # Force an id on the current tag and record the DOM_ID to make the element draggable.
-        def process_drag
-          return unless drag = @params.delete(:draggable)
+        def wrap_with_drag(text)
+          # do not render drag in make_form
+          return text unless @drag_param && !@context[:make_form]
+          drag = @drag_param
 
-          if @markup.params[:id]
-            # we do not mess with it
-            markup = @wrap_with_drag = Zafu::Markup.new('span')
+          if @markup.params[:id] || (@markup.done && @method == 'link') # hack to rewrap link...
+            # we do not mess with the original but use our own markup
+            markup = @wrap_markup = Zafu::Markup.new('span')
           else
             markup = @markup
           end
 
           markup.tag ||= 'div'
 
-          node = pre_filter_node
-
           if @name.blank?
             # make sure we have a scope
             set_dom_prefix(node)
           end
 
-          # We do not want to use the same id as the 'each' loop but we also want to
-          # avoid changing the node context
-          @drag_prefix ||= root.get_unique_name('drag', true).gsub(/[^\d\w\/]/,'_')
-          markup.set_id(node.dom_id(:dom_prefix => @drag_prefix))
+          if erb_dom_id = markup.dyn_params[:id]
+            # id set, get erb id
+          else
+            # We do not want to use the same id as the 'each' loop but we also want to
+            # avoid changing the node context
+            @drag_prefix ||= root.get_unique_name('drag', true).gsub(/[^\d\w\/]/,'_')
+            erb_dom_id = node.dom_id(:dom_prefix => @drag_prefix)
+            markup.set_id(erb_dom_id)
+          end
+
+          dom_id = erb_dom_id[/<%=\s*(.*?)\s*%>/,1]
 
           markup.append_param(:class, 'drag')
 
@@ -234,7 +237,13 @@ module Zena
             js_options << (%w{true false}.include?(revert) ? revert : revert.inspect)
           end
 
-          markup.pre_wrap[:drag] = "#{handle}<% add_drag_id(\"#{node.dom_id(:dom_prefix => @drag_prefix, :erb => false)}\", #{js_options.join(', ').inspect}) %>"
+          markup.pre_wrap[:drag] = "#{handle}<% add_drag_id(#{dom_id}, #{js_options.join(', ').inspect}) %>"
+
+          if @markup == markup
+            text
+          else
+            markup.wrap(text)
+          end
         end
 
         # Display an input field to filter a remote block
@@ -243,6 +252,10 @@ module Zena
             return unless block = find_target(upd)
           else
             return parser_error("missing 'block' in same parent") unless parent && block = parent.descendant('block')
+            if block.name.blank?
+              block.name ||= unique_name
+            end
+            upd = block.name
           end
 
           return parser_error("cannot use 's' as key (used by start_node)") if @params[:key] == 's'

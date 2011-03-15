@@ -21,6 +21,7 @@ edit_not_each:
 
 add_each_no_form:
   src: "<ul do='children' id='things'><li do='each'>I <p do='title'>blah</p></li><li do='add'/></ul>"
+  tem: "!/</ul><ul></ul>/" # bug in closing group with [add].
   res: "/<ul><li.*id='things_add'.*li.*class='form' id='things_form'.*form.*I <p><input id=.things_title. name=.node\[title\]. .*type=.text..*hidden/"
 
 add_each_no_form_date:
@@ -128,7 +129,8 @@ live_filter:
   context:
     node: cleanWater
   src: "<r:filter live='true'/><r:block><ol do='pages where title like \"#{params[:f]}%\"'><li do='each' do='title'/></ol></r:block>"
-  tem: "/ml1.value LIKE \?.*, \"#\{params\[:f\]\}%\"/"
+  # Make sure a unique_name is set for the given block
+  tem: "/name='t_url' value='ajax/live/filter/list1'.*<% filter_form\(@node.*ml1.value LIKE \?.*, \"#\{params\[:f\]\}%\"/"
   'ajax/live/filter/en/list1.erb': "/<div id='list1.*, \"#\{params\[:f\]\}%\".*var2.prop\['title'\]/"
   res: "/<input type='text' name='f'.*<div id='list1'><ol><li>crocodiles</li><li>Keeping things clean !</li><li>status title</li></ol></div>/"
 
@@ -172,7 +174,24 @@ drag_with_form:
         <td class='edit'> <r:edit class='edit'>éditer</r:edit></td>
       </tr>
     </table>"
-  tem: "/tr id='<%= %Q\{list1_#\{var2.zip\}\}.*<div[^>]+id='<%= %Q\{drag_#\{var2.zip\}\}.*add_drag_id\(\"drag_#\{var2.zip\}\"/"
+  tem: "/<span class='drag' id='<%= %Q\{drag_#\{var2.zip\}\}.*<% add_drag_id\(%Q\{drag_#\{var2.zip\}\}/"
+
+drag_with_form_not_in_form:
+  src: "<table do='pages in site'>
+      <tr do='add'/>
+      <tr do='each'>
+        <td><r:link draggable='true'><b do='title'/></r:link></td>
+        <td class='edit'> <r:edit class='edit'>éditer</r:edit></td>
+      </tr>
+    </table>"
+  tem: "!/add_drag_id.*add_drag_id/"
+
+drag_on_each_with_make_form:
+  src: "<ul do='pages in site'>
+      <li do='add'/>
+      <li do='each' draggable='true' do='link'/>
+    </ul>"
+  tem: "/add_drag_id\(%Q\{list1_#\{var2.zip\}\},/"
 
 draggable_existing_class:
   # should use 'drag_handle' class

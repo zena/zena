@@ -29,6 +29,7 @@ module Zena
               end
             rescue ::QueryBuilder::Error => err
               # FIXME: how to return error messages to the user ?
+              Node.logger "Error in dynamic query #{pseudo_sql.inspect}: #{err}"
             end
           end
           # error
@@ -71,6 +72,7 @@ module Zena
             end
 
             if arg =~ DATE_FIELD_REGEXP
+              # FIXME: Use to_utc and date function in Zena::Db
               arg = query_parse_dates(arg)
               first = arg.first
             end
