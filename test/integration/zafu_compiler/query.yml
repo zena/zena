@@ -135,6 +135,12 @@ paginate_count:
   tem: '/<%= _znodes %>/'
   res: "18"
 
+count:
+  src: "<r:pages in='site' do='count'/>"
+  # should detect 'count' method and count nodes without pagination.
+  tem: '/<%= _znodes %>/'
+  res: "18"
+
 paginate_page_name:
   context:
     p: 5

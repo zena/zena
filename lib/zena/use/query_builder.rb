@@ -236,21 +236,29 @@ module Zena
         def node_context_vars(finder)
           sub_context = super
           query = finder[:query]
-          if query && (pagination_key = query.pagination_key)
-            set_context_var('paginate', 'key', pagination_key, sub_context)
-
+          if query && ((pagination_key = query.pagination_key) || child['count'])
             node_count = get_var_name('paginate', 'nodes', sub_context)
-            page_count = get_var_name('paginate', 'count', sub_context)
-            curr_page  = get_var_name('paginate', 'current', sub_context)
-
-            # Give access to the page number through the pagination key.
-            set_context_var('set_var', pagination_key, RubyLess::TypedString.new(curr_page, Number))
-            # Give access to page_count and count
-            # FIXME: DOC
-            set_context_var('set_var', 'page_count', RubyLess::TypedString.new(page_count, Number))
             set_context_var('set_var', 'count', RubyLess::TypedString.new(node_count, Number))
 
-            out "<% #{node_count} = Node.do_find(:count, #{query.to_s(:count)}); #{page_count} = (#{node_count} / #{query.page_size.to_f}).ceil; #{curr_page} = [1,params[:#{pagination_key}].to_i].max %>"
+            res = "#{node_count} = Node.do_find(:count, #{query.to_s(:count)})"
+            if pagination_key
+              # Full pagination needed
+              set_context_var('paginate', 'key', pagination_key, sub_context)
+
+              page_count = get_var_name('paginate', 'count', sub_context)
+              curr_page  = get_var_name('paginate', 'current', sub_context)
+
+              # Give access to the page number through the pagination key.
+              set_context_var('set_var', pagination_key, RubyLess::TypedString.new(curr_page, Number))
+              # Give access to page_count and count
+              # FIXME: DOC
+              set_context_var('set_var', 'page_count', RubyLess::TypedString.new(page_count, Number))
+
+              res << "; #{page_count} = (#{node_count} / #{query.page_size.to_f}).ceil; #{curr_page} = [1,params[:#{pagination_key}].to_i].max"
+            end
+
+            out "<% #{res} %>"
+
           elsif finder[:method].kind_of?(RubyLess::TypedString)
             # Hash passed with :zafu => {} is inserted into context
             sub_context.merge!(finder[:method].opts[:zafu] || {})
