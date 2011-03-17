@@ -76,6 +76,29 @@ class ScopeIndexTest < Zena::Unit::TestCase
       end
     end # creating a sub node
 
+    context 'deleting a sub node' do
+      setup do
+        secure(Node) { Node.create_node(:klass => 'Contact', :name => 'Life threat', :first_name => 'Earthquake', :parent_id => @project.zip, :v_status => Zena::Status[:pub])
+        }
+      end
+
+      subject do
+        secure(Node) { Node.create_node(:klass => 'Contact', :name => 'Life threat', :first_name => 'Fukushima', :parent_id => @project.zip, :v_status => Zena::Status[:pub])
+        }
+      end
+
+      should 'rebuild target indexes' do
+        assert_equal 'Earthquake', IdxProject.find(@project.scope_index).contact_first_name
+        subject
+        assert_equal 'Fukushima', IdxProject.find(@project.scope_index).contact_first_name
+        assert_difference('IdxProject.count', 0) do
+          subject.destroy
+          idx = IdxProject.find(@project.scope_index)
+          assert_equal 'Earthquake',  idx.contact_first_name
+        end
+      end
+    end # deleting a sub node
+
     context 'moving a sub node' do
       subject do
         secure(Node) { VirtualClass['Contact'].create_instance(:first_name => 'Friedrich', :name => 'Hölderlin', :parent_id => nodes_id(:zena), :v_status => Zena::Status[:pub]) }
@@ -412,7 +435,7 @@ class ScopeIndexTest < Zena::Unit::TestCase
         vclass = VirtualClass.create(subject)
         assert_equal "Invalid entry: keys should be a String and query should be a String or an Array of strings (1 => \"project\")", vclass.errors[:idx_scope]
       end
-      
+
       context 'with array keys' do
         subject do
           {:name => 'Song', :superclass => 'Post', :idx_scope => "{%w{self project} => 'project'}", :create_group_id => groups_id(:public) }
@@ -423,7 +446,7 @@ class ScopeIndexTest < Zena::Unit::TestCase
           assert_equal "Invalid rubyless: Invalid key type for hash (should be a literal value, was :array)", vclass.errors[:idx_scope]
         end
       end # with array keys
-      
+
     end # with an invalid idx_scope
 
     context 'with an invalid idx_scope type' do

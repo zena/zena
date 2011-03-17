@@ -29,19 +29,18 @@ module Zena
 
         # Find related nodes.
         # See Node#build_find for details on the options available.
-        # TODO: do we need rubyless translate here ?
-        def find(count, rel, opts = {})
-          if !opts[:skip_rubyless] && rel.size == 1 && type = RubyLess::SafeClass.safe_method_type_for(self.class, [rel.first])
+        # TODO: do we need rubyless translate here ? It should be removed.
+        def find(count, pseudo_sql, opts = {})
+          if !opts[:skip_rubyless] && type = RubyLess::SafeClass.safe_method_type_for(self.class, [pseudo_sql])
             self.send(type[:method])
           else
             begin
-              query = self.class.build_query(count, rel,
+              query = self.class.build_query(count, pseudo_sql,
                 :node_name       => 'self',
                 :main_class      => virtual_class,
                 :rubyless_helper => (opts[:rubyless_helper] || virtual_class), # should it be || self ?
                 :default         => opts[:default]
               )
-
               if limit = opts[:limit]
                 query.limit  = " LIMIT #{limit.to_i}"
                 query.offset = " OFFSET #{opts[:offset].to_i}"
@@ -52,7 +51,7 @@ module Zena
 
             type = [:all, :first].include?(count) ? :find : :count
 
-            self.class.do_find(count, eval(query.to_s(type)))
+            Node.do_find(count, eval(query.to_s(type)))
           end
         end
 

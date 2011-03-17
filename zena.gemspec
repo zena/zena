@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2011-03-15}
+  s.date = %q{2011-03-17}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -1832,6 +1832,7 @@ Gem::Specification.new do |s|
     "test/integration/zafu_compiler/complex.yml",
     "test/integration/zafu_compiler/complex_ok.yml",
     "test/integration/zafu_compiler/conditional.yml",
+    "test/integration/zafu_compiler/context.yml",
     "test/integration/zafu_compiler/data.yml",
     "test/integration/zafu_compiler/dates.yml",
     "test/integration/zafu_compiler/display.yml",
@@ -1841,6 +1842,7 @@ Gem::Specification.new do |s|
     "test/integration/zafu_compiler/i18n.yml",
     "test/integration/zafu_compiler/idx_scope.yml",
     "test/integration/zafu_compiler/later.yml",
+    "test/integration/zafu_compiler/meta.yml",
     "test/integration/zafu_compiler/off/off.yml",
     "test/integration/zafu_compiler/query.yml",
     "test/integration/zafu_compiler/recursion.yml",

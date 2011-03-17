@@ -21,6 +21,9 @@ link_selects_in_sub_query:
   src: "icons or images"
   sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND ((nodes.id = links.target_id AND links.relation_id = _ID(node_has_an_icon) AND links.source_id = ?) OR (nodes.kpath LIKE 'NDI%' AND nodes.parent_id = ? AND links.id = 0)) GROUP BY nodes.id ORDER BY nodes.zip ASC}, @node.id, @node.id]"
 
+project:
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.id = ? ORDER BY nodes.zip ASC}, @node.get_project_id]"
+  
 projects_from_tags:
   sql: "/nodes.id = no1.project_id AND no1.kpath LIKE 'NPT%' AND no1.parent_id = ?/"
 

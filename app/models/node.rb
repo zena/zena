@@ -217,7 +217,8 @@ class Node < ActiveRecord::Base
                      :data_b => {:class => ['DataEntry'], :zafu => {:data_root => 'node_b'}},
                      :data_c => {:class => ['DataEntry'], :zafu => {:data_root => 'node_c'}},
                      :data_d => {:class => ['DataEntry'], :zafu => {:data_root => 'node_d'}},
-                     :traductions => ['Version'], :discussion  => 'Discussion'
+                     :traductions => ['Version'], :discussion  => 'Discussion',
+                     :project => 'Node'
 
   # we use safe_method because the columns can be null, but the values are never null
   safe_method        :kpath => String, :user_zip => Number,

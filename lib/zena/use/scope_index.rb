@@ -122,9 +122,32 @@ module Zena
           end
         end
 
+        def update_after_destroy(deleted_node, keys)
+          groups = self.class.groups
+          attrs  = {}
+          keys.each do |group_key|
+            next unless list = groups[group_key]
+            next unless should_clear_group?(group_key, deleted_node)
+            list.each do |key|
+              attrs["#{group_key}_#{key}"] = nil
+            end
+          end
+
+          if !attrs.empty?
+            self.attributes = attrs
+            save
+          end
+        end
+
         # Return true if the indices from the given group should be altered by the node.
         def should_update_group?(group_key, node)
           node.id >= self["#{group_key}_id"].to_i
+        end
+
+        # Return true if the indices from the given group should be cleared when
+        # the given node is deleted.
+        def should_clear_group?(group_key, deleted_node)
+          deleted_node.id == self["#{group_key}_id"].to_i
         end
 
         def set_site_id
@@ -134,7 +157,8 @@ module Zena
 
       module ModelMethods
         def self.included(base)
-          base.after_save  :update_scope_indices
+          base.after_save    :update_scope_indices
+          base.after_destroy :update_scope_indices_on_destroy
           base.safe_context :scope_index => scope_index_proc
           base.alias_method_chain :rebuild_index!, :scope_index
         end
@@ -149,7 +173,7 @@ module Zena
           end
         end
 
-        # FIXME: test !
+        # Rebuild 'remote' indexes based on changes in this node.
         def rebuild_index_with_scope_index!
           rebuild_index_without_scope_index!
           update_scope_indices
@@ -171,6 +195,21 @@ module Zena
           end
         end
 
+        # Trigger 'rebuild_index!' in all elements that could affect this model's
+        # scope index.
+        def rebuild_scope_index!
+          if vclass && query = vclass.idx_reverse_scope
+            if nodes = find(:all, query)
+              nodes.each do |node|
+                node.rebuild_index!
+              end
+            end
+          else
+            nil
+          end
+
+        end
+
         protected
           # Update scope indices (project/section).
           def update_scope_indices
@@ -182,7 +221,14 @@ module Zena
              # FIXME: raise when we have transactional save.
           end
 
-          def update_scope_indices_on_prop_change
+          def update_scope_indices_on_destroy
+            return unless version.status == Zena::Status[:pub]
+            update_scope_indices_on_prop_change(true)
+            # How can we handle this ?
+            # update_scope_indices_on_link_change
+          end
+
+          def update_scope_indices_on_prop_change(deleted=false)
             if virtual_class && scopes = virtual_class.idx_scope
               scopes = safe_eval(scopes)
               return unless scopes.kind_of?(Hash)
@@ -198,15 +244,24 @@ module Zena
               mapped_scopes.each do |keys, query|
                 next unless query.kind_of?(String) && keys.kind_of?(Array) && keys.inject(true) {|s,k| s && k.kind_of?(String) }
                 if query.strip == 'self'
+                  next if deleted
                   models_to_update = [self]
                 else
-                  models_to_update = find(:all, query) || []
+                  models_to_update = find(:all, query, :skip_rubyless => true) || []
+                  raise if !models_to_update.empty? && title == models_to_update.first.title
                 end
 
                 models_to_update.each do |m|
                   if idx_model = m.scope_index
-                    # force creation of index record
-                    idx_model.update_with(self, keys, true)
+                    if deleted
+                      # Clear obsolete content
+                      idx_model.update_after_destroy(self, keys)
+                      # Rebuild index
+                      m.rebuild_scope_index!
+                    else
+                      # force creation of index record
+                      idx_model.update_with(self, keys, true)
+                    end
                   end
                 end
               end
