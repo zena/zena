@@ -21,6 +21,7 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     'search',
     'site',
     'tags',      # bricks/tags/zena/test/zafu
+    'worker',    # bricks/worker/zena/test/zafu
     'urls',
     'user',
     'version',

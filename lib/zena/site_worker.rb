@@ -44,5 +44,15 @@ module Zena
     def page_count
       (Node.count(:conditions => ['site_id = ?', site_id]) / CHUNK_SIZE) + 1
     end
+
+    # Return a textual description of the operation.
+    def info
+      if site_id == current_site.id
+        "#{action}, #{_('page')} #{page}/#{page_count}"
+      else
+        # Do not show jobs from other sites
+        "-"
+      end
+    end
   end
 end # Zena

@@ -4,7 +4,7 @@ test:
   tags:        ON
   captcha:     ON
   sphinx:      OFF
-  worker:      OFF
+  worker:      ON
 
 development:
   asset_port: 7999

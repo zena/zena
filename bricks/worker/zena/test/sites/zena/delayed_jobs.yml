@@ -1,0 +1,16 @@
+zena_index:
+  run_at: 2011-03-21 10:41
+  handler: |
+    --- !ruby/struct:Zena::SiteWorker
+    site_id: 705790410
+    action: :rebuild_index
+    page: 1
+
+ocean_vhash:
+  run_at: 2011-03-21 10:05
+  handler: |
+    --- !ruby/struct:Zena::SiteWorker
+    site_id: 740511775
+    action: :rebuild_vhash
+    page: 1
+
