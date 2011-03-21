@@ -322,7 +322,7 @@ end
 class Zerox1Data < ActiveRecord::Migration
   extend Zena::Acts::Secure
   def self.up
-    if connection.tables.include?('contact_contents')
+    if connection.tables.include?('contact_contents') && ContactContent.first
       # Need to migrate data
       if $Zerox1SchemaRunning
         raise "\n\n=> This is not an error:\n=> Please restart migration: a restart is needed before running Zerox1Data.\n\n"
