@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2011-03-17}
+  s.date = %q{2011-03-21}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -319,6 +319,7 @@ Gem::Specification.new do |s|
     "bricks/zena/zena/migrate/01_base.rb",
     "bricks/zena/zena/migrate/02_zerox1_schema.rb",
     "bricks/zena/zena/migrate/03_zerox1_data.rb",
+    "bricks/zena/zena/migrate/20110315161158_add_reverse_scope_to_roles.rb",
     "config/boot.rb",
     "config/bricks.yml",
     "config/database_example.yml",
@@ -2217,6 +2218,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
       s.add_runtime_dependency(%q<tzinfo>, ["= 0.3.25"])
       s.add_runtime_dependency(%q<rails>, ["= 2.3.11"])
+      s.add_runtime_dependency(%q<httparty>, ["= 0.6.1"])
       s.add_runtime_dependency(%q<rubyless>, ["= 0.8.2"])
       s.add_runtime_dependency(%q<property>, ["= 2.1.2"])
       s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
@@ -2239,6 +2241,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
       s.add_dependency(%q<tzinfo>, ["= 0.3.25"])
       s.add_dependency(%q<rails>, ["= 2.3.11"])
+      s.add_dependency(%q<httparty>, ["= 0.6.1"])
       s.add_dependency(%q<rubyless>, ["= 0.8.2"])
       s.add_dependency(%q<property>, ["= 2.1.2"])
       s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
@@ -2262,6 +2265,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.0"])
     s.add_dependency(%q<tzinfo>, ["= 0.3.25"])
     s.add_dependency(%q<rails>, ["= 2.3.11"])
+    s.add_dependency(%q<httparty>, ["= 0.6.1"])
     s.add_dependency(%q<rubyless>, ["= 0.8.2"])
     s.add_dependency(%q<property>, ["= 2.1.2"])
     s.add_dependency(%q<uuidtools>, ["= 2.0.0"])

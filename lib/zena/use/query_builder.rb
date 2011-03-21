@@ -28,8 +28,9 @@ module Zena
                 return klass.do_find(:all, eval(query.to_s))
               end
             rescue ::QueryBuilder::Error => err
-              # FIXME: how to return error messages to the user ?
-              Node.logger "Error in dynamic query #{pseudo_sql.inspect}: #{err}"
+              msg = "Error in dynamic query #{pseudo_sql.inspect}: #{err}"
+              js_data << "alert(#{msg.inspect})" if dev_mode?
+              Node.logger.info msg
             end
           end
           # error

@@ -115,6 +115,14 @@ order_l_status:
   sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags) AND links.target_id = ? ORDER BY links.status ASC, nodes.zip ASC}, @node.id]"
   res: "super ouverture, Clean Water project"
 
+order_random:
+  context:
+    node: wiki
+  src: "nodes order by random limit 1"
+  sqlite3: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.parent_id = ? ORDER BY random() LIMIT 1}, @node.id]"
+  mysql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.parent_id = ? ORDER BY RAND() LIMIT 1}, @node.id]"
+  res: "/bird|flower/"
+
 paginate_one:
   src: "nodes in site order by zip limit 2 paginate p"
   # we sort by zip to avoid collation problems when some DB sort Capital letters first

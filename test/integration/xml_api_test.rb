@@ -113,7 +113,6 @@ class XmlApiTest < Zena::Integration::TestCase
       end
 
       should 'save content to remote db' do
-        deb subject.attributes
         subject.attributes.merge!('title' => 'cloud')
         assert subject.save
         assert_equal 'cloud', nodes(:status).title

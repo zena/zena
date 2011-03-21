@@ -35,7 +35,7 @@ module Zena
       end
 
       def adapter
-        self.class.to_s.downcase
+        @adapter ||= self.to_s.downcase.split('::').last
       end
 
       def execute(*args)

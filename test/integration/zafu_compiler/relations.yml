@@ -79,7 +79,7 @@ pages_random:
   context:
     node: 'cleanWater'
   src: "<r:pages limit='3' order='random'><r:each join=', '><r:show attr='title'/></r:each></r:pages>"
-  tem: "/ORDER BY RAND/"
+  tem: "/ORDER BY (RAND|random)/"
 
 nodes_in_project:
   src: "<r:nodes in='project' limit='2'><r:each join=', '><r:show attr='title'/></r:each></r:nodes>"
