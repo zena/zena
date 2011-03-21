@@ -340,6 +340,7 @@ namespace :zena do
       end
 
       %w{db:fixtures:load zena:rebuild_index}.each do |task|
+        ENV['WORKER'] = 'false'
         puts "******************************* #{task}"
         Rake::Task[task].invoke
       end

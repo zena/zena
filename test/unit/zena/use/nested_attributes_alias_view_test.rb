@@ -39,13 +39,13 @@ class NestedAttributesAliasViewTest < Zena::View::TestCase
     end
 
     def link
-      @link ||= returning(HashAsMethods.new) do |l|
+      @link ||= HashAsMethods.new.tap do |l|
         l.friend = HashAsMethods.new('other_id' => 1234)
       end
     end
 
     def version
-      @version ||= returning(HashAsMethods.new('title' => 'version title')) do |v|
+      @version ||= HashAsMethods.new('title' => 'version title').tap do |v|
         v.content = HashAsMethods.new('width' => 33)
       end
     end

@@ -54,9 +54,9 @@ module Zena
       )
       if config
         ["#{Zena::ROOT}/vendor", "#{Zena::ROOT}/lib"].each do |path|
-          ActiveSupport::Dependencies.load_paths      << path
-          ActiveSupport::Dependencies.load_once_paths << path
-          $LOAD_PATH                                  << path
+          ActiveSupport::Dependencies.autoload_paths      << path
+          ActiveSupport::Dependencies.autoload_once_paths << path
+          $LOAD_PATH                                      << path
         end
       else
         paths_to_add.each do |path|

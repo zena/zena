@@ -1,7 +1,7 @@
 module Bricks
   module Loader
     @@no_init = false
-    
+
     def bricks
       @@bricks ||= bricks_folders.map do |bricks_folder|
         if File.exist?(bricks_folder)
@@ -112,8 +112,8 @@ module Bricks
     def load_bricks
       bricks.each do |path|
         path = File.join(path, 'lib')
-        ActiveSupport::Dependencies.load_paths      << path
-        ActiveSupport::Dependencies.load_once_paths << path
+        ActiveSupport::Dependencies.autoload_paths      << path
+        ActiveSupport::Dependencies.autoload_once_paths << path
         $LOAD_PATH                                  << path
       end
 

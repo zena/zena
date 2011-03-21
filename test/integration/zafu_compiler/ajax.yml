@@ -152,19 +152,19 @@ live_filter_select_options:
 
 draggable_do_syntax:
   src: "<r:images in='site' do='each' draggable='all' do='img' mode='pv'/>"
-  tem: "/add_drag_id\(\"drag_#\{var2.zip\}\"/"
+  tem: "/add_drag_id\(%Q\{drag_#\{var2.zip\}\}/"
   res: "/id='drag_30'><img src='/en/image30_pv.jpg\?967816914293'/"
   js: '/"drag_24"\].each.*Zena.draggable\(item, false\)/'
 
 draggable_true:
   # should use 'drag_handle' class
   src: "<r:link draggable='true'><b do='title'/></r:link>"
-  tem: "/span class='drag_handle'.*add_drag_id\(\"drag_\#\{@node.zip\}\", .*drag_handle/"
+  tem: "/span class='drag_handle'.*add_drag_id\(%Q\{drag_\#\{@node.zip\}\}, .*drag_handle/"
 
 draggable_on_each_with_id:
   src: "<ul do='pages in site'><li do='each'><b do='link' draggable='true'/> <r:edit/></li></ul>"
   # should not use each id
-  tem: "/li id='<%= %Q\{list1_#\{var2.zip\}\}.*%Q\{drag_#\{var2.zip\}\}.*add_drag_id\(\"drag_#\{var2.zip\}\"/"
+  tem: "/li id='<%= %Q\{list1_#\{var2.zip\}\}.*%Q\{drag_#\{var2.zip\}\}.*add_drag_id\(%Q\{drag_#\{var2.zip\}\}/"
 
 drag_with_form:
   src: "<table do='pages in site'>
@@ -197,25 +197,25 @@ draggable_existing_class:
   # should use 'drag_handle' class
   src: "<r:link draggable='true'><r:img class='drag_handle' mode='tiny'/> <r:title/></r:link>"
   tem: "!/span class='drag_handle'/"
-  res: "/div class='drag' id='drag_22'><a href='.*22.*img src='/images/ext/page_tiny.png' .*class='drag_handle'/> status title/"
+  res: "/span class='drag' id='drag_22'><a href='.*22.*img src='/images/ext/page_tiny.png' .*class='drag_handle'/> status title/"
 
 draggable_existing_class_do:
   # should use 'drag_handle' class
   src: "<r:link draggable='drag_img'><b class='drag_img' do='img' mode='tiny'/> blah</r:link>"
   tem: "!/span class='drag_handle'|span class='drag_img'/"
-  res: "/div class='drag' id='drag_22'><a href='.*22.*<b class='drag_img'.*img src='/images/ext/page_tiny.png'/"
+  res: "/span class='drag' id='drag_22'><a href='.*22.*<b class='drag_img'.*img src='/images/ext/page_tiny.png'/"
 
 draggable_in_block:
   # should use 'hooba' class
   src: "<r:block><r:link draggable='hooba'/></r:block>"
-  tem: "/add_drag_id\(\"drag_\#\{@node.zip\}\", .*hooba/"
-  res: "<div id='list1'><div class='drag' id='drag_22'><span class='hooba'>&nbsp;</span><a href='/oo/projects-list/Clean-Water-project/page22.html'>status title</a></div></div>"
+  tem: "/add_drag_id\(%Q\{drag_\#\{@node.zip\}\}, .*hooba/"
+  res: "<div id='list1'><span class='drag' id='drag_22'><span class='hooba'>&nbsp;</span><a href='/oo/projects-list/Clean-Water-project/page22.html'>status title</a></span></div>"
   js:  "/Zena.draggable\(item, \"hooba\"\)/"
 
 draggable_with_id_set:
   # should not change original id
   src: "<h1 id='title' do='title' draggable='true'/>"
-  tem: "/<h1 id='title'><span class='drag' id='<%= %Q\{drag_#\{@node.zip\}\} %>'><span class='drag_handle'>&nbsp;</span><% add_drag_id\(\"drag_#\{@node.zip\}/"
+  tem: "/<h1 id='title'><span class='drag' id='<%= %Q\{drag_#\{@node.zip\}\} %>'><span class='drag_handle'>&nbsp;</span><% add_drag_id\(%Q\{drag_#\{@node.zip\}/"
 
 unlink:
   context:
