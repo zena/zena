@@ -378,9 +378,9 @@ module Zena
         end
 
         def r_textarea
-          params = @markup.params.merge(@params)
+          @params = @markup.params.merge(@params)
           res = make_textarea(params)
-          extract_label(res, params, params[:name])
+          extract_label(res, @params[:name])
         end
 
         # <r:select name='klass' root_class='...'/>
@@ -434,7 +434,7 @@ module Zena
             parser_error("missing 'nodes', 'root_class' or 'values'")
           end
 
-          extract_label(res, @params, attribute)
+          extract_label(res, attribute)
         end
 
 
@@ -482,7 +482,7 @@ module Zena
             wrap('')
           end
 
-          extract_label(res, @params, attribute || html_attributes[:name])
+          extract_label(res, attribute || html_attributes[:name])
         end
 
         # <r:checkbox role='collaborator_for' values='projects' in='site'/>"
@@ -531,7 +531,7 @@ module Zena
             res = "<%= make_checkbox(#{node}, :list => #{finder}, :role => #{meth.inspect}, :attr => #{attribute.inspect}) %>"
           end
 
-          extract_label(res, @params, attribute)
+          extract_label(res, attribute)
         end
 
         alias r_radio r_checkbox

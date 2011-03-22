@@ -287,7 +287,7 @@ update_target_encode_params:
 
 include_update_target:
   src: "IUT: <r:include template='/ajax/update/target'><r:with part='foo'><r:show attr='title'/></r:with></r:include>"
-  tem: "/IUT: UT: <div id='foo'><%= @node.prop\['title'\] %></div> <a .*zen_path.*onclick='new Ajax.Request/"
+  tem: "/IUT: UT: <div id='foo'><%= h @node.prop\['title'\] %></div> <a .*zen_path.*onclick='new Ajax.Request/"
 
 id_in_each_group_should_be_scoped:
   src: "<ul do='comments from nodes in site' do='group' by='discussion_id'><li do='each'><r:node do='block' do='title'/></li></ul>"

@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2011-03-21}
+  s.date = %q{2011-03-22}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -311,10 +311,13 @@ Gem::Specification.new do |s|
     "bricks/tags/zena/test/zafu/tags.yml",
     "bricks/toto.zip",
     "bricks/worker/README",
+    "bricks/worker/lib/bricks/worker.rb",
     "bricks/worker/zena/deploy.rb",
     "bricks/worker/zena/init.rb",
     "bricks/worker/zena/migrate/20091104191643_create_delayed_jobs_table.rb",
     "bricks/worker/zena/tasks.rb",
+    "bricks/worker/zena/test/sites/zena/delayed_jobs.yml",
+    "bricks/worker/zena/test/zafu/worker.yml",
     "bricks/worker/zena/worker",
     "bricks/zena/zena/migrate/01_base.rb",
     "bricks/zena/zena/migrate/02_zerox1_schema.rb",

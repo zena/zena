@@ -466,24 +466,24 @@ module Zena
             res = show_string(method)
           end
 
-          res = extract_label(res, @params, @params[:attr])
+          res = extract_label(res, @params[:attr])
 
-          if @params[:blank] == 'hide'
+          if param(:blank) == 'hide'
             "<% if !#{method}.blank? %>#{@markup.wrap(res)}<% end %>"
           else
             res
           end
         end
 
-        def extract_label(res, params, attribute)
-          if (label = params[:label] || params[:tlabel]) && attribute
+        def extract_label(res, attribute)
+          if (label = param(:label) || param(:tlabel)) && attribute
             case label
             when 'true'
               "<label>#{attribute}</label> <span>#{res}</span>"
             when 't'
               "<label>#{trans(attribute)}</label> <span>#{res}</span>"
             else
-              if params[:tlabel]
+              if @params[:tlabel]
                 code = ::RubyLess.translate(self, "t(%Q{#{label}})")
               else
                 code = ::RubyLess.translate_string(self, label)
@@ -623,7 +623,7 @@ module Zena
 
         private
           def show_number(method)
-            if fmt = @params[:format]
+            if fmt = param(:format)
               begin
                 # test argument
                 sprintf(fmt, 123.45)
@@ -639,7 +639,7 @@ module Zena
                 modifier = ''
               end
 
-              if @params[:zero] == 'hide'
+              if param(:zero) == 'hide'
                 "<%= sprintf_unless_zero(#{fmt.inspect}, #{method}#{modifier}) %>"
               else
                 "<%= sprintf(#{fmt.inspect}, #{method}#{modifier}) %>"
@@ -650,11 +650,15 @@ module Zena
           end
 
           def show_string(method)
-            "<%= #{method} %>"
+            if param(:h) == 'false'
+              "<%= #{method} %>"
+            else
+              "<%= h #{method} %>"
+            end
           end
 
           def show_time(method)
-            if tformat = @params.delete(:tformat)
+            if tformat = param(:tformat)
               tformat = RubyLess.translate(self, "t(%Q{#{tformat}})")
               method = "#{method}, :format => #{tformat}"
             end

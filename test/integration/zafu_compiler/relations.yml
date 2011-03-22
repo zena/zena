@@ -110,11 +110,11 @@ author:
 
 public_readable_link:
   src: "<r:show attr='set_tag_ids'/>"
-  tem: '<%= @node.rel["set_tag"].try(:other_zips) %>'
+  tem: '<%= h @node.rel["set_tag"].try(:other_zips) %>'
 
 public_readable_link_for:
   src: "<r:show attr='hot_for_ids'/>"
-  tem: '<%= @node.rel["hot_for"].try(:other_zips) %>'
+  tem: '<%= h @node.rel["hot_for"].try(:other_zips) %>'
   res: '21'
 
 public_readable_link_id:

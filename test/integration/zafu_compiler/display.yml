@@ -18,7 +18,7 @@ show_title_with_opts:
   old_src: "<h1 do='title' class='s70' status='true' actions='all'>this is the title</h1>"
   old_tem: "/<h1 class='s<%= @node.version.status %>'><%= show_title\(:node=>@node\) \+ node_actions\(:node=>@node, .*:actions=>\"all\"/"
   src: "<h1 do='title' prefix='status' actions='all' live='true'>this is the title</h1>"
-  tem: "<h1 class='s<%= @node.version.status %>'><span id='_title<%= @node.zip %>'><%= @node.prop['title'] %></span> <%= node_actions(@node, :actions => \"all\") %></h1>"
+  tem: "<h1 class='s<%= @node.version.status %>'><span id='_title<%= @node.zip %>'><%= h @node.prop['title'] %></span> <%= node_actions(@node, :actions => \"all\") %></h1>"
   old_res: "/<h1 class='s50'><span id='title22'.*class='actions'>/"
   res: "/<h1 class='s50'><span id='_title22'.*class='actions'>/"
 
@@ -140,13 +140,13 @@ show_width:
 show_else:
   old_src: "<r:show attr='comment' else='name'/>"
   src: "<r:show eval='origin || title'/>"
-  tem: "<%= (@node.prop['origin'] or @node.prop['title']) %>"
+  tem: "<%= h (@node.prop['origin'] or @node.prop['title']) %>"
   res: "status title"
 
 show_default:
   old_src: "<r:show attr='d_foo' default='baz'/>"
   src: "<r:show eval='origin || \"baz\"'/>"
-  tem: "<%= (@node.prop['origin'] or \"baz\") %>"
+  tem: "<%= h (@node.prop['origin'] or \"baz\") %>"
   res: "baz"
 
 javascripts:
@@ -281,7 +281,7 @@ show_with_label_shortcut:
   context:
     lang: fr
   src: "<li do='show' label='t' blank='hide' attr='title'/>"
-  tem: "<% if !@node.prop['title'].blank? %><li><label>titre</label> <span><%= @node.prop['title'] %></span></li><% end %>"
+  tem: "<% if !@node.prop['title'].blank? %><li><label>titre</label> <span><%= h @node.prop['title'] %></span></li><% end %>"
   res: "<li><label>titre</label> <span>Etat des travaux</span></li>"
 
 show_with_custom_label_shortcut:
@@ -290,6 +290,20 @@ show_with_custom_label_shortcut:
   src: "<li do='show' label='#{t(\"en\")}' blank='hide' attr='title'/>"
   tem: "/anglais/"
   res: "<li><label>anglais</label> <span>Etat des travaux</span></li>"
+
+render_h_label:
+  context:
+    lang: fr
+  src: "<r:default label='t'><li do='show' attr='title'/></r:default>"
+  res: "<li><label>titre</label> <span>Etat des travaux</span></li>"
+
+render_h_disabled:
+  src: "<r:default h='false'><r:show attr='title'/></r:default>"
+  tem: "<%= @node.prop['title'] %>"
+
+show_h_disabled:
+  src: "<r:show h='false' attr='title'/>"
+  tem: "<%= @node.prop['title'] %>"
 
 show_with_custom_tlabel_shortcut:
   context:
