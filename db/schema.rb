@@ -11,6 +11,24 @@
 
 ActiveRecord::Schema.define(:version => 20100115134729) do
 
+  create_table "access_hits", :force => true do |t|
+    t.integer  "site_id"
+    t.integer  "node_id"
+    t.string   "remote_host",      :limit => 50
+    t.datetime "request_time"
+    t.integer  "request_duration"
+    t.integer  "status"
+    t.integer  "bytes_sent"
+    t.string   "request_method",   :limit => 6
+    t.string   "request_uri"
+    t.string   "referer"
+    t.string   "agent"
+    t.string   "request_line"
+    t.string   "mode",             :limit => 30
+    t.string   "format",           :limit => 10
+    t.string   "lang",             :limit => 6
+  end
+
   create_table "cached_pages", :force => true do |t|
     t.text     "path"
     t.datetime "expire_after"
@@ -121,8 +139,8 @@ ActiveRecord::Schema.define(:version => 20100115134729) do
   end
 
   create_table "groups_users", :id => false, :force => true do |t|
-    t.integer "group_id", :null => false
-    t.integer "user_id",  :null => false
+    t.integer "group_id"
+    t.integer "user_id"
   end
 
   create_table "iformats", :force => true do |t|
@@ -147,15 +165,17 @@ ActiveRecord::Schema.define(:version => 20100115134729) do
   end
 
   create_table "nodes", :force => true do |t|
+    t.string   "name",         :limit => 200
     t.string   "type",         :limit => 32
-    t.datetime "event_at"
+    t.integer  "vclass_id"
     t.string   "kpath",        :limit => 16
+    t.datetime "event_at"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "user_id",                                        :null => false
-    t.integer  "section_id"
+    t.integer  "user_id"
     t.integer  "parent_id"
-    t.string   "name",         :limit => 200
+    t.integer  "project_id"
+    t.integer  "section_id"
     t.string   "skin"
     t.integer  "inherit"
     t.integer  "rgroup_id"
@@ -170,9 +190,7 @@ ActiveRecord::Schema.define(:version => 20100115134729) do
     t.text     "basepath"
     t.integer  "site_id"
     t.integer  "zip"
-    t.integer  "project_id"
     t.float    "position",                    :default => 0.0
-    t.integer  "vclass_id"
     t.integer  "custom_a"
     t.integer  "custom_b"
     t.text     "vhash"
@@ -257,8 +275,8 @@ ActiveRecord::Schema.define(:version => 20100115134729) do
     t.string   "type",         :limit => 32
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "node_id",                                    :null => false
-    t.integer  "user_id",                                    :null => false
+    t.integer  "node_id"
+    t.integer  "user_id"
     t.string   "lang",         :limit => 10, :default => "", :null => false
     t.datetime "publish_from"
     t.text     "comment"
