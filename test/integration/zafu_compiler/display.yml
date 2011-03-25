@@ -322,3 +322,8 @@ each_whitespace:
     <r:pages in='site' order='id asc' limit='3'><r:each><r:id/><r:node></r:node></r:each>
     </r:pages>.
   res: "12\n34\n16\n.\n"
+
+set_class_before_query:
+  # Should use previous node (not list context)
+  src: "<div class='foo_#{title}' do='images in site'></div>"
+  res: "<div class='foo_status title'></div>"

@@ -237,7 +237,7 @@ module Zena
             document
           end
         end
-        
+
         def zafu_node(name, klass)
           zafu_context[:node] = Zena::Use::NodeContext.new(name, klass)
         end
@@ -390,7 +390,7 @@ module Zena
                   klass = [var.class]
                 end
               end
-              
+
               return Zena::Use::NodeContext.new(name, klass) if name
             end
 
@@ -474,7 +474,7 @@ module Zena
             res << "  <li><a class='group' onclick='$(\"dev_tools\").toggle();' href='#'>tools</a>\n"
             res << "    <ul class='dev_pop' id='dev_tools'><li>\n"
             res << %Q{    <div style='float:right'><% form_for(:user, visitor, :url => user_path(visitor), :html => { :method => :put }) do |f| %>
-              <%= f.select(:dev_skin_id, dev_skin_options, {}, {:onchange => 'this.form.submit()'}) %> <input style='display:none;' type='submit' value='<%= _('validate') %>'/>
+              <p><%= f.select(:dev_skin_id, dev_skin_options, {}, {:onchange => 'this.form.submit()'}) %> <input style='display:none;' type='submit' value='<%= _('validate') %>'/></p>
             <% end %></div>}
             res << "      <a style='float:right; margin:0 8px;' href='?rebuild=true'>#{_('rebuild_btn')}</a>\n"
             res << "<% if @node.kind_of?(Skin) %><a href='<%= export_node_path(@node[:zip]) %>'>#{_('export')}</a>\n<% end %>"

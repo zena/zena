@@ -1,4 +1,4 @@
-<r:include template='Node'>
+<r:include template='$default/Node'>
   <r:with part='title'/>
   <r:with part='container'>
 

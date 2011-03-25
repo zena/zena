@@ -1,5 +1,3 @@
-require 'thinking_sphinx/deploy/capistrano'
-
 Capistrano::Configuration.instance(:must_exist).load do
 
   task :worker_stop, :roles => [:app] do

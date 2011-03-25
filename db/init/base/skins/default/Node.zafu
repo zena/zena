@@ -21,7 +21,7 @@
     <div id='visitor' do='visitor_link'/>
     <div id='search' do='search_box' type='search'/>
     <ol id='menu' do='root' do='pages'>
-      <li do='each' on_if_node='ancestor' do='link'/>
+      <li do='each' on_if='ancestor?(main)' do='link'/>
     </ol>
   </div>
   <div id='container'>

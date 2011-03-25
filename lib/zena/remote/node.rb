@@ -59,8 +59,13 @@ module Zena
             @attributes[key] = elem.id
           elsif elem.kind_of?(Array)
             key = "#{key}_ids" unless key =~ /_ids?$/
-            @attributes[key] = elem.map do |value|
-              value.kind_of?(Remote::Node) ? value.id : value
+            if elem == []
+              # Fix for strange handling of empty array by to_xml and such.
+              @attributes[key] = nil
+            else
+              @attributes[key] = elem.map do |value|
+                value.kind_of?(Remote::Node) ? value.id : value
+              end
             end
           else
             @attributes[$1] = elem

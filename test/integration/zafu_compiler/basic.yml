@@ -288,15 +288,6 @@ design_by_options:
   src: "<li do='design' skin='dark' by='vador' href='http://teti.ch'></li>"
   res: "<li><i>dark</i>, design by <a href='http://teti.ch'>vador</a></li>"
 
-#comments_with_params:
-#  src: "<r:comments order='date desc'><r:each join=', ' do='[title]'/></r:comments>"
-#  tem: "."
-
-comments_shown_if_empty_but_can_comment:
-  src: "<r:comments><r:each do='[title]'/><r:add/></r:comments>"
-  tem: "/if \(list1 = @node.comments\) \|\| \(@node.can_comment\? && list1=\[\]\) %>/"
-
-
 
 captcha:
   context:

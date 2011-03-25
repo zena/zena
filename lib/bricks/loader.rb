@@ -38,11 +38,20 @@ module Bricks
     end
 
     def migrations_for(brick)
-      File.join(Zena::ROOT, 'bricks', brick, 'zena', 'migrate')
+      File.join(brick_path(brick), 'zena', 'migrate')
     end
 
     def fixtures_path_for(brick)
-      File.join(Zena::ROOT, 'bricks', brick, 'zena', 'test', 'sites')
+      File.join(brick_path(brick), 'zena', 'test', 'sites')
+    end
+
+    def brick_path(brick)
+      p = nil
+      bricks_folders.each do |f|
+        p = File.join(f, brick)
+        return p if File.exist?(p)
+      end
+      return p
     end
 
     def zafu_tests

@@ -1,7 +1,7 @@
 module Zena
   module Use
     module Urls
-      ALLOWED_REGEXP = /\A(([a-zA-Z]+)([0-9]+)|([#{String::ALLOWED_CHARS_IN_FILENAME}]+))(_[a-zA-Z]+|)(\..+|)\Z/
+      ALLOWED_REGEXP = /\A(([a-zA-Z]+)([0-9]+)|([#{String::ALLOWED_CHARS_IN_FILENAME}%]+))(_[a-zA-Z]+|)(\..+|)\Z/
 
       module Common
         CACHESTAMP_FORMATS = ['jpg', 'png', 'gif', 'css', 'js']

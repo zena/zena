@@ -129,9 +129,10 @@ module Zena
         # (slow). Transform a list of zips into a fullpath.
         def fullpath_as_title(path = fullpath)
           if path == self.fullpath
-            @fullpath_as_title ||= secure(Node) { Node.fullpath_map(path, :title) }
+            # secure returns nil instead of [] so we fix this.
+            @fullpath_as_title ||= secure(Node) { Node.fullpath_map(path, :title) } || []
           else
-            secure(Node) { Node.fullpath_map(path, :title) }
+            secure(Node) { Node.fullpath_map(path, :title) } || []
           end
         end
 

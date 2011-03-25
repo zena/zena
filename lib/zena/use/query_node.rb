@@ -237,6 +237,11 @@ module Zena
             end
 
             # property or real column
+
+            # FIXME !!!! Why does this happen ?
+            return nil if @query.main_class.columns.kind_of?(Array)
+
+
             column = @query.main_class.columns[field_name]
             if column && column.indexed?
               if column.index == true

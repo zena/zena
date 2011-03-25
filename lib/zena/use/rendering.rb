@@ -277,19 +277,6 @@ module Zena
             out "<% set_headers(#{headers.join(', ')}) %>"
           end
         end
-
-        # Pass default values as parameters in @context as :param_XXXX
-        def r_default
-          cont = {}
-          @params.each do |k, v|
-            cont[:"params_#{k}"] = v
-          end
-          expand_with cont
-        end
-
-        def param(key, default = nil)
-          @params[key] || @context[:"params_#{key}"] || default
-        end
       end # ZafuMethods
     end # Rendering
   end # Use

@@ -315,6 +315,11 @@ visitor_node:
   src: "<r:visitor_node><b do='title'/></r:visitor_node>"
   res: "<b>Mr nobody</b>"
 
+relation_or_other:
+  src: "<ul do='posts' in='project' or='references' order='log_at desc' limit='8'>"
+  # should build a valid SQLiss query
+  tem: "/\) OR \(.*\)\) GROUP BY nodes.id ORDER BY nodes.log_at DESC LIMIT 8/"
+  
 relation_in_site:
   src: "<r:tagged in='site' limit='10' do='each' join=',' do='title'/>"
   res: "Clean Water project,parc opening"
@@ -396,32 +401,6 @@ nodes_in_site_group_by_year:
   old_src: "<r:nodes in='site' group='log_at:year' order='log_at:year asc, title ASC' do='each' join=', '><r:show date='log_at' format='%Y'/></r:nodes>"
   src: "<r:nodes in='site' group='log_at.year' order='log_at.year asc, title ASC' do='each' join=', '><r:show date='log_at' format='%Y'/></r:nodes>"
   res: ", 2006, 2007"
-
-comments_order_desc:
-  context:
-    visitor: ant
-    #  tz='UTC'
-  src: "<r:comments order='created_at desc'><r:each join=', '><r:show date='created_at' format='%Y-%m-%d'/>:<b do='[title]'/></r:each></r:comments>"
-  res: "2008-05-21:<b>re: What about rivers ?</b>, 2006-12-20:<b>What about rivers ?</b>, 2006-12-20:<b>Nice site</b>"
-
-comments_where_title:
-  src: "<r:comments where='title like \"%rivers%\"'><r:each join=', '><r:show date='created_at' format='%Y-%m-%d'/>:<b do='title'/></r:each></r:comments>"
-  tem: '/var1 = Comment.do_find/'
-  res: "2006-12-20:<b>What about rivers ?</b>, 2008-05-21:<b>re: What about rivers ?</b>"
-
-comments_no_discussion:
-  context:
-    node: letter
-  src: "<r:comments order='created_at desc'><r:each join=', '><r:show date='created_at' format='%Y-%m-%d'/>:<b do='[title]'/></r:each><r:else>-- no comment yet --</r:else></r:comments>"
-  res: "-- no comment yet --"
-
-comments_previous_node:
-  src: "<r:comments><r:each do='zazen' attr='text'/></r:comments>"
-  tem: "/zazen\(var2.text, :node => @node/"
-
-comments_in_site_node:
-  src: "<r:comments from='nodes in site' order='created_at desc' limit='2' do='each' join=', '><r:node do='title'/>: <r:show attr='title'/></r:comments>"
-  res: "status title: re: What about rivers ?, status title: What about rivers ?"
 
 find_by_zip:
   src: "<div do='find(30)' do='img'/>"

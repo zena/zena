@@ -27,6 +27,9 @@ class UrlsTest < Zena::View::TestCase
     assert_equal '/en/projects-list/Clean-Water-project/page22_test.html', zen_path(node, :mode=>'test')
   end
 
+  # Test is in NodesController (to make sure url parsing works)
+  # test_zen_path_custom_base_with_accents
+
   def test_zen_path_query_params
     login(:anon)
     node = secure!(Node) { nodes(:status) }

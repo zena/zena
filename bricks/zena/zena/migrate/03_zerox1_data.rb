@@ -172,9 +172,12 @@ class VersionMig < ActiveRecord::Base
 
   def migrate_base
     # migrate content to version properties
+    prop['custom_a'] = node.custom_a unless node.custom_a.nil?
+    prop['custom_b'] = node.custom_b unless node.custom_b.nil?
     prop['title']   = idx_text_high
     prop['summary'] = idx_text_medium
     prop['text']    = idx_text_low
+    prop['ext']     = 'zafu' if node.kpath =~ /\ANDTT/
   end
 
   def migrate_contact
@@ -300,6 +303,9 @@ class SiteMig < ActiveRecord::Base
 
     # 2. Set _id from name
     execute "UPDATE nodes SET _id = name WHERE site_id = #{id}"
+
+    # 3. move custom_a, custom_b to idx_integer1, idx_integer2
+    execute "UPDATE nodes SET idx_integer1 = custom_a, idx_integer2 = custom_b"
   end
 
   def migrate_site
@@ -350,7 +356,14 @@ class Zerox1Data < ActiveRecord::Migration
 
     execute "UPDATE roles SET type = 'VirtualClass'"
 
+    puts %q{
+======== Migration succeded.
+***********************************************************************************
+****************** You need to rebuild vhash, fullpath and index now! *************
 
-    puts "\n\n======== Migration succeded.\n****************** You need to rebuild vhash, fullpath and index now! *************\n=> rake zena:rebuild_vhash && rake zena:rebuild_fullpath && rake zena:rebuild_index\n\n"
+=> rake zena:rebuild_vhash WORKER=false && rake zena:rebuild_fullpath WORKER=false && rake zena:rebuild_index WORKER=false
+
+***********************************************************************************
+}
   end
 end

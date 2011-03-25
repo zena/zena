@@ -502,6 +502,12 @@ class NodesController < ApplicationController
     #  archive      ---> fullpath
     def find_node
       if path = params[:path]
+        # We do not use params[:path] because Rails does url unescape
+        # and we want to do this ourselves.
+        # TEMPORARY HACK until we use the new urls with Rails 3
+        # If you change this, make sure to test with an image data (cachestamp)
+        # in a custom_base path.
+        path = params[:path] = request.env['REQUEST_PATH'].split('/')[2..-1]
         if path.last =~ Zena::Use::Urls::ALLOWED_REGEXP
           zip    = $3
           name   = $4
@@ -517,13 +523,14 @@ class NodesController < ApplicationController
           if name =~ /^\d+$/
             @node = secure!(Node) { Node.find_by_zip(name) }
           elsif name
-            basepath = (path[0..-2] + [name]).map! {|p| String.from_url_name(p) }.join('/')
+            basepath = (path[0..-2] + [name]).map {|p| String.from_url_name(p) }.join('/')
             @node = secure!(Node) { Node.find_by_path(basepath) }
           else
             @node = secure!(Node) { Node.find_by_zip(zip) }
           end
         else
           # bad url
+          puts "Does not match #{Zena::Use::Urls::ALLOWED_REGEXP}"
           raise ActiveRecord::RecordNotFound
         end
       elsif params[:id]
@@ -592,6 +599,7 @@ class NodesController < ApplicationController
 
         if current_url != base_url
           # Badly formed url, redirect
+          puts "(1) #{current_url} != #{base_url}"
           redirect_to zen_path(@node, path_params) and return false
         end
 

@@ -21,7 +21,7 @@ module Bricks
     module ViewMethods
       include RubyLess
 
-      safe_method :delayed_jobs => [Job]
+      safe_context :delayed_jobs => [Job]
 
       def delayed_jobs
         jobs = Bricks::Worker::Job.find(:all,

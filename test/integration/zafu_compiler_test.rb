@@ -34,6 +34,7 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     'forms',
     'meta',
     'context',
+    'comments',
   ]
 
   BUG = [

@@ -34,3 +34,7 @@ v_title: "title"
 "<r:if kind_of='Section'": "<r:Section?>"
 "<r:text/>": "mat"
 "on_if_node='ancestor'": "on_if='ancestor?(main)'"
+"<div do='admin_links'/>": "<ol class='admin_links' do='admin_links'>
+    <li do='each' do='show'><a href='#'>do this</a></li>
+  </ol>"
+"set_class='li_s[v_status]'": "class='li_s#{v.status}'"

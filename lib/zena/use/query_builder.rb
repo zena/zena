@@ -378,6 +378,7 @@ module Zena
           def get_pseudo_sql(rel, params)
             parts   = [rel.dup]
             filters = []
+            group_order_limit = ''
 
             if params[:from]
               parts << params[:from]
@@ -400,21 +401,21 @@ module Zena
             # [group by GROUP_CLAUSE] [order by ORDER_CLAUSE] [limit num(,num)] [offset num] [paginate key]
 
             if group = params[:group]
-              parts[-1] << " group by #{group}" unless parts[0] =~ /group by/
+              group_order_limit << " group by #{group}" unless parts[0] =~ /group by/
             end
 
             if order = params[:order]
-              parts[-1] << " order by #{order}" unless parts[0] =~ /order by/
+              group_order_limit << " order by #{order}" unless parts[0] =~ /order by/
             end
 
             if paginate = params[:paginate]
               page_size = params[:limit].to_i
               page_size = 20 if page_size < 1
-              parts[-1] << " limit #{page_size} paginate #{paginate.gsub(/[^a-z_A-Z]/,'')}"
+              group_order_limit << " limit #{page_size} paginate #{paginate.gsub(/[^a-z_A-Z]/,'')}"
             else
               [:limit, :offset].each do |k|
                 next unless params[k]
-                parts[-1] << " #{k} #{params[k]}" unless parts[0] =~ / #{k} /
+                group_order_limit << " #{k} #{params[k]}" unless parts[0] =~ / #{k} /
               end
             end
 
@@ -432,9 +433,9 @@ module Zena
             end
 
             if finders.size > 1
-              finders = "(#{finders.join(') or (')})"
+              finders = "(#{finders.join(') or (')})#{group_order_limit}"
             else
-              finders = finders.first
+              finders = finders.first + group_order_limit
             end
 
             return [finders, parse_raw_filters(params)]

@@ -26,7 +26,7 @@
     </tr>
     <tr>
       <td class='label'><%= _('kpath') %></td>
-      <td><b><%= @virtual_class.kpath %></b><td>
+      <td><b><%= @virtual_class.kpath %></b></td>
     </tr>
     <tr><td class='label'><%= _('superclass')%></td><td><%= select('virtual_class', 'superclass',  Node.classes_for_form(:without => ((@virtual_class.new_record? || @virtual_class.kind_of?(Role)) ? nil : @virtual_class.to_s)), :selected => @virtual_class.superclass.to_s ) %></td></tr>
 
