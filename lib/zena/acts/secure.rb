@@ -327,10 +327,29 @@ if defined?(IRB)
     end
 
     def rename_prop(list, old_key, new_key)
+      if list.first.kind_of?(Node)
+        list = list.map(&:visible_versions).flatten
+      end
       list.each do |rec|
         prop  = rec.prop
         if value = prop.delete(old_key)
           prop[new_key] = value
+          Zena::Db.execute "UPDATE #{rec.class.table_name} SET properties=#{Zena::Db.quote(rec.class.encode_properties(prop))} WHERE id=#{rec[:id]}"
+        end
+      end
+    end
+
+    def field_to_prop(list, native_key, prop_key)
+      list.each do |rec|
+        next unless value = rec[native_key]
+        if rec.kind_of?(Node)
+          elems = rec.visible_versions
+        else
+          elems = [rec]
+        end
+        elems.each do |rec|
+          prop  = rec.prop
+          prop[prop_key] = value
           Zena::Db.execute "UPDATE #{rec.class.table_name} SET properties=#{Zena::Db.quote(rec.class.encode_properties(prop))} WHERE id=#{rec[:id]}"
         end
       end
@@ -364,6 +383,12 @@ if defined?(IRB)
       else
         secure(Node) { Node.find_by_title(zip_or_name) }
       end
+    end
+
+    def find(query)
+      default_scope = 'site'
+      query = {:qb => query} unless query.kind_of?(Hash)
+      nodes = secure(Node) { Node.search_records(query, :node => current_site.root_node, :default => {:scope => default_scope}) }
     end
   end
 end
