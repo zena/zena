@@ -38,3 +38,4 @@ v_title: "title"
     <li do='each' do='show'><a href='#'>do this</a></li>
   </ol>"
 "set_class='li_s[v_status]'": "class='li_s#{v.status}'"
+"<meta name='keywords' do='void' set_content='[d_keywords]'/>": "<meta name='keywords' content='#{keywords}'/>"

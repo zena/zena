@@ -319,7 +319,7 @@ relation_or_other:
   src: "<ul do='posts' in='project' or='references' order='log_at desc' limit='8'>"
   # should build a valid SQLiss query
   tem: "/\) OR \(.*\)\) GROUP BY nodes.id ORDER BY nodes.log_at DESC LIMIT 8/"
-  
+
 relation_in_site:
   src: "<r:tagged in='site' limit='10' do='each' join=',' do='title'/>"
   res: "Clean Water project,parc opening"
@@ -440,3 +440,7 @@ count:
   src: "<p do='nodes in site order by id' find='count'/>"
   tem: "<p><%= Node.do_find(:count, %Q{SELECT COUNT(*) FROM nodes WHERE #{secure_scope('nodes')}}) %></p>"
   res: "<p>42</p>"
+
+query_in_array:
+  src: "<div do='posts' do='find(\"posts in site\")'/>"
+  tem: "/Node\.do_find.*Node\.do_find"

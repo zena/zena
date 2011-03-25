@@ -131,9 +131,10 @@ module Syntax
 end # CodeSyntax
 
 class ZafuTokenizer < Syntax::Tokenizer
+  METHOD = "[\\w]+\\??"
   def step
     if ztag = scan(/\A<\/?r:[^>]+>/)
-      ztag =~ /<(\/?)r:([\w_]+)([^>]*?)(\/?)>/
+      ztag =~ /<(\/?)r:(#{METHOD})([^>]*?)(\/?)>/
       start_group :tag, "<#{$1}r:"
       start_group :ztag, $2
       trailing = $4

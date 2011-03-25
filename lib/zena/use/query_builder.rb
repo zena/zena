@@ -273,9 +273,16 @@ module Zena
         private
           # Build a Query object from SQLiss.
           def build_query(count, pseudo_sql, raw_filters = [])
+            node = self.node
+            while node.list_context?
+              node = node.up
+              if !node
+                raise ::QueryBuilder::Error.new("Could not access node context  query builder from list #{self.node.class_name}")
+              end
+            end
 
             if !node.klass.respond_to?(:build_query)
-              raise ::QueryBuilder::Error.new("No query builder for class #{node.klass}")
+              raise ::QueryBuilder::Error.new("No query builder for class #{klass}")
             end
 
             query_opts = {

@@ -180,3 +180,13 @@ test_in_each:
   src: "<ul do='pages'><li do='each' on_if='this.title == \"Keeping things clean !\"' do='title'/></ul>"
   tem: "/var2.prop\['title'\]==\"Keeping things clean !\"/"
   res: "<ul><li class=''>crocodiles</li><li class=' on'>Keeping things clean !</li><li class=''>status title</li></ul>"
+
+render_test:
+  src: "<r:can_write?>hello</r:can_write?>"
+  tem: "<% if @node.can_write? %>hello<% end %>"
+
+
+do_complex_clause:
+  src: "<div do='log_at &gt; now'>future<r:else>past</r:else></div>"
+  tem: "<% if (@node.log_at ? (@node.log_at>Time.now) : nil) %><div>future</div><% elsif true %><div>past</div><% end %>"
+  res: "<div>past</div>"
