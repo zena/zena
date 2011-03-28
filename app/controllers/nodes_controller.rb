@@ -507,7 +507,11 @@ class NodesController < ApplicationController
         # TEMPORARY HACK until we use the new urls with Rails 3
         # If you change this, make sure to test with an image data (cachestamp)
         # in a custom_base path.
-        path = params[:path] = request.env['REQUEST_PATH'].split('/')[2..-1]
+        if request.env['REQUEST_PATH']
+          # request.env['REQUEST_PATH'] is not set during testing (but this is
+          # a temporary hack anyway)
+          path = params[:path] = request.env['REQUEST_PATH'].split('/')[2..-1]
+        end
         if path.last =~ Zena::Use::Urls::ALLOWED_REGEXP
           zip    = $3
           name   = $4

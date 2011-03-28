@@ -444,3 +444,7 @@ count:
 query_in_array:
   src: "<div do='posts' do='find(\"posts in site\")'/>"
   tem: "/Node\.do_find.*Node\.do_find"
+
+query_in_array_without_find:
+  src: "<div do='posts' do='posts in site'/>"
+  tem: "/Node\.do_find.*Node\.do_find"

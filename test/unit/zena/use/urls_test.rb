@@ -27,8 +27,15 @@ class UrlsTest < Zena::View::TestCase
     assert_equal '/en/projects-list/Clean-Water-project/page22_test.html', zen_path(node, :mode=>'test')
   end
 
-  # Test is in NodesController (to make sure url parsing works)
-  # test_zen_path_custom_base_with_accents
+  def test_zen_path_custom_base_with_accents
+    # See also test in NodesController
+    login(:lion)
+    node = secure!(Node) { nodes(:cleanWater) }
+    node.update_attributes(:title => 'Lignes aériennes')
+    assert_equal '/oo/projects-list/Lignes-a%C3%A9riennes', zen_path(node)
+    # Make sure this is parsed back correctly
+    assert_match Zena::Use::Urls::ALLOWED_REGEXP, zen_path(node).split('/').last
+  end
 
   def test_zen_path_query_params
     login(:anon)

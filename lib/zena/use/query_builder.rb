@@ -205,7 +205,7 @@ module Zena
 
         # Resolve unknown methods by trying to build a pseudo-sql query with QueryBuilder.
         def querybuilder_eval(method = @method)
-          return nil if node.klass.kind_of?(Array) # list context
+          node = single_node
 
           if method =~ /^\d+$/
             finder = {:method => "find_node_by_zip(#{method})", :class => Node, :nil => true}
@@ -271,8 +271,7 @@ module Zena
         end
 
         private
-          # Build a Query object from SQLiss.
-          def build_query(count, pseudo_sql, raw_filters = [])
+          def single_node
             node = self.node
             while node.list_context?
               node = node.up
@@ -280,9 +279,15 @@ module Zena
                 raise ::QueryBuilder::Error.new("Could not access node context  query builder from list #{self.node.class_name}")
               end
             end
+            node
+          end
+
+          # Build a Query object from SQLiss.
+          def build_query(count, pseudo_sql, raw_filters = [])
+            node = single_node
 
             if !node.klass.respond_to?(:build_query)
-              raise ::QueryBuilder::Error.new("No query builder for class #{klass}")
+              raise ::QueryBuilder::Error.new("No query builder for class #{node.klass}")
             end
 
             query_opts = {
