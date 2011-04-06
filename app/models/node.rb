@@ -840,6 +840,9 @@ class Node < ActiveRecord::Base
           res["#{key}_id"] = Group.translate_pseudo_id(value, :id) || value
         elsif %w{user_id}.include?(key)
           res[key] = User.translate_pseudo_id(value, :id) || value
+        elsif %w{link_id}.include?(key)
+          # Link id, not translated
+          res[key] = value
         elsif %w{id create_at updated_at}.include?(key)
           # ignore (can be present in xml)
         elsif %w{log_at event_at v_publish_from}.include?(key) || (is_link && %w{date}.include?(key))

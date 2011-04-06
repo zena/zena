@@ -68,7 +68,8 @@ class DocumentContent < ActiveRecord::Base
           atta.save
           self.attachment_id = atta.id
         else
-          puts "Missing attachment file for node_id #{version.node_id} (#{version.idx_text_high})"
+          puts "Missing attachment file for node_id #{version.node_id} (#{version.idx_text_high}): changed to Node"
+          NodeMig.connection.execute "UPDATE nodes SET kpath = 'N', type = 'Node' WHERE id = #{version.node_id}"
         end
       end
       self.save
@@ -331,7 +332,7 @@ class Zerox1Data < ActiveRecord::Migration
     if connection.tables.include?('contact_contents') && ContactContent.first
       # Need to migrate data
       if $Zerox1SchemaRunning
-        raise "\n\n=> This is not an error:\n=> Please restart migration: a restart is needed before running Zerox1Data.\n\n"
+        raise "\n\n=> This is not an error !\n=> Please continue migrations (restart is needed before migrating data)\n=> rake zena:migrate\n\n"
       end
     else
       # Nothing to be done here

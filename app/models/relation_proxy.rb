@@ -268,6 +268,7 @@ class RelationProxy < Relation
         elsif link_id = @start.link_id
           @other_link = Link.find(link_id)
           @attributes_to_update[:id] = @other_link[other_side]
+          @attributes_to_update[:link_id] = link_id
         elsif unique?
           if other_id
             @attributes_to_update[:id] = other_id
@@ -309,7 +310,7 @@ class RelationProxy < Relation
         # TODO: this could be optimzed (avoid loading all links...)
         other_links.each do |link|
           obj_id = link[other_side]
-          if add_link_ids.include?(obj_id) && (@attributes_to_update[:date].nil? || @attributes_to_update[:date] == link[:date])
+          if add_link_ids.include?(obj_id) && (@attributes_to_update[:date].nil? || @attributes_to_update[:link_id] || @attributes_to_update[:date] == link[:date])
             # ignore existing link
             add_link_ids.delete(obj_id)
           else
@@ -337,7 +338,7 @@ class RelationProxy < Relation
           # delete
           @del_links = other_links.select {|l| @attributes_to_update[:date] == l[:date]}
         else
-          links = other_links.select {|l| l[other_side] == @attributes_to_update[:id] && (@attributes_to_update[:date].nil? || @attributes_to_update[:date] == l[:date])}
+          links = other_links.select {|l| l[other_side] == @attributes_to_update[:id] && (@attributes_to_update[:date].nil? || @attributes_to_update[:link_id] || @attributes_to_update[:date] == l[:date])}
           if links != []
             # update
             if (@attributes_to_update.keys & LINK_ATTRIBUTES) != []

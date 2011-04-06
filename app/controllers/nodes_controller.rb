@@ -534,7 +534,7 @@ class NodesController < ApplicationController
           end
         else
           # bad url
-          puts "Does not match #{Zena::Use::Urls::ALLOWED_REGEXP}"
+          #puts "Does not match #{Zena::Use::Urls::ALLOWED_REGEXP}"
           raise ActiveRecord::RecordNotFound
         end
       elsif params[:id]
@@ -603,7 +603,6 @@ class NodesController < ApplicationController
 
         if current_url != base_url
           # Badly formed url, redirect
-          puts "(1) #{current_url} != #{base_url}"
           redirect_to zen_path(@node, path_params) and return false
         end
 

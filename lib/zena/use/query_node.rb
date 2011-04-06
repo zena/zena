@@ -104,7 +104,7 @@ module Zena
         after_process :insert_links_fields
         after_process :secure_query
 
-        load_custom_queries Bricks.paths_for('queries')
+        load_custom_queries Bricks.paths_for('zena/queries')
 
         CORE_CONTEXTS = %w{parent project section}
 

@@ -222,7 +222,6 @@ module Zena
           end
 
           def update_scope_indices_on_destroy
-            return unless version.status == Zena::Status[:pub]
             update_scope_indices_on_prop_change(true)
             # How can we handle this ?
             # update_scope_indices_on_link_change

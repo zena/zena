@@ -260,7 +260,40 @@ class NodesControllerTest < Zena::Controller::TestCase
           assert_redirected_to '/foo/bar/baz'
         end
       end # with a redir param
+      
+      context 'by changing a link comment' do
+        subject do
+          {:action => 'update', :controller => 'nodes', :id => nodes_zip(:opening), :node => {:link_id => links_id(:opening_in_art), :l_comment => 'To be removed'}}
+        end
 
+        should 'update link' do
+          assert_difference('Link.count', 0) do
+            assert_difference('Version.count', 0) do
+              put_subject
+            end
+          end
+          assert_equal 'To be removed', Link.find(links_id(:opening_in_art)).comment
+          assert_response :redirect
+        end
+      end # by changing a link comment
+      
+      
+      context 'by changing a link date' do
+        subject do
+          {:action => 'update', :controller => 'nodes', :id => nodes_zip(:opening), :node => {:link_id => links_id(:opening_in_art), :l_date => '2011-03-29 17:51'}}
+        end
+
+        should 'update link' do
+          assert_difference('Link.count', 0) do
+            assert_difference('Version.count', 0) do
+              put_subject
+            end
+          end
+          assert_equal '2011-03-29 17:51', Link.find(links_id(:opening_in_art)).date.strftime('%Y-%m-%d %H:%M')
+          assert_response :redirect
+        end
+      end # by changing a date
+      
       context 'by changing skin' do
         subject do
           {:action => 'update', :controller => 'nodes', :id => nodes_zip(:people), :node => {:skin_zip => nodes_zip(:wikiSkin), :inherit => 0}}
