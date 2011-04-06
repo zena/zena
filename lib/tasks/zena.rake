@@ -295,6 +295,8 @@ namespace :zena do
     if RAILS_ENV == 'production'
       puts "You cannot reset database in production !"
     else
+      ENV['WORKER'] = 'false'
+      # FIXME: it seems the ENV is not propagated to the tasks below...
       %w{db:drop db:create zena:migrate zena:build_fixtures db:test:clone}.each do |task|
         puts "******************************* #{task}"
         Rake::Task[task].invoke
@@ -340,13 +342,14 @@ namespace :zena do
       end
 
       %w{db:fixtures:load zena:rebuild_index}.each do |task|
-        ENV['WORKER'] = 'false'
         puts "******************************* #{task}"
         Rake::Task[task].invoke
       end
 
       index_tables = Node.connection.tables.select {|t| t =~ /^idx_/ }
       Zena::FoxyParser.dump_fixtures(index_tables)
+      # Currently, inline indexes are not serialized in the fixtures and need to be
+      # explicitely set along with the property value.
     end
   end
 
@@ -359,7 +362,7 @@ namespace :zena do
       sites = Site.all
     end
     sites.each do |site|
-      if ENV['WORKER'] == 'false'
+      if ENV['WORKER'] == 'false' || RAILS_ENV == 'test'
         # We avoid SiteWorker by passing nodes.
         Thread.current[:visitor] = site.any_admin
         nodes = Node.find(:all,

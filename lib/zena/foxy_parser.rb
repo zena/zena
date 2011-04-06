@@ -411,7 +411,7 @@ module Zena
             records = [
               { 'id'           => Zena::FoxyParser::id(site, "#{name}_#{node['v_lang'] || node['ref_lang']}"),
                 'publish_from' => node['v_publish_from'],
-                'status'       => Zena::Status[node['v_status'].to_sym],
+                'status'       => Zena::Status[(node['v_status'] || 'pub').to_sym],
                 'lang'         => node['v_lang'] || node['ref_lang']
               }
             ]
