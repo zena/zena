@@ -364,16 +364,15 @@ module Zena
               if rel = RelationProxy.find_by_role(role.singularize)
                 rel[:id]
               else
-                @errors << "could not find Relation '#{role}' in custom query"
-                '-1'
+                raise ::QueryBuilder::Error.new("Custom query: could not find Relation '#{role}'")
               end
             when 'NODE_ATTR'
               attribute = value
               if Node.safe_method_type([attribute])
                 insert_bind("#{node_name}.#{attribute}")
               else
-                @errors << "cannot read attribute '#{attribute}' in custom query"
-                '-1'
+                # not found: consider it's a property
+                insert_bind("#{node_name}.prop[#{attribute.inspect}]")
               end
             when 'REF_DATE'
               context[:ref_date] ? insert_bind(context[:ref_date]) : 'now()'

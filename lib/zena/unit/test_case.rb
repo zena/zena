@@ -39,19 +39,23 @@ module Zena
       #    ]
       #
       def validate_query(query, expected_list)
-        list = subject.find(:all, query, :errors => true)
+        list = subject.find(:all, query.gsub('&lt;', '<').gsub('&gt;', '>'), :errors => true)
         if expected_list.nil? || expected_list.empty?
           assert_equal nil, list
         elsif expected_list.first.kind_of?(String)
           assert_equal expected_list, list.map(&:title)
+        elsif list.nil?
+          assert_equal expected_list, list
+        elsif list.kind_of?(::QueryBuilder::Error)
+          assert_equal expected_list, list.to_s
         else
           proto = expected_list.first.keys
           sz = [expected_list.size, list.size].max
 
-          list.each_with_index do |r, i|
+          (0..(sz-1)).to_a.each do |i|
             record   = list[i]
             expected = expected_list[i]
-            if not r
+            if not record
               assert_equal expected[:title], nil
             elsif not expected
               assert_equal nil, map_to_proto(proto, record)
@@ -59,8 +63,8 @@ module Zena
               if expected[:title] != record.title
                 assert_equal expected[:title], map_to_proto(proto, record)
               else
-                proto.each do |key|
-                  value = format_date(r[key] || record.send(key))
+                expected.keys.each do |key|
+                  value = format_date(record[key] || record.send(key))
                   assert_equal expected[key], value, "(#{record.title} #{key} expected to be #{expected[key].inspect} but was #{value.inspect}"
                 end
               end
