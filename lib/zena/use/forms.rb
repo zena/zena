@@ -408,7 +408,10 @@ module Zena
             elsif attribute =~ /^(.*)_id$/
               # relation
               selected = "#{node}.rel[#{$1.inspect}].other_zip.to_s"
+            elsif type = node.klass.safe_method_type([attribute])
+              selected = "#{node}.#{type[:method]}.to_s"
             else
+              # ???
               selected = "#{node}.prop[#{attribute.inspect}].to_s"
             end
           end

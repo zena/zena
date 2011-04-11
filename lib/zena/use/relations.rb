@@ -231,7 +231,7 @@ module Zena
         end
 
         def l_status=(v)
-          @l_status = v.blank? ? nil : v
+          @l_status = v.blank? ? nil : v.to_i
           if rel = relation_proxy_from_link
             rel.other_status = @l_status
           end

@@ -81,6 +81,16 @@ select_values_tshow:
   src: "<r:select name='origin' values='1,2,3' tshow='en,fr,de'/>"
   res: "/option value=.1.>english.*option value=.2.>french/"
 
+select_prop:
+  # Refactor select to use collection_select.
+  src: "<r:select name='origin' values='1,2,3' tshow='en,fr,de'/>"
+  tem: "/@node.prop\['origin'\].to_s/"
+
+select_l_status:
+  # Refactor select to use collection_select.
+  src: "<r:select name='l_status' values='1,2,3' tshow='en,fr,de'/>"
+  tem: "/@node.l_status.to_s/"
+
 form_publish:
   src: "<r:form publish='true'><r:select name='origin' values='bar,baz'/></r:form>"
   res: "/div.*name=.node\[v_status\]. value=.50.\/>.*<\/div>/"
