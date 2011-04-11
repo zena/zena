@@ -52,6 +52,7 @@
 # roger 5  tinformation[~12] / 2002-05-05
 # roger 1  radio[~24]
 
+# FIXME: replace all these with simpler tests.
 Node:
   # Used to test custom select types (repeat_every, last_date)
   emp_form_date:
@@ -90,6 +91,19 @@ Node:
       - courses.id = li1.source_id
     group: courses.id
     order: priority DESC, last_date ASC, _ml1.value ASC
+
+  secure_table:
+    # Stupid query to test SECURE_TABLE
+    main_table: emp
+    select:
+      - other.*
+    tables:
+      - nodes AS emp
+      - nodes AS other
+    where:
+      - SECURE_TABLE(other)
+    group: other.id
+    order: other.zip ASC
 
   course_emp_date:
     main_table: employees

@@ -18,3 +18,15 @@ it_should_group_by_custom_select:
     ref_date: 2004-09-01
   src: "<r:emp_form_dates do='group' by='priority' do='each_group' join=', '><r:show attr='priority'/></r:emp_form_dates>"
   res: '10, 5, 1'
+
+it_should_secure_table:
+  context:
+    node_name: '@node'
+    node: roger
+    visitor: complex_admin
+    site: complex
+    ref_date: 2004-09-01
+  src: "<r:secure_tables do='count'/>"
+  tem: "/secure_scope\('other'\)/"
+  # Only show nodes from the 'complex' site
+  res: '41'
