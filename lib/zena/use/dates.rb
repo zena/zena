@@ -280,7 +280,7 @@ EOL
         end
 
         # Select a date for the current context
-        def r_main_date
+        def r_set_main_date
           return nil unless code = get_attribute_or_eval
 
           if format = @params[:format]

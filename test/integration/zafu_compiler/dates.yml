@@ -114,7 +114,7 @@ date_from_params:
 date_from_params_in_query:
   context:
     year: 2006
-  src: "<r:main_date text='#{params[:year]}/04/03' format='%Y/%m/%d' do='show' eval='main_date' format='%Y-%m-%d'/>"
+  src: "<r:set_main_date text='#{params[:year]}/04/03' format='%Y/%m/%d' do='show' eval='main_date' format='%Y-%m-%d'/>"
   tem: "/_zmaindate = \"#\{params\[:year\]\}/04/03\".to_utc\(\"%Y/%m/%d\"\) %>/"
   res: "2006-04-03"
 
