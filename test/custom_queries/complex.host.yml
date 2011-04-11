@@ -53,7 +53,7 @@
 # roger 1  radio[~24]
 
 Node:
-  # find all courses that an employee must follow
+  # Used to test custom select types (repeat_every, last_date)
   emp_form_date:
     # find courses assigned_to pages in job assigned_to CURRENT_NODE (employee)
     main_table: courses

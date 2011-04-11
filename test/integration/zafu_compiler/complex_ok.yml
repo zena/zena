@@ -5,9 +5,9 @@ it_should_compile_custom_select:
     visitor: complex_admin
     site: complex
     ref_date: 2004-09-01
-  src: "<r:emp_form_dates do='each' join=', '><r:show attr='title'/>(<r:priority/>)</r:emp_form_dates>"
-  tem: '/var2.attributes\["priority"\]/'
-  res: 'how to use the winch(10), secure a site(10), dangerous transportations(10), engine maintenance(5), information transmission(5), fiber junction(5), problem formulation(5), how to use the radio(1)'
+  src: "<r:emp_form_dates do='each' join=', '><r:show attr='title'/>(<r:priority/>)[<r:last_date format='%Y-%m'/>]</r:emp_form_dates>"
+  tem: '/var2.attributes\["priority"\].*\[<%= format_date\(var2.attributes\["last_date"\], :format => "%Y-%m"\) %>\]/'
+  res: 'how to use the winch(10)[], secure a site(10)[], dangerous transportations(10)[2004-03], engine maintenance(5)[], information transmission(5)[2002-05], fiber junction(5)[2003-03], problem formulation(5)[2006-03], how to use the radio(1)[]'
 
 it_should_group_by_custom_select:
   context:

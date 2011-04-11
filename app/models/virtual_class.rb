@@ -321,7 +321,16 @@ class VirtualClass < Role
         if query.select_keys.include?(method)
           # Resolve by using information in the SELECT part
           # of the custom_query that found this node
-          return {:class => String, :method => "attributes[#{method.inspect}]", :nil => true}
+
+          # In order to use types other then String, we use the overwritten property's
+          # type.
+          if type = safe_column_types[method]
+            return type.merge(:method => "attributes[#{method.inspect}]", :nil => true)
+          elsif type = real_class.safe_method_type(signature)
+            return type.merge(:nil => true)
+          else
+            return {:class => String, :method => "attributes[#{method.inspect}]", :nil => true}
+          end
         end
       end
       if type = safe_column_types[method]
