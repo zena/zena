@@ -106,3 +106,9 @@ max:
     w: 0.1
   src: "<r:show format='%.2f CHF' eval='params[:h].to_f * max(0.25, 10 * params[:w].to_f)'/>"
   res: "10.00 CHF"
+
+time_advance:
+  context:
+    date: '2011-02-03'
+  src: "<b do='main_date.advance(:months => 1).strftime(\"%Y-%m-%d\")'/>"
+  res: "<b>2011-03-03</b>"

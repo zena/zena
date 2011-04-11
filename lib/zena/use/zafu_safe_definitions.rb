@@ -89,6 +89,15 @@ module Zena
         safe_method_for NilClass, :to_i      => {:class => Number, :pre_processor => true}
         safe_method_for Object, :blank?    => Boolean
 
+        safe_method_for Time, [:advance, {
+          :years   => Number,
+          :months  => Number,
+          :weeks   => Number,
+          :days    => Number,
+          :hours   => Number,
+          :minutes => Number,
+          :seconds => Number}] => Time
+
         safe_method_for Node,  [:kind_of?, VirtualClass] =>
           {:method => 'nil', :nil => true, :pre_processor => kind_of_proc}
         safe_method_for Node,  [:kind_of?, Role]   =>
