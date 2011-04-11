@@ -237,10 +237,6 @@ class VirtualClass < Role
         return data[klass]['result'] = virtual_class
       end
     end
-
-    def export
-      # TODO
-    end
   end
 
   self.caches_by_site ||= {}
@@ -291,6 +287,16 @@ class VirtualClass < Role
 
   def to_s
     name
+  end
+
+  def export
+    res = super
+    %w{idx_class idx_scope idx_reverse_scope}.each do |k|
+      value = self[k]
+      next if value.blank?
+      res[k] = value
+    end
+    res
   end
 
   def icon=(txt)

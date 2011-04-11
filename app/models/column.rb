@@ -108,6 +108,13 @@ class Column < ActiveRecord::Base
     self.index.to_s.gsub(/\A\./,'')
   end
 
+  def export
+    {
+      'ptype' => ptype,
+      'index' => index,
+    }
+  end
+
   protected
     def set_defaults
       self[:site_id] = current_site.id

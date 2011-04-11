@@ -117,7 +117,7 @@ class RoleTest < Zena::Unit::TestCase
       end
     end # with an admin visitor
   end # Creating a new Role
-  
+
   context 'with a role' do
     subject do
       roles(:Original)
@@ -127,5 +127,31 @@ class RoleTest < Zena::Unit::TestCase
       assert_equal %w{origin tz weight}, subject.defined_safe_columns.map(&:name)
     end
   end # with a virtual class
+
+
+  context 'exporting a role' do
+    setup do
+      login(:lion)
+    end
+
+    subject do
+      roles(:Original)
+    end
+
+    should 'export attributes' do
+      assert_equal({
+        'superclass' => 'Node',
+        'type'       => 'Role',
+        'kpath'      => 'N',
+        'columns'    => {
+          'weight' => {'index' => '',       'ptype' => 'integer'},
+          'tz'     => {'index' => '',       'ptype' => 'string'},
+          'origin' => {'index' => 'string', 'ptype' => 'string'},
+        },
+      }, subject.export)
+    end
+ end # exporting a role
+
   # Indexed columns in role tested in NodeTest
+
 end

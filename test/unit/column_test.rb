@@ -72,7 +72,7 @@ class ColumnTest < Zena::Unit::TestCase
         end
       end
     end # with the name of a hardwire property
-    
+
     context 'ending with _ids' do
       subject do
         Column.create(:role_id => roles_id(:Task), :ptype => 'string', :name => 'secure_on_destroy_ids')
@@ -84,7 +84,7 @@ class ColumnTest < Zena::Unit::TestCase
         end
       end
     end # with the name of a hardwire property
-    
+
     context 'ending with _id' do
       subject do
         Column.create(:role_id => roles_id(:Task), :ptype => 'string', :name => 'secure_on_destroy_id')
@@ -98,4 +98,20 @@ class ColumnTest < Zena::Unit::TestCase
     end # with the name of a hardwire property
   end # Creating a column
 
+  context 'exporting a column' do
+    setup do
+      login(:lion)
+    end
+
+    subject do
+      columns(:Post_date)
+    end
+
+    should 'export attributes' do
+      assert_equal({
+        'ptype'      => 'datetime',
+        'index'      => '.idx_datetime1',
+      }, subject.export)
+    end
+ end # exporting a role
 end

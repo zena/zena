@@ -655,7 +655,7 @@ class VirtualClassTest < Zena::Unit::TestCase
         assert_equal %w{reference reference_for set_tag}, subject.map(&:other_role).sort
       end
     end # on relations
-    
+
     context 'on new_instance' do
       subject do
         VirtualClass['Letter'].new_instance(
@@ -878,4 +878,25 @@ class VirtualClassTest < Zena::Unit::TestCase
       end
     end # without an existing superclass
   end # importing virtual class definitions
+
+  context 'exporting a virtual class' do
+    setup do
+      login(:lion)
+    end
+
+    subject do
+      secure(VirtualClass) { VirtualClass['Post'] }
+    end
+
+    should 'export attributes' do
+      assert_equal({
+        'superclass' => 'Note',
+        'type'       => 'VirtualClass',
+        'kpath'      => 'NNP',
+        'columns'    => {
+          'date' => {'name' => 'date', 'index' => '.idx_datetime1', 'ptype' => 'datetime'},
+        },
+      }, subject.export)
+    end
+  end
 end

@@ -446,11 +446,15 @@ module Zena
           if node.list_context?
             @context[:node] = node.move_to("#{node}.first", node.klass.first, :query => node.opts[:query])
             return r_show
-          elsif node.will_be?(String)
-            return "<%= #{node} %>"
           end
 
-          return nil unless method = code || get_attribute_or_eval
+          if method = code || get_attribute_or_eval
+            # ok
+          elsif node.will_be?(String) || node.will_be?(Time)
+            method = RubyLess.translate(self, 'this')
+          else
+            return nil
+          end
 
           klass = method.klass
 

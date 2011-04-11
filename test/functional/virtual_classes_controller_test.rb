@@ -191,6 +191,19 @@ class VirtualClassesControllerTest < Zena::Controller::TestCase
           end
         end
       end # importing virtual class definitions
+
+      context 'exporting virtual class definitions' do
+        subject do
+          {:action => :export}
+        end
+
+        should 'dump virtual classes to yaml' do
+          get_subject
+          res = YAML.load @response.body
+          assert_equal %w{Blog Contact Letter Original Post Reference Tag Task Tracker}, res.keys.sort
+          assert_equal res['Original'], roles(:Original).export
+        end
+      end # importing virtual class definitions
     end # that is an admin
   end # A logged in user
 end

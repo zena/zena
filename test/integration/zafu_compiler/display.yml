@@ -312,6 +312,11 @@ show_with_custom_tlabel_shortcut:
   tem: "/anglais/"
   res: "<li><label>anglais</label> <span>Etat des travaux</span></li>"
 
+show_date_context:
+  src: "<b do='created_at' do='show' format='%Y'/><b do='event_at' do='show' format='%Y'/>"
+  # 'event_at' is a context. If nil ==> do not enter context.
+  res: "<b>2006</b>"
+
 rendering:
   src: "==<r:headers Content-Disposition='attachment; filename=special_#{title}.csv'/>=="
   tem: "==<% set_headers(\"Content-Disposition\" => \"attachment; filename=special_#{@node.prop['title']}.csv\") %>=="

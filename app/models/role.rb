@@ -49,6 +49,19 @@ class Role < ActiveRecord::Base
     @safe_column ||= defined_columns.values.sort {|a,b| a.name <=> b.name}
   end
 
+  def export
+    res = {
+      'name'       => name,
+      'superclass' => superclass.name,
+      'kpath'      => kpath,
+      'type'       => type,
+    }
+    if !defined_columns.empty?
+      res['columns'] = export_columns
+    end
+    res
+  end
+
   private
     def set_defaults
       self[:type] = self.class.to_s
@@ -61,5 +74,18 @@ class Role < ActiveRecord::Base
 
     def expire_vclass_cache
       VirtualClass.expire_cache!
+    end
+
+    def export_columns
+      res = {}
+
+      defined_columns.each do |name, column|
+        col = {'ptype' => column.ptype.to_s}
+        if column.index then
+          col['index'] = column.index
+        end
+        res[name] = col
+      end
+      res
     end
 end

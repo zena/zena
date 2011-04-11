@@ -1,5 +1,5 @@
 class VirtualClassesController < ApplicationController
-  before_filter :find_virtual_class, :except => [:index, :create, :new, :import]
+  before_filter :find_virtual_class, :except => [:index, :create, :new, :import, :export]
   before_filter :visitor_node
   before_filter :check_is_admin
   layout :admin_layout
@@ -16,7 +16,7 @@ class VirtualClassesController < ApplicationController
           @virtual_classes << klass
         end
       end
-    else  
+    else
       Node.native_classes.each do |kpath, klass|
         @virtual_classes << klass
       end
@@ -43,11 +43,14 @@ class VirtualClassesController < ApplicationController
   end
 
   def export
-    data = secure(::Role) do
-      ::Role.export
+    res = {}
+    secure(::Role) do
+      ::Role.all.each do |role|
+        res[role.name] = role.export
+      end
     end
 
-    ### TODO
+    send_data(res.to_yaml, :filename=>"roles.yml", :type => 'text/yaml')
   end
 
   def import
