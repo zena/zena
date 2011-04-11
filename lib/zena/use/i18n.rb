@@ -8,7 +8,7 @@ module Zena
       ::ENV['LANG'] = 'C'
 
       class TranslationDict
-        attr_reader :last_error
+        attr_reader :last_error, :node_id
 
         include Zena::Acts::Secure
         include RubyLess
@@ -288,7 +288,7 @@ module Zena
               dict_name = get_var_name('dictionary', 'dict')
 
               # This is to use in RubyLess translations and static translations in Zafu
-              set_context_var('set_var', 'dictionary', RubyLess::TypedString.new(dict_name, :class => TranslationDict, :literal => dict, :dictionary_id => doc.id))
+              set_context_var('set_var', 'dictionary', RubyLess::TypedString.new(dict_name, :class => TranslationDict, :literal => dict))
 
               # Lazy loading (loads file on first request)
               out "<% #{dict_name} = load_dictionary(#{doc.id}) %>"
@@ -343,31 +343,6 @@ module Zena
             trad.split(',').map(&:strip)
           else
             str.split(',').map(&:strip).map{|v| trans(v)}
-          end
-        end
-
-        def r_block
-          # when saving template, add loaded dictionary
-          if @context[:block] == self
-            if @dict
-              # pass loaded dictionary to ajax templates
-
-              # Save dictionary in template for dynamic uses
-              dict_name = get_var_name('dictionary', 'dict')
-
-              # This is to use in RubyLess translations and static translations in Zafu
-              set_context_var('set_var', 'dictionary', @dict)
-
-              # Lazy loading (loads file on first request)
-              out "<% #{dict_name} = load_dictionary(#{@dict.opts[:dictionary_id]}) %>"
-            end
-            super
-          else
-            @dict = get_context_var('set_var', 'dictionary')
-            res = super
-            @dict = nil
-
-            res
           end
         end
 
@@ -449,6 +424,24 @@ module Zena
         #  end
         #  res.join(opts[:join] || '')
         #end
+        protected
+
+          # Overwriten from Zafu to insert dictionary in partial if there is one
+          def context_for_partial(cont)
+            cleared_context, prefix = super(cont)
+            prefix = prefix.to_s
+            dict = get_context_var('set_var', 'dictionary')
+            if dict && dict.klass <= TranslationDict
+              # Lazy loading (loads file on first request)
+
+              dict_name = get_var_name('dictionary', 'dict', cleared_context)
+              set_context_var('set_var', 'dictionary', dict, cleared_context)
+              prefix += "<% #{dict_name} = load_dictionary(#{dict.literal.node_id}) %>"
+              return cleared_context, prefix
+            else
+              return cleared_context, nil
+            end
+          end
       end
     end # I18n
   end # Use

@@ -78,6 +78,14 @@ each_edit_with_form:
   src: "<r:children><li do='each'><r:show attr='title'>blah</r:show> <r:edit>edit</r:edit></li>\n<r:form><li><form>this is the form</form></li></r:form></r:children>"
   res: "/<li id='list1_30'>bird <a href='/nodes/30/edit' onclick='new Ajax.Request\(\"/nodes/30/edit\?.*t_url=ajax%2Feach%2Fedit%2Fwith%2Fform%2Flist1_form/"
 
+form_with_dictionary:
+  context:
+    node: 'wiki'
+  src: "<r:load dictionary='/Default skin/translations'><r:children><li do='each'><span do='t(\"foo#{origin}\")'/> <r:edit>edit</r:edit></li>\n<li do='form'><r:select name='origin' values=',en,fr,de' tshow=',en,fr,de'/></li></r:children></r:load>"
+  # Partial should lazy load dictionary
+  'ajax/form/with/dictionary/en/list1_form.erb': "/_zdict = load_dictionary/"
+  'ajax/form/with/dictionary/en/list1.erb': "/_zdict = load_dictionary.*_zdict.get\(\"foo\#\{@node.prop\['origin'\]\}\"\)/"
+
 make_form:
   src: "<ul do='children'><li do='each' do='title'/><li do='add'/></ul>"
   tem: "/<li style='display:none;' class='form' id='list1_form'>.*remote_form_for\(:node, var2_new"

@@ -425,7 +425,6 @@ module Zena
             # unlink
             each_block.descendant('unlink')
           end
-
       end
     end # Ajax
   end # Use
