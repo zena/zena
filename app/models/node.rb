@@ -894,6 +894,7 @@ class Node < ActiveRecord::Base
         RubyLess::SafeClass.safe_method_type_for(self, signature)
       else
         method = signature.first
+
         if type = super
           type
         elsif method == 'cached_role_ids'
@@ -902,13 +903,6 @@ class Node < ActiveRecord::Base
         elsif method =~ /^(.+)_((id|zip|status|comment)(s?))\Z/ && !instance_methods.include?(method)
           key = $3 == 'id' ? "zip#{$4}" : $2
           {:method => "rel[#{$1.inspect}].try(:other_#{key})", :nil => true, :class => ($4.blank? ? Number : [Number])}
-        elsif receiver && query = receiver.opts[:query]
-          # Resolve by using information in the SELECT part of the query that found this node
-          if query.select_keys.include?(method)
-            {:class => String, :method => "attributes[#{method.inspect}]", :nil => true}
-          else
-            nil
-          end
         else
           nil
         end

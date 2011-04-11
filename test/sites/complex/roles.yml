@@ -3,6 +3,10 @@ DEFAULTS:
   icon:            ""
   type:            VirtualClass
 
+Priority:
+  type:            Role
+  kpath:           N
+  
 Reference:
   kpath:           NR
   real_class:      Node
