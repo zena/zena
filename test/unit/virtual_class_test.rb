@@ -187,6 +187,40 @@ class VirtualClassTest < Zena::Unit::TestCase
     assert_equal 'NPU', vclass.kpath
   end
 
+  context 'Updating a VirtualClass' do
+    setup do
+      login(:lion)
+    end
+    
+    subject do
+      roles(:Post)
+    end
+
+    should 'update kpaths in nodes' do
+      # kpath NNP => NO
+      assert subject.update_attributes(:superclass => 'Page')
+      assert_equal 'NPO', subject.kpath
+      n = nodes(:opening)
+      assert_equal 'NPO', n.kpath
+    end
+    context 'with linked role' do
+      setup do
+        @role = ::Role.create('name' => 'Foobar', 'superclass' => 'Post')
+        assert !@role.new_record?
+        assert_equal 'NNP', @role.kpath
+      end
+      
+      should 'update linked role kpath' do
+        # kpath NNP => NO
+        assert subject.update_attributes(:superclass => 'Page')
+        assert_equal 'NPO', subject.kpath
+        role = ::Role.find(@role)
+        assert_equal 'NPO', role.kpath
+      end
+    end # with linked role
+    
+  end # Updating a VirtualClass
+  
   def test_update_name
     # add a sub class
     login(:lion)
@@ -894,7 +928,7 @@ class VirtualClassTest < Zena::Unit::TestCase
         'type'       => 'VirtualClass',
         'kpath'      => 'NNP',
         'columns'    => {
-          'date' => {'name' => 'date', 'index' => '.idx_datetime1', 'ptype' => 'datetime'},
+          'date' => {'index' => '.idx_datetime1', 'ptype' => 'datetime'},
         },
       }, subject.export)
     end

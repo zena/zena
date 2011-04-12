@@ -34,6 +34,7 @@ class VirtualClass < Role
   belongs_to    :create_group, :class_name => 'Group', :foreign_key => 'create_group_id'
   validate      :valid_virtual_class
   attr_accessible :create_group_id, :auto_create_discussion
+  after_update  :update_kpath_in_nodes
 
   include Property::StoredSchema
   include Zena::Use::Relations::ClassMethods
@@ -549,5 +550,13 @@ class VirtualClass < Role
 
     def old
       @old ||= self.class.find(self[:id])
+    end
+
+    def update_kpath_in_nodes
+      if kpath_changed?
+        old_kpath = kpath_was
+        Zena::Db.execute "UPDATE nodes SET kpath = '#{kpath}' WHERE vclass_id = #{self.id} AND site_id = #{current_site.id}"
+        Zena::Db.execute "UPDATE roles SET kpath = '#{kpath}' WHERE kpath = '#{old_kpath}' AND site_id = #{current_site.id} AND (type = 'Role' or type IS NULL)"
+      end
     end
 end
