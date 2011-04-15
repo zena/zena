@@ -35,6 +35,7 @@ class Role < ActiveRecord::Base
 
     def import(definitions, delete = false)
       res = []
+      post_import = []
       # Create everything in a transaction
       transaction do
         definitions.each do |name, definition|
@@ -44,22 +45,26 @@ class Role < ActiveRecord::Base
             raise Exception.new("Importation needs to start with a real class: '#{name}' is not a real class.")
           else
             # start importing
-            res += import_all(klass, definition)
+            res += import_all(klass, definition, post_import)
           end
+        end
+
+        post_import.each do |l|
+          l.call
         end
       end
       res
     end
 
     private
-      def import_all(superclass, definitions)
+      def import_all(superclass, definitions, post_import)
         res = []
         definitions.each do |name, sub|
           next unless name =~ /\A[A-Z]/
 
           klass = VirtualClass[name]
           if klass && klass.real_class?
-            res += import_all(klass, sub)
+            res += import_all(klass, sub, post_import)
           elsif sub['type'] == 'Role'
             res << import_role(superclass, name, sub)
           elsif sub['type'] == 'Class'
@@ -67,7 +72,7 @@ class Role < ActiveRecord::Base
             raise Exception.new("Unknown real class '#{name}'.")
           elsif sub['type'] == 'VirtualClass' || sub['type'].nil?
             # VirtualClass
-            res += import_vclass(superclass, name, sub)
+            res += import_vclass(superclass, name, sub, post_import)
           else
             # Invalid type
             raise Exception.new("Cannot create '#{name}': invalid type '#{sub['type']}'.")
@@ -98,7 +103,7 @@ class Role < ActiveRecord::Base
         role
       end
 
-      def import_vclass(superclass, name, definition)
+      def import_vclass(superclass, name, definition, post_import)
         res = []
         vclass = ::Role.find_by_name_and_site_id(name, current_site.id)
         if vclass && vclass.class != VirtualClass
@@ -121,14 +126,19 @@ class Role < ActiveRecord::Base
         res << vclass
 
         # 2. create or update columns (never delete)
-        if !vclass.new_record? && columns = definition['columns']
+        if columns = definition['columns']
           vclass.import_columns(columns)
         end
 
-        # 3. create or update sub-classes
-        res += import_all(vclass, definition)
-        # 4. create relations
-        # FIXME.....
+        # 3. create relations when all is done
+        if relations = definition['relations']
+          post_import << lambda do
+            vclass.import_relations(relations)
+          end
+        end
+
+        # 4. create or update sub-classes
+        res += import_all(vclass, definition, post_import)
         res
       end
   end # class << self
@@ -181,17 +191,27 @@ class Role < ActiveRecord::Base
       column.ptype   = definition['ptype']
       column.index   = definition['index']
       column.save!
-      # if !column.errors.empty?
-      #   errors = []
-      #   column.errors.each_error do |er, msg|
-      #     errors << "#{er} #{msg}"
-      #   end
-      #   if column.new_record?
-      #     raise "Could not create property '#{name}': #{errors.join(', ')}"
-      #   else
-      #     raise"Could not update property '#{name}': #{errors.join(', ')}"
-      #   end
-      # end
+    end
+  end
+
+  def import_relations(relations)
+    relations.each do |name, definition|
+      relation = secure(::Relation) { ::Relation.first(
+        :conditions => ['target_role = ? AND source_kpath = ? AND site_id = ?',
+          name, self.kpath, self.site_id
+        ]
+      )}
+      if !relation
+        # create
+        relation = ::Relation.new(:target_role => name, :source_kpath => self.kpath)
+      end
+      Relation::EXPORT_FIELDS.each do |key|
+        value = definition[key]
+        if !value.blank?
+          relation[key] = value
+        end
+      end
+      relation.save!
     end
   end
 

@@ -834,6 +834,12 @@ class VirtualClassTest < Zena::Unit::TestCase
         }, subject['columns'])
       end
 
+      should 'export relations' do
+        assert_equal({
+          'blogs' => {'target_kpath'=>'NPP', 'source_role'=>'added_note'}
+        }, subject['relations'])
+      end
+
       should 'export sub classes' do
         assert_equal(%w{Contact}, VirtualClass['Reference'].export['sub'].keys)
       end
@@ -854,6 +860,17 @@ class VirtualClassTest < Zena::Unit::TestCase
         assert_equal('Class', subject['sub']['Project']['type'])
       end
 
+      context 'with relations' do
+        subject do
+          VirtualClass['Project'].export
+        end
+
+        should 'export relations' do
+          assert_equal(%w{collaborators home hot}, subject['relations'].keys)
+        end
+      end # with relations
+
+
       context 'with linked roles' do
         setup do
           secure(::Role) { ::Role.create('name' => 'Foo', 'superclass' => 'Page')}
@@ -869,7 +886,7 @@ class VirtualClassTest < Zena::Unit::TestCase
 
     context 'importing definitions' do
       subject do
-        VirtualClass.import({'Note' => {
+        {'Note' => {
           'type' => 'Class',
           'sub'  => {
             'Bar' => {
@@ -884,16 +901,57 @@ class VirtualClassTest < Zena::Unit::TestCase
               },
             },
           },
-        }})
+        }}
       end
 
       should 'create roles and VirtualClasses' do
         assert_difference('Role.count', 3) do
           assert_difference('VirtualClass.count', 2) do
-            subject
+            VirtualClass.import(subject)
           end
         end
       end
+      
+      context 'with relations' do
+        subject do
+          s = Zafu::OrderedHash.new
+          s['Note'] = Zafu::OrderedHash.new
+          # created first with relations to next class
+          s['Note']['Foo'] = {
+            'type' => 'VirtualClass',
+            'relations' => {
+              'babar' => {
+                'target_kpath'  => 'NNB',
+                'target_unique' => true,
+                'source_role'   => 'fool',
+                'rel_group'     => 'foo.bar',
+              },
+            },
+          }
+          
+          s['Note']['Bar'] = {
+            'type' => 'VirtualClass',
+          }
+          s
+        end
+
+        should 'create or update relations after vclass creation' do
+          assert_difference('Relation.count', 1) do
+            assert_difference('Role.count', 2) do
+              VirtualClass.import(subject)
+            end
+          end
+          assert foo = VirtualClass['Foo']
+          assert bar = VirtualClass['Bar']
+          rel = Relation.first(
+            :conditions => ['source_kpath = ? AND target_role = ?', 'NNF', 'babar'])
+          assert_equal 'NNB',   rel.target_kpath
+          assert_equal 'fools', rel.source_role
+          assert_equal 'babar', rel.target_role
+          assert_equal 'foo.bar', rel.rel_group
+        end
+      end # with relations
+      
     end
   end # An admin
 

@@ -196,5 +196,23 @@ class RelationTest < Zena::Unit::TestCase
     relation.update_attributes(:site_id => 1234)
     assert_equal original_site_id, relation.site_id
   end
+  
+
+  context 'Exporting a relation' do
+    subject do
+      relations(:node_has_tags)
+    end
+
+    should 'create a hash' do
+      assert_equal({
+        'rel_group'    => 'doc.tags',
+        'source_kpath' => 'N',
+        'source_role'  => 'tagged',
+        'target_kpath' => 'NPT',
+        'target_role'  => 'set_tag',
+        'target_icon'  => "<img src='/images/tag_blue.png' alt='tag'/>",
+      }, subject.export)
+    end
+  end # Exporting a relation
 
 end

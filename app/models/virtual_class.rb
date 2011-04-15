@@ -156,6 +156,7 @@ class VirtualClass < Role
       vclass.real_class = real_class
       vclass.include_role real_class.schema
       vclass.instance_variable_set(:@is_real_class, true)
+      vclass.site_id = current_site.id
       vclass
     end
 
@@ -169,13 +170,6 @@ class VirtualClass < Role
 
   class << self
     attr_accessor :caches_by_site
-
-    # Import a hash of virtual class definitions and try to build the virtual classes.
-    def import(data)
-      data.keys.map do |klass|
-        build_virtual_class(klass, data)
-      end
-    end
 
     def [](name)
       find_by_name(name)
@@ -284,6 +278,17 @@ class VirtualClass < Role
     if subclasses
       subclasses.each do |sub|
         res[sub.name] = sub.export
+      end
+    end
+
+    relations = Relation.all(
+      :conditions => ['source_kpath = ? AND site_id = ?', kpath, site_id],
+      :order      => 'target_role ASC'
+    )
+    if !relations.empty?
+      res['relations'] = list = Zafu::OrderedHash.new
+      relations.each do |rel|
+        list[rel.target_role] = rel.export
       end
     end
     res
@@ -472,10 +477,6 @@ class VirtualClass < Role
 
   def real_class=(klass)
     @real_class = klass
-  end
-
-  def import_result
-    @import_result || errors[:base]
   end
 
   # List all relations that can be set for this class, filtering by

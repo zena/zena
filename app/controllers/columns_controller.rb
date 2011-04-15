@@ -1,6 +1,6 @@
 class ColumnsController < ApplicationController
   before_filter :visitor_node
-  before_filter :find_column, :except => [:index, :create, :new, :import]
+  before_filter :find_column, :except => [:index, :create, :new]
   before_filter :check_is_admin
   layout :admin_layout
 
@@ -26,34 +26,6 @@ class ColumnsController < ApplicationController
     respond_to do |format|
       format.html # index.html.erb
       format.xml  { render :xml => @columns }
-    end
-  end
-
-  def export
-    data = secure(Column) do
-      Column.export
-    end
-
-    ### TODO
-  end
-
-  def import
-    attachment = params[:attachment]
-    if attachment.nil?
-      flass[:error] = "Upload failure: no definitions."
-      redirect_to :action => :index
-    else
-      data = YAML.load(attachment.read) rescue nil
-      if data.nil?
-        flash[:error] = "Could not parse yaml document"
-        redirect_to :action => :index
-      else
-        @columns = secure(Column) { Column.import(data) }.paginate(:per_page => 200)
-        @column  = VirtualClass.new('')
-        respond_to do |format|
-          format.html { render :action => 'index' }
-        end
-      end
     end
   end
 

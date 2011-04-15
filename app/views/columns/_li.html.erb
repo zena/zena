@@ -7,6 +7,6 @@
     <span class='spacer'><%= (li.role.kind_of?(VirtualClass) ? '+ ' : '<span>* </span>') %></span>
     <span class='constant'><%= li.role.name %></span>
     <span class='text'>p.<%= li.ptype %></span>
-    <span class='string'>'<%= li.name %>'<span><%= li.import_result ? " (#{li.import_result})" : ''%><% if !li.index.blank? -%>, <span class='symbol'>:index</span> =&gt; <span class='symbol'>:<%= li.index_name %></span><% end -%>
+    <span class='string'>'<%= li.name %>'<span><% if !li.index.blank? -%>, <span class='symbol'>:index</span> =&gt; <span class='symbol'>:<%= li.index_name %></span><% end -%>
   </td>
 </tr>

@@ -508,7 +508,7 @@ class RelationProxyTest < Zena::Unit::TestCase
       assert node.update_attributes_with_transformation('rel_attributes' => {'reference_attributes' => {'other_id' => 33, 'date' => '2009-7-18 8:0'}})
       assert node.update_attributes_with_transformation('rel_attributes' => {'reference_attributes' => {'other_id' => 33, 'date' => '2009-7-18 9:0'}})
     end
-    
+
     subject do
       secure!(Node) { nodes(:cleanWater) }
     end
@@ -517,15 +517,15 @@ class RelationProxyTest < Zena::Unit::TestCase
       assert_difference('Link.count', -1) do
         # remove 9:0
         assert subject.update_attributes_with_transformation('rel_attributes' => {'reference_attributes' => {'other_id' => '', 'date' => '2009-7-18 9:0'}})
-      end      
-      
+      end
+
       assert references = subject.find(:all, 'references')
       assert_equal 2, references.size
       assert_equal Time.gm(2009,7,17), references.first.l_date
       assert_equal Time.gm(2009,7,18,8), references.last.l_date
     end
   end # with many dates for a given target
-  
+
   def test_attr_public
     assert Node.safe_method_type(['l_status'])
     assert Node.safe_method_type(['l_comment'])
@@ -554,5 +554,4 @@ class RelationProxyTest < Zena::Unit::TestCase
       assert_equal 100, subject.find(:first, 'reference where l_status = 100').l_status
     end
   end # With many links
-
 end

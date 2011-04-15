@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2011-04-11}
+  s.date = %q{2011-04-15}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -251,6 +251,7 @@ Gem::Specification.new do |s|
     "app/views/virtual_classes/create.rjs",
     "app/views/virtual_classes/destroy.rjs",
     "app/views/virtual_classes/edit.html.erb",
+    "app/views/virtual_classes/import_prepare.html.erb",
     "app/views/virtual_classes/index.erb",
     "app/views/virtual_classes/new.erb",
     "app/views/virtual_classes/show.rjs",
@@ -1833,6 +1834,7 @@ Gem::Specification.new do |s|
     "test/integration/zafu_compiler/asset.yml",
     "test/integration/zafu_compiler/basic.yml",
     "test/integration/zafu_compiler/calendar.yml",
+    "test/integration/zafu_compiler/comments.yml",
     "test/integration/zafu_compiler/complex.yml",
     "test/integration/zafu_compiler/complex_ok.yml",
     "test/integration/zafu_compiler/conditional.yml",
@@ -1865,6 +1867,7 @@ Gem::Specification.new do |s|
     "test/integration/zafu_compiler/zazen.yml",
     "test/integration/zafu_compiler_test.rb",
     "test/sites/README",
+    "test/sites/complex/columns.yml",
     "test/sites/complex/complex.png",
     "test/sites/complex/groups.yml",
     "test/sites/complex/links.yml",

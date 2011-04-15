@@ -61,7 +61,8 @@ module Zena
                       :import => :post,
                       :export => :get,
                     }
-      resources :columns,         :collection => {:import => :post}
+
+      resources :columns
 
       resources :sites,
                     :member     => { :clear_cache => :post }

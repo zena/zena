@@ -6,7 +6,6 @@
 
 <%= form_tag({ :controller => 'virtual_classes', :action => 'import'}) %>
 <p><%= hidden_field_tag(:roles, @yaml) %></p>
-<p><%#= check_box_tag(:delete_roles) %> <%= _('delete roles') %></p>
 <p class="btn_validate">
   <%= link_to(_('cancel'), :action => 'index')%> &nbsp;
   <input type="submit" value='<%= _('apply') %>'/></p>

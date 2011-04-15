@@ -5,11 +5,3 @@
   <%= render :partial=>'columns/li',  :collection=>@columns %>
   <%= render :partial=>'columns/add' %>
 </table>
-
-<div class='admin_group'><h3><%= _('import definitions') %></h3>
-
-<%= form_tag({ :controller => 'columns', :action => 'import'}, {:multipart => true} ) %>
-<input style='line-height:1.5em;' name="attachment" class='file' type="file" />
-<p class="btn_validate"><input type="submit" value='<%= _('import') %>'/></p>
-</form>
-</div>

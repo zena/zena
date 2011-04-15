@@ -1,4 +1,6 @@
 class Relation < ActiveRecord::Base
+  EXPORT_FIELDS   = %w{target_kpath target_icon target_unique source_role source_icon source_unique rel_group}
+
   before_validation :singularize_roles
   validate        :valid_relation
   attr_accessor   :side, :link_errors, :start, :link
@@ -14,6 +16,17 @@ class Relation < ActiveRecord::Base
 
   def target_role
     target_unique ? self[:target_role] : self[:target_role].pluralize
+  end
+
+  def export
+    res = Zafu::OrderedHash.new
+    EXPORT_FIELDS.each do |key|
+      value = self[key]
+      if !value.blank?
+        res[key] = value
+      end
+    end
+    res
   end
 
   private
