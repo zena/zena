@@ -224,8 +224,9 @@ module Zena
       module ViewMethods
         include Common
         include RubyLess
-        safe_method [:url,  Node]     => {:class => String, :method => 'zen_url'}
-        safe_method [:path, Node]     => {:class => String, :method => 'zen_path'}
+        safe_method [:url,  Node]       => {:class => String, :method => 'zen_url'}
+        safe_method [:url,  Node, Hash] => {:class => String, :method => 'zen_url'}
+        safe_method [:path, Node]       => {:class => String, :method => 'zen_path'}
 
         safe_method [:zen_path, Node, Hash]     => {:class => String, :accept_nil => true}
         safe_method [:zen_path, Node]           => {:class => String, :accept_nil => true}

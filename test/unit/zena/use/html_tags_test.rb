@@ -113,7 +113,7 @@ class HtmlTagsTest < Zena::View::TestCase
 
       context 'receiving flash_messages' do
         should 'wrap flash messages in div' do
-          assert_match 'div#messages', flash_messages(:show => 'both')
+          assert_match 'div.flash_messages', flash_messages(:show => 'both')
         end
 
         should 'not show notice or error divs' do
@@ -126,7 +126,11 @@ class HtmlTagsTest < Zena::View::TestCase
           end
 
           should 'wrap notices in div' do
-            assert_match 'div#messages div#notice', flash_messages(:show => 'both')
+            assert_match 'div.flash_messages div.notice', flash_messages(:show => 'both')
+          end
+          
+          should 'auto fade notices' do
+            assert_match 'div.flash_messages div.notice.auto_fade', flash_messages(:show => 'both')
           end
 
           should 'show notice' do
@@ -140,7 +144,7 @@ class HtmlTagsTest < Zena::View::TestCase
           end
 
           should 'wrap errors in div' do
-            assert_match 'div#messages div#error', flash_messages(:show => 'both')
+            assert_match 'div.flash_messages div.error', flash_messages(:show => 'both')
           end
 
           should 'show error' do

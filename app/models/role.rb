@@ -13,7 +13,7 @@ class Role < ActiveRecord::Base
   has_and_belongs_to_many :nodes
 
   before_validation :set_defaults
-  validate :check_can_save
+  validate :validate_role
   attr_accessible :name, :superclass, :icon
 
   after_save :expire_vclass_cache
@@ -62,21 +62,29 @@ class Role < ActiveRecord::Base
         definitions.each do |name, sub|
           next unless name =~ /\A[A-Z]/
 
-          klass = VirtualClass[name]
-          if klass && klass.real_class?
-            res += import_all(klass, sub, post_import)
-          elsif sub['type'] == 'Role'
+          case sub['type']
+          when 'Class'
+            klass = VirtualClass[name]
+            if klass && klass.real_class?
+              res += import_all(klass, sub, post_import)
+            else
+              raise Exception.new("Unknown real class '#{name}'.")
+            end
+          when 'Role'
             res << import_role(superclass, name, sub)
-          elsif sub['type'] == 'Class'
-            # real class
-            raise Exception.new("Unknown real class '#{name}'.")
-          elsif sub['type'] == 'VirtualClass' || sub['type'].nil?
+          when 'VirtualClass'
             # VirtualClass
             res += import_vclass(superclass, name, sub, post_import)
+          when nil
+            klass = VirtualClass[name]
+            if klass && klass.real_class?
+              res += import_all(klass, sub, post_import)
+            else
+              res += import_vclass(superclass, name, sub, post_import)
+            end
           else
             # Invalid type
             raise Exception.new("Cannot create '#{name}': invalid type '#{sub['type']}'.")
-            res << tmp
           end
         end
         res
@@ -156,8 +164,8 @@ class Role < ActiveRecord::Base
   end
 
   def superclass=(klass)
-    if k = Node.get_class(klass)
-      self.kpath = k.kpath
+    if klass.kind_of?(VirtualClass) || klass = VirtualClass[klass]
+      @superclass = klass
     else
       errors.add('superclass', 'invalid')
     end
@@ -178,19 +186,21 @@ class Role < ActiveRecord::Base
   end
 
   def import_columns(columns)
-    columns.each do |name, definition|
-      column = secure(::Column) { ::Column.find_by_name(name) }
-      if !column
-        # create
-        column = ::Column.new(:name => name)
-      elsif column.role_id != self.id
-        # error (do not move a column)
-        raise Exception.new("Cannot set property '#{name}' in '#{self.name}': already defined in '#{column.role.name}'.")
+    transaction do
+      columns.each do |name, definition|
+        column = secure(::Column) { ::Column.find_by_name(name) }
+        if !column
+          # create
+          column = ::Column.new(:name => name)
+        elsif column.role_id != self.id
+          # error (do not move a column)
+          raise Exception.new("Cannot set property '#{name}' in '#{self.name}': already defined in '#{column.role.name}'.")
+        end
+        column.role_id = self.id
+        column.ptype   = definition['ptype']
+        column.index   = definition['index']
+        column.save!
       end
-      column.role_id = self.id
-      column.ptype   = definition['ptype']
-      column.index   = definition['index']
-      column.save!
     end
   end
 
@@ -221,8 +231,15 @@ class Role < ActiveRecord::Base
       self.site_id = visitor.site.id
     end
 
-    def check_can_save
+    def validate_role
       errors.add('base', 'You do not have the rights to change roles.') unless visitor.is_admin?
+      if new_record?
+        errors.add('superclass', 'invalid') unless @superclass.kind_of?(VirtualClass) && @superclass.kpath
+      end
+
+      if @superclass && self.class == ::Role
+        self.kpath = @superclass.kpath
+      end
     end
 
     def expire_vclass_cache

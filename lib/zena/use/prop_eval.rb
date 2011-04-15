@@ -45,11 +45,12 @@ module Zena
           base.alias_method_chain :rebuild_index_for_version, :prop_eval
         end
 
-        def rebuild_index_for_version_with_prop_eval(v)
+        def rebuild_index_for_version_with_prop_eval(version)
+          # Call other modules inserted before
+          rebuild_index_for_version_without_prop_eval(version)
           merge_prop_eval(true)
           # Only save properties, without changing updated_at date or other callbacks
-          Zena::Db.set_attribute(v, 'properties', encode_properties(@properties)) if v.changed?
-          rebuild_index_for_version_without_prop_eval(v)
+          Zena::Db.set_attribute(version, 'properties', encode_properties(@properties)) if version.changed?
         end
 
         def need_set__id

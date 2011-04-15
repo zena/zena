@@ -157,7 +157,7 @@ dictionary_de:
   res: "foo: Ich liebe Wörter"
 
 dictionary_tformat:
-  src: "<r:load dictionary='/Default skin/translations'><r:show date='created_at' tformat='date_format'/></r:load>"
+  src: "<r:load dictionary='/Default skin/translations'><r:show attr='created_at' tformat='date_format'/></r:load>"
   tem: "<% _zdict = load_dictionary(828931430) %><%= format_date(@node.created_at, :format => \"[%d.%m]\") %>"
   res: "[10.03]"
 

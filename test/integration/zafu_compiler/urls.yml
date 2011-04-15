@@ -200,4 +200,4 @@ live_link_data_mode:
 
 url_with_lang:
   src: "window.location = \"<r:url lang='fr'/>\";"
-  res: "/test.host/fr/"
+  res: "/\\?lang=fr/"

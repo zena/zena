@@ -198,7 +198,6 @@ class VirtualClassesController < ApplicationController
     def current_compared_to(definitions)
       current = ::Role.export
       roles   = get_roles(definitions)
-      puts roles.inspect
       filter_keys(current, definitions, roles)
       current
     end

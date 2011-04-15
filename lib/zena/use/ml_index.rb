@@ -7,38 +7,34 @@ module Zena
         end
 
         def rebuild_index_with_multi_lingual!
-          # We call rebuild_index_without_multi_lingual first with our hack
-          # to avoid inclusion order problems with fulltext index.
-
-          # Skip multi lingual indices
-          @index_langs = []
-
-          # Build std index
-          rebuild_index_without_multi_lingual!
-
-          # Skip std index
-          @skip_std_index = true
-
           visible_versions.each do |version|
+            # 1. for each visible version
             self.version = version
             @properties  = version.prop
-            @index_langs = nil # force rebuild
-            # Build ml index for each version
+            # rebuild for each lang
+            @index_langs = nil
+            # Forces a to skip multi lingual indices
+            # @index_langs = []
+
+            # Build std index
             rebuild_index_for_version(version)
+            rebuild_index_without_multi_lingual!
+            # 2. PropEval::rebuild_index!
+            # 3. Fulltext::rebuild_index!
+            # 4. Properties::rebuild_index!
           end
         end
 
         def rebuild_index_for_version(v)
-          rebuild_index_without_multi_lingual!
+          # noop (method chaining in PropEval, Fulltext, etc)
         end
+
 
         # Hash used to read current values
         def index_reader(group_name)
           if group_name =~ /^ml_/
             return nil if index_langs.empty?
             super.merge(:with => {'lang' => index_langs})
-          elsif @skip_std_index
-            nil
           else
             super
           end

@@ -247,10 +247,10 @@ module Zena
                   models_to_update = [self]
                 else
                   models_to_update = find(:all, query, :skip_rubyless => true) || []
-                  raise if !models_to_update.empty? && title == models_to_update.first.title
                 end
 
                 models_to_update.each do |m|
+                  next if m.destroyed? # on destroy, self can be in this list
                   if idx_model = m.scope_index
                     if deleted
                       # Clear obsolete content

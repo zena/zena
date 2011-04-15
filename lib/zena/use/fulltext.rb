@@ -45,38 +45,29 @@ module Zena
 
         def self.included(base)
           base.before_validation :build_fulltext_indices
-          base.alias_method_chain :rebuild_index!, :fulltext
+          base.alias_method_chain :rebuild_index_for_version, :fulltext
         end
 
-        def rebuild_index_with_fulltext!
-          visible_versions.each do |version|
-            build_fulltext_indices(version)
-            fields_to_set = []
-            FULLTEXT_FIELDS.each do |idx_group|
-              next unless version.changes[idx_group]
-              fields_to_set << "#{idx_group}=#{Zena::Db.quote(version[idx_group])}"
-            end
+        def rebuild_index_for_version_with_fulltext(version)
+          # Call PropEval or other modules inserted before
+          rebuild_index_for_version_without_fulltext(version)
 
-            unless fields_to_set.empty?
-              Version.connection.execute "UPDATE versions SET #{fields_to_set.join(',')} WHERE id=#{version.id}"
-            end
+          build_fulltext_indices(true)
+          fields_to_set = []
+          FULLTEXT_FIELDS.each do |idx_group|
+            next unless version.changes[idx_group]
+            fields_to_set << "#{idx_group}=#{Zena::Db.quote(version[idx_group])}"
           end
-          rebuild_index_without_fulltext!
+
+          unless fields_to_set.empty?
+            Version.connection.execute "UPDATE versions SET #{fields_to_set.join(',')} WHERE id=#{version.id}"
+          end
         end
 
         private
           # Prepare roles to add/remove to object.
-          def build_fulltext_indices(rebuild_version = nil)
-            # Make sure roles are loaded because we compile RubyLess.
-
-            if rebuild_version
-              version = rebuild_version
-              # make sure prop corresponds to the correct version content
-              @properties = version.prop
-            else
-              return unless prop.changed?
-              version = self.version
-            end
+          def build_fulltext_indices(force_rebuild = false)
+            return if !force_rebuild && !prop.changed?
 
             if vclass = self.virtual_class
               vclass_prop = vclass.prop

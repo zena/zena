@@ -62,7 +62,7 @@ table.admin td:first-child { border-left: 1px solid #999; }
 .role_diff del.differ { display:block;}
 .role_diff ins.differ { display:block;}
 
-.flash_messages #flash_error { background:#DDC8C8; padding:1.5em;}
+.flash_messages .error { background:#DDC8C8; padding:1.5em;}
 
 /* status */
 .u40 { background:#B7CC87;}

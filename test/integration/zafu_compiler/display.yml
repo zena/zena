@@ -336,4 +336,4 @@ set_class_before_query:
 flash_messages:
   src: "<r:flash_messages/>"
   tem: "<%= flash_messages %>"
-  res: "<div id='messages'></div>"
+  res: "<div class='flash_messages'></div>"

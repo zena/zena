@@ -398,8 +398,8 @@ group_by_parent_sort:
   res: "<b>a wiki with Zena</b>: bird,flower<b>Clean Water project</b>: it's a lake"
 
 nodes_in_site_group_by_year:
-  old_src: "<r:nodes in='site' group='log_at:year' order='log_at:year asc, title ASC' do='each' join=', '><r:show date='log_at' format='%Y'/></r:nodes>"
-  src: "<r:nodes in='site' group='log_at.year' order='log_at.year asc, title ASC' do='each' join=', '><r:show date='log_at' format='%Y'/></r:nodes>"
+  old_src: "<r:nodes in='site' group='log_at:year' order='log_at:year asc, title ASC' do='each' join=', '><r:show attr='log_at' format='%Y'/></r:nodes>"
+  src: "<r:nodes in='site' group='log_at.year' order='log_at.year asc, title ASC' do='each' join=', '><r:show attr='log_at' format='%Y'/></r:nodes>"
   res: ", 2006, 2007"
 
 find_by_zip:

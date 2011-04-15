@@ -16,7 +16,7 @@ class EnrollableTest < Zena::Unit::TestCase
         subject do
           secure(Node) { nodes(:letter) }
         end
-        
+
         should 'add role on property set' do
           assert_difference('NodesRoles.count', 1) do
             assert subject.update_attributes('properties' => {'assigned' => 'flat Eric'})
@@ -24,7 +24,30 @@ class EnrollableTest < Zena::Unit::TestCase
             assert_equal [roles_id(:Task)], subject.cached_role_ids
           end
         end
-        
+
+        context 'with new property index defined' do
+          setup do
+            column = secure(Column) { columns(:Letter_paper) }
+            column.update_attributes(:index => 'string')
+          end
+
+          should 'rebuild property index on rebuild_index' do
+            assert_difference('IdxNodesString.count', 1) do
+              # New key = paper
+              subject.rebuild_index!
+            end
+            
+            indices = Hash[*IdxNodesString.find(:all, :conditions => {:node_id => subject.id}).map {|r| [r.key, r.value]}.flatten]
+            assert_equal Hash[
+              'search_mono'=>'Kraft mono',
+              'paper'=>'Kraft'], indices
+          end
+        end # with new property index defined in role
+
+        should 'respond to zafu_possible_roles' do
+          assert_equal %w{Original Task}, subject.zafu_possible_roles.map {|r| r.name}
+        end
+
         context 'with roles assigned' do
           subject do
             secure(Node) { nodes(:tree_jpg) }
@@ -87,39 +110,11 @@ class EnrollableTest < Zena::Unit::TestCase
             Role.connection.execute("DELETE FROM nodes_roles")
             assert_equal %w{Original}, subject.assigned_roles.map(&:name)
           end
-
-          context 'with new property index defined in role' do
-            setup do
-              column = secure(Column) { columns(:Letter_paper) }
-              column.update_attributes(:index => 'string')
-            end
-
-            subject do
-              secure(Node) { nodes(:letter) }
-            end
-
-            should 'rebuild property index on rebuild_index' do
-              # Makes sure that load_roles! is called before index rebuilt
-              assert_difference('IdxNodesString.count', 1) do
-                # New key = paper
-                subject.rebuild_index!
-              end
-            
-              indices = Hash[*IdxNodesString.find(:all, :conditions => {:node_id => subject.id}).map {|r| [r.key, r.value]}.flatten]
-              assert_equal Hash[
-                'search_mono'=>'Kraft mono',
-                'paper'=>'Kraft'], indices
-            end
-          end # with new property index defined in role
         end # with roles assigned
 
-
-        should 'respond to zafu_possible_roles' do
-          assert_equal %w{Original Task}, subject.zafu_possible_roles.map {|r| r.name}
-        end
       end # from a class with roles
     end # on a node
-    
+
     context 'A safe method returning a sub-class of Node' do
       subject do
         ['section']

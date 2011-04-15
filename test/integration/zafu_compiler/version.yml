@@ -39,9 +39,9 @@ author:
   res: "en:Tigris Sumatran, fr:Invicta"
 
 created_at:
-  src: "<p do='show' date='v.created_at' format='%d %b %y'/>"
+  src: "<p do='v.created_at' format='%d %b %y'/>"
   res: "<p>10 Mar 06</p>"
 
 updated_at:
-  src: "<p do='show' date='v.updated_at' format='%d %b %y'/>"
+  src: "<p do='show' eval='v.updated_at' format='%d %b %y'/>"
   res: "<p>11 Apr 06</p>"

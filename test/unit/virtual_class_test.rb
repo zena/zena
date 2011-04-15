@@ -824,7 +824,6 @@ class VirtualClassTest < Zena::Unit::TestCase
       end
 
       should 'export attributes' do
-        assert_equal('Note', subject['superclass'])
         assert_equal('VirtualClass', subject['type'])
       end
 
@@ -841,7 +840,7 @@ class VirtualClassTest < Zena::Unit::TestCase
       end
 
       should 'export sub classes' do
-        assert_equal(%w{Contact}, VirtualClass['Reference'].export['sub'].keys)
+        assert_equal(%w{Contact}, VirtualClass['Reference'].export.keys.select{|k| k=~/\A[A-Z]/})
       end
     end # exporting a virtual class
 
@@ -855,9 +854,9 @@ class VirtualClassTest < Zena::Unit::TestCase
       end
 
       should 'export sub classes' do
-        assert_equal(%w{Tracker Project Section Tag}, subject['sub'].keys)
-        assert_equal('VirtualClass', subject['sub']['Tracker']['type'])
-        assert_equal('Class', subject['sub']['Project']['type'])
+        assert_equal(%w{Tracker Project Section Tag}, subject.keys.select{|k| k=~/\A[A-Z]/})
+        assert_equal('VirtualClass', subject['Tracker']['type'])
+        assert_equal('Class', subject['Project']['type'])
       end
 
       context 'with relations' do
@@ -877,8 +876,8 @@ class VirtualClassTest < Zena::Unit::TestCase
         end
 
         should 'export linked roles' do
-          assert(subject['sub'].keys.include?('Foo'))
-          assert_equal('Role', subject['sub']['Foo']['type'])
+          assert(subject.keys.include?('Foo'))
+          assert_equal('Role', subject['Foo']['type'])
         end
       end # with linked roles
 
@@ -888,17 +887,13 @@ class VirtualClassTest < Zena::Unit::TestCase
       subject do
         {'Note' => {
           'type' => 'Class',
-          'sub'  => {
-            'Bar' => {
-              'type' => 'Role',
-            },
-            'Baz' => {
+          'Bar' => {
+            'type' => 'Role',
+          },
+          'Baz' => {
+            'type' => 'VirtualClass',
+            'Plop' => {
               'type' => 'VirtualClass',
-              'sub' => {
-                'Plop' => {
-                  'type' => 'VirtualClass',
-                },
-              },
             },
           },
         }}

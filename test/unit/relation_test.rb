@@ -206,10 +206,8 @@ class RelationTest < Zena::Unit::TestCase
     should 'create a hash' do
       assert_equal({
         'rel_group'    => 'doc.tags',
-        'source_kpath' => 'N',
         'source_role'  => 'tagged',
         'target_kpath' => 'NPT',
-        'target_role'  => 'set_tag',
         'target_icon'  => "<img src='/images/tag_blue.png' alt='tag'/>",
       }, subject.export)
     end

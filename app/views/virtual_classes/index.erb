@@ -9,20 +9,27 @@
 </table>
 
 <div class='admin_group'>
-  <h3><%= link_to(_('export'), :action => 'export') %></h3>
-  <h3><%= _('import') %></h3>
   <% if @roles_backup -%>
+    <h3><%= _('import') %></h3>
     <%= form_tag({ :controller => 'virtual_classes', :action => 'import'}) %>
-    <p>
-      <%= hidden_field_tag(:roles, @roles_backup) %>
-      <%#= hidden_field_tag(:delete_roles, '1') %>
-    </p>
-    <p class="btn_validate"><input type="submit" value='<%= _('revert') %>'/></p>
+      <p>
+        <%= hidden_field_tag(:roles, @roles_backup) %>
+        <%#= hidden_field_tag(:delete_roles, '1') %>
+      </p>
+      <p class="btn_validate">
+        <%= link_to(_('back'), :action => 'index')%> &nbsp;
+        <input type="submit" value='<%= _('revert') %>'/>
+      </p>
     </form>
   <% else -%>
+    <h3><%= link_to(_('export'), :action => 'export') %></h3>
+    <h3><%= _('import') %></h3>
     <%= form_tag({ :controller => 'virtual_classes', :action => 'import_prepare'}, {:multipart => true} ) %>
     <p><input style='line-height:1.5em;' name="attachment" class='file' type="file" /></p>
-    <p class="btn_validate"><input type="submit" value='<%= _('diff') %>'/></p>
+    <p class="btn_validate">
+      <%= link_to(_('cancel'), :action => 'index')%> &nbsp;
+      <input type="submit" value='<%= _('diff') %>'/>
+    </p>
     </form>
   <% end -%>
 </div>

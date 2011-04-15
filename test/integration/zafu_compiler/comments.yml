@@ -22,18 +22,18 @@ comments_order_desc:
   context:
     visitor: ant
     #  tz='UTC'
-  src: "<r:comments order='created_at desc'><r:each join=', '><r:show date='created_at' format='%Y-%m-%d'/>:<b do='[title]'/></r:each></r:comments>"
+  src: "<r:comments order='created_at desc'><r:each join=', '><r:show attr='created_at' format='%Y-%m-%d'/>:<b do='[title]'/></r:each></r:comments>"
   res: "2008-05-21:<b>re: What about rivers ?</b>, 2006-12-20:<b>What about rivers ?</b>, 2006-12-20:<b>Nice site</b>"
 
 comments_where_title:
-  src: "<r:comments where='title like \"%rivers%\"'><r:each join=', '><r:show date='created_at' format='%Y-%m-%d'/>:<b do='title'/></r:each></r:comments>"
+  src: "<r:comments where='title like \"%rivers%\"'><r:each join=', '><r:show attr='created_at' format='%Y-%m-%d'/>:<b do='title'/></r:each></r:comments>"
   tem: '/var1 = Comment.do_find/'
   res: "2006-12-20:<b>What about rivers ?</b>, 2008-05-21:<b>re: What about rivers ?</b>"
 
 comments_no_discussion:
   context:
     node: letter
-  src: "<r:comments order='created_at desc'><r:each join=', '><r:show date='created_at' format='%Y-%m-%d'/>:<b do='[title]'/></r:each><r:else>-- no comment yet --</r:else></r:comments>"
+  src: "<r:comments order='created_at desc'><r:each join=', '><r:show attr='created_at' format='%Y-%m-%d'/>:<b do='[title]'/></r:each><r:else>-- no comment yet --</r:else></r:comments>"
   res: "-- no comment yet --"
 
 comments_previous_node:

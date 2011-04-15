@@ -36,7 +36,7 @@ show_var:
   tem: "/unknown method 'boo\(\)' for Zena::ZafuCompiler/"
 
 show_bad_sprintf:
-  src: "<p do='show' date='updated_at' format='%.2f %i hop'/>"
+  src: "<p do='show' attr='updated_at' format='%.2f %i hop'/>"
   res: "<p>.2f i hop</p>"
 
 division_by_zero_in_eval:

@@ -41,7 +41,7 @@ class RoleTest < Zena::Unit::TestCase
 
   context 'Creating a new Role' do
     subject do
-      Role.create('name' => 'WriteTests')
+      Role.create('name' => 'WriteTests', 'superclass' => 'Node')
     end
 
     context 'with an anonymous visitor' do
@@ -77,6 +77,7 @@ class RoleTest < Zena::Unit::TestCase
         assert_difference('Role.count', 1) do
           subject
         end
+        assert_equal 'N', subject.kpath
       end
     end # with an admin visitor
   end # Creating a new Role
@@ -145,7 +146,6 @@ class RoleTest < Zena::Unit::TestCase
       end
 
       should 'export attributes' do
-        assert_equal('Note', subject['superclass'])
         assert_equal('VirtualClass', subject['type'])
       end
 
@@ -169,21 +169,17 @@ class RoleTest < Zena::Unit::TestCase
       end
 
       should 'export sub classes' do
-        assert_equal(%w{Project Blog}, subject['sub'].keys)
-        assert_equal('VirtualClass', subject['sub']['Letter']['type'])
+        assert_equal(%w{Tracker Project Section Tag}, subject.keys.select{|k| k=~/\A[A-Z]/})
+        assert_equal('VirtualClass', subject['Tracker']['type'])
       end
 
       context 'with linked roles' do
         setup do
-          r = secure(::Role) { ::Role.create('name' => 'Foo', 'superclass' => 'Note')}
-          err r
-          assert !r.new_record?
+          secure!(::Role) { ::Role.create('name' => 'Foo', 'superclass' => 'Page')}
         end
 
         should 'export linked roles' do
-          puts ::Role.export.to_yaml.gsub(/ *!map:Zafu::OrderedHash */, '')
-          assert_equal(%w{Foo Letter Post}, subject['sub'].keys)
-          assert_equal('Role', subject['sub']['Foo']['type'])
+          assert_equal('Role', subject['Foo']['type'])
         end
       end # with linked roles
 
@@ -201,7 +197,7 @@ class RoleTest < Zena::Unit::TestCase
 
     context 'importing columns' do
       subject do
-        roles(:Original)
+        roles(:Post)
       end
 
       should 'create properties' do
@@ -229,7 +225,9 @@ class RoleTest < Zena::Unit::TestCase
         }
         assert_difference('Column.count', 0) do
           # rollback 'one' creation
-          subject.import_columns(data)
+          assert_raise(Exception) do
+            subject.import_columns(data)
+          end
         end
       end
 
@@ -288,7 +286,7 @@ class RoleTest < Zena::Unit::TestCase
               })
             end
           end
-          assert_equal "Cannot set property 'paper' in 'Original': already defined in 'Letter'.", e.message
+          assert_equal "Cannot set property 'paper' in 'Post': already defined in 'Letter'.", e.message
         end
       end # with invalid data
     end
@@ -312,6 +310,8 @@ class RoleTest < Zena::Unit::TestCase
         assert_difference('Role.count', 1) do
           ::Role.import(subject)
         end
+        role = Role.find_by_name 'Foo'
+        assert_equal 'N', role.kpath
       end
 
       should 'create columns' do
@@ -325,7 +325,7 @@ class RoleTest < Zena::Unit::TestCase
       setup do
         VirtualClass.expire_cache!
       end
-      
+
       subject do
         { 'Node' => {
             'Note' => {
@@ -378,16 +378,39 @@ class RoleTest < Zena::Unit::TestCase
           }
         end
 
-        should 'set errors on role' do
+        should 'raise an error' do
           assert_difference('Column.count', 0) do
-            ::Role.import(subject)
+            e = assert_raise(Exception) do
+              ::Role.import(subject)
+            end
+            assert_equal "Cannot set property 'tz' in 'Foo': already defined in 'Original'.", e.message
           end
-
         end
       end # with duplicate column names
 
-      should 'raise error on duplicate column name' do
-      end
+
+      context 'with bad types' do
+        subject do
+          { 'Node' => {
+              'Note' => {
+                'type' => 'Capoff',
+                'Foo' => {
+                  'type'       => 'Role',
+                },
+              },
+            },
+          }
+        end
+
+        should 'raise an error' do
+          assert_difference('Column.count', 0) do
+            e = assert_raise(Exception) do
+              ::Role.import(subject)
+            end
+            assert_equal "Cannot create 'Note': invalid type 'Capoff'.", e.message
+          end
+        end
+      end # with duplicate column names
     end # importing virtual classes
   end # An admin
 

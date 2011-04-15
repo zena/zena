@@ -197,12 +197,25 @@ class VirtualClassesControllerTest < Zena::Controller::TestCase
 
       context 'importing virtual class definitions' do
         subject do
-          {:action => :import, :attachment => uploaded_fixture('vclasses.yml', 'text/yaml')}
+          {:action => :import, :roles => {
+            'Node' => {
+              'Note' => {
+                'Foo' => {
+                  'type' => 'VirtualClass',
+                },
+                'Bar' => {
+                  'type' => 'Role',
+                }
+              }
+            }
+          }.to_yaml}
         end
 
         should 'create virtual classes' do
-          assert_difference('VirtualClass.count', 3) do
-            post_subject
+          assert_difference('VirtualClass.count', 1) do
+            assert_difference('Role.count', 2) do
+              post_subject
+            end
           end
         end
       end # importing virtual class definitions
@@ -215,9 +228,8 @@ class VirtualClassesControllerTest < Zena::Controller::TestCase
         should 'dump virtual classes to yaml' do
           get_subject
           res = YAML.load @response.body
-          puts @response.body
-          assert_equal %w{Blog Contact Letter Original Post Reference Tag Task Tracker}, res.keys.sort
-          assert_equal res['Original'], roles(:Original).export
+          assert_equal 'VirtualClass', res['Node']['Page']['Project']['Blog']['type']
+          assert_equal res['Node']['Original'], roles(:Original).export
         end
       end # importing virtual class definitions
     end # that is an admin

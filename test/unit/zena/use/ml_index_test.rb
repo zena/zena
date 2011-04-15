@@ -72,20 +72,6 @@ class MLIndexTest < Zena::Unit::TestCase
         assert_equal 'fabula', idx.value
       end
 
-      context 'with std indices removed' do
-        setup do
-          IdxNodesString.connection.execute 'DELETE from idx_nodes_strings'
-        end
-
-        should 'not write std index on skip_std_index' do
-          subject = secure(Node) { nodes(:ant) }
-          subject.instance_variable_set(:@skip_std_index, true)
-          assert_difference('IdxNodesString.count', 0) do
-            subject.update_attributes(:name => 'New')
-          end
-        end
-      end # with std indices removed
-
       context 'with multi lingual indices removed' do
         setup do
           IdxNodesMlString.connection.execute 'DELETE from idx_nodes_ml_strings'

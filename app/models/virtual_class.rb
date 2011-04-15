@@ -447,14 +447,6 @@ class VirtualClass < Role
     real_class.do_find(*args)
   end
 
-  def superclass=(klass)
-    if klass.kind_of?(VirtualClass) || klass = VirtualClass[klass]
-      @superclass = klass
-    else
-      errors.add('superclass', 'invalid')
-    end
-  end
-
   # Build new nodes instances of this VirtualClass
   def new_instance(hash={})
     real_class.new(hash, self)
