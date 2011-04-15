@@ -206,7 +206,7 @@ class VirtualClassTest < Zena::Unit::TestCase
 
     context 'with a related template' do
       setup do
-        @template = secure(Template) { Template.create(:parent_id => nodes_id(:default), :title => 'Post.zafu') }
+        @template = secure(Template) { Template.create(:parent_id => nodes_id(:default), :title => 'Post-foobar.zafu') }
         assert !@template.new_record?
       end
 
@@ -218,6 +218,17 @@ class VirtualClassTest < Zena::Unit::TestCase
         assert_equal 'NPO', t.tkpath
         idx = IdxTemplate.first(:conditions => {:node_id => t.id})
         assert_equal 'NPO', idx.tkpath
+      end
+
+      should 'rename templates' do
+        # kpath NNP => NO
+        assert subject.update_attributes(:name => 'Fast')
+        assert_equal 'NNF', subject.kpath
+        t = secure(Template) { Template.find(@template) }
+        assert_equal 'NNF', t.tkpath
+        assert_equal 'Fast-foobar', t.title
+        idx = IdxTemplate.first(:conditions => {:node_id => t.id})
+        assert_equal 'NNF', idx.tkpath
       end
     end # with a related template
 

@@ -270,7 +270,12 @@ class VirtualClass < Role
 
       if subclasses
         subclasses.sort! do |a,b|
-          a.kpath <=> b.kpath
+          if a.class != b.class
+            # Roles before subclasses
+            b.class <=> a.class
+          else
+            a.kpath <=> b.kpath
+          end
         end
       end
     end

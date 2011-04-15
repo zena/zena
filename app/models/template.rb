@@ -60,6 +60,7 @@ class Template < TextDocument
       if target_klass
         prop['target_klass'] = target_klass.name
         prop['tkpath'] = target_klass.kpath
+        self.title = title_from_mode_and_format
       else
         target_klass = Node.get_class(prop['target_klass'])
         if target_klass
