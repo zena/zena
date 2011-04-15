@@ -180,6 +180,21 @@ class VirtualClassesControllerTest < Zena::Controller::TestCase
         end
       end # destroying a virtual class
 
+      context 'prepare import for role definitions' do
+        subject do
+          {:action => :import_prepare, :attachment => uploaded_fixture('vclasses.yml', 'text/yaml')}
+        end
+
+        should 'create a diff' do
+          assert_difference('::Role.count', 0) do
+            post_subject
+            assert_response :success
+            diff = assigns(:diff)
+            assert_match(/<ins class="differ">Foo/, diff)
+          end
+        end
+      end # importing virtual class definitions
+
       context 'importing virtual class definitions' do
         subject do
           {:action => :import, :attachment => uploaded_fixture('vclasses.yml', 'text/yaml')}
@@ -200,6 +215,7 @@ class VirtualClassesControllerTest < Zena::Controller::TestCase
         should 'dump virtual classes to yaml' do
           get_subject
           res = YAML.load @response.body
+          puts @response.body
           assert_equal %w{Blog Contact Letter Original Post Reference Tag Task Tracker}, res.keys.sort
           assert_equal res['Original'], roles(:Original).export
         end

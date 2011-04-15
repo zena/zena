@@ -1,0 +1,5 @@
+Priority_priority:
+  ptype:           integer
+
+Priority_last_date:
+  ptype:           datetime

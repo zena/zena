@@ -30,6 +30,7 @@
 # VirtualClass itself for real classes.
 #
 class VirtualClass < Role
+  EXPORT_ATTRIBUTES = %w{idx_class idx_scope idx_reverse_scope}
   attr_accessor :import_result
   belongs_to    :create_group, :class_name => 'Group', :foreign_key => 'create_group_id'
   validate      :valid_virtual_class
@@ -200,44 +201,6 @@ class VirtualClass < Role
     def all_classes(base_kpath = 'N', without_list = nil)
       (self.caches_by_site[current_site.id] ||= Cache.new).all_classes(base_kpath, without_list)
     end
-
-    # Build a virtual class from a name and a hash of virtual class definitions. If
-    # the superclass is in the data hash, it is built first.
-    def build_virtual_class(klass, data)
-      return data[klass]['result'] if data[klass].has_key?('result')
-      if virtual_class = VirtualClass[klass]
-        virtual_class = virtual_class.dup
-        if virtual_class.superclass.to_s == data[klass]['superclass']
-          virtual_class.import_result = 'same'
-          return data[klass]['result'] = virtual_class
-        else
-          virtual_class.errors.add(:base, 'conflict')
-          return data[klass]['result'] = virtual_class
-        end
-      else
-        superclass_name = data[klass]['superclass']
-        if data[superclass_name]
-          superclass = build_virtual_class(superclass_name, data)
-          unless superclass.errors.empty?
-            virtual_class = VirtualClass.new(:name => klass, :superclass => superclass_name, :create_group_id => current_site.public_group_id)
-            virtual_class.errors.add(:base, 'conflict in superclass')
-            return data[klass]['result'] = virtual_class
-          end
-        elsif superclass = Node.get_class(superclass_name)
-          # ok
-        else
-          virtual_class = VirtualClass.new(:name => klass, :superclass => superclass_name, :create_group_id => current_site.public_group_id)
-          virtual_class.errors.add(:base, 'missing superclass')
-          return data[klass]['result'] = virtual_class
-        end
-
-        # build
-        create_group_id = superclass.id ? superclass.create_group_id : current_site.public_group_id
-        virtual_class = create(data[klass].merge(:name => klass, :create_group_id => create_group_id))
-        virtual_class.import_result = 'new'
-        return data[klass]['result'] = virtual_class
-      end
-    end
   end
 
   self.caches_by_site ||= {}
@@ -292,10 +255,36 @@ class VirtualClass < Role
 
   def export
     res = super
-    %w{idx_class idx_scope idx_reverse_scope}.each do |k|
+    EXPORT_ATTRIBUTES.each do |k|
       value = self[k]
       next if value.blank?
       res[k] = value
+    end
+    subclasses = secure(::Role) do
+      ::Role.find(:all, :conditions => [
+        'kpath LIKE ? OR (kpath = ? AND id <> ?)', "#{kpath}_", kpath, self.id.to_i
+      ], :order => 'kpath ASC')
+    end
+    if real_class?
+      # insert native subclasses
+      Node.native_classes.each do |kpath, klass|
+        if kpath =~ /\A#{self.kpath}.\Z/
+          subclasses ||= []
+          subclasses << VirtualClass[klass.name]
+        end
+      end
+
+      if subclasses
+        subclasses.sort! do |a,b|
+          a.kpath <=> b.kpath
+        end
+      end
+    end
+
+    if subclasses
+      subclasses.each do |sub|
+        res[sub.name] = sub.export
+      end
     end
     res
   end
@@ -454,8 +443,8 @@ class VirtualClass < Role
   end
 
   def superclass=(klass)
-    if k = VirtualClass[klass]
-      @superclass = k
+    if klass.kind_of?(VirtualClass) || klass = VirtualClass[klass]
+      @superclass = klass
     else
       errors.add('superclass', 'invalid')
     end
@@ -510,6 +499,10 @@ class VirtualClass < Role
     end
 
     def valid_virtual_class
+      if create_group_id.blank? && new_record?
+        self.create_group_id = current_site.public_group_id
+      end
+
       return if !errors.empty?
       @superclass ||= self.superclass
 

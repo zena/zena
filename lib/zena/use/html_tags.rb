@@ -158,18 +158,22 @@ module Zena
       module ViewMethods
         include FormTags
         include LinkTags
+        include RubyLess
 
-        # Display flash[:notice] or flash[:error] if any. <%= flash <i>[:notice, :error, :both]</i> %>"
+        safe_method [:flash_messages] => String
+        # TODO: replace 'flash_messages' with a FlashHash context or a list
+        # of Flash messages.
+
         def flash_messages(opts={})
           type = opts[:show] || 'both'
-          "<div id='messages'>" +
+          "<div class='flash_messages'>" +
           if (type == 'notice' || type == 'both') && flash[:notice]
-            "<div id='notice' class='flash' onclick='new Effect.Fade(\"notice\")'>#{flash[:notice]}</div>"
+            "<div id='flash_notice' class='auto_fade' onclick='new Effect.Fade(this)'>#{flash[:notice]}</div>"
           else
             ''
           end +
           if (type == 'error'  || type == 'both') && flash[:error ]
-            "<div id='error' class='flash' onclick='new Effect.Fade(\"error\")'>#{flash[:error]}</div>"
+            "<div id='flash_error' onclick='new Effect.Fade(this)'>#{flash[:error]}</div>"
           else
             ''
           end +

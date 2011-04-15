@@ -1,0 +1,14 @@
+<h2 class='title'><%= _('classes import') %></h2>
+
+<div class='zazen role_diff'><%= @diff %></div>
+
+<div class='admin_group'><h3><%= _('import definitions') %></h3>
+
+<%= form_tag({ :controller => 'virtual_classes', :action => 'import'}) %>
+<p><%= hidden_field_tag(:roles, @yaml) %></p>
+<p><%#= check_box_tag(:delete_roles) %> <%= _('delete roles') %></p>
+<p class="btn_validate">
+  <%= link_to(_('cancel'), :action => 'index')%> &nbsp;
+  <input type="submit" value='<%= _('apply') %>'/></p>
+</form>
+</div>

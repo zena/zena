@@ -9,21 +9,6 @@ default:
 
 #----------- fixed up to here
 
-flash_messages_both:
-  src: "<r:flash_messages/>"
-  tem: "/id.*messages.*notice.*flash.*notice.*error.*flash.*error/"
-  res: "<div id='messages'></div>"
-
-flash_messages_error:
-  src: "<r:flash_messages show='error'/>"
-  tem: "/id.*messages.*error.*flash.*error/"
-  res: "<div id='messages'></div>"
-
-flash_messages_notice:
-  src: "<r:flash_messages show='notice'/>"
-  tem: "/id.*messages.*notice.*flash.*notice/"
-  res: "<div id='messages'></div>"
-
 show_author_short:
   src: "<div class='subtitle' do='show_author'><b>SI</b> - 05.12</div>"
   tem: "<div class='subtitle'><b><%= @node.version.author.initials %></b> - <%= format_date(@node.version.updated_at, :format => \"%m.%d\") %></div>"

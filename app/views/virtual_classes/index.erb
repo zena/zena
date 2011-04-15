@@ -1,15 +1,28 @@
 <h2 class='title'><%= _('manage classes') %></h2>
 
+<%= flash_messages %>
+
 <table id='virtual_class_list' class='admin' cellspacing="0">
   <tr><th class='nav' colspan='4'><%= will_paginate @virtual_classes %></th></tr>
   <%= render :partial=>'virtual_classes/li',  :collection=>@virtual_classes %>
   <%= render :partial=>'virtual_classes/add' %>
 </table>
 
-<div class='admin_group'><h3><%= _('import definitions') %></h3>
-
-<%= form_tag({ :controller => 'virtual_classes', :action => 'import'}, {:multipart => true} ) %>
-<p><input style='line-height:1.5em;' name="attachment" class='file' type="file" /></p>
-<p class="btn_validate"><input type="submit" value='<%= _('import') %>'/></p>
-</form>
+<div class='admin_group'>
+  <h3><%= link_to(_('export'), :action => 'export') %></h3>
+  <h3><%= _('import') %></h3>
+  <% if @roles_backup -%>
+    <%= form_tag({ :controller => 'virtual_classes', :action => 'import'}) %>
+    <p>
+      <%= hidden_field_tag(:roles, @roles_backup) %>
+      <%#= hidden_field_tag(:delete_roles, '1') %>
+    </p>
+    <p class="btn_validate"><input type="submit" value='<%= _('revert') %>'/></p>
+    </form>
+  <% else -%>
+    <%= form_tag({ :controller => 'virtual_classes', :action => 'import_prepare'}, {:multipart => true} ) %>
+    <p><input style='line-height:1.5em;' name="attachment" class='file' type="file" /></p>
+    <p class="btn_validate"><input type="submit" value='<%= _('diff') %>'/></p>
+    </form>
+  <% end -%>
 </div>

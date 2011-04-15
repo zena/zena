@@ -42,6 +42,11 @@
 .sh .variable { color:#33a;}
 .sh .method { color: #944; }
 
+.yaml .p { color:#686;}
+.yaml .document, .yaml .key { color:#099;}
+.yaml .string { color:#449;}
+.yaml .comment { color: #005; font-style: italic; }
+
 .css .comment { color: #005; font-style: italic; }
 .css .p { color:#686;}
 .css .variable { color:#33a;}

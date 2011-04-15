@@ -2,7 +2,9 @@ require 'rubygems'
 require 'syntax/convertors/html'
 require 'syntax/lang/xml'
 require 'syntax/lang/ruby'
+require 'syntax/lang/yaml'
 require 'syntax'
+require 'redcloth'
 
 module Zena
   class CodeSyntax
@@ -128,173 +130,174 @@ module Syntax
       end
     end
   end # Convertors
-end # CodeSyntax
 
-class ZafuTokenizer < Syntax::Tokenizer
-  METHOD = "[\\w]+\\??"
-  def step
-    if ztag = scan(/\A<\/?r:[^>]+>/)
-      ztag =~ /<(\/?)r:(#{METHOD})([^>]*?)(\/?)>/
-      start_group :tag, "<#{$1}r:"
-      start_group :ztag, $2
-      trailing = $4
-      params = parse_params($3)
-      params.each do |k,v|
-        append " "
-        if v =~ /[^\\]'/
-          v = "\"#{v}\""
-        else
-          v = "'#{v}'"
+  class ZafuTokenizer < Tokenizer
+    METHOD = "[\\w]+\\??"
+    def step
+      if ztag = scan(/\A<\/?r:[^>]+>/)
+        ztag =~ /<(\/?)r:(#{METHOD})([^>]*?)(\/?)>/
+        start_group :tag, "<#{$1}r:"
+        start_group :ztag, $2
+        trailing = $4
+        params = parse_params($3)
+        params.each do |k,v|
+          append " "
+          if v =~ /[^\\]'/
+            v = "\"#{v}\""
+          else
+            v = "'#{v}'"
+          end
+          start_group :param, k.to_s
+          append '='
+          start_group :value, v
         end
-        start_group :param, k.to_s
-        append '='
-        start_group :value, v
-      end
-      start_group :tag, "#{trailing}>"
-    elsif dotag = scan(/<(\w+)([^>]*?)do\s*=('|")([^\3]*?[^\\])\3([^>]*?)(\/?)>/)
-        if dotag =~ /\A<(\w+)([^>]*?)do\s*=('|")([^\3]*?[^\\])\3([^>]*?)(\/?)>/
-          start_group :tag, "<#{$1}#{$2}"
-          start_group :tag, "do="
-          start_group :ztag, "'#{$4}'"
-          trailing = $6
-          params = parse_params($5)
-          params.each do |k,v|
-            append " "
-            if v =~ /[^\\]'/
-              v = "\"#{v}\""
-            else
-              v = "'#{v}'"
+        start_group :tag, "#{trailing}>"
+      elsif dotag = scan(/<(\w+)([^>]*?)do\s*=('|")([^\3]*?[^\\])\3([^>]*?)(\/?)>/)
+          if dotag =~ /\A<(\w+)([^>]*?)do\s*=('|")([^\3]*?[^\\])\3([^>]*?)(\/?)>/
+            start_group :tag, "<#{$1}#{$2}"
+            start_group :tag, "do="
+            start_group :ztag, "'#{$4}'"
+            trailing = $6
+            params = parse_params($5)
+            params.each do |k,v|
+              append " "
+              if v =~ /[^\\]'/
+                v = "\"#{v}\""
+              else
+                v = "'#{v}'"
+              end
+              if k == :do
+                start_group :tag, k.to_s
+                append '='
+                start_group :ztag, v
+              else
+                start_group :param, k.to_s
+                append '='
+                start_group :value, v
+              end
             end
-            if k == :do
-              start_group :tag, k.to_s
-              append '='
-              start_group :ztag, v
-            else
-              start_group :param, k.to_s
-              append '='
-              start_group :value, v
+            start_group :tag, "#{trailing}>"
+          else
+            start_group :normal, dotag
+          end
+      elsif html = scan(/\A<\/?[^>]+>/)
+        html =~/<\/?([^>]+)>/
+        start_group :tag, html
+      else
+        start_group :normal, scan(/./m)
+      end
+    end
+  end # ZafuTokenizer
+  SYNTAX['zafu'] = ZafuTokenizer
+
+  class ErbTokenizer < Tokenizer
+    def step
+      if methods = scan(/<%[^>]+%>/m)
+        methods =~ /<%(=?)([^>]+?)(-?)%>/m
+        start_group :punct, "<%#{$1}"
+        trailing = $3
+        sub_lang :expr, "<code class='ruby'>#{Convertors::HTML.for_syntax('ruby').convert($2, false)}</code>"
+        start_group :punct, "#{trailing}%>"
+      elsif html = scan(/<\/?[^>]+>/)
+        html =~/<\/?([^>]+)>/
+        start_group :tag, html
+      else
+        start_group :normal, scan(/./m)
+      end
+    end
+  end # ErbTokenizer
+  SYNTAX['erb'] = ErbTokenizer
+
+  class CssTokenizer < Tokenizer
+    def step
+      if comments = scan(/\s*\/\*.*?\*\/\s*/m)
+        start_group :comment, comments
+      elsif variables = scan(/[^\{]*?\{[^\}]*?\}/m)
+        variables =~ /(\s*)([^\{]*?)\{([^\}]*?)\}/m
+        start_group :normal, $1
+        vars = $3
+        selectors = $2.split(',').map { |s| s.strip }
+        selectors.each_index do |i|
+          selectors[i].gsub('.','|.').gsub('#','|#').split('|').each do |g|
+            g = g.split(' ')
+            g.each do |s|
+              if s[0..0] == '#'
+                start_group :id, s
+              elsif s[0..0] == '.'
+                start_group :class, s
+              else
+                start_group :tag, s
+              end
+              start_group :normal, ' '
             end
           end
-          start_group :tag, "#{trailing}>"
-        else
-          start_group :normal, dotag
-        end
-    elsif html = scan(/\A<\/?[^>]+>/)
-      html =~/<\/?([^>]+)>/
-      start_group :tag, html
-    else
-      start_group :normal, scan(/./m)
-    end
-  end
-end # ZafuTokenizer
-Syntax::SYNTAX['zafu'] = ZafuTokenizer
-
-class ErbTokenizer < Syntax::Tokenizer
-  def step
-    if methods = scan(/<%[^>]+%>/m)
-      methods =~ /<%(=?)([^>]+?)(-?)%>/m
-      start_group :punct, "<%#{$1}"
-      trailing = $3
-      sub_lang :expr, "<code class='ruby'>#{Syntax::Convertors::HTML.for_syntax('ruby').convert($2, false)}</code>"
-      start_group :punct, "#{trailing}%>"
-    elsif html = scan(/<\/?[^>]+>/)
-      html =~/<\/?([^>]+)>/
-      start_group :tag, html
-    else
-      start_group :normal, scan(/./m)
-    end
-  end
-end # ErbTokenizer
-Syntax::SYNTAX['erb'] = ErbTokenizer
-
-class CssTokenizer < Syntax::Tokenizer
-  def step
-    if comments = scan(/\s*\/\*.*?\*\/\s*/m)
-      start_group :comment, comments
-    elsif variables = scan(/[^\{]*?\{[^\}]*?\}/m)
-      variables =~ /(\s*)([^\{]*?)\{([^\}]*?)\}/m
-      start_group :normal, $1
-      vars = $3
-      selectors = $2.split(',').map { |s| s.strip }
-      selectors.each_index do |i|
-        selectors[i].gsub('.','|.').gsub('#','|#').split('|').each do |g|
-          g = g.split(' ')
-          g.each do |s|
-            if s[0..0] == '#'
-              start_group :id, s
-            elsif s[0..0] == '.'
-              start_group :class, s
-            else
-              start_group :tag, s
-            end
-            start_group :normal, ' '
+          unless i == selectors.size - 1
+            start_group :punct, ', '
           end
         end
-        unless i == selectors.size - 1
-          start_group :punct, ', '
+        start_group :punct, '{ '
+
+        rest = vars
+        while rest != '' && rest =~ /([\w-]+)\s*:\s*(.*?)\s*;(.*)/m
+          start_group :variable, $1
+          start_group :punct, ':'
+          start_group :normal, $2
+          start_group :punct, '; '
+          rest = $3
         end
+        start_group :punct, "#{rest}}"
+      else
+        start_group :normal, scan(/./m)
       end
-      start_group :punct, '{ '
+    end
+  end # CssTokenizer
+  SYNTAX['css'] = CssTokenizer
 
-      rest = vars
-      while rest != '' && rest =~ /([\w-]+)\s*:\s*(.*?)\s*;(.*)/m
-        start_group :variable, $1
-        start_group :punct, ':'
-        start_group :normal, $2
-        start_group :punct, '; '
-        rest = $3
+  class ShTokenizer < Tokenizer
+    def step
+      if variables = scan(/\$\w+/)
+        start_group :variable, variables
+      elsif start = scan(/# \S+/)
+        start_group :punct, '# '
+        start_group :method, start[2..-1]
+      elsif start = scan(/\$ \S+/)
+        start_group :root, '$ '
+        start_group :method, start[2..-1]
+      else
+        start_group :normal, scan(/./m)
       end
-      start_group :punct, "#{rest}}"
-    else
-      start_group :normal, scan(/./m)
     end
-  end
-end # CssTokenizer
-Syntax::SYNTAX['css'] = CssTokenizer
+  end # ShTokenizer
+  SYNTAX['sh'] = ShTokenizer
 
-class ShTokenizer < Syntax::Tokenizer
-  def step
-    if variables = scan(/\$\w+/)
-      start_group :variable, variables
-    elsif start = scan(/# \S+/)
-      start_group :punct, '# '
-      start_group :method, start[2..-1]
-    elsif start = scan(/\$ \S+/)
-      start_group :root, '$ '
-      start_group :method, start[2..-1]
-    else
-      start_group :normal, scan(/./m)
+  class PseudoSqlTokenizer < Tokenizer
+    def step
+      if @state.nil? and method = scan(/\w+/)
+        start_group :method, method
+        @state = :method
+      elsif @state == :in and context = scan(/\w+/)
+        start_group :context, context
+        @state = :context
+      elsif keyword = scan(/\bin\b/)
+        start_group :context, keyword
+        @state = :in
+      elsif keyword = scan(/\bfrom\b/)
+        start_group :sub, keyword
+        @state = nil
+      elsif keyword = scan(/\bwhere|group|order|limit|offset|paginate\b/)
+        start_group :keyword, keyword
+      elsif punct  = scan(/\b>=|<=|<>|<|=|>|not\s+like|like|lt|le|eq|ne|ge|gt\b/)
+        start_group :punct, punct
+      elsif string = scan(/("|')[^'"]*\1/)
+        string =~ /("|')([^'"]*)\1/
+        start_group :punct, $1
+        start_group :string, $2
+        start_group :punct, $1
+      else
+        start_group :normal, scan(/./m)
+      end
     end
-  end
-end # ShTokenizer
-Syntax::SYNTAX['sh'] = ShTokenizer
-
-class PseudoSqlTokenizer < Syntax::Tokenizer
-  def step
-    if @state.nil? and method = scan(/\w+/)
-      start_group :method, method
-      @state = :method
-    elsif @state == :in and context = scan(/\w+/)
-      start_group :context, context
-      @state = :context
-    elsif keyword = scan(/\bin\b/)
-      start_group :context, keyword
-      @state = :in
-    elsif keyword = scan(/\bfrom\b/)
-      start_group :sub, keyword
-      @state = nil
-    elsif keyword = scan(/\bwhere|group|order|limit|offset|paginate\b/)
-      start_group :keyword, keyword
-    elsif punct  = scan(/\b>=|<=|<>|<|=|>|not\s+like|like|lt|le|eq|ne|ge|gt\b/)
-      start_group :punct, punct
-    elsif string = scan(/("|')[^'"]*\1/)
-      string =~ /("|')([^'"]*)\1/
-      start_group :punct, $1
-      start_group :string, $2
-      start_group :punct, $1
-    else
-      start_group :normal, scan(/./m)
-    end
-  end
-end # PseudoSqlTokenizer
-Syntax::SYNTAX['pseudo_sql'] = PseudoSqlTokenizer
+  end # PseudoSqlTokenizer
+  SYNTAX['pseudo_sql'] = PseudoSqlTokenizer
+  SYNTAX['sqliss'] = PseudoSqlTokenizer
+end # Syntax

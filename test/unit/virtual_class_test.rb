@@ -191,7 +191,7 @@ class VirtualClassTest < Zena::Unit::TestCase
     setup do
       login(:lion)
     end
-    
+
     subject do
       roles(:Post)
     end
@@ -209,7 +209,7 @@ class VirtualClassTest < Zena::Unit::TestCase
         assert !@role.new_record?
         assert_equal 'NNP', @role.kpath
       end
-      
+
       should 'update linked role kpath' do
         # kpath NNP => NO
         assert subject.update_attributes(:superclass => 'Page')
@@ -218,9 +218,9 @@ class VirtualClassTest < Zena::Unit::TestCase
         assert_equal 'NPO', role.kpath
       end
     end # with linked role
-    
+
   end # Updating a VirtualClass
-  
+
   def test_update_name
     # add a sub class
     login(:lion)
@@ -808,129 +808,93 @@ class VirtualClassTest < Zena::Unit::TestCase
     end # on a node
   end # A visitor with write access
 
-  context 'importing virtual class definitions' do
+
+  context 'An admin' do
     setup do
       login(:lion)
     end
 
-    context 'with an existing superclass' do
+    context 'exporting a virtual class' do
       setup do
-        @data = {"Foo" => {'superclass' => 'Page'}}
+        login(:lion)
       end
 
-      should 'create a new virtual class with the given name' do
-        res = nil
-        assert_difference('VirtualClass.count', 1) do
-          res = secure(VirtualClass) { VirtualClass.import(@data) }
-        end
-        assert_equal 'Foo', res.first.name
-        assert_equal 'new', res.first.import_result
-        assert_equal 'NPF', res.first.kpath
+      subject do
+        VirtualClass['Post'].export
       end
 
-      context 'and an existing virtual class' do
+      should 'export attributes' do
+        assert_equal('Note', subject['superclass'])
+        assert_equal('VirtualClass', subject['type'])
+      end
+
+      should 'export columns' do
+        assert_equal({
+            'date' => {'index' => '.idx_datetime1', 'ptype' => 'datetime'},
+        }, subject['columns'])
+      end
+
+      should 'export sub classes' do
+        assert_equal(%w{Contact}, VirtualClass['Reference'].export['sub'].keys)
+      end
+    end # exporting a virtual class
+
+    context 'exporting a real class' do
+      subject do
+        VirtualClass['Page'].export
+      end
+
+      should 'export type as Class' do
+        assert_equal('Class', subject['type'])
+      end
+
+      should 'export sub classes' do
+        assert_equal(%w{Tracker Project Section Tag}, subject['sub'].keys)
+        assert_equal('VirtualClass', subject['sub']['Tracker']['type'])
+        assert_equal('Class', subject['sub']['Project']['type'])
+      end
+
+      context 'with linked roles' do
         setup do
-          @data = {'Post' => {'superclass' => 'Note'}}
+          secure(::Role) { ::Role.create('name' => 'Foo', 'superclass' => 'Page')}
         end
 
-        should 'update the virtual class if the superclass match' do
-          res = nil
-          assert_difference('VirtualClass.count', 0) do
-            res = secure(VirtualClass) { VirtualClass.import(@data) }
-          end
-          assert_equal 'Post', res.first.name
-          assert_equal 'same', res.first.import_result
-          assert_equal 'NNP', res.first.kpath
+        should 'export linked roles' do
+          assert(subject['sub'].keys.include?('Foo'))
+          assert_equal('Role', subject['sub']['Foo']['type'])
         end
+      end # with linked roles
 
-        context 'if the superclasses do not match' do
-          setup do
-            @data['Post']['superclass'] = 'Page'
-          end
+    end # exporting a real class
 
-          should 'return a conflict error' do
-            res = nil
-            assert_difference('VirtualClass.count', 0) do
-              res = secure(VirtualClass) { VirtualClass.import(@data) }
-            end
-            assert_equal 'Post', res.first.name
-            assert_equal 'conflict', res.first.import_result
-          end
+    context 'importing definitions' do
+      subject do
+        VirtualClass.import({'Note' => {
+          'type' => 'Class',
+          'sub'  => {
+            'Bar' => {
+              'type' => 'Role',
+            },
+            'Baz' => {
+              'type' => 'VirtualClass',
+              'sub' => {
+                'Plop' => {
+                  'type' => 'VirtualClass',
+                },
+              },
+            },
+          },
+        }})
+      end
 
-          should 'propagate the conflict error to subclasses in the definitions' do
-            @data['Foo'] = {'superclass' => 'Post'}
-            @data['Bar'] = {'superclass' => 'Foo'}
-            res = nil
-            assert_difference('VirtualClass.count', 0) do
-              res = secure(VirtualClass) { VirtualClass.import(@data) }
-            end
-            post = res.detect {|r| r.name == 'Post'}
-            foo  = res.detect {|r| r.name == 'Foo'}
-            bar  = res.detect {|r| r.name == 'Bar'}
-            assert foo.new_record?
-            assert_equal 'Foo', foo.name
-            assert_equal 'conflict in superclass', foo.import_result
-            assert_equal 'Post', post.name
-            assert_equal 'conflict', post.import_result
-            assert bar.new_record?
-            assert_equal 'Bar', bar.name
-            assert_equal 'conflict in superclass', bar.import_result
+      should 'create roles and VirtualClasses' do
+        assert_difference('Role.count', 3) do
+          assert_difference('VirtualClass.count', 2) do
+            subject
           end
         end
       end
-    end # with an existing superclass
-
-    context 'without an existing superclass' do
-      setup do
-        @data = {'Foo' => {'superclass' => 'Baz'}, 'Baz' => {'superclass' => 'Post'}}
-      end
-
-      should 'create the superclass first if it is in the definitions' do
-        res = nil
-        assert_difference('VirtualClass.count', 2) do
-          res = secure(VirtualClass) { VirtualClass.import(@data) }
-        end
-        foo = res.detect {|r| r.name == 'Foo'}
-        baz = res.detect {|r| r.name == 'Baz'}
-        assert_equal 'Foo', foo.name
-        assert_equal 'new', foo.import_result
-        assert_equal 'NNPBF', foo.kpath
-        assert_equal 'Baz', baz.name
-        assert_equal 'new', baz.import_result
-        assert_equal 'NNPB', baz.kpath
-      end
-
-      should 'return an error if the superclass is not in the definitions' do
-        @data.delete('Baz')
-        res = nil
-        assert_difference('VirtualClass.count', 0) do
-          res = secure(VirtualClass) { VirtualClass.import(@data) }
-        end
-        foo = res.first
-        assert_equal 'Foo', foo.name
-        assert_equal 'missing superclass', foo.import_result
-      end
-    end # without an existing superclass
-  end # importing virtual class definitions
-
-  context 'exporting a virtual class' do
-    setup do
-      login(:lion)
     end
+  end # An admin
 
-    subject do
-      secure(VirtualClass) { VirtualClass['Post'] }
-    end
-
-    should 'export attributes' do
-      assert_equal({
-        'superclass' => 'Note',
-        'type'       => 'VirtualClass',
-        'kpath'      => 'NNP',
-        'columns'    => {
-          'date' => {'index' => '.idx_datetime1', 'ptype' => 'datetime'},
-        },
-      }, subject.export)
-    end
-  end
 end

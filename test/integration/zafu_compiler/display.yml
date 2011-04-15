@@ -332,3 +332,8 @@ set_class_before_query:
   # Should use previous node (not list context)
   src: "<div class='foo_#{title}' do='images in site'></div>"
   res: "<div class='foo_status title'></div>"
+
+flash_messages:
+  src: "<r:flash_messages/>"
+  tem: "<%= flash_messages %>"
+  res: "<div id='messages'></div>"

@@ -312,7 +312,7 @@ Zena.update_rwp = function(inherit_val,r_index,w_index,p_index,s_index) {
 
 /* fade flashes automatically */
 Event.observe(window, 'load', function() {
-  $A(document.getElementsByClassName('flash')).each(function(o) {
+  $A(document.getElementsByClassName('auto_fade')).each(function(o) {
     o.opacity = 100.0;
     Effect.Fade(o, {duration: 8.0});
   });

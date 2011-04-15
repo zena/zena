@@ -66,7 +66,7 @@ class ColumnTest < Zena::Unit::TestCase
         Column.create(:role_id => roles_id(:Task), :ptype => 'string', :name => 'secure_on_destroy')
       end
 
-      should 'fail with an error and return class' do
+      should 'fail with an error' do
         assert_difference('Column.count', 0) do
           assert_equal 'invalid (method defined in Node)', subject.errors[:name]
         end
@@ -78,7 +78,7 @@ class ColumnTest < Zena::Unit::TestCase
         Column.create(:role_id => roles_id(:Task), :ptype => 'string', :name => 'secure_on_destroy_ids')
       end
 
-      should 'fail with an error and return class' do
+      should 'fail with an error' do
         assert_difference('Column.count', 0) do
           assert_equal 'invalid (cannot end with _id or _ids)', subject.errors[:name]
         end
@@ -90,12 +90,42 @@ class ColumnTest < Zena::Unit::TestCase
         Column.create(:role_id => roles_id(:Task), :ptype => 'string', :name => 'secure_on_destroy_id')
       end
 
-      should 'fail with an error and return class' do
+      should 'fail with an error' do
         assert_difference('Column.count', 0) do
           assert_equal 'invalid (cannot end with _id or _ids)', subject.errors[:name]
         end
       end
     end # with the name of a hardwire property
+
+    context 'with an invalid ptype' do
+      subject do
+        Column.create(:role_id => roles_id(:Task), :ptype => 'stringlitch', :name => 'dummy')
+      end
+
+      should 'fail with an error' do
+        assert_difference('Column.count', 0) do
+          assert_equal 'invalid', subject.errors[:ptype]
+        end
+      end
+    end # with an invalid ptype
+    
+    context 'with an invalid index' do
+      subject do
+        Column.create(
+          :role_id => roles_id(:Task),
+          :ptype   => 'string',
+          :index   => 'bad',
+          :name    => 'dummy'
+        )
+      end
+
+      should 'fail with an error' do
+        assert_difference('Column.count', 0) do
+          assert_equal 'invalid', subject.errors[:index]
+        end
+      end
+    end # with an invalid index
+
   end # Creating a column
 
   context 'exporting a column' do

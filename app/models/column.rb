@@ -14,6 +14,7 @@ class Column < ActiveRecord::Base
   validates_presence_of :role
   validates_uniqueness_of :name, :scope => :site_id
   validate :name_not_in_models
+  validate :valid_ptype_and_index
 
   after_save :expire_vclass_cache
   after_destroy :expire_vclass_cache
@@ -117,6 +118,7 @@ class Column < ActiveRecord::Base
 
   protected
     def set_defaults
+      self.index = nil if index.blank?
       self[:site_id] = current_site.id
     end
 
@@ -140,5 +142,15 @@ class Column < ActiveRecord::Base
 
     def expire_vclass_cache
       VirtualClass.expire_cache!
+    end
+
+    def valid_ptype_and_index
+      if !TYPES_FOR_FORM.include?(self.ptype)
+        errors.add(:ptype, 'invalid')
+      end
+
+      if !index.blank? && !(INDICES_FOR_FORM + FIELD_INDICES.map {|i| ".#{i}"}).include?(index)
+        errors.add(:index, 'invalid')
+      end
     end
 end

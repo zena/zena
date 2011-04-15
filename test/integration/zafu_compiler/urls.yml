@@ -197,3 +197,7 @@ live_link_data_mode:
   old_src: "<h2 do='title' link='pv.data'>super title</h2>"
   src: "<h2 do='link' live='true' mode='pv' format='data'/>"
   res: "<h2><a id='_title30' href='/en/image30_pv.jpg?967816914293'>bird</a></h2>"
+
+url_with_lang:
+  src: "window.location = \"<r:url lang='fr'/>\";"
+  res: "/test.host/fr/"

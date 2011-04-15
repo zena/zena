@@ -448,7 +448,7 @@ module Zena
             return r_show
           end
 
-          if method = code || get_attribute_or_eval
+          if method = code || get_attribute_or_eval(false)
             # ok
           elsif node.will_be?(String) || node.will_be?(Time)
             method = RubyLess.translate(self, 'this')

@@ -11,7 +11,7 @@
     </li>
     <li class='note' do='each' live='true'>
       <div class='header'>
-        <p class='log_at' do='show' date='log_at' tformat='full_date'>04.10</p>
+        <p class='log_at' do='show' attr='log_at' tformat='full_date'>04.10</p>
         <h2 class='title' do='title' actions='all'/>
         <div class='summary' do='zazen(summary)' live='true'/>
       </div>

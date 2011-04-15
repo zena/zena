@@ -28,6 +28,115 @@ class Role < ActiveRecord::Base
   # We use property to store index information, default values and such
   include Property
 
+  class << self
+    def export
+      {'Node' => VirtualClass['Node'].export}
+    end
+
+    def import(definitions, delete = false)
+      res = []
+      # Create everything in a transaction
+      transaction do
+        definitions.each do |name, definition|
+          klass = VirtualClass[name]
+          if !klass || !klass.real_class?
+            # Error, missing superclass
+            raise Exception.new("Importation needs to start with a real class: '#{name}' is not a real class.")
+          else
+            # start importing
+            res += import_all(klass, definition)
+          end
+        end
+      end
+      res
+    end
+
+    private
+      def import_all(superclass, definitions)
+        res = []
+        definitions.each do |name, sub|
+          next unless name =~ /\A[A-Z]/
+
+          klass = VirtualClass[name]
+          if klass && klass.real_class?
+            res += import_all(klass, sub)
+          elsif sub['type'] == 'Role'
+            res << import_role(superclass, name, sub)
+          elsif sub['type'] == 'Class'
+            # real class
+            raise Exception.new("Unknown real class '#{name}'.")
+          elsif sub['type'] == 'VirtualClass' || sub['type'].nil?
+            # VirtualClass
+            res += import_vclass(superclass, name, sub)
+          else
+            # Invalid type
+            raise Exception.new("Cannot create '#{name}': invalid type '#{sub['type']}'.")
+            res << tmp
+          end
+        end
+        res
+      end
+
+      def import_role(superclass, name, definition)
+        role = ::Role.find_by_name_and_site_id(name, current_site.id)
+        if role && role.class != ::Role
+          # Change from vclass to role ?
+          # Reject
+          raise Exception.new("Cannot convert VirtualClass '#{name}' to Role.")
+        elsif !role
+          role = ::Role.new(:name => name, :superclass => superclass)
+          role.save!
+        end
+
+        # 1. create or update attributes
+        # noop
+
+        # 2. create or update columns (never delete)
+        if !role.new_record? && columns = definition['columns']
+          role.import_columns(columns)
+        end
+        role
+      end
+
+      def import_vclass(superclass, name, definition)
+        res = []
+        vclass = ::Role.find_by_name_and_site_id(name, current_site.id)
+        if vclass && vclass.class != VirtualClass
+          # Change from role to vclass ?
+          # Reject
+          raiseException.new("Cannot convert Role '#{name}' to VirtualClass.")
+        elsif !vclass
+          vclass = VirtualClass.new(:name => name, :superclass => superclass)
+        end
+
+        # 1. create or update attributes
+        VirtualClass::EXPORT_ATTRIBUTES.each do |key|
+          if value = definition[key]
+            vclass[key] = value
+          else
+            # We do not clear attributes (import is ADD/UPDATE only).
+          end
+        end
+        vclass.save!
+        res << vclass
+
+        # 2. create or update columns (never delete)
+        if !vclass.new_record? && columns = definition['columns']
+          vclass.import_columns(columns)
+        end
+
+        # 3. create or update sub-classes
+        res += import_all(vclass, definition)
+        # 4. create relations
+        # FIXME.....
+        res
+      end
+  end # class << self
+
+  def real_class?
+    false
+  end
+
   def superclass
     if new_record?
       Node
@@ -50,16 +159,40 @@ class Role < ActiveRecord::Base
   end
 
   def export
-    res = {
-      'name'       => name,
-      'superclass' => superclass.name,
-      'kpath'      => kpath,
-      'type'       => type,
-    }
+    res = Zafu::OrderedHash.new
+    res['type'] = real_class? ? 'Class' : type
     if !defined_columns.empty?
       res['columns'] = export_columns
     end
     res
+  end
+
+  def import_columns(columns)
+    columns.each do |name, definition|
+      column = secure(::Column) { ::Column.find_by_name(name) }
+      if !column
+        # create
+        column = ::Column.new(:name => name)
+      elsif column.role_id != self.id
+        # error (do not move a column)
+        raise Exception.new("Cannot set property '#{name}' in '#{self.name}': already defined in '#{column.role.name}'.")
+      end
+      column.role_id = self.id
+      column.ptype   = definition['ptype']
+      column.index   = definition['index']
+      column.save!
+      # if !column.errors.empty?
+      #   errors = []
+      #   column.errors.each_error do |er, msg|
+      #     errors << "#{er} #{msg}"
+      #   end
+      #   if column.new_record?
+      #     raise "Could not create property '#{name}': #{errors.join(', ')}"
+      #   else
+      #     raise"Could not update property '#{name}': #{errors.join(', ')}"
+      #   end
+      # end
+    end
   end
 
   private
@@ -77,10 +210,12 @@ class Role < ActiveRecord::Base
     end
 
     def export_columns
-      res = {}
+      res = Zafu::OrderedHash.new
 
-      defined_columns.each do |name, column|
-        col = {'ptype' => column.ptype.to_s}
+      defined_columns.keys.sort.each do |name|
+        column = defined_columns[name]
+        col = Zafu::OrderedHash.new
+        col['ptype'] = column.ptype.to_s
         if column.index then
           col['index'] = column.index
         end
