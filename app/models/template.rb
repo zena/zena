@@ -52,6 +52,26 @@ class Template < TextDocument
     @skin ||= secure(Skin) { Skin.find(prop['skin_id']) }
   end
 
+  def rebuild_tkpath(target_klass = nil)
+    if prop['target_klass']
+      errors.add('format', "can't be blank") unless prop['format']
+
+      # this is a master template (found when choosing the template for rendering)
+      if target_klass
+        prop['target_klass'] = target_klass.name
+        prop['tkpath'] = target_klass.kpath
+      else
+        target_klass = Node.get_class(prop['target_klass'])
+        if target_klass
+          prop['tkpath'] = target_klass.kpath
+        else
+          errors.add('target_klass', 'invalid')
+        end
+      end
+
+    end
+  end
+
   private
 
     def set_defaults
@@ -134,14 +154,8 @@ END_TXT
     end
 
     def validate_target_klass
-      if prop.target_klass_changed? && prop['target_klass']
-        errors.add('format', "can't be blank") unless prop['format']
-        # this is a master template (found when choosing the template for rendering)
-        if target_klass = Node.get_class(prop['target_klass'])
-          prop['tkpath'] = target_klass.kpath
-        else
-          errors.add('target_klass', 'invalid')
-        end
+      if prop.target_klass_changed?
+        rebuild_tkpath
       end
     end
 

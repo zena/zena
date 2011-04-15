@@ -2,6 +2,9 @@
 
 * major changes
  * Included tag in xml serialization (tag_names)
+ * Added export/import support for Roles/Columns and Relations.
+ * Fixed bugs when changing class hierarchy (move rename VirtualClass).
+ * Fixed many small bugs and issues (indexing, link date, etc).
 
 == 1.0.0.rc2 2011-02-14
 

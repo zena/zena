@@ -203,6 +203,40 @@ class VirtualClassTest < Zena::Unit::TestCase
       n = nodes(:opening)
       assert_equal 'NPO', n.kpath
     end
+
+    context 'with a related template' do
+      setup do
+        @template = secure(Template) { Template.create(:parent_id => nodes_id(:default), :title => 'Post.zafu') }
+        assert !@template.new_record?
+      end
+
+      should 'update kpaths in templates' do
+        # kpath NNP => NO
+        assert subject.update_attributes(:superclass => 'Page')
+        assert_equal 'NPO', subject.kpath
+        t = secure(Template) { Template.find(@template) }
+        assert_equal 'NPO', t.tkpath
+        idx = IdxTemplate.first(:conditions => {:node_id => t.id})
+        assert_equal 'NPO', idx.tkpath
+      end
+    end # with a related template
+
+    context 'with sub vclasses' do
+      setup do
+        @sub = secure(VirtualClass) { VirtualClass.create(:superclass => subject, :name => 'Dog') }
+        assert !@sub.new_record?
+      end
+
+      should 'update kpaths in sub vclass' do
+        # kpath NNP => NO
+        assert subject.update_attributes(:superclass => 'Page')
+        assert_equal 'NPO', subject.kpath
+        sub = VirtualClass.find(@sub)
+        assert_equal 'NPOD', sub.kpath
+      end
+    end # with a related template
+
+
     context 'with linked role' do
       setup do
         @role = ::Role.create('name' => 'Foobar', 'superclass' => 'Post')
@@ -906,7 +940,7 @@ class VirtualClassTest < Zena::Unit::TestCase
           end
         end
       end
-      
+
       context 'with relations' do
         subject do
           s = Zafu::OrderedHash.new
@@ -923,7 +957,7 @@ class VirtualClassTest < Zena::Unit::TestCase
               },
             },
           }
-          
+
           s['Note']['Bar'] = {
             'type' => 'VirtualClass',
           }
@@ -946,7 +980,7 @@ class VirtualClassTest < Zena::Unit::TestCase
           assert_equal 'foo.bar', rel.rel_group
         end
       end # with relations
-      
+
     end
   end # An admin
 

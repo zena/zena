@@ -35,7 +35,7 @@ class VirtualClass < Role
   belongs_to    :create_group, :class_name => 'Group', :foreign_key => 'create_group_id'
   validate      :valid_virtual_class
   attr_accessible :create_group_id, :auto_create_discussion
-  after_update  :update_kpath_in_nodes
+  after_update  :propagate_kpath_change
 
   include Property::StoredSchema
   include Zena::Use::Relations::ClassMethods
@@ -482,6 +482,27 @@ class VirtualClass < Role
     @index_groups ||= super
   end
 
+  protected
+    def rebuild_kpath(superclass)
+      index = 0
+      kpath = nil
+      while index < self[:name].length
+        try_kpath = superclass.kpath + self[:name][index..index].upcase
+        if found = VirtualClass.find_by_kpath(try_kpath)
+          if found.id && found.id == self[:id]
+            kpath = try_kpath
+            break
+          end
+        else
+          kpath = try_kpath
+          break
+        end
+        index += 1
+      end
+      errors.add('name', 'invalid (could not build unique kpath)') unless kpath
+      self[:kpath] = kpath
+    end
+
   private
     def attached_roles
       ::Role.all(
@@ -500,23 +521,7 @@ class VirtualClass < Role
       @superclass ||= self.superclass
 
       if real_class? || name_changed? || @superclass != old.superclass
-        index = 0
-        kpath = nil
-        while index < self[:name].length
-          try_kpath = @superclass.kpath + self[:name][index..index].upcase
-          if found = VirtualClass.find_by_kpath(try_kpath)
-            if found.id && found.id == self[:id]
-              kpath = try_kpath
-              break
-            end
-          else
-            kpath = try_kpath
-            break
-          end
-          index += 1
-        end
-        errors.add('name', 'invalid (could not build unique kpath)') unless kpath
-        self[:kpath] = kpath
+        rebuild_kpath(@superclass)
       end
 
       self[:real_class] = get_real_class(@superclass)
@@ -538,11 +543,38 @@ class VirtualClass < Role
       @old ||= self.class.find(self[:id])
     end
 
-    def update_kpath_in_nodes
+    def propagate_kpath_change
       if kpath_changed?
         old_kpath = kpath_was
         Zena::Db.execute "UPDATE nodes SET kpath = '#{kpath}' WHERE vclass_id = #{self.id} AND site_id = #{current_site.id}"
         Zena::Db.execute "UPDATE roles SET kpath = '#{kpath}' WHERE kpath = '#{old_kpath}' AND site_id = #{current_site.id} AND (type = 'Role' or type IS NULL)"
+        # Find templates
+        idx_templates = IdxTemplate.all(
+          :conditions => ['tkpath = ? AND site_id = ?', old_kpath, site_id]
+        )
+
+        if !idx_templates.empty?
+          # update related templates
+          if templates = secure(Node) { Node.all(
+              :conditions => "id IN (#{idx_templates.map{|r| r.node_id}.join(',')})")}
+            templates.each do |t|
+              t.rebuild_tkpath(self)
+              # What if this fails ? Abort all ?
+              t.save!
+            end
+          end
+        end
+
+        # Sub-classes
+        if sub_classes = secure(VirtualClass) { VirtualClass.all(
+            :conditions => ['kpath LIKE ?', "#{old_kpath}_"]
+            )}
+          sub_classes.each do |sub|
+            sub.rebuild_kpath(self)
+            # What if this fails ? Abort all ?
+            sub.save!
+          end
+        end
       end
     end
 end
