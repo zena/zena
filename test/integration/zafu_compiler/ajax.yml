@@ -86,6 +86,11 @@ form_with_dictionary:
   'ajax/form/with/dictionary/en/list1_form.erb': "/_zdict = load_dictionary/"
   'ajax/form/with/dictionary/en/list1.erb': "/_zdict = load_dictionary.*_zdict.get\(\"foo\#\{@node.prop\['origin'\]\}\"\)/"
 
+block_dictionary:
+  src: "<r:load dictionary='/Default skin/translations'><r:block>...</r:block></r:load>"
+  # Partial should lazy load dictionary
+  'ajax/block/dictionary/en/list1.erb': "/_zdict = load_dictionary/"
+
 make_form:
   src: "<ul do='children'><li do='each' do='title'/><li do='add'/></ul>"
   tem: "/<li style='display:none;' class='form' id='list1_form'>.*remote_form_for\(:node, var2_new"

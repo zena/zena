@@ -1,5 +1,5 @@
 # Enter database configuration information here (rename this file "database.yml").
-# You do not need to do any of this if you use capistraon (see config/deploy.rg).
+# You do not need to do any of this if you use capistrano (see config/deploy.rg).
 # MySQL
 login: &dev_login
   adapter: mysql

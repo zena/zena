@@ -23,7 +23,7 @@ link_selects_in_sub_query:
 
 project:
   sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.id = ? ORDER BY nodes.zip ASC}, @node.get_project_id]"
-  
+
 projects_from_tags:
   sql: "/nodes.id = no1.project_id AND no1.kpath LIKE 'NPT%' AND no1.parent_id = ?/"
 
@@ -76,3 +76,8 @@ from_visitor:
 
 # l_date_as_date:
 #   src: "select *,if(l_date,l_date,event_at) AS date from (notes or assigned_notes) order by date"
+
+# Shouldn't this scope by kpath ?
+project_as_blog:
+  src: "Blog:project"
+  sql: ''

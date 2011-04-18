@@ -703,7 +703,7 @@ module Zena
                 begin
                   finder = build_finder(:all, nodes, @params)
                   klass  = finder[:class].first
-                rescue ::QueryBuilder::SyntaxError => err
+                rescue ::QueryBuilder::Error => err
                   out parser_error(err.message)
                   return nil
                 end

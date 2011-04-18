@@ -433,7 +433,6 @@ module Zena
             dict = get_context_var('set_var', 'dictionary')
             if dict && dict.klass <= TranslationDict
               # Lazy loading (loads file on first request)
-
               dict_name = get_var_name('dictionary', 'dict', cleared_context)
               set_context_var('set_var', 'dictionary', dict, cleared_context)
               prefix += "<% #{dict_name} = load_dictionary(#{dict.literal.node_id}) %>"
