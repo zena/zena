@@ -191,11 +191,34 @@ module Zena
           if template_url = @context[:template_url]
             # Ajax
 
+            if edit_or_cancel = descendant('cancel') || descendant('edit')
+              if cancel_text = edit_or_cancel.params[:cancel] ||
+                (edit_or_cancel.method == 'cancel' && edit_or_cancel.params[:text])
+              elsif cancel_text = edit_or_cancel.params[:tcancel] ||
+                (edit_or_cancel.method == 'cancel' && edit_or_cancel.params[:t])
+                cancel_text = RubyLess.translate(self, "t(%Q{#{cancel_text}})")
+                if cancel_text.literal
+                  cancel_text = cancel_text.literal
+                else
+                  cancel_text_ruby = cancel_text
+                  cancel_text = "<%= #{cancel_text} %>"
+                end
+              end
+              cancel_pre  = ''
+              cancel_post = ''
+            else
+              cancel_pre  = "<p class='btn_x'>"
+              cancel_post = "</p>"
+            end
+
+            cancel_text ||= _('btn_x')
+            cancel_text_ruby ||= cancel_text.inspect
+
             if @context[:in_add]
               # Inline form used to create new elements: set values to '' and 'parent_id' from context
               opts[:id]          = "#{node.dom_prefix}_form"
               opts[:form_tag]    = "<% remote_form_for(:#{node.form_name}, #{node}, :url => #{node.form_name.pluralize}_path, :html => {:id => \"#{dom_name}_form_t\"}) do |f| %>"
-              opts[:form_cancel] = "<p class='btn_x'><a href='#' onclick='[\"#{dom_name}_add\", \"#{dom_name}_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>\n"
+              opts[:form_cancel] = "#{cancel_pre}<a href='#' onclick='[\"#{dom_name}_add\", \"#{dom_name}_form\"].each(Element.toggle);return false;'>#{cancel_text}</a>#{cancel_post}\n"
             else
               # Saved form
               opts[:id]          = "<%= ndom_id(#{node}) %>"
@@ -206,9 +229,9 @@ module Zena
 
               opts[:form_cancel] = %Q{
 <% if #{node}.new_record? %>
-  <p class='btn_x'><a href='#' onclick='[\"<%= params[:dom_id] %>_add\", \"<%= params[:dom_id] %>_form\"].each(Element.toggle);return false;'>#{_('btn_x')}</a></p>
+  #{cancel_pre}<a href='#' onclick='[\"<%= params[:dom_id] %>_add\", \"<%= params[:dom_id] %>_form\"].each(Element.toggle);return false;'>#{cancel_text}</a>#{cancel_post}
 <% else %>
-  <p class='btn_x'><%= link_to_remote(#{_('btn_x').inspect}, :url => #{node.form_name}_path(#{node}.zip) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}#{@context[:has_link_id] ? "&link_id=\#{#{node}.link_id}" : ''}\", :method => :get) %></p>
+  #{cancel_pre}<%= link_to_remote(#{cancel_text_ruby}, :url => #{node.form_name}_path(#{node}.zip) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}#{@context[:has_link_id] ? "&link_id=\#{#{node}.link_id}" : ''}\", :method => :get) %>#{cancel_post}
 <% end %>
 }
             end
@@ -345,7 +368,7 @@ module Zena
             hidden_fields['mode'] = @params[:mode]
           end
 
-          hidden_fields['node[v_status]'] = Zena::Status[:pub].to_s if add_params[:publish] || auto_publish_param
+          hidden_fields['node[v_status]'] = Zena::Status[:pub].to_s if add_params[:publish] || auto_publish_param || @context[:publish_after_save]
 
           # All default values set in the <r:new> field should at least appear as hidden fields
           if new_keys = node.opts[:new_keys]
@@ -679,7 +702,7 @@ module Zena
             end
           end
 
-          # Set v_status parameter value
+          # Set auto publish parameter value
           def auto_publish_param(in_string = false)
             if in_string
               %w{true force}.include?(@params[:publish]) ? "&publish=#{@params[:publish]}" : ''

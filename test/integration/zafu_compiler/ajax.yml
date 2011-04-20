@@ -19,6 +19,33 @@ edit_not_each:
   src: "<li class='blah'>this is a post <r:edit>edit post</r:edit></li>"
   res: "/<li class='blah'>this is a post <a href='/nodes/22/edit'>edit</a></li>/"
 
+edit_in_block:
+  src: "<li do='block'><r:title/> <r:edit/></li>"
+  res: "/Ajax.Request\(\"/nodes/22/zafu\?dom_id=list1&"
+  'ajax/edit/in/block/en/list1_form.erb': "/p class='btn_x'.*f.text_field :title/"
+
+edit_in_block_publish:
+  src: "<li do='block'><r:title/> <r:edit publish='true'/></li>"
+  res: "/Ajax.Request\(\"/nodes/22/zafu\?dom_id=list1/"
+  'ajax/edit/in/block/publish/en/list1_form.erb': "/name='node\[v_status\]' value='50'/"
+
+edit_in_block_cancel:
+  src: "<li do='block'><r:title/> <r:edit tcancel='en'/></li>"
+  res: "/Ajax.Request\(\"/nodes/22/zafu\?dom_id=list1/"
+  'ajax/edit/in/block/cancel/en/list1_form.erb': "/link_to_remote\(\"english\"/"
+  
+form_in_block:
+  src: "<li do='block'><r:form>XYZ</r:form><r:title/> <r:edit/></li>"
+  res: "/XYZ/"
+  'ajax/form/in/block/en/list1_form.erb': "/XYZ/"
+  'ajax/form/in/block/en/list1.erb': "/XYZ/"
+
+form_in_block_edit_only:
+  src: "<li do='block'><r:form on='edit'>XYZ</r:form><r:title/> <r:edit/></li>"
+  res: "!/XYZ/"
+  'ajax/form/in/block/edit/only/en/list1_form.erb': "/XYZ/"
+  'ajax/form/in/block/edit/only/en/list1.erb': "!/XYZ/"
+  
 add_each_no_form:
   src: "<ul do='children' id='things'><li do='each'>I <p do='title'>blah</p></li><li do='add'/></ul>"
   tem: "!/</ul><ul></ul>/" # bug in closing group with [add].
@@ -76,7 +103,7 @@ each_edit_with_form:
   context:
     node: 'wiki'
   src: "<r:children><li do='each'><r:show attr='title'>blah</r:show> <r:edit>edit</r:edit></li>\n<r:form><li><form>this is the form</form></li></r:form></r:children>"
-  res: "/<li id='list1_30'>bird <a href='/nodes/30/edit' onclick='new Ajax.Request\(\"/nodes/30/edit\?.*t_url=ajax%2Feach%2Fedit%2Fwith%2Fform%2Flist1_form/"
+  res: "/<li id='list1_30'>bird <a href='/nodes/30/edit' onclick='new Ajax.Request\(\"/nodes/30/zafu\?.*t_url=ajax%2Feach%2Fedit%2Fwith%2Fform%2Flist1_form/"
 
 form_with_dictionary:
   context:
