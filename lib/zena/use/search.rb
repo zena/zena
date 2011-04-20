@@ -10,17 +10,20 @@ module Zena
               :conditions => ["parent_id = ?",node[:id]],
               :order  => 'zip ASC' )
           elsif !query.blank?
-            if Zena::Db.adapter == 'mysql' && RAILS_ENV != 'test'
-              match  = sanitize_sql(["MATCH (vs.idx_text_high,vs.idx_text_medium,vs.idx_text_low) AGAINST (?)", query, "#{options[:name_query] || query.url_name}%"])
-              select = sanitize_sql(["nodes.*, MATCH (vs.idx_text_high,vs.idx_text_medium,vs.idx_text_low) AGAINST (?) AS score", query, "#{query}%"])
+            if false
+              # Tables are now all InnoDB. Fulltext is done with 'LIKE' in
+              # idx_text_high
+              #Zena::Db.adapter == 'mysql' && RAILS_ENV != 'test'
+              match  = sanitize_sql(["MATCH (vs.idx_text_high,vs.idx_text_medium,vs.idx_text_low) AGAINST (?)", query])
+              select = sanitize_sql(["nodes.*, MATCH (vs.idx_text_high,vs.idx_text_medium,vs.idx_text_low) AGAINST (?) AS score", query])
             else
-              match = sanitize_sql(["nodes._id LIKE ?", "#{query}%"])
-              select = "nodes.*, #{match} AS score"
+              match = sanitize_sql(["vs.idx_text_high LIKE ?", "#{query.gsub('*','%')}%"])
+              select = "nodes.*"
             end
 
             case Zena::Db.adapter
             when 'postgresql'
-              select = "DISTINCT ON (nodes.zip, score) #{select}"
+              select = "DISTINCT ON (nodes.zip) #{select}"
               group  = nil
             else
               group = 'nodes.id'
@@ -31,7 +34,7 @@ module Zena
               :joins  => "INNER JOIN versions AS vs ON vs.node_id = nodes.id AND vs.status >= #{Zena::Status[:pub]}",
               :conditions => match,
               :group      => group,
-              :order  => "score DESC, zip ASC")
+              :order  => "zip DESC") # new items first
           else
             # error
             return options.merge(:conditions => '0')
@@ -69,7 +72,7 @@ module Zena
 
             query = "nodes where #{query_args.join(' and ')} in site"
           end
-          
+
           res = node.find(count, query, options.merge(:errors => true, :rubyless_helper => self, :default => default))
 
           if res.kind_of?(::QueryBuilder::Error)

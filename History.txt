@@ -5,6 +5,9 @@
  * Added export/import support for Roles/Columns and Relations.
  * Fixed bugs when changing class hierarchy (move rename VirtualClass).
  * Fixed many small bugs and issues (indexing, link date, missed errors, etc).
+ * Fixed block edit with ajax ([edit] method).
+ * Removed fulltext search (no more MyISAM tables).
+ * Fixed SQLiss scoping in queries like "Job:project" (added kpath filter).
 
 == 1.0.0.rc2 2011-02-14
 

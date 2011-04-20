@@ -462,9 +462,6 @@ class Node < ActiveRecord::Base
       if str =~ /\A\d+\Z/
         # zip
         find_by_zip(str)
-      elsif str =~ /\A:?([0-9a-zA-Z ]+)(\+*)\Z/
-        offset = $2.to_s.size
-        Node.search_records($1.gsub('-',' '), :offset => offset, :limit => 1).first
       elsif path = str[/\A\(([^\)]+)\)\Z/,1]
         if path[0..0] == '/'
           path = path[1..-1].split('/').map {|p| String.from_filename(p) }
@@ -496,6 +493,9 @@ class Node < ActiveRecord::Base
           # FIXME: path pseudo is needed for links... and it should be done here (egg and hen problem)
           nil
         end
+      elsif str =~ /\A:?([^\+]+)(\+*)\Z/
+        offset = $2.to_s.size
+        Node.search_records($1.gsub('-',' '), :offset => offset, :limit => 1).first
       end
     end
 
