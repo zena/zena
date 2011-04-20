@@ -479,17 +479,24 @@ module Zena
 
             if class_name
               # We have named the relation, set main_class
+              # We should also insert class filter...
               if klass = Node.get_class(class_name)
                 set_main_class(klass)
+                kpath_filter = ".kpath LIKE #{quote("#{klass.kpath}%")}" unless klass.kpath == 'N'
               else
                 raise QueryBuilder::QueryException.new("Unknown class #{klass} in scope '#{class_name}:#{scope}'.")
               end
+            else
+              klass = nil
             end
 
             if relation == 'start'
               add_table(main_table)
               add_filter "#{field_or_attr('zip')} = #{insert_bind('start_node_zip')}"
               add_filter "#{table}.site_id = #{insert_bind('current_site.id')}"
+              if kpath_filter
+                add_filter "#{table}#{kpath_filter}"
+              end
               return true
             end
 
@@ -498,6 +505,10 @@ module Zena
               # PREVIOUS_GROUP.id = NEW_GROUP.project_id
               add_table(main_table)
               add_filter "#{field_or_attr('id')} = #{field_or_attr("#{relation}_id", table(main_table, -1))}"
+              if kpath_filter
+                add_filter "#{table}#{kpath_filter}"
+              end
+              true
             else
               nil
             end

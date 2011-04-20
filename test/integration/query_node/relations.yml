@@ -77,7 +77,8 @@ from_visitor:
 # l_date_as_date:
 #   src: "select *,if(l_date,l_date,event_at) AS date from (notes or assigned_notes) order by date"
 
-# Shouldn't this scope by kpath ?
 project_as_blog:
+  # Should scope by path
+  # This is the same as "project where class like Blog"
   src: "Blog:project"
-  sql: ''
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NPPB%' AND nodes.id = ? ORDER BY nodes.zip ASC}, @node.get_project_id]"
