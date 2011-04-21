@@ -528,13 +528,13 @@ class NodesController < ApplicationController
             @node = secure!(Node) { Node.find_by_zip(name) }
           elsif name
             basepath = (path[0..-2] + [name]).map {|p| String.from_url_name(p) }.join('/')
-            @node = secure!(Node) { Node.find_by_path(basepath) }
+            @node = secure!(Node) { Node.find_by_path(basepath) || Node.find_by_path(basepath, current_site.root_id, true) }
           else
             @node = secure!(Node) { Node.find_by_zip(zip) }
           end
         else
           # bad url
-          #puts "Does not match #{Zena::Use::Urls::ALLOWED_REGEXP}"
+          Node.logger.warn "Path #{path.last.inspect} does not match #{Zena::Use::Urls::ALLOWED_REGEXP}"
           raise ActiveRecord::RecordNotFound
         end
       elsif params[:id]

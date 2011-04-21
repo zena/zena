@@ -96,7 +96,7 @@ class NavigationTest < Zena::Integration::TestCase
       @visitor = users(:tiger)
       Thread.current[:visitor] = nil
     end
-    
+
     should 'render home page' do
       get 'http://test.host/oo'
       assert_response :success
@@ -255,6 +255,43 @@ class NavigationTest < Zena::Integration::TestCase
     assert_equal 'fr', session[:lang]
   end
 
+  context 'On a page with custom base' do
+    setup do
+      login(:lion)
+      assert_equal users(:lion).id, visitor.id
+      # add a publication in 'fr'
+      visitor.lang = 'fr'
+      node = secure!(Node) { nodes(:cleanWater) }
+      node.update_attributes(:title => 'Eau propre', :v_status => Zena::Status[:pub])
+      logout
+    end
+
+    subject do
+      'http://test.host/projects-list/Clean-Water-project'
+    end
+
+    should 'get response' do
+      get subject
+      assert_redirected_to '/en/projects-list/Clean-Water-project'
+      follow_redirect!
+      assert_response :success
+    end
+
+    context 'in the wrong language' do
+      should 'redirect to translated page' do
+        # Set 'fr' session lang
+        get 'http://test.host/fr'
+        get subject
+        assert_redirected_to '/fr/projects-list/Clean-Water-project'
+        follow_redirect!
+        assert_redirected_to '/fr/projects-list/Eau-propre'
+        follow_redirect!
+        assert_response :success
+      end
+    end # in the wrong language
+
+  end # On a page with custom base
+
   def test_url_with_custom_base
     get 'http://test.host/en/projects-list/Clean-Water-project'
     assert_response :success
@@ -395,14 +432,19 @@ class NavigationTest < Zena::Integration::TestCase
       end
     end
 
-    def login(user = nil)
-      open_session do |sess|
-        sess.extend(CustomAssertions)
-        if user
-          sess.post 'http://test.host/session', :login=>user.to_s, :password=>user.to_s
-          sess.follow_redirect!
-        end
-      end
+    # We use test_helper's login
+    # def login(user = nil)
+    #   open_session do |sess|
+    #     sess.extend(CustomAssertions)
+    #     if user
+    #       sess.post 'http://test.host/session', :login=>user.to_s, :password=>user.to_s
+    #       sess.follow_redirect!
+    #     end
+    #   end
+    # end
+    def logout
+      @visitor = nil
+      Thread.current[:visitor] = nil
     end
 
     def anon

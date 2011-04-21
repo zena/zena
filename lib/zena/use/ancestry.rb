@@ -7,8 +7,10 @@ module Zena
           %Q{INNER JOIN idx_nodes_ml_strings AS id1 ON id1.node_id = nodes.id AND id1.key = 'title' AND id1.lang = '#{visitor.lang}'}
         end
 
-        # (slow). Find a node by it's path. This is used during node importation when stored as zml files.
-        def find_by_path(path, parent_id = current_site.root_id)
+        TITLE_ML_JOIN = %Q{INNER JOIN idx_nodes_ml_strings AS id1 ON id1.node_id = nodes.id AND id1.key = 'title'}
+
+        # (slow). Find a node by it's path. This is used during node importation when stored as zml files or to resolve custom_base url until we have an "alias" table.
+        def find_by_path(path, parent_id = current_site.root_id, multilingual = false)
           res  = nil
           path = path.split('/') unless path.kind_of?(Array)
           last = path.size - 1
@@ -16,7 +18,7 @@ module Zena
             klass = i == last ? self : Node
             unless p = klass.find(:first,
                 :select     => i == last ? 'nodes.*' : 'nodes.id',
-                :joins      => title_join,
+                :joins      => multilingual ? title_join : TITLE_ML_JOIN,
                 :conditions => ["parent_id = ? AND id1.value = ? AND #{secure_scope('nodes')}", parent_id, title]
               )
               # Block as soon as we cannot find an element
