@@ -229,10 +229,10 @@ class ZazenTest < Zena::View::TestCase
     projects = secure!(Node) { nodes(:projects) }
     zena     = secure!(Node) { nodes(:zena) }
     assert_equal "This \"is\":33 \"a\":#{nodes_zip(:wiki)} !#{nodes_zip(:bird_jpg)}! \"link\":#{nodes_zip(:lion)}.",
-           zazen('This "is":33 "a":(projects list/a wiki with Zena) !(projects list/a wiki with Zena/bird)! "link"::lio.', :translate_ids => :zip, :node => zena)
+           zazen('This "is":33 "a":(projects list/a wiki with Zena) !(projects list/a wiki with Zena/bird)! "link"::Leo.', :translate_ids => :zip, :node => zena)
 
     assert_equal 'This "is":(../Collections/Art) "a":(a wiki with Zena) !(a wiki with Zena/bird)! !{(a wiki with Zena/bird)}! ![(a wiki with Zena/bird)]! "link":(../people/Panthera Leo Verneyi).',
-           zazen('This "is":33 "a":(/projects list/a wiki with Zena) !30! !{30}! ![30]! "link"::lio.', :translate_ids => :relative_path, :node => projects)
+           zazen('This "is":33 "a":(/projects list/a wiki with Zena) !30! !{30}! ![30]! "link"::Leo.', :translate_ids => :relative_path, :node => projects)
 
     assert_equal "This \"is\":33 \"a\":#{nodes_zip(:wiki)} !#{nodes_zip(:bird_jpg)}! \"link\":#{nodes_zip(:lion)}.",
            zazen('This "is":(../Collections/Art) "a":(a wiki with Zena) !(a wiki with Zena/bird)! "link":(../people/Panthera Leo Verneyi).', :translate_ids => :zip, :node => projects)
