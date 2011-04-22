@@ -41,11 +41,11 @@ border:1px solid #DDDBC1; border-width:1px 0 0 1px; font-size:0.8em;}
 .largecal .body div a { padding:1px;}
 .largecal .body div a:hover { text-decoration:underline; }
 .largecal .body span { float:left; }
-.largecal .body ul   { margin-left:18px; display:block;}
+.largecal .body ol   { margin-left:0px; display:block; list-style:none;}
 .largecal .body li   { margin:0;}
 
 .assign .body td { padding:0;}
-.assign .body ul { border-left:1px solid #ddd;}
+.assign .body ol { border-left:1px solid #ddd;}
 .assign .body li { margin-top:0; margin-bottom:0; min-height:1.5em; border-top:1px solid #ddd; padding:2px;}
 .assign .body li:first-child { border-top:0;}
 

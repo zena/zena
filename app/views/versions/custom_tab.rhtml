@@ -1,5 +1,10 @@
-<% @node.schema.columns.each do |name, col| -%>
-<% next if %w{title text summary}.include?(name) || !@node.safe_method_type([name]) -%>
-  <label for='<%= col.name %>'><%= _(col.name) %></label>
-  <%= text_area 'node', col.name, :cols => nil, :rows => 1, :value => @node.prop[col.name], :class => 'full_width' %>
+<% @node.schema.columns.each do |col_name, col| -%>
+  <% next if %w{title text summary}.include?(col_name) || !@node.safe_method_type([col_name]) -%>
+  <label for='<%= col_name %>'><%= _(col_name) %></label>
+  <% case col.ptype
+     when :datetime %>
+    <%= date_box(@node, col_name, :size=>15) %>
+  <% else %>
+    <%= text_area 'node', col_name, :cols => nil, :rows => 1, :value => @node.prop[col_name], :class => 'full_width' %>
+  <% end %>
 <% end -%>

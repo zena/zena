@@ -602,6 +602,7 @@ module Zena
                 version['lang'] ||= node['ref_lang']
                 version['user_id'] ||= Zena::FoxyParser::multi_site_id(node['user'])
                 if prop = version.delete('prop')
+                  version['idx_text_high'] = prop['title']
                   version['properties'] = make_prop(prop) unless prop.blank?
                 end
 
@@ -642,6 +643,7 @@ module Zena
           version['prop']['title'] ||= version['node']
 
           if prop = version.delete('prop')
+            version['idx_text_high'] = prop['title']
             version['properties'] = make_prop(prop) unless prop.blank?
           end
 

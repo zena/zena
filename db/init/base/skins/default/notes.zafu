@@ -1,17 +1,17 @@
-<div id='notes' do='notes' in='project' limit='10' order='log_at DESC'>
+<div id='notes' do='posts' in='project' limit='10' order='date desc'>
   <ul class='note_list'>
-    <li do='add' after='self'/>
+    <li do='add' after='self' klass='Post'/>
     <li class='inline_form' do='form'>
       <form>
         <p class='node_title'><input type='text' name='title' size='25'/></p>
         <p class='node_klass'>  <r:select name='klass' root_class='Note' selected='Post'/></p>
-        <p class='node_log_at'> <input type='date_box' name='log_at'/> </p>
+        <p class='node_log_at'> <input type='date_box' name='date'/> </p>
         <p class='validate'>    <input type="submit" value='#{trans("validate")}'/></p>
       </form>
     </li>
     <li class='note' do='each' live='true'>
       <div class='header'>
-        <p class='log_at' do='show' attr='log_at' tformat='full_date'>04.10</p>
+        <p class='log_at' do='show' attr='date' tformat='full_date'>04.10</p>
         <h2 class='title' do='title' actions='all'/>
         <div class='summary' do='zazen(summary)' live='true'/>
       </div>

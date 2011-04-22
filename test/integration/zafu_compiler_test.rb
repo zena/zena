@@ -6,7 +6,7 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     'action',
     'asset',
     'conditional',
-#    'calendar',
+    'calendar',
     'dates',
     'display',
     'errors',

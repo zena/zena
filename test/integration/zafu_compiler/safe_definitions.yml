@@ -110,5 +110,5 @@ max:
 time_advance:
   context:
     date: '2011-02-03'
-  src: "<b do='main_date.advance(:months => 1).strftime(\"%Y-%m-%d\")'/>"
+  src: "<b do='date.advance(:months =&gt; 1).strftime(\"%Y-%m-%d\")'/>"
   res: "<b>2011-03-03</b>"

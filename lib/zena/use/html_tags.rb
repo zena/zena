@@ -166,18 +166,17 @@ module Zena
 
         def flash_messages(opts={})
           type = opts[:show] || 'both'
-          "<div class='flash_messages'>" +
+
           if (type == 'notice' || type == 'both') && flash[:notice]
-            "<div class='auto_fade notice' onclick='new Effect.Fade(this)'>#{flash[:notice]}</div>"
-          else
-            ''
-          end +
+            notice = "<div class='auto_fade notice' onclick='new Effect.Fade(this)'>#{flash[:notice]}</div>"
+          end
+
           if (type == 'error'  || type == 'both') && flash[:error ]
-            "<div class='error' onclick='new Effect.Fade(this)'>#{flash[:error]}</div>"
-          else
-            ''
-          end +
-          "</div>"
+            error = "<div class='error' onclick='new Effect.Fade(this)'>#{flash[:error]}</div>"
+          end
+
+          flash.discard
+          "<div id='flash_messages'>#{notice}#{error}</div>"
         end
       end # ViewMethods
     end # HtmlTags

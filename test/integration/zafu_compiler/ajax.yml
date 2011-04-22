@@ -22,7 +22,7 @@ edit_not_each:
 edit_in_block:
   src: "<li do='block'><r:title/> <r:edit/></li>"
   res: "/Ajax.Request\(\"/nodes/22/zafu\?dom_id=list1&"
-  'ajax/edit/in/block/en/list1_form.erb': "/p class='btn_x'.*f.text_field :title/"
+  'ajax/edit/in/block/en/list1_form.erb': "/f.text_field :title.*alt='cancel/"
 
 edit_in_block_publish:
   src: "<li do='block'><r:title/> <r:edit publish='true'/></li>"

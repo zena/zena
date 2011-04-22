@@ -20,3 +20,29 @@ year:
 year_on_whatever:
   src: "nodes where id.year < now.year"
   res: '' # no errors
+
+date_tz:
+  context:
+    date: '2006-04-11 7:0'
+    tz: 'Asia/Jakarta'
+    # This date is translated to 2006-04-11 0:0 UTC
+  src: "nodes where created_at = #{date}"
+  res: "crocodiles"
+
+date_tz_day_interval:
+  context:
+    date: '2006-04-11'
+    tz: 'Asia/Jakarta'
+    # This date is translated to 2006-04-10 17:0 UTC
+  src: "nodes where #{date} <= created_at and created_at < #{date} + 1 day"
+  sql: '/INTERVAL 1 DAY/'
+  res: "crocodiles"
+
+date_tz_date:
+  context:
+    date: '2006-04-11'
+    tz: 'Asia/Jakarta'
+    # This date is translated to 2006-04-10 17:0 UTC
+  src: "nodes where created_at.date = #{date}"
+  sql: '/INTERVAL 1 DAY/'
+  res: "crocodiles"

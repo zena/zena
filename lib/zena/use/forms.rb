@@ -476,7 +476,7 @@ module Zena
             code = ::RubyLess.translate(self, "this.#{attribute}")
             value = @context[:in_add] ? "''" : code
             html_params = [':size => 15']
-            [:style, :class, :onclick, :size].each do |key|
+            [:style, :class, :onclick, :size, :time].each do |key|
               html_params << ":#{key} => #{@params[key].inspect}" if @params[key]
             end
             html_params << ":id=>\"#{dom_id}_#{attribute}\"" if @context[:dom_prefix]

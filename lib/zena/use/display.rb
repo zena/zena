@@ -394,7 +394,7 @@ module Zena
 
         safe_method [:zazen, String] => :r_zazen
 
-        # As a last resort, if the method cannot be compilated, use <r:show eval='...'/>
+        # As a last resort, if the method does not compile try to use <r:show eval='...'/>
         def self.included(base)
           base.process_unknown :show_eval
         end
@@ -443,7 +443,7 @@ module Zena
 
         # Display an attribute or RubyLess code
         def r_show(code = nil)
-          if node.list_context?
+          if code.nil? && node.list_context?
             @context[:node] = node.move_to("#{node}.first", node.klass.first, :query => node.opts[:query])
             return r_show
           end
@@ -617,11 +617,11 @@ module Zena
           return parser_error("not in a list context") unless node.list_context?
           return parser_error("not a Node list") unless node.single_class <= Node
           klass = "#{node.single_class.name}"
-          @blocks = [make(:void, :method => 'void', :text => %Q{<table class='grid'>
+          add_block %Q{<table class='grid'>
             <tr do='#{klass}' do='roles'><th class='role' colspan='\#{columns.size}' do='each' do='name'/></tr>
             <tr do='#{klass}' do='roles' do='each' do='columns'><th do='each' do='name'/></tr>
             <tr do='each'><r:#{klass} do='roles' do='each' do='columns'><td do='each' do='@node.send(name)'/></r:#{klass}></tr>
-          </table>})]
+          </table>}
           expand_with
         end
 
@@ -661,20 +661,7 @@ module Zena
             end
           end
 
-          def show_time(method)
-            if tformat = param(:tformat)
-              tformat = RubyLess.translate(self, "t(%Q{#{tformat}})")
-              method = "#{method}, :format => #{tformat}"
-            end
-
-            if hash_arguments = extract_from_params(:tz, :lang, :format)
-              "<%= format_date(#{method}, #{hash_arguments.join(', ')}) %>"
-            elsif tformat
-              "<%= format_date(#{method}) %>"
-            else
-              "<%= #{method} %>"
-            end
-          end
+          # show_time is in Dates
       end
     end # Display
   end # Use

@@ -68,6 +68,11 @@ module Zena
         end
 
         @flash   = {}
+        class << @flash
+          def discard
+            clear
+          end
+        end
 
         @node
       end

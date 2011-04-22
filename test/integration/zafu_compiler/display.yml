@@ -336,4 +336,18 @@ set_class_before_query:
 flash_messages:
   src: "<r:flash_messages/>"
   tem: "<%= flash_messages %>"
-  res: "<div class='flash_messages'></div>"
+  res: "<div id='flash_messages'></div>"
+
+date_without_set_var:
+  context:
+    node: opening
+    ref_date: '2011-04-22'
+  src: "<r:Post?><r:date format='%e'/>,<p do='this.date' format='%e'/><p do='date' format='%e'/></r:Post?>"
+  res: '22,<p>15</p><p>22</p>'
+
+date_with_set_var:
+  context:
+    node: opening
+    ref_date: '2011-04-22'
+  src: "<r:Post? set_date='parse_date(\"2011-04-03\")'><r:date format='%e'/>,<p do='this.date' format='%e'/><p do='date' format='%e'/></r:Post?>"
+  res: ' 3,<p>15</p><p> 3</p>'

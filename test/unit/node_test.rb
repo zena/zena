@@ -117,7 +117,7 @@ class NodeTest < Zena::Unit::TestCase
 
         should 'transform zip in parent_id' do
           assert subject.update_attributes_with_transformation('parent_id' => 'lake+')
-          assert_equal nodes_id(:lake_jpg), subject.parent_id
+          assert_equal nodes_id(:lake), subject.parent_id
         end
 
         should 'add error on bad zip in parent_id' do
@@ -147,7 +147,7 @@ class NodeTest < Zena::Unit::TestCase
   # This is a stupid test because the result is not the same in production...
   def test_match_query
     query = Node.match_query('smala')
-    assert_equal "nodes._id LIKE 'smala%'", query[:conditions]
+    assert_equal "vs.idx_text_high LIKE '%smala%'", query[:conditions]
     query = Node.match_query('.', :node => nodes(:wiki))
     assert_equal ["parent_id = ?", nodes_id(:wiki)], query[:conditions]
   end
@@ -1385,24 +1385,24 @@ done: \"I am done\""
       end
 
       should 'parse pseudo ids' do
-        assert_transforms "Hi, this is just a simple \"test\":25 or \"\":29_life.rss. OK ?\n\n!24_pv!",
-                          "Hi, this is just a simple \"test\"::w or \"\"::w+_life.rss. OK ?\n\n!:lake+_pv!"
+        assert_transforms "Hi, this is just a simple \"test\":49 or \"\":43_life.rss. OK ?\n\n!24_pv!",
+                          "Hi, this is just a simple \"test\"::w or \"\"::w++_life.rss. OK ?\n\n!:lake_pv!"
       end
 
       should 'parse pseudo ids with offset in gallery' do
-        assert_transforms "Hi ![30,24]! ![]!",
+        assert_transforms "Hi ![30,23]! ![]!",
                           "Hi ![30,:lake+]! ![]!"
       end
 
       should 'parse pseudo ids in doc_list' do
-        assert_transforms "Hi !{30,24}! !{}!",
+        assert_transforms "Hi !{30,23}! !{}!",
                           "Hi !{:bird,:lake+}! !{}!"
 
       end
 
       should 'parse pseudo ids in links' do
-        assert_transforms "Hi !30!:21 !30!:21 !30/nice bird!:21 !30_pv/hello ladies!:21",
-                          "Hi !30!::clean !:bird!::clean !:bird/nice bird!:21 !30_pv/hello ladies!:21"
+        assert_transforms "Hi !30!:21 !30!:37 !30/nice bird!:21 !30_pv/hello ladies!:21",
+                          "Hi !30!::clean+ !:bird!::clean !:bird/nice bird!:21 !30_pv/hello ladies!:21"
       end
 
       should 'not alter existing code without pseudo ids' do

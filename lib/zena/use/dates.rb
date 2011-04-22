@@ -1,6 +1,9 @@
+require 'tzinfo'
+
 module Zena
   module Use
     module Dates
+      ISO_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
       module Common
 
         # This is like strftime but with better support for i18n (translate day names, month abbreviations, etc)
@@ -8,14 +11,18 @@ module Zena
           return '' if thedate.blank?
 
           theformat, tz_name, lang = opts[:format], opts[:tz], opts[:lang]
-          format = theformat || '%Y-%m-%d %H:%M:%S'
+          format = theformat || _('datetime')
 
           if tz_name
-            # display time local to event's timezone
-            begin
-              tz = TZInfo::Timezone.get(tz_name)
-            rescue TZInfo::InvalidTimezoneIdentifier
-              return "<span class='parser_error'>invalid timezone #{tz_name.inspect}</span>"
+            if tz_name.kind_of?(TZInfo::Timezone)
+              tz = tz_name
+            else
+              # display time local to event's timezone
+              begin
+                tz = TZInfo::Timezone.get(tz_name)
+              rescue TZInfo::InvalidTimezoneIdentifier
+                return "<span class='parser_error'>invalid timezone #{tz_name.inspect}.</span>"
+              end
             end
           else
             tz = visitor.tz
@@ -115,7 +122,12 @@ module Zena
       	  defaults = {  :id=>"datef#{rnd_id}", :button=>"dateb#{rnd_id}", :display=>"dated#{rnd_id}" }
       	  opts = defaults.merge(opts)
       	  date = opts[:value] || obj.safe_send(name)
-      	  value = tformat_date(date,'datetime')
+      	  showsTime = opts[:time] || 'true'
+      	  # TODO: could we pass the format from the view so that it is
+      	  # translated with the view's dictionary during compilation ?
+      	  dateFormat = showsTime == 'true' ? _('datetime') : _('long_date')
+      	  value = format_date(date, :format => dateFormat)
+
       	  # TODO: migrate code to Zafu::Markup (needs Zafu 0.7.7)
       	  # fld = Zafu::Markup.new('input')
       	  # fld.params = (opts[:html] || {}).merge(:name => "node[#{name}]", :id => opts[:id], :type => 'text', :value => value)
@@ -129,10 +141,11 @@ module Zena
       #{fld}
       	<script type="text/javascript">
           Calendar.setup({
-              inputField     :    "#{opts[:id]}",      // id of the input field
-              button         :    "#{opts[:button]}",  // trigger for the calendar (button ID)
-              singleClick    :    true,
-              showsTime      :    true
+              inputField  : "#{opts[:id]}",      // id of the input field
+              button      : "#{opts[:button]}",  // trigger for the calendar (button ID)
+              singleClick : true,
+              showsTime   : #{showsTime},
+              ifFormat    : '#{dateFormat}'
           });
       </script></span>
       		EOL
@@ -144,15 +157,30 @@ module Zena
         include FormTags
 
         # default date used to filter events in templates
-        def main_date
-          # TODO: timezone for @date ?
-          # .to_utc(_('datetime'), visitor.tz)
-          @main_date ||= params[:date] ? DateTime.parse(params[:date]) : DateTime.now
+        def main_date(tz = visitor.tz)
+          @main_dates ||= {}
+          @main_dates[tz] ||= begin
+            if params[:date]
+              if date = params[:date].to_utc(ISO_DATE_FORMAT, tz)
+                date
+              else
+                # FIXME: when date parsing fails: show an error, not a 500...
+                Node.logger.warn "Could not parse 'date' parameter: #{params[:date].inspect}."
+                # malformed url... 404 ?
+                Time.now.utc
+              end
+            else
+              # no 'date' parameter
+              Time.now.utc
+            end
+          end
         end
 
-        def parse_date(string)
+        def parse_date(string, format = nil, tz = nil)
           return nil unless string
-          DateTime.parse(string) rescue nil
+          format = _('datetime') if format.blank?
+          tz     = visitor.tz if tz.blank?
+          string.to_utc(format, visitor.tz)
         end
       end # ViewMethods
 
@@ -174,21 +202,23 @@ module Zena
       end
 
       module StringMethods
+        SPLIT_STRING = /[^0-9]+/
+        SPLIT_FORMAT = /[^\w%]*%/
         # Parse date : return an utc date from a string and an strftime format. With the current implementation, you can only use '.', '-', ' ' or ':' to separate the different parts in the format.
         def to_utc(format, timezone=nil)
-          elements = split(/(\.|\-|\/|\s|:)+/)
-          format = format.split(/(\.|\-|\/|\s|:)+/)
+          elements = split(SPLIT_STRING)
+          format = format.sub('T', ' ').split(SPLIT_FORMAT)[1..-1]
           if elements
             hash = {}
             elements.each_index do |i|
               hash[format[i]] = elements[i]
             end
-            hash['%Y'] ||= hash['%y'] ? (hash['%y'].to_i + 2000) : Time.now.year
-            hash['%H'] ||= 0
-            hash['%M'] ||= 0
-            hash['%S'] ||= 0
-            if hash['%Y'] && hash['%m'] && hash['%d']
-              res = Time.utc(hash['%Y'], hash['%m'], hash['%d'], hash['%H'], hash['%M'], hash['%S'])
+            hash['Y'] ||= hash['y'] ? (hash['y'].to_i + 2000) : Time.now.year
+            hash['H'] ||= 0
+            hash['M'] ||= 0
+            hash['S'] ||= 0
+            if hash['Y'] && hash['m'] && hash['d']
+              res = Time.utc(hash['Y'], hash['m'], hash['d'], hash['H'], hash['M'], hash['S'])
               begin
                 timezone ? timezone.local_to_utc(res, true) : res
               rescue TZInfo::AmbiguousTime
@@ -247,20 +277,61 @@ module Zena
         end
       end
 
+      module TimeMethods
+
+        def strftime_tz(format, tz = nil)
+          if tz.blank?
+            tz = visitor.tz
+          elsif tz.kind_of?(String)
+            tz = TZInfo::Timezone.get(tz)
+          end
+          tz.utc_to_local(self).strftime(format.to_s)
+        rescue TZInfo::InvalidTimezoneIdentifier
+          ''
+        rescue TZInfo::AmbiguousTime
+          ''
+        end
+      end
+
       module ZafuMethods
         include RubyLess
         safe_method_for Time, :year       => {:class => Number, :pre_processor => true}
-        safe_method_for Time, [:strftime, String] => {:class => String, :pre_processor => true}
-        safe_method :main_date            => :get_date
-        safe_method [:parse_date, String] => {:class => Time, :nil => true, :accept_nil => true}
+        safe_method_for Time, [:strftime, String] => {:class => String, :pre_processor => true, :method => 'strftime_tz'}
+        safe_method_for Time, [:strftime, String, String] => {:class => String, :pre_processor => true, :method => 'strftime_tz'}
+        safe_method_for Time, [:strftime, String, TZInfo::Timezone] => {:class => String, :pre_processor => true, :method => 'strftime_tz'}
+        safe_method_for TZInfo::Timezone, :to_s => {:class => String, :pre_processor => true}
+
+        safe_method :date                     => :get_date
+        safe_method [:date, TZInfo::Timezone] => :get_date
+        safe_method :tz                       => :get_tz
+        safe_method [:parse_date, String]     => {:class => Time, :nil => true, :accept_nil => true}
+        safe_method [:parse_date, String, String] => {:class => Time, :nil => true, :accept_nil => true}
+        safe_method [:parse_date, String, String, TZInfo::Timezone] => {:class => Time, :nil => true, :accept_nil => true}
 
         def get_date(signature)
-          if var = get_context_var('set_var', 'main_date')
+          if var = get_context_var('set_var', 'date')
             {:class => var.klass, :method => var, :nil => var.could_be_nil?}
           else
             {:class => Time, :method => 'main_date'}
           end
         end
+
+        def get_tz(signature)
+          if var = get_context_var('set_var', 'tz')
+            {:class => var.klass, :method => var, :nil => var.could_be_nil?}
+          else
+            {:class => TZInfo::Timezone, :method => 'visitor.tz'}
+          end
+        end
+
+        def r_default
+          if tz_name = @params.delete(:tz)
+            set_tz_code, tz_var = set_tz_var(tz_name)
+            out set_tz_code
+          end
+          super
+        end
+
 
         # date_box seizure setup
         def r_uses_datebox
@@ -280,37 +351,78 @@ EOL
         end
 
         # Select a date for the current context
-        def r_set_main_date
-          return nil unless code = get_attribute_or_eval
+        # FIXME: Remove ? Is this used ?
+        # def r_set_main_date
+        #   return nil unless code = get_attribute_or_eval
+        #
+        #   if format = @params[:format]
+        #     format = RubyLess.translate_string(self, format)
+        #   else
+        #     format = "'%Y-%m-%d %H:%M:%S'"
+        #   end
+        #
+        #   if code.klass <= String
+        #     if code.could_be_nil?
+        #       code = "(#{code} || '').to_utc(#{format})"
+        #     else
+        #       code = "#{code}.to_utc(#{format})"
+        #     end
+        #     could_be_nil = true
+        #   elsif code.klass <= Time
+        #     could_be_nil = code.could_be_nil?
+        #   else
+        #     return parser_error("should evaluate to a String or Time (found #{code.klass})")
+        #   end
+        #   v = get_var_name('set_var', 'date')
+        #   out "<% #{v} = #{code} %>"
+        #   set_context_var('set_var', 'date', RubyLess::TypedString.new(v, :class => Time, :nil => could_be_nil))
+        #   out expand_with
+        # end
 
-          if format = @params[:format]
-            format = RubyLess.translate_string(self, format)
-          else
-            format = "'%Y-%m-%d %H:%M:%S'"
+        protected
+
+          def set_tz_var(tz_name)
+            tz = TZInfo::Timezone.get(tz_name)
+            tz_var = get_var_name('dates', 'tz')
+
+            set_context_var('set_var', 'tz', RubyLess::TypedString.new(
+              tz_var,
+              :class => TZInfo::Timezone
+            ))
+            return "<% #{tz_var} = TZInfo::Timezone.get(#{tz.name.inspect}) %>", tz_var
+          rescue TZInfo::InvalidTimezoneIdentifier
+            parser_error("Invalid timezone #{tz_name.inspect}.")
           end
 
-          if code.klass <= String
-            if code.could_be_nil?
-              code = "(#{code} || '').to_utc(#{format})"
-            else
-              code = "#{code}.to_utc(#{format})"
+          def show_time(method)
+            if tformat = param(:tformat)
+              tformat = RubyLess.translate(self, "t(%Q{#{tformat}})")
+              method = "#{method}, :format => #{tformat}"
             end
-            could_be_nil = true
-          elsif code.klass <= Time
-            could_be_nil = code.could_be_nil?
-          else
-            return parser_error("should evaluate to a String or Time (found #{code.klass})")
-          end
-          v = get_var_name('set_var', 'main_date')
-          out "<% #{v} = #{code} %>"
-          set_context_var('set_var', 'main_date', RubyLess::TypedString.new(v, :class => Time, :nil => could_be_nil))
-          out expand_with
-        end
 
-      end
+            if hash_arguments = extract_from_params(:tz, :lang, :format)
+              unless @params[:tz]
+                # We might have set_tz_var
+                if tz = get_context_var('set_var', 'tz')
+                  if tz.klass <= TZInfo::Timezone || tz.klass <= String
+                    hash_arguments << ":tz => #{tz}"
+                  end
+                end
+              end
+              "<%= format_date(#{method}, #{hash_arguments.join(', ')}) %>"
+            elsif tformat
+              "<%= format_date(#{method}) %>"
+            else
+              "<%= #{method} %>"
+            end
+          end
+      end # ZafuMethods
     end # Dates
   end # Use
 end # Zena
 
 # FIXME: where should we put this ?
 String.send(:include, Zena::Use::Dates::StringMethods)
+
+# FIXME: where should we put this ?
+Time.send(:include, Zena::Use::Dates::TimeMethods)

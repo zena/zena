@@ -77,3 +77,8 @@ ancestors_on_root:
     node: 'zena'
   src: "<ul id='path' do='ancestors'><li do='each' do='link'/></ul>"
   res: ''
+
+prop_in_list_context:
+  src: "<div do='nodes in site'><r:title/></div>"
+  tem: "/var1.first.prop\['title'\]/"
+  res: '<div>a wiki with Zena</div>'

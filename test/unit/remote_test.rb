@@ -218,11 +218,11 @@ class RemoteTest < Zena::Integration::TestCase
 
       context 'nodes with search' do
         subject do
-          @app.search('la')
+          @app.search('lake')
         end
 
         should 'find through fulltext search' do
-          assert_equal ["The lake we love", "it's a lake"], subject.map(&:title)
+          assert_equal ["it's a lake", "The lake we love"], subject.map(&:title)
         end
       end
     end # finding

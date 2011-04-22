@@ -99,6 +99,7 @@ module Zena
         # This is used by zafu and it's a mess.
         # ref_date can be a string ('2005-05-03') or ruby ('Time.now'). It should not come uncleaned from evil web.
         def date_condition(date_cond, field, ref_date)
+          # raise "DEPRECATED"
           case date_cond
           when 'today', 'current', 'same'
             "DATE(#{field}) = DATE(#{ref_date})"

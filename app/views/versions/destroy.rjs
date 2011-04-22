@@ -1,6 +1,6 @@
 # only called when the last version is destroyed in 'drive' popup
-page.replace "messages", :inline => flash_messages
-page.replace "versions", :partial => 'list'
+page.replace 'flash_messages', :inline => flash_messages
+page.replace 'versions', :partial => 'list'
 page.delay(0.3) do
   page << " if (parent != window) {
    parent.Zena.version_preview('#{zen_path(@node.parent)}');

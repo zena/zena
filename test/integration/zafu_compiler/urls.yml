@@ -138,17 +138,21 @@ link_href_string_with_anchor:
   src: "<r:link href='\"yop\"' anchor='zoom'>"
   res: "<a href='yop#zoom'>status title</a>"
 
-link_href_node:
+link_href_find:
   src: "<r:link href='find(30)'/>"
   res: "<a href='/oo/image30.html'>status title</a>"
+
+link_href_node:
+  src: "<r:nodes in='site'><r:link href='@node' eval='@node.title'/></r:nodes>"
+  res: "/.*page22.html'>status title</a>/"
 
 link_date:
   context:
     ref_date: '2008-06-27'
   old_src: "<r:link date='current_date'/>"
-  src: "<r:link date='#{main_date}'/>"
-  tem: '/:date => "#\{main_date\}"'
-  res: "<a href='/oo/projects-list/Clean-Water-project/page22.html?date=2008-06-27T00%3A00%3A00%2B00%3A00'>status title</a>"
+  src: "<r:link date='#{date.strftime(\"%Y-%m-%d\")}'/>"
+  tem: '/main_date/'
+  res: "<a href='/oo/projects-list/Clean-Water-project/page22.html?date=2008-06-27'>status title</a>"
 
 link_url_params:
   src: "<r:link plob='hopla'/>"
@@ -201,3 +205,21 @@ live_link_data_mode:
 url_with_lang:
   src: "window.location = \"<r:url lang='fr'/>\";"
   res: "/\\?lang=fr/"
+
+link_in_list_context:
+  src: "<div do='nodes in site'><r:link/></div>"
+  tem: "/zen_path\(var1.first\).*var1.first.prop\['title'\]/"
+  res: '/a href.*a wiki with Zena/'
+
+link_trans:
+  src: "<r:link t='img_next_page'/>"
+  res: "/a href.*/images/control_fastforward.png/"
+
+link_date_complex:
+  context:
+    ref_date: '2011-04-22 22:00'
+  src: "<r:link date='#{date.advance(:months =&gt; -1).strftime(\"%Y-%m-%d\", \"Asia/Jakarta\")}' text='PREV'/>"
+  # Date is in Asia/Jakarta timezone. Ref date is utc in tests.
+  res: "/\?date=2011-03-23'>PREV/"
+
+  #

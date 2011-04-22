@@ -295,6 +295,15 @@ module Zena
               add_table('nodes_roles')
               "(#{table('nodes_roles')}.node_id = #{table('nodes')}.id AND #{table('nodes_roles')}.role_id = #{role.id})"
             end
+          elsif left.first == :function && left.last.last == 'date'
+            # transform "foo.date = baz"
+            # [:function, [:field, "foo"], [:method, "date"]]
+            # [:field, baz]
+            # ==> into
+            # "baz >= foo and foo < baz + 1 day"
+            a = left[1]
+            b = right
+            process([:and, [:<=, b, a], [:<, a, [:+, b, [:interval, [:integer, '1'], 'day']]]])
           else
             super
           end

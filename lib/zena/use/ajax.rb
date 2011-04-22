@@ -5,13 +5,15 @@ module Zena
         # Return the DOM id for a node. We had to name this method 'ndom_id' because we want
         # to avoid the clash with Rails' dom_id method.
         def ndom_id(node)
-          if node.new_record?
-            "#{params[:dom_id]}_form"
-          elsif params[:action] == 'create' && !params[:udom_id]
-            "#{params[:dom_id]}_#{node.zip}"
-          else
-            @dom_id || params[:udom_id] || params[:dom_id]
+          if node.kind_of?(Node)
+            if node.new_record?
+              return "#{params[:dom_id]}_form"
+            elsif params[:action] == 'create' && !params[:udom_id]
+              return "#{params[:dom_id]}_#{node.zip}"
+            end
           end
+
+          @dom_id || params[:udom_id] || params[:dom_id]
         end
 
         # RJS to update a page after create/update/destroy

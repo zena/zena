@@ -44,27 +44,31 @@ line_break_list:
   res: "/<p>first.<\/p>.*<ul>.*<li>one.*<li>two.*<p>second/"
 
 zip_shortcut_link:
-  tem: "<%= zazen('Look \"here\"::lake or \"\"::lake+') %>"
+  tem: "<%= zazen('Look \"here\"::lake+ or \"\"::lake') %>"
   res: "/<p>Look <a href.*contact23.html.*projects list/Clean Water project/Lake Tanganyika.*href=.*image24.html.*projects list/Clean Water project/it&#8217;s a lake/"
 
+data_on_obj:
+  tem: "<%= zazen('Look \"here\":22.data') %>"
+  res: "/page22.html/"
+
 zip_shortcut_link_with_mode_format:
-  tem: "<%= zazen('Look \"here\"::lake_life.rss, \"\"::lake+_life.data.') %>"
+  tem: "<%= zazen('Look \"here\"::lake+_life.rss, \"\"::lake_life.data.') %>"
   res: "/<p>Look <a href.*contact23_life.rss.*projects list/Clean Water project/Lake Tanganyika_life.rss</a>, <a href=.*image24_life.jpg.*projects list/Clean Water project/it&#8217;s a lake_life.jpg</a>./"
 
 zip_shortcut_image:
-  tem: "<%= zazen('Look !:lake! or !:lake+!') %>"
+  tem: "<%= zazen('Look !:lake+! or !:lake!') %>"
   res: "/<p>Look \[projects list/Clean Water project/Lake Tanganyika is not a document\] or <img src=.*image24_std.jpg/"
 
 zip_shortcut_image_with_options:
-  tem: "<%= zazen('Look !<.:lake_med! or !=.:lake+_pv!') %>"
+  tem: "<%= zazen('Look !<.:lake+_med! or !=.:lake_pv!') %>"
   res: "/<p>Look \[projects list/Clean Water project/Lake Tanganyika is not a document\] or .*center.*<img src=.*image24_pv.jpg/"
 
 zip_shortcut_gallery:
-  tem: "<%= zazen('Look ![30,:lake+]!') %>"
+  tem: "<%= zazen('Look ![30,:lake]!') %>"
   res: "/gallery.*image30_pv.*image24_pv.*/"
 
 zip_shortcut_list:
-  tem: "<%= zazen('Look !{30,:lake+}!') %>"
+  tem: "<%= zazen('Look !{30,:lake}!') %>"
   res: "/docs.*image30_mini.*image24_mini.*/"
 
 line_break_between_paragraphs:

@@ -70,7 +70,7 @@ custom_query_form_with_where:
   context:
     node: roger
     class: Employee
-    date: 2005-03-01
+    date: '2005-03-01'
   src: "emp_form_dates where last_date is null or (repeat_every is not null and next_date lt #{date} + 6 month)"
   res: "how to use the winch, secure a site, engine maintenance, information transmission, fiber junction, how to use the radio"
 

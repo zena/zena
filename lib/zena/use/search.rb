@@ -10,16 +10,8 @@ module Zena
               :conditions => ["parent_id = ?",node[:id]],
               :order  => 'zip ASC' )
           elsif !query.blank?
-            if false
-              # Tables are now all InnoDB. Fulltext is done with 'LIKE' in
-              # idx_text_high
-              #Zena::Db.adapter == 'mysql' && RAILS_ENV != 'test'
-              match  = sanitize_sql(["MATCH (vs.idx_text_high,vs.idx_text_medium,vs.idx_text_low) AGAINST (?)", query])
-              select = sanitize_sql(["nodes.*, MATCH (vs.idx_text_high,vs.idx_text_medium,vs.idx_text_low) AGAINST (?) AS score", query])
-            else
-              match = sanitize_sql(["vs.idx_text_high LIKE ?", "#{query.gsub('*','%')}%"])
-              select = "nodes.*"
-            end
+            match = sanitize_sql(["vs.idx_text_high LIKE ?", "%#{query.gsub('*','%')}%"])
+            select = "nodes.*"
 
             case Zena::Db.adapter
             when 'postgresql'

@@ -141,7 +141,7 @@ module Zena
         digest = Digest::SHA1.hexdigest(content_id.to_s)
         "#{SITES_ROOT}/test.host/data/#{mode}/#{digest[0..0]}/#{digest[1..1]}/#{digest[2..2]}/#{fname}"
       end
-      
+
       def execute_after_commit!
         Node.connection.instance_eval do
           # Simulate commit

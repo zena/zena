@@ -29,6 +29,10 @@ class QueryNodeTest < Zena::Unit::TestCase
   def yt_do_test(file, test)
     @context = Hash[*(yt_get('context', file, test).map{|k,v| [k.to_sym, v]}.flatten)]
 
+    if @context[:date]
+      @context[:date] = @context[:date].to_utc('%Y-%m-%d %H:%M:%S', @context[:tz] ? TZInfo::Timezone.get(@context[:tz]) : visitor.tz)
+    end
+
     params = {}
     (@context[:params] || {}).each do |k,v|
       params[k.to_sym] = v

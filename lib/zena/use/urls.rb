@@ -474,15 +474,6 @@ module Zena
         private
 
           # Build the 'href' part of a link.
-          #
-          # ==== Parameters
-          #
-          # * +:remote_target+ - a processing node to update
-          # * +:action+ - action to use ('edit', 'show'). Default is 'show'.
-          #
-          # ==== Examples
-          #
-          #   Product.count_by_sql "SELECT COUNT(*) FROM sales s, customers c WHERE s.customer_id = c.id"
           def make_href(remote_target = nil, opts = {})
             anchor = @params[:anchor]
             if anchor && !@params[:href]
@@ -518,8 +509,6 @@ module Zena
             elsif node.will_be?(Version)
               method_args << "node"
               hash_params << ":lang => this.lang"
-            elsif node.list_context?
-              method_args << '@node'
             else
               method_args << 'this'
             end
@@ -527,7 +516,7 @@ module Zena
             insert_ajax_args(remote_target, hash_params, opts[:action]) if remote_target
 
             (opts[:query_params] || @params).each do |key, value|
-              next if [:href, :eval, :text, :attr].include?(key)
+              next if [:href, :eval, :text, :attr, :t].include?(key)
               if key == :anchor
                 value = get_anchor_name(value)
               end
@@ -635,7 +624,7 @@ module Zena
           def pagination_links
 
             return parser_error("not in pagination scope") unless pagination_key = get_context_var('paginate', 'key')
-            page_direction = @params[:page]
+            page_direction = @params.delete(:page)
             case page_direction
             when 'previous', 'next'
               current      = get_context_var('paginate', 'current')
@@ -643,21 +632,27 @@ module Zena
               prev_or_next = get_var_name('paginate', page_direction)
 
               if page_direction == 'previous'
-                out "<% if #{prev_or_next} = (#{current} > 1 ? #{current} - 1 : nil) %>"
+                cond = "#{prev_or_next} = (#{current} > 1 ? #{current} - 1 : nil)"
               else
-                out "<% if #{prev_or_next} = (#{count} - #{current} > 0 ? #{current} + 1 : nil) %>"
+                cond = "#{prev_or_next} = (#{count} - #{current} > 0 ? #{current} + 1 : nil)"
               end
 
               # previous_page // next_page
-              set_context_var('set_var', "#{page_direction}_page", RubyLess::TypedString.new(prev_or_next, :class => Number, :nil => true))
+              set_context_var('set_var', "#{page_direction}_page",
+                RubyLess::TypedString.new(prev_or_next, :class => Number, :nil => true)
+              )
 
-              #, :params => @params.merge(:page => nil))
-              out make_link(:default_text => "<%= #{prev_or_next} %>", :query_params => {pagination_key => "\#{#{page_direction}_page}"})
+              link = {
+                :href => '@node',
+                :eval => "#{page_direction}_page",
+                pagination_key => "\#{#{page_direction}_page}",
+              }.merge(@params)
+              # <r:link href='@node' p='next_page' eval='next_page'/>
+              add_block :method => 'link', :params => link
 
-              if descendant('else')
-                out expand_with(:in_if => true, :only => ['else', 'elsif'])
-              end
-              out "<% end %>"
+              out expand_if(cond)
+
+
             when 'list'
 
               node_count  = get_context_var('paginate', 'nodes')
@@ -671,7 +666,7 @@ module Zena
               set_context_var('set_var', 'page_name', RubyLess::TypedString.new(page_name, String))
 
               if @blocks == [] || (@blocks.size == 1 && !@blocks.first.kind_of?(String) && @blocks.first.method == 'else')
-                # We need to insert the default 'link' tag: <r:link href='@node' #{pagination_key}='#{this}' ... do='this'/>
+                # We need to insert the default 'link' tag: <r:link href='@node' #{pagination_key}='#{this}' ... do='page_name'/>
                 link = {}
                 @params.each do |k,v|
                   next if [:tag, :page, :join, :page_count].include?(k)
@@ -685,19 +680,16 @@ module Zena
                 link[:eval] = 'page_name'
                 link[pagination_key.to_sym] = '#{this}'
 
-                # <r:link href='@node' href='@node' p='#{this}' ... eval='this'/>
-
-                @blocks = [make(:void, :method => 'link', :params => link)]
-                # Clear cached descendants
-                remove_instance_variable(:@all_descendants)
+                # <r:link href='@node' p='#{page_name}' ... eval='page_name'/>
+                add_block :method => 'link', :params => link
               end
 
               if !descendant('else')
                 else_tag = {:method => 'else', :text => '<r:this/>'}
                 else_tag[:tag] = tag if tag
-                @blocks += [make(:void, else_tag)]
+                add_block else_tag
                 # Clear cached descendants
-                remove_instance_variable(:@all_descendants)
+                @all_descendants = nil
               end
 
               out "<% page_numbers(#{curr_page}, #{page_count}, #{(@params[:join] || ' ').inspect}, #{@params[:page_count] ? @params[:page_count].to_i : 'nil'}) do |#{page_number}, #{page_join}, #{page_name}| %>"
@@ -716,7 +708,8 @@ module Zena
               expand_with
             else
               method = get_attribute_or_eval(false)
-              if !method && (@params.keys & [:attr, :eval, :text]) != []
+
+              if !method && (@params.keys & [:attr, :eval, :text, :t]) != []
                 out @errors.last
               end
 
@@ -725,11 +718,11 @@ module Zena
               elsif default
                 default
               elsif node.will_be?(Node)
-                "<%= #{node}.prop['title'] %>"
+                "<%= #{node(Node)}.prop['title'] %>"
               elsif node.will_be?(Version)
-                "<%= #{node}.node.prop['title'] %>"
+                "<%= #{node(Version)}.node.prop['title'] %>"
               elsif node.will_be?(Link)
-                "<%= #{node}.name %>"
+                "<%= #{node(Link)}.name %>"
               else
                 _('edit')
               end

@@ -15,8 +15,7 @@
 <body>
   <div id='loader'><img src='/images/ajax-loader.gif'/> <r:trans text='uploading'/></div>
 
-  <div id='messages'>
-  </div>
+  <r:flash_messages/>
 
 <r:content_for_layout/>
 

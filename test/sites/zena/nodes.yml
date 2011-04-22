@@ -84,6 +84,8 @@ proposition:
   class:           Post
   parent:          secret
   user:            ant
+  idx_datetime1:   2006-03-15
+  # FIXME: remove log_at and event_at
   event_at:        2006-04-05
   log_at:          2006-04-05
 
@@ -128,6 +130,8 @@ opening:
   class:           Post
   parent:          cleanWater
   ref_lang:        fr
+  idx_datetime1:   2006-03-15
+  # FIXME: remove 'log_at' and 'event_at'
   log_at:          2006-03-15
   event_at:        2006-03-18 15:00
 

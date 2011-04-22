@@ -203,7 +203,7 @@ module Zena
               store "\"#{title}\":#{id}"
             else
               id = "#{node.zip}#{mode_format}"
-              if format == '.data'
+              if format == '.data' && node.kind_of?(Document)
                 title = "#{node.fullpath_as_title.join('/')}#{mode}.#{node.ext}#{dash}"
               else
                 title = "#{node.fullpath_as_title.join('/')}#{mode_format}"

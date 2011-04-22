@@ -7,29 +7,53 @@ default:
 
 calendar:
   context:
-    ref_date: "2006-03-18"
-  src: "<div do='calendar' select='notes in site'/>"
-  res: "/<td class='sat ref'><span>18</span><ul><li><a href='/oo/projects-list/Clean-Water-project/post27.html'>opening</a></li></ul><\/td>/"
+    date: "2006-03-18"
+  src: "<div do='calendar' attr='date' select='posts where #{cal_start} <= date and date < #{cal_end} in project'/>"
+  res: "/<td><span>15</span><ol><li><a href='/oo/projects-list/Clean-Water-project/post27.html'>parc openi…</a></li></ol><\/td>.*<td class='sat ref'>18</td>/"
 
-calendar_default_else:
+calendar_tz:
   context:
-    # no notes here
-    ref_date: "2008-01-30"
-  src: "<div do='calendar'>---</div>"
-  res: "/<td class='sun'>27<\/td>/"
+    date: "2006-03-18"
+  src: "<div do='calendar' attr='date' tz='America/New_York' select='posts where #{cal_start} <= date and date < #{cal_end} in project'/>"
+  res: "/<td><span>14</span><ol><li><a href='/oo/projects-list/Clean-Water-project/post27.html'>parc openi…</a></li></ol><\/td>.*<td class='sat ref'>18</td>/"
 
-calendar_l_date:
+calendar_with_blocks:
   context:
-    ref_date: "2009-7-17"
-    node: 'zena'
-  src: "<div do='calendar' select='added_notes' date='l_date' />"
-  res: "/<td class='ref'><span>17</span><ul><li><a href='/oo/projects-list/Clean-Water-project/post27.html'>opening</a></li></ul></td>/"
+    date: "2006-03-18"
+  src: "<div do='calendar' attr='date' select='posts where #{cal_start} <= date and date < #{cal_end} in project'>
+    <h3 do='header'>
+      <r:link date='#{date.advance(:months =&gt; -1).strftime(\"%Y-%m-%d\", tz)}' text='PREV'/>
+      <r:date format='%B'/>
+      <r:link date='#{date.advance(:months =&gt; 1).strftime(\"%Y-%m-%d\", tz)}' text='NEXT'/>
+    </h3></div>"
+  res: "/date=2006-02-18'>PREV.*date=2006-04-18'>NEXT/"
 
-calendar_hours:
+calendar_node_attr:
   context:
-    ref_date: "2009-7-17"
-    node: 'zena'
-  # I do not like the way we do this, the 'else' thing is not helping. Maybe we need some
-  # extra zafu tags because it' messy: we have 3 lists (days, hours, nodes) ...
-  src: "<div do='calendar' select='added_notes' date='l_date' split_hours='12'><r:if test='hour eq 0' do='[current_date]' format='%d'/><div do='void' set_class='hour_[hour]' do='each' do='title' join=', '/><r:else><r:if test='hour eq 0' do='[current_date]' format='%d'/><div do='void' set_class='hour_[hour]'></div></r:else></div>"
-  res: "/<td class='ref'>17<div class='hour_0'></div><div class='hour_12'>opening</div></td>/"
+    date: '2006-03-10'
+  src: "<div do='calendar' attr='created_at' select='nodes where #{cal_start} <= created_at and created_at < #{cal_end} in project'/>"
+  res: "/<span>10</span>.*Keeping th…/"
+
+calendar_bad_query:
+  src: "<div do='calendar' attr='date' select='posts where #{cal_start} <= starsky and hutch < #{cal_end} in project'/>"
+  res: "/<span class='method'>calendar</span> <span class='message'>Unknown field 'starsky'/"
+
+calendar_bad_attr:
+  src: "<div do='calendar' attr='date' select='posts where #{cal_start} <= starsky and hutch < #{cal_end} in project'/>"
+  res: "/<span class='method'>calendar</span> <span class='message'>Unknown field 'starsky'/"
+
+#calendar_l_date:
+#  context:
+#    ref_date: "2009-7-17"
+#    node: 'zena'
+#  src: "<div do='calendar' select='added_notes' date='l_date' />"
+#  res: "/<td class='ref'><span>17</span><ol><li><a href='/oo/projects-list/Clean-Water-project/post27.html'>opening</a></li></ol></td>/"
+#
+#calendar_hours:
+#  context:
+#    ref_date: "2009-7-17"
+#    node: 'zena'
+#  # I do not like the way we do this, the 'else' thing is not helping. Maybe we need some
+#  # extra zafu tags because it' messy: we have 3 lists (days, hours, nodes) ...
+#  src: "<div do='calendar' select='added_notes' date='l_date' split_hours='12'><r:if test='hour eq 0' do='[current_date]' format='%d'/><div do='void' set_class='hour_[hour]' do='each' do='title' join=', '/><r:else><r:if test='hour eq 0' do='[current_date]' format='%d'/><div do='void' set_class='hour_[hour]'></div></r:else></div>"
+#  res: "/<td class='ref'>17<div class='hour_0'></div><div class='hour_12'>opening</div></td>/"

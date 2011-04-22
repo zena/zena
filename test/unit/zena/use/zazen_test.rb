@@ -137,7 +137,7 @@ class ZazenTest < Zena::View::TestCase
   end
 
   def test_pseudo_id
-    assert_zazen_match "a[@href='/en/contact15.html'][text()='people/Panthera Leo Verneyi']", 'This is a "link"::lio.'
+    assert_zazen_match "a[@href='/en/contact15.html'][text()='people/Panthera Leo Verneyi']", 'This is a "link"::Leo.'
     assert_zazen_match "a[@href='/en/image30_pv.jpg?967816914293'][text()='projects list/a wiki with Zena/bird_pv.jpg']", 'This is a "link"::bir_pv.data.'
   end
 

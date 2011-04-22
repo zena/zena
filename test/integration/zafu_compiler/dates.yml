@@ -53,13 +53,18 @@ show_date_foo:
   context:
     date: '2010-05-16'
     lang: fr
-  src: "<r:show eval='main_date' format='%A %d.%m.%Y'/>"
+  src: "<r:show eval='date' format='%A %d.%m.%Y'/>"
   tem: "/main_date/"
   res: 'dimanche 16.05.2010'
 
 strftime:
-  src: "<p do='log_at.strftime(\"%d-%m\")'/>"
-  res: "<p>05-04</p>"
+  src: "<p do='log_at.strftime(\"%d-%m %H:%M\")'/>"
+  tem: "/strftime_tz/"
+  res: "<p>05-04 02:00</p>"
+
+strftime_with_timezone:
+  src: "<p do='log_at.strftime(\"%d-%m %H:%M\", \"Asia/Jakarta\")'/>"
+  res: "<p>05-04 07:00</p>"
 
 date_tformat:
   context:
@@ -80,8 +85,22 @@ date_tz:
 date_tz_field:
   context:
     node: nature
-  src: "<r:nodes do='each' join=', '><r:show attr='title'/>: <r:show attr='created_at' format='%H:%M' tz='#{tz || \"Europe/Zurich\"}'/> | <r:show attr='created_at' format='%H:%M' tz='UTC'/></r:nodes>"
+  src: "<r:nodes do='each' join=', '><r:show attr='title'/>: <r:show attr='created_at' format='%H:%M' tz='#{this.tz || \"Europe/Zurich\"}'/> | <r:show attr='created_at' format='%H:%M' tz='UTC'/></r:nodes>"
   res: "Autumn Tree: 07:00 | 00:00, Forest: 01:00 | 00:00"
+
+default_tz:
+  context:
+    visitor: 'ant'
+    node: 'people'
+    lang: 'en'
+  src: "<r:default tz='Asia/Jakarta'><r:show attr='created_at' format='%H:%M'/> <r:tz/></r:default>"
+  tem: "/_ztz = TZInfo::Timezone.get.*Asia/Jakarta.*:tz => _ztz/"
+  res: "07:00 Asia - Jakarta"
+
+date_date_tz:
+  context:
+  src: "<r:default tz='Asia/Jakarta'><ul do='notes where created_at.date = #{date(tz)} in site'></ul></r:default>"
+  tem: "/Timezone.get\(\"Asia/Jakarta\"\).*main_date\(_ztz\)/"
 
 date_fr:
   context:
@@ -114,8 +133,8 @@ date_from_params:
 date_from_params_in_query:
   context:
     year: 2006
-  src: "<r:set_main_date text='#{params[:year]}/04/03' format='%Y/%m/%d' do='show' eval='main_date' format='%Y-%m-%d'/>"
-  tem: "/_zmaindate = \"#\{params\[:year\]\}/04/03\".to_utc\(\"%Y/%m/%d\"\) %>/"
+  src: "<r:void set_date='parse_date(\"#{params[:year]}/04/03\", \"%Y/%m/%d\")' do='show' eval='date' format='%Y-%m-%d'/>"
+  tem: "/_zdate = parse_date.*format_date/"
   res: "2006-04-03"
 
 input_date:
@@ -123,12 +142,20 @@ input_date:
     node: opening
   src: "<r:Post?><r:input type='date' name='date'/></r:Post?>"
   tem: '/date_box\(@node, "date", :value => @node.prop\[.date.\], :size => 15\)/'
-  res: "/value='2011-01-16 01:00'/"
+  res: "/value='2006-03-15 01:00'/"
+
+input_date_no_time:
+  context:
+    node: opening
+  src: "<r:Post?><r:input type='date' name='date' time='false'/></r:Post?>"
+  tem: '/:time => "false"/'
+  res: "/value='2006-03-15'.*showsTime *: *false/"
 
 test_date:
-  src: "<r:Post?><r:if test='date'></r:if></r:Post?>"
+  # test with 'date' tests contextual date (main_date).
+  src: "<r:Post?><r:if test='this.date'></r:if></r:Post?>"
   tem: "/@node.prop\['date'\]/"
-  
+
 format_date_empty_string:
   tem: "<%= format_date('') %>"
   res: ""
