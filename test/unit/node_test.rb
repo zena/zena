@@ -17,19 +17,19 @@ class NodeTest < Zena::Unit::TestCase
     end
 
     context 'with a sub-node' do
-      should 'return true on ancestor?' do
-        assert subject.ancestor?(secure!(Node) { nodes(:status) })
+      should 'return true on is_ancestor?' do
+        assert subject.is_ancestor?(secure!(Node) { nodes(:status) })
       end
     end # with a sub-node
 
     context 'with a node that is not a sub-node' do
-      should 'return false on ancestor?' do
-        assert !subject.ancestor?(secure!(Node) { nodes(:people) })
+      should 'return false on is_ancestor?' do
+        assert !subject.is_ancestor?(secure!(Node) { nodes(:people) })
       end
     end # with a node that is not a sub-node
 
-    should 'return true on ancestor? on self' do
-      assert subject.ancestor?(subject)
+    should 'return true on is_ancestor? on self' do
+      assert subject.is_ancestor?(subject)
     end
   end # On a node
 

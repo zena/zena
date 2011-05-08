@@ -221,6 +221,11 @@ label_on_select:
   src: "<r:select label='t' name='title' values='1,2'/>"
   res: "/<label>titre</label> <span><select name='node\[title\]'/"
 
+passiv_form:
+  # Should not transform 'form' or 'input' into 'r:form' or 'r:input'
+  src: "<form>xxx<input name='x' id='y' type='text'/></form>"
+  tem: "<form>xxx<input name='x' id='y' type='text'/></form>"
+
 param_on_select:
   src: "<r:select param='q[contact.status]' values='0,-5,-10' tshow='active, being registered, inactive'/>"
   res: "<select name='q[contact.status]'><option value=\"0\">active</option>\n<option value=\"-5\">being registered</option>\n<option value=\"-10\">inactive</option></select>"

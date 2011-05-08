@@ -818,7 +818,7 @@ END:VCALENDAR
 
   def test_search_q
     login(:anon)
-    get 'search', 'q' => 'zen'
+    get 'search', 'q' => 'wild'
     assert nodes = assigns(:nodes)
     assert_equal [nodes_id(:zena)], nodes.map {|r| r.id}
   end

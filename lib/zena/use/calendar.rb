@@ -217,7 +217,7 @@ module Zena
               if opts[:size] == :tiny
                 add_block %Q{<r:cell><em do='link' date='#{format_date(date, "%Y-%m-%d")}' do='date' format='%e'/></r:cell>}
               else
-                add_block "<r:cell><span do='date' format='%e'/><ol><li do='each' do='link' eval='title.limit(10)'/></ol></r:cell>"
+                add_block "<r:cell><p do='date' format='%e'/><ol><li do='each' do='link' eval='title.limit(10)'/></ol></r:cell>"
               end
               cell_block = descendant('cell')
             end

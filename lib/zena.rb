@@ -224,6 +224,11 @@ module Zena
 
       require_ordered_dependencies
 
+      # This is needed for idx fields taming (lock table content in OR clause).
+      # Must come after 'require_ordered_dependencies' so that AfterCommit is loaded
+      # before first DB usage.
+      Zena::Db.insert_dummy_ids
+
       load_plugins if RAILS_ROOT != Zena::ROOT
       include_modules
       Bricks.load_bricks

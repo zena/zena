@@ -868,7 +868,6 @@ Zena.m_toggle = function(id) {
       s.src = s.src;
     });
   }
-  fleXenv.updateScrollBars();
 }
 
 var pm_counter = 1;
@@ -889,4 +888,29 @@ Zena.plus_minus = function(elem, start, plus, minus) {
     Element.insert(elem.previous(), {bottom:trigger_tag});
     Element.replace(elem, new_tag);
   }
+}
+
+Zena.read_cookie = function(name, def) {
+  var nameEQ = name + "=";
+  var ca = document.cookie.split(';');
+  for(var i=0;i < ca.length;i++) {
+    var c = ca[i];
+    while (c.charAt(0)==' ') c = c.substring(1,c.length);
+    if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+  }
+  return def;
+}
+
+Zena.write_cookie = function(name,value,days) {
+  if (days) {
+    var date = new Date();
+    date.setTime(date.getTime()+(days*24*60*60*1000));
+    var expires = "; expires="+date.toGMTString();
+  }
+  else var expires = "";
+  document.cookie = name+"="+value+expires+"; path=/";
+}
+
+Zena.delete_cookie = function(name) {
+  Zena.write_cookie(name,"",-1);
 }

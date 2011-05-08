@@ -83,7 +83,7 @@ module Zena
         end
 
         # Return true if the current node is an ancestor for the given child
-        def ancestor?(child)
+        def is_ancestor?(child)
           child.fullpath =~ %r{\A#{fullpath}}
         end
 

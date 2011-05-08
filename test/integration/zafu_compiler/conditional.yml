@@ -97,13 +97,13 @@ if_has_discussion:
   res: "status title:yes zena enhancements:no"
 
 case_ancestor:
-  src: "<r:root><r:pages><r:each join=', '><r:case><r:when eval='ancestor?(main)'><b><r:show attr='title'/></b></r:when><r:else><r:show attr='title'/></r:else></r:case></r:each></r:pages></r:root>"
+  src: "<r:root><r:pages><r:each join=', '><r:case><r:when eval='is_ancestor?(main)'><b><r:show attr='title'/></b></r:when><r:else><r:show attr='title'/></r:else></r:case></r:each></r:pages></r:root>"
   res: "Collections, Nature, people, <b>projects list</b>, Skins (layout themes)"
 
 on_if_ancestor_no_class:
   old_src: "<r:root><r:pages><li do='each' on_if_node='ancestor' join=', '><r:show attr='title'/></li></r:pages></r:root>"
-  src: "<r:root><r:pages><li do='each' on_if='ancestor?(main)' join=', '><r:show attr='title'/></li></r:pages></r:root>"
-  tem: '/var3.ancestor\?\(@node\)/'
+  src: "<r:root><r:pages><li do='each' on_if='is_ancestor?(main)' join=', '><r:show attr='title'/></li></r:pages></r:root>"
+  tem: '/var3.is_ancestor\?\(@node\)/'
   res: "<li class=''>Collections</li>, <li class=''>Nature</li>, <li class=''>people</li>, <li class=' on'>projects list</li>, <li class=''>Skins (layout themes)</li>"
 
 multiple_class_conditions:
@@ -117,8 +117,8 @@ multiple_class_conditions_true_in_middle:
 
 # var1 = stored 'papa'
 test_ancestor_with_stored:
-  src: "<r:parent do='parent' set_papa='this' do='pages'><div do='each' super_if='papa.ancestor?(this)' do='title'/></r:parent>"
-  tem: "/_zpapa = var1.*\(_zpapa\.ancestor\?\(var4\)\)/"
+  src: "<r:parent do='parent' set_papa='this' do='pages'><div do='each' super_if='papa.is_ancestor?(this)' do='title'/></r:parent>"
+  tem: "/_zpapa = var1.*\(_zpapa\.is_ancestor\?\(var4\)\)/"
   res: "<div class=''>a wiki with Zena</div><div class=' super'>Clean Water project</div>"
 
 on_if_kind_of:

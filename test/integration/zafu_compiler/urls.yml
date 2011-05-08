@@ -22,6 +22,14 @@ url_with_param:
   src: "<p do='eval'>url(parent)</p>"
   res: "<p>http://test.host/oo/projects-list/Clean-Water-project</p>"
 
+url_with_hash:
+  src: "<p do='url(this, :mode => \"foo\")'/>"
+  res: "/page22_foo.html/"
+
+r_url_with_hash:
+  src: "<r:url mode='back' f='x'/>"
+  res: "/page22_back.html\?f=x/"
+
 path:
   src: "<a href='#{path}'>blah</a>"
   res: "<a href='/oo/projects-list/Clean-Water-project/page22.html'>blah</a>"

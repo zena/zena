@@ -16,33 +16,32 @@
 .tinycal .body td.sun, .tinycal .body td.sun a { color:#35950B; }
 .tinycal .body td.sunother, .tinycal .body td.sunother a { color:#C8DEC1; }
 
+
 /* LARGE CALENDAR */
-.largecal .title { display:table; margin:auto; background:white; margin-bottom:0.5em; font-size:1.3em; }
-.largecal .title a { color:#655; font-size: 1em; font-family: Georgia, Times, serif;}
-.largecal .title span { padding:0 6px; display:block; float:left; text-align:center;}
-.largecal .title .date {  width:150px; }
-.largecal table { border:1px solid #655; margin:auto; border-collapse:separate; line-height:1em; clear:left;}
-.largecal .head td  { border-left:1px solid #836C6C; background: #655; color: #fff; width:14%; height:0.8em; text-align:center; padding:0.4em 3px; }
-.largecal .head td:first-child {border-left-width:0;}
-.largecal .body td  { background: #ffd; width:14%; height:3.4em; padding:3px; vertical-align:top; font-style:italic; text-align:left; color:#999;
-border:1px solid #DDDBC1; border-width:1px 0 0 1px; font-size:0.8em;}
-.largecal .body a { font-weight:normal; font-style:normal;}
-.largecal .body td:first-child {border-left-width:0;}
+#cal h3 { display:table; margin:auto; font-size:1.3em; }
+#cal h3 p { color:#655; font-family: Georgia, Times, serif; margin-bottom:0.5em; display:table; float:left; width:20em; text-align:center;}
+#cal h3 a { padding:0 6px; display:block; float:left;}
+.largecal { border:1px solid #655; margin:auto; border-collapse:separate; line-height:1em; clear:left;}
+.largecal th  { border-left:1px solid #836C6C; background: #655; color: #fff; width:14%; height:0.8em; text-align:center; padding:0.4em 3px; }
+.largecal th:first-child {border-left-width:0;}
+.largecal td  { background: #ffd; width:14%; min-height:3.4em; padding:3px; vertical-align:top; font-style:italic; text-align:left; color:#999;
+border:1px solid #DDDBC1; border-width:1px 0 0 1px; font-size:10px;}
+.largecal a { font-weight:normal; font-style:normal;}
+.largecal td:first-child {border-left-width:0;}
 
-.largecal .body .other { background:#DDDBC1;}
-.largecal .body .today { font-weight:bold; color:black; background:#DCF6FF; margin:0;}
-.largecal .body .sun, .largecal .body .sat { background:#E6FFDC;}
-.largecal .head .sun, .largecal .head .sat { background:#636D5E;}
-.largecal .body .ref { background:white;}
-.largecal .body .sunother, .largecal .body .satother { background:#C8DEC1;}
-.largecal .body .suntoday, .largecal .body .sattoday  { font-weight:bold; color:black; background:#C7FFC3;}
+.largecal .other { background:#DDDBC1;}
+.largecal .today { font-weight:bold; color:black; background:#DCF6FF; margin:0;}
+.largecal .sun, .largecal .sat { background:#E6FFDC;}
+.largecal th.sun, .largecal th.sat { background:#636D5E;}
+.largecal .ref { background:white;}
+.largecal .sunother, .largecal .satother { background:#C8DEC1;}
+.largecal .suntoday, .largecal .sattoday  { font-weight:bold; color:black; background:#C7FFC3;}
 
-.largecal .body div { margin:2px; margin-left:1.2em; font-style:normal; font-weight:normal; font-size:1.1em; }
-.largecal .body div a { padding:1px;}
-.largecal .body div a:hover { text-decoration:underline; }
-.largecal .body span { float:left; }
-.largecal .body ol   { margin-left:0px; display:block; list-style:none;}
-.largecal .body li   { margin:0;}
+.largecal p { margin:0;}
+.largecal ol { margin:0; list-style:none;}
+.largecal li { margin:0; line-height:12px}
+.largecal li:first-child { border-top:0;}
+.largecal li { border-top:1px solid #aaa;}
 
 .assign .body td { padding:0;}
 .assign .body ol { border-left:1px solid #ddd;}

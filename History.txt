@@ -8,6 +8,10 @@
  * Fixed block edit with ajax ([edit] method).
  * Removed fulltext search (no more MyISAM tables).
  * Fixed SQLiss scoping in queries like "Job:project" (added kpath filter).
+ * Fixed Zafu calendar and timezones in dates.
+ * Added 'foreach' method (paginated looping in SQLiss query) for console.
+ * Added 'count' method (count objects with SQLiss query) for console.
+ * Added support for scripts with Zena::Console.
 
 == 1.0.0.rc2 2011-02-14
 

@@ -230,7 +230,7 @@ class Node < ActiveRecord::Base
                      :m_text => String, :m_title => String, :m_author => String,
                      :id => {:class => Number, :method => 'zip'},
                      :skin => 'Skin', :ref_lang => String,
-                     :visitor => 'User', [:ancestor?, Node] => Boolean,
+                     :visitor => 'User', [:is_ancestor?, Node] => Boolean,
                      :comments_count => Number,
                      :v => {:class => 'Version', :method => 'version'},
                      :version => 'Version', :v_status => Number, :v_lang => String,
