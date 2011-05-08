@@ -316,79 +316,8 @@ def visitor
 end
 
 if defined?(IRB)
-  puts "IRB console: including Zena::Acts::Secure in main"
+  puts "IRB console: including Zena::Console in main"
   class << self
-    include Zena::Acts::Secure
-
-    def err(obj)
-      obj.errors.each_error do |er,msg|
-        puts "[#{er}] #{msg}"
-      end
-    end
-
-    def rename_prop(list, old_key, new_key)
-      if list.first.kind_of?(Node)
-        list = list.map(&:visible_versions).flatten
-      end
-      list.each do |rec|
-        prop  = rec.prop
-        if value = prop.delete(old_key)
-          prop[new_key] = value
-          Zena::Db.execute "UPDATE #{rec.class.table_name} SET properties=#{Zena::Db.quote(rec.class.encode_properties(prop))} WHERE id=#{rec[:id]}"
-        end
-      end
-    end
-
-    def field_to_prop(list, native_key, prop_key)
-      list.each do |rec|
-        next unless value = rec[native_key]
-        if rec.kind_of?(Node)
-          elems = rec.visible_versions
-        else
-          elems = [rec]
-        end
-        elems.each do |rec|
-          prop  = rec.prop
-          prop[prop_key] = value
-          Zena::Db.execute "UPDATE #{rec.class.table_name} SET properties=#{Zena::Db.quote(rec.class.encode_properties(prop))} WHERE id=#{rec[:id]}"
-        end
-      end
-    end
-
-    def login(name, host = nil)
-      finder = {}
-      finder[:conditions] = cond = [[]]
-      if host
-        finder[:joins] = 'INNER JOIN sites ON sites.id = users.site_id'
-        cond.first << 'sites.host = ?'
-        cond << host.to_s
-      end
-
-      cond.first << 'users.login = ?'
-      cond << name.to_s
-      cond[0] = cond.first.join(' AND ')
-      if visitor = User.find(:first, finder)
-        Thread.current[:visitor] = visitor
-        puts "Logged #{visitor.login} in #{visitor.site.host}"
-      else
-        raise ActiveRecord::RecordNotFound
-      end
-    rescue ActiveRecord::RecordNotFound
-      puts "Could not login with user name: #{name}"
-    end
-
-    def nodes(zip_or_name)
-      if zip_or_name.kind_of?(Fixnum)
-        secure(Node) { Node.find_by_zip(zip_or_name) }
-      else
-        secure(Node) { Node.find_by_title(zip_or_name) }
-      end
-    end
-
-    def find(query)
-      default_scope = 'site'
-      query = {:qb => query} unless query.kind_of?(Hash)
-      nodes = secure(Node) { Node.search_records(query, :node => current_site.root_node, :default => {:scope => default_scope}) }
-    end
+    include Zena::Console
   end
 end
