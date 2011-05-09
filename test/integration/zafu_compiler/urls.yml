@@ -70,6 +70,10 @@ link_set_class:
   tem: "<a class='<%= \"#{@node.prop['title']}_foo\" %>' href='<%= zen_path(@node) %>'><%= @node.prop['title'] %></a>"
   res: "<a class='status title_foo' href='/oo/projects-list/Clean-Water-project/page22.html'>status title</a>"
 
+link_set_title:
+  src: "<r:link title='#{title}_foo'/>"
+  res: "<a title='status title_foo' href='/oo/projects-list/Clean-Water-project/page22.html'>status title</a>"
+
 link_attr:
   src: "<r:link attr='ref_lang'/>"
   tem: "<a href='<%= zen_path(@node) %>'><%= @node.ref_lang %></a>"
