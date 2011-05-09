@@ -1,0 +1,38 @@
+<p>
+  <b>Query:</b>
+  <%=h @acl.query %>
+</p>
+
+<p>
+  <b>Action:</b>
+  <%=h @acl.action %>
+</p>
+
+<p>
+  <b>Site id:</b>
+  <%=h @acl.site_id %>
+</p>
+
+<p>
+  <b>Group id:</b>
+  <%=h @acl.group_id %>
+</p>
+
+<p>
+  <b>Exec group id:</b>
+  <%=h @acl.exec_group_id %>
+</p>
+
+<p>
+  <b>Exec skin id:</b>
+  <%=h @acl.exec_skin_id %>
+</p>
+
+<p>
+  <b>Priority:</b>
+  <%=h @acl.priority %>
+</p>
+
+
+<%= link_to 'Edit', edit_acl_path(@acl) %> |
+<%= link_to 'Back', acls_path %>

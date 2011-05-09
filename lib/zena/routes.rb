@@ -15,6 +15,7 @@ module Zena
       resources :users, :member => { :preferences => :get }
       resources :groups
       resources :iformats
+      resources :acls
 
 
       connect ':prefix/*path?:cachestamp',  :controller => 'nodes', :action => 'show', :prefix => /\w\w/, :cachestamp => /\d+/

@@ -1,0 +1,32 @@
+<h1>Listing acls</h1>
+
+<table>
+  <tr>
+    <th>Query</th>
+    <th>Action</th>
+    <th>Site id</th>
+    <th>Group id</th>
+    <th>Exec group id</th>
+    <th>Exec skin id</th>
+    <th>Priority</th>
+  </tr>
+
+<% @acls.each do |acl| %>
+  <tr>
+    <td><%=h acl.query %></td>
+    <td><%=h acl.action %></td>
+    <td><%=h acl.site_id %></td>
+    <td><%=h acl.group_id %></td>
+    <td><%=h acl.exec_group_id %></td>
+    <td><%=h acl.exec_skin_id %></td>
+    <td><%=h acl.priority %></td>
+    <td><%= link_to 'Show', acl %></td>
+    <td><%= link_to 'Edit', edit_acl_path(acl) %></td>
+    <td><%= link_to 'Destroy', acl, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New acl', new_acl_path %>
