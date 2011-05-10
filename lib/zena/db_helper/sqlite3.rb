@@ -73,19 +73,19 @@ module Zena
         end
 
         # Return a string matching the SQLiss function.
-        def sql_function(function, key)
-          return key unless function
+        def sql_function(function, arg)
+          return arg unless function
           case function
           when 'year'
             # we multiply by '1' to force a cast to INTEGER so that comparaison against
             # numbers works.
-            "strftime('%Y', #{key})*1"
+            "strftime('%Y', #{arg})*1"
           when 'month'
-            "strftime('%Y-%m', #{key})"
+            "strftime('%Y-%m', #{arg})"
           when 'week'
-            "strftime('%Y-%W', #{key})"
+            "strftime('%Y-%W', #{arg})"
           when 'day'
-            "DATE(#{key})"
+            "DATE(#{arg})"
           when 'random'
             'random()'
           else

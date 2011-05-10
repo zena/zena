@@ -284,7 +284,7 @@ module Syntax
       elsif keyword = scan(/\bfrom\b/)
         start_group :sub, keyword
         @state = nil
-      elsif keyword = scan(/\bwhere|group|order|limit|offset|paginate\b/)
+      elsif keyword = scan(/\bwhere|select|group\s+by|having|order|limit|offset|paginate\b/)
         start_group :keyword, keyword
       elsif punct  = scan(/\b>=|<=|<>|<|=|>|not\s+like|like|lt|le|eq|ne|ge|gt\b/)
         start_group :punct, punct

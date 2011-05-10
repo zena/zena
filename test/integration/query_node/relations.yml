@@ -15,11 +15,11 @@ bad_relation:
 
 overriden_relation:
   src: 'references'
-  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND nodes.id = links.target_id AND links.relation_id = _ID(node_has_references) AND links.source_id = ? ORDER BY nodes.zip ASC}, @node.id]"
+  sql: "[%Q{SELECT nodes.*,links.id AS `link_id`,links.status AS `l_status`,links.comment AS `l_comment`,links.date AS `l_date` FROM links,nodes WHERE #{secure_scope('nodes')} AND nodes.id = links.target_id AND links.relation_id = _ID(node_has_references) AND links.source_id = ? ORDER BY nodes.zip ASC}, @node.id]"
 
 link_selects_in_sub_query:
   src: "icons or images"
-  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND ((nodes.id = links.target_id AND links.relation_id = _ID(node_has_an_icon) AND links.source_id = ?) OR (nodes.kpath LIKE 'NDI%' AND nodes.parent_id = ? AND links.id = 0)) GROUP BY nodes.id ORDER BY nodes.zip ASC}, @node.id, @node.id]"
+  sql: "[%Q{SELECT nodes.*,links.id AS `link_id`,links.status AS `l_status`,links.comment AS `l_comment`,links.date AS `l_date` FROM links,nodes WHERE #{secure_scope('nodes')} AND ((nodes.id = links.target_id AND links.relation_id = _ID(node_has_an_icon) AND links.source_id = ?) OR (nodes.kpath LIKE 'NDI%' AND nodes.parent_id = ? AND links.id = 0)) GROUP BY nodes.id ORDER BY nodes.zip ASC}, @node.id, @node.id]"
 
 project:
   sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.id = ? ORDER BY nodes.zip ASC}, @node.get_project_id]"
@@ -60,7 +60,7 @@ root_should_be_project:
     # Make sure we do not start query on a Project so that we can tell if 'root' properly sets main_class.
     node: ant
   src: 'news from root'
-  sql: "%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes,nodes AS no1 WHERE #{secure_scope('nodes')} AND nodes.id = links.source_id AND links.relation_id = 488905946 AND links.target_id = no1.id AND no1.id = 850927283 GROUP BY nodes.id ORDER BY nodes.zip ASC}"
+  sql: "%Q{SELECT nodes.*,links.id AS `link_id`,links.status AS `l_status`,links.comment AS `l_comment`,links.date AS `l_date` FROM links,nodes,nodes AS no1 WHERE #{secure_scope('nodes')} AND nodes.id = links.source_id AND links.relation_id = 488905946 AND links.target_id = no1.id AND no1.id = 850927283 GROUP BY nodes.id ORDER BY nodes.zip ASC}"
 
 start_as_tag:
   context:

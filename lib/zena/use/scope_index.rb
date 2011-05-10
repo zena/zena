@@ -9,16 +9,22 @@ module Zena
 
       module VirtualClassMethods
         def self.included(base)
-          base.validate :validate_idx_class, :validate_idx_scope
-          base.attr_accessible :idx_class
-          base.attr_accessible :idx_scope
+          base.class_eval do
+            validate :validate_idx_class, :validate_idx_scope
+            attr_accessible :idx_class, :idx_scope, :idx_reverse_scope
+            property do |p|
+              p.string 'idx_class'
+              p.string 'idx_scope'
+              p.string 'idx_reverse_scope'
+            end
+          end
         end
 
         protected
           def validate_idx_class
-            self[:idx_class] = nil if self[:idx_class].blank?
+            self.idx_class = nil if self.idx_class.blank?
 
-            if model_name = self[:idx_class]
+            if model_name = self.idx_class
               if model_name =~ /\A[A-Z][a-zA-Z]+\Z/
                 if klass = Zena.const_get(model_name) rescue NilClass
                   if klass < Zena::Use::ScopeIndex::IndexMethods
@@ -36,11 +42,11 @@ module Zena
           end
 
           def validate_idx_scope
-            self[:idx_scope] = nil if self[:idx_scope].blank?
-            if scopes = self[:idx_scope]
+            self.idx_scope = nil if self.idx_scope.blank?
+            if scopes = self.idx_scope
               # Try to compile query in instance of class self
               begin
-                scopes = new_instance.safe_eval self[:idx_scope]
+                scopes = new_instance.safe_eval scopes
                 if scopes.kind_of?(Hash)
                   scopes.each do |keys, query|
                     unless keys.kind_of?(String) &&

@@ -1,4 +1,4 @@
-== 1.0.0.rc3
+== 1.0.0.rc3 2011-05-10
 
 * major changes
  * Included tag in xml serialization (tag_names)
@@ -12,6 +12,7 @@
  * Added 'foreach' method (paginated looping in SQLiss query) for console.
  * Added 'count' method (count objects with SQLiss query) for console.
  * Added support for scripts with Zena::Console.
+ * Added support for "select" and "having" in SQLiss.
 
 == 1.0.0.rc2 2011-02-14
 

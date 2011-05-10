@@ -57,9 +57,9 @@ class VersionsController < ApplicationController
   def edit
     if params[:drive]
       if @node.redit
-        flash[:notice] = _("Version changed back to redaction.")
+        flash.now[:notice] = _("Version changed back to redaction.")
       else
-        flash[:error] = _("Could not change version back to redaction.")
+        flash.now[:error] = _("Could not change version back to redaction.")
       end
       render :action=>'update'
     else
@@ -161,46 +161,48 @@ class VersionsController < ApplicationController
 
   def propose
     if @node.propose
-      flash[:notice] = _("Redaction proposed for publication.")
+      flash.now[:notice] = _("Redaction proposed for publication.")
     else
-      flash[:error] = _("Could not propose redaction.")
+      flash.now[:error] = _("Could not propose redaction.")
     end
     do_rendering
   end
 
   def refuse
     if @node.refuse
-      flash[:notice] = _("Proposition refused.")
+      flash.now[:notice] = _("Proposition refused.")
       @redirect_url = @node.can_read? ? request.env['HTTP_REFERER'] : user_path(visitor)
     else
-      flash[:notice] = _("Could not refuse proposition.")
+      flash.now[:notice] = _("Could not refuse proposition.")
     end
     do_rendering
   end
 
   def publish
     if @node.publish
-      flash[:notice] = "Redaction published."
+      flash.now[:notice] = _("Redaction published.")
     else
-      flash[:error] = "Could not publish: #{error_messages_for(:node, :object => @node)}"
+      flash.now[:error] = _("Could not publish:") + 
+        " #{error_messages_for(:node, :object => @node)}"
     end
     do_rendering
   end
 
   def remove
     if @node.remove
-      flash[:notice] = "Publication removed."
+      flash.now[:notice] = _("Publication removed.")
     else
-      flash[:error] = "Could not remove plublication."
+      flash.now[:error] = _("Could not remove plublication.")
     end
     do_rendering
   end
 
   def redit
     if @node.redit
-      flash[:notice] = "Rolled back to redaction."
+      flash.now[:notice] = _("Rolled back to redaction.")
     else
-      flash[:error] = "Could not rollback: #{error_messages_for(:node, :object => @node)}"
+      flash.now[:error] = _("Could not rollback:") +
+        " #{error_messages_for(:node, :object => @node)}"
     end
     do_rendering
   end
@@ -208,9 +210,9 @@ class VersionsController < ApplicationController
   # TODO: test
   def unpublish
     if @node.unpublish
-      flash[:notice] = "Publication removed."
+      flash.now[:notice] = _("Publication removed.")
     else
-      flash[:error] = "Could not remove publication."
+      flash.now[:error] = _("Could not remove publication.")
     end
     do_rendering
   end
@@ -219,17 +221,17 @@ class VersionsController < ApplicationController
   def destroy
     if @node.destroy_version
       if @node.versions.empty?
-        flash[:notice] = "Node destroyed."
+        flash.now[:notice] = _("Node destroyed.")
         respond_to do |format|
           format.html { redirect_to zen_path(@node.parent) }
           format.js
         end
       else
-        flash[:notice] = "Version destroyed."
+        flash.now[:notice] = _("Version destroyed.")
         do_rendering
       end
     else
-      flash[:error] = "Could not destroy version."
+      flash.now[:error] = _("Could not destroy version.")
       do_rendering
     end
   end

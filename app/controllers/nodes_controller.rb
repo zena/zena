@@ -58,7 +58,7 @@ class NodesController < ApplicationController
         begin
           do_search
         rescue ::QueryBuilder::Error => err
-          flash[:error] = err.message
+          flash.now[:error] = err.message
         end
         render_and_cache :mode => '+search', :cache => false
       end
@@ -209,7 +209,7 @@ class NodesController < ApplicationController
 
     respond_to do |format|
       if @node.errors.empty?
-        flash[:notice] = 'Node was successfully created.'
+        flash.now[:notice] = 'Node was successfully created.'
         format.html {
           redirect_to  params[:redir] || zen_path(@node, :mode => params[:mode])
         }
@@ -242,10 +242,9 @@ class NodesController < ApplicationController
 
       format.html do
         if @node.destroy
-          flash[:notice] = "Node destroyed."
           redirect_to zen_path(@node.parent)
         else
-          flash[:notice] = "Could not destroy node."
+          flash.now[:notice] = "Could not destroy node."
           render :action => 'show'
         end
       end
@@ -276,9 +275,9 @@ class NodesController < ApplicationController
     @node   = version.node
     @node.backup
     if @node.errors.empty?
-      flash[:notice] = _("Backup created.")
+      flash.now[:notice] = _("Backup created.")
     else
-      flash[:error] = _("Could not create backup.")
+      flash.now[:error] = _("Could not create backup.")
     end
   end
 

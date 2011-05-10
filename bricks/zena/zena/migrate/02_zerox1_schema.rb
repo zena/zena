@@ -294,8 +294,7 @@ class Zerox1Schema < ActiveRecord::Migration
     add_column :roles, :type, :string
     add_column :roles, :created_at, :datetime
     add_column :roles, :updated_at, :datetime
-    add_column :roles, :idx_class, :string, :limit => 30
-    add_column :roles, :idx_scope, :string, :limit => 255
+    add_column :roles, :properties, :text
 
     # idx
     add_index "roles", ["name"], :name => "index_roles_on_name"
@@ -355,7 +354,7 @@ class Zerox1Schema < ActiveRecord::Migration
     execute "ALTER TABLE versions MODIFY `node_id` INT(11) NOT NULL"
     execute "ALTER TABLE versions MODIFY `user_id` INT(11) NOT NULL"
     execute "ALTER TABLE versions MODIFY `lang` VARCHAR(10) COLLATE utf8_unicode_ci NOT NULL DEFAULT ''"
-    
+
     # Version is not inherited anymore
     remove_column(:versions, :type) rescue nil
 

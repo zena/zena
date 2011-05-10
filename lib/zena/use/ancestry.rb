@@ -64,7 +64,7 @@ module Zena
       module ModelMethods
         include RubyLess
         safe_context       :ancestors => {:class => ['Node'], :method => 'z_ancestors'}
-        safe_method        :fullpath => String, :short_path => String
+        safe_method        :fullpath => String, :short_path => [String]
 
         def self.included(base)
           base.class_eval do

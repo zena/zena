@@ -15,6 +15,7 @@ module Zena
               end
             end
           end
+          base.export_attributes += FULLTEXT_FIELDS
         end
 
         private

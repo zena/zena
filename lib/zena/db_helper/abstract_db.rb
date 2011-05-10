@@ -117,8 +117,20 @@ module Zena
       end
 
       # Return a string matching the SQLiss function.
-      def sql_function(function, key)
-        raise Exception.new("Database Adapter #{adapter.inspect} does not support function #{function.inspect}.")
+      def sql_function(function, arg)
+        return arg unless function
+        case function
+        when 'count'
+          "COUNT(#{arg})"
+        when 'min'
+          "MIN(#{arg})"
+        when 'max'
+          "MAX(#{arg})"
+        when 'sum'
+          "SUM(#{arg})"
+        else
+          super
+        end
       end
 
       # This is used by zafu and it's a mess.

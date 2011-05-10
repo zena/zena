@@ -614,9 +614,9 @@ module Zena
               unless @query.select
                 @query.select = ["#{@query.main_table}.*"]
               end
-              add_select "#{link_table}.id AS link_id"
+              add_select("#{link_table}.id", 'link_id')
               Zena::Use::Relations::LINK_ATTRIBUTES.each do |l|
-                add_select "#{link_table}.#{l} AS l_#{l}"
+                add_select("#{link_table}.#{l}", "l_#{l}")
               end
             end
           end

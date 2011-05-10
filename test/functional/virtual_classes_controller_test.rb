@@ -135,10 +135,23 @@ class VirtualClassesControllerTest < Zena::Controller::TestCase
 
         should 'save name and kpath' do
           put_subject
-          vclass = assigns(:virtual_class)
+          vclass = roles(:Letter)
           assert_equal 'Life', vclass.name
           assert_equal 'NNL',  vclass.kpath
         end
+        
+        context 'by changing prop_eval' do
+          subject do
+            {:action => :update, :id => roles_id(:Letter), :virtual_class => { :prop_eval => '{"title" => "what"}'}}
+          end
+
+          should 'change prop_eval' do
+            put_subject
+            vclass = roles(:Letter)
+            assert_equal '{"title" => "what"}', vclass.prop_eval
+          end
+        end # by changing prop_eval
+        
 
         # TODO: What happens to properties for a class if kpath changes ?
       end # updating a virtual class

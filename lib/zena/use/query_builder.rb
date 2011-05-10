@@ -265,7 +265,7 @@ module Zena
             sub_context.merge!(finder[:method].opts[:zafu] || {})
           end
 
-          sub_context[:has_link_id] = query && query.select.to_s =~ / AS link_id/
+          sub_context[:has_link_id] = query && query.select_keys.include?('link_id')
 
           sub_context
         end

@@ -200,7 +200,7 @@ class VersionMig < ActiveRecord::Base
   end
 
   def migrate_dyn_attributes
-    DynAttribute.find(:all, :conditions => ["owner_table = 'versions' AND owner_id = ?", self.id]).each do |dyn|
+    DynAttribute.find(:all, :conditions => ["owner_id = ?", self.id]).each do |dyn|
       dyn.migrate(self)
     end
   end

@@ -285,6 +285,7 @@ class #{node.klass}: #{Array(node.klass).first.columns.keys.join(', ')}
           out make_link(:update => block, :action => 'update', :query_params => query_params, :method => :put)
         end
       end # ZafuMethods
+
     end # Action
   end # Use
 end # Zena

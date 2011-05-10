@@ -78,17 +78,17 @@ module Zena
         end
 
         # Return a string matching the SQLiss function.
-        def sql_function(function, key)
-          return key unless function
+        def sql_function(function, arg)
+          return arg unless function
           case function
           when 'year'
-            "year(#{key})"
+            "year(#{arg})"
           when 'month'
-            "date_format(#{key},'%Y-%m')"
+            "date_format(#{arg},'%Y-%m')"
           when 'week'
-            "date_format(#{key},'%Y-%v')"
+            "date_format(#{arg},'%Y-%v')"
           when 'day'
-            "DATE(#{key})"
+            "DATE(#{arg})"
           when 'random'
             'RAND()'
           else

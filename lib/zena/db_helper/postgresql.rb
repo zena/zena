@@ -54,8 +54,7 @@ module Zena
         end
 
         # Return a string matching the SQLiss function.
-        def sql_function(function, key)
-          return key unless function
+        def sql_function(function, arg)
           # TODO
           super
         end

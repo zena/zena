@@ -30,11 +30,19 @@
 # VirtualClass itself for real classes.
 #
 class VirtualClass < Role
-  EXPORT_ATTRIBUTES = %w{idx_class idx_scope idx_reverse_scope}
+  class << self
+    attr_accessor :export_attributes
+  end
+
+  self.export_attributes = %w{auto_create_discussion}
+
   attr_accessor :import_result
   belongs_to    :create_group, :class_name => 'Group', :foreign_key => 'create_group_id'
   validate      :valid_virtual_class
-  attr_accessible :create_group_id, :auto_create_discussion
+
+  attr_accessible *self.export_attributes
+  attr_accessible :create_group_id
+
   after_update  :propagate_kpath_change
 
   include Property::StoredSchema
@@ -249,7 +257,7 @@ class VirtualClass < Role
 
   def export
     res = super
-    EXPORT_ATTRIBUTES.each do |k|
+    self.class.export_attributes.each do |k|
       value = self[k]
       next if value.blank?
       res[k] = value

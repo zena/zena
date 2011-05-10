@@ -175,7 +175,6 @@ module Zena
             error = "<div class='error' onclick='new Effect.Fade(this)'>#{flash[:error]}</div>"
           end
 
-          flash.discard
           "<div id='flash_messages'>#{notice}#{error}</div>"
         end
       end # ViewMethods

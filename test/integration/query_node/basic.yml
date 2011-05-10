@@ -53,19 +53,19 @@ project:
 
 many_alternatives:
   src: tagged in site or images in site or tags in site
-  sql: "%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND ((nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags)) OR (nodes.kpath LIKE 'NDI%' AND links.id = 0) OR (nodes.kpath LIKE 'NPT%' AND links.id = 0)) GROUP BY nodes.id ORDER BY nodes.zip ASC}"
+  sql: "%Q{SELECT nodes.*,links.id AS `link_id`,links.status AS `l_status`,links.comment AS `l_comment`,links.date AS `l_date` FROM links,nodes WHERE #{secure_scope('nodes')} AND ((nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags)) OR (nodes.kpath LIKE 'NDI%' AND links.id = 0) OR (nodes.kpath LIKE 'NPT%' AND links.id = 0)) GROUP BY nodes.id ORDER BY nodes.zip ASC}"
 #  res: "art, bird, Clean Water project, flower, it's a lake, menu, news, opening, tree"
 
 alternatives_same_join:
   src: tagged in site or icons
-  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND ((nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags)) OR (nodes.id = links.target_id AND links.relation_id = _ID(node_has_an_icon) AND links.source_id = ?)) GROUP BY nodes.id ORDER BY nodes.zip ASC}, @node.id]"
+  sql: "[%Q{SELECT nodes.*,links.id AS `link_id`,links.status AS `l_status`,links.comment AS `l_comment`,links.date AS `l_date` FROM links,nodes WHERE #{secure_scope('nodes')} AND ((nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags)) OR (nodes.id = links.target_id AND links.relation_id = _ID(node_has_an_icon) AND links.source_id = ?)) GROUP BY nodes.id ORDER BY nodes.zip ASC}, @node.id]"
   res: "Clean Water project, it's a lake, super ouverture"
 
 same_name_as_class:
   context:
     node: 'opening'
   src: "set_tags"
-  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND nodes.id = links.target_id AND links.relation_id = _ID(node_has_tags) AND links.source_id = ? ORDER BY nodes.zip ASC}, @node.id]"
+  sql: "[%Q{SELECT nodes.*,links.id AS `link_id`,links.status AS `l_status`,links.comment AS `l_comment`,links.date AS `l_date` FROM links,nodes WHERE #{secure_scope('nodes')} AND nodes.id = links.target_id AND links.relation_id = _ID(node_has_tags) AND links.source_id = ? ORDER BY nodes.zip ASC}, @node.id]"
   res: "Art, News list"
 
 
@@ -100,19 +100,19 @@ children_with_order_clause:
 notes_or_news:
   context:
     class: Project
-  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND ((nodes.kpath LIKE 'NN%' AND nodes.parent_id = ? AND links.id = 0) OR (nodes.id = links.source_id AND links.relation_id = _ID(note_has_calendars) AND links.target_id = ?)) GROUP BY nodes.id ORDER BY nodes.zip ASC}, @node.id, @node.id]"
+  sql: "[%Q{SELECT nodes.*,links.id AS `link_id`,links.status AS `l_status`,links.comment AS `l_comment`,links.date AS `l_date` FROM links,nodes WHERE #{secure_scope('nodes')} AND ((nodes.kpath LIKE 'NN%' AND nodes.parent_id = ? AND links.id = 0) OR (nodes.id = links.source_id AND links.relation_id = _ID(note_has_calendars) AND links.target_id = ?)) GROUP BY nodes.id ORDER BY nodes.zip ASC}, @node.id, @node.id]"
 
 news_or_notes:
   context:
     class: Project
-  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND ((nodes.id = links.source_id AND links.relation_id = _ID(note_has_calendars) AND links.target_id = ?) OR (nodes.kpath LIKE 'NN%' AND nodes.parent_id = ? AND links.id = 0)) GROUP BY nodes.id ORDER BY nodes.zip ASC}, @node.id, @node.id]"
+  sql: "[%Q{SELECT nodes.*,links.id AS `link_id`,links.status AS `l_status`,links.comment AS `l_comment`,links.date AS `l_date` FROM links,nodes WHERE #{secure_scope('nodes')} AND ((nodes.id = links.source_id AND links.relation_id = _ID(note_has_calendars) AND links.target_id = ?) OR (nodes.kpath LIKE 'NN%' AND nodes.parent_id = ? AND links.id = 0)) GROUP BY nodes.id ORDER BY nodes.zip ASC}, @node.id, @node.id]"
 
 order_l_status:
   context:
     node:  art
     class: Tag
   src: "tagged order by l_status ASC, zip ASC"
-  sql: "[%Q{SELECT nodes.*,links.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes WHERE #{secure_scope('nodes')} AND nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags) AND links.target_id = ? ORDER BY links.status ASC, nodes.zip ASC}, @node.id]"
+  sql: "[%Q{SELECT nodes.*,links.id AS `link_id`,links.status AS `l_status`,links.comment AS `l_comment`,links.date AS `l_date` FROM links,nodes WHERE #{secure_scope('nodes')} AND nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags) AND links.target_id = ? ORDER BY links.status ASC, nodes.zip ASC}, @node.id]"
   res: "super ouverture, Clean Water project"
 
 order_random:
@@ -137,3 +137,7 @@ paginate_two:
   src: "nodes in site order by zip limit 2 paginate p"
   sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} ORDER BY nodes.zip LIMIT 2 OFFSET ?}, ((params[:p].to_i > 0 ? params[:p].to_i : 1)-1)*2]"
   res: "Solenopsis Invicta, Panthera Tigris Sumatran"
+
+select_index_field:
+  src: "nodes select title as ti"
+  sql: "/SELECT nodes.*,ml1.value AS `ti`/"

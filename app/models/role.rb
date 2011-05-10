@@ -123,7 +123,7 @@ class Role < ActiveRecord::Base
         end
 
         # 1. create or update attributes
-        VirtualClass::EXPORT_ATTRIBUTES.each do |key|
+        VirtualClass.export_attributes.each do |key|
           if value = definition[key]
             vclass[key] = value
           else

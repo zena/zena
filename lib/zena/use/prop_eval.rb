@@ -10,6 +10,7 @@ module Zena
               p.string 'prop_eval'
             end
           end
+          base.export_attributes += %w{prop_eval}
         end
 
         private
