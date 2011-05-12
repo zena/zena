@@ -515,7 +515,44 @@ module Zena
           else
             list = @params[:list].split(',').map{|e| e.strip}
           end
-          helper.javascript_include_tag(*list)
+
+          out helper.javascript_include_tag(*list)
+          return
+# Experimental: move all scripts at end of file
+          if list.include?('prototype')
+            list -= ['prototype']
+            out helper.javascript_include_tag('prototype')
+          end
+          return if list.empty?
+
+          list = list.map do |e|
+            "Script.load('#{helper.javascript_path(e)}');"
+          end
+          code = %Q{  var Script = {
+    _loadedScripts: [],
+    load: function(script){
+      if (this._loadedScripts.include(script)){
+        return false;
+      }
+      var code = new Ajax.Request(script, {
+        asynchronous: false, method: "GET",
+        evalJS: false, evalJSON: false
+      }).transport.responseText;
+      if (Prototype.Browser.IE) {
+        window.execScript(code);
+      } else if (Prototype.Browser.WebKit){
+        $$("head").first().insert(Object.extend(
+          new Element("script", {type: "text/javascript"}), {text: code}
+        ));
+      } else {
+        window.eval(code);
+      }
+      this._loadedScripts.push(script);
+    }
+  };
+  #{list.join("\n  ")}
+  }
+          out "<% js_data.unshift #{code.inspect} -%>"
         end
 
         # Insert stylesheet asset tags

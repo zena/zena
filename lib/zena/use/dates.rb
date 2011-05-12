@@ -341,10 +341,10 @@ module Zena
             l = visitor.site[:default_lang]
           end
 <<-EOL
-<script src="/calendar/calendar.js" type="text/javascript"></script>
-<script src="/calendar/calendar-setup.js" type="text/javascript"></script>
-<script src="/calendar/lang/calendar-#{l}-utf8.js" type="text/javascript"></script>
-<link href="/calendar/calendar-brown.css" media="screen" rel="Stylesheet" type="text/css" />
+<script src="#{helper.send(:compute_public_path, 'calendar', 'calendar', 'js')}" type="text/javascript"></script>
+<script src="#{helper.send(:compute_public_path, 'calendar-setup', 'calendar', 'js')}" type="text/javascript"></script>
+<script src="#{helper.send(:compute_public_path, "calendar-#{l}-utf8", 'calendar/lang', 'js')}" type="text/javascript"></script>
+<link href="#{helper.send(:compute_public_path, "calendar-brown", 'calendar', 'css')}" media="screen" rel="Stylesheet" type="text/css" />
 <% js_data << %Q{Calendar._TT["DEF_DATE_FORMAT"] = "#{_('datetime')}";} -%>
 <% js_data << %Q{Calendar._TT["FIRST_DAY"] = #{_('week_start_day')};} -%>
 EOL

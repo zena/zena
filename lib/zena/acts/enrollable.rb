@@ -47,6 +47,7 @@ module Zena
                   return nil
                 end
               elsif klass
+                deb "Enrollable", klass
                 unless klass = Enrollable::Common.get_class(klass.to_s)
                   return nil
                 end

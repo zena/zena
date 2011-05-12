@@ -176,6 +176,7 @@ class Site < ActiveRecord::Base
   property.string 'usr_prototype_attributes'
 
   Site.attributes_for_form[:text] << 'usr_prototype_attributes'
+  attr_accessible :usr_prototype_attributes
 
   # Return path for static/cached content served by proxy: RAILS_ROOT/sites/_host_/public
   # If you need to serve from another directory, we do not store the path into the sites table

@@ -89,6 +89,17 @@ class QueryNodeTest < Zena::Unit::TestCase
       should 'set main_class' do
         assert_equal VirtualClass['Document'], subject.main_class
       end
+      
+      context 'with core context' do
+        subject do
+          Node.build_query(:all, 'project')
+        end
+
+        should 'set main_class' do
+          assert_equal VirtualClass['Project'], subject.main_class
+        end
+      end # with core context
+      
     end # with a real class filter
 
     context 'with root' do

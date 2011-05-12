@@ -223,8 +223,7 @@ class Node < ActiveRecord::Base
                      :data_b => {:class => ['DataEntry'], :zafu => {:data_root => 'node_b'}},
                      :data_c => {:class => ['DataEntry'], :zafu => {:data_root => 'node_c'}},
                      :data_d => {:class => ['DataEntry'], :zafu => {:data_root => 'node_d'}},
-                     :traductions => ['Version'], :discussion  => 'Discussion',
-                     :project => 'Node'
+                     :traductions => ['Version'], :discussion  => 'Discussion'
 
   # we use safe_method because the columns can be null, but the values are never null
   safe_method        :kpath => String, :user_zip => Number,
@@ -1746,7 +1745,7 @@ class Node < ActiveRecord::Base
           return
         end
       end
-
+      
       if @new_klass && !new_record?
         old_kpath = self.kpath
         # Reset 'schema' and 'virtual_class'

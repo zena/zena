@@ -20,6 +20,7 @@ td { padding:5px; }
 <body do='void' name='body'>
     <div id='login_form'>
       <p class='welcome' do='link'><r:t>Login for</r:t> <b do='title'/></p>
+      <r:flash_messages/>
       <form action="/session" method="post">    <table>
           <tr>
             <td><label for='user_login' do='trans'>User name:</label></td>
