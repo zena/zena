@@ -77,6 +77,7 @@ Zena.open_window = function(url, id, event, pos_x, pos_y) {
         top:pos_y,
         width: 300,
         height:400,
+        zIndex:100,
         showEffect: Element.show, hideEffect: Element.hide,
         destroyOnClose: true
       });
