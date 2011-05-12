@@ -14,10 +14,13 @@ class UserSessionsController < ApplicationController
     User.send(:with_scope, :find => {:conditions => ['site_id = ?', visitor.site.id]}) do
       @user_session = UserSession.new(:login=>params[:login], :password=>params[:password])
       if @user_session.save
-        flash[:notice] = "Successfully logged in."
+        #flash.now[:notice] = _("Successfully logged in.")
         redirect_to  redirect_after_login
       else
-        flash[:notice] = "Invalid login or password."
+        flash[:notice] = _("Invalid login or password.")
+        # FIXME: find a better way to lock without blocking the process.
+        # Also lock longer and longer (exponentially).
+        sleep(2)
         redirect_to login_url
       end
     end
@@ -27,7 +30,7 @@ class UserSessionsController < ApplicationController
     if @user_session = UserSession.find
       @user_session.destroy
       reset_session
-      flash[:notice] = "Successfully logged out."
+      #flash.now[:notice] = _("Successfully logged out.")
       redirect_to params[:redirect] || home_path(:prefix => prefix)
     else
       redirect_to home_path(:prefix => prefix)

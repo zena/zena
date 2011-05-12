@@ -16,18 +16,13 @@ elsif upd = params[:drive]
       page.replace_html "#{upd}_errors", :inline => @errors ? render_errors : error_messages_for(:node, :object => @node)
     else
       page.replace upd, :partial => upd
-      page.replace 'flash_messages', :inline => flash_messages
+      page.replace 'flash_messages', :inline => flash_messages(:page => page)
       page.visual_effect :highlight, upd
     end
   else
     flash['error'] = "unknown 'drive' parameter #{upd.inspect}"
-    page.replace 'flash_messages', :inline => flash_messages
+    page.replace 'flash_messages', :inline => flash_messages(:page => page)
   end
 else
   update_page_content(page, @node)
 end
-
-page << %q{$$('#flash_messages .auto_fade').each(function(o) {
-  o.opacity = 100.0;
-  Effect.Fade(o, {duration: 3.0});
-});}

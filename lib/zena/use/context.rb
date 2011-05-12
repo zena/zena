@@ -143,12 +143,12 @@ module Zena
       end # ViewMethods
 
       module ZafuMethods
+        # Uses Enrollable::ZafuMethods::get_class
 
-        # Resolve class for @post ==> Post, etc.
-        def get_class(class_name)
-          VirtualClass[class_name] || super
-        rescue
-          nil
+        # Return the node context for a given class (looks up into the hierarchy) or the
+        # current node context if klass is nil.
+        def node(klass = nil)
+          super(klass && klass.kind_of?(VirtualClass) ? klass.real_class : klass)
         end
 
         # Enter a new context (<r:context find='all' select='pages'>). This is the same as '<r:pages>...</r:pages>'). It is

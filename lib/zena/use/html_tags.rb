@@ -174,7 +174,13 @@ module Zena
           if (type == 'error'  || type == 'both') && flash[:error ]
             error = "<div class='error' onclick='new Effect.Fade(this)'>#{flash[:error]}</div>"
           end
-
+          
+          if page = opts[:page]
+            page << %q{$$('#flash_messages .auto_fade').each(function(o) {
+              o.opacity = 100.0;
+              Effect.Fade(o, {duration: 3.0});
+            });}
+          end
           "<div id='flash_messages'>#{notice}#{error}</div>"
         end
       end # ViewMethods

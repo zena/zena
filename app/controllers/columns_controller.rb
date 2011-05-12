@@ -66,7 +66,7 @@ class ColumnsController < ApplicationController
 
     respond_to do |format|
       if @column.save
-        flash[:notice] = 'Column was successfully created.'
+        flash.now[:notice] = _('Column was successfully created.')
         format.html { redirect_to(@column) }
         format.js
         format.xml  { render :xml => @column, :status => :created, :location => @column }
@@ -83,7 +83,7 @@ class ColumnsController < ApplicationController
   def update
     respond_to do |format|
       if @column.update_attributes(params[:column])
-        flash[:notice] = 'Column was successfully updated.'
+        flash.now[:notice] = _('Column was successfully updated.')
         format.html { redirect_to(@column) }
         format.xml  { head :ok }
       else

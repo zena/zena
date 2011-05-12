@@ -4,7 +4,7 @@ else
   page << "try {"
   page.replace_html 'original_caution', :inline=>""
   page << "} catch(err) {}"
-  page.replace 'messages', :inline => flash_messages
+  page.replace 'messages', :inline => flash_messages(:page => page)
   page['node_v_id'].value = @node.v_id
   if flash[:notice]
     flash[:notice] = nil

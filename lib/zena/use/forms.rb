@@ -82,7 +82,8 @@ module Zena
         # Enter the context of a newly created object
         def r_new
           return parser_error("missing 'klass' parameter") unless class_name = @params[:klass]
-          return parser_error("invalid 'klass' parameter (not a Node)") unless klass = get_class(class_name)
+          return parser_error("invalid 'klass' parameter") unless klass = get_class(class_name)
+          return parser_error("invalid 'klass' parameter (not a Node)") unless klass <= Node
 
           res  = []
           keys = {:klass => 'klass'}

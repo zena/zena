@@ -189,6 +189,12 @@ class PropEvalTest < Zena::Unit::TestCase
           end
           assert_equal 'Hyperion', subject.title
         end
+        
+        should 'rebuild prop_eval on klass change' do
+          assert subject.update_attributes(:klass => 'Letter')
+          node = secure(Node) { Node.find(subject.id)}
+          assert_equal 'projects list paper:', node.search
+        end
       end # from a native class
 
     end # on a node

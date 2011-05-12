@@ -33,7 +33,7 @@ class SitesController < ApplicationController
   def update
     respond_to do |format|
       if @site.update_attributes(params[:site])
-        flash[:notice] = 'Site was successfully updated.'
+        flash.now[:notice] = _('Site was successfully updated.')
         format.html { redirect_to site_path(@site) }
         format.js
         format.xml  { head :ok }

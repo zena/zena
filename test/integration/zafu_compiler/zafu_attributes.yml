@@ -45,6 +45,10 @@ show_title_with_actions_without_prefix:
   src: "<h1 do='title' live='true' actions='all'/>"
   tem: "/class='s<%= @node.version.status %>/"
 
+show_link_with_actions:
+  src: "<h1 do='link' do='title' live='true' actions='all'/>"
+  tem: "/class='s<%= @node.version.status %>/"
+
 node_actions_status_prefix_false:
   src: "<h1 do='title' actions='all' status='false'/>"
   tem: "!/class='s<%= @node.version.status %>/"

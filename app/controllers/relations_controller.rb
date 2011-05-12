@@ -49,7 +49,7 @@ class RelationsController < ApplicationController
 
     respond_to do |format|
       if @relation.save
-        flash[:notice] = 'Relation was successfully created.'
+        flash.now[:notice] = _('Relation was successfully created.')
         format.html { redirect_to relation_url(@relation) }
         format.js
         format.xml  { render :xml => @relation, :status => :created, :location => relation_url(@relation) }
@@ -66,7 +66,7 @@ class RelationsController < ApplicationController
 
     respond_to do |format|
       if @relation.update_attributes(params[:relation])
-        flash[:notice] = 'Relation was successfully updated.'
+        flash.now[:notice] = _('Relation was successfully updated.')
         format.html { redirect_to relation_url(@relation) }
         format.js
         format.xml  { head :ok }

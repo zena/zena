@@ -15,7 +15,7 @@ class DataEntriesController < ApplicationController
 
     respond_to do |format|
       if @data_entry.errors.empty?
-        flash[:notice] = _('Data entry was successfully created.')
+        flash.now[:notice] = _('Data entry was successfully created.')
         format.html { redirect_to data_entry_url(@data_entry) }
         format.js
         format.xml  { head :created, :location => data_entry_url(@data_entry) }

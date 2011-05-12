@@ -51,13 +51,13 @@ class VirtualClassesController < ApplicationController
   def import_prepare
     attachment = params[:attachment]
     if attachment.nil?
-      flass[:error] = "Upload failure: no definitions."
+      flass[:error] = _("Upload failure: no definitions.")
       redirect_to :action => :index
     else
       @yaml = attachment.read rescue nil
       data = YAML.load(@yaml) rescue nil
       if data.nil?
-        flash[:error] = "Could not parse yaml document"
+        flash.now[:error] = "Could not parse yaml document"
         redirect_to :action => :index
       else
         @yaml.gsub!(/\A---\s*\n/, "--- \n")
@@ -82,7 +82,7 @@ class VirtualClassesController < ApplicationController
   def import
     data = YAML.load(params[:roles]) rescue nil
     if data.nil?
-      flash[:error] = "Could not parse yaml document"
+      flash.now[:error] = _("Could not parse yaml document")
       redirect_to :action => :index
     else
       @roles_backup    = clean_yaml(::Role.export)
@@ -96,10 +96,10 @@ class VirtualClassesController < ApplicationController
       end
     end
   rescue ActiveRecord::RecordInvalid => e
-    flash[:error] = "#{r.class} '#{r.name}' #{e.message}"
+    flash.now[:error] = "#{r.class} '#{r.name}' #{e.message}"
     redirect_to :action => :index
   rescue Exception => e
-    flash[:error] = e.message
+    flash.now[:error] = e.message
     redirect_to :action => :index
   end
 
@@ -138,7 +138,7 @@ class VirtualClassesController < ApplicationController
 
     respond_to do |format|
       if @virtual_class.save
-        flash[:notice] = 'VirtualClass was successfully created.'
+        flash.now[:notice] = _('VirtualClass was successfully created.')
         format.html { redirect_to virtual_class_url(@virtual_class) }
         format.js
         format.xml  { render :xml => @virtual_class, :status => :created, :location => virtual_class_url(@virtual_class) }
@@ -153,7 +153,7 @@ class VirtualClassesController < ApplicationController
   def update
     respond_to do |format|
       if @virtual_class.update_attributes(params[:virtual_class])
-        flash[:notice] = 'VirtualClass was successfully updated.'
+        flash.now[:notice] = _('VirtualClass was successfully updated.')
         format.html { redirect_to virtual_class_url(@virtual_class) }
         format.js
         format.xml  { head :ok }

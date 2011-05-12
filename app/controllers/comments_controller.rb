@@ -28,7 +28,7 @@ class CommentsController < ApplicationController
 
     respond_to do |format|
       if @comment.errors.empty?
-        flash[:notice] = _('Comment was successfully created.')
+        flash.now[:notice] = _('Comment was successfully created.')
         format.html { redirect_to zen_path(@node) } # TODO: add ':sharp => ...'
         format.js
         format.xml  { head :created, :location => comment_path(@node) }

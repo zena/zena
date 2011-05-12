@@ -191,8 +191,11 @@ module Zena
 
       module Common
         extend self
+        # Resolve class for @post ==> Post, etc. Used in Zena::Use::Context.
         def get_class(class_name)
-          VirtualClass.find_by_name(class_name)
+          VirtualClass[class_name] || Module.const_get(class_name)
+        rescue NameError => err
+          nil
         end
       end # Common
 

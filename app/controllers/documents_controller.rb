@@ -34,7 +34,7 @@ class DocumentsController < ApplicationController
       if @node.new_record?
         @node.skin_id ||= current_site.root_node.skin_id
 
-        flash[:error] = _("Upload failed.")
+        flash.now[:error] = _("Upload failed.")
         unless @node.respond_to?('target_klass')
           # Could we find another way to fake the new object as acting like a template ?
           class << @node
@@ -43,7 +43,7 @@ class DocumentsController < ApplicationController
         end
         format.html { render :action => 'new'}
       else
-        flash[:notice] = _("Upload succeeded.")
+        flash.now[:notice] = _("Upload succeeded.")
         format.html { redirect_to document_url(@node[:zip]) }
       end
     end

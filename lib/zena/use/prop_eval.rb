@@ -68,9 +68,10 @@ module Zena
           self._id = self.title if @need_set__id
         end
 
+        # Must happend after 'change_klass'
         def merge_prop_eval(force_rebuild = false)
-          return unless self[:vclass_id]
-          return unless prop.changed? || force_rebuild
+          return unless vclass_id
+          return unless force_rebuild || prop.changed? || klass_changed?
 
           if code = vclass.prop_eval
             hash = safe_eval(code)

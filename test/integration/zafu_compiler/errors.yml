@@ -97,3 +97,7 @@ datebox_on_vclass:
 bad_iconv:
   src: "<r:iconv to='foobar'>écrit</r:iconv>"
   tem: "/invalid encoding \"foobar\"/"
+
+add_bad_klass:
+  src: "<ol do='pages'><li do='each' do='link'/><li do='add' klass='page'/></ol>"
+  res: "!/backtrace/"

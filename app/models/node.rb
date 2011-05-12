@@ -113,6 +113,10 @@ class Node < ActiveRecord::Base
     end
   end
 
+  def klass_changed?
+    kpath_changed?
+  end
+
   def virtual_class=(vclass)
     @virtual_class = vclass
     self[:vclass_id] = vclass.id
@@ -174,9 +178,11 @@ class Node < ActiveRecord::Base
   belongs_to         :skin
   before_validation  :set_defaults
   before_validation  :node_before_validation
+  # We need to change class before validation so that prop_eval is triggered with
+  # the new class.
+  before_validation  :change_klass
   validate           :validate_node
   before_create      :node_before_create
-  before_save        :change_klass
   after_save         :spread_project_and_section
   after_create       :node_after_create
   attr_protected     :zip, :id, :section_id, :project_id, :publish_from, :created_at, :updated_at
@@ -634,6 +640,7 @@ class Node < ActiveRecord::Base
           sub_folder = path
           attrs      = defaults.dup
           attrs['v_lang'] ||= visitor.lang
+          attrs['klass'] = 'Page'
         elsif filename =~ /^(.+?)(\.\w\w|)(\.\d+|)\.zml$/  # bird.jpg.en.zml
           # node content in yaml
           type      = :node
@@ -652,6 +659,15 @@ class Node < ActiveRecord::Base
           lang      = $4.blank? ? nil : $4[1..-1]
           attrs['v_lang'] = lang || attrs['v_lang'] || visitor.lang
           attrs['ext']  = $3
+          document_path = path
+        else
+          # Document without extension
+          type      = :document
+          title     = filename
+          attrs     = defaults.dup
+          lang      = nil
+          attrs['v_lang'] = lang || attrs['v_lang'] || visitor.lang
+          attrs['ext']  = 'bin'
           document_path = path
         end
 
@@ -1602,6 +1618,7 @@ class Node < ActiveRecord::Base
       errors.add(:base, 'You do not have the rights to post comments.') if @add_comment && !can_comment?
 
       if @new_klass
+        # If you change this, update 'change_klass' (triggered before_validation)
         if !can_drive? || !self[:parent_id]
           errors.add('klass', 'You do not have the rights to change class.')
         else
@@ -1722,17 +1739,28 @@ class Node < ActiveRecord::Base
     end
 
     def change_klass
+      if @new_klass
+        if !can_drive? || !self[:parent_id]
+          return
+        elsif !self.class.allowed_change_to_classes.include?(@new_klass)
+          return
+        end
+      end
+
       if @new_klass && !new_record?
         old_kpath = self.kpath
-# FIXME ! (new virtual_class as schema...)
+        # Reset 'schema' and 'virtual_class'
+        @virtual_class = nil
+
         klass = Node.get_class(@new_klass)
         if klass.kind_of?(VirtualClass)
-          self[:vclass_id] = klass.kind_of?(VirtualClass) ? klass[:id] : nil
+          self[:vclass_id] = klass[:id]
           self[:type]      = klass.real_class.to_s
         else
-          self[:vclass_id] = klass.kind_of?(VirtualClass) ? klass[:id] : nil
+          self[:vclass_id] = nil
           self[:type]      = klass.to_s
         end
+
         self[:kpath] = klass.kpath
 
         if old_kpath[/^NPS/] && !self[:kpath][/^NPS/]
