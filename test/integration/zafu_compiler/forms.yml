@@ -45,11 +45,11 @@ translate_id_to_zip:
 select_class_existing_node:
   context:
     node: 'letter'
-  src: "<r:form><select name='klass' root_class='Note' selected='Post'/></r:form>"
+  src: "<r:form><r:select name='klass' root_class='Note' selected='Post'/></r:form>"
   res: "/<select name=.node\[klass\].><option value=\"Note\">Note<\/option>\n<option value=\"Letter\" selected=\"selected\">  Letter<\/option>\n<option value=\"Post\">  Post<\/option><\/select>/"
 
 select_class_new_node:
-  src: "<r:pages><r:each/><r:add/><r:form><select name='klass' root_class='Note' selected='Post'/></r:form>"
+  src: "<r:pages><r:each/><r:add/><r:form><r:select name='klass' root_class='Note' selected='Post'/></r:form>"
   res: "/<select.*name=.node\[klass\].*Note.*Letter.*Post. selected=.selected./"
 
 select_class_kpath:
@@ -227,8 +227,13 @@ label_on_select:
 
 passiv_form:
   # Should not transform 'form' or 'input' into 'r:form' or 'r:input'
-  src: "<form>xxx<input name='x' id='y' type='text'/></form>"
-  tem: "<form>xxx<input name='x' id='y' type='text'/></form>"
+  src: "<form>xxx<input name='x' id='y' type='text'/> yyy<input name='x' id='y' type='text' value='#{id}'/></form>"
+  tem: "<form>xxx<input name='x' id='y' type='text'/> yyy<input name='x' id='y' type='text' value='<%= @node.zip %>'/></form>"
+
+passiv_input_in_form:
+  # Should not transform 'form' or 'input' into 'r:form' or 'r:input'
+  src: "<r:form>xxx<input name='x' id='y' type='text'/> yyy<input name='x' id='y' type='text' value='#{id}'/></r:form>"
+  tem: "/yyy<input name='x' id='y' type='text' value='<%= @node.zip %>'/>/"
 
 param_on_select:
   src: "<r:select param='q[contact.status]' values='0,-5,-10' tshow='active, being registered, inactive'/>"

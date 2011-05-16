@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2011-05-11}
+  s.date = %q{2011-05-16}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -301,7 +301,6 @@ Gem::Specification.new do |s|
     "bricks/sphinx/zena/deploy.rb",
     "bricks/sphinx/zena/init.rb",
     "bricks/sphinx/zena/migrate/20091102171258_add_delta_for_sphinx.rb",
-    "bricks/sphinx/zena/sphinx.yml",
     "bricks/sphinx/zena/tasks.rb",
     "bricks/tags/README",
     "bricks/tags/lib/bricks/tags.rb",
@@ -449,12 +448,15 @@ Gem::Specification.new do |s|
     "db/init/base/skins/default/Node-+notFound.zafu",
     "db/init/base/skins/default/Node-+popupLayout.zafu",
     "db/init/base/skins/default/Node-+search.zafu",
+    "db/init/base/skins/default/Node-admin.zafu",
     "db/init/base/skins/default/Node-tree.zafu",
     "db/init/base/skins/default/Node.zafu",
     "db/init/base/skins/default/Project.zafu",
-    "db/init/base/skins/default/favicon.png",
+    "db/init/base/skins/default/img/admin.css",
+    "db/init/base/skins/default/img/favicon.png",
+    "db/init/base/skins/default/img/style.css",
+    "db/init/base/skins/default/img/translations.yml",
     "db/init/base/skins/default/notes.zafu",
-    "db/init/base/skins/default/style.css",
     "doc/README_FOR_APP",
     "doc/fixtures.graffle",
     "doc/fixtures.pdf",

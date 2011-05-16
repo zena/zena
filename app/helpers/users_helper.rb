@@ -5,7 +5,7 @@ module UsersHelper
     begin
       @node = @user.node || visitor.prototype
       begin
-        res =render :file => template_url(:mode => '+user', :format => 'html')
+        res = render :file => template_url(:mode => '+user', :format => 'html')
       rescue ActiveRecord::RecordNotFound
         res = render :file => 'versions/custom_tab'
       end

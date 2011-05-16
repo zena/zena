@@ -273,16 +273,31 @@ Node_search_zafu:
   class:           Template
   parent:          default
 
+img:
+  class:           Page
+  parent:          default
+  v_lang:          en
+  v_prop:
+    title:         img
+
 style_css:
   zip:             53
   class:           TextDocument
-  parent:          default
+  parent:          img
+
+admin_css:
+  class:           TextDocument
+  parent:          img
 
 Node_zafu:
   class:           Template
   parent:          default
 
 Node_admin_layout_zafu:
+  class:           Template
+  parent:          default
+
+Node_admin_zafu:
   class:           Template
   parent:          default
 
@@ -316,4 +331,4 @@ Node_login_zafu:
 
 translations:
   class:           TextDocument
-  parent:          default
+  parent:          img

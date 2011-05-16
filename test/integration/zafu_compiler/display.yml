@@ -351,3 +351,7 @@ date_with_set_var:
     ref_date: '2011-04-22'
   src: "<r:Post? set_date='parse_date(\"2011-04-03\")'><r:date format='%e'/>,<p do='this.date' format='%e'/><p do='date' format='%e'/></r:Post?>"
   res: ' 3,<p>15</p><p> 3</p>'
+
+short_path:
+  src: "<r:short_path do='join(\" / \")'/>"
+  res: ".. / Clean Water project / status title"

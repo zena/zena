@@ -35,7 +35,6 @@ class Template < TextDocument
 
   attr_protected    :tkpath
   validate          :validate_section, :validate_target_klass
-  before_validation :template_content_before_validation
 
   # Class Methods
   class << self
@@ -76,13 +75,15 @@ class Template < TextDocument
   private
 
     def set_defaults
+      prop['mode']  = nil if prop['mode' ].blank?
+      prop['target_klass'] = nil if prop['target_klass'].blank?
       super
 
       # Force template extension to zafu
-      self.ext = 'zafu'
+      prop['ext'] = 'zafu'
 
       # Force template content-type to 'text/zafu'
-      self.content_type = 'text/zafu'
+      prop['content_type'] = 'text/zafu'
 
       if prop.title_changed?
         if title =~ /^([A-Z][a-zA-Z]+?)(-(([a-zA-Z_\+]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/
@@ -157,17 +158,6 @@ END_TXT
     def validate_target_klass
       if prop.target_klass_changed?
         rebuild_tkpath
-      end
-    end
-
-    def template_content_before_validation
-      prop['mode']  = nil if prop['mode' ].blank?
-      prop['target_klass'] = nil if prop['target_klass'].blank?
-      unless prop['target_klass']
-        # this template is not meant to be accessed directly (partial used for inclusion)
-        prop['tkpath'] = nil
-        prop['mode']   = nil
-        prop['format'] = nil
       end
     end
 end

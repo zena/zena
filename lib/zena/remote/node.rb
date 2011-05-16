@@ -10,10 +10,6 @@ module Zena
         self.attributes = hash
       end
 
-      def to_xml(*args)
-        deb args
-      end
-
       def attributes=(new_attributes)
         raise Exception.new("Invalid attributes. Expecting a hash, found #{new_attributes.inspect}") unless new_attributes.kind_of?(Hash)
         new_attributes.stringify_keys.each do |key, value|

@@ -298,6 +298,5 @@ module Syntax
       end
     end
   end # PseudoSqlTokenizer
-  SYNTAX['pseudo_sql'] = PseudoSqlTokenizer
   SYNTAX['sqliss'] = PseudoSqlTokenizer
 end # Syntax

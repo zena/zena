@@ -361,8 +361,6 @@ Zena.Div_editor.prototype = {
     y : 0,
     w : 0,
     h : 0,
-    offsetx : 0,
-    offsety : 0,
     startx: 0,
     starty: 0,
     fullw : 0,
@@ -377,18 +375,16 @@ Zena.Div_editor.prototype = {
   zoom : 1.0,
   BORDER_WIDTH : 10,
   BORDER_COLOR : 'black',
-  MARGIN: 40,
-  initialize: function(img_name, x_name, y_name, w_name, h_name, azoom, left_pos, top_pos) {
+  MARGIN: 20,
+  initialize: function(img_name, x_name, y_name, w_name, h_name, azoom) {
     var img      = $(img_name);
-    var img_pos  = Position.positionedOffset(img);
     this.flds.x = $(x_name);
     this.flds.y = $(y_name);
     this.flds.w = $(w_name);
     this.flds.h = $(h_name);
     this.zoom  = azoom;
 
-    this.pos.offsetx = left_pos + this.MARGIN;
-    this.pos.offsety = top_pos  + this.MARGIN;
+    this.pos.img_name = img_name;
     this.pos.fullw = img.width;
     this.pos.fullh = img.height;
 
@@ -397,11 +393,10 @@ Zena.Div_editor.prototype = {
     Element.setStyle(this.clone, {
       width:  (2 * this.MARGIN + this.pos.fullw) + 'px',
       height: (2 * this.MARGIN + this.pos.fullh) + 'px',
-      background: 'grey url(' + img.src + ') no-repeat ' + this.MARGIN + 'px ' + this.MARGIN + 'px',
-      position: 'absolute',
-      left: this.pos.offsetx - this.MARGIN + 'px',
-      top:  this.pos.offsety - this.MARGIN + 'px'
+      background: '#777 url(' + img.src + ') no-repeat ' + this.MARGIN + 'px ' + this.MARGIN + 'px',
+      position: 'relative',
     });
+    this.clone.id = img_name;
     // register callbacks
     this.clone.onmousedown = this.update_position.bindAsEventListener(this);
     this.clone.onmouseup   = this.end_move.bindAsEventListener(this);
@@ -423,8 +418,9 @@ Zena.Div_editor.prototype = {
     this.pos.w = img.width;
     this.pos.h = img.height;
     this.update_sizes();
-    img.parentNode.appendChild(this.clone);
-    img.parentNode.removeChild(img);
+    var parent = img.parentNode;
+    parent.removeChild(img);
+    parent.appendChild(this.clone);
     this.clone.appendChild(this.mark);
   },
   update_from_inputs : function(event) {
@@ -449,6 +445,11 @@ Zena.Div_editor.prototype = {
     });
   },
   update_position: function(event) {
+    if (this.pos.offsetx == undefined) {
+      var img_pos = Element.viewportOffset($(this.pos.img_name));
+      this.pos.offsetx = img_pos.left + this.MARGIN;
+      this.pos.offsety = img_pos.top  + this.MARGIN;
+    }
     var posx = Math.max(0,Event.pointerX(event) - this.pos.offsetx);
     var posy = Math.max(0,Event.pointerY(event) - this.pos.offsety);
     if (!this.moving) {

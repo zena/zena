@@ -571,7 +571,7 @@ Node_search_zafu_en:
   node:            Node_search_zafu
   user:            tiger
   prop:
-    text:          "[FILE:app/views/zafu/default/Node-+search.zafu]"
+    text:          "[FILE:db/init/base/skins/default/Node-+search.zafu]"
     format:        html
     tkpath:        N
     mode:          "+search"
@@ -581,32 +581,59 @@ style_css_en:
   node:            style_css
   user:            tiger
   prop:
-    text:          "[FILE:db/init/base/skins/default/style.css]"
+    text:          "[FILE:db/init/base/skins/default/img/style.css]"
     title:         style
     content_type:  text/css
     ext:           css
     size:          5262
 
+admin_css_en:
+  node:            admin_css
+  user:            tiger
+  prop:
+    text:          "[FILE:db/init/base/skins/default/img/admin.css]"
+    title:         admin
+    content_type:  text/css
+    ext:           css
+    size:          1
+
 Node_zafu_en:
   node:            Node_zafu
   user:            tiger
   prop:
-    text:          "[FILE:app/views/zafu/default/Node.zafu]"
+    text:          "[FILE:db/init/base/skins/default/Node.zafu]"
     title:         Node
     format:        html
     tkpath:        N
     target_klass:  Node
+    content_type:  text/zafu
+    ext:           zafu
 
 Node_admin_layout_zafu_en:
   node:            Node_admin_layout_zafu
   user:            tiger
   prop:
-    text:          "[FILE:app/views/zafu/default/Node-+adminLayout.zafu]"
+    text:          "[FILE:db/init/base/skins/default/Node-+adminLayout.zafu]"
     title:         Node-+adminLayout
     format:        html
     tkpath:        N
     mode:          "+adminLayout"
     target_klass:  Node
+    content_type:  text/zafu
+    ext:           zafu
+
+Node_admin_zafu_en:
+  node:            Node_admin_zafu
+  user:            tiger
+  prop:
+    text:          "[FILE:db/init/base/skins/default/Node-admin.zafu]"
+    title:         Node-admin
+    format:        html
+    tkpath:        N
+    mode:          admin
+    target_klass:  Node
+    content_type:  text/zafu
+    ext:           zafu
 
 Node_index_zafu_en:
   node:            Node_index_zafu
@@ -618,28 +645,34 @@ Node_index_zafu_en:
     tkpath:        N
     mode:          "+index"
     target_klass:  Node
+    content_type:  text/zafu
+    ext:           zafu
 
 Node_not_found_zafu_en:
   node:            Node_not_found_zafu
   user:            tiger
   prop:
-    text:          "[FILE:app/views/zafu/default/Node-+notFound.zafu]"
+    text:          "[FILE:db/init/base/skins/default/Node-+notFound.zafu]"
     title:         Node-+notFound
     format:        html
     tkpath:        N
     mode:          "+notFound"
     target_klass:  Node
+    content_type:  text/zafu
+    ext:           zafu
 
 Node_popup_layout_zafu_en:
   node:            Node_popup_layout_zafu
   user:            tiger
   prop:
-    text:          "[FILE:app/views/zafu/default/Node-+popupLayout.zafu]"
+    text:          "[FILE:db/init/base/skins/default/Node-+popupLayout.zafu]"
     title:         Node-+popupLayout
     format:        html
     tkpath:        N
     mode:          "+popupLayout"
     target_klass:  Node
+    content_type:  text/zafu
+    ext:           zafu
 
 Node_test_en:
   node:            Node_test_zafu
@@ -651,6 +684,8 @@ Node_test_en:
     tkpath:        N
     mode:          test
     target_klass:  Node
+    content_type:  text/zafu
+    ext:           zafu
 
 notes_zafu_en:
   node:            notes_zafu
@@ -659,6 +694,8 @@ notes_zafu_en:
     text:          "[FILE:db/init/base/skins/default/notes.zafu]"
     title:         notes
     format:        html
+    content_type:  text/zafu
+    ext:           zafu
 
 Project_zafu_en:
   node:            Project_zafu
@@ -669,17 +706,21 @@ Project_zafu_en:
     format:        html
     tkpath:        NPP
     target_klass:  Project
+    content_type:  text/zafu
+    ext:           zafu
 
 Node_login_zafu_en:
   node:            Node_login_zafu
   user:            tiger
   prop:
-    text:          "[FILE:app/views/zafu/default/Node-+login.zafu]"
+    text:          "[FILE:db/init/base/skins/default/Node-+login.zafu]"
     title:         Node-+login
     format:        html
     tkpath:        N
     mode:          "+login"
     target_klass:  Node
+    content_type:  text/zafu
+    ext:           zafu
 
 translations_de:
   node:            translations

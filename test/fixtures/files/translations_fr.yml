@@ -7,3 +7,14 @@ translations:
   lang_en: anglais
   mean: "<%= 5 + 8 %>"
   mean_m: "<"
+  # admin
+  add_object: "<img src='/images/add.png' title='add a new object'/> add object"
+  upload_document: "<img src='/images/add.png' title='upload a new document'/> upload document"
+  view_live: "view live <img src='/images/bullet_go.png'/>"
+  page: page
+  records: enregistrements
+  root_node: racine
+  not_found: sans
+  crop: rogner
+  no_parent: pas de parent
+  admin_interface: interface admin

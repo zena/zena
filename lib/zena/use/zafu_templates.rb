@@ -155,6 +155,7 @@ module Zena
         # Return the template path without '.erb' extension in case we need to append '_form'
         # from a template's url. The expected url is of the form '/skin/Klass-mode/partial'
         def template_path_from_template_url(template_url=params[:t_url])
+          raise "Missing template_url (t_url parameter)" unless template_url
           if template_url =~ /\A\.|[^ #{String::ALLOWED_CHARS_IN_FILEPATH}]/
             raise Zena::AccessViolation.new("'template_url' contains illegal characters : #{template_url.inspect}")
           end
@@ -433,7 +434,7 @@ module Zena
             if insert_dev
               # add template edit buttons
               if res =~ /<\/body>/
-                res.sub!('</body>', "#{dev_box}<%= render_js %></body>")
+                res.sub!('</body>', "#{dev_box(template)}<%= render_js %></body>")
               else
                 res << dev_box
               end
@@ -456,7 +457,7 @@ module Zena
             end
           end
 
-          def dev_box
+          def dev_box(template = nil)
             used_nodes = self.asset_cache.used_assets
 
             res = "<div id='dev'><ul>\n"
@@ -464,6 +465,19 @@ module Zena
               next if nodes.empty?
               res << "  <li><a class='group' onclick='$(\"dev_#{name}\").toggle();' href='#'>#{name}</a>\n"
               res << "  <table class='dev_pop' id='dev_#{name}'#{name == 'images' ? " style='display:none;'" : ''}>\n"
+              if template && name == 'zafu'
+                # Create specialized template on the fly for current page
+                res << %Q{<tr><td colspan='2'><% if @node.kpath != #{template.tkpath.inspect} -%>
+  <% _znode_dev = ::Template.new(:title => @node.klass, :parent_id => #{@skin.zip}) %>
+  <% form_for(:node, _znode_dev, :url => nodes_path, :html => {:method => 'post', :id => 'zmake_template'}) do |f| %>
+    <%= f.hidden_field(:parent_id) %>
+    <%= f.hidden_field(:title) %>
+    <%= f.hidden_field(:klass) %>
+    <input type='hidden' name='redir' value='<%= request.path %>?rebuild=true'/>
+    <b><a href='javascript:' onclick='$("zmake_template").submit();return false;'><img src='/images/add.png' title='create template for <%= @node.klass %>'/> create <%= @node.klass %>.zafu</a></b>
+  <% end %>
+<% end -%></td></tr>}
+              end
               nodes.each do |path, node|
                 res << "    <tr><td class='actions'>#{zafu_helper.send(:node_actions, node)}</td><td>&nbsp;#{zafu_helper.send(:link_to, path.join('/'), zen_path(node))}</td></tr>\n"
               end

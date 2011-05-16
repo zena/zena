@@ -562,13 +562,7 @@ module Zena
               hash_params << ":dom_id => insert_dom_id"
               hash_params << ":t_url  => %Q{#{template_url(target.name)}}"
             else # drop, swap
-              if target.context && target.node
-                # target loaded
-                dom_name = target.node.dom_prefix
-              else
-                # hack until we find a way to prebuild the target....
-                dom_name = target.name
-              end
+              dom_name = target.name
               hash_params << ":dom_id => %Q{#{dom_name}}"
               hash_params << ":t_url  => %Q{#{template_url(dom_name)}}"
             end

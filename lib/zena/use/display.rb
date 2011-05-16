@@ -255,28 +255,28 @@ module Zena
             link_to_with_state(_('preferences'), preferences_user_path(visitor[:id]))
           when 'comments'
             return nil unless visitor.is_admin?
-            link_to_with_state(_('manage comments'), comments_path)
+            link_to_with_state(_('comments'), comments_path)
           when 'users'
             return nil unless visitor.is_admin?
-            link_to_with_state(_('manage users'), users_path)
+            link_to_with_state(_('users'), users_path)
           when 'groups'
             return nil unless visitor.is_admin?
-            link_to_with_state(_('manage groups'), groups_path)
+            link_to_with_state(_('groups'), groups_path)
           when 'relations'
             return nil unless visitor.is_admin?
-            link_to_with_state(_('manage relations'), relations_path)
+            link_to_with_state(_('relations'), relations_path)
           when 'virtual_classes'
             return nil unless visitor.is_admin?
-            link_to_with_state(_('manage classes'), virtual_classes_path)
+            link_to_with_state(_('classes'), virtual_classes_path)
           when 'properties'
             return nil unless visitor.is_admin?
-            link_to_with_state(_('manage properties'), columns_path)
+            link_to_with_state(_('properties'), columns_path)
           when 'iformats'
             return nil unless visitor.is_admin?
             link_to_with_state(_('image formats'), iformats_path)
           when 'sites'
             return nil unless visitor.is_admin?
-            link_to_with_state(_('manage sites'), sites_path)
+            link_to_with_state(_('sites'), sites_path)
           when 'dev'
             return nil unless visitor.is_admin?
             if visitor.dev_skin_id

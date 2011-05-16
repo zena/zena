@@ -35,6 +35,10 @@ at_code:
   tem: "<%= zazen(\"Try this: @ruby|puts 'Hello'@ or this @zafu|<r:link/>@\") %>"
   res: "<p>Try this: <code class='ruby'><span class=\"ident\">puts</span> <span class=\"punct\">'</span><span class=\"string\">Hello</span><span class=\"punct\">'</span></code> or this <code class='zafu'><span class=\"tag\">&lt;r:</span><span class=\"ztag\">link</span><span class=\"tag\">/&gt;</span></code></p>"
 
+code_sqliss:
+  tem: "<%= zazen('foo: @sqliss|contact in project@.') %>"
+  res: "./<span class=\"context\">in</span>/"
+
 spaces_on_first_lines:
   tem: "<%= zazen(\"This is a normal paragraphe. There are many phrases in this paragraphe and a forced line break\nhere. End of first paragraphe.\n\n This second paragraphe\n is space preserving\n la la           la la.\") %>"
   res: "<p>This is a normal paragraphe. There are many phrases in this paragraphe and a forced line break\n<br/>here. End of first paragraphe.</p>\n\n\n<pre>This second paragraphe\nis space preserving\nla la           la la.</pre>"

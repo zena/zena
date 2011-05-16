@@ -17,7 +17,8 @@ module Zena
     # and it should be included *before* these two modules.
     module Workflow
       include RubyLess
-      safe_method :can_edit? => Boolean, :can_write? => Boolean, :can_drive? => Boolean
+      safe_method :can_edit? => Boolean, :can_write? => Boolean, :can_drive? => Boolean,
+                  :can_publish? => Boolean, :can_refuse? => Boolean, :can_unpublish? => Boolean
 
       WORKFLOW_ATTRIBUTES = %w{status publish_from}
       # The Workflow::VersionMethods module should be included in the model used as version.

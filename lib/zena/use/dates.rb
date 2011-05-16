@@ -136,18 +136,18 @@ module Zena
           else
             fld = "<input id='#{opts[:id]}' name='node[#{name}]' type='text' value='#{value}' class='#{opts[:class]}'/>"
           end
-      		<<-EOL
-      <span class="date_box"><img src="/calendar/iconCalendar.gif" id="#{opts[:button]}" alt='#{_('date selection')}'/>
-      #{fld}
-      	<script type="text/javascript">
-          Calendar.setup({
+
+          js_data << %Q{Calendar.setup({
               inputField  : "#{opts[:id]}",      // id of the input field
               button      : "#{opts[:button]}",  // trigger for the calendar (button ID)
               singleClick : true,
               showsTime   : #{showsTime},
               ifFormat    : '#{dateFormat}'
-          });
-      </script></span>
+          });}
+
+      		<<-EOL
+      <span class="date_box"><img src="/calendar/iconCalendar.gif" id="#{opts[:button]}" alt='#{_('date selection')}'/>
+      #{fld}</span>
       		EOL
       	end
       end
