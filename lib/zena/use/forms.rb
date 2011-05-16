@@ -696,6 +696,17 @@ module Zena
           @html_tag_params.merge!(id_hash)
           out render_html_tag(res)
 =end
+
+        def r_crop
+          return parser_error("Invalid node type #{node.klass} (should be an Image).") unless node.will_be?(Image)
+          @markup.tag ||= 'div'
+          set_dom_prefix
+          @markup.set_id(node.dom_id(:list => false))
+          dom = node.dom_id(:erb => false, :list => false)
+          out %Q{<%= render :partial => 'documents/crop', :locals => {:node => #{node(Node)}, :img_id => "img#{dom}"} %>}
+          out %Q{<% js_data << %Q{new Zena.Div_editor("img#{dom}", 'posx', 'posy', 'width', 'height', \#{#{node}.width / #{node}.width(Iformat['edit']).to_f}, Element.viewportOffset('#{dom}').left, Element.viewportOffset('#{dom}').top);} %>}
+        end
+
         protected
 
           # Get current attribute in forms

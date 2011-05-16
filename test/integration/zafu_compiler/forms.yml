@@ -233,3 +233,10 @@ passiv_form:
 param_on_select:
   src: "<r:select param='q[contact.status]' values='0,-5,-10' tshow='active, being registered, inactive'/>"
   res: "<select name='q[contact.status]'><option value=\"0\">active</option>\n<option value=\"-5\">being registered</option>\n<option value=\"-10\">inactive</option></select>"
+
+crop:
+  context:
+    node: 'bird_jpg'
+  src: "<r:Image? do='crop'/>"
+  res: "/node\[crop\]\[h\]/"
+  js: '/Zena.Div_editor\("imglist1"/'
