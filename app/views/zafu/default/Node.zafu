@@ -1,13 +1,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="#{v_lang}" xml:lang='en'>
+<html xmlns="http://www.w3.org/1999/xhtml" do='void' lang="#{v.lang}" xml:lang='en'>
 <head do='void' name='head'>
   <title do='title_for_layout' do='show' attr='title' name='page_title'>page title</title>
   <link href='favicon_tiny.png' rel='shortcut icon' type='image/png' />
   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
   <r:void name='stylesheets'>
     <r:stylesheets media='all'/>
-    <r:stylesheets media='all' list='default'/>
+    <link href="img/style.css" rel="Stylesheet" type="text/css"/>
   </r:void>
 
   <r:javascripts/>
@@ -18,7 +18,7 @@
   <div id='top' do='root' do='link'/>
   <div id='header'>
     <div id='login' do='login_link'/>
-    <div id='visitor' do='visitor_link'/>
+    <div id='visitor'><r:visitor_link/> <r:if test='can_edit?' do='link' mode='admin' do='t'>btn_edit</r:if></div>
     <div id='search' do='search_box' type='search'/>
     <ol id='menu' do='root' do='pages'>
       <li do='each' on_if='is_ancestor?(main)' do='link'/>
@@ -34,8 +34,8 @@
           <li class='inline_form' do='form'>
             <ol>
               <li><r:select name='klass' root_class='Page'/></li>
-              <li><input type='text' name='title' value=''/></li>
-              <li class='validate'><input type="submit" value='#{trans("validate")'/></li>
+              <li><r:input type='text' name='title' value=''/></li>
+              <li class='validate'><r:input type="submit" value='#{trans("validate")'/></li>
             </ol>
           </li>
         </ol>
@@ -49,7 +49,7 @@
       <div id='related'>
         <r:documents name='documents'><h3 do='trans'>documents</h3>
           <ol>
-            <li do='each' do='if' test='can_write?'>
+            <li do='each' do='if' eval='can_write?'>
               <r:link><r:img mode='tiny'/> <r:show attr='title'/>.<r:show attr='ext'/></r:link>
               <r:else>
                 <r:link format='data'><r:img mode='tiny'/> <r:show attr='title'/>.<r:show attr='ext'/></r:link>
@@ -64,8 +64,8 @@
             <li do='add' before='self'/>
             <li class='inline_form' do='form'>
               <p class='node_klass'>  <r:select name='klass' root_class='Page'/></p>
-              <p class='node_title'><input type='text' name='title' value=''/></p>
-              <p class='btn_validate'><input type="submit" value='#{trans("validate")}'/></p>
+              <p class='node_title'><r:input type='text' name='title' value=''/></p>
+              <p class='btn_validate'><r:input type="submit" value='#{trans("validate")}'/></p>
             </li>
           </ol>
         </r:pages>
@@ -75,8 +75,8 @@
             <li do='add' before='self'/>
             <li class='inline_form' do='form'>
               <p class='node_klass'>  <r:select name='klass' root_class='Node'/></p>
-              <p class='node_title'><input type='text' name='title' value=''/></p>
-              <p class='btn_validate'><input type="submit" value='#{trans("validate")}'/></p>
+              <p class='node_title'><r:input type='text' name='title' value=''/></p>
+              <p class='btn_validate'><r:input type="submit" value='#{trans("validate")}'/></p>
             </li>
           </ol>
         </r:nodes>

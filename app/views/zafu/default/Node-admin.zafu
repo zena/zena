@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <r:if test='visitor.is_anon?' do='not_found'/>
-<html xmlns='http://www.w3.org/1999/xhtml' lang='#{v.lang}' xml:lang='en' do='load' dictionary='translations'>
+<html xmlns='http://www.w3.org/1999/xhtml' lang='#{v.lang}' xml:lang='en'>
 <head do='void' name='head'>
   <title do='title_for_layout' do='show' attr='title' name='page_title'>page title</title>
   <!-- link href='favicon.png' rel='shortcut icon' type='image/png' / -->
@@ -101,31 +101,13 @@
 
       <div id='browser'>
         <div class='wrap'>
-          <div id='query'>
-            <div class='search' do='filter' live='true'>
-              <r:input param='qb'/>
-            </div>
-            <div id='qb_list' do='block' do='query' default='nodes in site limit 30 paginate p' select='#{params[:qb] || "nodes in site"} limit 30 paginate p' set_ref='this'>
-              <div class='pages'><r:t>page</r:t>: <r:link page='list' page_count='6' update='qb_list' encode_params='k,f,qb'/> (<r:count/> <r:t>records</r:t>)</div>
-              <ul>
-                <r:include template='Node-admin' part='elem' method='void'/>
-              </ul>
-              <r:elsif test='query_errors'>
-                <div class='pages error' do='query_errors'/>
-              </r:elsif>
-              <r:else>
-                <div class='pages' do='t'>not_found</div>
-                <ul></ul>
-              </r:else>
-            </div>
-          </div> <!-- #query -->
           <div id='parents'>
             <div class='search' do='filter' live='true'>
-              <r:input param='f'/>
+              <input type='text' name='f'/>
               <r:select param='k' root_class='Node' attr='kpath'/>
             </div>
             <div id='par_list' do='block' do='children where kpath like "#{params[:k]}%" and title like "%#{params[:f]}%" from parent from parent limit 30 paginate p' set_ref='parent'>
-              <div class='pages'><r:t>page</r:t>: <r:link page='list' page_count='6' update='par_list' encode_params='k,f,qb'/> (<r:count/> <r:t>records</r:t>)</div>
+              <div class='pages'><r:t>page</r:t>: <r:link page='list' page_count='6' update='par_list' encode_params='f'/> (<r:count/> <r:t>records</r:t>)</div>
               <ul>
                 <li do='each' alt_class='stripe' on_if='id == ref.id' name='elem'>
                   <r:Image?>
@@ -134,7 +116,7 @@
                       <img src='#{vclass.icon || "/images/brick.png"}'/>
                     </r:else>
                   </r:Image?>
-                  <r:link mode='admin' encode_params='k,f,qb'>
+                  <r:link mode='admin'>
                     <span class='id' do='id'/>
                     <r:Document?>
                       <r:show text='#{title.limit(14)}.#{ext}'/>
@@ -147,7 +129,7 @@
                 <!-- no grand-parent -->
                 <div class='pages'><r:if test='!parent_id'><r:t>root_node</r:t><r:else do='t'>not_found</r:else></r:if></div>
                 <ul>
-                  <r:include template='Node-admin' part='elem' method='void'/>
+                  <r:include template='$default/Node-admin' part='elem' method='void'/>
                 </ul>
                 <r:else><!-- no parent -->
                   <div class='pages' do='t'>no_parent</div>
@@ -159,32 +141,32 @@
           </div> <!-- #parents -->
           <div id='siblings'>
             <div class='search' do='filter' live='true'>
-              <r:input param='f'/>
+              <input type='text' name='f'/>
               <r:select param='k' root_class='Node' attr='kpath'/>
             </div>
             <div id='sib_list' do='block' do='children where kpath like "#{params[:k]}%" and title like "%#{params[:f]}%" from parent limit 30 paginate p' set_ref='this'>
-              <div class='pages'><r:t>page</r:t>: <r:link page='list' page_count='6' update='sib_list' encode_params='k,f,qb'/> (<r:count/> <r:t>records</r:t>)</div>
+              <div class='pages'><r:t>page</r:t>: <r:link page='list' page_count='6' update='sib_list' encode_params='f'/> (<r:count/> <r:t>records</r:t>)</div>
               <ul>
-                <r:include template='Node-admin' part='elem' method='void'/>
+                <r:include template='$default/Node-admin' part='elem' method='void'/>
               </ul>
               <r:else>
                 <!-- no parent, just show self -->
                 <div class='pages'><r:if test='!parent_id'><r:t>root_node</r:t><r:else do='t'>not_found</r:else></r:if></div>
                 <ul>
-                  <r:include template='Node-admin' part='elem' method='void'/>
+                  <r:include template='$default/Node-admin' part='elem' method='void'/>
                 </ul>
               </r:else>
             </div>
           </div> <!-- #siblings -->
           <div id='children'>
             <div class='search' do='filter' live='true'>
-              <r:input param='f'/>
+              <input type='text' name='f'/>
               <r:select param='k' root_class='Node' attr='kpath'/>
             </div>
             <div id='ch_list' do='block' do='children where kpath like "#{params[:k]}%" and title like "%#{params[:f]}%" limit 30 paginate p'>
-              <div class='pages'><r:t>page</r:t>: <r:link page='list' page_count='6' update='ch_list' encode_params='k,f,qb'/> (<r:count/> <r:t>records</r:t>)</div>
+              <div class='pages'><r:t>page</r:t>: <r:link page='list' page_count='6' update='ch_list' encode_params='f'/> (<r:count/> <r:t>records</r:t>)</div>
               <ul>
-                <r:each set_ref='main' do='include' template='Node-admin' part='elem' method='void'/>
+                <r:each set_ref='main' do='include' template='$default/Node-admin' part='elem' method='void'/>
                 <li class='add' do='add' do='t'>add_object</li>
                 <li class='add_doc' do='add_document' do='t'>upload_document</li>
                 <li do='form'><r:select name='klass' root_class='Node'/> <r:input name='title'/> <r:input type='submit'/></li>
