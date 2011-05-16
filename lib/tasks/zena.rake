@@ -112,7 +112,7 @@ namespace :zena do
     end
   end
 
-  desc "Create a new site, parameters are PASSWORD, HOST, LANG"
+  desc "Create a new site, parameters are PASSWORD, HOST, HOST_LANG"
   task :mksite => :environment do
     # 0. set host name
     unless host = ENV['HOST']
@@ -121,18 +121,18 @@ namespace :zena do
       unless pass = ENV['PASSWORD']
         puts "Please set PASSWORD to the admin password for the new site. Aborting."
       else
-        ENV['LANG'] ||= 'en'
+        ENV['HOST_LANG'] ||= 'en'
         host_path = "#{SITES_ROOT}/#{host}"
         if Site.find_by_host(host)
           puts "Host already exists in the database. Aborting."
         else
-          site = Site.create_for_host(host, pass, :default_lang => ENV['LANG'])
+          site = Site.create_for_host(host, pass, :default_lang => ENV['HOST_LANG'])
           if site.new_record?
             puts "Could not create site ! Errors:"
             site.errors.each do |k,v|
               puts "[#{k}] #{v}"
             end
-            puts "Aborting."
+            raise "Aborting."
           else
             # 1. create directories and symlinks
             `rake zena:mksymlinks HOST=#{host.inspect}`
@@ -521,15 +521,15 @@ namespace :zena do
     # FIXME: how to run sub-task
     ENV['RAILS_ENV'] = RAILS_ENV || 'production'
     ENV['HOST']      ||= 'localhost'
-    ENV['LANG']        = ENV['LANG'].to_s
-    ENV['LANG']        = 'en' if ENV['LANG'].empty?
+    ENV['HOST_LANG']   = ENV['HOST_LANG'].to_s
+    ENV['HOST_LANG']   = 'en' if ENV['HOST_LANG'].empty?
     ENV['PASSWORD']  ||= 'admin'
 
     Rake::Task["db:create"].invoke
     Rake::Task["zena:migrate"].invoke
 
     # We cannot use 'invoke' here because the User class needs to be reloaded
-    env = %w{RAILS_ENV HOST LANG PASSWORD}.map{|e| "#{e}=#{ENV[e]}"}.join(' ')
+    env = %w{RAILS_ENV HOST HOST_LANG PASSWORD}.map{|e| "#{e}=#{ENV[e]}"}.join(' ')
     cmd = "rake zena:mksite #{env}"
     puts cmd
     system(cmd)

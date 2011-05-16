@@ -50,7 +50,7 @@ class Site < ActiveRecord::Base
         :languages       => '',
         :default_lang    => "en",
       }.merge(opts)
-      langs = params[:languages].split('.')
+      langs = params[:languages].split(',').map(&:strip)
       langs += [params[:default_lang]] unless langs.include?(params[:default_lang])
       params[:languages] = langs.map{|l| l[0..1]}.join(',')
       params[:default_lang] = params[:default_lang][0..1]
