@@ -326,8 +326,12 @@ module Zena
 
             finder = get_finder(query, count)
 
-            if count != :count && else_clause = @params[:else]
-              else_clause = RubyLess.translate(self, else_clause)
+            if count != :count && params[:else]
+              begin
+                else_clause = RubyLess.translate(self, params[:else])
+              rescue RubyLess::Error
+                else_clause = RubyLess.translate(self, "find(#{params[:else].inspect})")
+              end
 
               if else_clause.klass == Array
                 else_klass = else_clause.opts[:elem]

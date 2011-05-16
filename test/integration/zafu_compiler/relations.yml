@@ -181,8 +181,14 @@ children_else:
 hot_else:
   context:
     class: Project
-  src: "<r:hot else='project'><r:show attr='title'/></r:hot>"
-  res: "Clean Water project"
+  src: "<div do='hot' else='project'><r:show attr='title'/></div>"
+  res: "<div>Clean Water project</div>"
+
+hot_else_query:
+  context:
+    class: Project
+  src: "<div do='hot' else='node where title like \"%wiki%\" in site'><r:show attr='title'/></div>"
+  res: "<div>a wiki with Zena</div>"
 
 updated_today:
   # date set in ZafuCompilerTest
