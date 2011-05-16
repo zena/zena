@@ -16,8 +16,8 @@ module Zena
         # We overwrite some url writers that might use Node so that they use
         # zip instead of id.
         ['', 'edit_', 'delete_', 'drop_', 'zafu_'].each do |method|
-          class_eval %Q{
-            def #{method}node_path(node, options={}) # def edit_node_path(node, options={})
+          class_eval(%Q{
+            def #{method}node_path(node, options={}) # def zafu_node_path(node, options={})
               if ep = options.delete(:encode_params)
                 ep.split(',').map(&:strip).each do |key|
                   value = params[key]
@@ -30,7 +30,7 @@ module Zena
                 super                                 #     super
               end                                     #   end
             end                                       # end
-          }
+          }, __FILE__, __LINE__ - 15)
         end
 
         # Path to remove a node link.
@@ -159,6 +159,7 @@ module Zena
         # Url for a node. Options are 'mode' and 'format'
         # ex 'http://test.host/en/document34_print.html'
         def zen_url(node, opts={})
+          # FIXME: we *need* port number !
           zen_path(node,opts.merge(:host => visitor.site[:host]))
         end
 
@@ -227,6 +228,7 @@ module Zena
         safe_method [:url,  Node]       => {:class => String, :method => 'zen_url'}
         safe_method [:url,  Node, Hash] => {:class => String, :method => 'zen_url'}
         safe_method [:path, Node]       => {:class => String, :method => 'zen_path'}
+        safe_method [:path, Node, Hash] => {:class => String, :method => 'zen_path'}
 
         safe_method [:zen_path, Node, Hash]     => {:class => String, :accept_nil => true}
         safe_method [:zen_path, Node]           => {:class => String, :accept_nil => true}

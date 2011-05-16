@@ -34,6 +34,10 @@ path:
   src: "<a href='#{path}'>blah</a>"
   res: "<a href='/oo/projects-list/Clean-Water-project/page22.html'>blah</a>"
 
+path_with_mode:
+  src: "<a href='#{path(this, :mode =&gt; \"foo\")}'>blah</a>"
+  res: "<a href='/oo/projects-list/Clean-Water-project/page22_foo.html'>blah</a>"
+
 link:
   src: "<r:link/>"
   tem: "<a href='<%= zen_path(@node) %>'><%= @node.prop['title'] %></a>"
@@ -233,5 +237,3 @@ link_date_complex:
   src: "<r:link date='#{date.advance(:months =&gt; -1).strftime(\"%Y-%m-%d\", \"Asia/Jakarta\")}' text='PREV'/>"
   # Date is in Asia/Jakarta timezone. Ref date is utc in tests.
   res: "/\?date=2011-03-23'>PREV/"
-
-  #
