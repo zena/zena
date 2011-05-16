@@ -299,7 +299,7 @@ class SiteMig < ActiveRecord::Base
     NodeMig.find(:all,
       :conditions => ['site_id = ? AND type = ?', id, 'Skin']
     ).each do |skin|
-      execute "UPDATE nodes SET skin_id = #{skin.id} WHERE skin = '#{skin.name}'"
+      execute "UPDATE nodes SET skin_id = #{skin.id} WHERE skin = '#{skin.name}' and site_id = #{id}"
     end
 
     # 2. Set _id from name
