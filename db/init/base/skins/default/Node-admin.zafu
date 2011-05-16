@@ -1,5 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<r:if test='visitor.is_anon?' do='not_found'/>
 <html xmlns='http://www.w3.org/1999/xhtml' lang='#{v.lang}' xml:lang='en' do='load' dictionary='translations'>
 <head do='void' name='head'>
   <title do='title_for_layout' do='show' attr='title' name='page_title'>page title</title>

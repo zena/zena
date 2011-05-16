@@ -3,10 +3,10 @@
     <li do='add' after='self' klass='Post'/>
     <li class='inline_form' do='form'>
       <form>
-        <p class='node_title'><input type='text' name='title' size='25'/></p>
+        <p class='node_title'><r:input type='text' name='title' size='25'/></p>
         <p class='node_klass'>  <r:select name='klass' root_class='Note' selected='Post'/></p>
-        <p class='node_log_at'> <input type='date_box' name='date'/> </p>
-        <p class='validate'>    <input type="submit" value='#{trans("validate")}'/></p>
+        <p class='node_date'> <r:input type='date_box' name='date'/> </p>
+        <p class='validate'>     <r:input type="submit" value='#{trans("validate")}'/></p>
       </form>
     </li>
     <li class='note' do='each' live='true'>

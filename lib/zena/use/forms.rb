@@ -158,23 +158,7 @@ module Zena
             end
           else
             super
-          #when 'text', 'summary'
-          #  make_textarea(:name => method)
-          #when :r_show
-          #  make_input(:name => (@params[:attr] || @params[:tattr]), :date => @params[:date])
-          #when :r_text
-          #  make_textarea(:name => 'text')
-          #when :r_summary
-          #  make_textarea(:name => 'summary')
-          #when :r_zazen
-          #  make_textarea(:name => @params[:attr])
-          #else
-          #  if node.will_be?(DataEntry) && @method.to_s =~ /node_/
-          #    # select node_id
-          #    "<%= select_id('#{node.form_name}', '#{@method}_id') %>"
-          #  end
           end
-          #res = "<#{@html_tag || 'div'} class='zazen'>#{res}</#{@html_tag || 'div'}>" if [:r_summary, :r_text].include?(method)
         end
 
         def form_options
@@ -305,7 +289,7 @@ module Zena
               # 1. @node
               # 2. var1 = @node.children
               # 3. var1_new = Node.new
-              if node.opts[:new_record]
+              if node.opts[:new_record] || @context[:saved_template]
                 hidden_fields['node[parent_id]'] = "<%= #{@context[:in_add] ? "#{node.up.up}.zip" : "#{node}.parent_zip"} %>"
               end
             elsif node.will_be?(Comment)

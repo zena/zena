@@ -34,8 +34,8 @@
           <li class='inline_form' do='form'>
             <ol>
               <li><r:select name='klass' root_class='Page'/></li>
-              <li><input type='text' name='title' value=''/></li>
-              <li class='validate'><input type="submit" value='#{trans("validate")'/></li>
+              <li><r:input type='text' name='title' value=''/></li>
+              <li class='validate'><r:input type="submit" value='#{trans("validate")'/></li>
             </ol>
           </li>
         </ol>
@@ -64,8 +64,8 @@
             <li do='add' before='self'/>
             <li class='inline_form' do='form'>
               <p class='node_klass'>  <r:select name='klass' root_class='Page'/></p>
-              <p class='node_title'><input type='text' name='title' value=''/></p>
-              <p class='btn_validate'><input type="submit" value='#{trans("validate")}'/></p>
+              <p class='node_title'><r:input type='text' name='title' value=''/></p>
+              <p class='btn_validate'><r:input type="submit" value='#{trans("validate")}'/></p>
             </li>
           </ol>
         </r:pages>
@@ -75,8 +75,8 @@
             <li do='add' before='self'/>
             <li class='inline_form' do='form'>
               <p class='node_klass'>  <r:select name='klass' root_class='Node'/></p>
-              <p class='node_title'><input type='text' name='title' value=''/></p>
-              <p class='btn_validate'><input type="submit" value='#{trans("validate")}'/></p>
+              <p class='node_title'><r:input type='text' name='title' value=''/></p>
+              <p class='btn_validate'><r:input type="submit" value='#{trans("validate")}'/></p>
             </li>
           </ol>
         </r:nodes>

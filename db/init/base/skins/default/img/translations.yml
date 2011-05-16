@@ -1,0 +1,11 @@
+translations:
+  add_object: "<img src='/images/add.png' title='add a new object'/> add object"
+  upload_document: "<img src='/images/add.png' title='upload a new document'/> upload document"
+  view_live: "view live <img src='/images/bullet_go.png'/>"
+  page: page
+  records: records
+  root_node: root node
+  not_found: not found
+  crop: crop
+  no_parent: no parent
+  admin_interface: admin interface
