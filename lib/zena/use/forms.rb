@@ -386,9 +386,30 @@ module Zena
         end
 
         def r_textarea
-          @params = @markup.params.merge(@params)
-          res = make_textarea(params)
-          extract_label(res, @params[:name])
+          html_attributes, attribute = get_input_params()
+          erb_attr = html_attributes.delete(:erb_attr)
+          value    = html_attributes.delete(:value)
+
+          return parser_error('Missing name.') unless attribute || html_attributes[:name]
+
+          @markup.tag = 'textarea'
+          @markup.set_dyn_params(html_attributes)
+
+          unless value
+            if @blocks == [] || @blocks == ['']
+              if @context[:in_add]
+                value = ''
+              else
+                value = attribute ? "<%= #{node_attribute(attribute)} %>" : ""
+              end
+            else
+              value = expand_with
+            end
+          end
+
+          res = @markup.wrap(value)
+
+          extract_label(res, attribute || erb_attr)
         end
 
         # <r:select name='klass' root_class='...'/>
@@ -397,6 +418,7 @@ module Zena
         # TODO: optimization (avoid loading full AR to only use [id, name])
         def r_select
           html_attributes, attribute = get_input_params()
+          erb_attr = html_attributes.delete(:erb_attr)
           # TEMPORARY HACK UNTIL WE FIX get_input_params to return a single hash with
           # {:html => { prepared html attributes }, :raw => {:value => '..', :name => '..', :param => '..'}}
           if param = @params[:param]
@@ -445,12 +467,13 @@ module Zena
             parser_error("missing 'nodes', 'root_class' or 'values'")
           end
 
-          extract_label(res, attribute)
+          extract_label(res, attribute || erb_attr)
         end
 
 
         def r_input
           html_attributes, attribute = get_input_params()
+          erb_attr = html_attributes.delete(:erb_attr)
           # TODO: get attribute type from get_input_params
           res = case @params[:type]
           when 'select' # FIXME: why is this only for classes ?
@@ -487,13 +510,12 @@ module Zena
             @markup.set_param(:type, @params[:type] || 'text')
 
             checked = html_attributes.delete(:checked)
-
             @markup.set_dyn_params(html_attributes)
             @markup.append_attribute checked if checked
             wrap('')
           end
 
-          extract_label(res, attribute || html_attributes[:name])
+          extract_label(res, attribute || erb_attr)
         end
 
         # <r:checkbox role='collaborator_for' values='projects' in='site'/>"
@@ -633,6 +655,7 @@ module Zena
             #  end
             #end
           elsif node.will_be?(Column)
+            res[:erb_attr] = "<%= #{node}.name %>"
             res[:name]  = "node[<%= #{node}.name %>]"
             res[:value] = "<%= fquote #{node(Node)}.prop[#{node}.name] %>"
           end
@@ -752,31 +775,6 @@ module Zena
                 return parser_error("cannot extract values from eval (not a String list: [#{ruby.klass.first}])")
               end
             end
-          end
-
-
-          # Transform a 'zazen' tag into a textarea input field.
-          def make_textarea(params)
-            return parser_error("missing 'name'") unless name = params[:name]
-            if name =~ /\A([\w_]+)\[(.*?)\]/
-              attribute = $2
-            else
-              attribute = name
-              name = "#{node.form_name}[#{attribute}]"
-            end
-            return '' if attribute == 'parent_id' # set with 'r_form'
-
-            if @blocks == [] || @blocks == ['']
-              if @context[:in_add]
-                value = ''
-              else
-                value = attribute ? "<%= #{node_attribute(attribute)} %>" : ""
-              end
-            else
-              value = expand_with
-            end
-            html_id = node.dom_prefix ? " id='#{node.dom_prefix}_#{attribute}'" : ''
-            "<textarea#{html_id} name='#{name}'>#{value}</textarea>"
           end
 
           # Return the default field that will receive focus on form display.
