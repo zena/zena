@@ -307,10 +307,6 @@ class VirtualClass < Role
     res
   end
 
-  def icon=(txt)
-    self[:icon] = txt.gsub('..', '.') # SECURITY
-  end
-
   # check inheritance chain through kpath
   def kpath_match?(kpath)
     self.kpath =~ /^#{kpath}/

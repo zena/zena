@@ -28,6 +28,11 @@ class Role < ActiveRecord::Base
   # We use property to store index information, default values and such
   include Property
 
+  property do |p|
+    p.string 'icon'
+  end
+  safe_property :icon
+
   class << self
     def export
       {'Node' => VirtualClass['Node'].export}
@@ -153,6 +158,12 @@ class Role < ActiveRecord::Base
 
   def real_class?
     false
+  end
+
+  def icon=(txt)
+    # FIXME: remove gsub when we stop using ImageBuilder on
+    # icon images. SECURITY
+    self.icon = txt.gsub('..', '.')
   end
 
   def superclass

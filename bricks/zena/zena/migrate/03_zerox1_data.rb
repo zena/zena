@@ -357,6 +357,16 @@ class Zerox1Data < ActiveRecord::Migration
 
     execute "UPDATE roles SET type = 'VirtualClass'"
 
+    native_key = 'icon'
+    prop_key   = 'icon'
+    VClassMig.all.each do |rec|
+      value = rec[native_key]
+      next if value.blank?
+      prop  = rec.prop
+      prop[prop_key] = value
+      Zena::Db.execute "UPDATE #{rec.class.table_name} SET properties=#{Zena::Db.quote(rec.class.encode_properties(prop))} WHERE id=#{rec[:id]}"
+    end
+
     puts %q{
 ======== Migration succeded.
 ***********************************************************************************
