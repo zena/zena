@@ -224,8 +224,8 @@ msgstr ""
 #: app/views/columns/index.html.erb:1
 #: lib/zena/use/display.rb:273
 #, fuzzy
-msgid "manage properties"
-msgstr "Gruppen verwalten"
+msgid "properties"
+msgstr "Gruppen"
 
 #: app/views/columns/index.html.erb:9
 #: app/views/virtual_classes/index.erb:9
@@ -319,8 +319,8 @@ msgstr "<img src='/images/target.png' title='role'/>"
 
 #: app/views/relations/index.erb:1
 #: lib/zena/use/display.rb:267
-msgid "manage relations"
-msgstr "Bezüge verwalten"
+msgid "relations"
+msgstr "Bezüge"
 
 #: app/views/relations/new.erb:1
 #, fuzzy
@@ -372,8 +372,8 @@ msgstr "Site bearbeiten"
 
 #: app/views/sites/index.erb:1
 #: lib/zena/use/display.rb:279
-msgid "manage sites"
-msgstr "Sites verwalten"
+msgid "sites"
+msgstr "Sites"
 
 #: app/views/users/preferences.html.erb:1
 #: lib/zena/use/display.rb:255
@@ -478,8 +478,8 @@ msgstr "<img src='/images/comments_add.png' title='add a discussion'/>"
 
 #: app/views/virtual_classes/index.erb:1
 #: lib/zena/use/display.rb:270
-msgid "manage classes"
-msgstr "Klassen verwalten"
+msgid "classes"
+msgstr "Klassen"
 
 #: app/views/comments/_add.rhtml:2
 #: lib/gettext_strings.rb:27
@@ -519,8 +519,8 @@ msgstr "Kommentare abgestellt"
 
 #: app/views/comments/index.rhtml:1
 #: lib/zena/use/display.rb:258
-msgid "manage comments"
-msgstr "Kommentare verwalten"
+msgid "comments"
+msgstr "Kommentare"
 
 #: app/views/discussions/_add.rhtml:2
 msgid "btn_add_discussion"
@@ -592,8 +592,8 @@ msgstr "<img src='/images/group.png' title='Gruppe löschen'/>"
 
 #: app/views/groups/index.rhtml:1
 #: lib/zena/use/display.rb:264
-msgid "manage groups"
-msgstr "Gruppen verwalten"
+msgid "groups"
+msgstr "Gruppen"
 
 #: app/views/iformats/_add.rhtml:2
 msgid "btn_iformat_add"
@@ -637,7 +637,7 @@ msgstr "<img src='/images/photo.png' title='Bild-Format'/>"
 
 #: app/views/iformats/index.rhtml:1
 #, fuzzy
-msgid "manage image formats"
+msgid "image formats"
 msgstr "Bildformate"
 
 #: app/views/links/_add.rhtml:2
@@ -871,8 +871,8 @@ msgstr "Gruppen"
 
 #: app/views/users/index.rhtml:1
 #: lib/zena/use/display.rb:261
-msgid "manage users"
-msgstr "Benutzer verwalten"
+msgid "users"
+msgstr "Benutzer"
 
 #: app/views/versions/_list.rhtml:4
 msgid "This node contains sub-nodes: it cannot be destroyed."

@@ -1,0 +1,57 @@
+body {font-family:Verdana, sans-serif; font-size:12px; line-height:18px; background:#555}
+a {text-decoration:none; color:inherit; }
+
+#logo {font-size:21px; font-weight:bold; color:#333; text-shadow: 0 1px 0 #777;}
+#container {  border:1px solid black; background:#eee; margin:3em auto;}
+#logo, #container {width:800px; display:table; margin:1em auto;}
+
+#menu li {float:left;}
+#menu li a { padding:4px; border:1px solid #333; border-width:0 1px 1px 0; display:block;}
+#menu li a.on { background:#f7d493;}
+
+#content {clear:both; padding-top:1px;}
+#content h2.title {margin:20px; color:black; font-weight:bold; font-size:18px;}
+#content table.admin {margin-bottom:2em;}
+
+#browser {background:#333; padding:4em 0 2em;}
+#browser .wrap {display:table; margin:0 auto;}
+#browser .wrap>div {float:left; border:1px solid #444; width:200px; background:#444;}
+#browser div ul {height:200px; overflow:auto;}
+#browser li, #browser div .pages {border-bottom:1px solid #444; background:#eee}
+#browser li img {float:left; margin:3px;}
+#browser div .pages a { color:#7cf; padding:0 3px;}
+#browser div .pages { background:#777; color:#bbb;}
+#browser li.on { background:#aaa;}
+#browser a:hover { background:#f4ecc1; color:black;}
+#browser .pages, #browser li a {display:block; height:22px; padding:2px;}
+#siblings li.on {background:#f7d493;}
+#children .btn_add a { visibility:visible;}
+#children .add { background:#82a0ae; color:#eee;}
+#children .add_doc { background:#aea782; color:#eee;}
+#browser .wrap>div {position:relative;}
+#browser .search {position:absolute; top:-27px; background:#ddd; padding:2px;}
+.search input, .search select {float:left; width:45%; margin-right:4px;}
+#browser .id {float:right; color:#999; font-size:9px;}
+
+#preview {border:4px dashed #ccc; width:450px; margin:1em; float:right; position:relative;}
+#preview .zazen {height:220px; overflow:auto; padding:10px; }
+h2.preview {position:absolute; top:7px; right:-4px;}
+h2.preview a { background:#ccc; padding:0.5em; font-size:18px; font-weight:bold;}
+h2.preview:hover a {background:#fbeab6;}
+#preview .med_prev {background:#444;  width:100%;}
+#preview .crop { position:absolute; bottom:10px; right:10px; visibility:hidden; display:block;}
+#preview:hover .crop { visibility:visible;}
+
+.med_prev td {vertical-align:middle; text-align:center; height:240px;}
+.med_prev .img {border:1px solid black;}
+#title { font-size:21px; font-weight:bold; margin:18px; float:left;}
+#title a, #form a {visibility:visible}
+#title span {font-size:55%; color:#888;}
+
+#form {clear:left; margin:18px; position:relative; width:300px;}
+#form label { font-weight:bold; margin-top:1em; display:block; color:#999}
+#crop .mask { position:fixed; top:0; left:0; width:100%; height:100%; background:black; opacity:0.8;}
+#crop .wrap { position:absolute; top:-200px; left:180px; width:100%; height:100%;}
+#crop .win { display:table; margin:80px auto; background:#999; padding:20px;}
+#crop .crop_options {display:none;}
+#crop .btn input {float:right}

@@ -1,4 +1,5 @@
-page.replace_html 'crop_form', :partial=>'documents/crop'
+page.replace_html 'crop_form', :partial=>'documents/crop', :locals => {:node => @node, :img_id => 'edit_img'}
+page.insert_html :top, 'crop_form', :inline => %Q{<%= link_to_function(_('cancel'), "['crop', 'crop_form'].each(Element.toggle);$('crop_form').innerHTML = '';")%>}
 page.toggle 'crop_form', 'crop'
-page << "new Zena.Div_editor('edit_img', 'posx', 'posy', 'width', 'height', #{@node.width / @node.width(Iformat['edit']).to_f}, 20, 220);"
+page << "new Zena.Div_editor('edit_img', 'posx', 'posy', 'width', 'height', #{@node.width / @node.width(Iformat['edit']).to_f});"
 page << "self.resizeTo(520,770);"

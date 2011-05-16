@@ -7,7 +7,7 @@
   <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
   <r:void name='stylesheets'>
     <r:stylesheets media='all'/>
-    <link href="style.css" rel="Stylesheet" type="text/css"/>
+    <link href="img/style.css" rel="Stylesheet" type="text/css"/>
   </r:void>
 
   <r:javascripts/>
@@ -18,7 +18,7 @@
   <div id='top' do='root' do='link'/>
   <div id='header'>
     <div id='login' do='login_link'/>
-    <div id='visitor' do='visitor_link'/>
+    <div id='visitor'><r:visitor_link/> <r:if test='can_edit?' do='link' mode='admin' do='t'>btn_edit</r:if></div>
     <div id='search' do='search_box' type='search'/>
     <ol id='menu' do='root' do='pages'>
       <li do='each' on_if='is_ancestor?(main)' do='link'/>

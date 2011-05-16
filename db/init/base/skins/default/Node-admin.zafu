@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns='http://www.w3.org/1999/xhtml' lang='#{v.lang}' xml:lang='en' do='load' dictionary='translations'>
+<head do='void' name='head'>
+  <title do='title_for_layout' do='show' attr='title' name='page_title'>page title</title>
+  <!-- link href='favicon.png' rel='shortcut icon' type='image/png' / -->
+  <meta http-equiv='Content-type' content='text/html; charset=utf-8' />
+  <r:void name='stylesheets'>
+    <r:stylesheets/>
+    <r:stylesheets list='admin'/>
+    <link href='img/admin.css' rel='Stylesheet' type='text/css'/>
+  </r:void>
+
+  <r:javascripts/>
+  <r:uses_datebox/>
+</head>
+<body>
+  <h1 id='logo' do='link' href='root' mode='admin' do='t'>admin_interface</h1>
+  <div id='container'>
+    <div id='navigation'>
+      <ul id='menu' do='admin_links'>
+        <li do='each' do='show'>x</li>
+      </ul>
+    </div>
+
+    <div id='content'>
+      <h1 id='title'><r:title/> <span class='klass'>(<r:klass/>)</span></h1>
+      <div id='preview'>
+        <h2 class='preview' do='link' do='t'>view_live</h2>
+        <r:Image?>
+          <table class='med_prev'><tr><td  do='link' update='crop' crop='true'>
+            <r:img mode='med'/>
+            <span class='crop'>
+              <img src='/images/cut_red.png' title='#{t("crop")}'/>
+            </span>
+          </td></tr></table>
+          <r:else do='zazen' attr='text' live='true' code='#{content_lang}'/>
+        </r:Image?>
+      </div>
+
+      <div id='form' do='form'>
+        <r:if test='can_edit?'>
+          <label do='t("edit #{klass}")'/>
+          <r:Image?>
+            <div id='crop' do='block' do='if' test='params[:crop]'>
+              <p do='else'>
+                <r:void actions='edit'/>
+                <r:link update='crop' crop='true'>
+                  <img src='/images/cut_red.png'/> <r:t>crop</r:t>
+                </r:link>
+              </p>
+              <p do='link' id='crop_x' update='crop'><r:t>btn_x</r:t> <r:t>cancel</r:t></p>
+              <!-- JS trigger must run effect before crop editor -->
+              <r:js>$$('#crop>div').each(function(o) { new Effect.Appear(o, {duration:0.5}) });</r:js>
+              <div class='mask' style='display:none;'>&nbsp;</div>
+              <!--div class='wrap' style='display:none;' onclick='$("crop_x").onclick();'>
+                <div class='win' onclick='Event.stop(event);return false;' -->
+
+              <div class='wrap' style='display:none;'>
+                <div class='win'>
+                  <p class='btn'>
+                    <p class='backup'><input name='node[v_backup]' type='checkbox' value='true' checked='checked'/><r:t>backup</r:t></p>
+                    <input type='submit' value='#{t("crop")}'/>
+                    <p do='link' update='crop' do='t'>btn_x</p>
+                  </p>
+                  <div class='crop_ed' do='crop'/>
+                </div>
+              </div>
+            </div>
+            <r:else>
+              <p do='void' actions='edit'/>
+            </r:else>
+          </r:Image?>
+        </r:if>
+        <r:if test='can_publish?'>
+          <label do='t("publish #{klass}")'/>
+          <p do='void' actions='publish'/>
+        </r:if>
+        <r:if test='can_drive?'>
+          <label do='t("move/manage versions")'/>
+          <p do='void' actions='drive'/>
+        </r:if>
+        <r:if test='can_edit?' do='default' label='t'>
+          <input type='hidden' name='redir' value='#{path(this, :mode =&gt; "admin")}'/>
+          <r:input name='title'/>
+          <r:input name='keywords'/>
+          <r:textarea name='summary'/>
+          <r:textarea name='text'/>
+
+          <r:vclass do='columns' do='each'>
+            <r:if test='name != "title" and name != "summary" and name != "keywords" and name != "text"'>
+              <r:textarea/>
+            </r:if>
+          </r:vclass>
+
+          <r:input type='submit'/>
+        </r:if>
+      </div> <!-- form -->
+
+      <div id='browser'>
+        <div class='wrap'>
+          <div id='parents'>
+            <div class='search' do='filter' live='true'>
+              <input type='text' name='f'/>
+              <r:select param='k' root_class='Node' attr='kpath'/>
+            </div>
+            <div id='par_list' do='block' do='children where kpath like "#{params[:k]}%" and title like "%#{params[:f]}%" from parent from parent limit 30 paginate p' set_ref='parent'>
+              <div class='pages'><r:t>page</r:t>: <r:link page='list' page_count='6' update='par_list' encode_params='f'/> (<r:count/> <r:t>records</r:t>)</div>
+              <ul>
+                <li do='each' alt_class='stripe' on_if='id == ref.id' name='elem'>
+                  <r:Image?>
+                    <r:img mode='tipop'/>
+                    <r:else>
+                      <img src='#{vclass.icon || "/images/brick.png"}'/>
+                    </r:else>
+                  </r:Image?>
+                  <r:link mode='admin'>
+                    <span class='id' do='id'/>
+                    <r:Document?>
+                      <r:show text='#{title.limit(14)}.#{ext}'/>
+                      <r:else do='title.limit(23)'/>
+                    </r:Document?>
+                  </r:link>
+                </li>
+              </ul>
+              <r:else do='parent'>
+                <!-- no grand-parent -->
+                <div class='pages'><r:if test='!parent_id'><r:t>root_node</r:t><r:else do='t'>not_found</r:else></r:if></div>
+                <ul>
+                  <r:include template='Node-admin' part='elem' method='void'/>
+                </ul>
+                <r:else><!-- no parent -->
+                  <div class='pages' do='t'>no_parent</div>
+                  <ul>
+                  </ul>
+                </r:else>
+              </r:else>
+            </div>
+          </div> <!-- #parents -->
+          <div id='siblings'>
+            <div class='search' do='filter' live='true'>
+              <input type='text' name='f'/>
+              <r:select param='k' root_class='Node' attr='kpath'/>
+            </div>
+            <div id='sib_list' do='block' do='children where kpath like "#{params[:k]}%" and title like "%#{params[:f]}%" from parent limit 30 paginate p' set_ref='this'>
+              <div class='pages'><r:t>page</r:t>: <r:link page='list' page_count='6' update='sib_list' encode_params='f'/> (<r:count/> <r:t>records</r:t>)</div>
+              <ul>
+                <r:include template='Node-admin' part='elem' method='void'/>
+              </ul>
+              <r:else>
+                <!-- no parent, just show self -->
+                <div class='pages'><r:if test='!parent_id'><r:t>root_node</r:t><r:else do='t'>not_found</r:else></r:if></div>
+                <ul>
+                  <r:include template='Node-admin' part='elem' method='void'/>
+                </ul>
+              </r:else>
+            </div>
+          </div> <!-- #siblings -->
+          <div id='children'>
+            <div class='search' do='filter' live='true'>
+              <input type='text' name='f'/>
+              <r:select param='k' root_class='Node' attr='kpath'/>
+            </div>
+            <div id='ch_list' do='block' do='children where kpath like "#{params[:k]}%" and title like "%#{params[:f]}%" limit 30 paginate p'>
+              <div class='pages'><r:t>page</r:t>: <r:link page='list' page_count='6' update='ch_list' encode_params='f'/> (<r:count/> <r:t>records</r:t>)</div>
+              <ul>
+                <r:each set_ref='main' do='include' template='Node-admin' part='elem' method='void'/>
+                <li class='add' do='add' do='t'>add_object</li>
+                <li class='add_doc' do='add_document' do='t'>upload_document</li>
+                <li do='form'><r:select name='klass' root_class='Node'/> <r:input name='title'/> <r:input type='submit'/></li>
+              </ul>
+            </div>
+          </div> <!-- #children -->
+
+          <r:js>
+          // TODO: scroll only in browser DIV
+          // $$('#browser .on').each(function(o) {
+          //   o.scrollIntoView(true);
+          // });
+          </r:js>
+        </div> <!-- .wrap -->
+      </div> <!-- #browser -->
+    </div> <!-- content -->
+  </div>
+</body>
+</html>

@@ -27,8 +27,6 @@ table.admin td:first-child { border-left: 1px solid #999; }
 #admin_groups table.admin {background:#91B9AE}
 #add_user  td { border: 0;}
 #add_group td { border: 0;}
-#add_user  td { background: white;}
-#add_group td { background: white;}
 #virtual_class_list td, #virtual_class_list, #virtual_class_list th {border-color:#ccc;}
 .admin td { padding: 3px; height:18px; border-right:1px solid #999; border-bottom:1px solid #999; }
 .admin th { border-bottom:1px solid #999; padding:4px;}
@@ -89,4 +87,4 @@ ul.actions select { width:186px; }
 .actions .errors li { margin-left:0.4em; background:inherit; line-height:1.2em;}
 
 /* forms */
-label { font-size:0.9em; font-weight:bold; display:block; color:#5C1515; margin:10px 0 5px; clear:both;}
+label { font-size:0.9em; font-weight:bold; display:block; color:#5C1515; margin:10px 0 5px; clear:left;}

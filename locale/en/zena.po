@@ -224,7 +224,7 @@ msgstr "property"
 
 #: app/views/columns/index.html.erb:1
 #: lib/zena/use/display.rb:273
-msgid "manage properties"
+msgid "properties"
 msgstr ""
 
 #: app/views/columns/index.html.erb:9
@@ -318,7 +318,7 @@ msgstr "<img src='/images/target.png' alt='role'/>"
 
 #: app/views/relations/index.erb:1
 #: lib/zena/use/display.rb:267
-msgid "manage relations"
+msgid "relations"
 msgstr ""
 
 #: app/views/relations/new.erb:1
@@ -372,7 +372,7 @@ msgstr "%Y-%m-%d %H:%M"
 
 #: app/views/sites/index.erb:1
 #: lib/zena/use/display.rb:279
-msgid "manage sites"
+msgid "sites"
 msgstr ""
 
 #: app/views/users/preferences.html.erb:1
@@ -481,7 +481,7 @@ msgstr "<img src='/images/comments_add.png' alt='add a discussion'/>"
 
 #: app/views/virtual_classes/index.erb:1
 #: lib/zena/use/display.rb:270
-msgid "manage classes"
+msgid "classes"
 msgstr ""
 
 #: app/views/comments/_add.rhtml:2
@@ -522,7 +522,7 @@ msgstr ""
 
 #: app/views/comments/index.rhtml:1
 #: lib/zena/use/display.rb:258
-msgid "manage comments"
+msgid "comments"
 msgstr ""
 
 #: app/views/discussions/_add.rhtml:2
@@ -596,7 +596,7 @@ msgstr "<img src='/images/group.png' alt='group'/>"
 
 #: app/views/groups/index.rhtml:1
 #: lib/zena/use/display.rb:264
-msgid "manage groups"
+msgid "groups"
 msgstr ""
 
 #: app/views/iformats/_add.rhtml:2
@@ -641,7 +641,7 @@ msgid "iformat_img"
 msgstr "<img src='/images/photo.png' alt='image format'/>"
 
 #: app/views/iformats/index.rhtml:1
-msgid "manage image formats"
+msgid "image formats"
 msgstr ""
 
 #: app/views/links/_add.rhtml:2
@@ -878,7 +878,7 @@ msgstr ""
 
 #: app/views/users/index.rhtml:1
 #: lib/zena/use/display.rb:261
-msgid "manage users"
+msgid "users"
 msgstr ""
 
 #: app/views/versions/_list.rhtml:4

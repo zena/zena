@@ -1,15 +1,4 @@
-<r:include template='Node'>
-  <r:with part='stylesheets'>
-    <r:stylesheets list='reset,zena,comment,admin,code,search,window'/>
-    <link href="style.css" rel="Stylesheet" type="text/css"/>
-  </r:with>
-
-  <r:with part='context'>
-    <ol class='admin_links' do='admin_links'>
-      <li do='each' do='show'><a href='#'>do this</a></li>
-    </ol>
-  </r:with>
-  <r:with part='title'/>
+<r:include template='Node-admin'>
   <r:with part='content' do='content_for_layout'>
     <r:include template='Node' part='title'/>
     <div id='related' do='visitor'>

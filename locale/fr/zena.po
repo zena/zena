@@ -220,8 +220,8 @@ msgstr "attribut"
 
 #: app/views/columns/index.html.erb:1
 #: lib/zena/use/display.rb:273
-msgid "manage properties"
-msgstr "gestion des attributs"
+msgid "properties"
+msgstr "attributs"
 
 #: app/views/columns/index.html.erb:9
 #: app/views/virtual_classes/index.erb:9
@@ -310,8 +310,8 @@ msgstr "modifier la relation"
 
 #: app/views/relations/index.erb:1
 #: lib/zena/use/display.rb:267
-msgid "manage relations"
-msgstr "gestion des relations"
+msgid "relations"
+msgstr "relations"
 
 #: app/views/relations/new.erb:1
 #, fuzzy
@@ -362,8 +362,8 @@ msgstr "délai de republication"
 
 #: app/views/sites/index.erb:1
 #: lib/zena/use/display.rb:279
-msgid "manage sites"
-msgstr "gestion des sites"
+msgid "sites"
+msgstr "sites"
 
 #: app/views/users/preferences.html.erb:1
 #: lib/zena/use/display.rb:255
@@ -467,8 +467,8 @@ msgstr "discussion auto"
 
 #: app/views/virtual_classes/index.erb:1
 #: lib/zena/use/display.rb:270
-msgid "manage classes"
-msgstr "gestion des classes"
+msgid "classes"
+msgstr "classes"
 
 #: app/views/comments/_add.rhtml:2
 #: lib/gettext_strings.rb:27
@@ -508,8 +508,8 @@ msgstr "commentaires fermés"
 
 #: app/views/comments/index.rhtml:1
 #: lib/zena/use/display.rb:258
-msgid "manage comments"
-msgstr "gestion des commentaires"
+msgid "comments"
+msgstr "commentaires"
 
 #: app/views/discussions/_add.rhtml:2
 msgid "btn_add_discussion"
@@ -581,8 +581,8 @@ msgstr "supprimer groupe"
 
 #: app/views/groups/index.rhtml:1
 #: lib/zena/use/display.rb:264
-msgid "manage groups"
-msgstr "gestion des groupes"
+msgid "groups"
+msgstr "groupes"
 
 #: app/views/iformats/_add.rhtml:2
 msgid "btn_iformat_add"
@@ -627,8 +627,8 @@ msgstr "<img src='/images/photo.png' alt='format d&apos;image'/>"
 
 #: app/views/iformats/index.rhtml:1
 #, fuzzy
-msgid "manage image formats"
-msgstr "formats d'image"
+msgid "image formats"
+msgstr "formats image"
 
 #: app/views/links/_add.rhtml:2
 msgid "btn_add_link"
@@ -863,8 +863,8 @@ msgstr "groupes"
 
 #: app/views/users/index.rhtml:1
 #: lib/zena/use/display.rb:261
-msgid "manage users"
-msgstr "gestion des utilisateurs"
+msgid "users"
+msgstr "utilisateurs"
 
 #: app/views/versions/_list.rhtml:4
 msgid "This node contains sub-nodes: it cannot be destroyed."
