@@ -102,6 +102,23 @@ class RenderingInControllerTest < Zena::Controller::TestCase
     end
   end # Custom rendering options
 
+  context 'Not found rendering' do
+    subject do
+      login(:lion)
+      # create template for 'special' mode
+      t = secure(Template) { Template.create(:parent_id => nodes_id(:default), :title => 'Node-foo.zafu', :text => @zafu, :v_status => Zena::Status[:pub]) }
+      login(:anon)
+      {:action => 'show', :controller => 'nodes', :path => ["section#{nodes_zip(:people)}_foo.html"], :prefix => 'en'}
+    end
+
+    should 'raise not found' do
+      @zafu = %q{<r:not_found/>}
+      # Stupid tests. Raises ActionView::TemplateError during testing and
+      # ActiveRecord::RecordNotFound in production.
+      assert_raise(ActionView::TemplateError) { get_subject }
+    end
+  end # Custom rendering options
+
   context 'Custom rendering options on html' do
     subject do
       login(:lion)

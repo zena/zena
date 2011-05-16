@@ -277,6 +277,10 @@ module Zena
             out "<% set_headers(#{headers.join(', ')}) %>"
           end
         end
+
+        def r_not_found
+          out "<% raise ActiveRecord::RecordNotFound %>"
+        end
       end # ZafuMethods
     end # Rendering
   end # Use
