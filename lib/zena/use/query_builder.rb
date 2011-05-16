@@ -5,14 +5,20 @@ module Zena
       module ViewMethods
         include RubyLess
         safe_method [:query_parse, String] => {:class => String, :accept_nil => true}
+        safe_method :query_errors => {:class => String, :nil => true}
 
         def find_node_by_zip(zip)
           return nil unless zip
           secure(Node) { Node.find_by_zip(zip) }
         end
 
+        def query_errors
+          @query_errors
+        end
+
         def query(class_name, node_name, pseudo_sql, opts = {})
           type = opts[:type] || :find
+          @query_errors = nil
           if klass = VirtualClass[class_name]
             begin
               query = klass.build_query(:all, pseudo_sql,
@@ -28,9 +34,7 @@ module Zena
                 return klass.do_find(:all, eval(query.to_s))
               end
             rescue ::QueryBuilder::Error => err
-              msg = "Error in dynamic query #{pseudo_sql.inspect}: #{err}"
-              js_data << "alert(#{msg.inspect})" if dev_mode?
-              Node.logger.info msg
+              @query_errors = "<span class='query'>#{pseudo_sql}</span> <span class='error'>#{err}</span>"
             end
           end
           # error

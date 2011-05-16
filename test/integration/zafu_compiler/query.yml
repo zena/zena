@@ -238,3 +238,9 @@ core_context:
   # Ensure that :project rubyless method uses enrollable.
   src: "<r:project do='origin || title'/>"
   tem: "/ar1.prop\['origin'\] or var1.prop\['title'\]/"
+
+query_errors:
+  context:
+    c: 'badaboum'
+  src: "<r:query default='nodes' select='nodes in #{params[:c]}'><r:elsif test='query_errors' do='query_errors'/></r:query>"
+  res: "<span class='query'>nodes in badaboum</span> <span class='error'>Invalid scope 'badaboum'.</span>"
