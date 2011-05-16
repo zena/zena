@@ -262,9 +262,16 @@ module Zena
 
           return parser_error("cannot use 's' as key (used by start_node)") if @params[:key] == 's'
 
+          # Move up in case we are in a list.
+          if self.node.list_context?
+            node = self.node.up(Node)
+          else
+            node = self.node
+          end
+          set_dom_prefix
           dom_id = node.dom_id(:erb => false)
 
-          out %Q{<%= form_remote_tag(:url => zafu_node_path(#{node}.zip), :method => :get, :html => {:id => \"#{dom_id}_f\"}) %>
+          out %Q{<%= form_remote_tag(:url => zafu_node_path(#{node}), :method => :get, :html => {:id => \"#{dom_id}_f\"}) %>
           <div class='hidden'>
             <input type='hidden' name='t_url' value='#{template_url(upd)}'/>
             <input type='hidden' name='dom_id' value='#{upd}'/>
@@ -416,6 +423,18 @@ module Zena
          #  end
          #  out "<%= link_to_remote(#{text.inspect}, {:url => \"/data_entries/\#{#{node}[:id]}?dom_id=#{dom_id}#{upd_url}\", :method => :delete}, :class=>#{(@params[:class] || 'unlink').inspect}) %>"
          #end
+        end
+
+        # Add some js at end of document/partial
+        def r_js
+          if @blocks.detect {|b| !b.kind_of?(String)}
+            out "<% js_data << capture do %>"
+            out expand_with
+            out "<% end %>"
+          else
+            txt = @blocks.join('')
+            out "<% js_data << #{txt.inspect} %>"
+          end
         end
 
         protected

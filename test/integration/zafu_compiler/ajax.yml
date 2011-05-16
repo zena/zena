@@ -33,7 +33,7 @@ edit_in_block_cancel:
   src: "<li do='block'><r:title/> <r:edit tcancel='en'/></li>"
   res: "/Ajax.Request\(\"/nodes/22/zafu\?dom_id=list1/"
   'ajax/edit/in/block/cancel/en/list1_form.erb': "/link_to_remote\(\"english\"/"
-  
+
 form_in_block:
   src: "<li do='block'><r:form>XYZ</r:form><r:title/> <r:edit/></li>"
   res: "/XYZ/"
@@ -45,7 +45,7 @@ form_in_block_edit_only:
   res: "!/XYZ/"
   'ajax/form/in/block/edit/only/en/list1_form.erb': "/XYZ/"
   'ajax/form/in/block/edit/only/en/list1.erb': "!/XYZ/"
-  
+
 add_each_no_form:
   src: "<ul do='children' id='things'><li do='each'>I <p do='title'>blah</p></li><li do='add'/></ul>"
   tem: "!/</ul><ul></ul>/" # bug in closing group with [add].
@@ -374,3 +374,15 @@ toggle_bad_rel:
   src: "<ul do='pages'><li do='each' toggle='#{params[:rel]}' for='visitor.node' do='title'/></ul>"
   res: "/<ul><li class='toggle' id='list1_26'>crocodiles</li>/"
   js: "/list1_26.*each/"
+
+js:
+  src: "x <r:js>alert('ho');</r:js> y"
+  tem: "x <% js_data << \"alert('ho');\" %> y"
+  res: "x  y"
+  js: "<script type=\"text/javascript\">\n//<![CDATA[\nalert('ho');\n//]]>\n</script>"
+
+filter_in_list:
+  # Should move to up node and not raise an error.
+  src: "<ul do='pages in site'><r:block></r:block><li do='filter' live='true'/></ul>"
+  tem: "/zafu_node_path\(@node\)/"
+  res: "/nodes/22/zafu/"
