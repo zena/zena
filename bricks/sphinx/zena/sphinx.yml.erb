@@ -1,0 +1,13 @@
+test:
+  sql_range_step: 10000000
+
+production:
+  enable_star: 1
+  min_infix_len: 2
+  pid_file: <%= shared_path %>/log/searchd.production.pid
+  searchd_files: <%= shared_path %>/db/sphinx
+  run_indexer_at: "10,40"
+
+development:
+  enable_star: 1
+  min_infix_len: 2

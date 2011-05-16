@@ -7,7 +7,7 @@ module Bricks
       def search_text(query, opts = {})
         if offset = opts[:offset]
           limit = opts[:limit] || 20
-          ids = search_for_ids(query, :with => with, :limit => (offset + limit) * [limit,20].max)
+          ids = search_for_ids(query, :with => opts[:with], :limit => (offset + limit) * [limit,20].max)
           return [] if ids.empty?
           # 1. filter with secure
           secure_ids = Zena::Db.fetch_ids("SELECT id FROM nodes WHERE #{secure_scope('nodes')} AND id IN (#{ids.join(',')})")
@@ -56,7 +56,11 @@ module Bricks
 
             where "versions.status >= #{Zena::Status[:pub]}"
 
-            set_property :field_weights => { :idx_text_high => 5, :idx_text_medium => 3, :idx_text_low => 2 }
+            set_property :field_weights => { 
+              :idx_text_high   => 5,
+              :idx_text_medium => 3, 
+              :idx_text_lowv   => 2
+            }
             set_property :group_concat_max_len => 30000 # FIXME: articles can easily have a length of 17000 chars...
             set_property :delta => (has_dd ? :delayed : true)
           end

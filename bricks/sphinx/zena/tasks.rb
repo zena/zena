@@ -2,6 +2,28 @@
 # environment since it needs to get configuration settings from the classes in zena.
 require 'tempfile'
 require 'yaml'
+require 'thinking_sphinx'
+
+
+class RenderClass
+  def initialize(path)
+    @text = File.read(path)
+  end
+
+  def render(hash)
+    @values = hash
+    ERB.new(@text).result(binding)
+  end
+
+  def method_missing(sym)
+    return @values[sym] if @values.has_key?(sym)
+    super
+  end
+end
+
+def render(file, hash)
+  RenderClass.new(file).render(hash)
+end
 
 namespace :sphinx do
   setup_done = File.exist?("#{RAILS_ROOT}/config/#{RAILS_ENV}.sphinx.conf")
@@ -14,7 +36,10 @@ namespace :sphinx do
     if File.exist?("#{RAILS_ROOT}/config/sphinx.yml")
       puts "Sphinx searchd: config/sphinx.yml exists, not copying"
     else
-      FileUtils.cp(File.join(File.dirname(__FILE__), 'sphinx.yml'), "#{RAILS_ROOT}/config/sphinx.yml")
+      conf = render(File.join(File.dirname(__FILE__), 'sphinx.yml.erb'), :shared_path => File.expand_path(File.join(RAILS_ROOT,'..', '..', 'shared')))
+      File.open("#{RAILS_ROOT}/config/sphinx.yml", 'wb') do |f|
+        f.puts conf
+      end
       puts "Sphinx searchd: created initial config/sphinx.yml"
     end
 
@@ -48,7 +73,8 @@ namespace :sphinx do
     else
       crontab = res.chomp.split("\n")
       res = []
-      job = "#{every} *  *   *   *     /usr/bin/rake RAILS_ENV=production sphinx:index >> /root/cron.log 2>&1"
+      root = File.expand_path(File.join(RAILS_ROOT, '..', '..', 'current'))
+      job = "#{every} *  *   *   *     cd #{root} && /usr/bin/env rake RAILS_ENV=production sphinx:index >> /root/cron.log 2>&1"
       job_inserted = false
       job_action   = 'install'
       crontab.each do |line|
