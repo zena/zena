@@ -52,6 +52,10 @@ select_class_new_node:
   src: "<r:pages><r:each/><r:add/><r:form><select name='klass' root_class='Note' selected='Post'/></r:form>"
   res: "/<select.*name=.node\[klass\].*Note.*Letter.*Post. selected=.selected./"
 
+select_class_kpath:
+  src: "<r:select param='k' root_class='Note' attr='kpath'/>"
+  res: "/<select.*name=.k.*NN.*Note.*NNL.*Letter.*NNP.*Post/"
+
 select_nodes:
   src: "<r:form><select nodes='images in site' name='foo'></select></r:form>"
   res: "/name='node\[foo\]'><option value=\"\" selected=\"selected\"></option>\n<option value=\"40\">Autumn Tree</option>\n<option value=\"30\">bird</option>/"

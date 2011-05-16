@@ -223,11 +223,13 @@ class VirtualClass < Role
 
     kpath_len = base_kpath.size
 
+    attribute = opts[:class_attr] || 'name'
+
     VirtualClass.all_classes(base_kpath, opts[:without]).map do |vclass|
       if vclass.create_group_id.nil? || group_ids.include?(vclass.create_group_id)
         # white spaces are insecable spaces (not ' ')
         a, b = vclass.kpath, vclass.name
-        [('  ' * (a.size - kpath_len)) + b, b]
+        [('  ' * (a.size - kpath_len)) + b, vclass[attribute]]
       else
         nil
       end
