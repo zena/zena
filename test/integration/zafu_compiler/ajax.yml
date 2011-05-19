@@ -17,7 +17,7 @@ add:
 
 edit_not_each:
   src: "<li class='blah'>this is a post <r:edit>edit post</r:edit></li>"
-  res: "/<li class='blah'>this is a post <a href='/nodes/22/edit'>edit</a></li>/"
+  res: "/<li class='blah'>this is a post <a href='/nodes/22/versions/0/edit'>edit</a></li>/"
 
 edit_in_block:
   src: "<li do='block'><r:title/> <r:edit/></li>"
@@ -95,7 +95,7 @@ each_add_with_form_klass_set:
   res: "!/hidden.*node\[klass\].*Node.*select.*node\[klass\]/"
 
 each_add_with_select:
-  src: "<r:children><r:each do='title'/><r:add/><r:form><select name='icon_id' nodes='images in project' selected='[main.icon_id]_abc'/></r:form></r:children>"
+  src: "<r:children><r:each do='title'/><r:add/><r:form><r:select name='icon_id' nodes='images in project' selected='[main.icon_id]_abc'/></r:form></r:children>"
   'ajax/each/add/with/select/en/list1_form.erb': '/map.|r| \[r.name, r.zip.to_s\]., \"#.@node.icon_zip._abc\"\)/'
   tem: "/nodes.kpath LIKE 'NDI%'/"
 
@@ -103,7 +103,7 @@ each_edit_with_form:
   context:
     node: 'wiki'
   src: "<r:children><li do='each'><r:show attr='title'>blah</r:show> <r:edit>edit</r:edit></li>\n<r:form><li><form>this is the form</form></li></r:form></r:children>"
-  res: "/<li id='list1_30'>bird <a href='/nodes/30/edit' onclick='new Ajax.Request\(\"/nodes/30/zafu\?.*t_url=ajax%2Feach%2Fedit%2Fwith%2Fform%2Flist1_form/"
+  res: "/<li id='list1_30'>bird <a href='/nodes/30/versions/0/edit' onclick='new Ajax.Request\(\"/nodes/30/zafu\?.*t_url=ajax%2Feach%2Fedit%2Fwith%2Fform%2Flist1_form/"
 
 form_with_dictionary:
   context:
@@ -185,7 +185,7 @@ live_filter_single_element:
 live_filter_select_options:
   context:
     node: cleanWater
-  src: "<r:filter live='true' do='select' name='f' values='1,2'/><r:block><ol do='pages where title like \"#{params[:f]}%\"'><li do='each' do='title'/></ol></r:block>"
+  src: "<r:filter live='true' do='select' param='f' values='1,2'/><r:block><ol do='pages where title like \"#{params[:f]}%\"'><li do='each' do='title'/></ol></r:block>"
   tem: "/select name=.f.><%= options_for_select\(\[.1., .2.\], params\[:f\].to_s/"
   'ajax/live/filter/select/options/en/list1.erb': "/<div id='list1'.*params\[:f\]/"
   res: "/<select name='f'.*<div id='list1'><ol><li>crocodiles</li><li>Keeping things clean !</li><li>status title</li></ol></div>/"
@@ -294,7 +294,7 @@ drop_add_link:
   # without the ugly inspect, this would be '#{id}' or "\#{id}"
   tem: "/drop_node_path.*\"node\[favorite_id\]\" => \"\\\\#\{id\}\"/"
   res: "<div class='drop' id='list1'>drop</div>"
-  js: "/Droppables.add\('list1'.*/nodes/22/drop.*node%5Bfavorite_id%5D=%23%7Bid%7D"
+  js: "/Droppables.add\('list1'.*/nodes/22/drop.*node\[favorite_id\]=%23%7Bid%7D"
 
 drop_var_scope:
   src: "<div do='visitor.node'><div do='drop' add='favorite' change='receiver'><r:favorites>.</r:favorites></div></div>"
@@ -306,17 +306,17 @@ drop_done_remove:
 
 drop_param:
   src: "<r:drop change='params' d='foo'>params[:d] = <r:show eval='params[:d]'/></r:drop>"
-  tem: "/<div class='drop' id='list1'><% add_drop_id\(\"list1\", :url => drop_node_path\(@node.*:change => \"params\", :d => \"foo\"/"
+  tem: "/<div class='drop' id='list1'><% add_drop_id\(%Q\{list1\}, :url => drop_node_path\(@node.*:change => \"params\", :d => \"foo\"/"
   res: "<div class='drop' id='list1'>params[:d] = </div>"
   js: '/Droppables.add\(.list1.*d=foo/'
 
 drop_param_in_each:
   src: "<r:pages do='each' do='drop' change='params' d='foo'><r:show eval='params[:d]'/></r:pages>"
-  tem: "/<div class='drop' id='<%= %Q\{list1_#\{var2.zip\}\} %>'><% add_drop_id\(\"list1_#\{var2.zip\}\"/"
+  tem: "/<div class='drop' id='<%= %Q\{list1_#\{var2.zip\}\} %>'><% add_drop_id\(%Q\{list1_#\{var2.zip\}\}/"
 
 update_target:
   src: "UT: <div id='foo' do='block'>...</div> <r:link update='foo'/>"
-  tem: "/UT: <div id='foo'>...</div> .*Ajax.Request.*:dom_id => \"foo\"/"
+  tem: "/UT: <div id='foo'>...</div> .*Ajax.Request.*:dom_id => %Q\{foo\}/"
 
 update_target_encode_params:
   context:
@@ -336,7 +336,7 @@ id_in_each_group_should_be_scoped:
 link_page_next:
   context:
     pak: 2
-  src: "<div id='foo' do='block' do='nodes in site' limit='3' order='zip' paginate='pak'><r:link page='previous'/> | <r:pak/> | <r:link update='foo' page='next'/> || <r:each join=',' do='[id]'/></div>"
+  src: "<div id='foo' do='block' do='nodes in site' limit='3' order='zip' paginate='pak'><r:link page='previous'/> | <r:pak/> | <r:link update='foo' page='next'/></div>"
   res: "/<a href='/oo/projects-list/Clean-Water-project/page22.html\?pak=1'>1</a> \| 2 \| .*22/zafu\?dom_id=foo.*pak=3.*>3</a>/"
 
 link_page_list:
@@ -380,6 +380,12 @@ js:
   tem: "x <% js_data << \"alert('ho');\" %> y"
   res: "x  y"
   js: "<script type=\"text/javascript\">\n//<![CDATA[\nalert('ho');\n//]]>\n</script>"
+
+js_dyn:
+  src: "x <r:js>alert('ho <r:title/>');</r:js> y"
+  tem: "x <% js_data << capture do %>alert('ho <%= @node.prop['title'] %>');<% end %> y"
+  res: "x  y"
+  js: "<script type=\"text/javascript\">\n//<![CDATA[\nalert('ho status title');\n//]]>\n</script>"
 
 filter_in_list:
   # Should move to up node and not raise an error.

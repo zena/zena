@@ -82,3 +82,8 @@ prop_in_list_context:
   src: "<div do='nodes in site'><r:title/></div>"
   tem: "/var1.first.prop\['title'\]/"
   res: '<div>a wiki with Zena</div>'
+
+role_existing_class_name:
+  # Should understand 'Comment' as a Role.
+  src: "<r:Comment?>xx</r:Comment?>"
+  tem: "/<% if @node.has_role\?\(\d+\) %>xx<% end %>/"

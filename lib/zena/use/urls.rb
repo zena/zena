@@ -1,6 +1,22 @@
 module Zena
   module Use
     module Urls
+      NODE_ACTIONS = {
+        ''         => {:url => '/nodes/#{node_zip}'},
+        'drive'    => {:url => '/nodes/#{node_zip}/edit'},
+        'add_doc'  => {:url => '/documents/new', :query => {:parent_id => 'node_zip'}},
+        'destroy'  => {:url => '/nodes/#{node_zip}', :method => 'delete'},
+        'update'   => {:url => '/nodes/#{node_zip}', :method => 'put'},
+        'drop'     => {:url => '/nodes/#{node_zip}/drop'},
+        'unlink'   => {:url => '/nodes/#{node_zip}/link/#{node.link_id}', :method => 'delete'},
+        'zafu'     => {:url => '/nodes/#{node_zip}/zafu'},
+        'publish'  => {:url => '/nodes/#{node_zip}/versions/0/publish', :method => 'put'},
+        'propose'  => {:url => '/nodes/#{node_zip}/versions/0/propose', :method => 'put'},
+        'refuse'   => {:url => '/nodes/#{node_zip}/versions/0/refuse',  :method => 'put'},
+        'edit'     => {:url => '/nodes/#{node_zip}/versions/0/edit'},
+      }
+
+
       ALLOWED_REGEXP = /\A(([a-zA-Z]+)([0-9]+)|([#{String::ALLOWED_CHARS_IN_FILENAME}%]+))(_[a-zA-Z]+|)(\..+|)\Z/
 
       module Common
@@ -15,22 +31,29 @@ module Zena
 
         # We overwrite some url writers that might use Node so that they use
         # zip instead of id.
-        ['', 'edit_', 'delete_', 'drop_', 'zafu_'].each do |method|
+        NODE_ACTIONS.each do |name, definition|
+          method = name.blank? ? 'node_path' : "#{name}_node_path"
+          hash_str = []
+          if query = definition[:query]
+            query.each do |k,v|
+              hash_str << ":#{k} => #{v}"
+            end
+          end
+
+          if hash_str.empty?
+            opts_merge = ''
+          else
+            opts_merge = "options = {#{hash_str.join(',')}}.merge(options)"  # {:parent_id => node_zip}.merge(options)
+          end
+
           class_eval(%Q{
-            def #{method}node_path(node, options={}) # def zafu_node_path(node, options={})
-              if ep = options.delete(:encode_params)
-                ep.split(',').map(&:strip).each do |key|
-                  value = params[key]
-                  options[key] = value unless value.blank?
-                end
-              end
-              if node.kind_of?(Node)                  #   if node.kind_of?(Node)
-                super(node.zip, options)              #     super(node.zip, options)
-              else                                    #   else
-                super                                 #     super
-              end                                     #   end
-            end                                       # end
-          }, __FILE__, __LINE__ - 15)
+            def #{method}(node, options={})                       # def zafu_node_path(node, options={})
+              return '#' unless node                              #   return '#' unless node
+              node_zip = node.kind_of?(Node) ? node.zip : node    #   node_zip = node.kind_of?(Node) ? node.zip : node
+              #{opts_merge}                                       #   options = {:parent_id => node.zip}.merge(options)
+              append_query_params("#{definition[:url]}", options) #   append_query_params("/nodes/\#{node.zip}/zafu", options)
+            end                                                   # end
+          }, __FILE__, __LINE__ - 5)
         end
 
         # Path to remove a node link.
@@ -235,19 +258,12 @@ module Zena
         safe_method [:zen_path, String, Hash]   => {:class => String, :accept_nil => true, :method => 'dummy_zen_path'}
         safe_method [:zen_path, String]         => {:class => String, :accept_nil => true, :method => 'dummy_zen_path'}
 
-        safe_method [:zafu_node_path, Node, Hash]   => {:class => String, :accept_nil => true}
-        safe_method [:zafu_node_path, Node]         => {:class => String, :accept_nil => true}
-        safe_method [:update_node_path, Node, Hash]   => {:class => String, :accept_nil => true, :method => 'node_path'}
-        safe_method [:update_node_path, Node]         => {:class => String, :accept_nil => true, :method => 'node_path'}
 
-        safe_method [:edit_node_path, Node, Hash]   => {:class => String, :accept_nil => true}
-        safe_method [:edit_node_path, Node]         => {:class => String, :accept_nil => true}
-        safe_method [:delete_node_path, Node, Hash] => {:class => String, :accept_nil => true}
-        safe_method [:delete_node_path, Node]       => {:class => String, :accept_nil => true}
-        safe_method [:drop_node_path, Node, Hash]   => {:class => String, :accept_nil => true}
-        safe_method [:drop_node_path, Node]         => {:class => String, :accept_nil => true}
-        safe_method [:unlink_node_path, Node, Hash]   => {:class => String, :accept_nil => true}
-        safe_method [:unlink_node_path, Node]         => {:class => String, :accept_nil => true}
+        NODE_ACTIONS.keys.each do |action|
+          next if action.blank?
+          safe_method [:"#{action}_node_path", Node, Hash] => {:class => String, :accept_nil => true}
+          safe_method [:"#{action}_node_path", Node]       => {:class => String, :accept_nil => true}
+        end
 
         safe_method :start_id  => {:class => Number, :method => 'start_node_zip'}
 
@@ -307,6 +323,7 @@ module Zena
         def make_link(options = {})
           remote_target = (options[:update] || @params.delete(:update))
           options[:action] ||= @params.delete(:action)
+          confirm = @params.delete(:confirm)
 
           @markup.tag ||= 'a'
 
@@ -328,6 +345,22 @@ module Zena
             text = text_for_link(options[:default_text])
           end
 
+          http_method = http_method_from_action(options[:action])
+
+          if http_method == 'delete'
+            confirm ||= '#{t("Destroy ?")} "#{title}"'
+          end
+
+          if confirm
+            confirm = ::RubyLess.translate_string(self, confirm)
+
+            if confirm.literal
+              markup.set_param(:"data-confirm", confirm.literal)
+            else
+              markup.set_dyn_param(:"data-confirm", "<%= #{confirm} %>")
+            end
+          end
+
           if remote_target
             # ajax link (link_to_remote)
 
@@ -336,9 +369,13 @@ module Zena
 
 
             # Use onclick with Ajax.
-            markup.set_dyn_param(:onclick, "new Ajax.Request(\"<%= #{href} %>\", {asynchronous:true, evalScripts:true, method:\"#{http_method_from_action(options[:action])}\"}); return false;")
+            markup.set_dyn_param(:onclick, "new Ajax.Request(\"<%= #{href} %>\", {asynchronous:true, evalScripts:true, method:\"#{http_method}\"}); return false;")
           else
             markup.set_dyn_param(:href, "<%= #{href} %>")
+
+            if http_method != 'get' || confirm
+              markup.set_dyn_param(:onclick, "return Zena.m(this,#{http_method.inspect})")
+            end
           end
 
           # We wrap without callbacks (before_wrap, after_wrap) so that the link
@@ -485,10 +522,8 @@ module Zena
 
             if opts[:action] == 'edit' && remote_target
               method = 'zafu_node_path'
-            elsif %w{edit drop unlink}.include?(opts[:action])
+            elsif NODE_ACTIONS[opts[:action]]
               method = "#{opts[:action]}_node_path"
-            elsif %w{update}.include?(opts[:action])
-              method = 'update_node_path'
             elsif remote_target
               method = 'zafu_node_path'
             else
@@ -497,14 +532,6 @@ module Zena
 
             method_args = []
             hash_params = []
-
-            # Select http verb.
-            unless remote_target
-              http_method = http_method_from_action(opts[:action])
-              if http_method != 'get'
-                hash_params << ":_method => '#{http_method}'"
-              end
-            end
 
             if href = @params[:href]
               method_args << href
@@ -523,7 +550,7 @@ module Zena
                 value = get_anchor_name(value)
               end
 
-              # FIXME: Do not force string interpolation.
+              # FIXME: how to not force string interpolation ?
               hash_params << "#{key.inspect} => %Q{#{value}}"
             end
 
@@ -545,9 +572,17 @@ module Zena
               return
             elsif target.kind_of?(String)
               # named target
-              return nil unless target = find_target(target)
+              if target_block = find_target(target)
+                target = target_block
+              else
+                out parser_error("Could not find target name '#{target}'.")
+                return nil
+              end
             end
 
+
+            # FIXME: when we have proper markup.dyn_params[:id] support,
+            # we should not need this crap anymore.
             case action
             when 'edit'
               # 'each' or 'block' target in parent hierarchy
@@ -560,11 +595,11 @@ module Zena
             when 'unlink', 'delete'
               @insert_dom_id = %Q{"#{node.dom_id(:erb => false)}"}
               hash_params << ":dom_id => insert_dom_id"
-              hash_params << ":t_url  => %Q{#{template_url(target.name)}}"
-            else # drop, swap
-              dom_name = target.name
-              hash_params << ":dom_id => %Q{#{dom_name}}"
-              hash_params << ":t_url  => %Q{#{template_url(dom_name)}}"
+              hash_params << ":t_url  => %Q{#{template_url(node.dom_prefix)}}"
+            else #drop, #swap
+              @insert_dom_id, dom_prefix = get_dom_id(target)
+              hash_params << ":dom_id => insert_dom_id"
+              hash_params << ":t_url  => %Q{#{template_url(dom_prefix)}}"
             end
 
             # method = opts[:method] || :get
@@ -638,17 +673,18 @@ module Zena
                 RubyLess::TypedString.new(prev_or_next, :class => Number, :nil => true)
               )
 
-              link = {
-                :href => '@node',
-                :eval => "#{page_direction}_page",
-                pagination_key => "\#{#{page_direction}_page}",
-              }.merge(@params)
-              # <r:link href='@node' p='next_page' eval='next_page'/>
-              add_block :method => 'link', :params => link
+              unless descendant('link')
+                # Do not wrap twice
+                link = {
+                  :href => '@node',
+                  :eval => "#{page_direction}_page",
+                  pagination_key => "\#{#{page_direction}_page}",
+                }.merge(@params)
+                # <r:link href='@node' p='next_page' eval='next_page'/>
+                wrap_in_block :method => 'link', :params => link
+              end
 
               out expand_if(cond)
-
-
             when 'list'
 
               node_count  = get_context_var('paginate', 'nodes')
@@ -727,14 +763,7 @@ module Zena
 
           # Return the HTTP verb to use for the given action.
           def http_method_from_action(action)
-            case action
-            when 'delete', 'unlink'
-              'delete'
-            when 'drop', 'update'
-              'put'
-            else
-              'get'
-            end
+            (NODE_ACTIONS[action] || {})[:method] || 'get'
           end
       end # ZafuMethods
     end # Urls

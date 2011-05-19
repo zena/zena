@@ -26,18 +26,18 @@ This filter updates the "distant filter block test"
 </div>
 
 <h3>publish = true</h3>
-<r:zazen attr='d_some_attr' edit='true' publish='true'/>
+<r:zazen attr='origin' edit='true' publish='true'/>
 
 <h3>publish = force</h3>
-<r:zazen attr='d_some_attr' edit='true' publish='force'/>
+<r:zazen attr='origin' edit='true' publish='force'/>
 
 <h3>pagination test</h3>
 (no ajax)
 <r:nodes in='site' order='zip' limit='8' paginate='p'>
-  <p><b do='[p_nodes]'/> nodes</p>
+  <p><b do='page_count'/> nodes</p>
   <p>
     <r:link mode='test' page='previous' do='t'>previous</r:link>
-    <r:show var='p'/>/<r:show var='p_count'/>
+    <r:p/>/<r:page_count/>
     || <r:link page='list' mode='test'/> ||
     <r:link mode='test' page='next' do='t'>next</r:link>
   </p>
@@ -48,10 +48,10 @@ This filter updates the "distant filter block test"
 
 (ajax)
 <div id='pagir' do='block' do='nodes' in='site' order='zip' limit='8' paginate='p'>
-  <p><b do='[p_nodes]'/> nodes</p>
+  <p><b do='page_count'/> nodes</p>
   <p>
     <r:link mode='test' update='pagir' page='previous' do='t'>previous</r:link>
-    <r:show var='p'/>/<r:show var='p_count'/>
+    <r:p/>/<r:page_count/>
     || <r:link page='list' update='pagir'/> ||
     <r:link mode='test' update='pagir' page='next' do='t'>next</r:link>
   </p>
@@ -177,19 +177,20 @@ This filter updates the "distant filter block test"
 .orange { background:orange;}
 .green  { background:green;}
 </style>
-<div id='swap' class='orange' do='block' green_if='custom_a eq 100'>
-  <span do='swap' states=',100' attr='custom_a' publish='true'><r:if test='custom_a eq 100'><r:t>done</r:t><r:else do='t'>open</r:else></r:if></span> custom_a: <b do='[custom_a]'/>
+<div id='swap' class='orange' do='block' green_if='weight == 100'>
+  <span do='swap' states=',100' attr='weight' publish='true'><r:if test='weight == 100'><r:t>done</r:t><r:else do='t'>open</r:else></r:if></span> weight: <b do='weight'/>
 </div>
 
-<h2>drag & drop</h2>
+<h2>drag &amp; drop</h2>
 
 <r:images in='site' do='each' draggable='true' do='img' mode='tiny'/>
 
 <h3>drop set relation</h3>
 
 <ul do='tags in site'>
+  <!-- drop in each -->
   <li style='border:1px solid #400; min_width:100px; min_height:100px;' do='each' do='drop' set='set_tag'>
-    <b do='[title]'/>
+    <b do='title'/>
     <ul do='context' select='tagged'><li do='each' do='unlink' do='img' mode='tiny'/></ul>
   </li>
 </ul>
@@ -197,18 +198,18 @@ This filter updates the "distant filter block test"
 <h3>drop set attributes</h3>
 
 <ul do='projects in site'>
-  <li style='border:1px solid #400; min_width:100px; min_height:100px;' do='each'><r:drop d_foo='I am an icon for [title]' icon_for_id='[id]'><b do='title' actions='all'/><r:icon where='1'><r:unlink do='img' mode='pv'/> <r:show attr='d_foo'/> </r:icon></r:drop>
+  <li style='border:1px solid #400; min_width:100px; min_height:100px;' do='each'><r:drop origin='I am an icon for #{title}' icon_for_id='#{id}'><b do='title' actions='all'/><r:icon where='1'><r:unlink do='img' mode='pv'/> <r:origin/> </r:icon></r:drop>
 </li>
 </ul>
 
 <h3>drop reload with param (comment on receiving)</h3>
 
-<div style='border:1px solid #400; min_width:100px; min_height:100px;' do='drop' change='params' d='[id]' do='if' test='param:d'>
-  <r:node where='id eq param:d' in='site'>
+<div style='border:1px solid #400; min_width:100px; min_height:100px;' do='drop' change='params' params[d]='\#{id}' do='if' test='params[:d]'>
+  <r:node where='id == #{params[:d]}' in='site'>
     Change icon to <r:img mode='tiny'/> ?
     <r:main store='icon' do='form'>
-      <r:input type='hidden' name='icon_id' set_value='[icon.id]'/>
-      <r:input type='hidden' name='m_title' set_value='icon changed to [icon.name]'/>
+      <r:input type='hidden' name='icon_id' value='#{icon.id}'/>
+      <r:input type='hidden' name='m_title' value='icon changed to #{icon.title}'/>
       <r:textarea name='m_text'/>
       <input type='submit'/>
     </r:main>
@@ -217,8 +218,8 @@ This filter updates the "distant filter block test"
     <r:icon do='img' mode='pv'/>
     please drop a node to change the icon
     <ul do='comments'>
-    <li do='each'><b do='[title]'/> <b do='[author_name]'/>
-    <div do='{text}'/>
+    <li do='each'><b do='title'/> <b do='author.title'/>
+    <div do='zazen' attr='text'/>
     </li>
     </ul></r:else>
 </div>
@@ -229,12 +230,12 @@ This filter updates the "distant filter block test"
 
 <r:images in='site' do='each' draggable='true' do='img' mode='tiny'/>
 
-<div style='border:1px solid #400; min_width:100px; min_height:100px;' do='drop' change='params' d='[id]' do='if' test='param:d'>
-  <r:node where='id eq param:d' in='site'>
+<div style='border:1px solid #400; min_width:100px; min_height:100px;' do='drop' change='params' d='\#{id}' do='if' test='params[:d]'>
+  <r:node where='id = #{params[:d]}' in='site'>
     Change icon to <r:img mode='tiny'/> ?
-    <r:form t_id='[main.id]'>
-      <r:input type='hidden' name='icon_for_id' set_value='[main.id]'/>
-      <r:input type='hidden' name='m_title' set_value='icon for [main.name]'/>
+    <r:form t_id='#{main.id}'>
+      <r:input type='hidden' name='icon_for_id' value='#{main.id}'/>
+      <r:input type='hidden' name='m_title' value='icon for #{main.title}'/>
       <r:textarea name='m_text'/>
       <input type='submit'/>
     </r:form>
@@ -243,8 +244,8 @@ This filter updates the "distant filter block test"
     please drop a node to change the icon
     <r:icon><r:img mode='pv'/>
     <ul do='comments'>
-    <li do='each'><b do='[title]'/> <b do='[author_name]'/>
-    <div do='{text}'/>
+    <li do='each'><b do='title'/> <b do='author.title'/>
+    <div do='zazen' attr='text'/>
     </li>
     </ul></r:icon></r:else>
 </div>
@@ -265,22 +266,22 @@ This filter updates the "distant filter block test"
 
 <hr/>
 
-<h2>notes & comments</h2>
+<h2>notes &amp; comments</h2>
 
-<div id='notes' do='notes' in='project' limit='10' order='log_at DESC'>
+<div id='notes' do='posts' in='project' limit='10' order='date desc'>
   <ul class='note_list'>
     <li do='add' after='self'/>
     <li class='inline_form' do='form'>
       <form>
         <p class='node_title'><input type='text' name='title' size='25'/></p>
         <p class='node_klass'>  <r:select name='klass' root_class='Note' selected='Post'/></p>
-        <p class='node_log_at'> <input type='date_box' name='log_at'/> </p>
+        <p class='node_date'> <input type='date_box' name='date'/> </p>
         <p class='validate'>    <input type="submit" value='validate' do='void' tset_value='validate'/></p>
       </form>
     </li>
     <li class='note' do='each'>
       <div class='header'>
-        <p class='log_at' do='show' date='log_at' tformat='full_date'>04.10</p>
+        <p class='date' do='show' attr='date' tformat='full_date'>04.10</p>
         <h2 class='title' do='title' actions='all'/>
         <div class='summary' do ='summary'/>
       </div>

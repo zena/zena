@@ -17,6 +17,7 @@ module Zena
               p.string 'idx_scope'
               p.string 'idx_reverse_scope'
             end
+            self.export_attributes += %w{idx_class idx_scope idx_reverse_scope}
           end
         end
 

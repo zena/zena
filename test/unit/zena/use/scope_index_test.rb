@@ -483,5 +483,17 @@ class ScopeIndexTest < Zena::Unit::TestCase
       end
     end # with an invalid query in idx_scope
   end # Creating a virtual class
+  
+  context 'The VirtualClass class' do
+    subject do
+      VirtualClass
+    end
 
+    should 'contain scopes in export attributes' do
+      assert subject.export_attributes.include?('idx_class')  
+      assert subject.export_attributes.include?('idx_scope')
+      assert subject.export_attributes.include?('idx_reverse_scope')
+    end
+  end # A VirtualClass
+  
 end

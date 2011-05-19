@@ -86,7 +86,6 @@ module Zena
             case params[:action]
             when 'edit'
               page.replace params[:dom_id], :file => template_path_from_template_url + ".erb"
-              puts "$('#{params[:dom_id]}_form_t').focusFirstElement();"
               page << "$('#{params[:dom_id]}_form_t').focusFirstElement();"
             when 'create'
               pos = params[:position]  || :before
@@ -207,7 +206,7 @@ module Zena
 
           if @name.blank?
             # make sure we have a scope
-            set_dom_prefix(node)
+            node.dom_prefix = dom_name
           end
 
           if erb_dom_id = markup.dyn_params[:id]
@@ -268,7 +267,7 @@ module Zena
           else
             node = self.node
           end
-          set_dom_prefix
+          node.dom_prefix = dom_name
           dom_id = node.dom_id(:erb => false)
 
           out %Q{<%= form_remote_tag(:url => zafu_node_path(#{node}), :method => :get, :html => {:id => \"#{dom_id}_f\"}) %>
@@ -293,25 +292,22 @@ module Zena
         def r_drop
           if parent.method == 'each' && @method == parent.single_child_method
             # We reuse the 'each' block.
-            markup = parent.markup
-            # Make sure the parent has a proper dom_prefix.
-            parent.set_dom_prefix
+            target = parent
           else
-            set_dom_prefix
-            markup = @markup
+            node.dom_prefix = dom_name
+            target = self
           end
+
+          # Make sure the target has a proper dom_prefix.
+          # FIXME: Test without, not sure this is needed anymore
+          #target.node.dom_prefix = target.dom_name
+
+          node = target.node
+          markup = target.markup
 
           markup.tag ||= 'div'
 
-          # This dom_id detection code is crap but it fixes the drop in each bug.
-          if dom_id = markup.dyn_params[:id]
-            if dom_id =~ /<%= %Q\{(.*)\} %>/
-              dom_id = $1
-            end
-          else
-            dom_id = node.dom_id(:list => false, :erb => false)
-            markup.set_id(node.dom_id(:list => false))
-          end
+          dom_id, dom_prefix = get_dom_id(target)
 
           markup.append_param(:class, 'drop') unless markup.params[:class] =~ /drop/
 
@@ -322,11 +318,11 @@ module Zena
           end
 
           if role = @params.delete(:set) || @params.delete(:add)
-            @params["node[#{role}_id]"] = '\#{id}'
+            @params["node[#{role}_id]"] = '\\#{id}'
           end
 
-          query_params << ", :url => #{make_href(self.name, :action => 'drop')}"
-          markup.pre_wrap[:drop] = "<% add_drop_id(\"#{dom_id}\"#{query_params}) %>"
+          query_params << ", :url => #{make_href(target, :action => 'drop')}"
+          markup.pre_wrap[:drop] = "<% add_drop_id(#{dom_id}#{query_params}) %>"
           r_block
         end
 
@@ -338,7 +334,7 @@ module Zena
           finder = RubyLess.translate(self, finder)
           return parser_error("Invalid class 'for' parameter: #{finder.klass}") unless finder.klass <= Node
 
-          set_dom_prefix
+          node.dom_prefix = dom_name
           dom_id = node.dom_id(:erb => false)
           markup.set_id(node.dom_id)
           markup.append_param(:class, 'toggle')
@@ -364,7 +360,7 @@ module Zena
           if dom_id = @markup.params[:id]
             # we do not mess with it
           else
-            set_dom_prefix
+            node.dom_prefix = dom_name
             markup.set_id(node.dom_id)
             dom_id = node.dom_id(:erb => false)
           end
@@ -445,6 +441,40 @@ module Zena
             super ||
             # unlink
             each_block.descendant('unlink')
+          end
+
+          # Returns ruby for dom_id.
+          #
+          # FIXME: HACK
+          # This dom_id detection code is crap but it fixes the drop in each bug.
+          def get_dom_id(target)
+            if dom_id = target.markup.dyn_params[:id]
+              if dom_id =~ /^<%=\s+(.*?)\s+%>$/
+                dom_id = $1
+              else
+                dom_id = "%Q{#{dom_id}}"
+              end
+
+            elsif target.context
+              # @context set, so node is available
+              dom_id = "%Q{#{target.node.dom_id(
+                :list => target.method == 'each',
+                :erb => false
+              )}}"
+
+              target.markup.set_id(node.dom_id(
+                :list => target.method == 'each'
+              ))
+            else
+              # Has not been rendered yet, does not have a dom_prefix set.
+              dom_id = "%Q{#{target.dom_name}}"
+
+              target.markup.set_id(node.dom_id(
+                :list => target.method == 'each'
+              ))
+            end
+
+            return [dom_id, target.context ? target.node.dom_prefix : target.dom_name]
           end
       end
     end # Ajax

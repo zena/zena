@@ -133,20 +133,20 @@ paginate_count:
   src: "<r:pages in='site' paginate='p' do='count'/>"
   # should properly pass the query to sub-contexts.
   tem: '/<%= _znodes %>/'
-  res: "18"
+  res: "19"
 
 count:
   src: "<r:pages in='site' do='count'/>"
   # should detect 'count' method and count nodes without pagination.
   tem: '/<%= _znodes %>/'
-  res: "18"
+  res: "19"
 
 paginate_page_name:
   context:
     p: 5
   src: "<r:pages in='site' limit='3' paginate='p' do='link' page='list' page_count='4' do='each'><r:page_name/>(<r:this/>)</r:pages>"
   # should define page_name
-  res: "…(3) 4(4) 5 6(6)"
+  res: "…(4) 5 6(6) 7(7)"
 # ============= Dynamic query ========
 
 query:
@@ -208,9 +208,9 @@ query_can_be_nil_bad_argument_type:
   tem: '/params\[:filter\] \|\| \"pages in site\"/'
   res: ''
 
-query_truc:
+query_count:
   tem: '<%= query("Page", "@node", "pages in site", :type => :count) %>'
-  res: '18'
+  res: '19'
 
 simple_select:
   src: "<div do='nodes select title as ti' find='first' do='ti'/>"

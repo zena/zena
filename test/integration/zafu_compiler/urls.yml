@@ -237,3 +237,31 @@ link_date_complex:
   src: "<r:link date='#{date.advance(:months =&gt; -1).strftime(\"%Y-%m-%d\", \"Asia/Jakarta\")}' text='PREV'/>"
   # Date is in Asia/Jakarta timezone. Ref date is utc in tests.
   res: "/\?date=2011-03-23'>PREV/"
+
+target_blank:
+  src: "<r:link mode='foo' target='_blank'/>"
+  res: "/<a target='_blank' href='/"
+
+action_destroy:
+  src: "<r:link action='destroy'/>"
+  res: "<a data-confirm='Destroy ? \"status title\"' href='/nodes/22' onclick='return Zena.m(this,\"delete\")'>status title</a>"
+
+action_publish:
+  src: "<r:link action='publish'/>"
+  res: "<a href='/nodes/22/versions/0/publish' onclick='return Zena.m(this,\"put\")'>status title</a>"
+
+action_edit:
+  src: "<r:link action='publish'/>"
+  res: "<a href='/nodes/22/versions/0/publish' onclick='return Zena.m(this,\"put\")'>status title</a>"
+
+action_add_doc:
+  src: "<r:link action='add_doc'/>"
+  res: "<a href='/documents/new?parent_id=22'>status title</a>"
+
+action_drive:
+  src: "<r:link action='drive'/>"
+  res: "<a href='/nodes/22/edit'>status title</a>"
+
+action_confirm:
+  src: "<r:link confirm='really go away ?'/>"
+  res: "<a data-confirm='really go away ?' href='/oo/projects-list/Clean-Water-project/page22.html' onclick='return Zena.m(this,\"get\")'>status title</a>"

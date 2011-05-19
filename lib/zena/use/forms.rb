@@ -373,12 +373,20 @@ module Zena
               hidden_fields["node[#{key}]"] = "<%= #{node}.#{value} %>"
             end
           end
-          # ===
-          # TODO: reject set_fields from hidden_fields
-          # ? what is this ?
-          # ===
+
+          # Read @params
+          @params.each do |key, value|
+            next if [:klass, :done].include?(key)
+            code = ::RubyLess.translate_string(self, value)
+            if code.literal.kind_of?(String)
+              hidden_fields[key] = "#{code.literal}"
+            else
+              hidden_fields[key] = "<%= #{code} %>"
+            end
+          end
 
           hidden_fields.reject! do |k,v|
+            # There is an explicit <input> field for this key, remove hidden value
             set_fields.include?(k)
           end
 
@@ -388,23 +396,19 @@ module Zena
         def r_textarea
           html_attributes, attribute = get_input_params()
           erb_attr = html_attributes.delete(:erb_attr)
-          value    = html_attributes.delete(:value)
+          value = html_attributes.delete(:value)
 
           return parser_error('Missing name.') unless attribute || html_attributes[:name]
 
           @markup.tag = 'textarea'
           @markup.set_dyn_params(html_attributes)
 
-          unless value
-            if @blocks == [] || @blocks == ['']
-              if @context[:in_add]
-                value = ''
-              else
-                value = attribute ? "<%= #{node_attribute(attribute)} %>" : ""
-              end
-            else
-              value = expand_with
+          if @blocks == [] || @blocks == ['']
+            if @context[:in_add]
+              value = ''
             end
+          else
+            value = expand_with
           end
 
           res = @markup.wrap(value)
@@ -601,12 +605,10 @@ module Zena
                 attribute = res[:name]
               end
 
-              unless @context[:in_filter] || attribute == 's'
-                if sub_attr
-                  res[:name] = "#{node.form_name}[#{attribute}][#{sub_attr}]"
-                else
-                 res[:name] = "#{node.form_name}[#{attribute}]"
-                end
+              if sub_attr
+                res[:name] = "#{node.form_name}[#{attribute}][#{sub_attr}]"
+              else
+                res[:name] = "#{node.form_name}[#{attribute}]"
               end
             end
 
@@ -660,7 +662,7 @@ module Zena
             res[:value] = "<%= fquote #{node(Node)}.prop[#{node}.name] %>"
           end
 
-          if node.dom_prefix
+          if node.dom_prefix && !params[:param]
             res[:id]   = "#{node.dom_prefix}_#{attribute}"
           else
             res[:id]   = params[:id] if params[:id]
@@ -700,7 +702,7 @@ module Zena
         def r_crop
           return parser_error("Invalid node type #{node.klass} (should be an Image).") unless node.will_be?(Image)
           @markup.tag ||= 'div'
-          set_dom_prefix
+          node.dom_prefix = dom_name
           @markup.set_id(node.dom_id(:list => false))
           dom = node.dom_id(:erb => false, :list => false)
           out %Q{<%= render :partial => 'documents/crop', :locals => {:node => #{node(Node)}, :img_id => "img#{dom}"} %>}

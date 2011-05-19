@@ -37,7 +37,7 @@ at_code:
 
 code_sqliss:
   tem: "<%= zazen('foo: @sqliss|contact in project@.') %>"
-  res: "./<span class=\"context\">in</span>/"
+  res: "/<span class=\"context\">in</span>/"
 
 spaces_on_first_lines:
   tem: "<%= zazen(\"This is a normal paragraphe. There are many phrases in this paragraphe and a forced line break\nhere. End of first paragraphe.\n\n This second paragraphe\n is space preserving\n la la           la la.\") %>"

@@ -185,7 +185,7 @@ module Zena
         def default_template_url(opts = {})
           if opts[:format] && opts[:format] != 'html'
             raise ActiveRecord::RecordNotFound
-          elsif %w{+login +index +adminLayout +popupLayout +notFound}.include?(opts[:mode])
+          elsif %w{+login +index +adminLayout +popupLayout +notFound admin}.include?(opts[:mode])
             zafu_url ="$default/Node-#{opts[:mode]}"
           elsif opts[:mode]
             raise ActiveRecord::RecordNotFound
@@ -476,7 +476,7 @@ module Zena
     <input type='hidden' name='redir' value='<%= request.path %>?rebuild=true'/>
     <b><a href='javascript:' onclick='$("zmake_template").submit();return false;'><img src='/images/add.png' title='create template for <%= @node.klass %>'/> create <%= @node.klass %>.zafu</a></b>
   <% end %>
-<% end -%></td></tr>}
+<% end -%> #{node_action_link('add_doc', "#{@skin.zip}", :text => '')}</td></tr>}
               end
               nodes.each do |path, node|
                 res << "    <tr><td class='actions'>#{zafu_helper.send(:node_actions, node)}</td><td>&nbsp;#{zafu_helper.send(:link_to, path.join('/'), zen_path(node))}</td></tr>\n"

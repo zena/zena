@@ -27,10 +27,14 @@ module Zena
             tag = "<a href='#{url}' target='_blank' title='#{title}' onclick=\"Zena.open_window('#{url}', '#{id}', event);return false;\">"
           else
             query = query.empty? ? '' : "?#{query.join('&')}"
-            tag  = "<a href='/nodes/#{node_zip}/versions/0/#{action}#{query}' onclick='Zena.put(this);return false;' title ='#{title}'>"
+            tag  = "<a href='/nodes/#{node_zip}/versions/0/#{action}#{query}' onclick='Zena.m(this, \"put\");return false;' title ='#{title}'>"
           end
           "#{tag}#{text}</a>"
         end
+      end
+
+      module ControllerMethods
+        include Common
       end
 
       module ViewMethods
@@ -270,7 +274,6 @@ class #{node.klass}: #{Array(node.klass).first.columns.keys.join(', ')}
             end
           elsif block = (ancestor('block') || ancestor('each'))
             # ancestor: ok
-            block = self
           elsif parent && block = parent.descendant('block')
             # sibling: ok
             upd_both = ''

@@ -4,7 +4,7 @@ module Zena::Use::Conditional
     def rubyless_class_scope(class_name)
       return parser_error("Cannot scope class in list (use each before filtering).") if node.list_context?
       # capital letter ==> class conditional
-      if klass = get_class(class_name)
+      if klass = VirtualClass[class_name]
         if klass.kpath =~ %r{^#{node.klass.kpath}} || @context[:saved_template]
           # Saved templates can be rendered with anything...
           # FIXME: Make sure saved templates from 'block' start with the proper node type ?

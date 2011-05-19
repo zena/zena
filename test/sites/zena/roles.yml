@@ -49,6 +49,10 @@ Original:
   kpath:           N
   type:            Role
 
+Comment:
+  kpath:           N
+  type:            Role
+
 Blog:
   kpath:           NPPB
   real_class:      Project

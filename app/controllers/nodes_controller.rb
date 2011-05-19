@@ -132,7 +132,10 @@ class NodesController < ApplicationController
           @errors = other.errors
         end
       end
-    elsif p = params[:params]
+    elsif params[:change] == 'params'
+      p = params.dup
+      p.delete(:action)
+      p.delete(:controller)
       params.merge!(other.replace_attributes_in_values(p))
     end
 
@@ -216,7 +219,10 @@ class NodesController < ApplicationController
         format.js
         format.xml  { render :xml => @node.to_xml(:root => 'node'), :status => :created, :location => node_url(@node) }
       else
-        format.html { render :action => "new" }
+        format.html do
+          flash[:error] = error_messages_for('node', :object => @node)
+          redirect_to request.referer
+        end
         format.js
         format.xml  { render :xml => @node.errors, :status => :unprocessable_entity }
       end
@@ -239,10 +245,9 @@ class NodesController < ApplicationController
 
   def destroy
     respond_to do |format|
-
       format.html do
         if @node.destroy
-          redirect_to zen_path(@node.parent)
+          redirect_to params[:redir] || zen_path(@node.parent)
         else
           flash.now[:notice] = "Could not destroy node."
           render :action => 'show'

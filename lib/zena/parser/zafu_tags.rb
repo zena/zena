@@ -1,5 +1,4 @@
-=begin 
-FIXME: remove when tests pass
+# This should be removed (it is used by zazen but I do not know why)
 module Zena
   module Parser
     module ZafuTags
@@ -197,4 +196,3 @@ module Zena
     end # ZafuTags
   end # Parser
 end # Zena
-=end

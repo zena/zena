@@ -587,16 +587,6 @@ style_css_en:
     ext:           css
     size:          5262
 
-admin_css_en:
-  node:            admin_css
-  user:            tiger
-  prop:
-    text:          "[FILE:db/init/base/skins/default/img/admin.css]"
-    title:         admin
-    content_type:  text/css
-    ext:           css
-    size:          1
-
 Node_zafu_en:
   node:            Node_zafu
   user:            tiger
@@ -613,24 +603,11 @@ Node_admin_layout_zafu_en:
   node:            Node_admin_layout_zafu
   user:            tiger
   prop:
-    text:          "[FILE:db/init/base/skins/default/Node-+adminLayout.zafu]"
+    text:          "[FILE:app/views/zafu/default/Node-+adminLayout.zafu]"
     title:         Node-+adminLayout
     format:        html
     tkpath:        N
     mode:          "+adminLayout"
-    target_klass:  Node
-    content_type:  text/zafu
-    ext:           zafu
-
-Node_admin_zafu_en:
-  node:            Node_admin_zafu
-  user:            tiger
-  prop:
-    text:          "[FILE:db/init/base/skins/default/Node-admin.zafu]"
-    title:         Node-admin
-    format:        html
-    tkpath:        N
-    mode:          admin
     target_klass:  Node
     content_type:  text/zafu
     ext:           zafu

@@ -89,7 +89,7 @@ module Zena
                 @if_class_params.each do |class_name, code|
                   begin
                     typed_string = ::RubyLess.translate(self, code)
-                    @markup.append_dyn_param(:class, "<%= (#{typed_string}) ? ' #{class_name}' : '' %>", true)
+                    @markup.append_dyn_param(:class, "<%= (#{typed_string}) ? ' #{class_name}' : '' %>", '')
                   rescue RubyLess::NoMethodError => err
                     text += parser_error(err.message, code)
                   end

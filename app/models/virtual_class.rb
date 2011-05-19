@@ -266,7 +266,7 @@ class VirtualClass < Role
     end
     subclasses = secure(::Role) do
       ::Role.find(:all, :conditions => [
-        'kpath LIKE ? OR (kpath = ? AND id <> ?)', "#{kpath}_", kpath, self.id.to_i
+        '(kpath LIKE ? and type = ?) OR (kpath = ? AND id <> ?)', "#{kpath}_", "VirtualClass", kpath, self.id.to_i
       ], :order => 'kpath ASC')
     end
     if real_class?

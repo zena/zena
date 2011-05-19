@@ -788,8 +788,15 @@ Zena.popup_close = function() {
   }
 }
 
-// Lighter 'put' options for the page.
-Zena.put = function(tag) {
+// Lighter 'put/delete' options for the page.
+Zena.m = function(tag, met) {
+  var msg = tag.getAttribute('data-confirm');
+  if (msg && !confirm(msg)) {
+    return false;
+  }
+  if (met == 'get') {
+    return true;
+  }
   var f = document.createElement('form');
   f.style.display = 'none';
   tag.parentNode.appendChild(f);
@@ -798,9 +805,10 @@ Zena.put = function(tag) {
   var m = document.createElement('input');
   m.setAttribute('type', 'hidden');
   m.setAttribute('name', '_method');
-  m.setAttribute('value', 'put');
+  m.setAttribute('value', met);
   f.appendChild(m);
   f.submit();
+  return false;
 }
 
 Zena.set_toggle = function(dom_id, definition) {

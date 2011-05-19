@@ -96,7 +96,12 @@ class VirtualClassesController < ApplicationController
       end
     end
   rescue ActiveRecord::RecordInvalid => e
-    flash.now[:error] = "#{r.class} '#{r.name}' #{e.message}"
+    r = e.record
+    if r.respond_to?(:name)
+      flash[:error] = "#{r.class} '#{r.name}' #{e.message}"
+    else
+      flash[:error] = "#{r.class} '#{r.inspect}' #{e.message}"
+    end
     redirect_to :action => :index
   rescue Exception => e
     flash.now[:error] = e.message

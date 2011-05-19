@@ -7,7 +7,7 @@ class NoteTest < Zena::Unit::TestCase
     test_page = secure!(Note) { Note.create(:title => "yoba", :parent_id => nodes_id(:cleanWater), :inherit=>1 ) }
     assert ! test_page.new_record? , "Not a new record"
     assert_equal nodes_id(:cleanWater), test_page.parent[:id]
-    assert_equal '18/21/64', test_page.fullpath
+    assert_equal "18/21/#{test_page.zip}", test_page.fullpath
     assert_equal '18/21', test_page.basepath
   end
 

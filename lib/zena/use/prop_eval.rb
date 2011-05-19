@@ -9,8 +9,8 @@ module Zena
             property do |p|
               p.string 'prop_eval'
             end
+            self.export_attributes += %w{prop_eval}
           end
-          base.export_attributes += %w{prop_eval}
         end
 
         private

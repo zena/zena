@@ -264,7 +264,7 @@ admin_links_for_admin_with_list:
     visitor: lion
   src: "<ul do='admin_links' list='comments,sites'><li do='each' do='show'><a href='#'>do this</a></li></ul>"
   tem: '/if var1 = admin_links\(\{:list => "comments,sites"\}/'
-  res: '<ul><li><a href="/comments">manage comments</a></li><li><a href="/sites">manage sites</a></li></ul>'
+  res: '<ul><li><a href="/comments">comments</a></li><li><a href="/sites">sites</a></li></ul>'
 
 admin_links_for_anon:
   context:
@@ -326,7 +326,7 @@ each_whitespace:
   src: |
     <r:pages in='site' order='id asc' limit='3'><r:each><r:id/><r:node></r:node></r:each>
     </r:pages>.
-  res: "12\n34\n16\n.\n"
+  res: "54\n12\n34\n.\n"
 
 set_class_before_query:
   # Should use previous node (not list context)

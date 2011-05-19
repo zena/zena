@@ -285,19 +285,11 @@ style_css:
   class:           TextDocument
   parent:          img
 
-admin_css:
-  class:           TextDocument
-  parent:          img
-
 Node_zafu:
   class:           Template
   parent:          default
 
 Node_admin_layout_zafu:
-  class:           Template
-  parent:          default
-
-Node_admin_zafu:
   class:           Template
   parent:          default
 

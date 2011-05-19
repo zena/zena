@@ -67,8 +67,8 @@ action:
   res: "/nodes/22/versions/0/edit.*Open the edition window to edit the node.*Zena.open_window/"
 
 swap:
-  src: "<span do='block' do='swap' attr='custom_a' states='100,-100' do='custom_a'/>"
-  tem: '/:dom_id => "list1", :t_url => "action/swap/list1"/'
+  src: "<span do='block' do='swap' attr='weight' states='100,-100' do='weight'/>"
+  tem: '/:dom_id => %Q\{list1\}, :t_url => "action/swap/list1"/'
   '/action/swap/en/list1.erb': "/<span id='list1'>/"
 
 swap_in_each:
@@ -77,4 +77,4 @@ swap_in_each:
 
 hand_made_swap:
   src: "<r:link update='_page' node[origin]='#{next_in_list(origin, \"todo,done\")}' action='update'/>"
-  tem: "/:_method => .put., :.node\[origin\]. => .#\{next_in_list_s\(@node.prop\['origin'\], .todo,done.\)/"
+  tem: "/node\[origin\]. => .#\{next_in_list_s\(@node.prop\['origin'\].*todo,done.*method:.put./"

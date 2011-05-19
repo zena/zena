@@ -189,7 +189,7 @@ class PropEvalTest < Zena::Unit::TestCase
           end
           assert_equal 'Hyperion', subject.title
         end
-        
+
         should 'rebuild prop_eval on klass change' do
           assert subject.update_attributes(:klass => 'Letter')
           node = secure(Node) { Node.find(subject.id)}
@@ -199,4 +199,14 @@ class PropEvalTest < Zena::Unit::TestCase
 
     end # on a node
   end # A visitor with write access
+
+  context 'The VirtualClass class' do
+    subject do
+      VirtualClass
+    end
+
+    should 'contain prop_eval in export attributes' do
+      assert subject.export_attributes.include?('prop_eval')
+    end
+  end # A VirtualClass
 end

@@ -245,6 +245,23 @@ class VirtualClassesControllerTest < Zena::Controller::TestCase
           assert_equal res['Node']['Original'], roles(:Original).export
         end
       end # importing virtual class definitions
+      
+      context 'with roles on vclass' do
+        setup do
+          secure!(::Role) { ::Role.create('name' => 'Address', 'superclass' => 'Contact')}
+        end
+        
+        context 'exporting virtual class definitions' do
+          subject do
+            {:action => :export}
+          end
+
+          should 'not have role duplicates in yaml' do
+            get_subject
+            assert_no_match %r{Address.*Address}m, @response.body
+          end
+        end # exporting virtual class definitions
+      end # with roles on vclass
     end # that is an admin
   end # A logged in user
 end

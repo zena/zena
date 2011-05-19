@@ -149,7 +149,8 @@ input_date_no_time:
     node: opening
   src: "<r:Post?><r:input type='date' name='date' time='false'/></r:Post?>"
   tem: '/:time => "false"/'
-  res: "/value='2006-03-15'.*showsTime *: *false/"
+  res: "/value='2006-03-15'/"
+  js: "/showsTime *: *false/"
 
 test_date:
   # test with 'date' tests contextual date (main_date).

@@ -57,7 +57,7 @@ select_class_kpath:
   res: "/<select.*name=.k.*NN.*Note.*NNL.*Letter.*NNP.*Post/"
 
 select_nodes:
-  src: "<r:form><select nodes='images in site' name='foo'></select></r:form>"
+  src: "<r:form><r:select nodes='images in site' name='foo'></select></r:form>"
   res: "/name='node\[foo\]'><option value=\"\" selected=\"selected\"></option>\n<option value=\"40\">Autumn Tree</option>\n<option value=\"30\">bird</option>/"
 
 do_not_set_parent_id_if_form_contains_parent_id:
@@ -65,7 +65,7 @@ do_not_set_parent_id_if_form_contains_parent_id:
   res: "!/node\[parent_id\].\s+value/"
 
 select_nodes_selected:
-  src: "<r:form><select name='parent_id' nodes='projects in site'/></r:form>"
+  src: "<r:form><r:select name='parent_id' nodes='projects in site'/></r:form>"
   res: "/option\s* value=.21.\s* selected=.selected.>Clean Water/"
 
 select_nodes_in_ajax:
@@ -245,3 +245,11 @@ crop:
   src: "<r:Image? do='crop'/>"
   res: "/node\[crop\]\[h\]/"
   js: '/Zena.Div_editor\("imglist1"/'
+
+hidden_fields_in_form_tag:
+  src: "<r:form foo='bar'></r:form>"
+  tem: "/<input type='hidden' name='foo' value='bar'/>/"
+
+hidden_fields_in_form_tag_dynamic:
+  src: "<r:form  node[log]='#{title}'></r:form>"
+  tem: "/<input type='hidden' name='node\[log\]' value='<%= \"#\{@node.prop\['title'\]\}\" %>/"

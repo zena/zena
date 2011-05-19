@@ -122,7 +122,7 @@ class Role < ActiveRecord::Base
         if vclass && vclass.class != VirtualClass
           # Change from role to vclass ?
           # Reject
-          raiseException.new("Cannot convert Role '#{name}' to VirtualClass.")
+          raise Exception.new("Cannot convert Role '#{name}' to VirtualClass.")
         elsif !vclass
           vclass = VirtualClass.new(:name => name, :superclass => superclass)
         end
@@ -130,7 +130,7 @@ class Role < ActiveRecord::Base
         # 1. create or update attributes
         VirtualClass.export_attributes.each do |key|
           if value = definition[key]
-            vclass[key] = value
+            vclass.send(:"#{key}=", value)
           else
             # We do not clear attributes (import is ADD/UPDATE only).
           end
@@ -163,7 +163,7 @@ class Role < ActiveRecord::Base
   def icon=(txt)
     # FIXME: remove gsub when we stop using ImageBuilder on
     # icon images. SECURITY
-    self.icon = txt.gsub('..', '.')
+    super(txt.gsub('..', '.'))
   end
 
   def superclass

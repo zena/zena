@@ -430,8 +430,8 @@ class Node < ActiveRecord::Base
     def get_class(rel, opts={})
       # mushroom_types ==> MushroomType
       class_name = rel =~ /\A[a-z]/ ? rel.singularize.camelize : rel
-      vclass = VirtualClass.find_by_name(class_name)
-      if opts[:create] && vclass.id
+      vclass = VirtualClass[class_name]
+      if vclass && opts[:create] && vclass.id
         # TODO: how do we deal with real class ? (Currently = pass).
         visitor.group_ids.include?(vclass.create_group_id) ? vclass : nil
       else
@@ -1745,7 +1745,7 @@ class Node < ActiveRecord::Base
           return
         end
       end
-      
+
       if @new_klass && !new_record?
         old_kpath = self.kpath
         # Reset 'schema' and 'virtual_class'
