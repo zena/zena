@@ -79,6 +79,18 @@ class NodesControllerTest < Zena::Controller::TestCase
         get_subject
         assert_response :success
       end
+
+      context 'with admin mode' do
+        subject do
+          {:action => 'show', :controller => 'nodes', :path => ["page#{nodes_zip(:projects)}_admin.html"], :prefix => 'en'}
+        end
+
+        should 'render not found' do
+          get_subject
+          assert_response :missing
+        end
+      end # with admin mode
+
     end # visiting show
 
     context 'with xml' do
@@ -460,56 +472,78 @@ class NodesControllerTest < Zena::Controller::TestCase
 
     end # using xml
 
-    context 'using html' do
-      context 'destroying a node' do
+    context 'visiting a node' do
 
+      subject do
+        {:action => 'show', :controller => 'nodes', :path => ["page#{nodes_zip(:projects)}_admin.html"], :prefix => 'oo'}
+      end
+
+      should 'show page' do
+        get_subject
+        assert_response :success
+      end
+
+      context 'with admin mode' do
         subject do
-          {:action=>'destroy', :controller=>'nodes', :id=>nodes_zip(:art)}
+          {:action => 'show', :controller => 'nodes', :path => ["page#{nodes_zip(:projects)}_admin.html"], :prefix => 'oo'}
         end
 
-        should 'succeed' do
-          assert_nothing_raised do
-            delete_subject
-          end
+        should 'render default admin layout' do
+          get_subject
+          assert_response :success
+          assert_match %r{\$default/Node-admin}, @response.rendered[:template].to_s
         end
+      end # with admin mode
+    end
 
-        should 'be redirected' do
+    context 'destroying a node' do
+
+      subject do
+        {:action=>'destroy', :controller=>'nodes', :id=>nodes_zip(:art)}
+      end
+
+      should 'succeed' do
+        assert_nothing_raised do
           delete_subject
-          assert_response :redirect
         end
+      end
 
-        # No, flash removed
-        # should 'be noticed that the node is destroyed' do
-        #   delete_subject
-        #   assert_equal 'Node destroyed.', flash[:notice]
-        # end
+      should 'be redirected' do
+        delete_subject
+        assert_response :redirect
+      end
 
-        should 'delete the node' do
-          assert_difference('Node.count', -1) do
-            delete_subject
-          end
-        end
+      # No, flash removed
+      # should 'be noticed that the node is destroyed' do
+      #   delete_subject
+      #   assert_equal 'Node destroyed.', flash[:notice]
+      # end
 
-      end # destroying a node
-
-      context 'trying to destroy an inaccessible node' do
-        subject do
-          {:action=>'destroy', :controller=>'nodes', :id=>nodes_zip(:status)}
-        end
-
-        should 'be noticed that it could not destroy the node' do
+      should 'delete the node' do
+        assert_difference('Node.count', -1) do
           delete_subject
-          assert_equal "Could not destroy node.", flash[:notice]
         end
+      end
 
-        should 'not delete the node' do
-          assert_difference('Node.count', 0) do
-            delete_subject
-          end
+    end # destroying a node
+
+    context 'trying to destroy an inaccessible node' do
+      subject do
+        {:action=>'destroy', :controller=>'nodes', :id=>nodes_zip(:status)}
+      end
+
+      should 'be noticed that it could not destroy the node' do
+        delete_subject
+        assert_equal "Could not destroy node.", flash[:notice]
+      end
+
+      should 'not delete the node' do
+        assert_difference('Node.count', 0) do
+          delete_subject
         end
+      end
 
-      end # trying to destroy an inaccessible node
-    end # using html
+    end # trying to destroy an inaccessible node
   end # A user
 
 

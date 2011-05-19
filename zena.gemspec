@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2011-05-17}
+  s.date = %q{2011-05-19}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -444,17 +444,13 @@ Gem::Specification.new do |s|
     "db/init/base/help.fr.zml",
     "db/init/base/skins.zml",
     "db/init/base/skins/default.zml",
-    "db/init/base/skins/default/Node-+adminLayout.zafu",
     "db/init/base/skins/default/Node-+index.zafu",
     "db/init/base/skins/default/Node-+login.zafu",
     "db/init/base/skins/default/Node-+notFound.zafu",
     "db/init/base/skins/default/Node-+popupLayout.zafu",
     "db/init/base/skins/default/Node-+search.zafu",
-    "db/init/base/skins/default/Node-admin.zafu",
-    "db/init/base/skins/default/Node-tree.zafu",
     "db/init/base/skins/default/Node.zafu",
     "db/init/base/skins/default/Project.zafu",
-    "db/init/base/skins/default/img/admin.css",
     "db/init/base/skins/default/img/favicon.png",
     "db/init/base/skins/default/img/style.css",
     "db/init/base/skins/default/img/translations.yml",
@@ -1741,6 +1737,7 @@ Gem::Specification.new do |s|
     "public/javascripts/zena.js",
     "public/robots.txt",
     "public/stylesheets/admin.css",
+    "public/stylesheets/backend.css",
     "public/stylesheets/calendar.css",
     "public/stylesheets/code.css",
     "public/stylesheets/comment.css",
