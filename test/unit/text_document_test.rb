@@ -129,7 +129,7 @@ class TextDocumentTest < Zena::Unit::TestCase
     #header { background:url('bird.jpg') }
     #pv     { background:url('bird_pv.jpg') }
     #footer { background:url('/projects list/a wiki with Zena/flower.jpg') }
-    #back   { background:url('../../projects list/a wiki with Zena/flower.jpg') }
+    #back   { background:url('../../../projects list/a wiki with Zena/flower.jpg') }
     #no_stamp { background:url('/en/image30_pv.jpg') }
     END_CSS
     node.text = start.dup

@@ -569,9 +569,13 @@ class VirtualClass < Role
           if templates = secure(Node) { Node.all(
               :conditions => "id IN (#{idx_templates.map{|r| r.node_id}.join(',')})")}
             templates.each do |t|
-              t.rebuild_tkpath(self)
-              # What if this fails ? Abort all ?
-              t.save!
+              t.visible_versions.each do |version|
+                t.version = version
+                t.instance_variable_set(:@properties, version.prop)
+                t.rebuild_tkpath(self)
+                Zena::Db.execute "UPDATE #{version.class.table_name} SET properties=#{Zena::Db.quote(version.class.encode_properties(version.prop))} WHERE id=#{version[:id]}"
+              end
+              t.rebuild_index!
             end
           end
         end

@@ -247,9 +247,11 @@ class NodesController < ApplicationController
     respond_to do |format|
       format.html do
         if @node.destroy
+          # These flash messages tend to hang around stupidly
+          # flash[:notice] = _("Node destroyed.")
           redirect_to params[:redir] || zen_path(@node.parent)
         else
-          flash.now[:notice] = "Could not destroy node."
+          flash.now[:notice] = _("Could not destroy node.")
           render :action => 'show'
         end
       end

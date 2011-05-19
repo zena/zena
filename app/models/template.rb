@@ -34,6 +34,7 @@ class Template < TextDocument
   end
 
   attr_protected    :tkpath
+  before_validation :rebuild_tkpath
   validate          :validate_section, :validate_target_klass
 
   # Class Methods
@@ -48,69 +49,64 @@ class Template < TextDocument
   end
 
   def skin
-    @skin ||= secure(Skin) { Skin.find(prop['skin_id']) }
+    @skin ||= secure(Skin) { Skin.find(skin_id) }
   end
-
-  def rebuild_tkpath(target_klass = nil)
-    if prop['target_klass']
-      errors.add('format', "can't be blank") unless prop['format']
-
+  
+  def rebuild_tkpath(rebuild_tklass = nil)
+    if target_klass
       # this is a master template (found when choosing the template for rendering)
-      if target_klass
-        prop['target_klass'] = target_klass.name
-        prop['tkpath'] = target_klass.kpath
+      if klass = rebuild_tklass
+        # rebuilding index
+        self.target_klass = klass.name
+        self.tkpath       = klass.kpath
         self.title = title_from_mode_and_format
-      else
-        target_klass = Node.get_class(prop['target_klass'])
-        if target_klass
-          prop['tkpath'] = target_klass.kpath
-        else
-          errors.add('target_klass', 'invalid')
-        end
+      elsif klass = VirtualClass[target_klass]
+        self.tkpath = klass.kpath
       end
-
+    else
+      self.tkpath = nil
     end
   end
 
   private
 
     def set_defaults
-      prop['mode']  = nil if prop['mode' ].blank?
-      prop['target_klass'] = nil if prop['target_klass'].blank?
+      self.mode  = nil if mode.blank?
+      self.target_klass = nil if target_klass.blank?
       super
 
       # Force template extension to zafu
-      prop['ext'] = 'zafu'
+      self.ext = 'zafu'
 
       # Force template content-type to 'text/zafu'
-      prop['content_type'] = 'text/zafu'
+      self.content_type = 'text/zafu'
 
       if prop.title_changed?
         if title =~ /^([A-Z][a-zA-Z]+?)(-(([a-zA-Z_\+]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/
           # title changed force  update
-          prop['target_klass']  = $1            unless prop.target_klass_changed?
-          prop['mode']   = ($4 || '')           unless prop.mode_changed?
-          prop['format'] = ($6 || 'html')       unless prop.format_changed?
+          self.target_klass  = $1            unless prop.target_klass_changed?
+          self.mode   = ($4 || '')           unless prop.mode_changed?
+          self.format = ($6 || 'html')       unless prop.format_changed?
         else
           # title set but it is not a master template name
-          prop['target_klass']  = nil
-          prop['mode']   = nil
-          prop['format'] = nil
+          self.target_klass  = nil
+          self.mode   = nil
+          self.format = nil
         end
       end
 
       if version.edited?
-         prop['mode'] = prop['mode'].gsub(/[^a-zA-Z\+]/, '') if prop['mode']
+         self.mode = mode.gsub(/[^a-zA-Z\+]/, '') if mode
 
-        if !prop['target_klass'].blank?
+        if !target_klass.blank?
           # update title
-          prop['format'] = 'html' if prop['format'].blank?
+          self.format = 'html' if format.blank?
           self.title = title_from_mode_and_format
 
-          if text.blank? && prop['format'] == 'html' && prop['mode'] != '+edit'
+          if text.blank? && format == 'html' && mode != '+edit'
             # set a default text
 
-            if prop['target_klass'] == 'Node'
+            if target_klass == 'Node'
               self.text = <<END_TXT
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -143,9 +139,9 @@ END_TXT
     end
 
     def title_from_mode_and_format(opts={})
-      opts[:format]  ||= prop['format']
-      opts[:mode  ]  ||= prop['mode']
-      opts[:target_klass ]  ||= prop['target_klass']
+      opts[:format]  ||= format
+      opts[:mode  ]  ||= mode
+      opts[:target_klass ]  ||= target_klass
       format = opts[:format] == 'html' ? '' : "-#{opts[:format]}"
       mode   = (!opts[:mode].blank? || format != '') ? "-#{opts[:mode]}" : ''
       "#{opts[:target_klass]}#{mode}#{format}"
@@ -156,8 +152,9 @@ END_TXT
     end
 
     def validate_target_klass
-      if prop.target_klass_changed?
-        rebuild_tkpath
+      if target_klass
+        errors.add('format', "can't be blank") unless format
+        errors.add('target_klass', 'invalid') unless VirtualClass[target_klass]
       end
     end
 end

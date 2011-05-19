@@ -607,6 +607,7 @@ class Node < ActiveRecord::Base
       parent_id = opts[:parent_id] || opts[:parent][:id]
       folder    = opts[:folder]
       defaults  = (opts[:defaults] || {}).stringify_keys
+      # Initial object class
       klass     = opts[:class] || opts[:klass] || "Page"
       res       = {}
 
@@ -639,7 +640,6 @@ class Node < ActiveRecord::Base
           sub_folder = path
           attrs      = defaults.dup
           attrs['v_lang'] ||= visitor.lang
-          attrs['klass'] = 'Page'
         elsif filename =~ /^(.+?)(\.\w\w|)(\.\d+|)\.zml$/  # bird.jpg.en.zml
           # node content in yaml
           type      = :node

@@ -260,7 +260,7 @@ class NodesControllerTest < Zena::Controller::TestCase
           assert_redirected_to '/foo/bar/baz'
         end
       end # with a redir param
-      
+
       context 'by changing a link comment' do
         subject do
           {:action => 'update', :controller => 'nodes', :id => nodes_zip(:opening), :node => {:link_id => links_id(:opening_in_art), :l_comment => 'To be removed'}}
@@ -276,8 +276,8 @@ class NodesControllerTest < Zena::Controller::TestCase
           assert_response :redirect
         end
       end # by changing a link comment
-      
-      
+
+
       context 'by changing a link date' do
         subject do
           {:action => 'update', :controller => 'nodes', :id => nodes_zip(:opening), :node => {:link_id => links_id(:opening_in_art), :l_date => '2011-03-29 17:51'}}
@@ -293,7 +293,7 @@ class NodesControllerTest < Zena::Controller::TestCase
           assert_response :redirect
         end
       end # by changing a date
-      
+
       context 'by changing skin' do
         subject do
           {:action => 'update', :controller => 'nodes', :id => nodes_zip(:people), :node => {:skin_zip => nodes_zip(:wikiSkin), :inherit => 0}}
@@ -478,10 +478,11 @@ class NodesControllerTest < Zena::Controller::TestCase
           assert_response :redirect
         end
 
-        should 'be noticed that the node is destroyed' do
-          delete_subject
-          assert_equal 'Node destroyed.', flash[:notice]
-        end
+        # No, flash removed
+        # should 'be noticed that the node is destroyed' do
+        #   delete_subject
+        #   assert_equal 'Node destroyed.', flash[:notice]
+        # end
 
         should 'delete the node' do
           assert_difference('Node.count', -1) do

@@ -238,7 +238,7 @@ class TemplateTest < Zena::Unit::TestCase
 
         should 'destroy index if target_klass is removed' do
           assert_difference('IdxTemplate.count', -1) do
-            assert subject.update_attributes(:target_klass => '')
+            assert subject.update_attributes(:target_klass => '', :v_status => Zena::Status[:pub])
           end
         end
       end # with target_klass

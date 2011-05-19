@@ -510,10 +510,12 @@ module Zena
             end
 
             if CORE_CONTEXTS.include?(relation)
-              if %w{project section}.include?(relation)
-                set_main_class(VirtualClass[relation.capitalize])
-              else
-                set_main_class(VirtualClass['Node'])
+              unless class_name
+                if %w{project section}.include?(relation)
+                  set_main_class(VirtualClass[relation.capitalize])
+                else
+                  set_main_class(VirtualClass['Node'])
+                end
               end
 
               # PREVIOUS_GROUP.id = NEW_GROUP.project_id

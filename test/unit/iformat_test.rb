@@ -47,10 +47,10 @@ class IformatTest < Zena::Unit::TestCase
 
   def test_list
     login(:lion)
-    assert_equal %w{tiny mini pv square low top med side edit std full}, Iformat.list.map{|h| h[:name]}
+    assert_equal %w{tiny tipop mini pv square low top med side edit std full}, Iformat.list.map{|h| h[:name]}
 
     login(:whale)
-    assert_equal %w{tiny mini pv square low med top side header edit std full}, Iformat.list.map{|h| h[:name]}
+    assert_equal %w{tiny tipop mini pv square low med top side header edit std full}, Iformat.list.map{|h| h[:name]}
   end
 
   def test_mem_cached

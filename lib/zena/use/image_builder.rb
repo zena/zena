@@ -35,7 +35,8 @@ module Zena
   module Use
     class ImageBuilder
       DEFAULT_FORMATS = {
-        'tiny' =>   { :name=>'tiny', :size=>:force, :width=>16,  :height=>16 , :gravity=>Magick::CenterGravity   },
+        'tiny'  => { :name=>'tiny', :size=>:force, :width=>16,  :height=>16 , :gravity=>Magick::CenterGravity   },
+        'tipop' => { :name=>'tipop', :size=>:force, :width=>16,  :height=>16 , :gravity=>Magick::CenterGravity, :popup => 'std'},
         'mini' =>   { :name=>'mini', :size=>:force, :width=>32,  :height=>32 , :gravity=>Magick::CenterGravity   },
         'square' => { :name=>'square', :size=>:limit, :width=>180, :height=>180, :gravity=>Magick::CenterGravity },
         'med'  =>   { :name=>'med',  :size=>:limit, :width=>280, :height=>186, :gravity=>Magick::CenterGravity   },

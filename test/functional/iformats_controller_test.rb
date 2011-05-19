@@ -90,7 +90,7 @@ class IformatsControllerTest < Zena::Controller::TestCase
     assert_response :success
     assert_template 'index'
     iformats = assigns['iformats']
-    assert_equal 11, iformats.size
+    assert_equal 12, iformats.size
   end
 
   def test_show
