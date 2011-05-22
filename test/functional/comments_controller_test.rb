@@ -12,6 +12,15 @@ class CommentsControllerTest < Zena::Controller::TestCase
     assert !comment.new_record?
   end
 
+  def test_create_bad_captcha
+    login(:anon)
+    post 'create', 'node_id'=>nodes_zip(:status), 'comment'=>{'title'=>'blowe', 'text' => 'I do not know..'}
+    assert_response :redirect
+    assert_redirected_to zen_path(nodes(:status))
+    comment = assigns['comment']
+    assert comment.new_record?
+  end
+
   def test_update
     login(:tiger)
     put 'update', 'id'=>comments_id(:tiger_says_inside), 'comment'=>{'title'=>'hahaha', 'text' => 'new text'}

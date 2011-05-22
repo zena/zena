@@ -32,7 +32,7 @@ module Zena
   class << self
     attr_accessor :tools_enabled
 
-    # Resolve a fully defined constant like 'Bricks::PDF::Engine::Prince'
+    # Resolve a fully defined constant like 'Bricks::Pdf::Engine::Prince'
     def resolve_const(klass)
       if klass.kind_of?(String)
         constant = nil

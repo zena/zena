@@ -429,15 +429,14 @@ module Zena
             else
               nil
             end
-          elsif node = node(Node)
+          else
+            node = node(Node) || '@node'
             return nil unless attribute = get_attribute_or_eval
             hash_arguments = extract_from_params(:code) || []
 
             hash_arguments.insert(0, ":node => #{node}")
 
             "<%= zazen(#{attribute}, #{hash_arguments.join(', ')}) %>"
-          else
-            parser_error("Cannot access 'Node' context")
           end
         end
 

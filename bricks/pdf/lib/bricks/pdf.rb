@@ -1,19 +1,19 @@
 =begin rdoc
-  PDF is module to render file or IO streams (strings obviously) into pdf.
+  Pdf is module to render file or IO streams (strings obviously) into pdf.
 
   Examples:
 
-  Bricks::PDF.engine = 'Xhtml2pdf'
+  Bricks::Pdf.engine = 'Xhtml2pdf'
 
-  Bricks::PDF.render_file "myfile.html"                            => STDOUT       (strings)
-  Bricks::PDF.render_file "myfile.html", "out.pdf"                 => out.pdf      (file)
+  Bricks::Pdf.render_file "myfile.html"                            => STDOUT       (strings)
+  Bricks::Pdf.render_file "myfile.html", "out.pdf"                 => out.pdf      (file)
 
-  Bricks::PDF.render_string "This is text to render."              => STDOUT       (strings)
-  Bricks::PDF.render_string "This is text to render.", "out.pdf"   => out.pdf      (file)
+  Bricks::Pdf.render_string "This is text to render."              => STDOUT       (strings)
+  Bricks::Pdf.render_string "This is text to render.", "out.pdf"   => out.pdf      (file)
 =end
 
 module Bricks
-  module PDF
+  module Pdf
     extend self
     # Wrapper around pdf engines
     module Engine
@@ -31,10 +31,10 @@ module Bricks
     end
 
     def engine=(engine_name)
-      engine_module = Zena.resolve_const("Bricks::PDF::Engine::#{engine_name.to_s.capitalize}")
+      engine_module = Zena.resolve_const("Bricks::Pdf::Engine::#{engine_name.to_s.capitalize}")
       extend engine_module
     rescue NameError
-      raise PDF::InvalidEngine, "Could not load pdf engine '#{engine_name}'."
+      raise Pdf::InvalidEngine, "Could not load pdf engine '#{engine_name}'."
     end
 
     def render(options)
@@ -66,7 +66,7 @@ module Bricks
 
         target_file = Tempfile.new('trg').path + '.pdf'
 
-        data = Bricks::PDF.render(get_render_auth_params.merge(
+        data = Bricks::Pdf.render(get_render_auth_params.merge(
           :data   => data,
           :output => target_file
         ))
@@ -106,5 +106,5 @@ module Bricks
 
     module ZafuMethods
     end # ZafuMethods
-  end # PDF
+  end # Pdf
 end # Bricks

@@ -3,6 +3,14 @@ require 'tempfile'
 module Zena
   module Use
     module Rendering
+      class Redirect < Exception
+        attr_reader :url
+
+        def initialize(url)
+          @url = url
+        end
+      end # Redirect class
+
       module ViewMethods
         # Append javascript to the end of the page.
         def render_js(in_html = true)
@@ -174,6 +182,16 @@ module Zena
             headers.merge!(zafu_headers)
             cache_page(:url => opts[:cache_url]) if opts[:cache]
           end
+        # This does not work, Rendering::Redirect is wrapped in TemplateError
+        # rescue Zena::Use::Rendering::Redirect
+        # This does not work either: infinity loop, CPU hog on errors.
+        # rescue ActionView::TemplateError => err
+        #   orig = err.original_exception
+        #   if orig.kind_of?(Zena::Use::Rendering::Redirect)
+        #     redirect_to orig.url
+        #   else
+        #     raise err
+        #   end
         end
 
         # Cache page content into a static file in the current sites directory : SITES_ROOT/test.host/public
@@ -281,6 +299,13 @@ module Zena
         def r_not_found
           out "<% raise ActiveRecord::RecordNotFound %>"
         end
+
+        # Does not work properly. FIXME.
+        # def r_redirect
+        #   out parser_error('Missing "url" parameter.') unless url = @params[:url]
+        #   code = ::RubyLess.translate_string(self, url)
+        #   out "<% raise Zena::Use::Rendering::Redirect.new(#{code}) %>"
+        # end
       end # ZafuMethods
     end # Rendering
   end # Use

@@ -1,9 +1,9 @@
 module Bricks
-  module PDF
+  module Pdf
     module Engine
       module Xhtml2pdf
         # Not supported until they have http auth and base url settings.
       end # Xhtml2pdf
     end # Engine
-  end # PDF
+  end # Pdf
 end # Bricks

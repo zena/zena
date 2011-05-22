@@ -17,7 +17,7 @@ discussion:
   tem: "<% if var1 = @node.discussion %><% if var2 = var1.comments %><%= var2.first.title %><% end %><% end %>"
   # no error
   res: "What about rivers ?"
-  
+
 comments_order_desc:
   context:
     visitor: ant
@@ -43,3 +43,11 @@ comments_previous_node:
 comments_in_site_node:
   src: "<r:comments from='nodes in site' order='created_at desc' limit='2' do='each' join=', '><r:node do='title'/>: <r:show attr='title'/></r:comments>"
   res: "status title: re: What about rivers ?, status title: What about rivers ?"
+
+author_name:
+  src: "<r:comments from='nodes in site' order='status desc' limit='2' do='each' join=', '><r:title/> (<r:author_name/>)</r:comments>"
+  res: "Nice site (Super casinos), re: What about rivers ? (simpson)"
+
+form:
+  src: "<r:comments><r:add/><r:each></r:each><r:form>xxx</r:form></r:comments>"
+  tem: "/name='node_id' value='<%= @node.zip %>'/"

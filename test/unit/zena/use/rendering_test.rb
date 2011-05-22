@@ -41,6 +41,12 @@ class RenderingInControllerTest < Zena::Controller::TestCase
     end
   end
 
+  def make_template(zafu, mode = 'special')
+    login(:lion)
+    # create template for 'special' mode
+    secure(Template) { Template.create(:parent_id => nodes_id(:default), :title => "Node-#{mode}.zafu", :text => zafu, :v_status => Zena::Status[:pub]) }
+  end
+
   context 'A custom rendering engine' do
     setup do
       login(:anon)
@@ -102,22 +108,38 @@ class RenderingInControllerTest < Zena::Controller::TestCase
     end
   end # Custom rendering options
 
-  context 'Not found rendering' do
+  context 'special rendering zafu' do
     subject do
-      login(:lion)
-      # create template for 'special' mode
-      t = secure(Template) { Template.create(:parent_id => nodes_id(:default), :title => 'Node-foo.zafu', :text => @zafu, :v_status => Zena::Status[:pub]) }
-      login(:anon)
-      {:action => 'show', :controller => 'nodes', :path => ["section#{nodes_zip(:people)}_foo.html"], :prefix => 'en'}
+      {:action => 'show', :controller => 'nodes', :path => ["section#{nodes_zip(:people)}_#{@mode}.html"], :prefix => 'en'}
     end
 
-    should 'raise not found' do
-      @zafu = %q{<r:not_found/>}
-      # Stupid tests. Raises ActionView::TemplateError during testing and
-      # ActiveRecord::RecordNotFound in production.
-      assert_raise(ActionView::TemplateError) { get_subject }
-    end
-  end # Custom rendering options
+    context 'to raise not found' do
+      setup do
+        @mode = 'nf'
+        make_template "<r:not_found/>", @mode
+        login(:anon)
+      end
+
+      should 'raise not found' do
+        # Stupid tests. Raises ActionView::TemplateError during testing and
+        # ActiveRecord::RecordNotFound in production.
+        assert_raise(ActionView::TemplateError) { get_subject }
+      end # Not found rendering
+    end # to raise not found
+
+    context 'to redirect' do
+      setup do
+        @mode = 'redir'
+        make_template "<r:redirect url='http://feature-space.com'/>", @mode
+        login(:anon)
+      end
+
+      should 'redirect' do
+        get_subject
+        assert_redirected_to 'http://feature-space.com'
+      end
+    end # to redirect
+  end # special rendering zafu
 
   context 'Custom rendering options on html' do
     subject do

@@ -355,3 +355,10 @@ date_with_set_var:
 short_path:
   src: "<r:short_path do='join(\" / \")'/>"
   res: ".. / Clean Water project / status title"
+
+show_param:
+  context:
+    t: 'hello'
+  src: "<r:show param='t'/>"
+  tem: "<%= h params[:t] %>"
+  res: "hello"

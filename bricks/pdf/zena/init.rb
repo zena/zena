@@ -1,5 +1,5 @@
 require 'bricks/pdf'
 
-Bricks::PDF.engine = Bricks::CONFIG['pdf']['engine']
+Bricks::Pdf.engine = Bricks::CONFIG['pdf']['engine']
 
-Zena::Use.module Bricks::PDF
+Zena::Use.module Bricks::Pdf

@@ -13,19 +13,19 @@ require 'tempfile'
 # end
 
 module Bricks
-  module PDF
+  module Pdf
     class Install
 
-      # Utility to install library necessary to PDF on unix like machine.
+      # Utility to install library necessary to Pdf on unix like machine.
       #
-      # To install xhtml2pdf and his dependencies, see PDF::xhtml2pdf in zena/tasks.rb
+      # To install xhtml2pdf and his dependencies, see Pdf::xhtml2pdf in zena/tasks.rb
 
       include FileUtils::Verbose
 
       attr_reader :url, :file, :md5, :sha1, :force
 
       def self.from_url url, opts={}
-        tmpf = Tempfile.new('PDF').path
+        tmpf = Tempfile.new('Pdf').path
         install_dir = "#{tmpf}_d"
         FileUtils.mkpath(install_dir)
         in_dir(install_dir) do
@@ -111,7 +111,7 @@ module Bricks
       end
 
     end # Install
-  end # PDF
+  end # Pdf
 end # Bricks
 
 

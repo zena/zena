@@ -125,6 +125,13 @@ dictionary_fr:
   tem: "<% _zdict = load_dictionary(828931430) %>foo: j'aime les mots"
   res: "foo: j'aime les mots"
 
+dictionary_missing:
+  context:
+    lang: 'fr'
+  src: "<r:load dictionary='barbaz' missing='ignore'><r:trans>foo</r:trans>: <r:t>I love</r:t> <r:trans>words</r:trans></r:load>"
+  tem: "foo: I love words"
+  res: "foo: I love words"
+
 dynamic_dictionary_eval_fr:
   context:
     lang: 'fr'

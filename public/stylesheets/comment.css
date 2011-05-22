@@ -1,4 +1,5 @@
-#comments { border-top:1px solid grey; clear:both; padding-top:5px;margin-top:13px;}
+
+#comments { border-top:1px solid grey; clear:both; padding-top:5px;margin:13px auto; width:80%; font-size:90%; line-height:1.5em;}
 .comments ul { margin-left:25px;}
 .comments { width:95%; }
 .comments li { margin-top:12px; }

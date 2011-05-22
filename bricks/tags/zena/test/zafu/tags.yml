@@ -1,4 +1,4 @@
-# test_file: ../../../../test/helpers/zena_parser_test.rb
+# test_file: ../../../../../test/integration/zafu_compiler_test.rb
 default:
   context:
     node: 'status'
@@ -39,3 +39,7 @@ tag_names:
     node: 'status'
   src: "<r:tag_names><r:each join=', ' do='show'/></r:tag_names>"
   res: "blue, sky"
+
+checkbox_tagged:
+  src: "<r:input type='checkbox' name='tagged[blue]'/>"
+  res: "<input type='checkbox' name='node[tagged][blue]' value='blue' checked='checked'/>"

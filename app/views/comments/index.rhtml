@@ -1,12 +1,14 @@
 <h2 class='title'><%= _('comments') %></h2>
-<div id='comment_errors'></div>
 
-<%= will_paginate @comments %>
-<ul class='comments' id='comments_list'>
-  <%= render :partial=>'comments/li', :collection=>@comments %>
-</ul>
+<div id='comments'>
+  <div id='comment_errors'></div>
+  <%= will_paginate @comments %>
+  <ul class='comments' id='comments_list'>
+    <%= render :partial=>'comments/li', :collection=>@comments %>
+  </ul>
 
 
-<div id='bin'>
-  <%= render :partial=>'comments/bin' %>
+  <div id='bin'>
+    <%= render :partial=>'comments/bin' %>
+  </div>
 </div>

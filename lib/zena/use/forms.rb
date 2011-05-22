@@ -294,7 +294,7 @@ module Zena
               end
             elsif node.will_be?(Comment)
               # FIXME: the "... || '@node'" is a hack and I don't understand why it's needed...
-              hidden_fields['node_id'] = "<%= #{node.up || '@node'}.zip %>"
+              hidden_fields['node_id'] = "<%= #{node.get(Node) || '@node'}.zip %>"
             elsif node.will_be?(DataEntry)
               return parser_error("Missing :data_root in context (internal error)") unless data_root = @context[:data_root]
               hidden_fields["data_entry[#{data_root}_id]"] = "<%= #{@context[:in_add] ? node(Node) : "#{node}.#{data_root}"}.zip %>"

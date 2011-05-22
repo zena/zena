@@ -5,10 +5,8 @@ module Zena
 
         #TODO: test
         def error_messages_for(type, opts={})
-          super unless type == 'node'
-
           obj = opts[:object]
-          return '' if obj.errors.empty?
+          return '' if !obj || obj.errors.empty?
           res = ["<table class='#{opts[:class] || 'errors'}'>"]
           obj.errors.each_error do |er,msg|
             res << "<tr><td><b>#{er}</b></td><td>#{_(msg)}</td></tr>"

@@ -30,7 +30,16 @@ module Zena
     def self.included(base)
       base.prepend_view_path SITES_ROOT
       base.class_eval do
+        bricks = []
         Zena::Use.each_module_for('Controller') do |mod|
+          if mod.to_s =~ /^Bricks::/
+            bricks << mod
+          else
+            include mod
+          end
+        end
+
+        bricks.each do |mod|
           include mod
         end
 

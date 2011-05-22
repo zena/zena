@@ -13,9 +13,9 @@ module Zena
         include Common
 
         # Read the parameters and add errors to the object if it is considered spam. Save it otherwize.
-        def save_if_not_spam(obj, params)
+        def should_save(obj, params)
           # do nothing (overwritten by plugins like zena_captcha)
-          obj.save
+          true
         end
 
       end # ControllerMethods
@@ -161,32 +161,6 @@ ENDTXT
           end
           trad_list
         end
-
-        # This lets helpers render partials
-        # TODO: make sure this is the best way to handle this problem.
-        # def render_to_string(*args)
-        #   controller = self.controller || begin
-        #      # ==> this means render_to_string uses a view with everything ApplicationController has...
-        #     ApplicationController.new.instance_eval do
-        #       class << self
-        #         public :render, :render_to_string
-        #         attr_accessor :request, :response, :params
-        #       end
-        #
-        #       @request = ::ActionController::TestRequest.new
-        #       @response = ::ActionController::TestResponse.new
-        #
-        #       @params = {}
-        #       send(:initialize_current_url)
-        #       @template = @response.template = ::ActionView::Base.new(self.class.view_paths, {}, self)
-        #       @template.helpers.send :include, self.class.master_helper_module
-        #       self
-        #     end
-        #   end
-        #
-        #   controller.render(*args)
-        # end
-
       end # ViewMethods
     end # Refactor
   end # Use

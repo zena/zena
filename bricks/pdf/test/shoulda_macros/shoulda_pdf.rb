@@ -27,7 +27,7 @@ class Test::Unit::TestCase
       end
 
       should 'fill STDOUT if no destination is specified' do
-        assert_match %r{^%PDF}, subject.render(:input => contact_html)
+        assert_match %r{^%Pdf}, subject.render(:input => contact_html)
       end
     end
 
@@ -40,7 +40,7 @@ class Test::Unit::TestCase
       end
 
       should 'fill STDOUT if no destination is specified' do
-        assert_match %r{^%PDF}, subject.render(:data => '<html>Hello World</html>')
+        assert_match %r{^%Pdf}, subject.render(:data => '<html>Hello World</html>')
       end
     end
 

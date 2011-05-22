@@ -640,6 +640,35 @@ Zena.reloadAndClose = function() {
 // POPUP GALLERY
 Zena.popup_gallery = null;
 
+Zena.popup_keydown = function(evt) {
+  var gallery = Zena.popup_gallery;
+
+	var code = evt.keyCode;
+	//if (!e) var e = window.event;
+	//if (e.keyCode) code = e.keyCode;
+	//else if (e.which) code = e.which;
+	var character = String.fromCharCode(code);
+	alert('Character was ' + character);
+
+  if (code == Event.KEY_LEFT) {
+    if (gallery.prev) {
+      Zena.popup(gallery.prev);
+    } else {
+      Zena.popup(gallery.list[gallery.list.size()-1]);
+    }
+  } else if (code == Event.KEY_RIGHT) {
+    if (gallery.next) {
+      Zena.popup(gallery.next);
+    } else {
+      Zena.popup(gallery.list[0]);
+    }
+  } else {
+    e.stop();
+    this.popup_gallery = null;
+    Zena.popup_close();
+  }
+}
+
 Zena.popup = function(elem) {
   var offsets = elem.positionedOffset();
   var e_left    = offsets[0];
@@ -677,29 +706,11 @@ Zena.popup = function(elem) {
 
   // get next/previous elements
   if (config.navigation) {
-    var gallery;
-    if (false && !this.popup_gallery) {
-      document.observe('keydown', function(e, el) {
-        if (!$('pg_info')) {
-          e.stop();
-          this.popup_gallery = null;
-        } else if (e.keyCode == 37) {
-          if (gallery.prev) {
-            Zena.popup(gallery.prev);
-          } else {
-            Zena.popup(gallery.list[gallery.list.size()-1]);
-          }
-        } else if (e.keyCode == 39) {
-          if (gallery.next) {
-            Zena.popup(gallery.next);
-          } else {
-            Zena.popup(gallery.list[0]);
-          }
-        } else {
-          e.stop();
-          this.popup_gallery = null;
-          Zena.popup_close();
-        }
+    if (!this.popup_gallery) {
+      Event.observe(document.body, 'keydown', function(e) {
+    	  var evt = e || window.event;
+    	  $('pg_info').innerHTML = evt.keyCode;
+        //alert('key :' + evt.keyCode);
       });
     }
     if (!this.popup_gallery || this.popup_gallery.klass != config.klass) {
@@ -708,9 +719,9 @@ Zena.popup = function(elem) {
         list: elem.up('div').select('img.' + config.klass)
       };
     }
+
     this.popup_gallery.current = elem;
     this.popup_gallery.index = this.popup_gallery.list.indexOf(elem);
-    gallery = this.popup_gallery;
   }
 
   if (!config.pg_info_style) {
@@ -743,10 +754,10 @@ Zena.popup = function(elem) {
 }
 
 Zena.popup_wrap = function(img, config) {
-  cont = $('pg_cont');
+  var cont = $('pg_cont');
   var content = '';
   var border_width = 1;
-  gallery = this.popup_gallery;
+  var gallery = this.popup_gallery;
 
   config.keys.each(function(key, index) {
     if (key == 'navigation') {
@@ -775,6 +786,7 @@ Zena.popup_wrap = function(img, config) {
 Zena.popup_close = function() {
   var cont = $('pg_cont');
   if (cont) {
+    document.stopObserving('keydown', Zena.popup_keydown);
     var img = $('pg_img');
     var pg_info = $('pg_info');
     if (pg_info) pg_info.remove();

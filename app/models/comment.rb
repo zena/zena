@@ -13,7 +13,8 @@ class Comment < ActiveRecord::Base
                     :discussion_id => Number,
                     :user_name => {:class => String, :nil => true},
                     :user => {:class => 'User', :nil => true},
-                    :author => Node.author_proc
+                    :author => Node.author_proc,
+                    :author_name => String
 
   safe_context      :replies => ['Comment'], :node => 'Node'
 

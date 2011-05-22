@@ -1,5 +1,5 @@
 module Bricks
-  module PDF
+  module Pdf
     module Engine
       module Prince
         def command(opts)
@@ -31,7 +31,7 @@ module Bricks
         end
       end # Prince
     end # Engine
-  end # PDF
+  end # Pdf
 end # Bricks
 
 

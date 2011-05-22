@@ -24,7 +24,7 @@ module Zena
       %w{get post put delete}.each do |method|
         class_eval <<-END_TXT
           def #{method}_subject
-            without_files('/test.host/zafu') do
+            without_files('test.host/zafu') do
               #{method} subject.delete(:action), subject
               if block_given?
                 yield

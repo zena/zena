@@ -20,8 +20,8 @@ module Zena
         def update_page_content(page, obj)
           unless params[:dom_id]
             # simply reply with failure or success
-            if !@node.errors.empty?
-              page << "alert(#{@node.errors.first.join(': ')});"
+            if !obj.errors.empty?
+              page << "alert(#{obj.errors.first.join(': ')});"
               page << "return false;" # How to avoid 'onSuccess' ?
             elsif params[:udom_id] == '_page'
               # reload page
@@ -32,8 +32,8 @@ module Zena
             return
           end
 
-          if params[:t_id] && @node.errors.empty?
-            @node = secure(Node) { Node.find_by_zip(params[:t_id])}
+          if params[:t_id] && obj.errors.empty?
+            obj = secure(Node) { Node.find_by_zip(params[:t_id])}
           end
 
           base_class = obj.kind_of?(Node) ? Node : obj.class
@@ -92,7 +92,7 @@ module Zena
               ref = params[:reference] || "#{params[:dom_id]}_add"
               page.insert_html pos.to_sym, ref, :file => template_path_from_template_url + ".erb"
               if obj.kind_of?(Node)
-                @node = @node.parent.new_child(:class => @node.class)
+                @node = obj.parent.new_child(:class => obj.class)
               else
                 instance_variable_set("@#{base_class.to_s.underscore}", obj.clone)
               end

@@ -60,7 +60,7 @@ You can now login with 'admin' and the password you used to make the site.
 === 1. Original in debian etch (might need to replace jpeg by libjpeg62)
   # aptitude install build-essential apache2 mysql-server libmagick9-dev gs-gpl libssl-dev gettext libgettext-ruby libreadline5 libreadline5-dev zlib1g-dev libncurses5 libncurses5-dev unzip liburi-perl libjpeg-dev subversion ssh sudo awstats
 
-If you want to enable LateX (PDF generation)
+If you want to enable LateX (Pdf generation)
 tetex-bin tetex-extra latex-ucs
 
 For math mode (inline formulas), you will need

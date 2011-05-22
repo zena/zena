@@ -88,17 +88,15 @@ module Bricks
       end
     end
 
-    # FIXME: remove
+    # FIXME: remove when we can use
+    # Zena::Use.modules_for('Zafu')
     def load_zafu(mod)
-      old_foreach_brick do |brick_path|
-        brick_name = File.basename(brick_path)
-        zafu_path  = File.join(brick_path, 'zafu')
-        next unless File.exist?(zafu_path)
-        Dir.foreach(zafu_path) do |rules_name|
-          next if rules_name =~ /\A\./
-          load File.join(zafu_path, rules_name)
+      Bricks::CONFIG.keys.each do |brick_name|
+        begin
+          mod.send(:include, eval("Bricks::#{brick_name.capitalize}::ZafuMethods"))
+        rescue NameError
+          # ignore
         end
-        mod.send(:include, eval("Bricks::#{brick_name.capitalize}::ZafuMethods"))
       end
     end
 

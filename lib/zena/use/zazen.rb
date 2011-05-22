@@ -1,6 +1,8 @@
+require 'timeout'
 module Zena
   module Use
     module Zazen
+      ZAZEN_TIMEOUT = 5
       module ViewMethods
 
         include Zena::Use::Grid::ViewMethods
@@ -37,29 +39,38 @@ module Zena
         # * [!14!:37] you can use an image as the source for a link
         # * [!14!:www.example.com] use an image for an outgoing link
         def zazen(text, opt={})
-          return '' unless text
-          code_lang = opt[:code]
-          if !code_lang.blank?
-            return Zena::CodeSyntax.new(text, code_lang).to_html
-          end
+          Timeout.timeout(ZAZEN_TIMEOUT) do
+            return '' unless text
+            code_lang = opt[:code]
+            if code_lang == '' && opt[:node].kind_of?(TextDocument)
+              # do not parse. This is to make sure we do not accidently parse
+              # TextDocument content as Zazen.
+              return text
+            end
+            if !code_lang.blank?
+              return Zena::CodeSyntax.new(text, code_lang).to_html
+            end
 
-          opt = {:images=>true, :pretty_code=>true, :output=>'html'}.merge(opt)
-          no_p = opt.delete(:no_p)
-          img = opt[:images]
-          if opt[:limit]
-            opt[:limit] -= 1 unless opt[:limit] <= 0
-            paragraphs = text.split(/\n\n|\r\n\r\n/)
-            if paragraphs.size > (opt[:limit]+1) && opt[:limit] != -1
-              text = paragraphs[0..opt[:limit]].join("\r\n\r\n") + " &#8230;"
+            opt = {:images=>true, :pretty_code=>true, :output=>'html'}.merge(opt)
+            no_p = opt.delete(:no_p)
+            img = opt[:images]
+            if opt[:limit]
+              opt[:limit] -= 1 unless opt[:limit] <= 0
+              paragraphs = text.split(/\n\n|\r\n\r\n/)
+              if paragraphs.size > (opt[:limit]+1) && opt[:limit] != -1
+                text = paragraphs[0..opt[:limit]].join("\r\n\r\n") + " &#8230;"
+              end
+            end
+            opt[:node] ||= @node
+            res = ZazenParser.new(text,:helper=>self).render(opt)
+            if no_p && !text.include?("\n")
+              res.gsub(%r{\A<p>|</p>\Z},'')
+            else
+              res
             end
           end
-          opt[:node] ||= @node
-          res = ZazenParser.new(text,:helper=>self).render(opt)
-          if no_p && !text.include?("\n")
-            res.gsub(%r{\A<p>|</p>\Z},'')
-          else
-            res
-          end
+        rescue Timeout::Error
+          return %Q{<span class='parser_error'>#{_('Could not render text (Timeout error)')}</span>}
         end
 
         # TODO: test

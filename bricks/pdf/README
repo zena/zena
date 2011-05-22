@@ -18,16 +18,16 @@ There is one method "render" that takes a hash as argument.
 
 == Examples
 
-    Bricks::PDF.engine = 'prince'
+    Bricks::Pdf.engine = 'prince'
 
-    Bricks::PDF.render :input => "myfile.html"
+    Bricks::Pdf.render :input => "myfile.html"
     => STDOUT
 
-    Bricks::PDF.render :input => "myfile.html", :output => "out.pdf"
+    Bricks::Pdf.render :input => "myfile.html", :output => "out.pdf"
     => out.pdf      (file)
 
-    Bricks::PDF.render :data  => "This is text to render."
+    Bricks::Pdf.render :data  => "This is text to render."
     => STDOUT       (strings)
 
-    Bricks::PDF.render :data  => "This is text to render.", :output => "out.pdf"
+    Bricks::Pdf.render :data  => "This is text to render.", :output => "out.pdf"
     => out.pdf      (file)

@@ -102,7 +102,7 @@ module Zena
         uploaded_fixture(fname, 'image/jpeg', filename)
       end
 
-      # PDF helper
+      # Pdf helper
       def uploaded_pdf(fname, filename=nil)
         uploaded_fixture(fname, 'application/pdf', filename)
       end

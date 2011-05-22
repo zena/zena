@@ -24,7 +24,11 @@ class CommentsController < ApplicationController
 
     @comment = secure(Comment) { Comment.new(filter_attributes(params[:comment])) }
 
-    save_if_not_spam(@comment, params)
+    if should_save(@comment, params)
+      @comment.save
+    else
+      #...
+    end
 
     respond_to do |format|
       if @comment.errors.empty?
@@ -33,7 +37,8 @@ class CommentsController < ApplicationController
         format.js
         format.xml  { head :created, :location => comment_path(@node) }
       else
-        format.html { render :action => "new" }
+        flash[:error] = error_messages_for(:comment, :object => @comment)
+        format.html { redirect_to zen_path(@node) }
         format.js
         format.xml  { render :xml => @comment.errors.to_xml }
       end

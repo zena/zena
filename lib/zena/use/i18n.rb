@@ -279,21 +279,29 @@ module Zena
           if dict = @params[:dictionary]
             # FIXME: replace @options[:base_path] by @options[:skin_id]
             dict_content, absolute_url, base_path, doc = @options[:helper].send(:get_template_text, dict, @options[:base_path])
-            return parser_error("dictionary #{dict.inspect} not found") unless base_path
-            # Lazy dictionary used for literal resolution
-            dict = TranslationDict.new(doc.id)
+            if base_path
+              # Lazy dictionary used for literal resolution
+              dict = TranslationDict.new(doc.id)
 
-            if dict.load!(dict_content)
-              # Save dictionary in template for dynamic uses
-              dict_name = get_var_name('dictionary', 'dict')
+              if dict.load!(dict_content)
+                # Save dictionary in template for dynamic uses
+                dict_name = get_var_name('dictionary', 'dict')
 
-              # This is to use in RubyLess translations and static translations in Zafu
-              set_context_var('set_var', 'dictionary', RubyLess::TypedString.new(dict_name, :class => TranslationDict, :literal => dict))
+                # This is to use in RubyLess translations and static translations in Zafu
+                set_context_var('set_var', 'dictionary', RubyLess::TypedString.new(dict_name, :class => TranslationDict, :literal => dict))
 
-              # Lazy loading (loads file on first request)
-              out "<% #{dict_name} = load_dictionary(#{doc.id}) %>"
+                # Lazy loading (loads file on first request)
+                out "<% #{dict_name} = load_dictionary(#{doc.id}) %>"
+              else
+                return parser_error(dict.last_error)
+              end
             else
-              return parser_error(dict.last_error)
+              # not found
+              if @params[:missing] == 'ignore'
+                # ignore
+              else
+                return parser_error("dictionary #{dict.inspect} not found") unless base_path
+              end
             end
           else
             return parser_error("missing 'dictionary'")
