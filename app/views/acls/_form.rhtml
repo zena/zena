@@ -1,0 +1,63 @@
+<td class='add'>
+  <%=  if @acl[:id]
+    link_to_remote _('btn_x'), :url => acl_path(@acl), :method => :get
+  else
+    link_to_function _('btn_x'), "['add_acl', 'add_acl_form'].each(Element.toggle);"
+  end %>
+</td>
+<td class='add' colspan='7'>
+  <div class='errors'><%= error_messages_for(:acl, :object => @acl) %></div>
+  <% if @acl[:id] %>
+  <%= form_remote_tag(:url=> acl_path(@acl)) %>
+  <%= hidden_field('acl', 'id') %>
+  <input type='hidden' name='_method' value ='put'/>
+  <% else %>
+  <%= form_remote_tag(:url=> acls_path) %>
+  <% end %>
+    <table cellspacing='0'>
+      <tr class='priority'>
+        <td class='label'><%= _('priority')%></td>
+        <td><%= text_field('acl', 'priority', :size => 4 ) %></td>
+      </tr>
+      <tr>
+        <td class='label'><%= _('name')%></td>
+        <td><%= text_field('acl', 'name',        :size=>15 ) %></td>
+      </tr>
+      <tr>
+        <td class='label'><%= _('description')%></td>
+        <td><%= text_area('acl', 'description', :rows => 2, :cols => 40) %></td>
+      </tr>
+      <tr>
+        <td class='label'><%= _('query')%></td>
+        <td><%= text_area('acl', 'query', :rows => 4, :cols => 40) %></td>
+      </tr>
+      <tr>
+        <td class='label'><%= _('action')%></td>
+        <td><%= select('acl', 'action',  Acl::ACTIONS ) %></td>
+      </tr>
+      <tr>
+        <td class='label'><%= _('group')%></td>
+        <td><%= select('acl', 'group_id',  visitor.all_groups.map{|g| [g.name, g.id]}) %></td>
+      </tr>
+      <tr class='exec'>
+        <td class='label'><%= _('exec group')%></td>
+        <td><%= select('acl', 'exec_group_id',  visitor.all_groups.map{|g| [g.name, g.id]}, :include_blank => true) %></td>
+      </tr>
+      <tr class='exec'>
+        <td class='label'><%= _('exec skin')%></td>
+        <td><%= select('acl', 'exec_skin_id',  form_skins, {:include_blank => true, :selected => @acl.exec_skin_zip}) %></td>
+      </tr>
+      <tr>
+        <td colspan='2'>
+          <input type='submit' class='btn_validate' value='<%= _('validate') %>'/>
+        </td>
+      </tr>
+    </table>
+  </form>
+  <% if !@acl.new_record? -%>
+  <%= form_remote_tag(:url => acl_path(@acl), :confirm => _('Are you sure you want to destroy this access ?') ) %>
+  <input type='hidden' name='_method' value ='delete'/>
+  <p class='destroy'><%= _('destroy acl') %> <input type='submit' value='<%= _('destroy') %>'></p>
+  </form>
+  <% end -%>
+</td>

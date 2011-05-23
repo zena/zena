@@ -63,7 +63,12 @@ class Iformat < ActiveRecord::Base
       obj = self.new
       default.each do |k,v|
         next if k == :hash_id
-        obj.send("#{k}=", v.to_s)
+        if k == :popup && v.kind_of?(Hash)
+          v = v.dup
+          obj.popup = "#{v.delete(:name)} #{v.to_json}"
+        else
+          obj.send("#{k}=", v.to_s)
+        end
       end
       obj
     end
@@ -130,6 +135,10 @@ class Iformat < ActiveRecord::Base
 
   def size
     SIZES[self[:size].to_i]
+  end
+
+  def popup_name
+    popup ? popup[/^(.*?)(\s|$)/,1] : ''
   end
 
   def size=(str)

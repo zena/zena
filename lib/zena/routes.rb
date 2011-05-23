@@ -14,6 +14,7 @@ module Zena
       resources :pings
       resources :users, :member => { :preferences => :get }
       resources :groups
+      resources :acls
       resources :iformats
       resources :acls
 

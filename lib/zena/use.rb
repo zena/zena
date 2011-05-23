@@ -2,7 +2,7 @@ module Zena
   # This module is used to declare and manage the list of features used by Zena.
   module Use
     SUFFIX_NAME  = 'Methods'
-    MODULE_NAMES = %w{Controller View Zafu}
+    MODULE_NAMES = %w{Controller View Zafu User}
     # "Controller" => "ControllerMethods"
     MODULE_NAME  = Hash[*MODULE_NAMES.map {|n| [n, "#{n}#{SUFFIX_NAME}"]}.flatten]
 

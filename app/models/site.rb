@@ -208,9 +208,11 @@ class Site < ActiveRecord::Base
     @any_admin ||= User.find_by_status_and_site_id(User::Status[:admin], self.id)
   end
 
-  # TODO: test
+  # Return the root node or a dummy if the visitor cannot view root
+  # node (such as during a 404 or login rendering).
   def root_node
-    secure(Node) { Node.find(self[:root_id]) }
+    @root ||= secure(Node) { Node.find(self.root_id) } ||
+              Node.new(:title => host)
   end
 
   # Return the public group: the one in which every visitor belongs.

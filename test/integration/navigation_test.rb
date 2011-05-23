@@ -228,6 +228,43 @@ class NavigationTest < Zena::Integration::TestCase
     end # without clues
   end # Selecting lang
 
+  context 'In an intranet' do
+    setup do
+      # Only lion is in the 'admin' group
+      $_test_site = 'zena'
+      Zena::Db.execute "UPDATE nodes SET rgroup_id = #{groups_id(:admin)}, wgroup_id = #{groups_id(:admin)}, dgroup_id = #{groups_id(:admin)}"
+    end
+
+    context 'an anonymous user' do
+      should 'not raise not found on login' do
+        get 'http://test.host/login'
+        assert_response :success
+        assert_match %r{/\$default/Node-\+login}, @response.rendered[:template].to_s
+      end
+    end # an anonymous user
+
+    context 'a visitor without group access' do
+      setup do
+        post 'http://test.host/session', :login=>'ant', :password=>'ant'
+      end
+
+      should 'raise not found on root' do
+        get 'http://test.host/oo'
+        assert_response :missing
+      end
+
+      context 'using acl' do
+        setup do
+          Zena::Db.execute "UPDATE users SET use_acls = #{Zena::Db.quote(true)} WHERE id = #{users_id(:ant)}"
+        end
+
+        should 'redirect to user page on root not found' do
+          get 'http://test.host/oo'
+        end
+      end # using acl
+    end # a visitor without group access
+  end # An intranet
+
   def test_set_lang_authenticated
     post 'http://test.host/session', :login=>'lion', :password=>'lion'
     get 'http://test.host/oo/page32.html?lang=fr'

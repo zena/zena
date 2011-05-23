@@ -35,6 +35,10 @@ class QueryNodeTest < Zena::Unit::TestCase
         subject.safe_method_type(['first', String])
       assert_kind_of Image, subject.new.safe_eval('first("image in site")')
     end
+
+    should 'respond to sfind' do
+      assert_equal ['Default skin', 'wiki skin'], subject.sfind('skins in site').map(&:title)
+    end
   end # A class with QueryNode::ModelMethods included
 
   context 'An object with QueryNode::ModelMethods' do
@@ -89,7 +93,7 @@ class QueryNodeTest < Zena::Unit::TestCase
       should 'set main_class' do
         assert_equal VirtualClass['Document'], subject.main_class
       end
-      
+
       context 'with core context' do
         subject do
           Node.build_query(:all, 'project')
@@ -99,7 +103,7 @@ class QueryNodeTest < Zena::Unit::TestCase
           assert_equal VirtualClass['Project'], subject.main_class
         end
       end # with core context
-      
+
     end # with a real class filter
 
     context 'with root' do

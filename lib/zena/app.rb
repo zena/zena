@@ -23,6 +23,7 @@ Zena::Use.module  [
   Zena::Use::ZafuSafeDefinitions,
   Zena::Use::ZafuTemplates,
   Zena::Use::Zazen,
+  Zena::Use::Acls,
 ]
 
 module Zena
@@ -55,6 +56,12 @@ module Zena
       end
       Bricks.apply_patches('application_controller.rb')
       Bricks.apply_patches('application_helper.rb')
+
+      ::User.class_eval do
+        Zena::Use.each_module_for('User') do |mod|
+          include mod
+        end
+      end
     end
   end
 end

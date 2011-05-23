@@ -18,7 +18,7 @@ class GroupsController < ApplicationController
   end
 
   def index
-    secure!(Group) do
+    secure(Group) do
       @groups = Group.paginate(:all, :order => 'name', :per_page => 20, :page => params[:page])
     end
     @group = Group.new

@@ -1,0 +1,11 @@
+<tr id='acl<%= li[:id] %>'>
+  <td class="adm_icon"><%= link_to_remote( _("img_acl"), :update=>"acl#{li[:id]}", :url=>edit_acl_path(li), :method=>:get) %></td>
+  <td class='name'><%= li.name %></td>
+  <td class='query'><%= li.query %></td>
+  <td class='description'><%= zazen(li.description) %></td>
+  <td class='action'><%= li.action %></td>
+  <td class='group'><%= li.group.name %></td>
+  <td class='exec group'><%= li.exec_group.name %></td>
+  <td class='exec skin'><%= li.exec_skin ? li.exec_skin.title : '' %></td>
+  <td class='priority'><%= li.priority %></td>
+</tr>

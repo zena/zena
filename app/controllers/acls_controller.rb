@@ -1,83 +1,76 @@
 class AclsController < ApplicationController
-  # GET /acls
-  # GET /acls.xml
+  before_filter :check_is_admin
+  before_filter :find_acl, :except => [:index, :new, :create]
+  before_filter :visitor_node
+  layout :admin_layout
+
   def index
-    @acls = Acl.all
+    secure(Acl) do
+      @acls = Acl.paginate(:all, :order => 'priority DESC, name ASC', :per_page => 20, :page => params[:page])
+    end
+    @acl = Acl.new
 
     respond_to do |format|
       format.html # index.html.erb
-      format.xml  { render :xml => @acls }
     end
   end
 
-  # GET /acls/1
-  # GET /acls/1.xml
   def show
-    @acl = Acl.find(params[:id])
-
     respond_to do |format|
       format.html # show.html.erb
       format.xml  { render :xml => @acl }
     end
   end
 
-  # GET /acls/new
-  # GET /acls/new.xml
-  def new
-    @acl = Acl.new
-
-    respond_to do |format|
-      format.html # new.html.erb
-      format.xml  { render :xml => @acl }
-    end
-  end
-
-  # GET /acls/1/edit
   def edit
-    @acl = Acl.find(params[:id])
+    respond_to do |format|
+      format.html
+      format.js { render :partial => 'form' }
+    end
   end
 
-  # POST /acls
-  # POST /acls.xml
   def create
-    @acl = Acl.new(params[:acl])
-
-    respond_to do |format|
-      if @acl.save
-        format.html { redirect_to(@acl, :notice => 'Acl was successfully created.') }
-        format.xml  { render :xml => @acl, :status => :created, :location => @acl }
-      else
-        format.html { render :action => "new" }
-        format.xml  { render :xml => @acl.errors, :status => :unprocessable_entity }
-      end
-    end
+    @acl = secure(Acl) {Acl.create(params[:acl])}
+    puts @acl.inspect
   end
 
-  # PUT /acls/1
-  # PUT /acls/1.xml
   def update
-    @acl = Acl.find(params[:id])
+    @acl.update_attributes(params[:acl])
 
     respond_to do |format|
-      if @acl.update_attributes(params[:acl])
-        format.html { redirect_to(@acl, :notice => 'Acl was successfully updated.') }
-        format.xml  { head :ok }
-      else
-        format.html { render :action => "edit" }
-        format.xml  { render :xml => @acl.errors, :status => :unprocessable_entity }
+      format.html do
+        if @acl.errors.empty?
+          redirect_to :action => 'show'
+        else
+          render :action => 'edit'
+        end
       end
+      format.js { render :action => 'show' }
     end
   end
 
-  # DELETE /acls/1
-  # DELETE /acls/1.xml
   def destroy
-    @acl = Acl.find(params[:id])
     @acl.destroy
 
     respond_to do |format|
-      format.html { redirect_to(acls_url) }
+      format.html do
+        if @acl.errors.empty?
+          redirect_to :action => 'index'
+        else
+          render :action => 'edit'
+        end
+      end
+      format.js   do
+        render(:partial => 'form') unless @acl.errors.empty?
+      end
       format.xml  { head :ok }
     end
   end
+
+  private
+    def find_acl
+      if params[:id]
+        @acl = secure!(Acl) { Acl.find(params[:id]) }
+      end
+    end
 end

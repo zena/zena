@@ -80,6 +80,13 @@ module Zena
           visitor.site.host
         end
 
+        def sfind(sqliss)
+          query = Node.build_query(:all, sqliss,
+            :default => {:scope => 'site'}
+          )
+          Node.do_find(:all, eval(query.to_s(:find)))
+        end
+
         # Find a node and propagate visitor
         def do_find(count, query)
           case count

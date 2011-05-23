@@ -338,19 +338,7 @@ module Zena
           @skins ||= {}
 
           if skin_name.blank?
-            skin_zip = visitor.is_admin? ? visitor.dev_skin_id.to_i : 0
-
-            case skin_zip
-            when User::RESCUE_SKIN_ID
-              # rescue skin
-              skin = nil
-            when User::ANY_SKIN_ID
-              # normal skin
-              skin = @node.skin || @node.parent.skin
-            else
-              # find skin from zip
-              skin = secure(Skin) { Skin.find_by_zip(skin_zip)}
-            end
+            visitor.get_skin(@node)
           elsif skin = @skins[skin_name]
             return skin
           else

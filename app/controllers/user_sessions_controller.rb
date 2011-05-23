@@ -5,6 +5,7 @@ Create, destroy sessions by letting users login and logout. When the user does n
 class UserSessionsController < ApplicationController
   skip_before_filter :set_after_login, :force_authentication?
 
+  # /login
   def new
     @node = visitor.site.root_node
     render_and_cache :mode => '+login'

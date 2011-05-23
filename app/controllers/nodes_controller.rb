@@ -29,10 +29,20 @@ class NodesController < ApplicationController
   include Zena::Use::Grid::ControllerMethods
 
   def index
-    @node = current_site.root_node
-    respond_to do |format|
-      format.html { render_and_cache :mode => '+index' }
-      format.xml  { render :xml => @node.to_xml }
+    if @node = secure(Node) { Node.find(current_site.root_id) }
+      respond_to do |format|
+        format.html { render_and_cache :mode => '+index' }
+        format.xml  { render :xml => @node.to_xml }
+      end
+    elsif visitor.use_acls?
+      node = visitor.node_without_secure
+      if visitor.acl_authorized?(:read, {:id => node.zip})
+        redirect_to zen_path(node)
+      else
+        raise ActiveRecord::RecordNotFound
+      end
+    else
+      raise ActiveRecord::RecordNotFound
     end
   end
 
@@ -47,6 +57,7 @@ class NodesController < ApplicationController
   end
 
   # This method is used to test the 404 page when editing zafu templates. It is mapped from '/en/404.html'.
+  # Look at def Rendering#render_404
   def not_found
     raise ActiveRecord::RecordNotFound
   end

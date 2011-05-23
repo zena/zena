@@ -310,6 +310,22 @@ class User < ActiveRecord::Base
     secure(Version) { Version.find(:all, :conditions => ['status = ? AND versions.user_id = ?', Zena::Status::Prop, self.id]) }
   end
 
+  def get_skin(node)
+    skin_zip = is_admin? ? dev_skin_id.to_i : 0
+
+    case skin_zip
+    when User::RESCUE_SKIN_ID
+      # rescue skin
+      nil
+    when User::ANY_SKIN_ID
+      # normal skin
+      node.skin || (node.parent ? node.parent.skin : nil)
+    else
+      # find skin from zip
+      secure(Skin) { Skin.find_by_zip(skin_zip)}
+    end
+  end
+
   private
 
     def user_site

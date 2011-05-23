@@ -38,6 +38,28 @@ class SiteTest < Zena::Unit::TestCase
       assert_equal '+login', index_zafu.mode
     end
   end
+  
+  context 'A user without access to root' do
+    setup do
+      # Only lion is in the 'admin' group
+      $_test_site = 'zena'
+      Zena::Db.execute "UPDATE nodes SET rgroup_id = #{groups_id(:admin)}, wgroup_id = #{groups_id(:admin)}, dgroup_id = #{groups_id(:admin)}"
+      login(:ant)
+    end
+    
+    subject do
+      sites(:zena)
+    end
+
+    should 'receive a new node on root_node' do
+      assert subject.root_node.new_record?
+    end
+    
+    should 'use site host as node title' do
+      assert_equal 'test.host', subject.root_node.title
+    end
+  end # A user without access to root
+  
 
   def test_create_site_with_opts
     site = nil

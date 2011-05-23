@@ -38,6 +38,14 @@
       <input type='hidden' name='user[group_ids][]' value=''/>
       </td></tr>
     <% end -%>
+
+    <tr>
+      <td class='use_acl'><%= _("use acls")%></td>
+      <td>
+        <input type='hidden' name='user[use_acls]' value='0'/>
+        <input type='checkbox' name='user[use_acls]' value='1' class='box'<%= @user.use_acls? ? " checked='checked'" : ''%>/>
+      </td>
+    </tr>
     <tr><td colspan='2'><%= node_form %></td></tr>
     <tr><td colspan='2'><p class='btn_validate'><input type='submit' value='<%= _('validate') %>'/></p></td></tr>
   </table>

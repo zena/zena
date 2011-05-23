@@ -1,0 +1,3 @@
+captcha:
+  src: "<r:captcha/>"
+  tem: "/if visitor.is_anon\?.*get_captcha/"

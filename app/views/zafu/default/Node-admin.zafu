@@ -56,7 +56,7 @@
               <!--div class='wrap' style='display:none;' onclick='$("crop_x").onclick();'>
                 <div class='win' onclick='Event.stop(event);return false;' -->
 
-              <div class='wrap' style='display:none;'>
+              <div class='wrap' style='display:none;' do='form'>
                 <div class='win'>
                   <p class='btn'>
                     <p class='backup'><input name='node[v_backup]' type='checkbox' value='true' checked='checked'/><r:t>backup</r:t></p>

@@ -1,0 +1,8 @@
+if @acl.errors.empty?
+  page.insert_html :before, 'add_acl', :partial=>'acls/li', :collection=>[@acl]
+  @acl = Acl.new
+  page.replace_html 'add_acl_form', :partial=>'acls/form'
+  page.javascript "$('acl_name').focus();"
+else
+  page.replace_html 'add_acl_form', :partial=>'acls/form'
+end

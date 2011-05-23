@@ -32,7 +32,9 @@ module Zena
         def load!(text = nil)
           unless text
             unless dict = secure(Node) { Node.find(:first, :conditions => {:id => @node_id}) }
-              return error("missing 'dictionary'")
+              @dict = {}
+              error("missing 'dictionary'")
+              return false
             end
             text = dict.prop['text']
           end

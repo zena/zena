@@ -14,7 +14,7 @@ module Zena
         #TODO: test
         # Return the list of possible templates
         def form_skins
-          @form_skins ||= secure!(Skin) { Skin.find(:all, :order=>'zip ASC') }.map {|r| [r.title, r.zip]}
+          @form_skins ||= Node.sfind('skins').map {|r| [r.title, r.zip]}
         end
 
         # Display an input field to select an id. The user can enter an id or a name in the field and the

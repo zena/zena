@@ -232,7 +232,7 @@ module Zena
         def admin_links(opts = {})
           list = opts[:list] || 'all'
           if list == 'all'
-            list = %w{home preferences comments users groups relations virtual_classes properties iformats sites dev}
+            list = %w{home preferences comments users groups relations virtual_classes properties iformats sites acls dev}
           else
             list = list.split(',').map(&:strip)
           end
@@ -277,6 +277,9 @@ module Zena
           when 'sites'
             return nil unless visitor.is_admin?
             link_to_with_state(_('sites'), sites_path)
+          when 'acls'
+            return nil unless visitor.is_admin?
+            link_to_with_state(_('acls'), acls_path)
           when 'dev'
             return nil unless visitor.is_admin?
             if visitor.dev_skin_id
