@@ -10,7 +10,10 @@ module Zena
         end
 
         def property_field_index
-          if version.status == Zena::Status[:pub]
+          # Better rule
+          if new_record? ||
+             version.status == Zena::Status[:pub] ||
+             versions.count == 1
             super
           end
         end

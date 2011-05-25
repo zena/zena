@@ -5,7 +5,7 @@ class Version < ActiveRecord::Base
   include RubyLess
   safe_attribute     :created_at, :updated_at, :publish_from, :status, :lang
   safe_method        :node => 'Node', :id => {:class => Number, :method => 'number'},
-                     :number => Number, :user => 'User',
+                     :number => Number, :user => 'User', :user_id => Number, :user_zip => {:class => Number, :method => 'user_id'},
                      :author => Node.author_proc
 
   # We need to include Property::Base so that we can read the properties that

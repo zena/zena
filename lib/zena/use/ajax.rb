@@ -459,7 +459,7 @@ module Zena
           # FIXME: HACK
           # This dom_id detection code is crap but it fixes the drop in each bug.
           def get_dom_id(target)
-            if dom_id = target.markup.dyn_params[:id]
+            if dom_id = target.markup.dyn_params[:id] || target.markup.params[:id]
               if dom_id =~ /^<%=\s+(.*?)\s+%>$/
                 dom_id = $1
               else

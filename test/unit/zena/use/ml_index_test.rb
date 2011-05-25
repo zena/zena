@@ -28,12 +28,12 @@ class MLIndexTest < Zena::Unit::TestCase
           col = Column.create(:role_id => buz.id, :ptype => 'string', :name => 'foo', :index => 'string')
           assert !col.new_record?
         end
-        
+
         teardown do
           # avoid test leakage
           VirtualClass.expire_cache!
         end
-        
+
         subject do
           secure(Node) { Node.create_node(
             :class     => 'Buz',

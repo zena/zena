@@ -2207,6 +2207,7 @@ Gem::Specification.new do |s|
     "test/unit/zena/use/dates_string_methods_test.rb",
     "test/unit/zena/use/dates_test.rb",
     "test/unit/zena/use/dates_view_methods_test.rb",
+    "test/unit/zena/use/field_index_test.rb",
     "test/unit/zena/use/fulltext_test.rb",
     "test/unit/zena/use/html_tags_test.rb",
     "test/unit/zena/use/i18n_test.rb",

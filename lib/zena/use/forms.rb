@@ -30,9 +30,9 @@ module Zena
               current_values = relation_proxy.other_ids
               res << "<input type='hidden' name='node[#{role}_ids][]' value=''/>"
               values.each do |value|
-                res << ("<span><input type='checkbox' name='node[#{role}_ids][]' value='#{value.zip}'" +
+                res << ("<p><input type='checkbox' name='node[#{role}_ids][]' value='#{value.zip}'" +
                 (current_values.include?(value.id) ? " checked='checked'/> " : '/> ') +
-                "<span>#{value.prop[attribute]}</span>")
+                "<span>#{value.prop[attribute]}</span></p>")
               end
             end
             res.join('')

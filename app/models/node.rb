@@ -226,7 +226,7 @@ class Node < ActiveRecord::Base
                      :traductions => ['Version'], :discussion  => 'Discussion'
 
   # we use safe_method because the columns can be null, but the values are never null
-  safe_method        :kpath => String, :user_zip => Number,
+  safe_method        :kpath => String, :user_zip => Number, :user_id => Number,
                      :parent_zip => Number, :project_zip => Number, :section_zip => Number,
                      :ref_lang => String,
                      :position => Number, :rgroup_id => Number,
