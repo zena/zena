@@ -265,3 +265,5 @@ action_drive:
 action_confirm:
   src: "<r:link confirm='really go away ?'/>"
   res: "<a data-confirm='really go away ?' href='/oo/projects-list/Clean-Water-project/page22.html' onclick='return Zena.m(this,\"get\")'>status title</a>"
+
+# update with insert tested in rendering_test.

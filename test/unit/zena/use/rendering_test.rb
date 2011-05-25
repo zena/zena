@@ -139,6 +139,38 @@ class RenderingInControllerTest < Zena::Controller::TestCase
         assert_redirected_to 'http://feature-space.com'
       end
     end # to redirect
+
+    context 'to update' do
+      setup do
+        @mode = 'ins'
+        make_template "<div id='foo' do='block'>hello <r:title/></div>", @mode
+        login(:anon)
+        # render page to build template
+        get 'show', :path => ["section#{nodes_zip(:people)}_#{@mode}.html"], :prefix => 'en'
+        assert_equal "<div id='foo'>hello people</div>", @response.body
+      end
+
+      should 'execute Element update' do
+        get 'zafu', {
+          :id     => nodes_zip(:people),
+          :t_url  => 'Default skin/Node-ins/foo',
+          :dom_id => 'foo',
+        }
+        assert_equal %Q{Element.replace("foo", "\\u003Cdiv id='foo'\\u003Ehello people\\u003C/div\\u003E");\n}, @response.body
+      end
+
+      context 'with insert' do
+        should 'execute Zena insert_inner' do
+          get 'zafu', {
+            :id     => nodes_zip(:people),
+            :t_url  => 'Default skin/Node-ins/foo',
+            :dom_id => 'foo',
+            :insert => 'bottom',
+          }
+          assert_equal %Q{Zena.insert_inner("foo", "bottom", "\\u003Cdiv id='foo'\\u003Ehello people\\u003C/div\\u003E");\n}, @response.body
+        end
+      end # with insert
+    end # to update
   end # special rendering zafu
 
   context 'Custom rendering options on html' do

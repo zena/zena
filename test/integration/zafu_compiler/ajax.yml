@@ -392,3 +392,7 @@ filter_in_list:
   src: "<ul do='pages in site'><r:block></r:block><li do='filter' live='true'/></ul>"
   tem: "/zafu_node_path\(@node\)/"
   res: "/nodes/22/zafu/"
+
+ajax:
+  src: "<r:ajax? do='js'>alert('ajax');</r:ajax?>"
+  tem: "<% if params[:s] %><% js_data << \"alert('ajax');\" %><% end %>"

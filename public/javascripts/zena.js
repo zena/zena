@@ -936,3 +936,12 @@ Zena.write_cookie = function(name,value,days) {
 Zena.delete_cookie = function(name) {
   Zena.write_cookie(name,"",-1);
 }
+
+// Append innerHTML from content inside element
+Zena.insert_inner = function(dom, position, content) {
+  var d = document.createElement('div');
+  d.innerHTML = content;
+  var insertions = {};
+  insertions[position] = d.childElements()[0].innerHTML;
+  Element.insert(dom, insertions);
+}

@@ -2,6 +2,9 @@ module Zena
   module Use
     module Ajax
       module ViewMethods
+        include RubyLess
+        safe_method :ajax? => {:class => Boolean, :method => 'params[:s]'}
+
         # Return the DOM id for a node. We had to name this method 'ndom_id' because we want
         # to avoid the clash with Rails' dom_id method.
         def ndom_id(node)
@@ -116,7 +119,11 @@ module Zena
               end
               page.replace params[:dom_id], :file => template_path_from_template_url + ".erb"
             else
-              page.replace params[:dom_id], :file => template_path_from_template_url + ".erb"
+              if position = params[:insert]
+                page.call 'Zena.insert_inner', params[:dom_id], position, render(:file => template_path_from_template_url + ".erb")
+              else
+                page.replace params[:dom_id], :file => template_path_from_template_url + ".erb"
+              end
             end
           end
           page << render_js(false)
@@ -431,6 +438,10 @@ module Zena
             txt = @blocks.join('')
             out "<% js_data << #{txt.inspect} %>"
           end
+        end
+
+        def r_ajax?
+          r_if(RubyLess.translate(self, 'ajax?'))
         end
 
         protected
