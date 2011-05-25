@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2011-05-20}
+  s.date = %q{2011-05-25}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -604,6 +604,7 @@ Gem::Specification.new do |s|
     "locale/fr/LC_MESSAGES/zena.mo",
     "locale/fr/zena.mo",
     "locale/fr/zena.po",
+    "locale/log.txt",
     "locale/zena.pot",
     "misc/zena",
     "misc/zena_init",
@@ -2074,8 +2075,10 @@ Gem::Specification.new do |s|
     "vendor/plugins/ar_mysql_full_text/README",
     "vendor/plugins/ar_mysql_full_text/init.rb",
     "vendor/plugins/ar_mysql_full_text/lib/ar_mysql_full_text.rb",
-    "vendor/plugins/gettext_i18n_rails/README.markdown",
+    "vendor/plugins/gettext_i18n_rails/Gemfile",
+    "vendor/plugins/gettext_i18n_rails/Gemfile.lock",
     "vendor/plugins/gettext_i18n_rails/Rakefile",
+    "vendor/plugins/gettext_i18n_rails/Readme.md",
     "vendor/plugins/gettext_i18n_rails/VERSION",
     "vendor/plugins/gettext_i18n_rails/gettext_i18n_rails.gemspec",
     "vendor/plugins/gettext_i18n_rails/init.rb",
@@ -2084,14 +2087,20 @@ Gem::Specification.new do |s|
     "vendor/plugins/gettext_i18n_rails/lib/gettext_i18n_rails/active_record.rb",
     "vendor/plugins/gettext_i18n_rails/lib/gettext_i18n_rails/backend.rb",
     "vendor/plugins/gettext_i18n_rails/lib/gettext_i18n_rails/haml_parser.rb",
+    "vendor/plugins/gettext_i18n_rails/lib/gettext_i18n_rails/html_safe_translations.rb",
     "vendor/plugins/gettext_i18n_rails/lib/gettext_i18n_rails/i18n_hacks.rb",
     "vendor/plugins/gettext_i18n_rails/lib/gettext_i18n_rails/model_attributes_finder.rb",
+    "vendor/plugins/gettext_i18n_rails/lib/gettext_i18n_rails/railtie.rb",
     "vendor/plugins/gettext_i18n_rails/lib/gettext_i18n_rails/ruby_gettext_extractor.rb",
+    "vendor/plugins/gettext_i18n_rails/lib/gettext_i18n_rails/string_interpolate_fix.rb",
+    "vendor/plugins/gettext_i18n_rails/lib/gettext_i18n_rails/tasks.rb",
     "vendor/plugins/gettext_i18n_rails/lib/tasks/gettext_rails_i18n.rake",
     "vendor/plugins/gettext_i18n_rails/spec/gettext_i18n_rails/action_controller_spec.rb",
     "vendor/plugins/gettext_i18n_rails/spec/gettext_i18n_rails/active_record_spec.rb",
     "vendor/plugins/gettext_i18n_rails/spec/gettext_i18n_rails/backend_spec.rb",
+    "vendor/plugins/gettext_i18n_rails/spec/gettext_i18n_rails/string_interpolate_fix_spec.rb",
     "vendor/plugins/gettext_i18n_rails/spec/gettext_i18n_rails_spec.rb",
+    "vendor/plugins/gettext_i18n_rails/spec/rails2/Gemfile",
     "vendor/plugins/gettext_i18n_rails/spec/spec_helper.rb",
     "vendor/plugins/responds_to_parent/MIT-LICENSE",
     "vendor/plugins/responds_to_parent/README",

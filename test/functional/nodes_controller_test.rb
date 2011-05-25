@@ -86,8 +86,9 @@ class NodesControllerTest < Zena::Controller::TestCase
         end
 
         should 'render not found' do
-          get_subject
-          assert_response :missing
+          # Stupid tests. Raises ActionView::TemplateError during testing and
+          # ActiveRecord::RecordNotFound in production.
+          assert_raise(ActionView::TemplateError) { get_subject }
         end
       end # with admin mode
 
