@@ -314,10 +314,10 @@ class User < ActiveRecord::Base
     skin_zip = is_admin? ? dev_skin_id.to_i : 0
 
     case skin_zip
-    when User::RESCUE_SKIN_ID
+    when RESCUE_SKIN_ID
       # rescue skin
       nil
-    when User::ANY_SKIN_ID
+    when ANY_SKIN_ID
       # normal skin
       node.skin || (node.parent ? node.parent.skin : nil)
     else

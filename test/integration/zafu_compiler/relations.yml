@@ -466,3 +466,8 @@ query_in_array_without_find:
 missing_rel_should_not_raise:
   tem: "<%= @node.rel[\"inactivity\"].try(:other_comment).inspect %>"
   res: "nil"
+
+core_context:
+  # Ensure that :project rubyless method uses enrollable.
+  src: "<r:project do='origin || title'/>"
+  tem: "/ar1.prop\['origin'\] or var1.prop\['title'\]/"

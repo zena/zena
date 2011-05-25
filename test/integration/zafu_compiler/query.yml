@@ -234,11 +234,6 @@ select_group_count_having:
   src: "<div do='images select id.count as img_count from projects select id as pid, title as pt in site group by pid having img_count >= 2' do='each' join=', '><r:pt/>: <r:img_count/></div>"
   res: "<div>a wiki with Zena: 2</div>"
 
-core_context:
-  # Ensure that :project rubyless method uses enrollable.
-  src: "<r:project do='origin || title'/>"
-  tem: "/ar1.prop\['origin'\] or var1.prop\['title'\]/"
-
 query_errors:
   context:
     c: 'badaboum'

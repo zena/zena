@@ -5,11 +5,11 @@ elsif li.is_admin?
   icon += '_admin'
 end %>
 <tr id='user<%= li[:id] %>' class='u<%= li.status %>'>
-  <td class="adm_icon"><%= link_to_remote(_("img_#{icon}"),
+  <td class="adm_icon"><%= link_to_remote(_("img_#{icon}") + (li.use_acls? ? " #{_('acl_img')}" : ''),
           :update =>"user#{li[:id]}",
           :url    => edit_user_path(li),
           :method => :get) %></td>
-  <td class="login"><%= li.is_anon? ? '<i>public</i>' : li.login %><%= li.use_acls? ? " #{_('use acl')}" : '' %></td>
+  <td class="login"><%= li.is_anon? ? '<i>public</i>' : li.login %></td>
   <td class="fullname" ><a href='<%= zen_path(li.node) %>'><%= li.node ? li.node.title : '' %></a></td>
   <td class="login"><%= _(User::Num_to_status[li.status].to_s) %></td>
   <td class="groups"><%= li.groups.map {|g| g.name }.join(', ') %></td>

@@ -338,7 +338,7 @@ module Zena
           @skins ||= {}
 
           if skin_name.blank?
-            visitor.get_skin(@node)
+            skin = visitor.get_skin(@node)
           elsif skin = @skins[skin_name]
             return skin
           else
