@@ -182,7 +182,7 @@ class VersionsController < ApplicationController
     if @node.publish
       flash.now[:notice] = _("Redaction published.")
     else
-      flash.now[:error] = _("Could not publish:") + 
+      flash.now[:error] = _("Could not publish:") +
         " #{error_messages_for(:node, :object => @node)}"
     end
     do_rendering
@@ -192,7 +192,7 @@ class VersionsController < ApplicationController
     if @node.remove
       flash.now[:notice] = _("Publication removed.")
     else
-      flash.now[:error] = _("Could not remove plublication.")
+      flash.now[:error] = _("Could not remove publication.")
     end
     do_rendering
   end

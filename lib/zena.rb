@@ -204,6 +204,7 @@ module Zena
       require 'fast_gettext'
 
       FastGettext.add_text_domain 'zena', :path => "#{Zena::ROOT}/locale" #File.dirname(__FILE__) + '/../../locale'
+      FastGettext.default_text_domain = 'zena'
       FastGettext.text_domain = 'zena'
     end
 

@@ -10,11 +10,18 @@ if Gem::Version.new(FastGettext::VERSION) < Gem::Version.new("0.4.8")
 end
 
 # include translations into all the places it needs to go...
-Object.send(:include,FastGettext::Translation)
+Object.send(:include, FastGettext::Translation)
+
+# make translations html_safe if possible and wanted
+if "".respond_to?(:html_safe?)
+  require 'gettext_i18n_rails/html_safe_translations'
+  Object.send(:include, GettextI18nRails::HtmlSafeTranslations)
+end
 
 require 'gettext_i18n_rails/backend'
 I18n.backend = GettextI18nRails::Backend.new
 
 require 'gettext_i18n_rails/i18n_hacks'
-require 'gettext_i18n_rails/active_record'
-require 'gettext_i18n_rails/action_controller'
+require 'gettext_i18n_rails/active_record' if defined?(ActiveRecord)
+require 'gettext_i18n_rails/action_controller' if defined?(ActionController) # so that bundle console can work in a rails project
+require 'gettext_i18n_rails/railtie'

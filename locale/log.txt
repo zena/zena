@@ -1,0 +1,9 @@
+08:54:14: /var/folders/pz/pzFcvWXxGNChK-iKCuicy++++TI/-Tmp-/poeditaKxMpr/input.po:861: duplicate message definition...
+08:54:14: /var/folders/pz/pzFcvWXxGNChK-iKCuicy++++TI/-Tmp-/poeditaKxMpr/input.po:585: ...this is the location of the first definition
+08:54:14: /var/folders/pz/pzFcvWXxGNChK-iKCuicy++++TI/-Tmp-/poeditaKxMpr/input.po:866: duplicate message definition...
+08:54:14: /var/folders/pz/pzFcvWXxGNChK-iKCuicy++++TI/-Tmp-/poeditaKxMpr/input.po:568: ...this is the location of the first definition
+08:54:14: /var/folders/pz/pzFcvWXxGNChK-iKCuicy++++TI/-Tmp-/poeditaKxMpr/input.po:1522: duplicate message definition...
+08:54:14: /var/folders/pz/pzFcvWXxGNChK-iKCuicy++++TI/-Tmp-/poeditaKxMpr/input.po:631: ...this is the location of the first definition
+08:54:14: /Applications/Poedit.app/Contents/MacOS/msgmerge: found 3 fatal errors
+08:54:15: Entries in the catalog are probably incorrect.
+08:54:15: Updating the catalog failed. Click on 'More>>' for details.

@@ -549,5 +549,10 @@ namespace :zena do
       exec cmd
     end
   end
+end # zena
 
+namespace :gettext do
+  def files_to_translate
+    Dir.glob("{app,lib,bricks,config,locale}/**/*.{rb,erb,rjs,rhtml}")
+  end
 end
