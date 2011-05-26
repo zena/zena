@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2011-05-25}
+  s.date = %q{2011-05-26}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -1961,6 +1961,7 @@ Gem::Specification.new do |s|
     "test/unit/zena/use/dates_string_methods_test.rb",
     "test/unit/zena/use/dates_test.rb",
     "test/unit/zena/use/dates_view_methods_test.rb",
+    "test/unit/zena/use/field_index_test.rb",
     "test/unit/zena/use/fulltext_test.rb",
     "test/unit/zena/use/html_tags_test.rb",
     "test/unit/zena/use/i18n_test.rb",

@@ -307,12 +307,17 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
 
     run "test -e /etc/apache2/sites-enabled/000-default && a2dissite default || echo 'default already disabled'"
-    run "test -e /etc/apache2/mods-enabled/rewrite.load || a2enmod rewrite"
-    run "test -e /etc/apache2/mods-enabled/deflate.load || a2enmod deflate"
-    run "test -e /etc/apache2/mods-enabled/proxy_balancer.load || a2enmod proxy_balancer"
-    run "test -e /etc/apache2/mods-enabled/proxy.load || a2enmod proxy"
-    run "test -e /etc/apache2/mods-enabled/proxy_http.load || a2enmod proxy_http"
-    run "test -e /etc/apache2/mods-enabled/expires.load || a2enmod expires"
+
+    modules = %w{rewrite deflate proxy_balancer proxy proxy_http expires}
+    if self[:ssl]
+      modules << 'ssl'
+      # Default in debian: no need to change ports.
+      # /etc/apache2/ports.conf:
+      # Listen 443
+    end
+    modules.each do |mod|
+      run "test -e /etc/apache2/mods-enabled/#{mod}.load || a2enmod #{mod}"
+    end
     run "/etc/init.d/apache2 force-reload"
   end
 

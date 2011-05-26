@@ -1,7 +1,7 @@
 # zena apache2 vhost for <%= config[:host] %>
 # automatically generated file
 
-<VirtualHost *>
+<VirtualHost *<%= config[:ssl] ? ':443' : '' %>>
   ServerName <%= config[:host] %>
 
   DocumentRoot <%= config[:sites_root] %>/<%= config[:host] %>/public
@@ -94,5 +94,13 @@
   DeflateFilterNote Ratio ratio_info
   LogFormat '"%r" %{output_info}n/%{input_info}n (%{ratio_info}n%%)' deflate
   CustomLog <%= config[:sites_root] %>/<%= config[:host] %>/log/deflate.log deflate
+  <% end %>
+
+  <% if config[:ssl] %>
+  SSLEngine on
+  SSLCertificateFile /etc/ssl/<%= config[:host] %>.crt
+  SSLCertificateKeyFile /etc/ssl/<%= config[:host] %>.key
+  SSLCACertificateFile /etc/ssl/<%= config[:ssl_pem] %>
+  SSLVerifyClient None
   <% end %>
 </VirtualHost>

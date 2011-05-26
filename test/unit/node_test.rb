@@ -384,6 +384,18 @@ class NodeTest < Zena::Unit::TestCase
         assert_equal Zena::Status[:rem], versions(:bird_jpg_en).status
         assert_equal Zena::Status[:rem], versions(:flower_jpg_en).status
       end
+
+      should 'sync documents with node' do
+        assert subject.unpublish
+        assert_equal Zena::Status[:rem], versions(:bird_jpg_en).status
+        assert_equal Zena::Status[:rem], versions(:flower_jpg_en).status
+        assert subject.redit
+        assert_equal Zena::Status[:red], versions(:bird_jpg_en).status
+        assert_equal Zena::Status[:red], versions(:flower_jpg_en).status
+        assert subject.publish
+        assert_equal Zena::Status[:pub], versions(:bird_jpg_en).status
+        assert_equal Zena::Status[:pub], versions(:flower_jpg_en).status
+      end
     end
 
     context 'on a removed node with removed documents' do
@@ -1076,19 +1088,19 @@ done: \"I am done\""
         assert_equal Document, Node.native_classes['ND']
         assert_equal Image, Node.native_classes['NDI']
       end
-      
+
       should 'return nil for vclass kpath' do
         assert_nil Node.native_classes['NNP']
       end
     end # by kpath
-    
+
     context 'by name' do
       should 'find class' do
         assert_equal Page, Node.native_classes_by_name['Page']
         assert_equal Document, Node.native_classes_by_name['Document']
         assert_equal Image, Node.native_classes_by_name['Image']
       end
-      
+
       should 'return nil for vclass kpath' do
         assert_nil Node.native_classes['Post']
       end

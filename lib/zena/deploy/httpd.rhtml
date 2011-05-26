@@ -24,3 +24,8 @@ PassengerDefaultUser www-data
   ExpiresByType text/css "access plus 1 year"
   ExpiresByType application/javascript "access plus 1 year"
 </IfModule>
+
+<% if config[:ssl] %>
+SSLProtocol all
+SSLCipherSuite HIGH:MEDIUM
+<% end %>

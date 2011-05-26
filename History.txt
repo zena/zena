@@ -1,4 +1,4 @@
-== 1.0.0.rc3
+== 1.0.0.rc3 2011-05-26
 
 * major changes
  * Included tag in xml serialization (tag_names)
@@ -19,6 +19,7 @@
  * Added 'js' tag, fixed many ajax bugs.
  * Added 'crop' tag.
  * On-the-fly creation of specialized template from dev_box.
+ * Added 'insert' option for [link].
 
 == 1.0.0.rc2 2011-02-14
 
