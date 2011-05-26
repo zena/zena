@@ -21,7 +21,7 @@ class UserSessionsController < ApplicationController
         # FIXME: find a better way to lock without blocking the process.
         # Also lock longer and longer (exponentially).
         sleep(2)
-        redirect_to login_url
+        redirect_to login_path
       end
     end
   end
@@ -49,7 +49,7 @@ class UserSessionsController < ApplicationController
     end
 
     def redirect_after_login
-      session.delete(:after_login_url) || home_path(:prefix => AUTHENTICATED_PREFIX)
+      session.delete(:after_login_path) || home_path(:prefix => AUTHENTICATED_PREFIX)
     end
 
 end

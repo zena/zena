@@ -18,7 +18,7 @@ class UserSessionsControllerTest < Zena::Controller::TestCase
     should "redirect to login page if login failed" do
       post 'create', :login=>'ant', :password=>'boom'
       assert !assigns(:user_session).persisting?
-      assert_redirected_to login_url
+      assert_redirected_to login_path
     end
 
   end
@@ -51,7 +51,7 @@ class UserSessionsControllerTest < Zena::Controller::TestCase
     should 'not be allowed to login' do
       post 'create', :login => 'ant', :password => 'ant'
       assert !assigns(:user_session).persisting?
-      assert_redirected_to login_url
+      assert_redirected_to login_path
     end
   end
 

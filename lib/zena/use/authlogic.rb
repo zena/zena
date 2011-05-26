@@ -23,7 +23,7 @@ module Zena
 
         private
 
-          def save_after_login_url
+          def save_after_login_path
             # prevent redirect to favicon or css
             return unless request.format == Mime::HTML
             path = params[:path]
@@ -31,7 +31,7 @@ module Zena
               return if $1 != 'html'
             end
 
-            session[:after_login_url] = request.parameters
+            session[:after_login_path] = request.parameters
           end
 
           def set_visitor
@@ -122,8 +122,8 @@ module Zena
 
               if current_site.authentication? || params[:prefix] == AUTHENTICATED_PREFIX
                 # Ask for login
-                save_after_login_url
-                redirect_to login_url
+                save_after_login_path
+                redirect_to login_path
               elsif request.format == Mime::XML && (self != NodesController || !params[:prefix])
                 # Allow xml without :prefix in NodesController because it is rendered with zafu.
 

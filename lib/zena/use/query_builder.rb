@@ -390,7 +390,7 @@ module Zena
           # Returns :all, :first or :count depending on the parameters and some introspection in the zafu tree
           def get_count(method, params)
             (%w{first all count}.include?(params[:find]) ? params[:find].to_sym : nil) ||
-            ((params[:paginate] || child['each'] || child['group'] || Node.plural_relation?(method)) ? :all : :first)
+            ((params[:paginate] || child['each'] || child['group'] || Node.plural_relation?(method.split(' ').first)) ? :all : :first)
           end
 
           # Build SQLiss from the parameters

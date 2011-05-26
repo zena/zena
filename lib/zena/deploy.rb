@@ -279,6 +279,10 @@ Capistrano::Configuration.instance(:must_exist).load do
       awstat_conf = "/etc/awstats/awstats.#{self[:old_host]}.conf"
       run "test -e#{awstat_conf} && rm #{awstat_conf} || true"
 
+      # remove cron task for awstats
+      awstats = '/etc/cron.d/awstats'
+      run %Q{sed "/config=#{self[:host]} /d" #{awstats} >#{awstats}.tmp && mv #{awstats}.tmp #{awstats}}
+
       logrotate_conf = "/etc/logrotate.d/#{self[:old_host]}"
       run "test -e #{logrotate_conf} && rm #{logrotate_conf} || true"
 

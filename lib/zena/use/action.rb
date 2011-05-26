@@ -63,7 +63,7 @@ module Zena
         # Is this used ? Or do we just use the zafu tag alone ?
         # def login_link(opts={})
         #   if visitor.is_anon?
-        #     link_to _('login'), login_url
+        #     link_to _('login'), login_path
         #   else
         #     link_to _('logout'), logout_url
         #   end

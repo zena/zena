@@ -50,8 +50,8 @@ class UsersController < ApplicationController
     if visitor.is_admin?
       dev_skin(-1)
     else
-      save_after_login_url
-      redirect_to login_url
+      save_after_login_path
+      redirect_to login_path
     end
   end
 
