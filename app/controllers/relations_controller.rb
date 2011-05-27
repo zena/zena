@@ -9,6 +9,20 @@ class RelationsController < ApplicationController
       @relations = Relation.paginate(:all, :order => 'source_kpath', :per_page => 20, :page => params[:page])
     end
 
+    @classes = {}
+    @relations.each do |rel|
+      (@classes[rel.source_kpath] ||= []) << ['src', rel]
+      (@classes[rel.target_kpath] ||= []) << ['trg', rel]
+    end
+
+    @classes.each do |k, list|
+      list.sort! do |a,b|
+        a_s = a[0] == 'src' ? a[1].target_role : a[1].source_role
+        b_s = b[0] == 'src' ? b[1].target_role : b[1].source_role
+        a_s <=> b_s
+      end
+    end
+
     @relation  = Relation.new
     respond_to do |format|
       format.html # index.erb

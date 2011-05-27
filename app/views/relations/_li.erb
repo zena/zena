@@ -1,14 +1,28 @@
 <tr id='relation<%= li[:id] %><%= show_dir %>'>
-  <td class="dark"><%= link_to_remote(_('edit'),
+  <td class='adm_icon'><%= link_to_remote(_('img_relation'),
           :update =>"relation#{li[:id]}#{show_dir}",
           :url    => edit_relation_path(li, :dir => show_dir),
           :method => :get) %></td>
-  <td class="ruby relation" colspan='7'>
 <% if show_dir == 'src' -%>
-  <span class='constant min_width'>
-    <%= VirtualClass.find_by_kpath(li.source_kpath) %></span> <span class='arity'><%= li.target_unique? ? _('has_one') : _('has_many') %></span> <span class='string'>'<%= li.target_role %>'</span>, <span class='symbol'>:class</span> => <span class='constant'><%= VirtualClass.find_by_kpath(li.target_kpath).to_s %></span>
+  <td class='adm_icon'>
+    <%= li.target_unique? ? _('img_has_one') : _('img_has_many') %>
+  </td>
+  <td class='name'>
+    <%= li.target_role %>
+  </td>
+  <td class='other'>
+    <%= VirtualClass.find_by_kpath(li.target_kpath).to_s %>
+  </td>
 <% else -%>
-  <span class='constant min_width'><%= VirtualClass.find_by_kpath(li.target_kpath) %></span> <span class='arity'><%= li.source_unique? ? _('has_one') : _('has_many') %></span> <span class='string'>'<%= li.source_role %>'</span>, <span class='symbol'>:class</span> => <span class='constant'><%= VirtualClass.find_by_kpath(li.source_kpath).to_s %></span><br/>
+  <td class='adm_icon'>
+    <%= li.source_unique? ? _('img_has_one') : _('img_has_many') %>
+  </td>
+  <td class='name'>
+    <%= li.source_role %>
+  </td>
+  <td class='other'>
+    <%= VirtualClass.find_by_kpath(li.source_kpath).to_s %>
+  </td>
 <% end -%>
   </td>
 </tr>

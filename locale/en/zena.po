@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: version 0.0.1\n"
-"POT-Creation-Date: 2011-05-26 21:27-0000\n"
-"PO-Revision-Date: 2011-05-26 23:32+0100\n"
+"POT-Creation-Date: 2011-05-27 11:59-0000\n"
+"PO-Revision-Date: 2011-05-27 14:00+0100\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: en <gaspard@teti.ch>\n"
 "MIME-Version: 1.0\n"
@@ -320,12 +320,12 @@ msgstr ""
 msgid "Redaction published."
 msgstr "<img src='/images/wand.png' alt='publish'/>"
 
-#: app/controllers/relations_controller.rb:52
+#: app/controllers/relations_controller.rb:53
 #, fuzzy
 msgid "Relation was successfully created."
 msgstr "Informations successfully updated."
 
-#: app/controllers/relations_controller.rb:69
+#: app/controllers/relations_controller.rb:70
 #, fuzzy
 msgid "Relation was successfully updated."
 msgstr "Informations successfully updated."
@@ -708,10 +708,6 @@ msgstr "<img src='/images/lock.png' alt='closed'/>"
 msgid "column_error_img"
 msgstr "<img src='/images/textfield_error.png' alt='property error'/>"
 
-#: app/views/columns/_li.html.erb:2
-msgid "column_img"
-msgstr "<img src='/images/textfield.png' alt='property'/>"
-
 #: app/views/links/_form.rhtml:30
 msgid "comment"
 msgstr ""
@@ -884,7 +880,6 @@ msgstr "doc"
 msgid "drive_tab"
 msgstr "drive"
 
-#: app/views/relations/_li.erb:2
 #: lib/zena/use/urls.rb:759
 msgid "edit"
 msgstr ""
@@ -971,15 +966,11 @@ msgstr ""
 
 #: app/views/relations/_form.erb:23
 #: app/views/relations/_form.erb:25
-#: app/views/relations/_li.erb:7
-#: app/views/relations/_li.erb:8
 msgid "has_many"
 msgstr ""
 
 #: app/views/relations/_form.erb:22
 #: app/views/relations/_form.erb:24
-#: app/views/relations/_li.erb:7
-#: app/views/relations/_li.erb:8
 msgid "has_one"
 msgstr ""
 
@@ -1056,6 +1047,14 @@ msgstr "<img src='/images/comment.png' alt='private comments'/>"
 msgid "img_custom_inherit"
 msgstr "<img src='/images/cog.png' alt='custom rights'/>"
 
+#: lib/gettext_strings.rb:186
+msgid "img_datetime"
+msgstr "<img src='/images/date.png' alt='datetime property'/>"
+
+#: lib/gettext_strings.rb:185
+msgid "img_float"
+msgstr "<img src='/images/chart_curve.png' alt='float property'/>"
+
 #: lib/gettext_strings.rb:55
 msgid "img_group"
 msgstr "<img src='/images/group.png' alt='group'/>"
@@ -1067,6 +1066,20 @@ msgstr "<img src='/images/group_pub.png' alt='public group'/>"
 #: lib/gettext_strings.rb:57
 msgid "img_group_site"
 msgstr "<img src='/images/group_site.png' alt='site group'/>"
+
+#: app/views/relations/_li.erb:8
+#: app/views/relations/_li.erb:10
+msgid "img_has_many"
+msgstr "<img src='/images/page_white_stack.png' alt='has many'/>"
+
+#: app/views/relations/_li.erb:8
+#: app/views/relations/_li.erb:10
+msgid "img_has_one"
+msgstr "<img src='/images/page_white.png' alt='has one'/>"
+
+#: lib/gettext_strings.rb:184
+msgid "img_integer"
+msgstr "<img src='/images/chart_line.png' alt='integer property'/>"
 
 #: app/views/links/_li.rhtml:2
 msgid "img_link"
@@ -1094,6 +1107,14 @@ msgstr "<img src='/images/lock.png' alt='private'/>"
 #: lib/zena/use/html_tags.rb:109
 msgid "img_public"
 msgstr "<img src='/images/user_pub.png' alt='public'/>"
+
+#: app/views/relations/_li.erb:2
+msgid "img_relation"
+msgstr "<img src='/images/link.png' alt='relation'/>"
+
+#: lib/gettext_strings.rb:183
+msgid "img_string"
+msgstr "<img src='/images/text_align_left.png' alt='string property'/>"
 
 #: lib/gettext_strings.rb:51
 msgid "img_user"
@@ -1488,6 +1509,11 @@ msgstr ""
 msgid "retype new password"
 msgstr ""
 
+#: app/views/relations/index.erb:16
+#, fuzzy
+msgid "reverse relation"
+msgstr "<img src='/images/target.png' alt='role'/>"
+
 #: app/views/virtual_classes/index.erb:21
 #, fuzzy
 msgid "revert"
@@ -1829,6 +1855,9 @@ msgstr ""
 #~ msgid "collaborators"
 #~ msgstr "collaborators"
 
+#~ msgid "column_img"
+#~ msgstr "<img src='/images/textfield.png' alt='property'/>"
+
 #, fuzzy
 #~ msgid "destroy acl"
 #~ msgstr "<img src='/images/bomb.png' alt='destroy'/>"
@@ -1853,17 +1882,11 @@ msgstr ""
 #~ msgid "img_collaborator"
 #~ msgstr "<img src='/images/user.png' alt='collaborator'/>"
 
-#~ msgid "img_contact"
-#~ msgstr "<img src='/images/user_green.png' alt='contact'/>"
-
 #~ msgid "img_favorite"
 #~ msgstr "<img src='/images/heart.png' alt='favorite'/>"
 
 #~ msgid "img_group_admin"
 #~ msgstr "<img src='/images/group_admin.png' alt='add a group'/>"
-
-#~ msgid "img_home"
-#~ msgstr "<img src='/images/home.png' alt='home'/>"
 
 #~ msgid "img_project"
 #~ msgstr "<img src='/images/project.png' alt='project'/>"

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: version 0.0.1\n"
-"POT-Creation-Date: 2011-05-26 21:27-0000\n"
+"POT-Creation-Date: 2011-05-27 11:59-0000\n"
 "PO-Revision-Date: 2010-06-02 16:45+0100\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: de <lars@greiz-reinsdorf.de>\n"
@@ -318,12 +318,12 @@ msgstr "Vorgeschlagen zur Veröffentlichung"
 msgid "Redaction published."
 msgstr "zur Begutachtung gespeichert"
 
-#: app/controllers/relations_controller.rb:52
+#: app/controllers/relations_controller.rb:53
 #, fuzzy
 msgid "Relation was successfully created."
 msgstr "Kommentar erfolgreich angelegt"
 
-#: app/controllers/relations_controller.rb:69
+#: app/controllers/relations_controller.rb:70
 #, fuzzy
 msgid "Relation was successfully updated."
 msgstr "Information erfolgreich aktualisiert"
@@ -691,10 +691,6 @@ msgstr "<img src='/images/lock.png' title='closed'/>"
 msgid "column_error_img"
 msgstr "<img src='/images/brick_error.png' title='class error'/>"
 
-#: app/views/columns/_li.html.erb:2
-msgid "column_img"
-msgstr ""
-
 #: app/views/links/_form.rhtml:30
 msgid "comment"
 msgstr "Kommentar"
@@ -853,7 +849,7 @@ msgstr "Dokument"
 msgid "drive_tab"
 msgstr "drive"
 
-#: app/views/relations/_li.erb:2 lib/zena/use/urls.rb:759
+#: lib/zena/use/urls.rb:759
 msgid "edit"
 msgstr "bearbeiten"
 
@@ -935,12 +931,10 @@ msgid "has already been taken in %s"
 msgstr ""
 
 #: app/views/relations/_form.erb:23 app/views/relations/_form.erb:25
-#: app/views/relations/_li.erb:7 app/views/relations/_li.erb:8
 msgid "has_many"
 msgstr ""
 
 #: app/views/relations/_form.erb:22 app/views/relations/_form.erb:24
-#: app/views/relations/_li.erb:7 app/views/relations/_li.erb:8
 #, fuzzy
 msgid "has_one"
 msgstr "übernehmen"
@@ -1018,6 +1012,16 @@ msgstr ""
 msgid "img_custom_inherit"
 msgstr "<img src='/images/cog.png' title='custom rights'/>"
 
+#: lib/gettext_strings.rb:186
+#, fuzzy
+msgid "img_datetime"
+msgstr "%Y-%m-%d %H:%M"
+
+#: lib/gettext_strings.rb:185
+#, fuzzy
+msgid "img_float"
+msgstr "Bildformate"
+
 #: lib/gettext_strings.rb:55
 msgid "img_group"
 msgstr "<img src='/images/group.png' title='group'/>"
@@ -1029,6 +1033,23 @@ msgstr "<img src='/images/group_pub.png' title='public group'/>"
 #: lib/gettext_strings.rb:57
 msgid "img_group_site"
 msgstr "<img src='/images/group_site.png' title='site group'/>"
+
+#: app/views/relations/_li.erb:8 app/views/relations/_li.erb:10
+#, fuzzy
+msgid "img_has_many"
+msgstr "<img src='/images/user_admin.png' title='administrator'/>"
+
+#: app/views/relations/_li.erb:8 app/views/relations/_li.erb:10
+#, fuzzy
+msgid "img_has_one"
+msgstr "übernehmen"
+
+#: lib/gettext_strings.rb:184
+#, fuzzy
+msgid "img_integer"
+msgstr ""
+"<img src='/images/control_fastforward.png' title='next page' title='next "
+"page'/>"
 
 #: app/views/links/_li.rhtml:2
 msgid "img_link"
@@ -1057,6 +1078,16 @@ msgstr "<img src='/images/lock.png' title='Privat'/>"
 #: lib/gettext_strings.rb:48 lib/zena/use/html_tags.rb:109
 msgid "img_public"
 msgstr "<img src='/images/user_pub.png' title='public'/>"
+
+#: app/views/relations/_li.erb:2
+#, fuzzy
+msgid "img_relation"
+msgstr "Bezüge"
+
+#: lib/gettext_strings.rb:183
+#, fuzzy
+msgid "img_string"
+msgstr "<img src='/images/tag_blue.png' title='Link'/>"
 
 #: lib/gettext_strings.rb:51
 msgid "img_user"
@@ -1436,6 +1467,11 @@ msgstr "zurücksetzen"
 #: app/views/users/preferences.html.erb:37
 msgid "retype new password"
 msgstr "Passwort wiederholen"
+
+#: app/views/relations/index.erb:16
+#, fuzzy
+msgid "reverse relation"
+msgstr "<img src='/images/target.png' title='role'/>"
 
 #: app/views/virtual_classes/index.erb:21
 #, fuzzy

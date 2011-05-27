@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: version 0.0.1\n"
-"POT-Creation-Date: 2011-05-26 21:27-0000\n"
+"POT-Creation-Date: 2011-05-27 11:59-0000\n"
 "PO-Revision-Date: 2007-05-13 19:08-0000\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -307,11 +307,11 @@ msgstr ""
 msgid "Redaction published."
 msgstr ""
 
-#: app/controllers/relations_controller.rb:52
+#: app/controllers/relations_controller.rb:53
 msgid "Relation was successfully created."
 msgstr ""
 
-#: app/controllers/relations_controller.rb:69
+#: app/controllers/relations_controller.rb:70
 msgid "Relation was successfully updated."
 msgstr ""
 
@@ -663,10 +663,6 @@ msgstr ""
 msgid "column_error_img"
 msgstr ""
 
-#: app/views/columns/_li.html.erb:2
-msgid "column_img"
-msgstr ""
-
 #: app/views/links/_form.rhtml:30
 msgid "comment"
 msgstr ""
@@ -820,7 +816,7 @@ msgstr ""
 msgid "drive_tab"
 msgstr ""
 
-#: app/views/relations/_li.erb:2 lib/zena/use/urls.rb:759
+#: lib/zena/use/urls.rb:759
 msgid "edit"
 msgstr ""
 
@@ -899,12 +895,10 @@ msgid "has already been taken in %s"
 msgstr ""
 
 #: app/views/relations/_form.erb:23 app/views/relations/_form.erb:25
-#: app/views/relations/_li.erb:7 app/views/relations/_li.erb:8
 msgid "has_many"
 msgstr ""
 
 #: app/views/relations/_form.erb:22 app/views/relations/_form.erb:24
-#: app/views/relations/_li.erb:7 app/views/relations/_li.erb:8
 msgid "has_one"
 msgstr ""
 
@@ -976,6 +970,14 @@ msgstr ""
 msgid "img_custom_inherit"
 msgstr ""
 
+#: lib/gettext_strings.rb:186
+msgid "img_datetime"
+msgstr ""
+
+#: lib/gettext_strings.rb:185
+msgid "img_float"
+msgstr ""
+
 #: lib/gettext_strings.rb:55
 msgid "img_group"
 msgstr ""
@@ -986,6 +988,18 @@ msgstr ""
 
 #: lib/gettext_strings.rb:57
 msgid "img_group_site"
+msgstr ""
+
+#: app/views/relations/_li.erb:8 app/views/relations/_li.erb:10
+msgid "img_has_many"
+msgstr ""
+
+#: app/views/relations/_li.erb:8 app/views/relations/_li.erb:10
+msgid "img_has_one"
+msgstr ""
+
+#: lib/gettext_strings.rb:184
+msgid "img_integer"
 msgstr ""
 
 #: app/views/links/_li.rhtml:2
@@ -1010,6 +1024,14 @@ msgstr ""
 
 #: lib/gettext_strings.rb:48 lib/zena/use/html_tags.rb:109
 msgid "img_public"
+msgstr ""
+
+#: app/views/relations/_li.erb:2
+msgid "img_relation"
+msgstr ""
+
+#: lib/gettext_strings.rb:183
+msgid "img_string"
 msgstr ""
 
 #: lib/gettext_strings.rb:51
@@ -1376,6 +1398,10 @@ msgstr ""
 
 #: app/views/users/preferences.html.erb:37
 msgid "retype new password"
+msgstr ""
+
+#: app/views/relations/index.erb:16
+msgid "reverse relation"
 msgstr ""
 
 #: app/views/virtual_classes/index.erb:21

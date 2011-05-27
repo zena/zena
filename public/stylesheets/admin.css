@@ -39,7 +39,11 @@ table.admin td:first-child { border-left: 1px solid #999; }
 .admin .adm_add table td { border: 0; font-size:inherit; padding: 2px; }
 .admin .btn_validate { float:right; margin-right:30px; }
 .admin .label {width:150px; line-height:1.9em;}
-.admin th { color:#450009; }
+.admin th { background:#999; color:#222; font-weight:bold;}
+.admin .Role { color:#ccc;}
+.admin .name { font-weight:bold;}
+.admin .blank { text-align:center; background:none; padding-top:2em;}
+.admin th .kpath {font-weight:normal; font-family:Monaco, monospace; color:#ccc;}
 .admin .light { background:#eee;}
 .admin .dark { background:#ddd;}
 /*.admin .ruby .text { display:inline-block; min-width:5em;}*/
@@ -52,7 +56,6 @@ table.admin td:first-child { border-left: 1px solid #999; }
 .destroy { border:1px solid #300; padding:3px; background:#fdd; float:right;}
 .source, .target { font-weight:bold;}
 .source_role { text-align:right;}
-.nav td { border:0;}
 .prev_page, .next_page { margin:0; }
 .next_page { float:right; }
 .role_diff { font-size:12px; line-height:18px; background:#ddd; font-family:Monaco,Fixed,monospace; padding:1em;}

@@ -1,8 +1,15 @@
 <h2 class='title'><%= _('relations') %></h2>
 <table id='relation_list' class='admin' cellspacing="0">
-  <tr><th class='nav' colspan='9'><%= will_paginate @relations %></th></tr>
-  <%= @show_dir = 'src';render :partial=>'relations/li',  :collection=>@relations  %>
-  <tr><th class='nav' colspan='9'><%= _('reverse relation') %></th></tr>
-  <%= @show_dir = 'trg';render :partial=>'relations/li',  :collection=>@relations.sort{|a,b| a.target_kpath <=> b.target_kpath} %>
+  <tr><th class='nav' colspan='4'><%= will_paginate @relations %></th></tr>
+  <% @classes.keys.sort.each do |kpath| -%>
+    <tr>
+      <th class='nav sub VirtualClass' colspan='4'>
+        <span class='kpath'><%= kpath %></span> <%= VirtualClass.find_by_kpath(kpath).to_s %>
+      </th>
+    </tr>
+    <% @classes[kpath].each do |dir, rel| -%>
+      <%= @show_dir = dir; render :partial=>'relations/li',  :collection=>[rel] %>
+    <% end -%>
+  <% end -%>
   <%= render :partial=>'relations/add' %>
 </table>

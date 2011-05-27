@@ -5,7 +5,7 @@
     link_to_function _('btn_x'), "['add_relation', 'add_relation_form'].each(Element.toggle)"
   end %>
 </td>
-<td class="add" colspan="8">
+<td class="add" colspan="3">
   <div id='relation_errors'><%= error_messages_for(:relation, :object => @relation) %></div>
   <% unless @relation.new_record? %>
   <%= form_remote_tag(:url => relation_path(@relation), :method => :put ) %>

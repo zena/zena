@@ -178,5 +178,11 @@ module Zena
     N_('clear_cache done.')
     N_('rebuild_index')
     N_('rebuild_index done.')
+
+    # Column types
+    N_('img_string')
+    N_('img_integer')
+    N_('img_float')
+    N_('img_datetime')
   end
 end

@@ -10,8 +10,8 @@ class ColumnsController < ApplicationController
     roles = {}
     secure(Column) do
       @columns = Column.paginate(:all, :order => 'role_id ASC, name ASC', :per_page => 200, :page => params[:page]).sort! do |a, b|
-        role_a = (roles[a.role_id] ||= a.role).name
-        role_b = (roles[b.role_id] ||= b.role).name
+        role_a = (roles[a.role_id] ||= a.role).kpath
+        role_b = (roles[b.role_id] ||= b.role).kpath
 
         if role_a == role_b
           a.name <=> b.name

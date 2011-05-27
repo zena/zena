@@ -5,7 +5,7 @@
     link_to_function _('btn_x'), "['add_column', 'add_column_form'].each(Element.toggle)"
   end %>
 </td>
-<td class="add">
+<td class="add" colspan='2'>
   <div id='column_errors'><%= error_messages_for(:column, :object => @column) %></div>
   <% if @column.new_record? %>
   <%= form_remote_tag(:url => columns_path ) %>

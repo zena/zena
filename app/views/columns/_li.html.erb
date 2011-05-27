@@ -1,12 +1,12 @@
 <tr id='column<%= li[:id] %>'>
-  <td class="adm_icon"><%= (li.new_record? || !li.errors.empty?) ? _('column_error_img') : link_to_remote( _('column_img'),
+  <td class="adm_icon"><%= (li.new_record? || !li.errors.empty?) ? _('column_error_img') : link_to_remote(_("img_#{li.ptype}"),
           :update =>"column#{li[:id]}",
           :url    => edit_column_path(li),
           :method => :get) %></td>
-  <td class='ruby'>
-    <span class='spacer'><%= (li.role.kind_of?(VirtualClass) ? '+ ' : '<span>* </span>') %></span>
-    <span class='constant'><%= li.role.name %></span>
-    <span class='text'>p.<%= li.ptype %></span>
-    <span class='string'>'<%= li.name %>'<span><% if !li.index.blank? -%>, <span class='symbol'>:index</span> =&gt; <span class='symbol'>:<%= li.index_name %></span><% end -%>
+  <td class='name'>
+    <%= li.name %>
+  </td>
+  <td class='index'>
+    <%= li.index_name %>
   </td>
 </tr>
