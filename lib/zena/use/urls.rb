@@ -87,7 +87,7 @@ module Zena
           pre    = opts.delete(:prefix) || (visitor.is_anon? && opts.delete(:lang)) || prefix
           mode   = opts.delete(:mode)
           host   = opts.delete(:host)
-          abs_url_prefix = host ? "http://#{host}" : ''
+          abs_url_prefix = host ? "#{http_protocol}://#{host}" : ''
 
           if node.kind_of?(Document) && format == node.ext
             if node.public? && !visitor.site.authentication?
@@ -182,8 +182,7 @@ module Zena
         # Url for a node. Options are 'mode' and 'format'
         # ex 'http://test.host/en/document34_print.html'
         def zen_url(node, opts={})
-          # FIXME: we *need* port number !
-          zen_path(node,opts.merge(:host => visitor.site[:host]))
+          zen_path(node,opts.merge(:host => host_with_port))
         end
 
         # Return the path to a document's data
@@ -238,7 +237,26 @@ module Zena
           res
         end
 
+        def http_protocol
+          @http_protocol ||= begin
+            if request.protocol =~ /^(.*):\/\/$/
+              $1
+            else
+              'http'
+            end
+          end
+        end
 
+        def host_with_port
+          @host_with_port ||= begin
+            port = request.port
+            if port.blank? || port.to_s == '80'
+              current_site.host
+            else
+              "#{current_site.host}:#{port}"
+            end
+          end
+        end
       end # Common
 
       module ControllerMethods
