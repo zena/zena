@@ -34,7 +34,7 @@ class VirtualClass < Role
     attr_accessor :export_attributes
   end
 
-  self.export_attributes = %w{auto_create_discussion}
+  self.export_attributes = %w{auto_create_discussion icon}
 
   attr_accessor :import_result
   belongs_to    :create_group, :class_name => 'Group', :foreign_key => 'create_group_id'

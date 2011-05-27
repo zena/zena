@@ -45,10 +45,13 @@ class SitesController < ApplicationController
     end
   end
 
-  def clear_cache
-    @site.clear_cache
-
-    @clear_cache_message = _("Cache cleared.")
+  def action
+    if Site::ACTIONS.include?(params[:do])
+      @site.send(params[:do])
+      flash.now[:notice] = _("#{params[:do]} done.")
+    else
+      flash.now[:error] = _("Invalid action '%{action}'.") % {:action => params[:do]}
+    end
   end
 
   protected

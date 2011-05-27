@@ -1,0 +1,2 @@
+page.replace_html "messages#{@site[:id]}", :inline => flash_messages
+page.visual_effect :highlight, "messages#{@site[:id]}", :duration => 1.5

@@ -6,8 +6,9 @@ class RelationsController < ApplicationController
 
   def index
     secure(Relation) do
-      @relations = Relation.paginate(:all, :order => 'source_role', :per_page => 20, :page => params[:page])
+      @relations = Relation.paginate(:all, :order => 'source_kpath', :per_page => 20, :page => params[:page])
     end
+
     @relation  = Relation.new
     respond_to do |format|
       format.html # index.erb

@@ -4,17 +4,17 @@
   <td class='ruby'><span class='spacer'><%= li.kpath[1..-1].gsub(/./, '| ') + '+ ' %></span><span class='constant'><%= li.name %></span></td>
   <td class='info'>&nbsp;</td>
 </tr>
-<% else -%>
+<% else
+link_def = {
+    :update => "virtual_class#{li[:id]}",
+    :url    => edit_virtual_class_path(li),
+    :method => :get} -%>
 <tr id='virtual_class<%= li[:id] %>'>
-  <td class="adm_icon"><%= (li.new_record? || !li.errors.empty?) ? _('virtual_class_error_img') : link_to_remote( !li.icon.blank? ? "<img src='#{li.icon}'/>" : _('virtual_class_img'),
-        { :update => "virtual_class#{li[:id]}",
-          :url    => edit_virtual_class_path(li),
-          :method => :get},
-        { :title  => li.kpath}) %></td>
+  <td class="adm_icon"><%= (li.new_record? || !li.errors.empty?) ? _('virtual_class_error_img') : link_to_remote( !li.icon.blank? ? "<img src='#{li.icon}'/>" : _('virtual_class_img'), link_def, { :title  => li.kpath}) %></td>
 <% if li.kind_of?(VirtualClass) -%>
   <td class='ruby'>
     <span class='spacer'><%= li.kpath[1..-1].gsub(/./, '| ') %>+ </span>
-    <span class='constant'><%= li.name %><%= li.import_result ? " (#{li.import_result})" : ''%></span>
+    <span class='constant'><%= link_to_remote(li.name, link_def) %><%= li.import_result ? " (#{li.import_result})" : ''%></span>
   </td>
   <td class='info'>
   <%= (

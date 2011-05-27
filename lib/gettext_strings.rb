@@ -161,16 +161,22 @@ module Zena
     N_('rebuild')     # zafu_templates.rb
     N_('rebuild_btn')     # zafu_templates.rb
     N_('turn_dev_off_btn') # zafu_templates.rb
-    # contact
+    # contact: FIXME remove ?
     N_('first_name')
-    N_('name')
+    N_('last_name')
     N_('address')
-    N_('zip')
-    N_('city')
+    N_('postal_code')
+    N_('locality')
     N_('country')
     N_('telephone')
     N_('mobile')
     N_('email')
     N_('birthday')
+
+    # Site actions
+    N_('clear_cache')
+    N_('clear_cache done.')
+    N_('rebuild_index')
+    N_('rebuild_index done.')
   end
 end

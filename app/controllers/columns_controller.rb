@@ -84,10 +84,12 @@ class ColumnsController < ApplicationController
     respond_to do |format|
       if @column.update_attributes(params[:column])
         flash.now[:notice] = _('Column was successfully updated.')
+        format.js
         format.html { redirect_to(@column) }
         format.xml  { head :ok }
       else
         format.html { render :action => "edit" }
+        format.js
         format.xml  { render :xml => @column.errors, :status => :unprocessable_entity }
       end
     end

@@ -98,7 +98,7 @@ class UsersControllerTest < Zena::Controller::TestCase
           '_'          => '', # This is in the original post
           :action => 'create',
           :node   => {
-            'name'       => 'Dupont',
+            'name'  => 'Dupont',
             'first_name' => 'Paul',
             'email'      => 'paul.bolomey@brainfuck.com',
           },
@@ -106,15 +106,10 @@ class UsersControllerTest < Zena::Controller::TestCase
       end
 
       should 'succeed' do
-        post_subject
-        assert_response :success
-        user = assigns(:user)
-        assert !user.new_record?
-      end
-
-      should 'create a new user' do
         assert_difference('User.count', 1) do
           post_subject
+          assert_response :success
+          user = assigns(:user)
         end
       end
 
@@ -123,9 +118,63 @@ class UsersControllerTest < Zena::Controller::TestCase
           post_subject
         end
       end
+
+      should 'set node attributes' do
+        post_subject
+        node = secure(Node) { Node.find(assigns(:user).node_id) }
+        assert_equal 'Dupont', node.name
+        assert_equal 'Paul', node.first_name
+        assert_equal 'paul.bolomey@brainfuck.com', node.email
+      end
+
+      context 'with an existing node' do
+        subject do
+          {
+            :user   => {
+              'lang'       => 'fr',
+              'time_zone'  => 'Europe/Zurich',
+              'status'     => '50',
+              'password'   => 'secret',
+              'login'      => 'bolomey',
+              'group_ids'  => [groups_id(:admin), ''],
+              'infamous'   => '' # This is to test bad blank values
+            },
+            '_'          => '', # This is in the original post
+            :action => 'create',
+            :node   => {
+              'id'    => 'Solen',
+              'name'  => 'Dupont',
+              'first_name' => 'Paul',
+              'email'  => 'paul.bolomey@brainfuck.com',
+            },
+          }
+        end
+
+        should 'succeed' do
+          assert_difference('User.count', 1) do
+            post_subject
+            assert_response :success
+            user = assigns(:user)
+          end
+        end
+
+        should 'not create a new node' do
+          assert_difference('Node.count', 0) do
+            post_subject
+          end
+        end
+
+        should 'set node attributes' do
+          post_subject
+          node = secure(Node) { Node.find(assigns(:user).node_id) }
+          assert_equal nodes_id(:ant), node.id
+          assert_equal 'Dupont', node.name
+          assert_equal 'Paul', node.first_name
+          assert_equal 'paul.bolomey@brainfuck.com', node.email
+        end
+      end # with an existing node
     end # creating a new user
   end # With an admin user
-
 
   context 'Accessing preferences' do
     setup do
@@ -148,11 +197,11 @@ class UsersControllerTest < Zena::Controller::TestCase
           'login'=>'lion',
         }
     end
-    
+
     should_assign_to :user
-    
+
     should_respond_with :success
-    
+
     should "set timezone" do
       err assigns(:user)
       assert_equal 'Africa/Algiers', users(:lion)[:time_zone]
@@ -199,7 +248,7 @@ class UsersControllerTest < Zena::Controller::TestCase
         assert !users(:ant).valid_password?('superman')
         assert users(:ant).valid_password?('ant')
       end
-      
+
       should 'set an error' do
         subject
         assert_equal 'not correct', assigns(:user).errors[:old_password]
@@ -227,7 +276,7 @@ class UsersControllerTest < Zena::Controller::TestCase
         assert_response :success
         assert users(:lion).valid_password?('superman')
       end
-      
+
       should 'set other user password' do
         put 'update',
           'id'     => users_id(:ant),
@@ -238,7 +287,7 @@ class UsersControllerTest < Zena::Controller::TestCase
         assert_response :success
         assert users(:ant).valid_password?('cymbal')
       end
-      
+
       should 'not set own password without previous password' do
         put 'update',
           'id'     => users_id(:lion),

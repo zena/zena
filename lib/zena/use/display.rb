@@ -145,7 +145,7 @@ module Zena
           end
 
           if obj.vclass.kind_of?(VirtualClass) && !obj.vclass.icon.blank?
-            # FIXME: we could use a 'zip' to an image as 'icon' (but we would need some caching to avoid multiple loading during doc listing)
+            # TODO: we could use a 'zip' to an image as 'icon' (but we would need some caching to avoid multiple loading during doc listing)
             res[:src]     = obj.vclass.icon
             res[:alt]     = opts[:alt] || (_('%{type} node') % {:type => obj.vclass.name})
             res[:class] ||= obj.klass

@@ -1,1 +1,1 @@
-page.replace "relation#{@relation[:id]}", :partial=>'relations/li', :collection=>[@relation]
+page.replace "relation#{@relation[:id]}#{show_dir}", :partial=>'relations/li', :collection=>[@relation]

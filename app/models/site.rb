@@ -16,6 +16,7 @@ The #Site model holds configuration information for a site:
 +default_lang+::    The default language of the site.
 =end
 class Site < ActiveRecord::Base
+  ACTIONS = %w{clear_cache rebuild_index}
   include RubyLess
   safe_method  :host => String, :lang_list => [String]
   safe_context :root => {:class => 'Node', :method => 'root_node'}

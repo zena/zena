@@ -202,7 +202,7 @@ Gem::Specification.new do |s|
     "app/views/sites/404.html",
     "app/views/sites/_form.erb",
     "app/views/sites/_li.erb",
-    "app/views/sites/clear_cache.rjs",
+    "app/views/sites/action.rjs",
     "app/views/sites/edit.erb",
     "app/views/sites/index.erb",
     "app/views/sites/show.rjs",

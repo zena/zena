@@ -1,10 +1,14 @@
-<tr id='relation<%= li[:id] %>'>
+<tr id='relation<%= li[:id] %><%= show_dir %>'>
   <td class="dark"><%= link_to_remote(_('edit'),
-          :update =>"relation#{li[:id]}",
-          :url    => edit_relation_path(li),
+          :update =>"relation#{li[:id]}#{show_dir}",
+          :url    => edit_relation_path(li, :dir => show_dir),
           :method => :get) %></td>
   <td class="ruby relation" colspan='7'>
-    <span class='constant min_width'><%= VirtualClass.find_by_kpath(li.source_kpath) %></span> <span class='arity'><%= li.target_unique? ? _('has_one') : _('has_many') %></span> <span class='string'>'<%= li.target_role %>'</span>, <span class='symbol'>:class</span> => <span class='constant'><%= VirtualClass.find_by_kpath(li.target_kpath).to_s %></span><br/>
-    <span class='constant min_width'><%= VirtualClass.find_by_kpath(li.target_kpath) %></span> <span class='arity'><%= li.source_unique? ? _('has_one') : _('has_many') %></span> <span class='string'>'<%= li.source_role %>'</span>, <span class='symbol'>:class</span> => <span class='constant'><%= VirtualClass.find_by_kpath(li.source_kpath).to_s %></span><br/>
+<% if show_dir == 'src' -%>
+  <span class='constant min_width'>
+    <%= VirtualClass.find_by_kpath(li.source_kpath) %></span> <span class='arity'><%= li.target_unique? ? _('has_one') : _('has_many') %></span> <span class='string'>'<%= li.target_role %>'</span>, <span class='symbol'>:class</span> => <span class='constant'><%= VirtualClass.find_by_kpath(li.target_kpath).to_s %></span>
+<% else -%>
+  <span class='constant min_width'><%= VirtualClass.find_by_kpath(li.target_kpath) %></span> <span class='arity'><%= li.source_unique? ? _('has_one') : _('has_many') %></span> <span class='string'>'<%= li.source_role %>'</span>, <span class='symbol'>:class</span> => <span class='constant'><%= VirtualClass.find_by_kpath(li.source_kpath).to_s %></span><br/>
+<% end -%>
   </td>
 </tr>

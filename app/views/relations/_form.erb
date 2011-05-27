@@ -1,6 +1,6 @@
 <td class="adm_icon">
   <%= unless @relation.new_record?
-    link_to_remote _('btn_x'), :url => relation_path(@relation), :method => :get
+    link_to_remote _('btn_x'), :url => relation_path(@relation, :dir => params[:dir]), :method => :get
   else
     link_to_function _('btn_x'), "['add_relation', 'add_relation_form'].each(Element.toggle)"
   end %>

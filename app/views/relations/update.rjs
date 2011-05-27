@@ -1,5 +1,10 @@
 if @relation.errors.empty?
-  page.replace "relation#{@relation[:id]}", :partial=>"relations/li", :collection=>[@relation]
+  @show_dir = 'src'
+  page.replace "relation#{@relation[:id]}src", :partial=>"relations/li", :collection=>[@relation]
+  @show_dir = 'trg'
+  page.replace "relation#{@relation[:id]}trg", :partial=>"relations/li", :collection=>[@relation]
+  page.visual_effect :highlight, "relation#{@relation[:id]}src", :duration => 2.5
+  page.visual_effect :highlight, "relation#{@relation[:id]}trg", :duration => 2.5
 else
-  page.replace "relation#{@relation[:id]}", :partial=>"relations/form"
+  page.replace "relation#{@relation[:id]}#{show_dir}", :partial=>"relations/form"
 end

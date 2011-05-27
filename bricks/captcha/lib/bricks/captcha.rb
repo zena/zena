@@ -47,8 +47,10 @@ module Bricks
       end
 
       def r_mail_hide
-        text = get_text_for_erb
-        "<%= visitor.is_anon? ? mail_hide(#{text},:mh_pub => #{visitor.site.prop['mail_hide_pub'].inspect}, :mh_priv => #{visitor.site.prop['mail_hide_priv'].inspect}#{get_recaptcha_params}) : #{text} %>"
+        if code = get_attribute_or_eval
+          return parser_error("Argument to mail_hide should be a String (found #{code.klass}).") unless code.klass <= String
+          "<%= visitor.is_anon? ? mail_hide(#{code},:mh_pub => #{visitor.site.prop['mail_hide_pub'].inspect}, :mh_priv => #{visitor.site.prop['mail_hide_priv'].inspect}#{get_recaptcha_params}) : #{code} %>"
+        end
       end
 
       def get_recaptcha_params

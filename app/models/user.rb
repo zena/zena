@@ -69,7 +69,7 @@ class User < ActiveRecord::Base
                           :to_publish => ['Version'], :redactions => ['Version'], :proposed => ['Version'],
                           :comments_to_publish => ['Comment']
 
-  attr_accessible         :login, :lang, :node, :time_zone, :status, :group_ids, :site_ids, :crypted_password, :password, :dev_skin_id
+  attr_accessible         :login, :lang, :node, :time_zone, :status, :group_ids, :site_ids, :crypted_password, :password, :dev_skin_id, :node_attributes
   attr_accessor           :visited_node_ids
   attr_accessor           :ip
 
@@ -188,6 +188,8 @@ class User < ActiveRecord::Base
   def node_attributes=(node_attrs)
     if self[:node_id]
       @node = secure!(Node) { node_without_secure }
+    elsif !node_attrs[:id].blank?
+      @node = secure!(Node) { Node.find_node_by_pseudo(node_attrs.delete(:id)) }
     else
       @node = secure(Node) { Node.new_node(prototype_attributes) }
     end
@@ -316,7 +318,6 @@ class User < ActiveRecord::Base
 
     def create_node
       return unless visitor.site[:root_id] # do not try to create a node if the root node is not created yet
-
       @node.version.status = Zena::Status[:pub]
 
       unless @node.save
@@ -328,7 +329,7 @@ class User < ActiveRecord::Base
         raise Zena::InvalidRecord, "Could not publish contact node for user #{user_id} in site #{site_id} (#{@node.errors.map{|k,v| [k,v]}.join(', ')})"
       end
 
-      self[:node_id] = @node[:id]
+      self.node_id = @node.id
     end
 
     # Set user defaults.

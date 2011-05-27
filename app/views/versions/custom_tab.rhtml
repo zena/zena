@@ -1,10 +1,9 @@
-<% @node.schema.columns.each do |col_name, col| -%>
-  <% next if %w{title text summary}.include?(col_name) || !@node.safe_method_type([col_name]) -%>
-  <label for='<%= col_name %>'><%= _(col_name) %></label>
+<% @node.vclass.safe_columns.each do |col| -%>
+  <label for='<%= col.name %>'><%= _(col.name) %></label>
   <% case col.ptype
      when :datetime %>
-    <%= date_box(@node, col_name, :size=>15) %>
+    <%= date_box(@node, col.name, :size=>15, :value => @node.prop[col.name]) %>
   <% else %>
-    <%= text_area 'node', col_name, :cols => nil, :rows => 1, :value => @node.prop[col_name], :class => 'full_width' %>
+    <%= text_area 'node', col.name, :cols => nil, :rows => 1, :value => @node.prop[col.name], :class => 'full_width' %>
   <% end %>
 <% end -%>

@@ -1,6 +1,8 @@
 <h2 class='title'><%= _('relations') %></h2>
 <table id='relation_list' class='admin' cellspacing="0">
   <tr><th class='nav' colspan='9'><%= will_paginate @relations %></th></tr>
-  <%= render :partial=>'relations/li',  :collection=>@relations %>
+  <%= @show_dir = 'src';render :partial=>'relations/li',  :collection=>@relations  %>
+  <tr><th class='nav' colspan='9'><%= _('reverse relation') %></th></tr>
+  <%= @show_dir = 'trg';render :partial=>'relations/li',  :collection=>@relations.sort{|a,b| a.target_kpath <=> b.target_kpath} %>
   <%= render :partial=>'relations/add' %>
 </table>
