@@ -94,3 +94,7 @@ swf_button_player:
 unknown_link:
   tem: "<%= zazen('\"hello\":99') %>"
   res: "/unknown link/"
+
+host:
+  tem: "<%= zazen('this is a \"link\":12. !30!', :host => 'foo.com') %>"
+  res: "/http://foo.com/oo/section12.html\">link.*http://foo.com/en/image30_std.jpg/"

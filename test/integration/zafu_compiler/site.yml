@@ -8,7 +8,11 @@ default:
   res: "simple text"
 
 host:
-  src: "<r:eval>site.host</r:eval>"
+  src: "site.host"
   tem: "<%= visitor.site.host %>"
   res: "test.host"
 
+default_lang:
+  eval: "site.default_lang"
+  tem: "<%= visitor.site.default_lang %>"
+  res: "en"

@@ -271,3 +271,8 @@ action_confirm:
   res: "<a data-confirm='really go away ?' href='/oo/projects-list/Clean-Water-project/page22.html' onclick='return Zena.m(this,\"get\")'>status title</a>"
 
 # update with insert tested in rendering_test.
+
+link_with_host:
+  src: "<r:default host='#{site.host}'><r:link/></r:default>"
+  tem: "/:host => \"#\{visitor.site.host\}\"/"
+  res: "/<a href='http://test.host/oo/.*/page22.html'>status title</a>/"

@@ -99,6 +99,8 @@ module Zena
           end
 
           link_opts = {}
+          link_opts[:host] = opts[:host]
+
           if opts[:id] =~ /(\d+)(_\w+|)(\.\w+|)/
             id = $1
             link_opts[:mode]   = ($2 != '') ? $2[1..-1] : nil
@@ -176,7 +178,7 @@ module Zena
           end
           title = img.summary if title == ""
 
-          image = img_tag(img, :mode=>mode)
+          image = img_tag(img, :mode=>mode, :host=>opts[:host])
 
           unless link
             if id[0..0] == "0" || !img.kind_of?(Image)

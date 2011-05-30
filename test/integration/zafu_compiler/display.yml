@@ -362,3 +362,10 @@ show_param:
   src: "<r:show param='t'/>"
   tem: "<%= h params[:t] %>"
   res: "hello"
+
+default_host:
+  context:
+    node: 'bird_jpg'
+  src: "<r:default host='b.#{site.host}'><r:zazen text='this is a \"link\":12.'/> xxx: <r:img/></r:default>"
+  tem: '/zazen.*:host.*visitor.site.host/'
+  res: "/href=\"http://b.test.host/oo/section12.html\">link.*src='http://b.test.host/en/image30_std.jpg/"

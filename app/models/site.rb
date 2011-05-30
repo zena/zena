@@ -18,7 +18,7 @@ The #Site model holds configuration information for a site:
 class Site < ActiveRecord::Base
   ACTIONS = %w{clear_cache rebuild_index}
   include RubyLess
-  safe_method  :host => String, :lang_list => [String]
+  safe_method  :host => String, :lang_list => [String], :default_lang => String
   safe_context :root => {:class => 'Project', :enroll => true, :method => 'root_node'}
 
   validate :valid_site

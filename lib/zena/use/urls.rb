@@ -86,13 +86,17 @@ module Zena
 
           pre    = opts.delete(:prefix) || (visitor.is_anon? && opts.delete(:lang)) || prefix
           mode   = opts.delete(:mode)
-          host   = opts.delete(:host)
-          if ssl = opts.delete(:ssl)
-            http = 'https'
+
+          if host = opts.delete(:host)
+            if ssl = opts.delete(:ssl)
+              http = 'https'
+            else
+              http = http_protocol
+            end
+            abs_url_prefix = "#{http}://#{host}"
           else
-            http = http_protocol
+            abs_url_prefix = ''
           end
-          abs_url_prefix = host ? "#{http}://#{host}" : ''
 
           if node.kind_of?(Document) && format == node.ext
             if node.public? && !visitor.site.authentication?
@@ -502,8 +506,6 @@ module Zena
               opts_str << ",:#{k.to_s.gsub(/[^a-z_A-Z_]/,'')}=>#{query_params[k]}"
             end
 
-            opts_str += ", :host => #{@context["exp_host"]}" if @context["exp_host"]
-
             pre_space + "<a#{params_to_html(html_params)} href='<%= zen_path(#{lnode}#{opts_str}) %>'>#{text_for_link(default_text)}</a>"
           end
 =end
@@ -568,13 +570,17 @@ module Zena
             insert_ajax_args(remote_target, hash_params, opts[:action]) if remote_target
 
             (opts[:query_params] || @params).each do |key, value|
-              next if [:href, :eval, :text, :attr, :t].include?(key)
+              next if [:href, :eval, :text, :attr, :t, :host].include?(key)
               if key == :anchor
                 value = get_anchor_name(value)
               end
 
               # FIXME: how to not force string interpolation ?
               hash_params << "#{key.inspect} => %Q{#{value}}"
+            end
+
+            if host = param(:host)
+              hash_params << ":host => %Q{#{host}}"
             end
 
             unless hash_params.empty?

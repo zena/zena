@@ -432,7 +432,7 @@ module Zena
           else
             node = node(Node) || '@node'
             return nil unless attribute = get_attribute_or_eval
-            hash_arguments = extract_from_params(:code) || []
+            hash_arguments = extract_from_params(:code, :host) || []
 
             hash_arguments.insert(0, ":node => #{node}")
 
@@ -615,7 +615,9 @@ module Zena
           [:class, :alt_src, :id, :border, :style].each do |k|
             res  += ", :#{k}=>#{@params[k].inspect}" if @params[k]
           end
-          res += ", :host => #{@context["exp_host"]}" if @context["exp_host"]
+          if host = param(:host)
+            res += ", :host => #{::RubyLess.translate_string(self, host)}"
+          end
           res += ")"
           if finder = @params[:link]
             finder = ::RubyLess.translate(self, finder)

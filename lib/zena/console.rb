@@ -77,7 +77,7 @@ module Zena
     def find(query)
       default_scope = 'site'
       query = {:qb => query} unless query.kind_of?(Hash)
-      query[:_find] = Node.plural_relation?(method.split(' ').first) ? :all : :first
+      query[:_find] = Node.plural_relation?(query[:qb].split(' ').first) ? :all : :first
       nodes = secure(Node) { Node.search_records(query, :node => current_site.root_node, :default => {:scope => default_scope}) }
     end
 
