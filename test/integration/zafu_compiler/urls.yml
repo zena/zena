@@ -30,6 +30,10 @@ r_url_with_hash:
   src: "<r:url mode='back' f='x'/>"
   res: "/page22_back.html\?f=x/"
 
+url_with_ssl:
+  src: "<a href='#{url(this, :host =&gt; \"some.host:445\", :ssl =&gt; true)}' do='title'/>"
+  res: "<a href='https://some.host:445/oo/projects-list/Clean-Water-project/page22.html'>status title</a>"
+
 path:
   src: "<a href='#{path}'>blah</a>"
   res: "<a href='/oo/projects-list/Clean-Water-project/page22.html'>blah</a>"

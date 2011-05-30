@@ -64,7 +64,7 @@ class ImageTest < Zena::Unit::TestCase
       should 'build filepath from title' do
         assert_match /birdy.jpg/, subject.filepath
       end
-      
+
       should 'save default text' do
         node = secure(Node) { Node.find(subject.id) }
         assert_equal "!#{subject.zip}!", node.text
@@ -99,6 +99,11 @@ class ImageTest < Zena::Unit::TestCase
 
       should 'save exif data in exif prop' do
         assert_kind_of ExifData, subject.prop['exif']
+      end
+
+      should 'declare exif as safe prop' do
+        type = subject.safe_method_type(['exif'])
+        assert_equal Hash[:class => ExifData, :method => 'exif'], type
       end
 
       should 'parse time values' do

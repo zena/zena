@@ -87,7 +87,12 @@ module Zena
           pre    = opts.delete(:prefix) || (visitor.is_anon? && opts.delete(:lang)) || prefix
           mode   = opts.delete(:mode)
           host   = opts.delete(:host)
-          abs_url_prefix = host ? "#{http_protocol}://#{host}" : ''
+          if ssl = opts.delete(:ssl)
+            http = 'https'
+          else
+            http = http_protocol
+          end
+          abs_url_prefix = host ? "#{http}://#{host}" : ''
 
           if node.kind_of?(Document) && format == node.ext
             if node.public? && !visitor.site.authentication?
@@ -182,7 +187,7 @@ module Zena
         # Url for a node. Options are 'mode' and 'format'
         # ex 'http://test.host/en/document34_print.html'
         def zen_url(node, opts={})
-          zen_path(node,opts.merge(:host => host_with_port))
+          zen_path(node,{:host => host_with_port}.merge(opts))
         end
 
         # Return the path to a document's data

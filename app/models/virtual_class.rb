@@ -326,8 +326,9 @@ class VirtualClass < Role
   # explicitely declared as safe are safe. If the VirtualClass reflects a virtual
   # class, all properties are considered safe.
   def safe_method_type(signature, receiver = nil)
-
-    if signature.size == 1
+    if type = real_class.safe_method_type(signature, receiver)
+      return type
+    elsif signature.size == 1
       method = signature.first
       if receiver && (query = receiver.opts[:query])
         if query.select_keys.include?(method)
@@ -348,9 +349,9 @@ class VirtualClass < Role
       if type = safe_column_types[method]
         return type
       end
+    else
+      nil
     end
-
-    real_class.safe_method_type(signature, receiver)
   end
 
   # Return safe columns including super class's safe columns

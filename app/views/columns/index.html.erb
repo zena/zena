@@ -2,11 +2,11 @@
 
 <table id='column_list' class='admin' cellspacing="0">
   <tr><th class='nav' colspan='3'><%= will_paginate @columns %></th></tr>
-  <% role = nil; @columns.each do |col| -%>
-    <% if col.role != role; role = col.role -%>
+  <% role_id = nil; @columns.each do |col| -%>
+    <% if col.role_id != role_id; role_id = col.role_id -%>
     <tr>
-      <th class='nav sub <%= role.class %>' colspan='3'>
-        <span class='kpath'><%= role.kpath %></span> <%= role.name %>
+      <th class='nav sub <%= col.role.class %>' colspan='3'>
+        <span class='kpath'><%= col.role.kpath %></span> <%= col.role.name %>
       </th>
     </tr>
     <% end -%>

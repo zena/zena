@@ -78,6 +78,7 @@ module Zena
       # Insert a list of values (multicolumn insert). The values should be properly escaped before
       # being passed to this method.
       def insert_many(table, columns, values)
+        return if values.empty?
         values = values.compact.uniq.map do |list|
           list.map {|e| quote(e)}
         end

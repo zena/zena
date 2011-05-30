@@ -9,15 +9,19 @@ class ColumnsController < ApplicationController
   def index
     roles = {}
     secure(Column) do
-      @columns = Column.paginate(:all, :order => 'role_id ASC, name ASC', :per_page => 200, :page => params[:page]).sort! do |a, b|
-        role_a = (roles[a.role_id] ||= a.role).kpath
-        role_b = (roles[b.role_id] ||= b.role).kpath
+      @columns = Column.paginate(:all, :order => 'role_id ASC, name ASC', :per_page => 200, :page => params[:page])
+    end
 
-        if role_a == role_b
-          a.name <=> b.name
-        else
-          role_a <=> role_b
-        end
+    @columns.sort! do |a, b|
+      role_a = (roles[a.role_id] ||= a.role)
+      role_b = (roles[b.role_id] ||= b.role)
+
+      if role_a == role_b
+        a.name <=> b.name
+      elsif role_a.kpath == role_a.kpath
+        role_a.name <=> role_b.name
+      else
+        role_a.kpath <=> role_a.kpath
       end
     end
 

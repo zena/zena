@@ -46,6 +46,10 @@ root:
   tem: "<% if var1 = visitor.site.root_node %><%= var1.prop['title'] %><% end %>"
   res: 'Zena the wild CMS'
 
+root_should_be_a_project:
+  src: "<r:root do='hot' do='title'/>"
+  tem: "/root_node.*SELECT.*var2\.prop\['title'\]/"
+  
 notes:
   context:
     node: 'cleanWater'

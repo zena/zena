@@ -40,7 +40,7 @@ table.admin td:first-child { border-left: 1px solid #999; }
 .admin .btn_validate { float:right; margin-right:30px; }
 .admin .label {width:150px; line-height:1.9em;}
 .admin th { background:#999; color:#222; font-weight:bold;}
-.admin .Role { color:#ccc;}
+.admin .Role { color:#eee;}
 .admin .name { font-weight:bold;}
 .admin .blank { text-align:center; background:none; padding-top:2em;}
 .admin th .kpath {font-weight:normal; font-family:Monaco, monospace; color:#ccc;}
