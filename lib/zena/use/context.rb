@@ -21,7 +21,7 @@ module Zena
         safe_method :visitor => User
         safe_method :visitor_node => visitor_node_proc
         safe_method :main => Proc.new {|h, r, s| {:method => '@node', :class => VirtualClass['Node']}}
-        safe_method :root => {:method => 'visitor.site.root_node', :class => 'Project', :enroll => true, :nil => true}
+        safe_method :root => Proc.new {|h, r, s| {:method => 'visitor.site.root_node', :class => VirtualClass['Project'], :nil => true}}
         safe_method :site => {:class => Site, :method => 'visitor.site'}
 
         # Group an array of records by key.
@@ -160,6 +160,21 @@ module Zena
         end
 
         alias r_find r_context
+
+        def r_set
+          @params.each do |var, code|
+            var = var.to_s
+            begin
+              typed_string = ::RubyLess.translate(self, code)
+              name = get_var_name('set_var', var)
+              out "<% #{name} = #{typed_string} %>"
+              set_context_var('set_var', var, RubyLess::TypedString.new(name, typed_string.opts))
+            rescue RubyLess::NoMethodError => err
+              parser_error(err.message, code)
+            end
+          end
+          expand_with
+        end
 
         # Group elements in a list. Use :order to specify order.
         def r_group

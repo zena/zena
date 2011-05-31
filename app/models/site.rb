@@ -19,7 +19,7 @@ class Site < ActiveRecord::Base
   ACTIONS = %w{clear_cache rebuild_index}
   include RubyLess
   safe_method  :host => String, :lang_list => [String], :default_lang => String
-  safe_context :root => {:class => 'Project', :enroll => true, :method => 'root_node'}
+  safe_method  :root => Proc.new {|h, r, s| {:method => 'root_node', :class => VirtualClass['Project'], :nil => true}}
 
   validate :valid_site
   validates_uniqueness_of :host
@@ -46,7 +46,7 @@ class Site < ActiveRecord::Base
       params = {
         :name            => host.split('.').first,
         :authentication  => false,
-        :auto_publish    => false,
+        :auto_publish    => true,
         :redit_time      => '2h',
         :languages       => '',
         :default_lang    => "en",

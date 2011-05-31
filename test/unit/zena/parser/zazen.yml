@@ -101,6 +101,10 @@ image_with_link:
   src: "!12_pv!:12"
   res: "<p>[make_image id:|12| images:true link:|12| mode:|pv| style:||]</p>"
 
+image_with_link_one_digit:
+  src: "!12_pv!:1"
+  res: "<p>[make_image id:|12| images:true link:|1| mode:|pv| style:||]</p>"
+
 image_with_link_mode:
   src: "!12_pv!:20_changes"
   res: "<p>[make_image id:|12| images:true link:|20_changes| mode:|pv| style:||]</p>"

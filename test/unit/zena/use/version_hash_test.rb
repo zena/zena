@@ -74,7 +74,7 @@ class VersionHashTest < Zena::Unit::TestCase
         assert_equal subject.version.id, subject.vhash['r']['de']
       end
     end # with auto publish
-    
+
     context 'with remove status' do
       setup do
         @attributes = {:v_status => Zena::Status[:rem]}
@@ -83,18 +83,18 @@ class VersionHashTest < Zena::Unit::TestCase
       should 'remove readers entry' do
         assert_nil subject.vhash['r']['en']
       end
-      
+
       should 'keep writers entry' do
         assert_equal versions_id(:tiger_en), subject.vhash['w']['en']
       end
     end # with remove status
   end # Updating a Node
-  
+
   context 'On a node' do
     setup do
       login(:ant)
     end
-    
+
     context 'with published and not published versions' do
       subject do
         secure(Node) { nodes(:opening)}
@@ -105,7 +105,7 @@ class VersionHashTest < Zena::Unit::TestCase
         assert_equal [:opening_fr, :opening_en, :opening_red_fr].map {|v| versions_id(v)}.sort, list.map(&:id).sort
       end
     end # with published and not published versions
-    
+
     context 'with published versions' do
       subject do
         login(:tiger)
@@ -119,8 +119,8 @@ class VersionHashTest < Zena::Unit::TestCase
         list = subject.visible_versions
         assert_equal [:opening_en, :opening_red_fr].map {|v| versions_id(v)}.sort, list.map(&:id).sort
       end
-    end # with published and not published versions
-    
+    end # with published versions
+
   end # on a node
-  
+
 end

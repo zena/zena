@@ -528,7 +528,7 @@ class NodeTest < Zena::Unit::TestCase
 
   def test_url_name
     assert_equal "salut-j%27%C3%A9cris%3A-Aujourd%27hui-", "salut j'écris: Aujourd'hui ".url_name
-    assert_equal "07.11.2006%2Dmardi_prochain", "07.11.2006-mardi_prochain".url_name
+    assert_equal "07.11.2006%2Dmardi%5Fprochain", "07.11.2006-mardi_prochain".url_name
     ['avant-hier', 'un ami ', 'èààèüï a', '" à,--/ bab* mol'].each do |l|
       assert_equal l, String.from_url_name(l.url_name)
     end

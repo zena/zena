@@ -16,7 +16,7 @@ class SitesControllerTest < Zena::Controller::TestCase
       assert File.exist?(filepath)
       assert CachedPage.find(:first, :conditions => ["path = ?", "/test.host/public/en/clear_cache_test.html"])
       login(:lion)
-      post 'clear_cache', :id => visitor.site.id
+      post 'action', :do => 'clear_cache', :id => visitor.site.id
       assert !File.exist?(filepath)
       assert !CachedPage.find(:first, :conditions => ["path = ?", "/test.host/public/en/clear_cache_test.html"])
     end
@@ -31,7 +31,7 @@ class SitesControllerTest < Zena::Controller::TestCase
       File.open(filepath, 'wb') {|f| f.puts "puts 'hello'"}
       assert File.exist?(filepath)
       login(:lion)
-      post 'clear_cache', :id => visitor.site.id
+      post 'action', :do => 'clear_cache', :id => visitor.site.id
       assert !File.exist?(filepath)
     end
   end

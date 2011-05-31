@@ -30,7 +30,11 @@ module Zena
         # Find related nodes.
         # See Node#build_find for details on the options available.
         # TODO: do we need rubyless translate here ? It should be removed.
-        def find(count, pseudo_sql, opts = {})
+        def find(count, pseudo_sql = nil, opts = {})
+          if pseudo_sql.nil?
+            pseudo_sql = count
+            count = Node.plural_relation?(pseudo_sql.split(' ').first) ? :all : :first
+          end
           if !opts[:skip_rubyless] && type = RubyLess::SafeClass.safe_method_type_for(self.class, [pseudo_sql])
             self.send(type[:method])
           else

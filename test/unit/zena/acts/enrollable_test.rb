@@ -120,24 +120,25 @@ class EnrollableTest < Zena::Unit::TestCase
         ['section']
       end
 
-      should 'return a virtual class on safe_method_type' do
+      should 'return a Proc on safe_method_type' do
         type = Node.safe_method_type(subject)
-        assert_kind_of VirtualClass, type[:class]
-        assert_equal VirtualClass['Section'], type[:class]
-        assert_equal %w{assigned cached_role_ids origin summary text title tz weight}, type[:class].columns.keys.sort
+        assert_kind_of Proc, type[:class]
+        klass = type[:class].call[:class]
+        assert_equal VirtualClass['Section'], klass
+        assert_equal %w{assigned cached_role_ids origin summary text title tz weight}, klass.columns.keys.sort
       end
     end # A safe method returning a sub-class of Node
 
     context 'A class with a safe_node_context to a virtual class' do
       subject do
         Class.new(Page) do
-          safe_node_context :foo => :Post
+          safe_node_context :foo => 'Post'
         end
       end
 
       should 'properly resolve type' do
         type = subject.safe_method_type(['foo'])
-        assert_equal VirtualClass['Post'], type[:class]
+        assert_equal VirtualClass['Post'], type[:class].call[:class]
       end
     end # A class with a safe_node_context to a virtual class
   end # A visitor with write access

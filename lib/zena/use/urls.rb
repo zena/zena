@@ -17,7 +17,7 @@ module Zena
       }
 
 
-      ALLOWED_REGEXP = /\A(([a-zA-Z]+)([0-9]+)|([#{String::ALLOWED_CHARS_IN_FILENAME}%]+))(_[a-zA-Z]+|)(\..+|)\Z/
+      ALLOWED_REGEXP = /\A(([a-zA-Z]+)([0-9]+)|([#{String::ALLOWED_CHARS_IN_URL}\-%]+))(_[a-zA-Z]+|)(\..+|)\Z/
 
       module Common
         CACHESTAMP_FORMATS = ['jpg', 'png', 'gif', 'css', 'js']
@@ -247,15 +247,16 @@ module Zena
         end
 
         def http_protocol
-          @http_protocol ||= begin
-            if request.protocol =~ /^(.*):\/\/$/
-              $1
-            else
-              'http'
-            end
-          end
+          'http'
         end
 
+        # We do not have access to the request. Port and host should be passed from view.
+        def host_with_port
+          current_site.host
+        end
+      end # Common
+
+      module ViewAndControllerMethods
         def host_with_port
           @host_with_port ||= begin
             port = request.port
@@ -266,14 +267,26 @@ module Zena
             end
           end
         end
-      end # Common
+
+        def http_protocol
+          @http_protocol ||= begin
+            if request.protocol =~ /^(.*):\/\/$/
+              $1
+            else
+              'http'
+            end
+          end
+        end
+      end
 
       module ControllerMethods
         include Common
+        include ViewAndControllerMethods
       end # ControllerMethods
 
       module ViewMethods
         include Common
+        include ViewAndControllerMethods
         include RubyLess
         safe_method [:url,  Node]       => {:class => String, :method => 'zen_url'}
         safe_method [:url,  Node, Hash] => {:class => String, :method => 'zen_url'}

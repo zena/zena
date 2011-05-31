@@ -2,6 +2,14 @@ require 'test_helper'
 
 class UrlsTest < Zena::View::TestCase
   include Zena::Use::Urls::ViewMethods
+  
+  def host_with_port
+    "foo.com:123"
+  end
+  
+  def http_protocol
+    'https'
+  end
 
   attr_reader :params
 
@@ -108,12 +116,12 @@ class UrlsTest < Zena::View::TestCase
     node = secure!(Node) { nodes(:status) }
     assert_equal "/en/projects-list/Clean-Water-project/page22.abcd.png?1144713600", zen_path(node, :asset => 'abcd', :format => 'png')
   end
-
+  
   def test_zen_url
     login(:anon)
     node = secure!(Node) { nodes(:zena) }
-    assert_equal "http://test.host/en", zen_url(node)
-    assert_equal "http://test.host/en/project11_test.html", zen_url(node, :mode=>'test')
+    assert_equal "https://foo.com:123/en", zen_url(node)
+    assert_equal "https://foo.com:123/en/project11_test.html", zen_url(node, :mode=>'test')
   end
 
   def test_data_path_for_public_documents

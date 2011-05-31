@@ -7,3 +7,9 @@ default:
 each_group:
   src: "<r:nodes do='group' by='kpath'><p do='each_group'><r:kpath/>: <r:each join=', ' do='title'/></p></r:nodes>"
   res: "<p>NP: crocodiles, status title</p><p>NDI: it's a lake</p><p>NPA: Keeping things clean !</p><p>NRC: The lake we love</p><p>NNP: parc opening</p><p>ND: water</p>"
+
+set_var:
+  context:
+    date: '2011-05-30'
+  src: "<div do='set' next_date='date.advance(:years =&gt; 1)'><span do='next_date' format='%Y-%m-%d'/></div>"
+  res: "<div><span>2012-05-30</span></div>"

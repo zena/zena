@@ -228,7 +228,7 @@ class NodesControllerTest < Zena::Controller::TestCase
 
     context 'creating a node' do
       subject do
-        {:action => 'create', :controller => 'nodes', :node => {:parent_id => nodes_zip(:zena), :title => 'hello', :klass => 'Page'}}
+        {:action => 'create', :controller => 'nodes', :node => {:parent_id => nodes_zip(:zena), :title => 'hello', :klass => 'Blog'}}
       end
 
       should 'recognize create page' do
@@ -238,7 +238,17 @@ class NodesControllerTest < Zena::Controller::TestCase
       should 'succeed' do
         post_subject
         node = assigns(:node)
-        assert_redirected_to "/oo/page#{node.zip}.html"
+        assert_redirected_to "/oo/blog#{node.zip}.html"
+      end
+      
+      should 'set type and vclass' do
+        post_subject
+        node = assigns(:node)
+        assert_equal 'NPPB', node.kpath
+        assert_equal 'Project', node.type
+        node = Node.find(node.id)
+        assert_equal 'NPPB', node.kpath
+        assert_equal 'Project', node.type
       end
     end # creating a node
 

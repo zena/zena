@@ -548,7 +548,7 @@ class VirtualClass < Role
     end
 
     def get_real_class(klass)
-      klass.kind_of?(VirtualClass) ? get_real_class(klass.superclass) : klass.to_s
+      (klass.kind_of?(VirtualClass) ? klass.real_class : klass).to_s
     end
 
     def old

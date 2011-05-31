@@ -28,6 +28,10 @@ include_part:
   src: "include_part: <r:include template='/meta/id/name' part='bob'/>"
   tem: "include_part: <b>Bob</b>"
 
+include_part_replace_method:
+  src: "include_part: <r:include template='/meta/id/name' part='bob' do='title'/>"
+  tem: "include_part: <b><%= @node.prop['title'] %></b>"
+
 # this test is a dummy used by include_context
 context_dummy:
   src: "CD: <r:pages in='site' where='title like \"s%\"' name='pages'><r:each join=', ' do='title'/></r:pages>"

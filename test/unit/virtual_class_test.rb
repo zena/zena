@@ -446,18 +446,26 @@ class VirtualClassTest < Zena::Unit::TestCase
     end
 
     subject do
-      role = VirtualClass.create(:name => 'Flop', :superclass => 'Note', :create_group_id => groups_id(:public))
-      err role
-      assert !role.new_record?
+      role = VirtualClass.create(:name => 'Flop', :superclass => 'Project', :create_group_id => groups_id(:public))
+      role
     end
 
     should_clear_cache
+
+    should 'create new role' do
+      assert_difference('VirtualClass.count', 1) do
+        subject
+      end
+    end
 
     should 'load new role from cache' do
       subject
       assert_kind_of VirtualClass, VirtualClass.find_by_name('Flop')
     end
 
+    should 'set real_class' do
+      assert_equal Project, subject.real_class
+    end
   end # Creating a Role
 
   context 'Creating a Column' do
@@ -634,6 +642,10 @@ class VirtualClassTest < Zena::Unit::TestCase
 
       should 'return list of roles' do
         assert_equal %w{Node Original Task}, subject.sorted_roles.map(&:name)
+      end
+      
+      should 'return real_class name on get_real_class' do
+        assert_equal 'Page', subject.send(:get_real_class, subject)
       end
 
       context 'that is a Node' do

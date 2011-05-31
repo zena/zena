@@ -44,6 +44,21 @@ module Zena
       end
     end
 
+    def set_prop(list, key, value)
+      list.each do |rec|
+        if rec.kind_of?(Node)
+          elems = rec.visible_versions
+        else
+          elems = [rec]
+        end
+        elems.each do |rec|
+          prop  = rec.prop
+          prop[key] = value
+          Zena::Db.execute "UPDATE #{rec.class.table_name} SET properties=#{Zena::Db.quote(rec.class.encode_properties(prop))} WHERE id=#{rec[:id]}"
+        end
+      end
+    end
+
     def login(name, host = nil)
       finder = {}
       finder[:conditions] = cond = [[]]
@@ -74,11 +89,29 @@ module Zena
       end
     end
 
-    def find(query)
-      default_scope = 'site'
-      query = {:qb => query} unless query.kind_of?(Hash)
-      query[:_find] = Node.plural_relation?(query[:qb].split(' ').first) ? :all : :first
-      nodes = secure(Node) { Node.search_records(query, :node => current_site.root_node, :default => {:scope => default_scope}) }
+    # Usage:
+    # find('contacts in site')
+    # find(:all, 'contacts in site') # same as above
+    # find(:qb => 'contacts in site', :_find => :all) # same as above
+    def find(count_or_query, pseudo_sql = nil, opts = {})
+      if count_or_query.kind_of?(Hash)
+        query = count_or_query
+      elsif count_or_query.kind_of?(Fixnum)
+        query = {:qb => "node in site where id = #{count_or_query}", :_find => :first}
+      elsif pseudo_sql.nil?
+        query = {:qb => count_or_query}
+      else
+        query = {:qb => pseudo_sql, :_find => count_or_query}
+      end
+      query[:_find] ||=
+      count = Node.plural_relation?(query[:qb].split(' ').first) ? :all : :first
+
+      nodes = secure(Node) do
+        Node.search_records(query,
+          :node => current_site.root_node,
+          :default => {:scope => 'site'}
+        )
+      end
     end
 
     def count(pseudo_sql, opts = {})

@@ -18,10 +18,10 @@ class ColumnsController < ApplicationController
 
       if role_a == role_b
         a.name <=> b.name
-      elsif role_a.kpath == role_a.kpath
+      elsif role_a.kpath == role_b.kpath
         role_a.name <=> role_b.name
       else
-        role_a.kpath <=> role_a.kpath
+        role_a.kpath <=> role_b.kpath
       end
     end
 
@@ -88,8 +88,8 @@ class ColumnsController < ApplicationController
     respond_to do |format|
       if @column.update_attributes(params[:column])
         flash.now[:notice] = _('Column was successfully updated.')
-        format.js
         format.html { redirect_to(@column) }
+        format.js
         format.xml  { head :ok }
       else
         format.html { render :action => "edit" }

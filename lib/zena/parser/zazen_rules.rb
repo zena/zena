@@ -112,7 +112,7 @@ module Zena
           else
             store @helper._('[documents]')
           end
-        elsif @text =~ /\A\!([^0-9:]{0,2})(#{PSEUDO_ID_REGEXP})(_([^\/\!]+)|)(\/([^\!]*)|)\!(:([^:\(][^\s]+|#{PSEUDO_ID_REGEXP}(_[a-zA-Z]+|))|)/m
+        elsif @text =~ /\A\!([^0-9:]{0,2})(#{PSEUDO_ID_REGEXP})(_([^\/\!]+)|)(\/([^\!]*)|)\!(:([^:\(][^\s]*|#{PSEUDO_ID_REGEXP}(_[a-zA-Z]+|))|)/m
           # image !<.:art++_pv/blah blah!:12
           #puts "SHORCUT IMAGE:#{$~.to_a.inspect}"
           eat $&
@@ -144,7 +144,7 @@ module Zena
           else
             store "[#{id} not found]"
           end
-        elsif @text =~ /\A\!([^0-9]{0,2})([0-9]+)(_([^\/\!]+)|)(\/([^\!]*)|)\!(:([^:\(][^\s]+|#{PSEUDO_ID_REGEXP}(_[a-zA-Z]+|))|)/m
+        elsif @text =~ /\A\!([^0-9]{0,2})([0-9]+)(_([^\/\!]+)|)(\/([^\!]*)|)\!(:([^:\(][^\s]*|#{PSEUDO_ID_REGEXP}(_[a-zA-Z]+|))|)/m
           # image !<.12_pv/blah blah!:12
           #puts "IMAGE:[#{$&}]"
           eat $&

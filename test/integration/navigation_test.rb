@@ -289,7 +289,18 @@ class NavigationTest < Zena::Integration::TestCase
         assert_response :success
       end
     end # in the wrong language
+    
+    context 'with a mode' do
+      subject do
+        'http://test.host/en/projects-list/Clean-Water-project_test'
+      end
 
+      should 'get response' do
+        get subject
+        assert_response :success
+      end
+    end # with a mode
+    
   end # On a page with custom base
 
   def test_url_with_custom_base
