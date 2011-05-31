@@ -519,6 +519,9 @@ module Zena
             wrap('')
           end
 
+          if @params[:type] == 'checkbox'
+            out "<input type='hidden' name='#{html_attributes[:name]}' value='#{@params[:blank]}'/>"
+          end
           extract_label(res, attribute || erb_attr)
         end
 
@@ -640,7 +643,7 @@ module Zena
 
             if sub_attr && params[:type] == 'checkbox' && !params[:value]
               # Special case when we have a sub_attribute: default value for "tagged[foobar]" is "foobar"
-              params[:value] = sub_attr
+              res[:value] = sub_attr
             end
 
             #if @context[:in_add]

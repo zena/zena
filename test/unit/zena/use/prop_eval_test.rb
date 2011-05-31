@@ -35,6 +35,16 @@ class PropEvalTest < Zena::Unit::TestCase
           subject.update_attributes(:prop_eval => %q[{'paper' => (paper.blank? ? 'Chiyogami' : paper), 'title' => 'booh'}])
         end
       end # with valid code
+      
+      context 'with valid code using vclass methods' do
+        subject do
+          secure(VirtualClass) { virtual_classes(:Post) }
+        end
+        
+        should 'succeed' do
+          assert subject.update_attributes(:prop_eval => %q[{'date' => (date || now)}])
+        end
+      end # with valid code
 
       context 'with syntax errors' do
         should 'fail' do

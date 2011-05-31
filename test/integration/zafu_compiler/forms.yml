@@ -131,13 +131,21 @@ checkbox_finder:
 
 checkbox_checked_value:
   src: "<r:input type='checkbox' name='tagged[sky]'/>"
-  tem: "/@node.tagged\\[\"sky\"\\] == \"sky\"/"
-  res: "<input type='checkbox' name='node[tagged][sky]' value='sky' checked='checked'/>"
+  tem: "/@node.tagged\[\"sky\"\].blank\?/"
+  res: "<input type='hidden' name='node[tagged][sky]' value=''/><input type='checkbox' name='node[tagged][sky]' value='sky' checked='checked'/>"
 
 checkbox_unchecked_value:
   src: "<r:input type='checkbox' name='tagged[foo]'/>"
-  tem: "/@node.tagged\\[\"foo\"\\] == \"foo\"/"
-  res: "<input type='checkbox' name='node[tagged][foo]' value=''/>"
+  tem: "/@node.tagged\[\"foo\"\].blank\?/"
+  res: "<input type='hidden' name='node[tagged][foo]' value=''/><input type='checkbox' name='node[tagged][foo]' value='foo'/>"
+
+checkbox_unchecked_value_blank:
+  src: "<r:input type='checkbox' name='tagged[foo]' blank='baz'/>"
+  res: "<input type='hidden' name='node[tagged][foo]' value='baz'/><input type='checkbox' name='node[tagged][foo]' value='foo'/>"
+
+checkbox_value_blank:
+  src: "<r:input type='checkbox' name='weight' value='100' blank='50'/>"
+  res: "<input type='hidden' name='node[weight]' value='50'/><input type='checkbox' name='node[weight]' value='100'/>"
 
 input_set_value:
   src: "<r:input type='hidden' name='icon_id' value='#{main.id}'/>"

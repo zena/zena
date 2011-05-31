@@ -54,7 +54,7 @@ module Bricks
       def tagged=(hash)
         # named tags
         hash.each do |k, v|
-          if v.empty?
+          if v.blank?
             remove_tag(k.to_s)
           else
             add_tag(k.to_s)
