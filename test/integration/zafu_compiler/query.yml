@@ -244,3 +244,7 @@ query_errors:
     c: 'badaboum'
   src: "<r:query default='nodes' select='nodes in #{params[:c]}'><r:elsif test='query_errors' do='query_errors'/></r:query>"
   res: "<span class='query'>nodes in badaboum</span> <span class='error'>Invalid scope 'badaboum'.</span>"
+
+find_with_rubyless:
+  src: "<b do='find(\"images in site limit 2\")' do='each' join=',' do='title'/>"
+  res: "<b>Autumn Tree,bird</b>"

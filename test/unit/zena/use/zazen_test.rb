@@ -252,6 +252,6 @@ class ZazenTest < Zena::View::TestCase
     login(:lion)
     assert current_site.update_attributes(:mail_hide_priv => '1234', :mail_hide_pub => '3456')
     @node = secure!(Node) { nodes(:status) }
-    assert_match %r{<a href.*mailhide.recaptcha.net/d\?k=3456&.*window.open}m, zazen("This is an email [email]bob@example.com[/email].")
+    assert_match %r{<a href.*google.com/recaptcha/mailhide/d\?k=3456&.*window.open}m, zazen("This is an email [email]bob@example.com[/email].")
   end
 end

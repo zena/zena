@@ -197,8 +197,11 @@ module Zena
 
         # Pre-processing of the 'find("...")' method.
         def get_type_for_find(string)
-          finder = build_finder(:first, string, {})
+          finder = build_finder(get_count(string, {}), string, {})
           TypedString.new(finder.delete(:method), finder)
+        rescue ::QueryBuilder::Error => err
+          out parser_error(err.message)
+          nil
         end
 
         # Pre-processing of the 'count("...")' method.

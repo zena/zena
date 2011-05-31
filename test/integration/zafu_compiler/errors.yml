@@ -101,3 +101,7 @@ bad_iconv:
 add_bad_klass:
   src: "<ol do='pages'><li do='each' do='link'/><li do='add' klass='page'/></ol>"
   res: "!/backtrace/"
+
+error_in_find_with_rubyless:
+  src: "<b do='find(\"images in in site limit 2\")' do='each' join=',' do='title'/>"
+  res: "/Syntax error near \"in site/"
