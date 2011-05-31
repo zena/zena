@@ -353,7 +353,7 @@ module Zena
             hidden_fields['mode'] = @params[:mode]
           end
 
-          hidden_fields['node[v_status]'] = Zena::Status[:pub].to_s if add_params[:publish] || auto_publish_param || @context[:publish_after_save]
+          hidden_fields['node[v_status]'] = Zena::Status::Pub.to_s if add_params[:publish] || auto_publish_param || @context[:publish_after_save]
 
           # All default values set in the <r:new> field should at least appear as hidden fields
           if new_keys = node.opts[:new_keys]

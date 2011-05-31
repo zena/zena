@@ -54,7 +54,7 @@ module Bricks
 
             has site_id
 
-            where "versions.status >= #{Zena::Status[:pub]}"
+            where "versions.status >= #{Zena::Status::Pub}"
 
             set_property :field_weights => { 
               :idx_text_high   => 5,

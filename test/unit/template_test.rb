@@ -238,7 +238,7 @@ class TemplateTest < Zena::Unit::TestCase
 
         should 'destroy index if target_klass is removed' do
           assert_difference('IdxTemplate.count', -1) do
-            assert subject.update_attributes(:target_klass => '', :v_status => Zena::Status[:pub])
+            assert subject.update_attributes(:target_klass => '', :v_status => Zena::Status::Pub)
           end
         end
       end # with target_klass
@@ -272,9 +272,9 @@ class TemplateTest < Zena::Unit::TestCase
         end
 
         should 'not create a new version on same text' do
-          assert subject.update_attributes(:file => uploaded_fixture('some.txt', 'text/zafu'), :v_status => Zena::Status[:pub])
+          assert subject.update_attributes(:file => uploaded_fixture('some.txt', 'text/zafu'), :v_status => Zena::Status::Pub)
           assert_difference('Version.count', 0) do
-            assert subject.update_attributes(:file => uploaded_fixture('some.txt', 'text/zafu'), :v_status => Zena::Status[:pub])
+            assert subject.update_attributes(:file => uploaded_fixture('some.txt', 'text/zafu'), :v_status => Zena::Status::Pub)
           end
         end
       end # with a file
@@ -369,7 +369,7 @@ class TemplateTest < Zena::Unit::TestCase
     assert_kind_of Template, doc
     assert !doc.new_record?, "Saved"
     doc = secure!(Node) { Node.find(doc[:id]) } # reload
-    assert doc.update_attributes(:title => "simple-thing", :v_status => Zena::Status[:pub])
+    assert doc.update_attributes(:title => "simple-thing", :v_status => Zena::Status::Pub)
     assert_nil doc.target_klass
     assert_nil doc.mode
     assert_nil doc.format

@@ -702,8 +702,8 @@ class Node < ActiveRecord::Base
 
         new_object = false
         versions.each do |attrs|
-          # FIXME: same lang: remove before update current_obj.remove if current_obj.v_lang == attrs['v_lang'] && current_obj.v_status != Zena::Status[:red]
-          # FIXME: current_obj.publish if attrs['v_status'].to_i == Zena::Status[:pub]
+          # FIXME: same lang: remove before update current_obj.remove if current_obj.v_lang == attrs['v_lang'] && current_obj.v_status != Zena::Status::Red
+          # FIXME: current_obj.publish if attrs['v_status'].to_i == Zena::Status::Pub
           if type == :document
             attrs['title' ] = attrs['title'].split('.')[0..-2].join('.')
             if document_path
@@ -1268,9 +1268,9 @@ class Node < ActiveRecord::Base
     return @discussion if defined?(@discussion)
 
     @discussion = Discussion.find(:first, :conditions=>[ "node_id = ? AND inside = ? AND lang = ?",
-      self[:id], v_status != Zena::Status[:pub], v_lang ], :order=>'id DESC') ||
+      self[:id], v_status != Zena::Status::Pub, v_lang ], :order=>'id DESC') ||
       if can_auto_create_discussion?
-        Discussion.new(:node_id=>self[:id], :lang=>v_lang, :inside=>(v_status != Zena::Status[:pub]))
+        Discussion.new(:node_id=>self[:id], :lang=>v_lang, :inside=>(v_status != Zena::Status::Pub))
       else
         nil
       end
@@ -1282,7 +1282,7 @@ class Node < ActiveRecord::Base
   # - the user has drive access to the node
   def can_auto_create_discussion?
     can_drive? ||
-    (v_status != Zena::Status[:pub]) ||
+    (v_status != Zena::Status::Pub) ||
     Discussion.find(:first, :conditions=>[ "node_id = ? AND inside = ? AND open = ?",
                              self[:id], false, true ])
   end
@@ -1694,7 +1694,7 @@ class Node < ActiveRecord::Base
       when :propose
         documents.each do |doc|
           if doc.can_propose?
-            allOK = doc.propose(Zena::Status[:prop_with]) && allOK
+            allOK = doc.propose(Zena::Status::PropWith) && allOK
           end
         end
       when :unpublish

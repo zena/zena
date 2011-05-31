@@ -3,8 +3,8 @@
     <div class='hidden'>
       <input type='hidden' class='hidden' name='dom_id' value='<%= params[:dom_id] %>'/>
       <input type='hidden' class='hidden' name='zazen' value='true'/>
-      <% if params[:publish] == 'force' || (params[:publish] == 'true' && @node.v_status == Zena::Status[:pub]) -%>
-      <input type='hidden' name='node[v_status]' value='<%= Zena::Status[:pub] %>'/>
+      <% if params[:publish] == 'force' || (params[:publish] == 'true' && @node.v_status == Zena::Status::Pub) -%>
+      <input type='hidden' name='node[v_status]' value='<%= Zena::Status::Pub %>'/>
       <% end -%>
       <% if params[:publish] -%>
       <input type='hidden' class='hidden' name='publish' value='<%= params[:publish] %>'/>
@@ -20,8 +20,8 @@ value = Node.zafu_attribute(@node, params[:attribute]) -%>
   <%= form_remote_tag(:url => node_path(@node[:zip]), :method => :put, :html => {:class => 'ajax_edit'}) %>
     <div class='hidden'>
       <input type='hidden' name='dom_id' value='<%= params[:dom_id] %>'/>
-      <% if params[:publish] == 'force' || (params[:publish] == 'true' && @node.v_status == Zena::Status[:pub]) -%>
-      <input type='hidden' name='node[v_status]' value='<%= Zena::Status[:pub] %>'/>
+      <% if params[:publish] == 'force' || (params[:publish] == 'true' && @node.v_status == Zena::Status::Pub) -%>
+      <input type='hidden' name='node[v_status]' value='<%= Zena::Status::Pub %>'/>
       <% end -%>
       <% if params[:publish] -%>
       <input type='hidden' class='hidden' name='publish' value='<%= params[:publish] %>'/>

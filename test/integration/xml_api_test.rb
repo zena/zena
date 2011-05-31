@@ -44,7 +44,7 @@ class XmlApiTest < Zena::Integration::TestCase
     context 'searching for nodes' do
       subject do
         node = secure!(Node) { nodes(:art) }
-        node.update_attributes(:title => 'Dada', :v_status => Zena::Status[:pub])
+        node.update_attributes(:title => 'Dada', :v_status => Zena::Status::Pub)
         node
       end
 
@@ -57,7 +57,7 @@ class XmlApiTest < Zena::Integration::TestCase
         subject # create index entry for art
         # create index entry for status
         node = secure!(Node) { nodes(:status) }
-        node.update_attributes(:title => 'Fuda', :v_status => Zena::Status[:pub])
+        node.update_attributes(:title => 'Fuda', :v_status => Zena::Status::Pub)
 
         result = NodeResource.find(:all,
           :from   => '/nodes/search',
@@ -71,7 +71,7 @@ class XmlApiTest < Zena::Integration::TestCase
         subject # create index entry for art
         # create index entry for status
         node = secure!(Node) { nodes(:status) }
-        node.update_attributes(:title => 'Fuda', :v_status => Zena::Status[:pub])
+        node.update_attributes(:title => 'Fuda', :v_status => Zena::Status::Pub)
 
         result = NodeResource.find(:all,
           :from   => '/nodes/search',

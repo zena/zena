@@ -213,7 +213,7 @@ class NodesControllerTest < Zena::Controller::TestCase
     #     # in urls_test
     #     login(:lion)
     #     node = secure!(Node) { nodes(:cleanWater) }
-    #     node.update_attributes(:title => 'Lignes aériennes', :v_status => Zena::Status[:pub])
+    #     node.update_attributes(:title => 'Lignes aériennes', :v_status => Zena::Status::Pub)
     #   end
     #
     #   subject do
@@ -256,7 +256,7 @@ class NodesControllerTest < Zena::Controller::TestCase
 
       context 'that she owns' do
         setup do
-          @node = secure(Page) { Page.create(:parent_id => nodes_id(:zena), :title => 'hop', :v_status => Zena::Status[:pub]) }
+          @node = secure(Page) { Page.create(:parent_id => nodes_id(:zena), :title => 'hop', :v_status => Zena::Status::Pub) }
         end
 
         context 'in redit time' do
@@ -703,7 +703,7 @@ END:VCALENDAR
         put 'save_text', :id => nodes_zip(:style_css), :node => {'text' => '/* empty */'}
         node = assigns['node']
         assert node.errors.empty?
-        assert_equal Zena::Status[:pub], node.version.status
+        assert_equal Zena::Status::Pub, node.version.status
         assert_equal versions_id(:style_css_en), node.version.id # auto publish
         assert !File.exist?(filename) # old cached page removed
         get 'show', :prefix => 'en', :path => [name], :cachestamp => node.updated_at.to_i
@@ -764,7 +764,7 @@ END:VCALENDAR
   def test_edit_attribute_publish
     login(:tiger)
     node = secure!(Node) { nodes(:letter) }
-    assert_equal Zena::Status[:pub], node.version.status
+    assert_equal Zena::Status::Pub, node.version.status
     # get ajax
     get 'edit', :format => 'js', :id => node.zip, 'attribute' => 'paper', 'dom_id' => 'foo', 'publish' => 'true', 'zazen' => 'true'
     assert_match %r{name='node\[v_status\]' value='50'}m, @response.body
@@ -774,7 +774,7 @@ END:VCALENDAR
     assert_match %r{publish=true}m, @response.body
 
     node = secure!(Node) { nodes(:letter) }
-    assert_equal Zena::Status[:pub], node.v_status
+    assert_equal Zena::Status::Pub, node.v_status
     assert_equal 'Parchment', node.prop['paper']
   end
 
@@ -782,11 +782,11 @@ END:VCALENDAR
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
     node.update_attributes('title' => 'foobar')
-    assert_equal Zena::Status[:red], node.v_status
+    assert_equal Zena::Status::Red, node.v_status
     # ajax
     put 'update', :format => 'js', :id => node.zip, 'zazen' => 'true', 'dom_id' => 'foo', 'node' => {'title' => 'Michel Serres', 'v_status' => '50'}
     node = secure!(Node) { nodes(:status) }
-    assert_equal Zena::Status[:pub], node.v_status
+    assert_equal Zena::Status::Pub, node.v_status
     assert_match %r{window.location.href = window.location.href}m, @response.body
   end
 
@@ -805,7 +805,7 @@ END:VCALENDAR
     preserving_files('test.host/data') do
       login(:ant)
       img = secure!(Node) { nodes(:bird_jpg) }
-      assert_equal Zena::Status[:pub], img.version.status
+      assert_equal Zena::Status::Pub, img.version.status
       pub_version_id = img.version.id
       pub_content_id = img.version.attachment.id
       assert_equal 660, img.width

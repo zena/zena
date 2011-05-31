@@ -115,7 +115,7 @@ class PropEvalTest < Zena::Unit::TestCase
           context 'with property indices' do
             subject do
               secure(Node) { nodes(:letter) }.tap do |n|
-                assert n.update_attributes(:paper => 'Origami', :v_status => Zena::Status[:pub])
+                assert n.update_attributes(:paper => 'Origami', :v_status => Zena::Status::Pub)
               end
             end
 

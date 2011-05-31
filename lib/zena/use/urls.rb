@@ -675,7 +675,7 @@ module Zena
             #   end
             # end
             #
-            # query_params << "node[v_status]=#{Zena::Status[:pub]}" if @params[:publish] # FIXME: this acts like publish = 'force'
+            # query_params << "node[v_status]=#{Zena::Status::Pub}" if @params[:publish] # FIXME: this acts like publish = 'force'
             # query_params << start_node_s_param(:string)
             #
             # res = ''

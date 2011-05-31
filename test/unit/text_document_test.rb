@@ -170,7 +170,7 @@ class TextDocumentTest < Zena::Unit::TestCase
     bird = secure!(Node) { nodes(:bird_jpg)}
     b_at = bird.updated_at
     # We need to publish so that the title is used for fullpath
-    assert bird.update_attributes(:parent_id => node[:parent_id], :title => "green_bird", :v_status => Zena::Status[:pub])
+    assert bird.update_attributes(:parent_id => node[:parent_id], :title => "green_bird", :v_status => Zena::Status::Pub)
     Zena::Db.set_attribute(bird, :updated_at, b_at)
     start =<<-END_CSS
     body { font-size:10px; }
@@ -195,10 +195,10 @@ class TextDocumentTest < Zena::Unit::TestCase
 
   def test_update_same_text
     login(:tiger)
-    textdoc = secure(TextDocument) { TextDocument.create(:parent_id=>nodes_id(:cleanWater), :file => uploaded_text('some.txt'), :v_status => Zena::Status[:pub])}
+    textdoc = secure(TextDocument) { TextDocument.create(:parent_id=>nodes_id(:cleanWater), :file => uploaded_text('some.txt'), :v_status => Zena::Status::Pub)}
     assert_equal uploaded_text('some.txt').size, textdoc.size
     Zena::Db.set_attribute(textdoc, :updated_at, Time.gm(2006,04,11))
-    assert_equal Zena::Status[:pub], textdoc.version.status
+    assert_equal Zena::Status::Pub, textdoc.version.status
     textdoc = secure(Node) { Node.find(textdoc[:id]) }
     assert_equal '21a6948e0aec6de825009d8fda44f7e4', Digest::MD5.hexdigest(uploaded_text('some.txt').read)
     assert_equal '21a6948e0aec6de825009d8fda44f7e4', Digest::MD5.hexdigest(textdoc.file.read)

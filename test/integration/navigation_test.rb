@@ -262,7 +262,7 @@ class NavigationTest < Zena::Integration::TestCase
       # add a publication in 'fr'
       visitor.lang = 'fr'
       node = secure!(Node) { nodes(:cleanWater) }
-      node.update_attributes(:title => 'Eau propre', :v_status => Zena::Status[:pub])
+      node.update_attributes(:title => 'Eau propre', :v_status => Zena::Status::Pub)
       logout
     end
 

@@ -7,7 +7,7 @@ class IdxTemplate < ActiveRecord::Base
   before_create :set_site_id
 
   def self.set_property_index(template, indices)
-    if template.version.status >= Zena::Status[:pub]
+    if template.version.status >= Zena::Status::Pub
       # create or update index
       if index = first(:conditions => ['node_id = ?', template.id])
         if template.tkpath

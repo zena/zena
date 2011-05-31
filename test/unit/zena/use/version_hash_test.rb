@@ -26,7 +26,7 @@ class VersionHashTest < Zena::Unit::TestCase
       subject do
         secure!(Page) { Page.create(
           :parent_id => nodes_id(:cleanWater),
-          :v_status  => Zena::Status[:pub],
+          :v_status  => Zena::Status::Pub,
           :title     => 'Bloom filter')
         }
       end
@@ -66,7 +66,7 @@ class VersionHashTest < Zena::Unit::TestCase
 
     context 'with auto publish' do
       setup do
-        @attributes = {'name' => 'Tigris Tigris', :v_status => Zena::Status[:pub]}
+        @attributes = {'name' => 'Tigris Tigris', :v_status => Zena::Status::Pub}
       end
 
       should 'set a readers and writers entry for the current lang' do
@@ -77,7 +77,7 @@ class VersionHashTest < Zena::Unit::TestCase
 
     context 'with remove status' do
       setup do
-        @attributes = {:v_status => Zena::Status[:rem]}
+        @attributes = {:v_status => Zena::Status::Rem}
       end
 
       should 'remove readers entry' do

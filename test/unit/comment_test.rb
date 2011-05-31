@@ -58,19 +58,19 @@ class CommentTest < Zena::Unit::TestCase
   def test_remove_own
     login(:lion)
     comment = secure!(Comment) { comments(:lion_says_inside) }
-    assert_equal Zena::Status[:pub], comment[:status]
+    assert_equal Zena::Status::Pub, comment[:status]
     assert comment.remove
     comment = comments(:lion_says_inside)
-    assert_equal Zena::Status[:rem], comment[:status]
+    assert_equal Zena::Status::Rem, comment[:status]
   end
 
   def test_remove_spam
     login(:lion)
     comment = secure!(Comment) { comments(:public_spam_in_en) }
-    assert_equal Zena::Status[:prop], comment[:status]
+    assert_equal Zena::Status::Prop, comment[:status]
     assert comment.remove
     comment = comments(:public_spam_in_en)
-    assert_equal Zena::Status[:rem], comment[:status]
+    assert_equal Zena::Status::Rem, comment[:status]
   end
 
   def test_moderate_anonymous_comments
@@ -83,12 +83,12 @@ class CommentTest < Zena::Unit::TestCase
     comment    = secure!(Comment   ) { Comment.create( :title=>'coco', :text=>'spam see my web site', :author_name=>'me', :discussion_id => discussion[:id] ) }
 
     assert !comment.new_record?, "Not a new record"
-    assert_equal Zena::Status[:prop], comment[:status]
+    assert_equal Zena::Status::Prop, comment[:status]
 
     visitor.status = User::Status[:user]
     comment = secure!(Comment) { Comment.create(:title=>'coco again', :text=>'spam see my web site again', :author_name=>'me', :discussion_id => discussion[:id] ) }
     assert !comment.new_record?, "Not a new record"
-    assert_equal Zena::Status[:pub], comment[:status]
+    assert_equal Zena::Status::Pub, comment[:status]
 
     comments = discussion.comments
     assert_equal 1, comments.size
@@ -125,7 +125,7 @@ class CommentTest < Zena::Unit::TestCase
     prop_reply = secure!(Comment) { Comment.create(:discussion_id => comment[:discussion_id], :reply_to=>comment[:id], :title=>'bob', :author_name=>'any', :text=>'blah') }
 
     assert !prop_reply.new_record?, "Not a new record"
-    assert_equal Zena::Status[:prop], prop_reply[:status]
+    assert_equal Zena::Status::Prop, prop_reply[:status]
 
     replies = comment.replies
     replies_with_prop = comment.replies(:with_prop=>true)

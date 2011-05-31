@@ -23,7 +23,7 @@ module Zena
 
             return options.merge(
               :select => select,
-              :joins  => "INNER JOIN versions AS vs ON vs.node_id = nodes.id AND vs.status >= #{Zena::Status[:pub]}",
+              :joins  => "INNER JOIN versions AS vs ON vs.node_id = nodes.id AND vs.status >= #{Zena::Status::Pub}",
               :conditions => match,
               :group      => group,
               :order  => "zip DESC") # new items first

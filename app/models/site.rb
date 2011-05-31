@@ -123,14 +123,14 @@ class Site < ActiveRecord::Base
       # =========== CREATE ROOT NODE ============================
 
       root = site.send(:secure,Project) do
-        Project.create( :title => site.name, :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :dgroup_id => editors[:id], :title => site.name, :v_status => Zena::Status[:pub])
+        Project.create( :title => site.name, :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :dgroup_id => editors[:id], :title => site.name, :v_status => Zena::Status::Pub)
       end
 
       raise Exception.new("Could not create root node for site [#{host}] (site#{site[:id]})\n#{root.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if root.new_record?
 
       Node.connection.execute "UPDATE nodes SET section_id = id, project_id = id WHERE id = '#{root[:id]}'"
 
-      raise Exception.new("Could not publish root node for site [#{host}] (site#{site[:id]})\n#{root.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless (root.v_status == Zena::Status[:pub] || root.publish)
+      raise Exception.new("Could not publish root node for site [#{host}] (site#{site[:id]})\n#{root.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless (root.v_status == Zena::Status::Pub || root.publish)
 
       site.root_id = root[:id]
 
@@ -148,7 +148,7 @@ class Site < ActiveRecord::Base
 
       # =========== LOAD INITIAL DATA (default skin) =============
 
-      nodes = site.send(:secure, Node) { Node.create_nodes_from_folder(:folder => File.join(Zena::ROOT, 'db', 'init', 'base'), :parent_id => root[:id], :defaults => { :v_status => Zena::Status[:pub], :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :dgroup_id => editors[:id] } ) }.values
+      nodes = site.send(:secure, Node) { Node.create_nodes_from_folder(:folder => File.join(Zena::ROOT, 'db', 'init', 'base'), :parent_id => root[:id], :defaults => { :v_status => Zena::Status::Pub, :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :dgroup_id => editors[:id] } ) }.values
       # == set skin id to 'default' for all elements in the site == #
       skin = nodes.detect {|n| n.kind_of?(Skin) }
       Node.connection.execute "UPDATE nodes SET skin_id = '#{skin.id}' WHERE site_id = '#{site[:id]}'"

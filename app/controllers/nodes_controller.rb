@@ -293,7 +293,7 @@ class NodesController < ApplicationController
     defaults = params[:node]
     klass = defaults.delete(:klass)
     if klass == 'Skin' && !defaults.has_key?('v_status')
-      defaults['v_status'] = Zena::Status[:pub]
+      defaults['v_status'] = Zena::Status::Pub
     end
     attachment, error = get_attachment
     if error

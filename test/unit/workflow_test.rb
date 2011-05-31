@@ -176,7 +176,7 @@ class WorkflowTest < Zena::Unit::TestCase
 
         should 'see own redaction' do
           # this is only to make sure fixtures are used correctly
-          assert_equal Zena::Status[:red], subject.version.status
+          assert_equal Zena::Status::Red, subject.version.status
           assert_equal visitor.id, subject.version.user_id
         end
 
@@ -221,13 +221,13 @@ class WorkflowTest < Zena::Unit::TestCase
         should 'be allowed to propose' do
           assert subject.can_propose?
           assert subject.propose
-          assert_equal Zena::Status[:prop], subject.version.status
+          assert_equal Zena::Status::Prop, subject.version.status
         end
 
         should 'be allowed to remove' do
           assert subject.can_remove?
           assert subject.remove
-          assert_equal Zena::Status[:rem], subject.version.status
+          assert_equal Zena::Status::Rem, subject.version.status
         end
       end # A visitor with write access on a redaction ... that she owns
 
@@ -243,7 +243,7 @@ class WorkflowTest < Zena::Unit::TestCase
 
         should 'see other author\'s redaction' do
           # this is only to make sure fixtures are used correctly
-          assert_equal Zena::Status[:red], subject.version.status
+          assert_equal Zena::Status::Red, subject.version.status
           assert_not_equal visitor.id, subject.version.user_id
         end
 
@@ -257,16 +257,16 @@ class WorkflowTest < Zena::Unit::TestCase
           old_redaction_id = subject.version.id
           assert_difference('Version.count', 1) do
             assert subject.update_attributes(:title => 'Mon idée')
-            assert_equal Zena::Status[:red], subject.version.status
+            assert_equal Zena::Status::Red, subject.version.status
           end
           old_redaction = Version.find(old_redaction_id)
-          assert_equal Zena::Status[:rep], old_redaction.status
+          assert_equal Zena::Status::Rep, old_redaction.status
         end
 
         should 'be allowed to propose' do
           assert subject.can_propose?
           assert subject.propose
-          assert_equal Zena::Status[:prop], subject.version.status
+          assert_equal Zena::Status::Prop, subject.version.status
         end
 
         should 'not be allowed to publish' do
@@ -276,8 +276,8 @@ class WorkflowTest < Zena::Unit::TestCase
         end
 
         should 'ignore v_status set to publish' do
-          assert subject.update_attributes(:title => 'new title', :v_status => Zena::Status[:pub])
-          assert_equal Zena::Status[:red], subject.version.status
+          assert subject.update_attributes(:title => 'new title', :v_status => Zena::Status::Pub)
+          assert_equal Zena::Status::Red, subject.version.status
         end
       end # A visitor with write access on a redaction from another author
 
@@ -295,7 +295,7 @@ class WorkflowTest < Zena::Unit::TestCase
           assert_difference('Version.count', 1) do
             assert subject.update_attributes(:title => 'Alligators')
           end
-          assert_equal Zena::Status[:red], versions(:crocodiles_en).status
+          assert_equal Zena::Status::Red, versions(:crocodiles_en).status
         end
       end
 
@@ -313,7 +313,7 @@ class WorkflowTest < Zena::Unit::TestCase
 
       should 'see a publication' do
         # this is only to make sure fixtures are used correctly
-        assert_equal Zena::Status[:pub], subject.version.status
+        assert_equal Zena::Status::Pub, subject.version.status
         assert !subject.new_record?
       end
 
@@ -323,7 +323,7 @@ class WorkflowTest < Zena::Unit::TestCase
         end
 
         subject do
-          secure(Page) { Page.create(:parent_id => nodes_id(:zena), :title => 'hop', :v_status => Zena::Status[:pub]) }
+          secure(Page) { Page.create(:parent_id => nodes_id(:zena), :title => 'hop', :v_status => Zena::Status::Pub) }
         end
 
         should 'not get a warning if editing would change original' do
@@ -332,12 +332,12 @@ class WorkflowTest < Zena::Unit::TestCase
 
         context 'in redit time' do
           subject do
-            secure(Page) { Page.create(:parent_id => nodes_id(:zena), :title => 'hop', :v_status => Zena::Status[:pub])}
+            secure(Page) { Page.create(:parent_id => nodes_id(:zena), :title => 'hop', :v_status => Zena::Status::Pub)}
           end
 
           should 'create a new redaction on edit' do
             # create page and make sure it is published
-            assert_equal Zena::Status[:pub], subject.v_status
+            assert_equal Zena::Status::Pub, subject.v_status
             # reload
             page = secure(Node) { Node.find(subject.id) }
             assert_difference('Version.count', 1) do
@@ -365,7 +365,7 @@ class WorkflowTest < Zena::Unit::TestCase
       should 'not alter current publication when editing' do
         visitor.lang = 'en'
         assert subject.update_attributes(:title => 'AI magazine')
-        assert_equal Zena::Status[:pub], versions(:status_en).status
+        assert_equal Zena::Status::Pub, versions(:status_en).status
       end
 
       should 'be able to write new attributes using properties' do
@@ -433,7 +433,7 @@ class WorkflowTest < Zena::Unit::TestCase
 
       should 'see a proposition.' do
         # this is only to make sure fixtures are used correctly
-        assert_equal Zena::Status[:prop], subject.version.status
+        assert_equal Zena::Status::Prop, subject.version.status
       end
 
       should 'not be allowed to update' do
@@ -476,7 +476,7 @@ class WorkflowTest < Zena::Unit::TestCase
       should 'create redactions' do
         node = secure!(Node) { Node.create( :parent_id => nodes_id(:zena), :title => 'This one should not autopublish' ) }
         assert !node.new_record?
-        assert_equal Zena::Status[:red], node.version.status
+        assert_equal Zena::Status::Red, node.version.status
       end
     end
   end # A visitor with write access
@@ -495,25 +495,25 @@ class WorkflowTest < Zena::Unit::TestCase
 
       should 'see a redaction' do
         # this is only to make sure fixtures are used correctly
-        assert_equal Zena::Status[:red], subject.version.status
+        assert_equal Zena::Status::Red, subject.version.status
       end
 
       should 'be allowed to propose' do
         assert subject.can_propose?
         assert subject.propose
-        assert_equal Zena::Status[:prop], subject.version.status
+        assert_equal Zena::Status::Prop, subject.version.status
       end
 
       should 'be allowed to publish' do
         assert subject.can_publish?
         assert subject.publish
-        assert_equal Zena::Status[:pub], subject.version.status
+        assert_equal Zena::Status::Pub, subject.version.status
       end
 
       should 'be allowed to remove' do
         assert subject.can_remove?
         assert subject.remove
-        assert_equal Zena::Status[:rem], subject.version.status
+        assert_equal Zena::Status::Rem, subject.version.status
       end
     end # A visitor with drive access on a redaction
 
@@ -525,7 +525,7 @@ class WorkflowTest < Zena::Unit::TestCase
 
       should 'see a publication' do
         # this is only to make sure fixtures are used correctly
-        assert_equal Zena::Status[:pub], subject.version.status
+        assert_equal Zena::Status::Pub, subject.version.status
       end
 
       should 'not be allowed to propose' do
@@ -543,16 +543,16 @@ class WorkflowTest < Zena::Unit::TestCase
       should 'be allowed to unpublish' do
         assert subject.can_unpublish?
         assert subject.unpublish
-        assert_equal Zena::Status[:rem], subject.version.status
+        assert_equal Zena::Status::Rem, subject.version.status
       end
 
       should 'see an up-to-date versions list after unpublish' do
         subject = secure!(Node) { nodes(:opening) }
         assert subject.unpublish
         versions = subject.versions
-        assert_equal Zena::Status[:rem], versions.detect {|v| v.id == versions_id(:opening_en)}.status
-        assert_equal Zena::Status[:pub], versions.detect {|v| v.id == versions_id(:opening_fr)}.status
-        assert_equal Zena::Status[:red], versions.detect {|v| v.id == versions_id(:opening_red_fr)}.status
+        assert_equal Zena::Status::Rem, versions.detect {|v| v.id == versions_id(:opening_en)}.status
+        assert_equal Zena::Status::Pub, versions.detect {|v| v.id == versions_id(:opening_fr)}.status
+        assert_equal Zena::Status::Red, versions.detect {|v| v.id == versions_id(:opening_red_fr)}.status
       end
 
       should 'not be allowed to refuse' do
@@ -567,14 +567,14 @@ class WorkflowTest < Zena::Unit::TestCase
         visitor.lang = 'fr'
         assert subject.remove
         assert subject.redit
-        assert_equal Zena::Status[:red], Version.find(subject.version_id).status
-        assert_equal Zena::Status[:rep], versions(:opening_red_fr).status
+        assert_equal Zena::Status::Red, Version.find(subject.version_id).status
+        assert_equal Zena::Status::Rep, versions(:opening_red_fr).status
       end
 
       should 'not see that she can remove' do
         assert !subject.can_remove?
         assert subject.remove
-        assert_equal Zena::Status[:rem], Version.find(subject.version.id).status
+        assert_equal Zena::Status::Rem, Version.find(subject.version.id).status
       end
 
       context 'that she owns' do
@@ -591,7 +591,7 @@ class WorkflowTest < Zena::Unit::TestCase
             assert_difference('Version.count', 0) do
               subject.version.created_at = Time.now
               assert subject.update_attributes(:title => 'We have no ideas if prehistoric women stayed at home.')
-              assert_equal Zena::Status[:pub], subject.version.status
+              assert_equal Zena::Status::Pub, subject.version.status
             end
           end
 
@@ -603,7 +603,7 @@ class WorkflowTest < Zena::Unit::TestCase
 
           should 'replace old publication when autopublishing' do
             subject.update_attributes(:title => 'Is not very apt at the high end.')
-            assert_equal Zena::Status[:rep], versions(:collections_en).status
+            assert_equal Zena::Status::Rep, versions(:collections_en).status
           end
         end
 
@@ -612,13 +612,13 @@ class WorkflowTest < Zena::Unit::TestCase
           should 'not create a new publication in redit time' do
             assert_difference('Version.count', 0) do
               subject.version.created_at = Time.now
-              assert subject.update_attributes(:title => 'Flat brains.', :v_status => Zena::Status[:pub])
+              assert subject.update_attributes(:title => 'Flat brains.', :v_status => Zena::Status::Pub)
             end
           end
 
           should 'create a new publication out of redit time' do
             assert_difference('Version.count', 1) do
-              assert subject.update_attributes(:title => 'Equal.', :v_status => Zena::Status[:pub])
+              assert subject.update_attributes(:title => 'Equal.', :v_status => Zena::Status::Pub)
             end
           end
         end # setting v_status to autopublish
@@ -660,7 +660,7 @@ class WorkflowTest < Zena::Unit::TestCase
 
       should 'see a proposition' do
         # this is only to make sure fixtures are used correctly
-        assert_equal Zena::Status[:prop], subject.version.status
+        assert_equal Zena::Status::Prop, subject.version.status
       end
 
       should 'not be allowed to propose' do
@@ -672,42 +672,42 @@ class WorkflowTest < Zena::Unit::TestCase
       should 'be allowed to publish' do
         assert subject.can_publish?
         assert subject.publish
-        assert_equal Zena::Status[:pub], subject.version.status
+        assert_equal Zena::Status::Pub, subject.version.status
       end
 
       should 'be allowed to publish by setting status attribute' do
-        assert subject.update_attributes(:v_status => Zena::Status[:pub])
-        assert_equal Zena::Status[:pub], subject.version.status
+        assert subject.update_attributes(:v_status => Zena::Status::Pub)
+        assert_equal Zena::Status::Pub, subject.version.status
       end
 
       should 'be allowed to publish with a custom date' do
-        assert subject.update_attributes(:v_status => Zena::Status[:pub], :v_publish_from => '2007-01-03')
+        assert subject.update_attributes(:v_status => Zena::Status::Pub, :v_publish_from => '2007-01-03')
         assert_equal Time.gm(2007,1,3), subject.version.publish_from
       end
 
       should 'not be allowed to publish and change attributes other then publish_from' do
-        assert !subject.update_attributes(:v_status => Zena::Status[:pub], :title => 'I hack my own !')
+        assert !subject.update_attributes(:v_status => Zena::Status::Pub, :title => 'I hack my own !')
         assert_equal "You do not have the rights to change a proposition's attributes.", subject.errors[:base]
       end
 
       should 'replace old publication on publish' do
         subject.publish
-        assert_equal Zena::Status[:rep], versions(:status_en).status
+        assert_equal Zena::Status::Rep, versions(:status_en).status
       end
 
       should 'see an up-to-date versions list after publish' do
         subject.publish
         pub_v_id = subject.version.id
         versions = subject.versions
-        assert_equal Zena::Status[:pub], versions.detect {|v| v.id == pub_v_id }.status
-        assert_equal Zena::Status[:rep], versions.detect {|v| v.id == versions_id(:status_en) }.status
-        assert_equal Zena::Status[:pub], versions.detect {|v| v.id == versions_id(:status_fr) }.status
+        assert_equal Zena::Status::Pub, versions.detect {|v| v.id == pub_v_id }.status
+        assert_equal Zena::Status::Rep, versions.detect {|v| v.id == versions_id(:status_en) }.status
+        assert_equal Zena::Status::Pub, versions.detect {|v| v.id == versions_id(:status_fr) }.status
       end
 
       should 'be allowed to refuse' do
         assert subject.can_refuse?
         assert subject.refuse
-        assert_equal Zena::Status[:red], subject.version.status
+        assert_equal Zena::Status::Red, subject.version.status
       end
 
       should 'not be allowed to remove' do
@@ -726,19 +726,19 @@ class WorkflowTest < Zena::Unit::TestCase
         end
 
         should 'be allowed to publish with a custom date anterior to the first publication' do
-          subject.update_attributes(:v_status => Zena::Status[:pub], :v_publish_from => '1800-01-03')
+          subject.update_attributes(:v_status => Zena::Status::Pub, :v_publish_from => '1800-01-03')
           assert_equal Time.gm(1800,1,3), subject.version.publish_from
           assert_equal Time.gm(1800,1,3), subject.publish_from
         end
 
         should 'be allowed to publish with a custom date' do
-          assert subject.update_attributes(:v_status => Zena::Status[:pub], :v_publish_from => '2007-01-03')
+          assert subject.update_attributes(:v_status => Zena::Status::Pub, :v_publish_from => '2007-01-03')
           assert_equal Time.gm(2007,1,3), subject.version.publish_from
           assert_equal Time.gm(2006,3,10), subject.publish_from # keeps min publication date
         end
 
         should 'not be allowed to publish and change attributes other then publish_from' do
-          assert !subject.update_attributes(:v_status => Zena::Status[:pub], :title => 'I hack you !')
+          assert !subject.update_attributes(:v_status => Zena::Status::Pub, :title => 'I hack you !')
           assert_equal "You do not have the rights to change a proposition's attributes.", subject.errors[:base]
         end
       end
@@ -753,7 +753,7 @@ class WorkflowTest < Zena::Unit::TestCase
       subject do
         # status_en => removed
         # status_fr => removed
-        Node.connection.execute "UPDATE versions SET publish_from = NULL, status = #{Zena::Status[:rem]} WHERE id IN (#{versions_id(:status_en)},#{versions_id(:status_fr)})"
+        Node.connection.execute "UPDATE versions SET publish_from = NULL, status = #{Zena::Status::Rem} WHERE id IN (#{versions_id(:status_en)},#{versions_id(:status_fr)})"
         vhash = {'r' => {}, 'w' => {'fr' => versions_id(:status_fr), 'en' => versions_id(:status_en)}}
         Node.connection.execute "UPDATE nodes SET publish_from = NULL, vhash = '#{vhash.to_json}'"
         secure!(Node) { nodes(:status) }
@@ -761,7 +761,7 @@ class WorkflowTest < Zena::Unit::TestCase
 
       should 'see a removed version' do
         # Just to make sure our setup is ok
-        assert_equal Zena::Status[:rem], subject.version.status
+        assert_equal Zena::Status::Rem, subject.version.status
       end
 
       should 'see any other version when destroying version' do
@@ -776,21 +776,21 @@ class WorkflowTest < Zena::Unit::TestCase
       should 'be allowed to redit' do
         assert subject.can_apply?(:redit)
         assert subject.redit
-        assert_equal Zena::Status[:red], subject.version.status
+        assert_equal Zena::Status::Red, subject.version.status
       end
 
       context 'with a publication in same lang' do
         setup do
           rem_version   = subject.version
           subject.version = nil
-          subject.update_attributes(:v_status => Zena::Status[:pub], :title => 'publication in en')
+          subject.update_attributes(:v_status => Zena::Status::Pub, :title => 'publication in en')
           @v_pub_id = subject.version.id
           subject.version = rem_version
         end
 
         should 'not alter publication on redit' do
           assert subject.redit
-          assert_equal Zena::Status[:pub], Version.find(@v_pub_id).status
+          assert_equal Zena::Status::Pub, Version.find(@v_pub_id).status
         end
       end
 
@@ -805,7 +805,7 @@ class WorkflowTest < Zena::Unit::TestCase
       should 'create published nodes' do
         node = secure!(Node) { Node.create( :parent_id => nodes_id(:zena), :title => 'This one should auto publish' ) }
         assert !node.new_record?
-        assert_equal Zena::Status[:pub], node.version.status
+        assert_equal Zena::Status::Pub, node.version.status
       end
     end
   end # A visitor with drive access
@@ -818,11 +818,11 @@ class WorkflowTest < Zena::Unit::TestCase
     visitor.lang = 'fr'
     node = secure!(Node) { nodes(:status)  }
     assert node.unpublish # remove publication
-    assert_equal Zena::Status[:rem], node.version.status
+    assert_equal Zena::Status::Rem, node.version.status
 
     # tiger is a writer, he sees the removed version
     node = secure!(Node) { nodes(:status)  }
-    assert_equal Zena::Status[:rem], node.version.status
+    assert_equal Zena::Status::Rem, node.version.status
   end
 
   def test_can_man_cannot_publish
@@ -834,7 +834,7 @@ class WorkflowTest < Zena::Unit::TestCase
     assert !node.can_publish?, "Cannot publish"
     assert !node.publish, "Cannot publish"
 
-    node.update_attributes(:inherit=>-1, :v_status => Zena::Status[:red]) # previous 'node.publish' tried to publish node
+    node.update_attributes(:inherit=>-1, :v_status => Zena::Status::Red) # previous 'node.publish' tried to publish node
 
     assert node.can_drive?, "Can drive"
     assert !node.can_publish?, "Cannot publish"
@@ -844,7 +844,7 @@ class WorkflowTest < Zena::Unit::TestCase
     login(:lion)
     node = secure!(Node) { nodes(:bananas)  }
     assert node.unpublish # unpublish version
-    assert_equal Zena::Status[:rem], node.version.status
+    assert_equal Zena::Status::Rem, node.version.status
   end
 
   def test_can_unpublish_version
@@ -853,7 +853,7 @@ class WorkflowTest < Zena::Unit::TestCase
     pub_version = node.version
     assert node.can_unpublish?
     assert node.update_attributes(:name => 'Leopard')
-    assert_equal Zena::Status[:red], node.version.status
+    assert_equal Zena::Status::Red, node.version.status
     assert !node.can_unpublish?
   end
 
@@ -862,10 +862,10 @@ class WorkflowTest < Zena::Unit::TestCase
     visitor.lang = 'en'
     node = secure!(Node) { nodes(:lake) }
     assert node.can_drive?
-    assert_equal Zena::Status[:red], node.version.status
+    assert_equal Zena::Status::Red, node.version.status
     assert_equal versions_id(:lake_red_en), node.version.id
     assert node.remove
-    assert_equal Zena::Status[:rem], node.version.status
+    assert_equal Zena::Status::Rem, node.version.status
   end
 
   def test_not_owner_can_remove
@@ -933,7 +933,7 @@ class WorkflowTest < Zena::Unit::TestCase
     assert_equal 1, node.send(:all_children).size
 
     assert !node.can_destroy_version? # versions are not in 'deleted' status
-    Node.connection.execute "UPDATE versions SET status = #{Zena::Status[:rem]} WHERE node_id = #{nodes_id(:talk)}"
+    Node.connection.execute "UPDATE versions SET status = #{Zena::Status::Rem} WHERE node_id = #{nodes_id(:talk)}"
     node = secure!(Node) { nodes(:talk) } # reload
     assert node.can_destroy_version? # versions are now in 'deleted' status
     assert node.destroy_version      # 1 version left
@@ -963,12 +963,12 @@ class WorkflowTest < Zena::Unit::TestCase
     # set v_status = 50 ===> publish
     login(:lion)
     node = secure!(Node) { nodes(:status) }
-    assert_equal Zena::Status[:pub], node.version.status
+    assert_equal Zena::Status::Pub, node.version.status
     assert_equal 'status title', node.title
     assert_equal 1, node.version.number
     assert_equal 2, node.versions.size
-    node.update_attributes(:title => "Statues are better", 'v_status' => Zena::Status[:pub])
-    assert_equal Zena::Status[:pub], node.version.status
+    node.update_attributes(:title => "Statues are better", 'v_status' => Zena::Status::Pub)
+    assert_equal Zena::Status::Pub, node.version.status
     assert_equal 3, node.version.number
     assert_equal 'Statues are better', node.title
   end
@@ -980,7 +980,7 @@ class WorkflowTest < Zena::Unit::TestCase
     node = secure!(Node) { Node.find(node.id) } # reload
     node.update_attributes(:title => "This one should not be gone",  :v_publish_from => "")
     assert_equal 'This one should not be gone', node.title
-    assert_equal Zena::Status[:pub], node.version.status
+    assert_equal Zena::Status::Pub, node.version.status
     assert_not_nil node.publish_from
     assert node.publish_from > Time.now - 10
     assert node.publish_from < Time.now + 10
@@ -996,14 +996,14 @@ class WorkflowTest < Zena::Unit::TestCase
     login(:tiger)
     visitor.lang = 'en'
     node = secure!(Node) { nodes(:tiger) }
-    assert_equal Zena::Status[:pub], node.version.status
+    assert_equal Zena::Status::Pub, node.version.status
     assert_equal 'Panthera Tigris Sumatran', node.title
     assert_equal 1, node.version.number
     assert_equal users_id(:tiger), node.version.user_id
     assert node.version.created_at < Time.now + 600
     assert node.version.created_at > Time.now - 600
     assert node.update_attributes(:name => "Puma")
-    assert_equal Zena::Status[:pub], node.version.status
+    assert_equal Zena::Status::Pub, node.version.status
     assert_equal 1, node.version.number
     assert_equal versions_id(:tiger_en), node.version.id
     assert_equal 'Panthera Puma', node.title
@@ -1017,14 +1017,14 @@ class WorkflowTest < Zena::Unit::TestCase
     login(:tiger)
     visitor.lang = 'en'
     node = secure!(Node) { nodes(:tiger) }
-    assert_equal Zena::Status[:pub], node.version.status
+    assert_equal Zena::Status::Pub, node.version.status
     assert_equal 'Panthera Tigris Sumatran', node.title
     assert_equal 1, node.version.number
     assert_equal users_id(:tiger), node.version.user_id
     assert node.version.created_at < Time.now + 600
     assert node.version.created_at > Time.now - 600
-    assert node.update_attributes(:name => "Puma", :v_status => Zena::Status[:pub])
-    assert_equal Zena::Status[:pub], node.version.status
+    assert node.update_attributes(:name => "Puma", :v_status => Zena::Status::Pub)
+    assert_equal Zena::Status::Pub, node.version.status
     assert_equal 1, node.version.number
     assert_equal versions_id(:tiger_en), node.version.id
     assert_equal 'Panthera Puma', node.title
@@ -1037,7 +1037,7 @@ class WorkflowTest < Zena::Unit::TestCase
     node = secure!(Node) { Node.create( :parent_id => nodes_id(:zena), :title => "This one should auto publish", :v_publish_from => nil ) }
     assert ! node.new_record? , "Not a new record"
     assert ! node.version.new_record? , "Not a new redaction"
-    assert_equal Zena::Status[:pub], node.version.status, "published version"
+    assert_equal Zena::Status::Pub, node.version.status, "published version"
     assert node.publish_from > Time.now - 10
     assert node.publish_from < Time.now + 10
     assert node.version.publish_from > Time.now - 10
@@ -1049,19 +1049,19 @@ class WorkflowTest < Zena::Unit::TestCase
     # publish should replace published item in v_lang
     login(:tiger)
     node = secure!(Node) { nodes(:opening) }
-    assert_equal Zena::Status[:pub], node.version.status
+    assert_equal Zena::Status::Pub, node.version.status
     assert_equal 'en', node.version.lang
     pub_v_en = node.version.id
     visitor.lang = 'fr'
     node = secure!(Node) { nodes(:opening) }
-    assert_equal Zena::Status[:red], node.version.status
+    assert_equal Zena::Status::Red, node.version.status
     assert_equal 'fr', node.version.lang
-    assert node.update_attributes(:v_lang => 'en', :v_status => Zena::Status[:pub])
+    assert node.update_attributes(:v_lang => 'en', :v_status => Zena::Status::Pub)
     assert_not_equal node.version.id, pub_v_en
-    assert_equal Zena::Status[:pub], node.version.status
+    assert_equal Zena::Status::Pub, node.version.status
     assert_equal 'en', node.version.lang
     old_version = Version.find(pub_v_en)
-    assert_equal Zena::Status[:rep], old_version.status
+    assert_equal Zena::Status::Rep, old_version.status
   end
 
   def test_auto_publish_no_publish_rights
@@ -1070,7 +1070,7 @@ class WorkflowTest < Zena::Unit::TestCase
     node = secure!(Node) { nodes(:cleanWater) }
     assert !node.can_publish?
     assert node.update_attributes(:title => 'bloated waters')
-    assert_equal Zena::Status[:red], node.version.status
+    assert_equal Zena::Status::Red, node.version.status
   end
 
   def test_status
@@ -1078,18 +1078,18 @@ class WorkflowTest < Zena::Unit::TestCase
     node = secure!(Node) { Node.new(defaults) }
 
     assert node.save
-    assert_equal Zena::Status[:red], node.version.status
+    assert_equal Zena::Status::Red, node.version.status
     assert node.propose
-    assert_equal Zena::Status[:prop], node.version.status
+    assert_equal Zena::Status::Prop, node.version.status
     assert node.publish
-    assert_equal Zena::Status[:pub], node.version.status
+    assert_equal Zena::Status::Pub, node.version.status
     assert node.publish_from <= Time.now, 'node publish_from is smaller the Time.now'
     login(:ant)
     assert_nothing_raised { node = secure!(Node) { Node.find(node.id) } }
     assert node.update_attributes(:summary=>'hello my friends'), "Can create a new edition"
-    assert_equal Zena::Status[:red], node.version.status
+    assert_equal Zena::Status::Red, node.version.status
     assert node.propose
-    assert_equal Zena::Status[:prop], node.version.status
+    assert_equal Zena::Status::Prop, node.version.status
     # WE CAN USE THIS TO TEST vhash (version hash cache) when it's implemented
   end
 
@@ -1098,10 +1098,10 @@ class WorkflowTest < Zena::Unit::TestCase
     node = secure!(Node) { nodes(:cleanWater)  }
     assert node.update_attributes(:title => 'dirty')
     node = secure!(Node) { nodes(:cleanWater)  }
-    assert_equal Zena::Status[:red], node.version.status
-    assert node.update_attributes(:v_status => Zena::Status[:pub])
+    assert_equal Zena::Status::Red, node.version.status
+    assert node.update_attributes(:v_status => Zena::Status::Pub)
     node = secure!(Node) { nodes(:cleanWater)  }
-    assert_equal Zena::Status[:pub], node.version.status
+    assert_equal Zena::Status::Pub, node.version.status
   end
 
   def test_transition_allowed

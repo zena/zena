@@ -220,7 +220,7 @@ module Zena
         protected
           # Update scope indices (project/section).
           def update_scope_indices
-            return unless version.status == Zena::Status[:pub]
+            return unless version.status == Zena::Status::Pub
             update_scope_indices_on_prop_change
             update_scope_indices_on_link_change
            rescue ::QueryBuilder::Error

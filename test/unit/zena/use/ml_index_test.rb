@@ -64,7 +64,7 @@ class MLIndexTest < Zena::Unit::TestCase
 
       should 'rebuild index for current lang' do
         assert_difference('IdxNodesMlString.count', 0) do
-          subject.update_attributes(:title => 'fabula', :v_status => Zena::Status[:pub])
+          subject.update_attributes(:title => 'fabula', :v_status => Zena::Status::Pub)
         end
         idx = IdxNodesMlString.find(:first,
           :conditions => {:node_id => subject.id, :lang => visitor.lang, :key => 'title'}
@@ -99,7 +99,7 @@ class MLIndexTest < Zena::Unit::TestCase
         context 'with changes overwritten by computed values' do
           should 'not touch index' do
             assert_difference('IdxNodesMlString.count', 0) do
-              subject.update_attributes(:title => 'fabula', :v_status => Zena::Status[:pub])
+              subject.update_attributes(:title => 'fabula', :v_status => Zena::Status::Pub)
             end
             idx = IdxNodesMlString.find(:first,
               :conditions => {:node_id => subject.id, :lang => visitor.lang, :key => 'title'}

@@ -16,7 +16,7 @@ module Zena
           if record['lang'] != lang
             lang   = record['lang']
             # highest status for this lang
-            if record['status'].to_i == Zena::Status[:pub]
+            if record['status'].to_i == Zena::Status::Pub
               # ok for readers & writers
               w_hash[lang] = r_hash[lang] = record['id'].to_i
               v_pub = record['publish_from']
@@ -32,7 +32,7 @@ module Zena
               # too high, only ok for writers
               w_hash[lang] = record['id'].to_i
             end
-          elsif record['status'].to_i == Zena::Status[:pub]
+          elsif record['status'].to_i == Zena::Status::Pub
             # ok for readers
             r_hash[lang] = record['id'].to_i
             v_pub = DateTime.parse(record['publish_from']) rescue Time.now

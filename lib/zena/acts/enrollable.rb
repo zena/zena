@@ -106,7 +106,7 @@ module Zena
           end
 
           def update_roles
-            return if version.status < Zena::Status[:pub]
+            return if version.status < Zena::Status::Pub
 
             # High status, rebuild role index
 

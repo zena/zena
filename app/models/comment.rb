@@ -51,20 +51,20 @@ class Comment < ActiveRecord::Base
 
   # Remove the comment (set it's status to +rem+)
   def remove
-    update_attributes( :status=> Zena::Status[:rem] )
+    update_attributes( :status=> Zena::Status::Rem )
   end
 
   # Publish the comment (set it's status to +pub+)
   # TODO: test
   def publish
-    update_attributes( :status=> Zena::Status[:pub] )
+    update_attributes( :status=> Zena::Status::Pub )
   end
 
   def replies(opt={})
     if opt[:with_prop]
-      conditions = ["reply_to = ? AND status >= #{Zena::Status[:pub]}", self[:id]]
+      conditions = ["reply_to = ? AND status >= #{Zena::Status::Pub}", self[:id]]
     else
-      conditions = ["reply_to = ? AND status = #{Zena::Status[:pub]}", self[:id]]
+      conditions = ["reply_to = ? AND status = #{Zena::Status::Pub}", self[:id]]
     end
     secure(Comment) { Comment.find(:all, :conditions=>conditions, :order=>'created_at ASC') }
   end
@@ -93,9 +93,9 @@ class Comment < ActiveRecord::Base
           self[:title] = _('re: ') + parent.title
         end
         if visitor.moderated?
-          self[:status] = Zena::Status[:prop]
+          self[:status] = Zena::Status::Prop
         else
-          self[:status] = Zena::Status[:pub]
+          self[:status] = Zena::Status::Pub
         end
 
         self[:user_id] = visitor[:id]

@@ -12,7 +12,7 @@ module Zena
         def property_field_index
           # Better rule
           if new_record? ||
-             version.status == Zena::Status[:pub] ||
+             version.status == Zena::Status::Pub ||
              versions.count == 1
             super
           end

@@ -193,7 +193,7 @@ class SecureTest < Zena::Unit::TestCase
       end
 
       should 'not be allowed to publish with v_status' do
-        assert !subject.update_attributes(:v_status => Zena::Status[:pub])
+        assert !subject.update_attributes(:v_status => Zena::Status::Pub)
       end
     end
 
@@ -578,7 +578,7 @@ class SecureTest < Zena::Unit::TestCase
 
     should 'not let owner publish' do
       assert !@node.can_publish?
-      assert !@node.update_attributes(:v_status => Zena::Status[:pub])
+      assert !@node.update_attributes(:v_status => Zena::Status::Pub)
       assert_equal 'You do not have the rights to publish.', @node.errors[:base]
     end
 
@@ -616,7 +616,7 @@ class SecureTest < Zena::Unit::TestCase
     setup do
       node_ids = [:wiki,:bird_jpg,:flower_jpg].map{|k| nodes_id(k)}.join(',')
       login(:ant)
-      Version.connection.execute "UPDATE versions SET status = #{Zena::Status[:red]}, user_id=#{users_id(:ant)} WHERE node_id IN (#{node_ids})"
+      Version.connection.execute "UPDATE versions SET status = #{Zena::Status::Red}, user_id=#{users_id(:ant)} WHERE node_id IN (#{node_ids})"
       Node.connection.execute "UPDATE nodes SET publish_from = NULL WHERE id IN (#{node_ids})"
       @node = secure!(Node) { nodes(:wiki) }
     end
@@ -889,7 +889,7 @@ class SecureTest < Zena::Unit::TestCase
         err @node
         comment = @node.comments.last
         assert_equal 'changed icon', comment.title
-        assert_equal Zena::Status[:pub], comment.status
+        assert_equal Zena::Status::Pub, comment.status
       end
     end
   end # A visitor with user status
@@ -919,7 +919,7 @@ class SecureTest < Zena::Unit::TestCase
         assert subject.update_attributes(:m_title => 'changed icon', :m_text => 'new icon is "flower"')
         comment = subject.comments.last
         assert_equal 'changed icon', comment.title
-        assert_equal Zena::Status[:pub], comment.status
+        assert_equal Zena::Status::Pub, comment.status
       end
     end
   end # A visitor with commentator status
@@ -954,7 +954,7 @@ class SecureTest < Zena::Unit::TestCase
         assert @node.update_attributes(:m_title => 'changed icon', :m_text => 'new icon is "flower"')
         comment = @node.discussion.comments(:with_prop => true).last
         assert_equal 'changed icon', comment.title
-        assert_equal Zena::Status[:prop], comment.status
+        assert_equal Zena::Status::Prop, comment.status
       end
     end
   end # A visitor with moderated status

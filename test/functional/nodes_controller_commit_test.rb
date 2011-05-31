@@ -24,7 +24,7 @@ class NodesControllerCommitTest < ActionController::TestCase
 
     without_files('/test.host/data') do
       without_files('/test.host/zafu') do
-        post 'import', :id => nodes(:zena_skins).zip, :node => {:klass => 'Skin', :v_status => Zena::Status[:pub]}, :attachment => uploaded_archive('jet_30.zip')
+        post 'import', :id => nodes(:zena_skins).zip, :node => {:klass => 'Skin', :v_status => Zena::Status::Pub}, :attachment => uploaded_archive('jet_30.zip')
 
         node_list = assigns(:nodes)
         nodes = {}

@@ -292,22 +292,22 @@ class User < ActiveRecord::Base
 
   def comments_to_publish
     secure(Comment) { Comment.find(:all, :select=>'comments.*', :from=>'comments, nodes, discussions',
-                   :conditions => ['comments.status = ? AND discussions.node_id = nodes.id AND comments.discussion_id = discussions.id AND nodes.dgroup_id IN (?)', Zena::Status[:prop], visitor.group_ids]) }
+                   :conditions => ['comments.status = ? AND discussions.node_id = nodes.id AND comments.discussion_id = discussions.id AND nodes.dgroup_id IN (?)', Zena::Status::Prop, visitor.group_ids]) }
   end
 
   # List all versions proposed for publication that the user has the right to publish.
   def to_publish
-    secure(Version) { Version.find(:all, :conditions => ['status = ? AND nodes.dgroup_id IN (?)', Zena::Status[:prop], visitor.group_ids]) }
+    secure(Version) { Version.find(:all, :conditions => ['status = ? AND nodes.dgroup_id IN (?)', Zena::Status::Prop, visitor.group_ids]) }
   end
 
   # List all versions owned that are currently being written (status= +red+)
   def redactions
-    secure(Version) { Version.find(:all, :conditions => ['status = ? AND versions.user_id = ?', Zena::Status[:red], self.id]) }
+    secure(Version) { Version.find(:all, :conditions => ['status = ? AND versions.user_id = ?', Zena::Status::Red, self.id]) }
   end
 
   # List all versions owned that are currently being proposed (status= +prop+)
   def proposed
-    secure(Version) { Version.find(:all, :conditions => ['status = ? AND versions.user_id = ?', Zena::Status[:prop], self.id]) }
+    secure(Version) { Version.find(:all, :conditions => ['status = ? AND versions.user_id = ?', Zena::Status::Prop, self.id]) }
   end
 
   private
@@ -318,7 +318,7 @@ class User < ActiveRecord::Base
 
     def create_node
       return unless visitor.site[:root_id] # do not try to create a node if the root node is not created yet
-      @node.version.status = Zena::Status[:pub]
+      @node.version.status = Zena::Status::Pub
 
       unless @node.save
         # What do we do with this error ?

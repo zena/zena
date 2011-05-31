@@ -56,10 +56,10 @@ class CommentsControllerTest < Zena::Controller::TestCase
 
   def test_remove
     login(:lion)
-    assert_equal Zena::Status[:prop], comments(:public_spam_in_en).status
+    assert_equal Zena::Status::Prop, comments(:public_spam_in_en).status
     post "remove", "id"=>comments_id(:public_spam_in_en)
     assert_response :success
-    assert_equal Zena::Status[:rem], comments(:public_spam_in_en).status
+    assert_equal Zena::Status::Rem, comments(:public_spam_in_en).status
   end
 
   def test_bin

@@ -194,7 +194,7 @@ class ZazenTest < Zena::View::TestCase
     context 'with different current nodes' do
       setup do
         art = secure!(Node) { nodes(:art) }
-        art.update_attributes(:title => 'status title', :v_status => Zena::Status[:pub])
+        art.update_attributes(:title => 'status title', :v_status => Zena::Status::Pub)
         @collections = secure!(Node) { nodes(:collections) }
         @cleanWater  = secure!(Node) { nodes(:cleanWater) }
       end
@@ -211,7 +211,7 @@ class ZazenTest < Zena::View::TestCase
   def test_pseudo_id_numbers_only
     login(:lion)
     art = secure!(Node) { nodes(:art) }
-    assert art.update_attributes(:title => '1234', :v_status => Zena::Status[:pub])
+    assert art.update_attributes(:title => '1234', :v_status => Zena::Status::Pub)
     login(:anon)
     assert_equal '<p>This is a <a href="/en/tag33.html">Collections/1234</a>.</p>', zazen('This is a "link"::123.')
   end

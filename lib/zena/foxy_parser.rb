@@ -560,7 +560,7 @@ module Zena
           version[:node] = node = elements[name]
           version['node_id']      = Zena::FoxyParser::id(site, name)
           version['publish_from'] = elements[name]['publish_from']
-          version['status']       = Zena::Status[:pub]
+          version['status']       = Zena::Status::Pub
           version['lang']         = elements[name]['ref_lang']
           version['site_id']      = Zena::FoxyParser::multi_site_id(site)
           version['number']       = 1

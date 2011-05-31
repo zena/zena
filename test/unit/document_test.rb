@@ -214,7 +214,7 @@ class DocumentTest < Zena::Unit::TestCase
 
       context 'with existing title' do
         should 'save title with increment' do
-          assert subject.update_attributes(:title => 'flower', :v_status => Zena::Status[:pub])
+          assert subject.update_attributes(:title => 'flower', :v_status => Zena::Status::Pub)
           assert_equal 'flower-1', subject.title
         end
       end # with existing title

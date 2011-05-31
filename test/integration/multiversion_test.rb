@@ -58,27 +58,27 @@ class MultiversionTest < ActionController::IntegrationTest
     # node = secure!(Node) { Node.find(nodes_id(:nature)) }
     # tree = secure!(Node) { Node.find(nodes_id(:tree))   }
     # forest = secure!(Node) { Node.find(nodes_id(:forest)) }
-    # assert_equal Zena::Status[:red], node.v_status
-    # assert_equal Zena::Status[:red], tree.v_status
-    # assert_equal Zena::Status[:red], forest.v_status
+    # assert_equal Zena::Status::Red, node.v_status
+    # assert_equal Zena::Status::Red, tree.v_status
+    # assert_equal Zena::Status::Red, forest.v_status
     # assert node.propose, "Propose for publication succeeds"
     #
     # # propositions
     # node = secure!(Node) { Node.find(nodes_id(:nature)) }
     # tree = secure!(Node) { Node.find(nodes_id(:tree))   }
     # forest = secure!(Node) { Node.find(nodes_id(:tree)) }
-    # assert_equal Zena::Status[:prop], node.v_status
-    # assert_equal Zena::Status[:prop_with], tree.v_status
-    # assert_equal Zena::Status[:prop_with], forest.v_status
+    # assert_equal Zena::Status::Prop, node.v_status
+    # assert_equal Zena::Status::PropWith, tree.v_status
+    # assert_equal Zena::Status::PropWith, forest.v_status
     #
     # login(:tiger)
     # # can now see all propositions
     # node = secure!(Node) { Node.find(nodes_id(:nature)) }
     # tree = secure!(Node) { Node.find(nodes_id(:tree))   }
     # forest = secure!(Node) { Node.find(nodes_id(:forest)) }
-    # assert_equal Zena::Status[:prop], node.v_status
-    # assert_equal Zena::Status[:prop_with], tree.v_status
-    # assert_equal Zena::Status[:prop_with], forest.v_status
+    # assert_equal Zena::Status::Prop, node.v_status
+    # assert_equal Zena::Status::PropWith, tree.v_status
+    # assert_equal Zena::Status::PropWith, forest.v_status
     #
     # assert node.refuse, "Can refuse publication"
     #
@@ -87,9 +87,9 @@ class MultiversionTest < ActionController::IntegrationTest
     # node = secure!(Node) { Node.find(nodes_id(:nature)) }
     # tree = secure!(Node) { Node.find(nodes_id(:tree))   }
     # forest = secure!(Node) { Node.find(nodes_id(:forest)) }
-    # assert_equal Zena::Status[:red], node.v_status
-    # assert_equal Zena::Status[:red], tree.v_status
-    # assert_equal Zena::Status[:red], forest.v_status
+    # assert_equal Zena::Status::Red, node.v_status
+    # assert_equal Zena::Status::Red, tree.v_status
+    # assert_equal Zena::Status::Red, forest.v_status
     # assert node.propose, "Propose for publication succeeds"
     #
     # login(:tiger)
@@ -97,9 +97,9 @@ class MultiversionTest < ActionController::IntegrationTest
     # node = secure!(Node) { Node.find(nodes_id(:nature)) }
     # tree = secure!(Node) { Node.find(nodes_id(:tree))   }
     # forest = secure!(Node) { Node.find(nodes_id(:forest)) }
-    # assert_equal Zena::Status[:prop], node.v_status
-    # assert_equal Zena::Status[:prop_with], tree.v_status
-    # assert_equal Zena::Status[:prop_with], forest.v_status
+    # assert_equal Zena::Status::Prop, node.v_status
+    # assert_equal Zena::Status::PropWith, tree.v_status
+    # assert_equal Zena::Status::PropWith, forest.v_status
     #
     # assert node.publish, "Publication succeeds"
     #
@@ -108,9 +108,9 @@ class MultiversionTest < ActionController::IntegrationTest
     # node = secure!(Node) { Node.find(nodes_id(:nature)) }
     # tree = secure!(Node) { Node.find(nodes_id(:tree))   }
     # forest = secure!(Node) { Node.find(nodes_id(:forest)) }
-    # assert_equal Zena::Status[:pub], node.v_status
-    # assert_equal Zena::Status[:pub], tree.v_status
-    # assert_equal Zena::Status[:pub], forest.v_status
+    # assert_equal Zena::Status::Pub, node.v_status
+    # assert_equal Zena::Status::Pub, tree.v_status
+    # assert_equal Zena::Status::Pub, forest.v_status
     # assert node.propose, "Propose for publication succeeds"
   end
 

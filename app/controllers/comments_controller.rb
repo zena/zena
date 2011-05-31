@@ -100,9 +100,9 @@ class CommentsController < ApplicationController
       # TODO: preload node
       @comments = Comment.paginate :all,
                         :select => "comments.*, nodes.zip AS node_zip",
-                        :order => 'status ASC, comments.created_at DESC',
+                        :order => 'status DESC, comments.created_at DESC',
                         :joins => ['INNER JOIN discussions on discussions.id = comments.discussion_id', 'INNER JOIN nodes on nodes.id = discussions.node_id'],
-                        :conditions=>"status > #{Zena::Status[:rem]} AND (#{secure_scope('nodes')})",
+                        :conditions=>"status > #{Zena::Status::Rem} AND (#{secure_scope('nodes')})",
                         :per_page => 10, :page => params[:page]
     end
     @comments ||= []
@@ -130,11 +130,11 @@ class CommentsController < ApplicationController
     end
 
     def bin_content
-      @bin_content ||= secure(Comment) { Comment.find(:all, :conditions=>['status <= ?', Zena::Status[:rem]]) }
+      @bin_content ||= secure(Comment) { Comment.find(:all, :conditions=>['status <= ?', Zena::Status::Rem]) }
     end
 
     def bin_content_size
-      secure(Comment)  { Comment.count(:all, :conditions=>['status <= ?', Zena::Status[:rem]]) }
+      secure(Comment)  { Comment.count(:all, :conditions=>['status <= ?', Zena::Status::Rem]) }
     end
 
     def filter_attributes(attributes)

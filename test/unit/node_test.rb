@@ -297,7 +297,7 @@ class NodeTest < Zena::Unit::TestCase
 
     child = node.new_child(:title => 'new_name', :class => Page )
     assert child.save , "Save succeeds"
-    assert_equal Zena::Status[:red],  child.v_status
+    assert_equal Zena::Status::Red,  child.v_status
     assert_equal child[:user_id], users_id(:ant)
     assert_equal node[:dgroup_id], child[:dgroup_id]
     assert_equal node[:rgroup_id], child[:rgroup_id]
@@ -374,27 +374,27 @@ class NodeTest < Zena::Unit::TestCase
       end
 
       should 'see a published node with published documents' do
-        assert_equal Zena::Status[:pub], subject.v_status
-        assert_equal Zena::Status[:pub], versions(:bird_jpg_en).status
-        assert_equal Zena::Status[:pub], versions(:flower_jpg_en).status
+        assert_equal Zena::Status::Pub, subject.v_status
+        assert_equal Zena::Status::Pub, versions(:bird_jpg_en).status
+        assert_equal Zena::Status::Pub, versions(:flower_jpg_en).status
       end
 
       should 'unpublish documents when unpublishing node' do
         assert subject.unpublish
-        assert_equal Zena::Status[:rem], versions(:bird_jpg_en).status
-        assert_equal Zena::Status[:rem], versions(:flower_jpg_en).status
+        assert_equal Zena::Status::Rem, versions(:bird_jpg_en).status
+        assert_equal Zena::Status::Rem, versions(:flower_jpg_en).status
       end
 
       should 'sync documents with node' do
         assert subject.unpublish
-        assert_equal Zena::Status[:rem], versions(:bird_jpg_en).status
-        assert_equal Zena::Status[:rem], versions(:flower_jpg_en).status
+        assert_equal Zena::Status::Rem, versions(:bird_jpg_en).status
+        assert_equal Zena::Status::Rem, versions(:flower_jpg_en).status
         assert subject.redit
-        assert_equal Zena::Status[:red], versions(:bird_jpg_en).status
-        assert_equal Zena::Status[:red], versions(:flower_jpg_en).status
+        assert_equal Zena::Status::Red, versions(:bird_jpg_en).status
+        assert_equal Zena::Status::Red, versions(:flower_jpg_en).status
         assert subject.publish
-        assert_equal Zena::Status[:pub], versions(:bird_jpg_en).status
-        assert_equal Zena::Status[:pub], versions(:flower_jpg_en).status
+        assert_equal Zena::Status::Pub, versions(:bird_jpg_en).status
+        assert_equal Zena::Status::Pub, versions(:flower_jpg_en).status
       end
     end
 
@@ -408,8 +408,8 @@ class NodeTest < Zena::Unit::TestCase
 
       should 'publish documents when publishing node' do
         assert subject.publish
-        assert_equal Zena::Status[:pub], versions(:bird_jpg_en).status
-        assert_equal Zena::Status[:pub], versions(:flower_jpg_en).status
+        assert_equal Zena::Status::Pub, versions(:bird_jpg_en).status
+        assert_equal Zena::Status::Pub, versions(:flower_jpg_en).status
       end
     end
 
@@ -423,15 +423,15 @@ class NodeTest < Zena::Unit::TestCase
       end
 
       should 'see redactions' do
-        assert_equal Zena::Status[:red], subject.v_status
-        assert_equal Zena::Status[:red], versions(:bird_jpg_en).status
-        assert_equal Zena::Status[:red], versions(:flower_jpg_en).status
+        assert_equal Zena::Status::Red, subject.v_status
+        assert_equal Zena::Status::Red, versions(:bird_jpg_en).status
+        assert_equal Zena::Status::Red, versions(:flower_jpg_en).status
       end
 
       should 'propose documents when proposing node' do
         assert subject.propose
-        assert_equal Zena::Status[:prop_with], versions(:bird_jpg_en).status
-        assert_equal Zena::Status[:prop_with], versions(:flower_jpg_en).status
+        assert_equal Zena::Status::PropWith, versions(:bird_jpg_en).status
+        assert_equal Zena::Status::PropWith, versions(:flower_jpg_en).status
       end
     end
 
@@ -446,15 +446,15 @@ class NodeTest < Zena::Unit::TestCase
       end
 
       should 'see propositions' do
-        assert_equal Zena::Status[:prop], subject.v_status
-        assert_equal Zena::Status[:prop_with], versions(:bird_jpg_en).status
-        assert_equal Zena::Status[:prop_with], versions(:flower_jpg_en).status
+        assert_equal Zena::Status::Prop, subject.v_status
+        assert_equal Zena::Status::PropWith, versions(:bird_jpg_en).status
+        assert_equal Zena::Status::PropWith, versions(:flower_jpg_en).status
       end
 
       should 'refuse documents when refusing node' do
         assert subject.refuse
-        assert_equal Zena::Status[:red], versions(:bird_jpg_en).status
-        assert_equal Zena::Status[:red], versions(:flower_jpg_en).status
+        assert_equal Zena::Status::Red, versions(:bird_jpg_en).status
+        assert_equal Zena::Status::Red, versions(:flower_jpg_en).status
       end
     end
   end
@@ -573,7 +573,7 @@ class NodeTest < Zena::Unit::TestCase
   def test_discussion_lang
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
-    assert_equal Zena::Status[:pub], node.v_status
+    assert_equal Zena::Status::Pub, node.v_status
     discussion = node.discussion
     assert_kind_of Discussion, discussion
     assert_equal discussions_id(:outside_discussion_on_status_en), discussion[:id]
@@ -590,7 +590,7 @@ class NodeTest < Zena::Unit::TestCase
     setup do
       login(:tiger)
       visitor.lang = 'fr'
-      subject.update_attributes('title' => 'new publication', :v_status => Zena::Status[:pub])
+      subject.update_attributes('title' => 'new publication', :v_status => Zena::Status::Pub)
       subject.reload
     end
 
@@ -632,19 +632,19 @@ class NodeTest < Zena::Unit::TestCase
     login(:tiger)
     node = secure!(Node) { nodes(:status) }
     node.update_attributes( :title=>'new status' )
-    assert_equal Zena::Status[:red], node.v_status
+    assert_equal Zena::Status::Red, node.v_status
     discussion = node.discussion
     assert_equal discussions_id(:inside_discussion_on_status), discussion[:id]
   end
 
   def test_auto_create_discussion
     login(:tiger)
-    post   = secure!(Node) { Node.create_node(:v_status => Zena::Status[:pub], :title => 'a new post', :class => 'Post', :parent_id => nodes_zip(:cleanWater)) }
-    letter = secure!(Node) { Node.create_node(:v_status => Zena::Status[:pub], :title => 'a letter', :class => 'Letter', :parent_id => nodes_zip(:cleanWater)) }
+    post   = secure!(Node) { Node.create_node(:v_status => Zena::Status::Pub, :title => 'a new post', :class => 'Post', :parent_id => nodes_zip(:cleanWater)) }
+    letter = secure!(Node) { Node.create_node(:v_status => Zena::Status::Pub, :title => 'a letter', :class => 'Letter', :parent_id => nodes_zip(:cleanWater)) }
     assert !post.new_record?, "Not a new record"
     assert !letter.new_record?, "Not a new record"
-    assert_equal Zena::Status[:pub], post.v_status, "Published"
-    assert_equal Zena::Status[:pub], letter.v_status, "Published"
+    assert_equal Zena::Status::Pub, post.v_status, "Published"
+    assert_equal Zena::Status::Pub, letter.v_status, "Published"
     assert !letter.discussion
     assert post.discussion
     assert !post.discussion.new_record?
@@ -657,9 +657,9 @@ class NodeTest < Zena::Unit::TestCase
 
   def test_auto_create_discussion
     login(:tiger)
-    letter = secure!(Node) { Node.create_node(:v_status => Zena::Status[:pub], :title => 'a letter', :class => 'Letter', :parent_id => nodes_zip(:cleanWater)) }
+    letter = secure!(Node) { Node.create_node(:v_status => Zena::Status::Pub, :title => 'a letter', :class => 'Letter', :parent_id => nodes_zip(:cleanWater)) }
     assert !letter.new_record?, "Not a new record"
-    assert_equal Zena::Status[:pub], letter.v_status, "Published"
+    assert_equal Zena::Status::Pub, letter.v_status, "Published"
     login(:lion)
     letter = secure!(Node) { Node.find(letter.id) }
     assert letter.can_auto_create_discussion?
@@ -874,10 +874,10 @@ done: \"I am done\""
   def test_create_nodes_from_folder_with_publish
     login(:tiger)
     nodes = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(Zena::ROOT, 'test', 'fixtures', 'import'), :parent_id => nodes_id(:zena) )}.values
-    assert_equal Zena::Status[:red], nodes[0].v_status
+    assert_equal Zena::Status::Red, nodes[0].v_status
 
-    nodes = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(Zena::ROOT, 'test', 'fixtures', 'import'), :parent_id => nodes_id(:cleanWater), :defaults => { :v_status => Zena::Status[:pub] }) }.values
-    assert_equal Zena::Status[:pub], nodes[0].v_status
+    nodes = secure!(Node) { Node.create_nodes_from_folder(:folder => File.join(Zena::ROOT, 'test', 'fixtures', 'import'), :parent_id => nodes_id(:cleanWater), :defaults => { :v_status => Zena::Status::Pub }) }.values
+    assert_equal Zena::Status::Pub, nodes[0].v_status
   end
 
   def test_create_nodes_from_archive
@@ -968,7 +968,7 @@ done: \"I am done\""
     visitor.time_zone = 'Asia/Jakarta'
     assert_equal 'Asia/Jakarta', visitor.time_zone
     status = secure!(Node) { nodes(:status) }
-    assert status.update_attributes_with_transformation(:v_status => Zena::Status[:pub], :text => "This is a \"link\":#{nodes_zip(:projects)}.", :origin => "A picture: !#{nodes_zip(:bird_jpg)}!")
+    assert status.update_attributes_with_transformation(:v_status => Zena::Status::Pub, :text => "This is a \"link\":#{nodes_zip(:projects)}.", :origin => "A picture: !#{nodes_zip(:bird_jpg)}!")
     yaml = status.to_yaml
     assert_match %r{text:\s+\"?This is a "link":\(\.\./\.\.\)\.}, yaml
     assert_match %r{origin:\s+\"?A picture: !\(\.\./\.\./a wiki with Zena/bird\)!}, yaml
@@ -979,7 +979,7 @@ done: \"I am done\""
     login(:tiger)
     visitor.time_zone = 'Asia/Jakarta'
     prop = secure!(Node) { nodes(:proposition) }
-    assert prop.update_attributes_with_transformation(:v_status => Zena::Status[:pub], :text => "This is a \"link\":#{nodes_zip(:projects)}.", :origin => "A picture: !#{nodes_zip(:bird_jpg)}!", :log_at => "2008-10-20 14:53")
+    assert prop.update_attributes_with_transformation(:v_status => Zena::Status::Pub, :text => "This is a \"link\":#{nodes_zip(:projects)}.", :origin => "A picture: !#{nodes_zip(:bird_jpg)}!", :log_at => "2008-10-20 14:53")
     assert_equal Time.gm(2008,10,20,7,53), prop.log_at
     yaml = prop.to_yaml
     assert_match %r{text:\s+\"?This is a "link":\(\.\./\.\.\)\.}, yaml
@@ -1277,7 +1277,7 @@ done: \"I am done\""
     collections = secure(Node) { nodes(:collections) }
     cleanWater  = secure(Node) { nodes(:cleanWater) }
 
-    assert art.update_attributes(:title => 'status title', :v_status => Zena::Status[:pub])
+    assert art.update_attributes(:title => 'status title', :v_status => Zena::Status::Pub)
 
     assert_equal 'Collections/status title', art.fullpath_as_title.join('/')
 

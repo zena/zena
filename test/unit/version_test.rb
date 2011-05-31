@@ -201,14 +201,14 @@ class VersionTest < Zena::Unit::TestCase
     end
 
     should 'set site_id on save' do
-      version = Version.new(:status => Zena::Status[:red])
+      version = Version.new(:status => Zena::Status::Red)
       version.node = secure!(Node) { nodes(:status) }
       assert version.save
       assert_equal sites_id(:zena), version.site_id
     end
 
     should 'not save if node is not set' do
-      version = Version.new(:status => Zena::Status[:red])
+      version = Version.new(:status => Zena::Status::Red)
       assert !version.save
       assert_equal "can't be blank", version.errors[:node]
     end

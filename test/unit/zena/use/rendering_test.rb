@@ -44,7 +44,7 @@ class RenderingInControllerTest < Zena::Controller::TestCase
   def make_template(zafu, mode = 'special')
     login(:lion)
     # create template for 'special' mode
-    secure(Template) { Template.create(:parent_id => nodes_id(:default), :title => "Node-#{mode}.zafu", :text => zafu, :v_status => Zena::Status[:pub]) }
+    secure(Template) { Template.create(:parent_id => nodes_id(:default), :title => "Node-#{mode}.zafu", :text => zafu, :v_status => Zena::Status::Pub) }
   end
 
   context 'A custom rendering engine' do
@@ -89,7 +89,7 @@ class RenderingInControllerTest < Zena::Controller::TestCase
     subject do
       login(:lion)
       # create template for 'special' mode
-      t = secure(Template) { Template.create(:parent_id => nodes_id(:default), :title => 'Node--csv.zafu', :text => @zafu, :v_status => Zena::Status[:pub]) }
+      t = secure(Template) { Template.create(:parent_id => nodes_id(:default), :title => 'Node--csv.zafu', :text => @zafu, :v_status => Zena::Status::Pub) }
       login(:anon)
       {:action => 'show', :controller => 'nodes', :path => ["section#{nodes_zip(:people)}.csv"], :prefix => 'en'}
     end
@@ -178,7 +178,7 @@ class RenderingInControllerTest < Zena::Controller::TestCase
     subject do
       login(:lion)
       # create template for 'special' mode
-      t = secure(Template) { Template.create(:parent_id => nodes_id(:default), :title => 'Node-bar.zafu', :text => @zafu, :v_status => Zena::Status[:pub]) }
+      t = secure(Template) { Template.create(:parent_id => nodes_id(:default), :title => 'Node-bar.zafu', :text => @zafu, :v_status => Zena::Status::Pub) }
       login(:anon)
       {:action => 'show', :controller => 'nodes', :path => ["section#{nodes_zip(:people)}_bar.html"], :prefix => 'en'}
     end

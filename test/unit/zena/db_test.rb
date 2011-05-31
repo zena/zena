@@ -88,9 +88,9 @@ class DbTest < Zena::Unit::TestCase
     end
 
     should 'set an integer' do
-      Zena::Db.set_attribute(@node.version, :status, Zena::Status[:rep])
+      Zena::Db.set_attribute(@node.version, :status, Zena::Status::Rep)
       version = secure!(Version) { Version.find(@node.version.id) } # reload
-      assert_equal Zena::Status[:rep], version.status
+      assert_equal Zena::Status::Rep, version.status
     end
   end
 

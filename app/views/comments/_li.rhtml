@@ -1,7 +1,7 @@
-<li id='comment<%= li[:id] %>' <%= "class='c40' " if li[:status] < Zena::Status[:pub] %>><div class='header'>
+<li id='comment<%= li[:id] %>' <%= "class='c40' " if li[:status] > Zena::Status::Pub %>><div class='header'>
     <span class='actions'>
     <%= link_to_remote(_('btn_remove'), :url => remove_comment_path(:id=>li[:id], :bin=>@admin), :method => :put) %>
-    <%= link_to_remote(_('btn_publish'), :url=> publish_comment_path(:id=>li[:id], :bin=>@admin), :method => :put) if li[:status] < Zena::Status[:pub] %>
+    <%= link_to_remote(_('btn_publish'), :url=> publish_comment_path(:id=>li[:id], :bin=>@admin), :method => :put) if li[:status] > Zena::Status::Pub %>
     </span>
     <span class='date'><%= long_date(li.created_at) + " " + short_time(li.created_at) %></span>
     <span class='sign'><%= li.author_name || li.author.login %></span>

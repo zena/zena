@@ -7,7 +7,7 @@ class ScopeIndexTest < Zena::Unit::TestCase
     end
 
     subject do
-      secure(Node) { Node.create_node(:title => 'NewThoughts', :klass => 'Blog', :parent_id => nodes_zip(:zena), :v_status => Zena::Status[:pub]) }
+      secure(Node) { Node.create_node(:title => 'NewThoughts', :klass => 'Blog', :parent_id => nodes_zip(:zena), :v_status => Zena::Status::Pub) }
     end
 
     should 'create' do
@@ -49,7 +49,7 @@ class ScopeIndexTest < Zena::Unit::TestCase
 
     context 'creating a sub node' do
       subject do
-        secure(Node) { Node.create_node(:klass => 'Contact', :name => 'Gods', :first_name => 'Young', :parent_id => @project.zip, :v_status => Zena::Status[:pub])}
+        secure(Node) { Node.create_node(:klass => 'Contact', :name => 'Gods', :first_name => 'Young', :parent_id => @project.zip, :v_status => Zena::Status::Pub)}
       end
 
       should 'update project index through relation' do
@@ -78,12 +78,12 @@ class ScopeIndexTest < Zena::Unit::TestCase
 
     context 'deleting a sub node' do
       setup do
-        secure(Node) { Node.create_node(:klass => 'Contact', :name => 'Life threat', :first_name => 'Earthquake', :parent_id => @project.zip, :v_status => Zena::Status[:pub])
+        secure(Node) { Node.create_node(:klass => 'Contact', :name => 'Life threat', :first_name => 'Earthquake', :parent_id => @project.zip, :v_status => Zena::Status::Pub)
         }
       end
 
       subject do
-        secure(Node) { Node.create_node(:klass => 'Contact', :name => 'Life threat', :first_name => 'Fukushima', :parent_id => @project.zip, :v_status => Zena::Status[:pub])
+        secure(Node) { Node.create_node(:klass => 'Contact', :name => 'Life threat', :first_name => 'Fukushima', :parent_id => @project.zip, :v_status => Zena::Status::Pub)
         }
       end
 
@@ -101,7 +101,7 @@ class ScopeIndexTest < Zena::Unit::TestCase
 
     context 'moving a sub node' do
       subject do
-        secure(Node) { VirtualClass['Contact'].create_instance(:first_name => 'Friedrich', :name => 'Hölderlin', :parent_id => nodes_id(:zena), :v_status => Zena::Status[:pub]) }
+        secure(Node) { VirtualClass['Contact'].create_instance(:first_name => 'Friedrich', :name => 'Hölderlin', :parent_id => nodes_id(:zena), :v_status => Zena::Status::Pub) }
       end
 
       should 'update project index' do
@@ -113,7 +113,7 @@ class ScopeIndexTest < Zena::Unit::TestCase
 
     context 'linking a remote node' do
       subject do
-        secure(Node) { VirtualClass['Contact'].create_instance(:first_name => 'Friedrich', :name => 'Hölderlin', :parent_id => nodes_id(:zena), :v_status => Zena::Status[:pub]) }
+        secure(Node) { VirtualClass['Contact'].create_instance(:first_name => 'Friedrich', :name => 'Hölderlin', :parent_id => nodes_id(:zena), :v_status => Zena::Status::Pub) }
       end
 
       should 'update project index' do
@@ -125,7 +125,7 @@ class ScopeIndexTest < Zena::Unit::TestCase
 
     context 'reverse linking a remote node' do
       subject do
-        secure(Node) { VirtualClass['Contact'].create_instance(:first_name => 'Friedrich', :name => 'Hölderlin', :parent_id => nodes_id(:zena), :v_status => Zena::Status[:pub]) }
+        secure(Node) { VirtualClass['Contact'].create_instance(:first_name => 'Friedrich', :name => 'Hölderlin', :parent_id => nodes_id(:zena), :v_status => Zena::Status::Pub) }
       end
 
       should 'trigger remote update idx' do
@@ -137,8 +137,8 @@ class ScopeIndexTest < Zena::Unit::TestCase
 
     context 'updating a sub node' do
       setup do
-        @old_tag = secure(Node) { Node.create_node(:klass => 'Contact', :title => 'Tadam', :parent_id => @project.zip, :v_status => Zena::Status[:pub])}
-        @tag = secure(Node) { Node.create_node(:klass => 'Tag', :title => 'Friendly ghosts', :parent_id => @project.zip, :v_status => Zena::Status[:pub])}
+        @old_tag = secure(Node) { Node.create_node(:klass => 'Contact', :title => 'Tadam', :parent_id => @project.zip, :v_status => Zena::Status::Pub)}
+        @tag = secure(Node) { Node.create_node(:klass => 'Tag', :title => 'Friendly ghosts', :parent_id => @project.zip, :v_status => Zena::Status::Pub)}
       end
 
       subject do
@@ -146,12 +146,12 @@ class ScopeIndexTest < Zena::Unit::TestCase
       end
 
       should 'update project index through relation' do
-        subject.update_attributes(:title => 'Mean ghosts', :v_status => Zena::Status[:pub])
+        subject.update_attributes(:title => 'Mean ghosts', :v_status => Zena::Status::Pub)
         assert_equal 'Mean ghosts', IdxProject.find(@project.scope_index).tag_title
       end
 
       should 'keep group key id' do
-        subject.update_attributes(:title => 'Mean ghosts', :v_status => Zena::Status[:pub])
+        subject.update_attributes(:title => 'Mean ghosts', :v_status => Zena::Status::Pub)
         assert_equal @tag.id, IdxProject.find(@project.scope_index).tag_id
       end
 
@@ -173,12 +173,12 @@ class ScopeIndexTest < Zena::Unit::TestCase
         end
 
         should 'not update project index' do
-          subject.update_attributes(:title => 'China', :v_status => Zena::Status[:pub])
+          subject.update_attributes(:title => 'China', :v_status => Zena::Status::Pub)
           assert_equal 'Friendly ghosts', IdxProject.find(@project.scope_index).tag_title
         end
 
         should 'not change group id' do
-          subject.update_attributes(:title => 'China', :v_status => Zena::Status[:pub])
+          subject.update_attributes(:title => 'China', :v_status => Zena::Status::Pub)
           assert_equal @tag.id, IdxProject.find(@project.scope_index).tag_id
         end
       end # that is not the latest of its kind
@@ -187,7 +187,7 @@ class ScopeIndexTest < Zena::Unit::TestCase
 
     context 'creating a related node' do
       subject do
-        secure(Node) { Node.create_node(:klass => 'Contact', :name => 'Gods', :first_name => 'Young', :parent_id => nodes_zip(:zena), :reference_id => @project.zip, :v_status => Zena::Status[:pub])}
+        secure(Node) { Node.create_node(:klass => 'Contact', :name => 'Gods', :first_name => 'Young', :parent_id => nodes_zip(:zena), :reference_id => @project.zip, :v_status => Zena::Status::Pub)}
       end
 
       should 'update related index' do
@@ -216,12 +216,12 @@ class ScopeIndexTest < Zena::Unit::TestCase
 
     context 'updating a related node' do
       subject do
-        secure(Node) { Node.create_node(:klass => 'Contact', :name => 'Gods', :first_name => 'Young', :parent_id => nodes_zip(:zena), :reference_id => @project.zip, :v_status => Zena::Status[:pub])}
+        secure(Node) { Node.create_node(:klass => 'Contact', :name => 'Gods', :first_name => 'Young', :parent_id => nodes_zip(:zena), :reference_id => @project.zip, :v_status => Zena::Status::Pub)}
       end
 
       should 'update all entries in related index' do
         assert_difference('IdxProject.count', 0) do
-          subject.update_attributes(:first_name => 'Old', :v_status => Zena::Status[:pub])
+          subject.update_attributes(:first_name => 'Old', :v_status => Zena::Status::Pub)
           assert_equal 'Old Gods', IdxProject.find(@project.scope_index).reference_title
           assert_equal 'Gods', IdxProject.find(@project.scope_index).reference_name
         end
@@ -238,12 +238,12 @@ class ScopeIndexTest < Zena::Unit::TestCase
 
       context 'without all attributes' do
         subject do
-          secure(Node) { Node.create_node(:klass => 'Reference', :title => 'Burn these tests', :parent_id => nodes_zip(:zena), :reference_id => @project.zip, :v_status => Zena::Status[:pub])}
+          secure(Node) { Node.create_node(:klass => 'Reference', :title => 'Burn these tests', :parent_id => nodes_zip(:zena), :reference_id => @project.zip, :v_status => Zena::Status::Pub)}
         end
 
         should 'update related index' do
           assert_difference('IdxProject.count', 0) do
-            assert subject.update_attributes(:title => 'Ashes', :v_status => Zena::Status[:pub])
+            assert subject.update_attributes(:title => 'Ashes', :v_status => Zena::Status::Pub)
             assert_equal 'Ashes', IdxProject.find(@project.scope_index).reference_title
             assert_equal 'ref', IdxProject.find(@project.scope_index).reference_name
           end
@@ -258,7 +258,7 @@ class ScopeIndexTest < Zena::Unit::TestCase
       end
 
       should 'update index' do
-        subject.update_attributes(:title => 'Wacky', :v_status => Zena::Status[:pub])
+        subject.update_attributes(:title => 'Wacky', :v_status => Zena::Status::Pub)
         assert_equal 'Wacky', IdxProject.find(@project.scope_index).blog_title
       end
     end # updating the project
