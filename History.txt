@@ -2,6 +2,11 @@
 
 * minor changes
  * Fixed login redirect to not leave ssh.
+ * Fixed 'root' scoping and custom urls with mode ('_' in url).
+ * Fixed 'host' option for zazen, link and img tags.
+ * Fixed [url] method to properly include port number and protocol (https).
+ * Improved properties and relations managment interfaces.
+ * Improved capistrano tasks on site rename.
 
 == 1.0.0.rc3 2011-05-26
 
