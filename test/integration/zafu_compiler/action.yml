@@ -77,8 +77,8 @@ swap_with_params:
 
 swap_publish:
   src: "<span do='block' do='swap' publish='true' attr='weight' states='100,-100' do='weight'/>"
-  res: "/node\[weight\]=100.*v_status=50/"
-  
+  res: "/node\[weight\]=100.*node\[v_status\]=50/"
+
 swap_in_each:
   src: "<r:pages in='site limit 2'><li do='each'><span do='swap' publish='true' attr='origin' states='todo,done,alert'/></li></r:pages>"
   tem: "/\"node\[origin\]\" => next_in_list_s\(var2.prop\['origin'\], \"todo,done,alert\"/"

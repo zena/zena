@@ -19,6 +19,7 @@ class Column < ActiveRecord::Base
   after_destroy :expire_vclass_cache
 
   safe_method :name => String
+  safe_method :type => {:class => String, :method => 'ptype.to_s'}
 
   class << self
     include Zena::Acts::Secure
@@ -64,6 +65,14 @@ class Column < ActiveRecord::Base
       'ptype' => ptype,
       'index' => index,
     }
+  end
+
+  def type_cast(value)
+    if ptype == 'datetime'
+      value.to_utc(_('datetime'), visitor.tz)
+    else
+      nil
+    end
   end
 
   protected

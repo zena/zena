@@ -90,7 +90,7 @@
             <fieldset do='each'>
               <legend do='name'/>
               <ul class='columns' do='columns'>
-                <li do='each' do='textarea'/>
+                <li do='each' do='input'/>
               </ul>
             </fieldset>
           </div>

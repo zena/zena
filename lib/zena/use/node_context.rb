@@ -30,7 +30,7 @@ module Zena
           super
         end
       end
-      
+
       # Get an uppers NodeContext that is of the given class kind.
       def get(klass)
         if real_single_class <= klass
@@ -49,7 +49,7 @@ module Zena
           nil
         end
       end
-      
+
       # Return the 'real' class name or the superclass name if the current class is an anonymous class.
       def class_name
         if list_context?

@@ -143,6 +143,20 @@ module Zena
       end # ViewMethods
 
       module ZafuMethods
+        def self.dom_id_proc
+          Proc.new do |h, r, s|
+            {:class => String, :method => h.node.dom_id(:code => true)}
+          end
+        end
+
+        include RubyLess
+        safe_method :dom_id => dom_id_proc
+
+
+        def r_dom_id
+          out node.dom_id
+        end
+
         # Uses Enrollable::ZafuMethods::get_class
 
         # Return the node context for a given class (looks up into the hierarchy) or the

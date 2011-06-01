@@ -258,7 +258,7 @@ class #{node.klass}: #{Array(node.klass).first.columns.keys.join(', ')}
 
         # TODO: test
         def r_swap
-          if upd = @params[:update]
+          if upd = @params.delete(:update)
             if upd == '_page'
               block = '_page'
             elsif block = find_target(upd)

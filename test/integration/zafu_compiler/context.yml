@@ -13,3 +13,8 @@ set_var:
     date: '2011-05-30'
   src: "<div do='set' next_date='date.advance(:years =&gt; 1)'><span do='next_date' format='%Y-%m-%d'/></div>"
   res: "<div><span>2012-05-30</span></div>"
+
+dom_id_in_each:
+  src: "<r:pages in='site limit 2'><li do='each'><r:dom_id/> <p id='this#{dom_id}'/></li></r:pages>"
+  tem: "/<li><%= var2.zip %> <p id='<%= \"this#\{var2.zip\}\" %>'></p></li>/"
+  res: "<li>29 <p id='this29'></p></li><li>33 <p id='this33'></p></li>"

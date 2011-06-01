@@ -23,7 +23,7 @@ module Zena
               self.prop_eval = nil
               return
             end
-            
+
             begin
               ruby = RubyLess.translate(self, code)
               klass = ruby.klass
@@ -45,7 +45,7 @@ module Zena
           base.before_save        :set__id
           base.alias_method_chain :rebuild_index_for_version, :prop_eval
           # So that we can use 'now' with prop_eval
-          base.safe_method :now => {:class => Time, :method => 'Time.now'}
+          base.safe_method :now => {:class => Time, :method => 'Time.now.utc'}
         end
 
         def rebuild_index_for_version_with_prop_eval(version)

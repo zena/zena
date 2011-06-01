@@ -165,7 +165,7 @@ module Zena
                   end
                 end
               elsif value = opts[k]
-                if value.respond_to?(:strftime)
+                if value.respond_to?(:strftime_tz)
                   "#{k}=#{CGI.escape(value.strftime_tz(_('datetime')))}"
                 elsif value.kind_of?(Hash)
                   "#{k}=#{value.to_query}"
@@ -584,14 +584,14 @@ module Zena
             insert_ajax_args(remote_target, hash_params, opts[:action]) if remote_target
 
             (opts[:query_params] || @params).each do |key, value|
-              next if [:href, :eval, :text, :attr, :t, :host].include?(key)
+              next if [:update, :href, :eval, :text, :attr, :t, :host].include?(key)
               case key
               when :anchor
                 # Get anchor and force string interpolation
                 value = "%Q{#{get_anchor_name(value)}}"
               when :publish
                 if value == 'true'
-                  key = 'v_status'
+                  key = 'node[v_status]'
                   value = Zena::Status::Pub
                 else
                   next

@@ -894,7 +894,7 @@ class Node < ActiveRecord::Base
           end
         end
       end
-
+      
       res
     end
 

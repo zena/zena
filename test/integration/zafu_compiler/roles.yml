@@ -35,11 +35,11 @@ form_with_all_roles:
       <fieldset do='each'>
         <legend do='name'/>
         <ul do='columns'>
-          <li do='each'><label do='name'/> <r:input/></li>
+          <li do='each'><label do='name'/> <r:input/> <p do='type'/></li>
         </ul>
       </fieldset>
     </r:vclass>
-  res: "/label.origin.*node\[origin\].*value='Big Bang'.*weight.*assigned/"
+  res: "/label.origin.*node\[origin\].*value='Big Bang'/> <p>string</p>.*weight.*assigned/"
 
 show_all_properties:
   context:

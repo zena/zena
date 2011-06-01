@@ -475,10 +475,24 @@ module Zena
         end
 
 
-        def r_input
+        def r_input(skip_col = false)
           html_attributes, attribute = get_input_params()
           erb_attr = html_attributes.delete(:erb_attr)
           # TODO: get attribute type from get_input_params
+
+          if !skip_col && node.will_be?(Column) && !@params[:type]
+            # hack to change @params
+            out "<% if #{node}.ptype == :string -%>"
+            out r_textarea
+            out "<% elsif #{node}.ptype == :datetime -%>"
+            res = "<%= date_box(#{node(Node)}, #{node}.name, :value => #{node(Node)}.prop[#{node}.name]) %>"
+            out extract_label(res, erb_attr)
+            out "<% else -%>"
+            out r_input(true)
+            out "<% end -%>"
+            return
+          end
+
           res = case @params[:type]
           when 'select' # FIXME: why is this only for classes ?
             out parser_error("please use [select] here")
