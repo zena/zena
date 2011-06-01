@@ -305,13 +305,13 @@ drop_done_remove:
   js: "/done=remove/"
 
 drop_param:
-  src: "<r:drop change='params' d='foo'>params[:d] = <r:show eval='params[:d]'/></r:drop>"
-  tem: "/<div class='drop' id='list1'><% add_drop_id\(%Q\{list1\}, :url => drop_node_path\(@node.*:change => \"params\", :d => \"foo\"/"
+  src: "<r:drop change='params' d='%{foo}'>params[:d] = <r:show eval='params[:d]'/></r:drop>"
+  tem: "/<div class='drop' id='list1'><% add_drop_id\(%Q\{list1\}, :url => drop_node_path\(@node.*:d => \"foo\", :change => \"params\"/"
   res: "<div class='drop' id='list1'>params[:d] = </div>"
   js: '/Droppables.add\(.list1.*d=foo/'
 
 drop_param_in_each:
-  src: "<r:pages do='each' do='drop' change='params' d='foo'><r:show eval='params[:d]'/></r:pages>"
+  src: "<r:pages do='each' do='drop' change='params' d='%{foo}'><r:show eval='params[:d]'/></r:pages>"
   tem: "/<div class='drop' id='<%= %Q\{list1_#\{var2.zip\}\} %>'><% add_drop_id\(%Q\{list1_#\{var2.zip\}\}/"
 
 update_target:
@@ -343,7 +343,7 @@ link_page_list:
   context:
     pak: 2
   src: "<div id='foo' do='block' do='nodes' in='site' limit='10' order='zip' paginate='pak' do='link' page='list' update='foo' join=', '/>"
-  tem: "/_zpage != _zcurrent.*Ajax.Request.*:pak => \"#\{_zpage\}\"/"
+  tem: "/_zpage != _zcurrent.*Ajax.Request.*:pak => _zpage/"
   res: "/pak=1.*1</a>, 2, .*pak=3.*3</a>.*pak=4.*4</a>.*pak=5.*5</a>/"
 
 toggle:

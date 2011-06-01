@@ -15,7 +15,7 @@ listing_no_tags:
   res: ""
 
 listing_with_link:
-  src: "<r:tags do='each' join=',' do='link' href='main' cat='#{name}'/>"
+  src: "<r:tags do='each' join=',' do='link' href='main' cat='name'/>"
   res: "<a href='/en/projects-list/Clean-Water-project/page22.html?cat=blue'>blue</a>,<a href='/en/projects-list/Clean-Water-project/page22.html?cat=sky'>sky</a>"
 
 tagged_query:

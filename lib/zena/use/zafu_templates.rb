@@ -460,7 +460,7 @@ module Zena
           def dev_box(template = nil)
             used_nodes = self.asset_cache.used_assets
 
-            res = "<div id='dev'><ul>\n"
+            res = "<div id='dev' class='devb'><ul>\n"
             used_nodes.each do |name, nodes|
               next if nodes.empty?
               res << "  <li><a class='group' onclick='$(\"dev_#{name}\").toggle();' href='#'>#{name}</a>\n"

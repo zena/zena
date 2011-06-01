@@ -22,11 +22,12 @@ calendar_with_blocks:
     date: "2006-03-18"
   src: "<div do='calendar' attr='date' select='posts where #{cal_start} <= date and date < #{cal_end} in project'>
     <h3 do='header'>
-      <r:link date='#{date.advance(:months =&gt; -1).strftime(\"%Y-%m-%d\", tz)}' text='PREV'/>
+      <r:link date='date.advance(:months =&gt; -1)' text='PREV'/>
       <r:date format='%B'/>
-      <r:link date='#{date.advance(:months =&gt; 1).strftime(\"%Y-%m-%d\", tz)}' text='NEXT'/>
+      <r:link date='date.advance(:months =&gt; 1)' text='NEXT'/>
     </h3><r:cell><b do='date' format='%e.%m'/></r:cell></div>"
-  res: "/date=2006-02-18'>PREV.*date=2006-04-18'>NEXT.*<b>15.03</b>/"
+  # Daylight savings change: Feb = 00:00, Apr 01:00
+  res: "/date=2006-02-18\+00%3A00'>PREV.*date=2006-04-18\+01%3A00'>NEXT.*<b>15.03</b>/"
 
 calendar_node_attr:
   context:

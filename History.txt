@@ -1,6 +1,10 @@
 == 1.0.0
 
-* minor changes
+* Major changes
+ * [link] and other url related zafu tags *do not typecast to String* by default:
+   you need to use <r:link foo='%{baz}'/> for literal values.
+
+* Minor changes
  * Fixed login redirect to not leave ssh.
  * Fixed 'root' scoping and custom urls with mode ('_' in url).
  * Fixed 'host' option for zazen, link and img tags.
@@ -10,7 +14,7 @@
 
 == 1.0.0.rc3 2011-05-26
 
-* major changes
+* Major changes
  * Included tag in xml serialization (tag_names)
  * Added export/import support for Roles/Columns and Relations.
  * Fixed bugs when changing class hierarchy (move rename VirtualClass).
@@ -33,7 +37,7 @@
 
 == 1.0.0.rc2 2011-02-14
 
-* major changes
+* Major changes
  * Fixed Template bug with special '+' modes.
  * Fixed migration bug (should use NULL as brick name for app).
  * Fixed custom query loading bug (when brick is not activated).
@@ -41,13 +45,13 @@
 
 == 1.0.0.rc1 2011-02-11
 
-* major changes
+* Major changes
  * Changed 'date' for 'main_date'
  * Added 'redir' option on node update/create (also added 'mode')
 
 == 1.0.0.beta5
 
-* major changes
+* Major changes
  * Using VirtualClass as proxy for type compilation (RubyLess, Zafu).
  * Caching Roles and VirtualClass.
  * Added 'integer' property with index.
@@ -61,7 +65,7 @@
 
 == 1.0.0.beta4
 
-* major changes
+* Major changes
  * Removed BaseContact and Reference classes.
  * Removed super user (not needed anymore).
  * Upgraded to Property 2.0 (should resolve memory leak)
@@ -70,7 +74,7 @@
 
 == 1.0.0.beta3 2010-09-17
 
-* major changes
+* Major changes
  * created Zena::Remote API
  * fixed Ajax operations and tests
  * fixed forms to create/update new objects
@@ -82,12 +86,12 @@
 
 == 1.0.0.beta2 2010-07-24
 
-* major changes
+* Major changes
  * fixed connection timezone with PostgreSQL
 
 == 1.0.0.beta1 2010-07-23
 
-* major changes
+* Major changes
  * complete rewrite of the storage engine (Property gem)
  * rewrite of the template engine Zafu to use RubyLess
  * rewrite of the query compilation engine to use RubyLess and offer better introspection
@@ -100,57 +104,57 @@
 
 == 0.16.6 2010-04-23
 
-* 1 minor enhancement
+* 1 Minor enhancement
   * fixed gem loading when brick is deactivated
 
 == 0.16.5 2010-04-15
 
-* 2 major enhancements
+* 2 Major enhancements
   * added a way to easily check duplicate names when adding documents
   * ruby 1.9 compatibility fixes
 
-* 3 minor enhancements
+* 3 Minor enhancements
   * better default +login mode
   * fixed image cache stamp not always used
   * some minor bug fixes
 
 == 0.16.4 2010-02-22
 
-* 3 major enhancements
+* 3 Major enhancements
   * fixed installation and runtime bugs on Windows
   * moved ruby files in 'lib' into their Zena namespace
   * german translations [Lars Kanis]
 
-* 2 minor enhancements
+* 2 Minor enhancements
   * fixed edgy bug with name duplicates
   * fixed bug that would show a 'site not found' error instead of a 404
 
 == 0.16.3 2010-01-19
 
-* 1 major enhancement
+* 1 Major enhancement
   * all gem dependencies are now using the default gem source
 
 == 0.16.2 2010-01-17
 
-* 1 minor enhancement
+* 1 Minor enhancement
   * fixed zena:assets task when used from 'zena' command
 
 == 0.16.1 2010-01-16
 
-* 3 minor enhancements
+* 3 Minor enhancements
   * rewrite of rake and capistrano tasks for sphinx brick
   * rewrite of rake and capistrano tasks for worker brick
   * fixed asset copying (should not overwrite without asking)
 
 == 0.16.0 2010-01-15
 
-* 3 major enhancements
+* 3 Major enhancements
   * Sphinx search support
   * Authlogic authentification
   * attachments can now be provided with an url
   * added [node:attribute_name] to use in querybuilder
 
-* 5 minor enhancements
+* 5 Minor enhancements
   * logrotate setup support with capistrano
   * fixed contact content zip bug
   * fixed fullpath set to NULL instead of kept in sync
@@ -159,16 +163,16 @@
 
 == 0.15.2 2010-01-06
 
-* 1 minor enhancement
+* 1 Minor enhancement
   * fixed app generation when rails >= 2.3.4 is installed
 
 == 0.15.1 2009-10-27
 
-* 2 major enhancements
+* 2 Major enhancements
   * Passenger support (deploy, upload progress)
   * JS popup & gallery support (setting in image formats)
 
-* 6 minor enhancements
+* 6 Minor enhancements
   * fixed some deployment tasks (capistrano)
   * fixed zena:setup task to copy files instead of symlink
   * better versions list and diff select
@@ -178,19 +182,19 @@
 
 == 0.15.0 2009-10-16
 
-* 5 major enhancements
+* 5 Major enhancements
   * running rails 2.3.4
   * installable as gem without RMagick
   * usable as gem with config.gem
   * supports sqlite3
   * 'zena' command to create app
 
-* 3 minor enhancemnts
+* 3 Minor enhancemnts
   * huge speed improvement in version loading
   * massive code cleanup
   * better team workflow (reworked access rights)
 
 == 0.11.1 2009-04-03
 
-* minor enhancements
+* Minor enhancements
   * Better testing of custom queries using latest querybuilder (0.5.2)

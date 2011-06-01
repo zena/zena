@@ -58,16 +58,17 @@ table.errors td { padding:2px 5px; background:inherit; border:none;}
 .clear { clear:both;}
 
 /* dev */
-#dev { background:#eee; font-size:10px; position:fixed; bottom:0px; right:0px;
+.devb, #dev { background:#eee; font-size:10px;
 padding:5px; border:2px solid #222; text-align:left; color:#444; z-index:9999; border-width:2px 0 0 2px;}
-#dev a { color:inherit; }
-#dev ul, #dev li { margin:0; padding:0; list-style:none; background:none; list-style-image:none;}
-#dev a.group { font-weight:bold; color:#222; display:block;}
-#dev td.actions {width:40px;}
-#dev li img { border:0; }
-#dev li li { clear:both;}
-#dev li .dev_pop { display:none;}
-#dev:hover .dev_pop { display:block;}
+#dev { position:fixed; bottom:0px; right:0px;}
+.devb a { color:inherit; }
+.devb ul, .devb li { margin:0; padding:0; list-style:none; background:none; list-style-image:none;}
+.devb a.group { font-weight:bold; color:#222; display:block;}
+.devb td.actions {width:40px;}
+.devb li img { border:0; }
+.devb li li { clear:both;}
+.devb li .dev_pop { display:none;}
+.devb:hover .dev_pop { display:block;}
 
 /* table js */
 .zazen .table_add a { visibility:hidden; padding:0 5px; text-decoration:none;}

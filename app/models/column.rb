@@ -35,10 +35,10 @@ class Column < ActiveRecord::Base
 
     def indices_for_form
       [
-        ['key/value',
-          INDICES_FOR_FORM.map {|i| [i, i]}],
         ['field',
-          FIELD_INDICES.map {|i| [i, ".#{i}"]}]
+          FIELD_INDICES.map {|i| [i, ".#{i}"]}],
+        ['key/value',
+          INDICES_FOR_FORM.map {|i| [i, i]}]
       ]
     end
 

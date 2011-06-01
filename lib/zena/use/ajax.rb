@@ -319,16 +319,27 @@ module Zena
           markup.append_param(:class, 'drop') unless markup.params[:class] =~ /drop/
 
           if hover  = @params.delete(:hover)
-            query_params = ", :hover => #{hover.inspect}"
+            query_params = ", :hover => %{#{hover}}"
           else
             query_params = ""
           end
 
           if role = @params.delete(:set) || @params.delete(:add)
-            @params["node[#{role}_id]"] = '\\#{id}'
+            @params["node[#{role}_id]"] = "'\#{id}'"
           end
 
-          query_params << ", :url => #{make_href(target, :action => 'drop')}"
+          url_params = {}
+          @params.each do |k,v|
+            case k
+            when :change, :done
+              # Force string interpolation
+              url_params[k] = "%{#{v}}"
+            else
+              url_params[k] = v
+            end
+          end
+
+          query_params << ", :url => #{make_href(target, :action => 'drop', :query_params => url_params)}"
           markup.pre_wrap[:drop] = "<% add_drop_id(#{dom_id}#{query_params}) %>"
           r_block
         end

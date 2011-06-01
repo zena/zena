@@ -284,7 +284,9 @@ class #{node.klass}: #{Array(node.klass).first.columns.keys.join(', ')}
           return parser_error("missing 'states' parameter") unless @params[:states]
 
           # This will be RubyLess evaluated
-          query_params = {"node[#{@params[:attr]}]" => "\#{next_in_list(this.#{@params[:attr]}, %Q{#{@params[:states]}})}"}
+          query_params = @params.merge("node[#{@params[:attr]}]" => "next_in_list(this.#{@params[:attr]}, %Q{#{@params[:states]}})")
+          query_params.delete(:states)
+          query_params.delete(:attr)
           out make_link(:update => block, :action => 'update', :query_params => query_params, :method => :put)
         end
       end # ZafuMethods

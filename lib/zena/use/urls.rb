@@ -166,8 +166,7 @@ module Zena
                 end
               elsif value = opts[k]
                 if value.respond_to?(:strftime)
-                  # FIXME: I think this is not needed anymore (and removing time might not be a good idea).
-                  "#{k}=#{value.strftime('%Y-%m-%d')}"
+                  "#{k}=#{CGI.escape(value.strftime_tz(_('datetime')))}"
                 elsif value.kind_of?(Hash)
                   "#{k}=#{value.to_query}"
                 elsif !value.blank?
@@ -183,6 +182,8 @@ module Zena
               result = path + "?#{cachestamp}" + (list.empty? ? '' : "&#{list.sort.join('&')}")
               result
             else
+              # TODO: replace '&' by '&amp;' ? Or escape later ? Use h before zen_path in templates ? What about css/xls/other stuff ?
+              # Best solution: use 'h' in template when set in default
               path + (list.empty? ? '' : "?#{list.sort.join('&')}")
             end
           end
@@ -584,12 +585,22 @@ module Zena
 
             (opts[:query_params] || @params).each do |key, value|
               next if [:href, :eval, :text, :attr, :t, :host].include?(key)
-              if key == :anchor
-                value = get_anchor_name(value)
+              case key
+              when :anchor
+                # Get anchor and force string interpolation
+                value = "%Q{#{get_anchor_name(value)}}"
+              when :publish
+                if value == 'true'
+                  key = 'v_status'
+                  value = Zena::Status::Pub
+                else
+                  next
+                end
+              when :encode_params, :format, :mode
+                # Force string interpolation
+                value = "%Q{#{value}}"
               end
-
-              # FIXME: how to not force string interpolation ?
-              hash_params << "#{key.inspect} => %Q{#{value}}"
+              hash_params << "#{key.inspect} => #{value}"
             end
 
             if host = param(:host)
@@ -720,7 +731,7 @@ module Zena
                 link = {
                   :href => '@node',
                   :eval => "#{page_direction}_page",
-                  pagination_key => "\#{#{page_direction}_page}",
+                  pagination_key => "#{page_direction}_page",
                 }.merge(@params)
                 # <r:link href='@node' p='next_page' eval='next_page'/>
                 wrap_in_block :method => 'link', :params => link
@@ -752,7 +763,7 @@ module Zena
                 link[:html_tag] = tag if tag
                 link[:href] = '@node'
                 link[:eval] = 'page_name'
-                link[pagination_key.to_sym] = '#{this}'
+                link[pagination_key.to_sym] = 'this'
 
                 # <r:link href='@node' p='#{page_name}' ... eval='page_name'/>
                 add_block :method => 'link', :params => link

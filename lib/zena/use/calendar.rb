@@ -197,16 +197,16 @@ module Zena
             if header_block = descendant('header')
             elsif @params[:type] == 'week'
               add_block(%q{<h3 do='header'>
-                <r:link date='#{date.advance(:days =&gt; -1).strftime("%Y-%m-%d", tz)}' t='img_prev_page'/>
+                <r:link date='date.advance(:days =&gt; -1)' t='img_prev_page'/>
                 <r:date format='%B'/>
-                <r:link date='#{date.advance(:days =&gt; 1).strftime("%Y-%m-%d", tz)}' t='img_next_page'/>
+                <r:link date='date.advance(:days =&gt; 1)' t='img_next_page'/>
               </h3>}, true)
               header_block = descendant('header')
             else
               add_block(%q{<h3 do='header'>
-                <r:link date='#{date.advance(:months =&gt; -1).strftime("%Y-%m-%d", tz)}' t='img_prev_page'/>
+                <r:link date='date.advance(:months =&gt; -1)' t='img_prev_page'/>
                 <r:date format='%B'/>
-                <r:link date='#{date.advance(:months =&gt; 1).strftime("%Y-%m-%d", tz)}' t='img_next_page'/>
+                <r:link date='date.advance(:months =&gt; 1)' t='img_next_page'/>
               </h3>}, true)
               header_block = descendant('header')
             end
@@ -215,7 +215,7 @@ module Zena
             else
               # add a default <r:link/> block
               if opts[:size] == :tiny
-                add_block %Q{<r:cell><em do='link' date='#{format_date(date, "%Y-%m-%d")}' do='date' format='%e'/></r:cell>}
+                add_block %Q{<r:cell><em do='link' date='date' do='date' format='%e'/></r:cell>}
               else
                 add_block "<r:cell><p do='date' format='%e'/><ol><li do='each' do='link' eval='title.limit(10)'/></ol></r:cell>"
               end

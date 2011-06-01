@@ -71,10 +71,23 @@ swap:
   tem: '/:dom_id => %Q\{list1\}, :t_url => "action/swap/list1"/'
   '/action/swap/en/list1.erb': "/<span id='list1'>/"
 
+swap_with_params:
+  src: "<span do='block' do='swap' node[origin]='%{me}' attr='weight' states='100,-100' do='weight'/>"
+  res: "/node\[origin\]=me&node\[weight\]=100/"
+
+swap_publish:
+  src: "<span do='block' do='swap' publish='true' attr='weight' states='100,-100' do='weight'/>"
+  res: "/node\[weight\]=100.*v_status=50/"
+  
 swap_in_each:
-  src: "<r:pages><li do='each'><span do='swap' attr='origin' states='todo,done,alert'/></li></r:pages>"
-  tem: "/\"node\[origin\]\" => \"#\{next_in_list_s\(var2.prop\['origin'\], \"todo,done,alert\"/"
+  src: "<r:pages in='site limit 2'><li do='each'><span do='swap' publish='true' attr='origin' states='todo,done,alert'/></li></r:pages>"
+  tem: "/\"node\[origin\]\" => next_in_list_s\(var2.prop\['origin'\], \"todo,done,alert\"/"
+  res: "/id='29'.*dom_id=29.*v_status=50.*id='33'.*dom_id=33/"
+
+swap_in_each_with_block:
+  src: "<r:pages in='site limit 2'><li do='each'><p do='block'><span do='swap' publish='true' attr='origin' states='todo,done,alert'/></p></li></r:pages>"
+  res: "/<p id='list1_29'>.*list1_29.*<p id='list1_33'>.*list1_33/"
 
 hand_made_swap:
-  src: "<r:link update='_page' node[origin]='#{next_in_list(origin, \"todo,done\")}' action='update'/>"
-  tem: "/node\[origin\]. => .#\{next_in_list_s\(@node.prop\['origin'\].*todo,done.*method:.put./"
+  src: "<r:link update='_page' node[origin]='next_in_list(origin, \"todo,done\")' action='update'/>"
+  tem: "/node\[origin\]. => next_in_list_s\(@node.prop\['origin'\].*todo,done.*method:.put./"
