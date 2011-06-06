@@ -169,6 +169,8 @@ module Zena
                   "#{k}=#{CGI.escape(value.strftime_tz(_(Zena::Use::Dates::DATETIME)))}"
                 elsif value.kind_of?(Hash)
                   "#{k}=#{value.to_query}"
+                elsif value.kind_of?(Node)
+                  "#{k}=#{value.zip}"
                 elsif !value.nil?
                   "#{k}=#{CGI.escape(value.to_s)}"
                 else

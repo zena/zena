@@ -284,3 +284,7 @@ cachestamp:
   # 26 would be the template for rendering JS's id.
   src: "<script src='#{path(project, :format =&gt; \"js\", :tstamp =&gt; find(26).updated_at.to_i)}'></script>"
   res: "<script src='/oo/projects-list/Clean-Water-project.js?1144713600&tstamp=1176249600'></script>"
+
+node_in_argument:
+  src: "<r:link node[done_by]='visitor_node'/>"
+  res: "/\?node\[done_by\]=13'>status title</a>/"

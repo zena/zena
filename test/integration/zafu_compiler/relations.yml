@@ -462,3 +462,7 @@ query_in_array:
 query_in_array_without_find:
   src: "<div do='posts' do='posts in site'/>"
   tem: "/Node\.do_find.*Node\.do_find"
+
+missing_rel_should_not_raise:
+  tem: "<%= @node.rel[\"inactivity\"].try(:other_comment).inspect %>"
+  res: "nil"

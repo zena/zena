@@ -13,6 +13,7 @@ module Zena
           def other_ids;  [];  end
           def other_zips; [];  end
           def to_s; 'nil'; end
+          def try(*args); nil; end
         end.new.freeze
 
         def initialize(node)

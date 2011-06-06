@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2011-06-02}
+  s.date = %q{2011-06-06}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -312,6 +312,8 @@ Gem::Specification.new do |s|
     "bricks/tags/zena/test/unit/tags_test.rb",
     "bricks/tags/zena/test/zafu/tags.yml",
     "bricks/toto.zip",
+    "bricks/uv/lib/bricks/uv.rb",
+    "bricks/uv/zena/init.rb",
     "bricks/worker/README",
     "bricks/worker/lib/bricks/worker.rb",
     "bricks/worker/zena/deploy.rb",
@@ -500,6 +502,7 @@ Gem::Specification.new do |s|
     "lib/zena/acts/serializable.rb",
     "lib/zena/app.rb",
     "lib/zena/base_additions.rb",
+    "lib/zena/code/default_syntax.rb",
     "lib/zena/code_syntax.rb",
     "lib/zena/console.rb",
     "lib/zena/controller/test_case.rb",

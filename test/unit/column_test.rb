@@ -20,6 +20,33 @@ class ColumnTest < Zena::Unit::TestCase
     end
   end # A column
 
+  context 'A date column' do
+    setup do
+      login(:lion)
+      visitor.time_zone = 'Asia/Jakarta'
+    end
+
+    subject do
+      secure(Column) { columns(:Post_date)}
+    end
+
+    should 'type_cast Time as Time' do
+      assert_equal Time.utc(2011,6,6,15,58), subject.type_cast(Time.utc(2011,6,6,15,58))
+    end
+
+    should 'type_cast nil as nil' do
+      assert_nil subject.type_cast(nil)
+    end
+
+    should 'type_cast empty as nil' do
+      assert_nil subject.type_cast('')
+    end
+
+    should 'type_cast String as Time' do
+      assert_equal Time.utc(2011,6,6,15,58), subject.type_cast("2011-06-06 22:58")
+    end
+  end
+
   context 'Creating a column' do
     subject do
       Column.create(:role_id => roles_id(:Task), :ptype => 'string', :name => 'foo')
@@ -108,7 +135,7 @@ class ColumnTest < Zena::Unit::TestCase
         end
       end
     end # with an invalid ptype
-    
+
     context 'with an invalid index' do
       subject do
         Column.create(
