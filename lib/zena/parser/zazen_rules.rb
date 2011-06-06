@@ -331,7 +331,7 @@ module Zena
           if @translate_ids
             @escaped_code << $&
             block_counter += 1
-            "\\ZAZENBLOCKCODE#{block_counter}ZAZENBLOCKCODE\\"
+            "<pre>\\ZAZENBLOCKCODE#{block_counter}ZAZENBLOCKCODE\\</pre>"
           else
             params, text = $1, $2
             divparams = []
@@ -347,7 +347,7 @@ module Zena
             divparams = nil if divparams.empty?
             @escaped_code << [lang, text, divparams]
             block_counter += 1
-            "\\ZAZENBLOCKCODE#{block_counter}ZAZENBLOCKCODE\\"
+            "<pre>\\ZAZENBLOCKCODE#{block_counter}ZAZENBLOCKCODE\\</pre>"
           end
         end
 
@@ -361,12 +361,12 @@ module Zena
       end
 
       def render_code(text)
-        text.gsub!( /\\ZAZENBLOCKCODE(\d+)ZAZENBLOCKCODE\\/ ) do
+        text.gsub!( /<pre>\\ZAZENBLOCKCODE(\d+)ZAZENBLOCKCODE\\<\/pre>/ ) do
           if @translate_ids
             @escaped_code[$1.to_i]
           else
             code_lang, code, pre_params = @escaped_code[$1.to_i]
-            Zena::CodeSyntax.new(code, @context[:pretty_code] ? code_lang : nil).to_html(:pre_params => pre_params)
+            Zena::CodeSyntax.new(code, @context[:pretty_code] ? code_lang : nil).to_html(@context.merge(:pre_params => pre_params))
           end
         end
 
@@ -378,7 +378,7 @@ module Zena
             if code =~ /^(\w+)\|(.*)$/
               code_lang, code = $1, $2
             end
-            Zena::CodeSyntax.new(code, @context[:pretty_code] ? code_lang : nil).to_html(:inline => true)
+            Zena::CodeSyntax.new(code, @context[:pretty_code] ? code_lang : nil).to_html(@context.merge(:inline => true))
           end
         end
       end

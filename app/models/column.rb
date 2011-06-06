@@ -69,7 +69,11 @@ class Column < ActiveRecord::Base
 
   def type_cast(value)
     if ptype == 'datetime'
-      value.to_utc(_('datetime'), visitor.tz)
+      if value.blank?
+        nil
+      else
+        value.to_utc(_(Zena::Use::Dates::DATETIME), visitor.tz)
+      end
     else
       nil
     end

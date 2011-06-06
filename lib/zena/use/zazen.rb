@@ -48,7 +48,7 @@ module Zena
               return text
             end
             if !code_lang.blank?
-              return Zena::CodeSyntax.new(text, code_lang).to_html
+              return Zena::CodeSyntax.new(text, code_lang).to_html(opt)
             end
 
             opt = {:images=>true, :pretty_code=>true, :output=>'html'}.merge(opt)

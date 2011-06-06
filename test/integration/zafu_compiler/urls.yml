@@ -275,3 +275,12 @@ link_with_host:
   src: "<r:default host='#{site.host}'><r:link/></r:default>"
   tem: "/:host => \"#\{visitor.site.host\}\"/"
   res: "/<a href='http://test.host/oo/.*/page22.html'>status title</a>/"
+
+encode_blank_values:
+  src: "<p do='link' node[date]=''/>"
+  res: "/\?node\[date\]='/"
+
+cachestamp:
+  # 26 would be the template for rendering JS's id.
+  src: "<script src='#{path(project, :format =&gt; \"js\", :tstamp =&gt; find(26).updated_at.to_i)}'></script>"
+  res: "<script src='/oo/projects-list/Clean-Water-project.js?1144713600&tstamp=1176249600'></script>"

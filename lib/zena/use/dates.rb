@@ -4,6 +4,8 @@ module Zena
   module Use
     module Dates
       ISO_DATE_FORMAT = '%Y-%m-%dT%H:%M:%S'
+      # Default datetime format
+      DATETIME        = '%Y-%m-%d %H:%M'
       module Common
 
         # This is like strftime but with better support for i18n (translate day names, month abbreviations, etc)

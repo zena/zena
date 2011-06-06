@@ -19,7 +19,7 @@ module Zena
 
     N_('file_tab')              # document form tab name
     N_('template_tab')          # document form tab name
-    N_('text_doc_tab')          # document form tab name
+    N_('text_document_tab')     # document form tab name
     N_('custom_tab')            # custom form tab name
 
     N_('btn_add_doc') # used by zafu layout template
@@ -114,6 +114,7 @@ module Zena
     N_('Saturday')
     N_('Sunday')
 
+    N_('datetime')          # Same as %Y-%m-%d %H:%M
     N_('news_date')         # calendar day (event list view)
 
     N_('Mon')

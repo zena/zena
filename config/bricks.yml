@@ -5,11 +5,16 @@ test:
   captcha:     ON
   sphinx:      OFF
   worker:      OFF
+  uv:          OFF
 
 development:
   asset_port: 7999
   mongrel:   ON
   passenger: OFF
+  uv:
+    switch:  ON
+    activate_if:
+      gem: 'uv'
   pdf:
     switch: ON
     engine: prince
@@ -38,6 +43,10 @@ production:
   asset_port: 7999
   mongrel:   ON
   passenger: OFF
+  uv:
+    switch:  ON
+    activate_if:
+      gem: 'uv'
   pdf:
     switch: ON
     engine: prince

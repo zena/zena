@@ -19,10 +19,14 @@
       <td class="dark"><%= select('relation', 'target_kpath', Node.kpaths_for_form ) %></td>
     </tr>
     <tr><td class="label" ><%= _('type') %></td>
-      <td class="light" ><%= radio_button("relation", "target_unique", true , :checked => @relation.target_unique?) %> <%= _('has_one') %>
-          <%= radio_button("relation", "target_unique", false, :checked => !@relation.target_unique?) %> <%= _('has_many') %></td>
-      <td class="dark" ><%= radio_button("relation", "source_unique", true , :checked => @relation.source_unique?) %> <%= _('has_one') %>
-                          <%= radio_button("relation", "source_unique", false, :checked => !@relation.source_unique?) %> <%= _('has_many') %></td>
+      <td class="light" >
+        <%= radio_button("relation", "target_unique", true , :checked => @relation.target_unique?) %> <%= _('has_one') %><br/>
+        <%= radio_button("relation", "target_unique", false, :checked => !@relation.target_unique?) %> <%= _('has_many') %>
+      </td>
+      <td class="dark" >
+        <%= radio_button("relation", "source_unique", true , :checked => @relation.source_unique?) %> <%= _('has_one') %><br/>
+        <%= radio_button("relation", "source_unique", false, :checked => !@relation.source_unique?) %> <%= _('has_many') %>
+      </td>
     </tr>
     <tr><td class="label" ><%= _('role') %></td>
       <td class="light" ><%= text_field('relation', 'target_role', :size=>18 ) %></td>

@@ -119,7 +119,7 @@ zazen_code:
     node: style_css
   src: "<r:zazen code='#{content_lang}' attr='text'/>"
   tem: "<div class='zazen'><%= zazen(@node.prop['text'], :node => @node, :code => \"#{@node.content_lang}\") %></div>"
-  res: "/<code class='css'><span class=\"tag\">body</span>/"
+  res: "/<pre class='idle_code'><span class=\"tag\">body</span>/"
 
 show_name:
   src: "my <r:show attr='title'/>"
@@ -369,3 +369,7 @@ default_host:
   src: "<r:default host='b.#{site.host}'><r:zazen text='this is a \"link\":12.'/> xxx: <r:img/></r:default>"
   tem: '/zazen.*:host.*visitor.site.host/'
   res: "/href=\"http://b.test.host/oo/section12.html\">link.*src='http://b.test.host/en/image30_std.jpg/"
+
+zazen_without_markup:
+  src: "<r:void do='zazen(title)'/>"
+  res: "<p>status title</p>"

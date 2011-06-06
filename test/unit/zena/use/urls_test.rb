@@ -56,7 +56,7 @@ class UrlsTest < Zena::View::TestCase
   def test_zen_path_cache_stamp
     login(:ant)
     node = secure!(Node) { nodes(:zena) }
-    assert_equal '/oo/project11.png', zen_path(node, :format => 'png')
+    assert_equal '/oo/project11.png?1144713600', zen_path(node, :format => 'png')
     node = secure!(Node) { nodes(:bird_jpg) }
     assert_equal '/en/image30.jpg?1144713600', zen_path(node, :format => 'jpg')
     node = secure!(Node) { nodes(:style_css) }
@@ -64,7 +64,7 @@ class UrlsTest < Zena::View::TestCase
 
     login(:anon)
     node = secure!(Node) { nodes(:cleanWater) }
-    assert_equal '/en/projects-list/Clean-Water-project.jpg', zen_path(node, :format => 'jpg')
+    assert_equal '/en/projects-list/Clean-Water-project.jpg?1144713600', zen_path(node, :format => 'jpg')
   end
 
   def test_make_cachestamp

@@ -71,7 +71,7 @@ module Zena
         end
 
         safe_method :params => ParamsDictionary
-        safe_method :now    => {:method => 'Time.now.utc', :class => Time}
+        safe_method :now    => {:method => 'Time.now', :class => Time}
         safe_method [:h, String] => {:class => String, :nil => true}
         safe_method_for String, [:gsub, Regexp, String] => {:class => String, :pre_processor => true}
         safe_method_for String, :upcase    => {:class => String, :pre_processor => true}
@@ -81,12 +81,18 @@ module Zena
         safe_method_for String, :to_s      => {:class => String, :pre_processor => true}
         safe_method_for String, [:limit, Number]  => {:class => String, :pre_processor => true}
         safe_method_for String, [:limit, Number, String]  => {:class => String, :pre_processor => true}
+        safe_method_for String, :to_f      => {:class => Number, :pre_processor => true}
+        safe_method_for String, :to_json   => {:class => String, :pre_processor => true}
+
         safe_method_for Number, :to_s      => {:class => String, :pre_processor => true}
         safe_method_for Number, :to_f      => {:class => Number, :pre_processor => true}
         safe_method_for Number, :to_i      => {:class => Number, :pre_processor => true}
-        safe_method_for String, :to_f      => {:class => Number, :pre_processor => true}
-        safe_method_for NilClass, :to_f      => {:class => Number, :pre_processor => true}
-        safe_method_for NilClass, :to_i      => {:class => Number, :pre_processor => true}
+        safe_method_for Number, :to_json   => {:class => String, :pre_processor => true}
+
+        safe_method_for NilClass, :to_f    => {:class => Number, :pre_processor => true}
+        safe_method_for NilClass, :to_i    => {:class => Number, :pre_processor => true}
+        safe_method_for NilClass, :to_json => {:class => String, :pre_processor => true}
+
         safe_method_for Object, :blank?    => Boolean
 
         safe_method_for Time, [:advance, {
@@ -97,6 +103,7 @@ module Zena
           :hours   => Number,
           :minutes => Number,
           :seconds => Number}] => Time
+        safe_method_for Time, :to_i  => {:class => Number, :pre_processor => true}
 
         safe_method_for Node,  [:kind_of?, VirtualClass] =>
           {:method => 'nil', :nil => true, :pre_processor => kind_of_proc}

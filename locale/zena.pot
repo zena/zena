@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: version 0.0.1\n"
-"POT-Creation-Date: 2011-05-27 11:59-0000\n"
+"POT-Creation-Date: 2011-06-02 08:43-0000\n"
 "PO-Revision-Date: 2007-05-13 19:08-0000\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,7 +24,7 @@ msgstr ""
 msgid "%{count} versions"
 msgstr ""
 
-#: lib/zena/use/dates.rb:64
+#: lib/zena/use/dates.rb:66
 msgid "%{d} days ago"
 msgstr ""
 
@@ -36,11 +36,11 @@ msgstr ""
 msgid "%{ext} node"
 msgstr ""
 
-#: lib/zena/use/dates.rb:70
+#: lib/zena/use/dates.rb:72
 msgid "%{h} hours ago"
 msgstr ""
 
-#: lib/zena/use/dates.rb:75
+#: lib/zena/use/dates.rb:77
 msgid "%{m} minutes ago"
 msgstr ""
 
@@ -52,11 +52,11 @@ msgstr ""
 msgid "'%{search_string}' not found"
 msgstr ""
 
-#: lib/zena/use/dates.rb:72
+#: lib/zena/use/dates.rb:74
 msgid "1 hour ago"
 msgstr ""
 
-#: lib/zena/use/dates.rb:77
+#: lib/zena/use/dates.rb:79
 msgid "1 minute ago"
 msgstr ""
 
@@ -64,11 +64,11 @@ msgstr ""
 msgid "API group"
 msgstr ""
 
-#: lib/gettext_strings.rb:143
+#: lib/gettext_strings.rb:144
 msgid "Apr"
 msgstr ""
 
-#: lib/gettext_strings.rb:130
+#: lib/gettext_strings.rb:131
 msgid "April"
 msgstr ""
 
@@ -97,11 +97,11 @@ msgid ""
 "Are you sure you want to permanently remove the content of this rubbish bin ?"
 msgstr ""
 
-#: lib/gettext_strings.rb:147
+#: lib/gettext_strings.rb:148
 msgid "Aug"
 msgstr ""
 
-#: lib/gettext_strings.rb:134
+#: lib/gettext_strings.rb:135
 msgid "August"
 msgstr ""
 
@@ -109,11 +109,11 @@ msgstr ""
 msgid "Backup created."
 msgstr ""
 
-#: app/controllers/columns_controller.rb:69
+#: app/controllers/columns_controller.rb:73
 msgid "Column was successfully created."
 msgstr ""
 
-#: app/controllers/columns_controller.rb:86
+#: app/controllers/columns_controller.rb:90
 msgid "Column was successfully updated."
 msgstr ""
 
@@ -178,11 +178,11 @@ msgstr ""
 msgid "Data entry was successfully created."
 msgstr ""
 
-#: lib/gettext_strings.rb:151
+#: lib/gettext_strings.rb:152
 msgid "Dec"
 msgstr ""
 
-#: lib/gettext_strings.rb:138
+#: lib/gettext_strings.rb:139
 msgid "December"
 msgstr ""
 
@@ -190,15 +190,15 @@ msgstr ""
 msgid "Delete relation '%{role}' between '%{source}' and '%{target}' ?"
 msgstr ""
 
-#: lib/gettext_strings.rb:141
+#: lib/gettext_strings.rb:142
 msgid "Feb"
 msgstr ""
 
-#: lib/gettext_strings.rb:128
+#: lib/gettext_strings.rb:129
 msgid "February"
 msgstr ""
 
-#: lib/gettext_strings.rb:123
+#: lib/gettext_strings.rb:124
 msgid "Fri"
 msgstr ""
 
@@ -214,43 +214,43 @@ msgstr ""
 msgid "Invalid login or password."
 msgstr ""
 
-#: lib/gettext_strings.rb:140
+#: lib/gettext_strings.rb:141
 msgid "Jan"
 msgstr ""
 
-#: lib/gettext_strings.rb:127
+#: lib/gettext_strings.rb:128
 msgid "January"
 msgstr ""
 
-#: lib/gettext_strings.rb:146
+#: lib/gettext_strings.rb:147
 msgid "Jul"
 msgstr ""
 
-#: lib/gettext_strings.rb:133
+#: lib/gettext_strings.rb:134
 msgid "July"
 msgstr ""
 
-#: lib/gettext_strings.rb:145
+#: lib/gettext_strings.rb:146
 msgid "Jun"
 msgstr ""
 
-#: lib/gettext_strings.rb:132
+#: lib/gettext_strings.rb:133
 msgid "June"
 msgstr ""
 
-#: lib/gettext_strings.rb:142
+#: lib/gettext_strings.rb:143
 msgid "Mar"
 msgstr ""
 
-#: lib/gettext_strings.rb:129
+#: lib/gettext_strings.rb:130
 msgid "March"
 msgstr ""
 
-#: lib/gettext_strings.rb:131 lib/gettext_strings.rb:144
+#: lib/gettext_strings.rb:132 lib/gettext_strings.rb:145
 msgid "May"
 msgstr ""
 
-#: lib/gettext_strings.rb:119
+#: lib/gettext_strings.rb:120
 msgid "Mon"
 msgstr ""
 
@@ -262,19 +262,19 @@ msgstr ""
 msgid "Node destroyed."
 msgstr ""
 
-#: lib/gettext_strings.rb:150
+#: lib/gettext_strings.rb:151
 msgid "Nov"
 msgstr ""
 
-#: lib/gettext_strings.rb:137
+#: lib/gettext_strings.rb:138
 msgid "November"
 msgstr ""
 
-#: lib/gettext_strings.rb:149
+#: lib/gettext_strings.rb:150
 msgid "Oct"
 msgstr ""
 
-#: lib/gettext_strings.rb:136
+#: lib/gettext_strings.rb:137
 msgid "October"
 msgstr ""
 
@@ -286,7 +286,7 @@ msgstr ""
 msgid "Order updated"
 msgstr ""
 
-#: lib/gettext_strings.rb:154
+#: lib/gettext_strings.rb:155
 msgid "Password:"
 msgstr ""
 
@@ -307,11 +307,11 @@ msgstr ""
 msgid "Redaction published."
 msgstr ""
 
-#: app/controllers/relations_controller.rb:53
+#: app/controllers/relations_controller.rb:67
 msgid "Relation was successfully created."
 msgstr ""
 
-#: app/controllers/relations_controller.rb:70
+#: app/controllers/relations_controller.rb:84
 msgid "Relation was successfully updated."
 msgstr ""
 
@@ -319,7 +319,7 @@ msgstr ""
 msgid "Rolled back to redaction."
 msgstr ""
 
-#: lib/gettext_strings.rb:124
+#: lib/gettext_strings.rb:125
 msgid "Sat"
 msgstr ""
 
@@ -327,11 +327,11 @@ msgstr ""
 msgid "Saturday"
 msgstr ""
 
-#: lib/gettext_strings.rb:148
+#: lib/gettext_strings.rb:149
 msgid "Sep"
 msgstr ""
 
-#: lib/gettext_strings.rb:135
+#: lib/gettext_strings.rb:136
 msgid "September"
 msgstr ""
 
@@ -339,7 +339,7 @@ msgstr ""
 msgid "Site was successfully updated."
 msgstr ""
 
-#: lib/gettext_strings.rb:125
+#: lib/gettext_strings.rb:126
 msgid "Sun"
 msgstr ""
 
@@ -351,7 +351,7 @@ msgstr ""
 msgid "This node contains sub-nodes: it cannot be destroyed."
 msgstr ""
 
-#: lib/gettext_strings.rb:122
+#: lib/gettext_strings.rb:123
 msgid "Thu"
 msgstr ""
 
@@ -359,7 +359,7 @@ msgstr ""
 msgid "Thursday"
 msgstr ""
 
-#: lib/gettext_strings.rb:120
+#: lib/gettext_strings.rb:121
 msgid "Tue"
 msgstr ""
 
@@ -379,7 +379,7 @@ msgstr ""
 msgid "Upload succeeded."
 msgstr ""
 
-#: lib/gettext_strings.rb:153
+#: lib/gettext_strings.rb:154
 msgid "User name:"
 msgstr ""
 
@@ -399,7 +399,7 @@ msgstr ""
 msgid "VirtualClass was successfully updated."
 msgstr ""
 
-#: lib/gettext_strings.rb:121
+#: lib/gettext_strings.rb:122
 msgid "Wed"
 msgstr ""
 
@@ -415,7 +415,7 @@ msgstr ""
 msgid "[gallery]"
 msgstr ""
 
-#: lib/zena/use/display.rb:644
+#: lib/zena/use/display.rb:646
 msgid "a Zen garden"
 msgstr ""
 
@@ -423,7 +423,7 @@ msgstr ""
 msgid "action"
 msgstr ""
 
-#: lib/gettext_strings.rb:167
+#: lib/gettext_strings.rb:168
 msgid "address"
 msgstr ""
 
@@ -455,7 +455,7 @@ msgstr ""
 msgid "bak"
 msgstr ""
 
-#: lib/gettext_strings.rb:174
+#: lib/gettext_strings.rb:175
 msgid "birthday"
 msgstr ""
 
@@ -539,7 +539,7 @@ msgstr ""
 msgid "btn_site_add"
 msgstr ""
 
-#: app/views/links/_li.rhtml:6 lib/zena/use/ajax.rb:408
+#: app/views/links/_li.rhtml:6 lib/zena/use/ajax.rb:419
 msgid "btn_tiny_del"
 msgstr ""
 
@@ -643,11 +643,11 @@ msgstr ""
 msgid "classes import"
 msgstr ""
 
-#: lib/gettext_strings.rb:177
+#: lib/gettext_strings.rb:178
 msgid "clear_cache"
 msgstr ""
 
-#: lib/gettext_strings.rb:178
+#: lib/gettext_strings.rb:179
 msgid "clear_cache done."
 msgstr ""
 
@@ -714,7 +714,7 @@ msgstr ""
 msgid "could not update user"
 msgstr ""
 
-#: lib/gettext_strings.rb:170
+#: lib/gettext_strings.rb:171
 msgid "country"
 msgstr ""
 
@@ -747,12 +747,11 @@ msgstr ""
 msgid "data entries"
 msgstr ""
 
-#: app/models/data_entry.rb:45 app/models/node.rb:874
-#: app/views/data_entries/_li.html.erb:2 lib/zena/use/dates.rb:14
-#: lib/zena/use/dates.rb:128 lib/zena/use/dates.rb:181
-#: lib/zena/use/dates.rb:192
+#: lib/gettext_strings.rb:117 lib/zena/use/dates.rb:16
+#: lib/zena/use/dates.rb:130 lib/zena/use/dates.rb:183
+#: lib/zena/use/dates.rb:194
 msgid "datetime"
-msgstr ""
+msgstr "%Y-%d-%m %H:%M"
 
 #: lib/gettext_strings.rb:108
 msgid "de"
@@ -816,7 +815,7 @@ msgstr ""
 msgid "drive_tab"
 msgstr ""
 
-#: lib/zena/use/urls.rb:759
+#: lib/zena/use/urls.rb:816
 msgid "edit"
 msgstr ""
 
@@ -828,7 +827,7 @@ msgstr ""
 msgid "edit site"
 msgstr ""
 
-#: lib/gettext_strings.rb:173
+#: lib/gettext_strings.rb:174
 msgid "email"
 msgstr ""
 
@@ -848,7 +847,7 @@ msgstr ""
 msgid "file_tab"
 msgstr ""
 
-#: lib/gettext_strings.rb:165
+#: lib/gettext_strings.rb:166
 msgid "first_name"
 msgstr ""
 
@@ -890,7 +889,7 @@ msgstr ""
 msgid "groups"
 msgstr ""
 
-#: app/models/column.rb:80
+#: app/models/column.rb:93
 msgid "has already been taken in %s"
 msgstr ""
 
@@ -970,11 +969,11 @@ msgstr ""
 msgid "img_custom_inherit"
 msgstr ""
 
-#: lib/gettext_strings.rb:186
+#: lib/gettext_strings.rb:187
 msgid "img_datetime"
 msgstr ""
 
-#: lib/gettext_strings.rb:185
+#: lib/gettext_strings.rb:186
 msgid "img_float"
 msgstr ""
 
@@ -990,15 +989,15 @@ msgstr ""
 msgid "img_group_site"
 msgstr ""
 
-#: app/views/relations/_li.erb:8 app/views/relations/_li.erb:10
+#: app/views/relations/_li.erb:8 app/views/relations/_li.erb:18
 msgid "img_has_many"
 msgstr ""
 
-#: app/views/relations/_li.erb:8 app/views/relations/_li.erb:10
+#: app/views/relations/_li.erb:8 app/views/relations/_li.erb:18
 msgid "img_has_one"
 msgstr ""
 
-#: lib/gettext_strings.rb:184
+#: lib/gettext_strings.rb:185
 msgid "img_integer"
 msgstr ""
 
@@ -1030,7 +1029,7 @@ msgstr ""
 msgid "img_relation"
 msgstr ""
 
-#: lib/gettext_strings.rb:183
+#: lib/gettext_strings.rb:184
 msgid "img_string"
 msgstr ""
 
@@ -1067,23 +1066,23 @@ msgstr ""
 msgid "import_tab"
 msgstr ""
 
-#: lib/zena/use/dates.rb:89
+#: lib/zena/use/dates.rb:91
 msgid "in %{d} days"
 msgstr ""
 
-#: lib/zena/use/dates.rb:85
+#: lib/zena/use/dates.rb:87
 msgid "in %{h} hours"
 msgstr ""
 
-#: lib/zena/use/dates.rb:81
+#: lib/zena/use/dates.rb:83
 msgid "in %{m} minutes"
 msgstr ""
 
-#: lib/zena/use/dates.rb:83
+#: lib/zena/use/dates.rb:85
 msgid "in 1 hour"
 msgstr ""
 
-#: lib/zena/use/dates.rb:79
+#: lib/zena/use/dates.rb:81
 msgid "in 1 minute"
 msgstr ""
 
@@ -1103,11 +1102,11 @@ msgstr ""
 msgid "inside"
 msgstr ""
 
-#: app/models/column.rb:83
+#: app/models/column.rb:96
 msgid "invalid (cannot end with _id or _ids)"
 msgstr ""
 
-#: app/models/column.rb:87
+#: app/models/column.rb:100
 msgid "invalid (method defined in %s)"
 msgstr ""
 
@@ -1128,7 +1127,7 @@ msgstr ""
 msgid "language"
 msgstr ""
 
-#: lib/gettext_strings.rb:166
+#: lib/gettext_strings.rb:167
 msgid "last_name"
 msgstr ""
 
@@ -1140,7 +1139,7 @@ msgstr ""
 msgid "links_tab"
 msgstr ""
 
-#: lib/gettext_strings.rb:169
+#: lib/gettext_strings.rb:170
 msgid "locality"
 msgstr ""
 
@@ -1148,7 +1147,7 @@ msgstr ""
 msgid "login"
 msgstr ""
 
-#: lib/zena/use/dates.rb:55 lib/zena/use/dates.rb:128 lib/zena/use/i18n.rb:90
+#: lib/zena/use/dates.rb:57 lib/zena/use/dates.rb:130 lib/zena/use/i18n.rb:90
 msgid "long_date"
 msgstr ""
 
@@ -1156,7 +1155,7 @@ msgstr ""
 msgid "long_time"
 msgstr ""
 
-#: lib/zena/use/display.rb:646
+#: lib/zena/use/display.rb:648
 msgid "made with Zena"
 msgstr ""
 
@@ -1168,7 +1167,7 @@ msgstr ""
 msgid "missing target"
 msgstr ""
 
-#: lib/gettext_strings.rb:172
+#: lib/gettext_strings.rb:173
 msgid "mobile"
 msgstr ""
 
@@ -1213,7 +1212,7 @@ msgstr ""
 msgid "new relation"
 msgstr ""
 
-#: lib/gettext_strings.rb:117
+#: lib/gettext_strings.rb:118
 msgid "news_date"
 msgstr ""
 
@@ -1291,7 +1290,7 @@ msgstr ""
 msgid "popup"
 msgstr ""
 
-#: lib/gettext_strings.rb:168
+#: lib/gettext_strings.rb:169
 msgid "postal_code"
 msgstr ""
 
@@ -1352,23 +1351,23 @@ msgstr ""
 msgid "readers"
 msgstr ""
 
-#: lib/gettext_strings.rb:161
+#: lib/gettext_strings.rb:162
 msgid "rebuild"
 msgstr ""
 
-#: lib/gettext_strings.rb:162
+#: lib/gettext_strings.rb:163
 msgid "rebuild_btn"
 msgstr ""
 
-#: lib/gettext_strings.rb:179
+#: lib/gettext_strings.rb:180
 msgid "rebuild_index"
 msgstr ""
 
-#: lib/gettext_strings.rb:180
+#: lib/gettext_strings.rb:181
 msgid "rebuild_index done."
 msgstr ""
 
-#: lib/gettext_strings.rb:158
+#: lib/gettext_strings.rb:159
 msgid "redaction saved"
 msgstr ""
 
@@ -1398,10 +1397,6 @@ msgstr ""
 
 #: app/views/users/preferences.html.erb:37
 msgid "retype new password"
-msgstr ""
-
-#: app/views/relations/index.erb:16
-msgid "reverse relation"
 msgstr ""
 
 #: app/views/virtual_classes/index.erb:21
@@ -1539,7 +1534,7 @@ msgstr ""
 msgid "tags"
 msgstr ""
 
-#: lib/gettext_strings.rb:171
+#: lib/gettext_strings.rb:172
 msgid "telephone"
 msgstr ""
 
@@ -1548,7 +1543,7 @@ msgid "template_tab"
 msgstr ""
 
 #: lib/gettext_strings.rb:22
-msgid "text_doc_tab"
+msgid "text_document_tab"
 msgstr ""
 
 #: lib/gettext_strings.rb:9
@@ -1573,7 +1568,7 @@ msgstr ""
 msgid "title_tab"
 msgstr ""
 
-#: lib/zena/use/dates.rb:87
+#: lib/zena/use/dates.rb:89
 msgid "tomorrow"
 msgstr ""
 
@@ -1585,7 +1580,7 @@ msgstr ""
 msgid "turn dev on"
 msgstr ""
 
-#: lib/gettext_strings.rb:163
+#: lib/gettext_strings.rb:164
 msgid "turn_dev_off_btn"
 msgstr ""
 
@@ -1658,10 +1653,10 @@ msgstr ""
 msgid "writers"
 msgstr ""
 
-#: lib/zena/use/dates.rb:67
+#: lib/zena/use/dates.rb:69
 msgid "yesterday"
 msgstr ""
 
-#: lib/gettext_strings.rb:157
+#: lib/gettext_strings.rb:158
 msgid "you are editing the original"
 msgstr ""

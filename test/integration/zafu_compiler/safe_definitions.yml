@@ -15,7 +15,7 @@ params:
   tem: "<i><%= params[:d] %></i>"
   res: "<i>hello ladies</i>"
 
-gsub:
+string_gsub:
   context:
     node: 'tiger'
   old_src: "<r:Contact? do='addres.gsub(/\\n/,\";\";')'/>"
@@ -23,32 +23,44 @@ gsub:
   tem: "<% if @node.kpath_match?('NRC') %><%= (@node.prop['address'] ? @node.prop['address'].gsub(/\\n/, \";\") : nil) %><% end %>"
   res: "Small Island;In the Wild"
 
-gsub_static:
+string_gsub_static:
   context:
     lang: 'fr'
   src: "<r:eval>trans('fr').gsub(/\\Af/, 'F')</r:eval>"
   tem: "Français"
 
-gsub_newline:
+string_gsub_newline:
   context:
     node: 'tiger'
   src: "<r:Contact? do='address.gsub(/\\n/, \"\\\\n\")'/>"
   res: 'Small Island\nIn the Wild'
 
-upcase:
+string_upcase:
   eval: "title.upcase"
   tem: "<%= (@node.prop['title'] ? @node.prop['title'].upcase : nil) %>"
   res: "STATUS TITLE"
 
-strip:
+string_strip:
   eval: "%Q{ #{id}}.strip"
   tem: "<%= \" #{@node.zip}\".strip %>"
   res: "22"
 
-to_i:
+string_to_i:
   eval: "%Q{ #{id}}.to_i"
   tem: "<%= \" #{@node.zip}\".to_i %>"
   res: "22"
+
+string_to_json:
+  eval: "title.to_json"
+  res: '"status title"'
+
+nil_to_json:
+  eval: "weight.to_json"
+  res: 'null'
+
+number_to_json:
+  eval: "id.to_json"
+  res: '22'
 
 blank:
   eval: 'this.blank?'

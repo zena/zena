@@ -110,6 +110,20 @@ class EnrollableTest < Zena::Unit::TestCase
             Role.connection.execute("DELETE FROM nodes_roles")
             assert_equal %w{Original}, subject.assigned_roles.map(&:name)
           end
+          
+          context 'with bad cached_ids' do
+            setup do
+              node = secure(Node) { nodes(:tree_jpg) }
+              node.prop['cached_role_ids'] = [1,2,3]
+              Zena::Db.execute "UPDATE #{Version.table_name} SET properties=#{Zena::Db.quote(Version.encode_properties(node.prop))} WHERE id=#{node.version.id}"
+            end
+
+            should 'rebuild cached_role_ids on rebuild_index' do
+              subject.rebuild_index!
+              node = secure(Node) { nodes(:tree_jpg) }
+              assert_equal [roles_id(:Original)], node.prop['cached_role_ids']
+            end
+          end # with bad cached_ids
         end # with roles assigned
 
       end # from a class with roles

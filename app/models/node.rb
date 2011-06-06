@@ -871,7 +871,7 @@ class Node < ActiveRecord::Base
               # TODO: this is a temporary hack because date in links do not support timezones/formats properly
               res[key] = value.to_utc("%Y-%m-%d %H:%M:%S")
             else
-              res[key] = value.to_utc(_('datetime'), change_timezone ? visitor.tz : nil)
+              res[key] = value.to_utc(_(Zena::Use::Dates::DATETIME), change_timezone ? visitor.tz : nil)
             end
           end
         elsif key =~ /^(\w+)_id$/

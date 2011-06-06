@@ -39,7 +39,7 @@ form_with_all_roles:
         </ul>
       </fieldset>
     </r:vclass>
-  res: "/label.origin.*node\[origin\].*value='Big Bang'/> <p>string</p>.*weight.*assigned/"
+  res: "/label.origin.*node\[origin\].*Big Bang</textarea> <p>string</p>.*weight.*assigned/"
 
 show_all_properties:
   context:

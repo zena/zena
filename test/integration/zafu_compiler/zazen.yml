@@ -33,11 +33,21 @@ complex_link:
 
 at_code:
   tem: "<%= zazen(\"Try this: @ruby|puts 'Hello'@ or this @zafu|<r:link/>@\") %>"
-  res: "<p>Try this: <code class='ruby'><span class=\"ident\">puts</span> <span class=\"punct\">'</span><span class=\"string\">Hello</span><span class=\"punct\">'</span></code> or this <code class='zafu'><span class=\"tag\">&lt;r:</span><span class=\"ztag\">link</span><span class=\"tag\">/&gt;</span></code></p>"
+  res: "<p>Try this: <code class='idle_code'><span class=\"ident\">puts</span> <span class=\"punct\">'</span><span class=\"string\">Hello</span><span class=\"punct\">'</span></code> or this <code class='idle_code'><span class=\"tag\">&lt;r:</span><span class=\"ztag\">link</span><span class=\"tag\">/&gt;</span></code></p>"
 
 code_sqliss:
   tem: "<%= zazen('foo: @sqliss|contact in project@.') %>"
   res: "/<span class=\"context\">in</span>/"
+
+code_unknown_lang:
+  tem: "<%= zazen(%q{foo: <code lang='lxm'>contact in project</code>.}) %>"
+  res: "<p>foo: <pre class='idle_code'>contact in project</pre>.</p>"
+
+code_line_numbers:
+  src: "<r:zazen line_numbers='true' text=\"<code lang='lua'&gt;function foo(a); print(a); end</code&gt;\"/>"
+  tem: "<div class='zazen'><%= zazen(\"<code lang='lua'>function foo(a); print(a); end</code>\", :node => @node, :line_numbers => \"true\") %></div>"
+# The test only passes with the ultraviolet brick on.
+#  res: '/<span class=\"line-numbers\">   1 </span> <span class=\"Keyword\">function</span>/'
 
 spaces_on_first_lines:
   tem: "<%= zazen(\"This is a normal paragraphe. There are many phrases in this paragraphe and a forced line break\nhere. End of first paragraphe.\n\n This second paragraphe\n is space preserving\n la la           la la.\") %>"

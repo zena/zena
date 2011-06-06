@@ -4,43 +4,46 @@ empty:
 
 at_code:
   src: "some @strange < code@"
-  res: "<p>some <code>strange &lt; code</code></p>"
+  res: "<p>some <code class='idle_code'>strange &lt; code</code></p>"
 
 at_code_again:
   src: "We changed the syntax from @zafu|<z:link/>@ to @zafu|<r:link/>@ to better reflect the fact that we want to *render* a link."
-  res: "/code class='zafu'.*/"
+  res: "/code class='idle_code'.*/"
 
 at_code_ruby:
   src: "some @ruby|class << self@"
-  res: "<p>some <code class='ruby'><span class=\"keyword\">class </span><span class=\"punct\">&lt;&lt;</span> <span class=\"constant\">self</span></code></p>"
+  # Uv output
+  # res: "/<p>some <code class='idle_code'><span class=\"Keyword\">class</span>/"
+  # default
+  res: "<p>some <code class='idle_code'><span class=\"keyword\">class </span><span class=\"punct\">&lt;&lt;</span> <span class=\"constant\">self</span></code></p>"
 
 at_code_and_zazen:
   src: |
     This @do='[title]'@ and "":332.
-
+    
     <code>blah</code>
   res: "/\[make_link id:\|332\| title:\|\|\]/"
 
 code_ruby:
   src: |
     some text
-
+    
     <code lang='ruby'>def hello
       puts "hello" << " world!"
     end</code>
-  res: "/some text.*<pre>.*<code class='ruby'>.*keyword.*method.*&lt;&lt;/"
+  res: "/some text.*<pre class='idle_code'>.*keyword.*method.*&lt;&lt;/"
 
 
 img_after_brackets:
   src: |
     Text updated in [July 2008].
-
+    
     !30_full!
   res: "<p>Text updated in [July 2008].</p>\n\n\n\t<p>[make_image id:|30| images:true mode:|full| style:||]</p>"
 
 code_params:
-  src:  "this <code onclick='nasty' class='blue' lang='ruby' style='tagada'>def ok</code> ok"
-  res: "<p>this <pre onclick='nasty' class='blue' style='tagada'><code class='ruby'><span class=\"keyword\">def </span><span class=\"method\">ok</span></code></pre> ok</p>"
+  src:  "this <code onclick='nasty' lang='ruby' style='tagada'>def ok</code> ok"
+  res: "<p>this <pre onclick='nasty' style='tagada' class='idle_code'><span class=\"keyword\">def </span><span class=\"method\">ok</span></pre> ok</p>"
 
 gallery:
   src: "this ![12,13]! gallery"
@@ -49,7 +52,7 @@ gallery:
 gallery_and_images:
   src: |
     !23!
-
+    
     ![12]!
   res: "<p>[make_image id:|23| images:true style:||]</p>\n\n\n\t<p>[make_gallery [|12|] ]</p>"
 
@@ -203,7 +206,7 @@ wiki_link_url_ending_punctuation:
 
 erb_recursive_syntax:
   src: "why <code lang='erb'> this <%= puts \"hello\" %> is ok</code>"
-  res: "/why <pre><code class='erb'>.*<code class='ruby'>.*</code>.*</span> is ok</code></pre>/"
+  res: "/why <pre class='idle_code'>.*<code class='ruby'>.*</code>.*</span> is ok</pre>/"
 
 wiki_link_partial_url:
   src: |

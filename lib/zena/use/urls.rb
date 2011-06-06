@@ -110,7 +110,7 @@ module Zena
           end
 
 
-          if cachestamp_format?(format) && ((node.kind_of?(Document) && node.prop['ext'] == format) || asset)
+          if should_cachestamp?(node, format, asset)
             opts[:cachestamp] = make_cachestamp(node, mode)
           else
             opts.delete(:cachestamp) # cachestamp
@@ -166,10 +166,10 @@ module Zena
                 end
               elsif value = opts[k]
                 if value.respond_to?(:strftime_tz)
-                  "#{k}=#{CGI.escape(value.strftime_tz(_('datetime')))}"
+                  "#{k}=#{CGI.escape(value.strftime_tz(_(Zena::Use::Dates::DATETIME)))}"
                 elsif value.kind_of?(Hash)
                   "#{k}=#{value.to_query}"
-                elsif !value.blank?
+                elsif !value.nil?
                   "#{k}=#{CGI.escape(value.to_s)}"
                 else
                   nil
@@ -206,6 +206,12 @@ module Zena
 
         def cachestamp_format?(format)
           CACHESTAMP_FORMATS.include?(format)
+        end
+
+        def should_cachestamp?(node, format, asset)
+          cachestamp_format?(format)
+          #  &&
+          # ((node.kind_of?(Document) && node.prop['ext'] == format) || asset)
         end
 
         def make_cachestamp(node, mode)
@@ -599,6 +605,10 @@ module Zena
               when :encode_params, :format, :mode
                 # Force string interpolation
                 value = "%Q{#{value}}"
+              else
+                if value.blank?
+                  value = "''"
+                end
               end
               hash_params << "#{key.inspect} => #{value}"
             end

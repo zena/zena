@@ -154,6 +154,82 @@ class NodesControllerTest < Zena::Controller::TestCase
       end # accessing xml without a token
 
     end # with xml
+
+    context 'with a custom template' do
+      setup do
+        login(:lion)
+        # create template for 'special' mode
+        secure(Template) { Template.create(:parent_id => nodes_id(:default), :title => 'Node-info-js.zafu', :text => '{some:"json"}', :v_status => Zena::Status::Pub) }
+        login(:anon)
+      end
+
+      context 'asking for show' do
+        subject do
+          {
+            :action => 'show', :controller => 'nodes',
+            :path   => ["page#{nodes_zip(:projects)}_info.js"],
+            :prefix => 'en'
+          }
+        end
+
+        should 'recognize show page' do
+          assert_recognizes subject, "/en/page#{nodes_zip(:projects)}_info.js"
+        end
+
+        should 'insert cachestamp and render template' do
+          get_subject
+          # 
+          assert_redirected_to "/en/page18_info.js?#{nodes(:projects).updated_at.to_i}"
+          get 'show', :path => subject[:path], :cachestamp => nodes(:projects).updated_at.to_i.to_s, :prefix => 'en'
+          assert_response :success
+          assert_equal '{some:"json"}', @response.body
+        end
+      end
+
+      context 'asking for index' do
+        subject do
+          {:action => 'index', :controller => 'nodes', :format => 'xml'}
+        end
+
+        should 'recognize index page' do
+          assert_recognizes subject, "/nodes.xml"
+        end
+
+        should 'return unauthorized' do
+          get_subject
+          assert_response :unauthorized
+        end
+      end
+
+      context 'creating a node' do
+        subject do
+          {:action => 'create', :controller => 'nodes', :format => 'xml', :node => {:parent_id => nodes_zip(:zena), :title => 'hello'}}
+        end
+
+        should 'recognize create page' do
+          assert_recognizes subject, {:path => "/nodes.xml", :method => :post}, {:node => {:parent_id => nodes_zip(:zena), :title => 'hello'}}
+        end
+
+        should 'return unauthorized' do
+          post_subject
+          assert_response :unauthorized
+        end
+      end # creating a node
+
+      context 'accessing xml without a token' do
+        subject do
+          {:action => 'search', :qb => 'foos'}
+        end
+
+        should 'return an error' do
+          @request.env['HTTP_ACCEPT'] = 'application/xml'
+          get_subject
+          assert_response 401
+          assert_equal "Authentication token needed.", Hash.from_xml(@response.body)['errors'].first['message']
+        end
+      end # accessing xml without a token
+
+    end # with a custom template
   end # An anonymous user
 
   context 'A user' do
@@ -240,7 +316,7 @@ class NodesControllerTest < Zena::Controller::TestCase
         node = assigns(:node)
         assert_redirected_to "/oo/blog#{node.zip}.html"
       end
-      
+
       should 'set type and vclass' do
         post_subject
         node = assigns(:node)

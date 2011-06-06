@@ -45,13 +45,16 @@ module Zena
           base.before_save        :set__id
           base.alias_method_chain :rebuild_index_for_version, :prop_eval
           # So that we can use 'now' with prop_eval
-          base.safe_method :now => {:class => Time, :method => 'Time.now.utc'}
+          base.safe_method :now => {:class => Time, :method => 'Time.now'}
         end
 
         def rebuild_index_for_version_with_prop_eval(version)
           # Call other modules inserted before
           rebuild_index_for_version_without_prop_eval(version)
           merge_prop_eval(true)
+          # Leaking from enrollable, but I am tired of alias method chaining and making sure
+          # things are done in the correct order [GB].
+          prepare_roles(true)
           # Only save properties, without changing updated_at date or other callbacks
           Zena::Db.set_attribute(version, 'properties', encode_properties(@properties)) if version.changed?
         end

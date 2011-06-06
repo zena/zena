@@ -42,7 +42,7 @@ class DataEntry < ActiveRecord::Base
     attributes.keys.each do |key|
       if key == 'date'
         next unless parse_dates
-        attributes[key] = attributes[key].to_utc(_('datetime'), visitor.tz)
+        attributes[key] = attributes[key].to_utc(_(Zena::Use::Dates::DATETIME), visitor.tz)
       elsif key =~ /^(\w+)_id$/
         if key[0..4] == 'node_'
           attributes[key] = Node.translate_pseudo_id(attributes[key], :id, base_node) || attributes[key]

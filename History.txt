@@ -3,6 +3,7 @@
 * Major changes
  * [link] and other url related zafu tags *do not typecast to String* by default:
    you need to use <r:link foo='%{baz}'/> for literal values.
+ * Created "uv" brick to support ultraviolet syntax highlighting.
 
 * Minor changes
  * Fixed login redirect to not leave ssh.
@@ -11,6 +12,7 @@
  * Fixed [url] method to properly include port number and protocol (https).
  * Improved properties and relations managment interfaces.
  * Improved capistrano tasks on site rename.
+ * Fixed a bug where cached_role_ids would not be recalculated on rebuild rebuild.
 
 == 1.0.0.rc3 2011-05-26
 

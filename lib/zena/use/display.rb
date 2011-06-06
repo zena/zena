@@ -415,8 +415,11 @@ module Zena
 
         # Parse text with zazen helper
         def r_zazen(signature = nil)
-          @markup.prepend_param(:class, 'zazen')
-          @markup.tag ||= 'div'
+          if signature.nil? || @markup.tag
+            # Do not create markup when using RubyLess
+            @markup.prepend_param(:class, 'zazen')
+            @markup.tag ||= 'div'
+          end
 
           if signature
             if node = node(Node)
@@ -432,7 +435,8 @@ module Zena
           else
             node = node(Node) || '@node'
             return nil unless attribute = get_attribute_or_eval
-            hash_arguments = extract_from_params(:code, :host) || []
+
+            hash_arguments = extract_from_params(:code, :host, :line_numbers, :theme) || []
 
             hash_arguments.insert(0, ":node => #{node}")
 

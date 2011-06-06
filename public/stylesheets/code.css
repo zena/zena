@@ -1,68 +1,38 @@
-.ruby .c { color: #005; font-style: italic; }
-.ruby .keyword { color: #622; font-weight: bold; }
-.ruby .method { color: #944; }
-.ruby .class { color: #074; }
-.ruby .module { color: #050; }
-.ruby .p { color: #447; font-weight: bold; }
-.ruby .symbol { color: #099; }
-.ruby .string { color: #361; }
-.ruby .char { color: #F07; }
-.ruby .ident { color: #004; }
-.ruby .constant { color: #07F; }
-.ruby .regex { color: #B66; }
-.ruby .number { color: #D55; }
-.ruby .attribute { color: #33a; }
-.ruby .global { color: #3B7; }
-.ruby .expr { color: #227; }
+.idle_code .c { color: #005; font-style: italic; }
+.idle_code .keyword { color: #622; font-weight: bold; }
+.idle_code .method { color: #944; }
+.idle_code .class { color: #074; }
+.idle_code .module { color: #050; }
+.idle_code .p { color: #447; font-weight: bold; }
+.idle_code .symbol { color: #099; }
+.idle_code .string { color: #361; }
+.idle_code .char { color: #F07; }
+.idle_code .ident { color: #004; }
+.idle_code .constant { color: #07F; }
+.idle_code .regex { color: #B66; }
+.idle_code .number { color: #D55; }
+.idle_code .attribute { color: #33a; }
+.idle_code .global { color: #3B7; }
+.idle_code .expr { color: #227; }
+.idle_code .tag {color: #171;}
+.idle_code .punct {color: #622;}
+.idle_code .ztag {color: #622; font-weight: bold; }
+.idle_code .param { color:#a33;}
+.idle_code .value { color:#449;}
+.idle_code .t {color: #171;}
+.idle_code .ruby .p { color: #447; }
+.idle_code .expr { color:#227; background:#DDDBD2; padding:2px 0;}
+.idle_code pre { display:inline; }
+.idle_code .root  { color:#966;}
+.idle_code .variable { color:#33a;}
+.idle_code .document, .idle_code .key { color:#099;}
+.idle_code .comment { color: #005; font-style: italic; }
+.idle_code .id    { color:#73302F; font-weight:bold;}
+.idle_code .class { color:orange;}
+.idle_code .sub { color:#622; font-weight:bold;}
+.idle_code .context {color: #07b;}
 
-.xml .tag {color: #171;}
-.xml .punct {color: #622;}
-.xml .attribute { color:#a33;}
-.xml .string { color:#449;}
-
-.zafu .tag {color: #171;}
-.zafu .punct {color: #622;}
-.zafu .ztag {color: #622; font-weight: bold; }
-.zafu .param { color:#a33;}
-.zafu .value { color:#449;}
-
-.xml .tag {color: #171;}
-.xml .punct {color: #622;}
-.xml .attribute { color:#a33;}
-.xml .string { color:#449;}
-
-.erb .t {color: #171;}
-.erb .p {color: #622; background:#DDDBD2; padding:2px 0;}
-.erb .ruby .p { color: #447; }
-.erb .expr { color:#227; background:#DDDBD2; padding:2px 0;}
-.erb pre { display:inline; }
-
-.sh .p { color:#686;}
-.sh .root  { color:#966;}
-.sh .variable { color:#33a;}
-.sh .method { color: #944; }
-
-.yaml .p { color:#686;}
-.yaml .document, .yaml .key { color:#099;}
-.yaml .string { color:#449;}
-.yaml .comment { color: #005; font-style: italic; }
-
-.css .comment { color: #005; font-style: italic; }
-.css .p { color:#686;}
-.css .variable { color:#33a;}
-.css .method { color: #944; }
-.css .t   { color: #171;}
-.css .id    { color:#73302F; font-weight:bold;}
-.css .class { color:orange;}
-
-.sqliss .string { color: #361; }
-.sqliss .keyword { color: #622;}
-.sqliss .sub { color:#622; font-weight:bold;}
-.sqliss .punct {color: #622;}
-.sqliss .method {color: #944;}
-.sqliss .context {color: #07b;}
-
-.zazen pre {
+pre.idle_code {
 overflow:auto; /* Safari */
 white-space: pre-wrap; /* css-3 */
 white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */

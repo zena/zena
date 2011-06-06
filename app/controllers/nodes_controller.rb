@@ -612,7 +612,8 @@ class NodesController < ApplicationController
           redirect_to zen_path(@node, path_params) and return false
         end
 
-        if cachestamp_format?(params[:format]) && params[:cachestamp] != make_cachestamp(@node, params[:mode])
+        if should_cachestamp?(@node, params[:format], params[:asset]) &&
+           params[:cachestamp] != make_cachestamp(@node, params[:mode])
           # Invalid cachestamp, redirect
           redirect_to zen_path(@node, path_params) and return false
         end

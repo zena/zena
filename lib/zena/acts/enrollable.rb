@@ -86,8 +86,8 @@ module Zena
           # end
 
           # Prepare roles to add/remove to object.
-          def prepare_roles
-            return unless prop.changed?
+          def prepare_roles(force = false)
+            return unless prop.changed? || force
 
             keys = []
             properties.each do |k, v|
