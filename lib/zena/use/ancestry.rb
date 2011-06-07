@@ -84,15 +84,20 @@ module Zena
 
         # Return true if the current node is an ancestor for the given child
         def is_ancestor?(child)
-          child.fullpath =~ %r{\A#{fullpath}}
+          # self is it's own ancestor
+          child.id       == id                 ||
+          # parent
+          child.fullpath =~ %r{\A#{fullpath}/} ||
+          # root
+          id             == current_site.root_id
         end
 
         # Return the list of ancestors (without self): [root, obj, obj]
         # ancestors to which the visitor has no access are removed from the list
         def ancestors(start=[])
-          if self[:id] == current_site[:root_id]
+          if id == current_site.root_id
             []
-          elsif self[:parent_id].nil?
+          elsif parent_id.nil?
             []
           else
             path = fullpath.split('/')[0..-2]

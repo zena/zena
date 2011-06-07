@@ -173,12 +173,15 @@ class VersionMig < ActiveRecord::Base
 
   def migrate_base
     # migrate content to version properties
-    prop['custom_a'] = node.custom_a unless node.custom_a.nil?
-    prop['custom_b'] = node.custom_b unless node.custom_b.nil?
-    prop['title']   = idx_text_high
-    prop['summary'] = idx_text_medium
-    prop['text']    = idx_text_low
-    prop['ext']     = 'zafu' if node.kpath =~ /\ANDTT/
+    prop['custom_a'] = node.custom_a  unless node.custom_a.nil?
+    prop['custom_b'] = node.custom_b  unless node.custom_b.nil?
+    prop['title']   = idx_text_high   unless idx_text_high.blank?
+    prop['summary'] = idx_text_medium unless idx_text_medium.blank?
+    prop['text']    = idx_text_low    unless idx_text_low.blank?
+    if node.kpath =~ /\ANDTT/
+      prop['ext']          = 'zafu'
+      prop['content_type'] = 'text/zafu'
+    end
   end
 
   def migrate_contact

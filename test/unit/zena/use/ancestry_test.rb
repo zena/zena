@@ -140,7 +140,32 @@ class AncestryTest < Zena::Unit::TestCase
     should 'return list of ancestors on ancestors' do
       assert_equal nodes_zip(:zena, :projects), subject.ancestors.map(&:zip)
     end
+    
+    should 'return true on is_ancestor in parent' do
+      assert nodes(:projects).is_ancestor?(subject)
+      assert nodes(:zena).is_ancestor?(subject)
+    end
+    
+    should 'return true on is_ancestor in self' do
+      assert subject.is_ancestor?(subject)
+    end
 
+    context 'with a zip starting like subject' do
+      setup do
+        subject.fullpath = '22'
+        @node = secure(Node) { nodes(:people) }
+        @node.fullpath = '2234'
+      end
+
+      should 'not return true on is_ancestor' do
+        assert !subject.is_ancestor?(@node)
+      end
+    end # with an zip starting like subject
+    
+    should 'not return true on is_ancestor in foreign' do
+      assert subject.is_ancestor?(subject)
+    end
+    
     context 'with a secret parent' do
       subject do
         secure(Node) { nodes(:talk) }

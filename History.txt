@@ -14,6 +14,7 @@
  * Improved capistrano tasks on site rename.
  * Fixed a bug where cached_role_ids would not be recalculated on rebuild rebuild.
  * Fixed type_cast bug on Time value.
+ * Fixed a bug in 'is_ancestor?' where it would be confused by similar ids.
 
 == 1.0.0.rc3 2011-05-26
 

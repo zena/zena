@@ -34,3 +34,4 @@ vendor/plugins/rubyless
 vendor/plugins/versions
 vendor/plugins/yamltest
 vendor/plugins/zafu
+send.sftp

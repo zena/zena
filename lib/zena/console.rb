@@ -21,11 +21,13 @@ module Zena
       end
       list.each do |rec|
         prop  = rec.prop
-        if value = prop.delete(old_key)
+        value = prop.delete(old_key)
+        if !value.blank?
           prop[new_key] = value
           Zena::Db.execute "UPDATE #{rec.class.table_name} SET properties=#{Zena::Db.quote(rec.class.encode_properties(prop))} WHERE id=#{rec[:id]}"
         end
       end
+      true
     end
 
     def field_to_prop(list, native_key, prop_key)
