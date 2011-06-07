@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new("> 1.3.1") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2011-06-06}
+  s.date = %q{2011-06-07}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -1753,6 +1753,27 @@ Gem::Specification.new do |s|
     "public/stylesheets/reset.css",
     "public/stylesheets/search.css",
     "public/stylesheets/upload-progress.css",
+    "public/stylesheets/uv/active4d.css",
+    "public/stylesheets/uv/all_hallows_eve.css",
+    "public/stylesheets/uv/amy.css",
+    "public/stylesheets/uv/blackboard.css",
+    "public/stylesheets/uv/brilliance_black.css",
+    "public/stylesheets/uv/brilliance_dull.css",
+    "public/stylesheets/uv/cobalt.css",
+    "public/stylesheets/uv/dawn.css",
+    "public/stylesheets/uv/eiffel.css",
+    "public/stylesheets/uv/espresso_libre.css",
+    "public/stylesheets/uv/idle.css",
+    "public/stylesheets/uv/iplastic.css",
+    "public/stylesheets/uv/lazy.css",
+    "public/stylesheets/uv/mac_classic.css",
+    "public/stylesheets/uv/magicwb_amiga.css",
+    "public/stylesheets/uv/pastels_on_dark.css",
+    "public/stylesheets/uv/slush_poppies.css",
+    "public/stylesheets/uv/spacecadet.css",
+    "public/stylesheets/uv/sunburst.css",
+    "public/stylesheets/uv/twilight.css",
+    "public/stylesheets/uv/zenburnesque.css",
     "public/stylesheets/wiki.css",
     "public/stylesheets/window.css",
     "public/stylesheets/zen.css",

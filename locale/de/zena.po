@@ -1665,7 +1665,6 @@ msgid "template_tab"
 msgstr "Template"
 
 #: lib/gettext_strings.rb:22
-#, fuzzy
 msgid "text_document_tab"
 msgstr "Text Dok."
 

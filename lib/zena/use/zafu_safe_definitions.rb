@@ -116,6 +116,11 @@ module Zena
           {:method => 'nil', :nil => true, :pre_processor => join_proc}
         safe_method_for Array, [:map, Symbol]     => # supports map(:name)
           {:method => 'nil', :nil => true, :pre_processor => map_proc}
+        safe_method_for Array, [:include?, String] =>
+          {:method => 'include?', :accept_nil => true, :pre_processor => true, :class => Boolean}
+        safe_method_for Array, [:include?, Number] =>
+          {:method => 'include?', :accept_nil => true, :pre_processor => true, :class => Boolean}
+
         safe_method [:min, Number, Number]        => {:method => 'zafu_min', :class => Number}
         safe_method [:max, Number, Number]        => {:method => 'zafu_max', :class => Number}
         # Returns the smallest of two values.

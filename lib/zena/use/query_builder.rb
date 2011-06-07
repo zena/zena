@@ -127,10 +127,23 @@ module Zena
         QB_KEYS = [:find, :from, :else, :in, :where, :or, :limit, :order]
 
         include RubyLess
-        # The :class argument in this method is only used when the String is not a literal value
-        safe_method [:find,  String] => {:method => 'nil', :pre_processor => :get_type_for_find,  :class => NilClass}
-        safe_method [:count, String] => {:method => '0',   :pre_processor => :get_type_for_count, :class => Number  }
-        safe_method [:find,  Number] => {:method => :find_node_by_zip, :class => Node, :nil => true, :accept_nil => true}
+        safe_method [:find,  String] => :get_find_type
+        safe_method [:count, String] => :get_find_type
+        safe_method [:find,  Number] => :get_find_type
+
+        def get_find_type(signature)
+          if signature == ['find', Number]
+            {:method => :find_node_by_zip, :class => VirtualClass['Node'], :nil => true, :accept_nil => true}
+          elsif signature == ['find', String]
+            # TODO: support dynamic strings ?
+            {:method => 'nil', :pre_processor => :get_type_for_find,  :class => NilClass}
+          elsif signature == ['count', String]
+            # TODO: support dynamic strings ?
+            {:method => '0',   :pre_processor => :get_type_for_count, :class => Number  }
+          else
+            nil
+          end
+        end
 
         def self.included(base)
           base.process_unknown :querybuilder_eval
@@ -215,7 +228,7 @@ module Zena
           node = single_node
 
           if method =~ /^\d+$/
-            finder = {:method => "find_node_by_zip(#{method})", :class => Node, :nil => true}
+            finder = {:method => "find_node_by_zip(#{method})", :class => VirtualClass['Node'], :nil => true}
           else
             count  = get_count(method, @params)
             finder = build_finder(count, method, @params)

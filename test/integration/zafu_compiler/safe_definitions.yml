@@ -124,3 +124,7 @@ time_advance:
     date: '2011-02-03'
   src: "<b do='date.advance(:months =&gt; 1).strftime(\"%Y-%m-%d\")'/>"
   res: "<b>2011-03-03</b>"
+
+array_include:
+  src: "<b do='[1,2,3].include?(2)'/>"
+  tem: "<% if [1,2,3].include?(2) %><b></b><% end %>"

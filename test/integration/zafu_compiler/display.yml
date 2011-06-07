@@ -373,3 +373,11 @@ default_host:
 zazen_without_markup:
   src: "<r:void do='zazen(title)'/>"
   res: "<p>status title</p>"
+
+comment:
+  src: "this that //! blah blah"
+  tem: "this that"
+
+insert_slash_slash_exclam:
+  src: "this that <r:show text='//!'/> blah blah"
+  res: "this that //! blah blah"

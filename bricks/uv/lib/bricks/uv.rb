@@ -18,7 +18,7 @@ module Bricks
             res.gsub(/\A<pre class=.#{theme}.>/,"<pre class='#{code_class}'>").gsub(%r{</pre>\Z}, '</pre>')
           end
         else
-          basic_to_html(opts[:inline], code_class)
+          super
         end
       end
     end # SyntaxMethods

@@ -604,7 +604,7 @@ module Zena
                 else
                   next
                 end
-              when :encode_params, :format, :mode
+              when :encode_params, :format, :mode, :insert
                 # Force string interpolation
                 value = "%Q{#{value}}"
               else

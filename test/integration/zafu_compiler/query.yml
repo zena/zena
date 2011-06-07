@@ -248,3 +248,7 @@ query_errors:
 find_with_rubyless:
   src: "<b do='find(\"images in site limit 2\")' do='each' join=',' do='title'/>"
   res: "<b>Autumn Tree,bird</b>"
+
+find_loads_class:
+  src: "<div do='find(11)'><r:origin/></div>"
+  tem: "<% if var1 = find_node_by_zip(11) %><div><%= var1.prop['origin'] %></div><% end %>"
