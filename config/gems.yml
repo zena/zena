@@ -11,7 +11,7 @@ fast_gettext:   '~> 0.4.16'
 will_paginate:  '~> 2.3.12'
 differ:         '= 0.1.2'
 shoulda:        '= 2.10.3'
-httparty:       '= 0.6.1'
+httparty:       '= 0.7.8'
 
 querybuilder:   '= 1.0.0'
 yamltest:       '= 0.7.0'
