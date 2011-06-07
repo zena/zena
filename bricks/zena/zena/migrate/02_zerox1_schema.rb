@@ -31,6 +31,8 @@ class Zerox1Schema < ActiveRecord::Migration
     execute "ALTER TABLE cached_pages COLLATE utf8_unicode_ci"
     execute "ALTER TABLE cached_pages MODIFY path TEXT COLLATE utf8_unicode_ci"
     add_index "cached_pages", ["node_id"], :name => "index_cached_pages_on_node_id"
+    change_column :cached_pages, :path, :string
+    add_index "cached_pages", ["path", "site_id"], :name => "index_cached_pages_on_path_and_site_id"
 
     # ============================================ cached_pages_nodes
     execute "ALTER TABLE cached_pages_nodes COLLATE utf8_unicode_ci"

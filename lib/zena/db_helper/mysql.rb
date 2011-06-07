@@ -132,6 +132,10 @@ module Zena
           end
         end # date_condition
 
+        # Deadlock retry
+        DEADLOCK_REGEX = %r{Deadlock found when trying to get lock}
+        DEADLOCK_MAX_RETRY = 3
+
         def prepare_connection
           # Fixes timezone to "+0:0"
           raise "prepare_connection executed too late, connection already active." if Class.new(ActiveRecord::Base).connected?
@@ -144,6 +148,31 @@ module Zena
               execute("SET collation_connection = 'utf8_unicode_ci'")
             end
             alias_method_chain :configure_connection, :zena
+          end
+
+          ActiveRecord::Base.class_eval do
+            def transaction_with_deadlock_retry(*args, &block)
+              retry_count = 0
+
+              begin
+                transaction_without_deadlock_retry(*args, &block)
+              rescue ActiveRecord::StatementInvalid => error
+                # Raise if we are in a nested transaction
+                raise if connection.open_transactions != 0
+                if error.message =~ DEADLOCK_REGEX
+                  retry_count += 1
+                  if retry_count < DEADLOCK_MAX_RETRY
+                    retry
+                  else
+                    raise
+                  end
+                else
+                  # Not a deadlock error
+                  raise
+                end
+              end
+            end
+            alias_method_chain :transaction, :deadlock_retry
           end
         end
       end # class << self

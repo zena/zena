@@ -24,6 +24,7 @@ class Base < ActiveRecord::Migration
     end
 
     add_index "cached_pages", ["node_id"], :name => "index_cached_pages_on_node_id"
+    add_index "cached_pages", ["path", "site_id"], :name => "index_cached_pages_on_path_and_site_id"
 
     create_table "cached_pages_nodes", :id => false, :options => table_options, :force => true do |t|
       t.integer "cached_page_id"
