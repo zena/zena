@@ -1,0 +1,114 @@
+.active4d_code .DiffHeader {
+   background-color: #656565;
+   color: #FFFFFF;
+}
+.active4d_code .Operator {
+}
+.active4d_code .InheritedClass {
+}
+.active4d_code .TypeName {
+   color: #21439C;
+}
+.active4d_code .Number {
+   color: #A8017E;
+}
+.active4d_code .EmbeddedSource {
+   background-color: #ECF1FF;
+}
+.active4d_code {
+   background-color: #FFFFFF;
+   color: #000000;
+}
+.active4d_code .DiffInsertedLine {
+   background-color: #98FF9A;
+   color: #000000;
+}
+.active4d_code .LibraryVariable {
+   color: #A535AE;
+}
+.active4d_code .Storage {
+   color: #FF5600;
+}
+.active4d_code .InterpolatedEntity {
+   font-weight: bold;
+   color: #66CCFF;
+}
+.active4d_code .line-numbers {
+   background-color: #BAD6FD;
+   color: #000000;
+}
+.active4d_code .LocalVariable {
+   font-weight: bold;
+   color: #6392FF;
+}
+.active4d_code .DiffLineRange {
+   background-color: #1B63FF;
+   color: #FFFFFF;
+}
+.active4d_code .BlockComment {
+   color: #D33435;
+}
+.active4d_code .TagName {
+   color: #016CFF;
+}
+.active4d_code .FunctionArgument {
+}
+.active4d_code .BuiltInConstant {
+   color: #A535AE;
+}
+.active4d_code .LineComment {
+   color: #D33535;
+}
+.active4d_code .DiffDeletedLine {
+   background-color: #FF7880;
+   color: #000000;
+}
+.active4d_code .NamedConstant {
+   color: #B7734C;
+}
+.active4d_code .CommandMethod {
+   font-weight: bold;
+   color: #45AE34;
+}
+.active4d_code .TableField {
+   color: #0BB600;
+}
+.active4d_code .PlainXmlText {
+   color: #000000;
+}
+.active4d_code .Invalid {
+   background-color: #990000;
+   color: #FFFFFF;
+}
+.active4d_code .LibraryClassType {
+   color: #A535AE;
+}
+.active4d_code .TagAttribute {
+   color: #963DFF;
+}
+.active4d_code .Keyword {
+   font-weight: bold;
+   color: #006699;
+}
+.active4d_code .UserDefinedConstant {
+}
+.active4d_code .String {
+   color: #666666;
+}
+.active4d_code .DiffUnchangedLine {
+   color: #5E5E5E;
+}
+.active4d_code .TagContainer {
+   color: #7A7A7A;
+}
+.active4d_code .FunctionName {
+   color: #21439C;
+}
+.active4d_code .Variable {
+   font-weight: bold;
+   color: #0053FF;
+}
+.active4d_code .DateTimeLiteral {
+   font-weight: bold;
+   color: #66CCFF;
+}

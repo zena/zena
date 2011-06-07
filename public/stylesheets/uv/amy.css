@@ -1,0 +1,147 @@
+.amy_code .PolymorphicVariants {
+   color: #60B0FF;
+   font-style: italic;
+}
+.amy_code .KeywordDecorator {
+   color: #D0D0FF;
+}
+.amy_code .Punctuation {
+   color: #805080;
+}
+.amy_code .InheritedClass {
+}
+.amy_code .InvalidDepricated {
+   background-color: #CC66FF;
+   color: #200020;
+}
+.amy_code .LibraryVariable {
+}
+.amy_code .TokenReferenceOcamlyacc {
+   color: #3CB0D0;
+}
+.amy_code .Storage {
+   color: #B0FFF0;
+}
+.amy_code .KeywordOperator {
+   color: #A0A0FF;
+}
+.amy_code .CharacterConstant {
+   color: #666666;
+}
+.amy_code .line-numbers {
+   background-color: #800000;
+   color: #000000;
+}
+.amy_code .ClassName {
+   color: #70E080;
+}
+.amy_code .Int64Constant {
+   font-style: italic;
+}
+.amy_code .NonTerminalReferenceOcamlyacc {
+   color: #C0F0F0;
+}
+.amy_code .TokenDefinitionOcamlyacc {
+   color: #3080A0;
+}
+.amy_code .ClassType {
+   color: #70E0A0;
+}
+.amy_code .ControlKeyword {
+   color: #80A0FF;
+}
+.amy_code .LineNumberDirectives {
+   text-decoration: underline;
+   color: #C080C0;
+}
+.amy_code .FloatingPointConstant {
+   text-decoration: underline;
+}
+.amy_code .Int32Constant {
+   font-weight: bold;
+}
+.amy_code .TagName {
+   color: #009090;
+}
+.amy_code .ModuleTypeDefinitions {
+   text-decoration: underline;
+   color: #B000B0;
+}
+.amy_code .Integer {
+   color: #7090B0;
+}
+.amy_code .Camlp4TempParser {
+}
+.amy_code .InvalidIllegal {
+   font-weight: bold;
+   background-color: #FFFF00;
+   color: #400080;
+}
+.amy_code .LibraryConstant {
+   background-color: #200020;
+}
+.amy_code .ModuleDefinitions {
+   color: #B000B0;
+}
+.amy_code .Variants {
+   color: #60B0FF;
+}
+.amy_code .CompilerDirectives {
+   color: #C080C0;
+}
+.amy_code .FloatingPointInfixOperator {
+   text-decoration: underline;
+}
+.amy_code .BuiltInConstant1 {
+}
+.amy_code {
+   background-color: #200020;
+   color: #D0D0FF;
+}
+.amy_code .FunctionArgument {
+   color: #80B0B0;
+}
+.amy_code .FloatingPointPrefixOperator {
+   text-decoration: underline;
+}
+.amy_code .NativeintConstant {
+   font-weight: bold;
+}
+.amy_code .BuiltInConstant {
+   color: #707090;
+}
+.amy_code .BooleanConstant {
+   color: #8080A0;
+}
+.amy_code .LibraryClassType {
+}
+.amy_code .TagAttribute {
+}
+.amy_code .Keyword {
+   color: #A080FF;
+}
+.amy_code .UserDefinedConstant {
+}
+.amy_code .String {
+   color: #999999;
+}
+.amy_code .Camlp4Code {
+   background-color: #350060;
+}
+.amy_code .NonTerminalDefinitionOcamlyacc {
+   color: #90E0E0;
+}
+.amy_code .FunctionName {
+   color: #50A0A0;
+}
+.amy_code .SupportModules {
+   color: #A00050;
+}
+.amy_code .Variable {
+   color: #008080;
+}
+.amy_code .Comment {
+   background-color: #200020;
+   color: #404080;
+   font-style: italic;
+}

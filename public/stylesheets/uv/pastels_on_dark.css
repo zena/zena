@@ -1,0 +1,188 @@
+.pastels_on_dark_code .CssPropertyColours {
+   color: #666633;
+}
+.pastels_on_dark_code .CssPropertyValue {
+   color: #9B2E4D;
+}
+.pastels_on_dark_code .HtmlDocinfoDtd {
+   font-style: italic;
+}
+.pastels_on_dark_code .Exceptions {
+   font-weight: bold;
+   color: #C82255;
+}
+.pastels_on_dark_code .ClassInheritance {
+   font-style: italic;
+}
+.pastels_on_dark_code .CssInvalidComma {
+   background-color: #FF0000;
+   color: #FFFFFF;
+}
+.pastels_on_dark_code .HtmlTag {
+   color: #858EF4;
+}
+.pastels_on_dark_code .Constants {
+   color: #6782D3;
+}
+.pastels_on_dark_code .Section {
+   font-style: italic;
+}
+.pastels_on_dark_code .PhpPhpdocs {
+   color: #777777;
+}
+.pastels_on_dark_code .Variables {
+   color: #C1C144;
+}
+.pastels_on_dark_code .RegularExpressions {
+   color: #666666;
+}
+.pastels_on_dark_code .Comments {
+   color: #555555;
+}
+.pastels_on_dark_code .line-numbers {
+   background-color: #73597E;
+   color: #FFFFFF;
+}
+.pastels_on_dark_code .PhpVariablesGlobals {
+   color: #B72E1D;
+}
+.pastels_on_dark_code .PhpConstantsCorePredefined {
+   font-weight: bold;
+   color: #DE8E20;
+}
+.pastels_on_dark_code .HtmlDoctype {
+   color: #888888;
+}
+.pastels_on_dark_code .HtmlDocinfoXml {
+   color: #68685B;
+}
+.pastels_on_dark_code .AttributeName {
+   color: #9B456F;
+}
+.pastels_on_dark_code .ClassName {
+   text-decoration: underline;
+}
+.pastels_on_dark_code .FunctionArgumentName {
+   font-weight: bold;
+}
+.pastels_on_dark_code .FunctionResult {
+   color: #0000FF;
+}
+.pastels_on_dark_code .TmlangdefKeys {
+   color: #7171F3;
+}
+.pastels_on_dark_code .CssSelectorsElements {
+   font-weight: bold;
+   color: #B8CD06;
+}
+.pastels_on_dark_code .CssSelectorsId {
+   color: #EC9E00;
+}
+.pastels_on_dark_code .ControlStructures {
+   font-weight: bold;
+   color: #6969FA;
+}
+.pastels_on_dark_code .Interpolation {
+   color: #C10006;
+}
+.pastels_on_dark_code .CommentsBlock {
+   color: #555555;
+}
+.pastels_on_dark_code .CssSelectorsPseudoclass {
+   color: #2E759C;
+}
+.pastels_on_dark_code .Operators {
+   color: #47B8D6;
+}
+.pastels_on_dark_code .TagName {
+   color: #858EF4;
+}
+.pastels_on_dark_code .EmbeddedCode {
+   text-decoration: underline;
+}
+.pastels_on_dark_code .PhpVariablesSaferGlobals {
+   color: #00FF00;
+}
+.pastels_on_dark_code .InvalidTrailingWhitespace {
+   background-color: #FFD0D0;
+}
+.pastels_on_dark_code .Functions {
+   color: #A1A1FF;
+}
+.pastels_on_dark_code .Keywords {
+   color: #A1A1FF;
+}
+.pastels_on_dark_code {
+   background-color: #211E1E;
+   color: #DADADA;
+}
+.pastels_on_dark_code .PhpKeywordsStorage {
+   color: #6969FA;
+}
+.pastels_on_dark_code .PhpIncludeRequire {
+   color: #C82255;
+}
+.pastels_on_dark_code .HtmlAttribute {
+   color: #9B456F;
+}
+.pastels_on_dark_code .AttributeWithValue {
+   color: #9B456F;
+}
+.pastels_on_dark_code .FunctionArgumentType {
+   color: #0000FF;
+}
+.pastels_on_dark_code .PreprocessorDirective {
+   font-weight: bold;
+}
+.pastels_on_dark_code .CssUnits {
+   color: #6969FA;
+}
+.pastels_on_dark_code .CssFontNames {
+   color: #666633;
+}
+.pastels_on_dark_code .CssSelectorsClassname {
+   color: #EDCA06;
+}
+.pastels_on_dark_code .PhpStringsSingleQuoted {
+   color: #BFA36D;
+}
+.pastels_on_dark_code .PhpConstantsStandardPredefined {
+   font-weight: bold;
+   color: #DE8E10;
+}
+.pastels_on_dark_code .HtmlServersideIncludes {
+   color: #909090;
+}
+.pastels_on_dark_code .CssPropertyKeyword {
+   color: #E1C96B;
+}
+.pastels_on_dark_code .LanguageConstants {
+   font-weight: bold;
+   color: #DE8E30;
+}
+.pastels_on_dark_code .CharacterConstants {
+   color: #AFA472;
+}
+.pastels_on_dark_code .Invalid {
+   font-weight: bold;
+   background-color: #FF0000;
+   color: #FFF9F9;
+}
+.pastels_on_dark_code .FunctionArgumentVariable {
+   font-style: italic;
+}
+.pastels_on_dark_code .Strings {
+   color: #AD9361;
+}
+.pastels_on_dark_code .PhpStringsDoubleQuoted {
+   color: #AD9361;
+}
+.pastels_on_dark_code .FunctionName {
+   font-weight: bold;
+}
+.pastels_on_dark_code .PreprocessorLine {
+   color: #2F006E;
+}
+.pastels_on_dark_code .Numbers {
+   color: #CCCCCC;
+}

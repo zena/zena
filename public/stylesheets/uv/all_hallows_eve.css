@@ -1,0 +1,72 @@
+.all_hallows_eve_code .ClassInheritance {
+   font-style: italic;
+}
+.all_hallows_eve_code .Constant {
+   color: #3387CC;
+}
+.all_hallows_eve_code .TypeName {
+   text-decoration: underline;
+}
+.all_hallows_eve_code .TextBase {
+   background-color: #434242;
+   color: #FFFFFF;
+}
+.all_hallows_eve_code {
+   background-color: #000000;
+   color: #FFFFFF;
+}
+.all_hallows_eve_code .StringEscapesExecuted {
+   color: #555555;
+}
+.all_hallows_eve_code .line-numbers {
+   background-color: #73597E;
+   color: #FFFFFF;
+}
+.all_hallows_eve_code .StringExecuted {
+   background-color: #CCCC33;
+   color: #000000;
+}
+.all_hallows_eve_code .BlockComment {
+   background-color: #9B9B9B;
+   color: #FFFFFF;
+}
+.all_hallows_eve_code .TagName {
+   text-decoration: underline;
+}
+.all_hallows_eve_code .PreProcessorLine {
+   color: #D0D0FF;
+}
+.all_hallows_eve_code .SupportFunction {
+   color: #C83730;
+}
+.all_hallows_eve_code .FunctionArgument {
+   font-style: italic;
+}
+.all_hallows_eve_code .PreProcessorDirective {
+}
+.all_hallows_eve_code .StringEscapes {
+   color: #AAAAAA;
+}
+.all_hallows_eve_code .SourceBase {
+   background-color: #000000;
+   color: #FFFFFF;
+}
+.all_hallows_eve_code .TagAttribute {
+}
+.all_hallows_eve_code .StringLiteral {
+   color: #CCCC33;
+}
+.all_hallows_eve_code .String {
+   color: #66CC33;
+}
+.all_hallows_eve_code .Keyword {
+   color: #CC7833;
+}
+.all_hallows_eve_code .RegularExpression {
+   color: #CCCC33;
+}
+.all_hallows_eve_code .FunctionName {
+}
+.all_hallows_eve_code .Comment {
+   color: #9933CC;
+}

@@ -1,0 +1,80 @@
+.iplastic_code .Constant {
+   color: #6782D3;
+}
+.iplastic_code .Support {
+   font-weight: bold;
+   color: #3333FF;
+}
+.iplastic_code .EmbeddedSource {
+   background-color: #F9F9F9;
+   color: #000000;
+}
+.iplastic_code .Arguments {
+   font-style: italic;
+}
+.iplastic_code .TypeName {
+   font-weight: bold;
+}
+.iplastic_code .Identifier {
+   color: #9700CC;
+}
+.iplastic_code .Number {
+   color: #0066FF;
+}
+.iplastic_code .SectionName {
+   font-weight: bold;
+}
+.iplastic_code .Storage {
+   font-weight: bold;
+}
+.iplastic_code .line-numbers {
+   background-color: #BAD6FD;
+   color: #000000;
+}
+.iplastic_code {
+   background-color: #EEEEEE;
+   color: #000000;
+}
+.iplastic_code .FrameTitle {
+   font-weight: bold;
+   color: #000000;
+}
+.iplastic_code .TagName {
+   font-weight: bold;
+}
+.iplastic_code .Tag {
+   color: #0033CC;
+}
+.iplastic_code .Exception {
+   color: #990000;
+}
+.iplastic_code .XmlDeclaration {
+   color: #333333;
+}
+.iplastic_code .TrailingWhitespace {
+   background-color: #EEEEEE;
+}
+.iplastic_code .TagAttribute {
+   color: #3366CC;
+   font-style: italic;
+}
+.iplastic_code .Invalid {
+   background-color: #E7342D;
+   color: #FF0000;
+}
+.iplastic_code .Keyword {
+   color: #0000FF;
+}
+.iplastic_code .String {
+   color: #009933;
+}
+.iplastic_code .Comment {
+   color: #0066FF;
+   font-style: italic;
+}
+.iplastic_code .FunctionName {
+   color: #FF8000;
+}
+.iplastic_code .RegularExpression {
+   color: #FF0080;
+}

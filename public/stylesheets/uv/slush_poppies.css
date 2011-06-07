@@ -1,0 +1,85 @@
+.slush_poppies_code .Directives {
+   font-weight: bold;
+}
+.slush_poppies_code .TypeName {
+   color: #800080;
+}
+.slush_poppies_code .InheritedClass {
+}
+.slush_poppies_code .OcamlInfixFPOperators {
+   text-decoration: underline;
+}
+.slush_poppies_code .Number {
+   color: #0080A0;
+}
+.slush_poppies_code .LibraryVariable {
+}
+.slush_poppies_code .Storage {
+   color: #008080;
+}
+.slush_poppies_code .line-numbers {
+   background-color: #B0B0FF;
+   color: #000000;
+}
+.slush_poppies_code .OcamlPrefixFPOperators {
+   text-decoration: underline;
+}
+.slush_poppies_code .OcamlFloatingPointConstants {
+   text-decoration: underline;
+}
+.slush_poppies_code .LineNumberDirectives {
+}
+.slush_poppies_code .TagName {
+}
+.slush_poppies_code .StorageTypes {
+   color: #A08000;
+}
+.slush_poppies_code .Operators {
+   color: #2060A0;
+}
+.slush_poppies_code .LibraryConstant {
+}
+.slush_poppies_code .VariantTypes {
+   color: #C08060;
+}
+.slush_poppies_code .FunctionArgument {
+}
+.slush_poppies_code .BuiltInConstant {
+}
+.slush_poppies_code .ClassTypeName {
+   color: #8000C0;
+}
+.slush_poppies_code .ModuleKeyword {
+   color: #0080FF;
+}
+.slush_poppies_code .Invalid {
+}
+.slush_poppies_code .LibraryClassType {
+}
+.slush_poppies_code .LibraryFunction {
+}
+.slush_poppies_code .TagAttribute {
+}
+.slush_poppies_code .Keyword {
+   color: #2060A0;
+}
+.slush_poppies_code .UserDefinedConstant {
+}
+.slush_poppies_code .CharacterConstants {
+   color: #800000;
+}
+.slush_poppies_code .String {
+   color: #C03030;
+}
+.slush_poppies_code {
+   background-color: #F1F1F1;
+   color: #000000;
+}
+.slush_poppies_code .FunctionName {
+   color: #800000;
+}
+.slush_poppies_code .Variable {
+}
+.slush_poppies_code .Comment {
+   color: #406040;
+}

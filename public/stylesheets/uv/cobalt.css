@@ -1,0 +1,149 @@
+.cobalt_code .BlockQuote {
+   background-color: #004480;
+}
+.cobalt_code .DiffInserted {
+   background-color: #154F00;
+   color: #F8F8F8;
+}
+.cobalt_code .DiffHeader {
+   background-color: #000E1A;
+   color: #F8F8F8;
+}
+.cobalt_code .CssPropertyValue {
+   color: #F6F080;
+}
+.cobalt_code .CCPreprocessorDirective {
+   color: #AFC4DB;
+}
+.cobalt_code .Constant {
+   color: #FF628C;
+}
+.cobalt_code .List {
+   background-color: #130D26;
+}
+.cobalt_code .DiffChanged {
+   background-color: #806F00;
+   color: #F8F8F8;
+}
+.cobalt_code .EmbeddedSource {
+   background-color: #223545;
+   color: #FFFFFF;
+}
+.cobalt_code .Support {
+   color: #80FFBB;
+}
+.cobalt_code .Punctuation {
+   color: #E1EFFF;
+}
+.cobalt_code .RawMarkup {
+   background-color: #74B9D3;
+}
+.cobalt_code .CssConstructorArgument {
+   color: #EB939A;
+}
+.cobalt_code .LangVariable {
+   color: #FF80E1;
+}
+.cobalt_code .Storage {
+   color: #FFEE80;
+}
+.cobalt_code .line-numbers {
+   background-color: #B36539;
+   color: #000000;
+}
+.cobalt_code .CssClass {
+   color: #5FE461;
+}
+.cobalt_code .StringConstant {
+   color: #80FF82;
+}
+.cobalt_code .CssAtRule {
+   color: #F6AA11;
+}
+.cobalt_code .BoldMarkup {
+   font-weight: bold;
+   color: #C1AFFF;
+}
+.cobalt_code .CssTagName {
+   color: #9EFFFF;
+}
+.cobalt_code .Exception {
+   color: #FF1E00;
+}
+.cobalt_code .SupportConstant {
+   color: #EB939A;
+}
+.cobalt_code .ItalicMarkup {
+   color: #B8FFD9;
+   font-style: italic;
+}
+.cobalt_code .DiffDeleted {
+   background-color: #4C0900;
+   color: #F8F8F8;
+}
+.cobalt_code .CCPreprocessorLine {
+   color: #8996A8;
+}
+.cobalt_code .SupportFunction {
+   color: #FFB054;
+}
+.cobalt_code .CssAdditionalConstants {
+   color: #EDF080;
+}
+.cobalt_code .MetaTagA {
+   color: #9EFFFF;
+}
+.cobalt_code .StringRegexp {
+   color: #80FFC2;
+}
+.cobalt_code .StringEmbeddedSource {
+   color: #9EFF80;
+}
+.cobalt_code .EntityInheritedClass {
+   color: #80FCFF;
+   font-style: italic;
+}
+.cobalt_code .FunctionCall {
+   color: #FFEE80;
+}
+.cobalt_code {
+   background-color: #002240;
+   color: #FFFFFF;
+}
+.cobalt_code .CssId {
+   color: #FFB454;
+}
+.cobalt_code .StringVariable {
+   color: #EDEF7D;
+}
+.cobalt_code .Invalid {
+   background-color: #800F00;
+   color: #F8F8F8;
+}
+.cobalt_code .String {
+   color: #3AD900;
+}
+.cobalt_code .Keyword {
+   color: #FF9D00;
+}
+.cobalt_code .HeadingMarkup {
+   font-weight: bold;
+   background-color: #001221;
+   color: #C8E4FD;
+}
+.cobalt_code .CssPropertyName {
+   color: #9DF39F;
+}
+.cobalt_code .DoctypeXmlProcessing {
+   color: #73817D;
+}
+.cobalt_code .Variable {
+   color: #CCCCCC;
+}
+.cobalt_code .Comment {
+   color: #0088FF;
+   font-style: italic;
+}
+.cobalt_code .Entity {
+   color: #FFDD00;
+}

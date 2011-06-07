@@ -1,0 +1,121 @@
+.eiffel_code .EmbeddedSource {
+   background-color: #6597F6;
+}
+.eiffel_code .LibraryObject {
+   font-weight: bold;
+   color: #6D79DE;
+}
+.eiffel_code .Section {
+   font-style: italic;
+}
+.eiffel_code .FunctionArgumentAndResultTypes {
+   color: #70727E;
+}
+.eiffel_code .TypeName {
+   font-style: italic;
+}
+.eiffel_code .Number {
+   color: #CD0000;
+   font-style: italic;
+}
+.eiffel_code .MarkupList {
+   color: #B90690;
+}
+.eiffel_code .MarkupTagAttribute {
+   font-style: italic;
+}
+.eiffel_code .LibraryVariable {
+   font-weight: bold;
+   color: #21439C;
+}
+.eiffel_code .line-numbers {
+   background-color: #C3DCFF;
+   color: #000000;
+}
+.eiffel_code .FunctionParameter {
+   font-style: italic;
+}
+.eiffel_code .MarkupTag {
+   color: #1C02FF;
+}
+.eiffel_code {
+   background-color: #FFFFFF;
+   color: #000000;
+}
+.eiffel_code .MarkupHeading {
+   font-weight: bold;
+   color: #0C07FF;
+}
+.eiffel_code .JsOperator {
+   color: #687687;
+}
+.eiffel_code .InheritedClassName {
+   font-style: italic;
+}
+.eiffel_code .StringInterpolation {
+   color: #26B31A;
+}
+.eiffel_code .MarkupQuote {
+   color: #000000;
+   font-style: italic;
+}
+.eiffel_code .MarkupNameOfTag {
+   font-weight: bold;
+}
+.eiffel_code .InvalidTrailingWhitespace {
+   background-color: #FFD0D0;
+}
+.eiffel_code .LibraryConstant {
+   font-weight: bold;
+   color: #06960E;
+}
+.eiffel_code .MarkupXmlDeclaration {
+   color: #68685B;
+}
+.eiffel_code .PreprocessorDirective {
+   font-weight: bold;
+   color: #0C450D;
+}
+.eiffel_code .BuiltInConstant {
+   color: #585CF6;
+   font-style: italic;
+}
+.eiffel_code .MarkupDtd {
+   font-style: italic;
+}
+.eiffel_code .Invalid {
+   background-color: #990000;
+   color: #FFFFFF;
+}
+.eiffel_code .LibraryFunction {
+   font-weight: bold;
+   color: #3C4C72;
+}
+.eiffel_code .String {
+   color: #D80800;
+}
+.eiffel_code .UserDefinedConstant {
+   color: #C5060B;
+   font-style: italic;
+}
+.eiffel_code .Keyword {
+   font-weight: bold;
+   color: #0100B6;
+}
+.eiffel_code .MarkupDoctype {
+   color: #888888;
+}
+.eiffel_code .FunctionName {
+   font-weight: bold;
+   color: #0000A2;
+}
+.eiffel_code .PreprocessorLine {
+   color: #1A921C;
+}
+.eiffel_code .Variable {
+   color: #0206FF;
+   font-style: italic;
+}
+.eiffel_code .Comment {
+   color: #00B418;
+}

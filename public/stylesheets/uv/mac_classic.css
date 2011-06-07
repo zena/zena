@@ -1,0 +1,123 @@
+.mac_classic_code .EmbeddedSource {
+   background-color: #0C0C0C;
+}
+.mac_classic_code .LibraryObject {
+   font-weight: bold;
+   color: #6D79DE;
+}
+.mac_classic_code .Section {
+   font-style: italic;
+}
+.mac_classic_code .FunctionArgumentAndResultTypes {
+   color: #70727E;
+}
+.mac_classic_code .TypeName {
+   text-decoration: underline;
+}
+.mac_classic_code .Number {
+   color: #0000CD;
+}
+.mac_classic_code {
+   background-color: #FFFFFF;
+   color: #000000;
+}
+.mac_classic_code .MarkupList {
+   color: #B90690;
+}
+.mac_classic_code .MarkupTagAttribute {
+   font-style: italic;
+}
+.mac_classic_code .LibraryVariable {
+   font-weight: bold;
+   color: #21439C;
+}
+.mac_classic_code .line-numbers {
+   background-color: #4D97FF;
+   color: #000000;
+}
+.mac_classic_code .FunctionParameter {
+   font-style: italic;
+}
+.mac_classic_code .MarkupTag {
+   color: #1C02FF;
+}
+.mac_classic_code .MarkupHeading {
+   font-weight: bold;
+   color: #0C07FF;
+}
+.mac_classic_code .JsOperator {
+   color: #687687;
+}
+.mac_classic_code .InheritedClassName {
+   font-style: italic;
+}
+.mac_classic_code .StringInterpolation {
+   color: #26B31A;
+}
+.mac_classic_code .MarkupQuote {
+   color: #000000;
+   font-style: italic;
+}
+.mac_classic_code .MarkupNameOfTag {
+   font-weight: bold;
+}
+.mac_classic_code .InvalidTrailingWhitespace {
+   background-color: #FFD0D0;
+}
+.mac_classic_code .LibraryConstant {
+   font-weight: bold;
+   color: #06960E;
+}
+.mac_classic_code .MarkupXmlDeclaration {
+   color: #68685B;
+}
+.mac_classic_code .EmbeddedEmbeddedSource {
+   background-color: #0E0E0E;
+}
+.mac_classic_code .PreprocessorDirective {
+   font-weight: bold;
+   color: #0C450D;
+}
+.mac_classic_code .BuiltInConstant {
+   font-weight: bold;
+   color: #585CF6;
+}
+.mac_classic_code .MarkupDtd {
+   font-style: italic;
+}
+.mac_classic_code .Invalid {
+   background-color: #990000;
+   color: #FFFFFF;
+}
+.mac_classic_code .LibraryFunction {
+   font-weight: bold;
+   color: #3C4C72;
+}
+.mac_classic_code .String {
+   color: #036A07;
+}
+.mac_classic_code .UserDefinedConstant {
+   font-weight: bold;
+   color: #C5060B;
+}
+.mac_classic_code .Keyword {
+   font-weight: bold;
+   color: #0000FF;
+}
+.mac_classic_code .MarkupDoctype {
+   color: #888888;
+}
+.mac_classic_code .FunctionName {
+   font-weight: bold;
+   color: #0000A2;
+}
+.mac_classic_code .PreprocessorLine {
+   color: #1A921C;
+}
+.mac_classic_code .Variable {
+   color: #318495;
+}
+.mac_classic_code .Comment {
+   color: #0066FF;
+   font-style: italic;
+}

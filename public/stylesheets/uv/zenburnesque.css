@@ -1,0 +1,91 @@
+.zenburnesque_code .InheritedClass {
+}
+.zenburnesque_code .TypeName {
+   color: #F09040;
+}
+.zenburnesque_code .FloatingPointPrefixOperators {
+   text-decoration: underline;
+}
+.zenburnesque_code .Number {
+   color: #22C0FF;
+}
+.zenburnesque_code .Directive {
+   font-weight: bold;
+}
+.zenburnesque_code .LibraryVariable {
+}
+.zenburnesque_code .Storage {
+}
+.zenburnesque_code .line-numbers {
+   background-color: #A0A0C0;
+   color: #000000;
+}
+.zenburnesque_code .LineNumberDirectives {
+   text-decoration: underline;
+}
+.zenburnesque_code .TagName {
+}
+.zenburnesque_code .StorageTypes {
+   color: #6080FF;
+}
+.zenburnesque_code .Operators {
+   color: #FFFFA0;
+}
+.zenburnesque_code {
+   background-color: #404040;
+   color: #DEDEDE;
+}
+.zenburnesque_code .LibraryConstant {
+}
+.zenburnesque_code .VariantTypes {
+   color: #4080A0;
+}
+.zenburnesque_code .Characters {
+   color: #FF8080;
+}
+.zenburnesque_code .FunctionArgument {
+}
+.zenburnesque_code .LanguageKeyword {
+   color: #FFFFA0;
+}
+.zenburnesque_code .BuiltInConstant {
+}
+.zenburnesque_code .FloatingPointNumbers {
+   text-decoration: underline;
+}
+.zenburnesque_code .ClassTypeName {
+   color: #F4A020;
+}
+.zenburnesque_code .TypeName1 {
+   color: #FFE000;
+}
+.zenburnesque_code .ModuleKeyword {
+   font-weight: bold;
+   color: #FF8000;
+}
+.zenburnesque_code .Invalid {
+}
+.zenburnesque_code .LibraryClassType {
+}
+.zenburnesque_code .LibraryFunction {
+}
+.zenburnesque_code .TagAttribute {
+}
+.zenburnesque_code .FloatingPointInfixOperators {
+   text-decoration: underline;
+}
+.zenburnesque_code .UserDefinedConstant {
+}
+.zenburnesque_code .String {
+   color: #FF2020;
+}
+.zenburnesque_code .FunctionName {
+   font-weight: bold;
+   color: #FFCC66;
+}
+.zenburnesque_code .Variable {
+}
+.zenburnesque_code .Comment {
+   color: #709070;
+   font-style: italic;
+}

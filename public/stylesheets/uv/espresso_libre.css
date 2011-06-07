@@ -1,0 +1,109 @@
+.espresso_libre_code .EmbeddedSource {
+   background-color: #CE9065;
+}
+.espresso_libre_code .LibraryObject {
+   font-weight: bold;
+   color: #6D79DE;
+}
+.espresso_libre_code .Section {
+   font-style: italic;
+}
+.espresso_libre_code .FunctionArgumentAndResultTypes {
+   color: #8B8E9C;
+}
+.espresso_libre_code .TypeName {
+   text-decoration: underline;
+}
+.espresso_libre_code .Number {
+   color: #44AA43;
+}
+.espresso_libre_code {
+   background-color: #2A211C;
+   color: #BDAE9D;
+}
+.espresso_libre_code .MarkupTagAttribute {
+   font-style: italic;
+}
+.espresso_libre_code .LibraryVariable {
+   font-weight: bold;
+   color: #2F5FE0;
+}
+.espresso_libre_code .line-numbers {
+   background-color: #C3DCFF;
+   color: #000000;
+}
+.espresso_libre_code .FunctionParameter {
+   font-style: italic;
+}
+.espresso_libre_code .MarkupTag {
+   color: #43A8ED;
+}
+.espresso_libre_code .JsOperator {
+   color: #687687;
+}
+.espresso_libre_code .InheritedClassName {
+   font-style: italic;
+}
+.espresso_libre_code .StringInterpolation {
+   color: #2FE420;
+}
+.espresso_libre_code .MarkupNameOfTag {
+   font-weight: bold;
+}
+.espresso_libre_code .InvalidTrailingWhitespace {
+   background-color: #FFD0D0;
+}
+.espresso_libre_code .LibraryConstant {
+   font-weight: bold;
+   color: #00AF0E;
+}
+.espresso_libre_code .MarkupXmlDeclaration {
+   color: #8F7E65;
+}
+.espresso_libre_code .PreprocessorDirective {
+   font-weight: bold;
+   color: #9AFF87;
+}
+.espresso_libre_code .BuiltInConstant {
+   font-weight: bold;
+   color: #585CF6;
+}
+.espresso_libre_code .MarkupDtd {
+   font-style: italic;
+}
+.espresso_libre_code .Invalid {
+   background-color: #990000;
+   color: #FFFFFF;
+}
+.espresso_libre_code .LibraryFunction {
+   font-weight: bold;
+   color: #7290D9;
+}
+.espresso_libre_code .String {
+   color: #049B0A;
+}
+.espresso_libre_code .UserDefinedConstant {
+   font-weight: bold;
+   color: #C5656B;
+}
+.espresso_libre_code .Keyword {
+   font-weight: bold;
+   color: #43A8ED;
+}
+.espresso_libre_code .MarkupDoctype {
+   color: #888888;
+}
+.espresso_libre_code .FunctionName {
+   font-weight: bold;
+   color: #FF9358;
+}
+.espresso_libre_code .PreprocessorLine {
+   color: #1A921C;
+}
+.espresso_libre_code .Variable {
+   color: #318495;
+}
+.espresso_libre_code .Comment {
+   color: #0066FF;
+   font-style: italic;
+}

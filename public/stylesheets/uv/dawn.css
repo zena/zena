@@ -1,0 +1,121 @@
+.dawn_code .MetaSeparator {
+   font-weight: bold;
+   background-color: #DCDCDC;
+   color: #19356D;
+}
+.dawn_code .SupportVariable {
+   color: #234A97;
+}
+.dawn_code .Constant {
+   font-weight: bold;
+   color: #811F24;
+}
+.dawn_code .EmbeddedSource {
+   background-color: #829AC2;
+}
+.dawn_code .StringRegexpConstantCharacterEscape {
+   font-weight: bold;
+   color: #811F24;
+}
+.dawn_code .Support {
+   color: #691C97;
+}
+.dawn_code .MarkupList {
+   color: #693A17;
+}
+.dawn_code .Storage {
+   color: #A71D5D;
+   font-style: italic;
+}
+.dawn_code .line-numbers {
+   background-color: #7496CF;
+   color: #000000;
+}
+.dawn_code .StringConstant {
+   font-weight: bold;
+   color: #696969;
+}
+.dawn_code .MarkupUnderline {
+   text-decoration: underline;
+   color: #080808;
+}
+.dawn_code .MarkupHeading {
+   font-weight: bold;
+   color: #19356D;
+}
+.dawn_code .SupportConstant {
+   color: #B4371F;
+}
+.dawn_code .MarkupQuote {
+   background-color: #C5C5C5;
+   color: #0B6125;
+   font-style: italic;
+}
+.dawn_code .StringRegexpSpecial {
+   font-weight: bold;
+   color: #CF5628;
+}
+.dawn_code .InvalidIllegal {
+   background-color: #B52A1D;
+   color: #F8F8F8;
+   font-style: italic;
+}
+.dawn_code .MarkupDeleted {
+   color: #B52A1D;
+}
+.dawn_code .MarkupRaw {
+   background-color: #C5C5C5;
+   color: #234A97;
+}
+.dawn_code .SupportFunction {
+   color: #693A17;
+}
+.dawn_code .PunctuationSeparator {
+   color: #794938;
+}
+.dawn_code .StringRegexp {
+   color: #CF5628;
+}
+.dawn_code .StringEmbeddedSource {
+   background-color: #829AC2;
+   color: #080808;
+}
+.dawn_code .MarkupLink {
+   color: #234A97;
+   font-style: italic;
+}
+.dawn_code .MarkupBold {
+   font-weight: bold;
+   color: #080808;
+}
+.dawn_code .StringVariable {
+   color: #234A97;
+}
+.dawn_code .String {
+   color: #0B6125;
+}
+.dawn_code .Keyword {
+   color: #794938;
+}
+.dawn_code {
+   background-color: #F5F5F5;
+   color: #080808;
+}
+.dawn_code .MarkupItalic {
+   color: #080808;
+   font-style: italic;
+}
+.dawn_code .InvalidDeprecated {
+   font-weight: bold;
+   color: #B52A1D;
+}
+.dawn_code .Variable {
+   color: #234A97;
+}
+.dawn_code .Entity {
+   color: #BF4F24;
+}
+.dawn_code .Comment {
+   color: #5A525F;
+   font-style: italic;
+}

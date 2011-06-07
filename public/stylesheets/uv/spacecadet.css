@@ -1,0 +1,51 @@
+.spacecadet_code .Constant {
+   color: #BF9960;
+}
+.spacecadet_code .Support {
+   color: #8A4B66;
+}
+.spacecadet_code .InheritedClass {
+   font-style: italic;
+}
+.spacecadet_code .LibraryVariable {
+}
+.spacecadet_code .Storage {
+   color: #9EBF60;
+}
+.spacecadet_code .line-numbers {
+   background-color: #40002F;
+   color: #FFFFFF;
+}
+.spacecadet_code {
+   background-color: #0D0D0D;
+   color: #DDE6CF;
+}
+.spacecadet_code .TagName {
+}
+.spacecadet_code .Exception {
+   color: #893062;
+}
+.spacecadet_code .LibraryConstant {
+}
+.spacecadet_code .Invalid {
+   background-color: #5F0047;
+}
+.spacecadet_code .LibraryClassType {
+}
+.spacecadet_code .TagAttribute {
+}
+.spacecadet_code .Keyword {
+   color: #728059;
+}
+.spacecadet_code .String {
+   color: #805978;
+}
+.spacecadet_code .Entity {
+   color: #6078BF;
+}
+.spacecadet_code .Variable {
+   color: #596380;
+}
+.spacecadet_code .Comment {
+   color: #473C45;
+}

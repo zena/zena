@@ -1,0 +1,104 @@
+.magicwb_amiga_code .MarkupQuoteEmail {
+   color: #00F0C9;
+}
+.magicwb_amiga_code .EmbeddedSource {
+   background-color: #8A9ECB;
+}
+.magicwb_amiga_code .InheritedClass {
+   font-style: italic;
+}
+.magicwb_amiga_code .TypeName {
+   text-decoration: underline;
+}
+.magicwb_amiga_code .Number {
+   color: #FFFFFF;
+}
+.magicwb_amiga_code .LibraryVariable {
+   color: #3A68A3;
+}
+.magicwb_amiga_code .Storage {
+   font-weight: bold;
+   color: #3A68A3;
+}
+.magicwb_amiga_code .line-numbers {
+   background-color: #B1B1B1;
+   color: #000000;
+}
+.magicwb_amiga_code .IncludeUser {
+   background-color: #969696;
+   color: #FFA995;
+}
+.magicwb_amiga_code .ObjectiveCMethodCall {
+   color: #000000;
+}
+.magicwb_amiga_code .ConstantUserDefined {
+   background-color: #1D1DEA;
+   color: #FFA995;
+}
+.magicwb_amiga_code .LibraryConstant {
+   color: #FFFFFF;
+}
+.magicwb_amiga_code .EntityName {
+   font-weight: bold;
+   color: #0000FF;
+}
+.magicwb_amiga_code .ConstantBuiltIn {
+   font-weight: bold;
+   color: #FFA995;
+}
+.magicwb_amiga_code .MarkupRaw {
+   background-color: #0000FF;
+   color: #FFFFFF;
+}
+.magicwb_amiga_code .MarkupListItem {
+   color: #4D4E60;
+}
+.magicwb_amiga_code .FunctionArgument {
+   font-style: italic;
+}
+.magicwb_amiga_code .ObjectiveCMethodCall1 {
+   font-style: italic;
+}
+.magicwb_amiga_code .MarkupQuoteDoubleEmail {
+   color: #4C457E;
+}
+.magicwb_amiga_code .IncludeSystem {
+   background-color: #969696;
+   color: #FFA995;
+   font-style: italic;
+}
+.magicwb_amiga_code .Invalid {
+   background-color: #797979;
+   color: #FFFFFF;
+}
+.magicwb_amiga_code .LibraryClassType {
+   color: #FFA995;
+}
+.magicwb_amiga_code .LibraryFunction {
+   color: #E5B3FF;
+}
+.magicwb_amiga_code .TagAttribute {
+   color: #3A68A3;
+   font-style: italic;
+}
+.magicwb_amiga_code .Keyword {
+   font-weight: bold;
+}
+.magicwb_amiga_code .String {
+   background-color: #EA1D1D;
+   color: #FFFFFF;
+}
+.magicwb_amiga_code {
+   background-color: #969696;
+   color: #000000;
+}
+.magicwb_amiga_code .FunctionName {
+   color: #FFA995;
+}
+.magicwb_amiga_code .Variable {
+   color: #FFA995;
+}
+.magicwb_amiga_code .Comment {
+   color: #8D2E75;
+   font-style: italic;
+}
