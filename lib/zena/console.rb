@@ -19,6 +19,7 @@ module Zena
       if list.first.kind_of?(Node)
         list = list.map(&:visible_versions).flatten
       end
+
       list.each do |rec|
         prop  = rec.prop
         value = prop.delete(old_key)
@@ -27,7 +28,7 @@ module Zena
           Zena::Db.execute "UPDATE #{rec.class.table_name} SET properties=#{Zena::Db.quote(rec.class.encode_properties(prop))} WHERE id=#{rec[:id]}"
         end
       end
-      true
+      "Renamed '#{old_key}' to '#{new_key}' in #{list.size} #{list.first.class.to_s.downcase.pluralize}"
     end
 
     def field_to_prop(list, native_key, prop_key)

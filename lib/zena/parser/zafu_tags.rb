@@ -137,7 +137,7 @@ module Zena
 
         src = @params[key]
         if src && src[0..0] != '/' && src[0..6] != 'http://'
-          @params[key] = @options[:helper].send(:template_url_for_asset, :src => src, :base_path => @options[:base_path], :type => type)
+          @params[key] = @options[:helper].send(:template_url_for_asset, :src => src, :base_path => @options[:base_path], :type => type) || @params[key]
         end
 
         res   = "<#{@html_tag}#{params_to_html(@params)}"
