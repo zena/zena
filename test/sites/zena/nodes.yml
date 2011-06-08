@@ -250,30 +250,32 @@ wikiSkin:
   parent:          collections
 
 wiki_Project_changes_xml_zafu:
+  zip:             48
   class:           Template
   parent:          wikiSkin
 
 wiki_Page_changes_zafu:
+  zip:             49
   class:           Template
   parent:          wikiSkin
 
 wiki_Node_zafu:
+  zip:             50
   class:           Template
   parent:          wikiSkin
 
 skins:
+  zip:             51
   class:           Page
   parent:          zena
 
 default:
+  zip:             52
   class:           Skin
   parent:          skins
 
-Node_search_zafu:
-  class:           Template
-  parent:          default
-
 img:
+  zip:             53
   class:           Page
   parent:          default
   v_lang:          en
@@ -281,9 +283,13 @@ img:
     title:         img
 
 style_css:
-  zip:             53
+  zip:             54
   class:           TextDocument
   parent:          img
+
+Node_search_zafu:
+  class:           Template
+  parent:          default
 
 Node_zafu:
   class:           Template

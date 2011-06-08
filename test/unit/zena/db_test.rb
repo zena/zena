@@ -45,7 +45,7 @@ class DbTest < Zena::Unit::TestCase
      {"_id"=>"status", "zip"=>"22"},
      {"_id"=>"strange", "zip"=>"36"},
      {"_id"=>"skins", "zip"=>"51"},
-     {"_id"=>"style_css", "zip"=>"53"}], Zena::Db.fetch_attributes(['zip','_id'], 'nodes', "_id like 's%' and site_id = #{sites_id(:zena)} ORDER BY zip")
+     {"_id"=>"style_css", "zip"=>"54"}], Zena::Db.fetch_attributes(['zip','_id'], 'nodes', "_id like 's%' and site_id = #{sites_id(:zena)} ORDER BY zip")
   end
 
   def test_migrated_once

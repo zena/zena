@@ -531,7 +531,6 @@ module Zena
         super
       end
 
-
       def ignore_key?(k)
         super || ['class'].include?(k)
       end

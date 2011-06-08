@@ -51,7 +51,9 @@ module Zena
           end
 
 
-          list = Node.find(:all, opts)
+          list = Node.send(:with_exclusive_scope) do
+            Node.find(:all, opts)
+          end
 
           list = Hash[*(list.map{|e| [e['zip'].to_i, sym == :node ? e : e[sym.to_s]]}).flatten]
 

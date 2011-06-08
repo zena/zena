@@ -313,7 +313,7 @@ drop_param:
 drop_in_each:
   src: "<ul do='pages'><li do='each'><ul do='drop' set='reference'>...</ul></li></ul>"
   tem: "/<ul class='drop' id='<%= %Q\{list1_#\{var2.zip\}\} %>'><% add_drop_id\(%Q\{list1_#\{var2.zip\}\}/"
-  'ajax/drop/in/each/en/list1.erb': "/<ul class='drop' id='<%= ndom_id\(@node\) %>'><% add_drop_id\(ndom_id\(@node\)/"
+  'ajax/drop/in/each/en/list1.erb': "/<ul class='drop' id=.*ndom_id.*add_drop_id.*drop_node_path.*ndom_id/"
 
 drop_param_in_each:
   src: "<r:pages do='each' do='drop' change='params' d='%{foo}'><r:show eval='params[:d]'/></r:pages>"

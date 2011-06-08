@@ -314,10 +314,6 @@ module Zena
           markup.tag ||= 'div'
 
           dom_id, dom_prefix = get_dom_id(target)
-          if @context[:saved_template]
-            # Forces ndom_id.
-            dom_id = node.dom_id(:code => true)
-          end
 
           markup.append_param(:class, 'drop') unless markup.params[:class] =~ /drop/
 
@@ -473,6 +469,11 @@ module Zena
           # FIXME: HACK
           # This dom_id detection code is crap but it fixes the drop in each bug.
           def get_dom_id(target)
+            if @context[:saved_template]
+              # Forces ndom_id.
+              return dom_id = node.dom_id(:code => true)
+            end
+
             if dom_id = target.markup.dyn_params[:id] || target.markup.params[:id]
               if dom_id =~ /^<%=\s+(.*?)\s+%>_form$/
                 # Rare case when we have a [drop] with [add]. (add element and then drop on it).

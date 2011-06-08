@@ -462,6 +462,15 @@ module Zena
 
             res = "<div id='dev' class='devb'><ul>\n"
             used_nodes.each do |name, nodes|
+              seen = {}
+              nodes.reject! do |path, node|
+                if seen[node.id]
+                  true
+                else
+                  seen[node.id] = true
+                  false
+                end
+              end
               next if nodes.empty?
               res << "  <li><a class='group' onclick='$(\"dev_#{name}\").toggle();' href='#'>#{name}</a>\n"
               res << "  <table class='dev_pop' id='dev_#{name}'#{name == 'images' ? " style='display:none;'" : ''}>\n"
@@ -479,7 +488,9 @@ module Zena
 <% end -%> #{node_action_link('add_doc', "#{@skin.zip}", :text => '')}</td></tr>}
               end
               nodes.each do |path, node|
-                res << "    <tr><td class='actions'>#{zafu_helper.send(:node_actions, node)}</td><td>&nbsp;#{zafu_helper.send(:link_to, path.join('/'), zen_path(node))}</td></tr>\n"
+                rel_path = node.fullpath.rel_path(node.section.fullpath)
+                path = node.section.title + ' / ' + (secure(Node) { Node.fullpath_map(rel_path, :title)} || []).join(' / ')
+                res << "    <tr><td class='actions'>#{zafu_helper.send(:node_actions, node)}</td><td>&nbsp;#{zafu_helper.send(:link_to, path, zen_path(node))}</td></tr>\n"
               end
               res << "  </table>\n"
               res << "  </li>\n"
