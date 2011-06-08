@@ -7,12 +7,12 @@ default:
 block:
   src: "<r:parent><r:block name='foobar' do='title'/></r:parent>"
   tem: "<% if var1 = @node.parent %><div id='foobar'><%= var1.prop['title'] %></div><% end %>"
-  'ajax/block/en/foobar.erb': "<div id='foobar'><%= @node.prop['title'] %></div>"
+  'ajax/block/en/foobar.erb': "<div id='<%= ndom_id(@node) %>'><%= @node.prop['title'] %></div>"
 
 add:
   src: "<ul id='children' do='nodes'><li do='each' do='link'/><li do='add'/></ul>"
   tem: "/\[\"children_add\", \"children_form\"\].each\(Element.toggle\)/"
-  'ajax/add/en/children_form.erb': "/class='form' id='<%= ndom_id\(@node\) %>'/"
+  'ajax/add/en/children_form.erb': "/class='form' id='<%= ndom_id\(@node\) %>_form'/"
   'ajax/add/en/children.erb': "<li id='<%= ndom_id(@node) %>'><a href='<%= zen_path(@node) %>'><%= @node.prop['title'] %></a></li>"
 
 edit_not_each:
@@ -122,7 +122,7 @@ make_form:
   src: "<ul do='children'><li do='each' do='title'/><li do='add'/></ul>"
   tem: "/<li style='display:none;' class='form' id='list1_form'>.*remote_form_for\(:node, var2_new"
   'ajax/make/form/en/list1.erb': "<li id='<%= ndom_id(@node) %>'><%= @node.prop['title'] %></li>"
-  'ajax/make/form/en/list1_form.erb': "/<li class='form' id='<%= ndom_id\(@node\) %>'>/"
+  'ajax/make/form/en/list1_form.erb': "/<li class='form' id='<%= ndom_id\(@node\) %>_form'>/"
 
 each_edit_cannot_write:
   context:
@@ -171,7 +171,7 @@ live_filter:
   src: "<r:filter live='true'/><r:block><ol do='pages where title like \"#{params[:f]}%\"'><li do='each' do='title'/></ol></r:block>"
   # Make sure a unique_name is set for the given block
   tem: "/name='t_url' value='ajax/live/filter/list1'.*<% filter_form\(@node.*ml1.value LIKE \?.*, \"#\{params\[:f\]\}%\"/"
-  'ajax/live/filter/en/list1.erb': "/<div id='list1.*, \"#\{params\[:f\]\}%\".*var2.prop\['title'\]/"
+  'ajax/live/filter/en/list1.erb': "/<div id='<%= ndom_id\(@node\).*, \"#\{params\[:f\]\}%\".*var2.prop\['title'\]/"
   res: "/<input type='text' name='f'.*<div id='list1'><ol><li>crocodiles</li><li>Keeping things clean !</li><li>status title</li></ol></div>/"
 
 live_filter_single_element:
@@ -179,7 +179,7 @@ live_filter_single_element:
     node: cleanWater
   src: "<r:filter live='true'/><r:block><r:page where='title like \"#{params[:f]}%\"' find='first'><b do='title'/></r:page></r:block>"
   tem: "/, \"#\{params\[:f\]\}%\"/"
-  'ajax/live/filter/single/element/en/list1.erb': "/<div id='list1.*params\[:f\].*var1.prop\['title'\]/"
+  'ajax/live/filter/single/element/en/list1.erb': "/<div id=.*params\[:f\].*var1.prop\['title'\]/"
   res: "/<input type='text' name='f'.*<div id='list1'><b>crocodiles</b></div>/"
 
 live_filter_select_options:
@@ -187,7 +187,7 @@ live_filter_select_options:
     node: cleanWater
   src: "<r:filter live='true' do='select' param='f' values='1,2'/><r:block><ol do='pages where title like \"#{params[:f]}%\"'><li do='each' do='title'/></ol></r:block>"
   tem: "/select name=.f.><%= options_for_select\(\[.1., .2.\], params\[:f\].to_s/"
-  'ajax/live/filter/select/options/en/list1.erb': "/<div id='list1'.*params\[:f\]/"
+  'ajax/live/filter/select/options/en/list1.erb': "/<div id='<%= ndom_id\(@node\) %>'.*params\[:f\]/"
   res: "/<select name='f'.*<div id='list1'><ol><li>crocodiles</li><li>Keeping things clean !</li><li>status title</li></ol></div>/"
 
 draggable_do_syntax:

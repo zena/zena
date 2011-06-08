@@ -206,7 +206,7 @@ module Zena
               opts[:form_cancel] = "#{cancel_pre}<a href='#' onclick='[\"#{dom_name}_add\", \"#{dom_name}_form\"].each(Element.toggle);return false;'>#{cancel_text}</a>#{cancel_post}\n"
             else
               # Saved form
-              opts[:id]          = "<%= ndom_id(#{node}) %>"
+              opts[:id]          = "<%= ndom_id(#{node}) %>_form"
 
               opts[:form_tag]    = %Q{
 <% remote_form_for(:#{node.form_name}, #{node}, :url => #{node}.new_record? ? #{node.form_name.pluralize}_path : #{node.form_name}_path(#{node}.zip), :html => {:method => #{node}.new_record? ? :post : :put, :id => \"\#{ndom_id(#{node})}_form_t\"}) do |f| %>
@@ -272,15 +272,8 @@ module Zena
             end
 
             hidden_fields['t_url'] = template_url
-
-
-            # t_id = node zip to use when rendering partial (enable back when we have a use case).
-            # if t_id = @params[:t_id]
-            #   hidden_fields['t_id']  = parse_attributes_in_value(t_id)
-            # end
-
-            # FIXME: replace 'dom_id' with 'dom_name' ?
-            erb_dom_id = @context[:saved_template] ? '<%= params[:dom_id] %>' : node.dom_prefix
+                                                                                 # This is a hack to fix wrong dom_prefix in drop+add.
+            erb_dom_id = @context[:saved_template] ? "<%= ndom_id(#{node}) %>" : (@context[:dom_prefix] || node.dom_prefix)
 
             hidden_fields['dom_id'] = erb_dom_id
 
@@ -289,8 +282,15 @@ module Zena
               # 1. @node
               # 2. var1 = @node.children
               # 3. var1_new = Node.new
-              if node.opts[:new_record] || @context[:saved_template]
-                hidden_fields['node[parent_id]'] = "<%= #{@context[:in_add] ? "#{node.up.up}.zip" : "#{node}.parent_zip"} %>"
+              if node.opts[:new_record] #|| @context[:saved_template]
+                if @context[:saved_template] || !@context[:in_add]
+                  # TODO: we should not add parent_id on every saved_template. Why is this needed ?
+                  parent_id = "#{node}.parent_zip"
+                else
+                  parent_id = "#{node.up.up}.zip"
+                end
+
+                hidden_fields['node[parent_id]'] = "<%= #{parent_id} %>"
               end
             elsif node.will_be?(Comment)
               # FIXME: the "... || '@node'" is a hack and I don't understand why it's needed...
@@ -303,28 +303,28 @@ module Zena
             if add_block = @context[:add]
               params = add_block.params
               [:after, :before, :top, :bottom].each do |sym|
-                if params[sym]
+                if value = params[sym]
                   hidden_fields['position'] = sym.to_s
-                  if params[sym] == 'self'
+                  if value == 'self'
                     if sym == :before
                       hidden_fields['reference'] = "#{erb_dom_id}_add"
                     else
                       hidden_fields['reference'] = "#{erb_dom_id}_form"
                     end
                   else
-                    hidden_fields['reference'] = params[sym]
+                    hidden_fields['reference'] = value
                   end
                   break
                 end
               end
               if params[:done] == 'focus'
                 if params[:focus]
-                  hidden_fields['done'] = "'$(\"#{erb_dom_id}_#{@params[:focus]}\").focus();'"
+                  hidden_fields['done'] = "'$(\"#{erb_dom_id}_#{params[:focus]}\").focus();'"
                 else
                   hidden_fields['done'] = "'$(\"#{erb_dom_id}_form_t\").focusFirstElement();'"
                 end
               elsif params[:done]
-                hidden_fields['done'] = CGI.escape(params[:done]) # .gsub("NODE_ID", @node.zip).gsub("PARENT_ID", @node.parent_zip)
+                hidden_fields['done'] = CGI.escape(params[:done])
               end
             else
               # ajax form, not in 'add'
@@ -346,7 +346,7 @@ module Zena
           end
 
           if node.will_be?(Node) && (@params[:klass] || @context[:klass])
-            hidden_fields['node[klass]'] = @params[:klass] || @context[:klass]
+            hidden_fields['node[klass]'] = @params[:klass] || @context[:klass].name
           end
 
           if node.will_be?(Node) && @params[:mode]
@@ -376,9 +376,12 @@ module Zena
 
           # Read @params
           @params.each do |key, value|
-            next if [:klass, :done].include?(key)
-            code = ::RubyLess.translate_string(self, value)
-            if code.literal.kind_of?(String)
+            # r_form params
+            next if [:klass, :done, :on].include?(key)
+            # r_each params (make_form)
+            next if [:join].include?(key)
+            code = ::RubyLess.translate(self, value)
+            if code.literal.kind_of?(String) || code.literal.kind_of?(Number)
               hidden_fields[key] = "#{code.literal}"
             else
               hidden_fields[key] = "<%= #{code} %>"
@@ -505,7 +508,7 @@ module Zena
             [:style, :class, :onclick, :size, :time].each do |key|
               html_params << ":#{key} => #{@params[key].inspect}" if @params[key]
             end
-            html_params << ":id=>\"#{dom_id}_#{attribute}\"" if @context[:dom_prefix]
+            html_params << ":id=>\"#{node.dom_id(:erb => false)}_#{attribute}\"" if node.dom_prefix
             "<%= date_box(#{node}, #{attribute.inspect}, :value => #{value}, #{html_params.join(', ')}) %>"
           when 'id'
             return parser_error("select id without name") unless attribute

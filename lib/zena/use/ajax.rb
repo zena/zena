@@ -8,10 +8,8 @@ module Zena
         # Return the DOM id for a node. We had to name this method 'ndom_id' because we want
         # to avoid the clash with Rails' dom_id method.
         def ndom_id(node)
-          if node.kind_of?(Node)
-            if node.new_record?
-              return "#{params[:dom_id]}_form"
-            elsif params[:action] == 'create' && !params[:udom_id]
+          if node.kind_of?(Node) && !node.new_record?
+            if params[:action] == 'create' && !params[:udom_id]
               return "#{params[:dom_id]}_#{node.zip}"
             end
           end
@@ -37,6 +35,7 @@ module Zena
 
           if params[:t_id] && obj.errors.empty?
             obj = secure(Node) { Node.find_by_zip(params[:t_id])}
+            @node = obj
           end
 
           base_class = obj.kind_of?(Node) ? Node : obj.class
@@ -46,11 +45,11 @@ module Zena
             page.replace "#{params[:dom_id]}_form", :file => template_path_from_template_url + "_form.erb"
           elsif @errors || !obj.errors.empty?
             # B. could not update/delete: show errors
-            case params[:action]
-            when 'destroy', 'drop'
-              page.insert_html :top, params[:dom_id], :inline => render_errors
+            form_file = template_path_from_template_url + "_form.erb"
+            if File.exist?(form_file)
+              page.replace "#{params[:dom_id]}_form", :file => form_file
             else
-              page.replace "#{params[:dom_id]}_form", :file => template_path_from_template_url + "_form.erb"
+              page.insert_html :top, params[:dom_id], :inline => render_errors
             end
           elsif params[:udom_id]
             if params[:udom_id] == '_page'
@@ -471,7 +470,10 @@ module Zena
           # This dom_id detection code is crap but it fixes the drop in each bug.
           def get_dom_id(target)
             if dom_id = target.markup.dyn_params[:id] || target.markup.params[:id]
-              if dom_id =~ /^<%=\s+(.*?)\s+%>$/
+              if dom_id =~ /^<%=\s+(.*?)\s+%>_form$/
+                # Rare case when we have a [drop] with [add]. (add element and then drop on it).
+                dom_id = $1
+              elsif dom_id =~ /^<%=\s+(.*?)\s+%>$/
                 dom_id = $1
               else
                 dom_id = "%Q{#{dom_id}}"

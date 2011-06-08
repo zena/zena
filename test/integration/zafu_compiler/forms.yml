@@ -255,9 +255,9 @@ crop:
   js: '/Zena.Div_editor\("imglist1"/'
 
 hidden_fields_in_form_tag:
-  src: "<r:form foo='bar'></r:form>"
+  src: "<r:form foo='%{bar}'></r:form>"
   tem: "/<input type='hidden' name='foo' value='bar'/>/"
 
 hidden_fields_in_form_tag_dynamic:
-  src: "<r:form  node[log]='#{title}'></r:form>"
-  tem: "/<input type='hidden' name='node\[log\]' value='<%= \"#\{@node.prop\['title'\]\}\" %>/"
+  src: "<r:form  node[log]='title'></r:form>"
+  tem: "/<input type='hidden' name='node\[log\]' value='<%= @node.prop\['title'\] %>/"

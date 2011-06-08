@@ -1,13 +1,13 @@
 <div id='notes' do='posts' in='project' limit='10' order='date desc'>
   <ul class='note_list'>
-    <li do='add' after='self' klass='Post'/>
+    <li do='add' after='self' klass='Post' done='focus' focus='title'/>
     <li class='inline_form' do='form'>
       <p class='node_title'><r:input type='text' name='title' size='25'/></p>
       <p class='node_klass'>  <r:select name='klass' root_class='Note' selected='Post'/></p>
       <p class='node_date'> <r:input type='date_box' name='date'/> </p>
       <p class='validate'>     <r:input type="submit" value='#{trans("validate")}'/></p>
     </li>
-    <li class='note' do='each' live='true'>
+    <li class='note' do='each'>
       <div class='header'>
         <p class='log_at' do='show' attr='date' tformat='full_date'>04.10</p>
         <h2 class='title' do='title' actions='all'/>

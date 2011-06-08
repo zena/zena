@@ -150,7 +150,7 @@ module Zena
             alias_method_chain :configure_connection, :zena
           end
 
-          ActiveRecord::Base.class_eval do
+          class << ActiveRecord::Base
             def transaction_with_deadlock_retry(*args, &block)
               retry_count = 0
 
@@ -162,6 +162,7 @@ module Zena
                 if error.message =~ DEADLOCK_REGEX
                   retry_count += 1
                   if retry_count < DEADLOCK_MAX_RETRY
+                    Node.logger.warn "#{Time.now.strftim('%Y-%m-%d %H:%M:%S')} [#{current_site.host}] Retry (#{retry_count}) #{error.message}"
                     retry
                   else
                     raise
@@ -173,8 +174,8 @@ module Zena
               end
             end
             alias_method_chain :transaction, :deadlock_retry
-          end
-        end
+          end # class << ActiveRecord::Base
+        end # prepare_connection
       end # class << self
     end # Mysql
   end # DbHelper

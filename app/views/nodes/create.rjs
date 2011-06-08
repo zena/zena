@@ -1,16 +1,1 @@
-if params[:u_url]
-  update_page_content(page, @node)
-elsif @node.new_record?
-  page.replace "#{params[:dom_id]}_form", :file => template_path_from_template_url + "_form.erb"
-else
-  pos = params[:position] || :before
-  ref = params[:reference] || "#{params[:dom_id]}_add"
-  page.insert_html pos.to_sym, ref, :file => template_path_from_template_url + ".erb"
-  @node = @node.parent.new_child(:class => @node.klass)
-  page.replace "#{params[:dom_id]}_form", :file => template_path_from_template_url + "_form.erb"
-  if params[:done]
-    page << params[:done]
-  else
-    page.toggle "#{params[:dom_id]}_form", "#{params[:dom_id]}_add"
-  end
-end
+update_page_content(page, @node)

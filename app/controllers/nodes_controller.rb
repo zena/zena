@@ -116,7 +116,7 @@ class NodesController < ApplicationController
     other  = secure!(Node) { Node.find_by_zip(other_zip)}
 
     if attributes = params[:node]
-      if params[:node][:id] == '[id]'
+      if params[:node][:id] == '#{id}'
         # swap (a way to preview content by drag & drop)
         @node = other
       elsif params[:change] == 'receiver'
@@ -132,7 +132,7 @@ class NodesController < ApplicationController
           @errors = other.errors
         end
       end
-    elsif params[:change] == 'params'
+    else
       p = params.dup
       p.delete(:action)
       p.delete(:controller)

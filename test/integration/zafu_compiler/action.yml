@@ -69,7 +69,7 @@ action:
 swap:
   src: "<span do='block' do='swap' attr='weight' states='100,-100' do='weight'/>"
   tem: '/:dom_id => %Q\{list1\}, :t_url => "action/swap/list1"/'
-  '/action/swap/en/list1.erb': "/<span id='list1'>/"
+  '/action/swap/en/list1.erb': "/<span id='<%= ndom_id\(@node\) %>'>/"
 
 swap_with_params:
   src: "<span do='block' do='swap' node[origin]='%{me}' attr='weight' states='100,-100' do='weight'/>"

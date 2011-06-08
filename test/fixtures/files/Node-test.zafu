@@ -84,13 +84,13 @@ This filter updates the "distant filter block test"
 </ul>
 
 <h3>calendar test</h3>
-<div do='calendar' find='notes in site'/>
+<div do='calendar' select='posts in site' attr='date'/>
 
 <h3>week calendar</h3>
-<div do='calendar' find='notes in site' type='week'/>
+<div do='calendar' select='posts in site' attr='date' type='week'/>
 
 <h3>tiny calendar</h3>
-<div do='calendar' find='notes in site' size='tiny'/>
+<div do='calendar' select='posts in site' attr='date' size='tiny'/>
 
 <h2>assign calendar</h2>
 <r:root>
@@ -104,7 +104,7 @@ This filter updates the "distant filter block test"
 <div id='edit' do='block'>
   <h3>edit block test</h3>
     <r:text/>
-    <r:edit publish='true'><r:if test='1 eq 2'>blue<r:else>edit in else</r:else></r:if></r:edit>
+    <r:edit publish='true'><r:if test='1 == 2'>blue<r:else>edit in else</r:else></r:if></r:edit>
 </div>
 
 <hr/>
@@ -139,7 +139,7 @@ This filter updates the "distant filter block test"
 <h2>data test</h2>
 <ol do='data'>
   <li do='each'><r:edit/> <b do='[text]'/> <r:show attr='value_a'/> <r:show attr='value_b'/><r:unlink/></li>
-  <li do='form'><r:cancel/> <input name='text'/> <input name='value_a'/> <input name='value_b'/> <input type='submit'/></li>
+  <li do='form'><r:cancel/> <r:input name='text'/> <r:input name='value_a'/> <r:input name='value_b'/> <r:input type='submit'/></li>
   <li do='add' done='focus'/>
   <r:set var='hours' do='stat' find='sum' from='value_a'/> <r:set var='exp' do='stat' find='sum' of='value_b'/>
   <li><b><r:show var='hours'/> * 150.00 = <r:show eval='hours * 150'/> + <r:show var='exp'/> = <r:show eval='( hours * 150 ) + exp'/></b></li>
@@ -153,7 +153,7 @@ This filter updates the "distant filter block test"
     <li>value: <b do='[value_a]'/></li>
     <li do='each'><r:edit/> <b do='[text]'/> <r:show attr='value_a'/> <r:show attr='value_b'/><r:unlink/></li>
   </r:group>
-    <li do='form'><r:cancel/> <input name='text'/> <input name='value_a'/> <input name='value_b'/> <input type='submit'/></li>
+    <li do='form'><r:cancel/> <r:input name='text'/> <r:input name='value_a'/> <r:input name='value_b'/> <r:input type='submit'/></li>
     <li do='add' done='focus'/>
     <r:set var='hours' do='stat' find='sum' from='value_a'/> <r:set var='exp' do='stat' find='sum' of='value_b'/>
     <li><b><r:show var='hours'/> * 150.00 = <r:show eval='hours * 150'/> + <r:show var='exp'/> = <r:show eval='( hours * 150 ) + exp'/></b></li>
@@ -164,7 +164,7 @@ This filter updates the "distant filter block test"
 <h2>data block test</h2>
 <ol id='bdata' do='block' do='data'>
   <li do='each'><r:edit/> <b do='[text]'/> <r:show attr='value_a'/> <r:show attr='value_b'/><r:unlink/></li>
-  <li do='form'><r:cancel/> <input name='text'/> <input name='value_a'/> <input name='value_b'/> <input type='submit'/></li>
+  <li do='form'><r:cancel/> <r:input name='text'/> <r:input name='value_a'/> <r:input name='value_b'/> <r:input type='submit'/></li>
   <li do='add' done='focus'/>
   <r:set var='hours' do='stat' find='sum' from='value_a'/> <r:set var='exp' do='stat' find='sum' of='value_b'/>
   <li><b><r:show var='hours'/> * 150.00 = <r:show eval='hours * 150'/> + <r:show var='exp'/> = <r:show eval='( hours * 150 ) + exp'/></b></li>
@@ -210,21 +210,21 @@ This filter updates the "distant filter block test"
 <h3>drop set attributes</h3>
 
 <ul do='projects in site'>
-  <li style='border:1px solid #400; min_width:100px; min_height:100px;' do='each'><r:drop origin='I am an icon for #{title}' icon_for_id='#{id}'><b do='title' actions='all'/><r:icon where='1'><r:unlink do='img' mode='pv'/> <r:origin/> </r:icon></r:drop>
+  <li style='border:1px solid #400; min_width:100px; min_height:100px;' do='each'><r:drop node[origin]='%Q{I am an icon for #{title}}' node[icon_for_id]='id'><b do='title' actions='all'/><r:icon where='1'><r:unlink do='img' mode='pv'/> <r:origin/> </r:icon></r:drop>
 </li>
 </ul>
 
 <h3>drop reload with param (comment on receiving)</h3>
-
-<div style='border:1px solid #400; min_width:100px; min_height:100px;' do='drop' change='params' params[d]='\#{id}' do='if' test='params[:d]'>
-  <r:node where='id == #{params[:d]}' in='site'>
-    Change icon to <r:img mode='tiny'/> ?
-    <r:main store='icon' do='form'>
+//! The strange %q{#{id}} means "lazy evaluation on drop".
+<div style='border:1px solid #400; min_width:100px; min_height:100px;' do='drop' change='params' d='%q{#{id}}' do='if' test='params[:d]'>
+  <r:node where='id = #{params[:d]}' in='site'>
+    Change icon to <r:img mode='tiny'/> (<r:title/>)?
+    <r:set icon='this' do='main' do='form'>
       <r:input type='hidden' name='icon_id' value='#{icon.id}'/>
       <r:input type='hidden' name='m_title' value='icon changed to #{icon.title}'/>
       <r:textarea name='m_text'/>
-      <input type='submit'/>
-    </r:main>
+      <r:input type='submit'/>
+    </r:set>
   </r:node>
   <r:else>
     <r:icon do='img' mode='pv'/>
@@ -241,25 +241,29 @@ This filter updates the "distant filter block test"
 <h3>drop reload with param (comment on dropped)</h3>
 
 <r:images in='site' do='each' draggable='true' do='img' mode='tiny'/>
-
-<div style='border:1px solid #400; min_width:100px; min_height:100px;' do='drop' change='params' d='\#{id}' do='if' test='params[:d]'>
+//! The strange %q{#{id}} means "lazy evaluation on drop".
+<div style='border:1px solid #400; min_width:100px; min_height:100px;' do='drop' change='params' d='%q{#{id}}' do='if' test='params[:d]'>
   <r:node where='id = #{params[:d]}' in='site'>
-    Change icon to <r:img mode='tiny'/> ?
-    <r:form t_id='#{main.id}'>
-      <r:input type='hidden' name='icon_for_id' value='#{main.id}'/>
-      <r:input type='hidden' name='m_title' value='icon for #{main.title}'/>
-      <r:textarea name='m_text'/>
-      <input type='submit'/>
+    <r:img mode='tiny'/> (<r:title/>) Set as icon for <r:main do='title'/> ?
+    //! We need to set 't_id' (template rendering object id) so that after form submit, the
+    //! original (main) element is rendered and not the icon.
+    <r:form node[icon_for_id]='main.id' node[m_title]='%{icon for #{main.title}}' t_id='main.id'>
+      <r:input name='m_text'/>
+      <r:input type='submit'/>
     </r:form>
   </r:node>
   <r:else>
-    please drop a node to change the icon
-    <r:icon><r:img mode='pv'/>
-    <ul do='comments'>
-    <li do='each'><b do='title'/> <b do='author.title'/>
-    <div do='zazen' attr='text'/>
-    </li>
-    </ul></r:icon></r:else>
+    please drop a node to change the icon in <b do='title'/>
+    <r:icon>
+      <r:img mode='pv'/>
+      <ul do='comments'>
+        <li do='each'><b do='title'/>
+          <b do='author.title'/>
+          <div do='zazen' attr='text'/>
+        </li>
+      </ul>
+    </r:icon>
+  </r:else>
 </div>
 
 <hr/>
@@ -278,18 +282,23 @@ This filter updates the "distant filter block test"
 
 <hr/>
 
+<h2>simplest comments</h2>
+
+<ul do='comments'>
+  <li do='each'><r:zazen attr='text'/></li>
+  <li do='add'/>
+</ul>
+
 <h2>notes &amp; comments</h2>
 
 <div id='notes' do='posts' in='project' limit='10' order='date desc'>
   <ul class='note_list'>
     <li do='add' after='self'/>
     <li class='inline_form' do='form'>
-      <form>
-        <p class='node_title'><input type='text' name='title' size='25'/></p>
-        <p class='node_klass'>  <r:select name='klass' root_class='Note' selected='Post'/></p>
-        <p class='node_date'> <input type='date_box' name='date'/> </p>
-        <p class='validate'>    <input type="submit" value='validate' do='void' tset_value='validate'/></p>
-      </form>
+      <p class='node_title'><r:input type='text' name='title' size='25'/></p>
+      <p class='node_klass'>  <r:select name='klass' root_class='Note' selected='Post'/></p>
+      <p class='node_date'> <r:input type='date_box' name='date'/> </p>
+      <p class='validate'>    <r:input type="submit" value='validate' do='void' tset_value='validate'/></p>
     </li>
     <li class='note' do='each'>
       <div class='header'>
@@ -299,14 +308,14 @@ This filter updates the "distant filter block test"
       </div>
       <r:text/>
 <ul do='comments'>
-<li do='each'><b do='[title]'/> <b do='[author_name]'/>
-<div do='{text}'/>
+<li do='each'><b do='title'/> <b do='author_name'/>
+<div do='zazen' attr='text'/>
 </li>
 <li do='add'/>
 <li do='form'>
-<p><input name='title'/></p>
-<p><textarea name='text'/></p>
-<p><input type='submit'/></p>
+<p><r:input name='title'/></p>
+<p><r:textarea name='text'/></p>
+<p><r:input type='submit'/></p>
 </li>
 </ul>
       <div class='clear'></div>

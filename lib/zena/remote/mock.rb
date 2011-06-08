@@ -1,18 +1,20 @@
 module Zena
   module Remote
     module Mock
-      # Redirect actual request to the integration test.
-      class Request < HTTParty::Request
-        def perform_actual_request
-          # body should contain xml data for post and put (@raw_request.body ?)
-          method  = @raw_request.method.downcase
-          path    = @raw_request.path
-          body    = @raw_request.body
-
-          response = $test_connection.test_request(method, path, body, options[:headers], false)
-          transform_response(response)
+      class Http
+        def initialize(options)
+          @options = options
         end
 
+        def request(raw_request)
+          # body should contain xml data for post and put (@raw_request.body ?)
+          method  = raw_request.method.downcase
+          path    = raw_request.path
+          body    = raw_request.body
+
+          response = $test_connection.test_request(method, path, body, @options[:headers], false)
+          transform_response(response)
+        end
 
         # Transform an ActionController::Response into a Net::HTTP response.
         # Based on code from fakeweb (thanks Chrisk !)
@@ -38,6 +40,13 @@ module Zena
           end
 
           response
+        end
+      end
+
+      # Redirect actual request to the integration test.
+      class Request < HTTParty::Request
+        def http
+          Mock::Http.new(options)
         end
       end
 
