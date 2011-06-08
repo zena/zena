@@ -314,6 +314,10 @@ module Zena
           markup.tag ||= 'div'
 
           dom_id, dom_prefix = get_dom_id(target)
+          if @context[:saved_template]
+            # Forces ndom_id.
+            dom_id = node.dom_id(:code => true)
+          end
 
           markup.append_param(:class, 'drop') unless markup.params[:class] =~ /drop/
 
