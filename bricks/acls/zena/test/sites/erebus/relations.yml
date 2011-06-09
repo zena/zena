@@ -1,0 +1,3 @@
+Contact_Project:
+  source_role:     assigned_contact
+  target_role:     assigned_project

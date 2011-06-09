@@ -1,0 +1,15 @@
+DEFAULTS:
+  created_at:     2011-06-09
+  updated_at:     2011-06-09
+
+# Everyone
+public:
+
+# Everyone with a login
+site:
+
+# Internal group
+erebus:
+
+# Group for external visitors
+sky:

@@ -1,5 +1,5 @@
 if @site.errors.empty?
   page.replace "site#{@site[:id]}", :partial=>"sites/li", :collection=>[@site]
 else
-  page.replace "site#{@site[:id]}", :partial=>"sites/form"
+  page.replace_html "site#{@site[:id]}", :partial=>"sites/form"
 end

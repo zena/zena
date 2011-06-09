@@ -34,9 +34,10 @@ class NodesController < ApplicationController
         format.html { render_and_cache :mode => '+index' }
         format.xml  { render :xml => @node.to_xml }
       end
-    elsif visitor.use_acls?
-      node = visitor.node_without_secure
-      if visitor.acl_authorized?(:read, {:id => node.zip})
+    elsif base_node = visitor.node_without_secure
+      if node = visitor.find_node(nil, base_node.zip, nil, {}, :get)
+        # If the visitor is acl authorized to view his own node,
+        # redirect there.
         redirect_to zen_path(node)
       else
         raise ActiveRecord::RecordNotFound
@@ -218,7 +219,15 @@ class NodesController < ApplicationController
       attrs['klass'] = 'Document'
     end
 
-    @node = secure!(Node) { Node.create_node(attrs) }
+    begin
+      # Make sure we can load parent (also enables ACL to work for us here).
+      parent = visitor.find_node(nil, attrs.delete(:parent_id), nil, {}, :post)
+      @node = parent.new_child(attrs)
+      @node.save
+    rescue ActiveRecord::RecordNotFound
+      # Let normal processing insert errors
+      @node = secure!(Node) { Node.create_node(attrs) }
+    end
     @node.errors.add('file', file_error) if file_error
 
     respond_to do |format|
@@ -232,7 +241,11 @@ class NodesController < ApplicationController
       else
         format.html do
           flash[:error] = error_messages_for('node', :object => @node)
-          redirect_to request.referer
+          if request.referer
+            redirect_to request.referer
+          else
+            raise ActiveRecord::RecordNotFound
+          end
         end
         format.js
         format.xml  { render :xml => @node.errors, :status => :unprocessable_entity }
@@ -541,21 +554,16 @@ class NodesController < ApplicationController
             set_format(asset_and_format)
           end
 
-          if name =~ /^\d+$/
-            @node = secure!(Node) { Node.find_by_zip(name) }
-          elsif name
-            basepath = (path[0..-2] + [name]).map {|p| String.from_url_name(p) }.join('/')
-            @node = secure!(Node) { Node.find_by_path(basepath) || Node.find_by_path(basepath, current_site.root_id, true) }
-          else
-            @node = secure!(Node) { Node.find_by_zip(zip) }
-          end
+          # We use the visitor to find the node in order to ease implementation
+          # of custom access rules (Acl).
+          @node = visitor.find_node(path, zip, name, params, request.method)
         else
           # bad url
           Node.logger.warn "Path #{path.last.inspect} does not match #{Zena::Use::Urls::ALLOWED_REGEXP}"
           raise ActiveRecord::RecordNotFound
         end
       elsif params[:id]
-        @node = secure!(Node) { Node.find_by_zip(params[:id]) }
+        @node = visitor.find_node(nil, params[:id], nil, params, request.method)
       end
 
       if params[:link_id]

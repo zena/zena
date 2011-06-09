@@ -1,0 +1,112 @@
+DEFAULTS:
+  updated_at:      2011-06-09
+  created_at:      2011-06-09
+  ref_lang:        en
+  inherit:         yes
+  user:            hades
+  v_status:        pub
+  v_publish_from:  2011-06-09
+
+# Everything happens in the land of the dead
+erebus:
+  class:           Project
+  inherit:         no
+  # You cannot view what happens there
+  rgroup:          erebus
+  wgroup:          erebus
+  dgroup:          erebus
+  skin:            under_world
+  v_prop:
+    title:         The land of the deads
+
+# Skin used by erebus inhabitants
+under_world:
+  class:           Skin
+  parent:          erebus
+  v_prop:
+    title:         Under World
+
+Node_zafu:
+  class:           Template
+  parent:          under_world
+  v_prop:
+    title:         Node
+    format:        html
+    tkpath:        N
+    target_klass:  Node
+    text: |
+      In this dark gloomy place, there is <r:title do='to_json'/>
+
+# Skin used by external visitors granted acl access
+sky:
+  class:           Skin
+  parent:          erebus
+  v_prop:
+    title:         Sky view
+
+sky_zafu:
+  class:           Template
+  parent:          sky
+  v_prop:
+    title:         Node
+    format:        html
+    tkpath:        N
+    target_klass:  Node
+    text: |
+      In this dark gloomy place, you can see <r:title do='to_json'/>
+      and <r:nodes in='project' do='each' join=', ' do='title'/>
+
+# ------------- Two projects
+# ------------- with some pages in each of them
+
+# Private, super secret project
+over_zeus:
+  class:           Project
+  parent:          erebus
+  v_prop:
+    title:         A plan to overrule Zeus
+
+secret_weapon:
+  class:           Page
+  parent:          over_zeus
+  v_prop:
+    title:         Secret Weapon
+
+# Project related to Demeter (she can only see with acl)
+queen:
+  class:           Project
+  parent:          erebus
+  v_prop:
+    title:         My Queen
+
+wedding:
+  class:           Page
+  parent:          queen
+  v_prop:
+    title:         Wedding organization
+
+persephone:
+  class:           Contact
+  parent:          queen
+  v_prop:
+    title:         Persephone
+
+# ------------- Nodes for the users
+
+hades:
+  class:           Contact
+  parent:          erebus
+  v_prop:
+    title:         The Unseen
+
+demeter:
+  class:           Contact
+  parent:          erebus
+  v_prop:
+    title:         Giver of Wheat
+
+anon:
+  class:           Contact
+  parent:          erebus
+  v_prop:
+    title:         The poor dead

@@ -1,0 +1,7 @@
+if @acl.errors.empty?
+  # ok
+  page.replace "acl#{@acl[:id]}", :partial=>"acls/li", :collection=>[@acl]
+else
+  # render form
+  page.replace_html "acl#{@acl[:id]}", :partial=>"acls/form"
+end

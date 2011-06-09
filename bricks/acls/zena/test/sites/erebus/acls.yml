@@ -1,0 +1,13 @@
+# Readd assigned projects acl
+rap:
+  name:            read assigned projects
+  # Anyone in the 'sky' group
+  group:           sky
+  # can read
+  action:          read
+  # all 'assigned_projects' and the visitor's home node
+  query:           assigned_projects or self
+  # by receiving the 'erebus' access group
+  exec_group:      erebus
+  # and viewing it through the 'sky' Skin.
+  exec_skin:       sky

@@ -4,6 +4,7 @@
  * [link] and other url related zafu tags ([form]) *do not typecast to String* by default:
    you need to use <r:link foo='%{baz}'/> for literal values.
  * Created "uv" brick to support ultraviolet syntax highlighting.
+ * Created 'acl' brick to support Access Control Lists.
 
 * Minor changes
  * Fixed login redirect to not leave ssh.

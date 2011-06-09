@@ -24,12 +24,11 @@ cskin:
 Node_zafu:
   class:           Template
   parent:          cskin
-  title:           Node
   v_prop:
-    target_klass:  Node
-  template:
+    title:         Node
     format:        html
     tkpath:        N
+    target_klass:  Node
 
 # ------------- EMPLOYEES
 employees:

@@ -1,5 +1,5 @@
 require 'bricks/captcha'
-Zena::Use.module Bricks::Captcha
+Zena.use Bricks::Captcha
 
 # TODO change 'asset_method' to Zena::Use.zazen_tag 'email' => :zazen_email
 Zena::Use::Zazen::ViewMethods.asset_method 'email' => :email_asset

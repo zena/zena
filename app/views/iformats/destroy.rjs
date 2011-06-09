@@ -7,5 +7,5 @@ if @iformat.errors.empty?
     page.visual_effect :fade, "iformat#{@iformat.name}", :duration => 0.5
   end
 else
-  page.replace "iformat#{@iformat.name}", :partial=>"iformats/form"
+  page.replace_html "iformat#{@iformat.name}", :partial=>"iformats/form"
 end

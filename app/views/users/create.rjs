@@ -4,5 +4,5 @@ if @user.errors.empty?
   page.replace_html 'add_user_form', :partial => 'users/form'
   page << "$('user_login').focus();"
 else
-  page.replace 'add_user_form', :partial => 'users/form'
+  page.replace_html 'add_user_form', :partial => 'users/form'
 end

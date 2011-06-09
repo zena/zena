@@ -1,0 +1,14 @@
+erebus:
+  host:            erebus.host
+  root:            erebus
+  anon:            erebus_anon
+  public_group:    public
+  site_group:      site
+  authentication:  yes
+  auto_publish:    yes
+  redit_time:      7200
+  languages:       en
+  default_lang:    en
+  formats_updated_at: 2011-06-09
+  prop:
+    usr_prototype_attributes: "{'klass' => 'Contact', 'title' => login}"

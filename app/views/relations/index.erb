@@ -2,8 +2,8 @@
 <table id='relation_list' class='admin' cellspacing="0">
   <tr><th class='nav' colspan='4'><%= will_paginate @relations %></th></tr>
   <% @classes.keys.sort.each do |kpath| -%>
-    <tr>
-      <th class='nav sub VirtualClass' colspan='4'>
+    <tr class='virtual_class'>
+      <th class='nav sub constant' colspan='4'>
         <span class='kpath'><%= kpath %></span> <%= VirtualClass.find_by_kpath(kpath).to_s %>
       </th>
     </tr>

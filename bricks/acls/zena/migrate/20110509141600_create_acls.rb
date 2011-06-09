@@ -6,6 +6,7 @@ class CreateAcls < ActiveRecord::Migration
       t.string :query
       t.string :action
       t.integer :site_id
+      t.integer :user_id
       t.integer :group_id
       t.integer :exec_group_id
       t.integer :exec_skin_id
@@ -14,6 +15,9 @@ class CreateAcls < ActiveRecord::Migration
       t.timestamps
     end
     add_column :users, :use_acls, :boolean
+    add_index :acls, ["site_id"]
+    add_index :acls, ["group_id"]
+    add_index :acls, ["group_id", "action", "site_id"]
   end
 
   def self.down

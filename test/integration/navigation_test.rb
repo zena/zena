@@ -23,7 +23,7 @@ class NavigationTest < Zena::Integration::TestCase
     assert_redirected_to 'http://test.host/oo'
     follow_redirect!
     assert_response :success
-    get 'http://test.host/fr/textdocument53.css?1144713600' # data with timestamp
+    get 'http://test.host/fr/textdocument54.css?1144713600' # data with timestamp
     assert_response :success
   end
 

@@ -40,8 +40,8 @@
     <% end -%>
 
     <tr>
-      <td class='use_acl'><%= _("use acls")%></td>
-      <td>
+      <td class='label'><%= _("use acls")%></td>
+      <td class='use_acls'>
         <input type='hidden' name='user[use_acls]' value='0'/>
         <input type='checkbox' name='user[use_acls]' value='1' class='box'<%= @user.use_acls? ? " checked='checked'" : ''%>/>
       </td>

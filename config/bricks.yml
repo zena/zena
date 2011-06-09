@@ -3,6 +3,7 @@ test:
   asset_port:  80
   tags:        ON
   captcha:     ON
+  acls:        ON
   sphinx:      OFF
   worker:      OFF
   uv:          OFF
@@ -25,6 +26,7 @@ development:
 
   tags:     ON
   captcha:  ON
+  acls:     OFF
   sphinx:
     switch: OFF
     activate_if:
@@ -55,6 +57,7 @@ production:
     live:   ON
   tags:     ON
   captcha:  ON
+  acls:     OFF
   sphinx:
     switch: OFF
     activate_if:

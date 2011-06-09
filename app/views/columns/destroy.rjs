@@ -2,5 +2,5 @@ if @column.errors.empty?
   page.visual_effect :highlight, "column#{@column[:id]}", :duration => 0.3
   page.visual_effect :fade, "column#{@column[:id]}", :duration => 0.5
 else
-  page.replace "column#{@column[:id]}", :partial=>"columns/form"
+  page.replace_html "column#{@column[:id]}", :partial=>"columns/form"
 end

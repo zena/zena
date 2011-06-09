@@ -17,8 +17,8 @@ class AclsController < ApplicationController
 
   def show
     respond_to do |format|
-      format.html # show.html.erb
-      format.xml  { render :xml => @acl }
+      format.html { render :file => admin_layout, :layout => false }
+      format.js
     end
   end
 
@@ -30,12 +30,11 @@ class AclsController < ApplicationController
   end
 
   def create
-    @acl = secure(Acl) {Acl.create(params[:acl])}
-    puts @acl.inspect
+    @acl = secure(Acl) {Acl.create(acl_attributes)}
   end
 
   def update
-    @acl.update_attributes(params[:acl])
+    @acl.update_attributes(acl_attributes)
 
     respond_to do |format|
       format.html do
@@ -45,7 +44,7 @@ class AclsController < ApplicationController
           render :action => 'edit'
         end
       end
-      format.js { render :action => 'show' }
+      format.js
     end
   end
 
@@ -72,5 +71,13 @@ class AclsController < ApplicationController
       if params[:id]
         @acl = secure!(Acl) { Acl.find(params[:id]) }
       end
+    end
+
+    def acl_attributes
+      return {} unless acl_params = params[:acl]
+      if skin_zip = acl_params[:exec_skin_id]
+        acl_params[:exec_skin_id] = skin_zip.blank? ? '' : Node.translate_pseudo_id(skin_zip)
+      end
+      acl_params
     end
 end

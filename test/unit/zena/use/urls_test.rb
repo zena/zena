@@ -60,7 +60,7 @@ class UrlsTest < Zena::View::TestCase
     node = secure!(Node) { nodes(:bird_jpg) }
     assert_equal '/en/image30.jpg?1144713600', zen_path(node, :format => 'jpg')
     node = secure!(Node) { nodes(:style_css) }
-    assert_equal '/en/textdocument53.css?1144713600', zen_path(node, :format => 'css')
+    assert_equal '/en/textdocument54.css?1144713600', zen_path(node, :format => 'css')
 
     login(:anon)
     node = secure!(Node) { nodes(:cleanWater) }

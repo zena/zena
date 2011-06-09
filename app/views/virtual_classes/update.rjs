@@ -1,5 +1,5 @@
 if @virtual_class.errors.empty?
   page.replace "virtual_class#{@virtual_class[:id]}", :partial=>"virtual_classes/li", :collection=>[@virtual_class]
 else
-  page.replace "virtual_class#{@virtual_class[:id]}", :partial=>"virtual_classes/form"
+  page.replace_html "virtual_class#{@virtual_class[:id]}", :partial=>"virtual_classes/form"
 end

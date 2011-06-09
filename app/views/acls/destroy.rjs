@@ -1,0 +1,6 @@
+if @acl.errors.empty?
+  page.visual_effect :highlight, "acl#{@acl[:id]}", :duration => 0.3
+  page.visual_effect :fade, "acl#{@acl[:id]}", :duration => 0.5
+else
+  page.replace_html "acl#{@acl[:id]}", :partial=>"acls/form"
+end

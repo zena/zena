@@ -29,7 +29,8 @@ table.admin td:first-child { border-left: 1px solid #999; }
 #virtual_class_list td, #virtual_class_list, #virtual_class_list th {border-color:#ccc;}
 .admin td { padding: 3px; height:18px; border-right:1px solid #999; border-bottom:1px solid #999; }
 .admin th { border-bottom:1px solid #999; padding:4px;}
-.admin .adm_icon, .admin .adm_add, .admin .action { width:22px; text-align:center; vertical-align:top; margin:0;}
+.admin .adm_icon, .admin .adm_add, .admin .action { width:22px; text-align:center; margin:0;}
+.admin .add { vertical-align:top;}
 .admin .adm_icon img { border:0;}
 .admin table { width:100%;}
 .admin td { padding: 2px 6px; }
@@ -46,6 +47,10 @@ table.admin td:first-child { border-left: 1px solid #999; }
 .admin th .kpath {font-weight:normal; font-family:Monaco, monospace; color:#ccc;}
 .admin .light { background:#eee;}
 .admin .dark { background:#ddd;}
+div.help { position:relative; float:right; height:18px; width:18px; background:url('/images/help.png') no-repeat; font-style:italic; color:#444;}
+div.help p { position:absolute; top:2em; right:0; visibility:hidden; background:#B2D4E2; border:1px solid #7F7F7F; width:200px; padding:3px; z-index:99;}
+div.help:hover p { visibility:visible;}
+div.help:hover { cursor:help;;}
 /*.admin .ruby .text { display:inline-block; min-width:5em;}*/
 .admin .ruby .constant { font-weight:bold;}
 .admin .real_class .ruby .constant { color:#333;}
@@ -90,3 +95,11 @@ ul.actions select { width:186px; }
 
 /* forms */
 label { font-size:0.9em; font-weight:bold; display:block; color:#5C1515; margin:10px 0 5px; clear:left;}
+
+/* roles */
+.constant {font-weight:bold;}
+.real_class .constant {color:#999;}
+.virtual_class .constant {color: #07F;}
+.virtual_class .nav.constant {color: #003F9D;}
+.role .constant {color:#0C9616;}
+.role .nav.constant {color:#05540B;}

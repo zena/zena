@@ -4,8 +4,8 @@
   <tr><th class='nav' colspan='3'><%= will_paginate @columns %></th></tr>
   <% role_id = nil; @columns.each do |col| -%>
     <% if col.role_id != role_id; role_id = col.role_id -%>
-    <tr>
-      <th class='nav sub <%= col.role.class %>' colspan='3'>
+    <tr class='<%= col.role.class.to_s.underscore %>'>
+      <th class='nav sub constant' colspan='3'>
         <span class='kpath'><%= col.role.kpath %></span> <%= col.role.name %>
       </th>
     </tr>

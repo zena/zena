@@ -1,0 +1,30 @@
+DEFAULTS:
+  created_at:      2011-06-09
+  updated_at:      2011-06-09
+  lang:            en
+
+erebus_anon:
+  groups:          public
+  status:          moderated
+  node:            anon
+
+hades:
+  login:           hades
+  crypted_password: <%= Zena::CryptoProvider::Initial.encrypt('hades') %>
+  time_zone:       Europe/Zurich
+  groups:          public, site, erebus
+  status:          admin
+  lang:            en
+
+persephone:
+  login:           persephone
+  crypted_password: <%= Zena::CryptoProvider::Initial.encrypt('persephone') %>
+  groups:          public, site, sky, erebus
+  status:          user
+
+demeter:
+  login:           demeter
+  crypted_password: <%= Zena::CryptoProvider::Initial.encrypt('demeter') %>
+  groups:          public, site, sky
+  status:          reader
+  use_acls:        ON

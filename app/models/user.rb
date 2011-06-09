@@ -326,6 +326,20 @@ class User < ActiveRecord::Base
     end
   end
 
+  def find_node(path, zip, name, params, method)
+    secure!(Node) do
+      if name =~ /^\d+$/
+        Node.find_by_zip(name)
+      elsif name
+        basepath = (path[0..-2] + [name]).map {|p| String.from_url_name(p) }.join('/')
+        Node.find_by_path(basepath) ||
+        Node.find_by_path(basepath, current_site.root_id, true)
+      else
+        Node.find_by_zip(zip)
+      end
+    end
+  end
+
   private
 
     def user_site

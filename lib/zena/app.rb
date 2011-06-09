@@ -1,4 +1,4 @@
-Zena::Use.module  [
+Zena.use  [
   Zena::Use::Action,
   Zena::Use::Authlogic,
   Zena::Use::Calendar,
@@ -23,7 +23,6 @@ Zena::Use.module  [
   Zena::Use::ZafuSafeDefinitions,
   Zena::Use::ZafuTemplates,
   Zena::Use::Zazen,
-  Zena::Use::Acls,
 ]
 
 module Zena

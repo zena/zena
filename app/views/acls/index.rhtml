@@ -1,15 +1,14 @@
 <h2 class='title'><%= _('access controls') %></h2>
 <table class="admin" cellspacing="0">
-  <tr><th class='nav' colspan='8'><%= will_paginate @acls %></th></tr>
+  <tr><th class='nav' colspan='7'><%= will_paginate @acls %></th></tr>
   <tr>
-    <th><%= _('name') %></th>
-    <th><%= _('description') %></th>
-    <th><%= _('query') %></th>
-    <th><%= _('action') %></th>
+    <th>&nbsp;</th>
     <th><%= _('group') %></th>
+    <th><%= _('action') %></th>
+    <th><%= _('name') %></th>
+    <th><%= _('query') %></th>
     <th><%= _('exec group') %></th>
     <th><%= _('exec skin') %></th>
-    <th><%= _('priority') %></th>
   </tr>
   <%= render :partial=>'acls/li',  :collection => @acls %>
   <%= render :partial=>'acls/add' %>

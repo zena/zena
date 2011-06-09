@@ -1,7 +1,7 @@
 <% if li.kind_of?(Class) -%>
-<tr class='real_class'>
+<tr>
   <td class="adm_icon"><%= _('virtual_class_img') %></td>
-  <td class='ruby'><span class='spacer'><%= li.kpath[1..-1].gsub(/./, '| ') + '+ ' %></span><span class='constant'><%= li.name %></span></td>
+  <td class='real_class'><span class='spacer'><%= li.kpath[1..-1].gsub(/./, '| ') + '+ ' %></span><span class='constant'><%= li.name %></span></td>
   <td class='info'>&nbsp;</td>
 </tr>
 <% else
@@ -12,7 +12,7 @@ link_def = {
 <tr id='virtual_class<%= li[:id] %>'>
   <td class="adm_icon"><%= (li.new_record? || !li.errors.empty?) ? _('virtual_class_error_img') : link_to_remote( !li.icon.blank? ? "<img src='#{li.icon}'/>" : _('virtual_class_img'), link_def, { :title  => li.kpath}) %></td>
 <% if li.kind_of?(VirtualClass) -%>
-  <td class='ruby'>
+  <td class='virtual_class'>
     <span class='spacer'><%= li.kpath[1..-1].gsub(/./, '| ') %>+ </span>
     <span class='constant'><%= link_to_remote(li.name, link_def) %><%= li.import_result ? " (#{li.import_result})" : ''%></span>
   </td>
@@ -25,7 +25,7 @@ link_def = {
     ).compact.join(', ') %>
   </td>
 <% else -%>
-  <td class='ruby' colspan='2'>
+  <td class='role' colspan='2'>
     <span class='spacer'><%= li.kpath[1..-1].gsub(/./, '| ') %>| <span>* </span></span>
     <span class='constant'><%= li.name %></span>
   </td>

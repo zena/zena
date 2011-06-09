@@ -115,6 +115,7 @@ module Zena
     N_('Sunday')
 
     N_('datetime')          # Same as %Y-%m-%d %H:%M
+    N_('%Y-%m-%d %H:%M')
     N_('news_date')         # calendar day (event list view)
 
     N_('Mon')

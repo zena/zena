@@ -212,6 +212,11 @@ module Zena
       require "authlogic"
     end
 
+    # Nicer syntax: Zena.use Bricks:Foobar instead of Zena::Use.module Bricks::Foobar
+    def use(*args)
+      Zena::Use.module(*args)
+    end
+
     def init
       config = Rails.configuration
       enable_tools

@@ -7,7 +7,7 @@ class UsersController < ApplicationController
 
   def show
     respond_to do |format|
-      format.html { render :file => admin_layout, :layout => false } # render, content_for_layout = nil
+      format.html { render :file => admin_layout, :layout => false }
       format.js
     end
   end
