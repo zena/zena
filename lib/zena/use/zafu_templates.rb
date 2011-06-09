@@ -490,6 +490,9 @@ module Zena
               nodes.each do |path, node|
                 rel_path = node.fullpath.rel_path(node.section.fullpath)
                 path = node.section.title + ' / ' + (secure(Node) { Node.fullpath_map(rel_path, :title)} || []).join(' / ')
+                if node.kind_of?(Document)
+                  path = path + ".#{node.ext}"
+                end
                 res << "    <tr><td class='actions'>#{zafu_helper.send(:node_actions, node)}</td><td>&nbsp;#{zafu_helper.send(:link_to, path, zen_path(node))}</td></tr>\n"
               end
               res << "  </table>\n"
