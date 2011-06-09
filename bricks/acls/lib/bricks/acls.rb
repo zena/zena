@@ -1,6 +1,22 @@
 module Bricks
   module Acls
-    module AuthorizationMethods
+    module ControllerMethods
+      def self.included(base)
+        base.alias_method_chain :template_path_from_template_url, :acls
+      end
+      # If we have an exec skin, we check that t_url points in this skin's
+      # directory to avoid letting the user render with any zafu template.
+      def template_path_from_template_url_with_acls(template_url=params[:t_url])
+        if visitor.exec_acl && skin = visitor.exec_acl.exec_skin
+          skin_name = skin.title.to_filename
+          unless template_url[0..skin_name.size] == skin_name + '/'
+            Node.logger.warn "Bad t_url used in ACL context (#{template_url}). Visitor = #{visitor.id} // #{visitor.login}"
+            # We do not raise AccessViolation to not give hints.
+            raise ActiveRecord::RecordNotFound
+          end
+        end
+        template_path_from_template_url_without_acls(template_url)
+      end
     end
 
     module UserMethods
@@ -28,7 +44,7 @@ module Bricks
             return node
           end
         end
-        nil
+        raise ActiveRecord::RecordNotFound
       ensure
         unless self.exec_acl
           # Remove loaded exec_group
@@ -63,11 +79,8 @@ module Bricks
         else
           acl_params[:id] = zip
         end
-        if node = visitor.acl_authorized?(::Acl::ACTION_FROM_METHOD[method], acl_params)
-          node
-        else
-          raise
-        end
+        
+        visitor.acl_authorized?(::Acl::ACTION_FROM_METHOD[method], acl_params)
       end
     end # UserMethods
   end # Acls

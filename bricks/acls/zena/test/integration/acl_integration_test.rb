@@ -56,6 +56,29 @@ class AclIntegrationTest < Zena::Integration::TestCase
           assert_match %r{Persephone, Wedding organization}, response.body
         end
 
+        context 'using zafu ajax' do
+          setup do
+            @zafu_url = "http://erebus.host/nodes/#{nodes_zip(:queen)}/zafu?t_url=Sky%20view/Node/list1&dom_id=list1"
+            filepath = Pathname("#{SITES_ROOT}/erebus.host/zafu/Sky view/Node/en/list1.erb")
+            FileUtils.mkpath(filepath.parent)
+            File.open(filepath, 'wb') do |f|
+              f.puts "Zafu safe ok"
+            end
+          end
+
+          should 'not allow t_url not in rendering skin' do
+            # Stupid tests. Raises ActionView::TemplateError during testing and
+            # ActiveRecord::RecordNotFound in production.
+            get @zafu_url.sub('Sky%20view', 'Under%20World')
+            assert_response 500
+          end
+
+          should 'allow t_url in rendering skin' do
+            get @zafu_url
+            assert_response :success
+            assert_equal %{Element.replace("list1", "Zafu safe ok\\n");\n}, response.body
+          end
+        end # using zafu ajax
 
         should 'not find node out of acl scope' do
           get "http://erebus.host/oo/project#{nodes_zip(:persephone)}.html"

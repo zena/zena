@@ -1,4 +1,4 @@
-# Readd assigned projects acl
+# Read assigned projects or self
 rap:
   name:            read assigned projects
   # Anyone in the 'sky' group
@@ -11,3 +11,19 @@ rap:
   exec_group:      erebus
   # and viewing it through the 'sky' Skin.
   exec_skin:       sky
+  priority:        10
+
+# Read self (this never matches)
+self:
+  name:            read assigned projects
+  # Anyone in the 'sky' group
+  group:           sky
+  # can read
+  action:          read
+  # self
+  query:           nodes where 1=0
+  # by receiving the 'erebus' access group
+  exec_group:      erebus
+  # and viewing it through the 'sky' Skin.
+  exec_skin:       sky
+  priority:        5

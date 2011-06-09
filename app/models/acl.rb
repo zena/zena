@@ -26,7 +26,12 @@ class Acl < ActiveRecord::Base
   end
 
   def authorize?(base_node, params)
-    Node.do_find(:first, eval(make_query(base_node, params).to_s))
+    res = Node.find_by_sql(eval(make_query(base_node, params).to_s))
+    if res.empty?
+      nil
+    else
+      secure_result(res.first)
+    end
   end
 
   def exec_skin_zip

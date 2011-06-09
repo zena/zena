@@ -152,21 +152,6 @@ module Zena
           "#{SITES_ROOT}#{template_path_from_template_url(template_url)}"
         end
 
-        # Return the template path without '.erb' extension in case we need to append '_form'
-        # from a template's url. The expected url is of the form '/skin/Klass-mode/partial'
-        def template_path_from_template_url(template_url=params[:t_url])
-          raise "Missing template_url (t_url parameter)" unless template_url
-          if template_url =~ /\A\.|[^ #{String::ALLOWED_CHARS_IN_FILEPATH}]/
-            raise Zena::AccessViolation.new("'template_url' contains illegal characters : #{template_url.inspect}")
-          end
-
-          template_url = template_url.split('/')
-          template_url.insert(-2, dev_mode? ? "dev_#{lang}" : lang)
-          path = template_url.join('/')
-
-          "/#{current_site.host}/zafu/#{path}"
-        end
-
         # Make sure some vital templates never get broken
         def valid_template?(content, opts)
           #puts content
@@ -249,7 +234,7 @@ module Zena
         def self.included(base)
 #          base.send(:helper_attr, :asset_cache)
           if base.respond_to?(:helper_method)
-            base.send(:helper_method, :dev_mode?, :lang_path, :rebuild_template, :get_template_text, :template_url, :template_url_for_asset, :zafu_helper)
+            base.send(:helper_method, :dev_mode?, :lang_path, :rebuild_template, :get_template_text, :template_url, :template_url_for_asset, :zafu_helper, :template_path_from_template_url)
           end
 
           base.send(:include, ::Zafu::ControllerMethods)
@@ -307,6 +292,21 @@ module Zena
             # $default/Node
             default_template_url(opts)
           end
+        end
+
+        # Return the template path without '.erb' extension in case we need to append '_form'
+        # from a template's url. The expected url is of the form '/skin/Klass-mode/partial'
+        def template_path_from_template_url(template_url=params[:t_url])
+          raise "Missing template_url (t_url parameter)" unless template_url
+          if template_url =~ /\A\.|[^ #{String::ALLOWED_CHARS_IN_FILEPATH}]/
+            raise Zena::AccessViolation.new("'template_url' contains illegal characters : #{template_url.inspect}")
+          end
+
+          template_url = template_url.split('/')
+          template_url.insert(-2, dev_mode? ? "dev_#{lang}" : lang)
+          path = template_url.join('/')
+
+          "/#{current_site.host}/zafu/#{path}"
         end
 
         def zafu_helper

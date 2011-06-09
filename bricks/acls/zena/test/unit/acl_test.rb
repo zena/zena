@@ -43,7 +43,7 @@ class AclTest < Zena::Unit::TestCase
       end # with a visitor with extended access
 
     end # an acl
-    
+
     context 'a visitor' do
       context 'with normal access' do
         subject do
@@ -58,7 +58,7 @@ class AclTest < Zena::Unit::TestCase
                        ).id
         end
       end # with normal access
-      
+
       context 'without normal access' do
         subject do
           login(:demeter)
@@ -72,13 +72,26 @@ class AclTest < Zena::Unit::TestCase
                           nil, nodes_zip(:queen), nil, {}, :get
                          ).id
           end
-          
+
           should 'not find node out of acl scope' do
             assert_raise(ActiveRecord::RecordNotFound) do
               subject.find_node(nil, nodes_zip(:over_zeus), nil, {}, :get)
             end
           end
-          
+
+          context 'with many acls' do
+            setup do
+              Zena::Db.execute "UPDATE acls SET query = 'nodes in project from assigned_project', action = 'read' WHERE id = #{acls_id(:self)}"
+            end
+
+            should 'try acls in turn' do
+              assert_equal nodes(:wedding).id,
+                           subject.find_node(
+                            nil, nodes_zip(:wedding), nil, {}, :get
+                           ).id
+            end
+          end # with many acls
+
           context 'using method without acl' do
             should 'not find node out of acl scope' do
               assert_raise(ActiveRecord::RecordNotFound) do
@@ -92,14 +105,14 @@ class AclTest < Zena::Unit::TestCase
               end
             end
           end # using method without acl
-          
+
         end # with acl enabled
 
         context 'without acl enabled' do
           setup do
             subject.use_acls = false
           end
-          
+
           should 'not find nodes' do
             assert_raise(ActiveRecord::RecordNotFound) do
               subject.find_node(nil, nodes_zip(:queen), nil, {}, :get)

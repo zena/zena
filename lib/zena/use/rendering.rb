@@ -26,6 +26,10 @@ module Zena
         def set_headers(params)
           zafu_headers.merge!(params)
         end
+
+        def help(key)
+          %Q{<div class='help'><p>#{_(key)}</p></div>}
+        end
       end
 
       module ControllerMethods

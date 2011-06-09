@@ -18,6 +18,7 @@
  * Fixed a bug in 'is_ancestor?' where it would be confused by similar ids.
  * Fixed a bug with 'find(22)' (find by literal zip).
  * Fixed ajax bugs for edge cases ([add] + [drop], etc).
+ * Fixed security in ACL when using t_url Ajax.
 
 == 1.0.0.rc3 2011-05-26
 
