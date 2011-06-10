@@ -18,3 +18,9 @@ dom_id_in_each:
   src: "<r:pages in='site limit 2'><li do='each'><r:dom_id/> <p id='this#{dom_id}'/></li></r:pages>"
   tem: "/<li><%= var2.zip %> <p id='<%= \"this#\{var2.zip\}\" %>'></p></li>/"
   res: "<li>29 <p id='this29'></p></li><li>33 <p id='this33'></p></li>"
+
+list_else:
+  context:
+    node: status
+  src: "<ul do='posts'><li do='each' do='link'/><li do='else'>hop</li></ul>"
+  res: "<ul><li>hop</li></ul>"

@@ -381,3 +381,7 @@ comment:
 insert_slash_slash_exclam:
   src: "this that <r:show text='//!'/> blah blah"
   res: "this that //! blah blah"
+
+array_literal:
+  src: "<p do='%w{one two}'><span do='each' join=', ' do='this'/></p>"
+  res: "<p><span>one</span>, <span>two</span></p>"
