@@ -377,7 +377,7 @@ module Zena
           # Read @params
           @params.each do |key, value|
             # r_form params
-            next if [:klass, :done, :on].include?(key)
+            next if [:klass, :done, :on, :update].include?(key)
             # r_each params (make_form)
             next if [:join].include?(key)
             code = ::RubyLess.translate(self, value)

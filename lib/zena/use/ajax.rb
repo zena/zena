@@ -470,37 +470,38 @@ module Zena
           # This dom_id detection code is crap but it fixes the drop in each bug.
           def get_dom_id(target)
             if @context[:saved_template]
-              # Forces ndom_id.
-              return dom_id = node.dom_id(:code => true)
-            end
-
-            if dom_id = target.markup.dyn_params[:id] || target.markup.params[:id]
-              if dom_id =~ /^<%=\s+(.*?)\s+%>_form$/
-                # Rare case when we have a [drop] with [add]. (add element and then drop on it).
-                dom_id = $1
-              elsif dom_id =~ /^<%=\s+(.*?)\s+%>$/
-                dom_id = $1
-              else
-                dom_id = "%Q{#{dom_id}}"
-              end
-
-            elsif target.context
-              # @context set, so node is available
-              dom_id = "%Q{#{target.node.dom_id(
-                :list => target.method == 'each',
-                :erb => false
-              )}}"
-
-              target.markup.set_id(node.dom_id(
-                :list => target.method == 'each'
-              ))
+              # Force ndom_id.
+              dom_id = "ndom_id(#{node})"
             else
-              # Has not been rendered yet, does not have a dom_prefix set.
-              dom_id = "%Q{#{target.dom_name}}"
 
-              target.markup.set_id(node.dom_id(
-                :list => target.method == 'each'
-              ))
+              if dom_id = target.markup.dyn_params[:id] || target.markup.params[:id]
+                if dom_id =~ /^<%=\s+(.*?)\s+%>_form$/
+                  # Rare case when we have a [drop] with [add]. (add element and then drop on it).
+                  dom_id = $1
+                elsif dom_id =~ /^<%=\s+(.*?)\s+%>$/
+                  dom_id = $1
+                else
+                  dom_id = "%Q{#{dom_id}}"
+                end
+
+              elsif target.context
+                # @context set, so node is available
+                dom_id = "%Q{#{target.node.dom_id(
+                  :list => target.method == 'each',
+                  :erb => false
+                )}}"
+
+                target.markup.set_id(node.dom_id(
+                  :list => target.method == 'each'
+                ))
+              else
+                # Has not been rendered yet, does not have a dom_prefix set.
+                dom_id = "%Q{#{target.dom_name}}"
+
+                target.markup.set_id(node.dom_id(
+                  :list => target.method == 'each'
+                ))
+              end
             end
 
             return [dom_id, target.context ? target.node.dom_prefix : target.dom_name]

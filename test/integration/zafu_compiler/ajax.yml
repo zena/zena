@@ -46,6 +46,12 @@ form_in_block_edit_only:
   'ajax/form/in/block/edit/only/en/list1_form.erb': "/XYZ/"
   'ajax/form/in/block/edit/only/en/list1.erb': "!/XYZ/"
 
+form_update:
+  # t_url is the same in view and partial.
+  src: "<div id='foo' do='block'><r:form update='foo'></r:form></div>"
+  res: "/t_url=ajax%2Fform%2Fupdate%2Ffoo/"
+  'ajax/form/update/en/foo.erb': '/t_url=ajax%2Fform%2Fupdate%2Ffoo'
+  
 add_each_no_form:
   src: "<ul do='children' id='things'><li do='each'>I <p do='title'>blah</p></li><li do='add'/></ul>"
   tem: "!/</ul><ul></ul>/" # bug in closing group with [add].
