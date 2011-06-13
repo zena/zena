@@ -59,7 +59,7 @@ module Zena
 
       class << self
         def image_content_type?(content_type)
-          content_type =~ /image/
+          content_type =~ /image/ && !content_type =~ /svg/
         end
 
         def dummy?

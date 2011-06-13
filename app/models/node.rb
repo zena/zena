@@ -894,7 +894,7 @@ class Node < ActiveRecord::Base
           end
         end
       end
-      
+
       res
     end
 
@@ -1106,8 +1106,8 @@ class Node < ActiveRecord::Base
   end
 
   # Create a child and let him inherit from rwp groups and section_id
-  def new_child(opts={})
-    c = Node.new_node(opts)
+  def new_child(opts={}, transform = true)
+    c = Node.new_node(opts, transform)
     c.parent_id  = self[:id]
     c.instance_variable_set(:@parent, self)
 

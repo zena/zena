@@ -1199,16 +1199,18 @@ done: \"I am done\""
     login(:lion)
     node = secure!(Node) { nodes(:status) }
     attributes = {
-      :copy_id => nodes_zip(:bird_jpg),
-      :icon_id => '#{id}',
-      :m_title => 'Changed icon to "#{title}"',
-      :m_text  => 'By #{visitor.login}'
+      'copy_id' => nodes_zip(:bird_jpg),
+      'icon_id' => '#{id}',
+      'parent_id' => '#{id}',
+      'm_title' => 'Changed icon to "#{title}"',
+      'm_text'  => 'By #{visitor.login}'
     }
 
     new_attributes = secure(Node) { Node.transform_attributes(attributes) }
-    assert_equal Hash['icon_zip' => nodes_zip(:bird_jpg).to_s,
-                      'm_title'  => 'Changed icon to "bird"',
-                      'm_text'   => 'By lion'], new_attributes
+    assert_equal Hash['icon_zip'  => nodes_zip(:bird_jpg).to_s,
+                      'parent_zip'=> nodes_zip(:bird_jpg).to_s,
+                      'm_title'   => 'Changed icon to "bird"',
+                      'm_text'    => 'By lion'], new_attributes
 
     assert node.update_attributes_with_transformation(attributes)
     assert_equal nodes_id(:bird_jpg), node.find(:first, 'icon')[:id]

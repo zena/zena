@@ -175,6 +175,11 @@ module Zena
 
         alias r_find r_context
 
+        def r_count
+          @params[:find] = 'count'
+          r_context
+        end
+
         def r_set
           @params.each do |var, code|
             var = var.to_s

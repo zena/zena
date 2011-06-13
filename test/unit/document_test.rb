@@ -13,6 +13,10 @@ class DocumentTest < Zena::Unit::TestCase
     should 'return Image on image types' do
       assert_equal Image, Document.document_class_from_content_type('image/png')
     end
+    
+    should 'not return Image on svg' do
+      assert_equal TextDocument, Document.document_class_from_content_type('image/svg+xml')
+    end
 
     should 'return TextDocument on nil' do
       assert_equal TextDocument, Document.document_class_from_content_type(nil)

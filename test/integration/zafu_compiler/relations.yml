@@ -455,6 +455,12 @@ count:
   tem: "<p><%= Node.do_find(:count, %Q{SELECT COUNT(*) FROM nodes WHERE #{secure_scope('nodes')}}) %></p>"
   res: "<p>42</p>"
 
+r_count:
+  src: "<r:count select='nodes in site order by id'/>"
+  tem: "<%= Node.do_find(:count, %Q{SELECT COUNT(*) FROM nodes WHERE #{secure_scope('nodes')}}) %>"
+  res: "42"
+
+
 query_in_array:
   src: "<div do='posts' do='find(\"posts in site\")'/>"
   tem: "/Node\.do_find.*Node\.do_find"

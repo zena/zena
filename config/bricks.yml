@@ -26,7 +26,7 @@ development:
 
   tags:     ON
   captcha:  ON
-  acls:     OFF
+  acls:     ON
   sphinx:
     switch: OFF
     activate_if:
@@ -57,7 +57,7 @@ production:
     live:   ON
   tags:     ON
   captcha:  ON
-  acls:     OFF
+  acls:     ON
   sphinx:
     switch: OFF
     activate_if:

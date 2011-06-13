@@ -219,10 +219,12 @@ class NodesController < ApplicationController
       attrs['klass'] = 'Document'
     end
 
+    attrs = secure(Node) { Node.transform_attributes(attrs) }
+
     begin
       # Make sure we can load parent (also enables ACL to work for us here).
-      parent = visitor.find_node(nil, attrs.delete(:parent_id), nil, {}, :post)
-      @node = parent.new_child(attrs)
+      parent = visitor.find_node(nil, attrs.delete('parent_zip'), nil, {}, :post)
+      @node = parent.new_child(attrs, false)
       @node.save
     rescue ActiveRecord::RecordNotFound
       # Let normal processing insert errors
