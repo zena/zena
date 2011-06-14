@@ -121,6 +121,8 @@ module Zena
         safe_method_for Array, [:include?, Number] =>
           {:method => 'include?', :accept_nil => true, :pre_processor => true, :class => Boolean}
 
+        safe_method_for Hash, :to_param => String
+
         safe_method [:min, Number, Number]        => {:method => 'zafu_min', :class => Number}
         safe_method [:max, Number, Number]        => {:method => 'zafu_max', :class => Number}
         # Returns the smallest of two values.

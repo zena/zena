@@ -128,3 +128,12 @@ time_advance:
 array_include:
   src: "<b do='[1,2,3].include?(2)'/>"
   tem: "<% if [1,2,3].include?(2) %><b></b><% end %>"
+
+hash_to_params:
+  context:
+    q:
+      one: '1'
+      two: '2'
+  src: "<b do='{:q =&gt; params[:q]}' do='to_param'/>"
+  tem: "<% var1 = {:q => params[:q]} %><b><%= var1.to_param %></b>"
+  res: '<b>q%5Bone%5D=1&q%5Btwo%5D=2</b>'
