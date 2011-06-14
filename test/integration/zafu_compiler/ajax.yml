@@ -348,13 +348,13 @@ id_in_each_group_should_be_scoped:
 link_page_next:
   context:
     pak: 2
-  src: "<div id='foo' do='block' do='nodes in site' limit='3' order='zip' paginate='pak'><r:link page='previous'/> | <r:pak/> | <r:link update='foo' page='next'/></div>"
+  src: "<div id='foo' do='block' do='nodes in site' limit='3' order='id asc' paginate='pak'><r:link page='previous'/> | <r:pak/> | <r:link update='foo' page='next'/></div>"
   res: "/<a href='/oo/projects-list/Clean-Water-project/page22.html\?pak=1'>1</a> \| 2 \| .*22/zafu\?dom_id=foo.*pak=3.*>3</a>/"
 
 link_page_list:
   context:
     pak: 2
-  src: "<div id='foo' do='block' do='nodes' in='site' limit='10' order='zip' paginate='pak' do='link' page='list' update='foo' join=', '/>"
+  src: "<div id='foo' do='block' do='nodes' in='site' limit='10' order='id' paginate='pak' do='link' page='list' update='foo' join=', '/>"
   tem: "/_zpage != _zcurrent.*Ajax.Request.*:pak => _zpage/"
   res: "/pak=1.*1</a>, 2, .*pak=3.*3</a>.*pak=4.*4</a>.*pak=5.*5</a>/"
 

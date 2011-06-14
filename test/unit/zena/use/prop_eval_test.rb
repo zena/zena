@@ -35,12 +35,12 @@ class PropEvalTest < Zena::Unit::TestCase
           subject.update_attributes(:prop_eval => %q[{'paper' => (paper.blank? ? 'Chiyogami' : paper), 'title' => 'booh'}])
         end
       end # with valid code
-      
+
       context 'with valid code using vclass methods' do
         subject do
           secure(VirtualClass) { virtual_classes(:Post) }
         end
-        
+
         should 'succeed' do
           assert subject.update_attributes(:prop_eval => %q[{'date' => (date || now)}])
         end
@@ -65,6 +65,11 @@ class PropEvalTest < Zena::Unit::TestCase
   context 'A visitor with write access' do
     setup do
       login(:lion)
+      klass = roles(:Contact)
+      assert klass.update_attributes(
+        :prop_eval => %q{{'title' => "#{id} / #{first_name} #{name}"}}
+      )
+      deb VirtualClass['Contact'].prop_eval
     end
 
     context 'creating a node from a class with prop eval' do
@@ -75,8 +80,15 @@ class PropEvalTest < Zena::Unit::TestCase
       should 'set evaluated prop on create' do
         assert_difference('Node.count', 1) do
           node = subject
-          assert_equal ' foo', node.title
+          # should have 'zip' during prop_eval
+          assert_equal %r{foo\Z}, node.title
         end
+      end
+
+      should 'have zip during prop_eval' do
+        node = subject
+        # should have 'zip' during prop_eval
+        assert_equal %r{\A#{node.zip}}, node.title
       end
     end # creating a node from a class with prop eval
 

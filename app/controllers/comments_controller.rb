@@ -103,7 +103,7 @@ class CommentsController < ApplicationController
                         :order => 'status DESC, comments.created_at DESC',
                         :joins => ['INNER JOIN discussions on discussions.id = comments.discussion_id', 'INNER JOIN nodes on nodes.id = discussions.node_id'],
                         :conditions=>"status > #{Zena::Status::Rem} AND (#{secure_scope('nodes')})",
-                        :per_page => 10, :page => params[:page]
+                        :per_page => 100, :page => params[:page]
     end
     @comments ||= []
   end

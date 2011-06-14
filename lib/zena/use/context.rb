@@ -176,8 +176,12 @@ module Zena
         alias r_find r_context
 
         def r_count
-          @params[:find] = 'count'
-          r_context
+          if node.list_context? && !@params[:select]
+            rubyless_eval
+          else
+            @params[:find] = 'count'
+            r_context
+          end
         end
 
         def r_set

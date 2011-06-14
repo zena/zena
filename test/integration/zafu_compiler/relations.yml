@@ -436,7 +436,7 @@ start:
   tem: "<% var1 = start_node %><%= var1.prop['title'] %>"
   res: 'status title'
 
-foo:
+from_class_start:
   context:
     node: art
   src: "<div do='tagged from tag:start' do='each' join=', ' do='title'/>"
@@ -460,6 +460,9 @@ r_count:
   tem: "<%= Node.do_find(:count, %Q{SELECT COUNT(*) FROM nodes WHERE #{secure_scope('nodes')}}) %>"
   res: "42"
 
+array_count:
+  src: "<r:pages in='site' do='count'/>"
+  res: "16"
 
 query_in_array:
   src: "<div do='posts' do='find(\"posts in site\")'/>"

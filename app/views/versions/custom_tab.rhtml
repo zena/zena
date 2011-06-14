@@ -1,4 +1,5 @@
-<% @node.vclass.safe_columns.each do |col| -%>
+<% @node.vclass.safe_columns.each do |col|
+  next if %w{title text summary}.include?(col.name) -%>
   <label for='<%= col.name %>'><%= _(col.name) %></label>
   <% case col.ptype
      when :datetime %>
