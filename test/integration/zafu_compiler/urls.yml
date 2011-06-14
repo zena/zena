@@ -265,6 +265,10 @@ action_drive:
   src: "<r:link action='drive'/>"
   res: "<a href='/nodes/22/edit'>status title</a>"
 
+action_update:
+  src: "<r:link action='update' q[title]='%{foobar}'/>"
+  res: "<a href='/nodes/22?q[title]=foobar' onclick='return Zena.m(this,\"put\")'>status title</a>"
+
 action_confirm:
   src: "<r:link confirm='really go away ?'/>"
   res: "<a data-confirm='really go away ?' href='/oo/projects-list/Clean-Water-project/page22.html' onclick='return Zena.m(this,\"get\")'>status title</a>"

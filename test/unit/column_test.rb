@@ -171,4 +171,25 @@ class ColumnTest < Zena::Unit::TestCase
       }, subject.export)
     end
  end # exporting a role
+
+ context 'With an attribute ending in _comment' do
+   setup do
+     login(:lion)
+     assert Column.create(:role_id => roles_id(:Original), :ptype => 'string', :name => 'origin_comment')
+   end
+
+   teardown do
+     VirtualClass.expire_cache!
+   end
+
+   should 'return safe method type' do
+     assert_equal Hash[
+       :nil => true,
+       :class => String,
+       :method => %{prop['origin_comment']}
+       ], VirtualClass['Page'].safe_method_type(['origin_comment'])
+   end
+ end # With an attribute ending in _comment
+
+
 end

@@ -9,7 +9,7 @@ module Bricks
         theme = opts[:theme] || 'idle'
         line_numbers = (opts[:line_numbers] == 'true') && !opts[:inline]
         code_class = "#{theme}_code"
-        puts SYNTAXES.inspect
+
         if SYNTAXES[@code_lang]
           res = ::Uv.parse(@text, 'xhtml', @code_lang, line_numbers, theme)
           if opts[:inline]

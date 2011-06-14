@@ -904,26 +904,6 @@ class Node < ActiveRecord::Base
       transform_attributes(attributes, base_node)
     end
 
-    def safe_method_type(signature, receiver = nil)
-      if signature.size > 1
-        RubyLess::SafeClass.safe_method_type_for(self, signature)
-      else
-        method = signature.first
-
-        if type = super
-          type
-        elsif method == 'cached_role_ids'
-          # TODO: how to avoid everything ending in '_id' being caught as relations ?
-          nil
-        elsif method =~ /^(.+)_((id|zip|status|comment)(s?))\Z/ && !instance_methods.include?(method)
-          key = $3 == 'id' ? "zip#{$4}" : $2
-          {:method => "rel[#{$1.inspect}].try(:other_#{key})", :nil => true, :class => ($4.blank? ? Number : [Number])}
-        else
-          nil
-        end
-      end
-    end
-
     # Return a safe string to access node attributes in compiled templates and compiled sql.
     def zafu_attribute(node, attribute)
       if node.kind_of?(String)

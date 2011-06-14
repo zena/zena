@@ -27,6 +27,10 @@ link_anchor_in_name:
   tem: "<%= zazen('see \"\":22#[parent/title]') %>"
   res: "<p>see <a href=\"/oo/projects-list/Clean-Water-project#status-title\">status title</a></p>"
 
+link_anchor_in_blank_prop:
+  tem: "<%= zazen('see \"\":22#[parent/plop]') %>"
+  res: "<p>see <a href=\"/oo/projects-list/Clean-Water-project#\">status title</a></p>"
+
 complex_link:
   tem: <%= zazen("p<. !<.31_pv!:22\n\nh4(clear). \"\":22") %>
   res: "<p style=\"text-align:left;\"><div class='img_left'><a href=\"/oo/projects-list/Clean-Water-project/page22.html\"><img src='/en/image31_pv.jpg?967816914293' width='70' height='70' alt='flower' class='pv'/></a></div></p>\n\n\n\t<h4 class=\"clear\"><a href=\"/oo/projects-list/Clean-Water-project/page22.html\">status title</a></h4>"

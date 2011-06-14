@@ -28,7 +28,7 @@ module Zena
               ruby = RubyLess.translate(self, code)
               klass = ruby.klass
 
-              if !klass.kind_of?(Hash)
+              if !(klass <= Hash)
                 errors.add(:prop_eval, _('Compilation should produce a Hash (Found %s).') % klass)
               end
             rescue RubyLess::Error => err
@@ -43,6 +43,10 @@ module Zena
           base.before_validation  :merge_prop_eval
           base.before_validation  :need_set__id
           base.before_save        :set__id
+          # We do it once more to have 'zip'. If anyone knows a better
+          # way to avoid doing this twice (before_validation and before_create) and
+          # still manage to have the node.zip available in prop_eval...
+          base.before_create      :merge_prop_eval
           base.alias_method_chain :rebuild_index_for_version, :prop_eval
           # So that we can use 'now' with prop_eval
           base.safe_method :now => {:class => Time, :method => 'Time.now'}

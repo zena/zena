@@ -1334,7 +1334,7 @@ done: \"I am done\""
     context 'for relation pseudo-methods' do
       should 'use rel and try' do
         ['hot_status', 'blah_comment', 'blah_zips', 'blah_id', 'blah_ids'].each do |k|
-          assert_match %r{rel\[.#{k.gsub(/_.+/,'')}.\]\.try}, Page.safe_method_type([k])[:method]
+          assert_match %r{rel\[.#{k.gsub(/_.+/,'')}.\]\.try}, VirtualClass['Page'].safe_method_type([k])[:method]
         end
       end
     end

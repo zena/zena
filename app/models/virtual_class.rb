@@ -346,8 +346,13 @@ class VirtualClass < Role
           end
         end
       end
+
       if type = safe_column_types[method]
-        return type
+        type
+      elsif method =~ /^(.+)_((id|zip|status|comment)(s?))\Z/ #&& !instance_methods.include?(method)
+        return nil if $1 == 'cached_role'
+        key = $3 == 'id' ? "zip#{$4}" : $2
+        {:method => "rel[#{$1.inspect}].try(:other_#{key})", :nil => true, :class => ($4.blank? ? Number : [Number])}
       end
     else
       nil

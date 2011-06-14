@@ -68,8 +68,7 @@ class PropEvalTest < Zena::Unit::TestCase
       klass = roles(:Contact)
       assert klass.update_attributes(
         :prop_eval => %q{{'title' => "#{id} / #{first_name} #{name}"}}
-      )
-      deb VirtualClass['Contact'].prop_eval
+      ), 'Could not save klass in setup'
     end
 
     context 'creating a node from a class with prop eval' do
@@ -81,14 +80,14 @@ class PropEvalTest < Zena::Unit::TestCase
         assert_difference('Node.count', 1) do
           node = subject
           # should have 'zip' during prop_eval
-          assert_equal %r{foo\Z}, node.title
+          assert_match %r{foo\Z}, node.title
         end
       end
 
       should 'have zip during prop_eval' do
         node = subject
         # should have 'zip' during prop_eval
-        assert_equal %r{\A#{node.zip}}, node.title
+        assert_match %r{\A#{node.zip}}, node.title
       end
     end # creating a node from a class with prop eval
 
@@ -117,11 +116,11 @@ class PropEvalTest < Zena::Unit::TestCase
 
         context 'updating attributes' do
           should 'update evaluated prop on save' do
-            assert_equal 'Dan Simmons', subject.title
+            assert_equal '13 / Dan Simmons', subject.title
           end
 
           should 'use evaluated prop in fulltext indices' do
-            assert_equal 'Dan Simmons', subject.version.idx_text_high
+            assert_equal '13 / Dan Simmons', subject.version.idx_text_high
           end
 
           context 'with property indices' do

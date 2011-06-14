@@ -133,7 +133,7 @@ module Zena
             if %w{true [id] [zip]}.include?(anchor)
               anchor_value = "node#{node.zip}"
             elsif anchor =~ /\[(.+)\]/
-              anchor_value = node.prop[$1].url_name
+              anchor_value = node.prop[$1].try(:url_name)
             else
               anchor_value = anchor
             end
