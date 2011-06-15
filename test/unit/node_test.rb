@@ -955,8 +955,8 @@ done: \"I am done\""
 
       should 'create with correct vclass' do
         letter = subject.detect {|n| n.title == 'letter'}
-        assert_kind_of Note, letter
         assert_equal 'Letter', letter.klass
+        assert_kind_of Note, letter
       end
     end # with instances of vclass
 

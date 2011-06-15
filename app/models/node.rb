@@ -621,7 +621,7 @@ class Node < ActiveRecord::Base
         return res
       end
 
-      entries = Dir.entries(folder).reject { |f| f =~ /^[\.~]/ }.map do |filename|
+      entries = Dir.entries(folder).reject { |f| f =~ /^[\.~]|^__/ }.map do |filename|
         String.from_filename(filename)
       end.sort
 

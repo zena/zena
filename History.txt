@@ -1,4 +1,4 @@
-== 1.0.0
+== 1.0.0 2011-06-15
 
 * Major changes
  * [link] and other url related zafu tags ([form]) *do not typecast to String* by default:
@@ -21,6 +21,7 @@
  * Fixed ajax bugs for edge cases ([add] + [drop], etc).
  * Fixed security in ACL when using t_url Ajax.
  * Fixed role importation with prop_eval (validation).
+ * Fixed safe_method caching bug on site bootstrapping.
 
 == 1.0.0.rc3 2011-05-26
 
