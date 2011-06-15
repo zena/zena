@@ -26,6 +26,7 @@ class SiteTest < Zena::Unit::TestCase
       assert_equal 1, subject.admin_user_ids.size
 
       admin = secure(User) { User.find(:first, :conditions => "status >= #{User::Status[:admin]}") }
+      anon  = secure(User) { User.find(:first, :conditions => "status < #{User::Status[:admin]}") }
 
       assert_equal 'Admin User', admin.node.title
 
@@ -44,6 +45,8 @@ class SiteTest < Zena::Unit::TestCase
 
       # Should use Contact as usr_prototype
       assert_equal 'Contact', admin.prototype.klass
+      assert_equal 'Contact', admin.node.klass
+      assert_equal 'Contact', anon.node.klass
     end
   end
 

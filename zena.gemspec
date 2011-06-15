@@ -480,6 +480,7 @@ Gem::Specification.new do |s|
     "db/init/base/skins/default/Node-+search.zafu",
     "db/init/base/skins/default/Node.zafu",
     "db/init/base/skins/default/Project.zafu",
+    "db/init/base/skins/default/_roles.yml",
     "db/init/base/skins/default/img/favicon.png",
     "db/init/base/skins/default/img/style.css",
     "db/init/base/skins/default/img/translations.yml",
@@ -2292,7 +2293,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<tzinfo>, ["= 0.3.26"])
       s.add_runtime_dependency(%q<rails>, ["= 2.3.11"])
       s.add_runtime_dependency(%q<httparty>, ["= 0.7.8"])
-      s.add_runtime_dependency(%q<rubyless>, ["= 0.8.3"])
+      s.add_runtime_dependency(%q<rubyless>, ["= 0.8.4"])
       s.add_runtime_dependency(%q<property>, ["= 2.2.0"])
       s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_runtime_dependency(%q<authlogic>, ["= 2.1.3"])
@@ -2315,7 +2316,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<tzinfo>, ["= 0.3.26"])
       s.add_dependency(%q<rails>, ["= 2.3.11"])
       s.add_dependency(%q<httparty>, ["= 0.7.8"])
-      s.add_dependency(%q<rubyless>, ["= 0.8.3"])
+      s.add_dependency(%q<rubyless>, ["= 0.8.4"])
       s.add_dependency(%q<property>, ["= 2.2.0"])
       s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_dependency(%q<authlogic>, ["= 2.1.3"])
@@ -2339,7 +2340,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<tzinfo>, ["= 0.3.26"])
     s.add_dependency(%q<rails>, ["= 2.3.11"])
     s.add_dependency(%q<httparty>, ["= 0.7.8"])
-    s.add_dependency(%q<rubyless>, ["= 0.8.3"])
+    s.add_dependency(%q<rubyless>, ["= 0.8.4"])
     s.add_dependency(%q<property>, ["= 2.2.0"])
     s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
     s.add_dependency(%q<authlogic>, ["= 2.1.3"])

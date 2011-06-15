@@ -356,6 +356,10 @@ class RoleTest < Zena::Unit::TestCase
           "{'reference' => 'references', 'contact' => 'project'}",
           VirtualClass['Foo'].idx_scope
         )
+        assert_equal(
+          '{"title" => "#{foo} #{bar}"}',
+          VirtualClass['Foo'].prop_eval
+        )
         assert_equal('NNF', VirtualClass['Foo'].kpath)
       end
 

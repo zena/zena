@@ -32,7 +32,7 @@ class PropEvalTest < Zena::Unit::TestCase
         should 'succeed' do
           # TODO: support queries as safe method directly on nodes (also change zena/use/query_builder.rb).
           # subject.update_attributes(:prop_eval => %q[{'title' => "#{paper} #{recipient.name}"}])
-          subject.update_attributes(:prop_eval => %q[{'paper' => (paper.blank? ? 'Chiyogami' : paper), 'title' => 'booh'}])
+          subject.update_attributes(:prop_eval => %q[{'paper' => (paper.blank? ? 'Chiyogami' : paper), 'title' => 'booh', 'date' => now}])
         end
       end # with valid code
 

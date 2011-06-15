@@ -17,6 +17,7 @@ Node:
         date:
           ptype: datetime
           index: .idx_datetime1
+      prop_eval: "{'date' => (date.blank? ? now : date)}"
   Page:
     type: Class
     Project:

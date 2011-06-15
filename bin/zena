@@ -7,6 +7,10 @@ if %w(--version -v).include? ARGV.first
   exit(0)
 end
 
+if ARGV.first == 'init'
+  exec "rake zena:init RAILS_ENV=#{ARGV[1] || 'production'}"
+end
+
 require 'rails/version'
 require 'rails_generator'
 require 'rails_generator/scripts/generate'

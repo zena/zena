@@ -347,7 +347,8 @@ class User < ActiveRecord::Base
     end
 
     def create_node
-      return unless visitor.site[:root_id] # do not try to create a node if the root node is not created yet
+      # do not try to create a node if the root node is not created yet
+      return unless visitor.site.root_id
       @node.version.status = Zena::Status::Pub
 
       unless @node.save

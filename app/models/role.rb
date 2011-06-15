@@ -152,6 +152,7 @@ class Role < ActiveRecord::Base
             # We do not clear attributes (import is ADD/UPDATE only).
           end
         end
+        vclass.save!
 
         # 5. create or update sub-classes
         res += import_all(vclass, definition, post_import)

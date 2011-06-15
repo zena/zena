@@ -73,8 +73,9 @@ class Site < ActiveRecord::Base
       # =========== CREATE Admin User ===========================
 
       # create admin user
-      admin_user = User.new_no_defaults( :login => 'admin',           :password => su_password,
-                                         :lang  => site.default_lang, :status => User::Status[:admin])
+      admin_user = User.new_no_defaults(
+        :login => 'admin',           :password => su_password,
+        :lang  => site.default_lang, :status => User::Status[:admin])
       admin_user.site = site
 
       Thread.current[:visitor] = admin_user
@@ -134,25 +135,33 @@ class Site < ActiveRecord::Base
       raise Exception.new("Could not publish root node for site [#{host}] (site#{site[:id]})\n#{root.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless (root.v_status == Zena::Status::Pub || root.publish)
 
       site.root_id = root[:id]
+      # Make sure safe definitions on Time/Array/String are available on prop_eval validation.
+      Zena::Use::ZafuSafeDefinitions
+      # Should not be needed since we load PropEval in Node, but it does not work
+      # without when doing 'mksite' (works in tests).
+      Node.safe_method :now => {:class => Time, :method => 'Time.now'}
 
       # =========== UPDATE SITE =================================
       # save site definition
       raise Exception.new("Could not save site definition for site [#{host}] (site#{site[:id]})\n#{site.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless site.save
 
-      # =========== CREATE CONTACT PAGES ==============
-      {admin_user => 'Admin User', anon => 'Anonymous User'}.each do |user, title|
-        # forces @node creation
-        user.node_attributes = {'title' => title, 'parent_id' => root[:id] }
-        user.send(:create_node)
-        user.save
-      end
-
-      # =========== LOAD INITIAL DATA (default skin) =============
+      # =========== LOAD INITIAL DATA (default skin + roles) =============
 
       nodes = site.send(:secure, Node) { Node.create_nodes_from_folder(:folder => File.join(Zena::ROOT, 'db', 'init', 'base'), :parent_id => root[:id], :defaults => { :v_status => Zena::Status::Pub, :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :dgroup_id => editors[:id] } ) }.values
       # == set skin id to 'default' for all elements in the site == #
       skin = nodes.detect {|n| n.kind_of?(Skin) }
       Node.connection.execute "UPDATE nodes SET skin_id = '#{skin.id}' WHERE site_id = '#{site[:id]}'"
+
+      # =========== CREATE CONTACT PAGES ==============
+      {
+        admin_user => {'first_name' => 'Admin',     'last_name' => 'User'},
+        anon       => {'first_name' => 'Anonymous', 'last_name' => 'User'}
+      }.each do |user, attrs|
+        # forces @node creation
+        user.node_attributes = attrs
+        user.send(:create_node)
+        user.save!
+      end
 
       # == done.
       Site.logger.info "=========================================================="

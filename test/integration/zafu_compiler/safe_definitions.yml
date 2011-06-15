@@ -125,6 +125,10 @@ time_advance:
   src: "<b do='date.advance(:months =&gt; 1).strftime(\"%Y-%m-%d\")'/>"
   res: "<b>2011-03-03</b>"
 
+time_blank:
+  eval: "date.blank?"
+  tem: "<%= main_date.blank? %>"
+
 array_include:
   src: "<b do='[1,2,3].include?(2)'/>"
   tem: "<% if [1,2,3].include?(2) %><b></b><% end %>"

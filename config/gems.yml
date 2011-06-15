@@ -15,7 +15,7 @@ httparty:       '= 0.7.8'
 
 querybuilder:   '= 1.0.0'
 yamltest:       '= 0.7.0'
-rubyless:       '= 0.8.3'
+rubyless:       '= 0.8.4'
 property:       '= 2.2.0'
 versions:       '= 0.3.1'
 zafu:           '= 0.8.0'
