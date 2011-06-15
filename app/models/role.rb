@@ -124,18 +124,11 @@ class Role < ActiveRecord::Base
           # Reject
           raise Exception.new("Cannot convert Role '#{name}' to VirtualClass.")
         elsif !vclass
+          # 1. create
           vclass = VirtualClass.new(:name => name, :superclass => superclass)
+          vclass.save!
         end
 
-        # 1. create or update attributes
-        VirtualClass.export_attributes.each do |key|
-          if value = definition[key]
-            vclass.send(:"#{key}=", value)
-          else
-            # We do not clear attributes (import is ADD/UPDATE only).
-          end
-        end
-        vclass.save!
         res << vclass
 
         # 2. create or update columns (never delete)
@@ -150,7 +143,17 @@ class Role < ActiveRecord::Base
           end
         end
 
-        # 4. create or update sub-classes
+        # 4. update attributes last so that all relations and columns are
+        #    available during validation.
+        VirtualClass.export_attributes.each do |key|
+          if value = definition[key]
+            vclass.send(:"#{key}=", value)
+          else
+            # We do not clear attributes (import is ADD/UPDATE only).
+          end
+        end
+
+        # 5. create or update sub-classes
         res += import_all(vclass, definition, post_import)
         res
       end

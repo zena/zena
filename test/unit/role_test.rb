@@ -332,6 +332,7 @@ class RoleTest < Zena::Unit::TestCase
               'Foo' => {
                 'type'       => 'VirtualClass',
                 'idx_scope'  => "{'reference' => 'references', 'contact' => 'project'}",
+                'prop_eval'  => '{"title" => "#{foo} #{bar}"}',
                 'columns'    => {
                   'foo' => {'index' => '',       'ptype' => 'integer'},
                   'bar' => {'index' => '',       'ptype' => 'string'},

@@ -621,136 +621,146 @@ class Node < ActiveRecord::Base
         return res
       end
 
-      entries = Dir.entries(folder).reject { |f| f =~ /^([\._~])/ }.map do |filename|
+      entries = Dir.entries(folder).reject { |f| f =~ /^[\.~]/ }.map do |filename|
         String.from_filename(filename)
       end.sort
 
       index  = 0
 
       while entries[index]
-        type = current_obj = sub_folder = document_path = nil
-        versions = []
-        filename = entries[index]
+        catch (:next_entry) do
+          type = current_obj = sub_folder = document_path = nil
+          versions = []
+          filename = entries[index]
 
-        path     = File.join(folder, filename)
+          path     = File.join(folder, filename)
 
-        if File.stat(path).directory?
-          type       = :folder
-          title      = filename
-          sub_folder = path
-          attrs      = defaults.dup
-          attrs['v_lang'] ||= visitor.lang
-        elsif filename =~ /^(.+?)(\.\w\w|)(\.\d+|)\.zml$/  # bird.jpg.en.zml
-          # node content in yaml
-          type      = :node
-          title     = "#{$1}#{$4}"
-          lang      = $2.blank? ? nil : $2[1..-1]
+          if File.stat(path).directory?
+            type       = :folder
+            title      = filename
+            sub_folder = path
+            attrs      = defaults.dup
+            attrs['v_lang'] ||= visitor.lang
+          elsif filename =~ /^(.+?)(\.\w\w|)(\.\d+|)\.zml$/  # bird.jpg.en.zml
+            # node content in yaml
+            type      = :node
+            title     = "#{$1}#{$4}"
+            lang      = $2.blank? ? nil : $2[1..-1]
 
-          # no need for base_node (this is done after all with parse_assets in the controller)
-          attrs  = defaults.merge(get_attributes_from_yaml(path))
-          attrs['title'] = title
-          attrs['v_lang']    = lang || attrs['v_lang'] || visitor.lang
-          versions << attrs
-        elsif filename =~ /^((.+?)\.(.+?))(\.\w\w|)(\.\d+|)$/ # bird.jpg.en
-          type      = :document
-          title     = $1
-          attrs     = defaults.dup
-          lang      = $4.blank? ? nil : $4[1..-1]
-          attrs['v_lang'] = lang || attrs['v_lang'] || visitor.lang
-          attrs['ext']  = $3
-          document_path = path
-        else
-          # Document without extension
-          type      = :document
-          title     = filename
-          attrs     = defaults.dup
-          lang      = nil
-          attrs['v_lang'] = lang || attrs['v_lang'] || visitor.lang
-          attrs['ext']  = 'bin'
-          document_path = path
-        end
-
-        index += 1
-        while entries[index] =~ /^#{title}(\.\w\w|)(\.\d+|)\.zml$/ # bird.jpg.en.zml
-          lang   = $1.blank? ? visitor.lang : $1[1..-1]
-          path   = File.join(folder,entries[index])
-
-          # we have a zml file. Create a version with this file
-          # no need for base_node (this is done after all with parse_assets in the controller)
-          attrs = defaults.merge(get_attributes_from_yaml(path))
-          attrs['title']  ||= title
-          attrs['v_lang'] ||= lang
-          versions << attrs
+            # no need for base_node (this is done after all with parse_assets in the controller)
+            attrs  = defaults.merge(get_attributes_from_yaml(path))
+            attrs['title'] = title
+            attrs['v_lang']    = lang || attrs['v_lang'] || visitor.lang
+            versions << attrs
+          elsif filename =~ /^((.+?)\.(.+?))(\.\w\w|)(\.\d+|)$/ # bird.jpg.en
+            type      = :document
+            title     = $1
+            attrs     = defaults.dup
+            lang      = $4.blank? ? nil : $4[1..-1]
+            attrs['v_lang'] = lang || attrs['v_lang'] || visitor.lang
+            attrs['ext']  = $3
+            document_path = path
+          else
+            # Document without extension
+            type      = :document
+            title     = filename
+            attrs     = defaults.dup
+            lang      = nil
+            attrs['v_lang'] = lang || attrs['v_lang'] || visitor.lang
+            attrs['ext']  = 'bin'
+            document_path = path
+          end
 
           index += 1
-        end
+          while entries[index] =~ /^#{title}(\.\w\w|)(\.\d+|)\.zml$/ # bird.jpg.en.zml
+            lang   = $1.blank? ? visitor.lang : $1[1..-1]
+            path   = File.join(folder,entries[index])
 
-        if versions.empty?
-          if type == :folder
-            # minimal node for a folder
-            attrs['title']    = title
-            attrs['v_lang'] ||= lang
-            attrs['class']    = klass
-            versions << attrs
-          elsif type == :document
-            # minimal node for a document
-            attrs['title']    = title
+            # we have a zml file. Create a version with this file
+            # no need for base_node (this is done after all with parse_assets in the controller)
+            attrs = defaults.merge(get_attributes_from_yaml(path))
+            attrs['title']  ||= title
             attrs['v_lang'] ||= lang
             versions << attrs
+
+            index += 1
           end
-        end
 
-        new_object = false
-        versions.each do |attrs|
-          # FIXME: same lang: remove before update current_obj.remove if current_obj.v_lang == attrs['v_lang'] && current_obj.v_status != Zena::Status::Red
-          # FIXME: current_obj.publish if attrs['v_status'].to_i == Zena::Status::Pub
-          if type == :document
-            attrs['title' ] = attrs['title'].split('.')[0..-2].join('.')
-            if document_path
-              attrs['ext'] ||= document_path.split('.').last
-              # file
-              insert_zafu_headings = false
-              if opts[:parent_class] == 'Skin' && ['html','xhtml'].include?(attrs['ext']) && attrs['title'] == 'index'
-                attrs['ext']   = 'zafu'
-                attrs['title'] = 'Node'
-                insert_zafu_headings = true
-              end
+          if versions.empty?
+            if type == :folder
+              # minimal node for a folder
+              attrs['title']    = title
+              attrs['v_lang'] ||= lang
+              attrs['class']    = klass
+              versions << attrs
+            elsif type == :document
+              # minimal node for a document
+              attrs['title']    = title
+              attrs['v_lang'] ||= lang
+              versions << attrs
+            end
+          end
 
-              ctype = Zena::EXT_TO_TYPE[attrs['ext']]
-              ctype = ctype ? ctype[0] : "application/octet-stream"
-              attrs['content_type'] = ctype
-
-
-              File.open(document_path) do |f|
-                file = uploaded_file(f, filename, ctype)
-                (class << file; self; end;).class_eval do
-                  alias o_read read
-                  define_method(:read) do
-                    if insert_zafu_headings
-                      o_read.sub(%r{</head>},"  <r:stylesheets/>\n  <r:javascripts/>\n  <r:uses_datebox/>\n</head>")
-                    else
-                      o_read
-                    end
+          new_object = false
+          versions.each do |attrs|
+            # FIXME: same lang: remove before update current_obj.remove if current_obj.v_lang == attrs['v_lang'] && current_obj.v_status != Zena::Status::Red
+            # FIXME: current_obj.publish if attrs['v_status'].to_i == Zena::Status::Pub
+            if type == :document
+              attrs['title' ] = attrs['title'].split('.')[0..-2].join('.')
+              if document_path
+                attrs['ext'] ||= document_path.split('.').last
+                # file
+                insert_zafu_headings = false
+                if opts[:parent_class] == 'Skin'
+                  if ['html','xhtml'].include?(attrs['ext']) && attrs['title'] == 'index'
+                    attrs['ext']   = 'zafu'
+                    attrs['title'] = 'Node'
+                    insert_zafu_headings = true
+                  elsif attrs['ext'] == 'yml' && attrs['title'] == '_roles'
+                    # import roles
+                    # FIXME: security. We should show diff and ask for validation...
+                    ::Role.import(YAML.load(File.read(document_path)))
+                    # Continue in outer loop.
+                    throw :next_entry
                   end
                 end
-                current_obj = create_or_update_node(attrs.merge(:file => file, :klass => 'Document', :_parent_id => parent_id))
+
+                ctype = Zena::EXT_TO_TYPE[attrs['ext']]
+                ctype = ctype ? ctype[0] : "application/octet-stream"
+                attrs['content_type'] = ctype
+
+
+                File.open(document_path) do |f|
+                  file = uploaded_file(f, filename, ctype)
+                  (class << file; self; end;).class_eval do
+                    alias o_read read
+                    define_method(:read) do
+                      if insert_zafu_headings
+                        o_read.sub(%r{</head>},"  <r:stylesheets/>\n  <r:javascripts/>\n  <r:uses_datebox/>\n</head>")
+                      else
+                        o_read
+                      end
+                    end
+                  end
+                  current_obj = create_or_update_node(attrs.merge(:file => file, :klass => 'Document', :_parent_id => parent_id))
+                end
+                document_path = nil
+              else
+                current_obj = create_or_update_node(attrs.merge(:_parent_id => parent_id, :klass => 'Document'))
               end
-              document_path = nil
             else
-              current_obj = create_or_update_node(attrs.merge(:_parent_id => parent_id, :klass => 'Document'))
+              # :folder, :node
+              current_obj = create_or_update_node(attrs.merge(:_parent_id => parent_id))
             end
-          else
-            # :folder, :node
-            current_obj = create_or_update_node(attrs.merge(:_parent_id => parent_id))
+            new_object = new_object || current_obj.instance_variable_get(:@new_record_before_save)
           end
-          new_object = new_object || current_obj.instance_variable_get(:@new_record_before_save)
-        end
-        current_obj.instance_variable_set(:@new_record_before_save, new_object)
-        current_obj.instance_variable_set(:@versions_count, versions.size)
+          current_obj.instance_variable_set(:@new_record_before_save, new_object)
+          current_obj.instance_variable_set(:@versions_count, versions.size)
 
-        res[current_obj[:id].to_i] = current_obj
+          res[current_obj[:id].to_i] = current_obj
 
-        res.merge!(create_nodes_from_folder(:folder => sub_folder, :parent_id => current_obj[:id], :defaults => defaults, :parent_class => opts[:klass])) if sub_folder && !current_obj.new_record?
+          res.merge!(create_nodes_from_folder(:folder => sub_folder, :parent_id => current_obj[:id], :defaults => defaults, :parent_class => current_obj.klass)) if sub_folder && !current_obj.new_record?
+        end # catch :next_entry
       end
       res
     end

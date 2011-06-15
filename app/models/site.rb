@@ -44,12 +44,13 @@ class Site < ActiveRecord::Base
     # +rake zena:mksite HOST=[host_name]+ instead
     def create_for_host(host, su_password, opts={})
       params = {
-        :name            => host.split('.').first,
-        :authentication  => false,
-        :auto_publish    => true,
-        :redit_time      => '2h',
-        :languages       => '',
-        :default_lang    => "en",
+        :name                      => host.split('.').first,
+        :authentication            => false,
+        :auto_publish              => true,
+        :redit_time                => '2h',
+        :languages                 => '',
+        :default_lang              => "en",
+        :usr_prototype_attributes  => "{'klass' => 'Contact'}"
       }.merge(opts)
       langs = params[:languages].split(',').map(&:strip)
       langs += [params[:default_lang]] unless langs.include?(params[:default_lang])
@@ -152,7 +153,6 @@ class Site < ActiveRecord::Base
       # == set skin id to 'default' for all elements in the site == #
       skin = nodes.detect {|n| n.kind_of?(Skin) }
       Node.connection.execute "UPDATE nodes SET skin_id = '#{skin.id}' WHERE site_id = '#{site[:id]}'"
-
 
       # == done.
       Site.logger.info "=========================================================="

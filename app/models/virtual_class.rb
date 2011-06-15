@@ -260,7 +260,7 @@ class VirtualClass < Role
   def export
     res = super
     self.class.export_attributes.each do |k|
-      value = self[k]
+      value = self.send(k)
       next if value.blank?
       res[k] = value
     end

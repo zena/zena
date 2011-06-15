@@ -36,9 +36,17 @@ class SiteTest < Zena::Unit::TestCase
       index_zafu = secure(Node) { subject.root_node.find(:first, "template where title like 'Node%login' in site") }
       assert_kind_of Template, index_zafu
       assert_equal '+login', index_zafu.mode
+
+      # should create Reference, Contact and Post classes
+      roles = Role.find(:all, :conditions => {:site_id => subject.id})
+      assert_equal %w{Contact Post Reference}, roles.map(&:name).sort
+      assert_equal %w{first_name last_name}, roles.detect{|r| r.name == 'Contact'}.column_names.sort
+
+      # Should use Contact as usr_prototype
+      assert_equal 'Contact', admin.prototype.klass
     end
   end
-  
+
   context 'A user without access to root' do
     setup do
       # Only lion is in the 'admin' group
@@ -46,7 +54,7 @@ class SiteTest < Zena::Unit::TestCase
       Zena::Db.execute "UPDATE nodes SET rgroup_id = #{groups_id(:admin)}, wgroup_id = #{groups_id(:admin)}, dgroup_id = #{groups_id(:admin)}"
       login(:ant)
     end
-    
+
     subject do
       sites(:zena)
     end
@@ -54,12 +62,12 @@ class SiteTest < Zena::Unit::TestCase
     should 'receive a new node on root_node' do
       assert subject.root_node.new_record?
     end
-    
+
     should 'use site host as node title' do
       assert_equal 'test.host', subject.root_node.title
     end
   end # A user without access to root
-  
+
 
   def test_create_site_with_opts
     site = nil
@@ -151,7 +159,7 @@ class SiteTest < Zena::Unit::TestCase
     anon.site = site
     assert anon.is_anon?
   end
-  
+
   context 'A site' do
     subject do
       sites(:zena)
@@ -162,7 +170,7 @@ class SiteTest < Zena::Unit::TestCase
       assert_equal users(:lion), subject.any_admin
     end
   end # A site
-  
+
 
   def test_public_group
     login(:anon)

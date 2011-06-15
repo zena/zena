@@ -90,7 +90,17 @@ class PropEvalTest < Zena::Unit::TestCase
         assert_match %r{\A#{node.zip}}, node.title
       end
     end # creating a node from a class with prop eval
+    
+    context 'exporting a virtual class' do
+      subject do
+        roles(:Contact)
+      end
 
+      should 'include prop_eval' do
+        assert_equal "{'title' => \"\#{id} / \#{first_name} \#{name}\"}", subject.export['prop_eval']
+      end
+    end # exporting a virtual class
+    
 
     context 'unpublishing a node from a class with prop eval' do
       subject do

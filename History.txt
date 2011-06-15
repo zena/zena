@@ -3,8 +3,9 @@
 * Major changes
  * [link] and other url related zafu tags ([form]) *do not typecast to String* by default:
    you need to use <r:link foo='%{baz}'/> for literal values.
- * Created "uv" brick to support ultraviolet syntax highlighting.
+ * Created 'uv' brick to support ultraviolet syntax highlighting.
  * Created 'acl' brick to support Access Control Lists.
+ * On Skin importation, imports roles from "_roles.yml" file.
 
 * Minor changes
  * Fixed login redirect to not leave ssh.
@@ -19,6 +20,7 @@
  * Fixed a bug with 'find(22)' (find by literal zip).
  * Fixed ajax bugs for edge cases ([add] + [drop], etc).
  * Fixed security in ACL when using t_url Ajax.
+ * Fixed role importation with prop_eval (validation).
 
 == 1.0.0.rc3 2011-05-26
 

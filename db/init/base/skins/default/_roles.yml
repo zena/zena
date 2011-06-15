@@ -1,0 +1,37 @@
+---
+Node:
+  type: Class
+  Document:
+    type: Class
+    Image:
+      type: Class
+    TextDocument:
+      type: Class
+      Template:
+        type: Class
+  Note:
+    type: Class
+    Post:
+      type: VirtualClass
+      columns:
+        date:
+          ptype: datetime
+          index: .idx_datetime1
+  Page:
+    type: Class
+    Project:
+      type: Class
+    Section:
+      type: Class
+      Skin:
+        type: Class
+  Reference:
+    type: VirtualClass
+    Contact:
+      type: VirtualClass
+      columns:
+        first_name:
+          ptype: string
+        last_name:
+          ptype: string
+      prop_eval: "{'title' => \"#{first_name} #{last_name}\"}"
