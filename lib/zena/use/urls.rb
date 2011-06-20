@@ -151,6 +151,7 @@ module Zena
             path
           else
             cachestamp = opts.delete(:cachestamp)
+            tz = opts.delete(:tz)
             list = opts.keys.map do |k|
               # FIXME: DOC
               if k.to_s == 'encode_params'
@@ -166,7 +167,7 @@ module Zena
                 end
               elsif value = opts[k]
                 if value.respond_to?(:strftime_tz)
-                  "#{k}=#{CGI.escape(value.strftime_tz(_(Zena::Use::Dates::DATETIME)))}"
+                  "#{k}=#{CGI.escape(value.strftime_tz(_(Zena::Use::Dates::DATETIME), tz))}"
                 elsif value.kind_of?(Hash)
                   "#{k}=#{value.to_query}"
                 elsif value.kind_of?(Node)
@@ -348,6 +349,15 @@ module Zena
         # <r:link update='dom_id'/>
         # <r:link page='next'/> <r:link page='previous'/> <r:link page='list'/>
         def r_link
+          # If we have a contextual timezone set, pass it to @params
+          if tz_name = @params[:tz]
+            tz_result, tz_var = set_tz_var(tz_name)
+            return tz_result unless tz_var
+            @params[:tz] = 'tz'
+          elsif tz_var = get_context_var('set_var', 'tz')
+            @params[:tz] = 'tz'
+          end
+
           if @params[:page] && @params[:page] != '[page_page]' # lets users use 'page' as pagination key
             pagination_links
           else

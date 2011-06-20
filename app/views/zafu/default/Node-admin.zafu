@@ -15,7 +15,7 @@
   <r:uses_datebox/>
 </head>
 <body>
-  <h1 id='logo' do='link' href='root' mode='admin' do='t'>admin_interface</h1>
+  <h1 id='logo' do='link'>admin_interface</h1>
   <div id='container'>
     <div id='navigation'>
       <ul id='menu' do='admin_links'>

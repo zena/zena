@@ -16,6 +16,7 @@ module Zena
     end
 
     def rename_prop(list, old_key, new_key)
+      list = find(list) if list.kind_of?(String)
       if list.first.kind_of?(Node)
         list = list.map(&:visible_versions).flatten
       end
@@ -32,6 +33,7 @@ module Zena
     end
 
     def field_to_prop(list, native_key, prop_key)
+      list = find(list) if list.kind_of?(String)
       list.each do |rec|
         next unless value = rec[native_key]
         if rec.kind_of?(Node)
@@ -48,6 +50,7 @@ module Zena
     end
 
     def set_prop(list, key, value)
+      list = find(list) if list.kind_of?(String)
       list.each do |rec|
         if rec.kind_of?(Node)
           elems = rec.visible_versions

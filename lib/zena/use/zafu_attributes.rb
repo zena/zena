@@ -161,6 +161,7 @@ module Zena
           end
 
           def filter_prefix
+            return if %w{link url path}.include?(@method)
             if prefix = @params.delete(:prefix)
               prefix.split(',').map(&:strip).each do |cond_prefix|
                 case cond_prefix

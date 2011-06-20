@@ -122,12 +122,20 @@ date_context:
   src: "<r:show eval='parse_date(\"2008-03-02\")' format='%A %d.%m.%Y'/>"
   res: "Sunday 02.03.2008"
 
+parse_date:
+  src: "<r:void do='parse_date(\"2011-06-16\")'/>"
+  tem: "/parse_date\(\"2011-06-16\", \"%Y-%m-%d %H:%M\", visitor.tz\) %>"
+
+parse_date_in_tz:
+  src: "<r:default tz='Asia/Jakarta' do='parse_date(\"2011-06-16\")'/>"
+  tem: "/parse_date\(\"2011-06-16\", \"%Y-%m-%d %H:%M\", _ztz\) %>"
+
 date_from_params:
   context:
     year: 1975
   old_src: "<r:date select='[param:year]-01-01'><r:show attr='current_date' format='%A %d.%m.%Y'/></r:date>"
   src: "<r:show eval='parse_date(\"#{params[:year]}-01-01\")' format='%A %d.%m.%Y'/>"
-  tem: "<%= format_date(parse_date(\"#{params[:year]}-01-01\"), :format => \"%A %d.%m.%Y\") %>"
+  tem: "<%= format_date(parse_date(\"#{params[:year]}-01-01\", \"%Y-%m-%d %H:%M\", visitor.tz), :format => \"%A %d.%m.%Y\") %>"
   res: "Wednesday 01.01.1975"
 
 date_from_params_in_query:

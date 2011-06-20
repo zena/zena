@@ -29,6 +29,11 @@ class String
     end.tr(' ', '-')
   end
 
+  # Change a string into something that can be inserted in an url.
+  def urlencode
+    URI.escape(self)
+  end
+
   # Retrieve original title from an url_name
   def self.from_url_name(str)
     CGI.unescape(str.tr('-', ' '))

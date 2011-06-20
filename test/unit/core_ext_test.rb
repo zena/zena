@@ -28,7 +28,7 @@ class StringExtTest < Test::Unit::TestCase
 
     assert_equal "/a/b/c", ''.abs_path('/a/b/c')
   end
-    
+
   context 'A string with accents' do
     subject do
       "aïl en août"
@@ -37,12 +37,16 @@ class StringExtTest < Test::Unit::TestCase
     should 'remove accents on to_filename' do
       assert_equal 'a%C3%AFl en ao%C3%BBt', subject.to_filename
     end
-    
+
     should 'recover original name on from_filename' do
       assert_equal subject, String.from_filename(subject.to_filename)
     end
+
+    should 'transform on urlencode' do
+      assert_equal 'a%C3%AFl%20en%20ao%C3%BBt', subject.urlencode
+    end
   end # A string with accents
-  
+
   context 'A long string' do
     subject do
       "12345678901234567890"
@@ -51,15 +55,15 @@ class StringExtTest < Test::Unit::TestCase
     should 'limit size on limit' do
       assert_equal '123456789012345…', subject.limit(15)
     end
-  
+
     should 'append readmore argument on limit' do
       assert_equal '123456789012345 <a href="">read more</a>', subject.limit(15, ' <a href="">read more</a>')
     end
-    
+
     should 'not append readmore argument if limit is not reached' do
       assert_equal '12345678901234567890', subject.limit(25, ' <a href="">read more</a>')
     end
-    
+
     should 'not raise on negative limit' do
       assert_equal ' <a href="">read more</a>', subject.limit(-35, ' <a href="">read more</a>')
     end

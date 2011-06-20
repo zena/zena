@@ -306,8 +306,8 @@ module Zena
         safe_method :date                     => :get_date
         safe_method [:date, TZInfo::Timezone] => :get_date
         safe_method :tz                       => :get_tz
-        safe_method [:parse_date, String]     => {:class => Time, :nil => true, :accept_nil => true}
-        safe_method [:parse_date, String, String] => {:class => Time, :nil => true, :accept_nil => true}
+        safe_method [:parse_date, String]     => :get_parse_date
+        safe_method [:parse_date, String, String] => :get_parse_date
         safe_method [:parse_date, String, String, TZInfo::Timezone] => {:class => Time, :nil => true, :accept_nil => true}
 
         def get_date(signature)
@@ -324,6 +324,21 @@ module Zena
           else
             {:class => TZInfo::Timezone, :method => 'visitor.tz'}
           end
+        end
+
+        def get_parse_date(signature)
+          tz_var = get_context_var('set_var', 'tz')
+          if signature == ['parse_date', String]
+            append = [
+              RubyLess::TypedString.new(_(DATETIME).inspect, :class => String),
+              tz_var || RubyLess::TypedString.new('visitor.tz', :class => TZInfo::Timezone),
+            ]
+          elsif signature = ['parse_date', String, String]
+            append = tz_var || RubyLess::TypedString.new('visitor.tz', :class => TZInfo::Timezone)
+          else
+            append = nil
+          end
+          {:method => 'parse_date', :class => Time, :nil => true, :accept_nil => true, :append_args => append}
         end
 
         def r_default

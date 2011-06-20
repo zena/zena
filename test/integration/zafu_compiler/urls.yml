@@ -129,7 +129,7 @@ link_anchor:
 
 link_anchor_title:
   old_src: "<r:link anchor='[name]'/>"
-  src: "<r:link anchor='#{title.urlencode}'/>"
+  src: "<r:link anchor='#{title.url_name}'/>"
   res: "<a href='#status-title'>status title</a>"
 
 link_anchor_in:
@@ -138,7 +138,7 @@ link_anchor_in:
 
 link_anchor_name_in:
   old_src: "<r:link anchor='[name]' in='parent'/>"
-  src: "<r:link anchor='#{title.urlencode}' href='parent'/>"
+  src: "<r:link anchor='#{title.url_name}' href='parent'/>"
   res: "<a href='/oo/projects-list/Clean-Water-project#status-title'>status title</a>"
 
 link_stored:
@@ -222,8 +222,16 @@ live_link_data_mode:
   res: "<h2><a id='_title30' href='/en/image30_pv.jpg?967816914293'>bird</a></h2>"
 
 url_with_lang:
+  context:
+    visitor: lion
   src: "window.location = \"<r:url lang='fr'/>\";"
-  res: "/\\?lang=fr/"
+  res: "/\?lang=fr/"
+
+url_with_prefix:
+  context:
+    visitor: lion
+  src: "window.location = \"<r:url prefix='fr'/>\";"
+  res: "/test.host/fr"
 
 link_in_list_context:
   src: "<div do='nodes in site'><r:link/></div>"

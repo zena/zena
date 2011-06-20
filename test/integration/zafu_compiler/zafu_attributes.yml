@@ -151,7 +151,7 @@ test_negative_value:
 
 anchor_attribute:
   # Use to_s so that the method executed replaces the dummy text.
-  src: "<p do='id.to_s' anchor='#{title.urlencode}'>hello</p>"
+  src: "<p do='id.to_s' anchor='#{title.url_name}'>hello</p>"
   res: "<a class='anchor' name='status-title'></a><p>22</p>"
 
 anchor_true:
@@ -167,7 +167,7 @@ anchor_in_link:
   res: "<a class='xx' href='#node22'>status title</a>"
 
 anchor_tag:
-  src: "<r:anchor/> <r:anchor anchor='#{title.urlencode}'/>"
+  src: "<r:anchor/> <r:anchor anchor='#{title.url_name}'/>"
   res: "<a class='anchor' name='node22'></a> <a class='anchor' name='status-title'></a>"
 
 live_with_show:
