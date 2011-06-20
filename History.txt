@@ -7,6 +7,7 @@
  * Console methods now accept SQLiss.
  * Admin interface top link moves to page.
  * Fixed a bug in date parsing: links should use contextual timezone.
+ * Added 'versions' safe method to return list of versions for a node.
 
 == 1.0.0 2011-06-15
 

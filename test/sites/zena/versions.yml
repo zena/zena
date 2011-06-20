@@ -348,6 +348,7 @@ opening_en:
   user:            tiger
   comment:         english opening
   number:          2
+  updated_at:      2006-04-15
   prop:
     title:         parc opening
     date:          2006-03-15
@@ -363,6 +364,7 @@ opening_red_fr:
   lang:            fr
   status:          red
   number:          3
+  updated_at:      2006-04-16
   prop:
     date:          2006-03-15
     comment:       new redaction for opening

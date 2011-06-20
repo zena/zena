@@ -45,3 +45,9 @@ created_at:
 updated_at:
   src: "<p do='show' eval='v.updated_at' format='%d %b %y'/>"
   res: "<p>11 Apr 06</p>"
+
+versions:
+  context:
+    node: 'opening'
+  src: "<r:versions do='each' join=', '>[<r:updated_at format='%Y-%m-%d'/>/<r:author do='title'/>/<r:lang/>] <r:title/></r:versions>"
+  res: "[2006-04-16/Panthera Tigris Sumatran/fr] super ouverture, [2006-04-15/Panthera Tigris Sumatran/en] parc opening, [2006-04-11/Solenopsis Invicta/fr] ouverture du parc"

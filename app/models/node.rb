@@ -238,6 +238,7 @@ class Node < ActiveRecord::Base
                      :visitor => 'User', [:is_ancestor?, Node] => Boolean,
                      :comments_count => Number,
                      :v => {:class => 'Version', :method => 'version'},
+                     :versions => {:class => ['Version'], :method => 'zafu_versions'},
                      :version => 'Version', :v_status => Number, :v_lang => String,
                      :v_publish_from => Time, :v_backup => Boolean,
                      :zip => Number, :parent_id => {:class => Number, :nil => true, :method => 'parent_zip'},
@@ -933,6 +934,9 @@ class Node < ActiveRecord::Base
     end
   end
 
+  def zafu_versions
+    versions.all(:order => 'number desc')
+  end
   # Remove loaded version and properties on reload.
   def reload
     @version    = nil
