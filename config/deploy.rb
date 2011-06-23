@@ -1,7 +1,11 @@
 set :db_name,               "zena"     # If you change this: no dots in this name !
 set :server_ip,             nil        # FIXME: set this to your remote server IP in the form: "215.0.0.1"
-set :app_type,              :passenger
 set :db_password,           nil        # FIXME: set password (can be anything).
+set :app_type,              :mongrel
+set :mongrel_port,          8000
+set :mongrel_count,         3
+set :haproxy_port,          9000
+set :haproxy_password,      nil        # If you set this, you can view stats on /_haproxy
 
 # You need to give the public key from the server to the git repository if the application is not public
 set :scm,                   'git'

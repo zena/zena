@@ -1,0 +1,34 @@
+# Start haproxy with
+# > haproxy -d -f config/haproxy.cnf
+
+global
+  maxconn 1024
+  pidfile <%= config[:deploy_to] %>/shared/pids/haproxy.pid
+  log 127.0.0.1 local0 info
+
+defaults
+  balance roundrobin
+  mode http
+  retries 3
+  option redispatch
+  contimeout 300000
+  clitimeout 300000
+  srvtimeout 300000
+
+# [<%= config[:balancer] %>]
+listen <%= config[:balancer] %>_haproxy 127.0.0.1:<%= config[:haproxy_port] %>
+  option httplog
+  log global
+<% if config[:haproxy_password] -%>
+  stats enable
+  stats uri /_haproxy
+  stats auth admin:<%= config[:haproxy_password] %>
+<% end -%>
+<% config[:ports].each do |port| %>
+  server worker_<%= port %> localhost:<%= port %> check inter 20000 maxconn 1<% end %>
+# [/<%= config[:balancer] %>]
+
+# Beware of /etc/apache2/conf.d/<%= config[:balancer] %>
+# <Proxy balancer://<%= config[:balancer] %>>
+#   BalancerMember http://127.0.0.1:<%= config[:haproxy_port] %>
+# </Proxy>

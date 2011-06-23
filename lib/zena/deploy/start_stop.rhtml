@@ -1,0 +1,35 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          zena
+# Required-Start:    $remote_fs
+# Required-Stop:     $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: launch /usr/local/bin/zena_<%= config[:db_name] %>
+### END INIT INFO
+
+# Author: Gaspard Bucher <gaspard@teti.ch>
+#
+
+# PATH should only include /usr/* if it runs after the mountnfs.sh script
+PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/bin
+DESC="Zena server"
+
+case "$1" in
+  start)
+        # launch all services for <%= config[:db_name] %>
+        /usr/local/bin/zena_<%= config[:db_name] %> start
+	;;
+  stop)
+        # stop all services for <%= config[:db_name] %>
+        /usr/local/bin/<%= config[:db_name] %> stop
+	;;
+  restart)
+        # restart all services for <%= config[:db_name] %>
+        /usr/local/bin/<%= config[:db_name] %> restart
+	;;
+  *)
+	echo "Usage: $SCRIPTNAME {start|stop|restart}" >&2
+	exit 3
+	;;
+esac

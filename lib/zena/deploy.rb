@@ -384,6 +384,28 @@ Capistrano::Configuration.instance(:must_exist).load do
     end
   end # db
 
+  #========================== INIT (start/stop init scripts)   ===============================#
+
+  namespace :debian do
+    desc "create Start/stop scripts and installs rc.d defaults"
+    task :app_setup, :roles => :app do
+      # Create /usr/local/bin/[app]_init script
+      app_init = render("#{templates}/app_init.rhtml", :config => self)
+      put(app_init, "/usr/local/bin/zena_#{db_name}")
+      if db_name == 'zena'
+        init_name = 'zapp'
+      else
+        init_name = db_name
+      end
+      run "cd /usr/local/bin && test -e /usr/local/bin/#{init_name} || ln -sf /usr/local/bin/zena_#{db_name} /usr/local/bin/#{init_name}"
+
+      start_stop = render("#{templates}/start_stop.rhtml", :config => self)
+      put(start_stop, "/etc/init.d/zena_#{db_name}")
+      # Install defaults
+      run "cd /etc/init.d && update-rc.d zena_#{db_name} defaults"
+    end
+  end # debian
+
   # Would need to be fixed before being used
   #
   # desc "Get backup file back"
@@ -457,5 +479,5 @@ Capistrano::Configuration.instance(:must_exist).load do
       app.stop
     end
 
-  end # mongrel/deploy
+  end # deploy
 end

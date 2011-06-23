@@ -10,6 +10,11 @@ PassengerDefaultUser www-data
   Order allow,deny
   Allow from all
 </Proxy>
+<% if config[:haproxy_port] %>
+<Proxy balancer://<%= config[:balancer] %>>
+  BalancerMember http://127.0.0.1:<%= config[:haproxy_port] %>
+</Proxy>
+<% else %>
 <Proxy balancer://<%= config[:balancer] %>><% config[:ports].each do |port| %>
   BalancerMember http://127.0.0.1:<%= port %><% end %>
 </Proxy>
