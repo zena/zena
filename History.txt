@@ -1,6 +1,7 @@
 == 1.0.1
 
 * Major changes
+ * Fixed 'cached_pages' indexing.
 
 * Minor changes
  * Fixed 'prefix' option on [url].

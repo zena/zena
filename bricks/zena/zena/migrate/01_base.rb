@@ -16,7 +16,7 @@ class Base < ActiveRecord::Migration
     end
 
     create_table "cached_pages", :options => table_options, :force => true do |t|
-      t.text     "path"
+      t.string   "path"
       t.datetime "expire_after"
       t.datetime "created_at"
       t.integer  "node_id"

@@ -8,6 +8,9 @@ set :scm,                   'git'
 set :repository,            'git@github.com:YOUR_PROJECT/APPLICATION.git'
 set :branch,                'master'
 
+# Uncomment if you are using rvm on the remote server
+# set :rvm_ruby_string,       '1.8.7'
+
 if self[:server_ip]
   #================= ADVANCED SETTINGS =============#
 
@@ -26,6 +29,14 @@ if self[:server_ip]
   role :web,         "#{ssh_user}@#{server_ip}"
   role :app,         "#{ssh_user}@#{server_ip}"
   role :db,          "#{ssh_user}@#{server_ip}", :primary => true
+
+  # Set to 'true' if you use rvm on the remote server
+  if self[:rvm_ruby_string]
+    $:.unshift(File.expand_path('./lib', ENV['rvm_path'])) # Add RVM's lib directory to the load path.
+    require "rvm/capistrano"                  # Load RVM's capistrano plugin.
+    # Uncomment if you are not using a System wide install of rvm
+    # set :rvm_type, :user
+  end
 
   #================= END ADVANCED SETTINGS ==========#
   # We need to set RAILS_ROOT and RAILS_ENV to know which bricks we need to load, activate
