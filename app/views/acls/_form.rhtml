@@ -5,7 +5,7 @@
     link_to_function _('btn_x'), "['add_acl', 'add_acl_form'].each(Element.toggle);"
   end %>
 </td>
-<td class='add' colspan='6'>
+<td class='add' colspan='8'>
   <div class='errors'><%= error_messages_for(:acl, :object => @acl) %></div>
   <% if @acl[:id] %>
   <%= form_remote_tag(:url=> acl_path(@acl)) %>
@@ -16,15 +16,15 @@
   <% end %>
     <table cellspacing='0'>
       <tr>
-        <td class='label'><%= _('group')%> <%= help('acl_group_help') %></td>
+        <td class='label'><%= _('group')%> <%= help(_('acl_group_help')) %></td>
         <td><%= select('acl', 'group_id',  visitor.all_groups.map{|g| [g.name, g.id]}) %></td>
       </tr>
       <tr>
-        <td class='label'><%= _('action')%> <%= help('acl_action_help') %></td>
+        <td class='label'><%= _('action')%> <%= help(_('acl_action_help')) %></td>
         <td><%= select('acl', 'action',  Acl::ACTIONS ) %></td>
       </tr>
       <tr class='priority'>
-        <td class='label'><%= _('priority')%> <%= help('acl_priority_help') %></td>
+        <td class='label'><%= _('priority')%> <%= help(_('acl_priority_help')) %></td>
         <td><%= text_field('acl', 'priority', :size => 4 ) %></td>
       </tr>
       <tr>
@@ -32,19 +32,27 @@
         <td><%= text_field('acl', 'name',        :size=>15 ) %></td>
       </tr>
       <tr>
+        <td class='label'><%= _('mode')%> <%= help(_('acl_mode_help')) %></td>
+        <td><%= text_field('acl', 'mode',        :size=>15 ) %></td>
+      </tr>
+      <tr>
+        <td class='label'><%= _('format')%> <%= help(_('acl_format_help')) %></td>
+        <td><%= text_field('acl', 'format',        :size=>15 ) %></td>
+      </tr>
+      <tr>
         <td class='label'><%= _('description')%></td>
         <td><%= text_area('acl', 'description', :rows => 2, :cols => 40) %></td>
       </tr>
       <tr>
-        <td class='label'><%= _('query')%> <%= help('acl_query_help') %></td>
+        <td class='label'><%= _('query')%> <%= help(_('acl_query_help')) %></td>
         <td><%= text_area('acl', 'query', :rows => 4, :cols => 40) %></td>
       </tr>
       <tr class='exec'>
-        <td class='label'><%= _('exec group')%> <%= help('acl_exec_group_help') %></td>
+        <td class='label'><%= _('exec group')%> <%= help(_('acl_exec_group_help')) %></td>
         <td><%= select('acl', 'exec_group_id',  visitor.all_groups.map{|g| [g.name, g.id]}, :include_blank => true) %></td>
       </tr>
       <tr class='exec'>
-        <td class='label'><%= _('exec skin')%> <%= help('acl_exec_skin_help') %></td>
+        <td class='label'><%= _('exec skin')%> <%= help(_('acl_exec_skin_help')) %></td>
         <td><%= select('acl', 'exec_skin_id',  form_skins, {:include_blank => true, :selected => @acl.exec_skin_zip}) %></td>
       </tr>
       <tr>

@@ -32,7 +32,7 @@ module Bricks
       def acl_authorized?(action, params, base_node = nil)
         node = nil
         group_ids_bak = group_ids.dup
-        acls(action).each do |acl|
+        acls(action, params[:mode], params[:format]).each do |acl|
           # Load exec_group to execute query
           if acl.exec_group_id
             @group_ids = group_ids_bak + [acl.exec_group_id]
@@ -55,9 +55,14 @@ module Bricks
       # Find all acls for the visitor for a given action. The action should
       # be one of the following: 'create', 'read', 'update', 'delete'. See
       # Acl::ACTIONS.
-      def acls(action)
+      def acls(action, mode, format)
+        mode = '' if mode.blank?
+        # Can the format be blank ?
+        format = 'html' if format.blank?
         secure(Acl) { Acl.find(:all,
-          :conditions => ['group_id IN (?) and action = ?', group_ids, action],
+          :conditions => [
+            'group_id IN (?) AND action = ? AND (mode = ? OR mode = ?) AND (format = ? OR format = ?)',
+             group_ids, action, '*', mode, '*', format],
           :order => 'priority DESC'
         )} || []
       end
@@ -79,7 +84,7 @@ module Bricks
         else
           acl_params[:id] = zip
         end
-        
+
         visitor.acl_authorized?(::Acl::ACTION_FROM_METHOD[method], acl_params)
       end
     end # UserMethods

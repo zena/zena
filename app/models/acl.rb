@@ -5,6 +5,7 @@ class Acl < ActiveRecord::Base
   ACTIONS = %w{read update create delete}
   ACTION_FROM_METHOD = Hash[:get,'read',:put,'update',:post,'create',:delete,'delete']
 
+  before_validation :set_defaults
   before_save   :set_visitor_id, :set_site_id
   belongs_to    :exec_group, :class_name => 'Group', :foreign_key => 'exec_group_id'
   belongs_to    :group
@@ -43,6 +44,11 @@ class Acl < ActiveRecord::Base
   end
 
   protected
+    def set_defaults
+      self.format = 'html' if format.blank?
+      self.mode = '' if mode.nil?
+    end
+
     def set_visitor_id
       self.user_id = visitor.id
     end

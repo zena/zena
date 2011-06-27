@@ -51,7 +51,7 @@ form_update:
   src: "<div id='foo' do='block'><r:form update='foo'></r:form></div>"
   res: "/t_url=ajax%2Fform%2Fupdate%2Ffoo/"
   'ajax/form/update/en/foo.erb': '/t_url=ajax%2Fform%2Fupdate%2Ffoo'
-  
+
 add_each_no_form:
   src: "<ul do='children' id='things'><li do='each'>I <p do='title'>blah</p></li><li do='add'/></ul>"
   tem: "!/</ul><ul></ul>/" # bug in closing group with [add].
@@ -299,7 +299,7 @@ drop_add_link:
   src: "<div do='drop' add='favorite'></div>"
   # without the ugly inspect, this would be '#{id}' or "\#{id}"
   tem: "/drop_node_path.*\"node\[favorite_id\]\" => \"\\\\#\{id\}\"/"
-  res: "<div class='drop' id='list1'>drop</div>"
+  res: "<div class='drop' id='list1'></div>"
   js: "/Droppables.add\('list1'.*/nodes/22/drop.*node\[favorite_id\]=%23%7Bid%7D"
 
 drop_var_scope:

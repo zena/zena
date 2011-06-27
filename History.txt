@@ -3,6 +3,8 @@
 * Major changes
  * Fixed 'cached_pages' indexing.
  * Added support for haproxy and init.d scripts in cap deploy rules.
+ * Added support for upvalues (variables defined in siblings above).
+ * Added mode and format filters to Acl rules.
 
 * Minor changes
  * Fixed 'prefix' option on [url].

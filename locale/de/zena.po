@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: version 0.0.1\n"
-"POT-Creation-Date: 2011-06-09 19:15-0000\n"
+"POT-Creation-Date: 2011-06-27 20:12-0000\n"
 "PO-Revision-Date: 2011-06-02 10:51+0100\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: de <lars@greiz-reinsdorf.de>\n"
@@ -12,10 +12,6 @@ msgstr ""
 "X-Poedit-Country: UNITED STATES\n"
 "X-Poedit-Bookmarks: -1,-1,-1,219,-1,-1,-1,-1,-1,-1\n"
 "X-Poedit-Basepath: /Users/gaspard/svk/zena\n"
-
-#: lib/gettext_strings.rb:118
-msgid "%Y-%m-%d %H:%M"
-msgstr "%Y-%m-%d %H:%M"
 
 #: app/models/text_document.rb:79
 #, fuzzy
@@ -75,7 +71,7 @@ msgstr "Apr"
 msgid "April"
 msgstr "April"
 
-#: app/views/acls/_form.rhtml:58
+#: app/views/acls/_form.rhtml:66
 #, fuzzy
 msgid "Are you sure you want to destroy this access ?"
 msgstr "Sind sie sicher, die virtuelle Klasse zu löschen?"
@@ -114,7 +110,7 @@ msgstr "Aug"
 msgid "August"
 msgstr "August"
 
-#: app/controllers/nodes_controller.rb:300
+#: app/controllers/nodes_controller.rb:311
 msgid "Backup created."
 msgstr "Backup erzeugt"
 
@@ -144,15 +140,15 @@ msgstr ""
 msgid "Could not change version back to redaction."
 msgstr "Artikel konnte nicht wieder zur Begutachtung gestellt werden"
 
-#: app/controllers/nodes_controller.rb:504
+#: app/controllers/nodes_controller.rb:515
 msgid "Could not clear order."
 msgstr "Order konnte nicht gelöscht werden"
 
-#: app/controllers/nodes_controller.rb:302
+#: app/controllers/nodes_controller.rb:313
 msgid "Could not create backup."
 msgstr "Backup konnte nicht erzeugt werden"
 
-#: app/controllers/nodes_controller.rb:269
+#: app/controllers/nodes_controller.rb:280
 #, fuzzy
 msgid "Could not destroy node."
 msgstr "Order konnte nicht gelöscht werden"
@@ -186,7 +182,7 @@ msgstr "Vorschlag zur Veröffentlichung konnte nicht zurückgezogen werden"
 msgid "Could not rollback:"
 msgstr "Backup konnte nicht erzeugt werden"
 
-#: app/controllers/nodes_controller.rb:487
+#: app/controllers/nodes_controller.rb:498
 msgid "Could not update order."
 msgstr "Order konnte nicht aktualisiert werden"
 
@@ -300,7 +296,7 @@ msgstr "Oktober"
 msgid "Order cleared."
 msgstr "Zwischenspeicher gelöscht."
 
-#: app/controllers/nodes_controller.rb:485
+#: app/controllers/nodes_controller.rb:496
 msgid "Order updated"
 msgstr "Order aktualisiert"
 
@@ -452,29 +448,43 @@ msgid "access controls"
 msgstr ""
 
 #: app/views/acls/_form.rhtml:23
+#, fuzzy
 msgid "acl_action_help"
-msgstr ""
+msgstr "<img src='/images/group.png' title='Gruppe erzeugen'/>"
 
-#: app/views/acls/_form.rhtml:43
+#: app/views/acls/_form.rhtml:51
 #, fuzzy
 msgid "acl_exec_group_help"
 msgstr "<img src='/images/group.png' title='Gruppe erzeugen'/>"
 
-#: app/views/acls/_form.rhtml:47
+#: app/views/acls/_form.rhtml:55
+#, fuzzy
 msgid "acl_exec_skin_help"
+msgstr "<img src='/images/group.png' title='Gruppe erzeugen'/>"
+
+#: app/views/acls/_form.rhtml:39
+msgid "acl_format_help"
 msgstr ""
 
 #: app/views/acls/_form.rhtml:19
+#, fuzzy
 msgid "acl_group_help"
-msgstr ""
+msgstr "<img src='/images/group.png' title='Gruppe erzeugen'/>"
+
+#: app/views/acls/_form.rhtml:35
+#, fuzzy
+msgid "acl_mode_help"
+msgstr "<img src='/images/group.png' title='Gruppe erzeugen'/>"
 
 #: app/views/acls/_form.rhtml:27
+#, fuzzy
 msgid "acl_priority_help"
-msgstr ""
+msgstr "<img src='/images/group.png' title='Gruppe erzeugen'/>"
 
-#: app/views/acls/_form.rhtml:39
+#: app/views/acls/_form.rhtml:47
+#, fuzzy
 msgid "acl_query_help"
-msgstr ""
+msgstr "<img src='/images/group.png' title='Gruppe erzeugen'/>"
 
 #: lib/zena/use/display.rb:282
 #, fuzzy
@@ -776,7 +786,7 @@ msgstr ""
 msgid "convert"
 msgstr "konvertieren"
 
-#: app/models/node.rb:1540 app/models/node.rb:1552
+#: app/models/node.rb:1535 app/models/node.rb:1547
 #: app/models/relation_proxy.rb:185 app/models/relation_proxy.rb:209
 #, fuzzy
 msgid "could not be found"
@@ -786,11 +796,11 @@ msgstr "Eintrag nicht gefunden"
 msgid "could not save value (bad attribute)"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:357
+#: app/controllers/nodes_controller.rb:368
 msgid "could not update"
 msgstr "Eintrag konnte nicht aktualisiert werden"
 
-#: app/controllers/users_controller.rb:119
+#: app/controllers/users_controller.rb:117
 msgid "could not update user"
 msgstr "Benutzer konnte nicht aktualisiert werden"
 
@@ -846,17 +856,17 @@ msgstr "<img src='/images/photo_grey.png' title='Standard-Bild-Format'/>"
 msgid "deleted"
 msgstr "gelöscht"
 
-#: app/views/acls/_form.rhtml:35
+#: app/views/acls/_form.rhtml:43
 msgid "description"
 msgstr ""
 
 #: app/views/columns/_form.html.erb:33 app/views/relations/_form.erb:44
-#: app/views/virtual_classes/_form.erb:52 app/views/acls/_form.rhtml:60
+#: app/views/virtual_classes/_form.erb:52 app/views/acls/_form.rhtml:68
 #: app/views/groups/_form.rhtml:41 app/views/iformats/_form.rhtml:27
 msgid "destroy"
 msgstr "Löschen"
 
-#: app/views/acls/_form.rhtml:60
+#: app/views/acls/_form.rhtml:68
 #, fuzzy
 msgid "destroy acl"
 msgstr "Löschen"
@@ -907,7 +917,7 @@ msgstr "Dokument"
 msgid "drive_tab"
 msgstr "drive"
 
-#: lib/zena/use/urls.rb:824
+#: lib/zena/use/urls.rb:834
 msgid "edit"
 msgstr "bearbeiten"
 
@@ -928,12 +938,12 @@ msgstr "E-Mail"
 msgid "en"
 msgstr "englisch"
 
-#: app/views/acls/_form.rhtml:43 app/views/acls/index.rhtml:10
+#: app/views/acls/_form.rhtml:51 app/views/acls/index.rhtml:12
 #, fuzzy
 msgid "exec group"
 msgstr "<img src='/images/group.png' title='Gruppe erzeugen'/>"
 
-#: app/views/acls/_form.rhtml:47 app/views/acls/index.rhtml:11
+#: app/views/acls/_form.rhtml:55 app/views/acls/index.rhtml:13
 #, fuzzy
 msgid "exec skin"
 msgstr "Oberfläche"
@@ -955,6 +965,7 @@ msgstr "Datei"
 msgid "first_name"
 msgstr "Vorname"
 
+#: app/views/acls/_form.rhtml:39 app/views/acls/index.rhtml:10
 #: app/views/templates/document_create_tabs/_template.rhtml:16
 #: app/views/templates/edit_tabs/_template.rhtml:1
 msgid "format"
@@ -1149,7 +1160,7 @@ msgstr ""
 msgid "img_private"
 msgstr "<img src='/images/lock.png' title='Privat'/>"
 
-#: lib/gettext_strings.rb:48 lib/zena/use/html_tags.rb:109
+#: lib/gettext_strings.rb:48 lib/zena/use/html_tags.rb:112
 msgid "img_public"
 msgstr "<img src='/images/user_pub.png' title='public'/>"
 
@@ -1221,7 +1232,7 @@ msgstr "in einer Minute"
 msgid "index"
 msgstr "innerhalb"
 
-#: app/controllers/users_controller.rb:117
+#: app/controllers/users_controller.rb:115
 msgid "information successfully updated"
 msgstr "Information erfolgreich aktualisiert"
 
@@ -1307,6 +1318,7 @@ msgstr "Ziel"
 msgid "mobile"
 msgstr "Mobil"
 
+#: app/views/acls/_form.rhtml:35 app/views/acls/index.rhtml:9
 #: app/views/nodes/_groups.rhtml:14
 #: app/views/templates/document_create_tabs/_template.rhtml:13
 #: app/views/templates/edit_tabs/_template.rhtml:4
@@ -1333,7 +1345,7 @@ msgstr "Benutzerseite"
 msgid "name"
 msgstr "Name"
 
-#: app/controllers/nodes_controller.rb:461
+#: app/controllers/nodes_controller.rb:472
 msgid "new"
 msgstr ""
 
@@ -1362,11 +1374,11 @@ msgstr ""
 msgid "no result found"
 msgstr "Kein Ergebnis gefunden"
 
-#: app/controllers/nodes_controller.rb:461
+#: app/controllers/nodes_controller.rb:472
 msgid "node not found"
 msgstr "Eintrag nicht gefunden"
 
-#: app/controllers/nodes_controller.rb:355
+#: app/controllers/nodes_controller.rb:366
 msgid "node updated"
 msgstr "Eintrag aktualisiert"
 
@@ -1484,7 +1496,7 @@ msgstr "<img src='/images/wand.png' title='publish'/>"
 msgid "publishers"
 msgstr "Veröffentlichen"
 
-#: app/views/acls/_form.rhtml:39 app/views/acls/index.rhtml:9
+#: app/views/acls/_form.rhtml:47 app/views/acls/index.rhtml:11
 #, fuzzy
 msgid "query"
 msgstr "Benutzer"
@@ -1745,7 +1757,7 @@ msgstr "<img src='/images/bug.png' title='Entwicklung ausschalten'/>"
 msgid "type"
 msgstr "Typ"
 
-#: app/models/node.rb:1547
+#: app/models/node.rb:1542
 msgid "type mismatch (%{type} is not a Skin)"
 msgstr ""
 
@@ -1774,7 +1786,7 @@ msgstr "Benutzer"
 #: app/views/columns/_form.html.erb:28 app/views/relations/_form.erb:39
 #: app/views/sites/_form.erb:40 app/views/users/preferences.html.erb:19
 #: app/views/users/preferences.html.erb:38
-#: app/views/virtual_classes/_form.erb:46 app/views/acls/_form.rhtml:52
+#: app/views/virtual_classes/_form.erb:46 app/views/acls/_form.rhtml:60
 #: app/views/comments/_form.rhtml:23 app/views/groups/_form.rhtml:35
 #: app/views/iformats/_form.rhtml:22 app/views/nodes/_edit_attribute.rhtml:15
 #: app/views/templates/document_create_tabs/_file.rhtml:3
@@ -1823,6 +1835,9 @@ msgstr "<img src='/images/bomb.png' title='destroy'/>"
 #: lib/gettext_strings.rb:159
 msgid "you are editing the original"
 msgstr "Sie bearbeiten das Original"
+
+#~ msgid "%Y-%m-%d %H:%M"
+#~ msgstr "%Y-%m-%d %H:%M"
 
 #~ msgid "Cache cleared."
 #~ msgstr "Zwischenspeicher gelöscht."

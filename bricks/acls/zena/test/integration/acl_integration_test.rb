@@ -56,6 +56,48 @@ class AclIntegrationTest < Zena::Integration::TestCase
           assert_match %r{Persephone, Wedding organization}, response.body
         end
 
+        context 'with fixed mode' do
+          setup do
+            Zena::Db.execute "UPDATE acls SET mode = 'foo' WHERE id = #{acls_id(:rap)}"
+            login(:hades)
+            # Create special mode template
+            secure(Template) { Template.create(:parent_id => nodes_id(:sky), :title => 'Node-foo', :text => 'foo <r:title/>') }
+            post 'http://erebus.host/session', :login=>'demeter', :password=>'demeter'
+          end
+
+          should 'not allow another mode' do
+            get "http://erebus.host/oo/project#{nodes_zip(:queen)}.html"
+            assert_response :missing
+          end
+
+          should 'allow given mode' do
+            get "http://erebus.host/oo/project#{nodes_zip(:queen)}_foo.html"
+            assert_response :success
+            assert_equal 'foo My Queen', response.body
+          end
+        end # with fixed mode
+
+        context 'with fixed format' do
+          setup do
+            Zena::Db.execute "UPDATE acls SET format = 'csv' WHERE id = #{acls_id(:rap)}"
+            login(:hades)
+            # Create special mode template
+            secure(Template) { Template.create(:parent_id => nodes_id(:sky), :title => 'Node--csv', :text => 'foo;<r:title/>') }
+            post 'http://erebus.host/session', :login=>'demeter', :password=>'demeter'
+          end
+
+          should 'not allow another mode' do
+            get "http://erebus.host/oo/project#{nodes_zip(:queen)}.html"
+            assert_response :missing
+          end
+
+          should 'allow given mode' do
+            get "http://erebus.host/oo/project#{nodes_zip(:queen)}.csv"
+            assert_response :success
+            assert_equal 'foo;My Queen', response.body
+          end
+        end # with fixed format
+
         context 'using zafu ajax' do
           setup do
             @zafu_url = "http://erebus.host/nodes/#{nodes_zip(:queen)}/zafu?t_url=Sky%20view/Node/list1&dom_id=list1"

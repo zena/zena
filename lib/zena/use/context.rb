@@ -191,7 +191,12 @@ module Zena
               typed_string = ::RubyLess.translate(self, code)
               name = get_var_name('set_var', var)
               out "<% #{name} = #{typed_string} %>"
-              set_context_var('set_var', var, RubyLess::TypedString.new(name, typed_string.opts))
+              var_setting = {}
+              set_context_var('set_var', var, RubyLess::TypedString.new(name, typed_string.opts), var_setting)
+              # Leak into following siblings
+              self.pass(var_setting)
+              # Set inside
+              @context.merge!(var_setting)
             rescue RubyLess::NoMethodError => err
               parser_error(err.message, code)
             end

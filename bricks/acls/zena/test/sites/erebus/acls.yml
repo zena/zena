@@ -12,6 +12,10 @@ rap:
   # and viewing it through the 'sky' Skin.
   exec_skin:       sky
   priority:        10
+  # allow any mode
+  mode:            '*'
+  # allow any format
+  format:          '*'
 
 # Read self (this never matches)
 self:
@@ -27,3 +31,7 @@ self:
   # and viewing it through the 'sky' Skin.
   exec_skin:       sky
   priority:        5
+  # allow any mode
+  mode:            '*'
+  # allow any format
+  format:          '*'

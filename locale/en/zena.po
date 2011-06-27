@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: version 0.0.1\n"
-"POT-Creation-Date: 2011-06-09 19:15-0000\n"
-"PO-Revision-Date: 2011-06-09 22:15+0100\n"
+"POT-Creation-Date: 2011-06-27 20:12-0000\n"
+"PO-Revision-Date: 2011-06-27 22:14+0100\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: en <gaspard@teti.ch>\n"
 "MIME-Version: 1.0\n"
@@ -12,10 +12,6 @@ msgstr ""
 "X-Poedit-Country: UNITED STATES\n"
 "X-Poedit-Bookmarks: -1,-1,-1,219,-1,-1,-1,-1,-1,-1\n"
 "X-Poedit-Basepath: /Users/gaspard/svk/zena\n"
-
-#: lib/gettext_strings.rb:118
-msgid "%Y-%m-%d %H:%M"
-msgstr "%Y-%m-%d %H:%M"
 
 #: app/models/text_document.rb:79
 #, fuzzy
@@ -77,7 +73,7 @@ msgstr ""
 msgid "April"
 msgstr ""
 
-#: app/views/acls/_form.rhtml:58
+#: app/views/acls/_form.rhtml:66
 msgid "Are you sure you want to destroy this access ?"
 msgstr ""
 
@@ -113,7 +109,7 @@ msgstr ""
 msgid "August"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:300
+#: app/controllers/nodes_controller.rb:311
 msgid "Backup created."
 msgstr ""
 
@@ -144,16 +140,16 @@ msgstr ""
 msgid "Could not change version back to redaction."
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:504
+#: app/controllers/nodes_controller.rb:515
 #, fuzzy
 msgid "Could not clear order."
 msgstr "User could not be updated."
 
-#: app/controllers/nodes_controller.rb:302
+#: app/controllers/nodes_controller.rb:313
 msgid "Could not create backup."
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:269
+#: app/controllers/nodes_controller.rb:280
 #, fuzzy
 msgid "Could not destroy node."
 msgstr "User could not be updated."
@@ -185,7 +181,7 @@ msgstr ""
 msgid "Could not rollback:"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:487
+#: app/controllers/nodes_controller.rb:498
 msgid "Could not update order."
 msgstr ""
 
@@ -301,7 +297,7 @@ msgstr ""
 msgid "Order cleared."
 msgstr "Order updated."
 
-#: app/controllers/nodes_controller.rb:485
+#: app/controllers/nodes_controller.rb:496
 msgid "Order updated"
 msgstr "Order updated."
 
@@ -454,23 +450,31 @@ msgstr ""
 msgid "acl_action_help"
 msgstr "Action on which this acl will be used."
 
-#: app/views/acls/_form.rhtml:43
+#: app/views/acls/_form.rhtml:51
 msgid "acl_exec_group_help"
 msgstr "Group added to the visitor during request execution and rendering (if request validates)."
 
-#: app/views/acls/_form.rhtml:47
+#: app/views/acls/_form.rhtml:55
 msgid "acl_exec_skin_help"
 msgstr "Force a given rendering skin."
+
+#: app/views/acls/_form.rhtml:39
+msgid "acl_format_help"
+msgstr "Format (html,xml,...) for which this acl can be used ('*' = any)."
 
 #: app/views/acls/_form.rhtml:19
 msgid "acl_group_help"
 msgstr "Group of users for which this acl can apply."
 
+#: app/views/acls/_form.rhtml:35
+msgid "acl_mode_help"
+msgstr "Mode for which this acl can be used ('*' = any, '' = no mode)."
+
 #: app/views/acls/_form.rhtml:27
 msgid "acl_priority_help"
 msgstr "Acl with highest priority is tested first."
 
-#: app/views/acls/_form.rhtml:39
+#: app/views/acls/_form.rhtml:47
 msgid "acl_query_help"
 msgstr "SQLiss query to fetch all the nodes for which this acl authorizes access."
 
@@ -793,8 +797,8 @@ msgstr ""
 msgid "convert"
 msgstr ""
 
-#: app/models/node.rb:1540
-#: app/models/node.rb:1552
+#: app/models/node.rb:1535
+#: app/models/node.rb:1547
 #: app/models/relation_proxy.rb:185
 #: app/models/relation_proxy.rb:209
 #, fuzzy
@@ -806,11 +810,11 @@ msgstr "Node not found."
 msgid "could not save value (bad attribute)"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:357
+#: app/controllers/nodes_controller.rb:368
 msgid "could not update"
 msgstr "The node could not be updated."
 
-#: app/controllers/users_controller.rb:119
+#: app/controllers/users_controller.rb:117
 msgid "could not update user"
 msgstr "User could not be updated."
 
@@ -869,21 +873,21 @@ msgstr "<img src='/images/photo_grey.png' alt='image format'/>"
 msgid "deleted"
 msgstr ""
 
-#: app/views/acls/_form.rhtml:35
+#: app/views/acls/_form.rhtml:43
 msgid "description"
 msgstr ""
 
 #: app/views/columns/_form.html.erb:33
 #: app/views/relations/_form.erb:44
 #: app/views/virtual_classes/_form.erb:52
-#: app/views/acls/_form.rhtml:60
+#: app/views/acls/_form.rhtml:68
 #: app/views/groups/_form.rhtml:41
 #: app/views/iformats/_form.rhtml:27
 #, fuzzy
 msgid "destroy"
 msgstr "<img src='/images/bomb.png' alt='destroy'/>"
 
-#: app/views/acls/_form.rhtml:60
+#: app/views/acls/_form.rhtml:68
 msgid "destroy acl"
 msgstr "destroy acl"
 
@@ -936,7 +940,7 @@ msgstr "doc"
 msgid "drive_tab"
 msgstr "drive"
 
-#: lib/zena/use/urls.rb:824
+#: lib/zena/use/urls.rb:834
 msgid "edit"
 msgstr ""
 
@@ -958,14 +962,14 @@ msgstr ""
 msgid "en"
 msgstr "english"
 
-#: app/views/acls/_form.rhtml:43
-#: app/views/acls/index.rhtml:10
+#: app/views/acls/_form.rhtml:51
+#: app/views/acls/index.rhtml:12
 #, fuzzy
 msgid "exec group"
 msgstr "<img src='/images/group.png' alt='group'/>"
 
-#: app/views/acls/_form.rhtml:47
-#: app/views/acls/index.rhtml:11
+#: app/views/acls/_form.rhtml:55
+#: app/views/acls/index.rhtml:13
 msgid "exec skin"
 msgstr ""
 
@@ -986,6 +990,8 @@ msgstr "file"
 msgid "first_name"
 msgstr "first name"
 
+#: app/views/acls/_form.rhtml:39
+#: app/views/acls/index.rhtml:10
 #: app/views/templates/document_create_tabs/_template.rhtml:16
 #: app/views/templates/edit_tabs/_template.rhtml:1
 msgid "format"
@@ -1177,7 +1183,7 @@ msgid "img_private"
 msgstr "<img src='/images/lock.png' alt='private'/>"
 
 #: lib/gettext_strings.rb:48
-#: lib/zena/use/html_tags.rb:109
+#: lib/zena/use/html_tags.rb:112
 msgid "img_public"
 msgstr "<img src='/images/user_pub.png' alt='public'/>"
 
@@ -1247,7 +1253,7 @@ msgstr ""
 msgid "index"
 msgstr ""
 
-#: app/controllers/users_controller.rb:117
+#: app/controllers/users_controller.rb:115
 msgid "information successfully updated"
 msgstr "Informations successfully updated."
 
@@ -1335,6 +1341,8 @@ msgstr "tags"
 msgid "mobile"
 msgstr ""
 
+#: app/views/acls/_form.rhtml:35
+#: app/views/acls/index.rhtml:9
 #: app/views/nodes/_groups.rhtml:14
 #: app/views/templates/document_create_tabs/_template.rhtml:13
 #: app/views/templates/edit_tabs/_template.rhtml:4
@@ -1365,7 +1373,7 @@ msgstr "management"
 msgid "name"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:461
+#: app/controllers/nodes_controller.rb:472
 msgid "new"
 msgstr ""
 
@@ -1396,11 +1404,11 @@ msgstr ""
 msgid "no result found"
 msgstr "Node not found."
 
-#: app/controllers/nodes_controller.rb:461
+#: app/controllers/nodes_controller.rb:472
 msgid "node not found"
 msgstr "Node not found."
 
-#: app/controllers/nodes_controller.rb:355
+#: app/controllers/nodes_controller.rb:366
 msgid "node updated"
 msgstr "Node successfully updated."
 
@@ -1526,8 +1534,8 @@ msgstr "<img src='/images/wand.png' alt='publish'/>"
 msgid "publishers"
 msgstr ""
 
-#: app/views/acls/_form.rhtml:39
-#: app/views/acls/index.rhtml:9
+#: app/views/acls/_form.rhtml:47
+#: app/views/acls/index.rhtml:11
 msgid "query"
 msgstr ""
 
@@ -1796,7 +1804,7 @@ msgstr "<img src='/images/bug.png' title='turn dev off'/>"
 msgid "type"
 msgstr ""
 
-#: app/models/node.rb:1547
+#: app/models/node.rb:1542
 msgid "type mismatch (%{type} is not a Skin)"
 msgstr ""
 
@@ -1829,7 +1837,7 @@ msgstr ""
 #: app/views/users/preferences.html.erb:19
 #: app/views/users/preferences.html.erb:38
 #: app/views/virtual_classes/_form.erb:46
-#: app/views/acls/_form.rhtml:52
+#: app/views/acls/_form.rhtml:60
 #: app/views/comments/_form.rhtml:23
 #: app/views/groups/_form.rhtml:35
 #: app/views/iformats/_form.rhtml:22
@@ -1883,6 +1891,9 @@ msgstr "<img src='/images/bomb.png' alt='destroy'/>"
 #: lib/gettext_strings.rb:159
 msgid "you are editing the original"
 msgstr ""
+
+#~ msgid "%Y-%m-%d %H:%M"
+#~ msgstr "%Y-%m-%d %H:%M"
 
 #, fuzzy
 #~ msgid "Auto create discussion"

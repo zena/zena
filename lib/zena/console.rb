@@ -103,7 +103,7 @@ module Zena
       if count_or_query.kind_of?(Hash)
         query = count_or_query
       elsif count_or_query.kind_of?(Fixnum)
-        query = {:qb => "node in site where id = #{count_or_query}", :_find => :first}
+        query = {:qb => "node where id = #{count_or_query} in site", :_find => :first}
       elsif pseudo_sql.nil?
         query = {:qb => count_or_query}
       else

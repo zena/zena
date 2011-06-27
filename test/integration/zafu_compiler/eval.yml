@@ -3,53 +3,19 @@ default:
     lang: 'en'
     visitor: 'ant'
     node: 'status'
-  src: "simple text"
-  tem: "simple text"
-  res: "simple text"
-
-sprintf:
-  src: "<b do='eval'>sprintf('%.2f', id)</b>"
-  res: "<b>22.00</b>"
-
-set_var:
-  src: "<r:set var='foo'>I am <r:show attr='title'/></r:set> <p do='show' var='foo'/>"
-  tem: "<% set_foo = capture do %>I am <%= @node.name %><% end %> <p><%= set_foo %></p>"
-  res: " <p>I am status</p>"
-
-eval_mult:
-  src: "<r:set var='foo'>134</r:set><r:show eval='foo * 0.1'/>"
-  tem: "<% set_foo = capture do %>134<% end %><%= (set_foo.to_f * 0.1) %>"
-  res: "13.4"
-
-eval_with_attr:
-  src: "<r:show eval='[id] * 10'/>"
-  tem: "<%= (@node.zip.to_f * 10) %>"
-  res: "220.0"
-
-eval_data:
-  context:
-    lang: 'en'
-    visitor: 'ant'
-    node: 'cleanWater'
-  src: "<r:data><r:set var='count' do='stat' find='count'/><r:set var='sum' do='stat' find='sum'/><b do='show' eval='sum / count' format='%.3f'/></r:data>"
-  res: "<b>32.250</b>"
-
-eval_or:
-  src: "<r:set var='price'><r:show attr='d_boz'/> 20.3</r:set><r:show eval='price * 10'/>"
-  res: "203.0"
-
-eval_or_value_exists:
-  src: "<r:set var='price'><r:show attr='id'/> 20.3</r:set><r:show eval='price * 10'/>"
-  res: "220.0"
-
-show_var:
-  src: "<r:set var='foo'>12345</r:set><b do='[foo]'/>"
-  res: "<b>12345</b>"
 
 show_var_overwrites_attribute:
-  src: "<r:set var='name'>12345</r:set><b do='title'/>"
+  src: "<r:set title='12345'><b do='title'/></r:set>"
   res: "<b>12345</b>"
 
-test_var:
-  src: "<r:set var='hours'>3</r:set><r:if test='hours gt 0'>you have: <r:show attr='hours'/></r:if>"
-  res: "you have: 3"
+test_set_in_scope:
+  src: "<r:set hours='3'><r:if test='hours &gt; 0'>you have: <r:show eval='hours' format='%.2f'/></r:if></r:set>"
+  res: "you have: 3.00"
+
+test_set_for_siblings:
+  src: "<r:set hours='3'/><r:if test='hours &gt; 0'>you have: <r:show eval='hours' format='%.2f'/></r:if>"
+  res: "you have: 3.00"
+
+test_set_for_siblings_overwrite:
+  src: "<r:set hours='3'/><r:set hours='%{hello}'/><r:if test='!hours.blank?'>you have: <r:eval>hours.gsub(/o/,'')</r:eval></r:if>"
+  res: "you have: hell"
