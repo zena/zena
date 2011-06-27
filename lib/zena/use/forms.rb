@@ -514,6 +514,7 @@ module Zena
             return parser_error("select id without name") unless attribute
             name = "#{attribute}_id" unless attribute[-3..-1] == '_id'
             input_id = @context[:erb_dom_id] ? ", :input_id =>\"#{erb_dom_id}_#{attribute}\"" : ''
+            # FIXME: pass object
             "<%= select_id('#{node.form_name}', #{attribute.inspect}#{input_id}) %>"
           when 'time_zone'
             out parser_error("please use [select] here")

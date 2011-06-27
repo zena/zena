@@ -244,7 +244,8 @@ class Node < ActiveRecord::Base
                      :zip => Number, :parent_id => {:class => Number, :nil => true, :method => 'parent_zip'},
                      :user => 'User',
                      :author => author_proc,
-                     :vclass => {:class => 'VirtualClass', :method => 'virtual_class'}
+                     :vclass => {:class => 'VirtualClass', :method => 'virtual_class'},
+                     :new_record? => Boolean
 
   # This is needed so that we can use secure_scope and secure in search.
   extend  Zena::Acts::Secure

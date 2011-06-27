@@ -8,7 +8,20 @@ Capistrano::Configuration.instance(:must_exist).load do
 ##############################################################################}
   else
     #========================== MONGREL ===============================#
+
+    self[:ports] = (mongrel_port.to_i...(mongrel_port.to_i + mongrel_count.to_i)).to_a
+
     namespace :app do
+      desc "create haproxy config"
+      task :haproxy_setup, :roles => :app do
+        unless debian_host
+          puts "skipping 'logrotate' (debian specific)"
+        else
+          # Create config/haproxy.cnf
+          haproxy_cnf = render("#{templates}/haproxy.cnf.rhtml", :config => self)
+          put(haproxy_cnf, "#{deploy_to}/current/config/haproxy.cnf")
+        end
+      end
 
       desc "configure mongrel"
       task :configure, :roles => :app do
@@ -28,6 +41,12 @@ Capistrano::Configuration.instance(:must_exist).load do
 
         run "#{in_current} mongrel_rails cluster::configure -e production -p #{mongrel_port} -N #{mongrel_count} -c #{deploy_to}/current -P log/mongrel.pid -l log/mongrel.log -a 127.0.0.1 --user www-data --group www-data"
         run "#{in_current} echo 'config_script: config/mongrel_upload_progress.conf' >> config/mongrel_cluster.yml"
+
+        if self[:haproxy_port]
+          # Setup haproxy
+          haproxy_setup
+        end
+
       end
 
       desc "Stop the drb upload_progress server"

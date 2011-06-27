@@ -10,6 +10,11 @@ APP_ROOT = "#{ROOT}/current"
 
 cmd = ARGV.first
 
+def run(cmd)
+  puts cmd
+  system(cmd)
+end
+
 operations = [
   'ruby lib/upload_progress_server.rb ',
   'rake worker:',
@@ -19,34 +24,33 @@ operations = [
 ]
 
 if %w{stop restart}.include?(cmd)
-    puts "Stopping #{APP_ROOT}..."
-    operations.each do |op|
-      `cd #{APP_ROOT} && #{op}stop`
-    end
-
-    <% if config[:haproxy_port] %>
-    # Stop haproxy
-    pid_file = "#{ROOT}/shared/pids/haproxy.pid"
-    if File.exist?(pid_file) && pid = File.read("#{ROOT}/shared/pids/haproxy.pid")
-      `kill #{pid}`
-    end
-    <% end %>
+  puts "Stopping #{APP_ROOT}..."
+  operations.each do |op|
+    run "cd #{APP_ROOT} && #{op}stop"
   end
+
+  <% if config[:haproxy_port] %>
+  # Stop haproxy
+  pid_file = "#{ROOT}/shared/pids/haproxy.pid"
+  if File.exist?(pid_file) && pid = File.read("#{ROOT}/shared/pids/haproxy.pid")
+    run "kill #{pid}"
+  end
+  <% end %>
 end
 
 if %w{start restart}.include?(cmd)
   puts "Starting #{APP_ROOT}..."
   operations.each do |op|
-    `cd #{APP_ROOT} && #{op}start`
+    run "cd #{APP_ROOT} && #{op}start"
   end
 
   <% if config[:haproxy_port] %>
   # Start haproxy
-  `cd #{APP_ROOT} && haproxy -d -f config/haproxy.cnf`
+  run "cd #{APP_ROOT} && haproxy -D -f config/haproxy.cnf"
   <% end %>
 end
 
 unless %w{start stop restart}.include?(cmd)
-    puts "Usage: zena_<%= config[:db_name] %> {start|stop|restart}"
-    exit
+  puts "Usage: zena_<%= config[:db_name] %> {start|stop|restart}"
+  exit
 end

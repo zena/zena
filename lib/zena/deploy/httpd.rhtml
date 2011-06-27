@@ -19,6 +19,7 @@ PassengerDefaultUser www-data
   BalancerMember http://127.0.0.1:<%= port %><% end %>
 </Proxy>
 <% end %>
+<% end %>
 
 <IfModule mod_expires.c>
   ExpiresActive on

@@ -40,6 +40,9 @@ module Zena
               else
                 id = nil
               end
+              if !node || node.new_record?
+                node = current_site.root_node
+              end
             end
 
             if !id.blank?

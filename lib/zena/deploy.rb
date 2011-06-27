@@ -27,7 +27,6 @@ require 'erb'
 require File.join(File.dirname(__FILE__), 'info')
 require File.join(File.dirname(__FILE__), '..', 'bricks')
 
-
 Capistrano::Configuration.instance(:must_exist).load do
 
   set :templates, File.join(File.dirname(__FILE__), 'deploy')
@@ -196,6 +195,10 @@ Capistrano::Configuration.instance(:must_exist).load do
       vhost = render("#{templates}/vhost.rhtml", :config => self)
       put(vhost, "#{vhost_root}/#{self[:host]}")
 
+      # directory setup for log
+      run "test -e #{sites_root}/#{self[:host]}/log || mkdir #{sites_root}/#{self[:host]}/log"
+      run "chown www-data:www-data #{sites_root}/#{self[:host]}/log"
+
       run "test -e /etc/apache2/sites-enabled/#{self[:host]} || a2ensite #{self[:host]}" if debian_host
 
       unless self[:host] =~ /^www/
@@ -297,10 +300,6 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   desc "Apache2 initial setup"
   task :apache2_setup, :roles => :web do
-    # TODO: can we move this into the mongrel brick?
-    if self[:mongrel_port]
-      self[:ports] = (mongrel_port.to_i...(mongrel_port.to_i + mongrel_count.to_i)).to_a
-    end
     httpd_conf = render("#{templates}/httpd.rhtml", :config => self)
     log_rotate = render("#{templates}/logrotate_app.rhtml", :config => self)
     if debian_host
@@ -387,22 +386,55 @@ Capistrano::Configuration.instance(:must_exist).load do
   #========================== INIT (start/stop init scripts)   ===============================#
 
   namespace :debian do
-    desc "create Start/stop scripts and installs rc.d defaults"
-    task :app_setup, :roles => :app do
-      # Create /usr/local/bin/[app]_init script
-      app_init = render("#{templates}/app_init.rhtml", :config => self)
-      put(app_init, "/usr/local/bin/zena_#{db_name}")
-      if db_name == 'zena'
-        init_name = 'zapp'
-      else
-        init_name = db_name
-      end
-      run "cd /usr/local/bin && test -e /usr/local/bin/#{init_name} || ln -sf /usr/local/bin/zena_#{db_name} /usr/local/bin/#{init_name}"
 
-      start_stop = render("#{templates}/start_stop.rhtml", :config => self)
-      put(start_stop, "/etc/init.d/zena_#{db_name}")
-      # Install defaults
-      run "cd /etc/init.d && update-rc.d zena_#{db_name} defaults"
+    desc "create Start/stop scripts and installs rc.d defaults"
+    task :setup, :roles => :app do
+      unless debian_host
+        puts "skipping 'logrotate' (debian specific)"
+      else
+        # Create /usr/local/bin/zena_[app] script
+        app_init = render("#{templates}/app_init.rhtml", :config => self)
+        put(app_init, "/usr/local/bin/zena_#{db_name}")
+        run "chmod 700 /usr/local/bin/zena_#{db_name}"
+        if db_name == 'zena'
+          init_name = 'zapp'
+        else
+          init_name = db_name
+        end
+        run "cd /usr/local/bin && test -e /usr/local/bin/#{init_name} || ln -sf /usr/local/bin/zena_#{db_name} /usr/local/bin/#{init_name}"
+
+        if self[:rvm_ruby_string]
+          run "rvm wrapper #{self[:rvm_ruby_string]} init zena_#{db_name}"
+          init_script = "/usr/local/rvm/bin/init_zena_#{db_name}"
+        else
+          init_script = "/usr/local/bin/zena_#{db_name}"
+        end
+
+        start_stop = render("#{templates}/start_stop.rhtml", :config => self, :init_script => init_script)
+        put(start_stop, "/etc/init.d/zena_#{db_name}")
+        run "chmod 755 /etc/init.d/zena_#{db_name}"
+        # Install defaults
+        run "cd /etc/init.d && update-rc.d zena_#{db_name} defaults"
+      end
+    end
+
+    # FIXME: We now have the on_stop, on_start callbacks that do not handle haproxy and the
+    # init script which is some sort of hack but useful on the server... A better solution
+    # would be to use a directory config/start and config/stop with scripts that are run on
+    # start/stop/restart.... Then each service just writes what it needs there and that's it.
+    desc "Use init script to start all services"
+    task :restart, :roles => :app do
+      run "/usr/local/bin/zena_#{db_name} start"
+    end
+
+    desc "Use init script to stop all services"
+    task :stop, :roles => :app do
+      run "/usr/local/bin/zena_#{db_name} stop"
+    end
+
+    desc "Use init script to restart all services"
+    task :start, :roles => :app do
+      run "/usr/local/bin/zena_#{db_name} restart"
     end
   end # debian
 

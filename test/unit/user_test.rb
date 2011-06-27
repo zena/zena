@@ -88,7 +88,55 @@ class UserTest < Zena::Unit::TestCase
     should 'use missing attributes from prototype' do
       assert_equal 'Iping', subject.node.prop['address']
     end
+
+    context 'with a node id' do
+      subject do
+        attrs = {
+          'lang'       => 'fr',
+          'time_zone'  => 'Europe/Zurich',
+          'status'     => '50',
+          'password'   => 'secret',
+          'login'      => 'bolomey',
+          'group_ids'  => [groups_id(:public), ''],
+          'node_attributes' => {
+            'id'       => nodes_zip(:ant)
+          }
+        }
+        secure(User) { User.create(attrs) }
+      end
+
+      should 'link to provided node' do
+        assert_difference('User.count', 1) do
+          assert_difference('Node.count', 0) do
+            assert_equal 'Solenopsis Invicta', subject.node.title
+          end
+        end
+      end
+    end # with a node id
+
   end # Creating a new User
+  
+  context 'Updating a user' do
+    setup do
+      login(:lion)
+    end
+    
+    subject do
+      users(:ant)
+    end
+
+    context 'by changing node_id' do
+      setup do
+        subject.update_attributes('node_attributes' => {'id' => nodes_zip(:lion) })
+      end
+      
+      should 'update link' do
+        assert_equal nodes_id(:lion), users(:ant).node_id
+      end
+    end # by changing node_id
+    
+  end # Updating a user
+  
 
   context 'Setting node attributes' do
     setup do
@@ -120,7 +168,6 @@ class UserTest < Zena::Unit::TestCase
         assert_not_equal @first.object_id, @second.object_id
       end
     end # more then once
-
   end # Setting node attributes
 
   context 'On a user' do

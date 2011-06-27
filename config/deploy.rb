@@ -1,5 +1,5 @@
 set :db_name,               "zena"     # If you change this: no dots in this name !
-set :server_ip,             nil        # FIXME: set this to your remote server IP in the form: "215.0.0.1"
+set :server_ip,             'nil'        # FIXME: set this to your remote server IP in the form: "215.0.0.1"
 set :db_password,           nil        # FIXME: set password (can be anything).
 set :app_type,              :mongrel
 set :mongrel_port,          8000

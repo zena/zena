@@ -186,10 +186,12 @@ class User < ActiveRecord::Base
   end
 
   def node_attributes=(node_attrs)
-    if self[:node_id]
+    node_attrs.stringify_keys!
+    if !node_attrs['id'].blank?
+      @node = secure!(Node) { Node.find_node_by_pseudo(node_attrs.delete('id')) }
+      self[:node_id] = @node.id
+    elsif self[:node_id]
       @node = secure!(Node) { node_without_secure }
-    elsif !node_attrs[:id].blank?
-      @node = secure!(Node) { Node.find_node_by_pseudo(node_attrs.delete(:id)) }
     else
       @node = secure(Node) { Node.new_node(prototype_attributes) }
     end

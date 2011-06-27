@@ -10,6 +10,8 @@
  * Admin interface top link moves to page.
  * Fixed a bug in date parsing: links should use contextual timezone.
  * Added 'versions' safe method to return list of versions for a node.
+ * Fixed bricks requirements when database.yml is not present.
+ * Fixed [input type='id'] when used on new records.
 
 == 1.0.0 2011-06-15
 

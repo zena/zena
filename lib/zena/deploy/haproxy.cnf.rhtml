@@ -19,11 +19,11 @@ defaults
 listen <%= config[:balancer] %>_haproxy 127.0.0.1:<%= config[:haproxy_port] %>
   option httplog
   log global
-<% if config[:haproxy_password] -%>
+<% if config[:haproxy_password] %>
   stats enable
   stats uri /_haproxy
   stats auth admin:<%= config[:haproxy_password] %>
-<% end -%>
+<% end %>
 <% config[:ports].each do |port| %>
   server worker_<%= port %> localhost:<%= port %> check inter 20000 maxconn 1<% end %>
 # [/<%= config[:balancer] %>]

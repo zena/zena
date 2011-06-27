@@ -23,8 +23,14 @@ module Bricks
             end
           end
         when 'adapter'
-          config = YAML.load_file(File.join(RAILS_ROOT, 'config', 'database.yml'))
-          adapter = config[RAILS_ENV]['adapter']
+          db_config = File.join(RAILS_ROOT, 'config', 'database.yml')
+          if File.exist?(db_config)
+            config = YAML.load_file(db_config)
+            adapter = config[RAILS_ENV]['adapter']
+          else
+            puts "No config/database.yml file, using 'mysql' as adapter to validate bricks"
+            adapter = 'mysql'
+          end
           unless v.split(',').map(&:strip).include?(adapter)
             errors << "'#{adapter}' not supported"
           end

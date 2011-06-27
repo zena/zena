@@ -68,7 +68,7 @@ namespace :sphinx do
     config = YAML.load_file(File.join(RAILS_ROOT, 'config', 'sphinx.yml'))[RAILS_ENV]
     every  = config['run_indexer_at'] || '10,40'
     res = `crontab -l 2>&1`
-    if $? != 0 || res =~ /crontab/
+    if $? != 0 || res =~ /\Acrontab/
       puts "Sphinx indexer: could not access crontab (#{res.chomp})"
     else
       crontab = res.chomp.split("\n")

@@ -63,8 +63,6 @@ class UsersController < ApplicationController
 
     get_groups_list
 
-    params[:user][:node_attributes] = params[:node]
-
     @user = secure(User) { User.create(params[:user]) }
   end
 
@@ -145,7 +143,11 @@ class UsersController < ApplicationController
     def restrict_access
       if visitor.is_admin?
         @admin = true
+        if params[:user] && params[:node]
+          params[:user][:node_attributes] = params[:node]
+        end
       elsif @user[:id] == visitor[:id]
+        # Cannot change linked node
         if params[:user]
           # visitor changing his/her own info : restrict fields
           params[:user].keys.each do |k|

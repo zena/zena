@@ -47,6 +47,7 @@ module Zena
               # TextDocument content as Zazen.
               return text
             end
+
             if !code_lang.blank?
               return Zena::CodeSyntax.new(text, code_lang).to_html(opt)
             end

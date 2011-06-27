@@ -326,7 +326,7 @@ module Zena
 
         # Return true if we should display the dev box
         def dev_box?(mode, format)
-          (format == 'html' && mode != '+popupLayout') && dev_mode?
+          (format == 'html' && !['+popupLayout', '+user'].include?(mode)) && dev_mode?
         end
 
         def lang_path

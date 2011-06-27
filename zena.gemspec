@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2011-06-23}
+  s.date = %q{2011-06-27}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -546,12 +546,15 @@ Gem::Specification.new do |s|
     "lib/zena/db_helper/postgresql.rb",
     "lib/zena/db_helper/sqlite3.rb",
     "lib/zena/deploy.rb",
+    "lib/zena/deploy/app_init.rhtml",
     "lib/zena/deploy/awstats.conf.rhtml",
     "lib/zena/deploy/database.rhtml",
+    "lib/zena/deploy/haproxy.cnf.rhtml",
     "lib/zena/deploy/httpd.rhtml",
     "lib/zena/deploy/logrotate_app.rhtml",
     "lib/zena/deploy/logrotate_host.rhtml",
     "lib/zena/deploy/start.html",
+    "lib/zena/deploy/start_stop.rhtml",
     "lib/zena/deploy/stats.vhost.rhtml",
     "lib/zena/deploy/template.rb",
     "lib/zena/deploy/vhost.rhtml",
