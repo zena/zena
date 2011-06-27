@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: version 0.0.1\n"
-"POT-Creation-Date: 2011-06-27 20:12-0000\n"
+"POT-Creation-Date: 2011-06-27 20:32-0000\n"
 "PO-Revision-Date: 2011-06-02 10:51+0100\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: de <lars@greiz-reinsdorf.de>\n"
@@ -12,6 +12,10 @@ msgstr ""
 "X-Poedit-Country: UNITED STATES\n"
 "X-Poedit-Bookmarks: -1,-1,-1,219,-1,-1,-1,-1,-1,-1\n"
 "X-Poedit-Basepath: /Users/gaspard/svk/zena\n"
+
+#: lib/gettext_strings.rb:119
+msgid "%Y-%m-%d %H:%M"
+msgstr "%Y-%m-%d %H:%M"
 
 #: app/models/text_document.rb:79
 #, fuzzy
@@ -63,11 +67,11 @@ msgstr "vor einer Minute"
 msgid "API group"
 msgstr "Gruppe"
 
-#: lib/gettext_strings.rb:145
+#: lib/gettext_strings.rb:146
 msgid "Apr"
 msgstr "Apr"
 
-#: lib/gettext_strings.rb:132
+#: lib/gettext_strings.rb:133
 msgid "April"
 msgstr "April"
 
@@ -102,11 +106,11 @@ msgid ""
 "Are you sure you want to permanently remove the content of this rubbish bin ?"
 msgstr "Sind Sie sicher, den Inhalt des Papierkorbs dauerhaft zu löschen?"
 
-#: lib/gettext_strings.rb:149
+#: lib/gettext_strings.rb:150
 msgid "Aug"
 msgstr "Aug"
 
-#: lib/gettext_strings.rb:136
+#: lib/gettext_strings.rb:137
 msgid "August"
 msgstr "August"
 
@@ -190,11 +194,11 @@ msgstr "Order konnte nicht aktualisiert werden"
 msgid "Data entry was successfully created."
 msgstr "Dateneintrag erfolgreich angelegt"
 
-#: lib/gettext_strings.rb:153
+#: lib/gettext_strings.rb:154
 msgid "Dec"
 msgstr "Dez"
 
-#: lib/gettext_strings.rb:140
+#: lib/gettext_strings.rb:141
 msgid "December"
 msgstr "Dezember"
 
@@ -202,15 +206,15 @@ msgstr "Dezember"
 msgid "Delete relation '%{role}' between '%{source}' and '%{target}' ?"
 msgstr ""
 
-#: lib/gettext_strings.rb:143
+#: lib/gettext_strings.rb:144
 msgid "Feb"
 msgstr "Feb"
 
-#: lib/gettext_strings.rb:130
+#: lib/gettext_strings.rb:131
 msgid "February"
 msgstr "Februar"
 
-#: lib/gettext_strings.rb:125
+#: lib/gettext_strings.rb:126
 msgid "Fri"
 msgstr "Fr"
 
@@ -226,43 +230,43 @@ msgstr ""
 msgid "Invalid login or password."
 msgstr ""
 
-#: lib/gettext_strings.rb:142
+#: lib/gettext_strings.rb:143
 msgid "Jan"
 msgstr "Jan"
 
-#: lib/gettext_strings.rb:129
+#: lib/gettext_strings.rb:130
 msgid "January"
 msgstr "Januar"
 
-#: lib/gettext_strings.rb:148
+#: lib/gettext_strings.rb:149
 msgid "Jul"
 msgstr "Jul"
 
-#: lib/gettext_strings.rb:135
+#: lib/gettext_strings.rb:136
 msgid "July"
 msgstr "Juli"
 
-#: lib/gettext_strings.rb:147
+#: lib/gettext_strings.rb:148
 msgid "Jun"
 msgstr "Jun"
 
-#: lib/gettext_strings.rb:134
+#: lib/gettext_strings.rb:135
 msgid "June"
 msgstr "Juni"
 
-#: lib/gettext_strings.rb:144
+#: lib/gettext_strings.rb:145
 msgid "Mar"
 msgstr "Mär"
 
-#: lib/gettext_strings.rb:131
+#: lib/gettext_strings.rb:132
 msgid "March"
 msgstr "März"
 
-#: lib/gettext_strings.rb:133 lib/gettext_strings.rb:146
+#: lib/gettext_strings.rb:134 lib/gettext_strings.rb:147
 msgid "May"
 msgstr "Mai"
 
-#: lib/gettext_strings.rb:121
+#: lib/gettext_strings.rb:122
 msgid "Mon"
 msgstr "Mo"
 
@@ -275,19 +279,19 @@ msgstr "Montag"
 msgid "Node destroyed."
 msgstr "Löschen"
 
-#: lib/gettext_strings.rb:152
+#: lib/gettext_strings.rb:153
 msgid "Nov"
 msgstr "Nov"
 
-#: lib/gettext_strings.rb:139
+#: lib/gettext_strings.rb:140
 msgid "November"
 msgstr "November"
 
-#: lib/gettext_strings.rb:151
+#: lib/gettext_strings.rb:152
 msgid "Oct"
 msgstr "Okt"
 
-#: lib/gettext_strings.rb:138
+#: lib/gettext_strings.rb:139
 msgid "October"
 msgstr "Oktober"
 
@@ -300,7 +304,7 @@ msgstr "Zwischenspeicher gelöscht."
 msgid "Order updated"
 msgstr "Order aktualisiert"
 
-#: lib/gettext_strings.rb:156
+#: lib/gettext_strings.rb:157
 msgid "Password:"
 msgstr "Passwort"
 
@@ -338,7 +342,7 @@ msgstr "Information erfolgreich aktualisiert"
 msgid "Rolled back to redaction."
 msgstr "Artikel wieder zur Begutachtung gestellt"
 
-#: lib/gettext_strings.rb:126
+#: lib/gettext_strings.rb:127
 msgid "Sat"
 msgstr "Sa"
 
@@ -346,11 +350,11 @@ msgstr "Sa"
 msgid "Saturday"
 msgstr "Samstag"
 
-#: lib/gettext_strings.rb:150
+#: lib/gettext_strings.rb:151
 msgid "Sep"
 msgstr "Sep"
 
-#: lib/gettext_strings.rb:137
+#: lib/gettext_strings.rb:138
 msgid "September"
 msgstr "September"
 
@@ -359,7 +363,7 @@ msgstr "September"
 msgid "Site was successfully updated."
 msgstr "Passwort erfolgreich aktualisiert"
 
-#: lib/gettext_strings.rb:127
+#: lib/gettext_strings.rb:128
 msgid "Sun"
 msgstr "So"
 
@@ -372,7 +376,7 @@ msgid "This node contains sub-nodes: it cannot be destroyed."
 msgstr ""
 "Dieser Eintrag enthält Untereinträge und kann deshalb nicht gelöscht werden"
 
-#: lib/gettext_strings.rb:124
+#: lib/gettext_strings.rb:125
 msgid "Thu"
 msgstr "Do"
 
@@ -380,7 +384,7 @@ msgstr "Do"
 msgid "Thursday"
 msgstr "Donnerstag"
 
-#: lib/gettext_strings.rb:122
+#: lib/gettext_strings.rb:123
 msgid "Tue"
 msgstr "Di"
 
@@ -401,7 +405,7 @@ msgstr "Upload fehlgeschlagen"
 msgid "Upload succeeded."
 msgstr "Upload erfogreich"
 
-#: lib/gettext_strings.rb:155
+#: lib/gettext_strings.rb:156
 msgid "User name:"
 msgstr "Benutzername:"
 
@@ -423,7 +427,7 @@ msgstr "Kommentar erfolgreich angelegt"
 msgid "VirtualClass was successfully updated."
 msgstr "Passwort erfolgreich aktualisiert"
 
-#: lib/gettext_strings.rb:123
+#: lib/gettext_strings.rb:124
 msgid "Wed"
 msgstr "Mi"
 
@@ -497,7 +501,7 @@ msgstr "<img src='/images/lock.png' title='Klasse'/>"
 msgid "action"
 msgstr "Bezüge"
 
-#: lib/gettext_strings.rb:169
+#: lib/gettext_strings.rb:170
 msgid "address"
 msgstr "Adresse"
 
@@ -531,7 +535,7 @@ msgstr "<span title='beim Speichern Sicherungskopie anlegen'>bak</span>"
 msgid "bak"
 msgstr "<span title='beim Speichern Sicherungskopie anlegen'>bak</span>"
 
-#: lib/gettext_strings.rb:176
+#: lib/gettext_strings.rb:177
 msgid "birthday"
 msgstr "Geburtstag"
 
@@ -727,12 +731,12 @@ msgstr "Klassen"
 msgid "classes import"
 msgstr "Klassen"
 
-#: lib/gettext_strings.rb:179
+#: lib/gettext_strings.rb:180
 #, fuzzy
 msgid "clear_cache"
 msgstr "Zwischenspeicher löschen"
 
-#: lib/gettext_strings.rb:180
+#: lib/gettext_strings.rb:181
 #, fuzzy
 msgid "clear_cache done."
 msgstr "Zwischenspeicher löschen"
@@ -804,7 +808,7 @@ msgstr "Eintrag konnte nicht aktualisiert werden"
 msgid "could not update user"
 msgstr "Benutzer konnte nicht aktualisiert werden"
 
-#: lib/gettext_strings.rb:172
+#: lib/gettext_strings.rb:173
 msgid "country"
 msgstr "Land"
 
@@ -930,7 +934,7 @@ msgstr "<img src='/images/target.png' title='role'/>"
 msgid "edit site"
 msgstr "Site bearbeiten"
 
-#: lib/gettext_strings.rb:175
+#: lib/gettext_strings.rb:176
 msgid "email"
 msgstr "E-Mail"
 
@@ -961,7 +965,7 @@ msgstr ""
 msgid "file_tab"
 msgstr "Datei"
 
-#: lib/gettext_strings.rb:167
+#: lib/gettext_strings.rb:168
 msgid "first_name"
 msgstr "Vorname"
 
@@ -1097,12 +1101,12 @@ msgstr ""
 msgid "img_custom_inherit"
 msgstr "<img src='/images/cog.png' title='custom rights'/>"
 
-#: lib/gettext_strings.rb:188
+#: lib/gettext_strings.rb:189
 #, fuzzy
 msgid "img_datetime"
 msgstr "%Y-%m-%d %H:%M"
 
-#: lib/gettext_strings.rb:187
+#: lib/gettext_strings.rb:188
 #, fuzzy
 msgid "img_float"
 msgstr "Bildformate"
@@ -1129,7 +1133,7 @@ msgstr "<img src='/images/user_admin.png' title='administrator'/>"
 msgid "img_has_one"
 msgstr "übernehmen"
 
-#: lib/gettext_strings.rb:186
+#: lib/gettext_strings.rb:187
 #, fuzzy
 msgid "img_integer"
 msgstr ""
@@ -1169,7 +1173,7 @@ msgstr "<img src='/images/user_pub.png' title='public'/>"
 msgid "img_relation"
 msgstr "Bezüge"
 
-#: lib/gettext_strings.rb:185
+#: lib/gettext_strings.rb:186
 #, fuzzy
 msgid "img_string"
 msgstr "<img src='/images/tag_blue.png' title='Link'/>"
@@ -1271,7 +1275,7 @@ msgstr ""
 msgid "language"
 msgstr "Sprache"
 
-#: lib/gettext_strings.rb:168
+#: lib/gettext_strings.rb:169
 #, fuzzy
 msgid "last_name"
 msgstr "Vorname"
@@ -1284,7 +1288,7 @@ msgstr "Links"
 msgid "links_tab"
 msgstr "Bezüge"
 
-#: lib/gettext_strings.rb:171
+#: lib/gettext_strings.rb:172
 #, fuzzy
 msgid "locality"
 msgstr "Stadt"
@@ -1314,7 +1318,7 @@ msgstr "Max. Größe"
 msgid "missing target"
 msgstr "Ziel"
 
-#: lib/gettext_strings.rb:174
+#: lib/gettext_strings.rb:175
 msgid "mobile"
 msgstr "Mobil"
 
@@ -1362,7 +1366,7 @@ msgstr "neues Passwort"
 msgid "new relation"
 msgstr "<img src='/images/target.png' title='role'/>"
 
-#: lib/gettext_strings.rb:119
+#: lib/gettext_strings.rb:120
 msgid "news_date"
 msgstr "%A, %B %d %Y"
 
@@ -1440,7 +1444,7 @@ msgstr "Passwort"
 msgid "popup"
 msgstr "Auf Klick vergrößern zu Format"
 
-#: lib/gettext_strings.rb:170
+#: lib/gettext_strings.rb:171
 msgid "postal_code"
 msgstr ""
 
@@ -1513,25 +1517,25 @@ msgstr "nur lesen"
 msgid "readers"
 msgstr "Lesen"
 
-#: lib/gettext_strings.rb:163
+#: lib/gettext_strings.rb:164
 msgid "rebuild"
 msgstr "wieder aufbauen"
 
-#: lib/gettext_strings.rb:164
+#: lib/gettext_strings.rb:165
 msgid "rebuild_btn"
-msgstr "<img src='/images/arrow_refresh.png' title='wieder aufbauen'/>"
-
-#: lib/gettext_strings.rb:181
-#, fuzzy
-msgid "rebuild_index"
 msgstr "<img src='/images/arrow_refresh.png' title='wieder aufbauen'/>"
 
 #: lib/gettext_strings.rb:182
 #, fuzzy
+msgid "rebuild_index"
+msgstr "<img src='/images/arrow_refresh.png' title='wieder aufbauen'/>"
+
+#: lib/gettext_strings.rb:183
+#, fuzzy
 msgid "rebuild_index done."
 msgstr "<img src='/images/arrow_refresh.png' title='wieder aufbauen'/>"
 
-#: lib/gettext_strings.rb:160
+#: lib/gettext_strings.rb:161
 msgid "redaction saved"
 msgstr "zur Begutachtung gespeichert"
 
@@ -1701,7 +1705,7 @@ msgstr "Basisklasse"
 msgid "tags"
 msgstr "Schlagwörter"
 
-#: lib/gettext_strings.rb:173
+#: lib/gettext_strings.rb:174
 msgid "telephone"
 msgstr "Tel."
 
@@ -1747,7 +1751,7 @@ msgstr "Entwicklung ausschalten"
 msgid "turn dev on"
 msgstr "Entwicklung einschalten"
 
-#: lib/gettext_strings.rb:165
+#: lib/gettext_strings.rb:166
 #, fuzzy
 msgid "turn_dev_off_btn"
 msgstr "<img src='/images/bug.png' title='Entwicklung ausschalten'/>"
@@ -1832,12 +1836,9 @@ msgstr "Schreiben"
 msgid "yesterday"
 msgstr "<img src='/images/bomb.png' title='destroy'/>"
 
-#: lib/gettext_strings.rb:159
+#: lib/gettext_strings.rb:160
 msgid "you are editing the original"
 msgstr "Sie bearbeiten das Original"
-
-#~ msgid "%Y-%m-%d %H:%M"
-#~ msgstr "%Y-%m-%d %H:%M"
 
 #~ msgid "Cache cleared."
 #~ msgstr "Zwischenspeicher gelöscht."

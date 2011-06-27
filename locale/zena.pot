@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: version 0.0.1\n"
-"POT-Creation-Date: 2011-06-27 20:12-0000\n"
+"POT-Creation-Date: 2011-06-27 20:32-0000\n"
 "PO-Revision-Date: 2007-05-13 19:08-0000\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,6 +15,10 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: lib/gettext_strings.rb:119
+msgid "%Y-%m-%d %H:%M"
+msgstr ""
 
 #: app/models/text_document.rb:79
 msgid "%{asset} not found"
@@ -64,11 +68,11 @@ msgstr ""
 msgid "API group"
 msgstr ""
 
-#: lib/gettext_strings.rb:145
+#: lib/gettext_strings.rb:146
 msgid "Apr"
 msgstr ""
 
-#: lib/gettext_strings.rb:132
+#: lib/gettext_strings.rb:133
 msgid "April"
 msgstr ""
 
@@ -101,11 +105,11 @@ msgid ""
 "Are you sure you want to permanently remove the content of this rubbish bin ?"
 msgstr ""
 
-#: lib/gettext_strings.rb:149
+#: lib/gettext_strings.rb:150
 msgid "Aug"
 msgstr ""
 
-#: lib/gettext_strings.rb:136
+#: lib/gettext_strings.rb:137
 msgid "August"
 msgstr ""
 
@@ -182,11 +186,11 @@ msgstr ""
 msgid "Data entry was successfully created."
 msgstr ""
 
-#: lib/gettext_strings.rb:153
+#: lib/gettext_strings.rb:154
 msgid "Dec"
 msgstr ""
 
-#: lib/gettext_strings.rb:140
+#: lib/gettext_strings.rb:141
 msgid "December"
 msgstr ""
 
@@ -194,15 +198,15 @@ msgstr ""
 msgid "Delete relation '%{role}' between '%{source}' and '%{target}' ?"
 msgstr ""
 
-#: lib/gettext_strings.rb:143
+#: lib/gettext_strings.rb:144
 msgid "Feb"
 msgstr ""
 
-#: lib/gettext_strings.rb:130
+#: lib/gettext_strings.rb:131
 msgid "February"
 msgstr ""
 
-#: lib/gettext_strings.rb:125
+#: lib/gettext_strings.rb:126
 msgid "Fri"
 msgstr ""
 
@@ -218,43 +222,43 @@ msgstr ""
 msgid "Invalid login or password."
 msgstr ""
 
-#: lib/gettext_strings.rb:142
+#: lib/gettext_strings.rb:143
 msgid "Jan"
 msgstr ""
 
-#: lib/gettext_strings.rb:129
+#: lib/gettext_strings.rb:130
 msgid "January"
 msgstr ""
 
-#: lib/gettext_strings.rb:148
+#: lib/gettext_strings.rb:149
 msgid "Jul"
 msgstr ""
 
-#: lib/gettext_strings.rb:135
+#: lib/gettext_strings.rb:136
 msgid "July"
 msgstr ""
 
-#: lib/gettext_strings.rb:147
+#: lib/gettext_strings.rb:148
 msgid "Jun"
 msgstr ""
 
-#: lib/gettext_strings.rb:134
+#: lib/gettext_strings.rb:135
 msgid "June"
 msgstr ""
 
-#: lib/gettext_strings.rb:144
+#: lib/gettext_strings.rb:145
 msgid "Mar"
 msgstr ""
 
-#: lib/gettext_strings.rb:131
+#: lib/gettext_strings.rb:132
 msgid "March"
 msgstr ""
 
-#: lib/gettext_strings.rb:133 lib/gettext_strings.rb:146
+#: lib/gettext_strings.rb:134 lib/gettext_strings.rb:147
 msgid "May"
 msgstr ""
 
-#: lib/gettext_strings.rb:121
+#: lib/gettext_strings.rb:122
 msgid "Mon"
 msgstr ""
 
@@ -266,19 +270,19 @@ msgstr ""
 msgid "Node destroyed."
 msgstr ""
 
-#: lib/gettext_strings.rb:152
+#: lib/gettext_strings.rb:153
 msgid "Nov"
 msgstr ""
 
-#: lib/gettext_strings.rb:139
+#: lib/gettext_strings.rb:140
 msgid "November"
 msgstr ""
 
-#: lib/gettext_strings.rb:151
+#: lib/gettext_strings.rb:152
 msgid "Oct"
 msgstr ""
 
-#: lib/gettext_strings.rb:138
+#: lib/gettext_strings.rb:139
 msgid "October"
 msgstr ""
 
@@ -290,7 +294,7 @@ msgstr ""
 msgid "Order updated"
 msgstr ""
 
-#: lib/gettext_strings.rb:156
+#: lib/gettext_strings.rb:157
 msgid "Password:"
 msgstr ""
 
@@ -323,7 +327,7 @@ msgstr ""
 msgid "Rolled back to redaction."
 msgstr ""
 
-#: lib/gettext_strings.rb:126
+#: lib/gettext_strings.rb:127
 msgid "Sat"
 msgstr ""
 
@@ -331,11 +335,11 @@ msgstr ""
 msgid "Saturday"
 msgstr ""
 
-#: lib/gettext_strings.rb:150
+#: lib/gettext_strings.rb:151
 msgid "Sep"
 msgstr ""
 
-#: lib/gettext_strings.rb:137
+#: lib/gettext_strings.rb:138
 msgid "September"
 msgstr ""
 
@@ -343,7 +347,7 @@ msgstr ""
 msgid "Site was successfully updated."
 msgstr ""
 
-#: lib/gettext_strings.rb:127
+#: lib/gettext_strings.rb:128
 msgid "Sun"
 msgstr ""
 
@@ -355,7 +359,7 @@ msgstr ""
 msgid "This node contains sub-nodes: it cannot be destroyed."
 msgstr ""
 
-#: lib/gettext_strings.rb:124
+#: lib/gettext_strings.rb:125
 msgid "Thu"
 msgstr ""
 
@@ -363,7 +367,7 @@ msgstr ""
 msgid "Thursday"
 msgstr ""
 
-#: lib/gettext_strings.rb:122
+#: lib/gettext_strings.rb:123
 msgid "Tue"
 msgstr ""
 
@@ -383,7 +387,7 @@ msgstr ""
 msgid "Upload succeeded."
 msgstr ""
 
-#: lib/gettext_strings.rb:155
+#: lib/gettext_strings.rb:156
 msgid "User name:"
 msgstr ""
 
@@ -403,7 +407,7 @@ msgstr ""
 msgid "VirtualClass was successfully updated."
 msgstr ""
 
-#: lib/gettext_strings.rb:123
+#: lib/gettext_strings.rb:124
 msgid "Wed"
 msgstr ""
 
@@ -468,7 +472,7 @@ msgstr ""
 msgid "action"
 msgstr ""
 
-#: lib/gettext_strings.rb:169
+#: lib/gettext_strings.rb:170
 msgid "address"
 msgstr ""
 
@@ -500,7 +504,7 @@ msgstr ""
 msgid "bak"
 msgstr ""
 
-#: lib/gettext_strings.rb:176
+#: lib/gettext_strings.rb:177
 msgid "birthday"
 msgstr ""
 
@@ -693,11 +697,11 @@ msgstr ""
 msgid "classes import"
 msgstr ""
 
-#: lib/gettext_strings.rb:179
+#: lib/gettext_strings.rb:180
 msgid "clear_cache"
 msgstr ""
 
-#: lib/gettext_strings.rb:180
+#: lib/gettext_strings.rb:181
 msgid "clear_cache done."
 msgstr ""
 
@@ -764,7 +768,7 @@ msgstr ""
 msgid "could not update user"
 msgstr ""
 
-#: lib/gettext_strings.rb:172
+#: lib/gettext_strings.rb:173
 msgid "country"
 msgstr ""
 
@@ -885,7 +889,7 @@ msgstr ""
 msgid "edit site"
 msgstr ""
 
-#: lib/gettext_strings.rb:175
+#: lib/gettext_strings.rb:176
 msgid "email"
 msgstr ""
 
@@ -913,7 +917,7 @@ msgstr ""
 msgid "file_tab"
 msgstr ""
 
-#: lib/gettext_strings.rb:167
+#: lib/gettext_strings.rb:168
 msgid "first_name"
 msgstr ""
 
@@ -1041,11 +1045,11 @@ msgstr ""
 msgid "img_custom_inherit"
 msgstr ""
 
-#: lib/gettext_strings.rb:188
+#: lib/gettext_strings.rb:189
 msgid "img_datetime"
 msgstr ""
 
-#: lib/gettext_strings.rb:187
+#: lib/gettext_strings.rb:188
 msgid "img_float"
 msgstr ""
 
@@ -1069,7 +1073,7 @@ msgstr ""
 msgid "img_has_one"
 msgstr ""
 
-#: lib/gettext_strings.rb:186
+#: lib/gettext_strings.rb:187
 msgid "img_integer"
 msgstr ""
 
@@ -1101,7 +1105,7 @@ msgstr ""
 msgid "img_relation"
 msgstr ""
 
-#: lib/gettext_strings.rb:185
+#: lib/gettext_strings.rb:186
 msgid "img_string"
 msgstr ""
 
@@ -1199,7 +1203,7 @@ msgstr ""
 msgid "language"
 msgstr ""
 
-#: lib/gettext_strings.rb:168
+#: lib/gettext_strings.rb:169
 msgid "last_name"
 msgstr ""
 
@@ -1211,7 +1215,7 @@ msgstr ""
 msgid "links_tab"
 msgstr ""
 
-#: lib/gettext_strings.rb:171
+#: lib/gettext_strings.rb:172
 msgid "locality"
 msgstr ""
 
@@ -1239,7 +1243,7 @@ msgstr ""
 msgid "missing target"
 msgstr ""
 
-#: lib/gettext_strings.rb:174
+#: lib/gettext_strings.rb:175
 msgid "mobile"
 msgstr ""
 
@@ -1286,7 +1290,7 @@ msgstr ""
 msgid "new relation"
 msgstr ""
 
-#: lib/gettext_strings.rb:119
+#: lib/gettext_strings.rb:120
 msgid "news_date"
 msgstr ""
 
@@ -1364,7 +1368,7 @@ msgstr ""
 msgid "popup"
 msgstr ""
 
-#: lib/gettext_strings.rb:170
+#: lib/gettext_strings.rb:171
 msgid "postal_code"
 msgstr ""
 
@@ -1433,23 +1437,23 @@ msgstr ""
 msgid "readers"
 msgstr ""
 
-#: lib/gettext_strings.rb:163
+#: lib/gettext_strings.rb:164
 msgid "rebuild"
 msgstr ""
 
-#: lib/gettext_strings.rb:164
+#: lib/gettext_strings.rb:165
 msgid "rebuild_btn"
 msgstr ""
 
-#: lib/gettext_strings.rb:181
+#: lib/gettext_strings.rb:182
 msgid "rebuild_index"
 msgstr ""
 
-#: lib/gettext_strings.rb:182
+#: lib/gettext_strings.rb:183
 msgid "rebuild_index done."
 msgstr ""
 
-#: lib/gettext_strings.rb:160
+#: lib/gettext_strings.rb:161
 msgid "redaction saved"
 msgstr ""
 
@@ -1616,7 +1620,7 @@ msgstr ""
 msgid "tags"
 msgstr ""
 
-#: lib/gettext_strings.rb:173
+#: lib/gettext_strings.rb:174
 msgid "telephone"
 msgstr ""
 
@@ -1662,7 +1666,7 @@ msgstr ""
 msgid "turn dev on"
 msgstr ""
 
-#: lib/gettext_strings.rb:165
+#: lib/gettext_strings.rb:166
 msgid "turn_dev_off_btn"
 msgstr ""
 
@@ -1743,6 +1747,6 @@ msgstr ""
 msgid "yesterday"
 msgstr ""
 
-#: lib/gettext_strings.rb:159
+#: lib/gettext_strings.rb:160
 msgid "you are editing the original"
 msgstr ""

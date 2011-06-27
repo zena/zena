@@ -116,6 +116,7 @@ module Zena
 
     N_('datetime')          # Same as %Y-%m-%d %H:%M
     N_(Zena::Use::Dates::DATETIME)
+    N_('%Y-%m-%d %H:%M')    # marked as not needed if we use the above constant...
     N_('news_date')         # calendar day (event list view)
 
     N_('Mon')

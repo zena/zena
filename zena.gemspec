@@ -281,6 +281,7 @@ Gem::Specification.new do |s|
     "bricks/acls/lib/bricks/acls.rb",
     "bricks/acls/zena/init.rb",
     "bricks/acls/zena/migrate/20110509141600_create_acls.rb",
+    "bricks/acls/zena/migrate/20110627193757_add_allowed_mode_and_format_to_acl.rb",
     "bricks/acls/zena/test/integration/acl_integration_test.rb",
     "bricks/acls/zena/test/sites/erebus/acls.yml",
     "bricks/acls/zena/test/sites/erebus/groups.yml",

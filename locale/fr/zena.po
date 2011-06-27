@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: version 0.0.1\n"
-"POT-Creation-Date: 2011-06-27 20:12-0000\n"
+"POT-Creation-Date: 2011-06-27 20:32-0000\n"
 "PO-Revision-Date: 2011-06-27 22:15+0100\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: fr <gaspard@teti.ch>\n"
@@ -12,6 +12,10 @@ msgstr ""
 "X-Poedit-Country: SWITZERLAND\n"
 "X-Poedit-Bookmarks: -1,-1,-1,219,-1,-1,-1,-1,-1,-1\n"
 "X-Poedit-Basepath: /Users/gaspard/svk/zena\n"
+
+#: lib/gettext_strings.rb:119
+msgid "%Y-%m-%d %H:%M"
+msgstr "%d.%m.%Y %H:%M"
 
 #: app/models/text_document.rb:79
 msgid "%{asset} not found"
@@ -25,8 +29,7 @@ msgstr "%{count} versions"
 msgid "%{d} days ago"
 msgstr "il y a %{d} jours"
 
-#: lib/gettext_strings.rb:75
-#: lib/zena/use/display.rb:162
+#: lib/gettext_strings.rb:75 lib/zena/use/display.rb:162
 msgid "%{ext} document"
 msgstr "document %{ext}"
 
@@ -42,8 +45,7 @@ msgstr "il y a %{h} heures"
 msgid "%{m} minutes ago"
 msgstr "il y a %{m} minutes"
 
-#: lib/gettext_strings.rb:76
-#: lib/zena/use/display.rb:150
+#: lib/gettext_strings.rb:76 lib/zena/use/display.rb:150
 msgid "%{type} node"
 msgstr "objet %{type}"
 
@@ -63,11 +65,11 @@ msgstr "il y a 1 minute"
 msgid "API group"
 msgstr "groupe API"
 
-#: lib/gettext_strings.rb:145
+#: lib/gettext_strings.rb:146
 msgid "Apr"
 msgstr "avr"
 
-#: lib/gettext_strings.rb:132
+#: lib/gettext_strings.rb:133
 msgid "April"
 msgstr "avril"
 
@@ -96,14 +98,16 @@ msgid "Are you sure you want to destroy this virtual class ?"
 msgstr "Voulez-vous vraiment détruire cette classe d'objets ?"
 
 #: app/views/comments/_bin.rhtml:4
-msgid "Are you sure you want to permanently remove the content of this rubbish bin ?"
-msgstr "Voulez-vous vraiment supprimer définitivement le contenu de cette corbeille ?"
+msgid ""
+"Are you sure you want to permanently remove the content of this rubbish bin ?"
+msgstr ""
+"Voulez-vous vraiment supprimer définitivement le contenu de cette corbeille ?"
 
-#: lib/gettext_strings.rb:149
+#: lib/gettext_strings.rb:150
 msgid "Aug"
 msgstr "aoû"
 
-#: lib/gettext_strings.rb:136
+#: lib/gettext_strings.rb:137
 msgid "August"
 msgstr "août"
 
@@ -180,11 +184,11 @@ msgstr "L'ordre n'a pas pu être mis à jour."
 msgid "Data entry was successfully created."
 msgstr "Entrée data créé avec succès."
 
-#: lib/gettext_strings.rb:153
+#: lib/gettext_strings.rb:154
 msgid "Dec"
 msgstr "déc"
 
-#: lib/gettext_strings.rb:140
+#: lib/gettext_strings.rb:141
 msgid "December"
 msgstr "décembre"
 
@@ -192,15 +196,15 @@ msgstr "décembre"
 msgid "Delete relation '%{role}' between '%{source}' and '%{target}' ?"
 msgstr "Supprimer la relation '%{role}' entre '%{source}' et '%{target}' ?"
 
-#: lib/gettext_strings.rb:143
+#: lib/gettext_strings.rb:144
 msgid "Feb"
 msgstr "fév"
 
-#: lib/gettext_strings.rb:130
+#: lib/gettext_strings.rb:131
 msgid "February"
 msgstr "février"
 
-#: lib/gettext_strings.rb:125
+#: lib/gettext_strings.rb:126
 msgid "Fri"
 msgstr "ven"
 
@@ -216,44 +220,43 @@ msgstr "L'action '%{action}' n'est pas valide."
 msgid "Invalid login or password."
 msgstr "Mot de passe ou nom d'utilistateur invalide."
 
-#: lib/gettext_strings.rb:142
+#: lib/gettext_strings.rb:143
 msgid "Jan"
 msgstr "jan"
 
-#: lib/gettext_strings.rb:129
+#: lib/gettext_strings.rb:130
 msgid "January"
 msgstr "janvier"
 
-#: lib/gettext_strings.rb:148
+#: lib/gettext_strings.rb:149
 msgid "Jul"
 msgstr "jul"
 
-#: lib/gettext_strings.rb:135
+#: lib/gettext_strings.rb:136
 msgid "July"
 msgstr "juillet"
 
-#: lib/gettext_strings.rb:147
+#: lib/gettext_strings.rb:148
 msgid "Jun"
 msgstr "jun"
 
-#: lib/gettext_strings.rb:134
+#: lib/gettext_strings.rb:135
 msgid "June"
 msgstr "juin"
 
-#: lib/gettext_strings.rb:144
+#: lib/gettext_strings.rb:145
 msgid "Mar"
 msgstr "mar"
 
-#: lib/gettext_strings.rb:131
+#: lib/gettext_strings.rb:132
 msgid "March"
 msgstr "mars"
 
-#: lib/gettext_strings.rb:133
-#: lib/gettext_strings.rb:146
+#: lib/gettext_strings.rb:134 lib/gettext_strings.rb:147
 msgid "May"
 msgstr "mai"
 
-#: lib/gettext_strings.rb:121
+#: lib/gettext_strings.rb:122
 msgid "Mon"
 msgstr "lun"
 
@@ -265,19 +268,19 @@ msgstr "lundi"
 msgid "Node destroyed."
 msgstr "Nœud détruit."
 
-#: lib/gettext_strings.rb:152
+#: lib/gettext_strings.rb:153
 msgid "Nov"
 msgstr "nov"
 
-#: lib/gettext_strings.rb:139
+#: lib/gettext_strings.rb:140
 msgid "November"
 msgstr "novembre"
 
-#: lib/gettext_strings.rb:151
+#: lib/gettext_strings.rb:152
 msgid "Oct"
 msgstr "oct"
 
-#: lib/gettext_strings.rb:138
+#: lib/gettext_strings.rb:139
 msgid "October"
 msgstr "octobre"
 
@@ -289,7 +292,7 @@ msgstr "Ordre réinitialisé."
 msgid "Order updated"
 msgstr "Ordre mis à jour."
 
-#: lib/gettext_strings.rb:156
+#: lib/gettext_strings.rb:157
 msgid "Password:"
 msgstr "Mot de passe"
 
@@ -322,7 +325,7 @@ msgstr "La relation a été mise à jour."
 msgid "Rolled back to redaction."
 msgstr "La version a été transformée en rédaction."
 
-#: lib/gettext_strings.rb:126
+#: lib/gettext_strings.rb:127
 msgid "Sat"
 msgstr "sam"
 
@@ -330,11 +333,11 @@ msgstr "sam"
 msgid "Saturday"
 msgstr "samedi"
 
-#: lib/gettext_strings.rb:150
+#: lib/gettext_strings.rb:151
 msgid "Sep"
 msgstr "sep"
 
-#: lib/gettext_strings.rb:137
+#: lib/gettext_strings.rb:138
 msgid "September"
 msgstr "septembre"
 
@@ -342,7 +345,7 @@ msgstr "septembre"
 msgid "Site was successfully updated."
 msgstr "Le site a été modifié avec succès."
 
-#: lib/gettext_strings.rb:127
+#: lib/gettext_strings.rb:128
 msgid "Sun"
 msgstr "dim"
 
@@ -354,7 +357,7 @@ msgstr "dimanche"
 msgid "This node contains sub-nodes: it cannot be destroyed."
 msgstr "Ce nœud contient des enfants: il ne peut pas être détruit."
 
-#: lib/gettext_strings.rb:124
+#: lib/gettext_strings.rb:125
 msgid "Thu"
 msgstr "jeu"
 
@@ -362,7 +365,7 @@ msgstr "jeu"
 msgid "Thursday"
 msgstr "jeudi"
 
-#: lib/gettext_strings.rb:122
+#: lib/gettext_strings.rb:123
 msgid "Tue"
 msgstr "mar"
 
@@ -382,7 +385,7 @@ msgstr "Le téléchargement a échoué: pas de définitions."
 msgid "Upload succeeded."
 msgstr "Téléchargement effectué."
 
-#: lib/gettext_strings.rb:155
+#: lib/gettext_strings.rb:156
 msgid "User name:"
 msgstr "Nom d'utilisateur"
 
@@ -402,7 +405,7 @@ msgstr "La classe virtuelle a été créée avec succès."
 msgid "VirtualClass was successfully updated."
 msgstr "La classe virtuelle a été modifiée avec succès."
 
-#: lib/gettext_strings.rb:123
+#: lib/gettext_strings.rb:124
 msgid "Wed"
 msgstr "mer"
 
@@ -422,8 +425,7 @@ msgstr "[galerie]"
 msgid "a Zen garden"
 msgstr "un jardin Zen"
 
-#: app/views/acls/show.html.erb:1
-#: app/views/acls/index.rhtml:1
+#: app/views/acls/show.html.erb:1 app/views/acls/index.rhtml:1
 msgid "access controls"
 msgstr "contrôles d'accès"
 
@@ -433,7 +435,8 @@ msgstr "Action pour laquelle cette acl peut être utilisée."
 
 #: app/views/acls/_form.rhtml:51
 msgid "acl_exec_group_help"
-msgstr "Groupe ajouté au visiteur lors de l'exécution de la requête et lors du rendu."
+msgstr ""
+"Groupe ajouté au visiteur lors de l'exécution de la requête et lors du rendu."
 
 #: app/views/acls/_form.rhtml:55
 msgid "acl_exec_skin_help"
@@ -441,7 +444,8 @@ msgstr "Thème utilisé pour le rendu (vide = thème selon nœud)."
 
 #: app/views/acls/_form.rhtml:39
 msgid "acl_format_help"
-msgstr "Format (html,xml,...) pour lequel cette acl peut être utilisée ('*' = tous)."
+msgstr ""
+"Format (html,xml,...) pour lequel cette acl peut être utilisée ('*' = tous)."
 
 #: app/views/acls/_form.rhtml:19
 msgid "acl_group_help"
@@ -449,7 +453,8 @@ msgstr "Groupe pouvant utiliser cet acl."
 
 #: app/views/acls/_form.rhtml:35
 msgid "acl_mode_help"
-msgstr "Mode pour lequel cette acl peut être utilisée ('*' = tous, '' = pas de mode)."
+msgstr ""
+"Mode pour lequel cette acl peut être utilisée ('*' = tous, '' = pas de mode)."
 
 #: app/views/acls/_form.rhtml:27
 msgid "acl_priority_help"
@@ -457,19 +462,20 @@ msgstr "Les acl avec une priorité plus élevée sont testée avant."
 
 #: app/views/acls/_form.rhtml:47
 msgid "acl_query_help"
-msgstr "Requête SQLiss permettant de trouver tous les nœuds auxquels cette acl donne accès."
+msgstr ""
+"Requête SQLiss permettant de trouver tous les nœuds auxquels cette acl donne "
+"accès."
 
 #: lib/zena/use/display.rb:282
 msgid "acls"
 msgstr "liste d'accès"
 
-#: app/views/sites/_form.erb:32
-#: app/views/acls/_form.rhtml:23
+#: app/views/sites/_form.erb:32 app/views/acls/_form.rhtml:23
 #: app/views/acls/index.rhtml:7
 msgid "action"
 msgstr "action"
 
-#: lib/gettext_strings.rb:169
+#: lib/gettext_strings.rb:170
 msgid "address"
 msgstr "adresse"
 
@@ -501,7 +507,7 @@ msgstr "revenir"
 msgid "bak"
 msgstr "sauv."
 
-#: lib/gettext_strings.rb:176
+#: lib/gettext_strings.rb:177
 msgid "birthday"
 msgstr "anniversaire"
 
@@ -513,8 +519,7 @@ msgstr "<img src='/images/key_add.png' alt='ajouter un accès'/>"
 msgid "btn_add"
 msgstr "<img src='/images/add.png' alt='ajouter'/>"
 
-#: app/views/comments/_add.rhtml:2
-#: lib/gettext_strings.rb:27
+#: app/views/comments/_add.rhtml:2 lib/gettext_strings.rb:27
 msgid "btn_add_comment"
 msgstr "<img src='/images/comment_add.png' alt='ajouter un commentaire'/>"
 
@@ -560,7 +565,8 @@ msgstr "<img src='/images/group_add.png' alt='ajouter un groupe'/>"
 
 #: app/views/iformats/_add.rhtml:2
 msgid "btn_iformat_add"
-msgstr "<img src='/images/photo_add.png' alt='ajouter un format d&apos;image'/>"
+msgstr ""
+"<img src='/images/photo_add.png' alt='ajouter un format d&apos;image'/>"
 
 #: lib/gettext_strings.rb:83
 msgid "btn_propose"
@@ -578,13 +584,11 @@ msgstr "<img src='/images/page_edit.png' alt='éditer'/>"
 msgid "btn_refuse"
 msgstr "<img src='/images/delete.png' alt='refuser'/>"
 
-#: app/views/relations/_add.erb:2
-#: lib/gettext_strings.rb:39
+#: app/views/relations/_add.erb:2 lib/gettext_strings.rb:39
 msgid "btn_relation_add"
 msgstr "<img src='/images/link_add.png' alt='ajouter un rôle'/>"
 
-#: app/views/comments/_li.rhtml:3
-#: lib/zena/use/action.rb:145
+#: app/views/comments/_li.rhtml:3 lib/zena/use/action.rb:145
 msgid "btn_remove"
 msgstr "<img src='/images/delete.png' alt='supprimer'/>"
 
@@ -592,8 +596,7 @@ msgstr "<img src='/images/delete.png' alt='supprimer'/>"
 msgid "btn_site_add"
 msgstr "<img src='/images/world_add.png' alt='ajouter un site'/>"
 
-#: app/views/links/_li.rhtml:6
-#: lib/zena/use/ajax.rb:418
+#: app/views/links/_li.rhtml:6 lib/zena/use/ajax.rb:418
 msgid "btn_tiny_del"
 msgstr "<img src='/images/bullet_delete.png' alt='supprimer'/>"
 
@@ -607,11 +610,14 @@ msgstr "Supprimer entièrement la discussion."
 
 #: lib/gettext_strings.rb:29
 msgid "btn_title_drive"
-msgstr "Ouvrir la fenêtre de pilotage du nœud (modifier l&apos;emplacement, les droits d&apos;accès, les liens, etc)."
+msgstr ""
+"Ouvrir la fenêtre de pilotage du nœud (modifier l&apos;emplacement, les "
+"droits d&apos;accès, les liens, etc)."
 
 #: lib/gettext_strings.rb:28
 msgid "btn_title_edit"
-msgstr "Ouvrir la fenêtre d&apos;édition du nœud (modifier le texte, titre, etc)."
+msgstr ""
+"Ouvrir la fenêtre d&apos;édition du nœud (modifier le texte, titre, etc)."
 
 #: lib/zena/use/action.rb:142
 msgid "btn_title_open_discussion"
@@ -629,35 +635,22 @@ msgstr "<img src='/images/user_add.png' alt='ajouter un utilisateur'/>"
 msgid "btn_view"
 msgstr "<img src='/images/eye.png' alt='visualiser'/>\""
 
-#: app/views/virtual_classes/_add.erb:2
-#: lib/gettext_strings.rb:42
+#: app/views/virtual_classes/_add.erb:2 lib/gettext_strings.rb:42
 msgid "btn_virtual_class_add"
 msgstr "<img src='/images/brick_add.png' alt='ajouter une classe'/>"
 
-#: app/views/columns/_form.html.erb:3
-#: app/views/columns/_form.html.erb:5
-#: app/views/relations/_form.erb:3
-#: app/views/relations/_form.erb:5
-#: app/views/sites/_form.erb:3
-#: app/views/sites/_form.erb:5
-#: app/views/virtual_classes/_form.erb:3
-#: app/views/virtual_classes/_form.erb:5
-#: app/views/acls/_form.rhtml:3
-#: app/views/acls/_form.rhtml:5
-#: app/views/comments/_form.rhtml:8
-#: app/views/comments/_form.rhtml:10
-#: app/views/comments/_form.rhtml:12
-#: app/views/discussions/_form.rhtml:8
-#: app/views/groups/_form.rhtml:3
-#: app/views/groups/_form.rhtml:5
-#: app/views/iformats/_form.rhtml:3
-#: app/views/iformats/_form.rhtml:5
-#: app/views/links/_form.rhtml:12
-#: app/views/links/_form.rhtml:14
-#: app/views/nodes/_import_results.rhtml:3
-#: app/views/nodes/_results.rhtml:7
-#: app/views/users/_form.rhtml:3
-#: app/views/users/_form.rhtml:5
+#: app/views/columns/_form.html.erb:3 app/views/columns/_form.html.erb:5
+#: app/views/relations/_form.erb:3 app/views/relations/_form.erb:5
+#: app/views/sites/_form.erb:3 app/views/sites/_form.erb:5
+#: app/views/virtual_classes/_form.erb:3 app/views/virtual_classes/_form.erb:5
+#: app/views/acls/_form.rhtml:3 app/views/acls/_form.rhtml:5
+#: app/views/comments/_form.rhtml:8 app/views/comments/_form.rhtml:10
+#: app/views/comments/_form.rhtml:12 app/views/discussions/_form.rhtml:8
+#: app/views/groups/_form.rhtml:3 app/views/groups/_form.rhtml:5
+#: app/views/iformats/_form.rhtml:3 app/views/iformats/_form.rhtml:5
+#: app/views/links/_form.rhtml:12 app/views/links/_form.rhtml:14
+#: app/views/nodes/_import_results.rhtml:3 app/views/nodes/_results.rhtml:7
+#: app/views/users/_form.rhtml:3 app/views/users/_form.rhtml:5
 #: lib/zena/use/forms.rb:199
 msgid "btn_x"
 msgstr "<img src='/images/cross.png' alt='annuler'/>"
@@ -665,8 +658,7 @@ msgstr "<img src='/images/cross.png' alt='annuler'/>"
 #: app/views/users/preferences.html.erb:10
 #: app/views/users/preferences.html.erb:30
 #: app/views/virtual_classes/import_prepare.html.erb:10
-#: app/views/virtual_classes/index.erb:30
-#: app/views/users/_form.rhtml:20
+#: app/views/virtual_classes/index.erb:30 app/views/users/_form.rhtml:20
 msgid "cancel"
 msgstr "annuler"
 
@@ -678,14 +670,12 @@ msgstr "impossible de supprimer le lien"
 msgid "cannot update multiple targets"
 msgstr "impossible de modifier plusieurs cibles"
 
-#: app/views/nodes/_groups.rhtml:19
-#: app/views/nodes/_parent.rhtml:11
+#: app/views/nodes/_groups.rhtml:19 app/views/nodes/_parent.rhtml:11
 #: lib/zena/use/upload.rb:167
 msgid "change"
 msgstr "modifier"
 
-#: app/views/users/preferences.html.erb:27
-#: app/views/users/_form.rhtml:19
+#: app/views/users/preferences.html.erb:27 app/views/users/_form.rhtml:19
 msgid "change password"
 msgstr "modifier le mot de passe"
 
@@ -693,8 +683,7 @@ msgstr "modifier le mot de passe"
 msgid "change personal information"
 msgstr "modification des informations personnelles"
 
-#: app/views/relations/_form.erb:17
-#: app/views/nodes/_parent.rhtml:7
+#: app/views/relations/_form.erb:17 app/views/nodes/_parent.rhtml:7
 msgid "class"
 msgstr "classe"
 
@@ -707,8 +696,7 @@ msgstr "classe de la racine"
 msgid "class scope"
 msgstr "classe cible"
 
-#: app/views/virtual_classes/index.erb:1
-#: lib/zena/use/display.rb:270
+#: app/views/virtual_classes/index.erb:1 lib/zena/use/display.rb:270
 msgid "classes"
 msgstr "classes"
 
@@ -716,11 +704,11 @@ msgstr "classes"
 msgid "classes import"
 msgstr "importation de classes"
 
-#: lib/gettext_strings.rb:179
+#: lib/gettext_strings.rb:180
 msgid "clear_cache"
 msgstr "effacer le cache"
 
-#: lib/gettext_strings.rb:180
+#: lib/gettext_strings.rb:181
 msgid "clear_cache done."
 msgstr "Cache effacé."
 
@@ -748,8 +736,7 @@ msgstr "commentaire(s)"
 msgid "commentator"
 msgstr "commentaires"
 
-#: app/views/comments/index.rhtml:1
-#: lib/zena/use/display.rb:258
+#: app/views/comments/index.rhtml:1 lib/zena/use/display.rb:258
 msgid "comments"
 msgstr "commentaires"
 
@@ -771,15 +758,12 @@ msgstr "type MIME"
 msgid "convert"
 msgstr "convertir"
 
-#: app/models/node.rb:1535
-#: app/models/node.rb:1547
-#: app/models/relation_proxy.rb:185
-#: app/models/relation_proxy.rb:209
+#: app/models/node.rb:1535 app/models/node.rb:1547
+#: app/models/relation_proxy.rb:185 app/models/relation_proxy.rb:209
 msgid "could not be found"
 msgstr "n'a pas été trouvé"
 
-#: lib/zena/use/grid.rb:70
-#: lib/zena/use/grid.rb:98
+#: lib/zena/use/grid.rb:70 lib/zena/use/grid.rb:98
 msgid "could not save value (bad attribute)"
 msgstr "impossible d'enregistrer la valeure (attribut inconnu)"
 
@@ -791,7 +775,7 @@ msgstr "L'objet n'a pas pu être mis à jour."
 msgid "could not update user"
 msgstr "Les données utilisateur n'ont pas pu être mises à jour."
 
-#: lib/gettext_strings.rb:172
+#: lib/gettext_strings.rb:173
 msgid "country"
 msgstr "pays"
 
@@ -824,10 +808,8 @@ msgstr "++"
 msgid "data entries"
 msgstr "entrées data"
 
-#: lib/gettext_strings.rb:117
-#: lib/zena/use/dates.rb:16
-#: lib/zena/use/dates.rb:130
-#: lib/zena/use/dates.rb:183
+#: lib/gettext_strings.rb:117 lib/zena/use/dates.rb:16
+#: lib/zena/use/dates.rb:130 lib/zena/use/dates.rb:183
 #: lib/zena/use/dates.rb:194
 msgid "datetime"
 msgstr "%d.%m.%Y %H:%M"
@@ -848,12 +830,9 @@ msgstr "supprimé"
 msgid "description"
 msgstr "description"
 
-#: app/views/columns/_form.html.erb:33
-#: app/views/relations/_form.erb:44
-#: app/views/virtual_classes/_form.erb:52
-#: app/views/acls/_form.rhtml:68
-#: app/views/groups/_form.rhtml:41
-#: app/views/iformats/_form.rhtml:27
+#: app/views/columns/_form.html.erb:33 app/views/relations/_form.erb:44
+#: app/views/virtual_classes/_form.erb:52 app/views/acls/_form.rhtml:68
+#: app/views/groups/_form.rhtml:41 app/views/iformats/_form.rhtml:27
 msgid "destroy"
 msgstr "supprimer"
 
@@ -917,7 +896,7 @@ msgstr "modifier la relation"
 msgid "edit site"
 msgstr "éditer le site"
 
-#: lib/gettext_strings.rb:175
+#: lib/gettext_strings.rb:176
 msgid "email"
 msgstr "email"
 
@@ -925,13 +904,11 @@ msgstr "email"
 msgid "en"
 msgstr "anglais"
 
-#: app/views/acls/_form.rhtml:51
-#: app/views/acls/index.rhtml:12
+#: app/views/acls/_form.rhtml:51 app/views/acls/index.rhtml:12
 msgid "exec group"
 msgstr "groupe exéc."
 
-#: app/views/acls/_form.rhtml:55
-#: app/views/acls/index.rhtml:13
+#: app/views/acls/_form.rhtml:55 app/views/acls/index.rhtml:13
 msgid "exec skin"
 msgstr "thème"
 
@@ -947,12 +924,11 @@ msgstr "extension"
 msgid "file_tab"
 msgstr "fichier"
 
-#: lib/gettext_strings.rb:167
+#: lib/gettext_strings.rb:168
 msgid "first_name"
 msgstr "prénom"
 
-#: app/views/acls/_form.rhtml:39
-#: app/views/acls/index.rhtml:10
+#: app/views/acls/_form.rhtml:39 app/views/acls/index.rhtml:10
 #: app/views/templates/document_create_tabs/_template.rhtml:16
 #: app/views/templates/edit_tabs/_template.rhtml:1
 msgid "format"
@@ -982,15 +958,12 @@ msgstr "<img src='/images/photo_blue.png' alt='plein format'/>"
 msgid "gravity"
 msgstr "gravité"
 
-#: app/views/groups/edit.html.erb:1
-#: app/views/groups/show.html.erb:1
-#: app/views/acls/_form.rhtml:19
-#: app/views/acls/index.rhtml:6
+#: app/views/groups/edit.html.erb:1 app/views/groups/show.html.erb:1
+#: app/views/acls/_form.rhtml:19 app/views/acls/index.rhtml:6
 msgid "group"
 msgstr "groupe"
 
-#: app/views/groups/index.rhtml:1
-#: app/views/users/_form.rhtml:29
+#: app/views/groups/index.rhtml:1 app/views/users/_form.rhtml:29
 #: lib/zena/use/display.rb:264
 msgid "groups"
 msgstr "groupes"
@@ -999,13 +972,11 @@ msgstr "groupes"
 msgid "has already been taken in %s"
 msgstr "déjà définit dans %s"
 
-#: app/views/relations/_form.erb:24
-#: app/views/relations/_form.erb:28
+#: app/views/relations/_form.erb:24 app/views/relations/_form.erb:28
 msgid "has_many"
 msgstr "has_many"
 
-#: app/views/relations/_form.erb:23
-#: app/views/relations/_form.erb:27
+#: app/views/relations/_form.erb:23 app/views/relations/_form.erb:27
 msgid "has_one"
 msgstr "has_one"
 
@@ -1015,7 +986,10 @@ msgstr "hauteur"
 
 #: app/views/templates/edit_tabs/_help.rhtml:6
 msgid "help not found"
-msgstr "L'objet d'aide n'a pas été trouvé. Cet objet doit porter le nom 'help'. En attendant, vous pouvez consulter le site officiel \"zena\":http://zenadmin.org."
+msgstr ""
+"L'objet d'aide n'a pas été trouvé. Cet objet doit porter le nom 'help'. En "
+"attendant, vous pouvez consulter le site officiel \"zena\":http://zenadmin."
+"org."
 
 #: lib/gettext_strings.rb:4
 msgid "help_tab"
@@ -1025,8 +999,7 @@ msgstr "aide"
 msgid "host"
 msgstr "nom d'hôte"
 
-#: app/views/relations/_form.erb:35
-#: app/views/virtual_classes/_form.erb:45
+#: app/views/relations/_form.erb:35 app/views/virtual_classes/_form.erb:45
 msgid "icon"
 msgstr "icône"
 
@@ -1042,8 +1015,7 @@ msgstr "champs d'indexation inverse"
 msgid "idx_scope"
 msgstr "champs d'index"
 
-#: app/views/iformats/edit.html.erb:1
-#: app/views/iformats/show.html.erb:1
+#: app/views/iformats/edit.html.erb:1 app/views/iformats/show.html.erb:1
 msgid "iformat"
 msgstr "format image"
 
@@ -1055,8 +1027,7 @@ msgstr "<img src='/images/photo.png' alt='format d&apos;image'/>"
 msgid "image"
 msgstr "image"
 
-#: app/views/iformats/index.rhtml:1
-#: lib/zena/use/display.rb:276
+#: app/views/iformats/index.rhtml:1 lib/zena/use/display.rb:276
 msgid "image formats"
 msgstr "formats image"
 
@@ -1084,11 +1055,11 @@ msgstr "<img src='/images/comment.png' alt='commentaires internes'/>"
 msgid "img_custom_inherit"
 msgstr "<img src='/images/cog.png' alt='droits spécifiques'/>"
 
-#: lib/gettext_strings.rb:188
+#: lib/gettext_strings.rb:189
 msgid "img_datetime"
 msgstr "<img src='/images/date.png' alt='date et heure'/>"
 
-#: lib/gettext_strings.rb:187
+#: lib/gettext_strings.rb:188
 msgid "img_float"
 msgstr "<img src='/images/chart_curve.png' alt='nombre à virgule flotante'/>"
 
@@ -1104,17 +1075,15 @@ msgstr "<img src='/images/group_pub.png' alt='groupe public'/>"
 msgid "img_group_site"
 msgstr "<img src='/images/group_site.png' alt='groupe des utilisateurs'/>"
 
-#: app/views/relations/_li.erb:8
-#: app/views/relations/_li.erb:18
+#: app/views/relations/_li.erb:8 app/views/relations/_li.erb:18
 msgid "img_has_many"
 msgstr "<img src='/images/page_white_stack.png' alt='possède plusieurs'/>"
 
-#: app/views/relations/_li.erb:8
-#: app/views/relations/_li.erb:18
+#: app/views/relations/_li.erb:8 app/views/relations/_li.erb:18
 msgid "img_has_one"
 msgstr "<img src='/images/page_white.png' alt='possède un'/>"
 
-#: lib/gettext_strings.rb:186
+#: lib/gettext_strings.rb:187
 msgid "img_integer"
 msgstr "<img src='/images/chart_line.png' alt='nombre entier'/>"
 
@@ -1122,26 +1091,27 @@ msgstr "<img src='/images/chart_line.png' alt='nombre entier'/>"
 msgid "img_link"
 msgstr "<img src='/images/tag_blue.png' alt='lien'/>"
 
-#: lib/gettext_strings.rb:66
-#: lib/zena/use/i18n.rb:204
+#: lib/gettext_strings.rb:66 lib/zena/use/i18n.rb:204
 msgid "img_next_page"
-msgstr "<img src='/images/control_fastforward.png' alt='page suivante' title='page suivante'/>"
+msgstr ""
+"<img src='/images/control_fastforward.png' alt='page suivante' title='page "
+"suivante'/>"
 
 #: lib/zena/use/action.rb:140
 msgid "img_open"
 msgstr "<img src='/images/lock_open.png' alt='ouvert'/>"
 
-#: lib/gettext_strings.rb:65
-#: lib/zena/use/i18n.rb:204
+#: lib/gettext_strings.rb:65 lib/zena/use/i18n.rb:204
 msgid "img_prev_page"
-msgstr "<img src='/images/control_rewind.png' alt='page précédente' title='page précédente'/>"
+msgstr ""
+"<img src='/images/control_rewind.png' alt='page précédente' title='page "
+"précédente'/>"
 
 #: lib/gettext_strings.rb:49
 msgid "img_private"
 msgstr "<img src='/images/lock.png' alt='privé'/>"
 
-#: lib/gettext_strings.rb:48
-#: lib/zena/use/html_tags.rb:112
+#: lib/gettext_strings.rb:48 lib/zena/use/html_tags.rb:112
 msgid "img_public"
 msgstr "<img src='/images/user_pub.png' alt='publique'/>"
 
@@ -1149,7 +1119,7 @@ msgstr "<img src='/images/user_pub.png' alt='publique'/>"
 msgid "img_relation"
 msgstr "<img src='/images/link.png' alt='relation'/>"
 
-#: lib/gettext_strings.rb:185
+#: lib/gettext_strings.rb:186
 msgid "img_string"
 msgstr "<img src='/images/text_align_left.png' alt='texte'/>"
 
@@ -1218,8 +1188,7 @@ msgstr "Les informations ont été mises à jour."
 msgid "inherit"
 msgstr "hériter"
 
-#: app/views/discussions/_form.rhtml:12
-#: lib/gettext_strings.rb:60
+#: app/views/discussions/_form.rhtml:12 lib/gettext_strings.rb:60
 msgid "inside"
 msgstr "interne"
 
@@ -1244,12 +1213,11 @@ msgid "kpath"
 msgstr "chemin de classe"
 
 #: app/views/users/preferences.html.erb:17
-#: app/views/templates/edit_tabs/_title.rhtml:7
-#: app/views/users/_form.rhtml:26
+#: app/views/templates/edit_tabs/_title.rhtml:7 app/views/users/_form.rhtml:26
 msgid "language"
 msgstr "langue"
 
-#: lib/gettext_strings.rb:168
+#: lib/gettext_strings.rb:169
 msgid "last_name"
 msgstr "nom"
 
@@ -1261,18 +1229,15 @@ msgstr "relations"
 msgid "links_tab"
 msgstr "relations"
 
-#: lib/gettext_strings.rb:171
+#: lib/gettext_strings.rb:172
 msgid "locality"
 msgstr "lieu"
 
-#: app/views/users/preferences.html.erb:16
-#: app/views/users/_form.rhtml:17
+#: app/views/users/preferences.html.erb:16 app/views/users/_form.rhtml:17
 msgid "login"
 msgstr "login"
 
-#: lib/zena/use/dates.rb:57
-#: lib/zena/use/dates.rb:130
-#: lib/zena/use/i18n.rb:92
+#: lib/zena/use/dates.rb:57 lib/zena/use/dates.rb:130 lib/zena/use/i18n.rb:92
 msgid "long_date"
 msgstr "%d.%m.%Y"
 
@@ -1292,12 +1257,11 @@ msgstr "taille maximale"
 msgid "missing target"
 msgstr "cible manquante"
 
-#: lib/gettext_strings.rb:174
+#: lib/gettext_strings.rb:175
 msgid "mobile"
 msgstr "mobile"
 
-#: app/views/acls/_form.rhtml:35
-#: app/views/acls/index.rhtml:9
+#: app/views/acls/_form.rhtml:35 app/views/acls/index.rhtml:9
 #: app/views/nodes/_groups.rhtml:14
 #: app/views/templates/document_create_tabs/_template.rhtml:13
 #: app/views/templates/edit_tabs/_template.rhtml:4
@@ -1316,12 +1280,9 @@ msgstr "modifié par"
 msgid "my home"
 msgstr "suivi"
 
-#: app/views/columns/_form.html.erb:19
-#: app/views/virtual_classes/_form.erb:16
-#: app/views/acls/_form.rhtml:31
-#: app/views/acls/index.rhtml:8
-#: app/views/groups/_form.rhtml:18
-#: app/views/iformats/_form.rhtml:16
+#: app/views/columns/_form.html.erb:19 app/views/virtual_classes/_form.erb:16
+#: app/views/acls/_form.rhtml:31 app/views/acls/index.rhtml:8
+#: app/views/groups/_form.rhtml:18 app/views/iformats/_form.rhtml:16
 #: app/views/templates/document_create_tabs/_template.rhtml:7
 #: app/views/templates/document_create_tabs/_text_document.rhtml:8
 msgid "name"
@@ -1331,8 +1292,7 @@ msgstr "nom"
 msgid "new"
 msgstr "nouveau"
 
-#: app/views/columns/new.html.erb:1
-#: app/views/virtual_classes/new.erb:1
+#: app/views/columns/new.html.erb:1 app/views/virtual_classes/new.erb:1
 msgid "new class"
 msgstr "nouvelle classe"
 
@@ -1344,7 +1304,7 @@ msgstr "nouveau mot de passe"
 msgid "new relation"
 msgstr "nouvelle relation"
 
-#: lib/gettext_strings.rb:119
+#: lib/gettext_strings.rb:120
 msgid "news_date"
 msgstr "%A %d %B %Y"
 
@@ -1372,8 +1332,7 @@ msgstr "ancien mot de passe"
 msgid "open"
 msgstr "ouvert"
 
-#: app/views/sites/_form.erb:25
-#: lib/gettext_strings.rb:36
+#: app/views/sites/_form.erb:25 lib/gettext_strings.rb:36
 msgid "options"
 msgstr "options"
 
@@ -1390,8 +1349,7 @@ msgstr "première version par"
 msgid "original is #X this view"
 msgstr "L'original est #X fois cette image."
 
-#: app/views/discussions/_form.rhtml:11
-#: lib/gettext_strings.rb:61
+#: app/views/discussions/_form.rhtml:11 lib/gettext_strings.rb:61
 msgid "outside"
 msgstr "externe"
 
@@ -1416,8 +1374,7 @@ msgstr "transformer les ids en noms"
 msgid "parse names to ids"
 msgstr "transformer les noms en ids"
 
-#: app/views/users/_form.rhtml:20
-#: app/views/users/_form.rhtml:22
+#: app/views/users/_form.rhtml:20 app/views/users/_form.rhtml:22
 msgid "password"
 msgstr "mot de passe"
 
@@ -1425,7 +1382,7 @@ msgstr "mot de passe"
 msgid "popup"
 msgstr "popup"
 
-#: lib/gettext_strings.rb:170
+#: lib/gettext_strings.rb:171
 msgid "postal_code"
 msgstr "code postal"
 
@@ -1433,8 +1390,7 @@ msgstr "code postal"
 msgid "posted by"
 msgstr "un article de"
 
-#: app/views/users/preferences.html.erb:1
-#: lib/zena/use/display.rb:255
+#: app/views/users/preferences.html.erb:1 lib/zena/use/display.rb:255
 msgid "preferences"
 msgstr "préférences"
 
@@ -1450,8 +1406,7 @@ msgstr "prop"
 msgid "prop eval"
 msgstr "propriétés évaluées"
 
-#: app/views/columns/index.html.erb:1
-#: lib/zena/use/display.rb:273
+#: app/views/columns/index.html.erb:1 lib/zena/use/display.rb:273
 msgid "properties"
 msgstr "attributs"
 
@@ -1464,8 +1419,7 @@ msgstr "attribut"
 msgid "pub"
 msgstr "pub."
 
-#: app/views/sites/_form.erb:21
-#: lib/gettext_strings.rb:37
+#: app/views/sites/_form.erb:21 lib/gettext_strings.rb:37
 msgid "public group"
 msgstr "groupe public"
 
@@ -1481,8 +1435,7 @@ msgstr "publier les nœuds"
 msgid "publishers"
 msgstr "éditeurs"
 
-#: app/views/acls/_form.rhtml:47
-#: app/views/acls/index.rhtml:11
+#: app/views/acls/_form.rhtml:47 app/views/acls/index.rhtml:11
 msgid "query"
 msgstr "requête"
 
@@ -1498,23 +1451,23 @@ msgstr "lecteur"
 msgid "readers"
 msgstr "lecteurs"
 
-#: lib/gettext_strings.rb:163
+#: lib/gettext_strings.rb:164
 msgid "rebuild"
 msgstr "<img src='/images/arrow_refresh.png' alt='rebuild'/> rebuild zafu"
 
-#: lib/gettext_strings.rb:164
+#: lib/gettext_strings.rb:165
 msgid "rebuild_btn"
 msgstr "<img src='/images/arrow_refresh.png' alt='rebuild template'/>"
 
-#: lib/gettext_strings.rb:181
+#: lib/gettext_strings.rb:182
 msgid "rebuild_index"
 msgstr "recalculer les indexes"
 
-#: lib/gettext_strings.rb:182
+#: lib/gettext_strings.rb:183
 msgid "rebuild_index done."
 msgstr "Le calcul des indexes a été lancé."
 
-#: lib/gettext_strings.rb:160
+#: lib/gettext_strings.rb:161
 msgid "redaction saved"
 msgstr "Rédaction enregistrée."
 
@@ -1526,8 +1479,7 @@ msgstr "délai de réédition"
 msgid "relation_img"
 msgstr "<img src='/images/target.png' alt='rôle'/>"
 
-#: app/views/relations/index.erb:1
-#: lib/zena/use/display.rb:267
+#: app/views/relations/index.erb:1 lib/zena/use/display.rb:267
 msgid "relations"
 msgstr "relations"
 
@@ -1555,8 +1507,7 @@ msgstr "revenir"
 msgid "rights cannot be changed"
 msgstr "Les droits ne peuvent pas être modifiés."
 
-#: app/views/columns/_form.html.erb:17
-#: app/views/relations/_form.erb:31
+#: app/views/columns/_form.html.erb:17 app/views/relations/_form.erb:31
 msgid "role"
 msgstr "rôle"
 
@@ -1588,18 +1539,15 @@ msgstr "%d.%m"
 msgid "short_time"
 msgstr "%Hh%M"
 
-#: app/views/sites/_form.erb:22
-#: lib/gettext_strings.rb:38
+#: app/views/sites/_form.erb:22 lib/gettext_strings.rb:38
 msgid "site group"
 msgstr "groupe de site"
 
-#: app/views/sites/_li.erb:2
-#: lib/gettext_strings.rb:34
+#: app/views/sites/_li.erb:2 lib/gettext_strings.rb:34
 msgid "site_img"
 msgstr "<img src='/images/world.png' alt='site'/>"
 
-#: app/views/sites/index.erb:1
-#: lib/zena/use/display.rb:279
+#: app/views/sites/index.erb:1 lib/zena/use/display.rb:279
 msgid "sites"
 msgstr "sites"
 
@@ -1611,8 +1559,7 @@ msgstr "taille"
 msgid "skin"
 msgstr "thème"
 
-#: app/views/links/_form.rhtml:29
-#: app/views/users/_form.rhtml:25
+#: app/views/links/_form.rhtml:29 app/views/users/_form.rhtml:25
 msgid "status"
 msgstr "statut"
 
@@ -1687,7 +1634,7 @@ msgstr "superclasse"
 msgid "tags"
 msgstr "mots clés"
 
-#: lib/gettext_strings.rb:173
+#: lib/gettext_strings.rb:174
 msgid "telephone"
 msgstr "téléphone"
 
@@ -1707,8 +1654,7 @@ msgstr "texte"
 msgid "textdocument_tab"
 msgstr "doc. texte"
 
-#: app/views/users/preferences.html.erb:18
-#: app/views/users/_form.rhtml:27
+#: app/views/users/preferences.html.erb:18 app/views/users/_form.rhtml:27
 msgid "time zone"
 msgstr "fuseau horaire"
 
@@ -1734,14 +1680,12 @@ msgstr "quitter le mode dev"
 msgid "turn dev on"
 msgstr "passer en mode dev"
 
-#: lib/gettext_strings.rb:165
+#: lib/gettext_strings.rb:166
 msgid "turn_dev_off_btn"
 msgstr "<img src='/images/bug.png' title='quitter le mode dev'/>"
 
-#: app/views/columns/_form.html.erb:18
-#: app/views/relations/_form.erb:21
-#: app/views/virtual_classes/_form.erb:18
-#: app/views/iformats/_form.rhtml:17
+#: app/views/columns/_form.html.erb:18 app/views/relations/_form.erb:21
+#: app/views/virtual_classes/_form.erb:18 app/views/iformats/_form.rhtml:17
 msgid "type"
 msgstr "type"
 
@@ -1765,29 +1709,22 @@ msgstr "utiliser accès augmentés"
 msgid "user"
 msgstr "utilisateur"
 
-#: app/views/groups/_form.rhtml:19
-#: app/views/users/index.rhtml:1
+#: app/views/groups/_form.rhtml:19 app/views/users/index.rhtml:1
 #: lib/zena/use/display.rb:261
 msgid "users"
 msgstr "utilisateurs"
 
-#: app/views/columns/_form.html.erb:28
-#: app/views/relations/_form.erb:39
-#: app/views/sites/_form.erb:40
-#: app/views/users/preferences.html.erb:19
+#: app/views/columns/_form.html.erb:28 app/views/relations/_form.erb:39
+#: app/views/sites/_form.erb:40 app/views/users/preferences.html.erb:19
 #: app/views/users/preferences.html.erb:38
-#: app/views/virtual_classes/_form.erb:46
-#: app/views/acls/_form.rhtml:60
-#: app/views/comments/_form.rhtml:23
-#: app/views/groups/_form.rhtml:35
-#: app/views/iformats/_form.rhtml:22
-#: app/views/nodes/_edit_attribute.rhtml:15
+#: app/views/virtual_classes/_form.erb:46 app/views/acls/_form.rhtml:60
+#: app/views/comments/_form.rhtml:23 app/views/groups/_form.rhtml:35
+#: app/views/iformats/_form.rhtml:22 app/views/nodes/_edit_attribute.rhtml:15
 #: app/views/templates/document_create_tabs/_file.rhtml:3
 #: app/views/templates/document_create_tabs/_import.rhtml:2
 #: app/views/templates/document_create_tabs/_template.rhtml:3
 #: app/views/templates/document_create_tabs/_text_document.rhtml:3
-#: app/views/users/_form.rhtml:50
-#: app/views/versions/edit.rhtml:17
+#: app/views/users/_form.rhtml:50 app/views/versions/edit.rhtml:17
 msgid "validate"
 msgstr " valider "
 
@@ -1799,13 +1736,11 @@ msgstr "versions"
 msgid "virtual class"
 msgstr "classe virtuelle"
 
-#: app/views/virtual_classes/_li.erb:13
-#: lib/gettext_strings.rb:41
+#: app/views/virtual_classes/_li.erb:13 lib/gettext_strings.rb:41
 msgid "virtual_class_error_img"
 msgstr "<img src='/images/brick_error.png' alt='erreur'/>"
 
-#: app/views/virtual_classes/_li.erb:3
-#: app/views/virtual_classes/_li.erb:13
+#: app/views/virtual_classes/_li.erb:3 app/views/virtual_classes/_li.erb:13
 #: lib/gettext_strings.rb:40
 msgid "virtual_class_img"
 msgstr "<img src='/images/brick.png' alt='classe'/>"
@@ -1826,12 +1761,9 @@ msgstr "rédacteurs"
 msgid "yesterday"
 msgstr "hier"
 
-#: lib/gettext_strings.rb:159
+#: lib/gettext_strings.rb:160
 msgid "you are editing the original"
 msgstr "vous éditez l'original"
-
-#~ msgid "%Y-%m-%d %H:%M"
-#~ msgstr "%d.%m.%Y %H:%M"
 
 #~ msgid "%{skin}, design by %{name}"
 #~ msgstr "%{skin}, conception %{name}"

@@ -28,7 +28,7 @@ module Zena
         end
 
         def help(key)
-          %Q{<div class='help'><p>#{_(key)}</p></div>}
+          %Q{<div class='help'><p>#{key}</p></div>}
         end
       end
 
