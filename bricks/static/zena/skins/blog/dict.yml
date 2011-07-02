@@ -1,0 +1,11 @@
+translations:
+  'new project': nouveau projet
+  'upcoming dates': prochaines dates
+  'project dates': dates du projet
+  project: projet
+  title: titre
+  comments: commentaires
+  'leave a comment': ajouter un commentaire
+  'Your message has been received and is waiting approval for publication.': Votre message nous est bien parvenu et est en attente de validation.
+  post_date: %A, %d %B %Y
+  comment_date: %A, %d %B %Y %Hh%M

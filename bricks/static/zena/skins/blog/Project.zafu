@@ -1,0 +1,45 @@
+<r:include template='Node'>
+  <r:with part='main'>
+    <ul id='main_content' do='posts in site' order='date desc'>
+      <li do='add' after='self' klass='Post'/>
+      <li do='form'><b>titre</b> <r:input name='title'/> <b>date</b> <r:input name='date' type='date'/> <r:input type='submit'/></li>
+      <li class='post' do='each' do='void' name='post'>
+        <p class='post_date' do='show' attr='date' format='%b %d'/>
+        <p class='icon' do='link' do='image' do='img' mode='post'/>
+        <h1 do='title' actions='all'>Donec mauris metus, venenatis vitae</h1>
+        <r:void name='text'>
+          <r:zazen eval='summary || text' limit='1'/>
+          <p class='comments'><r:link do='t'>Lire la suite... </r:link> <r:tags> - mots clés: <r:each join=', ' do='link' href='main' tagged='#{name}'/></r:tags> - <r:link href='this' anchor='comments'>commentaires (<r:show attr='comments_count'/>)</r:link></p>
+        </r:void>
+      </li>
+    </ul>
+  </r:with>
+
+  <div id='lcomments' do='with' part='latest_comments'>
+    <h2>commentaires</h2>
+    <ul do='comments where status = 50 from nodes in site order by created_at desc limit 9' do='group' by='discussion_id'>
+      <li do='each_group'>
+        <r:node do='link' class='post' anchor='comments'/>
+        <ul>
+          <li do='each' class='comment'><span class='date' do='show' attr='created_at' format='%d %b %Hh'/> <r:show attr='author_name'/></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <r:with part='pages' do='if' test='can_write?' do='pages'>
+    <h2>pages</h2>
+    <ul>
+      <li do='each' do='link'/>
+      <li do='add' klass='Page'/>
+    </ul>
+  </r:with>
+
+  <r:with part='photos' do='images in section order by created_at desc limit 15'>
+    <h2>photos</h2>
+    <p class='map'><a target='_blank' href='http://maps.google.com?q=http://#{site.host}/#{visitor.lang}/project#{main.id}.kml&amp;t=p'>le parcours !</a></p>
+    <ul>
+      <li do='each' do='img' mode='pv'/>
+    </ul>
+  </r:with>
+</r:include>

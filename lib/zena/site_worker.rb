@@ -22,12 +22,16 @@ module Zena
         Thread.current[:visitor] = site.any_admin
       end
 
-      if nodes = get_nodes
-        # Register next one (if we are lucky and have many workers, we can parallelize work)
-        Zena::SiteWorker.perform(site, action, page + 1)
+      if page.nil?
+        site.send(action)
+      else
+        if nodes = get_nodes
+          # Register next one (if we are lucky and have many workers, we can parallelize work)
+          Zena::SiteWorker.perform(site, action, page + 1)
 
-        # do action on nodes
-        site.send(action, nodes, page, page_count)
+          # do action on nodes
+          site.send(action, nodes, page, page_count)
+        end
       end
     end
 

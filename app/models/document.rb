@@ -72,7 +72,7 @@ class Document < Node
       elsif attrs['title'] =~ /^.*\.(\w+)$/ && types = Zena::EXT_TO_TYPE[$1.downcase]
         content_type = types[0]
       end
-      
+
       real_class = document_class_from_content_type(content_type)
 
       unless vclass && vclass.kpath =~ /\A#{real_class.kpath}/
@@ -91,7 +91,7 @@ class Document < Node
 
     # Compatibility with VirtualClass
     alias new_instance new
-    
+
     # Class list to which this class can change to
     def change_to_classes_for_form
       classes_for_form(:class => 'Document', :without => 'Image')
@@ -148,9 +148,8 @@ class Document < Node
   end
 
   # Get the document's public filename using the name and the file extension.
-  # FIXME: shouldn't we use title here ?
   def filename
-    version.attachment.filename
+    "#{title}.#{ext}"
   end
 
   # Get the file path defined in attachment.

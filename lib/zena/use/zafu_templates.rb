@@ -234,7 +234,7 @@ module Zena
         def self.included(base)
 #          base.send(:helper_attr, :asset_cache)
           if base.respond_to?(:helper_method)
-            base.send(:helper_method, :dev_mode?, :lang_path, :rebuild_template, :get_template_text, :template_url, :template_url_for_asset, :zafu_helper, :template_path_from_template_url)
+            base.send(:helper_method, :dev_mode?, :lang_path, :rebuild_template, :get_template_text, :template_url, :template_url_for_asset, :zafu_helper, :template_path_from_template_url, :save_erb_to_url, :default_template_url, :fullpath_from_template_url)
           end
 
           base.send(:include, ::Zafu::ControllerMethods)
@@ -251,11 +251,45 @@ module Zena
           klass     = @node.vclass
 
           # possible classes for the master template :
-          klasses = []
-          klass.kpath.split(//).each_index { |i| klasses << klass.kpath[0..i] }
+          kpaths = []
+          klass.kpath.split(//).each_index { |i| kpaths << klass.kpath[0..i] }
 
-          if @skin && template = secure(Template) { Template.find(:first,
-              :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ? AND idx_templates.node_id = nodes.id AND idx_templates.skin_id = ?", klasses, format, mode, @skin.id],
+          if @skin
+            zafu_url, template = get_best_template(kpaths, format, mode, @skin)
+            return default_template_url(opts) unless zafu_url
+
+            rel_path  = current_site.zafu_path + "/#{zafu_url}/#{lang_path}/_main.erb"
+            path      = SITES_ROOT + rel_path
+
+            if !File.exists?(path) || params[:rebuild]
+              if @node && klass = VirtualClass.find_by_kpath(template.tkpath)
+                zafu_node('@node', klass)
+              else
+                nil
+              end
+
+              # template is a new record when template is returned for
+              # a static file.
+              unless rebuild_template(template.new_record? ? nil : template, opts.merge(:zafu_url => zafu_url, :rel_path => rel_path, :dev_mode => (dev_box?(mode, format))))
+                return default_template_url(opts)
+              end
+            end
+
+            rel_path
+          else
+            # No template found, use a default
+
+            # $default/Node
+            default_template_url(opts)
+          end
+        end
+
+        # Find the best template to render the object.
+        # The 'template' option is used when static calls the native
+        # method to mangle the zafu_url
+        def get_best_template(kpaths, format, mode, skin, template = nil)
+          if template ||= secure(Template) { Template.find(:first,
+              :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ? AND idx_templates.node_id = nodes.id AND idx_templates.skin_id = ?", kpaths, format, mode, skin.id],
               :from       => "nodes, idx_templates",
               :select     => "nodes.*, tkpath",
               :order      => "length(tkpath) DESC"
@@ -269,28 +303,9 @@ module Zena
             else
               zafu_url = [@skin.title] + Node.fullpath_map(path_in_skin, :title)
             end
-
-            rel_path  = current_site.zafu_path + "/#{zafu_url.map(&:to_filename).join('/')}/#{lang_path}/_main.erb"
-            path      = SITES_ROOT + rel_path
-
-            if !File.exists?(path) || params[:rebuild]
-              if @node && klass = VirtualClass.find_by_kpath(template.tkpath)
-                zafu_node('@node', klass)
-              else
-                nil
-              end
-
-              unless rebuild_template(template, opts.merge(:zafu_url => zafu_url.join('/'), :rel_path => rel_path, :dev_mode => (dev_box?(mode, format))))
-                return default_template_url(opts)
-              end
-            end
-
-            rel_path
+            [zafu_url.map(&:to_filename).join('/'), template]
           else
-            # No template found, use a default
-
-            # $default/Node
-            default_template_url(opts)
+            nil
           end
         end
 
@@ -501,7 +516,7 @@ module Zena
       end # ControllerMethods
 
       module ViewMethods
-        include Common
+#        include Common
 
         def dev_skin_options
           skins = secure(Skin) { Skin.all }

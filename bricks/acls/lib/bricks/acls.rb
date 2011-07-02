@@ -8,8 +8,10 @@ module Bricks
       # directory to avoid letting the user render with any zafu template.
       def template_path_from_template_url_with_acls(template_url=params[:t_url])
         if visitor.exec_acl && skin = visitor.exec_acl.exec_skin
+          # Make sure t_url is using templates in the allowed Skin
           skin_name = skin.title.to_filename
           unless template_url[0..skin_name.size] == skin_name + '/'
+            # Wrong Skin !
             Node.logger.warn "Bad t_url used in ACL context (#{template_url}). Visitor = #{visitor.id} // #{visitor.login}"
             # We do not raise AccessViolation to not give hints.
             raise ActiveRecord::RecordNotFound

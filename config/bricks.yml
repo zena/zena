@@ -4,6 +4,7 @@ test:
   tags:        ON
   captcha:     ON
   acls:        ON
+  static:      ON
   sphinx:      OFF
   worker:      OFF
   uv:          OFF
@@ -27,6 +28,7 @@ development:
   tags:     ON
   captcha:  ON
   acls:     ON
+  static:   ON
   sphinx:
     switch: OFF
     activate_if:
@@ -58,6 +60,7 @@ production:
   tags:     ON
   captcha:  ON
   acls:     ON
+  static:   ON
   sphinx:
     switch: OFF
     activate_if:

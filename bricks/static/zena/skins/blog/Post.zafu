@@ -1,0 +1,12 @@
+<r:include template='Node'>
+<r:with part='main'>
+<ul id='main_content'>
+  <li do='include' template='Project' part='post'>
+    <r:with part='text'>
+      <r:zazen attr='text' live='true'/>
+      <r:include template='comments'/>
+    </r:with>
+  </r:include>
+</ul>
+</r:with>
+</r:include>

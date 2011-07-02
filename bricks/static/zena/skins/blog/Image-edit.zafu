@@ -1,0 +1,6 @@
+<r:include template='Image'>
+<r:with part='location' do='form'>
+  <r:input type='hidden' name='v_status' value='50'/>
+  <a href='http://maps.google.com' target='_blank'>google maps</a>: lat <r:input name='d_gps_latitude'/> lon <r:input name='d_gps_longitude'/><r:input type='submit' value='valider'/>
+</r:with>
+</r:include>

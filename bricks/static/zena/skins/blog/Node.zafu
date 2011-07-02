@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" do='load' dictionary='dict'>
+<head>
+  <title do='root' do='title'>Website Title</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+  <r:void name='stylesheets' do='stylesheets'/>
+  <r:javascripts/>
+  <r:uses_datebox/>
+</head>
+<body>
+
+  <div id="content">
+    <r:root>
+      <div id="header">
+        <p id='logo' do='link' do='t'>&nbsp;</p>
+      </div>
+      <div id="navigation">
+        <ul>
+          <li do='link' do='t'>Home</li>
+          <li do='menus' do='each' do='link'/>
+          <li id='search' do='search_box'/>
+          <li class='visitor' do='if' test='can_write?'><r:visitor_link/> - <r:login_link/></li>
+        </ul>
+      </div>
+    </r:root>
+    <div id="right">
+      <div id='photos' do='images'>
+        <h2>photos</h2>
+        <ul>
+          <li do='each' do='if' test='can_write?'><r:link do='img' mode='pve'/><r:else do='img' mode='pv'/></li>
+          <li do='add_document'/>
+        </ul>
+      </div>
+      <r:void name='latest_comments'/>
+      <div id='pages' do='nodes'>
+        <h2>pages</h2>
+        <ul>
+          <li do='each' do='link'/>
+          <li do='add' klass='Page'/>
+        </ul>
+      </div>
+      <div id='documents' do='Skin?' do='documents'>
+        <h2>documents</h2>
+        <ul>
+          <li do='each' do='link'/>
+          <li do='add_document'/>
+        </ul>
+      </div>
+    </div>
+
+    <div id="main">
+      <div id='main_content'>
+      <r:void name='title'><h1 do='title' actions='all'/></r:void>
+      <r:Image? do='if' test='exif.gps_latitude'><a href='http://maps.google.com?ll=#{exif.gps_latitude},#{exif.gps_longitude}&amp;z=11' do='title'/></r:Image?>
+      <r:zazen attr='text' code='#{content_lang}' else='summary'/>
+      </div>
+    </div>
+    <div style="clear: both;"> </div>
+
+    <div id="footer">
+      &copy; Copyright <a href="#">Static blog</a> | <r:zena type='made'/> | <r:login_link/>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<div id='comments' do='discussion' do='comments'>
+  <h3 do='t'>comments</h3>
+  <ol>
+    <li class='comment' alt_class='alt' do='each' name='com'>
+      <div class='header'>
+        <p class='prop' do='if' test='status < 50'><r:t>Your message has been received and is waiting approval for publication.</r:t></p>
+        <span class='date' do='created_at' tformat='comment_date'/>
+        <span class='sign' do='show' attr='author_name' sanitize='true'/>
+      </div>
+      <div class='body'>
+        <div class='zazen'>
+          <r:if test='text' do='zazen' attr='text' filter='css,html'/>
+        </div>
+      </div>
+    </li>
+    <li class='form' do='form'>
+      <ol>
+        <li do='cancel'/>
+        <li class='author' do='if' test='visitor.is_anon?'><b do='t'>author</b> <r:input name='author_name'/></li>
+        <li class='text'>
+          <b do='t'>message</b>
+          <r:textarea name='text'/>
+        </li>
+        <li class='captcha' do='captcha' theme='white'/>
+        <li class='validate'><r:input type='submit'/></li>
+      </ol>
+    </li>
+    <li do='add'><img src='/images/add.png'/> <r:t>leave a comment</r:t></li>
+  </ol>
+</div>

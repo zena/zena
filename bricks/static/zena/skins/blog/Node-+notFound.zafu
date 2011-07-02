@@ -1,0 +1,7 @@
+<r:include template='Project'>
+  <r:with part='main_content'>
+    <div id="not_found">
+      <p><b><r:trans>La page demandée n'a pas pu être trouvée...</r:trans></b></p>
+    </div>
+  </r:with>
+</r:include>

@@ -326,7 +326,7 @@ class NavigationTest < Zena::Integration::TestCase
         assert_response :success
       end
     end # in the wrong language
-    
+
     context 'with a mode' do
       setup do
         login(:lion)
@@ -343,7 +343,7 @@ class NavigationTest < Zena::Integration::TestCase
         assert_equal 'nothing ever changes in "Clean Water project"', response.body
       end
     end # with a mode
-    
+
   end # On a page with custom base
 
   def test_url_with_custom_base

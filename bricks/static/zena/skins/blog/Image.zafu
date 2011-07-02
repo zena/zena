@@ -1,0 +1,19 @@
+<r:include template='Node'>
+<r:with part='title'>
+  <h1 do='title' actions='all'/>
+  <div id='location'>
+    <r:case>
+      <r:when test='gps_latitude'>
+        <!-- iframe width="200" height="200" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" style='float:left;' do='void' set_src="http://maps.google.com/maps?q=[d_gps_latitude],[d_gps_longitude]&amp;ie=UTF8&amp;t=h&amp;ll=[d_gps]&amp;z=7&amp;iwloc=A&amp;output=embed"></iframe -->
+        <p>
+          <a target='_blank' do='void' set_href="http://maps.google.com/maps?q=#{gps_latitude},#{gps_longitude}&amp;ie=UTF8&amp;t=h&amp;hq=&amp;ll=#{gps_latitude},#{gps_longitude}&amp;z=7&amp;iwloc=A&amp;source=embed"><r:img src='find(97)'/> voir sur la carte</a> <r:if test='can_write?'>(<r:link mode='edit' do='t'>modifier</r:link>)</r:if>
+        </p>
+        <p class='clear'>&nbsp;</p>
+      </r:when>
+      <r:when can='write'>
+        <r:link mode='edit' do='t'><r:img src='97'/> ajouter la position gps</r:link>
+      </r:when>
+    </r:case>
+  </div>
+</r:with>
+</r:include>

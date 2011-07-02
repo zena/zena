@@ -421,7 +421,7 @@ class Site < ActiveRecord::Base
   # The visitor used during index rebuild should be an admin user (to index
   # unpublished templates).
   def rebuild_index(nodes = nil, page = nil, page_count = nil)
-    if !nodes
+    if !page
       Site.logger.error("\n----------------- REBUILD INDEX FOR SITE #{host} -----------------\n")
       Zena::SiteWorker.perform(self, :rebuild_index)
     else

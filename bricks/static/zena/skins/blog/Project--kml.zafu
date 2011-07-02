@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+  <Document do='default' host='#{site.host}' do='images' in='project' order='created_at asc'>
+<r:each do='if' test='gps_latitude'>
+  <Placemark>
+    <name do='title'>Le désert</name>
+    <description>
+    <![CDATA[
+<r:img mode='med'/><br/>
+<h3 do='parent' do='link'/>
+]]>
+    </description>
+    <Point>
+      <coordinates><r:show attr='gps_longitude'/>,<r:show attr='gps_latitude'/></coordinates>
+    </Point>
+  </Placemark>
+</r:each>
+  <Placemark>
+    <name>Route</name>
+    <LineString>
+      <extrude>1</extrude>
+      <tessellate>1</tessellate>
+      <coordinates>
+<r:each><r:if test='gps_latitude'><r:show attr='gps_longitude'/>,<r:show attr='gps_latitude'/>
+</r:if></r:each>
+      </coordinates>
+    </LineString>
+  </Placemark>
+  </Document>
+</kml>

@@ -14,7 +14,7 @@ Other templates have a title built from the given name, just like any other node
 
 =end
 class Template < TextDocument
-
+  MODE_FORMAT_FROM_TITLE = /^([A-Z][a-zA-Z]+?)(-(([a-zA-Z_\+]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/
   property do |p|
     p.string  'target_klass'
     p.string  'format'
@@ -82,7 +82,7 @@ class Template < TextDocument
       self.content_type = 'text/zafu'
 
       if prop.title_changed?
-        if title =~ /^([A-Z][a-zA-Z]+?)(-(([a-zA-Z_\+]*)(-([a-zA-Z_]+)|))|)(\.|\Z)/
+        if title =~ MODE_FORMAT_FROM_TITLE
           # title changed force  update
           self.target_klass  = $1            unless prop.target_klass_changed?
           self.mode   = ($4 || '')           unless prop.mode_changed?

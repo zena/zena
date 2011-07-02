@@ -9,6 +9,7 @@
    ** > rake zena:test_server (cleans zafu, setup fixtures, start server)
    ** > rake test:acceptance
  * Using up instead of first element in list_context as 'this' (use "first" to obtain old behavior)
+ * Enabled specializable static skins (with proper class loading) to ease code reuse and enable filesystem based development.
 
 * Minor changes
  * Fixed 'prefix' option on [url].
