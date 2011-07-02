@@ -31,7 +31,7 @@ module Bricks
       end
 
       def get_best_template_with_static(kpaths, format, mode, skin)
-        return get_best_template_with_static(kpaths, format, mode, skin) unless static = skin.z_static
+        return get_best_template_without_static(kpaths, format, mode, skin) unless static = skin.z_static
         if idx_template = IdxTemplate.first(
            :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ? AND (skin_id = ? OR static = ?) AND site_id = ?",
               kpaths, format, mode, skin.id, static, skin.site_id],

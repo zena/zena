@@ -45,7 +45,7 @@ ul#main_content { list-style-type:none; }
 #main_content li { position:relative; padding-bottom:3em;}
 #main_content li.btn_add { padding-bottom:0;}
 img.post { border:4px solid #ddd; }
-.post_date { position:absolute; left:-56px; top:0; height:30px; width:30px; background:url('/fr/images32_date.jpg') no-repeat ;
+.post_date { position:absolute; left:-56px; top:0; height:30px; width:30px; background:url('img/dateBg.jpg') no-repeat ;
 font-family:Georgia,"Times New Roman",Times,serif; text-transform:uppercase; font-size:16px;
 padding:5px;}
 .comments { border-bottom:1px solid #ccc; background:#FFE; padding:2px; text-align:right;

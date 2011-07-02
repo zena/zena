@@ -25,6 +25,6 @@
         <li class='validate'><r:input type='submit'/></li>
       </ol>
     </li>
-    <li do='add'><img src='/images/add.png'/> <r:t>leave a comment</r:t></li>
+    <li do='add'><img src='/img/add.png'/> <r:t>leave a comment</r:t></li>
   </ol>
 </div>
