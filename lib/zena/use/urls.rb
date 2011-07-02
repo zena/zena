@@ -65,7 +65,6 @@ module Zena
         # Path for a node. Options can be :format, :host and :mode.
         # ex '/en/document34_print.html'
         def zen_path(node, options={})
-
           return '#' unless node
 
           if anchor = options.delete(:anchor)

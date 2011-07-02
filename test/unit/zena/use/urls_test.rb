@@ -2,11 +2,11 @@ require 'test_helper'
 
 class UrlsTest < Zena::View::TestCase
   include Zena::Use::Urls::ViewMethods
-  
+
   def host_with_port
     "foo.com:123"
   end
-  
+
   def http_protocol
     'https'
   end
@@ -116,7 +116,7 @@ class UrlsTest < Zena::View::TestCase
     node = secure!(Node) { nodes(:status) }
     assert_equal "/en/projects-list/Clean-Water-project/page22.abcd.png?1144713600", zen_path(node, :asset => 'abcd', :format => 'png')
   end
-  
+
   def test_zen_url
     login(:anon)
     node = secure!(Node) { nodes(:zena) }
