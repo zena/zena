@@ -105,7 +105,7 @@ module Zena
                 page.toggle "#{params[:dom_id]}_form", "#{params[:dom_id]}_add"
               end
             when 'update'
-              page.replace params[:dom_id], :file => template_path_from_template_url + ".erb"
+              page.replace "#{params[:dom_id]}_form", :file => template_path_from_template_url + ".erb"
               page << params[:done] if params[:done]
             when 'destroy'
               page.visual_effect :highlight, params[:dom_id], :duration => 0.3

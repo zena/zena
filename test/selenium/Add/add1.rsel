@@ -1,0 +1,22 @@
+# Add first element
+open '/oo/testnode37.html?test=add1'
+assert_not_visible 'add11_title'
+click 'css=img[alt=add]'
+assert_visible 'add11_title'
+type 'add11_title', 'add1'
+click 'css=input[type=submit]'
+wait_for_not_visible 'add11_title'
+verify_text 'css=.liadd1 a', 'add1'
+# should have correct parent
+verify_text 'css=.liadd1 > span', 'Ajax test page'
+
+# Add a second element
+assert_not_visible 'add11_title'
+click 'css=img[alt=add]'
+assert_visible 'add11_title'
+type 'add11_title', 'add1_2'
+click 'css=input[type=submit]'
+wait_for_not_visible 'add11_title'
+verify_text 'css=.liadd1_2 a', 'add1_2'
+# should have correct parent
+verify_text 'css=.liadd1_2 > span', 'Ajax test page'

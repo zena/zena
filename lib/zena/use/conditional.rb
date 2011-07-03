@@ -1,6 +1,11 @@
 module Zena::Use::Conditional
   module ZafuMethods
 
+    def r_selenium
+      return parser_error("missing 'id'.") if @name.blank?
+      out expand_if("params[:test]==#{@name.inspect} || params[:test]=='all'")
+    end
+
     def rubyless_class_scope(class_name)
       return parser_error("Cannot scope class in list (use each before filtering).") if node.list_context?
       # capital letter ==> class conditional

@@ -93,7 +93,7 @@ module Zena
             # authorize both ?
             next unless type = klass.safe_method_type([key.to_s])
             # Store how to access current value to show hidden field in form.
-            keys[key] = type[:method]
+            keys[key] = "this.#{type[:method]}"
             code = RubyLess.translate(self, value)
             if code.klass == type[:class]
               res << ":#{key} => #{code}"
@@ -112,7 +112,6 @@ module Zena
             :method     => method,
             :class      => klass,
             :nil        => true,
-            :new_record => true,
             :new_keys   => keys
           )
         end
@@ -237,6 +236,7 @@ module Zena
         end
 
         def form_hidden_fields(opts)
+          puts "form_hidden_fields #{node} #{node.opts[:new_keys].inspect}"
           hidden_fields = super
           add_params = @context[:add] ? @context[:add].params : {}
           set_fields = []
@@ -277,22 +277,7 @@ module Zena
 
             hidden_fields['dom_id'] = erb_dom_id
 
-            if node.will_be?(Node)
-              # Nested contexts:
-              # 1. @node
-              # 2. var1 = @node.children
-              # 3. var1_new = Node.new
-              if node.opts[:new_record] #|| @context[:saved_template]
-                if @context[:saved_template] || !@context[:in_add]
-                  # TODO: we should not add parent_id on every saved_template. Why is this needed ?
-                  parent_id = "#{node}.parent_zip"
-                else
-                  parent_id = "#{node.up.up}.zip"
-                end
-
-                hidden_fields['node[parent_id]'] = "<%= #{parent_id} %>"
-              end
-            elsif node.will_be?(Comment)
+            if node.will_be?(Comment)
               # FIXME: the "... || '@node'" is a hack and I don't understand why it's needed...
               hidden_fields['node_id'] = "<%= #{node.get(Node) || '@node'}.zip %>"
             elsif node.will_be?(DataEntry)
@@ -332,16 +317,6 @@ module Zena
             end
           else
             # no ajax
-
-            if node.will_be?(Node)
-              # Nested contexts:
-              # 1. @node
-              # 2. var1 = @node.children
-              # 3. var1_new = Node.new
-              if node.opts[:new_record]
-                hidden_fields['node[parent_id]'] = "<%= #{node.up}.zip %>"
-              end
-            end
             cancel = "" # link to normal node ?
           end
 
@@ -356,6 +331,7 @@ module Zena
           hidden_fields['node[v_status]'] = Zena::Status::Pub.to_s if add_params[:publish] || auto_publish_param || @context[:publish_after_save]
 
           # All default values set in the <r:new> field should at least appear as hidden fields
+
           if new_keys = node.opts[:new_keys]
             input_keys = (
               (descendants('input') || []).map {|e| e.params[:name]} +
@@ -369,22 +345,25 @@ module Zena
             ).compact.uniq
 
             new_keys.each do |key, value|
-              next if input_keys.include?(key)
-              hidden_fields["node[#{key}]"] = "<%= #{node}.#{value} %>"
+              puts "#{key} => #{value}"
+              next if input_keys.include?(key) || value.nil?
+              hidden_fields["node[#{key}]"] = "<%= #{value.sub(/^this\./, "#{node}.")} %>"
             end
           end
 
           # Read @params
-          @params.each do |key, value|
+          add_params.merge(@params).each do |key, value|
+            # r_add params
+            next if [:after, :focus, :publish,
             # r_form params
-            next if [:klass, :done, :on, :update].include?(key)
+                     :klass, :done, :on, :update,
             # r_each params (make_form)
-            next if [:join].include?(key)
+                     :join].include?(key)
             code = ::RubyLess.translate(self, value)
             if code.literal.kind_of?(String) || code.literal.kind_of?(Number)
-              hidden_fields[key] = "#{code.literal}"
+              hidden_fields[key.to_s] = "#{code.literal}"
             else
-              hidden_fields[key] = "<%= #{code} %>"
+              hidden_fields[key.to_s] = "<%= #{code} %>"
             end
           end
 

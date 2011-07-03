@@ -441,6 +441,11 @@ namespace :zena do
   end
   Rake::Task['zena:test'].comment = "Run the tests in test/helpers and test/unit"
 
+  desc 'Start server for Selenium testing'
+  task :test_server => ["zena:test:prepare", "zena:build_fixtures"] do
+    exec('script/server -e test')
+  end
+
   desc 'Analyse code coverage by tests (needs rcov)'
   task :coverage do
     cmd = "rcov -I 'lib:test' --rails --exclude 'var/*,gems/*,/Library/*'"

@@ -32,23 +32,23 @@ module Zena
       end
 
       # Get an uppers NodeContext that is of the given class kind.
-      def get(klass)
-        if real_single_class <= klass
-          return self unless list_context?
-
-          res_class = self.klass
-          method = self.name
-          while res_class.kind_of?(Array)
-            method = "#{method}.first"
-            res_class = res_class.first
-          end
-          move_to(method, res_class)
-        elsif @up
-          @up.get(klass)
-        else
-          nil
-        end
-      end
+      # def get(klass)
+      #   if real_single_class <= klass
+      #     return self unless list_context?
+      #
+      #     res_class = self.klass
+      #     method = self.name
+      #     while res_class.kind_of?(Array)
+      #       method = "#{method}.first"
+      #       res_class = res_class.first
+      #     end
+      #     move_to(method, res_class)
+      #   elsif @up
+      #     @up.get(klass)
+      #   else
+      #     nil
+      #   end
+      # end
 
       # Return the 'real' class name or the superclass name if the current class is an anonymous class.
       def class_name

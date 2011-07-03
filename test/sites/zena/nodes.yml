@@ -201,10 +201,10 @@ strange:
   dgroup:          workers
   skin:            default
 
-track:
+test:
   zip:             37
-  class:           Tracker
-  parent:          cleanWater
+  class:           TestNode
+  parent:          zena
 
 talk:
   zip:             38
@@ -315,7 +315,7 @@ notes_zafu:
   class:           Template
   parent:          default
 
-Node_test_zafu:
+TestNode_zafu:
   class:           Template
   parent:          default
 

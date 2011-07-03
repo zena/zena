@@ -194,7 +194,8 @@ end
 # The path to Safari should look like this: /Applications/Safari.app/Contents/MacOS/Safari
 class SeleniumOnRails::AcceptanceTestRunner::SafariSubProcess < SeleniumOnRails::AcceptanceTestRunner::UnixSubProcess
   def initialize command
-    f = File.open(Tempfile.new('selenium-on-rails').path, 'w')
+    path = Tempfile.new('selenium-on-rails').path
+    f = File.open(path + '.html', 'w')
     f.puts <<-HTML
       <html>
         <head>

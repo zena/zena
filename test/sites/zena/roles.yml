@@ -30,8 +30,8 @@ Contact:
     prop_eval:     "{'title' => \"#{first_name} #{name}\"}"
     idx_scope:     "{'reference' => 'references', 'contact' => 'project'}"
 
-Tracker:
-  kpath:           NPA
+TestNode:
+  kpath:           NPE
   real_class:      Page
   create_group:    admin
 

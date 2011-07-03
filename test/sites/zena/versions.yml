@@ -381,13 +381,13 @@ status_fr:
     summary:       status summary
     text:          status text
 
-track_en:
-  node:            track
+test_en:
+  node:            test
   user:            tiger
   prop:
     comment:       small presentation
-    title:         Keeping things clean !
-    summary:       This page is a *Tracker*. It stores open Bugs, tasks and actions.
+    title:         Ajax test page
+    summary:       "<a href='?test=all'>View all ajax tests</a>."
 
 strange_en_red:
   node:            strange
@@ -653,16 +653,15 @@ Node_popup_layout_zafu_en:
     content_type:  text/zafu
     ext:           zafu
 
-Node_test_en:
-  node:            Node_test_zafu
+TestNode_en:
+  node:            TestNode_zafu
   user:            tiger
   prop:
-    text:          "[FILE:test/fixtures/files/Node-test.zafu]"
-    title:         Node-test
+    text:          "[FILE:test/fixtures/files/TestNode.zafu]"
+    title:         TestNode
     format:        html
-    tkpath:        N
-    mode:          test
-    target_klass:  Node
+    tkpath:        NPE
+    target_klass:  TestNode
     content_type:  text/zafu
     ext:           zafu
 

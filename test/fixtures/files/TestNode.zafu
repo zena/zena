@@ -6,15 +6,72 @@
       <r:stylesheets media='all' list='reset,zena,code,calendar'/>
     </r:void>
     <link href="style.css" rel="Stylesheet" type="text/css"/>
-
+<style>
+.test { float:left; width:200px; padding:10px; background:#eee; border:1px solid #333; margin:0 10px 10px 0}
+.test h3 {background:#333; color:white; text-align:center; margin:-10px -10px 10px -10px;}
+.test a { color:#0067C6}
+.test input {width:10em; height:1.2em; padding:2px;}
+.test p { font-size:10px; font-style:italic; margin:-10px -10px 10px -10px; padding:5px; background:#ccc; border-bottom:1px solid #333; line-height:15px;}
+</style>
     <r:javascripts list='prototype,effects,zena,dragdrop'/>
     <r:uses_datebox/>
   </r:with>
 
-
   <r:with part='context'/>
 
   <r:with part='content' class='project'>
+
+  <div class='test' id='add1' do='selenium'>
+    <h3>add1</h3>
+    <p>Using "add" to create new elements. The parent is guessed from context.</p>
+    <ul do='projects in site'>
+      <li do='add' klass='Project' after='self'/>
+      <li class='li#{title}' do='each'><r:link/> <span do='parent' do='title'/></li>
+    </ul>
+  </div>
+
+  <div class='test' id='add2' do='selenium'>
+    <h3>add2</h3>
+    <p>Using "add" to create new elements. The parent is set witn node[parent_id]='root.id'.</p>
+    <ul do='projects in site'>
+      <li do='add' klass='Project' node[parent_id]='root.id' after='self'/>
+      <li class='li#{title}' do='each'><r:link/> <span do='parent' do='title'/></li>
+    </ul>
+  </div>
+
+  <div class='test' id='edit1' do='selenium'>
+    <h3>edit1</h3>
+    <p>Edit in place, form built from block.</p>
+    <ul do='block'>
+      <li do='edit'/>
+      <li class='title' do='title'/>
+      <li do='if' in='form'><r:input type='submit'/></li>
+    </ul>
+  </div>
+
+  <div class='test' id='edit2' do='selenium'>
+    <h3>edit2</h3>
+    <p>Edit in place with custom from.</p>
+    <ul do='block'>
+      <li do='edit'/>
+      <li class='title' do='title'/>
+      <li do='form' on='edit'>
+        <r:input name='title'/> <r:input type='checkbox' name='v_status' value='50'/>
+      </li>
+    </ul>
+  </div>
+
+  <div class='test' id='toggle1' do='selenium'>
+    <h3>toggle1</h3>
+    <p>Toggle relation in list.</p>
+    <ul class='references' do='references'>
+      <li do='each' do='title'/>
+    </ul>
+    <ul do='projects in site'>
+      <li do='each' toggle='reference' for='start' do='title'/>
+    </ul>
+  </div>
+<!-- OLD TESTS
 <div id='related'>
 <ul do='pages'>
 <li do='each'><p><b do='show' attr='title' edit='true' publish='true'/> <r:edit/></p>
@@ -188,7 +245,7 @@ This filter updates the "distant filter block test"
 <h3>drop set relation (drop in each)</h3>
 
 <ul do='tags in site'>
-  <!-- drop in each -->
+  //! drop in each
   <li style='border:1px solid #400; min_width:100px; min_height:100px;' do='each' do='drop' set='set_tag'>
     <b do='title'/>
     <ul do='context' select='tagged'><li do='each' do='unlink' do='img' mode='tiny'/></ul>
@@ -199,7 +256,7 @@ This filter updates the "distant filter block test"
 
 
 <ul do='tags in site'>
-  <!-- drop in each -->
+  //! drop in each
   <li style='border:1px solid #400; min_width:100px; min_height:100px;' do='each' do='drop' set='set_tag'>
     <b do='title'/>
     <ul do='context' select='tagged'><li do='each' do='unlink' do='img' mode='tiny'/></ul>
@@ -325,5 +382,6 @@ This filter updates the "distant filter block test"
 
 
 <hr/>
+-->
   </r:with>
 </r:include>

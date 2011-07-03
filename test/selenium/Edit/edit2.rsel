@@ -1,0 +1,31 @@
+@old_title = 'Ajax test page'
+@new_title = 'New Ajax page'
+
+open '/oo/testnode37.html?test=edit2'
+assert_element_not_present 'edit21_title'
+verify_text "css=#edit21 li.title", @old_title
+
+# edit (does not click on 'v_status' checkbox)
+click 'link=edit'
+wait_for_element_present 'edit21_title'
+type 'edit21_title', @new_title
+
+# submit
+click 'css=input[type=submit]'
+wait_for_element_present 'css=#edit21 li.title'
+verify_text "css=#edit21 li.title", @new_title
+
+# edit again (click on 'v_status' checkbox)
+click 'link=edit'
+wait_for_element_present 'edit21_title'
+type 'edit21_title', @old_title
+click 'css=#edit2 input[type=checkbox]'
+
+# submit
+click 'css=input[type=submit]'
+wait_for_element_present 'css=#edit21 li.title'
+verify_text "css=#edit21 li.title", @old_title
+
+# ensure page is published
+open '/oo/testnode37.html?test=edit2'
+verify_text "css=#title .s50 #_title37", @old_title

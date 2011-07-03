@@ -890,10 +890,8 @@ class Node < ActiveRecord::Base
           res["#{$1}_zip"] = value
         elsif key =~ /^(\w+)_ids$/
           res["#{$1}_zips"] = value.kind_of?(Array) ? value : value.split(',')
-        elsif key == 'file'
-          unless value.blank?
-            res[key] = value
-          end
+        elsif key == 'v_status' || key == 'file'
+          res[key] = value unless value.blank?
         elsif value.kind_of?(Hash)
           res[key] = transform_attributes(value, base_node, change_timezone, %w{link rel rel_attributes}.include?(key) || is_link)
         else
