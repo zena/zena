@@ -7,11 +7,13 @@ module Zena
 
         # Return the DOM id for a node. We had to name this method 'ndom_id' because we want
         # to avoid the clash with Rails' dom_id method.
-        def ndom_id(node)
+        def ndom_id(node = @node)
           if node.kind_of?(Node) && !node.new_record?
             if params[:action] == 'create' && !params[:udom_id]
               return "#{params[:dom_id]}_#{node.zip}"
             end
+          elsif node.kind_of?(Node) && params[:zadd]
+            return "#{params[:dom_id]}_form"
           end
 
           @dom_id || params[:udom_id] || params[:dom_id]
@@ -42,12 +44,12 @@ module Zena
 
           if obj.new_record?
             # A. could not create object: show form with errors
-            page.replace "#{params[:dom_id]}_form", :file => template_path_from_template_url + "_form.erb"
+            page.replace ndom_id, :file => template_path_from_template_url + "_form.erb"
           elsif @errors || !obj.errors.empty?
             # B. could not update/delete: show errors
             form_file = template_path_from_template_url + "_form.erb"
             if File.exist?(form_file)
-              page.replace "#{params[:dom_id]}_form", :file => form_file
+              page.replace ndom_id, :file => form_file
             else
               page.insert_html :top, params[:dom_id], :inline => render_errors
             end
@@ -71,7 +73,7 @@ module Zena
                 @dom_id = params[:dom_id]
                 page.replace params[:dom_id], :file => template_path_from_template_url + ".erb"
               end
-              if params[:done] && params[:action] == 'create'
+              if params[:done] && params[:zadd]
                 page.toggle "#{params[:dom_id]}_form", "#{params[:dom_id]}_add"
                 page << params[:done]
               elsif params[:done]
@@ -98,14 +100,14 @@ module Zena
               else
                 instance_variable_set("@#{base_class.to_s.underscore}", obj.clone)
               end
-              page.replace "#{params[:dom_id]}_form", :file => template_path_from_template_url + "_form.erb"
+              page.replace ndom_id, :file => template_path_from_template_url + "_form.erb"
               if params[:done]
                 page << params[:done]
-              else
+              elsif params[:zadd]
                 page.toggle "#{params[:dom_id]}_form", "#{params[:dom_id]}_add"
               end
             when 'update'
-              page.replace "#{params[:dom_id]}_form", :file => template_path_from_template_url + ".erb"
+              page.replace ndom_id, :file => template_path_from_template_url + ".erb"
               page << params[:done] if params[:done]
             when 'destroy'
               page.visual_effect :highlight, params[:dom_id], :duration => 0.3

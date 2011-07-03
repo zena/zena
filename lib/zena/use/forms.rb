@@ -197,18 +197,28 @@ module Zena
 
             cancel_text ||= _('btn_x')
             cancel_text_ruby ||= cancel_text.inspect
-
+            
             if @context[:in_add]
               # Inline form used to create new elements: set values to '' and 'parent_id' from context
-              opts[:id]          = "#{node.dom_prefix}_form"
+              opts[:id]          = "#{node.dom_prefix}_add"
               opts[:form_tag]    = "<% remote_form_for(:#{node.form_name}, #{node}, :url => #{node.form_name.pluralize}_path, :html => {:id => \"#{dom_name}_form_t\"}) do |f| %>"
               opts[:form_cancel] = "#{cancel_pre}<a href='#' onclick='[\"#{dom_name}_add\", \"#{dom_name}_form\"].each(Element.toggle);return false;'>#{cancel_text}</a>#{cancel_post}\n"
             else
               # Saved form
-              opts[:id]          = "<%= ndom_id(#{node}) %>_form"
+              if @markup.tag == 'table'
+                # the normal id goes to the form wrapping the table
+                opts[:id]   = "#{node.dom_prefix}_tbl"
+                str_form_id = "\#{ndom_id(#{node})}"
+              else
+                opts[:id]   = "<%= ndom_id(#{node}) %>"
+                str_form_id = "\#{ndom_id(#{node})}_form_t"
+              end
+
+              form_id ||= "#{node.dom_prefix}_form_t"
+              opts[:id]          = "<%= ndom_id(#{node}) %>"
 
               opts[:form_tag]    = %Q{
-<% remote_form_for(:#{node.form_name}, #{node}, :url => #{node}.new_record? ? #{node.form_name.pluralize}_path : #{node.form_name}_path(#{node}.zip), :html => {:method => #{node}.new_record? ? :post : :put, :id => \"\#{ndom_id(#{node})}_form_t\"}) do |f| %>
+<% remote_form_for(:#{node.form_name}, #{node}, :url => #{node}.new_record? ? #{node.form_name.pluralize}_path : #{node.form_name}_path(#{node}.zip), :html => {:method => #{node}.new_record? ? :post : :put, :id => \"#{str_form_id}\"}) do |f| %>
 }
 
               opts[:form_cancel] = %Q{
@@ -285,6 +295,7 @@ module Zena
 
             if add_block = @context[:add]
               params = add_block.params
+              hidden_fields['zadd'] = 'true'
               [:after, :before, :top, :bottom].each do |sym|
                 if value = params[sym]
                   hidden_fields['position'] = sym.to_s

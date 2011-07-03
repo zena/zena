@@ -15,6 +15,8 @@
 .test p { font-size:10px; font-style:italic; margin:-10px -10px 10px -10px; padding:5px; background:#ccc; border-bottom:1px solid #333; line-height:15px;}
 .test td, .test th { border:1px solid #666; padding:2px;}
 .test th { color:white; background-color:#666;}
+.test .btn_x {padding:0; background:none; border:none; float:left; margin:5px 5px 5px 0;}
+.test li.form {list-style-type:none; padding:0;}
 </style>
     <r:javascripts list='prototype,effects,zena,dragdrop'/>
     <r:uses_datebox/>
@@ -29,7 +31,7 @@
     <p>Using "add" to create new elements. The parent is guessed from context.</p>
     <ul do='projects in site'>
       <li do='add' klass='Project' after='self'/>
-      <li class='li#{title}' do='each'><r:link/> <span do='parent' do='title'/></li>
+      <li class='#{title}' do='each'><r:link/> <span do='parent' do='title'/></li>
     </ul>
   </div>
 
@@ -38,8 +40,24 @@
     <p>Using "add" to create new elements. The parent is set witn node[parent_id]='root.id'.</p>
     <ul do='projects in site'>
       <li do='add' klass='Project' node[parent_id]='root.id' after='self'/>
-      <li class='li#{title}' do='each'><r:link/> <span do='parent' do='title'/></li>
+      <li class='#{title}' do='each'><r:link/> <span do='parent' do='title'/></li>
     </ul>
+  </div>
+
+  <div class='test' id='add3' do='selenium'>
+    <h3>add3</h3>
+    <p>Create new elements with [add_btn] and [form_tag] (in table).</p>
+    <table do='projects in site'>
+      <tr do='add' klass='Project' after='self'>
+        <td do='add_btn'/>
+      </tr>
+      <tr class='#{title}' do='each'>
+        <td><r:link/> <span do='parent' do='title'/></td>
+      </tr>
+      <tr do='form'>
+        <td do='form_tag'><r:input name='title'/><r:input type='submit'/></td>
+      </tr>
+    </table>
   </div>
 
   <div class='test' id='edit1' do='selenium'>
@@ -62,6 +80,15 @@
         <r:input name='title'/> <r:input type='checkbox' name='v_status' value='50'/>
       </li>
     </ul>
+  </div>
+
+  <div class='test' id='edit3' do='selenium'>
+    <h3>edit3</h3>
+    <p>Edit table place (makes form from block). This should not break html (the form should be outside of the "table" tag).</p>
+    <table do='block'>
+      <tr><td colspan='2' do='edit'/></tr>
+      <tr><td>title</td><td class='title' do='title'/></tr>
+    </table>
   </div>
 
   <div class='test' id='toggle1' do='selenium'>

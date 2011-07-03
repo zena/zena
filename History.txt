@@ -19,6 +19,7 @@
  * Fixed bricks requirements when database.yml is not present.
  * Fixed [input type='id'] when used on new records.
  * Fixed bugs in [edit] forms and Ajax [add].
+ * Fixed bugs in [edit] when used with a table.
 
 == 1.0.0 2011-06-15
 
