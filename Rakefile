@@ -28,6 +28,8 @@ begin
 
     gemspec.files.exclude 'config/routes.rb'
     gemspec.files.exclude 'vendor/plugins/selenium-on-rails'
+    gemspec.files.exclude 'vendor/TextMate'
+
 
     # Gem dependecies
     Zena.gem_configuration.each do |gem_name, gem_config|
