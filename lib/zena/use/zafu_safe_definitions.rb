@@ -44,6 +44,18 @@ module Zena
           end
         end
 
+        # Dynamic resolution of first
+        def self.first_proc
+          @@first_proc ||= Proc.new do |receiver, method|
+            if elem = receiver.opts[:elem] || receiver.klass.first
+              RubyLess::TypedString.new("#{receiver.raw}.first", :class => elem, :nil => true)
+            else
+              # should never happen
+              raise RubyLess::NoMethodError.new(receiver.raw, receiver.klass, ['first'])
+            end
+          end
+        end
+
         # Dynamic resolution of join
         def self.join_proc
           Proc.new do |receiver, join_arg|
@@ -117,6 +129,8 @@ module Zena
           {:method => 'nil', :nil => true, :pre_processor => join_proc}
         safe_method_for Array, [:map, Symbol]     => # supports map(:name)
           {:method => 'nil', :nil => true, :pre_processor => map_proc}
+        safe_method_for Array, [:first]    =>
+          {:method => 'nil', :nil => true, :pre_processor => first_proc}
         safe_method_for Array, [:include?, String] =>
           {:method => 'include?', :accept_nil => true, :pre_processor => true, :class => Boolean}
         safe_method_for Array, [:include?, Number] =>

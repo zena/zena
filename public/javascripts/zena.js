@@ -648,7 +648,7 @@ Zena.popup_keydown = function(evt) {
 	//if (e.keyCode) code = e.keyCode;
 	//else if (e.which) code = e.which;
 	var character = String.fromCharCode(code);
-	alert('Character was ' + character);
+	//alert('Character was ' + character);
 
   if (code == Event.KEY_LEFT) {
     if (gallery.prev) {

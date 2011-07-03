@@ -23,6 +23,7 @@ browsers:
   # Mac OS X
   firefox: '/Applications/Firefox.app/Contents/MacOS/firefox-bin'
   safari: '/Applications/Safari.app/Contents/MacOS/Safari'
+  chrome: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 
 host: 'test.host'
 #port_start: 3000

@@ -1,4 +1,4 @@
-@old_title = 'Ajax test page'
+@old_title = 'Kill the bugs'
 @new_title = 'New Ajax page'
 
 open '/oo/testnode37.html?test=edit2'

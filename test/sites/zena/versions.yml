@@ -386,7 +386,7 @@ test_en:
   user:            tiger
   prop:
     comment:       small presentation
-    title:         Ajax test page
+    title:         Kill the bugs
     summary:       "<a href='?test=all'>View all ajax tests</a>."
 
 strange_en_red:

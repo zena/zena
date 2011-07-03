@@ -1,0 +1,9 @@
+open "/oo/testnode37.html?test=form2"
+type "paginate1_tbl_title", "Heal the bugs!"
+# submit
+click_and_wait 'css=input[type=submit]'
+
+# Redirected to same page
+assert_location "http://test.host:3000/oo/testnode37.html"
+# Parameter on [form] properly passed
+verify_text "css=#title .s50", "Heal the bugs!"

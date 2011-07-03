@@ -134,11 +134,11 @@ on_if_on_each:
   # We use 'this' to make sure we are not in a list context.
   src: "<r:pages><p do='each' on_if='this.title == \"status title\"' do='title'/></r:pages>"
   tem: "/var2.prop\['title'\]==\"status title\"/"
-  res: "<p class=''>crocodiles</p><p class=''>Keeping things clean !</p><p class=' on'>status title</p>"
+  res: "<p class=''>crocodiles</p><p class=' on'>status title</p>"
 
 on_if_ancestor:
   src: "<r:root><r:pages><li do='each' on_if='is_ancestor?(main)' class='hello' join=', ' do='title'/></r:pages></r:root>"
-  res: "<li class='hello'>Collections</li>, <li class='hello'>Nature</li>, <li class='hello'>people</li>, <li class='hello on'>projects list</li>, <li class='hello'>Skins (layout themes)</li>"
+  res: "<li class='hello'>Collections</li>, <li class='hello'>Kill the bugs</li>, <li class='hello'>Nature</li>, <li class='hello'>people</li>, <li class='hello on'>projects list</li>, <li class='hello'>Skins (layout themes)</li>"
 
 on_if_empty:
   src: "<li do='void' on_if='custom_a.blank?'>hello</li>"

@@ -36,7 +36,7 @@ new:
   # Should accept allowed params (from class and roles) and transform ids to zip (back and forth)
   src: "<r:new klass='Letter' title='%q{Joe}' parent_id='project.id' paper='%q{white}' origin='%q{Mars}' bad='%q{value}'><r:form><r:input name='title'/> <r:input name='parent_id'/></r:form></r:new>"
   tem: "/:title => \"Joe\", :parent_id => .*@node.project.zip.*, :paper => \"white\", :origin => \"Mars\"/"
-  res: "/<input type='text' name='node\[title\]' value='Joe'/> <input type='text' name='node\[parent_id\]' value='21'/><div class='hidden'><input type='hidden' name='node\[klass\]' value='Letter'/><input type='hidden' name='node\[paper\]' value='white'/><input type='hidden' name='node\[origin\]' value='Mars'/></div>/"
+  res: "/<input type='text' name='node\[title\]' value='Joe'/> <input type='text' name='node\[parent_id\]' value='21'/><div class='hidden'><input type='hidden' name='node\[klass\]' value='Letter'/><input type='submit'/><input type='hidden' name='node\[paper\]' value='white'/><input type='hidden' name='node\[origin\]' value='Mars'/></div>/"
 
 translate_id_to_zip:
   src: "<b do='hot_id'/><i do='parent_id'/>"

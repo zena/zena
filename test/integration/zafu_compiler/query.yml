@@ -165,7 +165,7 @@ query_with_default:
     visitor: lion
     node: cleanWater
   src: "<r:query default='nodes in project' do='each' join=', ' do='title'/>"
-  res: "crocodiles, it's a lake, Keeping things clean !, The lake we love, Nice Bananas, parc opening, status title, water"
+  res: "crocodiles, it's a lake, The lake we love, Nice Bananas, parc opening, status title, water"
 
 query_with_param:
   # Live compile and query from params
@@ -184,7 +184,7 @@ query_eval:
     node: cleanWater
     scope: 'self'
   src: "<r:query select='pages in #{params[:scope] || \"project\"}' default='pages in project' do='each' join=', ' do='title'/>"
-  res: 'crocodiles, Keeping things clean !, Nice Bananas, status title'
+  res: 'crocodiles, Nice Bananas, status title'
 
 query_with_parse:
   context:

@@ -87,7 +87,7 @@ filter_with_fullpath:
   # Get all objects under a given node (node the '/' to avoid self)
   src: "nodes where fullpath like \"#{fullpath}/%\" in site order by fullpath"
   sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.fullpath LIKE ? ORDER BY nodes.fullpath}, \"#{@node.fullpath}/%\"]"
-  res: "Etat des travaux, The lake we love, it's a lake, water, crocodiles, super ouverture, Keeping things clean !"
+  res: "Etat des travaux, The lake we love, it's a lake, water, crocodiles, super ouverture"
 
 class_filter:
   src: "nodes where class like Image or class = Project in site"
@@ -120,7 +120,7 @@ filter_by_parent:
   src: "nodes where parent_id = 11 in site"
 #       nodes where parent.zip = ...
   sql: "%Q{SELECT nodes.* FROM nodes,nodes AS jn1 WHERE #{secure_scope('nodes')} AND jn1.zip = 11 AND jn1.id = nodes.parent_id AND jn1.site_id = nodes.site_id ORDER BY nodes.zip ASC}"
-  res: 'people, projects list, Collections, Nature, zena enhancements, Skins (layout themes)'
+  res: 'people, projects list, Collections, Kill the bugs, Nature, zena enhancements, Skins (layout themes)'
 #many_role_filter:
 # This is not working (or clause on 'indexed' fields is not supported right now)
 #  src: "nodes where role = Original or role = Task in site"

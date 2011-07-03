@@ -36,7 +36,7 @@ each_alternate_class:
   context:
     node: 'cleanWater'
   src: "<ol do='pages'><li do='each' alt_class='blue' do='title'/></ol>"
-  res: "<ol><li class=''>crocodiles</li><li class='blue'>status title</li><li class=''>Keeping things clean !</li></ol>"
+  res: "<ol><li class=''>crocodiles</li><li class='blue'>status title</li><li class=''>Kill the bugs</li></ol>"
 
 each_alternate_class_reverse:
   context:

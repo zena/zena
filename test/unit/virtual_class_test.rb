@@ -123,10 +123,10 @@ class VirtualClassTest < Zena::Unit::TestCase
   def test_node_classes_read_group
     login(:anon)
     classes_for_form = Node.classes_for_form
-    assert !classes_for_form.include?(["    Tracker", "Tracker"])
+    assert !classes_for_form.include?(["    TestNode", "TestNode"])
     login(:lion)
     classes_for_form = Node.classes_for_form
-    assert classes_for_form.include?(["    Tracker", "Tracker"])
+    assert classes_for_form.include?(["    TestNode", "TestNode"])
   end
 
   def test_vkind_of
@@ -166,7 +166,7 @@ class VirtualClassTest < Zena::Unit::TestCase
   def test_superclass
     assert_equal VirtualClass['Note'], roles(:Post).superclass
     assert_equal VirtualClass['Note'], roles(:Letter).superclass
-    assert_equal VirtualClass['Page'], roles(:Tracker).superclass
+    assert_equal VirtualClass['Page'], roles(:TestNode).superclass
   end
 
   def test_new_conflict_virtual_kpath
@@ -572,7 +572,7 @@ class VirtualClassTest < Zena::Unit::TestCase
 
     context 'without base or filter' do
       should 'load all classes' do
-        assert_equal %w{N ND NDI NDT NDTT NN NNL NNP NP NPA NPP NPPB NPS NPSS NPT NR NRC}, subject.map(&:kpath).reject{|k| k =~ /\ANU|\ANDD/}.sort
+        assert_equal %w{N ND NDI NDT NDTT NN NNL NNP NP NPE NPP NPPB NPS NPSS NPT NR NRC}, subject.map(&:kpath).reject{|k| k =~ /\ANU|\ANDD/}.sort
       end
     end # without base or filter
 
@@ -593,7 +593,7 @@ class VirtualClassTest < Zena::Unit::TestCase
       end
 
       should 'description' do
-        assert_equal %w{N NN NNL NNP NP NPA NPP NPPB NPS NPSS NPT NR NRC}, subject.map(&:kpath).reject{|k| k =~ /\ANU/}.sort
+        assert_equal %w{N NN NNL NNP NP NPE NPP NPPB NPS NPSS NPT NR NRC}, subject.map(&:kpath).reject{|k| k =~ /\ANU/}.sort
       end
     end # with a filter
 
@@ -911,8 +911,8 @@ class VirtualClassTest < Zena::Unit::TestCase
       end
 
       should 'export sub classes' do
-        assert_equal(%w{Tracker Project Section Tag}, subject.keys.select{|k| k=~/\A[A-Z]/})
-        assert_equal('VirtualClass', subject['Tracker']['type'])
+        assert_equal(%w{TestNode Project Section Tag}, subject.keys.select{|k| k=~/\A[A-Z]/})
+        assert_equal('VirtualClass', subject['TestNode']['type'])
         assert_equal('Class', subject['Project']['type'])
       end
 

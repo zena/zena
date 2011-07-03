@@ -1,0 +1,24 @@
+@one = {:zip => 29, :title => 'a wiki with Zena'}
+@two = {:zip => 30, :title => 'bird'}
+
+open "/oo/testnode37.html?test=paginate1"
+# We are on the first page
+verify_not_text "css=#paginate1_tbl td a", "1"
+assert_element_present "css=#paginate1_tbl #node#{@one[:zip]}"
+assert_element_not_present "css=#paginate1_tbl #node#{@two[:zip]}"
+verify_text "//table[@id='paginate1_tbl']/tbody/tr[3]/td[2]", @one[:title]
+
+# Ajax load second page
+click "link=2"
+wait_for_element_present "css=#paginate1_tbl #node#{@two[:zip]}"
+assert_element_not_present "css=#paginate1_tbl #node#{@one[:zip]}"
+verify_text "css=#paginate1_tbl td a", "1"
+verify_text "//table[@id='paginate1_tbl']/tbody/tr[3]/td[2]", @two[:title]
+
+
+# Manually load second page
+open "/oo/testnode37.html?test=paginate1&p=2"
+assert_element_present "css=#paginate1_tbl #node#{@two[:zip]}"
+assert_element_not_present "css=#paginate1_tbl #node#{@one[:zip]}"
+verify_text "css=#paginate1_tbl td a", "1"
+verify_text "//table[@id='paginate1_tbl']/tbody/tr[3]/td[2]", @two[:title]

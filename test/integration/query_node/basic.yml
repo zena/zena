@@ -5,7 +5,7 @@ default:
     visitor: 'ant'
   src: ""
   sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.parent_id = ? ORDER BY nodes.zip ASC}, @node.id]"
-  res: "Etat des travaux, The lake we love, it's a lake, water, crocodiles, super ouverture, Keeping things clean !"
+  res: "Etat des travaux, The lake we love, it's a lake, water, crocodiles, super ouverture"
 
 nodes:
   src: "nodes"
@@ -14,7 +14,7 @@ nodes:
 pages:
   src: "pages"
   sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NP%' AND nodes.parent_id = ? ORDER BY nodes.zip ASC}, @node.id]"
-  res: "Etat des travaux, crocodiles, Keeping things clean !"
+  res: "Etat des travaux, crocodiles"
 
 letters:
   src: "letters"
@@ -45,7 +45,7 @@ pages_or_letters:
     node: zena
   src: pages or letters
   sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND ((nodes.kpath LIKE 'NP%' AND nodes.parent_id = ?) OR (nodes.kpath LIKE 'NNL%' AND nodes.parent_id = ?)) GROUP BY id ORDER BY nodes.zip ASC}, @node.id, @node.id]"
-  res: "people, projects list, Collections, Nature, zena enhancements, Skins (layout themes)"
+  res: "people, projects list, Collections, Kill the bugs, Nature, zena enhancements, Skins (layout themes)"
 
 project:
   sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.id = ? ORDER BY nodes.zip ASC}, @node.get_project_id]"
@@ -78,7 +78,7 @@ vclass_in_project:
 
 vlcass_or_pages:
   src: "(posts in project) or pages"
-  res: "Etat des travaux, crocodiles, super ouverture, Keeping things clean !"
+  res: "Etat des travaux, crocodiles, super ouverture"
 
 find_relation:
   context:

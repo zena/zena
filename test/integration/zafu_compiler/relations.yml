@@ -37,9 +37,9 @@ icon:
 
 pages:
   context:
-    node: 'cleanWater'
+    node: 'zena'
   src: "<r:pages><r:each join=', '><r:show attr='title'/></r:each></r:pages>"
-  res: "Keeping things clean !, status title"
+  res: "Collections, Kill the bugs, people, projects list, Skins (layout themes)"
 
 root:
   src: "<r:root do='title'/>"
@@ -79,9 +79,9 @@ pages_do_syntax:
 
 pages_limit:
   context:
-    node: 'cleanWater'
+    node: 'zena'
   src: "<r:pages limit='2' order='title DESC'><r:each join=', '><r:show attr='title'/></r:each></r:pages>"
-  res: "status title, Keeping things clean !"
+  res: "Skins (layout themes), projects list"
 
 pages_random:
   context:
@@ -91,11 +91,11 @@ pages_random:
 
 nodes_in_project:
   src: "<r:nodes in='project' limit='2'><r:each join=', '><r:show attr='title'/></r:each></r:nodes>"
-  res: "it's a lake, Keeping things clean !"
+  res: "it's a lake, Lake Tanganyika"
 
 nodes_in_project_stored:
   src: "<r:void set_foo='this'><r:node where='id = 29 in site'>from <r:show attr='title'/>, look at <r:foo do='title'/>: <r:foo do='pages in project' do='each' join=', ' do='title'/></r:node></r:void>"
-  res: "from a wiki with Zena, look at status title: Keeping things clean !, status title"
+  res: "from a wiki with Zena, look at status title: status title"
 
 nodes_in_site:
   src: "<r:nodes in='site' limit='3'><r:each join=', ' do='show' attr='title'/></r:nodes>"
@@ -289,7 +289,7 @@ projects:
 
 nodes:
   src: "<r:nodes in='project'><r:each join=', ' do='show' attr='title'/></r:nodes>"
-  res: "it's a lake, Keeping things clean !, Lake Tanganyika, parc opening, status title, water"
+  res: "it's a lake, Lake Tanganyika, parc opening, status title, water"
 
 menu_with_favorites:
   context:
@@ -363,7 +363,7 @@ where_not:
   context:
     node: 'cleanWater'
   src: "<r:nodes where='title ne \"status title\"' do='each' join=',' do='title'/>"
-  res: "it's a lake,Keeping things clean !,Lake Tanganyika,parc opening,water"
+  res: "it's a lake,Lake Tanganyika,parc opening,water"
 
 where_two_attributes:
   src: "<r:nodes where='log_at ne event_at' in='site' do='each' join=', ' do='title'/>"
@@ -424,7 +424,7 @@ find_count:
   context:
     node: 'cleanWater'
   src: "<div do='count(\"nodes\")'/>"
-  res: '<div>6</div>'
+  res: '<div>5</div>'
 
 same_name_as_class:
   # we create a relation with 'page' role from Letter.
@@ -463,6 +463,16 @@ r_count:
 array_count:
   src: "<r:pages in='site' do='count'/>"
   res: "16"
+
+first:
+  src: "<div do='nodes in site'><r:first do='link'/></div>"
+  tem: "/if var2 = var1.first %><a href='<%= zen_path\(var2\) %>'><%= var2.prop\['title'\] %>/"
+  res: '/a href.*a wiki with Zena/'
+
+rubyless_first:
+  src: "<div do='nodes in site'><span do='first.title'/></div>"
+  tem: "/span><%= \(var1.first \? var1.first.prop\['title'\] : nil\) %>/"
+  res: '<div><span>a wiki with Zena</span></div>'
 
 query_in_array:
   src: "<div do='posts' do='find(\"posts in site\")'/>"

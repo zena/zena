@@ -96,7 +96,7 @@ map_join:
     node: 'cleanWater'
   src: "<r:children do='map(:title).join(\",\")'/>"
   tem: "/var1.map\{\|_map_obj\| _map_obj.prop\['title'\]\}/"
-  res: "crocodiles,it's a lake,Keeping things clean !,The lake we love,parc opening,status title,water"
+  res: "crocodiles,it's a lake,The lake we love,parc opening,status title,water"
 
 map_on_can_be_nil:
   context:

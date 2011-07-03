@@ -256,14 +256,13 @@ class RemoteTest < Zena::Integration::TestCase
 
       should 'map missing attributes as first queries' do
         assert_equal 'Clean Water project', subject.icon_for.title
-        assert_equal ["crocodiles", "Keeping things clean !", "Nice Bananas", "status title"], subject.project.pages.map(&:title)
+        assert_equal ["crocodiles", "Nice Bananas", "status title"], subject.project.pages.map(&:title)
       end
 
       should 'map missing attributes as queries' do
         assert_equal "crocodiles", subject.project.page.title
         assert_equal ["crocodiles",
          "it's a lake",
-         "Keeping things clean !",
          "The lake we love",
          "Nice Bananas",
          "parc opening",

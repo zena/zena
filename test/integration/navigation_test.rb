@@ -328,13 +328,19 @@ class NavigationTest < Zena::Integration::TestCase
     end # in the wrong language
     
     context 'with a mode' do
+      setup do
+        login(:lion)
+        secure(Template) { Template.create(:parent_id => nodes_id(:default), :title => 'Project-changes.zafu', :v_status => Zena::Status::Pub, :text => 'nothing ever changes in "<r:title/>"') }
+      end
+      
       subject do
-        'http://test.host/en/projects-list/Clean-Water-project_test'
+        'http://test.host/en/projects-list/Clean-Water-project_changes'
       end
 
       should 'get response' do
         get subject
         assert_response :success
+        assert_equal 'nothing ever changes in "Clean Water project"', response.body
       end
     end # with a mode
     

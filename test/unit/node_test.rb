@@ -1415,8 +1415,8 @@ done: \"I am done\""
       end
 
       should 'parse pseudo ids in links' do
-        assert_transforms "Hi !30!:21 !30!:37 !30/nice bird!:21 !30_pv/hello ladies!:21",
-                          "Hi !30!::clean+ !:bird!::clean !:bird/nice bird!:21 !30_pv/hello ladies!:21"
+        assert_transforms "Hi !30!:18 !30!:34 !30/nice bird!:21 !30_pv/hello ladies!:21",
+                          "Hi !30!::list+ !:bird!::list !:bird/nice bird!:21 !30_pv/hello ladies!:21"
       end
 
       should 'not alter existing code without pseudo ids' do

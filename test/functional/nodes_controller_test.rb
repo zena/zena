@@ -904,7 +904,7 @@ END:VCALENDAR
   def test_should_get_test_page_without_errors
     without_files('test.host/zafu') do
       login(:tiger)
-      get 'show', 'prefix'=>'oo', 'path'=>["page#{nodes_zip(:projects)}_test.html"]
+      get 'show', 'prefix'=>'oo', 'path'=>["testnode#{nodes_zip(:test)}.html"]
       assert_response :success
     end
   end

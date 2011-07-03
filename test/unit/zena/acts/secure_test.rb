@@ -138,7 +138,7 @@ class SecureTest < Zena::Unit::TestCase
     end
 
     should 'see redactions if she is a member of the write group' do
-      assert_equal 7, secure(Node) { Node.count(:conditions => ['parent_id = ?', nodes_id(:cleanWater)])}
+      assert_equal 6, secure(Node) { Node.count(:conditions => ['parent_id = ?', nodes_id(:cleanWater)])}
     end
 
     should 'not see the node even if she is the owner' do

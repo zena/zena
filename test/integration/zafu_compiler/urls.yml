@@ -235,8 +235,8 @@ url_with_prefix:
 
 link_in_list_context:
   src: "<div do='nodes in site'><r:link/></div>"
-  tem: "/zen_path\(var1.first\).*var1.first.prop\['title'\]/"
-  res: '/a href.*a wiki with Zena/'
+  tem: "/zen_path\(@node\).*@node.prop\['title'\]/"
+  res: '/a href.*page22.html.*status title/'
 
 link_trans:
   src: "<r:link t='img_next_page'/>"

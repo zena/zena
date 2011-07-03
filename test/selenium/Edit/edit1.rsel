@@ -1,23 +1,23 @@
 open '/oo/testnode37.html?test=edit1'
 assert_element_not_present 'edit11_title'
-verify_text "css=#edit11 li.title", "Ajax test page"
+verify_text "css=#edit11 li.title", "Kill the bugs"
 
 # edit
 click 'link=edit'
 wait_for_element_present 'edit11_title'
-type 'edit11_title', 'Ajax test page ok'
+type 'edit11_title', 'Kill the bugs ok'
 
 # submit
 click 'css=input[type=submit]'
 wait_for_element_present 'css=#edit11 li.title'
-verify_text "css=#edit11 li.title", "Ajax test page ok"
+verify_text "css=#edit11 li.title", "Kill the bugs ok"
 
 # edit again
 click 'link=edit'
 wait_for_element_present 'edit11_title'
-type 'edit11_title', 'Ajax test page'
+type 'edit11_title', 'Kill the bugs'
 
 # submit
 click 'css=input[type=submit]'
 wait_for_element_present 'css=#edit11 li.title'
-verify_text "css=#edit11 li.title", "Ajax test page"
+verify_text "css=#edit11 li.title", "Kill the bugs"

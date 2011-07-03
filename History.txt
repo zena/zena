@@ -5,6 +5,10 @@
  * Added support for haproxy and init.d scripts in cap deploy rules.
  * Added support for upvalues (variables defined in siblings above).
  * Added mode and format filters to Acl rules.
+ * Added Selenium testing
+   ** > rake zena:test_server (cleans zafu, setup fixtures, start server)
+   ** > rake test:acceptance
+ * Using up instead of first element in list_context as 'this' (use "first" to obtain old behavior)
 
 * Minor changes
  * Fixed 'prefix' option on [url].

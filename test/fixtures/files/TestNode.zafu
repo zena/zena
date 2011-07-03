@@ -11,7 +11,10 @@
 .test h3 {background:#333; color:white; text-align:center; margin:-10px -10px 10px -10px;}
 .test a { color:#0067C6}
 .test input {width:10em; height:1.2em; padding:2px;}
+.test input[type="checkbox"] {width:1.2em;}
 .test p { font-size:10px; font-style:italic; margin:-10px -10px 10px -10px; padding:5px; background:#ccc; border-bottom:1px solid #333; line-height:15px;}
+.test td, .test th { border:1px solid #666; padding:2px;}
+.test th { color:white; background-color:#666;}
 </style>
     <r:javascripts list='prototype,effects,zena,dragdrop'/>
     <r:uses_datebox/>
@@ -70,6 +73,44 @@
     <ul do='projects in site'>
       <li do='each' toggle='reference' for='start' do='title'/>
     </ul>
+  </div>
+
+  <div class='test' id='paginate1' do='selenium'>
+    <h3>paginate1</h3>
+    <p>Ajax pagination.</p>
+    <table id='paginate1_tbl' do='block' do='nodes in site limit 3 paginate p'>
+      <tr>
+        <th style='width:4em'>klass</th>
+        <th>title</th>
+      </tr>
+      <tr>
+        <td colspan='2'>
+          <span do='link' page='list' update='paginate1_tbl'/>
+        </td>
+      </tr>
+      <tr id='node#{id}' do='each'>
+        <td do='klass'/>
+        <td do='title'/>
+      </tr>
+    </table>
+  </div>
+
+  <div class='test' id='form1' do='selenium'>
+    <h3>form1</h3>
+    <p>Form in [new] to create objects.</p>
+    <r:new klass='Page' title='%{hello}'>
+      <r:form node[v_status]='50'>
+        <r:input label='t' name='title'/>
+      </r:form>
+    </r:new>
+  </div>
+
+  <div class='test' id='form2' do='selenium'>
+    <h3>form2</h3>
+    <p>Form to update object.</p>
+    <r:form node[v_status]='50'>
+      <r:input label='t' name='title'/>
+    </r:form>
   </div>
 <!-- OLD TESTS
 <div id='related'>

@@ -169,8 +169,8 @@ class RoleTest < Zena::Unit::TestCase
       end
 
       should 'export sub classes' do
-        assert_equal(%w{Tracker Project Section Tag}, subject.keys.select{|k| k=~/\A[A-Z]/})
-        assert_equal('VirtualClass', subject['Tracker']['type'])
+        assert_equal(%w{TestNode Project Section Tag}, subject.keys.select{|k| k=~/\A[A-Z]/})
+        assert_equal('VirtualClass', subject['TestNode']['type'])
       end
 
       context 'with linked roles' do

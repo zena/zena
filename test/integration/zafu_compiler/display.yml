@@ -326,7 +326,7 @@ each_whitespace:
   src: |
     <r:pages in='site' order='id asc' limit='3'><r:each><r:id/><r:node></r:node></r:each>
     </r:pages>.
-  res: "53\n12\n34\n.\n"
+  res: "53\n37\n12\n.\n"
 
 set_class_before_query:
   # Should use previous node (not list context)

@@ -6,7 +6,7 @@ default:
 
 each_group:
   src: "<r:nodes do='group' by='kpath'><p do='each_group'><r:kpath/>: <r:each join=', ' do='title'/></p></r:nodes>"
-  res: "<p>NP: crocodiles, status title</p><p>NDI: it's a lake</p><p>NPA: Keeping things clean !</p><p>NRC: The lake we love</p><p>NNP: parc opening</p><p>ND: water</p>"
+  res: "<p>NP: crocodiles, status title</p><p>NDI: it's a lake</p><p>NRC: The lake we love</p><p>NNP: parc opening</p><p>ND: water</p>"
 
 set_var:
   context:

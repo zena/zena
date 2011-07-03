@@ -1,0 +1,9 @@
+@test_page = "/oo/testnode37.html?test=form1"
+open @test_page
+type "paginate1_tbl_title", "Hello World!"
+# submit
+click_and_wait 'css=input[type=submit]'
+# Redirected to new page
+assert_not_location "http://test.host:3000#{@test_page}"
+# Parameter on [form] properly passed
+verify_text "css=#title .s50", "Hello World!"

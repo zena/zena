@@ -86,7 +86,7 @@ module Zena
           return parser_error("invalid 'klass' parameter (not a Node)") unless klass <= Node
 
           res  = []
-          keys = {:klass => 'klass'}
+          keys = {:klass => 'this.klass', :parent_id => "#{node(Node)}.zip"}
           @params.each do |key, value|
             next if key == :klass
             # TODO: maybe it would be safer to check with [:"key="] and change safe_property to
@@ -236,7 +236,6 @@ module Zena
         end
 
         def form_hidden_fields(opts)
-          puts "form_hidden_fields #{node} #{node.opts[:new_keys].inspect}"
           hidden_fields = super
           add_params = @context[:add] ? @context[:add].params : {}
           set_fields = []
@@ -246,16 +245,15 @@ module Zena
             set_fields << "#{node.form_name}[#{tag.params[:name]}]"
           end
 
+          if (descendants('input') || []).detect {|elem| elem.params[:type] == 'submit'}
+            # has submit
+          else
+            # Hidden submit for Firefox compatibility
+            hidden_fields['submit'] = ["<input type='submit'/>"]
+          end
+
           if template_url = @context[:template_url]
             # Ajax
-
-            if (descendants('input') || []).detect {|elem| elem.params[:type] == 'submit'}
-              # has submit
-            else
-              # Hidden submit for Firefox compatibility
-              hidden_fields['submit'] = ["<input type='submit'/>"]
-            end
-
             hidden_fields['link_id'] = "<%= #{node}.link_id %>" if @context[:has_link_id] && node.will_be?(Node)
 
             if upd = @params[:update]
@@ -345,7 +343,8 @@ module Zena
             ).compact.uniq
 
             new_keys.each do |key, value|
-              puts "#{key} => #{value}"
+              # Security: make sure value does not come from user input !
+              # TINT !
               next if input_keys.include?(key) || value.nil?
               hidden_fields["node[#{key}]"] = "<%= #{value.sub(/^this\./, "#{node}.")} %>"
             end

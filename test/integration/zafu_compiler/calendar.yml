@@ -33,8 +33,8 @@ calendar_with_blocks:
 calendar_node_attr:
   context:
     date: '2006-03-10'
-  src: "<div do='calendar' attr='created_at' select='nodes where #{cal_start} <= created_at and created_at < #{cal_end} in project'/>"
-  res: "/p>10</p>.*Keeping th…/"
+  src: "<div do='calendar' attr='created_at' select='pages where #{cal_start} <= created_at and created_at < #{cal_end} in site'/>"
+  res: "/p>10</p>.*Kill the b…/"
 
 calendar_bad_query:
   src: "<div do='calendar' attr='date' select='posts where #{cal_start} <= starsky and hutch < #{cal_end} in project'/>"

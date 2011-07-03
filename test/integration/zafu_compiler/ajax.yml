@@ -178,7 +178,7 @@ live_filter:
   # Make sure a unique_name is set for the given block
   tem: "/name='t_url' value='ajax/live/filter/list1'.*<% filter_form\(@node.*ml1.value LIKE \?.*, \"#\{params\[:f\]\}%\"/"
   'ajax/live/filter/en/list1.erb': "/<div id='<%= ndom_id\(@node\).*, \"#\{params\[:f\]\}%\".*var2.prop\['title'\]/"
-  res: "/<input type='text' name='f'.*<div id='list1'><ol><li>crocodiles</li><li>Keeping things clean !</li><li>status title</li></ol></div>/"
+  res: "/<input type='text' name='f'.*<div id='list1'><ol><li>crocodiles</li><li>status title</li></ol></div>/"
 
 live_filter_single_element:
   context:
@@ -194,7 +194,7 @@ live_filter_select_options:
   src: "<r:filter live='true' do='select' param='f' values='1,2'/><r:block><ol do='pages where title like \"#{params[:f]}%\"'><li do='each' do='title'/></ol></r:block>"
   tem: "/select name=.f.><%= options_for_select\(\[.1., .2.\], params\[:f\].to_s/"
   'ajax/live/filter/select/options/en/list1.erb': "/<div id='<%= ndom_id\(@node\) %>'.*params\[:f\]/"
-  res: "/<select name='f'.*<div id='list1'><ol><li>crocodiles</li><li>Keeping things clean !</li><li>status title</li></ol></div>/"
+  res: "/<select name='f'.*<div id='list1'><ol><li>crocodiles</li><li>status title</li></ol></div>/"
 
 draggable_do_syntax:
   src: "<r:images in='site' do='each' draggable='all' do='img' mode='pv'/>"
