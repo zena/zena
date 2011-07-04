@@ -17,6 +17,9 @@
 .test th { color:white; background-color:#666;}
 .test .btn_x {padding:0; background:none; border:none; float:left; margin:5px 5px 5px 0;}
 .test li.form {list-style-type:none; padding:0;}
+.test .drop, .test .box {border:1px solid #888; margin:1em 0}
+.test .drop {background:#ccc;}
+.test .drop_hover { background:#ace; border:2px dashed #99f;}
 </style>
     <r:javascripts list='prototype,effects,zena,dragdrop'/>
     <r:uses_datebox/>
@@ -138,6 +141,79 @@
     <r:form node[v_status]='50'>
       <r:input label='t' name='title'/>
     </r:form>
+  </div>
+
+  <div class='test' id='drop1' do='selenium'>
+    <h3>drop1</h3>
+    <p>Create a relation by drag and dropping.</p>
+
+    <ul do='pages in site limit 3'>
+      <li do='each' draggable='true' do='title'/>
+    </ul>
+    <ul do='drop' set='reference' change='receiver' do='references'>
+      <li class='#{id}' do='each'><r:unlink/> <r:title/></li>
+    </ul>
+  </div>
+
+  <div class='test' id='drop2' do='selenium'>
+    <h3>drop2</h3>
+    <p>Drop in each loop.</p>
+
+    <ul do='pages in site limit 3'>
+      <li do='each' draggable='true' do='title'/>
+    </ul>
+
+    <r:projects in='site' do='each'>
+      <ul class='drop drop_#{id}' do='drop' set='reference' change='receiver' do='references'>
+        <li class='#{id}' do='each'><r:unlink/> <r:title/></li>
+      </ul>
+    </r:projects>
+  </div>
+
+  <div class='test' id='drop3' do='selenium'>
+    <h3>drop3</h3>
+    <p>Drag from list in each loop.</p>
+    <r:projects in='site' do='each'>
+      <ul class='box' do='pages'>
+        <li class='#{id}' do='each' draggable='true' do='title'/>
+      </ul>
+    </r:projects>
+
+    <ul do='drop' set='reference' change='receiver' do='references'>
+      <li class='#{id}' do='each'><r:unlink/> <r:title/></li>
+    </ul>
+  </div>
+
+  <div class='test' id='drop4' do='selenium'>
+    <h3>drop4</h3>
+    <p>Drag duplicate elements in source.</p>
+
+    <ul class='box' do='pages in project limit 3'>
+      <li class='#{id}' do='each' draggable='true' do='title'/>
+    </ul>
+
+    <ul class='box' do='pages in project limit 3'>
+      <li class='#{id}' do='each' draggable='true' do='title'/>
+    </ul>
+
+    <ul do='drop' set='reference' change='receiver' do='references'>
+      <li class='#{id}' do='each'><r:unlink/> <r:title/></li>
+    </ul>
+  </div>
+
+  <div class='test' id='drop5' do='selenium'>
+    <h3>drop5</h3>
+    <p>Drag from drop loop.</p>
+
+    <ul class='box' do='pages in project limit 3'>
+      <li class='#{id}' do='each' draggable='true' do='title'/>
+    </ul>
+
+    <r:projects in='site' do='each'>
+      <ul class='drop drop_#{id}' do='drop' set='reference' change='receiver' do='references'>
+        <li class='#{id}' do='each' draggable='true'><r:unlink/> <r:title/></li>
+      </ul>
+    </r:projects>
   </div>
 <!-- OLD TESTS
 <div id='related'>

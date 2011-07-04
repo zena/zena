@@ -197,10 +197,10 @@ module Zena
 
             cancel_text ||= _('btn_x')
             cancel_text_ruby ||= cancel_text.inspect
-            
+
             if @context[:in_add]
               # Inline form used to create new elements: set values to '' and 'parent_id' from context
-              opts[:id]          = "#{node.dom_prefix}_add"
+              opts[:id]          = "#{node.dom_prefix}_form"
               opts[:form_tag]    = "<% remote_form_for(:#{node.form_name}, #{node}, :url => #{node.form_name.pluralize}_path, :html => {:id => \"#{dom_name}_form_t\"}) do |f| %>"
               opts[:form_cancel] = "#{cancel_pre}<a href='#' onclick='[\"#{dom_name}_add\", \"#{dom_name}_form\"].each(Element.toggle);return false;'>#{cancel_text}</a>#{cancel_post}\n"
             else
@@ -281,7 +281,7 @@ module Zena
 
             hidden_fields['t_url'] = template_url
                                                                                  # This is a hack to fix wrong dom_prefix in drop+add.
-            erb_dom_id = @context[:saved_template] ? "<%= ndom_id(#{node}) %>" : (@context[:dom_prefix] || node.dom_prefix)
+            erb_dom_id = @context[:saved_template] ? "<%= ndom_id(#{node}, false) %>" : (@context[:dom_prefix] || node.dom_prefix)
 
             hidden_fields['dom_id'] = erb_dom_id
 
@@ -364,7 +364,7 @@ module Zena
           # Read @params
           add_params.merge(@params).each do |key, value|
             # r_add params
-            next if [:after, :focus, :publish,
+            next if [:after, :before, :top, :bottom, :focus, :publish,
             # r_form params
                      :klass, :done, :on, :update,
             # r_each params (make_form)

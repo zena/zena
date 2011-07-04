@@ -1,0 +1,51 @@
+# Drag from list in each.
+=begin
+open "/oo/testnode37.html?test=drop3"
+assert_element_not_present 'drop321_33'
+
+# Drag & Drop
+set_timeout 4000
+drag_and_drop_to_object "css=#drag3_33 > span.drag_handle", "drop43"
+wait_for_element_present "drop431_33"
+verify_text "drop431_33", "Art"
+# Unlink
+click "css=img[alt=remove]"
+wait_for_element_not_present "drop431_33"
+
+# Restart
+
+# Drag & Drop
+drag_and_drop_to_object "css=#drag4_33 > span.drag_handle", "css=#drop43"
+wait_for_element_present "drop431_33"
+verify_text "drop431_33", "Art"
+
+# Drag & Drop from other location
+drag_and_drop_to_object "css=#drag3_29 > span.drag_handle", "css=#drop43"
+# nothing happens
+wait_for_element_present "drop431_29"
+verify_text "drop431_29", "a wiki with Zena"
+
+# Make sure the changes are commited to db
+open "/oo/testnode37.html?test=drop3"
+assert_element_present 'drop431_33'
+assert_element_present 'drop431_29'
+# Unlink
+click "css=#drop431_29 img[alt=remove]"
+wait_for_element_not_present "drop431_29"
+click "css=#drop431_33 img[alt=remove]"
+wait_for_element_not_present "drop431_33"
+
+<div class='test' id='drop3' do='selenium'>
+  <h3>drop3</h3>
+  <p>Drag from list in each loop.</p>
+  <r:projects in='site' do='each'>
+    <ul class='box' do='pages'>
+      <li class='#{id}' do='each' draggable='true' do='title'/>
+    </ul>
+  </r:projects>
+
+  <ul do='drop' set='reference' change='receiver' do='references'>
+    <li class='#{id}' do='each'><r:unlink/> <r:title/></li>
+  </ul>
+</div>
+=end

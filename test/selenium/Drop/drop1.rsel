@@ -1,0 +1,25 @@
+open "/oo/testnode37.html?test=drop1"
+assert_element_not_present 'drop121_33'
+
+# Drag & Drop
+set_timeout 4000
+drag_and_drop_to_object "css=#drag_33 > span.drag_handle", "css=#drop12"
+wait_for_element_present "drop121_33"
+verify_text "drop121_33", "Art"
+# Unlink
+click "css=img[alt=remove]"
+wait_for_element_not_present "drop121_33"
+
+# Restart
+
+# Drag & Drop
+drag_and_drop_to_object "css=#drag_33 > span.drag_handle", "css=#drop12"
+wait_for_element_present "drop121_33"
+verify_text "drop121_33", "Art"
+
+# Make sure the changes are commited to db
+open "/oo/testnode37.html?test=drop1"
+assert_element_present 'drop121_33'
+# Unlink
+click "css=img[alt=remove]"
+wait_for_element_not_present "drop121_33"

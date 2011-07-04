@@ -4,8 +4,22 @@ else
   if @errors || !@node.errors.empty?
     page.replace_html 'link_errors', :inline=> @errors ? render_errors : error_messages_for(:node, :object => @node)
   else
+    dom_id = "link#{@link[:id]}"
     page.replace_html 'link_errors', :inline=>''
-    page.visual_effect :highlight, "link#{@link[:id]}", :duration => 0.3
-    page.visual_effect :fade, "link#{@link[:id]}", :duration => 0.5
+    page << %Q{
+      new Effect.Highlight(
+          '#{dom_id}', {
+              duration: 0.3,
+              afterFinish: function() {
+                  new Effect.Fade('#{dom_id}', {
+                    duration: 0.5,
+                    afterFinish: function() {
+                      $('#{dom_id}').remove();
+                    }
+                  });
+
+              }
+      });
+    }
   end
 end

@@ -7,12 +7,12 @@ module Zena
 
         # Return the DOM id for a node. We had to name this method 'ndom_id' because we want
         # to avoid the clash with Rails' dom_id method.
-        def ndom_id(node = @node)
+        def ndom_id(node = @node, append_form = true)
           if node.kind_of?(Node) && !node.new_record?
             if params[:action] == 'create' && !params[:udom_id]
               return "#{params[:dom_id]}_#{node.zip}"
             end
-          elsif node.kind_of?(Node) && params[:zadd]
+          elsif append_form && node.kind_of?(Node) && params[:zadd]
             return "#{params[:dom_id]}_form"
           end
 
@@ -110,8 +110,19 @@ module Zena
               page.replace ndom_id, :file => template_path_from_template_url + ".erb"
               page << params[:done] if params[:done]
             when 'destroy'
-              page.visual_effect :highlight, params[:dom_id], :duration => 0.3
-              page.visual_effect :fade, params[:dom_id], :duration => 0.3
+              page << %Q{
+                new Effect.Highlight('#{ndom_id}', {
+                  duration: 0.3,
+                  afterFinish: function() {
+                    new Effect.Fade('#{ndom_id}', {
+                      duration: 0.5,
+                      afterFinish: function() {
+                      $('#{ndom_id}').remove();
+                      }
+                    });
+                  }
+                });
+              }
             when 'drop'
               case params[:done]
               when 'remove'

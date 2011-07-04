@@ -1,0 +1,16 @@
+=begin
+<div class='test' id='drop5' do='selenium'>
+  <h3>drop5</h3>
+  <p>Drag from drop loop.</p>
+
+  <ul class='box' do='pages in project limit 3'>
+    <li class='#{id}' do='each' draggable='true' do='title'/>
+  </ul>
+
+  <r:projects in='site' do='each'>
+    <ul class='box drop_#{id}' do='drop' set='reference' change='receiver' do='references'>
+      <li class='#{id}' do='each' draggable='true'><r:unlink/> <r:title/></li>
+    </ul>
+  </r:projects>
+</div>
+=end
