@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2011-07-04}
+  s.date = %q{2011-07-10}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -356,6 +356,7 @@ Gem::Specification.new do |s|
     "bricks/zena/zena/migrate/03_zerox1_data.rb",
     "bricks/zena/zena/migrate/20110315161158_add_reverse_scope_to_roles.rb",
     "bricks/zena/zena/migrate/20110623072048_fix_cached_path_index.rb",
+    "bricks/zena/zena/migrate/20110710113731_remove_icon_field.rb",
     "config/boot.rb",
     "config/bricks.yml",
     "config/database_example.yml",
@@ -1933,6 +1934,12 @@ Gem::Specification.new do |s|
     "test/selenium/Add/add1.rsel",
     "test/selenium/Add/add2.rsel",
     "test/selenium/Add/add3.rsel",
+    "test/selenium/Drop/0setup.rsel",
+    "test/selenium/Drop/drop1.rsel",
+    "test/selenium/Drop/drop2.rsel",
+    "test/selenium/Drop/drop3.rsel",
+    "test/selenium/Drop/drop4.rsel",
+    "test/selenium/Drop/drop5.rsel",
     "test/selenium/Edit/0setup.rsel",
     "test/selenium/Edit/edit1.rsel",
     "test/selenium/Edit/edit2.rsel",

@@ -320,7 +320,6 @@ class Base < ActiveRecord::Migration
       t.string   "name"
       t.string   "kpath",                  :limit => 16
       t.string   "real_class",             :limit => 16
-      t.string   "icon",                   :limit => 200
       t.integer  "create_group_id"
       t.integer  "site_id",                               :null => false
       t.boolean  "auto_create_discussion"
