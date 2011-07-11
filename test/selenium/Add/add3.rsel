@@ -8,7 +8,7 @@ click 'css=input[type=submit]'
 wait_for_not_visible 'add31_title'
 verify_text 'css=.add3 a', 'add3'
 # should have correct parent
-verify_text 'css=.add3 > span', 'Kill the bugs'
+verify_text 'css=.add3 span', 'Kill the bugs'
 
 # Add a second element
 assert_not_visible 'add31_title'
@@ -19,4 +19,4 @@ click 'css=input[type=submit]'
 wait_for_not_visible 'add31_title'
 verify_text 'css=.add3_2 a', 'add3_2'
 # should have correct parent
-verify_text 'css=.add3_2 > span', 'Kill the bugs'
+verify_text 'css=.add3_2 span', 'Kill the bugs'

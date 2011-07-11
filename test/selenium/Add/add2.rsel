@@ -8,7 +8,7 @@ click 'css=input[type=submit]'
 wait_for_not_visible 'add21_title'
 verify_text 'css=.add2 a', 'add2'
 # should have set parent
-verify_text 'css=.add2 > span', 'Zena the wild CMS'
+verify_text 'css=.add2 span', 'Zena the wild CMS'
 
 # Add a second element
 assert_not_visible 'add21_title'
@@ -19,4 +19,4 @@ click 'css=input[type=submit]'
 wait_for_not_visible 'add21_title'
 verify_text 'css=.add2_2 a', 'add2_2'
 # should have set parent
-verify_text 'css=.add2_2 > span', 'Zena the wild CMS'
+verify_text 'css=.add2_2 span', 'Zena the wild CMS'

@@ -7,8 +7,10 @@ if %w(--version -v).include? ARGV.first
   exit(0)
 end
 
-if ARGV.first == 'init'
-  exec "rake zena:init RAILS_ENV=#{ARGV[1] || 'production'}"
+ENV['RAILS_ENV'] ||= 'production'
+
+unless ARGV.first == 'new'
+  exec "rake zena:#{ARGV.join(' ')}"
 end
 
 require 'rails/version'
@@ -16,7 +18,7 @@ require 'rails_generator'
 require 'rails_generator/scripts/generate'
 template_path = File.join(Zena::ROOT, 'lib', 'zena', 'deploy', 'template.rb')
 args = ["-m", template_path]
-args << ARGV.first
+args << ARGV[1]
 
 puts "Generating zena application from template #{template_path}"
 Rails::Generator::Base.use_application_sources!

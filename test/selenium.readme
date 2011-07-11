@@ -1,0 +1,8 @@
+In order to run these tests, you must install the selenium on rails plugin, start the server and visit the selenium test page or run the rake task:
+
+1. script/plugin http://svn.openqa.org/svn/selenium-on-rails/stable/selenium-on-rails
+2. rake zena:test_server
+3. launch tests with
+  $ rake test:acceptance
+  or by visiting
+  http://test.host:3000/selenium
