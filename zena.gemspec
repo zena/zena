@@ -325,6 +325,8 @@ Gem::Specification.new do |s|
     "bricks/pdf/test/shoulda_macros/shoulda_pdf.rb",
     "bricks/pdf/zena/init.rb",
     "bricks/pdf/zena/tasks.rb",
+    "bricks/single/lib/bricks/single.rb",
+    "bricks/single/zena/init.rb",
     "bricks/sphinx/MIT-LICENSE",
     "bricks/sphinx/README",
     "bricks/sphinx/lib/bricks/sphinx.rb",
