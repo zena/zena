@@ -12,7 +12,7 @@ block:
 add:
   src: "<ul id='children' do='nodes'><li do='each' do='link'/><li do='add'/></ul>"
   tem: "/\[\"children_add\", \"children_form\"\].each\(Element.toggle\)/"
-  'ajax/add/en/children_form.erb': "/class='form' id='<%= ndom_id\(@node\) %>_form'/"
+  'ajax/add/en/children_form.erb': "/class='form' id='<%= ndom_id\(@node\) %>'/"
   'ajax/add/en/children.erb': "<li id='<%= ndom_id(@node) %>'><a href='<%= zen_path(@node) %>'><%= @node.prop['title'] %></a></li>"
 
 edit_not_each:
@@ -128,7 +128,7 @@ make_form:
   src: "<ul do='children'><li do='each' do='title'/><li do='add'/></ul>"
   tem: "/<li style='display:none;' class='form' id='list1_form'>.*remote_form_for\(:node, var2_new"
   'ajax/make/form/en/list1.erb': "<li id='<%= ndom_id(@node) %>'><%= @node.prop['title'] %></li>"
-  'ajax/make/form/en/list1_form.erb': "/<li class='form' id='<%= ndom_id\(@node\) %>_form'>/"
+  'ajax/make/form/en/list1_form.erb': "/<li class='form' id='<%= ndom_id\(@node\) %>'>/"
 
 each_edit_cannot_write:
   context:

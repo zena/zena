@@ -171,15 +171,15 @@ module Zena
           if opts[:format] && opts[:format] != 'html'
             raise ActiveRecord::RecordNotFound
           elsif %w{+login +index +adminLayout +popupLayout +notFound admin}.include?(opts[:mode])
-            zafu_url ="$default/Node-#{opts[:mode]}"
+            zafu_url =['$default', "Node-#{opts[:mode]}"].map(&:to_filename).join('/')
           elsif opts[:mode]
             raise ActiveRecord::RecordNotFound
           else
-            zafu_url ="$default/Node"
+            zafu_url =['$default', 'Node'].map(&:to_filename).join('/')
           end
 
           # File path:
-          rel_path  = current_site.zafu_path + "/#{zafu_url.map(&:to_filename)}/#{lang_path}/_main.erb"
+          rel_path  = current_site.zafu_path + "/#{zafu_url}/#{lang_path}/_main.erb"
           path      = SITES_ROOT + rel_path
 
           if !File.exists?(path)

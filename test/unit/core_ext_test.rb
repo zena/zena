@@ -47,13 +47,13 @@ class StringExtTest < Test::Unit::TestCase
     end
   end # A string with accents
 
-  context 'A string with plus sign' do
+  context 'A string with plus and dollar signs' do
     subject do
-      "Node-+index"
+      "$default/Node-+index"
     end
 
     should 'keep plus on to_filename' do
-      assert_equal 'Node-+index', subject.to_filename
+      assert_equal '$default%2FNode-+index', subject.to_filename
     end
 
     should 'recover original name on from_filename' do

@@ -11,7 +11,6 @@ class StaticIntegrationTest < Zena::Integration::TestCase
       $_test_site = 'zena'
       login(:lion)
       skin = secure(Skin) { Skin.create(:title => 'foo', :z_static => 'static-blog', :parent_id => nodes_id(:skins), :v_status => Zena::Status::Pub)}
-      puts ">>>>#{skin.id}"
       subject.skin_id = skin.id
       assert subject.save
     end

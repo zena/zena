@@ -874,7 +874,7 @@ END:VCALENDAR
     get 'edit', :id => nodes_zip(:zena)
     assert_response :success
     assert_template 'nodes/edit'
-    assert_match %r{/Default skin/Node-%2BpopupLayout/en/_main$}, @response.layout
+    assert_match %r{/Default skin/Node-\+popupLayout/en/_main$}, @response.layout
   end
 
   def test_crop_image

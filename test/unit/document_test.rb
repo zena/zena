@@ -257,9 +257,13 @@ class DocumentTest < Zena::Unit::TestCase
           assert_equal 'hopla', subject.title
         end
 
-        should 'not change filename and filepath' do
+        should 'change filename' do
           assert subject.update_attributes(:title => 'hopla')
-          assert_equal 'bird.jpg', subject.filename
+          assert_equal 'hopla.jpg', subject.filename
+        end
+        
+        should 'not change filepath' do
+          assert subject.update_attributes(:title => 'hopla')
           assert_match /bird\.jpg$/, subject.filepath
         end
 
