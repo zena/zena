@@ -26,10 +26,12 @@ RedCloth:
   lib:          'redcloth'
   version:      '= 3.0.4'
 
-rmagick:
-  optional:     yes
-  lib:          'RMagick'
-  version:      '= 2.13.1'
+# Cannot do "gem 'rmagick', '= 1.3.14'" on some hosts. Leave this alone and
+# let 'require' pick whatever it can.
+# rmagick:
+#   optional:     yes
+#   lib:          'RMagick'
+#   version:      '= 2.13.1'
 
 thinking-sphinx:
   optional:     yes

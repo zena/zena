@@ -1,8 +1,8 @@
 class RemoveIconField < ActiveRecord::Migration
   def self.up
     if Role.column_names.include?('icon')
-      native_key = :prop
-      prop_key   = 'prop'
+      native_key = :icon
+      prop_key   = 'icon'
       Role.all.each do |rec|
         next unless value = rec[native_key]
         prop  = rec.prop
