@@ -61,6 +61,18 @@ module Zena
           include mod
         end
       end
+
+      ::Site.class_eval do
+        Zena::Use.each_module_for('Site') do |mod|
+          include mod
+        end
+      end
+      
+      ::Skin.class_eval do
+        Zena::Use.each_module_for('Skin') do |mod|
+          include mod
+        end
+      end
     end
   end
 end

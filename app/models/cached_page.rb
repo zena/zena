@@ -126,7 +126,8 @@ class CachedPage < ActiveRecord::Base
 
     # When destroying a cache record, remove the related cached file.
     def cached_page_on_destroy
-      filepath = "#{SITES_ROOT}#{path.gsub('..','')}" # just in case...
+      # allow ../public for single site mode
+      filepath = "#{SITES_ROOT}#{path.gsub(%r{\.\./(?!public)},'NO/')}" # just in case...
       CachedPage.logger.info "remove #{filepath}"
       # if symlink points to a dead file, exist? returns false...
       FileUtils.rm(filepath) if File.exist?(filepath) || File.symlink?(filepath)

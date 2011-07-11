@@ -10,6 +10,7 @@
    ** > rake test:acceptance
  * Using up instead of first element in list_context as 'this' (use "first" to obtain old behavior)
  * Enabled specializable static skins (with proper class loading) to ease code reuse and enable filesystem based development.
+ * Created "Single" brick to ease deployment on shared hosting.
 
 * Minor changes
  * Fixed 'prefix' option on [url].

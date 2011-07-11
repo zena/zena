@@ -61,6 +61,7 @@ production:
   captcha:  ON
   acls:     ON
   static:   OFF
+  single:   OFF
   sphinx:
     switch: OFF
     activate_if:
