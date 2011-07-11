@@ -11,6 +11,7 @@ Letter:
     # We build a 'search' property that is indexed to do funky searching without
     # fulltext
     prop_eval:     "{'search' => %Q{#{title} paper:#{paper}}, 'search_mono' => %Q{#{paper} mono}}"
+    icon:          '/images/page.png'
 
 Post:
   kpath:           NNP

@@ -492,6 +492,9 @@ module Zena
               "<label>#{attribute}</label> <span>#{res}</span>"
             when 't'
               "<label>#{trans(attribute)}</label> <span>#{res}</span>"
+            when '','false'
+              # no label
+              res
             else
               if @params[:tlabel]
                 code = ::RubyLess.translate(self, "t(%Q{#{label}})")
@@ -599,13 +602,21 @@ module Zena
 
         # Find icon through a relation named 'icon' or use first image child
         def r_icon
-          finder = build_finder(:first, icon_finder)
-          expand_with_finder(finder)
+          if node.will_be?(Node)
+            finder = build_finder(:first, icon_finder)
+            expand_with_finder(finder)
+          else
+            rubyless_eval
+          end
         end
 
         # Display an image
         def r_img
-          return unless node.will_be?(Node)
+          if node.will_be?(VirtualClass)
+            return "<img src='<%= #{node}.prop['icon'] %>'/>"
+          elsif !node.will_be?(Node)
+            return
+          end
 
           if src = @params[:src]
             finder = ::RubyLess.translate(self, @params[:src]) #build_finder(:first, @params[:src])

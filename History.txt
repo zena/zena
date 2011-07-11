@@ -22,6 +22,7 @@
  * Fixed bugs in [edit] when used with a table.
  * Fixed initial migration bug when using MySQL.
  * Fixed loading on shared hosts without rmagick (or with an old version).
+ * Fixed Role icon (sometimes there is a legacy 'icon' column).
 
 == 1.0.0 2011-06-15
 

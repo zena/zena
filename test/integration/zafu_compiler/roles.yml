@@ -62,6 +62,18 @@ vclass_name:
   tem: "<% var1 = @node.virtual_class %><%= var1.name %>"
   res: "Letter"
 
+vclass_icon:
+  src: " <r:Letter do='icon'/>"
+  tem: "<% if var1 = VirtualClass[\"Letter\"] %> <%= var1.prop['icon'] %><% end %>"
+  res: " /images/page.png"
+
+vclass_img:
+  context:
+    node: letter
+  src: "<r:vclass do='img'/>"
+  tem: "<% var1 = @node.virtual_class %><img src='<%= var1.prop['icon'] %>'/>"
+  res: "<img src='/images/page.png'/>"
+
 vclass_roles:
   context:
     node: letter

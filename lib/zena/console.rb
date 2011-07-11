@@ -15,6 +15,11 @@ module Zena
       end
     end
 
+    # FIXME: DOCUMENT
+    def create(attrs)
+      secure(Node) { Node.create_node(Node.transform_attributes(attrs)) }
+    end
+
     def rename_prop(list, old_key, new_key)
       list = find(list) if list.kind_of?(String)
       if list.first.kind_of?(Node)

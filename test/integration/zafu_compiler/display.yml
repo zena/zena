@@ -297,6 +297,12 @@ render_h_label:
   src: "<r:default label='t'><li do='show' attr='title'/></r:default>"
   res: "<li><label>titre</label> <span>Etat des travaux</span></li>"
 
+render_label_false:
+  context:
+    lang: fr
+  src: "<r:default label='t'><li do='show' label='false' attr='title'/></r:default>"
+  res: "<li>Etat des travaux</li>"
+
 render_h_disabled:
   src: "<r:default h='false'><r:show attr='title'/></r:default>"
   tem: "<%= @node.prop['title'] %>"

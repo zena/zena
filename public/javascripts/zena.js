@@ -903,7 +903,7 @@ Zena.plus_minus = function(elem, start, plus, minus) {
   var show = start == 'on' ? 'display:none;' : '';
   var hide = start == 'on' ? '' : 'display:none;';
   var trigger_tag = " <a id='off_"+id+"' style='"+show+"' onclick='Zena.m_toggle(\"" + id +"\")' class='plus_btn'>"+plus+"</a><a id='on_"+id+"' style='"+hide+"' onclick='Zena.m_toggle(\"" + id +"\")' class='minus_btn'>"+minus+"</a>";
-  var new_tag = "<"+tag+" style='"+hide+"' id='txt_"+id+"' class='txt'>" + elem.innerHTML + "</"+tag+">";
+  var new_tag = "<"+tag+" style='"+hide+"' id='txt_"+id+"' class='txt" + ' ' + elem.className + "'>" + elem.innerHTML + "</"+tag+">";
   if (tag.toUpperCase() == 'SPAN' || !elem.previous()) {
     Element.replace(elem, trigger_tag + ' ' + new_tag);
   } else {
