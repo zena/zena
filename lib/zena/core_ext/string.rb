@@ -16,9 +16,9 @@ class String
   ALLOWED_CHARS_IN_URL      = " a-zA-Z0-9\\."
   # in filename, allow '-' and '_' because it does not represent a space and we do
   # not have the mode confusion thing.
-  ALLOWED_CHARS_IN_FILENAME = "#{ALLOWED_CHARS_IN_URL}_\\-"
+  ALLOWED_CHARS_IN_FILENAME = "#{ALLOWED_CHARS_IN_URL}_\\-\\+"
   # Everything apart from a-zA-Z0-9_.-/$ are not allowed in template paths
-  ALLOWED_CHARS_IN_FILEPATH = "#{ALLOWED_CHARS_IN_FILENAME}+/$"
+  ALLOWED_CHARS_IN_FILEPATH = "#{ALLOWED_CHARS_IN_FILENAME}/$"
   TO_FILENAME_REGEXP = %r{([^ #{ALLOWED_CHARS_IN_FILENAME}]+)}n
   TO_URL_NAME_REGEXP = %r{([^ #{ALLOWED_CHARS_IN_URL}])}
 

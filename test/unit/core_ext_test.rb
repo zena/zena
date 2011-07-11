@@ -37,13 +37,27 @@ class StringExtTest < Test::Unit::TestCase
     should 'remove accents on to_filename' do
       assert_equal 'a%C3%AFl en ao%C3%BBt', subject.to_filename
     end
-
+    
     should 'recover original name on from_filename' do
       assert_equal subject, String.from_filename(subject.to_filename)
     end
 
     should 'transform on urlencode' do
       assert_equal 'a%C3%AFl%20en%20ao%C3%BBt', subject.urlencode
+    end
+  end # A string with accents
+
+  context 'A string with plus sign' do
+    subject do
+      "Node-+index"
+    end
+
+    should 'keep plus on to_filename' do
+      assert_equal 'Node-+index', subject.to_filename
+    end
+
+    should 'recover original name on from_filename' do
+      assert_equal subject, String.from_filename(subject.to_filename)
     end
   end # A string with accents
 

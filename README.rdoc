@@ -8,9 +8,9 @@ licence: MIT
 = Getting started
 
  # sudo gem install zena
- # zena myapp
+ # zena new myapp
  # cd myapp
- # rake zena:init RAILS_ENV=production
+ # zena init
 
 You can now visit http://localhost:3000 (user = admin, password = admin)
 
@@ -21,11 +21,11 @@ These commands do the following:
  3. ...
  4. Create the database, migrate, create the 'localhost' website in 'production' environment and start server.
 
-The 'zena:init' rake task does the following:
+The 'zena init' task does the following:
 
  # rake db:create RAILS_ENV=production
- # rake zena:migrate
- # rake zena:mksite LANG=en RAILS_ENV=production PASSWORD=admin HOST=localhost
+ # zena migrate
+ # zena mksite LANG=en RAILS_ENV=production PASSWORD=admin HOST=localhost
  # script/server -e production
 
 Read more: http://zenadmin.org/documentation
@@ -41,7 +41,7 @@ http://github.com/zena/zena/blob/master/config/zena.rb
 You should use capistrano to ease deployment. See 'config/delploy.rb'.
 
 === Create a new site
-# rake zena:mksite HOST=example.com PASSWORD=secret RAILS_ENV=production
+# zena mksite HOST=example.com PASSWORD=secret RAILS_ENV=production
 
 === Start
 # ruby lib/upload_progress_server.rb start

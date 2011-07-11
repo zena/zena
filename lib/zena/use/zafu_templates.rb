@@ -179,7 +179,7 @@ module Zena
           end
 
           # File path:
-          rel_path  = current_site.zafu_path + "/#{zafu_url}/#{lang_path}/_main.erb"
+          rel_path  = current_site.zafu_path + "/#{zafu_url.map(&:to_filename)}/#{lang_path}/_main.erb"
           path      = SITES_ROOT + rel_path
 
           if !File.exists?(path)
