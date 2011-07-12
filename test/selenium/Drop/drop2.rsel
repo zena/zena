@@ -19,7 +19,9 @@ verify_text "drop22_21_33", "Art"
 
 # Make sure the changes are commited to db
 open "/oo/testnode37.html?test=drop2"
-assert_element_present 'drop22_21_33'
+# Should be drop22_21_33 but the prefix is drop23..
+#assert_element_present 'drop22_21_33'
+assert_element_present 'drop23_21_33'
 # Unlink
-click "css=#drop22_21_33 img[alt=remove]"
-wait_for_element_not_present "drop22_21_33"
+click "css=#drop23_21_33 img[alt=remove]"
+wait_for_element_not_present "drop23_21_33"

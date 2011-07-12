@@ -283,7 +283,7 @@ module Zena
                                                                                  # This is a hack to fix wrong dom_prefix in drop+add.
             #erb_dom_id = @context[:saved_template] ? "<%= ndom_id(#{node}, false) %>" : (@context[:dom_prefix] || node.dom_prefix)
 
-            hidden_fields['dom_id'] = erb_dom_id = node.dom_id
+            hidden_fields['dom_id'] = erb_dom_id = node.dom_prefix
 
             if node.will_be?(Comment)
               # FIXME: the "... || '@node'" is a hack and I don't understand why it's needed...

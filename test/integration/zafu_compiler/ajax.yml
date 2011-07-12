@@ -198,9 +198,9 @@ live_filter_select_options:
 
 draggable_do_syntax:
   src: "<r:images in='site' do='each' draggable='all' do='img' mode='pv'/>"
-  tem: "/add_drag_id\(%Q\{drag_#\{var2.zip\}\}/"
-  res: "/id='drag_30'><img src='/en/image30_pv.jpg\?967816914293'/"
-  js: '/"drag_24"\].each.*Zena.draggable\(item, false\)/'
+  tem: "/add_drag_id\(%Q\{list1_#\{var2.zip\}\}/"
+  res: "/id='list1_30'><img src='/en/image30_pv.jpg\?967816914293'/"
+  js: '/"list1_24"\].each.*Zena.draggable\(item, false\)/'
 
 draggable_true:
   # should use 'drag_handle' class
@@ -210,7 +210,7 @@ draggable_true:
 draggable_on_each_with_id:
   src: "<ul do='pages in site'><li do='each'><b do='link' draggable='true'/> <r:edit/></li></ul>"
   # should not use each id
-  tem: "/li id='<%= %Q\{list1_#\{var2.zip\}\}.*%Q\{drag_#\{var2.zip\}\}.*add_drag_id\(%Q\{drag_#\{var2.zip\}\}/"
+  tem: "/li id='<%= %Q\{list1_#\{var2.zip\}\}.*%Q\{list2_#\{var2.zip\}\}.*add_drag_id\(%Q\{list2_#\{var2.zip\}\}/"
 
 drag_with_form:
   src: "<table do='pages in site'>
@@ -220,7 +220,7 @@ drag_with_form:
         <td class='edit'> <r:edit class='edit'>éditer</r:edit></td>
       </tr>
     </table>"
-  tem: "/<span class='drag' id='<%= %Q\{drag_#\{var2.zip\}\}.*<% add_drag_id\(%Q\{drag_#\{var2.zip\}\}/"
+  tem: "/<span class='drag' id='<%= %Q\{list2_#\{var2.zip\}\}.*<% add_drag_id\(%Q\{list2_#\{var2.zip\}\}/"
 
 drag_with_form_not_in_form:
   src: "<table do='pages in site'>
@@ -318,8 +318,8 @@ drop_param:
 
 drop_in_each:
   src: "<ul do='pages'><li do='each'><ul do='drop' set='reference'>...</ul></li></ul>"
-  tem: "/<ul class='drop' id='<%= %Q\{list1_#\{var2.zip\}\} %>'><% add_drop_id\(%Q\{list1_#\{var2.zip\}\}/"
-  'ajax/drop/in/each/en/list1.erb': "/<ul class='drop' id=.*ndom_id.*add_drop_id.*drop_node_path.*ndom_id/"
+  tem: "/<ul class='drop' id='<%= %Q\{list2_#\{var2.zip\}\} %>'><% add_drop_id\(%Q\{list2_#\{var2.zip\}\}/"
+  'ajax/drop/in/each/en/list2.erb': "/<ul class='drop' id=.*ndom_id.*add_drop_id.*drop_node_path.*ndom_id/"
 
 drop_param_in_each:
   src: "<r:pages do='each' do='drop' change='params' d='%{foo}'><r:show eval='params[:d]'/></r:pages>"
@@ -343,7 +343,7 @@ include_update_target:
 
 id_in_each_group_should_be_scoped:
   src: "<ul do='comments from nodes in site' do='group' by='discussion_id'><li do='each'><r:node do='block' do='title'/></li></ul>"
-  tem: "/<div id='<%= %Q\{list1_#\{var4.zip\}\} %>'>/"
+  tem: "/<div id='<%= %Q\{list1_#\{var4.zip\}_list2\} %>'>/"
 
 link_page_next:
   context:
