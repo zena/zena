@@ -1,4 +1,4 @@
-== 1.1.1
+== 1.1.1 2011-07-12
 
 * Minor changes
  * Fixed scoped DOM ids in saved template.
