@@ -317,10 +317,6 @@ module Zena
             target = self
           end
 
-          # Make sure the target has a proper dom_prefix.
-          # FIXME: Test without, not sure this is needed anymore
-          #target.node.dom_prefix = target.dom_name
-
           node = target.node
           markup = target.markup
 

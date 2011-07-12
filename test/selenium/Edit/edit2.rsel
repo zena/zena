@@ -2,6 +2,7 @@
 @new_title = 'New Ajax page'
 
 open '/oo/testnode37.html?test=edit2'
+set_timeout 4000
 assert_element_not_present 'edit21_title'
 verify_text "css=#edit21 li.title", @old_title
 

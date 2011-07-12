@@ -1,4 +1,5 @@
 open '/oo/testnode37.html?test=edit1'
+set_timeout 4000
 assert_element_not_present 'edit11_title'
 verify_text "css=#edit11 li.title", "Kill the bugs"
 
