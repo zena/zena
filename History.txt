@@ -2,6 +2,7 @@
 
 * Minor changes
  * Fixed scoped DOM ids in saved template.
+ * Cosmetic changes to backend.css (menu on the left).
 
 == 1.1.0 2011-07-11
 

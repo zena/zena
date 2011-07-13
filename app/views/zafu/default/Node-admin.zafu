@@ -15,16 +15,17 @@
   <r:uses_datebox/>
 </head>
 <body>
-  <h1 id='logo' do='link'>admin_interface</h1>
+  <h1 id='logo'>
+    <r:link>admin_interface</r:link>
+  </h1>
   <div id='container'>
     <div id='navigation'>
-      <ul id='menu' do='admin_links'>
+      <ul id='menu' do='admin_links' list='home'>
         <li do='each' do='show'>x</li>
       </ul>
     </div>
 
     <div id='content'>
-      <h1 id='title'><r:title/> <span class='klass'>(<r:klass/>)</span></h1>
       <div id='preview'>
         <h2 class='preview' do='link' do='t'>view_live</h2>
         <r:Image?>
@@ -37,6 +38,8 @@
           <r:else do='zazen' attr='text' live='true' code='#{content_lang}'/>
         </r:Image?>
       </div>
+
+      <h1 id='title'><r:title/> <span class='klass'>(<r:klass/>)</span></h1>
 
       <div id='actions'>
         <r:if test='can_edit?'>

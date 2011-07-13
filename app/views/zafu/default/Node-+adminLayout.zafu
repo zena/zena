@@ -1,6 +1,14 @@
 <r:include template='$default/Node-admin'>
+  <r:with part='logo'>
+    <r:root do='link'/>
+  </r:with>
+  <r:with part='navigation'>
+    <ul id='menu' do='admin_links'>
+      <li do='each' do='show'>x</li>
+    </ul>
+  </r:with>
   <r:with part='content' do='content_for_layout'>
-    <r:include template='Node' part='title'/>
+    <h2 class='title' do='title'/>
     <div id='related' do='visitor'>
       <r:to_publish>
         <h3 class='group' do='trans'>to publish</h3>

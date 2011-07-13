@@ -8,11 +8,13 @@ a {text-decoration:none; color:inherit; }
 #container {  border:1px solid black; background:#eee; margin:3em auto;}
 #logo, #container {width:900px; display:table; margin:1em auto;}
 
-#menu li {float:left;}
+#menu {float:left; display:table; width:150px; background:#ddd; margin: 0 20px 20px 0;}
 #menu li a { padding:4px; border:1px solid #333; border-width:0 1px 1px 0; display:block;}
 #menu li a.on { background:#f7d493;}
 
-#content {clear:both; padding-top:1px;}
+#title { clear:left}
+
+#content {padding-top:1px;}
 #content h2.title {margin:20px; color:black; font-weight:bold; font-size:18px;}
 #content table.admin {margin-bottom:2em;}
 
@@ -45,7 +47,7 @@ a {text-decoration:none; color:inherit; }
 #preview .zazen {height:220px; overflow:auto; padding:10px; }
 h2.preview {position:absolute; top:7px; right:-4px;}
 h2.preview a { background:#ccc; padding:0.5em; font-size:18px; font-weight:bold;}
-h2.preview:hover a {background:#fbeab6;}
+h2.preview:hover a, #menu li:hover a {background:#fbeab6;}
 #preview .med_prev {background:#444;  width:100%;}
 #preview .crop { position:absolute; bottom:10px; right:10px; visibility:hidden; display:block;}
 #preview:hover .crop { visibility:visible;}
