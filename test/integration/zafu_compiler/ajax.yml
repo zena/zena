@@ -326,6 +326,25 @@ drop_param_in_each:
   tem: "/<div class='drop' id='<%= %Q\{list1_#\{var2.zip\}\} %>'><% add_drop_id\(%Q\{list1_#\{var2.zip\}\}/"
   'ajax/drop/param/in/each/en/list1.erb': "/ndom_id.*ndom_id"
 
+drop_in_each_id:
+  context:
+    node: ant
+  src: |
+    <div class='test' id='drop1' do='Contact?'>
+      <ul do='pages in site limit 3'>
+        <li do='each' draggable='true' do='title'/>
+      </ul>
+      <ul do='drop' set='favorite' change='receiver' do='favorites'>
+        <li class='#{id}' do='each'><r:unlink/> <r:title/></li>
+      </ul>
+    </div>
+  # Should use prefix from "drop", not list of favorites.
+  res: "/drop13_39/"
+  # Show drop element
+  'ajax/drop/in/each/id/en/drop12.erb': "/^\s*<ul.*<li id='<%= %Q\{drop13_#\{var2.zip\}\} %>"
+  # Show each element
+  'ajax/drop/in/each/id/en/drop13.erb': '/^\s*<li/'
+
 update_target:
   src: "UT: <div id='foo' do='block'>...</div> <r:link update='foo'/>"
   tem: "/UT: <div id='foo'>...</div> .*Ajax.Request.*:dom_id => %Q\{foo\}/"

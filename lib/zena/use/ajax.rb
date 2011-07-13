@@ -223,7 +223,7 @@ module Zena
 
           markup.tag ||= 'div'
 
-          if @name.blank?
+          if node.instance_variable_get(:@dom_prefix).blank?
             # make sure we have a scope
             node.dom_prefix = dom_name
           end

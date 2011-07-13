@@ -1,44 +1,36 @@
-=begin
-open "/oo/testnode37.html?test=drop1"
-assert_element_not_present 'drop121_33'
+# Drag from list in each.
+open "/oo/testnode37.html?test=drop4"
+assert_element_not_present 'drop43_26'
 
 # Drag & Drop
 set_timeout 4000
-drag_and_drop_to_object "css=#drag_33 > span.drag_handle", "css=#drop12"
-wait_for_element_present "drop121_33"
-verify_text "drop121_33", "Art"
+drag_and_drop_to_object "css=#drop41_29 > span.drag_handle", "drop43"
+wait_for_element_present "drop44_29"
+verify_text "drop44_29", "a wiki with Zena"
 # Unlink
-click "css=img[alt=remove]"
-wait_for_element_not_present "drop121_33"
+click "css=#drop44_29 img[alt=remove]"
+wait_for_element_not_present "drop44_29"
 
 # Restart
 
 # Drag & Drop
-drag_and_drop_to_object "css=#drag_33 > span.drag_handle", "css=#drop12"
-wait_for_element_present "drop121_33"
-verify_text "drop121_33", "Art"
+drag_and_drop_to_object "css=#drop41_29 > span.drag_handle", "drop43"
+wait_for_element_present "drop44_29"
+verify_text "drop44_29", "a wiki with Zena"
+
+# Drag & Drop from other location
+command 'setSpeed', 500
+drag_and_drop_to_object "css=#drop42_33 > span.drag_handle", "drop43"
+wait_for_element_present "drop44_33"
+verify_text "drop44_33", "Art"
+command 'setSpeed', 0
 
 # Make sure the changes are commited to db
-open "/oo/testnode37.html?test=drop1"
-assert_element_present 'drop121_33'
+open "/oo/testnode37.html?test=drop4"
+assert_element_present 'drop44_29'
+assert_element_present 'drop44_33'
 # Unlink
-click "css=img[alt=remove]"
-wait_for_element_not_present "drop121_33"
-
-<div class='test' id='drop4' do='selenium'>
-  <h3>drop4</h3>
-  <p>Drag duplicate elements in source.</p>
-
-  <ul class='box' do='pages in project limit 3'>
-    <li class='#{id}' do='each' draggable='true' do='title'/>
-  </ul>
-
-  <ul class='box' do='pages in project limit 3'>
-    <li class='#{id}' do='each' draggable='true' do='title'/>
-  </ul>
-
-  <ul do='drop' set='reference' change='receiver' do='references'>
-    <li class='#{id}' do='each'><r:unlink/> <r:title/></li>
-  </ul>
-</div>
-=end
+click "css=#drop44_29 img[alt=remove]"
+wait_for_element_not_present "drop44_29"
+click "css=#drop44_33 img[alt=remove]"
+wait_for_element_not_present "drop44_33"
