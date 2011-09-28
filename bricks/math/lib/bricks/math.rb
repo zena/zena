@@ -1,6 +1,7 @@
 require 'digest/sha1'
 module Bricks
   module Math
+
     module ViewMethods
       def math_asset(opts)
         content    = opts[:content]
@@ -66,15 +67,17 @@ module Bricks
                   f.syswrite("\n\\end{document}\n")
                 end
 
-                system("cd #{File.dirname(tempf.path)}; latex -interaction=batchmode #{"#{base}.tex".inspect} &> '#{base}.err'")
-                if !File.exists?("#{base}.dvi")
-                  Node.logger.error(File.read("#{base}.err"))
-                  system("cp '#{Zena::ROOT}/public/world.png' #{filepath.inspect}")
-                else
-                  system("dvips #{tempf.path}.dvi -E -o #{base}.ps &> '#{base}.err'") #||  Node.logger.error(File.read("#{base}.err"))
-                  system("convert -units PixelsPerInch -density 150 -matte -fuzz '10%' -transparent '#ffffff' #{base}.ps #{filepath.inspect} &> '#{base}.err'") #|| Node.logger.error(File.read("#{base}.err"))
+                ok, msg, err = Bricks::run(File.dirname(tempf.path), 'latex', '-interaction=batchmode', "#{base}.tex")
+                if ok
+                  ok, msg, err = Bricks::run(nil, 'dvips', "#{tempf.path}.dvi", '-E', '-o', "#{base}.ps")
                 end
-
+                if ok
+                  ok, msg, err = Bricks::run(nil, 'convert', '-units', 'PixelsPerInch', '-density', '150', '-matte', '-fuzz', '10%', '-transparent', '#ffffff', "#{base}.ps", filepath)
+                end
+                if !ok
+                  Node.logger.error(err)
+                  Bricks::run(nil, 'cp', "#{Zena::ROOT}/public/world.png", filepath.inspect)
+                end
               ensure
                 system("rm -rf #{tempf.path.inspect} #{(tempf.path + '.*').inspect}")
               end

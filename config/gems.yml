@@ -2,7 +2,7 @@ hpricot:
 gettext:        '= 2.1.0'
 ruby-recaptcha: '= 1.0.3'
 syntax:         '= 1.0.0'
-tzinfo:         '= 0.3.26'
+tzinfo:
 uuidtools:      '= 2.0.0'
 rails:          '= 2.3.11'
 json:           '= 1.5.1'
@@ -12,6 +12,7 @@ will_paginate:  '~> 2.3.12'
 differ:         '= 0.1.2'
 shoulda:        '= 2.10.3'
 httparty:       '= 0.7.8'
+open4:
 
 querybuilder:   '= 1.0.1'
 yamltest:       '= 0.7.0'

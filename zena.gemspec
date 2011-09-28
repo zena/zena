@@ -8,12 +8,11 @@ Gem::Specification.new do |s|
   s.version = "1.1.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Gaspard Bucher"]
-  s.date = %q{2011-07-13}
-  s.default_executable = %q{zena}
+  s.authors = [%q{Gaspard Bucher}]
+  s.date = %q{2011-09-28}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
-  s.executables = ["zena"]
+  s.executables = [%q{zena}]
   s.extra_rdoc_files = [
     "README.rdoc",
     "TODO"
@@ -538,6 +537,7 @@ Gem::Specification.new do |s|
     "doc/template/cache/URL",
     "doc/zafu_changes.yml",
     "lib/bricks.rb",
+    "lib/bricks/helper.rb",
     "lib/bricks/loader.rb",
     "lib/bricks/requirements_validation.rb",
     "lib/exif_data.rb",
@@ -2012,6 +2012,7 @@ Gem::Specification.new do |s|
     "test/test_zena.rb",
     "test/unit/after_commit_test.rb",
     "test/unit/attachment_test.rb",
+    "test/unit/bricks_test.rb",
     "test/unit/cache_test.rb",
     "test/unit/cached_page_test.rb",
     "test/unit/column_test.rb",
@@ -2137,124 +2138,17 @@ Gem::Specification.new do |s|
     "zena_console.rb"
   ]
   s.homepage = %q{http://zenadmin.org}
-  s.require_paths = ["lib"]
+  s.require_paths = [%q{lib}]
   s.rubyforge_project = %q{zena}
-  s.rubygems_version = %q{1.6.1}
+  s.rubygems_version = %q{1.8.6}
   s.summary = %q{CMS with super natural powers, based on Ruby on Rails}
-  s.test_files = [
-    "spec/controllers/versions_controller_spec.rb",
-    "test/functional/acls_controller_test.rb",
-    "test/functional/application_controller_test.rb",
-    "test/functional/calendar_controller_test.rb",
-    "test/functional/columns_controller_test.rb",
-    "test/functional/comments_controller_test.rb",
-    "test/functional/data_entries_controller_test.rb",
-    "test/functional/discussion_controller_test.rb",
-    "test/functional/documents_controller_test.rb",
-    "test/functional/groups_controller_test.rb",
-    "test/functional/iformats_controller_test.rb",
-    "test/functional/links_controller_test.rb",
-    "test/functional/nodes_controller_commit_test.rb",
-    "test/functional/nodes_controller_test.rb",
-    "test/functional/note_controller_test.rb",
-    "test/functional/pings_controller_test.rb",
-    "test/functional/preferences_controller_test.rb",
-    "test/functional/relations_controller_test.rb",
-    "test/functional/search_controller_test.rb",
-    "test/functional/sites_controller_test.rb",
-    "test/functional/user_sessions_controller_test.rb",
-    "test/functional/users_controller_test.rb",
-    "test/functional/versions_controller_test.rb",
-    "test/functional/virtual_classes_controller_test.rb",
-    "test/integration/multiple_hosts_test.rb",
-    "test/integration/multiversion_test.rb",
-    "test/integration/navigation_test.rb",
-    "test/integration/query_node_test.rb",
-    "test/integration/xml_api_test.rb",
-    "test/integration/zafu_compiler_test.rb",
-    "test/test_helper.rb",
-    "test/test_zena.rb",
-    "test/unit/after_commit_test.rb",
-    "test/unit/attachment_test.rb",
-    "test/unit/cache_test.rb",
-    "test/unit/cached_page_test.rb",
-    "test/unit/column_test.rb",
-    "test/unit/comment_test.rb",
-    "test/unit/core_ext_test.rb",
-    "test/unit/data_entry_test.rb",
-    "test/unit/discussion_test.rb",
-    "test/unit/document_test.rb",
-    "test/unit/exif_data_test.rb",
-    "test/unit/group_test.rb",
-    "test/unit/helpers/ping_helper_test.rb",
-    "test/unit/iformat_test.rb",
-    "test/unit/image_builder_test.rb",
-    "test/unit/image_test.rb",
-    "test/unit/letter_test.rb",
-    "test/unit/link_test.rb",
-    "test/unit/multi_version_test.rb",
-    "test/unit/multiversion_test.rb",
-    "test/unit/node_test.rb",
-    "test/unit/note_test.rb",
-    "test/unit/page_test.rb",
-    "test/unit/project_test.rb",
-    "test/unit/reference_test.rb",
-    "test/unit/relation_proxy_test.rb",
-    "test/unit/relation_test.rb",
-    "test/unit/remote_test.rb",
-    "test/unit/role_test.rb",
-    "test/unit/section_test.rb",
-    "test/unit/site_test.rb",
-    "test/unit/skin_test.rb",
-    "test/unit/template_test.rb",
-    "test/unit/template_version_test.rb",
-    "test/unit/text_document_content_test.rb",
-    "test/unit/text_document_test.rb",
-    "test/unit/transparent_version_test.rb",
-    "test/unit/user_test.rb",
-    "test/unit/version_test.rb",
-    "test/unit/virtual_class_test.rb",
-    "test/unit/workflow_test.rb",
-    "test/unit/zena/acts/enrollable_test.rb",
-    "test/unit/zena/acts/secure_test.rb",
-    "test/unit/zena/acts/serializable_test.rb",
-    "test/unit/zena/db_test.rb",
-    "test/unit/zena/parser_test.rb",
-    "test/unit/zena/unit/test_case_test.rb",
-    "test/unit/zena/use/action_test.rb",
-    "test/unit/zena/use/ancestry_test.rb",
-    "test/unit/zena/use/calendar_test.rb",
-    "test/unit/zena/use/dates_model_methods_test.rb",
-    "test/unit/zena/use/dates_string_methods_test.rb",
-    "test/unit/zena/use/dates_test.rb",
-    "test/unit/zena/use/dates_view_methods_test.rb",
-    "test/unit/zena/use/field_index_test.rb",
-    "test/unit/zena/use/fulltext_test.rb",
-    "test/unit/zena/use/html_tags_test.rb",
-    "test/unit/zena/use/i18n_test.rb",
-    "test/unit/zena/use/kpath_test.rb",
-    "test/unit/zena/use/ml_index_test.rb",
-    "test/unit/zena/use/nested_attributes_alias_model_test.rb",
-    "test/unit/zena/use/nested_attributes_alias_view_test.rb",
-    "test/unit/zena/use/prop_eval_test.rb",
-    "test/unit/zena/use/query_node_test.rb",
-    "test/unit/zena/use/refactor_test.rb",
-    "test/unit/zena/use/rendering_test.rb",
-    "test/unit/zena/use/scope_index_test.rb",
-    "test/unit/zena/use/upload_test.rb",
-    "test/unit/zena/use/urls_test.rb",
-    "test/unit/zena/use/version_hash_test.rb",
-    "test/unit/zena/use/zafu_template_test.rb",
-    "test/unit/zena/use/zazen_test.rb",
-    "test/unit/zena/workflow/status_version_test.rb"
-  ]
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<ruby-recaptcha>, ["= 1.0.3"])
-      s.add_runtime_dependency(%q<tzinfo>, ["= 0.3.26"])
+      s.add_runtime_dependency(%q<tzinfo>, [">= 0"])
       s.add_runtime_dependency(%q<rails>, ["= 2.3.11"])
       s.add_runtime_dependency(%q<httparty>, ["= 0.7.8"])
       s.add_runtime_dependency(%q<rubyless>, ["= 0.8.5"])
@@ -2274,10 +2168,11 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<hpricot>, [">= 0"])
       s.add_runtime_dependency(%q<differ>, ["= 0.1.2"])
       s.add_runtime_dependency(%q<RedCloth>, ["= 3.0.4"])
+      s.add_runtime_dependency(%q<open4>, [">= 0"])
       s.add_runtime_dependency(%q<querybuilder>, ["= 1.0.1"])
     else
       s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.3"])
-      s.add_dependency(%q<tzinfo>, ["= 0.3.26"])
+      s.add_dependency(%q<tzinfo>, [">= 0"])
       s.add_dependency(%q<rails>, ["= 2.3.11"])
       s.add_dependency(%q<httparty>, ["= 0.7.8"])
       s.add_dependency(%q<rubyless>, ["= 0.8.5"])
@@ -2297,11 +2192,12 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<hpricot>, [">= 0"])
       s.add_dependency(%q<differ>, ["= 0.1.2"])
       s.add_dependency(%q<RedCloth>, ["= 3.0.4"])
+      s.add_dependency(%q<open4>, [">= 0"])
       s.add_dependency(%q<querybuilder>, ["= 1.0.1"])
     end
   else
     s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.3"])
-    s.add_dependency(%q<tzinfo>, ["= 0.3.26"])
+    s.add_dependency(%q<tzinfo>, [">= 0"])
     s.add_dependency(%q<rails>, ["= 2.3.11"])
     s.add_dependency(%q<httparty>, ["= 0.7.8"])
     s.add_dependency(%q<rubyless>, ["= 0.8.5"])
@@ -2321,6 +2217,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<hpricot>, [">= 0"])
     s.add_dependency(%q<differ>, ["= 0.1.2"])
     s.add_dependency(%q<RedCloth>, ["= 3.0.4"])
+    s.add_dependency(%q<open4>, [">= 0"])
     s.add_dependency(%q<querybuilder>, ["= 1.0.1"])
   end
 end

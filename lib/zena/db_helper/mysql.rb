@@ -37,7 +37,7 @@ module Zena
         end
 
         def table_options
-          'type=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci'
+          'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci'
         end
 
         def update_value(name, opts)

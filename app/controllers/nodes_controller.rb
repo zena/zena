@@ -542,7 +542,12 @@ class NodesController < ApplicationController
         if request.env['REQUEST_PATH']
           # request.env['REQUEST_PATH'] is not set during testing (but this is
           # a temporary hack anyway)
-          path = params[:path] = request.env['REQUEST_PATH'].split('/')[2..-1]
+          if path = request.env['REQUEST_PATH'].split('/')[2..-1]
+            params[:path] = path
+          else
+            Node.logger.warn("REQUEST_PATH: #{request.env['REQUEST_PATH'].inspect}")
+            path = params[:path]
+          end
         end
         if path.last =~ Zena::Use::Urls::ALLOWED_REGEXP
           zip    = $3
