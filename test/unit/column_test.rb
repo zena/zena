@@ -18,6 +18,10 @@ class ColumnTest < Zena::Unit::TestCase
     should 'return kpath on kpath' do
       assert_equal 'N', subject.kpath
     end
+
+    should 'return comment on comment' do
+      assert_equal 'Name of user.', subject.comment
+    end
   end # A column
 
   context 'A date column' do
@@ -168,6 +172,7 @@ class ColumnTest < Zena::Unit::TestCase
       assert_equal({
         'ptype'      => 'datetime',
         'index'      => '.idx_datetime1',
+        'comment'    => 'Publication date of the post (see "doc":(projects list/Secret/Proposition)).'
       }, subject.export)
     end
  end # exporting a role

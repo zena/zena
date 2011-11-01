@@ -5,7 +5,7 @@
     link_to_function _('btn_x'), "['add_column', 'add_column_form'].each(Element.toggle)"
   end %>
 </td>
-<td class="add" colspan='2'>
+<td class="add" colspan='3'>
   <div id='column_errors'><%= error_messages_for(:column, :object => @column) %></div>
   <% if @column.new_record? %>
   <%= form_remote_tag(:url => columns_path ) %>
@@ -24,6 +24,12 @@
       <td><span class='text'><%= select('column', 'ptype',   Column::TYPES_FOR_FORM ) %></span></td>
       <td><%= text_field('column', 'name',  :size=>15 ) %></td>
       <td><span class='text'><%= select_tag "column[index]", grouped_options_for_select(Column.indices_for_form, @column.index, '') %></span></td>
+    </tr>
+    <tr>
+      <td class='label'><%= _("comment") %></td>
+      <td colspan='3'>
+        <%= text_area('column', 'comment', :rows => 2, :cols => 50) %>
+      </td>
     </tr>
     <tr><td colspan='4'><p class='btn_validate'><input type='submit' value='<%= _('validate') %>'/></p></td></tr>
   </table>

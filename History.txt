@@ -1,3 +1,15 @@
+== 1.1.2
+
+* Minor changes
+ * Support sorting by scope index fields.
+ * Fixed bug in math brick (using Open4 instead of system with redirections).
+ * Added 'change_prop' method in console.
+ * Fixed a bug with 404 pages not showing in the correct language.
+ * Fixed a bug with properties called 'copy' not working as expected.
+ * Added <r:style> tag for dynamic CSS.
+ * Added support for 'value' in 'date' input fields.
+ * Added comment on property definition.
+
 == 1.1.1 2011-07-12
 
 * Minor changes

@@ -1,11 +1,11 @@
 <h2 class='title'><%= _('properties') %></h2>
 
 <table id='column_list' class='admin' cellspacing="0">
-  <tr><th class='nav' colspan='3'><%= will_paginate @columns %></th></tr>
+  <tr><th class='nav' colspan='4'><%= will_paginate @columns %></th></tr>
   <% role_id = nil; @columns.each do |col| -%>
     <% if col.role_id != role_id; role_id = col.role_id -%>
     <tr class='<%= col.role.class.to_s.underscore %>'>
-      <th class='nav sub constant' colspan='3'>
+      <th class='nav sub constant' colspan='4'>
         <span class='kpath'><%= col.role.kpath %></span> <%= col.role.name %>
       </th>
     </tr>

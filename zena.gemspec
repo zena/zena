@@ -8,11 +8,12 @@ Gem::Specification.new do |s|
   s.version = "1.1.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = [%q{Gaspard Bucher}]
-  s.date = %q{2011-09-28}
+  s.authors = ["Gaspard Bucher"]
+  s.date = %q{2011-11-01}
+  s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
-  s.executables = [%q{zena}]
+  s.executables = ["zena"]
   s.extra_rdoc_files = [
     "README.rdoc",
     "TODO"
@@ -380,6 +381,7 @@ Gem::Specification.new do |s|
     "bricks/zena/zena/migrate/20110315161158_add_reverse_scope_to_roles.rb",
     "bricks/zena/zena/migrate/20110623072048_fix_cached_path_index.rb",
     "bricks/zena/zena/migrate/20110710113731_remove_icon_field.rb",
+    "bricks/zena/zena/migrate/20111101103900_add_comment_to_columns.rb",
     "config/boot.rb",
     "config/bricks.yml",
     "config/database_example.yml",
@@ -2138,9 +2140,9 @@ Gem::Specification.new do |s|
     "zena_console.rb"
   ]
   s.homepage = %q{http://zenadmin.org}
-  s.require_paths = [%q{lib}]
+  s.require_paths = ["lib"]
   s.rubyforge_project = %q{zena}
-  s.rubygems_version = %q{1.8.6}
+  s.rubygems_version = %q{1.6.2}
   s.summary = %q{CMS with super natural powers, based on Ruby on Rails}
 
   if s.respond_to? :specification_version then
@@ -2151,7 +2153,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<tzinfo>, [">= 0"])
       s.add_runtime_dependency(%q<rails>, ["= 2.3.11"])
       s.add_runtime_dependency(%q<httparty>, ["= 0.7.8"])
-      s.add_runtime_dependency(%q<rubyless>, ["= 0.8.5"])
+      s.add_runtime_dependency(%q<rubyless>, ["= 0.8.6"])
       s.add_runtime_dependency(%q<property>, ["= 2.2.0"])
       s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_runtime_dependency(%q<authlogic>, ["= 2.1.3"])
@@ -2159,12 +2161,14 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<shoulda>, ["= 2.10.3"])
       s.add_runtime_dependency(%q<fast_gettext>, ["~> 0.4.16"])
       s.add_runtime_dependency(%q<syntax>, ["= 1.0.0"])
+      s.add_runtime_dependency(%q<gem_plugin>, [">= 0"])
       s.add_runtime_dependency(%q<yamltest>, ["= 0.7.0"])
       s.add_runtime_dependency(%q<json>, ["= 1.5.1"])
       s.add_runtime_dependency(%q<will_paginate>, ["~> 2.3.12"])
       s.add_runtime_dependency(%q<gettext>, ["= 2.1.0"])
       s.add_runtime_dependency(%q<versions>, ["= 0.3.1"])
       s.add_runtime_dependency(%q<jeweler>, [">= 0"])
+      s.add_runtime_dependency(%q<daemons>, [">= 0"])
       s.add_runtime_dependency(%q<hpricot>, [">= 0"])
       s.add_runtime_dependency(%q<differ>, ["= 0.1.2"])
       s.add_runtime_dependency(%q<RedCloth>, ["= 3.0.4"])
@@ -2175,7 +2179,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<tzinfo>, [">= 0"])
       s.add_dependency(%q<rails>, ["= 2.3.11"])
       s.add_dependency(%q<httparty>, ["= 0.7.8"])
-      s.add_dependency(%q<rubyless>, ["= 0.8.5"])
+      s.add_dependency(%q<rubyless>, ["= 0.8.6"])
       s.add_dependency(%q<property>, ["= 2.2.0"])
       s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_dependency(%q<authlogic>, ["= 2.1.3"])
@@ -2183,12 +2187,14 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<shoulda>, ["= 2.10.3"])
       s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
       s.add_dependency(%q<syntax>, ["= 1.0.0"])
+      s.add_dependency(%q<gem_plugin>, [">= 0"])
       s.add_dependency(%q<yamltest>, ["= 0.7.0"])
       s.add_dependency(%q<json>, ["= 1.5.1"])
       s.add_dependency(%q<will_paginate>, ["~> 2.3.12"])
       s.add_dependency(%q<gettext>, ["= 2.1.0"])
       s.add_dependency(%q<versions>, ["= 0.3.1"])
       s.add_dependency(%q<jeweler>, [">= 0"])
+      s.add_dependency(%q<daemons>, [">= 0"])
       s.add_dependency(%q<hpricot>, [">= 0"])
       s.add_dependency(%q<differ>, ["= 0.1.2"])
       s.add_dependency(%q<RedCloth>, ["= 3.0.4"])
@@ -2200,7 +2206,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<tzinfo>, [">= 0"])
     s.add_dependency(%q<rails>, ["= 2.3.11"])
     s.add_dependency(%q<httparty>, ["= 0.7.8"])
-    s.add_dependency(%q<rubyless>, ["= 0.8.5"])
+    s.add_dependency(%q<rubyless>, ["= 0.8.6"])
     s.add_dependency(%q<property>, ["= 2.2.0"])
     s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
     s.add_dependency(%q<authlogic>, ["= 2.1.3"])
@@ -2208,12 +2214,14 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<shoulda>, ["= 2.10.3"])
     s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
     s.add_dependency(%q<syntax>, ["= 1.0.0"])
+    s.add_dependency(%q<gem_plugin>, [">= 0"])
     s.add_dependency(%q<yamltest>, ["= 0.7.0"])
     s.add_dependency(%q<json>, ["= 1.5.1"])
     s.add_dependency(%q<will_paginate>, ["~> 2.3.12"])
     s.add_dependency(%q<gettext>, ["= 2.1.0"])
     s.add_dependency(%q<versions>, ["= 0.3.1"])
     s.add_dependency(%q<jeweler>, [">= 0"])
+    s.add_dependency(%q<daemons>, [">= 0"])
     s.add_dependency(%q<hpricot>, [">= 0"])
     s.add_dependency(%q<differ>, ["= 0.1.2"])
     s.add_dependency(%q<RedCloth>, ["= 3.0.4"])

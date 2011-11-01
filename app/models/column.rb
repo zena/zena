@@ -61,9 +61,11 @@ class Column < ActiveRecord::Base
   end
 
   def export
+    root = current_site.root_node
     {
       'ptype' => ptype,
       'index' => index,
+      'comment' => root.unparse_assets(comment, root, 'comment')
     }
   end
 
