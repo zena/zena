@@ -491,8 +491,12 @@ module Zena
             r_select
           when 'date_box', 'date'
             return parser_error("date_box without name") unless attribute
-            code = ::RubyLess.translate(self, "this.#{attribute}")
-            value = @context[:in_add] ? "''" : code
+            if value = @params[:value]
+              code = ::RubyLess.translate(self, value)
+            else
+              code = ::RubyLess.translate(self, "this.#{attribute}")
+            end
+            value = code # @context[:in_add] ? "''" : code
             html_params = [':size => 15']
             [:style, :class, :onclick, :size, :time].each do |key|
               html_params << ":#{key} => #{@params[key].inspect}" if @params[key]

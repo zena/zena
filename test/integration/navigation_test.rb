@@ -226,6 +226,15 @@ class NavigationTest < Zena::Integration::TestCase
         assert_redirected_to 'http://test.host/fr'
       end
     end # without clues
+
+    context 'with lang on bad url' do
+      should 'set lang from url' do
+        get 'http://test.host/de/foobar'
+        assert_response :not_found
+        assert_equal 'de', session[:lang]
+        assert_equal 'de', visitor.lang
+      end
+    end
   end # Selecting lang
 
   context 'In an intranet' do
@@ -292,6 +301,21 @@ class NavigationTest < Zena::Integration::TestCase
     assert_equal 'fr', session[:lang]
   end
 
+  context 'With new languages defined' do
+    setup do
+      login(:lion)
+      assert visitor.site.update_attributes(:languages => 'en,fr,cn')
+    end
+
+    should 'compile templates' do
+      post 'http://test.host/session', :login=>'lion', :password=>'lion'
+      get 'http://test.host/oo?lang=cn'
+      assert_redirected_to 'http://test.host/oo'
+      follow_redirect!
+      assert_response :success
+    end
+  end
+
   context 'On a page with custom base' do
     setup do
       login(:lion)
@@ -332,7 +356,7 @@ class NavigationTest < Zena::Integration::TestCase
         login(:lion)
         secure(Template) { Template.create(:parent_id => nodes_id(:default), :title => 'Project-changes.zafu', :v_status => Zena::Status::Pub, :text => 'nothing ever changes in "<r:title/>"') }
       end
-      
+
       subject do
         'http://test.host/en/projects-list/Clean-Water-project_changes'
       end

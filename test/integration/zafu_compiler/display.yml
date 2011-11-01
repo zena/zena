@@ -391,3 +391,7 @@ insert_slash_slash_exclam:
 array_literal:
   src: "<p do='%w{one two}'><span do='each' join=', ' do='this'/></p>"
   res: "<p><span>one</span>, <span>two</span></p>"
+
+style_tag:
+  src: "<r:style>.foo <r:title/></r:style>"
+  res: "<style>.foo status title</style>"

@@ -6,6 +6,8 @@ module Zena
     #
     # Technically, the vhash field contains two dictionaries "readonly" and "write". Each of these dictionaries
     # provide mapping from languages to version id.
+    #
+    #     {'r' => {'en' => 1234, 'fr' => 3456}, 'w' => {'en' => 5436, 'fr' => 4526}}
     module VersionHash
       def self.cached_values_from_records(records)
         r_hash, w_hash = {}, {}

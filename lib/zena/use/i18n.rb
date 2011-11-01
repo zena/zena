@@ -114,13 +114,17 @@ module Zena
 
         # Choose best language to display content.
         # 1. 'test.host/oo?lang=en' use 'lang', redirect without lang
+        # 2. 'test.host/nodes/12?node[v_lang]=es
         # 3. 'test.host/oo' use visitor[:lang]
-        # 4. 'test.host/'   use session[:lang]
-        # 5. 'test.host/oo' use visitor lang
-        # 6. 'test.host/'   use HTTP_ACCEPT_LANGUAGE
-        # 7. 'test.host/'   use default language
+        # 4. 'test.host/es' use prefix  ONLY ENABLED FOR html format (see below)
+        # 5. 'test.host/'   use session[:lang]
+        # 6. 'test.host/oo' use visitor lang
+        # 7. 'test.host/'   use HTTP_ACCEPT_LANGUAGE
+        # 8. 'test.host/'   use default language
         #
-        # 8. 'test.host/fr' the redirect for this rule is called once we are sure the request is not for document data (lang in this case can be different from what the visitor is visiting due to caching optimization)
+        # 4. 'test.host/es' the redirect for this rule is called once we are sure the request is
+        #     not for document data (lang in this case can be different from what the visitor is
+        #     visiting due to caching optimization).
         def set_lang
           if params[:prefix] =~ /^\d+$/
             # this has nothing to do with set_lang...
@@ -132,7 +136,11 @@ module Zena
           chosen_lang = nil
           [
             params[:lang],
+# FIXME: This is good to protect templates and other documents but is *NOT* nice when translating a website !!
+#        What should we do ?
             params[:node] ? params[:node][:v_lang] : nil,
+            # Avoid redirects for static assets (cached documents).
+            request.format == Mime::HTML ? params[:prefix] : nil,
             visitor.is_anon? ? session[:lang] : visitor.lang,
             (request.headers['HTTP_ACCEPT_LANGUAGE'] || '').split(',').sort {|a,b| (b.split(';q=')[1] || 1.0).to_f <=> (a.split(';q=')[1] || 1.0).to_f }.map {|l| l.split(';')[0].split('-')[0] },
             (visitor.is_anon? ? visitor.lang : nil), # anonymous user's lang comes last
@@ -142,7 +150,6 @@ module Zena
               break
             end
           end
-
           set_visitor_lang(chosen_lang || current_site[:default_lang])
           true
         end
@@ -374,66 +381,7 @@ module Zena
         end
 
         alias r_t r_trans
-        #def r_trans
-        #  static = true
-        #  if @params[:text]
-        #    text = @params[:text]
-        #  elsif @params[:attr]
-        #    text = "#{node_attribute(@params[:attr])}"
-        #    static = false
-        #  else
-        #    res  = []
-        #    text = ""
-        #    @blocks.each do |b|
-        #      if b.kind_of?(String)
-        #        res  << b.inspect
-        #        text << b
-        #      elsif ['show', 'current_date'].include?(b.method)
-        #        res << expand_block(b, :trans=>true)
-        #        static = false
-        #      else
-        #        # ignore
-        #      end
-        #    end
-        #    unless static
-        #      text = res.join(' + ')
-        #    end
-        #  end
-        #  if static
-        #    _(text)
-        #  else
-        #    "<%= _(#{text}) %>"
-        #  end
-        #end
 
-
-        # show language selector
-        #def r_lang_links
-        #  if wrap_tag = @params[:wrap]
-        #    wrap_tag = Zafu::Markup.new(wrap_tag)
-        #    tag_in  = "<#{opts[:wrap]}>"
-        #    tag_out = "</#{opts[:wrap]}>"
-        #  else
-        #    tag_in = tag_out = ''
-        #  end
-        #  res = []
-        #  visitor.site.lang_list.each do |l|
-        #    if l == visitor.lang
-        #      if opts[:wrap]
-        #        res << "<#{opts[:wrap]} class='on'>#{l}" + tag_out
-        #      else
-        #        res << "<em>#{l}</em>"
-        #      end
-        #    else
-        #      if visitor.is_anon? && params[:prefix]
-        #        res << tag_in + link_to(l, params.merge(:prefix => l)) + tag_out
-        #      else
-        #        res << tag_in + link_to(l, params.merge(:lang => l)) + tag_out
-        #      end
-        #    end
-        #  end
-        #  res.join(opts[:join] || '')
-        #end
         protected
 
           # Overwriten from Zafu to insert dictionary in partial if there is one

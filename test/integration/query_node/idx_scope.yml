@@ -31,3 +31,13 @@ id_key:
   src: "blogs where id = 29 in site"
   sql: '!/idx_projects/'
   res: 'a wiki with Zena'
+
+sort_by_scoped_value:
+  src: "blogs in site order by contact.name asc"
+  sql: "%Q{SELECT nodes.* FROM idx_projects AS sc1,nodes WHERE #{secure_scope('nodes')} AND nodes.id = sc1.node_id AND nodes.kpath LIKE 'NPPB%' ORDER BY sc1.contact_name ASC}"
+  res: 'a wiki with Zena'
+
+should_not_mess_with_select:
+  src: "blogs select title as blog_title in site order by contact.name asc"
+  sql: "%Q{SELECT nodes.*,ml1.value AS `blog_title` FROM idx_nodes_ml_strings AS ml1,idx_projects AS sc1,nodes WHERE #{secure_scope('nodes')} AND nodes.id = sc1.node_id AND ml1.lang = 'fr' AND ml1.key = 'title' AND ml1.node_id = nodes.id AND nodes.kpath LIKE 'NPPB%' ORDER BY sc1.contact_name ASC}"
+  res: 'a wiki with Zena'

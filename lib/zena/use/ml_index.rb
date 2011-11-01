@@ -53,6 +53,21 @@ module Zena
             end
           end
       end # ModelMethods
+
+      module SiteMethods
+        def self.included(base)
+          base.before_save :rebuild_index_on_lang_list_change
+        end
+
+        protected
+          def rebuild_index_on_lang_list_change
+            if languages_changed?
+              # delete all ml entries for this site and rebuild
+              Zena::Db.execute "DELETE idx FROM idx_nodes_ml_strings idx INNER JOIN nodes ON idx.node_id = nodes.id WHERE nodes.site_id = #{self[:id]}"
+              rebuild_index
+            end
+          end
+      end # SiteMethods
     end # MLIndex
   end # Use
 end # Zena

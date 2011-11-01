@@ -70,6 +70,30 @@ module Zena
       end
     end
 
+    # Transform every value of a given property by using a block with |node, old_value| and
+    # returning the new value.
+    def change_prop(pseudo_sql, key)
+      unless block_given?
+        puts "You need to provide a block |node, old_value| and return the new value"
+        return
+      end
+      foreach(pseudo_sql) do |node|
+        node.versions.each do |v|
+          prop = v.prop
+          val  = prop[key]
+          new_val = yield(node, val)
+          unless new_val == val
+            if new_val
+              prop[key] = new_val
+            else
+              prop.delete(key)
+            end
+            Zena::Db.execute "UPDATE #{v.class.table_name} SET properties=#{Zena::Db.quote(v.class.encode_properties(prop))} WHERE id=#{v[:id]}"
+          end
+        end
+      end
+    end
+
     def login(name, host = nil)
       finder = {}
       finder[:conditions] = cond = [[]]

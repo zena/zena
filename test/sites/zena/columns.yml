@@ -3,6 +3,7 @@ DEFAULTS:
 
 
 Task_assigned:
+  comment:         Name of user.
 
 Original_origin:
   index:           string
@@ -12,7 +13,7 @@ Original_weight:
 
 Original_tz:
 
-Letter_paper:  
+Letter_paper:
 
 Letter_search:
   index:           ml_string
@@ -26,7 +27,8 @@ Contact_name:
 Post_date:
   index:           '.idx_datetime1'
   ptype:           datetime
-  
+  comment:         Publication date of the post (see "doc":20).
+
 Contact_first_name:
 
 Contact_email:
@@ -34,4 +36,3 @@ Contact_email:
 Contact_address:
 
 Contact_country:
-  

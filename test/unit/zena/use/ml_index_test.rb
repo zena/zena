@@ -160,4 +160,26 @@ class MLIndexTest < Zena::Unit::TestCase
     end # on a node
 
   end # A visitor with write access
+
+
+  context 'Changing site languages' do
+    setup do
+      login(:lion)
+    end
+
+    subject do
+      visitor.site
+    end
+    
+    should 'rebuild ml index' do
+      count = IdxNodesMlString.count / subject.lang_list.size
+      assert_difference('IdxNodesMlString.count', (subject.lang_list.size + 1) * count ) do
+        assert subject.update_attributes(:languages => "#{subject.languages},cn")
+      end
+      idx = IdxNodesMlString.find(:first,
+        :conditions => {:node_id => nodes_id(:status), :lang => 'cn', :key => 'title'}
+      )
+      assert_equal 'status', idx.value
+    end
+  end
 end

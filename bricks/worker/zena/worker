@@ -39,6 +39,7 @@ Daemons.run_proc('worker', daemon_options) do
 
   require 'delayed/worker'
   begin
+    require 'thinking_sphinx'
     require 'thinking_sphinx/deltas/delayed_delta'
   rescue LoadError
     # Ignore

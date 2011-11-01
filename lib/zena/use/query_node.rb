@@ -197,13 +197,15 @@ module Zena
           end
         end
 
+        def process_idx_field(scope_field)
+          scope_field
+        end
+
         # Overwrite this and take care to check for valid fields.
         def process_field(field_name)
           if fld = @query.attributes_alias[field_name]
             # use custom query alias value defined in select clause: 'custom_a AS validation'
             return processing_filter? ? "(#{fld})" : fld
-          elsif processing_filter? && scope_field = get_scope_index_field(field_name)
-            scope_field
           elsif processing_filter? && map_def = self.class.filter_fields[field_name]
             # Special filter fields such as 'role', 'tag' or 'class'
             if map_def.kind_of?(String)
@@ -353,8 +355,8 @@ module Zena
           end
 
           scope_idx_field = "#{class_name}_#{field_name}"
-          if get_scope_index_field(scope_idx_field)
-            return [[:field, scope_idx_field], function]
+          if fld = get_scope_index_field(scope_idx_field)
+            return [[:idx_field, fld], function]
           else
             # not a scope index field
             return [arg1, arg2]

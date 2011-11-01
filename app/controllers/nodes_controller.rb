@@ -132,13 +132,13 @@ class NodesController < ApplicationController
         # swap (a way to preview content by drag & drop)
         @node = other
       elsif params[:change] == 'receiver'
-        attributes[:copy] = other
+        attributes[:_copy] = other
         @node.update_attributes_with_transformation(attributes)
         if !@node.errors.empty?
           @errors = @node.errors
         end
       else
-        attributes[:copy] = @node
+        attributes[:_copy] = @node
         other.update_attributes_with_transformation(attributes)
         if !other.errors.empty?
           @errors = other.errors
@@ -597,7 +597,7 @@ class NodesController < ApplicationController
 
       case params[:action]
       when 'index'
-        # TODO: this should live in I18n (and maybe it is not needed anymore)
+        # We need this redirection here to enable document caching in another lang
         # bad prefix '/so', '/rx' or '/en?lang=fr'
         if params[:prefix] != prefix
           set_visitor_lang(params[:prefix])

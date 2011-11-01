@@ -144,6 +144,9 @@ module Zena
       end # ControllerMethods
 
       module ViewMethods
+        include RubyLess
+        safe_method [:upload_field, {:type => String}] => String
+
         UPLOAD_KEY = defined?(Mongrel) ? 'upload_id' : "X-Progress-ID"
         def upload_form_tag(url_opts, html_opts = {})
           @uuid = UUIDTools::UUID.random_create.to_s.gsub('-','')
@@ -162,8 +165,8 @@ module Zena
         end
 
         def upload_field(opts = {})
-          case opts[:type]
-          when :onclick
+          case opts[:type].to_s
+          when 'onclick'
             link = link_to_remote(_("change"), :update=>'upload_field', :url => get_uf_documents_path(:uuid => @uuid), :method => :get, :complete=>"['file', 'upload_field'].each(Element.toggle);")
             <<-TXT
 <label for='attachment'>#{_('file')}</label>

@@ -122,5 +122,4 @@ class VersionHashTest < Zena::Unit::TestCase
     end # with published versions
 
   end # on a node
-
 end

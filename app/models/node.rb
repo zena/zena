@@ -846,10 +846,10 @@ class Node < ActiveRecord::Base
       res = {}
       res['parent_id'] = new_attributes[:_parent_id] if new_attributes[:_parent_id] # real id set inside zena.
 
+      copy_node = new_attributes.delete(:_copy)
       attributes = new_attributes.stringify_keys
 
-      if attributes['copy'] || attributes['copy_id']
-        copy_node = attributes.delete('copy')
+      if copy_node || attributes['copy_id']
         copy_node ||= Node.find_by_zip(attributes.delete('copy_id'))
         attributes = copy_node.replace_attributes_in_values(attributes)
       end
@@ -1009,6 +1009,7 @@ class Node < ActiveRecord::Base
   end
 
   # Parse text and replace ids '!30!' by their pseudo path '!(img/bird)!'
+  # key is used in TextDocument overloaded method.
   def unparse_assets(text, helper, key)
     ZazenParser.new(text,:helper=>helper).render(:translate_ids => :relative_path, :node=>self)
   end

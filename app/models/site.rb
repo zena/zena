@@ -33,6 +33,9 @@ class Site < ActiveRecord::Base
   # Should be the same serialization as in Node
   include Property::Serialization::JSON
 
+  # TODO: can we just use MLIndex in app.rb ?
+  include Zena::Use::MLIndex::SiteMethods
+
   @@attributes_for_form = {
     :bool => %w{authentication http_auth auto_publish},
     :text => %w{name languages default_lang},

@@ -299,6 +299,11 @@ module Zena
             out "<% set_headers(#{headers.join(', ')}) %>"
           end
         end
+        
+        def r_style
+          @markup.tag = 'style'
+          expand_with
+        end
 
         def r_not_found
           out "<% raise ActiveRecord::RecordNotFound %>"
