@@ -31,7 +31,7 @@ module Bricks
         end
       end
 
-      def acl_authorized?(action, params, base_node = nil)
+      def acl_authorized?(action, params, request)
         node = nil
         group_ids_bak = group_ids.dup
         acls(action, params[:mode], params[:format]).each do |acl|
@@ -39,8 +39,8 @@ module Bricks
           if acl.exec_group_id
             @group_ids = group_ids_bak + [acl.exec_group_id]
           end
-          base_node ||= self.node_without_secure
-          if node = acl.authorize?(base_node, params)
+          base_node = self.node_without_secure
+          if node = acl.authorize?(base_node, params, request)
             self.exec_acl = acl
             # Keep loaded exec_group
             return node
@@ -73,11 +73,11 @@ module Bricks
         exec_acl ? exec_acl.exec_skin : get_skin_without_acls(node)
       end
 
-      def find_node_with_acls(path, zip, name, params, method)
-        find_node_without_acls(path, zip, name, params, method)
+      def find_node_with_acls(path, zip, name, request)
+        find_node_without_acls(path, zip, name, request)
       rescue ActiveRecord::RecordNotFound
         raise unless visitor.use_acls?
-        acl_params = params.dup
+        acl_params = request.params.dup
         if name =~ /^\d+$/
           acl_params[:id] = name
         elsif name
@@ -87,7 +87,7 @@ module Bricks
           acl_params[:id] = zip
         end
 
-        visitor.acl_authorized?(::Acl::ACTION_FROM_METHOD[method], acl_params)
+        visitor.acl_authorized?(::Acl::ACTION_FROM_METHOD[request.method], acl_params, request)
       end
     end # UserMethods
   end # Acls

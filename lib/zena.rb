@@ -19,7 +19,7 @@ module Zena
     end
   end
 
-  ASSET_PORT     = Bricks.raw_config['asset_port']
+  ASSET_PORT     = Bricks.raw_config['asset_port'].to_i
 
   ENABLE_LATEX   = true  && has_executable('pdflatex') # enable LateX post-rendering
   ENABLE_FOP     = true  && has_executable('fop', 'xsltproc') # enable xsl-fo post-rendering

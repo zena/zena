@@ -1,4 +1,4 @@
-== 1.1.2
+== 1.1.2 2011-11-09
 
 * Minor changes
  * Support sorting by scope index fields.
@@ -9,6 +9,8 @@
  * Added <r:style> tag for dynamic CSS.
  * Added support for 'value' in 'date' input fields.
  * Added comment on property definition.
+ * Added 'coalesce' method in queries.
+ * Added 'asset_host?' in Acl queries.
 
 == 1.1.1 2011-07-12
 

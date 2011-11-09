@@ -328,7 +328,7 @@ class User < ActiveRecord::Base
     end
   end
 
-  def find_node(path, zip, name, params, method)
+  def find_node(path, zip, name, request)
     secure!(Node) do
       if name =~ /^\d+$/
         Node.find_by_zip(name)

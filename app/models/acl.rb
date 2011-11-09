@@ -15,6 +15,8 @@ class Acl < ActiveRecord::Base
   include RubyLess
 
   safe_method :params  => Zena::Use::ZafuSafeDefinitions::ParamsDictionary
+  safe_method :asset_host?  => Boolean
+  safe_method :visitor => User
 
   def safe_method_type(signature, receiver = nil)
     if type = super
@@ -26,8 +28,8 @@ class Acl < ActiveRecord::Base
     end
   end
 
-  def authorize?(base_node, params)
-    res = Node.find_by_sql(eval(make_query(base_node, params).to_s))
+  def authorize?(base_node, params, request)
+    res = Node.find_by_sql(eval(make_query(base_node, params, request).to_s))
     if res.empty?
       nil
     else
@@ -41,6 +43,16 @@ class Acl < ActiveRecord::Base
 
   def exec_skin
     @exec_skin ||= secure(Skin) { Skin.find(exec_skin_id) }
+  end
+
+  # Returns true if we are on the asset host.
+  def asset_host?
+    @asset_host
+  end
+
+  # Make visitor public so that we can use 'visitor' in queries.
+  def visitor
+    super
   end
 
   protected
@@ -58,12 +70,14 @@ class Acl < ActiveRecord::Base
     end
 
     def validate_acl
-      make_query(visitor.prototype, {})
+      make_query(visitor.prototype)
     end
 
-    def make_query(node, params)
+    def make_query(node, params = {}, request = nil)
       @node   = node
       @params = params
+      @asset_host = request ? request.port.to_i == Zena::ASSET_PORT : false
+
       # We add a stupid order clause to avoid the 'order by title' thing.
       query = Node.build_query(:first, self.query + ' order by id asc',
         :node_name       => '@node',

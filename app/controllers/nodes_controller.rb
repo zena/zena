@@ -35,7 +35,7 @@ class NodesController < ApplicationController
         format.xml  { render :xml => @node.to_xml }
       end
     elsif base_node = visitor.node_without_secure
-      if node = visitor.find_node(nil, base_node.zip, nil, {}, :get)
+      if node = visitor.find_node(nil, base_node.zip, nil, request)
         # If the visitor is acl authorized to view his own node,
         # redirect there.
         redirect_to zen_path(node)
@@ -223,7 +223,7 @@ class NodesController < ApplicationController
 
     begin
       # Make sure we can load parent (also enables ACL to work for us here).
-      parent = visitor.find_node(nil, attrs.delete('parent_zip'), nil, {}, :post)
+      parent = visitor.find_node(nil, attrs.delete('parent_zip'), nil, request)
       @node = parent.new_child(attrs, false)
       @node.save
     rescue ActiveRecord::RecordNotFound
@@ -563,14 +563,14 @@ class NodesController < ApplicationController
 
           # We use the visitor to find the node in order to ease implementation
           # of custom access rules (Acl).
-          @node = visitor.find_node(path, zip, name, params, request.method)
+          @node = visitor.find_node(path, zip, name, request)
         else
           # bad url
           Node.logger.warn "Path #{path.last.inspect} does not match #{Zena::Use::Urls::ALLOWED_REGEXP}"
           raise ActiveRecord::RecordNotFound
         end
       elsif params[:id]
-        @node = visitor.find_node(nil, params[:id], nil, params, request.method)
+        @node = visitor.find_node(nil, params[:id], nil, request)
       end
 
       if params[:link_id]

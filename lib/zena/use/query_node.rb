@@ -293,7 +293,7 @@ module Zena
           "params[#{pagination_key.to_sym.inspect}]"
         end
 
-        # Handle special case for 'class = ' and 'role = '
+        # Handle special case for 'class = ' and 'role = ' and 'foo.date ='
         def process_equal(left, right)
           if (left == [:field, 'class'] || left == [:field, 'klass']) &&
              (right[0] == :field || right[0] == :string)
@@ -363,12 +363,13 @@ module Zena
           end
         end
 
-        def process_function(arg, method)
+        def process_function(arg, method, *args)
           # Resolve scope index fields
           arg, method = resolve_scope_idx_fields(arg, method)
           if method
             arg, method = process(arg), process(method)
-            Zena::Db.sql_function(method, arg)
+            args = [arg] + args.map{|a| process(a)}
+            Zena::Db.sql_function(method, *args)
           else
             process(arg)
           end

@@ -16,7 +16,7 @@ open4:
 daemons:        # upload progress
 gem_plugin:     # upload progress
 
-querybuilder:   '= 1.0.1'
+querybuilder:   '= 1.1.0'
 yamltest:       '= 0.7.0'
 rubyless:       '= 0.8.6'
 property:       '= 2.2.0'

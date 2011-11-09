@@ -78,8 +78,9 @@ module Zena
         end
 
         # Return a string matching the SQLiss function.
-        def sql_function(function, arg)
-          return arg unless function
+        def sql_function(function, *args)
+          return args.first unless function
+          arg = args.first
           case function
           when 'year'
             "year(#{arg})"
@@ -91,6 +92,8 @@ module Zena
             "DATE(#{arg})"
           when 'random'
             'RAND()'
+          when 'coalesce'
+            "COALESCE(#{args.join(',')})"
           else
             super
           end

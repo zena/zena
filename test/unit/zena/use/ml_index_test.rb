@@ -170,16 +170,20 @@ class MLIndexTest < Zena::Unit::TestCase
     subject do
       visitor.site
     end
-    
+
     should 'rebuild ml index' do
-      count = IdxNodesMlString.count / subject.lang_list.size
-      assert_difference('IdxNodesMlString.count', (subject.lang_list.size + 1) * count ) do
+      count = IdxNodesMlString.count(:conditions => "`key` = 'title'", :joins => "INNER JOIN nodes ON nodes.id = node_id AND nodes.site_id = #{subject.id}")
+      node_count = Node.count(:conditions => "site_id = #{subject.id}")
+
+      assert_difference('count', node_count) do
         assert subject.update_attributes(:languages => "#{subject.languages},cn")
+        count = IdxNodesMlString.count(:conditions => "`key` = 'title'", :joins => "INNER JOIN nodes ON nodes.id = node_id AND nodes.site_id = #{subject.id}")
       end
+
       idx = IdxNodesMlString.find(:first,
         :conditions => {:node_id => nodes_id(:status), :lang => 'cn', :key => 'title'}
       )
-      assert_equal 'status', idx.value
+      assert_equal 'status title', idx.value
     end
   end
 end

@@ -132,3 +132,8 @@ quoted_literal:
   sql: "%Q{SELECT nodes.* FROM links AS ta1,nodes WHERE #{secure_scope('nodes')} AND ta1.comment = '10\\\\'000' AND nodes.id = ta1.source_id AND ta1.relation_id IS NULL ORDER BY nodes.zip ASC}"
   res: ''
 # filters on ml strings are in properties.yml
+
+coalesce_in_filter:
+  src: "posts select date.coalesce('2011-11-01') as da in site"
+  sql: "%Q{SELECT nodes.*,COALESCE(nodes.idx_datetime1,'2011-11-01') AS `da` FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NNP%' ORDER BY nodes.zip ASC}"
+  res: 'super ouverture'

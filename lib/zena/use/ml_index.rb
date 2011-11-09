@@ -61,7 +61,7 @@ module Zena
 
         protected
           def rebuild_index_on_lang_list_change
-            if languages_changed?
+            if languages_changed? && !new_record?
               # delete all ml entries for this site and rebuild
               Zena::Db.execute "DELETE idx FROM idx_nodes_ml_strings idx INNER JOIN nodes ON idx.node_id = nodes.id WHERE nodes.site_id = #{self[:id]}"
               rebuild_index

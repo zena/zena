@@ -141,3 +141,8 @@ paginate_two:
 select_index_field:
   src: "nodes select title as ti"
   sql: "/SELECT nodes.*,ml1.value AS `ti`/"
+
+coalesce:
+  src: "nodes in site order by parent_id.coalesce(0) asc limit 1"
+  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} ORDER BY COALESCE(nodes.parent_id,0) ASC LIMIT 1}"
+  res: "Zena the wild CMS"
