@@ -163,6 +163,16 @@ class TextDocument < Document
     (super + (content_type == 'text/css' ? ['text'] : [])).uniq
   end
 
+  # Do not sweep TextDocument cache in dev mode unless expire_in_dev.
+  def sweep_cache
+    if visitor.dev_mode? && !current_site.expire_in_dev?
+      # Only expire templates built for dev mode
+      super(:conditions => ['path like ?', "%/dev_#{visitor.lang}/%"])
+    else
+      super
+    end
+  end
+
   private
     class AssetHelper
       attr_accessor :visitor

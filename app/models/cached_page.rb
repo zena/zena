@@ -68,13 +68,12 @@ class CachedPage < ActiveRecord::Base
     end
 
     # Remove cached pages related to the given node.
-    def expire_with(node, node_ids = nil)
-      if node_ids && node_ids != []
-        direct_pages = CachedPage.find(:all, :conditions => "node_id IN (#{node_ids.join(',')})")
+    def expire_with(node, opts = {})
+      if opts
+        expire(node.cached_pages.find(:all, opts))
       else
-        direct_pages = []
+        expire(node.cached_pages)
       end
-      expire(node.cached_pages + [])
     end
 
     private

@@ -342,6 +342,10 @@ class User < ActiveRecord::Base
     end
   end
 
+  def dev_mode?
+    !dev_skin_id.blank?
+  end
+
   private
 
     def user_site

@@ -187,9 +187,11 @@ class Site < ActiveRecord::Base
   end
 
   property.string 'usr_prototype_attributes'
+  property.boolean 'expire_in_dev'
 
   Site.attributes_for_form[:text] << 'usr_prototype_attributes'
-  attr_accessible :usr_prototype_attributes
+  Site.attributes_for_form[:bool] << 'expire_in_dev'
+  attr_accessible :usr_prototype_attributes, :expire_in_dev
 
   # Return path for static/cached content served by proxy: RAILS_ROOT/sites/_host_/public
   # If you need to serve from another directory, we do not store the path into the sites table

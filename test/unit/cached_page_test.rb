@@ -162,4 +162,44 @@ class CachedPageTest < Zena::Unit::TestCase
       end
     end
   end
+
+  def test_no_expire_in_dev
+    without_files('test.host/zafu') do
+      preserving_files('/test.host/data') do
+        login(:lion)
+        visitor.dev_skin_id = nodes_id(:default)
+        assert visitor.dev_mode?
+        template_ids = [nodes_id(:Node_index_zafu), nodes_id(:Project_zafu), nodes_id(:Node_zafu), nodes_id(:notes_zafu)]
+        path = SITES_ROOT + visitor.site.zafu_path + "/default/Node_index.html/en/main.erb"
+        dev_path = SITES_ROOT + visitor.site.zafu_path + "/default/Node_index.html/dev_en/main.erb"
+
+        assert !File.exists?(path), "No cached file yet"
+        cache = secure!(CachedPage) { CachedPage.create(
+          :path            => (visitor.site.zafu_path + "/default/Node_index.html/en/main.erb"),
+          :expire_after    => nil,
+          :expire_with_ids => template_ids,
+          :content_data    => "public cache") }
+
+        cache = secure!(CachedPage) { CachedPage.create(
+          :path            => (visitor.site.zafu_path + "/default/Node_index.html/dev_en/main.erb"),
+          :expire_after    => nil,
+          :expire_with_ids => template_ids,
+          :content_data    => "dev cache") }
+        assert File.exists?(path), "Cache file created"  
+        assert File.exists?(dev_path), "Cache file created"
+        
+        # test expire
+        node = secure!(Node) { nodes(:Node_zafu) }
+        assert node.update_attributes(:title=>'hey'), "Can save"
+        assert File.exists?(path), "Public cache not removed"
+        assert !File.exists?(dev_path), "Dev cache removed"
+        
+        # expire all
+        assert current_site.update_attributes(:expire_in_dev => true)
+        node = secure!(Node) { nodes(:Node_zafu) }
+        assert node.update_attributes(:title=>'hey boy'), "Can save"
+        assert !File.exists?(path), "Public cache removed"
+      end
+    end
+  end
 end

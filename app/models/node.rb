@@ -1327,11 +1327,8 @@ class Node < ActiveRecord::Base
   end
 
   # TODO: test
-  def sweep_cache
+  def sweep_cache(opts = {})
     return if current_site.being_created?
-    # zafu 'erb' rendering cache expire
-    # TODO: expire only 'dev' rendering if version is a redaction
-    CachedPage.expire_with(self) if self.kind_of?(Template)
 
     # Clear element cache
     Cache.sweep(:visitor_id=>self[:user_id], :visitor_groups=>[rgroup_id, wgroup_id, dgroup_id], :kpath=>self.vclass.kpath)
@@ -1343,9 +1340,7 @@ class Node < ActiveRecord::Base
     # FIXME: use self + modified relations instead of parent/project
     [self, self.real_project(false), self.real_section(false), self.parent(false)].compact.uniq.each do |obj|
       # destroy all pages in project, parent and section !
-      CachedPage.expire_with(obj)
-      # this destroys less cache but might miss things like 'changes in project' that are displayed on every page.
-      # CachedPage.expire_with(self, [self[:project_id], self[:section_id], self[:parent_id]].compact.uniq)
+      CachedPage.expire_with(obj, opts)
     end
 
     # clear assets

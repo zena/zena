@@ -172,6 +172,10 @@ class SiteTest < Zena::Unit::TestCase
       assert_kind_of User, subject.any_admin
       assert_equal users(:lion), subject.any_admin
     end
+    
+    should 'respond to expire_in_dev' do
+      assert !subject.expire_in_dev?
+    end
   end # A site
 
 
@@ -350,7 +354,7 @@ class SiteTest < Zena::Unit::TestCase
     end
   end
 
-
+  
   private
     def fullpath(*args)
       args.map {|sym| nodes_zip(sym).to_s}.join('/')

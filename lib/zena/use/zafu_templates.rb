@@ -336,7 +336,7 @@ module Zena
 
         # Return true if the current rendering should include a dev box.
         def dev_mode?
-          !visitor.dev_skin_id.blank?
+          visitor.dev_mode?
         end
 
         # Return true if we should display the dev box
