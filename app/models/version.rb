@@ -70,7 +70,13 @@ class Version < ActiveRecord::Base
     def set_defaults
       # set author
       self[:user_id] = visitor.id
-      self[:lang]    = visitor.lang unless lang_changed?
+      if lang.blank? || !lang_changed?
+        if node && node.vclass.monolingual?
+          self[:lang] = current_site.default_lang
+        else
+          self[:lang] = visitor.lang
+        end
+      end
       self[:site_id] = current_site.id
     end
 

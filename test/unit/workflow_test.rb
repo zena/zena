@@ -398,6 +398,21 @@ class WorkflowTest < Zena::Unit::TestCase
         assert_equal 'de', subject.version.lang
       end
 
+      context 'with a text document' do
+        subject do
+          secure(Node) { nodes(:Node_zafu) }
+        end
+
+        should 'create versions in the default language' do
+          visitor.lang = 'de'
+          assert subject.vclass.monolingual?
+          assert_difference('Version.count', 1) do
+            subject.update_attributes('text' => 'Die Antwoord')
+            assert_equal 'en', subject.version.lang
+          end
+        end
+      end
+
       should 'not be allowed to propose' do
         assert !subject.can_propose?
         assert !subject.propose # does nothing
@@ -623,25 +638,25 @@ class WorkflowTest < Zena::Unit::TestCase
           end
         end # setting v_status to autopublish
       end # that she owns
-      
+
       # Basic tests for property integration in Node.
       context 'changing attributes' do
         should 'mark version as edited' do
           subject.attributes = {'title' => 'foo'}
           assert subject.version.edited?
         end
-        
+
         should 'mark properties as changed' do
           subject.attributes = {'title' => 'foo'}
           assert subject.prop.changed?
         end
-        
+
         should 'show property changes on chages' do
           subject.attributes = {'title' => 'foo'}
           assert_equal Hash['title'=> ['status title', 'foo']], subject.changes
         end
       end # changing attributes
-      
+
     end # A visitor with drive access on a publication
 
 

@@ -115,6 +115,9 @@ module Zena
         end
 
         def render_and_cache(options={})
+          # FIXME: maybe we can remove this.
+          @title_for_layout = title_for_layout
+
           opts = {:skin => @node[:skin], :cache => true}.merge(options)
           opts[:mode  ] ||= params[:mode]
           opts[:format] ||= params[:format].blank? ? 'html' : params[:format]
@@ -299,7 +302,7 @@ module Zena
             out "<% set_headers(#{headers.join(', ')}) %>"
           end
         end
-        
+
         def r_style
           @markup.tag = 'style'
           expand_with

@@ -34,7 +34,7 @@ class VirtualClass < Role
     attr_accessor :export_attributes
   end
 
-  self.export_attributes = %w{auto_create_discussion icon}
+  self.export_attributes = %w{auto_create_discussion icon monolingual}
 
   attr_accessor :import_result
   belongs_to    :create_group, :class_name => 'Group', :foreign_key => 'create_group_id'
@@ -51,11 +51,14 @@ class VirtualClass < Role
   include Zena::Use::PropEval::VirtualClassMethods
   include Zena::Use::ScopeIndex::VirtualClassMethods
 
+  property.boolean 'monolingual'
+  safe_method  :monolingual? => Boolean
   safe_method  :roles     => {:class => ['Role'], :method => 'sorted_roles'}
   safe_method  :relations => {:class => ['RelationProxy'], :method => 'all_relations'}
   safe_method  [:relations, String] => {:class => ['RelationProxy'], :method => 'filtered_relations'}
   # All columns defined for a VirtualClass (kpath based).
   safe_method :all_columns => {:class => ['Column'], :method => 'safe_columns'}
+
 
   class Cache
     def initialize
@@ -165,6 +168,9 @@ class VirtualClass < Role
       vclass.include_role real_class.schema
       vclass.instance_variable_set(:@is_real_class, true)
       vclass.site_id = current_site.id
+      if real_class <= TextDocument
+        vclass.monolingual = true
+      end
       vclass
     end
 

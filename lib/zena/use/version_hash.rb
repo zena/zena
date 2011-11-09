@@ -47,9 +47,9 @@ module Zena
       end
 
       module ModelMethods
-        def version
+        def version(lang = nil)
           @version ||= begin
-            if v_id = version_id
+            if v_id = version_id(lang)
               version = ::Version.find(v_id)
             else
               version = ::Version.new
@@ -59,9 +59,10 @@ module Zena
           end
         end
 
-        def version_id
+        def version_id(lang = nil)
+          lang ||= visitor.lang
           access = can_see_redactions? ? vhash['w'] : vhash['r']
-          access[visitor.lang] || access[self[:ref_lang]] || access.values.first
+          access[lang] || access[self[:ref_lang]] || access.values.first
         end
 
         # Return the list of versions that are stored in the vhash and could be loaded depending

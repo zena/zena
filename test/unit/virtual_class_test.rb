@@ -647,6 +647,12 @@ class VirtualClassTest < Zena::Unit::TestCase
       should 'return real_class name on get_real_class' do
         assert_equal 'Page', subject.send(:get_real_class, subject)
       end
+      
+      should 'respond to monolingual' do
+        assert_nothing_raised do
+          assert_nil subject.monolingual
+        end
+      end
 
       context 'that is a Node' do
         subject do

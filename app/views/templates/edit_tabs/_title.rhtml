@@ -5,7 +5,16 @@
 <%= text_field 'node', 'tag_list', :size=>nil, :class => 'full_width' %>
 
 <label for='v_lang'><%= _("language") %></label>
-<%= select 'node', 'v_lang', current_site.lang_list.map {|l| [_(l), l]} %>
+<% if @node.vclass.monolingual?
+  if @node.new_record?
+	selected = current_site.default_lang
+  else
+    selected = @node.v_lang == visitor.lang ? @node.v_lang : current_site.default_lang
+  end
+else
+  selected = visitor.lang
+end -%>
+<%= select 'node', 'v_lang', current_site.lang_list.map {|l| [_(l), l]}, :selected => selected %>
 
 <label><%= _('publication date') %></label>
 <%= date_box(@node, 'v_publish_from') %>

@@ -711,7 +711,7 @@ msgstr "persönliche Informationen ändern"
 
 #: app/views/relations/_form.erb:17 app/views/nodes/_parent.rhtml:7
 msgid "class"
-msgstr "<img src='/images/lock.png' title='Klasse'/>"
+msgstr "Klasse"
 
 #: app/views/templates/document_create_tabs/_import.rhtml:7
 msgid "class of first element"

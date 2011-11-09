@@ -23,7 +23,6 @@ class NodesController < ApplicationController
   before_filter :find_node, :except => [:index, :create, :not_found, :catch_all, :search]
   before_filter :check_can_drive, :only => [:edit]
   before_filter :check_path,      :only => [:index, :show]
-  after_filter  :change_lang,     :only => [:create, :update, :save_text]
   layout :popup_layout,           :only => [:edit, :import]
 
   include Zena::Use::Grid::ControllerMethods
@@ -356,7 +355,9 @@ class NodesController < ApplicationController
     params['node'] ||= {}
     file, file_error = get_attachment
     params['node']['file'] = file if file
-
+    # Make sure we load the correct version for edited v_lang
+    lang = params['node']['v_lang'] || visitor.lang
+    @node.version(lang)
     @v_status_before_update = @node.v_status
     @node.update_attributes_with_transformation(params['node'])
     # What is this 'extfile' thing ?
@@ -576,8 +577,6 @@ class NodesController < ApplicationController
       if params[:link_id]
         @link = Link.find_through(@node, params[:link_id])
       end
-
-      @title_for_layout = title_for_layout
     end
 
     def set_format(format)
@@ -657,10 +656,6 @@ class NodesController < ApplicationController
       if !@node.can_drive?
         @node.errors.add('base', 'You do not have the rights to do this.')
       end
-    end
-
-    def change_lang
-      set_visitor_lang(params[:node]['v_lang']) if params[:node] && params[:node]['v_lang']
     end
 
     def do_search

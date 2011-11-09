@@ -136,9 +136,6 @@ module Zena
           chosen_lang = nil
           [
             params[:lang],
-# FIXME: This is good to protect templates and other documents but is *NOT* nice when translating a website !!
-#        What should we do ?
-            params[:node] ? params[:node][:v_lang] : nil,
             # Avoid redirects for static assets (cached documents).
             request.format == Mime::HTML ? params[:prefix] : nil,
             visitor.is_anon? ? session[:lang] : visitor.lang,
