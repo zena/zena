@@ -29,6 +29,9 @@ RedCloth:
   lib:          'redcloth'
   version:      '= 3.0.4'
 
+# ultraviolet needs oniguruma, which needs headers to compile
+# ultraviolet:
+
 # Cannot do "gem 'rmagick', '= 1.3.14'" on some hosts. Leave this alone and
 # let 'require' pick whatever it can.
 # rmagick:

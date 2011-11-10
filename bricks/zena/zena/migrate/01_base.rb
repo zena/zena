@@ -366,12 +366,6 @@ class Base < ActiveRecord::Migration
 
     add_index "sites", ["host"], :name => "index_sites_on_host"
 
-    create_table "stored_columns", :options => table_options, :force => true do |t|
-      t.integer "stored_role_id"
-      t.string  "name"
-      t.string  "ptype"
-    end
-
     create_table "users", :options => table_options, :force => true do |t|
       t.datetime "created_at"
       t.datetime "updated_at"
@@ -450,7 +444,6 @@ class Base < ActiveRecord::Migration
     drop_table "roles"
     drop_table "sessions"
     drop_table "sites"
-    drop_table "stored_columns"
     drop_table "users"
     drop_table "versions"
     drop_table "zips"

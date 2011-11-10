@@ -68,7 +68,7 @@ production:
       gem: 'thinking_sphinx'
       adapter: 'mysql,postgresql'
     run_if:
-      file: 'log/searchd.production.pid'
+      file: 'log/searchd.pid'
   worker:
     switch:  OFF
     activate_if:

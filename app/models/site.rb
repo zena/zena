@@ -16,6 +16,39 @@ The #Site model holds configuration information for a site:
 +default_lang+::    The default language of the site.
 =end
 class Site < ActiveRecord::Base
+  CLEANUP_SQL = [
+    ['attachments'         , 'site_id = ?'],
+    ['cached_pages'        , 'site_id = ?'],
+    ['cached_pages_nodes'  , 'node_id IN (SELECT id FROM nodes WHERE site_id = ?)'],
+    ['caches'              , 'site_id = ?'],
+    ['columns'             , 'site_id = ?'],
+    ['comments'            , 'site_id = ?'],
+    ['data_entries'        , 'site_id = ?'],
+    ['discussions'         , 'site_id = ?'],
+    ['groups_users'        , 'group_id IN (SELECT id FROM groups WHERE site_id = ?)'],
+    ['groups'              , 'site_id = ?'],
+
+    ['idx_nodes_datetimes' , 'node_id IN (SELECT id FROM nodes WHERE site_id = ?)'],
+    ['idx_nodes_floats'    , 'node_id IN (SELECT id FROM nodes WHERE site_id = ?)'],
+    ['idx_nodes_integers'  , 'node_id IN (SELECT id FROM nodes WHERE site_id = ?)'],
+    ['idx_nodes_ml_strings', 'node_id IN (SELECT id FROM nodes WHERE site_id = ?)'],
+    ['idx_nodes_strings'   , 'node_id IN (SELECT id FROM nodes WHERE site_id = ?)'],
+    ['idx_projects'        , 'node_id IN (SELECT id FROM nodes WHERE site_id = ?)'],
+    ['idx_templates'       , 'node_id IN (SELECT id FROM nodes WHERE site_id = ?)'],
+
+    ['iformats'            , 'site_id = ?'],
+    ['links'               , 'source_id IN (SELECT id FROM nodes WHERE site_id = ?)'],
+    ['links'               , 'target_id IN (SELECT id FROM nodes WHERE site_id = ?)'],
+
+    ['nodes_roles'         , 'node_id IN (SELECT id FROM nodes WHERE site_id = ?)'],
+    ['relations'           , 'site_id = ?'],
+    ['roles'               , 'site_id = ?'],
+    ['sites'               , 'id = ?'],
+    ['users'               , 'site_id = ?'],
+    ['versions'            , 'site_id = ?'],
+    ['zips'                , 'site_id = ?'],
+    ['nodes'               , 'site_id = ?'],
+  ]
   ACTIONS = %w{clear_cache rebuild_index}
   include RubyLess
   safe_method  :host => String, :lang_list => [String], :default_lang => String
@@ -437,6 +470,21 @@ class Site < ActiveRecord::Base
     end
 
     true
+  end
+
+  # This is only called from the console (not accessible through controllers)
+  def remove_from_db
+    node_cleanup = nil
+    site_id = self.id.to_s
+    CLEANUP_SQL.each do |table, clause|
+      clause = clause.gsub('?', site_id)
+      begin
+        Zena::Db.execute("DELETE FROM #{table} WHERE (#{clause})")
+      rescue => err
+        puts clause
+        puts err
+      end
+    end
   end
 
   private
