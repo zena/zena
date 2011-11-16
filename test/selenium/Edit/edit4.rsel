@@ -1,0 +1,55 @@
+@old_title = 'Collections'
+@new_title = 'New Collections'
+
+open '/oo/testnode37.html?test=edit4'
+set_timeout 4000
+assert_element_not_present 'edit41_title'
+verify_text "css=#edit41_32 .title", @old_title
+
+# edit
+click 'link=edit'
+wait_for_element_present 'edit41_title'
+type 'edit41_title', @new_title
+
+# submit
+click 'css=input[type=submit]'
+wait_for_element_not_present 'edit41_title'
+verify_text "css=#edit41_32 .title", @new_title
+
+# edit again
+click 'link=edit'
+wait_for_element_present 'edit41_title'
+
+# cancel
+click 'css=img[alt="cancel"]'
+wait_for_element_not_present 'edit41_title'
+
+# edit again
+click 'link=edit'
+wait_for_element_present 'edit41_title'
+# Ensure we do proper ajax replacements
+assert_element_not_present 'css=#edit4 form form'
+type 'edit41_title', @old_title
+
+# submit
+click 'css=input[type=submit]'
+wait_for_element_not_present 'edit41_title'
+verify_text "css=#edit41_32 .title", @old_title
+
+# ensure changes are recorded
+open '/oo/testnode37.html?test=edit4'
+verify_text "css=#edit41_32 .title", @old_title
+
+# TODO: Test ADD and Edit: but to do this, we need a way to use
+#       variables (get the created object's DOM id).
+# click 'css=img[alt=add]'
+# assert_visible 'add41_title'
+# type 'add31_title', 'edit4add'
+# click 'css=input[type=submit]'
+# wait_for_not_visible 'add31_title'
+# verify_text 'css=.edit4add a', 'edit4add'
+# # edit newly created object
+# click '.edit4add link=edit'
+# We do not know the DOM id here: how do we do this ?
+# We have two edit41_title elements...
+#wait_for_element_present 'edit41_title'

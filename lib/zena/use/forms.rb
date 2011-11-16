@@ -200,10 +200,11 @@ module Zena
 
             if @context[:in_add]
               # Inline form used to create new elements: set values to '' and 'parent_id' from context
-              opts[:id]          = "#{node.dom_prefix}_form"
+              opts[:id]          = "#{node.dom_prefix}_0"
               opts[:form_tag]    = "<% remote_form_for(:#{node.form_name}, #{node}, :url => #{node.form_name.pluralize}_path, :html => {:id => \"#{dom_name}_form_t\"}) do |f| %>"
-              opts[:form_cancel] = "#{cancel_pre}<a href='#' onclick='[\"#{dom_name}_add\", \"#{dom_name}_form\"].each(Element.toggle);return false;'>#{cancel_text}</a>#{cancel_post}\n"
+              opts[:form_cancel] = "#{cancel_pre}<a href='#' onclick='[\"#{dom_name}_add\", \"#{dom_name}_0\"].each(Element.toggle);return false;'>#{cancel_text}</a>#{cancel_post}\n"
             else
+
               # Saved form
               if @markup.tag == 'table'
                 # the normal id goes to the form wrapping the table
@@ -215,19 +216,18 @@ module Zena
               end
 
               form_id ||= "#{node.dom_prefix}_form_t"
-              opts[:id]          = "<%= ndom_id(#{node}) %>"
 
               opts[:form_tag]    = %Q{
-<% remote_form_for(:#{node.form_name}, #{node}, :url => #{node}.new_record? ? #{node.form_name.pluralize}_path : #{node.form_name}_path(#{node}.zip), :html => {:method => #{node}.new_record? ? :post : :put, :id => \"#{str_form_id}\"}) do |f| %>
-}
+  <% remote_form_for(:#{node.form_name}, #{node}, :url => #{node}.new_record? ? #{node.form_name.pluralize}_path : #{node.form_name}_path(#{node}.zip), :html => {:method => #{node}.new_record? ? :post : :put, :id => \"#{str_form_id}\"}) do |f| %>
+  }
 
               opts[:form_cancel] = %Q{
-<% if #{node}.new_record? %>
-  #{cancel_pre}<a href='#' onclick='[\"<%= params[:dom_id] %>_add\", \"<%= params[:dom_id] %>_form\"].each(Element.toggle);return false;'>#{cancel_text}</a>#{cancel_post}
-<% else %>
+  <% if #{node}.new_record? %>
+  #{cancel_pre}<a href='#' onclick='[\"<%= params[:dom_id] %>_add\", \"<%= params[:dom_id] %>\"].each(Element.toggle);return false;'>#{cancel_text}</a>#{cancel_post}
+  <% else %>
   #{cancel_pre}<%= link_to_remote(#{cancel_text_ruby}, :url => #{node.form_name}_path(#{node}.zip) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}#{@context[:has_link_id] ? "&link_id=\#{#{node}.link_id}" : ''}\", :method => :get) %>#{cancel_post}
-<% end %>
-}
+  <% end %>
+  }
             end
           else
             # no ajax
@@ -283,7 +283,11 @@ module Zena
                                                                                  # This is a hack to fix wrong dom_prefix in drop+add.
             #erb_dom_id = @context[:saved_template] ? "<%= ndom_id(#{node}, false) %>" : (@context[:dom_prefix] || node.dom_prefix)
 
-            hidden_fields['dom_id'] = erb_dom_id = node.dom_prefix
+            if @context[:saved_template]
+              hidden_fields['dom_id'] = erb_dom_id = "<%= ndom_id(#{node}, false) %>"
+            else
+              hidden_fields['dom_id'] = erb_dom_id = node.dom_prefix
+            end
 
             if node.will_be?(Comment)
               # FIXME: the "... || '@node'" is a hack and I don't understand why it's needed...
@@ -303,7 +307,7 @@ module Zena
                     if sym == :before
                       hidden_fields['reference'] = "#{erb_dom_id}_add"
                     else
-                      hidden_fields['reference'] = "#{erb_dom_id}_form"
+                      hidden_fields['reference'] = "#{erb_dom_id}_0"
                     end
                   else
                     hidden_fields['reference'] = value

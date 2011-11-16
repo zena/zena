@@ -90,9 +90,10 @@ class DocumentsController < ApplicationController
     def find_node
 
       if params[:id]
-        @node = secure!(Document) { Document.find_by_zip(params[:id]) }
+        @node = visitor.find_node(nil, params[:id], nil, request)
+        raise ActiveRecord::RecordNotFound unless @node.kind_of?(Document)
       elsif parent_zip = (params[:node] || params)[:parent_id]
-        @parent = secure!(Node) { Node.find_by_zip(parent_zip)}
+        @parent = visitor.find_node(nil, parent_zip, nil, request)
       else
         # TODO: a better error message
         raise ActiveRecord::RecordNotFound

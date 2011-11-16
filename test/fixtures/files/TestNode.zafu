@@ -94,6 +94,25 @@
     </table>
   </div>
 
+  //! edit4
+  <div class='test' id='edit4' do='selenium' do='root'>
+    <h3>edit4</h3>
+    <p>Edit element from list in place (makes form from each block).</p>
+    <ul do='pages'>
+      <li class='#{title}' do='each'><span class='title' do='title'/> <r:edit/></li>
+    </ul>
+  </div>
+
+  //! edit5
+  <div class='test' id='edit5' do='selenium' do='root'>
+    <h3>edit5</h3>
+    <p>Edit element from list in place (use a custom form).</p>
+    <ul do='pages'>
+      <li do='each'><span class='title' do='title'/> <r:edit/></li>
+      <li do='form'><r:input name='title'/> <r:select name='origin' nodes='contacts in site' attr='name'/></li>
+    </ul>
+  </div>
+
   <div class='test' id='toggle1' do='selenium'>
     <h3>toggle1</h3>
     <p>Toggle relation in list.</p>

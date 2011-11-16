@@ -13,7 +13,7 @@ module Zena
               return "#{params[:dom_id]}_#{node.zip}"
             end
           elsif append_form && node.kind_of?(Node) && params[:zadd]
-            return "#{params[:dom_id]}_form"
+            return "#{params[:dom_id]}_#{node.zip.to_i}"
           end
 
           @dom_id || params[:udom_id] || params[:dom_id]
@@ -74,7 +74,7 @@ module Zena
                 page.replace params[:dom_id], :file => template_path_from_template_url + ".erb"
               end
               if params[:done] && params[:zadd]
-                page.toggle "#{params[:dom_id]}_form", "#{params[:dom_id]}_add"
+                page.toggle "#{params[:dom_id]}_0", "#{params[:dom_id]}_add"
                 page << params[:done]
               elsif params[:done]
                 page << params[:done]
@@ -104,7 +104,7 @@ module Zena
               if params[:done]
                 page << params[:done]
               elsif params[:zadd]
-                page.toggle "#{params[:dom_id]}_form", "#{params[:dom_id]}_add"
+                page.toggle "#{params[:dom_id]}_0", "#{params[:dom_id]}_add"
               end
             when 'update'
               page.replace ndom_id, :file => template_path_from_template_url + ".erb"
@@ -484,7 +484,7 @@ module Zena
             else
 
               if dom_id = target.markup.dyn_params[:id] || target.markup.params[:id]
-                if dom_id =~ /^<%=\s+(.*?)\s+%>_form$/
+                if dom_id =~ /^<%=\s+(.*?)\s+%>_0$/
                   # Rare case when we have a [drop] with [add]. (add element and then drop on it).
                   dom_id = $1
                 elsif dom_id =~ /^<%=\s+(.*?)\s+%>$/
