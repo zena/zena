@@ -330,6 +330,8 @@ module Zena
               # HACK to render sub-elements...
               bak = @blocks
                 @blocks = opts[:cell].blocks
+                # reset saved scope
+                @context[:saved_template] = nil
                 cell_code   = expand_if(var, node.move_to(var, [klass]))
               @blocks = bak
             @markup = markup

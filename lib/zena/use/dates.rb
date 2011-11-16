@@ -163,7 +163,7 @@ module Zena
           @main_dates ||= {}
           @main_dates[tz] ||= begin
             if params[:date]
-              if date = params[:date].to_utc(ISO_DATE_FORMAT, tz)
+              if date = params[:date].to_utc(_(DATETIME), tz)
                 date
               else
                 # FIXME: when date parsing fails: show an error, not a 500...
