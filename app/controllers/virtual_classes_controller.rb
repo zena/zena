@@ -63,18 +63,17 @@ class VirtualClassesController < ApplicationController
         @yaml.gsub!(/\A---\s*\n/, "--- \n")
         current = current_compared_to(data)
         a = clean_yaml(current).gsub('{}', '')
-        #a = Zena::CodeSyntax.new(a, 'yaml').to_html
+        a = Zena::CodeSyntax.new(a, 'yaml').to_html
         b = @yaml
-        #b = Zena::CodeSyntax.new(b, 'yaml').to_html
+        b = Zena::CodeSyntax.new(b, 'yaml').to_html
         @diff = Differ.diff_by_line(b, a).format_as(:html)
 
         # UGLY HACK to not escape <ins> and <del>
-        @diff.gsub!(/<((ins|del)[^>]*)>/, '[yaml_diff[\1]]')
-        @diff.gsub!(/<\/(ins|del)>/, '[yaml_diff[/\1]]')
-        @diff = Zena::CodeSyntax.new(@diff, 'yaml').to_html
-        @diff.gsub!(/\[yaml_diff\[([^\]]+)\]\]/) do
-          "<#{$1.gsub('&quot;', '"')}>"
-        end
+        #@diff.gsub!(/<((ins|del)[^>]*)>/, '_ZYAML__\2_')
+        #@diff.gsub!(/<\/(ins|del)>/, '_ZYAMLC__\1_')
+        #@diff = Zena::CodeSyntax.new(@diff, 'yaml').to_html
+        #@diff.gsub!(/_ZYAML__(\w+)_/, '<\1 class="differ">')
+        #@diff.gsub!(/_ZYAMLC__(\w+)_/, '</\1>')
       end
     end
   end

@@ -422,7 +422,7 @@ module Zena
           # TEMPORARY HACK UNTIL WE FIX get_input_params to return a single hash with
           # {:html => { prepared html attributes }, :raw => {:value => '..', :name => '..', :param => '..'}}
           if param = @params[:param]
-            selected  = "params[#{param.to_sym.inspect}].to_s"
+            selected  = "param_value(#{param.inspect}).to_s"
             attribute = param
           else
             return parser_error("missing name") unless attribute
@@ -430,7 +430,7 @@ module Zena
             if value = @params[:selected]
               selected = ::RubyLess.translate_string(self, value)
             elsif @context[:in_filter]
-              selected = "params[#{attribute.to_sym.inspect}].to_s"
+              selected = "param_value(#{attribute.inspect}).to_s"
             elsif %w{parent_id}.include?(attribute)
               selected = "#{node}.parent_zip.to_s"
             elsif attribute == 'copy_id'

@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2011-11-14}
+  s.date = %q{2011-11-16}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -1972,6 +1972,8 @@ Gem::Specification.new do |s|
     "test/selenium/Edit/edit1.rsel",
     "test/selenium/Edit/edit2.rsel",
     "test/selenium/Edit/edit3.rsel",
+    "test/selenium/Edit/edit4.rsel",
+    "test/selenium/Edit/edit5.rsel",
     "test/selenium/Form/0setup.rsel",
     "test/selenium/Form/form1.rsel",
     "test/selenium/Form/form2.rsel",
@@ -2158,7 +2160,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<property>, ["= 2.2.0"])
       s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_runtime_dependency(%q<authlogic>, ["= 2.1.3"])
-      s.add_runtime_dependency(%q<zafu>, ["= 0.8.4"])
+      s.add_runtime_dependency(%q<zafu>, ["= 0.8.5"])
       s.add_runtime_dependency(%q<shoulda>, ["= 2.10.3"])
       s.add_runtime_dependency(%q<fast_gettext>, ["~> 0.4.16"])
       s.add_runtime_dependency(%q<syntax>, ["= 1.0.0"])
@@ -2184,7 +2186,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<property>, ["= 2.2.0"])
       s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_dependency(%q<authlogic>, ["= 2.1.3"])
-      s.add_dependency(%q<zafu>, ["= 0.8.4"])
+      s.add_dependency(%q<zafu>, ["= 0.8.5"])
       s.add_dependency(%q<shoulda>, ["= 2.10.3"])
       s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
       s.add_dependency(%q<syntax>, ["= 1.0.0"])
@@ -2211,7 +2213,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<property>, ["= 2.2.0"])
     s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
     s.add_dependency(%q<authlogic>, ["= 2.1.3"])
-    s.add_dependency(%q<zafu>, ["= 0.8.4"])
+    s.add_dependency(%q<zafu>, ["= 0.8.5"])
     s.add_dependency(%q<shoulda>, ["= 2.10.3"])
     s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
     s.add_dependency(%q<syntax>, ["= 1.0.0"])

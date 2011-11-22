@@ -171,6 +171,14 @@ input_param_value:
   tem: "<input type='text' name='foo[bar.baz]' value='<%= fquote param_value(\"foo[bar.baz]\") %>'/>"
   res: "<input type='text' name='foo[bar.baz]' value='xyz'/>"
 
+select_param_value:
+  context:
+    foo:
+      "bar.baz": '1'
+  src: "<r:select param='foo[bar.baz]' values='1,3' show='one,three'/>"
+  tem: '/param_value\("foo\[bar.baz\]"\).to_s/'
+  res: '/<option value="1" selected="selected">one<\/option>/'
+
 input_style:
   src: "<r:input style='display:none;' type='submit'/>"
   res: "<input type='submit' style='display:none;'/>"
