@@ -395,3 +395,41 @@ array_literal:
 style_tag:
   src: "<r:style>.foo <r:title/></r:style>"
   res: "<style>.foo status title</style>"
+
+each_alternate_class:
+  context:
+    node: 'cleanWater'
+  src: "<ol do='pages'><li do='each' alt_class='blue' do='title'/></ol>"
+  res: "<ol><li class=''>crocodiles</li><li class='blue'>status title</li></ol>"
+
+each_alternate_class_reverse:
+  context:
+    node: 'cleanWater'
+  src: "<ol do='pages' limit='2'><li do='each' alt_class='blue' alt_reverse='true' do='title'/></ol>"
+  res: "<ol><li class='blue'>crocodiles</li><li class=''>status title</li></ol>"
+
+each_alternate_class_two:
+  context:
+    node: 'collections'
+  src: "<ol do='pages'><li class='post' do='each' alt_class='stripe' do='title'/></ol>"
+  res: "<ol><li class='post '>Art</li><li class='post stripe'>News list</li><li class='post '>Top menu</li><li class='post stripe'>wiki skin</li></ol>"
+
+each_alternate_class_ajax:
+  context:
+    node: 'cleanWater'
+  src: "<ol do='pages' limit='2'><li do='each' alt_class='blue' do='title'/><li do='add'/></ol>"
+  res: "/<li class='' id='list1_26'>crocodiles<\/li><li class='blue' id='list1_22'>status title<\/li>/"
+
+each_alternate_class_with_conditional:
+  context:
+    node: 'cleanWater'
+  src: "<ol do='pages'><li do='each' alt_class='blue' on_if='title' do='title'/></ol>"
+  res: "<ol><li class=' on'>crocodiles</li><li class='blue on'>status title</li></ol>"
+
+each_alternate_by_hand:
+  context:
+    node: 'cleanWater'
+  # This is useful when we need to have more then one table row per item for example.
+  src: "<ol do='pages'><r:each alt_class='blue'><li class='#{alt_class}' do='title'/></r:each></ol>"
+  tem: "/class='<%= _zaltclass %>'/"
+  res: "<ol><li class=''>crocodiles</li><li class='blue'>status title</li></ol>"

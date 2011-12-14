@@ -32,30 +32,6 @@ each_traductions_only_list:
   src: "<r:traductions only='en,ru'><ul><li do='each'><r:show attr='title'/></li></ul></r:traductions>"
   res: "<ul><li>status title</li></ul>"
 
-each_alternate_class:
-  context:
-    node: 'cleanWater'
-  src: "<ol do='pages'><li do='each' alt_class='blue' do='title'/></ol>"
-  res: "<ol><li class=''>crocodiles</li><li class='blue'>status title</li><li class=''>Kill the bugs</li></ol>"
-
-each_alternate_class_reverse:
-  context:
-    node: 'cleanWater'
-  src: "<ol do='pages' limit='2'><li do='each' alt_class='blue' alt_reverse='true' do='title'/></ol>"
-  res: "<ol><li class='blue'>crocodiles</li><li class=''>status title</li></ol>"
-
-each_alternate_class_two:
-  context:
-    node: 'collections'
-  src: "<ol do='pages'><li class='post' do='each' alt_class='stripe' do='title'/></ol>"
-  res: "<ol><li class='post '>art</li><li class='post stripe'>menu</li><li class='post '>news</li><li class='post stripe'>wikiSkin</li></ol>"
-
-each_alternate_class_ajax:
-  context:
-    node: 'cleanWater'
-  src: "<ol do='pages' limit='2'><li do='each' alt_class='blue' do='title'/><li do='add'/></ol>"
-  res: "/<li>crocodiles<\/li><li class=\"blue\">status/"
-
 each_else:
   context:
     node: 'opening'

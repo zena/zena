@@ -168,3 +168,7 @@ test_date:
 format_date_empty_string:
   tem: "<%= format_date('') %>"
   res: ""
+
+date_empty_value:
+  src: "<r:input name='date' value=''/>"
+  tem: "x"

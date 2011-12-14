@@ -14,7 +14,8 @@ If you want to give administrative rights to a user, simply put him/her into the
 
 Users have access rights defined by the groups they belong to. They also have a 'status' indicating the kind of
 things they can/cannot do :
-+:user+::        (60): can read/write/publish
++:admin+::       (60): can read/write/publish in any group, can create users/groups
++:user+::        (50): can read/write/publish
 +:commentator+:: (40): can write comments
 +:moderated+::   (30): can write moderated comments
 +:reader+::      (20): can only read

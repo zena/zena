@@ -231,12 +231,11 @@ module Zena
           ext = params[:format].blank? ? 'html' : params[:format]
           path << ".#{ext}" unless path =~ /\.#{ext}(\?\d+|)$/
           #
-          # QUERY_STRING in cached page ?
-          #
-          # Do not cache filename with query or apache will not see it !
-          # if cachestamp_format?(params['format'])
-          #   path << "?" << make_cachestamp(@node, params['mode'])
-          # end
+          # FULL QUERY_STRING in cached page ?
+          if cachestamp_format?(params['format'])
+            # We have to use a '.' because apache cannot serve static files with '?'.
+            path << "." << make_cachestamp(@node, params['mode'])
+          end
           path
         end
 

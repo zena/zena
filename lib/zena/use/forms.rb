@@ -372,7 +372,7 @@ module Zena
             # r_form params
                      :klass, :done, :on, :update,
             # r_each params (make_form)
-                     :join].include?(key)
+                     :join, :alt_class].include?(key)
             code = ::RubyLess.translate(self, value)
             if code.literal.kind_of?(String) || code.literal.kind_of?(Number)
               hidden_fields[key.to_s] = "#{code.literal}"

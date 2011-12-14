@@ -62,8 +62,22 @@
   # Rewrite to check for Rails cached page
   RewriteRule ^([^.]+)$ $1.html [QSA]
 
-  # Redirect all non-static requests to cluster
-	RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME}%{QUERY_STRING} !-f
+  # Serve static (cached) assets
+  RewriteCond %{QUERY_STRING} ^[0-9]+$
+  RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME}.%{QUERY_STRING} -f
+  # We have to use '.'. If we use '?' apache won't find the file.
+  RewriteRule ^/(.*)$ %{REQUEST_FILENAME}.%{QUERY_STRING} [L]
+
+  # Rails assets (static CSS, JS).
+  RewriteCond %{QUERY_STRING} ^[0-9]+$
+  RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} -f
+  RewriteRule ^/(.*)$ %{REQUEST_FILENAME} [L]
+
+  # else
+  #  Request with query string (if some page is cached, the same page with a query should not be served as static)
+  RewriteCond %{QUERY_STRING} ^.+$ [OR]
+  #  All non-static
+  RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f
   RewriteRule ^/(.*)$ balancer://<%= config[:balancer] %>%{REQUEST_URI} [P,QSA,L]
 <% elsif config[:app_type] == :passenger %>
   PassengerAppRoot <%= config[:app_root] %>

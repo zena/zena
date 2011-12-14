@@ -165,7 +165,7 @@ module Zena
                 if error.message =~ DEADLOCK_REGEX
                   retry_count += 1
                   if retry_count < DEADLOCK_MAX_RETRY
-                    Node.logger.warn "#{Time.now.strftim('%Y-%m-%d %H:%M:%S')} [#{current_site.host}] Retry (#{retry_count}) #{error.message}"
+                    Node.logger.warn "#{Time.now.strftime('%Y-%m-%d %H:%M:%S')} [#{current_site.host}] Retry (#{retry_count}) #{error.message}"
                     retry
                   else
                     raise
