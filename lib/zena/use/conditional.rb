@@ -35,6 +35,9 @@ module Zena::Use::Conditional
         return parser_error("Invalid role or class '#{class_name}'")
       end
 
+      # Class filtering should not block 'saved_dom_id' propagation.
+      new_node.saved_dom_id = node.saved_dom_id
+
       if parent.method == 'case'
         with_context(:node => new_node) do
           r_elsif(cond)
