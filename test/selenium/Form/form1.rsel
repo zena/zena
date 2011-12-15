@@ -1,6 +1,6 @@
 @test_page = "/oo/testnode37.html?test=form1"
 open @test_page
-type "paginate1_tbl_title", "Hello World!"
+type "add31_title", "Hello World!"
 # submit
 click_and_wait 'css=input[type=submit]'
 # Redirected to new page

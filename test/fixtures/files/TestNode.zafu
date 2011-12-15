@@ -113,6 +113,16 @@
     </ul>
   </div>
 
+  //! edit6
+  <div class='test' id='edit6' do='selenium' do='root'>
+    <h3>edit6</h3>
+    <p>Edit link after [block].</p>
+    <ul do='pages'>
+      <li do='each'><span class='title' do='title'/> <div do='block'>O:<span id='swap_span' do='if' test='origin' do='origin'/> <r:swap attr='origin' states=',bob' do='t'>swap</r:swap></div> <r:edit/></li>
+      <li do='form'><r:input name='title'/></li>
+    </ul>
+  </div>
+
   <div class='test' id='toggle1' do='selenium'>
     <h3>toggle1</h3>
     <p>Toggle relation in list.</p>

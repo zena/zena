@@ -4,7 +4,7 @@ assert_element_not_present 'drop33_26'
 
 # Drag & Drop
 set_timeout 4000
-drag_and_drop_to_object "css=#drop13_21_26 > span.drag_handle", "drop32"
+drag_and_drop_to_object "css=#drop12_21_26 > span.drag_handle", "drop32"
 wait_for_element_present "drop33_26"
 verify_text "drop33_26", "crocodiles"
 # Unlink
@@ -14,13 +14,13 @@ wait_for_element_not_present "drop33_26"
 # Restart
 
 # Drag & Drop
-drag_and_drop_to_object "css=#drop13_21_26 > span.drag_handle", "drop32"
+drag_and_drop_to_object "css=#drop12_21_26 > span.drag_handle", "drop32"
 wait_for_element_present "drop33_26"
 verify_text "drop33_26", "crocodiles"
 
 # Drag & Drop from other location
-command 'setSpeed', 500
-drag_and_drop_to_object "css=#drop13_11_12 > span.drag_handle", "drop32"
+command 'setSpeed', 800
+drag_and_drop_to_object "css=#drop12_11_12 > span.drag_handle", "drop32"
 wait_for_element_present "drop33_12"
 verify_text "drop33_12", "people"
 command 'setSpeed', 0

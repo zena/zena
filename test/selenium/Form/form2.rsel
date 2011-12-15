@@ -1,5 +1,5 @@
 open "/oo/testnode37.html?test=form2"
-type "paginate1_tbl_title", "Heal the bugs!"
+type "add31_title", "Heal the bugs!"
 # submit
 click_and_wait 'css=input[type=submit]'
 

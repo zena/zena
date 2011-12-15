@@ -1,0 +1,53 @@
+@old_title = 'Collections'
+@new_title = 'New Collections'
+
+open '/oo/testnode37.html?test=edit6'
+set_timeout 4000
+assert_element_not_present 'edit61_title'
+verify_text "css=#edit61_32 .title", @old_title
+
+# swap block should work before edit
+# swap
+click 'css=#edit62_32 a'
+wait_for_element_present 'swap_span'
+verify_text "css=#edit62_32 span", 'bob'
+
+# edit
+click 'link=edit'
+wait_for_element_present 'edit61_title'
+type 'edit61_title', @new_title
+
+# submit
+click 'css=input[type=submit]'
+wait_for_element_present 'swap_span'
+verify_text "css=#edit61_32 .title", @new_title
+verify_text "css=#edit62_32 span", 'bob'
+
+# edit again
+click 'link=edit'
+wait_for_element_present 'edit61_title'
+
+# cancel
+click 'css=img[alt="cancel"]'
+wait_for_element_not_present 'edit61_title'
+
+# edit again
+click 'link=edit'
+wait_for_element_present 'edit61_title'
+# Ensure we do proper ajax replacements
+assert_element_not_present 'css=#edit6 form form'
+type 'edit61_title', @old_title
+
+# submit
+click 'css=input[type=submit]'
+wait_for_element_not_present 'edit61_title'
+verify_text "css=#edit61_32 .title", @old_title
+
+# swap block should work after edit
+click 'css=#edit62_32 a'
+wait_for_element_not_present 'swap_span'
+verify_text "css=#edit61_32 .title", @old_title
+
+# ensure changes are recorded
+open '/oo/testnode37.html?test=edit6'
+verify_text "css=#edit61_32 .title", @old_title
