@@ -96,6 +96,10 @@ ul.actions select { width:186px; }
 /* forms */
 label { font-size:0.9em; font-weight:bold; display:block; color:#5C1515; margin:10px 0 5px; clear:left;}
 
+.comment { font-style:italic; color:#777}
+.comment strong {font-weight:bold; font-style:italic;}
+.comment a {color:#55a}
+
 /* roles */
 .constant {font-weight:bold;}
 .real_class .constant {color:#999;}

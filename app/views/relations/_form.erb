@@ -5,7 +5,7 @@
     link_to_function _('btn_x'), "['add_relation', 'add_relation_form'].each(Element.toggle)"
   end %>
 </td>
-<td class="add" colspan="3">
+<td class="add" colspan="4">
   <div id='relation_errors'><%= error_messages_for(:relation, :object => @relation) %></div>
   <% unless @relation.new_record? %>
   <%= form_remote_tag(:url => relation_path(@relation), :method => :put ) %>
@@ -36,6 +36,9 @@
       <td class="light" ><%= text_field('relation', 'target_icon', :size=>18 ) %></td>
       <td class="dark" ><%= text_field('relation', 'source_icon', :size=>18 ) %></td>
     </tr>
+    <tr><td colspan='3'>
+      <%= text_area('relation', 'comment', :rows => 2, :cols => 40) %></td>
+    </td></tr>
     <tr><td colspan='3'><p class='btn_validate'><input type='submit' value='<%= _('validate') %>'/></p></td></tr>
   </table>
   </form>

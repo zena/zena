@@ -6,7 +6,7 @@ class AclsController < ApplicationController
 
   def index
     secure(Acl) do
-      @acls = Acl.paginate(:all, :order => 'priority DESC, name ASC', :per_page => 20, :page => params[:page])
+      @acls = Acl.paginate(:all, :order => 'action ASC, priority DESC, name ASC', :per_page => 20, :page => params[:page])
     end
     @acl = Acl.new
 

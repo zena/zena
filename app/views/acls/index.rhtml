@@ -12,6 +12,16 @@
     <th><%= _('exec group') %></th>
     <th><%= _('exec skin') %></th>
   </tr>
-  <%= render :partial=>'acls/li',  :collection => @acls %>
+
+  <% action = nil; @acls.each do |acl| -%>
+    <% if acl.action != action; action= acl.action -%>
+    <tr>
+      <th class='nav sub constant' colspan='9'>
+        <%= action %>
+      </th>
+    </tr>
+    <% end -%>
+    <%= render :partial=>'acls/li',  :collection=>[acl] %>
+  <% end -%>
   <%= render :partial=>'acls/add' %>
 </table>

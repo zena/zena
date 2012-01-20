@@ -1,9 +1,9 @@
 <h2 class='title'><%= _('relations') %></h2>
 <table id='relation_list' class='admin' cellspacing="0">
-  <tr><th class='nav' colspan='4'><%= will_paginate @relations %></th></tr>
+  <tr><th class='nav' colspan='5'><%= will_paginate @relations %></th></tr>
   <% @classes.keys.sort.each do |kpath| -%>
     <tr class='virtual_class'>
-      <th class='nav sub constant' colspan='4'>
+      <th class='nav sub constant' colspan='5'>
         <span class='kpath'><%= kpath %></span> <%= VirtualClass.find_by_kpath(kpath).to_s %>
       </th>
     </tr>

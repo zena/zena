@@ -6,13 +6,13 @@
 
     <ul id='search_results' do='search_results'>
       <li class='result_entry' do='each'>
-        <p class='result_image' do='Document'>
+        <p class='result_image' do='Document?'>
           <r:link format='data' do='img' alt_src='icon' mode='pv'/>
           <r:else do='link' do='img' alt_src='icon' mode='pv'/>
         </p>
         <p class='result_name'><r:link/></p>
         <p class='result_path'><r:show attr='short_path'/></p>
-        <r:summary/>
+        <r:zazen attr='summary'/>
         <div class='clear'></div>
       </li>
       <r:else>
