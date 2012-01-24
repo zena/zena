@@ -269,3 +269,14 @@ hidden_fields_in_form_tag:
 hidden_fields_in_form_tag_dynamic:
   src: "<r:form  node[log]='title'></r:form>"
   tem: "/<input type='hidden' name='node\[log\]' value='<%= @node.prop\['title'\] %>/"
+
+should_show_column:
+  src: "<r:Document do='column(\"size\")' do='name'/>"
+  res: "size"
+
+should_show_fields_for_columns:
+  context:
+    node: 'forest_pdf'
+  src: "<r:form><r:Document do='column(\"size\")' do='input'/></r:form>"
+  tem: "/input type='text' name='node\\[<%= var2.name %>\\]/"
+  res: "/<input type='text' name='node\\[size\\]' value='63569'/>/"

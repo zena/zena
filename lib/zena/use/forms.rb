@@ -521,6 +521,7 @@ module Zena
             @markup.set_param(:type, @params[:type])
             @markup.set_param(:text, @params[:text]) if @params[:text]
             @markup.set_params(html_attributes)
+            @markup.done = false
             wrap('')
           else
             # 'text', 'hidden', ...
@@ -531,6 +532,7 @@ module Zena
             checked = html_attributes.delete(:checked)
             @markup.set_dyn_params(html_attributes)
             @markup.append_attribute checked if checked
+            @markup.done = false
             wrap('')
           end
 

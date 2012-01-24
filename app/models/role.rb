@@ -22,6 +22,7 @@ class Role < ActiveRecord::Base
   include RubyLess
   # Columns defined in the role.
   safe_method :columns     => {:class => ['Column'], :method => 'defined_safe_columns'}
+  safe_method [:column, String] => {:class => 'Column', :nil => true, :method => 'defined_safe_column'}
 
   safe_method :name => String
 
@@ -189,6 +190,21 @@ class Role < ActiveRecord::Base
   # By default, all defined columns are safe (see )
   def defined_safe_columns
     @safe_column ||= defined_columns.values.sort {|a,b| a.name <=> b.name}
+  end
+
+  # By default, all defined columns are safe (see )
+  def defined_safe_column(name)
+    if real_class?
+      # Get columns from the 'native' schema of the real class (this schema is a Property::Role,
+      # not a VirtualClass or ::Role).
+      #
+      # Only columns explicitly declared safe are safe here
+      if real_class.safe_method_type(name)
+        real_class.schema.defined_columns[name]
+      end
+    else
+      defined_columns[name]
+    end
   end
 
   def export
