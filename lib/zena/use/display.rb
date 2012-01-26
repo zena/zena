@@ -681,6 +681,15 @@ module Zena
           expand_with
         end
 
+        # Also used by rubyless_expand
+        def show_string(method)
+          if param(:h) == 'false'
+            "<%= #{method} %>"
+          else
+            "<%= h #{method} %>"
+          end
+        end
+
         private
           def show_number(method)
             if fmt = param(:format)
@@ -709,13 +718,6 @@ module Zena
             end
           end
 
-          def show_string(method)
-            if param(:h) == 'false'
-              "<%= #{method} %>"
-            else
-              "<%= h #{method} %>"
-            end
-          end
 
           # show_time is in Dates
       end
