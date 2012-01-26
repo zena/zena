@@ -225,8 +225,6 @@ module Zena
 
         # Resolve unknown methods by trying to build a pseudo-sql query with QueryBuilder.
         def querybuilder_eval(method = @method)
-          node = single_node
-
           if method =~ /^\d+$/
             finder = {:method => "find_node_by_zip(#{method})", :class => VirtualClass['Node'], :nil => true}
           else
@@ -307,7 +305,8 @@ module Zena
             node = single_node
 
             if !node.klass.respond_to?(:build_query)
-              raise ::QueryBuilder::Error.new("No query builder for class #{node.klass}")
+              # Fallback to Node
+              node = node.up(Node)
             end
 
             query_opts = {

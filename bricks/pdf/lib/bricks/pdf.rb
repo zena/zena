@@ -58,6 +58,15 @@ module Bricks
 
     module ControllerMethods
       def render_to_pdf(opts)
+        if params[:debug]
+          template_path = template_url(opts)
+          result = {
+            :data         => render_to_string(:file => template_path, :layout=>false),
+            :type         => 'text/html',
+          }
+          return result
+        end
+
         # Get zafu template (compile if needed)
         template_path = template_url(opts)
 
@@ -91,7 +100,7 @@ module Bricks
           if query_string == ''
             debug_url = "#{request.path}?debug"
           else
-            debug_url = "#{request.path}?#{query_string}&debug"
+            debug_url = "#{request.path}?#{query_string}&amp;debug"
           end
 
           {

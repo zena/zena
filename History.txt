@@ -1,9 +1,10 @@
-== 1.1.4
+== 1.2.0
 
 * Major changes
  * Added 'remove_from_db' method to remove a site from the database.
  * Fixed asset caching PLEASE FIX YOUR VHOST FILES: rake zena:create_vhost -s host='xxxxx'.
  * Fixed deadlock_retry (a bug in the error message aborted the retry).
+ * Created 'spreadsheet' brick to ease xlsx and csv generation.
 
 * Minor changes
  * Enabled Acl during document upload.

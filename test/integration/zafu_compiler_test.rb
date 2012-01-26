@@ -2,7 +2,7 @@ require 'test_helper'
 
 class ZafuCompilerTest < Zena::Controller::TestCase
   include Zena::Use::Urls::Common
- OK = [
+  OK = [
     'action',
     'asset',
     'conditional',
@@ -20,8 +20,9 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     'safe_definitions',
     'search',
     'site',
-    'tags',      # bricks/tags/zena/test/zafu
-    'worker',    # bricks/worker/zena/test/zafu
+    'tags',        # bricks/tags/zena/test/zafu
+    'spreadsheet', # bricks/spreadsheet/zena/test/spreadsheet
+    'worker',      # bricks/worker/zena/test/zafu
     'urls',
     'user',
     'version',

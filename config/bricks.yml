@@ -8,6 +8,11 @@ test:
   sphinx:      OFF
   worker:      OFF
   uv:          OFF
+  spreadsheet:
+    switch:  ON
+    activate_if:
+      gem: 'simple_xlsx'
+
 
 development:
   asset_port: 7999
@@ -24,6 +29,11 @@ development:
   math:
     switch: ON
     live:   ON
+
+  spreadsheet:
+    switch:  ON
+    activate_if:
+      gem: 'simple_xlsx'
 
   tags:     ON
   captcha:  ON
@@ -51,6 +61,10 @@ production:
     switch:  ON
     activate_if:
       gem: 'uv'
+  spreadsheet:
+    switch:  ON
+    activate_if:
+      gem: 'simple_xlsx'
   pdf:
     switch: ON
     engine: prince

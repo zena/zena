@@ -1,0 +1,14 @@
+# test_file: ../../../../../test/integration/zafu_compiler_test.rb
+default:
+  context:
+    node: 'status'
+    visitor: 'anon'
+    format: 'csv'
+  src: "<r:spreadsheet><r:sheet name='hep #{title}'><r:row><r:cell text='foo'/><r:cell eval='title'/></r:row></r:sheet></r:spreadsheet>"
+  tem: "/if _zdoc = @spreadsheet.*_zsheet = _zdoc.sheet.\"hep #\{@node.*title.*/"
+  res: "foo;status title;\n"
+
+two_lines:
+  src: "<r:spreadsheet><r:sheet name='hep #{title}'><r:row><r:cell text='foo'/><r:cell eval='title'/></r:row><r:row><r:cell text='foo:#{title}'/><r:cell>blah</r:cell></r:row></r:sheet></r:spreadsheet>"
+  tem: "/if _zdoc = @spreadsheet.*_zsheet = _zdoc.sheet.\"hep #\{@node.*title.*/"
+  res: "foo;status title;\nfoo:status title;blah;\n"

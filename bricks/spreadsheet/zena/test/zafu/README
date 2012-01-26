@@ -1,0 +1,27 @@
+It's not really easy to test xlsx file generation...
+
+<r:spreadsheet>
+  <r:head>
+    <r:cell eval='n.created_at'/>
+    <r:cell eval='n.title'/>
+    <r:cell text='Hello #{n.title}'/>
+  </r:head>
+  <r:row>
+    <r:cell eval='n.created_at'/>
+    <r:cell eval='n.title'/>
+    <r:cell text='Hello #{n.title}'/>
+  </r:row>
+</r:spreadsheet>
+
+<% if x = @spreadsheet %>
+  <% x.head do |h| %>
+  <% h.cell(@node.created_at) %>
+  <% h.cell(@node.prop['title']) %>
+  <% h.cell(%Q{Hello #{@node.prop['title']}}) %>
+  <% end %>
+  <% x.row do |r| %>
+  <% r.cell(@node.created_at) %>
+  <% r.cell(@node.prop['title']) %>
+  <% r.cell(%Q{Hello #{@node.prop['title']}}) %>
+  <% end %>
+<% end %>

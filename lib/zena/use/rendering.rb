@@ -74,7 +74,8 @@ module Zena
             zafu_node('@node', Project)
 
             respond_to do |format|
-              format.html do
+              format.xml  { render :nothing => true, :status => "404 Not Found" }
+              format.all do
                 not_found = "#{SITES_ROOT}/#{current_site.host}/public/#{prefix}/404.html"
                 if File.exists?(not_found)
                   render :text => File.read(not_found), :status => '404 Not Found'
@@ -82,7 +83,6 @@ module Zena
                   render_and_cache :mode => '+notFound', :format => 'html', :cache_url => "/#{prefix}/404.html", :status => '404 Not Found'
                 end
               end
-              format.all  { render :nothing => true, :status => "404 Not Found" }
             end
           else
             # site not found
@@ -128,14 +128,10 @@ module Zena
 
             method = "render_to_#{opts[:format]}"
             if params.keys.include?('debug')
-              template_path = template_url(opts)
-              result = {
-                :data         => render_to_string(:file => template_path, :layout=>false),
-                :disposition  => params['disposition'] || 'inline',
-                :type         => 'text/html',
-              }
               opts[:cache] = false
-            elsif respond_to?(method)
+              params[:debug] = true
+            end
+            if respond_to?(method)
               # Call custom rendering engine 'render_to_pdf' for example.
               result = send(method, opts)
             else
@@ -199,6 +195,8 @@ module Zena
         #   else
         #     raise err
         #   end
+        rescue ActiveRecord::RecordNotFound => err
+          return render_404(err)
         end
 
         # Cache page content into a static file in the current sites directory : SITES_ROOT/test.host/public

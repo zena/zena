@@ -36,6 +36,7 @@ module Bricks
               FileUtils::mkpath(File.dirname(filepath)) unless File.exist?(File.dirname(filepath))
               begin
                 tempf = Tempfile.new(filename) # TODO: do we need to close this file ?
+                tempf.close
                 base = tempf.path
                 latex_template = %q{
 \documentclass[10pt]{article}

@@ -39,7 +39,18 @@ module Zena
     end
 
     def test_render
-      render :inline => @text
+      if params[:format] then
+        met = :"render_to_#{params[:format]}"
+        if respond_to?(met)
+          result = self.send(met, {:inline => @text})
+          render :text => result[:data]
+          headers.merge!(result[:type])
+          return
+        else
+        end
+      else
+        render :text => "Cannot handle #{params[:format]} rendering."
+      end
     rescue => err
       render :text => ([err.message] + err.backtrace[0..4]).join("    \n")
     end
