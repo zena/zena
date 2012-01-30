@@ -165,7 +165,7 @@ each_in_each_form:
 each_in_each_dom_id:
   # should render correct form
   src: "<r:pages do='each'><r:title/><r:edit/><r:pages do='each'><r:title/><r:edit/></r:pages></r:pages>"
-  tem: "/list2_#\{var.\.zip\}_#\{var.\.zip\}/"
+  tem: "/list1_#\{var.\.zip\}_#\{var.\.zip\}/"
 
 default_focus_field:
   src: "<ol do='comments'><li do='each'/><li do='form'><input name='author_name'/> ... <input name='text'/></li><li do='add'/></ol>"
@@ -220,7 +220,7 @@ drag_with_form:
         <td class='edit'> <r:edit class='edit'>éditer</r:edit></td>
       </tr>
     </table>"
-  tem: "/<span class='drag' id='<%= %Q\{list2_#\{var2.zip\}\}.*<% add_drag_id\(%Q\{list2_#\{var2.zip\}\}/"
+  tem: "/<span class='drag' id='<%= %Q\{list3_#\{var2.zip\}\}.*<% add_drag_id\(%Q\{list3_#\{var2.zip\}\}/"
 
 drag_with_form_not_in_form:
   src: "<table do='pages in site'>

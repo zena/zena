@@ -3,18 +3,18 @@ assert_element_not_present "css=ul.references > li"
 
 # Add relation
 # Cannot test click on non-link in Safari and Chrome...
-click 'css=#toggle11_19.toggle.off > input.cb'
-wait_for_element_present 'css=#toggle11_19.toggle.on'
-verify_value "css=#toggle11_19 > input.cb", "on"
+click 'css=#toggle12_19.toggle.off > input.cb'
+wait_for_element_present 'css=#toggle12_19.toggle.on'
+verify_value "css=#toggle12_19 > input.cb", "on"
 
 # Reload page
 open "/oo/testnode37.html?test=toggle1"
 verify_text "css=ul.references > li", "Secret"
 
 # Remove relation
-click 'css=#toggle11_19.toggle.on > input.cb'
-wait_for_element_present 'css=#toggle11_19.toggle.off'
-verify_value "css=#toggle11_19 > input.cb", "off"
+click 'css=#toggle12_19.toggle.on > input.cb'
+wait_for_element_present 'css=#toggle12_19.toggle.off'
+verify_value "css=#toggle12_19 > input.cb", "off"
 
 # Reload page
 open "/oo/testnode37.html?test=toggle1"

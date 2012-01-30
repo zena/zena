@@ -204,7 +204,7 @@ input_new:
   context:
     node: 'ant'
   src: "<r:contacts><r:each/><r:form><r:input name='first_name'/></r:form><r:add/></r:contacts>"
-  res: "/name='node\[first_name\]' [^>]*id='list1_first_name'/"
+  res: "/name='node\[first_name\]' [^>]*id='list2_first_name'/"
 
 show_in_form:
   src: "<r:form><b do='title'/></r:form>"

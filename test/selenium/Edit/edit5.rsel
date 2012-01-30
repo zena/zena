@@ -3,37 +3,37 @@
 
 open '/oo/testnode37.html?test=edit5'
 set_timeout 4000
-assert_element_not_present 'edit51_title'
+assert_element_not_present 'edit52_title'
 verify_text "css=#edit51_32 .title", @old_title
 
 # edit
 click 'link=edit'
-wait_for_element_present 'edit51_title'
-type 'edit51_title', @new_title
+wait_for_element_present 'edit52_title'
+type 'edit52_title', @new_title
 
 # submit
 click 'css=input[type=submit]'
-wait_for_element_not_present 'edit51_title'
+wait_for_element_not_present 'edit52_title'
 verify_text "css=#edit51_32 .title", @new_title
 
 # edit again
 click 'link=edit'
-wait_for_element_present 'edit51_title'
+wait_for_element_present 'edit52_title'
 
 # cancel
 click 'css=img[alt="cancel"]'
-wait_for_element_not_present 'edit51_title'
+wait_for_element_not_present 'edit52_title'
 
 # edit again
 click 'link=edit'
-wait_for_element_present 'edit51_title'
+wait_for_element_present 'edit52_title'
 # Ensure we do proper ajax replacements
 assert_element_not_present 'css=#edit5 form form'
-type 'edit51_title', @old_title
+type 'edit52_title', @old_title
 
 # submit
 click 'css=input[type=submit]'
-wait_for_element_not_present 'edit51_title'
+wait_for_element_not_present 'edit52_title'
 verify_text "css=#edit51_32 .title", @old_title
 
 # ensure changes are recorded

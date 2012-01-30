@@ -1,6 +1,6 @@
 # Drag from list in each.
 open "/oo/testnode37.html?test=drop4"
-assert_element_not_present 'drop43_26'
+assert_element_not_present 'drop44_26'
 
 # Drag & Drop
 set_timeout 4000

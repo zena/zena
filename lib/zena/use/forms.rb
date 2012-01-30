@@ -683,9 +683,9 @@ module Zena
           end
 
           if node.dom_prefix && !params[:param]
-            res[:id]   = "#{node.dom_prefix}_#{attribute}"
+            res[:id] = params[:id] || "#{@context[:form_prefix]}_#{attribute}"
           else
-            res[:id]   = params[:id] if params[:id]
+            res[:id] = params[:id] if params[:id]
           end
 
           if params[:type] == 'checkbox' && sub_attr_ruby

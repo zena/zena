@@ -3,7 +3,7 @@
 
 open '/oo/testnode37.html?test=edit6'
 set_timeout 4000
-assert_element_not_present 'edit61_title'
+assert_element_not_present 'edit63_title'
 verify_text "css=#edit61_32 .title", @old_title
 
 # swap block should work before edit
@@ -14,8 +14,8 @@ verify_text "css=#edit62_32 span", 'bob'
 
 # edit
 click 'link=edit'
-wait_for_element_present 'edit61_title'
-type 'edit61_title', @new_title
+wait_for_element_present 'edit63_title'
+type 'edit63_title', @new_title
 
 # submit
 click 'css=input[type=submit]'
@@ -25,22 +25,22 @@ verify_text "css=#edit62_32 span", 'bob'
 
 # edit again
 click 'link=edit'
-wait_for_element_present 'edit61_title'
+wait_for_element_present 'edit63_title'
 
 # cancel
 click 'css=img[alt="cancel"]'
-wait_for_element_not_present 'edit61_title'
+wait_for_element_not_present 'edit63_title'
 
 # edit again
 click 'link=edit'
-wait_for_element_present 'edit61_title'
+wait_for_element_present 'edit63_title'
 # Ensure we do proper ajax replacements
 assert_element_not_present 'css=#edit6 form form'
-type 'edit61_title', @old_title
+type 'edit63_title', @old_title
 
 # submit
 click 'css=input[type=submit]'
-wait_for_element_not_present 'edit61_title'
+wait_for_element_not_present 'edit63_title'
 verify_text "css=#edit61_32 .title", @old_title
 
 # swap block should work after edit

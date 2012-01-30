@@ -1,0 +1,9 @@
+open '/oo/testnode37.html?test=filter2'
+# We are on the first page
+verify_element_not_present 'css=#filter2_list #fil555'
+type 'filter2_in', 'ird'
+wait_for_element_present 'fil2_30'
+verify_text 'fil2_30', 'bird'
+type 'filter2_in', 'flo'
+wait_for_element_present 'fil2_31'
+verify_text 'fil2_31', 'flower'

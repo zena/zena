@@ -3,36 +3,36 @@
 
 open '/oo/testnode37.html?test=edit2'
 set_timeout 4000
-assert_element_not_present 'edit21_title'
+assert_element_not_present 'edit22_title'
 verify_text "css=#edit21 li.title", @old_title
 
 # edit (does not click on 'v_status' checkbox)
 click 'link=edit'
-wait_for_element_present 'edit21_title'
-type 'edit21_title', @new_title
+wait_for_element_present 'edit22_title'
+type 'edit22_title', @new_title
 
 # submit
 click 'css=input[type=submit]'
-wait_for_element_not_present 'edit21_title'
+wait_for_element_not_present 'edit22_title'
 verify_text "css=#edit21 li.title", @new_title
 
 # edit again (click on 'v_status' checkbox)
 click 'link=edit'
-wait_for_element_present 'edit21_title'
+wait_for_element_present 'edit22_title'
 
 # cancel
 click 'css=img[alt="cancel"]'
-wait_for_element_not_present 'edit21_title'
+wait_for_element_not_present 'edit22_title'
 
 # edit again
 click 'link=edit'
-wait_for_element_present 'edit21_title'
-type 'edit21_title', @old_title
+wait_for_element_present 'edit22_title'
+type 'edit22_title', @old_title
 click 'css=#edit2 input[type=checkbox]'
 
 # submit
 click 'css=input[type=submit]'
-wait_for_element_not_present 'edit21_title'
+wait_for_element_not_present 'edit22_title'
 verify_text "css=#edit21 li.title", @old_title
 
 # ensure page is published

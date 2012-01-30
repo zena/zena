@@ -154,6 +154,31 @@
     </table>
   </div>
 
+  <div class='test' id='filter1' do='selenium'>
+    <h3>filter1</h3>
+    <p>Ajax live filter.</p>
+    <div id='filter1_form' do='filter' live='true'>
+      <input name='f' id='filter1_in' value=''/>
+    </div>
+    <ul id='filter1_list' do='block' do='nodes where title like "%#{params[:f]}%" in site limit 2'>
+      <li id='fil1_#{id}' do='each' do='title'/>
+    </ul>
+  </div>
+
+  <div class='test' id='filter2' do='selenium'>
+    <h3>filter2</h3>
+    <p>Ajax live filter (remote target).</p>
+    <div do='parent'>
+      <b do='title'/> //! Filter is not in same parent as filtered list. Explicit target.
+      <div id='filter2_form' do='filter' live='true' update='filter2_list'>
+        <input name='f' id='filter2_in' value=''/>
+      </div>
+    </div>
+    <ul id='filter2_list' do='block' do='nodes where title like "%#{params[:f]}%" in site limit 2'>
+      <li id='fil2_#{id}' do='each' do='title'/>
+    </ul>
+  </div>
+
   <div class='test' id='form1' do='selenium'>
     <h3>form1</h3>
     <p>Form in [new] to create objects.</p>
