@@ -203,7 +203,7 @@ class VirtualClassesControllerTest < Zena::Controller::TestCase
             post_subject
             assert_response :success
             diff = assigns(:diff)
-            assert_match(/<ins class="differ">Foo/, diff)
+            assert_match(/<ins class="differ">.*Foo/, diff)
           end
         end
       end # importing virtual class definitions

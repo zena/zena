@@ -129,8 +129,9 @@ module Zena
             method = "render_to_#{opts[:format]}"
             if params.keys.include?('debug')
               opts[:cache] = false
-              params[:debug] = true
+              opts[:debug] = true
             end
+
             if respond_to?(method)
               # Call custom rendering engine 'render_to_pdf' for example.
               result = send(method, opts)
@@ -219,6 +220,8 @@ module Zena
         # Return true if we can cache the current page
         def caching_allowed(opts = {})
           return false if current_site.authentication? || query_params != {}
+          # Cache even if authenticated (public content).
+          #                       Content viewed by anonymous user should be cached anyway.
           opts[:authenticated] || visitor.is_anon?
         end
 
@@ -302,6 +305,7 @@ module Zena
 
         def r_style
           @markup.tag = 'style'
+          @markup.set_param(:type, 'text/css')
           expand_with
         end
 

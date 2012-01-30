@@ -82,7 +82,7 @@ class AclIntegrationTest < Zena::Integration::TestCase
             Zena::Db.execute "UPDATE acls SET format = 'csv' WHERE id = #{acls_id(:rap)}"
             login(:hades)
             # Create special mode template
-            secure(Template) { Template.create(:parent_id => nodes_id(:sky), :title => 'Node--csv', :text => 'foo;<r:title/>') }
+            secure(Template) { Template.create(:parent_id => nodes_id(:sky), :title => 'Node--csv', :text => %q{<r:spreadsheet><r:row><r:cell>foo</r:cell><r:cell eval='title'/></r:row></r:spreadsheet>}) }
             post 'http://erebus.host/session', :login=>'demeter', :password=>'demeter'
           end
 
@@ -94,7 +94,7 @@ class AclIntegrationTest < Zena::Integration::TestCase
           should 'allow given mode' do
             get "http://erebus.host/oo/project#{nodes_zip(:queen)}.csv"
             assert_response :success
-            assert_equal 'foo;My Queen', response.body
+            assert_equal "foo;My Queen;\n", response.body
           end
         end # with fixed format
 

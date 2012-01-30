@@ -84,12 +84,6 @@ map_join:
   src: "<r:children do='map(:flobo).join(\",\")'/>"
   tem: "/unknown method .*map\(:flobo\)/"
 
-query_on_vclass:
-  # typical syntax error (should be Contact?)
-  src: "<r:Contact><div do='pages in site'>...</div></r:Contact>"
-  # should not crash
-  tem: "/parser_error.*method.*pages in site.*No query builder for class VirtualClass/"
-
 datebox_on_vclass:
   src: "<r:Contact><r:input type='date' name='log_at'/></r:Contact>"
   tem: "/unknown method 'log_at\(\)' for .* VirtualClass./"

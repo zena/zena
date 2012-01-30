@@ -178,7 +178,7 @@ class NodesControllerTest < Zena::Controller::TestCase
 
         should 'insert cachestamp and render template' do
           get_subject
-          # 
+          #
           assert_redirected_to "/en/page18_info.js?#{nodes(:projects).updated_at.to_i}"
           get 'show', :path => subject[:path], :cachestamp => nodes(:projects).updated_at.to_i.to_s, :prefix => 'en'
           assert_response :success
@@ -700,7 +700,7 @@ class NodesControllerTest < Zena::Controller::TestCase
         # cache info ok
         get 'show', :prefix => 'en', :path => ["image#{node.zip}.jpg"], :cachestamp => node.updated_at.to_i
         assert_response :success
-        assert File.exist?("#{SITES_ROOT}/test.host/public/en/image#{node.zip}.jpg")
+        assert File.exist?(make_cache_path("#{SITES_ROOT}/test.host/public/en/image#{node.zip}.jpg", node))
       end
     end
   end
@@ -761,6 +761,10 @@ END:VCALENDAR
     end
   end
 
+  def make_cache_path(file, node)
+    "#{file}.#{node.updated_at.to_i}"
+  end
+
   def test_cache_css_auto_publish
     test_site('zena')
     Site.connection.execute    "UPDATE sites set auto_publish = #{Zena::Db::TRUE}, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
@@ -774,18 +778,20 @@ END:VCALENDAR
         assert !File.exist?(filename)
         get 'show', :prefix => 'en', :path => [name], :cachestamp => node.updated_at.to_i
         assert_response :success
-        assert File.exist?(filename) # cached page created
-        assert_match %r[body \{ background: #eee; color:#444;], File.read(filename)
+        cache1 = make_cache_path(filename, node)
+        assert File.exist?(cache1) # cached page created
+        assert_match %r[body \{ background: #eee; color:#444;], File.read(cache1)
         put 'save_text', :id => nodes_zip(:style_css), :node => {'text' => '/* empty */'}
         node = assigns['node']
         assert node.errors.empty?
         assert_equal Zena::Status::Pub, node.version.status
         assert_equal versions_id(:style_css_en), node.version.id # auto publish
-        assert !File.exist?(filename) # old cached page removed
+        assert !File.exist?(cache1) # old cached page removed
         get 'show', :prefix => 'en', :path => [name], :cachestamp => node.updated_at.to_i
         assert_response :success
-        assert File.exist?(filename) # cached page created again
-        assert_match %r[/\* empty \*/], File.read(filename)
+        cache2 = make_cache_path(filename, node)
+        assert File.exist?(cache2) # cached page created again
+        assert_match %r[/\* empty \*/], File.read(cache2)
       end
     end
   end

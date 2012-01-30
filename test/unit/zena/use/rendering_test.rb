@@ -54,7 +54,7 @@ class RenderingInControllerTest < Zena::Controller::TestCase
       class << @controller
         attr_reader :custom_rendering
         def render_to_xml(opts)
-          @custom_rendering = true
+          @custom_rendering = opts
           {
             :type => 'text/html',
             :data => render_to_string(:inline => %Q{<%= zazen(%q{Hello !30! "a link":30}) %>}),
@@ -69,7 +69,8 @@ class RenderingInControllerTest < Zena::Controller::TestCase
 
     should 'call render_to_format' do
       get_subject
-      assert @controller.custom_rendering
+      assert !@controller.custom_rendering[:debug]
+      assert_equal 'xml', @controller.custom_rendering[:format]
     end
 
     context 'with debug' do
@@ -77,9 +78,9 @@ class RenderingInControllerTest < Zena::Controller::TestCase
         {:action => 'show', :controller => 'nodes', :path => ["page#{nodes_zip(:projects)}.xml"], :prefix => 'en', :debug => 'true'}
       end
 
-      should 'not call render_to_format on debug' do
+      should 'pass debug to render_to_format on debug' do
         get_subject
-        assert_nil @controller.custom_rendering
+        assert @controller.custom_rendering[:debug]
       end
     end # with debug
 
@@ -126,7 +127,7 @@ class RenderingInControllerTest < Zena::Controller::TestCase
         assert_raise(ActionView::TemplateError) { get_subject }
       end # Not found rendering
     end # to raise not found
-    
+
     # Not working yet...
     # context 'to redirect' do
     #   setup do
@@ -134,7 +135,7 @@ class RenderingInControllerTest < Zena::Controller::TestCase
     #     make_template "<r:redirect url='http://feature-space.com'/>", @mode
     #     login(:anon)
     #   end
-    # 
+    #
     #   should 'redirect' do
     #     get_subject
     #     assert_redirected_to 'http://feature-space.com'

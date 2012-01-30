@@ -60,6 +60,10 @@ select_nodes:
   src: "<r:form><r:select nodes='images in site' name='foo'></select></r:form>"
   res: "/name='node\[foo\]'><option value=\"\" selected=\"selected\"></option>\n<option value=\"40\">Autumn Tree</option>\n<option value=\"30\">bird</option>/"
 
+select_nodes_show_rubyless:
+  src: "<r:form><r:select nodes='images in site' name='foo' show='title.limit(3)'></select></r:form>"
+  res: "/name='node\[foo\]'><option value=\"\" selected=\"selected\"></option>\n<option value=\"40\">Aut…</option>\n<option value=\"30\">bir…</option>/"
+
 do_not_set_parent_id_if_form_contains_parent_id:
   src: "<r:children><r:each do='title'/><r:add/><r:form><r:select name='parent_id' nodes='projects in site'/><input name='title'/></r:form></r:children>"
   res: "!/node\[parent_id\].\s+value/"

@@ -39,7 +39,7 @@ module Zena
     end
 
     def test_render
-      if params[:format] then
+      if params[:format] and params[:format] != 'html' then
         met = :"render_to_#{params[:format]}"
         if respond_to?(met)
           result = self.send(met, {:inline => @text})
@@ -47,9 +47,10 @@ module Zena
           headers.merge!(result[:type])
           return
         else
+          render :text => "Cannot handle #{params[:format]} rendering."
         end
       else
-        render :text => "Cannot handle #{params[:format]} rendering."
+        render :inline => @text
       end
     rescue => err
       render :text => ([err.message] + err.backtrace[0..4]).join("    \n")
@@ -80,6 +81,11 @@ module Zena
       params.delete(:node_id)
       params.delete(:text)
       params.delete(:url)
+
+      tz = params.delete(:tz)
+      if tz
+        visitor.time_zone = tz
+      end
 
       if controller = params.delete(:fake_controller)
         # This is used when we need url rewriting.

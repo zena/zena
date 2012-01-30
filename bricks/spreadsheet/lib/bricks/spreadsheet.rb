@@ -17,6 +17,10 @@ module Bricks
       end
 
       def cell(value)
+        if value.kind_of?(Time)
+          tz = visitor.tz
+          value = tz.utc_to_local(value)
+        end
         @cells << (value || '')
         "#{value};"
       end
@@ -50,7 +54,7 @@ module Bricks
         @sheets = []
       end
 
-      def sheet(name)
+      def sheet(name = nil)
         if name.kind_of?(Hash)
           name = name[:name]
         end
@@ -132,7 +136,7 @@ module Bricks
       end
 
       def render_spreadsheet(opts, type)
-        if params[:debug]
+        if opts[:debug]
           type = :html
         end
         # Get zafu template (compile if needed)
@@ -215,7 +219,7 @@ td{border:1px solid #444; padding:2px;}
         expand_if("#{r} = @spreadsheet")
       end
 
-      def r_sheet
+      def r_sheet(expand = true)
         if doc = get_context_var('spreadsheet', 'doc')
           s = get_var_name('spreadsheet', 'sheet')
           if name = @params[:name]
@@ -228,14 +232,22 @@ td{border:1px solid #444; padding:2px;}
             s,
             :class => Bricks::Spreadsheet::Sheet
           ))
-          expand_with
+          if expand
+            expand_with
+          end
         else
           parser_error("Should only be called in a spreadsheet context.")
         end
       end
 
       def r_row
-        if sheet = get_context_var('spreadsheet', 'sheet')
+        sheet = get_context_var('spreadsheet', 'sheet')
+        if !sheet
+          # Allow sheet to be omitted.
+          r_sheet(false)
+          sheet = get_context_var('spreadsheet', 'sheet')
+        end
+        if sheet
           r = get_var_name('spreadsheet', 'row')
           out "<% #{r} = #{sheet}.row %>"
           set_context_var('spreadsheet', 'row', RubyLess::TypedString.new(

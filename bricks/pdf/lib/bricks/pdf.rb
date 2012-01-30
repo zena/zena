@@ -58,7 +58,7 @@ module Bricks
 
     module ControllerMethods
       def render_to_pdf(opts)
-        if params[:debug]
+        if opts[:debug]
           template_path = template_url(opts)
           result = {
             :data         => render_to_string(:file => template_path, :layout=>false),

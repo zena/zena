@@ -293,14 +293,39 @@ module Zena
         rescue TZInfo::AmbiguousTime
           ''
         end
+
+        def to_date_tz(tz = nil)
+          if tz.blank?
+            tz = visitor.tz
+          elsif tz.kind_of?(String)
+            tz = TZInfo::Timezone.get(tz)
+          end
+          tz.utc_to_local(self).to_date
+        rescue TZInfo::InvalidTimezoneIdentifier
+          ''
+        rescue TZInfo::AmbiguousTime
+          ''
+        end
       end
 
       module ZafuMethods
         include RubyLess
+        safe_method_for Time, [:advance, {
+          :years   => Number,
+          :months  => Number,
+          :weeks   => Number,
+          :days    => Number,
+          :hours   => Number,
+          :minutes => Number,
+          :seconds => Number}] => Time
+        safe_method_for Time, :to_i    => {:class => Number, :pre_processor => true}
         safe_method_for Time, :year       => {:class => Number, :pre_processor => true}
         safe_method_for Time, [:strftime, String] => {:class => String, :pre_processor => true, :method => 'strftime_tz'}
         safe_method_for Time, [:strftime, String, String] => {:class => String, :pre_processor => true, :method => 'strftime_tz'}
         safe_method_for Time, [:strftime, String, TZInfo::Timezone] => {:class => String, :pre_processor => true, :method => 'strftime_tz'}
+        safe_method_for Time, :to_date => {:class => Date, :pre_processor => true, :method => 'to_date_tz'}
+        safe_method_for Time, [:to_date, String] => {:class => Date, :pre_processor => true, :method => 'to_date_tz'}
+        safe_method_for Time, [:to_date, TZInfo::Timezone] => {:class => Date, :pre_processor => true, :method => 'to_date_tz'}
         safe_method_for TZInfo::Timezone, :to_s => {:class => String, :pre_processor => true}
 
         safe_method :date                     => :get_date

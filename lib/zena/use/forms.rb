@@ -776,10 +776,13 @@ module Zena
                 nodes = finder[:method]
               end
 
-              set_attr  = ::RubyLess.translate(klass, @params[:attr] || 'id')
-              show_attr = ::RubyLess.translate(klass, @params[:show] || 'title')
+              set_attr, show_attr = nil
+              with_context(:node => node.move_to('r', klass)) do
+                set_attr  = ::RubyLess.translate(self, @params[:attr] || 'id')
+                show_attr = ::RubyLess.translate(self, @params[:show] || 'title')
+              end
 
-              options_list = "[['','']] + (#{nodes} || []).map{|r| [r.#{show_attr}, r.#{set_attr}.to_s]}"
+              options_list = "[['','']] + (#{nodes} || []).map{|r| [#{show_attr}, #{set_attr}.to_s]}"
             elsif values = @params[:values]
               options_list = values.split(',').map(&:strip)
 

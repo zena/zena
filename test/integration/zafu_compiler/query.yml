@@ -247,3 +247,10 @@ find_with_rubyless:
 find_loads_class:
   src: "<div do='find(11)'><r:origin/></div>"
   tem: "<% if var1 = find_node_by_zip(11) %><div><%= var1.prop['origin'] %></div><% end %>"
+
+query_on_vclass:
+  # typical syntax error (should be Contact?)
+  src: "<r:Contact><div do='pages in site order by zip asc limit 2' do='each' join=',' do='title'/></r:Contact>"
+  # does the query on last @node
+  tem: "/Node.do_find/"
+  res: '<div>Zena the wild CMS,people</div>'

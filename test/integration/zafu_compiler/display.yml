@@ -394,7 +394,7 @@ array_literal:
 
 style_tag:
   src: "<r:style>.foo <r:title/></r:style>"
-  res: "<style>.foo status title</style>"
+  res: "<style type='text/css'>.foo status title</style>"
 
 each_alternate_class:
   context:

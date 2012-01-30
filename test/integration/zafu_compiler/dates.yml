@@ -49,9 +49,9 @@ uses_datebox_missing_lang:
   src: "<r:uses_datebox/>"
   tem: "/calendar/lang/calendar-en-utf8.js/"
 
-show_date_foo:
+show_current_date:
   context:
-    date: '2010-05-16'
+    date: '16.5.2010'
     lang: fr
   src: "<r:show eval='date' format='%A %d.%m.%Y'/>"
   tem: "/main_date/"
@@ -170,5 +170,5 @@ format_date_empty_string:
   res: ""
 
 date_empty_value:
-  src: "<r:input name='date' value=''/>"
-  tem: "x"
+  src: "<r:input name='created_at' value=''/>"
+  tem: "<input type='text' name='node[created_at]' value=''/>"

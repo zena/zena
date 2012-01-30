@@ -8,10 +8,7 @@ test:
   sphinx:      OFF
   worker:      OFF
   uv:          OFF
-  spreadsheet:
-    switch:  ON
-    activate_if:
-      gem: 'simple_xlsx'
+  spreadsheet: ON
 
 
 development:

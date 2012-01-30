@@ -4,7 +4,7 @@
  * Added 'remove_from_db' method to remove a site from the database.
  * Fixed asset caching PLEASE FIX YOUR VHOST FILES: rake zena:create_vhost -s host='xxxxx'.
  * Fixed deadlock_retry (a bug in the error message aborted the retry).
- * Created 'spreadsheet' brick to ease xlsx and csv generation.
+ * Created 'spreadsheet' brick to ease xlsx and csv generation. <===== TODO: Document
 
 * Minor changes
  * Enabled Acl during document upload.
@@ -13,6 +13,7 @@
  * Enabled 'alt_class' to work on multiple elements ([each]).
  * Fixed ajax bugs with dom_ids in nested partials.
  * Better Acl display, comments on relations.
+ * Support for 'to_date' on time object with proper timezone translation. <===== TODO: Document
 
 == 1.1.3 2011-11-09
 
