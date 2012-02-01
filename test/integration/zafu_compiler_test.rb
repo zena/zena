@@ -356,5 +356,12 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     yt_do_test('relations', 'same_name_as_class')
   end
 
+  def test_dates_time_year
+    login(:lion)
+    node = secure(Node) { nodes(:opening) }
+    node.update_attributes!(:date => Time.utc(2012,1,1,0,0))
+    yt_do_test('dates', 'time_year')
+  end
+
   yt_make
 end

@@ -138,7 +138,9 @@ module Zena
       gem_configuration.each do |gem_name, gem_config|
         if gem_config
           conf = gem_config.symbolize_keys
-          conf[:version].gsub!(/\A=\s*/,'')
+          if conf[:version]
+            conf[:version].gsub!(/\A=\s*/,'')
+          end
           if conf[:optional]
             if brick = conf[:brick]
               if Bricks::CONFIG[brick]

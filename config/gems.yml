@@ -16,13 +16,14 @@ open4:
 daemons:        # upload progress
 gem_plugin:     # upload progress
 simple_xlsx_writer:    # spreadsheet
+  lib:          'simple_xlsx'
 
 querybuilder:   '= 1.1.0'
 yamltest:       '= 0.7.0'
 rubyless:       '= 0.8.6'
 property:       '= 2.2.0'
 versions:       '= 0.3.1'
-zafu:           '= 0.8.5'
+zafu:           '= 0.8.6'
 
 jeweler:
 

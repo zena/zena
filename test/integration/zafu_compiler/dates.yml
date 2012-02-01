@@ -172,3 +172,16 @@ format_date_empty_string:
 date_empty_value:
   src: "<r:input name='created_at' value=''/>"
   tem: "<input type='text' name='node[created_at]' value=''/>"
+
+time_to_date:
+  context:
+    tz: 'US/Pacific'
+  src: "<b do='created_at.to_date'/> <b do='created_at.to_date(\"UTC\")'/>"
+  res: "<b>2006-03-09</b> <b>2006-03-10</b>"
+
+time_year:
+  context:
+    node: opening
+    tz: 'US/Pacific'
+  src: "<r:Post?><b do='this.date.year'/> <b do='this.date.year(\"UTC\")'/></r:Post?>"
+  res: "<b>2011</b> <b>2012</b>"

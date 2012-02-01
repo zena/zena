@@ -14,6 +14,7 @@
  * Fixed ajax bugs with dom_ids in nested partials.
  * Better Acl display, comments on relations.
  * Support for 'to_date' on time object with proper timezone translation. <===== TODO: Document
+ * Time to 'year' should use timezone.
 
 == 1.1.3 2011-11-09
 
