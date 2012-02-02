@@ -18,3 +18,8 @@ translations:
   crop: rogner
   no_parent: pas de parent
   admin_interface: interface admin
+  # Used to test options list in [select].
+  assigned_:  '--'
+  assigned_1: foo
+  assigned_2: bar
+  assigned_3: baz

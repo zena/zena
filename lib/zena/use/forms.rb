@@ -790,6 +790,16 @@ module Zena
                 show_values = show.split(',').map(&:strip)
               elsif show = @params[:tshow]
                 show_values = translate_list(show)
+              else
+                tprefix = @params[:tprefix] || @params[:name]
+                show_values = options_list.map do |v|
+                  t = trans("#{tprefix}_#{v}")
+                  if t == "#{tprefix}_"
+                    ''
+                  else
+                    t
+                  end
+                end
               end
 
               if show_values

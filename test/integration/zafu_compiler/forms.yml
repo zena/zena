@@ -284,3 +284,10 @@ should_show_fields_for_columns:
   src: "<r:form><r:Document do='column(\"size\")' do='input'/></r:form>"
   tem: "/input type='text' name='node\\[<%= var2.name %>\\]/"
   res: "/<input type='text' name='node\\[size\\]' value='63569'/>/"
+
+should_show_fields_for_columns:
+  context:
+    lang: 'fr'
+  src: "<r:load dictionary='/Default skin/translations'><r:form><r:select name='assigned' values=',1,2,3'/></r:form></r:load>"
+  tem: "/foo.*bar/"
+  res: "/value=\"1\">foo<\/option>\n<option value=\"2\">bar/"
