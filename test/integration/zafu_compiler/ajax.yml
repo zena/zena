@@ -191,8 +191,8 @@ live_filter_single_element:
 live_filter_select_options:
   context:
     node: cleanWater
-  src: "<r:filter live='true' do='select' param='f' values='1,2'/><r:block><ol do='pages where title like \"#{params[:f]}%\"'><li do='each' do='title'/></ol></r:block>"
-  tem: "/select name=.f.><%= options_for_select\(\[.1., .2.\], param_value\(.f.\).to_s/"
+  src: "<r:filter live='true' do='select' param='f' tprefix='foo' values='1,2'/><r:block><ol do='pages where title like \"#{params[:f]}%\"'><li do='each' do='title'/></ol></r:block>"
+  tem: "/select name=.f.><%= options_for_select.*.foo_1., .1..*, param_value\(.f.\).to_s/"
   'ajax/live/filter/select/options/en/list1.erb': "/<div id='<%= ndom_id\(@node\) %>'.*params\[:f\]/"
   res: "/<select name='f'.*<div id='list1'><ol><li>crocodiles</li><li>status title</li></ol></div>/"
 

@@ -626,12 +626,12 @@ Zena.select_tab = function(name) {
   current_tab.style.display = '';
 }
 
-Zena.reloadAndClose = function() {
+Zena.reloadAndClose = function(href) {
   if (opener && !opener.is_editor) {
-    opener.window.location.href = opener.window.location.href;
+    opener.window.location.href = href || opener.window.location.href;
     window.close();
   } else if (parent != window) {
-    parent.window.location.href = parent.window.location.href;
+    parent.window.location.href = href || parent.window.location.href;
   } else {
     window.close();
   }

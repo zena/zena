@@ -596,7 +596,18 @@ module Zena
           return parser_error("only works with nodes (not with #{node.klass})") unless node.will_be?(Node)
           @markup.append_param(:class, 'btn_add')
           node = self.node.list_context? ? self.node.up : self.node
-          res = node_action_link('add_doc', "<%= #{node}.zip %>", :text => text_for_link(''))
+
+          params = {}
+          @params.each do |k,v|
+            next if [:attr, :eval, :text, :t].include?(k)
+            v = RubyLess.translate_string(self, v)
+            if v.literal
+              params[k] = CGI.escape(v.literal)
+            else
+              params[k] = "<%= CGI.escape(#{v}) %>"
+            end
+          end
+          res = node_action_link('add_doc', "<%= #{node}.zip %>", :text => text_for_link(''), :params => params)
           "<% if #{node}.can_write? %>#{wrap(res)}<% end %>"
         end
 

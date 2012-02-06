@@ -6,10 +6,14 @@ module Zena
         # This method renders an action link without using Rails actions so that we can feed it with
         # erb from Zafu.
         def node_action_link(action, node_zip, opts={})
-          publish = opts[:publish]
           text  = opts[:text].blank? ? _("btn_#{action}") : opts[:text]
           title = opts[:title] || _("btn_title_#{action}")
-          query = publish ? ["?=#{publish}"] : []
+          query = []
+          if params = opts[:params]
+            params.each do |k,v|
+              query << "#{k}=#{v}"
+            end
+          end
 
           if %w{edit drive add_doc}.include?(action)
             case action
@@ -223,7 +227,7 @@ class #{node.klass}: #{Array(node.klass).first.columns.keys.join(', ')}
         end
 
         def r_action
-          return parser_error("Missing 'action' parameter.") unless action = @params[:select]
+          return parser_error("Missing 'select' parameter.") unless action = @params[:select]
 
           if self.node.will_be? Node
             node = self.node
@@ -233,7 +237,12 @@ class #{node.klass}: #{Array(node.klass).first.columns.keys.join(', ')}
             return parser_error("Invalid option 'actions' for #{node.klass}.")
           end
 
-          out node_action_link(action, "<%= #{node}.zip %>", :text => text_for_link(''), :publish => @params[:publish])
+          params = {}
+          @params.each do |k,v|
+            next if k == :select
+            params[k] = RubyLess.translate_string(self, v)
+          end
+          out node_action_link(action, "<%= #{node}.zip %>", :text => text_for_link(''), :params => params)
         end
 
         def filter_actions

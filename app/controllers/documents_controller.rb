@@ -61,7 +61,11 @@ class DocumentsController < ApplicationController
         else
           page.call 'UploadProgress.setAsFinished'
           page.delay(1) do # allow the progress bar fade to complete
-            page.redirect_to document_url(@node[:zip])
+            if params[:redir]
+              page << "Zena.reloadAndClose(#{params[:redir].inspect})"
+            else
+              page.redirect_to document_url(@node[:zip])
+            end
           end
         end
       end

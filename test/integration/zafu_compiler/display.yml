@@ -186,6 +186,11 @@ cannot_add_document:
   src: "<r:add_document/>"
   res: ''
 
+add_document_redir:
+  src: "<r:add_document redir='#{url}'/>"
+  tem: "/redir=<%= CGI.escape\(\"#\{zen_url\(@node\)\}\"\) %>/"
+  res: "/Zena.open_window.*%2Fpage22.html/"
+
 img_no_image:
   src: "<r:img/>"
   tem: "<%= img_tag(@node, :mode=>\"std\") %>"
