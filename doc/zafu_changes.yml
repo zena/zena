@@ -35,7 +35,7 @@ v_title: "title"
 "<r:text/>": "mat"
 "on_if_node='ancestor'": "on_if='is_ancestor?(main)'"
 "<div do='admin_links'/>": "<ol class='admin_links' do='admin_links'>
-    <li do='each' do='show'><a href='#'>do this</a></li>
+    <li do='each' do='show'><a href='javascript:void(0)'>do this</a></li>
   </ol>"
 "set_class='li_s[v_status]'": "class='li_s#{v.status}'"
 "<meta name='keywords' do='void' set_content='[d_keywords]'/>": "<meta name='keywords' content='#{keywords}'/>"

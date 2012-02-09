@@ -475,7 +475,7 @@ module Zena
                 end
               end
               next if nodes.empty?
-              res << "  <li><a class='group' onclick='$(\"dev_#{name}\").toggle();' href='#'>#{name}</a>\n"
+              res << "  <li><a class='group' onclick='$(\"dev_#{name}\").toggle();' href='javascript:void(0)'>#{name}</a>\n"
               res << "  <table class='dev_pop' id='dev_#{name}'#{name == 'images' ? " style='display:none;'" : ''}>\n"
               if template && name == 'zafu'
                 # Create specialized template on the fly for current page
@@ -502,7 +502,7 @@ module Zena
               res << "  </li>\n"
             end
 
-            res << "  <li><a class='group' onclick='$(\"dev_tools\").toggle();' href='#'>tools</a>\n"
+            res << "  <li><a class='group' onclick='$(\"dev_tools\").toggle();' href='javascript:void(0)'>tools</a>\n"
             res << "    <ul class='dev_pop' id='dev_tools'><li>\n"
             res << %Q{    <div style='float:right'><% form_for(:user, visitor, :url => user_path(visitor), :html => { :method => :put }) do |f| %>
               <p><%= f.select(:dev_skin_id, dev_skin_options, {}, {:onchange => 'this.form.submit()'}) %> <input style='display:none;' type='submit' value='<%= _('validate') %>'/></p>

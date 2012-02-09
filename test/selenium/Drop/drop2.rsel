@@ -1,30 +1,30 @@
 open '/oo/testnode37.html?test=drop2'
-assert_element_not_present 'drop22_29_33'
+assert_element_not_present 'drop23_29_33'
 
 # Drag & Drop
 set_timeout 4000
 command 'setSpeed', 10
-drag_and_drop_to_object 'css=#drop21_33 > span.drag_handle', 'drop22_29'
-wait_for_element_present 'drop22_29_33'
-verify_text 'drop22_29_33', 'Art'
+drag_and_drop_to_object 'css=#drop21_33 > span.drag_handle', 'drop23_29'
+wait_for_element_present 'drop23_29_33'
+verify_text 'drop23_29_33', 'Art'
 # Unlink
-click 'css=#drop22_29_33 img[alt=remove]'
-wait_for_element_not_present 'drop22_29_33'
+click 'css=#drop23_29_33 img[alt=remove]'
+wait_for_element_not_present 'drop23_29_33'
 
 # Drag in other target
 
 # Drag & Drop
-drag_and_drop_to_object 'css=#drop21_33 > span.drag_handle', 'drop22_21'
-wait_for_element_present 'drop22_21_33'
-verify_text 'drop22_21_33', 'Art'
+drag_and_drop_to_object 'css=#drop21_33 > span.drag_handle', 'drop23_21'
+wait_for_element_present 'drop23_21_33'
+verify_text 'drop23_21_33', 'Art'
 
 # Make sure the changes are commited to db
 open '/oo/testnode37.html?test=drop2'
-assert_element_present 'drop22_21_33'
+assert_element_present 'drop23_21_33'
 # Should be
-# assert_element_present 'drop22_21_33'
+# assert_element_present 'drop23_21_33'
 # Unlink
-click 'css=#drop22_21_33 img[alt=remove]'
-wait_for_element_not_present 'drop22_21_33'
+click 'css=#drop23_21_33 img[alt=remove]'
+wait_for_element_not_present 'drop23_21_33'
 
 command 'setSpeed', 0

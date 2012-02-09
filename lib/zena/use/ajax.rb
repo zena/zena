@@ -138,6 +138,9 @@ module Zena
               end
             end
           end
+          if params[:redir]
+            page << "window.location.href = '#{params[:redir]}';"
+          end
           page << render_js(false)
         end
 
@@ -313,6 +316,9 @@ module Zena
             # We reuse the 'each' block.
             target = parent
           else
+            # Avoid altering parent node
+            @context[:node] = node.dup
+
             node.dom_prefix = dom_name
             target = self
           end

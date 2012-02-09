@@ -123,6 +123,30 @@
     </ul>
   </div>
 
+  //! swap1
+  <div class='test' id='swap1' do='selenium' do='root'>
+    <h3>swap1</h3>
+    <p>Swap value in [block].</p>
+    <div id='swap1_s' class='#{origin}' do='block'>
+      <span id='swap1_span' do='if' test='origin' do='origin'/>
+      <r:swap attr='origin' states=',bob' do='t'>swap</r:swap>
+    </div>
+  </div>
+
+  //! swap2
+  <div class='test' id='swap2' do='selenium' do='root'>
+    <h3>swap2</h3>
+    <p>Swap value in [block] with [drop] in same block.</p>
+    <div id='swap2_s' class='#{origin}' do='block'>
+      <span id='swap2_span' do='if' test='origin' do='origin'/>
+      <r:swap attr='origin' states=',bob' do='t'>swap</r:swap>
+      <ul do='drop' set='reference' change='receiver' do='references'>
+        <li class='#{id}' do='each'><r:unlink/> <r:title/></li>
+      </ul>
+    </div>
+  </div>
+
+  //! toggle1
   <div class='test' id='toggle1' do='selenium'>
     <h3>toggle1</h3>
     <p>Toggle relation in list.</p>

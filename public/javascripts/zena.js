@@ -765,8 +765,8 @@ Zena.popup_wrap = function(img, config) {
       gallery.prev  = gallery.list[index - 1];
       gallery.next  = gallery.list[index + 1];
 
-      if (gallery.prev) content += "<a id='pg_prev' href='#' onclick='Zena.popup($(\""+gallery.prev.id+"\"));return false;' title='previous image'>&nbsp;</a>";
-      if (gallery.next) content += "<a id='pg_next' href='#' onclick='Zena.popup($(\""+gallery.next.id+"\"));return false;' title='next image'>&nbsp;</a>";
+      if (gallery.prev) content += "<a id='pg_prev' href='javascript:void(0)' onclick='Zena.popup($(\""+gallery.prev.id+"\"));return false;' title='previous image'>&nbsp;</a>";
+      if (gallery.next) content += "<a id='pg_next' href='javascript:void(0)' onclick='Zena.popup($(\""+gallery.next.id+"\"));return false;' title='next image'>&nbsp;</a>";
     } else {
       content += "<div class='"+key+"'>" + config.fields[key] + "</div>";
     }

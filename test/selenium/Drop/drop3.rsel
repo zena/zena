@@ -1,36 +1,36 @@
 # Drag from list in each.
 open '/oo/testnode37.html?test=drop3'
-assert_element_not_present 'drop33_26'
+assert_element_not_present 'drop34_26'
 
 # Drag & Drop
 set_timeout 4000
-drag_and_drop_to_object 'css=#drop12_21_26 > span.drag_handle', 'drop32'
-wait_for_element_present 'drop33_26'
-verify_text 'drop33_26', 'crocodiles'
+drag_and_drop_to_object 'css=#drop31_21_26 > span.drag_handle', 'drop33'
+wait_for_element_present 'drop34_26'
+verify_text 'drop34_26', 'crocodiles'
 # Unlink
 click 'css=img[alt=remove]'
-wait_for_element_not_present 'drop33_26'
+wait_for_element_not_present 'drop34_26'
 
 # Restart
 
 # Drag & Drop
-drag_and_drop_to_object 'css=#drop12_21_26 > span.drag_handle', 'drop32'
-wait_for_element_present 'drop33_26'
-verify_text 'drop33_26', 'crocodiles'
+drag_and_drop_to_object 'css=#drop31_21_26 > span.drag_handle', 'drop33'
+wait_for_element_present 'drop34_26'
+verify_text 'drop34_26', 'crocodiles'
 
 # Drag & Drop from other location
 command 'setSpeed', 800
-drag_and_drop_to_object 'css=#drop12_11_12 > span.drag_handle', 'drop32'
-wait_for_element_present 'drop33_12'
-verify_text 'drop33_12', 'people'
+drag_and_drop_to_object 'css=#drop31_11_12 > span.drag_handle', 'drop33'
+wait_for_element_present 'drop34_12'
+verify_text 'drop34_12', 'people'
 command 'setSpeed', 0
 
 # Make sure the changes are commited to db
 open '/oo/testnode37.html?test=drop3'
-assert_element_present 'drop33_26'
-assert_element_present 'drop33_12'
+assert_element_present 'drop34_26'
+assert_element_present 'drop34_12'
 # Unlink
-click 'css=#drop33_26 img[alt=remove]'
-wait_for_element_not_present 'drop33_26'
-click 'css=#drop33_12 img[alt=remove]'
-wait_for_element_not_present 'drop33_12'
+click 'css=#drop34_26 img[alt=remove]'
+wait_for_element_not_present 'drop34_26'
+click 'css=#drop34_12 img[alt=remove]'
+wait_for_element_not_present 'drop34_12'

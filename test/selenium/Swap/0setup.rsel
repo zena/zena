@@ -1,0 +1,12 @@
+# See also the RDoc for SeleniumOnRails::TestBuilder.
+# View result in browser: http://test.host:3000/selenium
+
+setup :fixtures => :all
+
+# Setup code
+open '/login'
+type 'user_login', 'lion'
+type 'password', 'lion'
+click_and_wait 'commit'
+click_and_wait 'link=Kill the bugs'
+verify_text '_title37', 'Kill the bugs'

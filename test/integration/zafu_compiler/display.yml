@@ -267,7 +267,7 @@ admin_links_for_admin:
 admin_links_for_admin_with_list:
   context:
     visitor: lion
-  src: "<ul do='admin_links' list='comments,sites'><li do='each' do='show'><a href='#'>do this</a></li></ul>"
+  src: "<ul do='admin_links' list='comments,sites'><li do='each' do='show'><a href='javascript:void(0)'>do this</a></li></ul>"
   tem: '/if var1 = admin_links\(\{:list => "comments,sites"\}/'
   res: '<ul><li><a href="/comments">comments</a></li><li><a href="/sites">sites</a></li></ul>'
 

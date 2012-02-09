@@ -156,7 +156,7 @@ query:
     node: cleanWater
     qb: "nodes where updated_at.year = 2007 in project"
   src: "<r:query default='nodes in project' do='each' join=', ' do='title'/>"
-  tem: "/if var1 = query\('Node', \"@node\", params\[:qb\] \|\| \"nodes in project\"\)/"
+  tem: "/if var1 = query\('Node', \"@node\", params\[:qb\] \|\| \"nodes in project\", :find => :all, :binding => binding\)/"
   res: 'crocodiles'
 
 query_with_default:
@@ -191,7 +191,7 @@ query_with_parse:
     filter:
       title: 'status title'
   src: "<r:query default='pages in site' select='pages where #{query_parse(params[:filter])} in site' do='each' join=', ' do='title'/>"
-  tem: '/query.*pages where #\{query_parse\(params\[:filter\]\)\} in site\"\)/'
+  tem: '/query.*pages where #\{query_parse\(params\[:filter\]\)\} in site\"/'
   res: 'status title'
 
 query_with_parse_paginate:
@@ -207,6 +207,25 @@ query_can_be_nil_bad_argument_type:
   src: "<r:query default='pages in site' eval='params[:filter]' do='each' join=', ' do='title'/>"
   tem: '/params\[:filter\] \|\| \"pages in site\"/'
   res: ''
+
+query_eval_in_sub_context:
+  # Live compile and query from params
+  context:
+    visitor: lion
+    node: cleanWater
+    scope: 'self'
+  # Should pass binding so that local var3 is recognized
+  src: "<r:parent do='main'><r:query select='pages' default='pages' do='each' join=', ' do='title'/></r:parent>"
+  res: 'crocodiles, Nice Bananas, status title'
+
+query_eval_find_one:
+  # Live compile and query from params
+  context:
+    visitor: lion
+    node: cleanWater
+  src: "<r:query select='page' default='page' do='link'/>"
+  tem: "/<%= zen_path\(var1\) %>/"
+  res: "/<a href='.*26.html'>crocodiles</a>/"
 
 query_count:
   tem: '<%= query("Page", "@node", "pages in site", :type => :count) %>'

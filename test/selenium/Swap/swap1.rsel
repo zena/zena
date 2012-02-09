@@ -1,0 +1,13 @@
+open '/oo/testnode37.html?test=swap1'
+
+assert_element_not_present 'swap1_span'
+
+# swap
+click 'css=#swap1_s a'
+wait_for_element_present 'swap1_span'
+verify_text "css=#swap1_span", "bob"
+assert_element_present 'css=#swap1_s.bob'
+
+# swap back
+click 'css=#swap1_s a'
+wait_for_element_not_present 'swap1_span'

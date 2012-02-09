@@ -202,7 +202,7 @@ module Zena
               # Inline form used to create new elements: set values to '' and 'parent_id' from context
               opts[:id]          = "#{node.dom_prefix}_0"
               opts[:form_tag]    = "<% remote_form_for(:#{node.form_name}, #{node}, :url => #{node.form_name.pluralize}_path, :html => {:id => \"#{dom_name}_form_t\"}) do |f| %>"
-              opts[:form_cancel] = "#{cancel_pre}<a href='#' onclick='[\"#{dom_name}_add\", \"#{dom_name}_0\"].each(Element.toggle);return false;'>#{cancel_text}</a>#{cancel_post}\n"
+              opts[:form_cancel] = "#{cancel_pre}<a href='javascript:void(0)' onclick='[\"#{dom_name}_add\", \"#{dom_name}_0\"].each(Element.toggle);return false;'>#{cancel_text}</a>#{cancel_post}\n"
             else
 
               # Saved form
@@ -223,7 +223,7 @@ module Zena
 
               opts[:form_cancel] = %Q{
   <% if #{node}.new_record? %>
-  #{cancel_pre}<a href='#' onclick='[\"<%= params[:dom_id] %>_add\", \"<%= params[:dom_id] %>\"].each(Element.toggle);return false;'>#{cancel_text}</a>#{cancel_post}
+  #{cancel_pre}<a href='javascript:void(0)' onclick='[\"<%= params[:dom_id] %>_add\", \"<%= params[:dom_id] %>\"].each(Element.toggle);return false;'>#{cancel_text}</a>#{cancel_post}
   <% else %>
   #{cancel_pre}<%= link_to_remote(#{cancel_text_ruby}, :url => #{node.form_name}_path(#{node}.zip) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}#{@context[:has_link_id] ? "&link_id=\#{#{node}.link_id}" : ''}\", :method => :get) %>#{cancel_post}
   <% end %>
@@ -322,11 +322,19 @@ module Zena
                   hidden_fields['done'] = "'$(\"#{erb_dom_id}_form_t\").focusFirstElement();'"
                 end
               elsif params[:done]
-                hidden_fields['done'] = CGI.escape(params[:done])
+                done = RubyLess.translate_string(self, params[:done])
               end
             else
               # ajax form, not in 'add'
-              hidden_fields['done'] = CGI.escape(@params[:done]) if @params[:done]
+              done = RubyLess.translate_string(self, @params[:done])
+            end
+            if done
+              if done.literal
+                done = done.literal
+              else
+                done = "<%= fquote #{done} %>"
+              end
+              hidden_fields['done'] = done
             end
           else
             # no ajax

@@ -29,9 +29,9 @@ module Zena
                 :rubyless_helper => zafu_helper.helpers
               )
               if type == :count
-                return klass.do_find(:count, eval(query.to_s(:count)))
+                return klass.do_find(:count, eval(query.to_s(:count), opts[:binding] || binding))
               else
-                return klass.do_find(:all, eval(query.to_s))
+                return klass.do_find(opts[:find] || :all, eval(query.to_s, opts[:binding] || binding))
               end
             rescue ::QueryBuilder::Error => err
               @query_errors = "<span class='query'>#{pseudo_sql}</span> <span class='error'>#{err}</span>"
@@ -151,12 +151,12 @@ module Zena
 
         # Dynamic query mocks the QueryBuilder::Query
         class DynamicQuery
-          def initialize(default, node, sql)
-            @default, @node, @sql = default, node, sql
+          def initialize(default, node, sql, count)
+            @default, @node, @sql, @count = default, node, sql, count
           end
 
           def to_s(type = :find)
-            base = "'#{@node.klass}', #{@node.to_s.inspect}, #{@sql}"
+            base = "'#{@node.klass}', #{@node.to_s.inspect}, #{@sql}, :find => #{@count.inspect}, :binding => binding"
             case type
             when :find
               return "query(#{base})"
@@ -177,14 +177,15 @@ module Zena
           return parser_error("Cannot be used in list context (#{node.class_name})") if node.list_context?
           return parser_error("Missing 'default' query") unless default_psql = @params[:default]
 
+          count = get_count(default_psql, {:find => @params[:find]})
           begin
-            default = build_finder(:all, default_psql, {})
+            default = build_finder(count, default_psql, {})
             default_query = default[:query]
           rescue ::QueryBuilder::Error => err
             return parser_error(err.message)
           end
 
-          klass = [default_query.main_class]
+          klass = count == :all ? [default_query.main_class] : default_query.main_class
 
           can_be_nil = true
           if sql = @params[:eval]
@@ -204,8 +205,8 @@ module Zena
             sql = "#{sql} || #{default_psql.inspect}"
           end
 
-          query = DynamicQuery.new(default_query, node, sql)
-          expand_with_finder(:method => query.to_s, :class => [query.main_class], :nil => true, :query => query)
+          query = DynamicQuery.new(default_query, node, sql, count)
+          expand_with_finder(:method => query.to_s, :class => klass, :nil => true, :query => query)
         end
 
         # Pre-processing of the 'find("...")' method.
