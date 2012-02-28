@@ -137,6 +137,10 @@
   <div class='test' id='swap2' do='selenium' do='root'>
     <h3>swap2</h3>
     <p>Swap value in [block] with [drop] in same block.</p>
+    <ul do='pages in site limit 3'>
+      <li do='each' draggable='true' do='title'/>
+    </ul>
+
     <div id='swap2_s' class='#{origin}' do='block'>
       <span id='swap2_span' do='if' test='origin' do='origin'/>
       <r:swap attr='origin' states=',bob' do='t'>swap</r:swap>
@@ -203,6 +207,7 @@
     </ul>
   </div>
 
+  //! form1
   <div class='test' id='form1' do='selenium'>
     <h3>form1</h3>
     <p>Form in [new] to create objects.</p>
@@ -213,11 +218,25 @@
     </r:new>
   </div>
 
+  //! form2
   <div class='test' id='form2' do='selenium'>
     <h3>form2</h3>
     <p>Form to update object.</p>
     <r:form node[v_status]='50'>
       <r:input label='t' name='title'/>
+    </r:form>
+  </div>
+
+  //! form3
+  <div class='test' id='form3' do='selenium'>
+    <h3>form3</h3>
+    <p>Form to update object with checkbox.</p>
+    <r:form node[v_status]='50'>
+      <ul>
+        <li><r:input label='t' name='title'/></li>
+        <li style='margin-top:1em; border-top:1px solid black;'><r:checkbox role='set_tag' nodes='tags in site'/></li>
+        <li><r:input type='submit'/></li>
+      </ul>
     </r:form>
   </div>
 

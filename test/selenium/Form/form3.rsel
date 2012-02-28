@@ -1,0 +1,15 @@
+open "/oo/testnode37.html?test=form3"
+type "form31_title", "Heal the bugs!"
+# submit
+assert_not_checked 'css=input[value=34]'
+click 'css=input[value=34]'
+click_and_wait 'css=input[type=submit]'
+
+# Redirected to same page
+assert_location "http://test.host:3000/oo/testnode37.html"
+open "/oo/testnode37.html?test=form3"
+assert_checked 'css=input[value=34]'
+click 'css=input[value=34]'
+click_and_wait 'css=input[type=submit]'
+open "/oo/testnode37.html?test=form3"
+assert_not_checked 'css=input[value=34]'

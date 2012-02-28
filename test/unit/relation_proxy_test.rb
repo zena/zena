@@ -83,6 +83,42 @@ class RelationProxyTest < Zena::Unit::TestCase
     assert_equal [nodes_id(:art)], node.set_tag_ids
     assert_equal [nodes_zip(:art)], node.set_tag_zips
   end
+  
+  def test_set_tag_ids_with_blank
+    login(:tiger)
+    node = secure!(Node) { nodes(:status) }
+    assert node.update_attributes( 'set_tag_ids' => ['', nodes_id(:art).to_s] )
+    assert_equal [nodes_id(:art)], node.rel['set_tag'].other_ids
+
+    node = secure!(Node) { nodes(:status) } # reload
+    assert_equal nodes_id(:art), node.find(:all,'set_tags')[0][:id]
+    assert_equal [nodes_id(:art)], node.set_tag_ids
+    assert_equal [nodes_zip(:art)], node.set_tag_zips
+  end
+
+  def test_set_tag_zips
+    login(:tiger)
+    node = secure!(Node) { nodes(:status) }
+    assert node.update_attributes( 'set_tag_zips' => [nodes_zip(:art).to_s] )
+    assert_equal [nodes_id(:art)], node.rel['set_tag'].other_ids
+
+    node = secure!(Node) { nodes(:status) } # reload
+    assert_equal nodes_id(:art), node.find(:all,'set_tags')[0][:id]
+    assert_equal [nodes_id(:art)], node.set_tag_ids
+    assert_equal [nodes_zip(:art)], node.set_tag_zips
+  end
+  
+  def test_set_tag_zips_with_blank
+    login(:tiger)
+    node = secure!(Node) { nodes(:status) }
+    assert node.update_attributes( 'set_tag_zips' => ['', nodes_zip(:art).to_s] )
+    assert_equal [nodes_id(:art)], node.rel['set_tag'].other_ids
+
+    node = secure!(Node) { nodes(:status) } # reload
+    assert_equal nodes_id(:art), node.find(:all,'set_tags')[0][:id]
+    assert_equal [nodes_id(:art)], node.set_tag_ids
+    assert_equal [nodes_zip(:art)], node.set_tag_zips
+  end
 
   context 'On a new node' do
     subject do

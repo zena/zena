@@ -160,7 +160,7 @@ class RelationProxy < Relation
         end
         attributes_to_update[:id] = v.map{|r| r.id.to_i}
       else
-        attributes_to_update[:id] = v.map(&:to_i)
+        attributes_to_update[:id] = v.select {|e| !e.blank?}.map(&:to_i)
       end
     else
       attributes_to_update[:id] = v.blank? ? nil : v.to_i
@@ -176,6 +176,7 @@ class RelationProxy < Relation
     if zip_values.kind_of?(Array)
       attributes_to_update[:id] = []
       zip_values.each do |zip|
+        next if zip.blank?
         if id = secure(Node) { Node.translate_pseudo_id(zip,  :id, @start) }
           # ok
           id_to_zip[id] = zip
