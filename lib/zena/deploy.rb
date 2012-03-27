@@ -149,6 +149,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   desc "create a new site [-s host='...' -s pass='...' -s lang='...']"
   task :mksite, :roles => :app do
     run "#{in_current} rake zena:mksite HOST='#{self[:host]}' PASSWORD='#{self[:pass]}' RAILS_ENV='production' HOST_LANG='#{self[:lang] || 'en'}'"
+    run "test -e #{sites_root}/#{self[:host]} || mkdir #{sites_root}/#{self[:host]}"
     create_vhost
     create_awstats
     logrotate
