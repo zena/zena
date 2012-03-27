@@ -123,6 +123,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     clear_zafu
     clear_cache
   end
+  after "deploy:update", "after_update"
 
   desc "update symlink to 'sites' directory"
   task :app_update_symlinks, :roles => :app do
