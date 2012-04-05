@@ -520,7 +520,7 @@ module Zena
         # Insert javascript asset tags
         def r_javascripts
           if @params[:list] == 'all' || @params[:list].nil?
-            list = %w{ prototype effects dragdrop tablekit window zena grid }
+            list = %w{ prototype effects dragdrop window zena grid }
           else
             list = @params[:list].split(',').map{|e| e.strip}
           end

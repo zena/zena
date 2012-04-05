@@ -1,0 +1,11 @@
+# Add first element
+open '/oo/testnode37.html?test=grid1'
+# THIS DOES NOT WORK. FIND ANOTHER WAY TO TEST THIS GRID.
+# verify_text 'css=.grid tr:nth-child(2) td:nth-child(1)', '[title]'
+# verify_text 'css=.grid tr:nth-child(3) td:nth-child(1)', 'value'
+# # Change title
+# click 'css=.grid td:nth-child(3)'
+# type 'css=.grid input', 'my title'
+# click 'css=#grid1 input[type="submit"]'
+# verify_text 'css=.grid tr:nth-child(2) td:nth-child(1)', 'my title'
+

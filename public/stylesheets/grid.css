@@ -8,6 +8,8 @@
 .grid td.undone, td.changed.undone, th.undone, th.changed.undone { background:#F3F07F}
 .grid .action span {cursor:pointer; visibility:hidden;}
 .grid:hover .action span {visibility:visible;}
+.grid .action .add {background:url('/images/bullet_add.png') no-repeat; padding:5px;}
+.grid .action .del {background:url('/images/bullet_delete.png') no-repeat; padding:5px;}
 
 .grid_btn a {text-decoration:none; border:1px solid #333; border-radius:4px; padding:2px 5px; color:white;}
 .grid_btn {margin:1em 0}

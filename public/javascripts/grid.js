@@ -1,3 +1,5 @@
+// LICENCE: MIT, Copyright 2012 Gaspard Bucher
+//
 // The grid class enables simple table cell editing (multiple objects or serialized
 // in a single field.
 //
@@ -114,6 +116,15 @@ Grid.keydown = function(event) {
     // find elem
     var next = row.childElements()[pos];
     Grid.open_cell(next);
+    event.stop();
+  } else if (key == 13) {
+    // return
+    var table = event.findElement('table');
+    if (table.grid.attr_name) {
+      Grid.add_row(table, event.findElement('tr'));
+    } else {
+      Grid.close_cell(event);
+    }
     event.stop();
   }
   return false;
@@ -255,6 +266,8 @@ Grid.makeAttrPos = function(table) {
 Grid.serialize = function(table) {
   var data = [];
   var rows = table.childElements()[0].select('tr');
+  var empty = rows.length == 2 && rows[1].childElements().length == 2;
+  if (empty) return '';
   for (var i = 1; i < rows.length; i++) {
     var row_data = [];
     var cells = rows[i].childElements();
@@ -271,8 +284,8 @@ Grid.serialize = function(table) {
   return Object.toJSON([{type:'table'},data]);
 }
 
-Grid.Buttons = "<td class='action'><span class='add'>add</a> <span class='del'>del</span></td>";
-Grid.ColButtons = "<td><span class='del'>del</span> <span class='add'>add</span></td>";
+Grid.Buttons = "<td class='action'><span class='add'>&nbsp;</span> <span class='del'>&nbsp;</span></td>";
+Grid.ColButtons = Grid.Buttons;
 
 // only used with single attr table
 Grid.addButtons = function(table) {
@@ -280,7 +293,7 @@ Grid.addButtons = function(table) {
   var tbody = table.childElements()[0];
   var rows = tbody.select('tr');
 
-  var col_action = "<tr class='action'><td><span class='add'>add</span></td>";
+  var col_action = "<tr class='action'><td><span class='add'>&nbsp;</span></td>";
   var cells_length = rows[0].select('th').length;
   for (var i = 1; i < cells_length; i++) {
     col_action = col_action + Grid.ColButtons;
@@ -290,7 +303,7 @@ Grid.addButtons = function(table) {
   for (var i = 0; i < rows.length; i++) {
     var buttons;
     if (i == 0) {
-      buttons = "<td class='action'><span class='add'>add</span></td>";
+      buttons = "<td class='action'><span class='add'>&nbsp;</span></td>";
     } else {
       buttons = Grid.Buttons;
     }
@@ -313,6 +326,9 @@ Grid.make = function(table) {
   // Detect type.
   table.grid.attr_name = table.getAttribute('data-a');
 
+  if (table.select('th').length == 0) {
+    table.innerHTML = "<tr><th>type to edit</th></tr><tr><td></td></tr>";
+  }
   Grid.makeAttrPos(table);
 
   if (table.grid.attr_name) {

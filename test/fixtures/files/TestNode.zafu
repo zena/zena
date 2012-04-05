@@ -3,7 +3,7 @@
     <title do='title_for_layout' do='show' attr='title' name='page_title'>page title</title>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <r:void name='stylesheets'>
-      <r:stylesheets media='all' list='reset,zena,code,calendar'/>
+      <r:stylesheets media='all' list='reset,zena,code,calendar,grid'/>
     </r:void>
     <link href="style.css" rel="Stylesheet" type="text/css"/>
 <style>
@@ -21,7 +21,7 @@
 .test .drop {background:#ccc;}
 .test .drop_hover { background:#ace; border:2px dashed #99f;}
 </style>
-    <r:javascripts list='prototype,effects,zena,dragdrop'/>
+    <r:javascripts list='prototype,effects,zena,dragdrop,grid'/>
     <r:uses_datebox/>
   </r:with>
 
@@ -323,6 +323,21 @@
     <ul do='pages'>
       <li do='each' do='link' action='destroy'/>
     </ul>
+  </div>
+
+  //! grid edition
+  <div class='test' id='grid1' do='selenium'>
+    <h3>grid editing</h3>
+    <p>Attribute based grid.</p>
+    <r:form redir='url(this, :test =&gt;"grid1")'>
+      <r:grid attr='origin'/>
+      <r:input type='submit'/>
+    </r:form>
+    <r:js>
+$$('.grid').each(function(e) {
+   Grid.make(e);
+ });
+    </r:js>
   </div>
   </r:with>
 </r:include>

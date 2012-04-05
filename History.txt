@@ -5,6 +5,7 @@
  * Fixed asset caching PLEASE FIX YOUR VHOST FILES: rake zena:create_vhost -s host='xxxxx'.
  * Fixed deadlock_retry (a bug in the error message aborted the retry).
  * Created 'spreadsheet' brick to ease xlsx and csv generation. <===== TODO: Document
+ * Better JS based grid editor.
 
 * Minor changes
  * Enabled Acl during document upload.
