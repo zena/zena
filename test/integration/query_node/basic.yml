@@ -51,6 +51,11 @@ project:
   sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.id = ? ORDER BY nodes.zip ASC}, @node.get_project_id]"
   res: 'Clean Water project'
 
+min:
+  src: "nodes where created_at.min = 2006 in site group by project_id"
+  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND MIN(nodes.created_at) = 2006 GROUP BY nodes.project_id ORDER BY nodes.zip ASC}"
+  res: ""
+
 many_alternatives:
   src: tagged in site or images in site or tags in site
   sql: "%Q{SELECT nodes.*,links.id AS `link_id`,links.status AS `l_status`,links.comment AS `l_comment`,links.date AS `l_date` FROM links,nodes WHERE #{secure_scope('nodes')} AND ((nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags)) OR (nodes.kpath LIKE 'NDI%' AND links.id = 0) OR (nodes.kpath LIKE 'NPT%' AND links.id = 0)) GROUP BY nodes.id ORDER BY nodes.zip ASC}"

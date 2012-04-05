@@ -59,7 +59,7 @@ class AclTest < Zena::Unit::TestCase
         visitor.instance_eval do
           @group_ids = self.group_ids + [erebus_id]
         end
-        assert subject.update_attributes(:query => 'nodes where 1 = #{asset_host? ? 1 : 0} in site')
+        assert subject.update_attributes(:query => "'nodes where 1 = \#{asset_host? ? 1 : 0} in site'")
         assert_nil subject.authorize?(base_node, {:id => nodes_zip(:over_zeus)}, mock_request)
         assert_equal 'A plan to overrule Zeus', subject.authorize?(base_node, {:id => nodes_zip(:over_zeus)}, mock_request(:get, {}, 80)).title
       end
@@ -103,7 +103,7 @@ class AclTest < Zena::Unit::TestCase
 
           context 'with many acls' do
             setup do
-              Zena::Db.execute "UPDATE acls SET query = 'nodes in project from assigned_project', action = 'read' WHERE id = #{acls_id(:self)}"
+              Zena::Db.execute "UPDATE acls SET query = \"'nodes in project from assigned_project'\", action = 'read' WHERE id = #{acls_id(:self)}"
             end
 
             should 'try acls in turn' do

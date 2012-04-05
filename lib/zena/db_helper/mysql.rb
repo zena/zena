@@ -92,6 +92,10 @@ module Zena
             "DATE(#{arg})"
           when 'random'
             'RAND()'
+          when 'min'
+            "MIN(#{args.join(',')})"
+          when 'max'
+            "MAX(#{args.join(',')})"
           when 'coalesce'
             "COALESCE(#{args.join(',')})"
           else

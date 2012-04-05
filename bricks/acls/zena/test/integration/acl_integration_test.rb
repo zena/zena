@@ -144,7 +144,7 @@ class AclIntegrationTest < Zena::Integration::TestCase
       context 'with acl for create enabled' do
         setup do
           # The visitor can create objects in assigned_project as direct parent
-          Zena::Db.execute "UPDATE acls SET query = 'assigned_project', action = 'create' WHERE id = #{acls_id(:rap)}"
+          Zena::Db.execute "UPDATE acls SET query = '%q{assigned_project}', action = 'create' WHERE id = #{acls_id(:rap)}"
           @create_url = "http://erebus.host/nodes?node[parent_id]=#{nodes_zip(:queen)}&node[klass]=Page&node[title]=foobar"
         end
 
@@ -197,7 +197,7 @@ class AclIntegrationTest < Zena::Integration::TestCase
       context 'with acl for update enabled' do
         setup do
           # The visitor can update objects in assigned_project
-          Zena::Db.execute "UPDATE acls SET query = 'nodes in project from assigned_project', action = 'update' WHERE id = #{acls_id(:rap)}"
+          Zena::Db.execute "UPDATE acls SET query = '%q{nodes in project from assigned_project}', action = 'update' WHERE id = #{acls_id(:rap)}"
           @update_url = "http://erebus.host/nodes/#{nodes_zip(:persephone)}?node[title]=foobar"
         end
 
@@ -241,7 +241,7 @@ class AclIntegrationTest < Zena::Integration::TestCase
       context 'with acl for delete enabled' do
         setup do
           # The visitor can delete objects in assigned_project
-          Zena::Db.execute "UPDATE acls SET query = 'nodes in project from assigned_project', action = 'delete' WHERE id = #{acls_id(:rap)}"
+          Zena::Db.execute "UPDATE acls SET query = '%q{nodes in project from assigned_project}', action = 'delete' WHERE id = #{acls_id(:rap)}"
           @delete_url = "http://erebus.host/nodes/#{nodes_zip(:persephone)}"
         end
 

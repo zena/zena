@@ -6,7 +6,7 @@ rap:
   # can read
   action:          read
   # all 'assigned_projects' and the visitor's home node
-  query:           assigned_projects or self
+  query:           "%q{assigned_projects or self}"
   # by receiving the 'erebus' access group
   exec_group:      erebus
   # and viewing it through the 'sky' Skin.
@@ -25,7 +25,7 @@ self:
   # can read
   action:          read
   # self
-  query:           nodes where 1=0
+  query:           '%q{nodes where 1=0}'
   # by receiving the 'erebus' access group
   exec_group:      erebus
   # and viewing it through the 'sky' Skin.

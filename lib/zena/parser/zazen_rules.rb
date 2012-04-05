@@ -334,18 +334,18 @@ module Zena
             "<pre>\\ZAZENBLOCKCODE#{block_counter}ZAZENBLOCKCODE\\</pre>"
           else
             params, text = $1, $2
-            divparams = []
+            pre_params = []
             if params =~ /\A(.*)lang\s*=\s*("|')([^"']+)\2(.*)\Z/m
               pre, lang, post = $1.strip, $3, $4.strip
-              divparams << pre if pre && pre != ""
-              divparams << post if post && post != ""
+              pre_params << pre if pre && pre != ""
+              pre_params << post if post && post != ""
             else
-              divparams << params.strip if params != ''
+              pre_params << params.strip if params != ''
               lang = ''
             end
-            #divparams << "class='code'" unless params =~ /class\s*=/
-            divparams = nil if divparams.empty?
-            @escaped_code << [lang, text, divparams]
+            #pre_params << "class='code'" unless params =~ /class\s*=/
+            pre_params = pre_params.blank? ? nil : pre_params.join(' ')
+            @escaped_code << [lang, text, pre_params]
             block_counter += 1
             "<pre>\\ZAZENBLOCKCODE#{block_counter}ZAZENBLOCKCODE\\</pre>"
           end

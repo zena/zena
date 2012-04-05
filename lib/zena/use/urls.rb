@@ -14,6 +14,7 @@ module Zena
         'propose'  => {:url => '/nodes/#{node_zip}/versions/0/propose', :method => 'put'},
         'refuse'   => {:url => '/nodes/#{node_zip}/versions/0/refuse',  :method => 'put'},
         'edit'     => {:url => '/nodes/#{node_zip}/versions/0/edit'},
+        'create'   => {:url => '/nodes', :method => 'post', :query => {:parent_id => 'node_zip'}},
       }
 
 

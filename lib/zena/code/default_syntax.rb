@@ -19,7 +19,11 @@ module Zena
             "<code class='#{code_class}'>#{convertor.convert(@text, false)}</code>"
           else
             if pre_params = opts[:pre_params]
-              tag = "<pre #{pre_params.join(' ')} class='#{code_class}'>"
+              if pre_params =~ /^(.*)class\s*=\s*('|")([^\2]+)\2(.*)$/
+                code_class = "#{code_class} #{$3}"
+                pre_params = "#{$1} #{$4}"
+              end
+              tag = "<pre #{pre_params} class='#{code_class}'>"
             else
               tag = "<pre class='#{code_class}'>"
             end

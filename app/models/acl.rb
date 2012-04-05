@@ -77,9 +77,10 @@ class Acl < ActiveRecord::Base
       @node   = node
       @params = params
       @asset_host = request ? request.port.to_i == Zena::ASSET_PORT : false
+      query_str = safe_eval(self.query)
 
       # We add a stupid order clause to avoid the 'order by title' thing.
-      query = Node.build_query(:first, self.query + ' order by id asc',
+      query = Node.build_query(:first, query_str + ' order by id asc',
         :node_name       => '@node',
         :main_class      => @node.virtual_class,
         :rubyless_helper => self
@@ -94,7 +95,7 @@ class Acl < ActiveRecord::Base
         errors.add(:query, err.message)
       end
       nil
-    rescue ::RubyLess::Error => err
+    rescue => err
       errors.add(:query, err.message)
       nil
     end
