@@ -265,6 +265,7 @@ end
   end
 end
 
+# FIXME: use another mime types library...
 # this list is taken from http://www.duke.edu/websrv/file-extensions.html
 EXT_TYPE = [
   [ "ai"        , "application/postscript"         ],
@@ -286,6 +287,7 @@ EXT_TYPE = [
   [ "dir"       , "application/x-director"         ],
   [ "dms"       , "application/octet-stream"       ],
   [ "doc"       , "application/msword"             ],
+  [ "docx"      , "application/vnd.openxmlformats-officedocument.wordprocessingml.document"             ],
   [ "drw"       , "application/drafting"           ],
   [ "dvi"       , "application/x-dvi"              ],
   [ "dwg"       , "application/acad"               ],
@@ -348,6 +350,7 @@ EXT_TYPE = [
   [ "ppm"       , "image/x-portable-pixmap"        ],
   [ "pps"       , "application/mspowerpoint"       ],
   [ "ppt"       , "application/mspowerpoint"       ],
+  [ "pptx"      , "application/vnd.openxmlformats-officedocument.presentationml.presentation"       ],
   [ "ppz"       , "application/mspowerpoint"       ],
   [ "pre"       , "application/x-freelance"        ],
   [ "prt"       , "application/pro_eng"            ],
@@ -427,6 +430,7 @@ EXT_TYPE = [
   [ "xll"       , "application/vnd.ms-excel"       ],
   [ "xlm"       , "application/vnd.ms-excel"       ],
   [ "xls"       , "application/vnd.ms-excel"       ],
+  [ "xlsx"      , "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"       ],
   [ "xlw"       , "application/vnd.ms-excel"       ],
   [ "xml"       , "text/xml"                       ],
   [ "xsl"       , "text/xml"                       ],
