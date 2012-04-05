@@ -2,12 +2,12 @@ module Zena
   # This module is used to declare and manage the list of features used by Zena.
   module Use
     SUFFIX_NAME  = 'Methods'
-    MODULE_NAMES = %w{Controller View Zafu User Site Skin}
+    MODULE_NAMES = %w{Controller View Zafu User Site Skin Routes}
     # "Controller" => "ControllerMethods"
     MODULE_NAME  = Hash[*MODULE_NAMES.map {|n| [n, "#{n}#{SUFFIX_NAME}"]}.flatten]
 
     class << self
-      attr_accessor :modules
+      attr_accessor :modules, :extra_routes
 
       # Declare a module (or list of modules) that should be used in Zena. The module should implement
       # sub-modules named ControllerMethods, ViewMethods or ZafuMethods in order to add features to
@@ -36,6 +36,17 @@ module Zena
       def modules_for(name)
         create_module_hash
         self.modules[name] || []
+      end
+
+      def routes(rez)
+        if self.extra_routes.nil?
+          hash = {}
+          each_module_for('Routes') do |mod|
+            hash.merge!(mod)
+          end
+          self.extra_routes = hash
+        end
+        (self.extra_routes[rez] || {})[rez] || {}
       end
 
       private

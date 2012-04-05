@@ -25,8 +25,6 @@ class NodesController < ApplicationController
   before_filter :check_path,      :only => [:index, :show]
   layout :popup_layout,           :only => [:edit, :import]
 
-  include Zena::Use::Grid::ControllerMethods
-
   def index
     if @node = secure(Node) { Node.find(current_site.root_id) }
       respond_to do |format|

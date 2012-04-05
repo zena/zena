@@ -29,7 +29,7 @@ module Zena
                          :order => :any, :clear_order => :any,
                          :zafu => :get, :drop => :put, :attribute => :get,
                          :find => :get # same as search but starting on current node instead of root
-                       }.merge(Zena::Use::Grid::Routes) do |nodes|
+                       }.merge(Zena::Use.routes('nodes')) do |nodes|
         nodes.resources :versions,
                         :member => { :edit    => :get,
                                      :diff    => :get,

@@ -520,7 +520,7 @@ module Zena
         # Insert javascript asset tags
         def r_javascripts
           if @params[:list] == 'all' || @params[:list].nil?
-            list = %w{ prototype effects dragdrop tablekit window zena }
+            list = %w{ prototype effects dragdrop tablekit window zena grid }
           else
             list = @params[:list].split(',').map{|e| e.strip}
           end
@@ -567,7 +567,7 @@ module Zena
         # Insert stylesheet asset tags
         def r_stylesheets
           if @params[:list] == 'all' || @params[:list].nil?
-            list = %w{ reset window zena code }
+            list = %w{ reset window zena code grid }
           else
             list = @params[:list].split(',').map{|e| e.strip}
           end
@@ -680,11 +680,11 @@ module Zena
           end
         end
 
-        def r_grid
+        def r_prop_grid
           return parser_error("not in a list context") unless node.list_context?
           return parser_error("not a Node list") unless node.single_class <= Node
           klass = "#{node.single_class.name}"
-          add_block %Q{<table class='grid'>
+          add_block %Q{<table class='prop_grid'>
             <tr do='#{klass}' do='roles'><th class='role' colspan='\#{columns.size}' do='each' do='name'/></tr>
             <tr do='#{klass}' do='roles' do='each' do='columns'><th do='each' do='name'/></tr>
             <tr do='each'><r:#{klass} do='roles' do='each' do='columns'><td do='each' do='@node.send(name)'/></r:#{klass}></tr>

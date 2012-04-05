@@ -1,0 +1,16 @@
+.grid td.action {border-width:0 0 0 1px; font-size:70%}
+.grid tr.action td {border-width:0 0 1px 0; font-size:70%}
+.grid tr.action td.action {border:0}
+.grid td.input, th.input { padding:0;}
+.grid td input, th input { padding:0;font-size:inherit;}
+.grid td.changed {background:#E5DDD7}
+.grid .saved { background:#A3FF4F}
+.grid td.undone, td.changed.undone, th.undone, th.changed.undone { background:#F3F07F}
+.grid .action span {cursor:pointer; visibility:hidden;}
+.grid:hover .action span {visibility:visible;}
+
+.grid_btn a {text-decoration:none; border:1px solid #333; border-radius:4px; padding:2px 5px; color:white;}
+.grid_btn {margin:1em 0}
+.grid_btn a.save {background:#80B62D}
+.grid_btn a.undo {background:#AAB76D}
+

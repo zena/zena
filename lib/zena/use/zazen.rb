@@ -5,8 +5,6 @@ module Zena
       ZAZEN_TIMEOUT = 5
       module ViewMethods
 
-        include Zena::Use::Grid::ViewMethods
-
         @@_asset_methods = {}
 
         # define an asset method ('key' => method_name).

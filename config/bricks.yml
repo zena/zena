@@ -4,6 +4,7 @@ test:
   tags:        ON
   captcha:     ON
   acls:        ON
+  grid:        ON
   static:      OFF
   sphinx:      OFF
   worker:      OFF
@@ -34,6 +35,7 @@ development:
 
   tags:     ON
   captcha:  ON
+  grid:     ON
   acls:     ON
   static:   OFF
   sphinx:
@@ -70,6 +72,7 @@ production:
     live:   ON
   tags:     ON
   captcha:  ON
+  grid:     ON
   acls:     ON
   static:   OFF
   single:   OFF
