@@ -326,8 +326,9 @@ Grid.make = function(table) {
   // Detect type.
   table.grid.attr_name = table.getAttribute('data-a');
 
-  if (table.select('th').length == 0) {
-    table.innerHTML = "<tr><th>type to edit</th></tr><tr><td></td></tr>";
+  if (table.grid.attr_name && table.select('th').length == 0) {
+    var msg = table.getAttribute('data-msg') || "type to edit";
+    table.innerHTML = "<tr><th>" + msg + "</th></tr><tr><td></td></tr>";
   }
   Grid.makeAttrPos(table);
 

@@ -4,14 +4,15 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = "zena"
+  s.name = %q{zena}
   s.version = "1.2.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = "2012-03-27"
-  s.description = "zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour)."
-  s.email = "gaspard@teti.ch"
+  s.date = %q{2012-04-05}
+  s.default_executable = %q{zena}
+  s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
+  s.email = %q{gaspard@teti.ch}
   s.executables = ["zena"]
   s.extra_rdoc_files = [
     "README.rdoc",
@@ -185,7 +186,6 @@ Gem::Specification.new do |s|
     "app/views/nodes/_position.rhtml",
     "app/views/nodes/_results.rhtml",
     "app/views/nodes/_show_attr.rhtml",
-    "app/views/nodes/_table.rhtml",
     "app/views/nodes/clear_order.rjs",
     "app/views/nodes/create.rjs",
     "app/views/nodes/destroy.erb",
@@ -296,6 +296,8 @@ Gem::Specification.new do |s|
     "bricks/captcha/lib/bricks/captcha.rb",
     "bricks/captcha/zena/init.rb",
     "bricks/captcha/zena/test/zafu/captcha.yml",
+    "bricks/grid/lib/bricks/grid.rb",
+    "bricks/grid/zena/init.rb",
     "bricks/math/lib/bricks/math.rb",
     "bricks/math/zena/init.rb",
     "bricks/mongrel/README",
@@ -637,7 +639,6 @@ Gem::Specification.new do |s|
     "lib/zena/use/fixtures.rb",
     "lib/zena/use/forms.rb",
     "lib/zena/use/fulltext.rb",
-    "lib/zena/use/grid.rb",
     "lib/zena/use/html_tags.rb",
     "lib/zena/use/i18n.rb",
     "lib/zena/use/image_builder.rb",
@@ -1801,6 +1802,7 @@ Gem::Specification.new do |s|
     "public/javascripts/controls.js",
     "public/javascripts/dragdrop.js",
     "public/javascripts/effects.js",
+    "public/javascripts/grid.js",
     "public/javascripts/prototype.js",
     "public/javascripts/scriptaculous.js",
     "public/javascripts/slider.js",
@@ -1818,6 +1820,7 @@ Gem::Specification.new do |s|
     "public/stylesheets/comment.css",
     "public/stylesheets/csshover2.htc",
     "public/stylesheets/default.css",
+    "public/stylesheets/grid.css",
     "public/stylesheets/popup.css",
     "public/stylesheets/reset.css",
     "public/stylesheets/search.css",
@@ -1989,6 +1992,8 @@ Gem::Specification.new do |s|
     "test/selenium/Form/form1.rsel",
     "test/selenium/Form/form2.rsel",
     "test/selenium/Form/form3.rsel",
+    "test/selenium/Grid/0setup.rsel",
+    "test/selenium/Grid/grid1.rsel",
     "test/selenium/Paginate/0setup.rsel",
     "test/selenium/Paginate/paginate1.rsel",
     "test/selenium/Swap/0setup.rsel",
@@ -2411,11 +2416,11 @@ Gem::Specification.new do |s|
     "zena.gemspec",
     "zena_console.rb"
   ]
-  s.homepage = "http://zenadmin.org"
+  s.homepage = %q{http://zenadmin.org}
   s.require_paths = ["lib"]
-  s.rubyforge_project = "zena"
-  s.rubygems_version = "1.8.19"
-  s.summary = "CMS with super natural powers, based on Ruby on Rails"
+  s.rubyforge_project = %q{zena}
+  s.rubygems_version = %q{1.6.2}
+  s.summary = %q{CMS with super natural powers, based on Ruby on Rails}
 
   if s.respond_to? :specification_version then
     s.specification_version = 3

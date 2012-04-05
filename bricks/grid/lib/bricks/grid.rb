@@ -63,7 +63,8 @@ module Bricks
 
         res = prefix + error.to_s
         if node.can_write?
-          res << "<table data-a='node[#{attribute}]' class='grid'>\n<tr>"
+          msg = opts[:msg] || _('type to edit')
+          res << "<table data-a='node[#{attribute}]' data-msg='#{msg}' class='grid'>\n<tr>"
         else
           res << "<table><tr>"
         end
@@ -97,7 +98,8 @@ module Bricks
         raise parser_error("Missing 'attr' parameter") unless attr
         # Make sure it compiles
         code = RubyLess.translate(node(Node).klass, attr)
-        out "<%= make_table(:attribute => #{attr.inspect}, :node => #{node(Node)}) %>"
+        msg = RubyLess.translate(self, "t('type to edit')")
+        out "<%= make_table(:attribute => #{attr.inspect}, :node => #{node(Node)}, :msg => #{msg}) %>"
       end
     end
   end # Grid
