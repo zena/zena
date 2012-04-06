@@ -233,7 +233,7 @@ class NodesController < ApplicationController
       if @node.errors.empty?
         flash.now[:notice] = 'Node was successfully created.'
         format.html {
-          redirect_to  params[:redir] || zen_path(@node, :mode => params[:mode])
+          redirect_to  params[:redir] || zen_path(@node, :mode => params[:mode], :new => 'true')
         }
         format.js
         format.xml  { render :xml => @node.to_xml(:root => 'node'), :status => :created, :location => node_url(@node) }
