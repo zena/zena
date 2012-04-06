@@ -100,6 +100,9 @@ module Bricks
         code = RubyLess.translate(node(Node).klass, attr)
         msg = RubyLess.translate(self, "t('type to edit')")
         out "<%= make_table(:attribute => #{attr.inspect}, :node => #{node(Node)}, :msg => #{msg}) %>"
+        if @params[:edit] == 'true'
+          out "<% js_data << %Q{$$('.grid').each(function(e) {Grid.make(e)})} %>"
+        end
       end
     end
   end # Grid

@@ -154,7 +154,7 @@ Grid.open_cell = function(cell) {
 }
 
 Grid.click = function(event) {
-  var cell = event.findElement('td') || event.findElement('th');
+  var cell = event.findElement('td,th');
   var row = event.findElement('tr');
   if (row.hasClassName('action')) {
     Grid.action(event, cell, row, true);

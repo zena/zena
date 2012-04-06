@@ -659,7 +659,6 @@ TestNode_en:
   prop:
     text:          "[FILE:test/fixtures/files/TestNode.zafu]"
     title:         TestNode
-    summary:       ''
     format:        html
     tkpath:        NPE
     target_klass:  TestNode
