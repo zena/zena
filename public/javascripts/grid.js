@@ -1,25 +1,14 @@
-// LICENCE: MIT, Copyright 2012 Gaspard Bucher
-//
-// The grid class enables simple table cell editing (multiple objects or serialized
-// in a single field.
-//
-// Make a grid from a table with:
-// $$('.grid').each(function(e) {
-//   Grid.make(e);
-// });
-
-
 Grid = {
   grids: {},
-  grid_c: 0
+  grid_c: 0,
 };
 
-Grid.changed = function(cell, input) {
+Grid.changed = function(cell, value) {
+  cell.innerHTML = value;
   var row = cell.up('tr');
   var table = row.up('table');
-  if (cell.prev_value == input.value) return;
-  if (cell.orig_value == input.value) {
-    Grid.log('same', input.value);
+  if (cell.prev_value == value) return;
+  if (cell.orig_value == value) {
     cell.removeClassName('changed');
     if (row.select('.changed').length == 0) {
       row.removeClassName('changed');
@@ -42,23 +31,63 @@ Grid.changed = function(cell, input) {
   var change = {
     id: id
   };
-  change[attr] = input.value;
+  change[attr] = value;
   var table = row.up('table');
   table.grid.changes.push(change);
-  if (table.grid.input) {
-    // single attribute table, serialize in input field
-    table.grid.input.value = Grid.serialize(table);
-  }
-  Grid.log('changed', change);
 }
 
 
 Grid.close_cell = function(event) {
   var input = event.element();
   var cell = input.up();
+  var row  = cell.up();
+  var table = event.findElement('table');
   cell.removeClassName('input');
-  cell.innerHTML = input.value;
-  Grid.changed(cell, input);
+  var lines = input.value.strip().split(/\r\n|\r|\n/);
+  for (var i = 0; i < lines.length; i++) {
+    lines[i] = lines[i].split(/\t/);
+  }
+  if (lines.length == 1 && lines[0].length == 1) {
+    // simple case
+    Grid.changed(cell, lines[0][0]);
+  } else {
+    // copy/paste from spreadsheet
+    var row_offset = Grid.pos(row);
+    var tbody = table.childElements()[0];
+    var rows = tbody.childElements();
+    var cell_offset = Grid.pos(cell);
+    var should_create = table.grid.input && true;
+    for (var i = 0; i < lines.length; i++) {
+      // foreach line
+      // get row
+      var row = rows[row_offset + i];
+      if (!row) {
+        if (!should_create) break;
+        // create a new row
+        Grid.add_row(table, rows[row_offset + i - 1]);
+        rows = tbody.select('tr');
+        row = rows[row_offset + i];
+      }
+      var tabs = lines[i];
+      var cells = row.childElements(); cells.pop();
+      for (var j = 0; j < tabs.length; j++) {
+        // foreach tab
+        var cell = cells[cell_offset + j];
+        if (!cell) {
+          if (!should_create) break;
+          // create a new cell
+          Grid.add_col(table, cells[cell_offset + j - 1]);
+          cells = row.childElements(); cells.pop();
+          cell = cells[cell_offset + j];
+        }
+        Grid.changed(cell, tabs[j]);
+      }
+    }
+  }
+  if (table.grid.input) {
+    // single attribute table, serialize in input field
+    table.grid.input.value = Grid.serialize(table);
+  }
 }
 
 Grid.pos = function(elem) {
@@ -117,15 +146,6 @@ Grid.keydown = function(event) {
     var next = row.childElements()[pos];
     Grid.open_cell(next);
     event.stop();
-  } else if (key == 13) {
-    // return
-    var table = event.findElement('table');
-    if (table.grid.attr_name) {
-      Grid.add_row(table, event.findElement('tr'));
-    } else {
-      Grid.close_cell(event);
-    }
-    event.stop();
   }
   return false;
 }
@@ -140,8 +160,8 @@ Grid.open_cell = function(cell) {
   var w = cell.getWidth() - 5;
   var h = cell.getHeight() - 5;
   cell.addClassName('input');
-  cell.innerHTML = "<input type='text' value=''/>";
-  var input = cell.select('input').first();
+  cell.innerHTML = "<textarea type='text' value=''/>";
+  var input = cell.select('textarea').first();
   input.value = value;
   input.setStyle({
     width: w + 'px',
@@ -154,7 +174,7 @@ Grid.open_cell = function(cell) {
 }
 
 Grid.click = function(event) {
-  var cell = event.findElement('td,th');
+  var cell = event.findElement('td, th');
   var row = event.findElement('tr');
   if (row.hasClassName('action')) {
     Grid.action(event, cell, row, true);
@@ -177,7 +197,6 @@ Grid.add_row = function(table, row) {
     after: new_row
   });
   var new_row = row.nextSiblings()[0];
-  Grid.open_cell(new_row.childElements()[0]);
   // TODO: rewrite history (+ push event in history for undo)
 }
 
@@ -229,6 +248,7 @@ Grid.action = function(event, cell, row, is_col) {
       Grid.add_col(table, cell);
     } else {
       Grid.add_row(table, row);
+      Grid.open_cell(new_row.childElements()[0]);
     }
   } else if (span.hasClassName('del')) {
     if (is_col) {
@@ -237,6 +257,19 @@ Grid.action = function(event, cell, row, is_col) {
       // remove current row
       row.remove();
     }
+  } else if (span.hasClassName('copy')) {
+    var data = Grid.serialize(table, 'tab');
+    var td = span.up();
+    td.insert({
+      top: "<textarea id='grid_copy_" + table.grid.id + "'></textarea>"
+    });
+    var input = $('grid_copy_'+table.grid.id);
+    input.value = data;
+    Element.observe($(input), 'blur', function(event) {
+      event.element().remove();
+    });
+    input.focus();
+    input.select();
   }
   table.grid.input.value = Grid.serialize(table);
 }
@@ -263,25 +296,38 @@ Grid.makeAttrPos = function(table) {
 }
 
 // only used with single attr table
-Grid.serialize = function(table) {
+Grid.serialize = function(table, format) {
   var data = [];
   var rows = table.childElements()[0].select('tr');
-  var empty = rows.length == 2 && rows[1].childElements().length == 2;
-  if (empty) return '';
   for (var i = 1; i < rows.length; i++) {
     var row_data = [];
     var cells = rows[i].childElements();
     for (var j = 0; j < cells.length - 1; j++) {
       var cell = cells[j];
       if (cell.hasClassName('input')) {
-        row_data.push(cell.select('input').first().value);
+        row_data.push(cell.select('textarea').first().value);
       } else {
         row_data.push(cells[j].innerHTML);
       }
     }
     data.push(row_data);
   }
-  return Object.toJSON([{type:'table'},data]);
+  if (format == 'tab') {
+    var res = '';
+    for (var i = 0; i < data.length; i++) {
+      var row = data[i];
+      var line = '';
+      for (var j=0; j < row.length; j++) {
+        if (j>0) line = line + '\t';
+        line = line + row[j];
+      }
+      if (i>0) res = res + '\r\n';
+      res = res + line;
+    }
+    return res;
+  } else {
+    return Object.toJSON([{type:'table'}, data]);
+  }
 }
 
 Grid.Buttons = "<td class='action'><span class='add'>&nbsp;</span> <span class='del'>&nbsp;</span></td>";
@@ -298,7 +344,7 @@ Grid.addButtons = function(table) {
   for (var i = 1; i < cells_length; i++) {
     col_action = col_action + Grid.ColButtons;
   }
-  col_action = col_action + "<td class='action'></td></tr>";
+  col_action = col_action + "<td class='action'><span class='copy'>&nbsp;</span></td></tr>";
 
   for (var i = 0; i < rows.length; i++) {
     var buttons;
@@ -321,7 +367,8 @@ Grid.make = function(table) {
   Grid.grid_c++;
   Grid.grids[Grid.grid_c] = table;
   table.grid = {
-    changes: []
+    changes: [],
+    id: Grid.grid_c,
   };
   // Detect type.
   table.grid.attr_name = table.getAttribute('data-a');
@@ -330,6 +377,7 @@ Grid.make = function(table) {
     var msg = table.getAttribute('data-msg') || "type to edit";
     table.innerHTML = "<tr><th>" + msg + "</th></tr><tr><td></td></tr>";
   }
+  
   Grid.makeAttrPos(table);
 
   if (table.grid.attr_name) {
@@ -418,13 +466,6 @@ Grid.compact = function(list) {
   return res;
 }
 
-Grid.log = function(msg, data) {
-
-  $('log').insert({
-    top: "<li>" + msg + ": " + Object.toJSON(data) + "</li>"
-  });
-}
-
 Grid.notify = function(data) {
   for (var i in data) {
     var table = Grid.grids[parseInt(i)];
@@ -462,6 +503,11 @@ Grid.notify = function(data) {
   }, 1);
   // maybe this is not good
   table.grid.changes = []; // clear
-  Grid.log('notify', data);
 }
 
+
+$$('.grid').each(function(e) {
+  Grid.make(e);
+});
+
+// TODO: detect tab and arrows to move between cells.
