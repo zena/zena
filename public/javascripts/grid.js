@@ -325,6 +325,8 @@ Grid.serialize = function(table, format) {
       res = res + line;
     }
     return res;
+  } else if (data.length == 1 && data[0].length == 1) {
+    return '';
   } else {
     return Object.toJSON([{type:'table'}, data]);
   }
@@ -373,7 +375,9 @@ Grid.make = function(table) {
   // Detect type.
   table.grid.attr_name = table.getAttribute('data-a');
 
+  var empty = false;
   if (table.grid.attr_name && table.select('th').length == 0) {
+    empty = true;
     var msg = table.getAttribute('data-msg') || "type to edit";
     table.innerHTML = "<tr><th>" + msg + "</th></tr><tr><td></td></tr>";
   }
@@ -388,7 +392,7 @@ Grid.make = function(table) {
       after: "<input type='hidden' id='grid_a_" + Grid.grid_c + "' name='" + table.grid.attr_name + "'/>"
     });
     table.grid.input = $("grid_a_" + Grid.grid_c);
-    table.grid.input.value = Grid.serialize(table);
+    if (!empty) table.grid.input.value = Grid.serialize(table);
   } else {
     // Otherwise each row is a new object and each column
     // corresponds to a different attribute (defined in the 
@@ -504,10 +508,3 @@ Grid.notify = function(data) {
   // maybe this is not good
   table.grid.changes = []; // clear
 }
-
-
-$$('.grid').each(function(e) {
-  Grid.make(e);
-});
-
-// TODO: detect tab and arrows to move between cells.
