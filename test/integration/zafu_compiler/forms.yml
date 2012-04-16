@@ -175,6 +175,14 @@ input_param_value:
   tem: "<input type='text' name='foo[bar.baz]' value='<%= fquote param_value(\"foo[bar.baz]\") %>'/>"
   res: "<input type='text' name='foo[bar.baz]' value='xyz'/>"
 
+input_checkbox_param_value:
+  context:
+    foo:
+      "bar.baz": 'null'
+  src: "<r:input type='checkbox' value='null' param='foo[bar.baz]'/>"
+  tem: "<input type='hidden' name='foo[bar.baz]' value=''/><input type='checkbox' name='foo[bar.baz]' value='null'<%= param_value(\"foo[bar.baz]\") == \"null\" ? \" checked='checked'\" : '' %>/>"
+  res: "<input type='hidden' name='foo[bar.baz]' value=''/><input type='checkbox' name='foo[bar.baz]' value='null' checked='checked'/>"
+
 select_param_value:
   context:
     foo:

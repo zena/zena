@@ -538,6 +538,7 @@ module Zena
             @markup.set_param(:type, @params[:type] || 'text')
 
             checked = html_attributes.delete(:checked)
+            puts checked.inspect
             @markup.set_dyn_params(html_attributes)
             @markup.append_attribute checked if checked
             @markup.done = false
@@ -623,7 +624,13 @@ module Zena
           res = Zafu::OrderedHash.new
           if name = (params[:param] || params[:name] || params[:date])
             res[:name] = name
-            unless params[:param]
+            if params[:param]
+              if name =~ /^[a-z_]+$/
+                sub_attr_ruby = "params[:#{name}]"
+              else
+                sub_attr_ruby = "param_value(#{name.inspect})"
+              end
+            else
               # build name
               if res[:name] =~ /\A([\w_]+)\[(.*?)\]/
                 # Sub attributes are used with tags or might be used for other features. It
@@ -639,7 +646,7 @@ module Zena
                 res[:name] = "#{node.form_name}[#{attribute}]"
               end
             end
-
+            
             if sub_attr
               type = node.klass.safe_method_type([attribute])
               if sub_attr_ruby = RubyLess.translate(self, %Q{this.#{attribute}[#{sub_attr.inspect}]})
@@ -656,11 +663,7 @@ module Zena
                   res[:value] = "<%= fquote #{value} %>"
                 end
               elsif params[:param]
-                if name =~ /^[a-z_]+$/
-                  res[:value] = "<%= fquote params[:#{name}] %>"
-                else
-                  res[:value] = "<%= fquote param_value(#{name.inspect}) %>"
-                end
+                res[:value] = "<%= fquote #{sub_attr_ruby} %>"
               elsif attribute && type = node.klass.safe_method_type([attribute])
                 res[:value] = "<%= fquote #{node}.#{type[:method]} %>"
               end
@@ -695,7 +698,7 @@ module Zena
           else
             res[:id] = params[:id] if params[:id]
           end
-
+          
           if params[:type] == 'checkbox' && sub_attr_ruby
             if value = params[:value]
               res[:checked] = "<%= #{sub_attr_ruby} == #{value.inspect} ? \" checked='checked'\" : '' %>"
