@@ -430,13 +430,17 @@ namespace :zena do
     end
   end
 
-  tests = ['test/unit/**/*_test.rb', 'test/functional/*_test.rb', 'test/integration/*_test.rb'].map {|p| "#{Zena::ROOT}/#{p}"}
+  tests = ['test/unit/**/*_test.rb', 'test/functional/*_test.rb', 'test/integration/*_test.rb'].map do |p|
+    Dir.glob(
+      "#{Zena::ROOT}/#{p}"
+    )
+  end.flatten
 
   tests += Bricks.test_files
 
   Rake::TestTask.new(:test => ["zena:test:prepare", "zena:build_fixtures"]) do |t|
     t.libs << "test"
-    t.pattern = tests
+    t.test_files = tests
     t.verbose = true
   end
   Rake::Task['zena:test'].comment = "Run the tests in test/helpers and test/unit"
