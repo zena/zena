@@ -274,7 +274,7 @@ module Zena
               if Zena::ASSET_PORT == request.port
                 raise Exception.new("Custom rendering not allowed on this process (port == asset_port).")
               else
-                "http://localhost:#{Zena::ASSET_PORT}"
+                "http://127.0.0.1:#{Zena::ASSET_PORT}"
               end
             else
               raise Exception.new("Using custom rendering without an asset host ('asset_port' setting in bricks.yml).")

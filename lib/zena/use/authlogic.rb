@@ -81,7 +81,7 @@ module Zena
           # Create a fake cookie based on HTTP_AUTH using session_id and render_token. This is
           # only used for requests to localhost.
           def forge_cookie_with_http_auth
-            if request.host == 'localhost' && request.port == Zena::ASSET_PORT
+            if (request.host == '127.0.0.1' || request.host == 'localhost') && request.port == Zena::ASSET_PORT
               authenticate_with_http_basic do |login, password|
                 # login    = visitor.id
                 # password = persistence_token
