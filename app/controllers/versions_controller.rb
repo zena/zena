@@ -74,7 +74,7 @@ class VersionsController < ApplicationController
       @edit = true
     end
     if params[:close] == 'true'
-      js_data << "Zena.reloadAndClose();"
+      js_data << "Zena.reload_and_close();"
     else
       js_data << <<-END_TXT
       Zena.editor_setup('#{preview_node_version_path(:node_id=>@node[:zip], :id=>(@node.version.number || 0), :escape => false)}');

@@ -403,7 +403,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         else
           init_name = db_name
         end
-        run "cd /usr/local/bin && test -e /usr/local/bin/#{init_name} || ln -sf /usr/local/bin/zena_#{db_name} /usr/local/bin/#{init_name}"
+        run "cd /usr/local/bin && test -e /usr/local/bin/#{init_name}"
 
         if self[:rvm_ruby_string]
           run "rvm wrapper #{self[:rvm_ruby_string]} init zena_#{db_name}"
@@ -412,7 +412,7 @@ Capistrano::Configuration.instance(:must_exist).load do
           init_script = "/usr/local/bin/zena_#{db_name}"
         end
 
-        start_stop = render("#{templates}/start_stop.rhtml", :config => self, :init_script => init_script)
+        start_stop = render("#{templates}/start_stop.rhtml", :config => self, :db_name => db_name, :init_script => init_script)
         put(start_stop, "/etc/init.d/zena_#{db_name}")
         run "chmod 755 /etc/init.d/zena_#{db_name}"
         # Install defaults

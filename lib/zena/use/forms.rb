@@ -538,7 +538,6 @@ module Zena
             @markup.set_param(:type, @params[:type] || 'text')
 
             checked = html_attributes.delete(:checked)
-            puts checked.inspect
             @markup.set_dyn_params(html_attributes)
             @markup.append_attribute checked if checked
             @markup.done = false

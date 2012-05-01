@@ -5,7 +5,7 @@ Zena.env = new Array();
 Zena.editor_setup = function(url) {
   window.current_sel = $('text_sel');
   window.current_tab = $('text_tab');
-  var preview = parent ? parent : opener;
+  var preview = Zena.t();
 
   Event.observe(window, 'resize', function() { Zena.resizeElement('node_text'); } );
   Event.observe(window, 'resize', function() { Zena.resizeElement('node_text'); } );
@@ -98,7 +98,7 @@ Zena.editor_preview = function(url, element, value) {
 
 // preview version.
 Zena.version_preview = function(url) {
-  var target = opener ? opener : parent;
+  var target = Zena.t();
 
   if (target.location.href.endsWith(url)) {
     target.location.href = url.gsub(/\/versions\/.*$/,'');
@@ -626,7 +626,7 @@ Zena.select_tab = function(name) {
   current_tab.style.display = '';
 }
 
-Zena.reloadAndClose = function(href) {
+Zena.reload_and_close = function(href) {
   if (opener && !opener.is_editor) {
     opener.window.location.href = href || opener.window.location.href;
     window.close();
@@ -634,6 +634,16 @@ Zena.reloadAndClose = function(href) {
     parent.window.location.href = href || parent.window.location.href;
   } else {
     window.close();
+  }
+}
+
+Zena.t = function() {
+  if (opener && !opener.is_editor) {
+		return opener;
+  } else if (parent != window) {
+	  return parent;
+  } else {
+    return window;
   }
 }
 
