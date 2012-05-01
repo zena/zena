@@ -1,4 +1,4 @@
-== 1.2.0
+== 1.2.0 2012-05-01
 
 * Major changes
  * Added 'remove_from_db' method to remove a site from the database.

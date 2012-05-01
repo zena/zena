@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2012-04-05}
+  s.date = %q{2012-05-01}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -213,10 +213,12 @@ Gem::Specification.new do |s|
     "app/views/search/_form.rhtml",
     "app/views/sites/404.html",
     "app/views/sites/_form.erb",
+    "app/views/sites/_job.erb",
     "app/views/sites/_li.erb",
     "app/views/sites/action.rjs",
     "app/views/sites/edit.erb",
     "app/views/sites/index.erb",
+    "app/views/sites/jobs.erb",
     "app/views/sites/show.rjs",
     "app/views/sites/update.rjs",
     "app/views/templates/document_create_tabs/_file.rhtml",
@@ -379,6 +381,7 @@ Gem::Specification.new do |s|
     "bricks/worker/zena/deploy.rb",
     "bricks/worker/zena/init.rb",
     "bricks/worker/zena/migrate/20091104191643_create_delayed_jobs_table.rb",
+    "bricks/worker/zena/migrate/20120501091514_add_site_id_to_jobs.rb",
     "bricks/worker/zena/tasks.rb",
     "bricks/worker/zena/test/sites/zena/delayed_jobs.yml",
     "bricks/worker/zena/test/zafu/worker.yml",
@@ -858,6 +861,7 @@ Gem::Specification.new do |s|
     "public/images/bullet_arrow_down.png",
     "public/images/bullet_arrow_top.png",
     "public/images/bullet_arrow_up.png",
+    "public/images/bullet_back.png",
     "public/images/bullet_black.png",
     "public/images/bullet_blue.png",
     "public/images/bullet_delete.png",
