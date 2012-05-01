@@ -12,7 +12,7 @@ module Zena
           return '' if @context[:saved_template]
           return super if @params[:template] || !@params[:part]
           recursion = get_context_var('recursion', @params[:part])
-          return parser_error("no parent named '#{part}'") unless recursion
+          return parser_error("no parent named '#{@params[:part]}'") unless recursion
           klass = recursion[:klass]
           if klass.kind_of?(Array)
             return parser_error("node context '#{node.klass}' incompatible with '[#{klass}]'")   unless node.list_context?
