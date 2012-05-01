@@ -113,10 +113,6 @@ grid_manual:
     </table>
   res: "/<th colspan='3'>Node.*<th colspan='3'>Original.*<th>exif</th><th>height</th><th>width</th>.*<td>image/jpeg</td><td>jpg</td>/"
 
-grid:
-  src: "<r:images in='site' do='grid'/>"
-  res: "/<table class='grid'>.*<th class='role' colspan='3'>Node.*<th class='role' colspan='3'>Original.*<th>exif</th><th>height</th><th>width</th>.*<td>image/jpeg</td><td>jpg</td>/"
-
 list_relations:
   src: "<r:Contact do='relations' do='each' join=', ' do='name'/>"
   res: "collaborator_for, favorite, favorite_for, home_for, hot_for, icon, reference, reference_for, set_tag"

@@ -95,7 +95,7 @@ module Bricks
     module ZafuMethods
       def r_grid
         attr = @params[:attr]
-        raise parser_error("Missing 'attr' parameter") unless attr
+        return parser_error("Missing 'attr' parameter") unless attr
         # Make sure it compiles
         code = RubyLess.translate(node(Node).klass, attr)
         msg = RubyLess.translate(self, "t('type to edit')")

@@ -314,7 +314,7 @@ class NodesControllerTest < Zena::Controller::TestCase
       should 'succeed' do
         post_subject
         node = assigns(:node)
-        assert_redirected_to "/oo/blog#{node.zip}.html"
+        assert_redirected_to "/oo/blog#{node.zip}.html?new=true"
       end
 
       should 'set type and vclass' do
@@ -527,9 +527,9 @@ class NodesControllerTest < Zena::Controller::TestCase
             {:action => 'create', :controller => 'nodes', :node => {:parent_id => nodes_zip(:zena), :title => 'hello'}, :mode => 'info'}
           end
 
-          should 'redirect to node with mode' do
+          should 'redirect to node with mode with new' do
             post_subject
-            assert_redirected_to "/oo/page#{assigns(:node).zip}_info.html"
+            assert_redirected_to "/oo/page#{assigns(:node).zip}_info.html?new=true"
           end
         end # with a redir param
       end # creating a node
@@ -901,7 +901,7 @@ END:VCALENDAR
       img = secure!(Node) { nodes(:bird_jpg) }
       assert_not_equal pub_version_id, img.version.id
       assert_not_equal pub_content_id, img.version.attachment.id
-      assert_equal 2010,   img.size
+      assert_equal 2002,   img.size
       assert_equal 160,  img.width
       assert_equal 80, img.height
     end

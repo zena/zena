@@ -32,7 +32,7 @@ class AclsControllerTest < Zena::Controller::TestCase
 
       should 'respond missing' do
         assert_difference('Acl.count', 0) do
-          post :create, :acl => { :query => 'assigned_project', :group_id => groups_id(:sky) }
+          post :create, :acl => { :query => '%q{assigned_project}', :group_id => groups_id(:sky) }
         end
 
         assert_response :missing
@@ -45,7 +45,7 @@ class AclsControllerTest < Zena::Controller::TestCase
 
         should 'create acl' do
           assert_difference('Acl.count', 1) do
-            post :create, :acl => { :query => 'assigned_project', :group_id => groups_id(:sky) }
+            post :create, :acl => { :query => '%q{assigned_project}', :group_id => groups_id(:sky) }
           end
         end
       end # with admin rights

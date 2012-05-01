@@ -281,7 +281,6 @@ module Zena
             return nil unless visitor.is_admin?
             link_to_with_state(_('acls'), acls_path)
           when 'jobs'
-            puts Bricks::CONFIG['worker'].inspect
             return nil unless visitor.is_admin? && Bricks::CONFIG['worker']
             link_to_with_state(_('jobs'), jobs_site_path(current_site[:id]))
           when 'dev'

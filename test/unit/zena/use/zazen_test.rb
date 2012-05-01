@@ -243,8 +243,7 @@ class ZazenTest < Zena::View::TestCase
 
   def test_table_asset
     login(:tiger)
-    assert_match %r{<table.*<tr.*<th>title</th.*<tr.*value}m, zazen("This is a table test:\n\n|shopping_list|")
-    assert_match %r{<table.*<th>problem</th>.*<th>solution</th>.*<th>cost</th>.*<tr>.*<td>dead hard drive</td>}m, zazen("This is a table test:\n\n|problems|")
+    assert_match %r{<table data-a='node\[shopping_list\]'.*class='grid'}m, zazen("This is a table test:\n\n|shopping_list|")
   end
 
   # only works if recaptcha plugin is installed

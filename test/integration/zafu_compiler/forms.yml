@@ -12,7 +12,7 @@ add_btn:
   <tr do='each'><td do='title'/></tr>
   <tr do='add'><td><b><r:add_btn/></b></td></tr>
   </table>"
-  res: "/<tr class='btn_add' id='list1_add'><td><b><a href='javascript:void(0)' onclick/"
+  res: "/<tr class='btn_add' id='list1_add'><td><b><a href='javascript:void\(0\)' onclick/"
 
 form_put:
   # default should be a put method
