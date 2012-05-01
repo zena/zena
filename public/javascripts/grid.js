@@ -148,27 +148,38 @@ Grid.keydown = function(event) {
     }
     Grid.open_cell(prev);
     event.stop();
-  } else if (key == 40) {
+  } else if (key == 40 || key == 13) {
     // find position
     var pos = Grid.pos(cell);
     // go to next row
-    var row = cell.up().nextSiblings().first();
+    var crow = cell.up();
+    var row = crow.nextSiblings().first();
     // find elem
-    var next = row.childElements()[pos];
-    if (next) Grid.open_cell(next);
+    if (!row) {
+      // open new row
+      Grid.add_row(crow.up(), cell.up());
+      row = crow.nextSiblings().first();
+      var next = row.childElements()[0];
+      setTimeout(function() {
+        Grid.open_cell(next);      
+      }, 100);
+    } else {
+       next = row.childElements()[pos];
+       Grid.open_cell(next);
+    }
     event.stop();
   } else if (key == 38) {
     // go to prev row
     var row = cell.up();
-		if (Grid.pos(row) == 1) {
-			// stop
-		} else {
-		  var pos = Grid.pos(cell);
-			// move up
-			row = row.previousSiblings().first();
-	    var next = row.childElements()[pos];
-	    Grid.open_cell(next);
-		}
+    if (Grid.pos(row) == 1) {
+      // stop
+    } else {
+      var pos = Grid.pos(cell);
+      // move up
+      row = row.previousSiblings().first();
+      var next = row.childElements()[pos];
+      Grid.open_cell(next);
+    }
     event.stop();
   }
   return false;
