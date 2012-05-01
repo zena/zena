@@ -1,5 +1,6 @@
 module Bricks
   module Worker
+    # This is only used to display jobs. Job creation is done in Delayed::Job.
     class Job < ActiveRecord::Base
       include RubyLess
       set_table_name :delayed_jobs
@@ -24,14 +25,19 @@ module Bricks
       safe_context :delayed_jobs => [Job]
 
       def delayed_jobs
-        jobs = Bricks::Worker::Job.find(:all,
-          # FIXME: find a way to add site_id to delayed_jobs...
-          #:conditions => ['site_id = ?', current_site.id],
-          :order => 'run_at ASC'
-        )
+        jobs = current_site.jobs
         jobs.empty? ? nil : jobs
       end
     end # ViewMethods
+    
+    module SiteMethods
+      def jobs
+        Bricks::Worker::Job.all(
+          :conditions => ['site_id = ?', self.id],
+          :order => 'run_at ASC'
+        )
+      end
+    end
   end # Worker
 end
 

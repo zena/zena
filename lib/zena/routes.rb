@@ -12,11 +12,10 @@ module Zena
 
       resource  :session, :controller => "user_sessions"   # singleton resource
       resources :pings
-      resources :users, :member => { :preferences => :get }
+      resources :users, :member => { :preferences => :get}
       resources :groups
       resources :acls
       resources :iformats
-      resources :acls
 
 
       connect ':prefix/*path?:cachestamp',  :controller => 'nodes', :action => 'show', :prefix => /\w\w/, :cachestamp => /\d+/
@@ -66,7 +65,7 @@ module Zena
 
       resources :columns
 
-      resources :sites, :member => { :action => :put }
+      resources :sites, :member => { :action => :put, :jobs => :get }
 
       resources :comments,
                     :collection => { :empty_bin => :delete },

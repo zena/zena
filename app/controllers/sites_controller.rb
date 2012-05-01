@@ -23,6 +23,13 @@ class SitesController < ApplicationController
     end
   end
 
+  def jobs
+    @jobs = @site.respond_to?(:jobs) ? @site.jobs : []
+    respond_to do |format|
+      format.html
+    end
+  end
+
   def edit
     respond_to do |format|
       format.html

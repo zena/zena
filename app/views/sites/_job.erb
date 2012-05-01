@@ -1,0 +1,4 @@
+<tr id='job<%= job[:id] %>'>
+  <td><%= format_date(job.run_at, :format =>_(Zena::Use::Dates::DATETIME)) %></td>
+  <td><%= job.info %></td>
+</tr>
