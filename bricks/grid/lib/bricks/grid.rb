@@ -1,5 +1,6 @@
 # encoding: utf-8
 require 'json'
+require 'uuidtools'
 
 module Bricks
   module Grid
@@ -27,20 +28,7 @@ module Bricks
 
         return table, error
       end
-
-    end # Common
-
-    module ControllerMethods
-      include Common
-    end
-
-    # Routes = {
-    #  :cell_update => :post, :table_update => :post, :cell_edit => :get
-    # }
-
-    module ViewMethods
-      include Common
-
+      
       # Create a table from an attribute
       def make_table(opts)
         style, node, attribute = opts[:style], opts[:node], opts[:attribute]
@@ -62,11 +50,11 @@ module Bricks
         table, error = get_table_from_json(node.prop[attribute])
 
         res = prefix + error.to_s
-        if node.can_write?
-          msg = opts[:msg] || _('type to edit')
-          res << "<table data-a='node[#{attribute}]' data-msg='#{msg}' class='grid'>\n<tr>"
-        else
-          res << "<table><tr>"
+        uuid = UUIDTools::UUID.random_create.to_s.gsub('-','')
+        msg = opts[:msg] || _('type to edit')
+        res << "<table id='grid#{uuid}' data-a='node[#{attribute}]' data-msg='#{msg}' class='grid'>\n<tr>"
+        if node.can_write? && !opts[:no_edit]
+          js_data << "Grid.make($('grid#{uuid}'));"
         end
 
 
@@ -89,20 +77,34 @@ module Bricks
       rescue JSON::ParserError
         "<span class='unknownLink'>could not build table from text</span>"
       end
+    end # Common
+
+    module ControllerMethods
+      include Common
+    end
+
+    # Routes = {
+    #  :cell_update => :post, :table_update => :post, :cell_edit => :get
+    # }
+
+    module ViewMethods
+      include Common
+      
+      def grid_asset(opts)
+        make_table(:node => opts[:node], :attribute => opts[:content])
+      end
     end
 
     # New better grid using JS.
     module ZafuMethods
       def r_grid
-        attr = @params[:attr]
-        return parser_error("Missing 'attr' parameter") unless attr
+        attribute = @params[:attr]
+        return parser_error("Missing 'attr' parameter") unless attribute
         # Make sure it compiles
-        code = RubyLess.translate(node(Node).klass, attr)
+        code = RubyLess.translate(node(Node).klass, attribute)
         msg = RubyLess.translate(self, "t('type to edit')")
-        out "<%= make_table(:attribute => #{attr.inspect}, :node => #{node(Node)}, :msg => #{msg}) %>"
-        if @params[:edit] == 'true'
-          out "<% js_data << %Q{$$('.grid').each(function(e) {Grid.make(e)})} %>"
-        end
+        editable = @params[:edit] == 'true' ? '' : ', :no_edit => true'
+        out "<%= make_table(:attribute => #{attribute.inspect}, :node => #{node(Node)}, :msg => #{msg}#{editable}) %>"
       end
     end
   end # Grid

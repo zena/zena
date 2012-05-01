@@ -402,6 +402,7 @@ Grid.addButtons = function(table) {
 }
 
 Grid.make = function(table) {
+  if (table.grid) return;
   Grid.grid_c++;
   Grid.grids[Grid.grid_c] = table;
   table.grid = {
