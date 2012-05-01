@@ -36,58 +36,17 @@ Grid.changed = function(cell, value) {
   table.grid.changes.push(change);
 }
 
-
 Grid.close_cell = function(event) {
-  var input = event.element();
-  var cell = input.up();
-  var row  = cell.up();
-  var table = event.findElement('table');
-  cell.removeClassName('input');
-  var lines = input.value.strip().split(/\r\n|\r|\n/);
-  for (var i = 0; i < lines.length; i++) {
-    lines[i] = lines[i].split(/\t/);
-  }
-  if (lines.length == 1 && lines[0].length == 1) {
+    var input = event.element();
+    var cell = input.up();
+    var table = event.findElement('table');
+    cell.removeClassName('input');
     // simple case
-    Grid.changed(cell, lines[0][0]);
-  } else {
-    // copy/paste from spreadsheet
-    var row_offset = Grid.pos(row);
-    var tbody = table.childElements()[0];
-    var rows = tbody.childElements();
-    var cell_offset = Grid.pos(cell);
-    var should_create = table.grid.input && true;
-    for (var i = 0; i < lines.length; i++) {
-      // foreach line
-      // get row
-      var row = rows[row_offset + i];
-      if (!row) {
-        if (!should_create) break;
-        // create a new row
-        Grid.add_row(table, rows[row_offset + i - 1]);
-        rows = tbody.select('tr');
-        row = rows[row_offset + i];
-      }
-      var tabs = lines[i];
-      var cells = row.childElements(); cells.pop();
-      for (var j = 0; j < tabs.length; j++) {
-        // foreach tab
-        var cell = cells[cell_offset + j];
-        if (!cell) {
-          if (!should_create) break;
-          // create a new cell
-          Grid.add_col(table, cells[cell_offset + j - 1]);
-          cells = row.childElements(); cells.pop();
-          cell = cells[cell_offset + j];
-        }
-        Grid.changed(cell, tabs[j]);
-      }
+    Grid.changed(cell, input.value.strip());
+    if (table.grid.input) {
+        // single attribute table, serialize in input field
+        table.grid.input.value = Grid.serialize(table);
     }
-  }
-  if (table.grid.input) {
-    // single attribute table, serialize in input field
-    table.grid.input.value = Grid.serialize(table);
-  }
 }
 
 Grid.pos = function(elem) {
@@ -95,6 +54,67 @@ Grid.pos = function(elem) {
   for (var i = 0; i < sibl.length; i++) {
     if (sibl[i] === elem) return i;
   }
+}
+
+Grid.paste = function(event) {
+  var input = event.element();
+  var start_cell  = input.up();
+  var row   = start_cell.up();
+  var table = row.up('table');
+  var row_offset = Grid.pos(row);
+  var tbody = table.childElements()[0];
+  var rows = tbody.childElements();
+  var cell_offset = Grid.pos(start_cell);
+  // Redirect paste inside the paste textarea
+  $(document.body).insert({
+    bottom: "<textarea style='position:fixed; top:0; left:10100px;' id='grid_p_" + table.grid.id + "'></textarea>"
+  });
+  var paster = $("grid_p_" + table.grid.id);
+  paster.focus();
+  setTimeout(function() {
+    var text = paster.value;
+    paster.remove();
+
+    var lines = text.strip().split(/\r\n|\r|\n/);
+    for (var i = 0; i < lines.length; i++) {
+      lines[i] = lines[i].split(/\t/);
+    }
+    if (lines.length == 1 && lines[0].length == 1) {
+      // simple case
+      input.value = lines[0][0];
+    } else {
+      // copy/paste from spreadsheet
+      var should_create = table.grid.input && true;
+      for (var i = 0; i < lines.length; i++) {
+        // foreach line
+        // get row
+        var row = rows[row_offset + i];
+        if (!row) {
+          if (!should_create) break;
+          // create a new row
+          Grid.add_row(table, rows[row_offset + i - 1]);
+          rows = tbody.select('tr');
+          row = rows[row_offset + i];
+        }
+        var tabs = lines[i];
+        var cells = row.childElements(); cells.pop();
+        for (var j = 0; j < tabs.length; j++) {
+          // foreach tab
+          var cell = cells[cell_offset + j];
+          if (!cell) {
+            if (!should_create) break;
+            // create a new cell
+            Grid.add_col(table, cells[cell_offset + j - 1]);
+            cells = row.childElements(); cells.pop();
+            cell = cells[cell_offset + j];
+          }
+          Grid.changed(cell, tabs[j]);
+        }
+      }
+    }
+    Grid.open_cell(start_cell);
+  }, 100);
+  return true;
 }
 
 Grid.keydown = function(event) {
@@ -135,16 +155,20 @@ Grid.keydown = function(event) {
     var row = cell.up().nextSiblings().first();
     // find elem
     var next = row.childElements()[pos];
-    Grid.open_cell(next);
+    if (next) Grid.open_cell(next);
     event.stop();
   } else if (key == 38) {
-    // find position
-    var pos = Grid.pos(cell);
     // go to prev row
-    var row = cell.up().previousSiblings().first();
-    // find elem
-    var next = row.childElements()[pos];
-    Grid.open_cell(next);
+    var row = cell.up();
+		if (Grid.pos(row) == 1) {
+			// stop
+		} else {
+		  var pos = Grid.pos(cell);
+			// move up
+			row = row.previousSiblings().first();
+	    var next = row.childElements()[pos];
+	    Grid.open_cell(next);
+		}
     event.stop();
   }
   return false;
@@ -160,8 +184,8 @@ Grid.open_cell = function(cell) {
   var w = cell.getWidth() - 5;
   var h = cell.getHeight() - 5;
   cell.addClassName('input');
-  cell.innerHTML = "<textarea type='text' value=''/>";
-  var input = cell.select('textarea').first();
+  cell.innerHTML = "<input type='text' value=''/>";
+  var input = cell.select('input').first();
   input.value = value;
   input.setStyle({
     width: w + 'px',
@@ -169,6 +193,7 @@ Grid.open_cell = function(cell) {
   });
   input.observe('blur', Grid.close_cell);
   input.observe('keydown', Grid.keydown);
+  input.observe('paste', Grid.paste);
   input.focus();
   input.select();
 }
@@ -305,7 +330,7 @@ Grid.serialize = function(table, format) {
     for (var j = 0; j < cells.length - 1; j++) {
       var cell = cells[j];
       if (cell.hasClassName('input')) {
-        row_data.push(cell.select('textarea').first().value);
+        row_data.push(cell.select('input').first().value);
       } else {
         row_data.push(cells[j].innerHTML);
       }
