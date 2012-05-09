@@ -3,6 +3,11 @@ Grid = {
   grid_c: 0,
 };
 
+Grid.log = function(what, msg) {
+  var log = $('log')
+  log.innerHTML = log.innerHTML + '<br/><b>' + what + '</b> ' + msg
+}
+
 Grid.changed = function(cell, value, show) {
   if (value == show) {
     cell.innerHTML = value
@@ -10,27 +15,55 @@ Grid.changed = function(cell, value, show) {
     cell.innerHTML = show
     cell.setAttribute('data-v', value)
   }
-  var row = cell.up('tr');
-  var table = row.up('table');
+  var row = cell.up('tr')
+  var table = row.up('table')
+  var grid = table.grid
   if (cell.prev_value == value) return;
   if (cell.orig_value == value) {
-    cell.removeClassName('changed');
+    cell.removeClassName('changed')
     if (row.select('.changed').length == 0) {
-      row.removeClassName('changed');
+      row.removeClassName('changed')
     }
   } else {
-    cell.addClassName('changed');
-    row.addClassName('changed');
+    cell.addClassName('changed')
+    row.addClassName('changed')
   }
-  var pos = Grid.pos(cell);
+  var pos = Grid.pos(cell)
 
-  var attr, id;
-  if (table.grid.attr_name) {
+  var attr, id
+  if (grid.attr_name) {
     attr = pos;
     id = Grid.pos(row) - 1;
   } else {
-    attr = table.grid.attr[pos];
+    attr = grid.attr[pos];
     id = row.id;
+    if (!id) {
+      // Prepare for create
+      // Set a temporary id
+      grid.counter++
+      id = 'new_' + grid.id + '_' + grid.counter
+      row.id = id
+      var base = {
+        id: id,
+        _new: true
+      }
+      // Add all attributes
+      var cells = row.childElements()
+      for (var i = 0; i < cells.length - 1; i++) {
+        var cell  = cells[i]
+        var a = grid.attr[i]
+
+        base[a] = cell.getAttribute('data-v') || cell.innerHTML
+        cell.orig_value = base[a]
+      }
+      // Add all default attributes
+      grid.defaults.each(function(pair) {
+        if (base[pair.key] == undefined) {
+          base[pair.key] = pair.value
+        }
+      })
+      grid.changes.push(base)
+    }
   }
 
   var change = {
@@ -38,7 +71,7 @@ Grid.changed = function(cell, value, show) {
   };
   change[attr] = value;
   var table = row.up('table');
-  table.grid.changes.push(change);
+  grid.changes.push(change);
 }
 
 Grid.closeCell = function(event) {
@@ -315,8 +348,9 @@ Grid.delCol = function(table, cell) {
 }
 
 Grid.action = function(event, cell, row, is_col) {
-  var span = event.findElement('span');
-  var table = event.findElement('table');
+  var span = event.findElement('span')
+  var table = event.findElement('table')
+  var grid = table.grid
   if (span.hasClassName('add')) {
     if (is_col) {
       Grid.add_col(table, cell);
@@ -329,15 +363,19 @@ Grid.action = function(event, cell, row, is_col) {
       Grid.delCol(table, cell);
     } else {
       // remove current row
+      if (!grid.attr_name) {
+        // We must also clear the changes related to the removed row
+        Grid.clearChanges(grid.changes, row.id)
+      }
       row.remove();
     }
   } else if (span.hasClassName('copy')) {
     var data = Grid.serialize(table, 'tab');
     var td = span.up();
     td.insert({
-      top: "<textarea id='grid_copy_" + table.grid.id + "'></textarea>"
+      top: "<textarea id='grid_copy_" + grid.id + "'></textarea>"
     });
-    var input = $('grid_copy_'+table.grid.id);
+    var input = $('grid_copy_'+grid.id);
     input.value = data;
     Element.observe($(input), 'blur', function(event) {
       event.element().remove();
@@ -345,7 +383,9 @@ Grid.action = function(event, cell, row, is_col) {
     input.focus();
     input.select();
   }
-  table.grid.input.value = Grid.serialize(table);
+  if (grid.attr_name) {
+    grid.input.value = Grid.serialize(table);
+  }
 }
 
 // map grid position to attribute and reverse.
@@ -354,9 +394,10 @@ Grid.makeAttrPos = function(table) {
   var attr = {};
   var pos = {};
   var forms = {}
-  var form_list = $(table.grid.forms_id);
-  table.grid.attr = attr;
-  table.grid.pos = pos;
+  var defaults = {}
+  var form_list = $(table.grid.forms_id)
+  table.grid.attr = attr
+  table.grid.pos = pos
   if (form_list) {
     table.grid.forms = forms;
   }
@@ -374,7 +415,12 @@ Grid.makeAttrPos = function(table) {
         forms[i] = input = form_list.select('*[name="'+attr_name+'"]').first()
       }
     }
+    // get default values
+    form_list.select('input,textarea,select').each(function(e) {
+      defaults[e.name] = e.value
+    })
   }
+  table.grid.defaults = $H(defaults)
 }
 
 // only used with single attr table
@@ -419,18 +465,21 @@ Grid.ColButtons = Grid.Buttons;
 
 // only used with single attr table
 Grid.addButtons = function(table) {
+  var attr_table = table.grid.attr_name
   var data = [];
   var tbody = table.childElements()[0];
   var rows = tbody.select('tr');
 
-  var col_action = "<tr class='action'><td><span class='add'>&nbsp;</span></td>";
-  var cells_length = rows[0].select('th').length;
-  for (var i = 1; i < cells_length; i++) {
-    col_action = col_action + Grid.ColButtons;
+  if (attr_table) {
+    var col_action = "<tr class='action'><td><span class='add'>&nbsp;</span></td>";
+    var cells_length = rows[0].select('th').length;
+    for (var i = 1; i < cells_length; i++) {
+      col_action = col_action + Grid.ColButtons;
+    }
+    col_action = col_action + "<td class='action'><span class='copy'>&nbsp;</span></td></tr>";
   }
-  col_action = col_action + "<td class='action'><span class='copy'>&nbsp;</span></td></tr>";
 
-  for (var i = 0; i < rows.length; i++) {
+  for (var i = attr_table ? 0 : 1; i < rows.length; i++) {
     var buttons;
     if (i == 0) {
       buttons = "<td class='action'><span class='add'>&nbsp;</span></td>";
@@ -448,7 +497,6 @@ Grid.addButtons = function(table) {
 }
 
 Grid.make = function(table, opts) {
-  opts = opts || {}
   table = $(table)
   if (table.grid) return;
   Grid.grid_c++;
@@ -456,8 +504,11 @@ Grid.make = function(table, opts) {
   table.grid = {
     changes: [],
     id: Grid.grid_c,
-    forms_id: opts.forms,
-    format: opts.format,
+    forms_id: table.getAttribute('data-forms'),
+    fdate: table.getAttribute('data-fdate'),
+    counter: 0, // Used to create dom_ids for new objects
+    onSuccess: opts.onSuccess,
+    onStart: opts.onStart || Grid.onStart,
   };
   
   // Detect type.
@@ -471,11 +522,11 @@ Grid.make = function(table, opts) {
   }
   
   Grid.makeAttrPos(table);
+  Grid.addButtons(table);
 
   if (table.grid.attr_name) {
     // If we have an attr_name, rows and columns are
     // serialized as json in a single field.
-    Grid.addButtons(table);
     table.insert({
       after: "<input type='hidden' id='grid_a_" + Grid.grid_c + "' name='" + table.grid.attr_name + "'/>"
     });
@@ -494,29 +545,85 @@ Grid.make = function(table, opts) {
   table.observe('click', Grid.click);
 }
 
+// Default onStart handler
+Grid.onStart = function(operations) {
+  if (operations.post) {
+    return confirm('Create '+operations.post+' nodes ?')
+  }
+  return true
+}
+
+Grid.clearChanges = function(list, id) {
+  for (var i = list.length - 1; i >= 0; i--) {
+    while (list[i] && list[i].id == id) {
+      list.splice(i, 1)
+    }
+  }
+}
+
 Grid.save = function(grid_id) {
   // do not run on GUI thread
   setTimeout(function() {
     var table = Grid.grids[grid_id];
-    var data  = Grid.compact(table.grid.changes);
-    $H(data).each(function(pair) {
+    var data  = $H(Grid.compact(table.grid.changes));
+    var todo_count = data.keys().length
+    var done_count = 0
+    if (table.grid.onStart) {
+      var operations = {}
+      data.each(function(pair) {
+        if (pair.value._new) {
+          operations.post = (operations.post || 0) + 1
+        } else {
+          operations.put = (operations.put || 0) + 1
+        }
+      })
+      if (!table.grid.onStart(operations)) return
+    }
+    data.each(function(pair) {
       var id = pair.key
       var changes = pair.value
-      var attrs = {zjs:true, "opts[format]":table.grid.format}
+      var attrs = {zjs:true, "opts[format]":table.grid.fdate}
       $H(changes).each(function(pair) {
-        attrs['node['+pair.key+']'] = pair.value
+        if (pair.key != '_new') {
+          attrs['node['+pair.key+']'] = pair.value
+        }
       })
-      $('log').innerHTML = $('log').innerHTML + Object.toJSON(changes);
-      new Ajax.Request('/nodes/'+id.replace('id_',''), {
-        parameters: attrs,
-        onSuccess: function(transport) {
-          var attrs = {}
-          attrs[id] = transport.responseText.evalJSON()
-          $('log').innerHTML = $('log').innerHTML + Object.toJSON(attrs)
-          Grid.notify(table, attrs)
-        },
-        method: 'put'
-      });
+      if (changes._new) {
+        new Ajax.Request('/nodes', {
+          parameters: attrs,
+          onSuccess: function(transport) {
+            done_count++
+            var reply = transport.responseText.evalJSON()
+            // Change row id: it is no longer a new item
+            var old_id = id
+            $(id).id = 'id_' + reply.id
+            id = 'id_' + reply.id
+            var attrs = {}
+            attrs[id] = reply
+            Grid.notify(table, attrs)
+            Grid.clearChanges(table.grid.changes, old_id)
+            if (table.grid.onSuccess) {
+              table.grid.onSuccess(id, 'post', done_count, todo_count)
+            }
+          },
+          method: 'post'
+        });
+      } else {
+        new Ajax.Request('/nodes/' + id.replace('id_',''), {
+          parameters: attrs,
+          onSuccess: function(transport) {
+            done_count++
+            var attrs = {}
+            attrs[id] = transport.responseText.evalJSON()
+            Grid.notify(table, attrs)
+            Grid.clearChanges(table.grid.changes, id)
+            if (table.grid.onSuccess) {
+              table.grid.onSuccess(id, 'put', done_count, todo_count)
+            }
+          },
+          method: 'put'
+        });
+      }
     })
   }, 100);
 }
@@ -567,38 +674,39 @@ Grid.compact = function(list) {
 }
 
 Grid.notify = function(table, changes) {
-  var rows = table.childElements()[0].select('tr');
-  var pos = table.grid.pos;
+  var rows = table.childElements()[0].select('tr')
+  var pos = table.grid.pos
   for (var obj_id in changes) {
-    var row = $(obj_id);
-    if (!row) {
+    var row
+    if (table.grid.attr_name) {
       // attr table
-      row = rows[parseInt(obj_id)+1];
+      row = rows[parseInt(obj_id)+1]
+    } else {
+      row = $(obj_id)
     }
-    var cells = row.childElements();
-    var change = changes[obj_id];
+    var cells = row.childElements()
+    var change = changes[obj_id]
     for (var attr in change) {
-      if (attr == 'id') continue;
-      var cell;
-      cell = cells[table.grid.pos[attr]];
-      cell.removeClassName('changed');
+      if (attr == 'id') continue
+      var cell
+      var i = pos[attr]
+      if (i == undefined) continue
+      cell = cells[i]
+      cell.removeClassName('changed')
       if (cell.getAttribute('data-v') != change[attr]) {
-        cell.innerHTML = change[attr];
+        cell.innerHTML = change[attr]
       }
-      cell.orig_value = change[attr];
-      cell.prev_value = undefined;
-      cell.addClassName('saved');
+      cell.orig_value = change[attr]
+      cell.prev_value = undefined
+      cell.addClassName('saved')
     }
     if (row.select('.changed').length == 0) {
 
-      row.removeClassName('changed');
+      row.removeClassName('changed')
     }
   }
   // later
-  new PeriodicalExecuter(function(pe) {
-    table.select('.saved').invoke('removeClassName', 'saved');
-    pe.stop();
-  }, 1);
-  // maybe this is not good
-  table.grid.changes = []; // clear
+  setTimeout(function() {
+    table.select('.saved').invoke('removeClassName', 'saved')
+  }, 1500)
 }

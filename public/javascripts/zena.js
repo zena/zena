@@ -949,6 +949,9 @@ Zena.insert_inner = function(dom, position, content) {
 Zena.do = function(method, dom, query) {
   var dom = $(dom)
   var zip
+  if (typeof(query) == 'string') {
+    query = {id:query}
+  }
   if (query.id) {
     zip = query.id
     delete query.id

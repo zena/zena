@@ -236,9 +236,20 @@ class NodesController < ApplicationController
         format.html {
           redirect_to  params[:redir] || zen_path(@node, :mode => params[:mode], :new => 'true')
         }
-        format.js
+        format.js do
+          if params[:zjs]
+            attrs = {'id' => @node.zip}
+            params[:node].each do |k,v|
+              v = @node.zafu_eval(k, params[:opts])
+              attrs[k] = v
+            end
+            puts attrs.to_json
+            render :json => attrs.to_json, :status => :created
+          end
+        end
         format.xml  { render :xml => @node.to_xml(:root => 'node'), :status => :created, :location => node_url(@node) }
       else
+        # ERROR
         format.html do
           flash[:error] = error_messages_for('node', :object => @node)
           if request.referer
@@ -247,7 +258,11 @@ class NodesController < ApplicationController
             raise ActiveRecord::RecordNotFound
           end
         end
-        format.js
+        format.js do
+          if params[:zjs]
+            render :json => @node.errors, :status => :unprocessable_entity
+          end
+        end
         format.xml  { render :xml => @node.errors, :status => :unprocessable_entity }
       end
     end
