@@ -245,7 +245,9 @@ class Node < ActiveRecord::Base
                      :user => 'User',
                      :author => author_proc,
                      :vclass => {:class => 'VirtualClass', :method => 'virtual_class'},
-                     :new_record? => Boolean
+                     :new_record? => Boolean,
+                     [:eval, String] => {:class => String, :method => 'zafu_eval'},
+                     [:eval, String, Hash] => {:class => String, :method => 'zafu_eval'}
 
   # This is needed so that we can use secure_scope and secure in search.
   extend  Zena::Acts::Secure
@@ -307,6 +309,9 @@ class Node < ActiveRecord::Base
   include Zena::Use::ScopeIndex::ModelMethods
 
   include Zena::Use::QueryNode::ModelMethods
+  
+  # Used by zafu_eval when parsing dates.
+  include Zena::Use::Dates::ModelMethods
 
   @@native_node_classes = {'N' => self}
   @@native_node_classes_by_name = {'Node' => self}
@@ -936,6 +941,23 @@ class Node < ActiveRecord::Base
   def zafu_versions
     versions.all(:order => 'number desc')
   end
+  
+  # Enable dynamic property evaluation
+  def zafu_eval(str, opts = {})
+    value = safe_eval(str)
+    if value.kind_of?(String)
+      value
+    elsif value.kind_of?(Time)
+      x = format_date(value, opts)
+      puts x
+      x
+    else
+      value.to_s
+    end
+  rescue RubyLess::Error
+    nil
+  end
+  
   # Remove loaded version and properties on reload.
   def reload
     @version    = nil

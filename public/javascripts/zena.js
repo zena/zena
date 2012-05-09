@@ -30,7 +30,7 @@ Zena.open_window = function(url, id, event, pos_x, pos_y) {
   }
                                                    // edit window, not in an iframe
   if (event && (event == true || event.shiftKey || (window == window.parent && window.current_sel))) {
-    var popup = window.open(url, name, 'location=0,width=300,height=400,resizable=1');
+    var popup = window.open(url, id, 'location=0,width=300,height=400,resizable=1');
     if (pos_x && pos_y) {
       popup.moveTo(pos_x, pos_y);
     } else {
@@ -59,13 +59,8 @@ Zena.open_window = function(url, id, event, pos_x, pos_y) {
           pos_y = 0;
         }
       } else {
-        if (Zena.window_offset) {
-          Zena.window_offset = Zena.window_offset + 15;
-        } else {
-          Zena.window_offset = 15;
-        }
-        pos_x = Zena.window_offset;
-        pos_y = Zena.window_offset;
+        pos_x = event.x - 12;
+        pos_y = event.y - 12;
       }
 
       var win = new Window({
@@ -654,11 +649,7 @@ Zena.popup_keydown = function(evt) {
   var gallery = Zena.popup_gallery;
 
 	var code = evt.keyCode;
-	//if (!e) var e = window.event;
-	//if (e.keyCode) code = e.keyCode;
-	//else if (e.which) code = e.which;
 	var character = String.fromCharCode(code);
-	//alert('Character was ' + character);
 
   if (code == Event.KEY_LEFT) {
     if (gallery.prev) {
@@ -720,7 +711,6 @@ Zena.popup = function(elem) {
       Event.observe(document.body, 'keydown', function(e) {
     	  var evt = e || window.event;
     	  $('pg_info').innerHTML = evt.keyCode;
-        //alert('key :' + evt.keyCode);
       });
     }
     if (!this.popup_gallery || this.popup_gallery.klass != config.klass) {
@@ -955,3 +945,37 @@ Zena.insert_inner = function(dom, position, content) {
   insertions[position] = d.childElements()[0].innerHTML;
   Element.insert(dom, insertions);
 }
+
+Zena.do = function(method, dom, query) {
+  var dom = $(dom)
+  var zip
+  if (query.id) {
+    zip = query.id
+    delete query.id
+  } else {
+    zip = dom.getAttribute('data-z')
+  }
+  var met = '?'
+  if (method == 'get') {
+    met = '/zafu?'
+  }
+  query.t_url = $(document.body).getAttribute('data-t') + '/' + (dom.getAttribute('data-t') || dom.id)
+  query.dom_id = dom.id
+  query.s = $(document.body).getAttribute('data-z')
+  new Ajax.Request('/nodes/'+zip+met+$H(query).toQueryString(),
+    {asynchronous:true, evalScripts:true, method:method}
+  );
+}
+
+Zena.get = function(dom_name, query) {
+  Zena.do('get', dom_name, query || {});
+  return false;
+}
+
+Zena.put = function(dom_name, query) {
+  Zena.do('put', dom_name, query || {});
+  return false;
+}
+Zena.reload = Zena.get;
+
+Zena.put

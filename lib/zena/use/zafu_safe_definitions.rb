@@ -96,6 +96,7 @@ module Zena
         safe_method_for String, [:limit, Number, String]  => {:class => String, :pre_processor => true}
         safe_method_for String, :to_f      => {:class => Number, :pre_processor => true}
         safe_method_for String, :to_json   => {:class => String, :pre_processor => true}
+        safe_method_for String, [:split, String] => {:class => [String], :pre_processor => true}
 
         safe_method_for Number, :to_s      => {:class => String, :pre_processor => true}
         safe_method_for Number, :to_f      => {:class => Number, :pre_processor => true}
@@ -128,9 +129,11 @@ module Zena
           {:method => 'include?', :accept_nil => true, :pre_processor => true, :class => Boolean}
 
         safe_method_for Hash, :to_param => String
+        safe_method_for Hash, :to_json  => String
 
         safe_method [:min, Number, Number]        => {:method => 'zafu_min', :class => Number}
         safe_method [:max, Number, Number]        => {:method => 'zafu_max', :class => Number}
+
         # Returns the smallest of two values.
         def zafu_min(a, b)
           [a, b].min

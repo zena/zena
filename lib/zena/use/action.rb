@@ -2,7 +2,9 @@ module Zena
   module Use
     module Action
       module Common
-
+        def win_id(node_zip, action)
+          "#{current_site.host.gsub('.', '_')}_#{node_zip}_#{action}"
+        end
         # This method renders an action link without using Rails actions so that we can feed it with
         # erb from Zafu.
         def node_action_link(action, node_zip, opts={})
@@ -25,7 +27,7 @@ module Zena
               url = "/documents/new"
               query << "parent_id=#{node_zip}"
             end
-            id  = "#{current_site.host.gsub('.', '_')}_#{node_zip}_#{action}"
+            id  = win_id(node_zip, action)
 
             url = query.empty? ? url : "#{url}?#{query.join('&')}"
             tag = "<a href='#{url}' target='_blank' title='#{title}' onclick=\"Zena.open_window('#{url}', '#{id}', event);return false;\">"

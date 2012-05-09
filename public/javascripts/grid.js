@@ -3,8 +3,13 @@ Grid = {
   grid_c: 0,
 };
 
-Grid.changed = function(cell, value) {
-  cell.innerHTML = value;
+Grid.changed = function(cell, value, show) {
+  if (value == show) {
+    cell.innerHTML = value
+  } else {
+    cell.innerHTML = show
+    cell.setAttribute('data-v', value)
+  }
   var row = cell.up('tr');
   var table = row.up('table');
   if (cell.prev_value == value) return;
@@ -36,13 +41,22 @@ Grid.changed = function(cell, value) {
   table.grid.changes.push(change);
 }
 
-Grid.close_cell = function(event) {
+Grid.closeCell = function(event) {
     var input = event.element();
     var cell = input.up();
     var table = event.findElement('table');
+    var pos = Grid.pos(cell);
     cell.removeClassName('input');
     // simple case
-    Grid.changed(cell, input.value.strip());
+    var value, show
+    if (input.tagName == 'INPUT') {
+      value = input.value
+      show  = value
+    } else if (input.tagName == 'SELECT') {
+      value = input.value
+      show  = input.select('option[value="'+value+'"]').first().innerHTML
+    }
+    Grid.changed(cell, value, show);
     if (table.grid.input) {
         // single attribute table, serialize in input field
         table.grid.input.value = Grid.serialize(table);
@@ -108,11 +122,11 @@ Grid.paste = function(event) {
             cells = row.childElements(); cells.pop();
             cell = cells[cell_offset + j];
           }
-          Grid.changed(cell, tabs[j]);
+          Grid.changed(cell, tabs[j], tabs[j]);
         }
       }
     }
-    Grid.open_cell(start_cell);
+    Grid.openCell(start_cell);
   }, 100);
   return true;
 }
@@ -132,9 +146,10 @@ Grid.keydown = function(event) {
       }
       next = row.childElements()[0];
     }
-    Grid.open_cell(next);
+    Grid.openCell(next);
     event.stop();
   } else if (key == 37 || (key == 9 && event.shiftKey)) {
+    // shift-tab + left key
     var prev = cell.previousSiblings()[0];
     if (!prev) {
       // wrap back around on shift+tab
@@ -146,10 +161,13 @@ Grid.keydown = function(event) {
       if (prev.hasClassName('action'))
         prev = prev.previousSiblings()[0];
     }
-    Grid.open_cell(prev);
+    Grid.openCell(prev);
     event.stop();
   } else if (key == 40 || key == 13) {
-    // find position
+    // down
+    if (cell.childElements().first().tagName == 'SELECT' && event.shiftKey) {
+      return
+    }
     var pos = Grid.pos(cell);
     // go to next row
     var crow = cell.up();
@@ -161,15 +179,18 @@ Grid.keydown = function(event) {
       row = crow.nextSiblings().first();
       var next = row.childElements()[0];
       setTimeout(function() {
-        Grid.open_cell(next);      
+        Grid.openCell(next);      
       }, 100);
     } else {
        next = row.childElements()[pos];
-       Grid.open_cell(next);
+       Grid.openCell(next);
     }
     event.stop();
   } else if (key == 38) {
-    // go to prev row
+    // up
+    if (cell.childElements().first().tagName == 'SELECT' && event.shiftKey) {
+      return
+    }
     var row = cell.up();
     if (Grid.pos(row) == 1) {
       // stop
@@ -178,16 +199,16 @@ Grid.keydown = function(event) {
       // move up
       row = row.previousSiblings().first();
       var next = row.childElements()[pos];
-      Grid.open_cell(next);
+      Grid.openCell(next);
     }
     event.stop();
   }
   return false;
 }
 
-Grid.open_cell = function(cell) {
+Grid.openCell = function(cell) {
   if (cell.hasClassName('input')) return;
-  var value = cell.innerHTML;
+  var value = cell.getAttribute('data-v') || cell.innerHTML;
 
   if (!cell.orig_value) cell.orig_value = value;
   cell.prev_value = value;
@@ -195,14 +216,31 @@ Grid.open_cell = function(cell) {
   var w = cell.getWidth() - 5;
   var h = cell.getHeight() - 5;
   cell.addClassName('input');
-  cell.innerHTML = "<input type='text' value=''/>";
-  var input = cell.select('input').first();
-  input.value = value;
+  
+  // Try to find a form for the cell
+  var table = cell.up('table')
+  var input
+  if (table.grid.forms) {
+    var pos = Grid.pos(cell);
+    input = table.grid.forms[pos];
+    if (input) {
+      input = Element.clone(input, true)
+      cell.update(input)
+      input.value = value
+    }
+  }
+  
+  if (!input) {
+    // default input field
+    cell.innerHTML = "<input type='text' value=''/>";
+    input = cell.select('input').first();
+    input.value = value;
+  }
   input.setStyle({
     width: w + 'px',
     height: h + 'px'
   });
-  input.observe('blur', Grid.close_cell);
+  input.observe('blur', Grid.closeCell);
   input.observe('keydown', Grid.keydown);
   input.observe('paste', Grid.paste);
   input.focus();
@@ -217,7 +255,7 @@ Grid.click = function(event) {
   } else if (cell.hasClassName('action')) {
     Grid.action(event, cell, row, false);
   } else {
-    Grid.open_cell(cell);
+    Grid.openCell(cell);
   }
 }
 
@@ -259,7 +297,7 @@ Grid.add_col = function(table, cell) {
   }
 }
 
-Grid.del_col = function(table, cell) {
+Grid.delCol = function(table, cell) {
   var rows = table.childElements()[0].select('tr');
   var pos = Grid.pos(cell);
   for (var i = 0; i < rows.length; i++) {
@@ -284,11 +322,11 @@ Grid.action = function(event, cell, row, is_col) {
       Grid.add_col(table, cell);
     } else {
       Grid.add_row(table, row);
-      Grid.open_cell(new_row.childElements()[0]);
+      Grid.openCell(new_row.childElements()[0]);
     }
   } else if (span.hasClassName('del')) {
     if (is_col) {
-      Grid.del_col(table, cell);
+      Grid.delCol(table, cell);
     } else {
       // remove current row
       row.remove();
@@ -315,8 +353,13 @@ Grid.makeAttrPos = function(table) {
   var heads = table.childElements()[0].select('th');
   var attr = {};
   var pos = {};
+  var forms = {}
+  var form_list = $(table.grid.forms_id);
   table.grid.attr = attr;
   table.grid.pos = pos;
+  if (form_list) {
+    table.grid.forms = forms;
+  }
   if (table.grid.attr_name) {
     for (var i = 0; i < heads.length; i++) {
       attr[i] = i;
@@ -327,6 +370,9 @@ Grid.makeAttrPos = function(table) {
       var attr_name = heads[i].getAttribute('data-a');
       attr[i] = attr_name;
       pos[attr_name] = i;
+      if (form_list) {
+        forms[i] = input = form_list.select('*[name="'+attr_name+'"]').first()
+      }
     }
   }
 }
@@ -401,14 +447,19 @@ Grid.addButtons = function(table) {
   return data;
 }
 
-Grid.make = function(table) {
+Grid.make = function(table, opts) {
+  opts = opts || {}
+  table = $(table)
   if (table.grid) return;
   Grid.grid_c++;
   Grid.grids[Grid.grid_c] = table;
   table.grid = {
     changes: [],
     id: Grid.grid_c,
+    forms_id: opts.forms,
+    format: opts.format,
   };
+  
   // Detect type.
   table.grid.attr_name = table.getAttribute('data-a');
 
@@ -444,22 +495,30 @@ Grid.make = function(table) {
 }
 
 Grid.save = function(grid_id) {
-  var table = Grid.grids[grid_id];
-  var data = {};
-  data[grid_id] = Grid.compact(table.grid.changes);
-  // PUT changes
-  // ... We would trigger Ajax call here
-  new Ajax.Request("/echo/json/", {
-    parameters: {
-      json:Object.toJSON(data)
-    },
-      onSuccess: function(transport) {
-        Grid.notify(transport.responseJSON);
-      },
-      method: 'post'
-  });
-  // MOCK by receiving sent data
-  //Grid.notify(data);
+  // do not run on GUI thread
+  setTimeout(function() {
+    var table = Grid.grids[grid_id];
+    var data  = Grid.compact(table.grid.changes);
+    $H(data).each(function(pair) {
+      var id = pair.key
+      var changes = pair.value
+      var attrs = {zjs:true, "opts[format]":table.grid.format}
+      $H(changes).each(function(pair) {
+        attrs['node['+pair.key+']'] = pair.value
+      })
+      $('log').innerHTML = $('log').innerHTML + Object.toJSON(changes);
+      new Ajax.Request('/nodes/'+id.replace('id_',''), {
+        parameters: attrs,
+        onSuccess: function(transport) {
+          var attrs = {}
+          attrs[id] = transport.responseText.evalJSON()
+          $('log').innerHTML = $('log').innerHTML + Object.toJSON(attrs)
+          Grid.notify(table, attrs)
+        },
+        method: 'put'
+      });
+    })
+  }, 100);
 }
 
 Grid.undo = function(grid_id) {
@@ -507,34 +566,32 @@ Grid.compact = function(list) {
   return res;
 }
 
-Grid.notify = function(data) {
-  for (var i in data) {
-    var table = Grid.grids[parseInt(i)];
-    var rows = table.childElements()[0].select('tr');
-    var changes = data[i];
-    var pos = table.grid.pos;
-    for (var obj_id in changes) {
-      var row = $(obj_id);
-      if (!row) {
-        // attr table
-        row = rows[parseInt(obj_id)+1];
-      }
-      var cells = row.childElements();
-      var change = changes[obj_id];
-      for (var attr in change) {
-        if (attr == 'id') continue;
-        var cell;
-        cell = cells[table.grid.pos[attr]];
-        cell.removeClassName('changed');
+Grid.notify = function(table, changes) {
+  var rows = table.childElements()[0].select('tr');
+  var pos = table.grid.pos;
+  for (var obj_id in changes) {
+    var row = $(obj_id);
+    if (!row) {
+      // attr table
+      row = rows[parseInt(obj_id)+1];
+    }
+    var cells = row.childElements();
+    var change = changes[obj_id];
+    for (var attr in change) {
+      if (attr == 'id') continue;
+      var cell;
+      cell = cells[table.grid.pos[attr]];
+      cell.removeClassName('changed');
+      if (cell.getAttribute('data-v') != change[attr]) {
         cell.innerHTML = change[attr];
-        cell.orig_value = change[attr];
-        cell.prev_value = undefined;
-        cell.addClassName('saved');
       }
-      if (row.select('.changed').length == 0) {
+      cell.orig_value = change[attr];
+      cell.prev_value = undefined;
+      cell.addClassName('saved');
+    }
+    if (row.select('.changed').length == 0) {
 
-        row.removeClassName('changed');
-      }
+      row.removeClassName('changed');
     }
   }
   // later

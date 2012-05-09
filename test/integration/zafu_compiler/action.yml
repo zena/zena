@@ -69,7 +69,7 @@ action:
 swap:
   src: "<span do='block' do='swap' attr='weight' states='100,-100' do='weight'/>"
   tem: '/:dom_id => %Q\{list1\}, :t_url => "action/swap/list1"/'
-  '/action/swap/en/list1.erb': "/<span id='<%= ndom_id\(@node\) %>'>/"
+  '/action/swap/en/list1.erb': "/<span .*id='<%= ndom_id\(@node\) %>'>/"
 
 swap_with_params:
   src: "<span do='block' do='swap' node[origin]='%{me}' attr='weight' states='100,-100' do='weight'/>"
@@ -86,7 +86,7 @@ swap_in_each:
 
 swap_in_each_with_block:
   src: "<r:pages in='site limit 2'><li do='each'><p do='block'><span do='swap' publish='true' attr='origin' states='todo,done,alert'/></p></li></r:pages>"
-  res: "/<p id='list2_29'>.*list2_29.*<p id='list2_33'>.*list2_33/"
+  res: "/<p .*id='list2_29'>.*list2_29.*<p .*id='list2_33'>.*list2_33/"
 
 hand_made_swap:
   src: "<r:link update='_page' node[origin]='next_in_list(origin, \"todo,done\")' action='update'/>"

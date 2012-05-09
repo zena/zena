@@ -602,7 +602,7 @@ module Zena
 
           params = {}
           @params.each do |k,v|
-            next if [:attr, :eval, :text, :t, :update].include?(k)
+            next if [:attr, :eval, :text, :t].include?(k)
             v = RubyLess.translate_string(self, v)
             if v.literal
               params[k] = CGI.escape(v.literal)
@@ -611,21 +611,8 @@ module Zena
             end
           end
           
-          if upd = @params[:update]
-            js = ""
-            with_context(:node => node(Node)) do
-              href = make_href(upd)
-              name = get_var_name('add_document', 'update')
-
-              txt = "%Q{#{name}\#{#{node}.zip} = function() {new Ajax.Request(\"\#{#{href}}\", {asynchronous:true, evalScripts:true, method:\"get\"})}}"
-              js = "<% js_data << #{txt} %>"
-              # Evaluated before the add_document page is opened.
-              params[:js] = "<%= CGI.escape(\"Zena.t().#{name}\#{#{node}.zip}();\") %>"
-            end
-          end
-          
           res = node_action_link('add_doc', "<%= #{node}.zip %>", :text => text_for_link(''), :params => params)
-          "<% if #{node}.can_write? %>#{js}#{wrap(res)}<% end %>"
+          "<% if #{node}.can_write? %>#{wrap(res)}<% end %>"
         end
 
         # Find icon through a relation named 'icon' or use first image child

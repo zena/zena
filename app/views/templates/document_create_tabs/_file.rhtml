@@ -1,6 +1,6 @@
 <%= upload_form_tag(:action => 'upload') %>
 <%= hidden_field 'node', 'parent_id', :value=>@node.parent_zip  %>
-<% [:redir, :js].each do |p|; next unless params[p] %>
+<% [:redir, :js, :reload].each do |p|; next unless params[p] %>
 <input type='hidden' name='<%= p %>' value='<%= h params[p] %>'/>
 <% end %>
 <p class="btn_validate"><input type="submit" value='<%= _('validate') %>'/></p>

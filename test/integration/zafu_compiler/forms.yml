@@ -193,7 +193,7 @@ select_param_value:
 
 input_style:
   src: "<r:input style='display:none;' type='submit'/>"
-  res: "<input type='submit' style='display:none;'/>"
+  res: "<input style='display:none;' type='submit'/>"
 
 textarea:
   context:
@@ -212,7 +212,7 @@ input_new:
   context:
     node: 'ant'
   src: "<r:contacts><r:each/><r:form><r:input name='first_name'/></r:form><r:add/></r:contacts>"
-  res: "/name='node\[first_name\]' [^>]*id='list2_first_name'/"
+  res: "/id='list2_first_name' [^>]*name='node\[first_name\]'/"
 
 show_in_form:
   src: "<r:form><b do='title'/></r:form>"
@@ -256,12 +256,12 @@ label_on_select:
 passiv_form:
   # Should not transform 'form' or 'input' into 'r:form' or 'r:input'
   src: "<form>xxx<input name='x' id='y' type='text'/> yyy<input name='x' id='y' type='text' value='#{id}'/></form>"
-  tem: "<form>xxx<input name='x' id='y' type='text'/> yyy<input name='x' id='y' type='text' value='<%= @node.zip %>'/></form>"
+  tem: "<form>xxx<input id='y' name='x' type='text'/> yyy<input id='y' name='x' type='text' value='<%= @node.zip %>'/></form>"
 
 passiv_input_in_form:
   # Should not transform 'form' or 'input' into 'r:form' or 'r:input'
   src: "<r:form>xxx<input name='x' id='y' type='text'/> yyy<input name='x' id='y' type='text' value='#{id}'/></r:form>"
-  tem: "/yyy<input name='x' id='y' type='text' value='<%= @node.zip %>'/>/"
+  tem: "/yyy<input id='y' name='x' type='text' value='<%= @node.zip %>'/>/"
 
 param_on_select:
   src: "<r:select param='q[contact.status]' values='0,-5,-10' tshow='active, being registered, inactive'/>"

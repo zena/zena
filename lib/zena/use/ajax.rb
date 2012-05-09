@@ -139,7 +139,10 @@ module Zena
             end
           end
           if params[:redir]
-            page << "window.location.href = '#{params[:redir]}';"
+            page << "window.location.href = '#{params[:redir]}'"
+          end
+          if params[:reload]
+            page << "Zena.reload(#{params[:reload].inspect})"
           end
           page << render_js(false)
         end
@@ -453,7 +456,7 @@ module Zena
          #end
         end
 
-        # Add some js at end of document/partial
+        # Execute javascript after page/partial load.
         def r_js
           if @blocks.detect {|b| !b.kind_of?(String)}
             out "<% js_data << capture do %>"
@@ -463,6 +466,13 @@ module Zena
             txt = @blocks.join('')
             out "<% js_data << #{txt.inspect} %>"
           end
+        end
+        
+        # Only execute javascript on ajax.
+        def r_ajs
+          out "<% if params[:s] %>"
+          r_js
+          out "<% end %>"
         end
 
         def r_ajax?

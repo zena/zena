@@ -59,7 +59,7 @@ table.errors td { padding:2px 5px; background:inherit; border:none;}
 
 /* dev */
 .devb, #dev { background:#eee; font-size:10px;
-padding:5px; border:2px solid #222; text-align:left; color:#444; z-index:9999; border-width:2px 0 0 2px;}
+padding:5px; border:2px solid #222; text-align:left; color:#444; z-index:100; border-width:2px 0 0 2px;}
 #dev { position:fixed; bottom:0px; right:0px;}
 .devb a { color:inherit; }
 .devb ul, .devb li { margin:0; padding:0; list-style:none; background:none; list-style-image:none;}

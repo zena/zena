@@ -153,6 +153,10 @@ module Zena
       		EOL
       	end
       end
+      
+      module ModelMethods
+        include Common
+      end
 
       module ViewMethods
         include Common

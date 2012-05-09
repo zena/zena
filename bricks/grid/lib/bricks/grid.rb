@@ -50,7 +50,7 @@ module Bricks
         table, error = get_table_from_json(node.prop[attribute])
 
         res = prefix + error.to_s
-        uuid = UUIDTools::UUID.random_create.to_s.gsub('-','')
+        uuid = UUIDTools::UUID.random_create.to_s.gsub('-','')[0..6]
         msg = opts[:msg] || _('type to edit')
         res << "<table id='grid#{uuid}' data-a='node[#{attribute}]' data-msg='#{msg}' class='grid'>\n<tr>"
         if node.can_write? && !opts[:no_edit]

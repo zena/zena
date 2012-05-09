@@ -26,6 +26,7 @@ class NodesController < ApplicationController
   layout :popup_layout,           :only => [:edit, :import]
 
   def index
+    puts current_site.lang_list.inspect
     if @node = secure(Node) { Node.find(current_site.root_id) }
       respond_to do |format|
         format.html { render_and_cache :mode => '+index' }
@@ -410,7 +411,21 @@ class NodesController < ApplicationController
           end
         end # html
 
-        format.js { @flash = flash }
+        format.js do
+          @flash = flash
+          if params[:zjs]
+            if @node.errors.empty?
+              attrs = {}
+              params[:node].each do |k,v|
+                v = @node.zafu_eval(k, params[:opts])
+                attrs[k] = v
+              end
+              render :json => attrs.to_json, :status => :ok
+            else
+              render :json => @node.errors, :status => :unprocessable_entity
+            end
+          end
+        end
 
         format.xml do
           if @node.errors.empty?

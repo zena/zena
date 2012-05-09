@@ -12,6 +12,6 @@
         <td class='preview'><p><%= img_tag(@node, :mode=>'pv') %></p><p class='size'><%= fsize(@node.size) %></p></td>
         <td class='description'><h3 class='title s<%= @node.version.status %>'><span class='doc_id'><%= @node[:zip] %></span> <%= @node.title %> <%= node_actions(@node, :actions => :all) %></h3><p class='summary'><%= zazen(@node.summary) %></p></td></tr>
     </table>
-    <p class='btn_validate'><%= link_to _("upload more"), new_document_path(:parent_id => @node.parent_zip) %> // <%= link_to_function _('close'), "Zena.reload_and_close();" %></p>
+    <p class='btn_validate'><%= link_to _("upload more"), new_document_path(:parent_id => @node.parent_zip, :js => params[:js], :reload => params[:reload]) %> // <%= link_to_function _('close'), "Zena.t().Windows.close(#{win_id(@node.parent_zip, 'add_doc').inspect});" %></p>
   </div>
 </div>

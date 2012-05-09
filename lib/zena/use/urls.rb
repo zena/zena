@@ -421,14 +421,62 @@ module Zena
           end
 
           if remote_target
+            if remote_target.kind_of?(String)
+              # YUCK. We should have a way to have dom_ids that do not need
+              # us to look for remote_target !
+              remote_target = find_target(remote_target)
+            end
             # ajax link (link_to_remote)
 
             # Add href to non-ajax method.
             markup.set_dyn_param(:href, "<%= #{make_href(nil, options.merge(:update => false))} %>")
 
+            if true
+              # Use onclick with Ajax.
+              markup.set_dyn_param(:onclick, "new Ajax.Request(\"<%= #{href} %>\", {asynchronous:true, evalScripts:true, method:\"#{http_method}\"}); return false;")
+            else
+              # Experimental new model for javascript actions.
+              # Works for 'swap' but needs more adaptations for 'edit'
+            
+              hash_params = []
+              (options[:query_params] || @params).each do |key, value|
+                next if [:update, :href, :eval, :text, :attr, :t, :host].include?(key)
+                case key
+                when :anchor
+                  # Get anchor and force string interpolation
+                  value = "%Q{#{get_anchor_name(value)}}"
+                when :publish
+                  if value == 'true'
+                    key = 'node[v_status]'
+                    value = Zena::Status::Pub
+                  else
+                    next
+                  end
+                when :encode_params, :format, :mode, :insert, :states
+                  # Force string interpolation
+                  value = "%Q{#{value}}"
+                else
+                  if value.blank?
+                    value = "''"
+                  end
+                end
+                hash_params << "#{key.inspect} => #{value}"
+              end
 
-            # Use onclick with Ajax.
-            markup.set_dyn_param(:onclick, "new Ajax.Request(\"<%= #{href} %>\", {asynchronous:true, evalScripts:true, method:\"#{http_method}\"}); return false;")
+              if host = param(:host)
+                hash_params << ":host => %Q{#{host}}"
+              end
+            
+              if !hash_params.blank?
+                puts "{#{hash_params.join(', ')}}.to_param"
+                query = RubyLess.translate(self, "{#{hash_params.join(', ')}}.to_json")
+              else
+                query = ''
+              end
+            
+              dom_id, dom_prefix = get_dom_id(remote_target)
+              markup.set_dyn_param(:onclick, %Q{return Zena.#{http_method}("<%= #{dom_id} %>",<%= #{query} %>)})
+            end
           else
             markup.set_dyn_param(:href, "<%= #{href} %>")
 
@@ -676,54 +724,6 @@ module Zena
               hash_params << ":dom_id => insert_dom_id"
               hash_params << ":t_url  => %Q{#{template_url(dom_prefix)}}"
             end
-
-            # method = opts[:method] || :get
-            #
-            # html_params = opts[:html_params] || {}
-            # node_id = opts[:node_id] || self.node_id
-            #
-            # url    = opts[:url]    || "/#{base_class.to_s.pluralize.underscore}/\#{#{node_id}}#{method == :get ? '/zafu' : ''}"
-            # opts[:cond]   ||= "#{node}.can_write?" if method != :get
-            #
-            # query_params = [opts[:query_params]].flatten.compact
-            #
-            # if method == :get
-            #   if target
-            #     query_params << "t_url=#{CGI.escape(target.template_url)}"
-            #     query_params << "dom_id=#{target.dom_id}"
-            #   else
-            #     query_params << "dom_id=_page"
-            #   end
-            # else
-            #   query_params << "t_url=#{CGI.escape(template_url)}" if method != :delete
-            #
-            #   query_params << "dom_id=#{dom_id}"
-            #   if target != self
-            #     if target
-            #       query_params << "u_url=#{CGI.escape(target.template_url)}"
-            #       query_params << "udom_id=#{target.dom_id}"
-            #     else
-            #       query_params << "udom_id=_page"
-            #     end
-            #   end
-            # end
-            #
-            # query_params << "node[v_status]=#{Zena::Status::Pub}" if @params[:publish] # FIXME: this acts like publish = 'force'
-            # query_params << start_node_s_param(:string)
-            #
-            # res = ''
-            # res += "<% if #{opts[:cond]} %>" if opts[:cond]
-            # res += "<%= tag_to_remote({:url => \"#{url}?#{query_params.join('&')}\", :method => #{method.inspect}}#{params_to_erb(html_params)}) %>"
-            # res += text_for_link(opts[:default_text])
-            # res += "</a>"
-            # if opts[:cond]
-            #   if opts[:else] != :void
-            #     res += "<% else %>"
-            #     res += text_for_link(opts[:default_text])
-            #   end
-            #   res += "<% end %>"
-            # end
-            # res
           end
 
           # <r:link page='next'/> <r:link page='previous'/> <r:link page='list'/>

@@ -149,7 +149,7 @@ class RenderingInControllerTest < Zena::Controller::TestCase
         login(:anon)
         # render page to build template
         get 'show', :path => ["section#{nodes_zip(:people)}_#{@mode}.html"], :prefix => 'en'
-        assert_equal "<div id='foo'>hello people</div>", @response.body
+        assert_equal "<div data-z='12' id='foo'>hello people</div>", @response.body
       end
 
       should 'execute Element update' do
@@ -158,7 +158,7 @@ class RenderingInControllerTest < Zena::Controller::TestCase
           :t_url  => 'Default skin/Node-ins/foo',
           :dom_id => 'foo',
         }
-        assert_equal %Q{Element.replace("foo", "\\u003Cdiv id='foo'\\u003Ehello people\\u003C/div\\u003E");\n}, @response.body
+        assert_equal %Q{Element.replace(\"foo\", \"\\u003Cdiv data-z='12' id='foo'\\u003Ehello people\\u003C/div\\u003E\");\n}, @response.body
       end
 
       context 'with insert' do
@@ -169,7 +169,7 @@ class RenderingInControllerTest < Zena::Controller::TestCase
             :dom_id => 'foo',
             :insert => 'bottom',
           }
-          assert_equal %Q{Zena.insert_inner("foo", "bottom", "\\u003Cdiv id='foo'\\u003Ehello people\\u003C/div\\u003E");\n}, @response.body
+          assert_equal %Q{Zena.insert_inner(\"foo\", \"bottom\", \"\\u003Cdiv data-z='12' id='foo'\\u003Ehello people\\u003C/div\\u003E\");\n}, @response.body
         end
       end # with insert
     end # to update

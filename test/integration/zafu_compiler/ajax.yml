@@ -6,13 +6,13 @@ default:
 
 block:
   src: "<r:parent><r:block name='foobar' do='title'/></r:parent>"
-  tem: "<% if var1 = @node.parent %><div id='foobar'><%= var1.prop['title'] %></div><% end %>"
-  'ajax/block/en/foobar.erb': "<div id='<%= ndom_id(@node) %>'><%= @node.prop['title'] %></div>"
+  tem: "<% if var1 = @node.parent %><div data-z='<%= var1.zip %>' id='foobar'><%= var1.prop['title'] %></div><% end %>"
+  'ajax/block/en/foobar.erb': "<div data-z='<%= @node.zip %>' id='<%= ndom_id(@node) %>'><%= @node.prop['title'] %></div>"
 
 add:
   src: "<ul id='children' do='nodes'><li do='each' do='link'/><li do='add'/></ul>"
   tem: "/\[\"children_add\", \"children_0\"\].each\(Element.toggle\)/"
-  'ajax/add/en/children_form.erb': "/class='form' id='<%= ndom_id\(@node\) %>'/"
+  'ajax/add/en/children_form.erb': "/class='form' .*id='<%= ndom_id\(@node\) %>'/"
   'ajax/add/en/children.erb': "<li id='<%= ndom_id(@node) %>'><a href='<%= zen_path(@node) %>'><%= @node.prop['title'] %></a></li>"
 
 edit_not_each:
@@ -55,7 +55,7 @@ form_update:
 add_each_no_form:
   src: "<ul do='children' id='things'><li do='each'>I <p do='title'>blah</p></li><li do='add'/></ul>"
   tem: "!/</ul><ul></ul>/" # bug in closing group with [add].
-  res: "/<ul><li.*id='things_add'.*li.*class='form' id='things_0'.*form.*I <p><input id=.things_title. name=.node\[title\]. .*type=.text..*hidden/"
+  res: "/<ul><li.*id='things_add'.*li.*class='form' .*id='things_0'.*form.*I <p><input id=.things_title. name=.node\[title\]. .*type=.text..*hidden/"
 
 add_each_no_form_date:
   src: "<ul do='children' id='things'><li do='each'>I <p do='show' attr='event_at' tformat='short_date'>blah</p></li><li do='add'/></ul>"
@@ -74,7 +74,7 @@ each_add_with_form:
       <li do='add'>add new</li>
       <li do='form'><input name='title'/> this is the form</li>
     </ol>
-  res: "/<li id='list1_30'>bird.*<li id='list1_31'>flower.*<li.*list1_add.*list1_0.*toggle.*<li style.*none.*list1_0.*Ajax.Request.*input type='hidden' name='t_url' value=.ajax/each/add/with/form/list1.*input type='hidden' name='node\[parent_id\]' value=.29./"
+  res: "/<li id='list1_30'>bird.*<li id='list1_31'>flower.*<li.*list1_add.*list1_0.*toggle.*<li.*style.*none.*list1_0.*Ajax.Request.*input type='hidden' name='t_url' value=.ajax/each/add/with/form/list1.*input type='hidden' name='node\[parent_id\]' value=.29./"
 
 each_add_with_form_in_sub_block:
   context:
@@ -126,7 +126,7 @@ block_dictionary:
 
 make_form:
   src: "<ul do='children'><li do='each' do='title'/><li do='add'/></ul>"
-  tem: "/<li style='display:none;' class='form' id='list1_0'>.*remote_form_for\(:node, var2_new"
+  tem: "/<li class='form' style='display:none;' id='list1_0'>.*remote_form_for\(:node, var2_new"
   'ajax/make/form/en/list1.erb': "<li id='<%= ndom_id(@node) %>'><%= @node.prop['title'] %></li>"
   'ajax/make/form/en/list1_form.erb': "/<li class='form' id='<%= ndom_id\(@node\) %>'>/"
 
@@ -177,24 +177,24 @@ live_filter:
   src: "<r:filter live='true'/><r:block><ol do='pages where title like \"#{params[:f]}%\"'><li do='each' do='title'/></ol></r:block>"
   # Make sure a unique_name is set for the given block
   tem: "/name='t_url' value='ajax/live/filter/list1'.*<% filter_form\(@node.*ml1.value LIKE \?.*, \"#\{params\[:f\]\}%\"/"
-  'ajax/live/filter/en/list1.erb': "/<div id='<%= ndom_id\(@node\).*, \"#\{params\[:f\]\}%\".*var2.prop\['title'\]/"
-  res: "/<input type='text' name='f'.*<div id='list1'><ol><li>crocodiles</li><li>status title</li></ol></div>/"
+  'ajax/live/filter/en/list1.erb': "/<div .*id='<%= ndom_id\(@node\).*, \"#\{params\[:f\]\}%\".*var2.prop\['title'\]/"
+  res: "/<input type='text' name='f'.*<div .*id='list1'><ol><li>crocodiles</li><li>status title</li></ol></div>/"
 
 live_filter_single_element:
   context:
     node: cleanWater
   src: "<r:filter live='true'/><r:block><r:page where='title like \"#{params[:f]}%\"' find='first'><b do='title'/></r:page></r:block>"
   tem: "/, \"#\{params\[:f\]\}%\"/"
-  'ajax/live/filter/single/element/en/list1.erb': "/<div id=.*params\[:f\].*var1.prop\['title'\]/"
-  res: "/<input type='text' name='f'.*<div id='list1'><b>crocodiles</b></div>/"
+  'ajax/live/filter/single/element/en/list1.erb': "/<div .*id=.*params\[:f\].*var1.prop\['title'\]/"
+  res: "/<input type='text' name='f'.*<div .*id='list1'><b>crocodiles</b></div>/"
 
 live_filter_select_options:
   context:
     node: cleanWater
   src: "<r:filter live='true' do='select' param='f' tprefix='foo' values='1,2'/><r:block><ol do='pages where title like \"#{params[:f]}%\"'><li do='each' do='title'/></ol></r:block>"
   tem: "/select name=.f.><%= options_for_select.*.foo_1., .1..*, param_value\(.f.\).to_s/"
-  'ajax/live/filter/select/options/en/list1.erb': "/<div id='<%= ndom_id\(@node\) %>'.*params\[:f\]/"
-  res: "/<select name='f'.*<div id='list1'><ol><li>crocodiles</li><li>status title</li></ol></div>/"
+  'ajax/live/filter/select/options/en/list1.erb': "/<div .*id='<%= ndom_id\(@node\) %>'.*params\[:f\]/"
+  res: "/<select name='f'.*<div .*id='list1'><ol><li>crocodiles</li><li>status title</li></ol></div>/"
 
 draggable_do_syntax:
   src: "<r:images in='site' do='each' draggable='all' do='img' mode='pv'/>"
@@ -255,7 +255,7 @@ draggable_in_block:
   # should use 'hooba' class
   src: "<r:block><r:link draggable='hooba'/></r:block>"
   tem: "/add_drag_id\(%Q\{drag_\#\{@node.zip\}\}, .*hooba/"
-  res: "<div id='list1'><span class='drag' id='drag_22'><span class='hooba'>&nbsp;</span><a href='/oo/projects-list/Clean-Water-project/page22.html'>status title</a></span></div>"
+  res: "<div data-z='22' id='list1'><span class='drag' id='drag_22'><span class='hooba'>&nbsp;</span><a href='/oo/projects-list/Clean-Water-project/page22.html'>status title</a></span></div>"
   js:  "/Zena.draggable\(item, \"hooba\"\)/"
 
 draggable_with_id_set:
@@ -290,8 +290,8 @@ edit_link:
   'ajax/edit/link/fr/list1.erb': "/:link_id => @node.link_id/"
 
 start_id:
-  src: "<r:form><input type='hidden' name='s' value='#{start_id}'/></r:form>"
-  res: "/<input type='hidden' name='s' value='22'/></"
+  src: "<r:form><input name='s' type='hidden' value='#{start_id}'/></r:form>"
+  res: "/<input name='s' type='hidden' value='22'/></"
 
 drop_add_link:
   context:
@@ -299,7 +299,7 @@ drop_add_link:
   src: "<div do='drop' add='favorite'></div>"
   # without the ugly inspect, this would be '#{id}' or "\#{id}"
   tem: "/drop_node_path.*\"node\[favorite_id\]\" => \"\\\\#\{id\}\"/"
-  res: "<div class='drop' id='list1'></div>"
+  res: "<div class='drop' data-z='22' id='list1'></div>"
   js: "/Droppables.add\('list1'.*/nodes/22/drop.*node\[favorite_id\]=%23%7Bid%7D"
 
 drop_var_scope:
@@ -312,14 +312,14 @@ drop_done_remove:
 
 drop_param:
   src: "<r:drop change='params' d='%{foo}'>params[:d] = <r:show eval='params[:d]'/></r:drop>"
-  tem: "/<div class='drop' id='list1'><% add_drop_id\(%Q\{list1\}, :url => drop_node_path\(@node.*:d => \"foo\", :change => \"params\"/"
-  res: "<div class='drop' id='list1'>params[:d] = </div>"
+  tem: "/<div class='drop' .*id='list1'><% add_drop_id\(%Q\{list1\}, :url => drop_node_path\(@node.*:d => \"foo\", :change => \"params\"/"
+  res: "<div class='drop' data-z='22' id='list1'>params[:d] = </div>"
   js: '/Droppables.add\(.list1.*d=foo/'
 
 drop_in_each:
   src: "<ul do='pages'><li do='each'><ul do='drop' set='reference'>...</ul></li></ul>"
-  tem: "/<ul class='drop' id='<%= %Q\{list2_#\{var2.zip\}\} %>'><% add_drop_id\(%Q\{list2_#\{var2.zip\}\}/"
-  'ajax/drop/in/each/en/list2.erb': "/<ul class='drop' id=.*ndom_id.*add_drop_id.*drop_node_path.*ndom_id/"
+  tem: "/<ul class='drop' .*id='<%= %Q\{list2_#\{var2.zip\}\} %>'><% add_drop_id\(%Q\{list2_#\{var2.zip\}\}/"
+  'ajax/drop/in/each/en/list2.erb': "/<ul class='drop' .*id=.*ndom_id.*add_drop_id.*drop_node_path.*ndom_id/"
 
 drop_param_in_each:
   src: "<r:pages do='each' do='drop' change='params' d='%{foo}'><r:show eval='params[:d]'/></r:pages>"
@@ -341,13 +341,15 @@ drop_in_each_id:
   # Should use prefix from "drop", not list of favorites.
   res: "/drop13_39/"
   # Show drop element
-  'ajax/drop/in/each/id/en/drop12.erb': "/^\s*<ul.*<li id='<%= %Q\{drop13_#\{var2.zip\}\} %>"
+  'ajax/drop/in/each/id/en/drop12.erb': "/^\s*<ul.*<li .*id='<%= %Q\{drop13_#\{var2.zip\}\} %>"
   # Show each element
   'ajax/drop/in/each/id/en/drop13.erb': '/^\s*<li/'
 
 update_target:
   src: "UT: <div id='foo' do='block'>...</div> <r:link update='foo'/>"
-  tem: "/UT: <div id='foo'>...</div> .*Ajax.Request.*:dom_id => %Q\{foo\}/"
+  tem: "/UT: <div .*id='foo'>...</div> .*Ajax.Request.*:dom_id => %Q\{foo\}/"
+  # New syntax should be
+  # tem: "/UT: <div .*id='foo'>...</div> .*Zena.get('foo', {id:<%= @node.zip %>})/"
 
 update_target_encode_params:
   context:
@@ -358,11 +360,11 @@ update_target_encode_params:
 
 include_update_target:
   src: "IUT: <r:include template='/ajax/update/target'><r:with part='foo'><r:show attr='title'/></r:with></r:include>"
-  tem: "/IUT: UT: <div id='foo'><%= h @node.prop\['title'\] %></div> <a .*zen_path.*onclick='new Ajax.Request/"
+  tem: "/IUT: UT: <div .*id='foo'><%= h @node.prop\['title'\] %></div> <a .*zen_path.*onclick='new Ajax.Request/"
 
 id_in_each_group_should_be_scoped:
   src: "<ul do='comments from nodes in site' do='group' by='discussion_id'><li do='each'><r:node do='block' do='title'/></li></ul>"
-  tem: "/<div id='<%= %Q\{list1_#\{var4.zip\}_list2\} %>'>/"
+  tem: "/<div .*id='<%= %Q\{list1_#\{var4.zip\}_list2\} %>'>/"
 
 link_page_next:
   context:
