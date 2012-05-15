@@ -4,7 +4,10 @@
 .grid td.input, .grid th.input { padding:0;}
 .grid td.input input, .grid th.input input { margin:0; padding:0;font-size:inherit;}
 .grid td.changed {background:#E5DDD7}
+.grid .new td {background:#B2DFEE}
+.grid .new td.action {background:none}
 .grid .saved { background:#A3FF4F}
+.grid td.error, .grid tr.error td { background:#FFB6C1; border-color:red}
 .grid td.undone, .grid td.changed.undone, .grid th.undone, .grid th.changed.undone { background:#F3F07F}
 .grid .action span {cursor:pointer; visibility:hidden;}
 .grid:hover .action span {visibility:visible;}
@@ -16,4 +19,4 @@
 .grid_btn {margin:1em 0}
 .grid_btn a.save {background:#80B62D}
 .grid_btn a.undo {background:#AAB76D}
-
+.grid_msg {border:1px solid #888; background:#eee; border-radius:4px; padding:5px; display:table}

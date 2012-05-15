@@ -19,3 +19,8 @@ test_set_for_siblings:
 test_set_for_siblings_overwrite:
   src: "<r:set hours='3'/><r:set hours='%{hello}'/><r:if test='!hours.blank?'>you have: <r:eval>hours.gsub(/o/,'')</r:eval></r:if>"
   res: "you have: hell"
+
+node_eval:
+  src: "<r:void do='@node.eval(\"title\")'/>"
+  tem: "<%= @node.zafu_eval(\"title\") %>"
+  res: "status title"

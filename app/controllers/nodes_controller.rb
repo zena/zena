@@ -295,7 +295,7 @@ class NodesController < ApplicationController
         end
       end
 
-      format.xml  do
+      format.xml do
         node_xml = @node.to_xml #need to be allocated before destroying
         if node_xml && @node.destroy
           render :xml => node_xml, :status => 200
@@ -305,7 +305,14 @@ class NodesController < ApplicationController
         end
       end
 
-      format.js
+      format.js do
+        node_json = @node.to_json
+        if @node.destroy
+          render :json => node_json, :status => 200
+        else
+          render :json => @node.errors, :status => :unprocessable_entity
+        end
+      end
 
     end
   end

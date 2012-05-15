@@ -16,8 +16,8 @@ erb:
   tem: "&lt;% puts 'mean' %&gt;"
 
 forbidden_methods:
-  src: "<r:eval>eval '\'bad\''</r:eval>"
-  tem: "/unknown method 'eval\(String\)'/"
+  src: "<r:eval>puts '\'bad\''</r:eval>"
+  tem: "/unknown method 'puts\(String\)'/"
 
 syntax_error:
   src: "<r:show eval='<% puts \"mean\" %>'/>"
