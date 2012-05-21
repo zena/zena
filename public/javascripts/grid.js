@@ -261,7 +261,7 @@ Grid.keydown = function(event) {
 }
 
 Grid.openCell = function(cell) {
-  if (cell.hasClassName('input')) return;
+  if (cell.hasClassName('input') || cell.select('a').length > 0) return;
   var value = cell.getAttribute('data-v') || cell.innerHTML;
 
   if (!cell.orig_value) cell.orig_value = value;
@@ -654,6 +654,14 @@ Grid.clearChanges = function(list, id) {
   }
 }
 
+Grid.isChanged = function(elem) {
+  var table = $(elem)
+  var grid = table.grid
+  // buildObj adds a row per new object on load
+  return grid.changes.length > (table.attr_name ? 0 : table.select('tr').length - 1)
+}
+
+
 Grid.save = function(grid_id) {
   // do not run on GUI thread
   setTimeout(function() {
@@ -816,4 +824,54 @@ Grid.notify = function(table, changes) {
   setTimeout(function() {
     table.select('.saved').invoke('removeClassName', 'saved')
   }, 1000)
+}
+
+
+/////////// Tags
+Tags = {}
+
+Tags.click = function(event) {
+  var e = event.element()
+  var value = e.innerHTML
+  var tags = e.tags
+  var list = tags.list
+  for (var i = list.length - 1; i >= 0; i--) {
+    while (list[i] && list[i] == value) {
+      list.splice(i, 1)
+    }
+  }
+  tags.onChange(list, e)
+}
+
+Tags.add = function(event) {
+  var e = event.element()
+  var value = e.value
+  var tags = e.tags
+  var list = tags.list
+  for (var i = list.length - 1; i >= 0; i--) {
+    while (list[i] && list[i] == value) {
+      list.splice(i, 1)
+    }
+  }
+  list.push(value)
+  tags.onChange(list)
+}
+
+Tags.make = function(elem, opts) {
+  var tags = {}
+  tags.onChange = opts.onChange
+  elem.tags = tags
+  var list = []
+  tags.list = list
+  elem.childElements().each(function(e) {
+    var input = e.select('input,select').first()
+    if (input) {
+      input.tags = tags
+      input.observe('change', Tags.add)
+    } else {
+      e.tags = tags
+      list.push(e.innerHTML)
+      e.observe('click', Tags.click)
+    }
+  })
 }

@@ -586,7 +586,6 @@ class NodesController < ApplicationController
           if path = request.env['REQUEST_PATH'].split('/')[2..-1]
             params[:path] = path
           else
-            Node.logger.warn("REQUEST_PATH: #{request.env['REQUEST_PATH'].inspect}")
             path = params[:path]
           end
         end

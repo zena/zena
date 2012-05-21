@@ -3,6 +3,7 @@
 * Major changes
  * Basic zjs to batch create/update nodes (with grid.js).
  * Zafu is not a separate gem anymore.
+ * Added simple support for JS Tags (used to define grid colums).
 
 * Minor changes
  * Fixed label traduction for param.

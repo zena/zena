@@ -801,10 +801,15 @@ module Zena
               elsif show = @params[:tshow]
                 show_values = translate_list(show)
               else
-                tprefix = @params[:tprefix] || @params[:name]
+                tprefix = @params[:tprefix] || @params[:name] || @params[:param]
+                if tprefix == 'false'
+                  tprefix = ''
+                else
+                  tprefix = "#{tprefix}_"
+                end
                 show_values = options_list.map do |v|
-                  t = trans("#{tprefix}_#{v}")
-                  if t == "#{tprefix}_"
+                  t = trans("#{tprefix}#{v}")
+                  if t == tprefix
                     ''
                   else
                     t
