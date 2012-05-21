@@ -62,45 +62,54 @@ Grid.buildObj = function(grid, row) {
     id: id,
     _new: true
   }
+  // Add all default attributes
+  grid.defaults.each(function(pair) {
+    base[pair.key] = pair.value
+  })
   // Add all attributes
   var cells = row.childElements()
   for (var i = 0; i < cells.length - 1; i++) {
     var cell  = cells[i]
     var attr = grid.attr[i]
-
-    base[attr] = cell.getAttribute('data-v') || cell.innerHTML
-    cell.orig_value = base[attr]
-  }
-  // Add all default attributes
-  grid.defaults.each(function(pair) {
-    if (base[pair.key] == undefined) {
-      base[pair.key] = pair.value
+    if (attr) {
+      var value = cell.getAttribute('data-v') || cell.innerHTML
+      if (!value || value.strip() == '') {
+        value = base[attr]
+      } else {
+        base[attr] = value
+      }
+      if (cell.innerHTML.strip() == '') cell.innerHTML = value || ''
     }
-  })
+  }
   grid.changes.push(base)
   return id
 }
 
 Grid.closeCell = function(event) {
-    var input = event.element();
-    var cell = input.up();
-    var table = event.findElement('table');
-    var pos = Grid.pos(cell);
-    cell.removeClassName('input');
-    // simple case
-    var value, show
-    if (input.tagName == 'INPUT') {
+  if (Grid.in_paste) return
+  var input = event.element()
+  var cell = input.up()
+  var table = event.findElement('table')
+  var pos = Grid.pos(cell)
+  cell.removeClassName('input')
+  // simple case
+  var value, show
+  if (input.tagName == 'INPUT') {
+    if (input.type == 'checkbox') {
+      value = input.checked ? input.value : (input.getAttribute('data-off') || cell.getAttribute('data-v'))
+    } else {
       value = input.value
-      show  = value
-    } else if (input.tagName == 'SELECT') {
-      value = input.value
-      show  = input.select('option[value="'+value+'"]').first().innerHTML
     }
-    Grid.changed(cell, value, show);
-    if (table.grid.input) {
-        // single attribute table, serialize in input field
-        table.grid.input.value = Grid.serialize(table);
-    }
+    show  = value
+  } else if (input.tagName == 'SELECT') {
+    value = input.value
+    show  = input.select('option[value="'+value+'"]').first().innerHTML
+  }
+  Grid.changed(cell, value, show)
+  if (table.grid.input) {
+      // single attribute table, serialize in input field
+      table.grid.input.value = Grid.serialize(table)
+  }
 }
 
 Grid.pos = function(elem) {
@@ -124,7 +133,9 @@ Grid.paste = function(event) {
     bottom: "<textarea style='position:fixed; top:0; left:10100px;' id='grid_p_" + table.grid.id + "'></textarea>"
   });
   var paster = $("grid_p_" + table.grid.id);
+  Grid.in_paste = true // prevent original input blur
   paster.focus();
+  Grid.in_paste = false
   setTimeout(function() {
     var text = paster.value;
     paster.remove();
@@ -136,6 +147,7 @@ Grid.paste = function(event) {
     if (lines.length == 1 && lines[0].length == 1) {
       // simple case
       input.value = lines[0][0];
+      input.focus()
     } else {
       // copy/paste from spreadsheet
       var should_create = table.grid.input && true;
@@ -215,12 +227,14 @@ Grid.keydown = function(event) {
     // find elem
     if (!row) {
       // open new row
-      Grid.addRow(crow.up('table'), cell.up());
-      row = crow.nextSiblings().first();
-      var next = row.childElements()[0];
-      setTimeout(function() {
-        Grid.openCell(next);      
-      }, 100);
+      if (crow.up('table').grid.add) {
+        Grid.addRow(crow.up('table'), cell.up());
+        row = crow.nextSiblings().first();
+        var next = row.childElements()[0];
+        setTimeout(function() {
+          Grid.openCell(next);      
+        }, 100);
+      }
     } else {
        next = row.childElements()[pos];
        Grid.openCell(next);
@@ -266,7 +280,13 @@ Grid.openCell = function(cell) {
     if (input) {
       input = Element.clone(input, true)
       cell.update(input)
-      input.value = value
+      if (input.type == 'checkbox') {
+        if (value == input.value) {
+          input.checked = true
+        }
+      } else {
+        if (value && value.strip() != '') input.value = value
+      }
     }
   }
   
@@ -407,9 +427,10 @@ Grid.makeAttrPos = function(table) {
   var pos = {};
   var helper = {}
   var defaults = {}
-  var helpers = $(table.grid.helper_id)
+  var helpers
   table.grid.attr = attr
   table.grid.pos = pos
+  if (table.grid.helper_id) helpers = $(table.grid.helper_id)
   if (helpers) {
     table.grid.helper = helper;
   }
@@ -480,6 +501,8 @@ Grid.Buttons = function(grid) {
   return btns
 }
 
+Grid.ColButtons = "<td><span class='del'>&nbsp;</span> <span class='add'>&nbsp;</span></td>"
+
 // only used with single attr table
 Grid.addButtons = function(table) {
   var grid = table.grid
@@ -498,20 +521,20 @@ Grid.addButtons = function(table) {
   }
 
   for (var i = 0; i < rows.length; i++) {
-    var buttons;
-    if (i == 0) {
-      buttons = "<td class='action'><span class='add'>&nbsp;</span></td>";
+    var buttons
+    if (i == 0 && grid.add) {
+      buttons = "<td class='action'><span class='add'>&nbsp;</span></td>"
     } else {
-      buttons = Grid.Buttons(grid);
+      buttons = Grid.Buttons(grid)
     }
     rows[i].insert({
       bottom: buttons
-    });
+    })
   }
   tbody.insert({
     top: col_action
-  });
-  return data;
+  })
+  return data
 }
 
 Grid.onFailure = function(grid, id, errors) {
@@ -556,6 +579,7 @@ Grid.setError = function(e, msg) {
 }
 
 Grid.make = function(table, opts) {
+  opts = opts || {}
   table = $(table)
   if (table.grid) return;
   Grid.grid_c++;
@@ -583,8 +607,9 @@ Grid.make = function(table, opts) {
     table.innerHTML = "<tr><th>" + msg + "</th></tr><tr><td></td></tr>";
   }
   
-  Grid.makeAttrPos(table);
-  Grid.addButtons(table);
+  Grid.makeAttrPos(table)
+  Grid.addButtons(table)
+  
 
   if (table.grid.attr_name) {
     // If we have an attr_name, rows and columns are
