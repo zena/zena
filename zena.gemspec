@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2012-05-15}
+  s.date = %q{2012-05-16}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -563,6 +563,28 @@ Gem::Specification.new do |s|
     "lib/tasks/zena.rake",
     "lib/tasks/zena.rb",
     "lib/upload_progress_server.rb",
+    "lib/zafu.rb",
+    "lib/zafu/all.rb",
+    "lib/zafu/compiler.rb",
+    "lib/zafu/controller_methods.rb",
+    "lib/zafu/handler.rb",
+    "lib/zafu/info.rb",
+    "lib/zafu/markup.rb",
+    "lib/zafu/mock_helper.rb",
+    "lib/zafu/node_context.rb",
+    "lib/zafu/ordered_hash.rb",
+    "lib/zafu/parser.rb",
+    "lib/zafu/parsing_rules.rb",
+    "lib/zafu/process/ajax.rb",
+    "lib/zafu/process/conditional.rb",
+    "lib/zafu/process/context.rb",
+    "lib/zafu/process/forms.rb",
+    "lib/zafu/process/html.rb",
+    "lib/zafu/process/ruby_less_processing.rb",
+    "lib/zafu/security.rb",
+    "lib/zafu/template.rb",
+    "lib/zafu/test_helper.rb",
+    "lib/zafu/view_methods.rb",
     "lib/zazen_parser.rb",
     "lib/zena.rb",
     "lib/zena/acts/enrollable.rb",
@@ -2085,6 +2107,9 @@ Gem::Specification.new do |s|
     "test/unit/version_test.rb",
     "test/unit/virtual_class_test.rb",
     "test/unit/workflow_test.rb",
+    "test/unit/zafu_markup_test.rb",
+    "test/unit/zafu_node_context_test.rb",
+    "test/unit/zafu_ordered_hash_test.rb",
     "test/unit/zena/acts/enrollable_test.rb",
     "test/unit/zena/acts/secure_test.rb",
     "test/unit/zena/acts/serializable_test.rb",
@@ -2443,7 +2468,6 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<property>, ["= 2.2.0"])
       s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_runtime_dependency(%q<authlogic>, ["= 2.1.3"])
-      s.add_runtime_dependency(%q<zafu>, ["= 0.8.6"])
       s.add_runtime_dependency(%q<shoulda>, ["= 2.10.3"])
       s.add_runtime_dependency(%q<fast_gettext>, ["~> 0.4.16"])
       s.add_runtime_dependency(%q<syntax>, ["= 1.0.0"])
@@ -2470,7 +2494,6 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<property>, ["= 2.2.0"])
       s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_dependency(%q<authlogic>, ["= 2.1.3"])
-      s.add_dependency(%q<zafu>, ["= 0.8.6"])
       s.add_dependency(%q<shoulda>, ["= 2.10.3"])
       s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
       s.add_dependency(%q<syntax>, ["= 1.0.0"])
@@ -2498,7 +2521,6 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<property>, ["= 2.2.0"])
     s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
     s.add_dependency(%q<authlogic>, ["= 2.1.3"])
-    s.add_dependency(%q<zafu>, ["= 0.8.6"])
     s.add_dependency(%q<shoulda>, ["= 2.10.3"])
     s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
     s.add_dependency(%q<syntax>, ["= 1.0.0"])

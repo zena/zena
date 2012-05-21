@@ -228,12 +228,17 @@ set_parent_id_in_new:
   tem: "/node\[parent_id\].*@node.zip/"
   res: "/<input type='hidden' name='node\[parent_id\]' value='22'/>/"
 
-
 label_on_input:
   context:
     lang: fr
   src: "<r:input label='t' name='title'/>"
   res: "<label>titre</label> <span><input type='text' name='node[title]' value='Etat des travaux'/></span>"
+
+label_on_input_param:
+  context:
+    lang: fr
+  src: "<r:input label='t' param='title'/>"
+  res: "<label>titre</label> <span><input type='text' name='title' value=''/></span>"
 
 label_on_textarea:
   context:

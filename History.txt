@@ -1,7 +1,11 @@
 == 1.2.2
 
 * Major changes
- * Basic zjs to batch create/update nodes (with grid.js)
+ * Basic zjs to batch create/update nodes (with grid.js).
+ * Zafu is not a separate gem anymore.
+
+* Minor changes
+ * Fixed label traduction for param.
 
 == 1.2.0, 1.2.1 2012-05-01
 
