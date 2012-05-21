@@ -6,6 +6,7 @@
 
 * Minor changes
  * Fixed label traduction for param.
+ * Enable ajax response on Node destroy (use dummy update parameter).
 
 == 1.2.0, 1.2.1 2012-05-01
 

@@ -1,1 +1,2 @@
-update_page_content(page, @parent)
+@node = @parent
+update_page_content(page, @node)

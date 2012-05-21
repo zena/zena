@@ -63,6 +63,16 @@
     </table>
   </div>
 
+  <div class='test' id='destroy1' do='selenium'>
+    <h3>destroy1</h3>
+    <p>Using "action='destroy'" to remove elements.</p>
+    <ul id='destroy_list' do='block' do='projects in site'>
+      <li do='add' klass='Project' after='self'/>
+      <li do='form'><r:input name='title'/></li>
+      <li class='#{title}' do='each'><r:link/> <span id='destroy_#{title}' do='link' action='destroy' update='destroy_list' do='t'>destroy</span></li>
+    </ul>
+  </div>
+
   <div class='test' id='edit1' do='selenium'>
     <h3>edit1</h3>
     <p>Edit in place, form built from block.</p>

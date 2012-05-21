@@ -1,0 +1,16 @@
+# Add first element
+open '/oo/testnode37.html?test=destroy1'
+verify_element_not_present 'destroy_destroy1'
+
+click 'css=img[alt=add]'
+type 'destroy_list2_title', 'destroy1'
+click 'css=input[type=submit]'
+wait_for_element_present 'destroy_destroy1'
+
+click 'css=#destroy_destroy1 a'
+assert_confirmation 'Destroy destroy1 ?'
+wait_for_element_not_present 'destroy_destroy1'
+
+# Reload
+open '/oo/testnode37.html?test=destroy1'
+verify_element_not_present 'destroy_destroy1'

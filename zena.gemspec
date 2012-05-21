@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2012-05-16}
+  s.date = %q{2012-05-21}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -189,6 +189,7 @@ Gem::Specification.new do |s|
     "app/views/nodes/clear_order.rjs",
     "app/views/nodes/create.rjs",
     "app/views/nodes/destroy.erb",
+    "app/views/nodes/destroy.rjs",
     "app/views/nodes/drive.rjs",
     "app/views/nodes/drop.rjs",
     "app/views/nodes/edit.html.erb",
@@ -601,6 +602,7 @@ Gem::Specification.new do |s|
     "lib/zena/core_ext/dir.rb",
     "lib/zena/core_ext/file_utils.rb",
     "lib/zena/core_ext/fixnum.rb",
+    "lib/zena/core_ext/float.rb",
     "lib/zena/core_ext/string.rb",
     "lib/zena/crypto_provider/initial.rb",
     "lib/zena/db.rb",
@@ -2002,6 +2004,8 @@ Gem::Specification.new do |s|
     "test/selenium/Add/add1.rsel",
     "test/selenium/Add/add2.rsel",
     "test/selenium/Add/add3.rsel",
+    "test/selenium/Destroy/0setup.rsel",
+    "test/selenium/Destroy/destroy1.rsel",
     "test/selenium/Drop/0setup.rsel",
     "test/selenium/Drop/drop1.rsel",
     "test/selenium/Drop/drop2.rsel",

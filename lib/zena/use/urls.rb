@@ -395,7 +395,7 @@ module Zena
           steal_and_eval_html_params_for(markup, @params)
 
           href = make_href(remote_target, options)
-
+          
           # This is to make sure live_id is set *inside* the <a> tag.
           if @live_param
             text = add_live_id(text_for_link, markup)
@@ -405,9 +405,9 @@ module Zena
           end
 
           http_method = http_method_from_action(options[:action])
-
-          if http_method == 'delete'
-            confirm ||= '#{t("Destroy ?")} "#{title}"'
+            
+          if http_method == 'delete' && method != 'unlink'
+            confirm ||= '#{t("Destroy")} #{h title} ?'
           end
 
           if confirm
@@ -421,11 +421,6 @@ module Zena
           end
 
           if remote_target
-            if remote_target.kind_of?(String)
-              # YUCK. We should have a way to have dom_ids that do not need
-              # us to look for remote_target !
-              remote_target = find_target(remote_target)
-            end
             # ajax link (link_to_remote)
 
             # Add href to non-ajax method.
@@ -433,10 +428,23 @@ module Zena
 
             if true
               # Use onclick with Ajax.
-              markup.set_dyn_param(:onclick, "new Ajax.Request(\"<%= #{href} %>\", {asynchronous:true, evalScripts:true, method:\"#{http_method}\"}); return false;")
+              if confirm
+                markup.set_dyn_param(:onclick, "if(confirm(\"<%= #{confirm} %>\")) {new Ajax.Request(\"<%= #{href} %>\", {asynchronous:true, evalScripts:true, method:\"#{http_method}\"});} return false;")
+              else
+                markup.set_dyn_param(:onclick, "new Ajax.Request(\"<%= #{href} %>\", {asynchronous:true, evalScripts:true, method:\"#{http_method}\"}); return false;")
+              end
             else
+              #### FIXME: We need the 'update' parameter to trigger a js response for delete but we ignore
+              ####        the content.
+              
+              
+              if remote_target.kind_of?(String)
+                # YUCK. We should have a way to have dom_ids that do not need
+                # us to look for remote_target !
+                remote_target = find_target(remote_target)
+              end
               # Experimental new model for javascript actions.
-              # Works for 'swap' but needs more adaptations for 'edit'
+              # Works for 'swap' but needs more adaptations for 'edit' or other links
             
               hash_params = []
               (options[:query_params] || @params).each do |key, value|
@@ -468,7 +476,6 @@ module Zena
               end
             
               if !hash_params.blank?
-                puts "{#{hash_params.join(', ')}}.to_param"
                 query = RubyLess.translate(self, "{#{hash_params.join(', ')}}.to_json")
               else
                 query = ''
@@ -629,7 +636,7 @@ module Zena
               method = 'zafu_node_path'
             elsif NODE_ACTIONS[opts[:action]]
               method = "#{opts[:action]}_node_path"
-            elsif remote_target
+            elsif remote_target && opts[:action] != 'destroy'
               method = 'zafu_node_path'
             else
               method = 'zen_path'
@@ -680,30 +687,16 @@ module Zena
             unless hash_params.empty?
               method_args << hash_params.join(', ')
             end
-
+            
             method = "#{method}(#{method_args.join(', ')})"
-
+            
             ::RubyLess.translate(self, method)
           end
 
           def insert_ajax_args(target, hash_params, action)
             hash_params << ":s => start_id"
             hash_params << ":link_id => this.link_id" if @context[:has_link_id] && node.will_be?(Node)
-            if target == '_page'
-              # reload full page
-              hash_params << ":udom_id => '_page'"
-              return
-            elsif target.kind_of?(String)
-              # named target
-              if target_block = find_target(target)
-                target = target_block
-              else
-                out parser_error("Could not find target name '#{target}'.")
-                return nil
-              end
-            end
-
-
+            
             # FIXME: when we have proper markup.dyn_params[:id] support,
             # we should not need this crap anymore.
             case action
@@ -715,11 +708,24 @@ module Zena
               hash_params << ":t_url  => %Q{#{form_url(node.dom_prefix)}}"
               # To enable link edit fix the following line:
               # hash_params << "'node[link_id]' => link_id"
-            when 'unlink', 'delete'
+            when 'unlink', 'destroy'
               @insert_dom_id = %Q{"#{node.dom_id(:erb => false)}"}
               hash_params << ":dom_id => insert_dom_id"
               hash_params << ":t_url  => %Q{#{template_url(node.dom_prefix)}}"
             else #drop, #swap
+              if target == '_page'
+                # reload full page
+                hash_params << ":udom_id => '_page'"
+                return
+              elsif target.kind_of?(String)
+                # named target
+                if target_block = find_target(target)
+                  target = target_block
+                else
+                  out parser_error("Could not find target name '#{target}'.")
+                  return nil
+                end
+              end
               @insert_dom_id, dom_prefix = get_dom_id(target)
               hash_params << ":dom_id => insert_dom_id"
               hash_params << ":t_url  => %Q{#{template_url(dom_prefix)}}"
