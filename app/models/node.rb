@@ -948,9 +948,7 @@ class Node < ActiveRecord::Base
     if value.kind_of?(String)
       value
     elsif value.kind_of?(Time)
-      x = format_date(value, opts)
-      puts x
-      x
+      format_date(value, opts)
     else
       value.to_s
     end

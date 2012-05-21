@@ -489,6 +489,7 @@ module Zena
         end
 
         def extract_label(res, attribute)
+          attribute ||= @params[:param]
           if (label = param(:label) || param(:tlabel)) && attribute
             case label
             when 'true'

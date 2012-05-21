@@ -160,7 +160,7 @@ module Zena
         def set_site_id
           self[:site_id] = current_site.id
         end
-      end # ModelMethods
+      end # IndexMethods
 
       module ModelMethods
         def self.included(base)

@@ -17,4 +17,8 @@ class Fixnum
     res << "#{seconds} second#{seconds == 1 ? '' : 's'}" if seconds != 0
     res == [] ? '0' : res.join(' ')
   end
+  
+  def fmt(format)
+    # TODO: Better strftime with thousand separator
+  end
 end
