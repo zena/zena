@@ -89,7 +89,10 @@ Grid.buildObj = function(grid, row) {
       } else {
         base[attr] = value
       }
-      if (cell.innerHTML.strip() == '') cell.innerHTML = value || ''
+      if (cell.innerHTML.strip() == '') {
+        cell.innerHTML = value || ''
+        cell.orig_value = cell.innerHTML
+      }
     }
   }
   grid.changes.push(base)
@@ -197,7 +200,7 @@ Grid.paste = function(event) {
           }
           if (i==0 && j==0) {
             input.value = tabs[j]
-          } else {
+          } else if (!Grid.isReadOnly(cell)) {
             Grid.changed(cell, tabs[j], tabs[j]);
           }
         }
@@ -207,7 +210,7 @@ Grid.paste = function(event) {
       // single attribute table, serialize in input field
       table.grid.input.value = Grid.serialize(table)
     }
-  }, 100);
+  }, 0)
   return true;
 }
 
@@ -789,8 +792,8 @@ Grid.undo = function(grid_id) {
     if (attr == 'id') continue
     var cell = $(change.id).childElements()[grid.pos[attr]]
     var value = state[attr] || cell.orig_value
-    cell.innerHTML = value
-    cell.prev_value = value
+    cell.innerHTML = value || ''
+    cell.prev_value = value || ''
     if (value == cell.orig_value) {
       cell.removeClassName('changed')
       var row = cell.up()
