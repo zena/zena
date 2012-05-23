@@ -3,6 +3,14 @@ Grid = {
   grid_c: 0,
 };
 
+if (Prototype.Browser.WebKit) {
+  Grid.default_input = "<input type='text' value=''/>"
+  Grid.paste_mode = 'redirect'
+} else {
+  Grid.default_input = '<textarea></textarea>'
+  Grid.paste_mode = 'inline'
+}
+
 Grid.log = function(what, msg) {
   var log = $('log')
   log.innerHTML = log.innerHTML + '<br/><b>' + what + '</b> ' + msg
@@ -97,17 +105,18 @@ Grid.closeCell = function(event) {
   cell.removeClassName('input')
   // simple case
   var value, show
-  if (input.tagName == 'INPUT') {
+  if (input.tagName == 'SELECT') {
+    value = input.value
+    show  = input.select('option[value="'+value+'"]').first().innerHTML
+  } else {
     if (input.type == 'checkbox') {
       value = input.checked ? input.value : (input.getAttribute('data-off') || cell.getAttribute('data-v'))
     } else {
       value = input.value
     }
     show  = value
-  } else if (input.tagName == 'SELECT') {
-    value = input.value
-    show  = input.select('option[value="'+value+'"]').first().innerHTML
   }
+
   Grid.changed(cell, value, show)
   if (table.grid.input) {
       // single attribute table, serialize in input field
@@ -131,17 +140,27 @@ Grid.paste = function(event) {
   var tbody = table.childElements()[0];
   var rows = tbody.childElements();
   var cell_offset = Grid.pos(start_cell);
-  // Redirect paste inside the paste textarea
-  $(document.body).insert({
-    bottom: "<textarea style='position:fixed; top:0; left:10100px;' id='grid_p_" + table.grid.id + "'></textarea>"
-  });
-  var paster = $("grid_p_" + table.grid.id);
-  Grid.in_paste = true // prevent original input blur
-  paster.focus();
-  Grid.in_paste = false
+
+  var paster
+  if (Grid.paste_mode == 'redirect') {
+    // Redirect paste inside the paste textarea
+    $(document.body).insert({
+      bottom: "<textarea style='position:fixed; top:0; left:10100px;' id='grid_p_" + table.grid.id + "'></textarea>"
+    });
+    paster = $("grid_p_" + table.grid.id);
+    Grid.in_paste = true // prevent original input blur
+    paster.focus();
+    Grid.in_paste = false
+  }
   setTimeout(function() {
-    var text = paster.value;
-    paster.remove();
+    var text
+    if (Grid.paste_mode == 'redirect') {
+      text = paster.value
+      paster.remove()
+      input.focus()
+    } else {
+      text = input.value
+    }
 
     var lines = text.strip().split(/\r\n|\r|\n/);
     for (var i = 0; i < lines.length; i++) {
@@ -150,7 +169,6 @@ Grid.paste = function(event) {
     if (lines.length == 1 && lines[0].length == 1) {
       // simple case
       input.value = lines[0][0];
-      input.focus()
     } else {
       // copy/paste from spreadsheet
       var should_create = table.grid.input && true;
@@ -177,11 +195,18 @@ Grid.paste = function(event) {
             cells = row.childElements(); cells.pop();
             cell = cells[cell_offset + j];
           }
-          Grid.changed(cell, tabs[j], tabs[j]);
+          if (i==0 && j==0) {
+            input.value = tabs[j]
+          } else {
+            Grid.changed(cell, tabs[j], tabs[j]);
+          }
         }
       }
     }
-    Grid.openCell(start_cell);
+    if (table.grid.input) {
+      // single attribute table, serialize in input field
+      table.grid.input.value = Grid.serialize(table)
+    }
   }, 100);
   return true;
 }
@@ -213,8 +238,8 @@ Grid.keydown = function(event) {
     var prev = cell.previousSiblings()[0];
     if (!prev) {
       // wrap back around on shift+tab
-      var row = cell.up('tr').previousSiblings()[0];
-      if (!row || row.childElements()[0].tagName == 'TH') {
+      var row = cell.up('tr').previousSiblings()[0]
+      if (!row || row.hasClassName('action')) {
         row = cell.up('tbody').childElements().last();
       }
       prev = row.childElements().last();
@@ -304,9 +329,9 @@ Grid.openCell = function(cell) {
   
   if (!input) {
     // default input field
-    cell.innerHTML = "<input type='text' value=''/>";
-    input = cell.select('input').first();
-    input.value = value;
+    cell.innerHTML = Grid.default_input
+    input = cell.childElements()[0]
+    input.value = value
   }
   input.setStyle({
     width: w + 'px',
@@ -478,9 +503,9 @@ Grid.serialize = function(table, format) {
     for (var j = 0; j < cells.length - 1; j++) {
       var cell = cells[j];
       if (cell.hasClassName('input')) {
-        row_data.push(cell.select('input').first().value);
+        row_data.push(cell.childElements()[0].value)
       } else {
-        row_data.push(cells[j].innerHTML);
+        row_data.push(cell.innerHTML)
       }
     }
     data.push(row_data);

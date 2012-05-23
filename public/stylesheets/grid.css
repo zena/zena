@@ -2,7 +2,7 @@
 .grid tr.action td {border-width:0 0 1px 0; font-size:70%}
 .grid tr.action td.action {border:0}
 .grid td.input, .grid th.input { padding:0;}
-.grid td.input input, .grid th.input input { margin:0; padding:0;font-size:inherit;}
+.grid .input input, .grid .input textarea { margin:0; padding:0;font-size:inherit;}
 .grid td.changed {background:#E5DDD7}
 .grid .new td {background:#B2DFEE}
 .grid .new td.action {background:none}

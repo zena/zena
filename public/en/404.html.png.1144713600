@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns='http://www.w3.org/1999/xhtml'>
+<head>
+  <title>Zena the wild CMS</title>
+<link href='favicon_tiny.png' rel='shortcut icon' type='image/png'/>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+  
+    <link href="/stylesheets/reset.css?1275667527" media="all" rel="stylesheet" type="text/css" />
+<link href="/stylesheets/window.css?1333615112" media="all" rel="stylesheet" type="text/css" />
+<link href="/stylesheets/zena.css?1337612583" media="all" rel="stylesheet" type="text/css" />
+<link href="/stylesheets/code.css?1333615112" media="all" rel="stylesheet" type="text/css" />
+<link href="/stylesheets/grid.css?1337624101" media="all" rel="stylesheet" type="text/css" />
+<link href='/en/textdocument54.css?1144713600' rel='Stylesheet' type='text/css'/>
+  
+
+  <script src="/javascripts/prototype.js?1333615112" type="text/javascript"></script>
+<script src="/javascripts/effects.js?1333615112" type="text/javascript"></script>
+<script src="/javascripts/dragdrop.js?1333615112" type="text/javascript"></script>
+<script src="/javascripts/window.js?1337612583" type="text/javascript"></script>
+<script src="/javascripts/zena.js?1337612583" type="text/javascript"></script>
+<script src="/javascripts/grid.js?1337671173" type="text/javascript"></script>
+  <script src="/calendar/calendar.js?1275667527" type="text/javascript"></script>
+<script src="/calendar/calendar-setup.js?1275667527" type="text/javascript"></script>
+<script src="/calendar/lang/calendar-en-utf8.js?1275667527" type="text/javascript"></script>
+<link href="/calendar/calendar-brown.css?1275667527" media="screen" rel="Stylesheet" type="text/css" />
+
+</head>
+
+<body data-t='Default skin/Node-+notFound' data-z='11' >
+  <div id='top'><a href='/en'>Zena the wild CMS</a></div>
+  <div id='header'>
+    <div id='login'><a href="/oo">login</a></div>
+
+  </div>
+  <div id='container'>
+    <div id='not_found'>
+      <p><b>Sorry, the requested page could not be found.</b></p>
+      <p>Please go <a href='/en'>home</a>,
+         <a onclick="history.go(-2)" href="#">back</a>
+         or <a href='/login'>login</a>
+      </p>
+    </div>
+  </div><!-- container -->
+  <div id='footer'><a class='zena' href='http://zenadmin.org' title='Zena 1.2.2'>a Zen garden</a></div>
+<script type="text/javascript">
+//<![CDATA[
+Calendar._TT["DEF_DATE_FORMAT"] = "%Y-%m-%d %H:%M";
+Calendar._TT["FIRST_DAY"] = 0;
+//]]>
+</script></body>
+
+</html>
