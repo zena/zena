@@ -504,6 +504,7 @@ wiki_page_changes_en:
   prop:
     comment:       layout for wiki
     summary:       Layout for the wiki skin.
+    title:         Page-changes
     text:          |
       <r:include template='layout.html'>
         <r:with part='body/content/main'>

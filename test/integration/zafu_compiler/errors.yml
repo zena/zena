@@ -81,8 +81,8 @@ toggle_bad_finder_class:
 map_join:
   context:
     node: 'cleanWater'
-  src: "<r:children do='map(:flobo).join(\",\")'/>"
-  tem: "/unknown method .*map\(:flobo\)/"
+  src: "<r:children do='map(\"flobo\").join(\",\")'/>"
+  tem: "/unknown method <span class='type'>flobo\(\)</span>/"
 
 datebox_on_vclass:
   src: "<r:Contact><r:input type='date' name='log_at'/></r:Contact>"

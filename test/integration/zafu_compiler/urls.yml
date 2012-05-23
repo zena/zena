@@ -255,7 +255,7 @@ target_blank:
 
 action_destroy:
   src: "<r:link action='destroy'/>"
-  res: "<a data-confirm='Destroy ? \"status title\"' href='/nodes/22' onclick='return Zena.m(this,\"delete\")'>status title</a>"
+  res: "<a data-confirm='Destroy status title ?' href='/nodes/22' onclick='return Zena.m(this,\"delete\")'>status title</a>"
 
 action_publish:
   src: "<r:link action='publish'/>"

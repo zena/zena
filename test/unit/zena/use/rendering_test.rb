@@ -10,11 +10,21 @@ class RenderingTest < Zena::View::TestCase
     context 'resolving template_url' do
 
       should 'append host and insert lang on template_path_from_template_url' do
-        assert_equal '/test.host/zafu/SKIN/TEMPLATE/en/DOM_ID', template_path_from_template_url('', 'SKIN/TEMPLATE/DOM_ID')
+        assert_equal '/test.host/zafu/SKIN/TEMPLATE/en/DOM_ID.erb', template_path_from_template_url('', 'SKIN/TEMPLATE/DOM_ID', false)
+      end
+      
+      should 'build template on template_path_from_template_url' do
+        fullpath = fullpath_from_template_url('wiki skin/Page-changes/_main', false)
+        if File.exist?(fullpath)
+          FileUtils.rm(fullpath)
+        end
+        assert_equal '/test.host/zafu/wiki skin/Page-changes/en/foo.erb', template_path_from_template_url('', 'wiki skin/Page-changes/foo', true)
+        assert File.exist?(fullpath)
+        FileUtils.rm(fullpath)
       end
 
       should 'return a fullpath on fullpath_from_template_url' do
-        assert_equal "#{SITES_ROOT}/test.host/zafu/SKIN/TEMPLATE/en/DOM_ID", fullpath_from_template_url('', 'SKIN/TEMPLATE/DOM_ID')
+        assert_equal "#{SITES_ROOT}/test.host/zafu/SKIN/TEMPLATE/en/DOM_ID.erb", fullpath_from_template_url('SKIN/TEMPLATE/DOM_ID', false)
       end
 
       should 'return a relative path on admin_layout' do

@@ -257,10 +257,9 @@ module Zena
           if @skin
             zafu_url, template = get_best_template(kpaths, format, mode, @skin)
             return default_template_url(opts) unless zafu_url
-
+            
             rel_path  = current_site.zafu_path + "/#{zafu_url}/#{lang_path}/_main.erb"
             path      = SITES_ROOT + rel_path
-
             if !File.exists?(path) || params[:rebuild]
               if @node && klass = VirtualClass.find_by_kpath(template.tkpath)
                 zafu_node('@node', klass)
@@ -324,8 +323,6 @@ module Zena
           
           main_fullpath = SITES_ROOT + (base_p + lang_p + ['_main.erb']).join('/')
           if !File.exist?(main_fullpath) && build
-            # We cannot compile the template because we do not have the correct @node....
-            # ... too bad.
             skin = template_url[0]
             template_name = template_url[-2]
             if template_name =~ ::Template::MODE_FORMAT_FROM_TITLE
@@ -338,7 +335,9 @@ module Zena
                 # Find first node matching klass
                 vclass = VirtualClass[klass]
                 @node = Node.sfind("#{klass.underscore} in site", :first)
-                @node.skin = node_bak.skin
+                if @node.skin.title != skin
+                  @node.skin = secure(Skin) { Skin.find_by_title(skin) }
+                end
                 template_url(:mode => mode, :format => format)
               @node = node_bak
             end

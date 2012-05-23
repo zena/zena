@@ -108,8 +108,8 @@ sum:
 map_on_can_be_nil:
   context:
     node: 'cleanWater'
-  eval: "Contact.relations.map(:name).join('-')"
-  tem: "/VirtualClass\[\"Contact\"\] \? VirtualClass\[\"Contact\"\].all_relations.map\(&:other_role\).compact.join\(\"-\"\)/"
+  eval: "Contact.relations.map(\"name\").join('-')"
+  tem: "/VirtualClass\[\"Contact\"\] \? VirtualClass\[\"Contact\"\].all_relations.map\{\|_map_obj\| _map_obj.other_role\}.compact.join\(\"-\"\)/"
   res: "/collaborator_for-favorite-favorite_for/"
 
 min:
