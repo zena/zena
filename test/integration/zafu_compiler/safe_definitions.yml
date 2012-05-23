@@ -94,9 +94,16 @@ kind_of_role:
 map_join:
   context:
     node: 'cleanWater'
-  src: "<r:children do='map(:title).join(\",\")'/>"
+  src: "<r:children do='map(\"title\").join(\",\")'/>"
   tem: "/var1.map\{\|_map_obj\| _map_obj.prop\['title'\]\}/"
   res: "crocodiles,it's a lake,The lake we love,parc opening,status title,water"
+
+sum:
+  context:
+    node: 'cleanWater'
+  src: "<r:children do='sum(\"created_at.to_i\")'/>"
+  tem: "/var1.map\{\|_sum_obj\| _sum_obj.created_at.to_i.to_f\}.reduce\(:\+\)/"
+  res: "6854457600.0"
 
 map_on_can_be_nil:
   context:

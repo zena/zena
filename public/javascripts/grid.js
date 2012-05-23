@@ -72,7 +72,10 @@ Grid.buildObj = function(grid, row) {
     var cell  = cells[i]
     var attr = grid.attr[i]
     if (attr) {
-      var value = cell.getAttribute('data-v') || cell.innerHTML
+      // A readonly cell *MUST* have data-v set or it is ignored.
+      var value = cell.getAttribute('data-v')
+      if (!value && Grid.isReadOnly(cell)) continue
+      value = value || cell.innerHTML
       if (!value || value.strip() == '') {
         value = base[attr]
       } else {
@@ -184,9 +187,14 @@ Grid.paste = function(event) {
 }
 
 Grid.keydown = function(event) {
-  var input = event.element();
-  var key = event.keyCode;
-  var cell = input.up();
+  var input = event.element()
+  var key = event.keyCode
+  var cell = input.up()
+  var grid = cell.up('table').grid
+  if (grid.keydown && grid.keydown(event, key)) {
+    event.stop()
+    return false
+  }
   if (key == 39 || (key == 9 && !event.shiftKey)) {
     // tab + key right
     var next = cell.nextSiblings()[0];
@@ -260,8 +268,12 @@ Grid.keydown = function(event) {
   return false;
 }
 
+Grid.isReadOnly = function(cell) {
+  return cell.select('a').length > 0 || cell.getAttribute('data-m') == 'r'
+}
+
 Grid.openCell = function(cell) {
-  if (cell.hasClassName('input') || cell.select('a').length > 0) return;
+  if (cell.hasClassName('input') || Grid.isReadOnly(cell)) return;
   var value = cell.getAttribute('data-v') || cell.innerHTML;
 
   if (!cell.orig_value) cell.orig_value = value;
@@ -595,6 +607,7 @@ Grid.make = function(table, opts) {
     onStart: opts.onStart || Grid.onStart,
     add: opts.add || opts.add == undefined,
     remove: opts.remove || opts.remove == undefined,
+    keydown: opts.keydown,
   };
   
   // Detect type.
@@ -826,13 +839,23 @@ Grid.notify = function(table, changes) {
   }, 1000)
 }
 
+Grid.simulateClick = function(l) {
+  if (document.createEvent) {
+    var e = document.createEvent('MouseEvents')
+    e.initMouseEvent('click', true, true, document.defaultView, 0, 0, 0, 0, 0, false, false, false, false, 0, l)
+    l.dispatchEvent(e)
+  } else {
+    var e = Object.extend(document.createEventObject())
+    l.fireEvent('onclick', e)
+  }
+}
 
 /////////// Tags
 Tags = {}
 
 Tags.click = function(event) {
   var e = event.element()
-  var value = e.innerHTML
+  var value = e.getAttribute('data-v') || e.innerHTML
   var tags = e.tags
   var list = tags.list
   for (var i = list.length - 1; i >= 0; i--) {
@@ -870,7 +893,7 @@ Tags.make = function(elem, opts) {
       input.observe('change', Tags.add)
     } else {
       e.tags = tags
-      list.push(e.innerHTML)
+      list.push(e.getAttribute('data-v') || e.innerHTML)
       e.observe('click', Tags.click)
     }
   })

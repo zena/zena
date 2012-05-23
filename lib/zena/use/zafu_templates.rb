@@ -139,7 +139,7 @@ module Zena
 
         # Callback to save an write an Ajax template to file.
         def save_erb_to_url(template, template_url)
-          path = fullpath_from_template_url(template_url)
+          path = fullpath_from_template_url(template_url, false)
           path += ".erb" unless path =~ /\.\w+\Z/
           FileUtils.mkpath(File.dirname(path)) unless File.exists?(File.dirname(path))
           File.open(path, "wb") { |f| f.syswrite(template) }
@@ -148,8 +148,8 @@ module Zena
 
         # Return the full path from a template's url.
         # The expected url is of the form '/skin/Klass-mode/partial'
-        def fullpath_from_template_url(template_url=params[:t_url])
-          "#{SITES_ROOT}#{template_path_from_template_url(template_url)}"
+        def fullpath_from_template_url(template_url=params[:t_url], build=false)
+          "#{SITES_ROOT}#{template_path_from_template_url('',template_url,build)}"
         end
 
         # Make sure some vital templates never get broken
@@ -309,19 +309,42 @@ module Zena
           end
         end
 
-        # Return the template path without '.erb' extension in case we need to append '_form'
-        # from a template's url. The expected url is of the form '/skin/Klass-mode/partial'
-        def template_path_from_template_url(template_url=params[:t_url])
+        # Return the template path from a template's url. The expected url is
+        # of the form '/skin/Klass-mode/partial'
+        def template_path_from_template_url(suffix='', template_url=params[:t_url], build=true)
           raise "Missing template_url (t_url parameter)" unless template_url
           if template_url =~ /\A\.|[^ #{String::ALLOWED_CHARS_IN_FILEPATH}]/
             raise Zena::AccessViolation.new("'template_url' contains illegal characters : #{template_url.inspect}")
           end
 
           template_url = template_url.split('/')
-          template_url.insert(-2, dev_mode? ? "dev_#{lang}" : lang)
-          path = template_url.join('/')
-
-          "/#{current_site.host}/zafu/#{path}"
+          base_p = ['', current_site.host, 'zafu'] + template_url[0..-2]
+          lang_p = [dev_mode? ? "dev_#{lang}" : lang]
+          part_p = template_url[-1]
+          
+          main_fullpath = SITES_ROOT + (base_p + lang_p + ['_main.erb']).join('/')
+          if !File.exist?(main_fullpath) && build
+            # We cannot compile the template because we do not have the correct @node....
+            # ... too bad.
+            skin = template_url[0]
+            template_name = template_url[-2]
+            if template_name =~ ::Template::MODE_FORMAT_FROM_TITLE
+              # title changed force  update
+              klass  = $1
+              mode   = $4 || ''
+              format = $6 || 'html'
+              # Template rendering node
+              node_bak = @node
+                # Find first node matching klass
+                vclass = VirtualClass[klass]
+                @node = Node.sfind("#{klass.underscore} in site", :first)
+                @node.skin = node_bak.skin
+                template_url(:mode => mode, :format => format)
+              @node = node_bak
+            end
+          end
+          
+          (base_p + lang_p + ["#{part_p}#{suffix}.erb"]).join('/')
         end
 
         def zafu_helper

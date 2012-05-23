@@ -6,7 +6,7 @@ module Bricks
       end
       # If we have an exec skin, we check that t_url points in this skin's
       # directory to avoid letting the user render with any zafu template.
-      def template_path_from_template_url_with_acls(template_url=params[:t_url])
+      def template_path_from_template_url_with_acls(suffix='', template_url=params[:t_url], build=true)
         if visitor.exec_acl && skin = visitor.exec_acl.exec_skin
           # Make sure t_url is using templates in the allowed Skin
           skin_name = skin.title.to_filename
@@ -17,7 +17,7 @@ module Bricks
             raise ActiveRecord::RecordNotFound
           end
         end
-        template_path_from_template_url_without_acls(template_url)
+        template_path_from_template_url_without_acls(suffix, template_url, build)
       end
     end
 

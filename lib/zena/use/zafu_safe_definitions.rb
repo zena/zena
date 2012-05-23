@@ -27,13 +27,26 @@ module Zena
         def self.map_proc
           @@map_proc ||= Proc.new do |receiver, method|
             if elem = receiver.opts[:elem] || receiver.klass.first
-              if type = RubyLess::safe_method_type_for(elem, [method.to_s])
-                if type[:method] =~ /\A\w+\Z/
-                  res = "#{receiver.raw}.map(&#{type[:method].to_sym.inspect}).compact"
-                else
-                  res = "#{receiver.raw}.map{|_map_obj| _map_obj.#{type[:method]}}.compact"
-                end
-                res = RubyLess::TypedString.new(res, :class => [type[:class]])
+              if code = RubyLess.translate(elem, method)
+                res = "#{receiver.raw}.map{|_map_obj| _map_obj.#{code}}.compact"
+                res = RubyLess::TypedString.new(res, :class => [code.klass])
+              else
+                raise RubyLess::NoMethodError.new(receiver.raw, receiver.klass, ['map', method])
+              end
+            else
+              # should never happen
+              raise RubyLess::NoMethodError.new(receiver.raw, receiver.klass, ['map', method])
+            end
+          end
+        end
+
+        # Dynamic resolution of sum("working_time")
+        def self.map_sum
+          @@map_sum ||= Proc.new do |receiver, method|
+            if elem = receiver.opts[:elem] || receiver.klass.first
+              if code = RubyLess.translate(elem, method)
+                res = "#{receiver.raw}.map{|_sum_obj| _sum_obj.#{code}.to_f}.reduce(:+)"
+                res = RubyLess::TypedString.new(res, :class => Number)
               else
                 raise RubyLess::NoMethodError.new(receiver.raw, receiver.klass, ['map', method])
               end
@@ -119,14 +132,22 @@ module Zena
         safe_method_for Node,  [:kind_of?, String] => {:method => 'kpath_match?', :class => Boolean}
         safe_method_for Node,  [:kind_of?, Number] => {:method => 'has_role?',    :class => Boolean}
         safe_method_for Array, [:index, String]   => {:class => Number, :nil => true}
-        safe_method_for Array, [:join, String]    => # supports map(:name)
+        
+        safe_method_for Array, [:join, String]    => # supports join('key')
           {:method => 'nil', :nil => true, :pre_processor => join_proc}
-        safe_method_for Array, [:map, Symbol]     => # supports map(:name)
+        
+        safe_method_for Array, [:map, String]     => # supports map('title')
           {:method => 'nil', :nil => true, :pre_processor => map_proc}
+        
+        safe_method_for Array, [:sum, String]     => # supports sum('working_time')
+          {:method => 'nil', :nil => true, :pre_processor => map_sum}
+        
         safe_method_for Array, [:first]    =>
           {:method => 'nil', :nil => true, :pre_processor => first_proc}
+        
         safe_method_for Array, [:include?, String] =>
           {:method => 'include?', :accept_nil => true, :pre_processor => true, :class => Boolean}
+        
         safe_method_for Array, [:include?, Number] =>
           {:method => 'include?', :accept_nil => true, :pre_processor => true, :class => Boolean}
 

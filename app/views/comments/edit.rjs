@@ -1,2 +1,2 @@
-page.replace "#{params[:dom_id]}_#{@comment.zip}", :file => template_path_from_template_url + "_form.erb"
+page.replace "#{params[:dom_id]}_#{@comment.zip}", :file => template_path_from_template_url('_form')
 page << "$('#{params[:dom_id]}_form_t').focusFirstElement();"

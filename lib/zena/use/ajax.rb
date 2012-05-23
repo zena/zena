@@ -44,10 +44,10 @@ module Zena
 
           if obj.new_record?
             # A. could not create object: show form with errors
-            page.replace ndom_id, :file => template_path_from_template_url + "_form.erb"
+            page.replace ndom_id, :file => template_path_from_template_url('_form')
           elsif @errors || !obj.errors.empty?
             # B. could not update/delete: show errors
-            form_file = template_path_from_template_url + "_form.erb"
+            form_file = template_path_from_template_url('_form')
             if File.exist?(form_file)
               page.replace ndom_id, :file => form_file
             else
@@ -68,10 +68,10 @@ module Zena
                   end
                 end
               end
-              page.replace params[:udom_id], :file => template_path_from_template_url(params[:u_url]) + ".erb"
+              page.replace params[:udom_id], :file => template_path_from_template_url('', params[:u_url])
               if params[:upd_both]
                 @dom_id = params[:dom_id]
-                page.replace params[:dom_id], :file => template_path_from_template_url + ".erb"
+                page.replace params[:dom_id], :file => template_path_from_template_url
               end
               if params[:done] && params[:zadd]
                 page.toggle "#{params[:dom_id]}_0", "#{params[:dom_id]}_add"
@@ -89,25 +89,25 @@ module Zena
 
             case params[:action]
             when 'edit'
-              page.replace params[:dom_id], :file => template_path_from_template_url + ".erb"
+              page.replace params[:dom_id], :file => template_path_from_template_url
               page << "$('#{params[:dom_id]}_form_t').focusFirstElement();"
             when 'create'
               pos = params[:position]  || :before
               ref = params[:reference] || "#{params[:dom_id]}_add"
-              page.insert_html pos.to_sym, ref, :file => template_path_from_template_url + ".erb"
+              page.insert_html pos.to_sym, ref, :file => template_path_from_template_url
               if obj.kind_of?(Node)
                 @node = obj.parent.new_child(:class => obj.class)
               else
                 instance_variable_set("@#{base_class.to_s.underscore}", obj.clone)
               end
-              page.replace ndom_id, :file => template_path_from_template_url + "_form.erb"
+              page.replace ndom_id, :file => template_path_from_template_url('_form')
               if params[:done]
                 page << params[:done]
               elsif params[:zadd]
                 page.toggle "#{params[:dom_id]}_0", "#{params[:dom_id]}_add"
               end
             when 'update'
-              page.replace ndom_id, :file => template_path_from_template_url + ".erb"
+              page.replace ndom_id, :file => template_path_from_template_url
               page << params[:done] if params[:done]
             when 'destroy'
               page << %Q{
@@ -129,12 +129,12 @@ module Zena
                 page.visual_effect :highlight, params[:drop], :duration => 0.3
                 page.visual_effect :fade, params[:drop], :duration => 0.3
               end
-              page.replace params[:dom_id], :file => template_path_from_template_url + ".erb"
+              page.replace params[:dom_id], :file => template_path_from_template_url
             else
               if position = params[:insert]
-                page.call 'Zena.insert_inner', params[:dom_id], position, render(:file => template_path_from_template_url + ".erb")
+                page.call 'Zena.insert_inner', params[:dom_id], position, render(:file => template_path_from_template_url)
               else
-                page.replace params[:dom_id], :file => template_path_from_template_url + ".erb"
+                page.replace params[:dom_id], :file => template_path_from_template_url
               end
             end
           end

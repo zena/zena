@@ -80,11 +80,11 @@ module Zena
           visitor.site.host
         end
 
-        def sfind(sqliss)
+        def sfind(sqliss, arity=:all)
           query = Node.build_query(:all, sqliss,
             :default => {:scope => 'site'}
           )
-          Node.do_find(:all, eval(query.to_s(:find)))
+          Node.do_find(arity, eval(query.to_s(:find)))
         end
 
         # Find a node and propagate visitor
