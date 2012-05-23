@@ -1,7 +1,7 @@
 class Column < ActiveRecord::Base
   include RubyLess
   include Property::StoredColumn
-  TYPES_FOR_FORM   = %w{string datetime integer float}
+  TYPES_FOR_FORM   = %w{string datetime integer float hash}
 
   INDICES_FOR_FORM = %w{string ml_string datetime integer float}
 
@@ -70,16 +70,31 @@ class Column < ActiveRecord::Base
   end
 
   def type_cast(value)
+    if value.blank?
+      return nil
+    end
     if ptype == 'datetime'
-      if value.blank?
-        nil
-      elsif value.kind_of?(Time)
+      if value.kind_of?(Time)
         value
       elsif value.kind_of?(String)
         value.to_utc(_(Zena::Use::Dates::DATETIME), visitor.tz)
       else
         nil
       end
+    elsif ptype == 'hash'
+      if value.kind_of?(Hash)
+        StringHash[value]
+      else
+        nil
+      end
+    else
+      nil
+    end
+  end
+  
+  def klass
+    if ptype == 'hash'
+      StringHash
     else
       nil
     end

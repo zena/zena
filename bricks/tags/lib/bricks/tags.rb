@@ -1,11 +1,5 @@
 module Bricks
   module Tags
-    class StringHash
-      include RubyLess
-      safe_context [:[], String] => String
-      safe_method :keys => [String]
-    end
-
     def self.included(base)
       base.after_save    :update_tags
       base.safe_context  :tags => ['Link']
