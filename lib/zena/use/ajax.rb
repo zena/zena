@@ -176,8 +176,15 @@ module Zena
           list << dom_id
         end
 
-        def filter_form(node, dom_id)
-          js_data << %Q{new Form.Observer('#{dom_id}', 0.3, function(element, value) {new Ajax.Request('#{zafu_node_path(node)}', {asynchronous:true, evalScripts:true, method:'get', parameters:Form.serialize('#{dom_id}')})});}
+        def filter_form(node, dom_id, loading, upd)
+          if loading
+            loading = "\n#{loading}($('#{upd}'));"
+          else
+            loading = ''
+          end
+          js_data << %Q{new Form.Observer('#{dom_id}', 0.3, function(element, value) {#{loading}
+            new Ajax.Request('#{zafu_node_path(node)}', {asynchronous:true, evalScripts:true, method:'get', parameters:Form.serialize('#{dom_id}')})
+          });}
         end
 
         # Include draggable ids in bottom of page Javascript.
@@ -308,8 +315,10 @@ module Zena
             out expand_with(:in_filter => true)
           end
           out "</div></form>"
+          loading = @params[:loading]
+          loading = 'Zena.loading' if loading == 'true'
           if @params[:live] || @params[:update]
-            out "<% filter_form(#{node}, \"#{dom_id}_f\") %>"
+            out "<% filter_form(#{node}, \"#{dom_id}_f\", #{loading.inspect}, '#{upd}') %>"
           end
         end
 

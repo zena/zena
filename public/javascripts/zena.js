@@ -981,4 +981,8 @@ Zena.put = function(dom_name, query) {
 }
 Zena.reload = Zena.get;
 
+Zena.loading = function(e) {
+  e.addClassName('zloading')
+}
+
 Zena.put

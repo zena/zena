@@ -112,3 +112,11 @@ unknown_link:
 host:
   tem: "<%= zazen('this is a \"link\":12. !30!', :host => 'foo.com') %>"
   res: "/http://foo.com/oo/section12.html\">link.*http://foo.com/en/image30_std.jpg/"
+
+amp:
+  tem: "<%= zazen('this & that') %>"
+  res: "<p>this &#38; that</p>"
+
+pre:
+  tem: "<%= zazen(' Vin') %>"
+  res: "<pre>Vin</pre>"

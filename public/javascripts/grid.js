@@ -16,18 +16,20 @@ Grid.log = function(what, msg) {
   log.innerHTML = log.innerHTML + '<br/><b>' + what + '</b> ' + msg
 }
 
-Grid.changed = function(cell, value, show) {
-  if (value == show) {
-    cell.innerHTML = value
-  } else {
-    cell.innerHTML = show
-    cell.setAttribute('data-v', value)
+Grid.changed = function(cell, val, prev, skip_html) {
+  if (!skip_html) {
+    if (val.value == val.show) {
+      cell.innerHTML = val.value
+    } else {
+      cell.innerHTML = val.show
+      cell.setAttribute('data-v', val.value)
+    }
   }
   var row = cell.up('tr')
   var table = row.up('table')
   var grid = table.grid
-  if (cell.prev_value == value) return;
-  if (cell.orig_value == value) {
+  if (prev.value == val.value) return;
+  if (cell.orig_value == val.value) {
     cell.removeClassName('changed')
     if (row.select('.changed').length == 0) {
       row.removeClassName('changed')
@@ -52,9 +54,10 @@ Grid.changed = function(cell, value, show) {
   }
 
   var change = {
-    id: id
+    id: id,
+    _old: prev,
   };
-  change[attr] = value;
+  change[attr] = val;
   var table = row.up('table');
   grid.changes.push(change);
 }
@@ -68,7 +71,7 @@ Grid.buildObj = function(grid, row) {
   row.addClassName('new')
   var base = {
     id: id,
-    _new: true
+    _new: {value:true}
   }
   // Add all default attributes
   grid.defaults.each(function(pair) {
@@ -81,17 +84,15 @@ Grid.buildObj = function(grid, row) {
     var attr = grid.attr[i]
     if (attr) {
       // A readonly cell *MUST* have data-v set or it is ignored.
-      var value = cell.getAttribute('data-v')
-      if (!value && Grid.isReadOnly(cell)) continue
-      value = value || cell.innerHTML
-      if (!value || value.strip() == '') {
-        value = base[attr]
+      if (!cell.getAttribute('data-v') && Grid.isReadOnly(cell)) continue
+      var val = Grid.getValue(cell)
+      if (val.value.strip() == '') {
+        val = base[attr] || val
       } else {
-        base[attr] = value
+        base[attr] = val
       }
       if (cell.innerHTML.strip() == '') {
-        cell.innerHTML = value || ''
-        cell.orig_value = cell.innerHTML
+        cell.innerHTML = val.show
       }
     }
   }
@@ -99,31 +100,18 @@ Grid.buildObj = function(grid, row) {
   return id
 }
 
-Grid.closeCell = function(event) {
+Grid.closeCell = function(e) {
   if (Grid.in_paste) return
-  var input = event.element()
-  var cell = input.up()
-  var table = event.findElement('table')
-  var pos = Grid.pos(cell)
+  var cell = e.tagName == 'TD' ? e : e.findElement('td')
+  var table = cell.up('table')
+  var val = Grid.getValue(cell)
+  var old = cell.prev_value
   cell.removeClassName('input')
-  // simple case
-  var value, show
-  if (input.tagName == 'SELECT') {
-    value = input.value
-    show  = input.select('option[value="'+value+'"]').first().innerHTML
-  } else {
-    if (input.type == 'checkbox') {
-      value = input.checked ? input.value : (input.getAttribute('data-off') || cell.getAttribute('data-v'))
-    } else {
-      value = input.value
-    }
-    show  = value
-  }
+  Grid.changed(cell, val, old)
 
-  Grid.changed(cell, value, show)
   if (table.grid.input) {
-      // single attribute table, serialize in input field
-      table.grid.input.value = Grid.serialize(table)
+    // single attribute table, serialize in input field
+    table.grid.input.value = Grid.serialize(table)
   }
 }
 
@@ -174,6 +162,7 @@ Grid.paste = function(event) {
       input.value = lines[0][0];
     } else {
       // copy/paste from spreadsheet
+      table.grid.changes.push('start')
       var should_create = table.grid.input && true;
       for (var i = 0; i < lines.length; i++) {
         // foreach line
@@ -198,13 +187,18 @@ Grid.paste = function(event) {
             cells = row.childElements(); cells.pop();
             cell = cells[cell_offset + j];
           }
+          var val = {value:tabs[j], show:tabs[j]}
           if (i==0 && j==0) {
-            input.value = tabs[j]
+            input.value = val.value
+            Grid.changed(cell, val, cell.prev_value, true)
+            cell.prev_value = val
           } else if (!Grid.isReadOnly(cell)) {
-            Grid.changed(cell, tabs[j], tabs[j]);
+            var prev = Grid.getValue(cell)
+            Grid.changed(cell, val, prev)
           }
         }
       }
+      table.grid.changes.push('end')
     }
     if (table.grid.input) {
       // single attribute table, serialize in input field
@@ -253,7 +247,11 @@ Grid.keydown = function(event) {
     event.stop();
   } else if (key == 40 || key == 13) {
     // down
-    if (cell.childElements().first().tagName == 'SELECT' && event.shiftKey) {
+    if (event.altKey) {
+      Grid.copy(cell, 'down')
+      event.stop()
+      return false
+    } else if (cell.childElements().first().tagName == 'SELECT' && event.shiftKey) {
       return
     }
     var pos = Grid.pos(cell);
@@ -305,7 +303,7 @@ Grid.openCell = function(cell) {
   var value = cell.getAttribute('data-v') || cell.innerHTML;
 
   if (!cell.orig_value) cell.orig_value = value;
-  cell.prev_value = value;
+  cell.prev_value = { value: value, show: cell.innerHTML }
 
   var w = cell.getWidth() - 5;
   var h = cell.getHeight() - 5;
@@ -314,7 +312,7 @@ Grid.openCell = function(cell) {
   // Try to find a form for the cell
   var table = cell.up('table')
   var input
-  if (table.grid.helper) {
+  if (table.grid.helper && cell.tagName != 'TH') {
     var pos = Grid.pos(cell);
     input = table.grid.helper[pos];
     if (input) {
@@ -348,14 +346,69 @@ Grid.openCell = function(cell) {
 }
 
 Grid.click = function(event) {
-  var cell = event.findElement('td, th');
-  var row = event.findElement('tr');
+  var cell = event.findElement('td, th')
+  var row = event.findElement('tr')
   if (row.hasClassName('action')) {
-    Grid.action(event, cell, row, true);
+    Grid.action(event, cell, row, true)
   } else if (cell.hasClassName('action')) {
-    Grid.action(event, cell, row, false);
+    Grid.action(event, cell, row, false)
   } else {
-    Grid.openCell(cell);
+    Grid.openCell(cell)
+  }
+}
+
+Grid.valueFromInput = function(input) {
+  var val = {}
+  if (input.tagName == 'SELECT') {
+    val.value = input.value
+    val.show  = input.select('option[value="'+val.value+'"]').first().innerHTML
+  } else {
+    if (input.type == 'checkbox') {
+      val.value = input.checked ? input.value : (input.getAttribute('data-off') || cell.getAttribute('data-v'))
+    } else {
+      val.value = input.value
+    }
+    val.show = val.value
+  }
+  return val
+}
+
+Grid.getValue = function(cell) {
+  if (cell.hasClassName('input')) {
+    return Grid.valueFromInput(cell.childElements()[0])
+  }
+  var val = {}
+  val.show = cell.innerHTML
+  val.value = cell.getAttribute('data-v') || val.show
+  if (!cell.orig_value) cell.orig_value = val.value
+  return val
+}
+
+Grid.copy = function(cell) {
+  var table = cell.up('table')
+  var row = cell.up()
+  var pos = Grid.pos(cell)
+  if (cell.tagName == 'TH') {
+    row = row.nextSiblings()[0]
+    cell = row.childElements()[pos]
+  }
+  var val = Grid.getValue(cell)
+
+  table.grid.changes.push('start')
+  Grid.changed(cell, val, cell.prev_value, true)
+  cell.prev_value = val
+  var rows = row.nextSiblings()
+  var len = rows.length
+  for (var i = 0; i < len; i++) {
+    var c = rows[i].childElements()[pos]
+    if (!Grid.isReadOnly(c)) {
+      var prev = Grid.getValue(c)
+      if (c.value != val.value) Grid.changed(c, val, prev)
+    }
+  }
+  table.grid.changes.push('end')
+  if (table.grid.attr_name) {
+    table.grid.input.value = Grid.serialize(table);
   }
 }
 
@@ -485,12 +538,12 @@ Grid.makeAttrPos = function(table) {
       attr[i] = attr_name;
       pos[attr_name] = i;
       if (helpers) {
-        helper[i] = input = helpers.select('*[name="'+attr_name+'"]').first()
+        helper[i] = helpers.select('*[name="'+attr_name+'"]').first()
       }
     }
     // get default values
     helpers.select('input,textarea,select').each(function(e) {
-      defaults[e.name] = e.value
+      defaults[e.name] = Grid.valueFromInput(e)
     })
   }
   table.grid.defaults = $H(defaults)
@@ -781,36 +834,54 @@ Grid.save = function(grid_id) {
   }, 100);
 }
 
-Grid.undo = function(grid_id) {
+Grid.undo = function(grid_id, skip_undone) {
   var table = Grid.grids[grid_id]
   var grid = table.grid
-  if (grid.changes.last()._new) return
-  var change = grid.changes.pop()
-  // TODO: could be optimized
-  var state = Grid.compact(grid.changes)[change.id] || {}
+  var changes = grid.changes
+  var last = changes.last()
+  if (last._new) return
+  var group = false
+  if (last == 'end') {
+    group = true
+    changes.pop()
+  }
+  var change = changes.pop()
+  var old = change._old
   for (attr in change) {
-    if (attr == 'id') continue
+    if (attr == 'id' || attr == '_old') continue
     var cell = $(change.id).childElements()[grid.pos[attr]]
-    var value = state[attr] || cell.orig_value
-    cell.innerHTML = value || ''
-    cell.prev_value = value || ''
+    var val  = old
+    var value = old.value
+    cell.innerHTML = val.show || ''
+    cell.prev_value = val
     if (value == cell.orig_value) {
       cell.removeClassName('changed')
       var row = cell.up()
       if (row.select('.changed').length == 0) row.removeClassName('changed')
-    } else {[cell, cell.up()].invoke('addClassName', 'changed')
+    } else {
+      [cell, cell.up()].invoke('addClassName', 'changed')
     }
     cell.addClassName('undone')
   }
-  setTimeout(function() {
-    table.select('.undone').invoke('removeClassName', 'undone')
-  }, 1000)
+  if (group) {
+    while (changes.last() != 'start') {
+      Grid.undo(grid_id, true)
+    }
+    changes.pop()
+  }
+
+  if (!skip_undone) {
+    setTimeout(function() {
+      table.select('.undone').invoke('removeClassName', 'undone')
+    }, 1000)
+  }
 }
 
 Grid.compact = function(list) {
   var res = {};
   for (var i = list.length - 1; i >= 0; i--) {
     var changes = list[i];
+    if (typeof(changes) == 'string') continue
     var obj = res[changes.id];
     if (!obj) {
       obj = {};
@@ -818,9 +889,9 @@ Grid.compact = function(list) {
     }
 
     for (var key in changes) {
-      if (key != 'id' && !obj[key]) {
+      if (key != 'id' && key != '_old' && !obj[key]) {
         // only take latest change
-        obj[key] = changes[key];
+        obj[key] = changes[key].value;
       }
     }
   }

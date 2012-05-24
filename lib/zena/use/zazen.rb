@@ -61,6 +61,10 @@ module Zena
               end
             end
             opt[:node] ||= @node
+            # Bug in Textile when text starts with ' '
+            if text[0..0] == ' '
+              text = "\n\n#{text}"
+            end
             res = ZazenParser.new(text,:helper=>self).render(opt)
             if no_p && !text.include?("\n")
               res.gsub(%r{\A<p>|</p>\Z},'')
