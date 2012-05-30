@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2012-05-21}
+  s.date = %q{2012-05-30}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -86,6 +86,7 @@ Gem::Specification.new do |s|
     "app/models/section.rb",
     "app/models/site.rb",
     "app/models/skin.rb",
+    "app/models/string_hash.rb",
     "app/models/template.rb",
     "app/models/template_content.rb",
     "app/models/template_version.rb",
@@ -2469,7 +2470,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<httparty>, ["= 0.7.8"])
       s.add_runtime_dependency(%q<simple_xlsx_writer>, [">= 0"])
       s.add_runtime_dependency(%q<rubyless>, ["= 0.8.6"])
-      s.add_runtime_dependency(%q<property>, ["= 2.2.0"])
+      s.add_runtime_dependency(%q<property>, ["= 2.3.0"])
       s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_runtime_dependency(%q<authlogic>, ["= 2.1.3"])
       s.add_runtime_dependency(%q<shoulda>, ["= 2.10.3"])
@@ -2495,7 +2496,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<httparty>, ["= 0.7.8"])
       s.add_dependency(%q<simple_xlsx_writer>, [">= 0"])
       s.add_dependency(%q<rubyless>, ["= 0.8.6"])
-      s.add_dependency(%q<property>, ["= 2.2.0"])
+      s.add_dependency(%q<property>, ["= 2.3.0"])
       s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
       s.add_dependency(%q<authlogic>, ["= 2.1.3"])
       s.add_dependency(%q<shoulda>, ["= 2.10.3"])
@@ -2522,7 +2523,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<httparty>, ["= 0.7.8"])
     s.add_dependency(%q<simple_xlsx_writer>, [">= 0"])
     s.add_dependency(%q<rubyless>, ["= 0.8.6"])
-    s.add_dependency(%q<property>, ["= 2.2.0"])
+    s.add_dependency(%q<property>, ["= 2.3.0"])
     s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
     s.add_dependency(%q<authlogic>, ["= 2.1.3"])
     s.add_dependency(%q<shoulda>, ["= 2.10.3"])

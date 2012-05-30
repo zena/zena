@@ -3,7 +3,7 @@ module Bricks
     def self.included(base)
       base.after_save    :update_tags
       base.safe_context  :tags => ['Link']
-      base.safe_method   :tag_list => String, :tag => String, :tagged => StringHash, :tag_names => [String]
+      base.safe_method   :tag_list => String, :tag => String, :tagged => ::StringHash, :tag_names => [String]
 
       base.class_eval <<-END
         include Bricks::Tags::InstanceMethods

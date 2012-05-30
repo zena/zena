@@ -347,11 +347,15 @@ Grid.openCell = function(cell) {
 
 Grid.click = function(event) {
   var cell = event.findElement('td, th')
-  var row = event.findElement('tr')
+  var row = cell.up('tr')
+  var table = cell.up('table')
   if (row.hasClassName('action')) {
     Grid.action(event, cell, row, true)
   } else if (cell.hasClassName('action')) {
     Grid.action(event, cell, row, false)
+  } else if (cell.tagName == 'TH' && !table.grid.attr_name) {
+    // sort
+    Grid.sort(cell)
   } else {
     Grid.openCell(cell)
   }
@@ -515,7 +519,7 @@ Grid.action = function(event, cell, row, is_col) {
 
 // map grid position to attribute and reverse.
 Grid.makeAttrPos = function(table) {
-  var heads = table.childElements()[0].select('th');
+  var heads = table.select('th');
   var attr = {};
   var pos = {};
   var helper = {}
@@ -949,6 +953,29 @@ Grid.simulateClick = function(l) {
   }
 }
 
+Grid.sort = function(cell) {
+  var table = cell.up('table')
+  var desc = false
+  if (cell.hasClassName('asc')) {
+    desc = true
+    cell.removeClassName('asc')
+    cell.addClassName('desc')
+  } else {
+    table.select('.asc, .desc').each(function(e) { e.removeClassName('asc').removeClassName('desc') })
+    cell.addClassName('asc')
+  }
+  var body = table.childElements()[0]
+  var rows = body.select('tr')
+  rows.splice(0,1)
+  var col_i = Grid.pos(cell)
+
+  rows.sort(function(a, b) {
+    var atxt = a.childElements()[col_i].innerHTML.stripTags().toLowerCase()
+    var btxt = b.childElements()[col_i].innerHTML.stripTags().toLowerCase()
+    return atxt.localeCompare(btxt) * (desc ? -1 : 1)
+  }).each(Element.prototype.appendChild, body)
+}       
+
 /////////// Tags
 Tags = {}
 
@@ -997,3 +1024,5 @@ Tags.make = function(elem, opts) {
     }
   })
 }
+
+
