@@ -255,6 +255,14 @@ module Zena
         def r_each_group
           r_each
         end
+        
+        def r_master_template
+          if template = @options[:master_template]
+            expand_if("#{var} = secure(Node) { Node.find_by_zip(#{template.zip}) }", node.move_to(var, template.vclass))
+          else
+            out ''
+          end
+        end
       end # ZafuMethods
     end # Context
   end # Use

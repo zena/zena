@@ -34,7 +34,7 @@ module Zafu
         helper = opts[:helper] || Zafu::MockHelper.new
         text, fullpath, base_path = self.get_template_text(path, helper)
         return parser_error("template '#{path}' not found", 'include') unless text
-        self.new(text, :helper => helper, :base_path => base_path, :included_history => [fullpath], :root => path)
+        self.new(text, :helper => helper, :base_path => base_path, :included_history => [fullpath], :root => path, :master_template => opts[:master_template])
       end
 
       # Retrieve the template text in the current folder or as an absolute path.

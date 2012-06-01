@@ -1399,7 +1399,7 @@ done: \"I am done\""
       end
 
       should 'parse pseudo ids' do
-        assert_transforms "Hi, this is just a simple \"test\":49 or \"\":43_life.rss. OK ?\n\n!24_pv!",
+        assert_transforms "Hi, this is just a simple \"test\":43 or \"\":31_life.rss. OK ?\n\n!24_pv!",
                           "Hi, this is just a simple \"test\"::w or \"\"::w++_life.rss. OK ?\n\n!:lake_pv!"
       end
 

@@ -12,6 +12,7 @@
  * Enable ajax response on Node destroy (use dummy update parameter).
  * Added 'sum' method on array. <===== TODO: Document
  * Added 'loading' option to [filter].
+ * Added 'master_template' zafu method to access the master template used for compilation.
 
 == 1.2.0, 1.2.1 2012-05-01
 

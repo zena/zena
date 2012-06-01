@@ -46,15 +46,24 @@ select_class_existing_node:
   context:
     node: 'letter'
   src: "<r:form><r:select name='klass' root_class='Note' selected='Post'/></r:form>"
-  res: "/<select name=.node\[klass\].><option value=\"Note\">Note<\/option>\n<option value=\"Letter\" selected=\"selected\">  Letter<\/option>\n<option value=\"Post\">  Post<\/option><\/select>/"
+  res: "/<select name=.node\[klass\].><option value=\"Note\">klass_Note<\/option>\n<option value=\"Letter\" selected=\"selected\">  klass_Letter<\/option>\n<option value=\"Post\">  klass_Post<\/option><\/select>/"
 
 select_class_new_node:
   src: "<r:pages><r:each/><r:add/><r:form><r:select name='klass' root_class='Note' selected='Post'/></r:form>"
-  res: "/<select.*name=.node\[klass\].*Note.*Letter.*Post. selected=.selected./"
+  res: "/<select.*name=.node\[klass\].*klass_Note.*klass_Letter.*Post. selected=.selected./"
 
 select_class_kpath:
   src: "<r:select param='k' root_class='Note' attr='kpath'/>"
-  res: "/<select.*name=.k.*NN.*Note.*NNL.*Letter.*NNP.*Post/"
+  res: "/<select.*name=.k.*NN.*k_Note.*NNL.*k_Letter.*NNP.*k_Post/"
+
+select_class_tprefix:
+  src: "<r:select tprefix='foo' param='k' root_class='Note'/>"
+  tem: '/\["foo_Note", "Note"\]/'
+  res: "/foo_Note.*foo_Letter/"
+
+select_data:
+  src: "<r:select data-d='foo' param='k' root_class='Note' attr='kpath'/>"
+  res: "/<select data-d='foo' .*name=.k.*NN.*Note.*NNL.*Letter.*NNP.*Post/"
 
 select_nodes:
   src: "<r:form><r:select nodes='images in site' name='foo'></select></r:form>"

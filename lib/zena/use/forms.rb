@@ -453,24 +453,37 @@ module Zena
               selected = "#{node}.prop[#{attribute.inspect}].to_s"
             end
           end
-
-          html_id = html_attributes[:id] ? " id='#{html_attributes[:id]}'" : ''
+          
           if @context[:in_filter] || @params[:param]
-            select_tag = "<select#{html_id} name='#{attribute}'>"
+            html_attributes[:name] = attribute
           else
-            select_tag = "<select#{html_id} name='#{node.form_name}[#{attribute}]'>"
+            html_attributes[:name] = "#{node.form_name}[#{attribute}]"
           end
+          html_attributes.delete(:value)
+          select_tag = Zafu::Markup.new('select', html_attributes)
 
           res = if klass = @params[:root_class]
             class_opts = ''
             class_opts << ", :without => #{@params[:without].inspect}" if @params[:without]
+            tprefix = @params[:tprefix] || @params[:name] || @params[:param]
             # do not use 'selected' if the node is not new
-            "#{select_tag}<%= options_for_select(Node.classes_for_form(:class => #{klass.inspect}#{class_opts}, :class_attr => #{(@params[:attr] || 'name').inspect}), (#{node}.new_record? ? #{selected} : #{node}.klass)) %></select>"
+            options_list = Node.classes_for_form(:class => klass, :without => @params[:without], :class_attr => @params[:attr] || 'name')
+
+            if !tprefix.blank? && tprefix != 'false'
+              options_list.map! do |e|
+                if e[0] =~ /^([^a-zA-Z]*)(.*)$/
+                  [$1 + trans("#{tprefix}_#{$2}"), e[1]]
+                else
+                  e
+                end
+              end
+            end
+            select_tag.wrap "<%= options_for_select(#{options_list.inspect}, (#{node}.new_record? ? #{selected} : #{node}.klass)) %>"
           elsif @params[:type] == 'time_zone'
             # <r:select name='d_tz' type='time_zone'/>
-            "#{select_tag}<%= options_for_select(TZInfo::Timezone.all_identifiers, #{selected}) %></select>"
+            select_tag.wrap "<%= options_for_select(TZInfo::Timezone.all_identifiers, #{selected}) %>"
           elsif options_list = get_options_for_select
-            "#{select_tag}<%= options_for_select(#{options_list}, #{selected}) %></select>"
+            select_tag.wrap "<%= options_for_select(#{options_list}, #{selected}) %>"
           else
             parser_error("missing 'nodes', 'root_class' or 'values'")
           end
@@ -707,8 +720,9 @@ module Zena
           end
 
           params.each do |k, v|
-            next unless [:size, :style, :class].include?(k)
-            res[k] = params[k]
+            if [:size, :style, :class].include?(k) || k.to_s =~ /^data-/
+              res[k] = params[k]
+            end
           end
 
           return [res, attribute]

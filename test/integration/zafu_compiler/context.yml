@@ -24,3 +24,8 @@ list_else:
     node: status
   src: "<ul do='posts'><li do='each' do='link'/><li do='else'>hop</li></ul>"
   res: "<ul><li>hop</li></ul>"
+
+master_template_on_static_render:
+  src: "<r:master_template><r:title/></r:master_template>"
+  tem: ''
+  # Master template on template rendering is tested in 'find master template', rendering_test.rb

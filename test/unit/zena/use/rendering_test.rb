@@ -189,12 +189,12 @@ class RenderingInControllerTest < Zena::Controller::TestCase
     subject do
       login(:lion)
       # create template for 'special' mode
-      t = secure(Template) { Template.create(:parent_id => nodes_id(:default), :title => 'Node-bar.zafu', :text => @zafu, :v_status => Zena::Status::Pub) }
+      @template = secure(Template) { Template.create(:parent_id => nodes_id(:default), :title => 'Node-bar.zafu', :text => @zafu, :v_status => Zena::Status::Pub) }
       login(:anon)
       {:action => 'show', :controller => 'nodes', :path => ["section#{nodes_zip(:people)}_bar.html"], :prefix => 'en'}
     end
 
-    should 'type and disposition headers' do
+    should 'set type and disposition headers' do
       @zafu = %q{<r:headers X-Foobar='my thing' Content-Type='text/css' Content-Disposition='attachment; filename=special_#{title}.csv'/>}
       get_subject
       assert_response :success
@@ -205,6 +205,13 @@ class RenderingInControllerTest < Zena::Controller::TestCase
       }.each do |k, v|
         assert_equal v, @response.headers[k]
       end
+    end
+    
+    should 'find master template' do
+      @zafu = %q{MASTER_TEMPLATE[<r:master_template do='id'/>]}
+      get_subject
+      assert_response :success
+      assert_equal "MASTER_TEMPLATE[#{@template.zip}]", @response.body
     end
   end # Custom rendering options
 

@@ -481,6 +481,7 @@ wiki_project_changes_xml_en:
   node:            wiki_Project_changes_xml_zafu
   user:            tiger
   prop:
+    title:         Project-changes-xml
     comment:       layout for wiki
     summary:       Layout for the wiki skin.
     text:          |

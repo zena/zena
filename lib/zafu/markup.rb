@@ -94,9 +94,13 @@ module Zafu
     # Steal html parameters from an existing hash (the stolen parameters are removed
     # from the argument)
     def steal_html_params_from(p)
-      steal_keys.each do |k|
-        next unless p[k]
-        @params[k] = p.delete(k)
+      p.delete_if do |k,v|
+        if steal_keys.include?(k) || k =~ /^data-/
+          @params[k] = v
+          true
+        else
+          false
+        end
       end
     end
 

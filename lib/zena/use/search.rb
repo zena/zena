@@ -76,9 +76,10 @@ module Zena
 
         # Execute a fulltext search using default fulltext support from the database (MyISAM on MySQL).
         def search_text(query, options = {})
+          options[:order] ||= 'zip desc'
           if offset = options[:offset]
             limit = options[:limit] || 20
-            Node.find(:all, match_query(query).merge(:offset => offset, :limit => limit))
+            Node.find(:all, match_query(query).merge(:offset => offset, :limit => limit, :order => options[:order]))
           else
             # :default argument not used here
             options.delete(:default)

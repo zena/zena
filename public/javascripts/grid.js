@@ -102,12 +102,12 @@ Grid.buildObj = function(grid, row) {
 
 Grid.closeCell = function(e) {
   if (Grid.in_paste) return
-  var cell = e.tagName == 'TD' ? e : e.findElement('td')
+  var cell = e.tagName ? e : e.element().up()
   var table = cell.up('table')
-  var val = Grid.getValue(cell)
-  var old = cell.prev_value
+  var val  = Grid.getValue(cell)
+  var prev = cell.prev_value
   cell.removeClassName('input')
-  Grid.changed(cell, val, old)
+  Grid.changed(cell, val, prev)
 
   if (table.grid.input) {
     // single attribute table, serialize in input field
@@ -330,7 +330,7 @@ Grid.openCell = function(cell) {
   
   if (!input) {
     // default input field
-    cell.innerHTML = Grid.default_input
+    cell.update(Grid.default_input)
     input = cell.childElements()[0]
     input.value = value
   }
@@ -407,7 +407,7 @@ Grid.copy = function(cell) {
     var c = rows[i].childElements()[pos]
     if (!Grid.isReadOnly(c)) {
       var prev = Grid.getValue(c)
-      if (c.value != val.value) Grid.changed(c, val, prev)
+      if (prev.value != val.value) Grid.changed(c, val, prev)
     }
   }
   table.grid.changes.push('end')
@@ -547,7 +547,9 @@ Grid.makeAttrPos = function(table) {
     }
     // get default values
     helpers.select('input,textarea,select').each(function(e) {
-      defaults[e.name] = Grid.valueFromInput(e)
+      if (e.getAttribute('data-d') == 'true') {
+        defaults[e.name] = Grid.valueFromInput(e)
+    }
     })
   }
   table.grid.defaults = $H(defaults)
@@ -619,8 +621,12 @@ Grid.addButtons = function(table) {
 
   for (var i = 0; i < rows.length; i++) {
     var buttons
-    if (i == 0 && grid.add) {
-      buttons = "<td class='action'><span class='add'>&nbsp;</span></td>"
+    if (i == 0) {
+      if (grid.add) {
+        buttons = "<td class='action'><span class='add'>&nbsp;</span></td>"
+      } else {
+        buttons = "<td class='action'></td>"
+      }
     } else {
       buttons = Grid.Buttons(grid)
     }
