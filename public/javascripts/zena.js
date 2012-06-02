@@ -894,8 +894,8 @@ Zena.m_toggle = function(id) {
 
 var pm_counter = 1;
 Zena.plus_minus = function(elem, start, plus, minus) {
-  plus  = plus  == undefined ? '[+]' : plus;
-  minus = minus == undefined ? '[-]' : minus;
+  var plus  = plus  == undefined ? '[+]' : plus;
+  var minus = minus == undefined ? '[-]' : minus;
 
   var tag = elem.tagName;
   pm_counter = pm_counter + 1;
@@ -903,12 +903,15 @@ Zena.plus_minus = function(elem, start, plus, minus) {
   var show = start == 'on' ? 'display:none;' : '';
   var hide = start == 'on' ? '' : 'display:none;';
   var trigger_tag = " <a id='off_"+id+"' style='"+show+"' onclick='Zena.m_toggle(\"" + id +"\")' class='plus_btn'>"+plus+"</a><a id='on_"+id+"' style='"+hide+"' onclick='Zena.m_toggle(\"" + id +"\")' class='minus_btn'>"+minus+"</a>";
-  var new_tag = "<"+tag+" style='"+hide+"' id='txt_"+id+"' class='txt" + ' ' + elem.className + "'>" + elem.innerHTML + "</"+tag+">";
   if (tag.toUpperCase() == 'SPAN' || !elem.previous()) {
-    Element.replace(elem, trigger_tag + ' ' + new_tag);
+    Element.insert(elem, {before:trigger_tag});
   } else {
     Element.insert(elem.previous(), {bottom:trigger_tag});
-    Element.replace(elem, new_tag);
+  }
+  elem.addClassName('txt')
+  elem.id = 'txt_'+id
+  if (start != 'on') {
+    elem.setStyle({display:'none'})
   }
 }
 

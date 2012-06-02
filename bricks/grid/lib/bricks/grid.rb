@@ -52,13 +52,14 @@ module Bricks
         res = prefix + error.to_s
         uuid = UUIDTools::UUID.random_create.to_s.gsub('-','')[0..6]
         msg = opts[:msg] || _('type to edit')
-        res << "<table id='grid#{uuid}' data-a='node[#{attribute}]' data-msg='#{msg}' class='grid'>\n<tr>"
+        res << "<table id='grid#{uuid}' data-a='node[#{attribute}]' data-msg='#{msg}' class='grid'>"
         if node.can_write? && !opts[:no_edit]
-          js_data << "Grid.make($('grid#{uuid}'));"
+          js_data << "Grid.make('grid#{uuid}');"
         end
 
 
         if table[1][0]
+          res << "\n<tr>"
           table[1][0].each do |heading|
             res << "<th>#{ heading }</th>"
           end

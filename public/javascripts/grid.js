@@ -738,7 +738,6 @@ Grid.make = function(table, opts) {
     });
   }
 
-
   table.observe('click', Grid.click);
 }
 

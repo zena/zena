@@ -449,7 +449,7 @@ module Zena
               end
             end
 
-            res = ZafuCompiler.new_with_url(zafu_url, :helper => zafu_helper, :master_template => template  ).to_erb(:dev => dev_mode?, :node => get_node_context)
+            res = ZafuCompiler.new_with_url(zafu_url, :helper => zafu_helper).to_erb(:dev => dev_mode?, :node => get_node_context, :master_template => template)
 
             unless valid_template?(res, opts)
               # problem during rendering, use default zafu
