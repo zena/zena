@@ -160,7 +160,7 @@ module Zena
 }});"
         end
 
-        def add_toggle_id(dom_id, group_name, role)
+        def add_toggle_id(dom_id, group_name, role, arity = 'many')
           @toggle_ids ||= {}
           unless list = @toggle_ids[group_name]
             list = @toggle_ids[group_name] = []
@@ -171,7 +171,7 @@ module Zena
               found = []
             end
             url = "/nodes/#{other.zip}"
-            js_data << "#{group_name} = {\"list\":#{found.inspect}, \"url\":#{url.inspect}, \"role\":#{role.inspect}};"
+            js_data << "#{group_name} = {\"list\":#{found.inspect}, \"url\":#{url.inspect}, \"role\":#{role.inspect}, \"arity\":#{arity.inspect}};"
           end
           list << dom_id
         end
@@ -382,7 +382,13 @@ module Zena
           dom_id = node.dom_id(:erb => false)
           markup.set_id(node.dom_id)
           markup.append_param(:class, 'toggle')
-          out "<% add_toggle_id(\"#{dom_id}\", #{var.inspect}, #{RubyLess.translate_string(self, role)}) { #{finder} } %>#{expand_with}"
+          if arity = @params.delete(:arity)
+            arity = ", #{arity.inspect}"
+          else
+            arity = ''
+          end
+          
+          out "<% add_toggle_id(\"#{dom_id}\", #{var.inspect}, #{RubyLess.translate_string(self, role)}#{arity}) { #{finder} } %>#{expand_with}"
         end
 
         def process_toggle
@@ -412,7 +418,12 @@ module Zena
           markup.tag ||= 'div'
 
           markup.append_param(:class, 'toggle')
-          markup.pre_wrap[:toggle] = "<% add_toggle_id(\"#{dom_id}\", #{"#{var}_tog".inspect}, #{RubyLess.translate_string(self, role)}) { #{finder} } %>"
+          if arity = @params.delete(:arity)
+            arity = ", #{arity.inspect}"
+          else
+            arity = ''
+          end
+          markup.pre_wrap[:toggle] = "<% add_toggle_id(\"#{dom_id}\", #{"#{var}_tog".inspect}, #{RubyLess.translate_string(self, role)}#{arity}) { #{finder} } %>"
         end
 
         def r_unlink

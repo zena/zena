@@ -875,6 +875,18 @@ Zena.toggle = function(elem, definition, id) {
       evalScripts:true,
       parameters: 'node[' + definition['role'] + '_id]=' + id,
       onSuccess: function() {
+        if (definition['arity'] == 'one') {
+          // uncheck all
+          definition['list'] = {};
+          // search for siblings
+          elem.siblings().each(function(s) {
+            try {
+              s.select('input.cb')[0].checked = false;
+              s.removeClassName('on');
+              s.addClassName('off');
+            } catch (err) {}
+          });
+        }
         definition['list'].push(id);
         Zena.set_toggle(elem.id, definition);
       }
