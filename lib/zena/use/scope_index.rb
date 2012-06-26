@@ -135,6 +135,7 @@ module Zena
           keys.each do |group_key|
             next unless list = groups[group_key]
             next unless should_clear_group?(group_key, deleted_node)
+            attrs["#{group_key}_id"] = nil
             list.each do |key|
               attrs["#{group_key}_#{key}"] = nil
             end
