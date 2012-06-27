@@ -370,9 +370,7 @@ module Zena
 
           # Destroy all links related to this node
           def destroy_links
-            Link.find(:all, :conditions => ["source_id = ? OR target_id = ?", self[:id], self[:id]]).each do |l|
-              l.destroy
-            end
+            Zena::Db.execute "DELETE FROM #{Link.table_name} WHERE source_id = #{self[:id].to_i} OR target_id = #{self[:id].to_i}"
           end
       end # ModelMethods
     end # Relations

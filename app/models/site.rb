@@ -118,8 +118,8 @@ class Site < ActiveRecord::Base
 
       unless admin_user.save
         # rollback
-        Site.connection.execute "DELETE FROM #{Site.table_name} WHERE id = #{site.id}"
-        Site.connection.execute "DELETE FROM zips WHERE site_id = #{site.id}"
+        Zena::Db.execute "DELETE FROM #{Site.table_name} WHERE id = #{site.id}"
+        Zena::Db.execute "DELETE FROM zips WHERE site_id = #{site.id}"
         raise Exception.new("Could not create admin user for site [#{host}] (site#{site[:id]})\n#{admin_user.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}")
       end
 
@@ -349,7 +349,7 @@ class Site < ActiveRecord::Base
   end
 
   def iformats_updated!
-    Site.connection.execute "UPDATE sites SET formats_updated_at = (SELECT updated_at FROM iformats WHERE site_id = #{self[:id]} ORDER BY iformats.updated_at DESC LIMIT 1) WHERE id = #{self[:id]}"
+    Zena::Db.execute "UPDATE sites SET formats_updated_at = (SELECT updated_at FROM iformats WHERE site_id = #{self[:id]} ORDER BY iformats.updated_at DESC LIMIT 1) WHERE id = #{self[:id]}"
     if $iformats
       $iformats[self[:id]] = @iformats = nil
     end
@@ -367,7 +367,7 @@ class Site < ActiveRecord::Base
   end
 
   def iformats_updated!
-    Site.connection.execute "UPDATE sites SET formats_updated_at = (SELECT updated_at FROM iformats WHERE site_id = #{self[:id]} ORDER BY iformats.updated_at DESC LIMIT 1) WHERE id = #{self[:id]}"
+    Zena::Db.execute "UPDATE sites SET formats_updated_at = (SELECT updated_at FROM iformats WHERE site_id = #{self[:id]} ORDER BY iformats.updated_at DESC LIMIT 1) WHERE id = #{self[:id]}"
     if $iformats
       $iformats[self[:id]] = @iformats = nil
     end
@@ -383,9 +383,9 @@ class Site < ActiveRecord::Base
         FileUtils.rmtree(File.join(path, elem))
       end
 
-      Site.connection.execute "DELETE FROM caches WHERE site_id = #{self[:id]}"
-      Site.connection.execute "DELETE FROM cached_pages_nodes WHERE cached_pages_nodes.node_id IN (SELECT nodes.id FROM nodes WHERE nodes.site_id = #{self[:id]})"
-      Site.connection.execute "DELETE FROM cached_pages WHERE site_id = #{self[:id]}"
+      Zena::Db.execute "DELETE FROM caches WHERE site_id = #{self[:id]}"
+      Zena::Db.execute "DELETE FROM cached_pages_nodes WHERE cached_pages_nodes.node_id IN (SELECT nodes.id FROM nodes WHERE nodes.site_id = #{self[:id]})"
+      Zena::Db.execute "DELETE FROM cached_pages WHERE site_id = #{self[:id]}"
     end
 
     if clear_zafu
