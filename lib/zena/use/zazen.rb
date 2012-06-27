@@ -148,9 +148,9 @@ module Zena
               link_to title, "##{anchor_value}"
             end
           elsif opts[:id] && opts[:id][0..0] == '0'
-            link_to title, zen_path(node, link_opts), :popup=>true
+            link_to title, zen_path(node, link_opts), :popup => true
           else
-            link_to title, zen_path(node, link_opts)
+            link_to title, zen_path(node, link_opts), :target => opts[:target]
           end
         end
 

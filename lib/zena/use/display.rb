@@ -442,7 +442,7 @@ module Zena
             node = node(Node) || '@node'
             return nil unless attribute = get_attribute_or_eval
 
-            hash_arguments = extract_from_params(:code, :host, :line_numbers, :theme) || []
+            hash_arguments = extract_from_params(:code, :host, :line_numbers, :theme, :target) || []
 
             hash_arguments.insert(0, ":node => #{node}")
 

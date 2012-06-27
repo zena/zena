@@ -28,6 +28,7 @@ class ZazenTest < Zena::View::TestCase
   def test_make_link
     # * ["":34] creates a link to node 34 with node's title.
     assert_equal '<p><a href="/en/projects-list/Clean-Water-project">Clean Water project</a></p>', zazen('"":21')
+    assert_equal '<p><a href="/en/projects-list/Clean-Water-project" target="_blank">Clean Water project</a></p>', zazen('"":21', :target => "_blank")
     # * ["title":34] creates a link to node 34 with the given title.
     assert_equal '<p><a href="/en/projects-list/Clean-Water-project">hello</a></p>', zazen('"hello":21')
     # * ["":034] if the node id starts with '0', creates a popup link.

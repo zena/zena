@@ -134,7 +134,7 @@ module Zena
               end
             else
               if node.kind_of?(Document)
-                store @helper.make_image(:style=>style, :id=>node[:zip].to_s, :node=>node, :mode=>mode, :title=>title, :link=>link, :images=>@context[:images], :host => @context[:host])
+                store @helper.make_image(:style=>style, :id=>node[:zip].to_s, :node=>node, :mode=>mode, :title=>title, :link=>link, :images=>@context[:images], :host => @context[:host],:target=>@context[:target])
               else
                 store "[#{node.fullpath_as_title.join('/')} is not a document]"
               end
@@ -162,7 +162,7 @@ module Zena
             end
             store "!#{style}#{id}#{other_opts}#{title_opts}!#{link ? ':' + link : ''}"
           else
-            store @helper.make_image(:style=>style, :id=>id, :mode=>mode, :title=>title, :link=>link, :images=>@context[:images], :host => @context[:host])
+            store @helper.make_image(:style=>style, :id=>id, :mode=>mode, :title=>title, :link=>link, :images=>@context[:images], :host => @context[:host],:target=>@context[:target])
           end
         else
           #puts "EAT:[#{$&}]"
@@ -190,7 +190,7 @@ module Zena
               id, anchor = $1, $2
               anchor = 'true' if anchor == ''
             end
-            store @helper.make_link(:title=>title,:id=>id,:anchor=>anchor,:host=>@context[:host])
+            store @helper.make_link(:title=>title,:id=>id,:anchor=>anchor,:host=>@context[:host],:target=>@context[:target])
           end
         elsif @text =~ /\A"([^"]*)":(#{PSEUDO_ID_REGEXP})((_[a-z]+|)(\.[a-z]+|)(#[a-z_\/\[\]]*|))/m
           #puts "SHORTCUT_LINK:[#{$&}]"
@@ -212,7 +212,7 @@ module Zena
                 id, anchor = $1, $2
                 anchor = 'true' if anchor == ''
               end
-              store @helper.make_link(:title=>title,:id=>id,:anchor=>anchor,:node=>node,:host=>@context[:host])
+              store @helper.make_link(:title=>title,:id=>id,:anchor=>anchor,:node=>node,:host=>@context[:host],:target=>@context[:target])
             end
           elsif @translate_ids
             store $&
