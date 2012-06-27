@@ -1,5 +1,5 @@
 class Relation < ActiveRecord::Base
-  EXPORT_FIELDS   = %w{target_kpath target_icon target_unique source_role source_icon source_unique rel_group}
+  EXPORT_FIELDS   = %w{target_name target_icon target_unique source_role source_icon source_unique rel_group}
 
   before_validation :singularize_roles
   validate        :valid_relation
@@ -21,11 +21,16 @@ class Relation < ActiveRecord::Base
   def export
     res = Zafu::OrderedHash.new
     EXPORT_FIELDS.each do |key|
-      value = self[key]
-      if !value.blank?
-        res[key] = value
+      if key == 'target_name'
+        res[key] = VirtualClass.find_by_kpath(self['target_kpath']).name
+      else
+        value = self[key]
+        if !value.blank?
+          res[key] = value
+        end
       end
     end
+    
     res
   end
 

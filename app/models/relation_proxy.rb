@@ -1,3 +1,4 @@
+# This is a mess and would need a rewrite...
 class RelationProxy < Relation
   include RubyLess
 

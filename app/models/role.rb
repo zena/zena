@@ -248,7 +248,13 @@ class Role < ActiveRecord::Base
       end
       Relation::EXPORT_FIELDS.each do |key|
         value = definition[key]
-        if !value.blank?
+        if key == 'target_name' && !value.blank?
+          if target = VirtualClass[value]
+            relation['target_kpath'] = target.kpath
+          else
+            raise Exception.new("Could not find a target named '#{value}' to create relation '#{name}'.")
+          end
+        elsif !value.blank?
           relation[key] = value
         end
       end
