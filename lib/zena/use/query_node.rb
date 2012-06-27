@@ -84,7 +84,7 @@ module Zena
           query = Node.build_query(:all, sqliss,
             :default => {:scope => 'site'}
           )
-          Node.do_find(arity, eval(query.to_s(:find)))
+          Node.do_find(arity, eval(query.to_s(arity == :count ? :count : :find)))
         end
 
         # Find a node and propagate visitor

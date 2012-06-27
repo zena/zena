@@ -217,7 +217,7 @@ Grid.keydown = function(event) {
     event.stop()
     return false
   }
-  if (key == 39 || (key == 9 && !event.shiftKey)) {
+  if ((false && key == 39) || (key == 9 && !event.shiftKey)) {
     // tab + key right
     var next = cell.nextSiblings()[0];
     if (!next || next.hasClassName('action')) {
@@ -230,7 +230,7 @@ Grid.keydown = function(event) {
     }
     Grid.openCell(next);
     event.stop();
-  } else if (key == 37 || (key == 9 && event.shiftKey)) {
+  } else if ((false && key == 37) || (key == 9 && event.shiftKey)) {
     // shift-tab + left key
     var prev = cell.previousSiblings()[0];
     if (!prev) {
@@ -245,7 +245,7 @@ Grid.keydown = function(event) {
     }
     Grid.openCell(prev);
     event.stop();
-  } else if (key == 40 || key == 13) {
+  } else if ((key == 40 && event.altKey) || (key == 13 && !event.shiftKey)) {
     // down
     if (event.altKey) {
       Grid.copy(cell, 'down')
@@ -274,7 +274,7 @@ Grid.keydown = function(event) {
        Grid.openCell(next);
     }
     event.stop();
-  } else if (key == 38) {
+  } else if ((false && key == 38) || (key == 13 && event.shiftKey)) {
     // up
     if (cell.childElements().first().tagName == 'SELECT' && event.shiftKey) {
       return
@@ -476,6 +476,15 @@ Grid.delCol = function(table, cell) {
   }
 }
 
+Grid.delRow = function(grid, row) {
+  // remove current row
+  if (!grid.attr_name) {
+    // We must also clear the changes related to the removed row
+    Grid.clearChanges(grid.changes, row.id)
+  }
+  row.remove();
+}
+
 Grid.action = function(event, cell, row, is_col) {
   var span = event.findElement('span')
   var table = event.findElement('table')
@@ -491,12 +500,17 @@ Grid.action = function(event, cell, row, is_col) {
     if (is_col) {
       Grid.delCol(table, cell);
     } else {
-      // remove current row
-      if (!grid.attr_name) {
-        // We must also clear the changes related to the removed row
-        Grid.clearChanges(grid.changes, row.id)
+      if (event.altKey) {
+        // remove current row and all unchanged below
+        var rows = table.select('tr')
+        var row_i  = Grid.pos(row)
+        for(var i = rows.length - 1; i >= row_i; --i) {
+          var arow = rows[i]
+          if (!arow.hasClassName('changed')) Grid.delRow(grid, arow)
+        }
+      } else {
+        Grid.delRow(grid, row)
       }
-      row.remove();
     }
   } else if (span.hasClassName('copy')) {
     var data = Grid.serialize(table, 'tab');
@@ -546,11 +560,13 @@ Grid.makeAttrPos = function(table) {
       }
     }
     // get default values
-    helpers.select('input,textarea,select').each(function(e) {
-      if (e.getAttribute('data-d') == 'true') {
-        defaults[e.name] = Grid.valueFromInput(e)
+    if (helpers) {
+      helpers.select('input,textarea,select').each(function(e) {
+        if (e.getAttribute('data-d') == 'true') {
+          defaults[e.name] = Grid.valueFromInput(e)
+        }
+      })  
     }
-    })
   }
   table.grid.defaults = $H(defaults)
 }

@@ -979,7 +979,7 @@ Zena.do = function(method, dom, query) {
   }
   query.t_url = $(document.body).getAttribute('data-t') + '/' + (dom.getAttribute('data-t') || dom.id)
   query.dom_id = dom.id
-  query.s = $(document.body).getAttribute('data-z')
+  if (!query.s) query.s = $(document.body).getAttribute('data-z')
   new Ajax.Request('/nodes/'+zip+met+$H(query).toQueryString(),
     {asynchronous:true, evalScripts:true, method:method}
   );
@@ -1000,4 +1000,4 @@ Zena.loading = function(e) {
   e.addClassName('zloading')
 }
 
-Zena.put
+

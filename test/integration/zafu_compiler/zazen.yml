@@ -120,3 +120,9 @@ amp:
 pre:
   tem: "<%= zazen(' Vin') %>"
   res: "<pre>Vin</pre>"
+
+target:
+  src: |
+    <r:zazen text='"":12' target="foobar"/>
+  tem: /:target => "foobar"/
+  res: /<div class='zazen'><p><a .* target=\"foobar\"/
