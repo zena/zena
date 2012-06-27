@@ -208,6 +208,14 @@ class VirtualClassTest < Zena::Unit::TestCase
       assert_equal 'NPO', n.kpath
     end
 
+    should 'update kpaths in relations' do
+      # kpath NNP => NO
+      assert subject.update_attributes(:name => 'Frost')
+      assert_equal 'NNF', subject.kpath
+      rel = relations(:post_has_blogs)
+      assert_equal 'NNF', rel.source_kpath
+    end
+
     context 'with a related template' do
       setup do
         @template = secure(Template) { Template.create(:parent_id => nodes_id(:default), :title => 'Post-foobar.zafu') }

@@ -569,10 +569,11 @@ class VirtualClass < Role
 
     def propagate_kpath_change
       if kpath_changed?
+        new_kpath = self.kpath
         old_kpath = kpath_was
-        Zena::Db.execute "UPDATE nodes SET kpath = '#{kpath}' WHERE vclass_id = #{self.id} AND site_id = #{current_site.id}"
-        Zena::Db.execute "UPDATE roles SET kpath = '#{kpath}' WHERE kpath = '#{old_kpath}' AND site_id = #{current_site.id} AND (type = 'Role' or type IS NULL)"
-        # Find templates
+        Zena::Db.execute "UPDATE nodes SET kpath = '#{new_kpath}' WHERE vclass_id = #{self.id} AND site_id = #{current_site.id}"
+        Zena::Db.execute "UPDATE roles SET kpath = '#{new_kpath}' WHERE kpath = '#{old_kpath}' AND site_id = #{current_site.id} AND (type = 'Role' or type IS NULL)"
+        # ========================================= Update templates
         idx_templates = IdxTemplate.all(
           :conditions => ['tkpath = ? AND site_id = ?', old_kpath, site_id]
         )
@@ -592,8 +593,17 @@ class VirtualClass < Role
             end
           end
         end
-
-        # Sub-classes
+        
+        # ========================================= Update relations
+        Relation.all(
+          :conditions => ['source_kpath = ? or target_kpath = ?', old_kpath, old_kpath]
+        ).each do |rel|
+          rel.source_kpath = new_kpath if rel.source_kpath == old_kpath
+          rel.target_kpath = new_kpath if rel.target_kpath == old_kpath
+          rel.save!
+        end
+        
+        # ========================================= Update sub-classes
         if sub_classes = secure(VirtualClass) { VirtualClass.all(
             :conditions => ['kpath LIKE ?', "#{old_kpath}_"]
             )}
