@@ -13,6 +13,7 @@
  * Added 'sum' method on array. <===== TODO: Document
  * Added 'loading' option to [filter].
  * Added 'master_template' zafu method to access the master template used for compilation.
+ * Fixed creation of modules bug.
 
 == 1.2.0, 1.2.1 2012-05-01
 

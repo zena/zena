@@ -133,9 +133,15 @@ class VirtualClassesController < ApplicationController
   end
 
   def create
-    type = params[:virtual_class].delete(:type)
+    attrs = params[:virtual_class]
+    type = attrs.delete(:type)
     if type == 'Role'
-      @virtual_class = ::Role.new(params[:virtual_class])
+      # Remove invalid attributes
+      accessible = ::Role.accessible_attributes
+      attrs.each do |k,v|
+        attrs.delete(k) if v.blank? or !accessible.include?(k)
+      end
+      @virtual_class = ::Role.new(attrs)
     else
       @virtual_class = VirtualClass.new(params[:virtual_class])
     end
