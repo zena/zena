@@ -28,13 +28,14 @@ class UserSessionsController < ApplicationController
   end
 
   def destroy
+    port = request.port == 80 ? '' : ":#{request.port}"
     if @user_session = UserSession.find
       @user_session.destroy
       reset_session
       #flash.now[:notice] = _("Successfully logged out.")
-      redirect_to params[:redirect] || home_path(:prefix => prefix)
+      redirect_to "http://#{current_site.host}#{port}#{params[:redirect] || home_path(:prefix => prefix)}"
     else
-      redirect_to home_path(:prefix => prefix)
+      redirect_to "http://#{current_site.host}#{port}#{home_path(:prefix => prefix)}"
     end
   end
 
@@ -52,5 +53,13 @@ class UserSessionsController < ApplicationController
     def redirect_after_login
       session.delete(:after_login_path) || home_path(:prefix => AUTHENTICATED_PREFIX)
     end
-
+    
+    # Overwrite redirect on https rules for this controller
+    def redirect_to_https
+      if params[:action] == 'destroy'
+        # ignore
+      else
+        redirect_to :protocol => "https://" if current_site.ssl_on_auth && !ssl_request? && !local_request?
+      end
+    end
 end

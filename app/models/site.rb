@@ -56,7 +56,7 @@ class Site < ActiveRecord::Base
 
   validate :valid_site
   validates_uniqueness_of :host
-  attr_accessible :name, :languages, :default_lang, :authentication, :http_auth, :auto_publish, :redit_time, :api_group_id
+  attr_accessible :name, :languages, :default_lang, :authentication, :http_auth, :ssl_on_auth, :auto_publish, :redit_time, :api_group_id
   has_many :groups, :order => "name"
   has_many :nodes
   has_many :users
@@ -70,7 +70,7 @@ class Site < ActiveRecord::Base
   include Zena::Use::MLIndex::SiteMethods
 
   @@attributes_for_form = {
-    :bool => %w{authentication http_auth auto_publish},
+    :bool => %w{authentication http_auth auto_publish ssl_on_auth},
     :text => %w{name languages default_lang},
   }
 
@@ -221,6 +221,7 @@ class Site < ActiveRecord::Base
 
   property.string 'usr_prototype_attributes'
   property.boolean 'expire_in_dev'
+  property.boolean 'ssl_on_auth'
 
   Site.attributes_for_form[:text] << 'usr_prototype_attributes'
   Site.attributes_for_form[:bool] << 'expire_in_dev'

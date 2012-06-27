@@ -16,10 +16,14 @@ module Zena
       module ControllerMethods
 
         def self.included(base)
-          base.before_filter :set_visitor, :force_authentication?
+          base.before_filter :set_visitor, :force_authentication?, :redirect_to_https
         end
 
         include Common
+        
+        def ssl_request?
+          request.ssl? || request.headers['X_FORWARDED_PROTO'] == 'https'
+        end
 
         private
 
@@ -129,6 +133,17 @@ module Zena
 
                 # Authentication token required for xml.
                 render :xml => [{:message => 'Authentication token needed.'}].to_xml(:root => 'errors'), :status => 401
+              end
+            end
+          end
+          
+          # Force https if ssl_on_auth is enabled. This method is overwriten in UserSessionsController.
+          def redirect_to_https
+            if current_site.ssl_on_auth
+              if !ssl_request? && !visitor.is_anon? && !local_request?
+                redirect_to :protocol => "https://" 
+              elsif ssl_request? && visitor.is_anon?
+                redirect_to :protocol => "http://" 
               end
             end
           end
