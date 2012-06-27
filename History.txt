@@ -23,6 +23,7 @@
  * Going through reverse order in console's foreach in case we destroy nodes.
  * Added support for "target" in [zazen] when rendering links.
  * Fixed kpath propagation to relations on kpath change.
+ * Fixed [block] in [block] with [filter] bug.
 
 == 1.2.0, 1.2.1 2012-05-01
 

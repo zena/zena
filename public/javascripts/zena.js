@@ -865,7 +865,7 @@ Zena.toggle = function(elem, definition, id) {
       onSuccess: function() {
         definition['list'] = definition['list'].without(id);
         Zena.set_toggle(elem.id, definition);
-        if (definition['js']) definition['js']();
+        if (definition['js']) definition['js'](elem);
       }  
     });
   } else {
@@ -890,7 +890,7 @@ Zena.toggle = function(elem, definition, id) {
         }
         definition['list'].push(id);
         Zena.set_toggle(elem.id, definition);
-        if (definition['js']) definition['js']();
+        if (definition['js']) definition['js'](elem);
       }
     });
   }

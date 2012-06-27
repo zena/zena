@@ -163,7 +163,7 @@ module Zena
         def add_toggle_id(dom_id, group_name, role, opts = {})
           arity = opts[:arity] || 'many'
           if js = opts[:js]
-            js = ", js:function() { #{js} }"
+            js = ", js:function(e) { #{js} }"
           end
           
           @toggle_ids ||= {}
@@ -300,30 +300,34 @@ module Zena
 
           # Move up in case we are in a list.
           if self.node.list_context?
-            node = self.node.up(Node)
+            base_node = self.node.up(Node)
           else
-            node = self.node
+            base_node = self.node
           end
-          node.dom_prefix = dom_name
-          dom_id = node.dom_id(:erb => false)
+          
+          # Do not alter current node, create our own
+          with_context(:node => base_node.dup) do
+            node.dom_prefix = dom_name
+            dom_id = node.dom_id(:erb => false)
 
-          out %Q{<%= form_remote_tag(:url => zafu_node_path(#{node}), :method => :get, :html => {:id => \"#{dom_id}_f\"}) %>
-          <div class='hidden'>
-            <input type='hidden' name='t_url' value='#{template_url(upd)}'/>
-            <input type='hidden' name='dom_id' value='#{upd}'/>
-            <input type='hidden' name='s' value='<%= start_node_zip %>'/>
-          </div><div class='wrapper'>
-          }
-          if @blocks == []
-            out "<input type='text' name='#{@params[:key] || 'f'}' value='<%= params[#{(@params[:key] || 'f').to_sym.inspect}] %>'/>"
-          else
-            out expand_with(:in_filter => true)
-          end
-          out "</div></form>"
-          loading = @params[:loading]
-          loading = 'Zena.loading' if loading == 'true'
-          if @params[:live] || @params[:update]
-            out "<% filter_form(#{node}, \"#{dom_id}_f\", #{loading.inspect}, '#{upd}') %>"
+            out %Q{<%= form_remote_tag(:url => zafu_node_path(#{node}), :method => :get, :html => {:id => \"#{dom_id}_f\"}) %>
+            <div class='hidden'>
+              <input type='hidden' name='t_url' value='#{template_url(upd)}'/>
+              <input type='hidden' name='dom_id' value='#{upd}'/>
+              <input type='hidden' name='s' value='<%= start_node_zip %>'/>
+            </div><div class='wrapper'>
+            }
+            if @blocks == []
+              out "<input type='text' name='#{@params[:key] || 'f'}' value='<%= params[#{(@params[:key] || 'f').to_sym.inspect}] %>'/>"
+            else
+              out expand_with(:in_filter => true)
+            end
+            out "</div></form>"
+            loading = @params[:loading]
+            loading = 'Zena.loading' if loading == 'true'
+            if @params[:live] || @params[:update]
+              out "<% filter_form(#{node}, \"#{dom_id}_f\", #{loading.inspect}, '#{upd}') %>"
+            end  
           end
         end
 

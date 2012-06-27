@@ -24,6 +24,12 @@ edit_in_block:
   res: "/Ajax.Request\(\"/nodes/22/zafu\?dom_id=list1&"
   'ajax/edit/in/block/en/list1_form.erb': "/f.text_field :title.*alt='cancel/"
 
+block_in_block:
+  src: "<div do='block' name='a'>A:<r:root do='link' update='a'/><r:filter live='true' update='b'/><div do='block' name='b'>B:</div></div>"
+  # Make sure the correct template is built, not a2 or something.
+  'ajax/block/in/block/en/a.erb': "/A:/"
+  'ajax/block/in/block/en/b.erb': "/B:/"
+
 edit_in_block_publish:
   src: "<li do='block'><r:title/> <r:edit publish='true'/></li>"
   res: "/Ajax.Request\(\"/nodes/22/zafu\?dom_id=list1/"
