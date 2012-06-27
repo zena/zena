@@ -195,7 +195,9 @@ module Zena
       page_count = (count.to_f / limit).ceil
       puts "#{count} nodes, #{page_count} chunk(s) (100 items)"
       curr_page  = 1
-      for curr_page in (1..page_count)
+      # We walk pages in reverse order in case objects are deleted
+      
+      for curr_page in (1..page_count).to_a.reverse
         query.offset = " OFFSET #{limit * (curr_page - 1)}"
         if list = Node.do_find(:all, eval(query.to_s(:find)))
           puts "Page #{curr_page}/#{page_count}"
