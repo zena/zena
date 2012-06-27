@@ -509,8 +509,9 @@ class VirtualClass < Role
     def rebuild_kpath(superclass)
       index = 0
       kpath = nil
-      while index < self[:name].length
-        try_kpath = superclass.kpath + self[:name][index..index].upcase
+      try_keys = "#{name}ABCDEFGHIJKLMNOPQRSTUCWXYZ1234567890"
+      while index < try_keys.length
+        try_kpath = superclass.kpath + try_keys[index..index].upcase
         if found = VirtualClass.find_by_kpath(try_kpath)
           if found.id && found.id == self[:id]
             kpath = try_kpath

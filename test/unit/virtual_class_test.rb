@@ -185,6 +185,10 @@ class VirtualClassTest < Zena::Unit::TestCase
     assert !vclass.new_record?
     assert_not_equal Section.kpath, vclass.kpath
     assert_equal 'NPU', vclass.kpath
+    # New class without any free key
+    vclass = VirtualClass.create(:superclass => 'Page', :name => 'U', :create_group_id =>  groups_id(:public))
+    assert !vclass.new_record?
+    assert_equal 'NPA', vclass.kpath
   end
 
   context 'Updating a VirtualClass' do

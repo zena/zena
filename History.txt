@@ -18,6 +18,7 @@
  * Added 'ssl_on_auth' option to force https after (and during) login. <=== TODO: Document
  * Removing evaluated strings if copy_id is blank.
  * Exporting relations by class name instead of kpath (may differ from site to site).
+ * Using any character to build kpath if no character from the class name can be used.
 
 == 1.2.0, 1.2.1 2012-05-01
 
