@@ -1,0 +1,18 @@
+open "/oo/testnode37.html?test=toggle2"
+assert_element_not_present "css=ul.references > li"
+verify_text "toggle2_count", 'toggle2_count=0'
+
+wait_for_element_present 'css=#toggle22_19.toggle.off > input.cb'
+# Add relation
+# Cannot test click on non-link in Safari and Chrome...
+click 'css=#toggle22_19.toggle.off > input.cb'
+wait_for_element_present 'css=#toggle22_19.toggle.on'
+verify_value "css=#toggle22_19 > input.cb", "on"
+# Make sure the js reload has been triggered
+wait_for_text_present "toggle2_count=1"
+
+# Remove relation
+click 'css=#toggle22_19.toggle.on > input.cb'
+wait_for_element_present 'css=#toggle22_19.toggle.off'
+verify_value "css=#toggle22_19 > input.cb", "off"
+wait_for_text_present "toggle2_count=0"

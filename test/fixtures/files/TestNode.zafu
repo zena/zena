@@ -172,6 +172,18 @@
     </ul>
   </div>
 
+  //! toggle2
+  <div class='test' id='toggle2' do='selenium'>
+    <h3>toggle2</h3>
+    <p>Toggle with js. <span id='toggle2_count' do='block'>toggle2_count=<r:references find='count'/></span></p>
+    <ul class='references' do='references'>
+      <li do='each' do='title'/>
+    </ul>
+    <ul do='projects in site'>
+      <li do='each' toggle='reference' for='start' js='Zena.reload("toggle2_count")' do='title'/>
+    </ul>
+  </div>
+
   <div class='test' id='paginate1' do='selenium'>
     <h3>paginate1</h3>
     <p>Ajax pagination.</p>

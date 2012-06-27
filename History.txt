@@ -6,6 +6,7 @@
  * Added simple support for JS Tags (used to define grid colums).
  * Enabled rebuilding of templates on partial query.
  * Enabled 'hash' property type.
+ * Enabled javascript on toggle.
 
 * Minor changes
  * Fixed label traduction for param.

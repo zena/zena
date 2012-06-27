@@ -160,7 +160,12 @@ module Zena
 }});"
         end
 
-        def add_toggle_id(dom_id, group_name, role, arity = 'many')
+        def add_toggle_id(dom_id, group_name, role, opts = {})
+          arity = opts[:arity] || 'many'
+          if js = opts[:js]
+            js = ", js:function() { #{js} }"
+          end
+          
           @toggle_ids ||= {}
           unless list = @toggle_ids[group_name]
             list = @toggle_ids[group_name] = []
@@ -171,7 +176,7 @@ module Zena
               found = []
             end
             url = "/nodes/#{other.zip}"
-            js_data << "#{group_name} = {\"list\":#{found.inspect}, \"url\":#{url.inspect}, \"role\":#{role.inspect}, \"arity\":#{arity.inspect}};"
+            js_data << "#{group_name} = {list:#{found.inspect}, url:#{url.inspect}, role:#{role.inspect}, arity:#{arity.inspect}#{js}};"
           end
           list << dom_id
         end
@@ -382,13 +387,16 @@ module Zena
           dom_id = node.dom_id(:erb => false)
           markup.set_id(node.dom_id)
           markup.append_param(:class, 'toggle')
+          opts = {}
           if arity = @params.delete(:arity)
-            arity = ", #{arity.inspect}"
-          else
-            arity = ''
+            opts[:arity] = arity
           end
           
-          out "<% add_toggle_id(\"#{dom_id}\", #{var.inspect}, #{RubyLess.translate_string(self, role)}#{arity}) { #{finder} } %>#{expand_with}"
+          if js = @params.delete(:js)
+            opts[:js] = js
+          end
+          
+          out "<% add_toggle_id(\"#{dom_id}\", #{var.inspect}, #{RubyLess.translate_string(self, role)},#{opts.inspect}) { #{finder} } %>#{expand_with}"
         end
 
         def process_toggle
@@ -418,12 +426,17 @@ module Zena
           markup.tag ||= 'div'
 
           markup.append_param(:class, 'toggle')
+          
+          opts = {}
           if arity = @params.delete(:arity)
-            arity = ", #{arity.inspect}"
-          else
-            arity = ''
+            opts[:arity] = arity
           end
-          markup.pre_wrap[:toggle] = "<% add_toggle_id(\"#{dom_id}\", #{"#{var}_tog".inspect}, #{RubyLess.translate_string(self, role)}#{arity}) { #{finder} } %>"
+          
+          if js = @params.delete(:js)
+            opts[:js] = js
+          end
+          
+          markup.pre_wrap[:toggle] = "<% add_toggle_id(\"#{dom_id}\", #{"#{var}_tog".inspect}, #{RubyLess.translate_string(self, role)},#{opts.inspect}) { #{finder} } %>"
         end
 
         def r_unlink
