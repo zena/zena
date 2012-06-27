@@ -16,6 +16,7 @@
  * Fixed creation of modules bug.
  * Using latest QueryBuilder (fixes default scope bug).
  * Added 'ssl_on_auth' option to force https after (and during) login. <=== TODO: Document
+ * Removing evaluated strings if copy_id is blank.
 
 == 1.2.0, 1.2.1 2012-05-01
 

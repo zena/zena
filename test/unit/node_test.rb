@@ -1216,6 +1216,21 @@ done: \"I am done\""
     assert_equal nodes_id(:bird_jpg), node.find(:first, 'icon')[:id]
   end
 
+  def test_copy_no_id
+    login(:lion)
+    node = secure!(Node) { nodes(:status) }
+    attributes = {
+      'copy_id' => '',
+      'text' => 'Changed icon to "#{title}"',
+    }
+
+    new_attributes = secure(Node) { Node.transform_attributes(attributes) }
+    assert_equal Hash['copy_zip' => '', 'text'  => 'Changed icon to ""',], new_attributes
+
+    assert node.update_attributes_with_transformation(attributes)
+    assert_equal 'Changed icon to ""', node.text
+  end
+
   def test_export
     without_files('/test.host/tmp') do
       login(:tiger)

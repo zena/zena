@@ -853,10 +853,14 @@ class Node < ActiveRecord::Base
 
       copy_node = new_attributes.delete(:_copy)
       attributes = new_attributes.stringify_keys
-
+      
       if copy_node || attributes['copy_id']
-        copy_node ||= Node.find_by_zip(attributes.delete('copy_id'))
-        attributes = copy_node.replace_attributes_in_values(attributes)
+        if !copy_node && attributes['copy_id'].blank?
+          attributes = Node.new.replace_attributes_in_values(attributes)
+        else
+          copy_node ||= Node.find_by_zip(attributes.delete('copy_id'))
+          attributes = copy_node.replace_attributes_in_values(attributes)
+        end
       end
 
       if !res['parent_id'] && p = attributes['parent_id']
