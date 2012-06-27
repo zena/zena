@@ -2,9 +2,8 @@
 
 <table id='tasks_list' class='admin jobs' cellspacing="0">
   <tr>
-    <th do='t'>execution</th>
-    <th do='t'>info</th>
-    <th do='t'></th>
+    <th><%= _('execution') %></th>
+    <th><%= _('info') %></th>
   </tr>
   <%= render :partial=>'sites/job',  :collection=>@jobs %>
 </table>
