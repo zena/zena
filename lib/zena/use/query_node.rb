@@ -378,7 +378,7 @@ module Zena
         # ******** And maybe overwrite these **********
         def parse_custom_query_argument(key, value)
           return nil unless value
-          super.gsub(/(RELATION_ID|NODE_ATTR|SECURE_TABLE)\(([^)]+)\)|(REF_DATE|NODE_ID|VISITOR_LANG)/) do
+          super.gsub(/(RELATION_ID|KPATH_VALUE|NODE_ATTR|SECURE_TABLE)\(([^)]+)\)|(REF_DATE|NODE_ID|VISITOR_LANG)/) do
             type, value = $1, $2
             type ||= $3
             case type
@@ -388,6 +388,13 @@ module Zena
                 rel[:id]
               else
                 raise ::QueryBuilder::Error.new("Custom query: could not find Relation '#{role}'")
+              end
+            when 'KPATH_VALUE'
+              klass_name = value
+              if rel = VirtualClass[klass_name]
+                rel.kpath
+              else
+                raise ::QueryBuilder::Error.new("Custom query kpath: could not find VirtualClass '#{role}'")
               end
             when 'SECURE_TABLE'
               table_name = value

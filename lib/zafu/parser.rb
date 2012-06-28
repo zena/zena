@@ -39,8 +39,8 @@ module Zafu
 
       # Retrieve the template text in the current folder or as an absolute path.
       # This method is used when 'including' text
-      def get_template_text(path, helper, base_path=nil)
-        res = helper.send(:get_template_text, path, base_path)
+      def get_template_text(path, helper, base_path=nil, opts={})
+        res = helper.send(:get_template_text, path, base_path, opts)
         return [parser_error("template '#{path}' not found", 'include'), nil, nil] unless res
         res
       end

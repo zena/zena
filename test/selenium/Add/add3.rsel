@@ -1,22 +1,22 @@
 # Add first element
 open '/oo/testnode37.html?test=add3'
-assert_not_visible 'add33_title'
+assert_not_visible 'add31_title'
 click 'css=img[alt=add]'
-assert_visible 'add33_title'
-type 'add33_title', 'add3'
+assert_visible 'add31_title'
+type 'add31_title', 'add3'
 click 'css=input[type=submit]'
-wait_for_not_visible 'add33_title'
+wait_for_not_visible 'add31_title'
 verify_text 'css=.add3 a', 'add3'
 # should have correct parent
 verify_text 'css=.add3 span', 'Kill the bugs'
 
 # Add a second element
-assert_not_visible 'add33_title'
+assert_not_visible 'add31_title'
 click 'css=img[alt=add]'
-assert_visible 'add33_title'
-type 'add33_title', 'add3_2'
+assert_visible 'add31_title'
+type 'add31_title', 'add3_2'
 click 'css=input[type=submit]'
-wait_for_not_visible 'add33_title'
+wait_for_not_visible 'add31_title'
 verify_text 'css=.add3_2 a', 'add3_2'
 # should have correct parent
 verify_text 'css=.add3_2 span', 'Kill the bugs'

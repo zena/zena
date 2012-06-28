@@ -7,6 +7,7 @@
  * Enabled rebuilding of templates on partial query.
  * Enabled 'hash' property type.
  * Enabled javascript on toggle.
+ * Enabled "static" brick to use zafu stored in brick file system.
 
 * Minor changes
  * Fixed label traduction for param.
@@ -24,6 +25,7 @@
  * Added support for "target" in [zazen] when rendering links.
  * Fixed kpath propagation to relations on kpath change.
  * Fixed [block] in [block] with [filter] bug.
+ * Added support for KPATH_VALUE(ClassName) in custom queries. <==== TODO: Document
 
 == 1.2.0, 1.2.1 2012-05-01
 

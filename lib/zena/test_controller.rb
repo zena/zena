@@ -109,7 +109,7 @@ module Zena
       end
     end
 
-    def get_template_text(path, base_path)
+    def get_template_text(path, base_path, opts={})
       folder = base_path.blank? ? [] : base_path[1..-1].split('/')
       if path[0..0] == '/'
         # just ignore the 'relative' or 'absolute' tricks.

@@ -51,7 +51,7 @@ class Role < ActiveRecord::Base
             raise Exception.new("Importation needs to start with a real class: '#{name}' is not a real class.")
           else
             # start importing
-            res += import_all(klass, definition, post_import)
+            res += import_vclass(nil, name, definition, post_import)
           end
         end
 
@@ -119,7 +119,7 @@ class Role < ActiveRecord::Base
 
       def import_vclass(superclass, name, definition, post_import)
         res = []
-        vclass = ::Role.find_by_name_and_site_id(name, current_site.id)
+        vclass = VirtualClass[name]
         if vclass && vclass.class != VirtualClass
           # Change from role to vclass ?
           # Reject
@@ -129,7 +129,7 @@ class Role < ActiveRecord::Base
           vclass = VirtualClass.new(:name => name, :superclass => superclass)
           vclass.save!
         end
-
+        
         res << vclass
 
         # 2. create or update columns (never delete)
@@ -153,7 +153,8 @@ class Role < ActiveRecord::Base
             # We do not clear attributes (import is ADD/UPDATE only).
           end
         end
-        vclass.save!
+        
+        vclass.save! unless vclass.real_class?
 
         # 5. create or update sub-classes
         res += import_all(vclass, definition, post_import)

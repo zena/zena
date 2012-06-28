@@ -207,7 +207,7 @@ class RelationTest < Zena::Unit::TestCase
       assert_equal({
         'rel_group'    => 'doc.tags',
         'source_role'  => 'tagged',
-        'target_kpath' => 'NPT',
+        'target_name'  => 'Tag',
         'target_icon'  => "<img src='/images/tag_blue.png' alt='tag'/>",
       }, subject.export)
     end

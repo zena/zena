@@ -8,7 +8,7 @@ module Zena
       ::ENV['LANG'] = 'C'
 
       class TranslationDict
-        attr_reader :last_error, :node_id
+        attr_reader :last_error, :node_id, :static
 
         include Zena::Acts::Secure
         include RubyLess
@@ -16,8 +16,9 @@ module Zena
         # never returns nil
         safe_method [:get, String] => {:class => String, :accept_nil => true}
 
-        def initialize(node_id)
+        def initialize(node_id, static = nil)
           @node_id = node_id
+          @static  = static
         end
 
         def get(key, use_global = true)
@@ -31,21 +32,30 @@ module Zena
 
         def load!(text = nil)
           unless text
-            unless dict = secure(Node) { Node.find(:first, :conditions => {:id => @node_id}) }
-              @dict = {}
-              error("missing 'dictionary'")
-              return false
+            if @node_id
+              if dict = secure(Node) { Node.find(:first, :conditions => {:id => @node_id}) }
+                text = dict.prop['text']
+              else
+                @dict = {}
+                error("missing 'dictionary'")
+                return false
+              end
+            else
+              text, ignore = ::Skin.text_from_static(@static[:brick_name], @static[:skin_name], @static[:path], :ext => 'yml')
+              unless text
+                @dict = {}
+                error("missing 'dictionary'")
+                return false
+              end
             end
-            text = dict.prop['text']
           end
-
+          
           begin
             definitions = YAML::load(text)
             if translations = definitions['translations']
               if translations.kind_of?(Hash)
                 # ok
                 @dict = translations
-                true
               else
                 return error("bad 'translations' content (should be a dictionary)")
               end
@@ -218,8 +228,8 @@ module Zena
           ApplicationController.send(:_, str)
         end
 
-        def load_dictionary(node_id)
-          Zena::Use::I18n::TranslationDict.new(node_id)
+        def load_dictionary(node_id, static=nil)
+          Zena::Use::I18n::TranslationDict.new(node_id, static)
         end
 
         # show language selector
@@ -284,10 +294,19 @@ module Zena
         def r_load
           if dict = @params[:dictionary]
             # FIXME: replace @options[:base_path] by @options[:skin_id]
-            dict_content, absolute_url, base_path, doc = @options[:helper].send(:get_template_text, dict, @options[:base_path])
-            if base_path
+            dict_content, absolute_url, base_path, doc = @options[:helper].send(:get_template_text, dict, @options[:base_path], :ext => 'yml')
+            if dict_content
               # Lazy dictionary used for literal resolution
-              dict = TranslationDict.new(doc.id)
+              if doc
+                dict = TranslationDict.new(doc.id)
+              else
+                if absolute_url =~ /^\$([a-zA-Z_]+)-([a-zA-Z_]+)\/(.+)$/
+                  static = {:brick_name => $1, :skin_name => $2, :path => $3}
+                else
+                  return parser_error("Invalid absolute_url for static asset ('#{absolute_url}')")
+                end
+                dict = TranslationDict.new(nil, static)
+              end
 
               if dict.load!(dict_content)
                 # Save dictionary in template for dynamic uses
@@ -297,7 +316,11 @@ module Zena
                 set_context_var('set_var', 'dictionary', RubyLess::TypedString.new(dict_name, :class => TranslationDict, :literal => dict))
 
                 # Lazy loading (loads file on first request)
-                out "<% #{dict_name} = load_dictionary(#{doc.id}) %>"
+                if doc
+                  out "<% #{dict_name} = load_dictionary(#{doc.id}) %>"
+                else
+                  out "<% #{dict_name} = load_dictionary(nil, #{static.inspect}) %>"
+                end
               else
                 return parser_error(dict.last_error)
               end
@@ -390,7 +413,8 @@ module Zena
               # Lazy loading (loads file on first request)
               dict_name = get_var_name('dictionary', 'dict', cleared_context)
               set_context_var('set_var', 'dictionary', dict, cleared_context)
-              prefix += "<% #{dict_name} = load_dictionary(#{dict.literal.node_id}) %>"
+              d = dict.literal
+              prefix += "<% #{dict_name} = load_dictionary(#{d.node_id.inspect},#{d.static.inspect}) %>"
               return cleared_context, prefix
             else
               return cleared_context, nil

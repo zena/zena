@@ -910,7 +910,7 @@ class VirtualClassTest < Zena::Unit::TestCase
 
       should 'export relations' do
         assert_equal({
-          'blogs' => {'target_kpath'=>'NPP', 'source_role'=>'added_note'}
+          'blogs' => {'target_name'=>'Project', 'source_role'=>'added_note'}
         }, subject['relations'])
       end
 
@@ -991,7 +991,7 @@ class VirtualClassTest < Zena::Unit::TestCase
             'type' => 'VirtualClass',
             'relations' => {
               'babar' => {
-                'target_kpath'  => 'NNB',
+                'target_name'   => 'Post',
                 'target_unique' => true,
                 'source_role'   => 'fool',
                 'rel_group'     => 'foo.bar',
@@ -1015,7 +1015,7 @@ class VirtualClassTest < Zena::Unit::TestCase
           assert bar = VirtualClass['Bar']
           rel = Relation.first(
             :conditions => ['source_kpath = ? AND target_role = ?', 'NNF', 'babar'])
-          assert_equal 'NNB',   rel.target_kpath
+          assert_equal 'NNP',   rel.target_kpath
           assert_equal 'fools', rel.source_role
           assert_equal 'babar', rel.target_role
           assert_equal 'foo.bar', rel.rel_group

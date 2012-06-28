@@ -4,11 +4,10 @@ module Zena
       module Common
         def icon_finder
           if rel = RelationProxy.find_by_role('icon')
-            finder = 'icon or image'
+            "icon or image group by id,l_id order by l_id desc, position asc"
           else
-            finder = 'image'
+            "image order by position asc"
           end
-          "#{finder} group by id,l_id order by l_id desc, position asc"
         end
       end # Common
 

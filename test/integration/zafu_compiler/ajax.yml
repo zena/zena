@@ -388,7 +388,7 @@ link_page_list:
 toggle:
   src: "<span do='toggle' set='favorite' for='visitor.node'/>"
   res: "<span class='toggle' id='list1_22'></span>"
-  js: "/var1 = \{\"list\":\[39\], \"url\":\"/nodes/13\", \"role\":\"favorite\".*\"list1_22\"\].each.function.item. \{ Zena.set_toggle/"
+  js: "/var1 = \{list:\[39\], url:\"/nodes/13\", role:\"favorite\".*\"list1_22\"\].each.function.item. \{ Zena.set_toggle/"
 
 toggle_attribute_in_each:
   context:
@@ -402,7 +402,7 @@ toggle_dyn_attribute_in_each:
     node: cleanWater
     rel: favorite
   src: "<ul do='pages'><li do='each' toggle='#{params[:rel]}' for='visitor.node' do='title'/></ul>"
-  tem: "/add_toggle_id\(\"list1_#\{var2.zip\}\", \"var2_tog\", \"#\{params\[:rel\]\}\"\)/"
+  tem: "/add_toggle_id\(\"list1_#\{var2.zip\}\", \"var2_tog\", \"#\{params\[:rel\]\}\",\{\}\)/"
   res: "/<ul><li class='toggle' id='list1_26'>crocodiles</li>/"
   js: "/list1_26.*each/"
 

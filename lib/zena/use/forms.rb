@@ -223,7 +223,7 @@ module Zena
 
               opts[:form_cancel] = %Q{
   <% if #{node}.new_record? %>
-  #{cancel_pre}<a href='javascript:void(0)' onclick='[\"<%= params[:dom_id] %>_add\", \"<%= params[:dom_id] %>\"].each(Element.toggle);return false;'>#{cancel_text}</a>#{cancel_post}
+  #{cancel_pre}<a href='javascript:void(0)' onclick='[\"<%= params[:dom_id] %>_add\", \"<%= params[:dom_id] %>_0\"].each(Element.toggle);return false;'>#{cancel_text}</a>#{cancel_post}
   <% else %>
   #{cancel_pre}<%= link_to_remote(#{cancel_text_ruby}, :url => #{node.form_name}_path(#{node}.zip) + \"/zafu?t_url=#{CGI.escape(template_url)}&dom_id=\#{params[:dom_id]}#{@context[:has_link_id] ? "&link_id=\#{#{node}.link_id}" : ''}\", :method => :get) %>#{cancel_post}
   <% end %>
@@ -704,11 +704,13 @@ module Zena
             res[:name]  = "node[<%= #{node}.name %>]"
             res[:value] = "<%= fquote #{node(Node)}.prop[#{node}.name] %>"
           end
-
-          if node.dom_prefix && !params[:param]
-            res[:id] = params[:id] || "#{@context[:form_prefix]}_#{attribute}"
+          
+          if params[:id]
+            res[:id] = params[:id]
+          #elsif params[:param]
+          #  res[:id] = "#{node.dom_prefix}_#{params[:param]}"
           else
-            res[:id] = params[:id] if params[:id]
+            res[:id] = "#{node.dom_prefix}_#{attribute}"
           end
           
           if params[:type] == 'checkbox' && sub_attr_ruby

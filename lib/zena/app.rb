@@ -70,6 +70,7 @@ module Zena
       
       ::Skin.class_eval do
         Zena::Use.each_module_for('Skin') do |mod|
+          puts mod
           include mod
         end
       end

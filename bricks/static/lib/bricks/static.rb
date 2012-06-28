@@ -2,11 +2,11 @@ module Bricks
   module Static
     ELEM = "([a-zA-Z_]+)"
     ELEM_REGEXP = %r{^#{ELEM}$}
-    SECURE_PATH_REGEXP = %r{^[a-zA-Z_/]+$}
+    SECURE_PATH_REGEXP = %r{^[a-zA-Z_/\-]+$}
     STATIC_SKIN_REGEXP = %r{^#{ELEM}-#{ELEM}$}
     ZAFU_URL_REGEXP    = %r{^\$#{ELEM}-#{ELEM}/(.+)$}
     BRICK_NAME_REGEXP = %r{^#{RAILS_ROOT}/bricks/#{ELEM}/zena/skins$}
-
+    
     module ControllerMethods
       def self.included(base)
         base.alias_method_chain :get_template_text, :static
@@ -14,14 +14,15 @@ module Bricks
         base.alias_method_chain :get_best_template, :static
       end
 
-      def get_template_text_with_static(path, section_id = nil)
+      def get_template_text_with_static(path, section_id = nil, opts = {})
+        puts [path, section_id, opts].inspect
         if path =~ ZAFU_URL_REGEXP
           brick_name, skin_name, path = $1, $2, $3
-          text_from_static(brick_name, skin_name, path)
-        elsif section_id.nil? && @static_brick_name && @static_skin_name
-          text_from_static(@static_brick_name, @static_skin_name, path)
+          Skin.text_from_static(brick_name, skin_name, path, opts)
+        elsif !(path =~ %r{^(/|\$)}) && section_id.nil? && @static_brick_name && @static_skin_name
+          Skin.text_from_static(@static_brick_name, @static_skin_name, path, opts)
         else
-          get_template_text_without_static(path, section_id)
+          get_template_text_without_static(path, section_id, opts)
         end
       end
 
@@ -58,16 +59,6 @@ module Bricks
       # ===> blog/img/style.css ==> brick path/zena/skins/  blog/img/style.css
       # Cache in public directory
       # FIXME: clear_cache should erase /home/static
-
-      private
-        def text_from_static(brick_name, skin_name, path)
-          if path =~ SECURE_PATH_REGEXP
-            abs_path = File.join(
-              RAILS_ROOT, 'bricks', brick_name,
-              'zena', 'skins', skin_name, path + '.zafu')
-            File.exist?(abs_path) ? File.read(abs_path) : nil
-          end
-        end
     end # ControllerMethods
 
     module SkinMethods
@@ -75,8 +66,25 @@ module Bricks
         base.property do |p|
           p.string 'z_static'
         end
-
+        
+        base.safe_property 'z_static'
         base.validate :validate_z_static
+        
+        # We move this method here so that we do not need to reference
+        # Bricks::Static in I18n when static brick is disabled.
+        def base.text_from_static(brick_name, skin_name, path, opts)
+          if path =~ SECURE_PATH_REGEXP
+            fullpath = "$#{brick_name}-#{skin_name}/#{path}"
+            section_id = nil
+            template = nil
+            abs_path = File.join(
+              RAILS_ROOT, 'bricks', brick_name,
+              'zena', 'skins', skin_name, path + "." + (opts[:ext] || 'zafu'))
+            if text = File.exist?(abs_path) ? File.read(abs_path) : nil
+              return text, fullpath, section_id, template
+            end
+          end
+        end
       end
 
       private
@@ -93,7 +101,8 @@ module Bricks
         base.alias_method_chain :rebuild_index, :static
       end
 
-      def rebuild_index_with_static(nodes = nil, page = nil, page_count = nil)    if !page
+      def rebuild_index_with_static(nodes = nil, page = nil, page_count = nil)
+        if !page
           Zena::SiteWorker.perform(self, :rebuild_static_index, nil)
         end
         rebuild_index_without_static(nodes, page, page_count)

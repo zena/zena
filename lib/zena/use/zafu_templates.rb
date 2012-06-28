@@ -44,7 +44,7 @@ module Zena
         # Return a template's content from an url. If the url does not start with a '/', we try by replacing the
         # first element with the current skin_name and if it does not work, we try with the full url. If the url
         # start with a '/' we use the full url directly.
-        def get_template_text(path, section_id = nil)
+        def get_template_text(path, section_id = nil, opts = {})
           if path =~ DEFAULT_PATH
             filepath = File.join(DEFAULT_TEMPLATES_PATH, "#{$1}.zafu")
             text = File.exist?(filepath) ? File.read(filepath) : nil

@@ -36,7 +36,7 @@ module Zafu
 
       # This method should return the template for a given 'src' and
       # 'base_path'.
-      def get_template_text(path, base_path)
+      def get_template_text(path, base_path, opts={})
         [path, "#{base_path}/#{path}"].each do |p|
           begin
             t = self.view_paths.find_template(p, 'html') # FIXME: format ?

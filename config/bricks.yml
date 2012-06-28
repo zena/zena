@@ -37,7 +37,8 @@ development:
   captcha:  ON
   grid:     ON
   acls:     ON
-  static:   OFF
+  static:   ON
+  gefo:     ON
   sphinx:
     switch: OFF
     activate_if:
@@ -74,7 +75,8 @@ production:
   captcha:  ON
   grid:     ON
   acls:     ON
-  static:   OFF
+  static:   ON
+  gefo:     ON
   single:   OFF
   sphinx:
     switch: OFF

@@ -6,22 +6,31 @@ module Zafu
       end
 
       def r_form
-        unless @params[:on].nil? || @params[:on].split(',').include?(@context[:ajax_action])
-          return ''
-        end
-
-        return parser_error('Cannot render update form in list context.') if node.list_context?
-
-        options = form_options
-
-        @markup.set_id(options[:id]) if options[:id]
-        @markup.set_param(:style, options[:style]) if options[:style]
-
-        if descendant('form_tag')
-          # We have a specific place to insert our form
-          out expand_with(:form_options => options, :form => self, :form_prefix => dom_name)
+        if node.dom_prefix
+          fnode = node
         else
-          r_form_tag(options)
+          fnode = node.dup
+          fnode.dom_prefix = dom_name
+        end
+        with_context(:node => fnode) do
+          
+          unless @params[:on].nil? || @params[:on].split(',').include?(@context[:ajax_action])
+            return ''
+          end
+
+          return parser_error('Cannot render update form in list context.') if node.list_context?
+
+          options = form_options
+
+          @markup.set_id(options[:id]) if options[:id]
+          @markup.set_param(:style, options[:style]) if options[:style]
+
+          if descendant('form_tag')
+            # We have a specific place to insert our form
+            out expand_with(:form_options => options, :form => self, :form_prefix => dom_name)
+          else
+            r_form_tag(options)
+          end
         end
       end
 
