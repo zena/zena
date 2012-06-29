@@ -18,7 +18,7 @@ test:
 
 production:
   adapter: mysql
-  socket: /var/run/mysqld/mysqld.sock
+  socket: <%= db_socket %>
   database: <%= db_name %>
   encoding: utf8
   username: <%= db_user %>
