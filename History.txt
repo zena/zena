@@ -8,6 +8,7 @@
  * Enabled 'hash' property type.
  * Enabled javascript on toggle.
  * Enabled "static" brick to use zafu stored in brick file system.
+ * No need to use '&gt;' or '&lt;' in html params. \' escape works. Yeah !!
 
 * Minor changes
  * Fixed label traduction for param.

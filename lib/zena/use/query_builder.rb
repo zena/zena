@@ -458,12 +458,6 @@ module Zena
             finders = [parts.join(' from ')]
             if params[:or]
               finders << params[:or]
-
-              key_counter = 1
-              while sub_or = params["or#{key_counter}".to_sym]
-                key_counter += 1
-                finders << sub_or
-              end
             else
               or_clause = nil
             end

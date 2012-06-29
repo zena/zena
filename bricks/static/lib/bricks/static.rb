@@ -2,7 +2,7 @@ module Bricks
   module Static
     ELEM = "([a-zA-Z_]+)"
     ELEM_REGEXP = %r{^#{ELEM}$}
-    SECURE_PATH_REGEXP = %r{^[a-zA-Z_/\-]+$}
+    SECURE_PATH_REGEXP = %r{^[a-zA-Z_/\-\+]+$}
     STATIC_SKIN_REGEXP = %r{^#{ELEM}-#{ELEM}$}
     ZAFU_URL_REGEXP    = %r{^\$#{ELEM}-#{ELEM}/(.+)$}
     BRICK_NAME_REGEXP = %r{^#{RAILS_ROOT}/bricks/#{ELEM}/zena/skins$}
@@ -15,7 +15,6 @@ module Bricks
       end
 
       def get_template_text_with_static(path, section_id = nil, opts = {})
-        puts [path, section_id, opts].inspect
         if path =~ ZAFU_URL_REGEXP
           brick_name, skin_name, path = $1, $2, $3
           Skin.text_from_static(brick_name, skin_name, path, opts)

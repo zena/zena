@@ -4,12 +4,38 @@ default:
     visitor: 'ant'
     node: 'status'
 
+less_then_in_param:
+  src: "<a onclick='if (a < b) alert(a)'>xx</a>"
+  tem: "<a onclick='if (a < b) alert(a)'>xx</a>"
+  
+greater_then_in_param:
+  src: "<a onclick='if (a > b) alert(a)'>xx</a>"
+  tem: "<a onclick='if (a > b) alert(a)'>xx</a>"
+
+less_then_in_dyn_param:
+  src: "<a onclick='if (a < b) alert(a)'>xx</a>"
+  tem: "<a onclick='if (a < b) alert(a)'>xx</a>"
+
+greater_then_in_dyn_param:
+  src: "<a foo='#{created_at > now ? \'yes\' : \'no\'}'>xx</a>"
+  tem: "<a foo='<%= (@node.created_at ? (@node.created_at>Time.now) : nil) ? \"yes\" : \"no\" %>'>xx</a>"
+
+greater_then_in_do:
+  src: "<a foo='bar' do='pages where created_at > 7'>xx</a>"
+  tem: "/<% if var1 = Node.do_find.*nodes.created_at > 7.*<a foo='bar'>xx</a>/"
+
+greater_then_in_text:
+  src: "<r:js>if (a < 4) alert('ok');</r:js>"
+  res: ""
+  tem: "<% js_data << \"if (a < 4) alert('ok');\" %>"
+  js: "/if \(a < 4\) alert\('ok'\);/"
+
 include_with:
   src: "include_with: <r:include template='/basic/name/title'><h1 do='with' part='title' attr='id'/>"
   res: "include_with: title: <h1 id='lala'>22</h1>"
 
 include_with_empty:
-  src: "include_with: <r:include template='/meta/name/title'><r:with part='title'/>"
+  src: "include_with: <r:include template='/meta/name/title'><r:with part='title'/></r:include>"
   res: "include_with: title: "
 
 name_title:
@@ -40,6 +66,14 @@ id_do_with:
   src: "include_part: <r:include template='/meta/id/do' do='with' part='logo' do='t'>foo</r:include>"
   res: "include_part: <h1 id='logo'>foo</h1>"
 
+with_part_do_setup:
+  src: "<div id='content'>hello <div id='main'>main</div></div>"
+  tem: "<div id='content'>hello <div id='main'>main</div></div>"
+  
+with_part_do:
+  src: "with_part_do: <r:include template='/meta/with/part/do/setup'><r:with part='main' do='title'/></r:include>"
+  tem: "with_part_do: <div id='content'>hello <div id='main'><%= @node.prop['title'] %></div></div>"
+  
 # this test is a dummy used by include_context
 context_dummy:
   src: "CD: <r:pages in='site' where='title like \"s%\"' name='pages'><r:each join=', ' do='title'/></r:pages>"

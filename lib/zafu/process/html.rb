@@ -123,8 +123,6 @@ module Zafu
           @markup.params[key] = new_value.blank? ? src : new_value
         end
 
-        @markup.steal_html_params_from(@params)
-
         expand_with
       end
 

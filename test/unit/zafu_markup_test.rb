@@ -324,7 +324,7 @@ class MarkupTest < Test::Unit::TestCase
     should 'display static params before dynamic and keep them ordered' do
       @markup.set_dyn_params(:foo => '<%= @bar %>')
       @markup.set_params(:baz => 'buzz')
-      assert_equal "<p baz='buzz' class='quote' style='padding:3px; border:1px solid red;' foo='<%= @bar %>'>foo</p>", @markup.wrap('foo')
+      assert_equal "<p class='quote' style='padding:3px; border:1px solid red;' baz='buzz' foo='<%= @bar %>'>foo</p>", @markup.wrap('foo')
     end
 
     should 'insert pre_wrap content' do

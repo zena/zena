@@ -266,7 +266,8 @@ module Zena
             # Ajax
             hidden_fields['link_id'] = "<%= #{node}.link_id %>" if @context[:has_link_id] && node.will_be?(Node)
 
-            if upd = @params[:update]
+            f = @method == 'form_tag' ? ancestor('form') : self
+            if upd = f && f.params[:update]
               if target = find_target(upd)
                 hidden_fields['u_url']   = target.template_url
                 hidden_fields['udom_id'] = upd # target.node.dom_prefix ? (but target.node is not set yet...)
@@ -707,10 +708,8 @@ module Zena
           
           if params[:id]
             res[:id] = params[:id]
-          #elsif params[:param]
-          #  res[:id] = "#{node.dom_prefix}_#{params[:param]}"
-          else
-            res[:id] = "#{node.dom_prefix}_#{attribute}"
+          elsif base = @context[:form_prefix]
+            res[:id] = "#{base}_#{attribute}"
           end
           
           if params[:type] == 'checkbox' && sub_attr_ruby

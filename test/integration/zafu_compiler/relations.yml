@@ -371,7 +371,8 @@ where_two_attributes:
   res: "parc opening, zena enhancements"
 
 many_or:
-  src: "<r:tagged in='site' or='images in site' or='tags in site' do='each' join=',' do='title'/>"
+  # old: or='images in site' or='tags in site'
+  src: "<r:tagged in='site or images in site or tags in site' do='each' join=',' do='title'/>"
   res: "Art,bird,Clean Water project,flower,it's a lake,News list,parc opening,Top menu"
 
 hot_or_page:
@@ -403,13 +404,12 @@ group_by_project:
 group_by_project_sort_zip:
   context:
     visitor: ant
-  old_src: "<r:images in='site' order='title ASC' do='group' by='project' sort='zip'><b do='project' do='title'/>: <r:each join=',' do='title'/></r:images>"
-  src: "<r:images in='site' order='zip ASC' do='group' by='project' sort='id'><b do='project' do='title'/>: <r:each join=',' do='title'/></r:images>"
-  res: "<b>Clean Water project</b>: it's a lake<b>a wiki with Zena</b>: bird,flower<b>Zena the wild CMS</b>: Autumn Tree"
+  src: "<r:images in='site' order='zip ASC' do='group' by='project' sort='id'><b do='project' do='title'/>: <r:each join=', ' do='title'/></r:images>"
+  res: "<b>Clean Water project</b>: it's a lake<b>a wiki with Zena</b>: bird, flower<b>Zena the wild CMS</b>: Autumn Tree"
 
 group_by_parent_sort:
-  src: "<r:images in='site' order='title ASC' do='group' by='parent' sort='title'><b do='parent' do='title'/>: <r:each join=',' do='title'/></r:images>"
-  res: "<b>a wiki with Zena</b>: bird,flower<b>Clean Water project</b>: it's a lake"
+  src: "<r:images in='site' order='title ASC' do='group' by='parent' sort='title'><b do='parent' do='title'/>: <r:each join=', ' do='title'/></r:images>"
+  res: "<b>a wiki with Zena</b>: bird, flower<b>Clean Water project</b>: it's a lake"
 
 nodes_in_site_group_by_year:
   old_src: "<r:nodes in='site' group='log_at:year' order='log_at:year asc, title ASC' do='each' join=', '><r:show attr='log_at' format='%Y'/></r:nodes>"
@@ -490,3 +490,7 @@ core_context:
   # Ensure that :project rubyless method uses enrollable.
   src: "<r:project do='origin || title'/>"
   tem: "/ar1.prop\['origin'\] or var1.prop\['title'\]/"
+
+find_less_then:
+  src: <div do='projects where created_at < "2010-05-01" in site' do='each' do='title'/>
+  tem: "/nodes.created_at < '2010-05-01'/"

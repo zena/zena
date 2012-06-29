@@ -7,6 +7,10 @@ default:
   tem: "simple text"
   res: "simple text"
 
+space_in_tag:
+  src: <meta http-equiv='Content-type' content='text/html; charset=utf-8' /><r:title/>
+  tem: '!/r:title/'
+  
 show_title:
   old_src: "<r:show attr='title'/>"
   old_tem: "<%= @node.title %>"
@@ -340,9 +344,9 @@ each_whitespace:
   res: "53\n37\n12\n.\n"
 
 set_class_before_query:
-  # Should use previous node (not list context)
+  # Uses list context
   src: "<div class='foo_#{title}' do='images in site'></div>"
-  res: "<div class='foo_status title'></div>"
+  res: "<div class='foo_Autumn Tree'></div>"
 
 flash_messages:
   src: "<r:flash_messages/>"

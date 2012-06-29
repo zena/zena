@@ -629,7 +629,7 @@ class Node < ActiveRecord::Base
       end
 
       entries = Dir.entries(folder).reject { |f| f =~ /^[\.~]|^__/ }.map do |filename|
-        String.from_filename(filename)
+        [filename, String.from_filename(filename)]
       end.sort
 
       index  = 0
@@ -638,17 +638,16 @@ class Node < ActiveRecord::Base
         catch (:next_entry) do
           type = current_obj = sub_folder = document_path = nil
           versions = []
-          filename = entries[index]
+          filename, title = *entries[index]
 
           path     = File.join(folder, filename)
 
           if File.stat(path).directory?
             type       = :folder
-            title      = filename
             sub_folder = path
             attrs      = defaults.dup
             attrs['v_lang'] ||= visitor.lang
-          elsif filename =~ /^(.+?)(\.\w\w|)(\.\d+|)\.zml$/  # bird.jpg.en.zml
+          elsif title =~ /^(.+?)(\.\w\w|)(\.\d+|)\.zml$/  # bird.jpg.en.zml
             # node content in yaml
             type      = :node
             title     = "#{$1}#{$4}"
@@ -659,7 +658,7 @@ class Node < ActiveRecord::Base
             attrs['title'] = title
             attrs['v_lang']    = lang || attrs['v_lang'] || visitor.lang
             versions << attrs
-          elsif filename =~ /^((.+?)\.(.+?))(\.\w\w|)(\.\d+|)$/ # bird.jpg.en
+          elsif title =~ /^((.+?)\.(.+?))(\.\w\w|)(\.\d+|)$/ # bird.jpg.en
             type      = :document
             title     = $1
             attrs     = defaults.dup
@@ -670,7 +669,6 @@ class Node < ActiveRecord::Base
           else
             # Document without extension
             type      = :document
-            title     = filename
             attrs     = defaults.dup
             lang      = nil
             attrs['v_lang'] = lang || attrs['v_lang'] || visitor.lang
@@ -679,9 +677,9 @@ class Node < ActiveRecord::Base
           end
 
           index += 1
-          while entries[index] =~ /^#{title}(\.\w\w|)(\.\d+|)\.zml$/ # bird.jpg.en.zml
+          while entries[index] && entries[index][1] =~ /^#{title}(\.\w\w|)(\.\d+|)\.zml$/ # bird.jpg.en.zml
             lang   = $1.blank? ? visitor.lang : $1[1..-1]
-            path   = File.join(folder,entries[index])
+            path   = File.join(folder,entries[index][0])
 
             # we have a zml file. Create a version with this file
             # no need for base_node (this is done after all with parse_assets in the controller)

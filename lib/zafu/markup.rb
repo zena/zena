@@ -72,7 +72,7 @@ module Zafu
       if params
         self.params = params
       else
-        @params     = OrderedHash.new
+        @params = OrderedHash.new
       end
       @dyn_params = OrderedHash.new
     end
@@ -266,9 +266,8 @@ module Zafu
         para = []
         keys = @dyn_params.keys
 
-        @params.keys.sort{|a,b| a.to_s <=> b.to_s}.each do |k|
+        @params.each do |k, v|
           next if keys.include?(k)
-          v = @params[k]
 
           if !v.to_s.include?("'")
             para << " #{k}='#{v}'"
@@ -277,7 +276,7 @@ module Zafu
           end
         end
 
-        keys.sort{|a,b| a.to_s <=> b.to_s}.each do |k|
+        keys.each do |k|
           para << " #{k}='#{@dyn_params[k]}'"
         end
 

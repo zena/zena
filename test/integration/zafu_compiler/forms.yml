@@ -36,7 +36,7 @@ new:
   # Should accept allowed params (from class and roles) and transform ids to zip (back and forth)
   src: "<r:new klass='Letter' title='%q{Joe}' parent_id='project.id' paper='%q{white}' origin='%q{Mars}' bad='%q{value}'><r:form><r:input name='title'/> <r:input name='parent_id'/></r:form></r:new>"
   tem: "/:title => \"Joe\", :parent_id => .*@node.project.zip.*, :paper => \"white\", :origin => \"Mars\"/"
-  res: "/<input type='text' name='node\[title\]' value='Joe'/> <input type='text' name='node\[parent_id\]' value='21'/><div class='hidden'><input type='hidden' name='node\[klass\]' value='Letter'/><input type='submit'/><input type='hidden' name='node\[paper\]' value='white'/><input type='hidden' name='node\[origin\]' value='Mars'/></div>/"
+  res: "/<input type='text' name='node\[title\]' value='Joe' id='list1_title'/> <input type='text' name='node\[parent_id\]' value='21'[^>]+/><div class='hidden'><input type='hidden' name='node\[klass\]' value='Letter'/><input type='submit'/><input type='hidden' name='node\[paper\]' value='white'/><input type='hidden' name='node\[origin\]' value='Mars'/></div>/"
 
 translate_id_to_zip:
   src: "<b do='hot_id'/><i do='parent_id'/>"
@@ -46,7 +46,7 @@ select_class_existing_node:
   context:
     node: 'letter'
   src: "<r:form><r:select name='klass' root_class='Note' selected='Post'/></r:form>"
-  res: "/<select name=.node\[klass\].><option value=\"Note\">klass_Note<\/option>\n<option value=\"Letter\" selected=\"selected\">  klass_Letter<\/option>\n<option value=\"Post\">  klass_Post<\/option><\/select>/"
+  res: "/<select name=.node\[klass\]. id=.list1_klass.><option value=\"Note\">klass_Note<\/option>\n<option value=\"Letter\" selected=\"selected\">  klass_Letter<\/option>\n<option value=\"Post\">  klass_Post<\/option><\/select>/"
 
 select_class_new_node:
   src: "<r:pages><r:each/><r:add/><r:form><r:select name='klass' root_class='Note' selected='Post'/></r:form>"
@@ -63,15 +63,15 @@ select_class_tprefix:
 
 select_data:
   src: "<r:select data-d='foo' param='k' root_class='Note' attr='kpath'/>"
-  res: "/<select data-d='foo' .*name=.k.*NN.*Note.*NNL.*Letter.*NNP.*Post/"
+  res: "/<select name=.k. data-d='foo'.*NN.*k_Note.*NNL.*k_Letter.*NNP.*k_Post/"
 
 select_nodes:
   src: "<r:form><r:select nodes='images in site' name='foo'></select></r:form>"
-  res: "/name='node\[foo\]'><option value=\"\" selected=\"selected\"></option>\n<option value=\"40\">Autumn Tree</option>\n<option value=\"30\">bird</option>/"
+  res: "/name='node\[foo\]'[^>]+><option value=\"\" selected=\"selected\"></option>\n<option value=\"40\">Autumn Tree</option>\n<option value=\"30\">bird</option>/"
 
 select_nodes_show_rubyless:
   src: "<r:form><r:select nodes='images in site' name='foo' show='title.limit(3)'></select></r:form>"
-  res: "/name='node\[foo\]'><option value=\"\" selected=\"selected\"></option>\n<option value=\"40\">Aut…</option>\n<option value=\"30\">bir…</option>/"
+  res: "/name='node\[foo\]'[^>]+><option value=\"\" selected=\"selected\"></option>\n<option value=\"40\">Aut…</option>\n<option value=\"30\">bir…</option>/"
 
 do_not_set_parent_id_if_form_contains_parent_id:
   src: "<r:children><r:each do='title'/><r:add/><r:form><r:select name='parent_id' nodes='projects in site'/><input name='title'/></r:form></r:children>"
@@ -83,11 +83,11 @@ select_nodes_selected:
 
 select_nodes_in_ajax:
   src: "<r:pages><r:each do='title'/><r:add/><r:form><r:select nodes='images in site' name='d_ref'/></r:form></r:pages>"
-  res: "/name=.node\[d_ref\].><option value=\"\" selected=\"selected\"></option>\n<option value=\"40\">Autumn Tree</option>\n<option value=\"30\">bird</option>/"
+  res: "/name=.node\[d_ref\].[^>]+><option value=\"\" selected=\"selected\"></option>\n<option value=\"40\">Autumn Tree</option>\n<option value=\"30\">bird</option>/"
 
 select_nodes_show_attr:
   src: "<r:form><r:select name='title' nodes='images in site' attr='ext' show='title'/></r:form>"
-  res: "/name=.node\[title\].>.*<option value=\"jpg\">flower</option>\n<option value=\"jpg\">it's a lake</option>/"
+  res: "/name=.node\[title\].[^>]+>.*<option value=\"jpg\">flower</option>\n<option value=\"jpg\">it's a lake</option>/"
 
 select_time_zone:
   src: "<r:form><r:select type='time_zone' name='d_tz'/></r:form>"
@@ -202,7 +202,7 @@ select_param_value:
 
 input_style:
   src: "<r:input style='display:none;' type='submit'/>"
-  res: "<input style='display:none;' type='submit'/>"
+  res: "<input type='submit' style='display:none;'/>"
 
 textarea:
   context:
@@ -221,7 +221,7 @@ input_new:
   context:
     node: 'ant'
   src: "<r:contacts><r:each/><r:form><r:input name='first_name'/></r:form><r:add/></r:contacts>"
-  res: "/id='list2_first_name' [^>]*name='node\[first_name\]'/"
+  res: "/name='node\[first_name\]' [^>]*id='list1_first_name'/"
 
 show_in_form:
   src: "<r:form><b do='title'/></r:form>"
@@ -270,12 +270,12 @@ label_on_select:
 passiv_form:
   # Should not transform 'form' or 'input' into 'r:form' or 'r:input'
   src: "<form>xxx<input name='x' id='y' type='text'/> yyy<input name='x' id='y' type='text' value='#{id}'/></form>"
-  tem: "<form>xxx<input id='y' name='x' type='text'/> yyy<input id='y' name='x' type='text' value='<%= @node.zip %>'/></form>"
+  tem: "<form>xxx<input name='x' id='y' type='text'/> yyy<input name='x' id='y' type='text' value='<%= @node.zip %>'/></form>"
 
 passiv_input_in_form:
   # Should not transform 'form' or 'input' into 'r:form' or 'r:input'
   src: "<r:form>xxx<input name='x' id='y' type='text'/> yyy<input name='x' id='y' type='text' value='#{id}'/></r:form>"
-  tem: "/yyy<input id='y' name='x' type='text' value='<%= @node.zip %>'/>/"
+  tem: "/yyy<input name='x' id='y' type='text' value='<%= @node.zip %>'/>/"
 
 param_on_select:
   src: "<r:select param='q[contact.status]' values='0,-5,-10' tshow='active, being registered, inactive'/>"

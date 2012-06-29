@@ -31,7 +31,7 @@ r_url_with_hash:
   res: "/page22_back.html\?f=x/"
 
 url_with_ssl:
-  src: "<a href='#{url(this, :host =&gt; \"some.host:445\", :ssl =&gt; true)}' do='title'/>"
+  src: "<a href='#{url(this, :host => \"some.host:445\", :ssl => true)}' do='title'/>"
   res: "<a href='https://some.host:445/oo/projects-list/Clean-Water-project/page22.html'>status title</a>"
 
 path:
@@ -39,7 +39,7 @@ path:
   res: "<a href='/oo/projects-list/Clean-Water-project/page22.html'>blah</a>"
 
 path_with_mode:
-  src: "<a href='#{path(this, :mode =&gt; \"foo\")}'>blah</a>"
+  src: "<a href='#{path(this, :mode => \"foo\")}'>blah</a>"
   res: "<a href='/oo/projects-list/Clean-Water-project/page22_foo.html'>blah</a>"
 
 link:
@@ -80,7 +80,7 @@ link_set_class:
 
 link_set_title:
   src: "<r:link title='#{title}_foo'/>"
-  res: "<a href='/oo/projects-list/Clean-Water-project/page22.html' title='status title_foo'>status title</a>"
+  res: "<a title='status title_foo' href='/oo/projects-list/Clean-Water-project/page22.html'>status title</a>"
 
 link_attr:
   src: "<r:link attr='ref_lang'/>"
@@ -212,14 +212,14 @@ link_format_data:
 live_link_format:
   old_src: "<h2 do='title' link='details.xml'/>"
   src: "<h2 do='link' live='true' format='xml' mode='details'/>"
-  res: "<h2><a href='/oo/projects-list/Clean-Water-project/page22_details.xml' id='_title22'>status title</a></h2>"
+  res: "<h2><a id='_title22' href='/oo/projects-list/Clean-Water-project/page22_details.xml'>status title</a></h2>"
 
 live_link_data_mode:
   context:
     node: 'bird_jpg'
   old_src: "<h2 do='title' link='pv.data'>super title</h2>"
   src: "<h2 do='link' live='true' mode='pv' format='data'/>"
-  res: "<h2><a href='/en/image30_pv.jpg?967816914293' id='_title30'>bird</a></h2>"
+  res: "<h2><a id='_title30' href='/en/image30_pv.jpg?967816914293'>bird</a></h2>"
 
 url_with_lang:
   context:
@@ -245,7 +245,7 @@ link_trans:
 link_date_complex:
   context:
     ref_date: '2011-04-22 22:00'
-  src: "<r:link date='date.advance(:months =&gt; -1).strftime(\"%Y-%m-%d\", \"Asia/Jakarta\")' text='PREV'/>"
+  src: "<r:link date='date.advance(:months => -1).strftime(\"%Y-%m-%d\", \"Asia/Jakarta\")' text='PREV'/>"
   # Date is in Asia/Jakarta timezone. Ref date is utc in tests.
   res: "/\?date=2011-03-23'>PREV/"
 
@@ -294,7 +294,7 @@ encode_blank_values:
 
 cachestamp:
   # 26 would be the template for rendering JS's id.
-  src: "<script src='#{path(project, :format =&gt; \"js\", :tstamp =&gt; find(26).updated_at.to_i)}'></script>"
+  src: "<script src='#{path(project, :format => \"js\", :tstamp => find(26).updated_at.to_i)}'></script>"
   res: "<script src='/oo/projects-list/Clean-Water-project.js?1144713600&tstamp=1176249600'></script>"
 
 node_in_argument:

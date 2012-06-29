@@ -79,11 +79,8 @@ class ParserTest < Test::Unit::TestCase
   class ParserTestHelper < Zena::Parser::DummyHelper
     include ParserTest::Mock
   end
-  yamltest :files => [:zafu, :zafu_asset, :zafu_insight, :zazen] #, :options => {:latex => {:module => :zazen, :output => 'latex'}}
+  yamltest :files => [:zazen] #, :options => {:latex => {:module => :zazen, :output => 'latex'}}
   MODULES = {
-    :zafu          => [Zena::Parser::ZafuRules,  Zena::Parser::ZafuTags, ZafuTestTags],
-    :zafu_asset    => [Zena::Parser::ZafuRules,  Zena::Parser::ZafuTags, ZafuTestTags],
-    :zafu_insight  => [Zena::Parser::ZafuRules,  Zena::Parser::ZafuTags, ZafuTestTags],
     :zazen         => [Zena::Parser::ZazenRules, Zena::Parser::ZazenTags],
   }
   @@test_parsers = {}
@@ -103,10 +100,6 @@ class ParserTest < Test::Unit::TestCase
     end
   end
 
-  def test_single
-    yt_do_test('zafu', 'only_hello')
-  end
-
   def test_zazen_image_no_image
     file = 'zazen'
     test = 'image_no_image'
@@ -114,70 +107,6 @@ class ParserTest < Test::Unit::TestCase
       :helper => ParserTestHelper.new(@@test_strings[file])
     ).render(:images=>false)
     assert_equal @@test_strings[file][test]['res'], res
-  end
-
-  def test_all_descendants
-    block = @@test_parsers['zafu'].new(
-    "<r:pages><r:each><b do='test'/></r:each><r:add><p><i do='add_link'/><b do='title'/></p></r:add><b do='title'/></r:pages>",
-      :helper => ParserTestHelper.new(@@test_strings['basic'])
-    )
-    assert_equal ['add', 'add_link', 'each', 'pages', 'test', 'title'], block.all_descendants.keys.sort
-    assert_equal 2, block.all_descendants['title'].size
-    assert_equal ['add_link', 'title'], block.descendant('add').all_descendants.keys.sort
-  end
-
-  def test_descendants
-    block = @@test_parsers['zafu'].new(
-    "<r:pages><r:each><b do='test'/></r:each><r:add><p><i do='add_link'/><b do='title'/></p></r:add><b do='title'/></r:pages>",
-      :helper => ParserTestHelper.new(@@test_strings['basic'])
-    )
-    assert_equal 2, block.descendants('title').size
-    assert_equal ['test'], block.descendants('each')[0].descendants('test').map {|n| n.method}
-    assert_equal [], block.descendants('each')[0].descendants('foo')
-  end
-
-  def test_ancestor
-    block = @@test_parsers['zafu'].new(
-    "<r:pages><r:each><b do='test'/></r:each><r:add><p><i do='add_link'/><b do='title'/></p></r:add><b do='title'/></r:pages>",
-      :helper => ParserTestHelper.new(@@test_strings['basic'])
-    )
-    sub_block = block.descendant('add_link')
-    assert_equal ['void', 'pages', 'add'], sub_block.ancestors.map{|a| a.method}
-    assert_equal sub_block.ancestor('pages'), block.descendant('pages')
-  end
-
-  def test_public_descendants
-    block = @@test_parsers['zafu'].new(
-    "<r:pages><r:each><b do='test'/></r:each><r:add><p><i do='add_link'/><b do='title'/></p></r:add><b do='title'/></r:pages>",
-      :helper => ParserTestHelper.new(@@test_strings['basic'])
-    )
-    block.all_descendants.merge('self'=>[block]).each do |k,blocks|
-      blocks.each do |b|
-        b.send(:remove_instance_variable, :@all_descendants)
-        class << b
-          def public_descendants
-            if ['each'].include?(@method)
-              {}
-            else
-              super
-            end
-          end
-        end
-      end
-    end
-    assert_equal ['add', 'add_link', 'each', 'pages', 'title'], block.all_descendants.keys.sort
-    assert_equal ['test'], block.descendant('each').all_descendants.keys.sort
-  end
-
-  def test_root
-    block = @@test_parsers['zafu'].new(
-    "<r:pages><r:each><b do='test'/></r:each><r:add><p><i do='add_link'/><b do='title'/></p></r:add><b do='title'/></r:pages>",
-      :helper => ParserTestHelper.new(@@test_strings['basic'])
-    )
-    sub_block = block.descendant('add_link')
-    assert_equal 'add_link', sub_block.method
-    assert_equal 'add', sub_block.parent.method
-    assert_equal block, sub_block.root
   end
 
   yt_make

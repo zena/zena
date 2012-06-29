@@ -1,6 +1,8 @@
 require 'zafu/markup'
 
 module Zafu
+  PARAM_KEY_REGEXP = %r{^ +([\w_\-\[\]:]+)=}
+  PARAM_VALUE_REGEXP = %r{('|")(|[^\1]*?[^\\])\1}
   module ParsingRules
     # The context informs the rendering element about the current Node, node class, existing ids, etc. The
     # context is inherited by sub-elements.
@@ -28,8 +30,7 @@ module Zafu
 
       # html_tag
       if html_params = @options.delete(:html_tag_params)
-        # FIXME: make a better parser so that we do not have to worry with '>' at all.
-        @markup.params = html_params.gsub('&gt;', '>')
+        @markup.params = html_params
       end
 
       # end_tag is used to know when to close parsing in sub-do
@@ -41,24 +42,19 @@ module Zafu
       # </li> <!-- close outer LI now: @end_tag_count == 0 -->
       #
       @end_tag = @markup.tag || @options.delete(:end_tag) || "r:#{@method}"
-      @end_tag_count  = 1
+      @end_tag_count = 1
 
       # code indentation
-      @markup.space_before = @options.delete(:space_before) # @space_before
+      @markup.space_before = @options.delete(:space_before)
 
-      if @params =~ /\A([^>]*?)do\s*=('|")([^\2]*?[^\\])\2([^>]*)\Z/
-        #puts $~.to_a.inspect
+      if sub = @params.delete(:do)
         # we have a sub 'do'
-        params = $1
-        sub_params = $4
-        sub_method = $3.gsub("\\#{$2}", $2)
-
-        @params = Markup.parse_params(params)
+        sub_method = sub.delete(:method)
 
         # We need this flag to detect cases cases like <r:with part='list' do='other list finder'/>
         @sub_do = true
 
-        opts = {:method => sub_method, :params => sub_params}
+        opts = {:method => sub_method, :params => sub}
 
         # the matching zafu tag will be parsed by the last 'do', we must inform it to halt properly :
         opts[:end_tag] = @end_tag
@@ -66,8 +62,6 @@ module Zafu
         sub = make(:void, opts)
         @markup.space_after = sub.markup.space_after
         sub.markup.space_after = ""
-      else
-        @params = Markup.parse_params(@params)
       end
 
       # set name used for include/replace from html_tag if not already set by superclass
@@ -125,24 +119,43 @@ module Zafu
 
     # scan rules
     def scan
-      # puts "SCAN(#{@method}): [#{@text}]"
+      #puts "SCAN(#{@method}): [#{@text[0..20]}]"
       if @text =~ %r{\A([^<]*?)(\s*)//!}m
         # comment
         flush $1
         eat $2
         scan_comment
-      elsif @text =~ /\A([^<]*?)(^ *|)</m
-        flush $1
-        eat $2
-        if @text[1..1] == '/'
-          store $2
-          scan_close_tag
-        elsif @text[0..3] == '<!--'
-          scan_html_comment(:space_before=> $2)
-        elsif @text[0..8] == '<![CDATA['
-          flush '<![CDATA['
+      elsif @text =~ /\A([^<]*)</m
+        found = $1
+        if found =~ /^ *$/
+          eat found
+          space = found
         else
-          scan_tag(:space_before=> $2)
+          flush found
+          space = ''
+        end
+        
+        if @text[1..1] == '/'
+          store space
+          scan_close_tag
+        elsif %w{! ?}.include?(@text[1..1])
+          if @text[2..3] == '--'
+            store space
+            scan_html_comment
+          elsif @text =~ /\A\s*<([^>]+)>/m
+            # Doctype/xml
+            flush $&
+          end
+        elsif @text[0..8] == '<![CDATA['
+          store space
+          flush '<![CDATA['
+        elsif found.last == ' ' && @text[0..1] == '< '
+          # solitary ' < '
+          store space
+          flush '< '
+          scan
+        else
+          scan_tag(:space_before => space)
         end
       else
         # no more tags
@@ -186,10 +199,12 @@ module Zafu
     def scan_html_comment(opts={})
       if @text =~ /\A<!--\|(.*?)-->/m
         # zafu html escaped
+        #puts "ZAFU_HTML_ESCAPED[#{$&}]"
         eat $&
         @text = opts[:space_before] + $1 + @text
       elsif @text =~ /\A<!--.*?-->/m
         # html comment
+        #puts "HTML_COMMENT[#{$&}]"
         flush $&
       else
         # error
@@ -206,78 +221,118 @@ module Zafu
         flush
       end
     end
+    
+    def get_params
+      params = Zafu::OrderedHash.new
+      raw = ''
+      while @text =~ PARAM_KEY_REGEXP
+        raw << $&
+        eat $&
+        key = $1
+        
+        if @text =~ PARAM_VALUE_REGEXP
+          raw_t = $&
+          quote = $1
+          eat $&
+          value = $2.gsub("\\#{quote}", quote)
+          if key == 'do'
+            # Sub do
+            sub, raw = get_params
+            sub[:method] = value
+            params[:do] = sub
+            return params
+          else
+            raw << raw_t
+            params[key.to_sym] = value
+          end
+        end
+      end
+      return params, raw
+    end
 
     def scan_tag(opts={})
-      #puts "TAG(#{@method}): [#{@text}]"
-      if @text =~ /\A<r:([\w_]+\??)([^>]*?)(\/?)>/
+      #puts "TAG(#{@method}): [#{@text[0..20]}]"
+      # FIXME: Better parameters parsing could avoid the &gt; hack. Create a "scan_params" method.
+      if @text =~ /\A<r:([\w_]+\??)/
         #puts "RTAG:#{$~.to_a.inspect}" # ztag
+        method = $1
         eat $&
-        opts.merge!(:method=>$1, :params=>$2)
-        opts.merge!(:text=>'') if $3 != ''
-        make(:void, opts)
-      #elsif @text =~ /\A<(\w+)([^>]*?)do\s*=('([^>]*?[^\\]|)'|"([^>]*?[^\\]|)")([^>]*?)(\/?)>/
-      elsif @text =~ /\A<(\w+)([^>]*?)do\s*=('|")([^\3]*?[^\\]|)\3([^>]*?)(\/?)>/
-        #puts "DO:#{$~.to_a.inspect}" # do tag
-        eat $&
-        reg = $~
-        opts.merge!(:method=> reg[4].gsub("\\#{reg[3]}", reg[3]), :html_tag=>reg[1], :html_tag_params=>reg[2], :params=>reg[5])
-        opts.merge!(:text=>'') if reg[6] != ''
-        make(:void, opts)
-      elsif @text =~ /\A<(\w+)(([^>]*?)\#\{([^>]*?))(\/?)>/
-        # html tag with dynamic params
-        #puts "OTHER_DYN:[#{$&}]"
+        params, raw = get_params
 
+        if @text =~ /\A(\/?)>/
+          eat $&
+          opts.merge!(:method=>method, :params=>params)
+          opts.merge!(:text=>'') if $1 != ''
+          make(:void, opts)
+        else
+          # ERROR
+          flush
+        end
+      #elsif @text =~ /\A<(\w+)([^>]*?)do\s*=('([^>]*?[^\\]|)'|"([^>]*?[^\\]|)")([^>]*?)(\/?)>/
+      elsif @text =~ /\A<([\w:]+)/
+        html_tag = $1
         eat $&
-        opts.merge!(:method => 'void', :html_tag => $1, :html_tag_params => $2, :params => {})
-        opts.merge!(:text=>'') if $5 != ''
-        make(:void, opts)
-      elsif @text =~ /\A<(\w+)([^>]*?)id\s*=('[^>]*?[^\\]'|"[^>]*?[^\\]")([^>]*?)(\/?)>/
-        #puts "ID:#{$~.to_a.inspect}" # id tag
-        eat $&
-        opts.merge!(:method=>'void', :html_tag=>$1, :params=>{:id => $3[1..-2]}, :html_tag_params=>"#{$2}id=#{$3}#{$4}")
-        opts.merge!(:text=>'') if $5 != ''
-        make(:void, opts)
-      elsif @end_tag && @text =~ /\A<#{@end_tag.gsub('?', '\\?')}([^>]*?)(\/?)>/
-        #puts "SAME:#{$~.to_a.inspect}" # simple html tag same as end_tag
-        flush $&
-        @end_tag_count += 1 unless $2 == '/'
-      elsif @text =~ /\A<(link|img|script)/
-        #puts "HTML:[#{$&}]" # html
-        make(:asset)
-      elsif @text =~ /\A<style>/
-        flush $&
-        make(:style)
-      elsif @text =~ /\A[^>]*?>/
-        # html tag
-        #puts "OTHER:[#{$&}]"
-        store opts[:space_before]
-        flush $&
+        params, raw = get_params
+
+        #puts "HTML(#{html_tag}):[#{@text}]" # html tag
+        if @text =~ /\A\s*(\/?)>/
+          eat $&
+          is_end_tag = !$1.blank?
+
+          if sub = params.delete(:do)
+            # puts "SUB_DO:#{params.inspect}"
+            # do tag
+            method = sub.delete(:method)
+            opts.merge!(:text=>'') if is_end_tag
+            opts.merge!(
+            :html_tag => html_tag,
+            :html_tag_params => params,
+            :method => method,
+            :params => sub
+            )
+            make(:void, opts)
+          elsif raw =~ /\#\{/ || params[:id]
+            # puts "HTML_DYN|ID:#{@params.inspect}"
+            # If we have an :id, we need to store this as a block in case it is replaced
+            # html tag with dynamic params
+            opts.merge!(:text=>'') if is_end_tag
+            opts.merge!(:method => 'void', :html_tag => html_tag, :html_tag_params => params)
+            make(:void, opts)
+          elsif @end_tag && html_tag == @end_tag
+            #puts "PLAIN(END):#{@params.inspect}"
+            # plain html tag
+            store "#{opts[:space_before]}<#{html_tag}#{raw}#{is_end_tag ? '/' : ''}>"
+            @end_tag_count += 1 unless is_end_tag
+          elsif %w{link img script}.include?(html_tag)    
+            #puts "ASSET: [#{@text}]"
+            opts.merge!(:text=>'') if is_end_tag
+            opts.merge!(:method => 'rename_asset', :html_tag_params => params, :params => params, :html_tag => html_tag)
+            make(:asset, opts)
+          elsif html_tag == 'style'
+            opts.merge!(:params => params, :html_tag => html_tag)
+            make(:style, opts)
+          else
+            #puts "PLAIN:<#{html_tag}#{raw}#{is_end_tag ? '/' : ''}>"
+            # plain html tag
+            store "#{opts[:space_before]}<#{html_tag}#{raw}#{is_end_tag ? '/' : ''}>"
+          end
+        else
+          # ERROR
+          flush
+        end
       else
-        # never closed tag
-        flush
+        # unknown tag type
+        store %Q{<span class='parser_error'>Invalid tag near '#{@text[0..10].gsub('>','&gt;').gsub('<','&lt;')}'</span>}
+        @text = ''
       end
     end
 
     def scan_asset
-      # puts "ASSET(#{object_id}) [#{@text}]"
-      if @text =~ /\A<(\w+)([^>]*?)(\/?)>/
-        eat $&
-        @method = 'rename_asset'
-        @markup.tag = $1
-        @end_tag = $1
-        closed = ($3 != '')
-        @params = Markup.parse_params($2)
-        if closed
-          leave(:asset)
-        elsif @markup.tag == 'script'
-          enter(:void)
-        else
-          enter(:inside_asset)
-        end
+      @end_tag = @markup.tag
+      if @markup.tag == 'script'
+        enter(:void)
       else
-        # error
-        @method = 'void'
-        flush
+        enter(:inside_asset)
       end
     end
 

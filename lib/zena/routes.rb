@@ -39,7 +39,7 @@ module Zena
                                      :refuse  => :put,
                                      :remove  => :put,
                                      :redit   => :put,
-                                     :preview => :get,
+                                     :preview => :any,
                                      :link    => :any }
 
         nodes.resources :links

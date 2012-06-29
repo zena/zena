@@ -40,6 +40,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
   self[:balancer]   ||= db_name
   self[:db_user]    ||= db_name
+  self[:db_socket]  ||= "/var/run/mysqld/mysqld.sock"
   self[:runner]     ||= 'root'
   self[:on_stop]    = []
   self[:on_start]   = []
@@ -341,7 +342,8 @@ Capistrano::Configuration.instance(:must_exist).load do
       db_app_config = render("#{templates}/database.rhtml",
                     :db_name     => db_name,
                     :db_user     => db_user,
-                    :db_password => db_password
+                    :db_password => db_password,
+                    :db_socket   => db_socket
                     )
       put(db_app_config, "#{deploy_to}/current/config/database.yml")
     end
@@ -403,7 +405,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         else
           init_name = db_name
         end
-        run "cd /usr/local/bin && test -e /usr/local/bin/#{init_name}"
+        run "cd /usr/local/bin && test -e /usr/local/bin/#{init_name} || ln -sf /usr/local/bin/zena_#{db_name} /usr/local/bin/#{init_name}"
 
         if self[:rvm_ruby_string]
           run "rvm wrapper #{self[:rvm_ruby_string]} init zena_#{db_name}"

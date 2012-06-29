@@ -129,7 +129,7 @@ max:
 time_advance:
   context:
     date: '2011-02-03'
-  src: "<b do='date.advance(:months =&gt; 1).strftime(\"%Y-%m-%d\")'/>"
+  src: "<b do='date.advance(:months => 1).strftime(\"%Y-%m-%d\")'/>"
   res: "<b>2011-03-03</b>"
 
 time_blank:
@@ -145,6 +145,6 @@ hash_to_params:
     q:
       one: '1'
       two: '2'
-  src: "<b do='{:q =&gt; params[:q]}' do='to_param'/>"
+  src: "<b do='{:q => params[:q]}' do='to_param'/>"
   tem: "<% var1 = {:q => params[:q]} %><b><%= var1.to_param %></b>"
   res: '<b>q%5Bone%5D=1&q%5Btwo%5D=2</b>'

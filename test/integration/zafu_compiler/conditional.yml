@@ -149,14 +149,14 @@ if_in_tag_else:
   res: "not in form"
 
 if_or:
-  src: "<r:if eval='can_write?' or_test='origin'>hello</r:if>"
-  tem: "/<% if @node.can_write? || !@node.version.prop[\"foo\"].blank? %>hello<% end %>|<% if !@node.version.prop[\"foo\"].blank? || @node.can_write? %>hello<% end %>/"
+  src: "<r:if eval='can_write? || origin'>hello</r:if>"
+  tem: "/<% if @node.can_write? \|\| !@node.version.prop[\"foo\"].blank? %>hello<% end %>|<% if !@node.version.prop[\"foo\"].blank? || @node.can_write? %>hello<% end %>/"
   res: "hello"
 
 if_or_same:
-  src: "<r:if test='origin' test='d_bar'>hello</r:if>"
-  tem: "/<% if !@node.version.prop[\"foo\"].blank? || !@node.version.prop[\"bar\"].blank? %>hello<% end %>|<% if !@node.version.prop[\"bar\"].blank? || !@node.version.prop[\"foo\"].blank? %>hello<% end %>/"
-  res: ""
+  src: "<r:if test='origin || text'>hello</r:if>"
+  tem: "/<% if !@node.version.prop[\"foo\"].blank? \|\| !@node.version.prop[\"text\"].blank? %>hello<% end %>|<% if !@node.version.prop[\"bar\"].blank? || !@node.version.prop[\"foo\"].blank? %>hello<% end %>/"
+  res: "hello"
 
 if_now:
   src: "<r:if test='log_at &gt; now'>future<r:else>past</r:else></r:if>"

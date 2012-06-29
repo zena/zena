@@ -181,7 +181,7 @@ module Zena
           # File path:
           rel_path  = current_site.zafu_path + "/#{zafu_url}/#{lang_path}/_main.erb"
           path      = SITES_ROOT + rel_path
-
+          
           if !File.exists?(path)
             rebuild_template(nil, opts.merge(:zafu_url => zafu_url, :rel_path => rel_path, :dev_mode => (dev_mode? && opts[:mode] != '+popupLayout')))
           end
@@ -450,7 +450,7 @@ module Zena
             end
 
             res = ZafuCompiler.new_with_url(zafu_url, :helper => zafu_helper).to_erb(:dev => dev_mode?, :node => get_node_context, :master_template => template)
-
+            
             unless valid_template?(res, opts)
               # problem during rendering, use default zafu
               return nil

@@ -115,8 +115,8 @@ complex_lang_list:
   res: "/li class='on'>/oo/projects-list/Clean-Water-project/page22.html\?lang=en</"
 
 html_lang_and_dict:
-  src: "<html xmlns='http://www.w3.org/1999/xhtml' lang='#{v.lang}' do='load' dictionary='/Default skin/translations' xml:lang='en'></html>"
-  res: "<html xmlns='http://www.w3.org/1999/xhtml' lang='en'></html>"
+  src: "<html xmlns='http://www.w3.org/1999/xhtml' lang='#{v.lang}' xml:lang='en' do='load' dictionary='/Default skin/translations'></html>"
+  res: "<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'></html>"
 
 dictionary_fr:
   context:

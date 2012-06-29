@@ -43,8 +43,8 @@ build_erb_with_trans:
 build_erb_with_void:
   context:
     lang: fr
-  src: "<r:void><</r:void><r:void>%= 5+8 %</r:void><r:void>></r:void></r:load>"
-  tem: "/>%= 5\+8 %>/"
+  src: "ABC: <r:void><</r:void><r:void>%= 5+8 %</r:void><r:void>></r:void></r:load>"
+  tem: "ABC: <span class='parser_error'>Invalid tag near '&lt;&lt;/r:void&gt;&lt;'</span>"
   
 mean_inc:
   src: '<'
@@ -56,7 +56,7 @@ build_erb_with_include:
 
 mean_part:
   src: "<<div id='foo'></div>"
-  res: "<<div id='foo'></div>"
+  res: "<span class='parser_error'>Invalid tag near '&lt;&lt;div id='f'</span>"
   
 build_erb_with_include_remove_part:
   src: "<r:include template='/security/mean/part'><r:with part='foo'/></r:include><r:void>%= 5+8 %</r:void><r:void>></r:void>"
@@ -65,3 +65,7 @@ build_erb_with_include_remove_part:
 build_erb_with_rubyless:
   src: "<r:void do='\"<\"'/><r:void>%= 5+8 %</r:void><r:void>></r:void>"
   tem: "!/<%= 5/"
+
+multiple_trans:
+  src: "<r:t text='<'/><r:t text='%'/>"
+  tem: "&lt;%"

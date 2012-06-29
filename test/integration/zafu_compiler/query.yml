@@ -260,8 +260,8 @@ query_errors:
   res: "<span class='query'>nodes in badaboum</span> <span class='error'>Invalid scope 'badaboum'.</span>"
 
 find_with_rubyless:
-  src: "<b do='find(\"images in site limit 2\")' do='each' join=',' do='title'/>"
-  res: "<b>Autumn Tree,bird</b>"
+  src: "<b do='find(\"images in site limit 2\")' do='each' join=', ' do='title'/>"
+  res: "<b>Autumn Tree, bird</b>"
 
 find_loads_class:
   src: "<div do='find(11)'><r:origin/></div>"
@@ -269,7 +269,7 @@ find_loads_class:
 
 query_on_vclass:
   # typical syntax error (should be Contact?)
-  src: "<r:Contact><div do='pages in site order by zip asc limit 2' do='each' join=',' do='title'/></r:Contact>"
+  src: "<r:Contact><div do='pages in site order by zip asc limit 2' do='each' join=', ' do='title'/></r:Contact>"
   # does the query on last @node
   tem: "/Node.do_find/"
-  res: '<div>Zena the wild CMS,people</div>'
+  res: '<div>Zena the wild CMS, people</div>'

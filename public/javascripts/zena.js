@@ -88,7 +88,13 @@ Zena.open_window = function(url, id, event, pos_x, pos_y) {
 Zena.editor_preview = function(url, element, value) {
   var key = element.name;
   var full_url = url + '?key=' + key.slice(5, key.length - 1);
-  new Ajax.Request(full_url, {method:'get', asynchronous:true, evalScripts:true, parameters:{content: value }});
+  new Ajax.Request(full_url, {
+    // value too large for get.
+    method:'post',
+    asynchronous:true,
+    evalScripts:true,
+    parameters:{content: value}
+  });
 }
 
 // preview version.
@@ -963,8 +969,27 @@ Zena.insert_inner = function(dom, position, content) {
   Element.insert(dom, insertions);
 }
 
+Zena.prepare_query = function(data, base, res) {
+  var res = res || {}
+  // transform {node:{a='b'}} into {'node[a]':'b'}
+  $H(data).each(function(pair) {
+    var key = pair.key
+    var val = pair.value
+    if (base) {
+      key = base+'['+key+']'
+    }
+    if (typeof(val) == 'object') {
+      Zena.prepare_query(val, key, res)
+    } else {
+      res[key] = val
+    }
+  })
+  return res
+}
+
 Zena.do = function(method, dom, query) {
   var dom = $(dom)
+
   var zip
   if (typeof(query) == 'string') {
     query = {id:query}
@@ -975,28 +1000,64 @@ Zena.do = function(method, dom, query) {
   } else {
     zip = dom.getAttribute('data-z')
   }
-  var met = '?'
+
+  var url
   if (method == 'get') {
-    met = '/zafu?'
+    url = '/nodes/' + zip + '/zafu'
+  } else if (method == 'post') {
+    url = '/nodes'
+  } else {
+    // put
+    url = '/nodes/' + zip
   }
-  query.t_url = $(document.body).getAttribute('data-t') + '/' + (dom.getAttribute('data-t') || dom.id)
-  query.dom_id = dom.id
-  if (!query.s) query.s = $(document.body).getAttribute('data-z')
-  new Ajax.Request('/nodes/'+zip+met+$H(query).toQueryString(),
-    {asynchronous:true, evalScripts:true, method:method}
-  );
+
+  if (Object.prototype.toString.apply(query) === '[object Array]') {
+    var list = query
+    var todo = list.length
+    for (var i=0; i < list.length; i++) {
+      new Ajax.Request(url, {
+        method:method,
+        parameters:Zena.prepare_query(list[i]),
+        asynchronous:true,
+        onSuccess: function() {
+          todo--;
+          if (todo == 0) {
+            Zena.reload(dom)
+          }
+        },
+        onFailure: function() {
+          alert("Could not "+method+" "+Object.toJSON(query))
+        }
+      });
+    }
+  } else {
+    query.t_url = $(document.body).getAttribute('data-t') + '/' + (dom.getAttribute('data-t') || dom.id)
+    query.dom_id = dom.id
+    if (!query.s) query.s = $(document.body).getAttribute('data-z')
+    new Ajax.Request(url, {
+      method:method,
+      parameters:Zena.prepare_query(query),
+      asynchronous:true,
+      evalScripts:true,
+    });
+  }
 }
 
 Zena.get = function(dom_name, query) {
   Zena.do('get', dom_name, query || {});
   return false;
 }
+Zena.reload = Zena.get;
 
 Zena.put = function(dom_name, query) {
   Zena.do('put', dom_name, query || {});
   return false;
 }
-Zena.reload = Zena.get;
+
+Zena.post = function(dom_name, query) {
+  Zena.do('post', dom_name, query || {});
+  return false;
+}
 
 Zena.loading = function(e) {
   e.addClassName('zloading')
