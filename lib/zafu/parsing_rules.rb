@@ -308,9 +308,6 @@ module Zafu
             opts.merge!(:text=>'') if is_end_tag
             opts.merge!(:method => 'rename_asset', :html_tag_params => params, :params => params, :html_tag => html_tag)
             make(:asset, opts)
-          elsif html_tag == 'style'
-            opts.merge!(:params => params, :html_tag => html_tag)
-            make(:style, opts)
           else
             #puts "PLAIN:<#{html_tag}#{raw}#{is_end_tag ? '/' : ''}>"
             # plain html tag
@@ -343,19 +340,6 @@ module Zafu
         leave(:asset)
       else
         # never ending asset
-        flush
-      end
-    end
-
-    def scan_style
-      if @text =~ /\A(.*?)<\/style>/m
-        flush $&
-        @method = 'rename_asset'
-        @markup.tag = 'style'
-        leave(:style)
-      else
-        # error
-        @method = 'void'
         flush
       end
     end

@@ -15,3 +15,13 @@ rename_asset:
 should_not_change_script:
   src: "<script type='text/javascript' src='http://example.com'></script>"
   tem: "<script type='text/javascript' src='http://example.com'></script>"
+
+change_style_url:
+  src: |
+    <style>
+    #super { background:url('<r:image in='site' do='path' format='data'/>');}
+    </style>
+  res: |
+    <style>
+    #super { background:url('/oo/image40.jpg?1144713600');}
+    </style>
