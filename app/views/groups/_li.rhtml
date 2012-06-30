@@ -8,6 +8,6 @@ else
 end %>
 <tr id='group<%= li[:id] %>'>
   <td class="adm_icon"><%= link_to_remote( _("img_#{icon}"), :update=>"group#{li[:id]}", :url=>edit_group_path(li), :method=>:get) %></td>
-  <td class="name"><%= li.name %></td>
+  <td class="name"><%= li.name %><%= li.auto_publish? ? '*' : '' %></td>
   <td class="users"><%= li.active_users.map {|u| (u.login || 'anon') }.join(', ') %></td>
 </tr>

@@ -13,7 +13,7 @@ class Group < ActiveRecord::Base
 
   include RubyLess
   safe_method             :name => String
-  attr_accessible         :name, :user_ids, :replace_by # FIXME: add user_ids ? + add users validation (are in site)
+  attr_accessible         :name, :user_ids, :replace_by, :auto_publish # FIXME: add user_ids ? + add users validation (are in site)
   has_and_belongs_to_many :users, :order=>'login'
   validates_presence_of   :name
   validate                :valid_group

@@ -269,9 +269,16 @@ module Zena
         # on original
         version.number == 1 &&
         # redaction or pub with autopublish
-        (version.status == Zena::Status::Red || (version.status == Zena::Status::Pub && current_site.auto_publish?)) &&
+        (  
+           version.status == Zena::Status::Red || 
+          (version.status == Zena::Status::Pub && auto_publish?)
+        ) &&
         # same owner, in redit time, ...
         !version.clone_on_change?
+      end
+      
+      def auto_publish?
+        current_site.auto_publish? || dgroup.auto_publish?
       end
 
       def can_edit?(lang=nil)
@@ -499,7 +506,7 @@ module Zena
               end
             else
               # Set default version status
-              version.status = (current_site[:auto_publish] && full_drive?) ? Zena::Status::Pub : Zena::Status::Red
+              version.status = (auto_publish? && full_drive?) ? Zena::Status::Pub : Zena::Status::Red
             end
           else
             # keep status value set

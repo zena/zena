@@ -396,6 +396,7 @@ Gem::Specification.new do |s|
     "bricks/zena/zena/migrate/20111101103900_add_comment_to_columns.rb",
     "bricks/zena/zena/migrate/20111214112233_add_comment_to_relations.rb",
     "bricks/zena/zena/migrate/20120605091558_add_ssl_login_to_site.rb",
+    "bricks/zena/zena/migrate/20120630123551_add_auto_publish_to_group.rb",
     "config/boot.rb",
     "config/bricks.yml",
     "config/database_example.yml",

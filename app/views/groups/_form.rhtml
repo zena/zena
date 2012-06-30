@@ -32,6 +32,13 @@
       <% if !@group.new_record? -%>
       <tr><td class='label'><%= _('replace by') %></td><td><%= select('group', 'replace_by', @groups.map{|g| [g[:name], g[:id]]} , {:include_blank => true}) %></td></tr>
       <% end -%>
+      <tr>
+	    <td class='label'><%= _('auto_publish') %></td>
+		<td>
+		  <input type='hidden' name='group[auto_publish]' value=''/>
+		  <input type='checkbox' name='group[auto_publish]' value='1'<%= @group.auto_publish? ? " checked='checked'" : '' %>/> <%= _('auto_publish') %>
+		</td>
+	  </tr>
       <tr><td colspan='2'><input type='submit' class='btn_validate' value='<%= _('validate') %>'/></td></tr>
     </table>
   </form>
