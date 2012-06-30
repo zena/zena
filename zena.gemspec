@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2012-06-27}
+  s.date = %q{2012-06-30}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -395,6 +395,7 @@ Gem::Specification.new do |s|
     "bricks/zena/zena/migrate/20110710113731_remove_icon_field.rb",
     "bricks/zena/zena/migrate/20111101103900_add_comment_to_columns.rb",
     "bricks/zena/zena/migrate/20111214112233_add_comment_to_relations.rb",
+    "bricks/zena/zena/migrate/20120605091558_add_ssl_login_to_site.rb",
     "config/boot.rb",
     "config/bricks.yml",
     "config/database_example.yml",
@@ -632,11 +633,8 @@ Gem::Specification.new do |s|
     "lib/zena/loader/yaml_loader.rb",
     "lib/zena/migrator.rb",
     "lib/zena/parser.rb",
-    "lib/zena/parser/zafu_rules.rb",
-    "lib/zena/parser/zafu_tags.rb",
     "lib/zena/parser/zazen_rules.rb",
     "lib/zena/parser/zazen_tags.rb",
-    "lib/zena/parser/zena_rules.rb",
     "lib/zena/refactor/act_as_content.rb",
     "lib/zena/remote.rb",
     "lib/zena/remote/connection.rb",
@@ -2036,6 +2034,7 @@ Gem::Specification.new do |s|
     "test/selenium/Swap/swap2.rsel",
     "test/selenium/Toggle/0setup.rsel",
     "test/selenium/Toggle/toggle1.rsel",
+    "test/selenium/Toggle/toggle2.rsel",
     "test/sites/README",
     "test/sites/complex/columns.yml",
     "test/sites/complex/complex.png",
