@@ -10,6 +10,24 @@ default:
 space_in_tag:
   src: <meta http-equiv='Content-type' content='text/html; charset=utf-8' /><r:title/>
   tem: '!/r:title/'
+
+multiline_tag:
+  src: |
+    <meta 
+    http-equiv='Content-type' content='text/html; charset=utf-8' /><r:title/>
+  tem: '!/r:title/'
+
+multiline_tag:
+  src: |
+    <div id='extract'>
+      <r:section do='zazen' attr='infos' edit='true' publish='true' />
+  
+      <div id='cert' do='pages' in='site'>
+        <div class='cert' do='each' do='link' do='img' src='find("image")' mode='cert' />
+      </div>
+    </div>
+  tem: "!/do='pages'/"
+
   
 show_title:
   old_src: "<r:show attr='title'/>"

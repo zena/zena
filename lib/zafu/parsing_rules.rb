@@ -1,8 +1,8 @@
 require 'zafu/markup'
 
 module Zafu
-  PARAM_KEY_REGEXP = %r{^ +([\w_\-\[\]:]+)=}
-  PARAM_VALUE_REGEXP = %r{('|")(|[^\1]*?[^\\])\1}
+  PARAM_KEY_REGEXP = %r{^\s+([\w_\-\[\]:]+)=}m
+  PARAM_VALUE_REGEXP = %r{('|")(|[^\1]*?[^\\])\1}m
   module ParsingRules
     # The context informs the rendering element about the current Node, node class, existing ids, etc. The
     # context is inherited by sub-elements.
@@ -258,8 +258,8 @@ module Zafu
         method = $1
         eat $&
         params, raw = get_params
-
-        if @text =~ /\A(\/?)>/
+        #puts "AFTER(#{@method}): [#{@text[0..20]}]"
+        if @text =~ /\A\s*(\/?)>/
           eat $&
           opts.merge!(:method=>method, :params=>params)
           opts.merge!(:text=>'') if $1 != ''
