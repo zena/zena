@@ -24,7 +24,8 @@ operations = [
   # 'rake sphinx:',
 ]
 
-if %w{stop restart}.include?(cmd)
+# Allways make a clean start
+if %w{stop restart start}.include?(cmd)
   puts "Stopping #{APP_ROOT}..."
   operations.each do |op|
     run "cd #{APP_ROOT} && #{op}stop"
