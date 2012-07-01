@@ -12,13 +12,25 @@ test_set_in_scope:
   src: "<r:set hours='3'><r:if test='hours &gt; 0'>you have: <r:show eval='hours' format='%.2f'/></r:if></r:set>"
   res: "you have: 3.00"
 
-test_set_for_siblings:
-  src: "<r:set hours='3'/><r:if test='hours &gt; 0'>you have: <r:show eval='hours' format='%.2f'/></r:if>"
-  res: "you have: 3.00"
+set_var:
+  context:
+    date: '2011-05-30'
+  src: "<div do='set' next_date='date.advance(:years =&gt; 1)'><span do='next_date' format='%Y-%m-%d'/></div>"
+  res: "<div><span>2012-05-30</span></div>"
 
-test_set_for_siblings_overwrite:
-  src: "<r:set hours='3'/><r:set hours='%{hello}'/><r:if test='!hours.blank?'>you have: <r:eval>hours.gsub(/o/,'')</r:eval></r:if>"
-  res: "you have: hell"
+set_var_propagates:
+  src: "<div do='set' a='%q{hello}'><r:void do='set' a='%q{goodbye}'/><r:a/></div>"
+  tem: '<div><% _za = "hello" %><% _za = "goodbye" %><%= _za %></div>'
+  res: "<div>goodbye</div>"
+
+set_var_can_be_nil:
+  src: "<div do='set' a='%q{hello}'><r:void do='set' a='origin'/><r:a/></div>"
+  tem: "<div><% _za = \"hello\" %><% _za = @node.prop['origin'] || _za %><%= _za %></div>"
+  res: "<div>hello</div>"
+
+set_var_different_type:
+  src: "<div do='set' a='%q{hello}'><r:void do='set' a='15'/><r:a/></div>"
+  tem: "/Type mismatch for var a=15: Number != String/"
 
 node_eval:
   src: "<r:void do='@node.eval(\"title\")'/>"

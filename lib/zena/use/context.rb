@@ -189,14 +189,26 @@ module Zena
             var = var.to_s
             begin
               typed_string = ::RubyLess.translate(self, code)
-              name = get_var_name('set_var', var)
-              out "<% #{name} = #{typed_string} %>"
-              var_setting = {}
-              set_context_var('set_var', var, RubyLess::TypedString.new(name, typed_string.opts), var_setting)
-              # Leak into following siblings
-              self.pass(var_setting)
-              # Set inside
-              @context.merge!(var_setting)
+              # Do we have this variable already ?
+              if up_var = get_context_var('set_var', var)
+                if up_var.klass != typed_string.klass
+                  return parser_error("Type mismatch for var #{var}=#{code}: #{typed_string.klass.inspect} != #{up_var.klass.inspect}")
+                end
+                
+                if typed_string.could_be_nil?
+                  if !up_var.could_be_nil?
+                    out "<% #{up_var} = #{typed_string} || #{up_var} %>"
+                  else
+                    out "<% #{up_var} = #{typed_string} %>"
+                  end
+                else  
+                  out "<% #{up_var} = #{typed_string} %>"
+                end
+              else
+                name = get_var_name('set_var', var)
+                out "<% #{name} = #{typed_string} %>"
+                set_context_var('set_var', var, RubyLess::TypedString.new(name, typed_string.opts))
+              end
             rescue RubyLess::NoMethodError => err
               parser_error(err.message, code)
             end
