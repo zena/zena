@@ -76,9 +76,19 @@ module Bricks
             fullpath = "$#{brick_name}-#{skin_name}/#{path}"
             section_id = nil
             template = nil
-            abs_path = File.join(
-              RAILS_ROOT, 'bricks', brick_name,
-              'zena', 'skins', skin_name, path + "." + (opts[:ext] || 'zafu'))
+            
+            abs_path = File.join(RAILS_ROOT, 'bricks', brick_name, 'zena', 'skins', skin_name, path)
+            if opts[:ext]
+              abs_path_l = abs_path + ".#{visitor.lang}.#{opts[:ext]}"
+              abs_path = abs_path + ".#{opts[:ext]}"
+            else
+              abs_path_l ||= abs_path + ".zafu"
+            end
+            if abs_path_l
+              if text = File.exist?(abs_path_l) ? File.read(abs_path_l) : nil
+                return text, fullpath, section_id, template
+              end
+            end
             if text = File.exist?(abs_path) ? File.read(abs_path) : nil
               return text, fullpath, section_id, template
             end
@@ -123,7 +133,20 @@ module Bricks
       end
 
       private
+        def add_static_symlink(brick_name, skin_name, skin_path)
+          source_path = File.join(skin_path, 'static')
+          target_dir  = File.join(RAILS_ROOT, 'public', 'static')
+          target_path = File.join(target_dir, "#{brick_name}-#{skin_name}") 
+          if File.exist?(source_path) && !File.exist?(target_path)
+            if !File.exist?(target_dir)
+              Dir.mkdir(target_dir)
+            end
+            FileUtils.symlink_or_copy(source_path, target_path)
+          end
+        end
+        
         def build_static_index(brick_name, skin_name, path)
+          add_static_symlink(brick_name, skin_name, path)
           # path = absolute path
           # 1. Find all templates
           Dir.foreach(path) do |elem|

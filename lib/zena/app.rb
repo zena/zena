@@ -55,25 +55,11 @@ module Zena
       end
       Bricks.apply_patches('application_controller.rb')
       Bricks.apply_patches('application_helper.rb')
-
-      ::User.class_eval do
-        Zena::Use.each_module_for('User') do |mod|
-          include mod
-        end
-      end
-
-      ::Site.class_eval do
-        Zena::Use.each_module_for('Site') do |mod|
-          include mod
-        end
-      end
       
-      ::Skin.class_eval do
-        Zena::Use.each_module_for('Skin') do |mod|
-          puts mod
-          include mod
-        end
-      end
+      Zena::Use.upgrade_class('User')
+      Zena::Use.upgrade_class('Site')
+      Zena::Use.upgrade_class('Skin')
+
     end
   end
 end

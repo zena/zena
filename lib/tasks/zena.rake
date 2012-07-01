@@ -19,7 +19,7 @@ def symlink_assets(from, to)
   #        we could create a symlink in the sites dir to 'shared' -> /var/zena/current/public
   #        and then symlink with "#{host_path}/public/#{dir}" -> "../shared/public/#{dir}"
   #        OR we could symlink /var/zena/current/...
-  ['calendar', 'images', 'javascripts', 'stylesheets'].each do |dir|
+  ['static', 'calendar', 'images', 'javascripts', 'stylesheets'].each do |dir|
     File.unlink("#{to}/public/#{dir}") if File.symlink?("#{to}/public/#{dir}")
     if File.exist?("#{to}/public/#{dir}")
       if File.directory?("#{to}/public/#{dir}")
@@ -355,12 +355,16 @@ namespace :zena do
 
   desc 'Rebuild index for all sites or site defined by HOST param.'
   task :rebuild_index => :environment do
+    # Make sure all bricks are loaded before executing the index rebuild
+    Zena::Use.upgrade_class('Site')
+  
     include Zena::Acts::Secure
     if ENV['HOST']
       sites = [Site.find_by_host(ENV['HOST'])]
     else
       sites = Site.all
     end
+    
     sites.each do |site|
       if ENV['WORKER'] == 'false' || RAILS_ENV == 'test'
         # We avoid SiteWorker by passing nodes.

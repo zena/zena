@@ -1,6 +1,7 @@
 module Zafu
   module Process
     module HTML
+      SAFE_SRC_REGEX = %r{\A/[^\.]+\.[a-zA-Z]+\Z}
       def self.included(base)
         base.wrap  :wrap_html
       end
@@ -118,7 +119,13 @@ module Zafu
 
         src = @params.delete(key)
         if src && src[0..7] != 'http://'
-          new_value = helper.send(:template_url_for_asset, :src => src, :base_path => @options[:base_path], :type => type)
+          if new_value = helper.send(:template_url_for_asset, :src => src, :base_path => @options[:base_path], :type => type)
+          elsif src =~ SAFE_SRC_REGEX
+            fullpath = "#{SITES_ROOT}#{current_site.public_path}#{src}"
+            if File.exist?(fullpath) && File.stat(fullpath)
+              src = "#{src}?#{File.mtime(fullpath).to_i}"
+            end
+          end
           @markup.params[key] = new_value.blank? ? src : new_value
         end
 

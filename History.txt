@@ -9,6 +9,7 @@
  * Enabled javascript on toggle.
  * Enabled "static" brick to use zafu stored in brick file system.
  * No need to use '&gt;' or '&lt;' in html params. \' escape works. Yeah !!
+ * Enabled "static" assets with symlink to skins in static bricks (/static/[brick]-[skin]/xxx.css => bricks/[brick]/skins/[skin]/static/xxx.css)
 
 * Minor changes
  * Fixed label traduction for param.

@@ -7,7 +7,7 @@ module Zena
     MODULE_NAME  = Hash[*MODULE_NAMES.map {|n| [n, "#{n}#{SUFFIX_NAME}"]}.flatten]
 
     class << self
-      attr_accessor :modules, :extra_routes
+      attr_accessor :modules, :extra_routes, :upgraded_classes
 
       # Declare a module (or list of modules) that should be used in Zena. The module should implement
       # sub-modules named ControllerMethods, ViewMethods or ZafuMethods in order to add features to
@@ -36,6 +36,19 @@ module Zena
       def modules_for(name)
         create_module_hash
         self.modules[name] || []
+      end
+      
+      def upgrade_class(class_name)
+        self.upgraded_classes ||= {}
+        if !self.upgraded_classes[class_name]
+          self.upgraded_classes[class_name] = true
+          klass = eval "::#{class_name}"
+          klass.class_eval do
+            Zena::Use.each_module_for(class_name) do |mod|
+              include mod
+            end
+          end
+        end
       end
 
       def routes(rez)
