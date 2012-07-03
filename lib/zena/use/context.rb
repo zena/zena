@@ -189,6 +189,7 @@ module Zena
             var = var.to_s
             begin
               typed_string = ::RubyLess.translate(self, code)
+              
               # Do we have this variable already ?
               if up_var = get_context_var('set_var', var)
                 if up_var.klass != typed_string.klass
@@ -210,7 +211,7 @@ module Zena
                 set_context_var('set_var', var, RubyLess::TypedString.new(name, typed_string.opts))
               end
             rescue RubyLess::NoMethodError => err
-              parser_error(err.message, code)
+              out parser_error(err.message, "set #{var}=#{code}")
             end
           end
           expand_with

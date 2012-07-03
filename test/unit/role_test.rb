@@ -125,7 +125,7 @@ class RoleTest < Zena::Unit::TestCase
     end
 
     should 'return all defined safe columns' do
-      assert_equal %w{origin tz weight}, subject.defined_safe_columns.map(&:name)
+      assert_equal %w{origin settings tz weight}, subject.defined_safe_columns.map(&:name)
     end
   end # with a Role
 

@@ -122,18 +122,16 @@ module Zafu
       #puts "SCAN(#{@method}): [#{@text[0..20]}]"
       if @text =~ %r{\A([^<]*?)(\s*)//!}m
         # comment
-        flush $1
+        found = $1
+        flush found
         eat $2
         scan_comment
-      elsif @text =~ /\A([^<]*)</m
-        found = $1
-        if found =~ /^ *$/
-          eat found
-          space = found
-        else
-          flush found
-          space = ''
-        end
+      elsif @text =~ /\A(([^<]*?)(^ *|))</m
+        # Warning: this regexp looks too complicated but it's the only one that
+        # works without capturing too much or not enough space in "space_before".
+        flush $2
+        space = $3
+        eat space
         
         if @text[1..1] == '/'
           store space
@@ -149,7 +147,7 @@ module Zafu
         elsif @text[0..8] == '<![CDATA['
           store space
           flush '<![CDATA['
-        elsif found.last == ' ' && @text[0..1] == '< '
+        elsif $1.last == ' ' && @text[0..1] == '< '
           # solitary ' < '
           store space
           flush '< '

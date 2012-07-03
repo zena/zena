@@ -376,7 +376,6 @@ class NodesControllerTest < Zena::Controller::TestCase
         end
       end # by changing a link comment
 
-
       context 'by changing a link date' do
         subject do
           {:action => 'update', :controller => 'nodes', :id => nodes_zip(:opening), :node => {:link_id => links_id(:opening_in_art), :l_date => '2011-03-29 17:51'}}
@@ -416,7 +415,25 @@ class NodesControllerTest < Zena::Controller::TestCase
         end # with a bad value
 
       end # by changing skin
+      
+      context 'by changing a hash value' do
+        setup do
+          Column.create(:role_id => roles_id(:Task), :ptype => 'hash', :name => 'foo')
+        end
+        
+        subject do
+          {:action => 'update', :controller => 'nodes', :id => nodes_zip(:people), :node => {:foo => {:bar => 'hello'}}}
+        end
 
+        should 'change parameter' do
+          put_subject
+          node = secure(Node) { nodes(:people) }
+          foo = node.foo
+          assert_equal 'hello', foo['bar']
+          # Should not raise cast error
+          assert node.update_attributes('title' => 'pep')
+        end
+      end
     end # updating a node
 
     # ======================================= Template update

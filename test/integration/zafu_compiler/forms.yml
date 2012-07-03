@@ -147,6 +147,13 @@ checkbox_checked_value:
   tem: "/@node.tagged\[\"sky\"\].blank\?/"
   res: "<input type='hidden' name='node[tagged][sky]' value=''/><input type='checkbox' name='node[tagged][sky]' value='sky' checked='checked'/>"
 
+checkbox_checked_hash_value:
+  context:
+    node: test
+  src: "<r:input type='checkbox' name='settings[one]' value='un'/> <r:input type='checkbox' name='settings[one]' value='deux'/>"
+  tem: "/@node.prop\[.settings.\]\[.one.\] : nil\) == .un. \? . checked='checked'/"
+  res: "<input type='hidden' name='node[settings][one]' value=''/><input type='checkbox' name='node[settings][one]' value='un' checked='checked'/><input type='hidden' name='node[settings][one]' value=''/> <input type='checkbox' name='node[settings][one]' value='deux'/>"
+
 checkbox_unchecked_value:
   src: "<r:input type='checkbox' name='tagged[foo]'/>"
   tem: "/@node.tagged\[\"foo\"\].blank\?/"
@@ -169,19 +176,19 @@ input:
   context:
     node: 'ant'
   src: "<r:Contact?><r:input name='first_name'/></r:Contact?>"
-  tem: "<% if @node.kpath_match?('NRC') %><input type='text' name='node[first_name]' value='<%= fquote @node.prop['first_name'] %>'/><% end %>"
+  tem: "<% if @node.kpath_match?('NRC') %><input type='text' name='node[first_name]' value='<%= fquote(@node.prop['first_name']) %>'/><% end %>"
   res: "<input type='text' name='node[first_name]' value='Solenopsis'/>"
 
 input_raw_name:
   src: "<r:input param='first_name'/>"
-  tem: "<input type='text' name='first_name' value='<%= fquote params[:first_name] %>'/>"
+  tem: "<input type='text' name='first_name' value='<%= fquote(params[:first_name]) %>'/>"
 
 input_param_value:
   context:
     foo:
       "bar.baz": 'xyz'
   src: "<r:input param='foo[bar.baz]'/>"
-  tem: "<input type='text' name='foo[bar.baz]' value='<%= fquote param_value(\"foo[bar.baz]\") %>'/>"
+  tem: "<input type='text' name='foo[bar.baz]' value='<%= fquote(param_value(\"foo[bar.baz]\")) %>'/>"
   res: "<input type='text' name='foo[bar.baz]' value='xyz'/>"
 
 input_checkbox_param_value:
@@ -249,6 +256,11 @@ label_on_input_param:
   src: "<r:input label='t' param='title'/>"
   res: "<label>titre</label> <span><input type='text' name='title' value=''/></span>"
 
+label_on_hash:
+  src: "<r:input name='settings[foo]' label='t'/>"
+  tem: "/@node.prop\[.settings.\]\[.foo.\]/"
+  res: "<label>settings_foo</label> <span><input type='text' name='node[settings][foo]' value=''/></span>"
+
 label_on_textarea:
   context:
     lang: fr
@@ -280,6 +292,14 @@ passiv_input_in_form:
 param_on_select:
   src: "<r:select param='q[contact.status]' values='0,-5,-10' tshow='active, being registered, inactive'/>"
   res: "<select name='q[contact.status]'><option value=\"0\">active</option>\n<option value=\"-5\">being registered</option>\n<option value=\"-10\">inactive</option></select>"
+
+select_eval_value:
+  context:
+    f: "a,b,c,en"
+    q: 'en'
+  src: "<r:select param='q' eval='params[:f]'/>"
+  tem: "<select name='q'><%= options_for_select((params[:f] || '').split(',').map(&:strip).map {|e| [trans(e), e]}, param_value(\"q\").to_s) %></select>"
+  res: "<select name='q'><option value=\"a\">a</option>\n<option value=\"b\">b</option>\n<option value=\"c\">c</option>\n<option value=\"en\" selected=\"selected\">english</option></select>"
 
 crop:
   context:

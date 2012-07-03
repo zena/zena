@@ -262,6 +262,20 @@
     </r:form>
   </div>
 
+  //! form4
+  <div class='test' id='form4' do='selenium'>
+    <h3>form4</h3>
+    <p>Form to update hash property.</p>
+	<p id='form4_one' do='settings["one"]'/>
+	<p id='form4_two' do='settings["two"]'/>
+    <r:form node[v_status]='50'>
+      <ul>
+        <li><r:input label='t' name='settings[two]'/></li>
+        <li><r:input type='submit'/></li>
+      </ul>
+    </r:form>
+  </div>
+
   <div class='test' id='drop1' do='selenium'>
     <h3>drop1</h3>
     <p>Create a relation by drag and dropping.</p>

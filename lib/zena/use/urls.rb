@@ -798,13 +798,12 @@ module Zena
               end
 
               if !descendant('else')
-                else_tag = {:method => 'else', :text => '<r:this/>'}
+                else_tag = {:method => 'else', :text => "#{@markup.space_before}<r:this/>"}
                 else_tag[:tag] = tag if tag
                 add_block else_tag
                 # Clear cached descendants
                 @all_descendants = nil
               end
-
               out "<% page_numbers(#{curr_page}, #{page_count}, #{(@params[:join] || ' ').inspect}, #{@params[:page_count] ? @params[:page_count].to_i : 'nil'}) do |#{page_number}, #{page_join}, #{page_name}| %>"
               out "<%= #{page_join} %>"
               with_context(:node => node.move_to(page_number, Number)) do

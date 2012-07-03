@@ -51,6 +51,32 @@ class ColumnTest < Zena::Unit::TestCase
     end
   end
 
+  context 'A hash column' do
+    setup do
+      login(:lion)
+    end
+
+    subject do
+      Column.create(:role_id => roles_id(:Task), :ptype => 'hash', :name => 'foo')
+    end
+
+    should 'type_cast json as StringHash' do
+      assert_equal StringHash['one'=>'two', 'five'=>'six'], subject.type_cast('{"one":"two","five":"six"}')
+    end
+    
+    should 'type_cast hash as StringHash' do
+      assert_equal StringHash['one'=>'two', 'five'=>'six'], subject.type_cast(:one => :two, 'five' => 'six')
+    end
+
+    should 'type_cast nil as nil' do
+      assert_nil subject.type_cast(nil)
+    end
+
+    should 'type_cast empty as nil' do
+      assert_nil subject.type_cast('')
+    end
+  end
+
   context 'Creating a column' do
     subject do
       Column.create(:role_id => roles_id(:Task), :ptype => 'string', :name => 'foo')

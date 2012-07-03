@@ -200,6 +200,15 @@ query_with_parse_paginate:
   tem: '/page_numbers/'
   res: "/1.*2.*3.*4.*5/"
 
+link_page_list:
+  src: |
+    <r:query default='pages in site limit 4 paginate p' select='pages where #{query_parse(params[:q])} in site limit 2 paginate p'>
+      : <r:link page='list' page_count='12' join=' | '/>
+    </r:query>
+  # should properly pass the query to sub-contexts.
+  res: "/: 1 \| <a.*>2</a> \| <a.*>3</a> \| <a/"
+#  res: "/1.*2.*3.*4.*5/"
+
 query_can_be_nil_bad_argument_type:
   context:
     filter:

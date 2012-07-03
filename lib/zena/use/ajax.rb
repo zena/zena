@@ -139,10 +139,10 @@ module Zena
             end
           end
           if params[:redir]
-            page << "window.location.href = '#{params[:redir]}'"
+            page << "window.location.href = '#{params[:redir]}';"
           end
           if params[:reload]
-            page << "Zena.reload(#{params[:reload].inspect})"
+            page << "Zena.reload(#{params[:reload].inspect});"
           end
           page << render_js(false)
         end

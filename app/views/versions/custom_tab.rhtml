@@ -3,7 +3,7 @@
   <label for='<%= col.name %>'><%= _(col.name) %></label>
   <% case col.ptype
      when :datetime %>
-    <%= date_box(@node, col.name, :size=>15, :value => @node.prop[col.name]) %>
+    <%= date_box(@node, "node[#{col.name}]", :size=>15, :value => @node.prop[col.name]) %>
   <% else %>
     <%= text_area 'node', col.name, :cols => nil, :rows => 1, :value => @node.prop[col.name], :class => 'full_width' %>
   <% end %>

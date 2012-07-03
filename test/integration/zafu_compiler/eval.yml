@@ -8,9 +8,13 @@ show_var_overwrites_attribute:
   src: "<r:set title='12345'><b do='title'/></r:set>"
   res: "<b>12345</b>"
 
-test_set_in_scope:
+set_in_scope:
   src: "<r:set hours='3'><r:if test='hours &gt; 0'>you have: <r:show eval='hours' format='%.2f'/></r:if></r:set>"
   res: "you have: 3.00"
+
+set_bad_code:
+  src: "<r:set hours='foobar'><r:if test='hours &gt; 0'>you have: <r:show eval='hours' format='%.2f'/></r:if></r:set>"
+  res: "/unknown method 'foobar\(\)'/"
 
 set_var:
   context:

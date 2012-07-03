@@ -1,0 +1,17 @@
+open "/oo/testnode37.html?test=form4"
+verify_text "form4_one", "un"
+verify_text "form4_two", "deux"
+type "form41_settings", "zwei"
+# submit
+click_and_wait 'css=input[type=submit]'
+
+# Redirected to same page
+assert_location "http://test.host:3000/oo/testnode37.html"
+open "/oo/testnode37.html?test=form4"
+verify_text "form4_one", "un"
+verify_text "form4_two", "zwei"
+
+# clear
+type "form41_settings", "deux"
+# submit
+click_and_wait 'css=input[type=submit]'

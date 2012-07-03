@@ -139,7 +139,7 @@ class EnrollableTest < Zena::Unit::TestCase
         assert_kind_of Proc, type[:class]
         klass = type[:class].call[:class]
         assert_equal VirtualClass['Section'], klass
-        assert_equal %w{assigned cached_role_ids origin summary text title tz weight}, klass.columns.keys.sort
+        assert_equal %w{assigned cached_role_ids origin settings summary text title tz weight}, klass.columns.keys.sort
       end
     end # A safe method returning a sub-class of Node
 

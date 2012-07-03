@@ -388,6 +388,11 @@ test_en:
     comment:       small presentation
     title:         Kill the bugs
     summary:       "<a href='?test=all'>View all ajax tests</a>."
+    settings:      
+      json_class:  "StringHash"
+      data:
+        one: un
+        two: deux
 
 strange_en_red:
   node:            strange

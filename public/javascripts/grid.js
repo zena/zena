@@ -1010,7 +1010,7 @@ Tags.click = function(event) {
       list.splice(i, 1)
     }
   }
-  tags.onChange(list, e)
+  tags.onChange(list, e, false)
 }
 
 Tags.add = function(event) {
@@ -1024,7 +1024,7 @@ Tags.add = function(event) {
     }
   }
   list.push(value)
-  tags.onChange(list)
+  tags.onChange(list, false, value)
 }
 
 Tags.make = function(elem, opts) {
@@ -1034,7 +1034,7 @@ Tags.make = function(elem, opts) {
   var list = []
   tags.list = list
   elem.childElements().each(function(e) {
-    var input = e.select('input,select').first()
+    var input = (e.select('input,select') || []).first()
     if (input) {
       input.tags = tags
       input.observe('change', Tags.add)

@@ -123,7 +123,8 @@ module Zena
 
         def make_input(form_helper, name, type, textarea = false)
           if type == Time
-            "<%= date_box(#{node}, :#{name}) %>"
+            code = RubyLess.translate(self, "this.#{name}")
+            "<%= date_box(#{node}, 'node[#{name}]', :value => #{code}) %>"
           elsif textarea
             "<%= #{form_helper}.text_area :#{name}, :id => '#{node.dom_prefix}_#{name}' %>"
           else
@@ -495,6 +496,7 @@ module Zena
 
         def r_input(skip_col = false)
           html_attributes, attribute = get_input_params()
+          
           erb_attr = html_attributes.delete(:erb_attr)
           # TODO: get attribute type from get_input_params
 
@@ -503,7 +505,7 @@ module Zena
             out "<% if #{node}.ptype == :string -%>"
             out r_textarea
             out "<% elsif #{node}.ptype == :datetime -%>"
-            res = "<%= date_box(#{node(Node)}, #{node}.name, :value => #{node(Node)}.prop[#{node}.name]) %>"
+            res = "<%= date_box(#{node(Node)}, %Q{node[\#{#{node}.name}]}, :value => #{node(Node)}.prop[#{node}.name]) %>"
             out extract_label(res, erb_attr)
             out "<% else -%>"
             out r_input(true)
@@ -517,8 +519,9 @@ module Zena
             r_select
           when 'date_box', 'date'
             return parser_error("date_box without name") unless attribute
-            if value = @params[:value]
-              code = ::RubyLess.translate(self, value)
+            if code = html_attributes[:value]
+              # remove <%= %>
+              code = code[/\((.+)\)/,1] || code
             else
               code = ::RubyLess.translate(self, "this.#{attribute}")
             end
@@ -528,7 +531,7 @@ module Zena
               html_params << ":#{key} => #{@params[key].inspect}" if @params[key]
             end
             html_params << ":id=>\"#{node.dom_id(:erb => false)}_#{attribute}\"" if node.dom_prefix
-            "<%= date_box(#{node}, #{attribute.inspect}, :value => #{value}, #{html_params.join(', ')}) %>"
+            "<%= date_box(#{node}, #{html_attributes[:name].inspect}, :value => #{value}, #{html_params.join(', ')}) %>"
           when 'id'
             return parser_error("select id without name") unless attribute
             name = "#{attribute}_id" unless attribute[-3..-1] == '_id'
@@ -546,7 +549,7 @@ module Zena
             @markup.done = false
             wrap('')
           else
-            # 'text', 'hidden', ...
+            # 'text', 'hidden', 'checkbox', ...
             return parser_error('Missing name.') unless attribute || html_attributes[:name]
             @markup.tag = 'input'
             @markup.set_param(:type, @params[:type] || 'text')
@@ -615,21 +618,6 @@ module Zena
 
         alias r_radio r_checkbox
 
-        # transform a 'show' tag into an input field.
-        #def make_input(params = @params)
-        #  input, attribute = get_input_params(params)
-        #  return parser_error("missing 'name'") unless attribute
-        #  return '' if attribute == 'parent_id' # set with 'r_form'
-        #  return '' if ['url','path'].include?(attribute) # cannot be set with a form
-        #  if params[:date]
-        #  input_id = @context[:dom_prefix] ? ", :id=>\"#{dom_id}_#{attribute}\"" : ''
-        #    return "<%= date_box(#{node}, #{params[:date].inspect}#{input_id}) %>"
-        #  end
-        #  input_id = node.dom_prefix ? " id='#{node.dom_prefix}_#{attribute}'" : ''
-        #  "<input type='#{params[:type] || 'text'}'#{input_id} name='#{input[:name]}' value='#{input[:value]}'/>"
-        #end
-        #
-
         # Parse params to extract everything that is relevant to building input fields.
         # TODO: refactor and pass the @markup so that attributes are added directly
         # TODO: get attribute type in get_input_params (safe_method_type)
@@ -660,26 +648,26 @@ module Zena
               end
             end
             
+            if value = params[:value]
+              # On refactor, use append_markup_attr(markup, key, value)
+              value = RubyLess.translate_string(self, value)
+
+              if value.literal
+                res[:value] = form_quote(value.literal.to_s)
+              else
+                res[:value] = "<%= fquote(#{value}) %>"
+              end
+            elsif params[:param]
+              res[:value] = "<%= fquote(#{sub_attr_ruby}) %>"
+            end
+            
             if sub_attr
               type = node.klass.safe_method_type([attribute])
               if sub_attr_ruby = RubyLess.translate(self, %Q{this.#{attribute}[#{sub_attr.inspect}]})
-                res[:value] = "<%= fquote #{sub_attr_ruby} %>"
+                res[:value] ||= "<%= fquote(#{sub_attr_ruby}) %>"
               end
-            else
-              if value = params[:value]
-                # On refactor, use append_markup_attr(markup, key, value)
-                value = RubyLess.translate_string(self, value)
-
-                if value.literal
-                  res[:value] = form_quote(value.literal.to_s)
-                else
-                  res[:value] = "<%= fquote #{value} %>"
-                end
-              elsif params[:param]
-                res[:value] = "<%= fquote #{sub_attr_ruby} %>"
-              elsif attribute && type = node.klass.safe_method_type([attribute])
-                res[:value] = "<%= fquote #{node}.#{type[:method]} %>"
-              end
+            elsif attribute && type = node.klass.safe_method_type([attribute])
+              res[:value] ||= "<%= fquote(#{node}.#{type[:method]}) %>"
             end
 
             if sub_attr && params[:type] == 'checkbox' && !params[:value]
@@ -687,19 +675,6 @@ module Zena
               res[:value] = sub_attr
             end
 
-            #if @context[:in_add]
-            #  res[:value] = (params[:value] || params[:set_value]) ? ["'#{ helper.fquote(params[:value])}'"] : ["''"]
-            #elsif @context[:in_filter]
-            #  res[:value] = attribute ? ["'<%= fquote params[#{attribute.to_sym.inspect}] %>'"] : ["''"]
-            #elsif params[:value]
-            #  res[:value] = ["'#{ helper.fquote(params[:value])}'"]
-            #else
-            #  if nattr != 'nil'
-            #    res[:value] = ["'<%= fquote #{nattr} %>'"]
-            #  else
-            #    res[:value] = ["''"]
-            #  end
-            #end
           elsif node.will_be?(Column)
             res[:erb_attr] = "<%= #{node}.name %>"
             res[:name]  = "node[<%= #{node}.name %>]"
@@ -725,8 +700,12 @@ module Zena
               res[k] = params[k]
             end
           end
-
-          return [res, attribute]
+          
+          if sub_attr
+            return [res, "#{attribute}_#{sub_attr}"]
+          else
+            return [res, attribute]
+          end
         end
 
         # TODO: add parent_id into the form !
@@ -840,16 +819,32 @@ module Zena
               options_list.inspect
             elsif code = @params[:eval]
               ruby = ::RubyLess.translate(self, code)
-              if !ruby.klass.kind_of?(Array)
-                return parser_error("invalid eval: should return an Array (found #{ruby.klass})")
+              if ruby.klass.kind_of?(Array)
+                if ruby.klass.first <= String
+                  ruby
+                else
+                  return parser_error("cannot extract values from eval (not a String list: [#{ruby.klass.first}])")
+                end
+              elsif ruby.klass <= String
+                if ruby.could_be_nil?
+                  ruby = "(#{ruby} || '')"
+                else
+                  ruby = "(#{ruby})"
+                end
+                
+                dict = get_context_var('set_var', 'dictionary')
+
+                if dict && dict.klass <= ::Zena::Use::I18n::TranslationDict
+                  trans = "#{dict}.get"
+                else
+                  trans = "trans"
+                end
+                
+                ruby = "#{ruby}.split(',').map(&:strip).map {|e| [#{trans}(e), e]}"
+              else
+                return parser_error("invalid eval: should return an Array or String (found #{ruby.klass})")
               end
 
-              if ruby.klass.first <= String
-                # ok
-                ruby
-              else
-                return parser_error("cannot extract values from eval (not a String list: [#{ruby.klass.first}])")
-              end
             end
           end
 

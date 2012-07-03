@@ -79,13 +79,13 @@ vclass_roles:
     node: letter
   src: "<r:vclass do='roles' do='each' join=', '><r:name/> (<r:columns do='each' join=',' do='name'/>)</r:vclass>"
   tem: "/var1 = @node\.virtual_class .* var2 = var1.sorted_roles/"
-  res: "Node (summary,text,title), Original (origin,tz,weight), Task (assigned), Letter (paper,search,search_mono)"
+  res: "Node (summary,text,title), Original (origin,settings,tz,weight), Task (assigned), Letter (paper,search,search_mono)"
 
 vclass_column_size:
   context:
     node: letter
   src: "<r:vclass do='roles' do='each' join=', '><r:name/> (<r:columns do='size'/>)</r:vclass>"
-  res: "Node (3), Original (3), Task (1), Letter (3)"
+  res: "Node (3), Original (4), Task (1), Letter (3)"
 
 vclass_context:
   src: "<r:Image><r:name/></r:Image>"
@@ -111,7 +111,7 @@ grid_manual:
       <tr do='Image' do='roles' do='each' do='columns'><th do='each' do='name'/></tr>
       <tr do='each'><r:Image do='roles' do='each' do='columns'><td do='each' do='@node.send(name)'/></r:Image></tr>
     </table>
-  res: "/<th colspan='3'>Node.*<th colspan='3'>Original.*<th>exif</th><th>height</th><th>width</th>.*<td>image/jpeg</td><td>jpg</td>/"
+  res: "/<th colspan='3'>Node.*<th colspan='4'>Original.*<th>exif</th><th>height</th><th>width</th>.*<td>image/jpeg</td><td>jpg</td>/"
 
 list_relations:
   src: "<r:Contact do='relations' do='each' join=', ' do='name'/>"

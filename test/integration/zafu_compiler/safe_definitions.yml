@@ -148,3 +148,14 @@ hash_to_params:
   src: "<b do='{:q => params[:q]}' do='to_param'/>"
   tem: "<% var1 = {:q => params[:q]} %><b><%= var1.to_param %></b>"
   res: '<b>q%5Bone%5D=1&q%5Btwo%5D=2</b>'
+
+string_hash:
+  src: "<b do='set' a='string_hash'>AAA<r:eval>a['foo']</r:eval></b>"
+  res: "<b>AAA</b>"
+  tem: "/StringHash.new/"
+  
+string_hash_with_params:
+  src: "<b do='set' a='string_hash(:foo => \"men\")'>AAA<r:eval>a['foo']</r:eval></b>"
+  res: "<b>AAAmen</b>"
+  tem: "/StringHash.from_hash\(\{:foo => \"men\"\}\)/"
+  

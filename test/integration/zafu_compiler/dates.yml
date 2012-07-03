@@ -149,7 +149,7 @@ input_date:
   context:
     node: opening
   src: "<r:Post?><r:input type='date' name='date'/></r:Post?>"
-  tem: '/date_box\(@node, "date", :value => @node.prop\[.date.\], :size => 15\)/'
+  tem: '/date_box\(@node, "node\[date\]", :value => @node.prop\[.date.\], :size => 15\)/'
   res: "/value='2006-03-15 01:00'/"
 
 input_date_no_time:
@@ -159,6 +159,14 @@ input_date_no_time:
   tem: '/:time => "false"/'
   res: "/value='2006-03-15'/"
   js: "/showsTime *: *false/"
+
+label_on_hash:
+  src: "<r:input name='settings[foo]' label='t'/>"
+  res: "<label>settings_foo</label> <span><input type='text' name='node[settings][foo]' value=''/></span>"
+
+date_on_hash:
+  src: "<r:input name='settings[foo]' type='date'/>"
+  res: "/<input id='.*' name='node\[settings\]\[foo\]' type='text' size='15' value='' class=''/>/"
 
 test_date:
   # test with 'date' tests contextual date (main_date).

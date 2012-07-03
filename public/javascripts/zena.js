@@ -1031,9 +1031,9 @@ Zena.do = function(method, dom, query) {
       });
     }
   } else {
-    query.t_url = $(document.body).getAttribute('data-t') + '/' + (dom.getAttribute('data-t') || dom.id)
     query.dom_id = dom.id
     if (!query.s) query.s = $(document.body).getAttribute('data-z')
+    if (!query.t_url) query.t_url = $(document.body).getAttribute('data-t') + '/' + (dom.getAttribute('data-t') || dom.id)
     new Ajax.Request(url, {
       method:method,
       parameters:Zena.prepare_query(query),

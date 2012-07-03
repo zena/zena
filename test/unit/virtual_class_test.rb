@@ -2,7 +2,9 @@
 require 'test_helper'
 
 class VirtualClassTest < Zena::Unit::TestCase
-
+  POST_PROPERTIES = %w{assigned cached_role_ids date origin settings summary text title tz weight}
+  NOTE_PROPERTIES = %w{assigned cached_role_ids origin settings summary text title tz weight}
+  
   def test_virtual_subclasse
     # add a sub class
     login(:lion)
@@ -318,7 +320,7 @@ class VirtualClassTest < Zena::Unit::TestCase
       end
 
       should 'return a loaded virtual class' do
-        assert_equal %w{assigned cached_role_ids date origin summary text title tz weight}, subject.column_names.sort
+        assert_equal POST_PROPERTIES, subject.column_names.sort
       end
 
       context 'related to a real class' do
@@ -332,7 +334,7 @@ class VirtualClassTest < Zena::Unit::TestCase
         end
 
         should 'return a loaded virtual class' do
-          assert_equal %w{assigned cached_role_ids origin summary text title tz weight}, subject.column_names.sort
+          assert_equal NOTE_PROPERTIES, subject.column_names.sort
         end
       end # related to a real class
 
@@ -354,7 +356,7 @@ class VirtualClassTest < Zena::Unit::TestCase
       end
 
       should 'return a loaded virtual class' do
-        assert_equal %w{assigned cached_role_ids date origin summary text title tz weight}, subject.column_names.sort
+        assert_equal POST_PROPERTIES, subject.column_names.sort
       end
     end # with an id
 
@@ -375,7 +377,7 @@ class VirtualClassTest < Zena::Unit::TestCase
       end
 
       should 'return a loaded virtual class' do
-        assert_equal %w{assigned cached_role_ids date origin summary text title tz weight}, subject.column_names.sort
+        assert_equal POST_PROPERTIES, subject.column_names.sort
       end
 
       context 'related to a real class' do
@@ -389,7 +391,7 @@ class VirtualClassTest < Zena::Unit::TestCase
         end
 
         should 'return a loaded virtual class' do
-          assert_equal %w{assigned cached_role_ids origin summary text title tz weight}, subject.column_names.sort
+          assert_equal NOTE_PROPERTIES, subject.column_names.sort
         end
       end # related to a real class
     end # with a name
@@ -496,7 +498,7 @@ class VirtualClassTest < Zena::Unit::TestCase
     should 'load new role from cache' do
       subject
       # no more linked to assigned
-      assert_equal %w{assigned cached_role_ids date foo origin summary text title tz weight}, VirtualClass['Post'].column_names.sort
+      assert_equal %w{assigned cached_role_ids date foo origin settings summary text title tz weight}, VirtualClass['Post'].column_names.sort
     end
 
   end # Creating a Column
@@ -534,7 +536,7 @@ class VirtualClassTest < Zena::Unit::TestCase
     should 'load new role from cache' do
       subject
       # change name
-      assert_equal %w{assigned cached_role_ids date origin summary text title toz weight}, VirtualClass['Post'].column_names.sort
+      assert_equal POST_PROPERTIES.map{|p| p == 'tz' ? 'toz' : p}, VirtualClass['Post'].column_names.sort
     end
 
   end # Updating a Column
@@ -572,7 +574,7 @@ class VirtualClassTest < Zena::Unit::TestCase
     should 'load new role from cache' do
       subject
       # no more linked to assigned
-      assert_equal %w{assigned cached_role_ids date origin summary text title weight}, VirtualClass['Post'].column_names.sort
+      assert_equal %w{assigned cached_role_ids date origin settings summary text title weight}, VirtualClass['Post'].column_names.sort
     end
 
   end # Deleting a Column
@@ -641,7 +643,7 @@ class VirtualClassTest < Zena::Unit::TestCase
       end
 
       should 'return safe column types' do
-        assert_equal %w{assigned origin summary text title tz weight}, subject.safe_column_types.keys.sort
+        assert_equal %w{assigned origin settings summary text title tz weight}, subject.safe_column_types.keys.sort
       end
 
       should 'return nil on unsafe method type' do
@@ -676,7 +678,7 @@ class VirtualClassTest < Zena::Unit::TestCase
         end
 
         should 'return safe columns' do
-          assert_equal %w{summary text title assigned origin tz weight}, subject.safe_columns.map(&:name)
+          assert_equal %w{summary text title assigned origin settings tz weight}, subject.safe_columns.map(&:name)
         end
 
         should 'return defined safe columns' do
@@ -684,7 +686,7 @@ class VirtualClassTest < Zena::Unit::TestCase
         end
 
         should 'return safe column types' do
-          assert_equal %w{assigned origin summary text title tz weight}, subject.safe_column_types.keys.sort
+          assert_equal %w{assigned origin settings summary text title tz weight}, subject.safe_column_types.keys.sort
         end
 
         should 'not include unsafe properties in safe column types' do
@@ -710,7 +712,7 @@ class VirtualClassTest < Zena::Unit::TestCase
       end
 
       should 'return safe columns' do
-        assert_equal %w{summary text title assigned origin tz weight date}, subject.safe_columns.map(&:name)
+        assert_equal %w{summary text title assigned origin settings tz weight date}, subject.safe_columns.map(&:name)
       end
 
       should 'return defined safe columns' do
@@ -718,7 +720,7 @@ class VirtualClassTest < Zena::Unit::TestCase
       end
 
       should 'return safe column types' do
-        assert_equal %w{assigned date origin summary text title tz weight}, subject.safe_column_types.keys.sort
+        assert_equal %w{assigned date origin settings summary text title tz weight}, subject.safe_column_types.keys.sort
       end
 
       should 'return type on safe method type' do

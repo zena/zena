@@ -11,6 +11,9 @@ Original_origin:
 Original_weight:
   ptype:           integer
 
+Original_settings:
+  ptype:           hash
+  
 Original_tz:
 
 Letter_paper:

@@ -101,7 +101,7 @@ module Zena
               next unless role.class == Role && role.id
               role_ids << role.id if role.column_names & keys != []
             end
-
+            
             prop['cached_role_ids'] = role_ids
           end
 

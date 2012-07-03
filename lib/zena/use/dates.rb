@@ -134,9 +134,9 @@ module Zena
       	  # fld = Zafu::Markup.new('input')
       	  # fld.params = (opts[:html] || {}).merge(:name => "node[#{name}]", :id => opts[:id], :type => 'text', :value => value)
       	  if opts[:size]
-            fld = "<input id='#{opts[:id]}' name='node[#{name}]' type='text' size='#{opts[:size]}' value='#{value}' class='#{opts[:class]}'/>"
+            fld = "<input id='#{opts[:id]}' name='#{name}' type='text' size='#{opts[:size]}' value='#{value}' class='#{opts[:class]}'/>"
           else
-            fld = "<input id='#{opts[:id]}' name='node[#{name}]' type='text' value='#{value}' class='#{opts[:class]}'/>"
+            fld = "<input id='#{opts[:id]}' name='#{name}' type='text' value='#{value}' class='#{opts[:class]}'/>"
           end
 
           js_data << %Q{Calendar.setup({

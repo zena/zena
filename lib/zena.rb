@@ -222,7 +222,7 @@ module Zena
     def init
       config = Rails.configuration
       enable_tools
-      puts "** zena #{Zena::VERSION} starting (c) Gaspard Bucher 2011"
+      puts "** zena #{Zena::VERSION} starting (c) Gaspard Bucher 2012"
       puts "** Bricks: #{Bricks::CONFIG.map{|k,v| k}.sort.join(', ')}"
 
       add_load_paths(config)

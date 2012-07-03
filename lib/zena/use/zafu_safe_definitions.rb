@@ -97,6 +97,8 @@ module Zena
 
         safe_method :params => ParamsDictionary
         safe_method :now    => {:method => 'Time.now', :class => Time}
+        safe_method :string_hash => {:method => 'StringHash.new', :class => StringHash}
+        safe_method [:string_hash, Hash] => {:method => 'StringHash.from_hash', :class => StringHash}
         safe_method [:h, String] => {:class => String, :nil => true}
         safe_method_for String, [:gsub, Regexp, String] => {:class => String, :pre_processor => true}
         safe_method_for String, :upcase    => {:class => String, :pre_processor => true}

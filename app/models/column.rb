@@ -83,13 +83,21 @@ class Column < ActiveRecord::Base
       end
     elsif ptype == 'hash'
       if value.kind_of?(Hash)
-        StringHash[value]
-      else
-        nil
+        StringHash.from_hash(value)
+      elsif value.kind_of?(String)
+        StringHash.from_string(value)
       end
     else
       nil
     end
+  end
+  
+  def merge_hash(orig, value)
+    unless orig.kind_of?(StringHash)
+      orig = StringHash.from_hash(orig)
+    end
+    orig.merge!(value)
+    return orig
   end
   
   def klass

@@ -12,13 +12,7 @@ module Zafu
 
             if join = @params[:join]
               join = RubyLess.translate_string(self, join)
-              #if join_clause = @params[:join_if]
-              #  set_stored(Node, 'prev', "#{var}_prev")
-              #  cond = get_test_condition(var, :test=>join_clause)
-              #  out "<%= #{var}_prev = #{node}[#{var}_index - 1]; (#{var}_index > 0 && #{cond}) ? #{join.inspect} : '' %>"
-              #else
-                out "<%= #{var}_index > 0 ? #{join} : '' %>"
-              #end
+              out "<%= #{var}_index > 0 ? #{join} : '' %>"
             end
 
             if alt_class = @params[:alt_class]
