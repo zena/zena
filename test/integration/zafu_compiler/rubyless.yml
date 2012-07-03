@@ -87,3 +87,13 @@ role_existing_class_name:
   # Should understand 'Comment' as a Role.
   src: "<r:Comment?>xx</r:Comment?>"
   tem: "/<% if @node.has_role\?\(\d+\) %>xx<% end %>/"
+
+class_new:
+  src: "<div do='set' p='Post.new'><p do='p.klass'/>.<p do='p.title'/></div>"
+  tem: "/VirtualClass\[.Post.\].zafu_new.*_zp.klass.*_zp.prop\[.title.\]/"
+  res: "<div><p>Post</p>.<p></p></div>"
+  
+class_new_with_attr:
+  src: "<div do='set' p='Post.new(:title => \"yes\")'><p do='p.klass'/>.<p do='p.title'/></div>"
+  tem: "/VirtualClass\[.Post.\].zafu_new.*_zp.klass.*_zp.prop\[.title.\]/"
+  res: "<div><p>Post</p>.<p>yes</p></div>"

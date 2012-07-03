@@ -11,6 +11,7 @@
  * No need to use '&gt;' or '&lt;' in html params. \' escape works. Yeah !!
  * Enabled "static" assets with symlink to skins in static bricks (/static/[brick]-[skin]/xxx.css => bricks/[brick]/skins/[skin]/static/xxx.css)
  * No more strict scoping: "set" variables are rewritten if type matches.
+ * Added support for new in rubyless (Post.new, Post.new(:title => 'foo')).
 
 * Minor changes
  * Fixed label traduction for param.

@@ -58,8 +58,16 @@ class VirtualClass < Role
   safe_method  [:relations, String] => {:class => ['RelationProxy'], :method => 'filtered_relations'}
   # All columns defined for a VirtualClass (kpath based).
   safe_method :all_columns => {:class => ['Column'], :method => 'safe_columns'}
-
-
+  
+  # Methods on VirtualClass['Post'] instances, not nodes.
+  def self.safe_method_type(signature, receiver)
+    if signature.first == 'new'
+      {:method => 'zafu_new', :class => receiver.literal}
+    else
+      super
+    end
+  end
+  
   class Cache
     def initialize
       clear_cache!
@@ -473,6 +481,11 @@ class VirtualClass < Role
   # Build new nodes instances of this VirtualClass
   def new_instance(hash={})
     real_class.new(hash, self)
+  end
+  
+  # Build new nodes instances of this VirtualClass from zafu.
+  def zafu_new(hash={})
+    real_class.new(Node.transform_attributes(hash.stringify_keys), self)
   end
 
   # Create new nodes instances of this VirtualClass
