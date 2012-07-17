@@ -99,6 +99,23 @@ class ScopeIndexTest < Zena::Unit::TestCase
       end
     end # deleting a sub node
 
+    context 'deleting a node' do
+      subject do
+        blog = nil
+        assert_difference('IdxProject.count', 1) do
+          blog = secure(Node) { Node.create_node(:parent_id => @project.zip, :v_status => Zena::Status::Pub, :klass => 'Blog', :title => 'Life threat') }
+        end
+        blog
+      end
+
+      should 'rebuild target indexes' do
+        node = subject
+        assert_difference('IdxProject.count', -1) do
+          node.destroy
+        end
+      end
+    end # deleting a sub node
+
     context 'moving a sub node' do
       subject do
         secure(Node) { VirtualClass['Contact'].create_instance(:first_name => 'Friedrich', :name => 'Hölderlin', :parent_id => nodes_id(:zena), :v_status => Zena::Status::Pub) }

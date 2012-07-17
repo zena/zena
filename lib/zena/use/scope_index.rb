@@ -233,6 +233,7 @@ module Zena
             update_scope_indices_on_prop_change(true)
             # How can we handle this ?
             # update_scope_indices_on_link_change
+            scope_index.destroy
           end
 
           def update_scope_indices_on_prop_change(deleted=false)
