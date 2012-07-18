@@ -95,8 +95,10 @@ class Acl < ActiveRecord::Base
         errors.add(:query, err.message)
       end
       nil
+    rescue RubyLess::SyntaxError => err
+      errors.add(:query, err.message.strip)
     rescue => err
-      errors.add(:query, err.message)
+      errors.add(:query, err.message.strip)
       nil
     end
 end

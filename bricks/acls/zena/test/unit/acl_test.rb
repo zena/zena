@@ -65,6 +65,22 @@ class AclTest < Zena::Unit::TestCase
       end
     end # saving an acl with asset_host in query
 
+    context 'saving an acl with an error in rubyless syntax' do
+      subject do
+        acls(:rap)
+      end
+
+      should 'return an error' do
+        erebus_id = groups_id(:erebus)
+        visitor.instance_eval do
+          @group_ids = self.group_ids + [erebus_id]
+        end
+        assert !subject.update_attributes(:query => "nodes in site")
+        err subject
+        assert_equal 'parse error on value ["in", 1] (kIN)', subject.errors[:query]
+      end
+    end # saving an acl with asset_host in query
+
 
     context 'a visitor' do
       context 'with normal access' do
