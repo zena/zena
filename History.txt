@@ -30,6 +30,7 @@
  * Fixed kpath propagation to relations on kpath change.
  * Fixed [block] in [block] with [filter] bug.
  * Added support for KPATH_VALUE(ClassName) in custom queries. <==== TODO: Document
+ * Fixed class scoping Contact? when current node is more specialized.
 
 == 1.2.0, 1.2.1 2012-05-01
 
