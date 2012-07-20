@@ -185,6 +185,7 @@ class Node < ActiveRecord::Base
   before_create      :node_before_create
   after_save         :spread_project_and_section
   after_create       :node_after_create
+  after_destroy      :node_after_destroy
   attr_protected     :zip, :id, :section_id, :project_id, :publish_from, :created_at, :updated_at
   attr_protected     :site_id
 
@@ -1349,11 +1350,12 @@ class Node < ActiveRecord::Base
   end
 
   # TODO: test
-  def sweep_cache(opts = {})
-    return if current_site.being_created?
+  def sweep_cache
+    return true if current_site.being_created?
 
     # Clear element cache
-    Cache.sweep(:visitor_id=>self[:user_id], :visitor_groups=>[rgroup_id, wgroup_id, dgroup_id], :kpath=>self.vclass.kpath)
+    # Partial cache not used
+    # Cache.sweep(:visitor_id=>self[:user_id], :visitor_groups=>[rgroup_id, wgroup_id, dgroup_id], :kpath=>self.vclass.kpath)
 
     # Clear full result cache
 
@@ -1362,11 +1364,12 @@ class Node < ActiveRecord::Base
     # FIXME: use self + modified relations instead of parent/project
     [self, self.real_project(false), self.real_section(false), self.parent(false)].compact.uniq.each do |obj|
       # destroy all pages in project, parent and section !
-      CachedPage.expire_with(obj, opts)
+      CachedPage.expire_with(obj)
     end
 
     # clear assets
     FileUtils::rmtree(asset_path(''))
+    true
   end
 
   # Include data entry verification in multiversion's empty? method.
@@ -1657,15 +1660,18 @@ class Node < ActiveRecord::Base
         Discussion.create(:node_id=>self[:id], :lang=>v_lang, :inside => false)
       end
     end
+    
+    def node_after_destroy
+      sweep_cache
+    end
 
     # Called after a node is 'unpublished'
     def after_unpublish
       if !self[:publish_from] && !@new_record_before_save
         # not published any more. 'unpublish' documents
         sync_documents(:unpublish)
-      else
-        true
       end
+      sweep_cache
     end
 
     def after_redit
@@ -1675,8 +1681,10 @@ class Node < ActiveRecord::Base
 
     # Called after a node is 'removed'
     def after_remove
-      return true if @new_record_before_save
-      sync_documents(:remove)
+      if !@new_record_before_save
+        sync_documents(:remove)
+      end
+      sweep_cache
     end
 
     # Called after a node is 'proposed'
@@ -1693,8 +1701,23 @@ class Node < ActiveRecord::Base
 
     # Called after a node is published
     def after_publish
-      return true if @new_record_before_save
-      sync_documents(:publish)
+      if !@new_record_before_save
+        sync_documents(:publish)
+      end
+      sweep_cache
+    end
+    
+    # Called after a node is modified and directly published.
+    def after_auto_publish
+      sweep_cache
+    end
+    
+    # Called after a node is published
+    def after_publish
+      if !@new_record_before_save
+        sync_documents(:publish)
+      end
+      sweep_cache
     end
 
     # Publish, refuse, propose the Documents of a redaction
@@ -1731,7 +1754,6 @@ class Node < ActiveRecord::Base
     # This method is run whenever 'apply' is called.
     def after_all
       return unless super
-      sweep_cache
       if @add_comment
         # add comment
         @discussion ||= self.discussion

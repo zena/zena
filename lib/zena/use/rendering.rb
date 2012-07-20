@@ -207,14 +207,16 @@ module Zena
             headers['Cache-Control'] = (!current_site.authentication? && @node.public?) ? 'public' : 'private'
           end
 
-          return unless perform_caching && caching_allowed(:authenticated => opts.delete(:authenticated))
-          url = page_cache_file(opts.delete(:url))
-          opts = {:expire_after  => nil,
-                  :path          => (current_site.public_path + url),
-                  :content_data  => response.body,
-                  :node_id       => @node[:id]
-                  }.merge(opts)
-          secure!(CachedPage) { CachedPage.create(opts) }
+          if perform_caching && caching_allowed(:authenticated => opts.delete(:authenticated))
+          
+            url = page_cache_file(opts.delete(:url))
+            opts = {:expire_after  => nil,
+                    :path          => (current_site.public_path + url),
+                    :content_data  => response.body,
+                    :node_id       => @node[:id]
+                    }.merge(opts)
+            secure!(CachedPage) { CachedPage.create(opts) }
+          end
         end
 
         # Return true if we can cache the current page

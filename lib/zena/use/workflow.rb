@@ -409,8 +409,7 @@ module Zena
 
       def apply_with_callbacks(method, *args)
         if apply_without_callbacks(method, *args)
-          # TODO: we should build callback from @current_transition.name
-          callback = :"after_#{method}"
+          callback = :"after_#{@current_transition[:name]}"
           if respond_to?(callback, true)
             send(callback)
           else

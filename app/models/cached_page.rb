@@ -68,12 +68,8 @@ class CachedPage < ActiveRecord::Base
     end
 
     # Remove cached pages related to the given node.
-    def expire_with(node, opts = {})
-      if opts
-        expire(node.cached_pages.find(:all, opts))
-      else
-        expire(node.cached_pages)
-      end
+    def expire_with(node)
+      expire(node.cached_pages)
     end
 
     private
@@ -127,7 +123,6 @@ class CachedPage < ActiveRecord::Base
     def cached_page_on_destroy
       # allow ../public for single site mode
       filepath = "#{SITES_ROOT}#{path.gsub(%r{\.\./(?!public)},'NO/')}" # just in case...
-      CachedPage.logger.info "remove #{filepath}"
       # if symlink points to a dead file, exist? returns false...
       FileUtils.rm(filepath) if File.exist?(filepath) || File.symlink?(filepath)
       CachedPage.connection.execute "DELETE FROM cached_pages_nodes WHERE cached_page_id = '#{id}'"
