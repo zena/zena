@@ -40,3 +40,10 @@ node_eval:
   src: "<r:void do='@node.eval(\"title\")'/>"
   tem: "<%= @node.zafu_eval(\"title\") %>"
   res: "status title"
+
+node_eval_array:
+  context:
+    node: opening
+  src: "<r:void do='@node.eval(\"set_tag_ids\")'/>"
+  tem: "<%= @node.zafu_eval(\"set_tag_ids\") %>"
+  res: "33,34"

@@ -952,6 +952,8 @@ class Node < ActiveRecord::Base
       value
     elsif value.kind_of?(Time)
       format_date(value, opts)
+    elsif value.kind_of?(Array)
+      value.join(',')
     else
       value.to_s
     end
