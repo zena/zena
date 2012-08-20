@@ -25,6 +25,20 @@ multiline_rtag:
       content='text/html; charset=utf-8' /><r:title/>
   tem: '!/r:title/'
 
+cdata:
+  src: |
+    <script type='text/javascript'>
+      <![CDATA[
+      var urls = [<r:images in='site limit 2' do='each' join=', '>'<r:url mode='med' format='data'/>'</r:images>];
+      //]]>
+    </script>
+  res: |
+    <script type='text/javascript'>
+      <![CDATA[
+      var urls = ['http://test.host/oo/image40_med.jpg?390663777446', 'http://test.host/en/image30_med.jpg?390663777446'];
+      //]]>
+    </script>
+
 multiline_tag:
   src: |
     <div id='extract'>

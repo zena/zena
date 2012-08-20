@@ -140,13 +140,14 @@ module Zafu
           if @text[2..3] == '--'
             store space
             scan_html_comment
+          elsif @text[2..8] == '[CDATA['
+            # We do not flush because space has been eaten
+            store space
+            flush '<![CDATA['
           elsif @text =~ /\A\s*<([^>]+)>/m
             # Doctype/xml
             flush $&
           end
-        elsif @text[0..8] == '<![CDATA['
-          store space
-          flush '<![CDATA['
         elsif $1.last == ' ' && @text[0..1] == '< '
           # solitary ' < '
           store space
