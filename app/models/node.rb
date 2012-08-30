@@ -1351,8 +1351,7 @@ class Node < ActiveRecord::Base
     visitor.commentator? && discussion && discussion.open?
   end
 
-  # TODO: test
-  def sweep_cache
+  def sweep_cache(filter = nil)
     return true if current_site.being_created?
 
     # Clear element cache
@@ -1366,7 +1365,7 @@ class Node < ActiveRecord::Base
     # FIXME: use self + modified relations instead of parent/project
     [self, self.real_project(false), self.real_section(false), self.parent(false)].compact.uniq.each do |obj|
       # destroy all pages in project, parent and section !
-      CachedPage.expire_with(obj)
+      CachedPage.expire_with(obj, filter)
     end
 
     # clear assets
@@ -1711,14 +1710,6 @@ class Node < ActiveRecord::Base
     
     # Called after a node is modified and directly published.
     def after_auto_publish
-      sweep_cache
-    end
-    
-    # Called after a node is published
-    def after_publish
-      if !@new_record_before_save
-        sync_documents(:publish)
-      end
       sweep_cache
     end
 

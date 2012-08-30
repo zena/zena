@@ -13,6 +13,7 @@ if (Prototype.Browser.WebKit) {
 
 Grid.log = function(what, msg) {
   var log = $('log')
+  if (typeof(msg) != 'string') msg = Object.toJSON(msg)
   log.innerHTML = log.innerHTML + '<br/><b>' + what + '</b> ' + msg
 }
 
@@ -104,9 +105,19 @@ Grid.closeCell = function(e) {
   if (Grid.in_paste) return
   var cell = e.tagName ? e : e.element().up()
   var table = cell.up('table')
-  var val  = Grid.getValue(cell)
   var prev = cell.prev_value
-  cell.removeClassName('input')
+  var val  = Grid.getValue(cell)
+
+  if (table.grid.list_name) {
+    if (val.value == 'on') {
+      cell.addClassName('on')
+    } else {
+      cell.removeClassName('on')
+    }
+  } else {
+    cell.removeClassName('input')
+  }
+
   Grid.changed(cell, val, prev)
 
   if (table.grid.input) {
@@ -300,49 +311,58 @@ Grid.isReadOnly = function(cell) {
 
 Grid.openCell = function(cell) {
   if (cell.hasClassName('input') || Grid.isReadOnly(cell)) return;
-  var value = cell.getAttribute('data-v') || cell.innerHTML;
+  var val = Grid.getValue(cell)
+  cell.prev_value = val;
 
-  if (!cell.orig_value) cell.orig_value = value;
-  cell.prev_value = { value: value, show: cell.innerHTML }
-
-  var w = cell.getWidth() - 5;
-  var h = cell.getHeight() - 5;
-  cell.addClassName('input');
-  
-  // Try to find a form for the cell
+  var value = val.value
   var table = cell.up('table')
-  var input
-  if (table.grid.helper && cell.tagName != 'TH') {
-    var pos = Grid.pos(cell);
-    input = table.grid.helper[pos];
-    if (input) {
-      input = Element.clone(input, true)
-      cell.update(input)
-      if (input.type == 'checkbox') {
-        if (value == input.value) {
-          input.checked = true
+
+  if (table.grid.list_name) {
+    if (value == 'on') {
+      cell.setAttribute('data-v', 'off')
+    } else {
+      cell.setAttribute('data-v', 'on')
+    }
+    Grid.closeCell(cell)
+  } else {
+    var w = cell.getWidth() - 5
+    var h = cell.getHeight() - 5
+    cell.addClassName('input')
+    
+    // Try to find a form for the cell
+    var input
+    if (table.grid.helper && cell.tagName != 'TH') {
+      var pos = Grid.pos(cell)
+      input = table.grid.helper[pos]
+      if (input) {
+        input = Element.clone(input, true)
+        cell.update(input)
+        if (input.type == 'checkbox') {
+          if (value == input.value) {
+            input.checked = true
+          }
+        } else {
+          if (value && value.strip() != '') input.value = value
         }
-      } else {
-        if (value && value.strip() != '') input.value = value
       }
     }
+    
+    if (!input) {
+      // default input field
+      cell.update(Grid.default_input)
+      input = cell.childElements()[0]
+      input.value = value
+    }
+    input.setStyle({
+      width: w + 'px',
+      height: h + 'px'
+    })
+    input.observe('blur', Grid.closeCell)
+    input.observe('keydown', Grid.keydown)
+    input.observe('paste', Grid.paste)
+    input.focus()
+    input.select()
   }
-  
-  if (!input) {
-    // default input field
-    cell.update(Grid.default_input)
-    input = cell.childElements()[0]
-    input.value = value
-  }
-  input.setStyle({
-    width: w + 'px',
-    height: h + 'px'
-  });
-  input.observe('blur', Grid.closeCell);
-  input.observe('keydown', Grid.keydown);
-  input.observe('paste', Grid.paste);
-  input.focus();
-  input.select();
 }
 
 Grid.click = function(event) {
@@ -719,6 +739,7 @@ Grid.make = function(table, opts) {
   
   // Detect type.
   table.grid.attr_name = table.getAttribute('data-a');
+  table.grid.list_name = table.getAttribute('data-l');
 
   var empty = false;
   if (table.grid.attr_name && table.select('th').length == 0) {
@@ -786,7 +807,10 @@ Grid.save = function(grid_id) {
   setTimeout(function() {
     var table = Grid.grids[grid_id]
     var grid  = table.grid
-    var data  = $H(Grid.compact(grid.changes))
+    var data  = Grid.compact(grid.changes)
+    if (grid.list_name) {
+      data = Grid.dataForList(grid, data)
+    }
     var todo_count = data.keys().length
     var done_count = 0
     if (grid.onStart) {
@@ -864,7 +888,7 @@ Grid.undo = function(grid_id, skip_undone) {
   var grid = table.grid
   var changes = grid.changes
   var last = changes.last()
-  if (last._new) return
+  if (!last || last._new) return
   var group = false
   if (last == 'end') {
     group = true
@@ -887,6 +911,14 @@ Grid.undo = function(grid_id, skip_undone) {
       [cell, cell.up()].invoke('addClassName', 'changed')
     }
     cell.addClassName('undone')
+    if (grid.list_name) {
+      cell.setAttribute('data-v', value)
+      if (value == 'on') {
+        cell.addClassName('on')
+      } else {
+        cell.removeClassName('on')
+      }
+    }
   }
   if (group) {
     while (changes.last() != 'start') {
@@ -920,15 +952,60 @@ Grid.compact = function(list) {
       }
     }
   }
-  return res;
+  return $H(res);
+}
+
+Grid.test = function() {
+  var grid = $('grid').grid
+  var data = Grid.compact(grid.changes)
+  return Grid.dataForList(grid, data)
+}
+
+// Build the changes array when we have a list. This function
+// detects which rows have changes and builds the full list of
+// ids in the format some_relation_ids:"123,345,888,432". Other fields
+// are kept as is.
+Grid.dataForList = function(grid, data) {
+  var res = {}
+  var list_name = grid.list_name
+  data.each(function(pair) {
+    var obj = {}
+    var base = pair.value
+    res[pair.key] = obj
+    for (var key in base) {
+      if (parseInt(key) + '' == key) {
+        // number key = there is a change in the list
+        if (!obj[list_name]) {
+          // build full list
+          var list = []
+          var row = $(pair.key)
+          var cells = row.childElements()
+          for (var i = 0; i < cells.length - 1; i++) {
+            var cell = cells[i]
+            var attr = grid.attr[i]
+            if (attr && (parseInt(attr) + '' == attr)) {
+              // number attr key
+              if (cell.getAttribute('data-v') == 'on') list.push(attr)
+            }
+          }
+          obj[list_name] = list.join(',')
+        }
+      } else {
+        // keep other attributes unchanged
+        obj[key] = base[key]
+      }
+    }
+  })
+  return $H(res)
 }
 
 Grid.notify = function(table, changes) {
   var rows = table.childElements()[0].select('tr')
-  var pos = table.grid.pos
+  var grid = table.grid
+  var pos = grid.pos
   for (var obj_id in changes) {
     var row
-    if (table.grid.attr_name) {
+    if (grid.attr_name) {
       // attr table
       row = rows[parseInt(obj_id)+1]
     } else {
@@ -938,18 +1015,40 @@ Grid.notify = function(table, changes) {
     var change = changes[obj_id]
     for (var attr in change) {
       if (attr == 'id') continue
-      var cell
-      var i = pos[attr]
-      if (i == undefined) continue
-      cell = cells[i]
-      cell.removeClassName('changed')
-      cell.removeClassName('error')
-      if (cell.getAttribute('data-v') != change[attr]) {
-        cell.innerHTML = change[attr]
+      if (attr == grid.list_name) {
+        var list_on = change[attr].split(/,/)
+        var cells = row.childElements()
+        for (var i = 0; i < cells.length - 1; i++) {
+          var attr = grid.attr[i]
+          var cell = cells[i]
+          if (parseInt(attr) + '' == attr) {
+            if (list_on.indexOf(attr) >= 0) {
+              cell.orig_value = 'on'
+              cell.setAttribute('data-v', 'on')
+            } else {
+              cell.orig_value = 'off'
+              cell.setAttribute('data-v', 'off')
+            }
+            cell.prev_value = undefined
+            cell.removeClassName('error')
+            cell.removeClassName('changed')
+            cell.addClassName('saved')
+          }
+        }
+      } else {
+        var cell
+        var i = pos[attr]
+        if (i == undefined) continue
+        cell = cells[i]
+        cell.removeClassName('changed')
+        cell.removeClassName('error')
+        if (cell.getAttribute('data-v') != change[attr]) {
+          cell.innerHTML = change[attr]
+        }
+        cell.orig_value = change[attr]
+        cell.prev_value = undefined
+        cell.addClassName('saved')
       }
-      cell.orig_value = change[attr]
-      cell.prev_value = undefined
-      cell.addClassName('saved')
     }
     row.removeClassName('new')
     row.removeClassName('error')
@@ -1010,7 +1109,7 @@ Tags.click = function(event) {
       list.splice(i, 1)
     }
   }
-  tags.onChange(list, e, false)
+  tags.onChange(list, e)
 }
 
 Tags.add = function(event) {
@@ -1024,7 +1123,7 @@ Tags.add = function(event) {
     }
   }
   list.push(value)
-  tags.onChange(list, false, value)
+  tags.onChange(list)
 }
 
 Tags.make = function(elem, opts) {
@@ -1034,7 +1133,7 @@ Tags.make = function(elem, opts) {
   var list = []
   tags.list = list
   elem.childElements().each(function(e) {
-    var input = (e.select('input,select') || []).first()
+    var input = e.select('input,select').first()
     if (input) {
       input.tags = tags
       input.observe('change', Tags.add)

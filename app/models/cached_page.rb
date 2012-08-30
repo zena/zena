@@ -68,8 +68,13 @@ class CachedPage < ActiveRecord::Base
     end
 
     # Remove cached pages related to the given node.
-    def expire_with(node)
-      expire(node.cached_pages)
+    def expire_with(node, filter = nil)
+      if filter
+        list = CachedPage.find(:all, :conditions => filter[:conditions], :joins => "INNER JOIN cached_pages_nodes AS cpn ON cpn.cached_page_id = cached_pages.id AND cpn.node_id = #{node.id}")
+      else
+        list = node.cached_pages
+      end
+      expire(list)
     end
 
     private

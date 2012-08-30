@@ -51,7 +51,7 @@ module Zena
         end
 
         # Get day class. The first parameter is an UTC Date. The second is a local Time.
-        def cal_class(utc_date, local_ref, tz)
+        def cal_class(utc_date, local_ref, tz, events=nil)
           date = tz.utc_to_local(utc_date.to_time)
           @cal_today ||= tz.utc_to_local(Time.now).strftime(DAY_FORMAT)
           case date.wday
@@ -64,9 +64,10 @@ module Zena
           end
           s +=  'other' if date.mon != local_ref.mon
           s = s == '' ? [] : [s]
-          s <<  'today' if date.strftime(DAY_FORMAT) == @today
+          s <<  'today' if date.strftime(DAY_FORMAT) == @cal_today
           s <<  'ref'   if date.strftime(DAY_FORMAT) == local_ref.strftime(DAY_FORMAT)
-          s == [] ? '' : " class='#{s.join(' ')}'"
+          s <<  'events' if events
+          s.join(' ')
         end
 
         # Yield block for every week between 'start_date' and 'end_date' with a hash of days => events.
@@ -197,16 +198,16 @@ module Zena
             if header_block = descendant('header')
             elsif @params[:type] == 'week'
               add_block(%q{<h3 do='header'>
-                <r:link date='date.advance(:days =&gt; -1)' t='img_prev_page'/>
+                <r:link date='date.advance(:days => -1)' t='img_prev_page'/>
                 <r:date format='%B'/>
-                <r:link date='date.advance(:days =&gt; 1)' t='img_next_page'/>
+                <r:link date='date.advance(:days => 1)' t='img_next_page'/>
               </h3>}, true)
               header_block = descendant('header')
             else
               add_block(%q{<h3 do='header'>
-                <r:link date='date.advance(:months =&gt; -1)' t='img_prev_page'/>
+                <r:link date='date.advance(:months => -1)' t='img_prev_page'/>
                 <r:date format='%B'/>
-                <r:link date='date.advance(:months =&gt; 1)' t='img_next_page'/>
+                <r:link date='date.advance(:months => 1)' t='img_next_page'/>
               </h3>}, true)
               header_block = descendant('header')
             end
@@ -231,7 +232,7 @@ module Zena
             opts[:current_date] = get_var_name('calendar', 'c_date')
             make_calendar(opts)
           end
-
+          
           def make_calendar(opts)
             current_date = opts[:current_date]
             type = params[:type] ? params[:type].to_sym : :month
@@ -257,9 +258,10 @@ module Zena
               set_tz = "<% #{tz_var} = visitor.tz %>"
             end
 
-            cell_date = get_var_name('calendar', 'date')
-            cal_start = get_var_name('calendar', 'cal_start')
-            cal_end   = get_var_name('calendar', 'cal_end')
+            cell_date  = get_var_name('calendar', 'date')
+            cal_start  = get_var_name('calendar', 'cal_start')
+            cal_end    = get_var_name('calendar', 'cal_end')
+            day_class  = get_var_name('calendar', 'class')
 
             # To avoid wrapping in each cell
             markup = @markup
@@ -305,15 +307,16 @@ module Zena
               klass = finder[:query].main_class
               return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
 
-              if type = klass.safe_method_type([date_attr])
-                if type[:class] <= Time
+              if safe_type = klass.safe_method_type([date_attr])
+                if safe_type[:class] <= Time
                   # OK
                 else
-                  return parser_error("Invalid attribute '#{date_attr}': type is '#{type[:class]}' should be Time")
+                  return parser_error("Invalid attribute '#{date_attr}': '#{safe_type[:class]}' is not a Time")
                 end
               else
                 return parser_error("Invalid attribute '#{date_attr}' for #{klass}")
               end
+              
               # HACK to overwrite 'header' method...
               h = opts[:header]
               h.method = 'void'
@@ -325,6 +328,12 @@ module Zena
                 cell_date,
                 :class => Time
               ))
+              
+              # Date for the cell
+              set_context_var('set_var', 'day_class', RubyLess::TypedString.new(
+                day_class,
+                :class => String
+              ))
 
 
               # HACK to render sub-elements...
@@ -333,7 +342,18 @@ module Zena
                 # reset saved scope
                 @context[:saved_template] = nil
                 @blocks = opts[:cell].blocks
-                cell_code   = expand_if(var, node.move_to(var, [klass]))
+                
+                cell_code = expand_if(var, node.move_to(var, [klass]))
+                unless @params[:split_hours]
+                  markup = opts[:cell].markup
+                  markup.tag = 'td'
+
+                  markup.params[:class] ||= '#{day_class}'
+                  markup.compile_params(self)
+                  markup.done = false
+                  cell_code = markup.wrap(cell_code)
+                end
+                
                 @context[:saved_template] = saved_template
               @blocks = bak
             @markup = markup
@@ -360,13 +380,13 @@ module Zena
               hour_var = get_var_name('calendar', 'hour')
 
               week_code = "<% #{week_var}.step(#{week_var}+6,1) do |#{day_var}| %>
-              <td<%= cal_class(#{day_var},#{local_ref}, #{tz_var}) %>>#{opts[:cell_prefix_code]}<% #{hours.inspect}.each do |#{hour_var}|; #{cell_date} = #{day_var}.to_time.advance(:hours => #{hour_var}); #{var} = #{events_hash}[#{cell_date}).strftime_tz('%Y-%m-%d %H',#{tz_var})] %>#{cell_code}<% end %>#{opts[:cell_postfix_code]}</td>
+              <td class='<%= cal_class(#{day_var},#{local_ref},#{tz_var}) %>'><% #{hours.inspect}.each do |#{hour_var}|; #{cell_date} = #{day_var}.to_time.advance(:hours => #{hour_var}); #{var} = #{events_hash}[#{cell_date}).strftime_tz('%Y-%m-%d %H',#{tz_var})] %>#{cell_code}<% end %></td>
               <% end %>"
               (@context[:vars] ||= []) << "hour"
             else
               hours = nil
               week_code = "<% #{week_var}.step(#{week_var}+6,1) do |#{day_var}| %>
-              <td<%= cal_class(#{day_var},#{local_ref}, #{tz_var}) %>><% #{cell_date} = #{day_var}.to_time; #{var} = #{events_hash}[#{cell_date}.strftime_tz('%Y-%m-%d 00',#{tz_var})] %>#{opts[:cell_prefix_code]}#{cell_code}#{opts[:cell_postfix_code]}</td>
+              <% #{cell_date} = #{day_var}.to_time; #{var} = #{events_hash}[#{cell_date}.strftime_tz('%Y-%m-%d 00',#{tz_var})]; #{day_class} = cal_class(#{day_var},#{local_ref},#{tz_var},#{var}) %>#{cell_code}
               <% end %>"
             end
 

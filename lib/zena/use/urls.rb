@@ -648,10 +648,10 @@ module Zena
             if href = @params[:href]
               method_args << href
             elsif node.will_be?(Version)
-              method_args << "node"
+              method_args << "this.node"
               hash_params << ":lang => this.lang"
             else
-              method_args << 'this'
+              method_args << '@node'
             end
 
             insert_ajax_args(remote_target, hash_params, opts[:action]) if remote_target

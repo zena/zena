@@ -519,9 +519,15 @@ module Zena
             r_select
           when 'date_box', 'date'
             return parser_error("date_box without name") unless attribute
-            if code = html_attributes[:value]
-              # remove <%= %>
-              code = code[/\((.+)\)/,1] || code
+            if code = @params[:value]
+              code = ::RubyLess.translate(self, code)
+            elsif code = html_attributes[:value]
+              if code =~ /\A<%= .*?\((.+)\)\s*%>/
+                # remove <%= %>
+                code = $1
+              else
+                code = code.inspect
+              end
             else
               code = ::RubyLess.translate(self, "this.#{attribute}")
             end
@@ -662,11 +668,11 @@ module Zena
             end
             
             if sub_attr
-              type = node.klass.safe_method_type([attribute])
+              type = node.klass.safe_method_type([attribute], node)
               if sub_attr_ruby = RubyLess.translate(self, %Q{this.#{attribute}[#{sub_attr.inspect}]})
                 res[:value] ||= "<%= fquote(#{sub_attr_ruby}) %>"
               end
-            elsif attribute && type = node.klass.safe_method_type([attribute])
+            elsif attribute && type = node.klass.safe_method_type([attribute], node)
               res[:value] ||= "<%= fquote(#{node}.#{type[:method]}) %>"
             end
 

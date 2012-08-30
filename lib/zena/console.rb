@@ -208,5 +208,20 @@ module Zena
       end
       nil
     end
+
+    def profile(node_id)
+      require 'ruby-prof'
+      ctrl = NodesController.new
+      ctrl.request = Struct.new(:format).new(Mime::HTML)
+      ctrl.instance_variable_set(:@node, nodes(node_id))
+      start = Time.now
+      result = RubyProf.profile do
+        yield(ctrl)
+      end
+      puts(Time.now - start)
+      File.open('grind.log', 'wb') do |f|
+        RubyProf::CallTreePrinter.new(result).print(f)
+      end
+    end
   end # Console
 end # Zena

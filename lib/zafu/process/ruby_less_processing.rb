@@ -160,7 +160,7 @@ module Zafu
           node = self.node
 
           if type = node_context_from_signature(signature)
-            # Resolve self, @page, @node
+            # Resolve this, @page, @node
             type
           elsif type = get_var_from_signature(signature)
             # Resolved stored set_xxx='something' in context.
@@ -251,10 +251,8 @@ module Zafu
             expand_if(res)
           elsif @blocks.empty?
             out "<%= #{res} %>"
-          elsif res.could_be_nil?
-            expand_with_finder(:method => res, :class => res.klass, :nil => true)
           else
-            expand_with_finder(:method => res, :class => res.klass)
+            expand_with_finder(:method => res, :class => res.klass, :query => res.opts[:query], :nil => res.could_be_nil?)
           end
         end
 
@@ -287,17 +285,7 @@ module Zafu
           return nil unless signature.size == 1
           ivar = signature.first
           if ivar == 'this'
-            if node.list_context?
-              # Find single element up
-              if single_node = node(node.klass.first)
-                single_node.opts.merge(:class => single_node.klass, :method => single_node.to_s)
-              else
-                out parser_error("In [#{node.klass.first}], could resolve 'this'.")
-                nil
-              end
-            else
-              node.opts.merge(:class => node.klass, :method => node.name)
-            end
+            node.opts.merge(:class => node.klass, :method => node.name)
           elsif ivar[0..0] == '@' && klass = get_class(ivar[1..-1].capitalize)
             if node = self.node(klass)
               node.opts.merge(:class => node.klass, :method => node.name)
@@ -313,7 +301,7 @@ module Zafu
         def get_var_from_signature(signature)
           return nil unless signature.size == 1
           if var = get_context_var('set_var', signature.first)
-            {:method => var, :class => var.klass, :nil => var.could_be_nil?}
+            {:method => var, :class => var.klass, :nil => var.could_be_nil?, :query => var.opts[:query]}
           else
             nil
           end

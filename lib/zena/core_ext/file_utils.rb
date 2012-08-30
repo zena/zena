@@ -11,3 +11,15 @@ else
     alias symlink_or_copy cp_r
   end
 end
+
+=begin
+class << FileUtils
+  def symlink_or_copy(from, to)
+    if File.directory?(from)
+      cp_r(from, to)
+    else
+      ln(from, to)
+    end
+  end
+end
+=end

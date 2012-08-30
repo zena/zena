@@ -9,26 +9,26 @@ calendar:
   context:
     date: "2006-03-18"
   src: "<div do='calendar' attr='date' select='posts where #{cal_start} <= date and date < #{cal_end} in project'/>"
-  res: "/<td><p>15</p><ol><li><a href='/oo/projects-list/Clean-Water-project/post27.html'>parc openi…</a></li></ol><\/td>.*<td class='sat ref'>18</td>/"
+  res: "/<td class='events'><p>15</p><ol><li><a href='/oo/projects-list/Clean-Water-project/post27.html'>parc openi…</a></li></ol><\/td>.*<td class='sat ref'>18</td>/"
 
 calendar_tz:
   context:
     date: "2006-03-18"
   src: "<div do='calendar' attr='date' tz='America/New_York' select='posts where #{cal_start} <= date and date < #{cal_end} in project'/>"
   # previous date 00:00 = uses tz in link.
-  res: "/date=2006-02-18\+00%3A00.*<td><p>14</p><ol><li><a href='/oo/projects-list/Clean-Water-project/post27.html'>parc openi…</a></li></ol><\/td>.*<td class='sat ref'>18</td>/"
+  res: "/date=2006-02-18\+00%3A00.*<td class='events'><p>14</p><ol><li><a href='/oo/projects-list/Clean-Water-project/post27.html'>parc openi…</a></li></ol><\/td>.*<td class='sat ref'>18</td>/"
 
 calendar_with_blocks:
   context:
     date: "2006-03-18"
   src: "<div do='calendar' attr='date' select='posts where #{cal_start} <= date and date < #{cal_end} in project'>
     <h3 do='header'>
-      <r:link date='date.advance(:months =&gt; -1)' text='PREV'/>
+      <r:link date='date.advance(:months => -1)' text='PREV'/>
       <r:date format='%B'/>
-      <r:link date='date.advance(:months =&gt; 1)' text='NEXT'/>
+      <r:link date='date.advance(:months => 1)' text='NEXT'/>
     </h3><r:cell><b do='date' format='%e.%m'/></r:cell></div>"
-  # Daylight savings change: Feb = 00:00, Apr 01:00
-  res: "/date=2006-02-18\+00%3A00'>PREV.*date=2006-04-18\+01%3A00'>NEXT.*<b>15.03</b>/"
+  # Daylight savings change: Feb = 00:00, Apr 01:00: Should still be 00:00 because we advance with the LOCAL time.
+  res: "/date=2006-02-18\+00%3A00'>PREV.*date=2006-04-18\+00%3A00'>NEXT.*<b>15.03</b>/"
 
 calendar_node_attr:
   context:

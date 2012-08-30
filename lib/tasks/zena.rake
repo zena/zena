@@ -366,16 +366,16 @@ namespace :zena do
     end
     
     sites.each do |site|
+      Thread.current[:visitor] = site.any_admin
+      
       if ENV['WORKER'] == 'false' || RAILS_ENV == 'test'
         # We avoid SiteWorker by passing nodes.
-        Thread.current[:visitor] = site.any_admin
         nodes = Node.find(:all,
           :conditions => ['site_id = ?', site.id]
         )
         site.rebuild_index(secure_result(nodes))
       else
         # We try to use the site worker.
-        Thread.current[:visitor] = site.any_admin
         site.rebuild_index
       end
     end

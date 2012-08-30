@@ -29,7 +29,7 @@ class Acl < ActiveRecord::Base
   end
 
   def authorize?(base_node, params, request)
-    res = Node.find_by_sql(eval(make_query(base_node, params, request).to_s))
+    res = Node.find_by_sql(eval(make_query(base_node, params, request).to_s)) rescue nil
     if res.empty?
       nil
     else
@@ -97,6 +97,7 @@ class Acl < ActiveRecord::Base
       nil
     rescue RubyLess::SyntaxError => err
       errors.add(:query, err.message.strip)
+      nil
     rescue => err
       errors.add(:query, err.message.strip)
       nil

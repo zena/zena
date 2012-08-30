@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2012-07-02}
+  s.date = %q{2012-08-24}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -366,6 +366,7 @@ Gem::Specification.new do |s|
     "bricks/static/zena/skins/blog/img/menu.gif",
     "bricks/static/zena/skins/blog/img/menuover.gif",
     "bricks/static/zena/skins/blog/img/style.css",
+    "bricks/static/zena/tasks.rb",
     "bricks/static/zena/test/integration/static_integration_test.rb",
     "bricks/static/zena/test/unit/static_test.rb",
     "bricks/tags/README",
@@ -2026,6 +2027,7 @@ Gem::Specification.new do |s|
     "test/selenium/Form/form1.rsel",
     "test/selenium/Form/form2.rsel",
     "test/selenium/Form/form3.rsel",
+    "test/selenium/Form/form4.rsel",
     "test/selenium/Grid/0setup.rsel",
     "test/selenium/Grid/grid1.rsel",
     "test/selenium/Paginate/0setup.rsel",
@@ -2103,6 +2105,7 @@ Gem::Specification.new do |s|
     "test/unit/section_test.rb",
     "test/unit/site_test.rb",
     "test/unit/skin_test.rb",
+    "test/unit/string_hash_test.rb",
     "test/unit/template_test.rb",
     "test/unit/template_version_test.rb",
     "test/unit/text_document_content_test.rb",
@@ -2488,7 +2491,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<differ>, ["= 0.1.2"])
       s.add_runtime_dependency(%q<RedCloth>, ["= 3.0.4"])
       s.add_runtime_dependency(%q<open4>, [">= 0"])
-      s.add_runtime_dependency(%q<querybuilder>, ["= 1.1.1"])
+      s.add_runtime_dependency(%q<querybuilder>, ["= 1.1.2"])
     else
       s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.3"])
       s.add_dependency(%q<tzinfo>, [">= 0"])
@@ -2514,7 +2517,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<differ>, ["= 0.1.2"])
       s.add_dependency(%q<RedCloth>, ["= 3.0.4"])
       s.add_dependency(%q<open4>, [">= 0"])
-      s.add_dependency(%q<querybuilder>, ["= 1.1.1"])
+      s.add_dependency(%q<querybuilder>, ["= 1.1.2"])
     end
   else
     s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.3"])
@@ -2541,7 +2544,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<differ>, ["= 0.1.2"])
     s.add_dependency(%q<RedCloth>, ["= 3.0.4"])
     s.add_dependency(%q<open4>, [">= 0"])
-    s.add_dependency(%q<querybuilder>, ["= 1.1.1"])
+    s.add_dependency(%q<querybuilder>, ["= 1.1.2"])
   end
 end
 

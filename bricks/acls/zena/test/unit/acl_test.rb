@@ -76,7 +76,6 @@ class AclTest < Zena::Unit::TestCase
           @group_ids = self.group_ids + [erebus_id]
         end
         assert !subject.update_attributes(:query => "nodes in site")
-        err subject
         assert_equal 'parse error on value ["in", 1] (kIN)', subject.errors[:query]
       end
     end # saving an acl with asset_host in query

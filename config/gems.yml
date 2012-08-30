@@ -18,7 +18,7 @@ gem_plugin:     # upload progress
 simple_xlsx_writer:    # spreadsheet
   lib:          'simple_xlsx'
 
-querybuilder:   '= 1.1.1'
+querybuilder:   '= 1.1.2'
 yamltest:       '= 0.7.0'
 rubyless:       '= 0.8.6'
 property:       '= 2.3.2'

@@ -42,7 +42,8 @@ class Note < Node
 
   def export_keys
     h = super
-    h[:dates].merge!('log_at' => log_at, 'event_at' => event_at)
+    h[:dates].merge!('log_at' => log_at) unless log_at.blank?
+    h[:dates].merge!('event_at' => event_at) unless event_at.blank?
     h
   end
 

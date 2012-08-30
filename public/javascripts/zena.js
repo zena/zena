@@ -971,7 +971,7 @@ Zena.insert_inner = function(dom, position, content) {
 
 Zena.prepare_query = function(data, base, res) {
   var res = res || {}
-  // transform {node:{a='b'}} into {'node[a]':'b'}
+  // transform {node:{a:'b'}} into {'node[a]':'b'}
   $H(data).each(function(pair) {
     var key = pair.key
     var val = pair.value

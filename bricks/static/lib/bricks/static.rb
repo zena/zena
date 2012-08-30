@@ -21,7 +21,7 @@ module Bricks
         elsif !(path =~ %r{^(/|\$)}) && section_id.nil? && @static_brick_name && @static_skin_name
           Skin.text_from_static(@static_brick_name, @static_skin_name, path, opts)
         else
-          get_template_text_without_static(path, section_id, opts)
+          return *get_template_text_without_static(path, section_id, opts)
         end
       end
 
@@ -62,12 +62,16 @@ module Bricks
 
     module SkinMethods
       def self.included(base)
-        base.property do |p|
-          p.string 'z_static'
-        end
         
-        base.safe_property 'z_static'
-        base.validate :validate_z_static
+        base.class_eval do
+          property do |p|
+            p.string 'z_static'
+          end
+
+          safe_property 'z_static'
+          validate :validate_z_static
+          alias_method_chain :skin_name, :static
+        end
         
         # We move this method here so that we do not need to reference
         # Bricks::Static in I18n when static brick is disabled.
@@ -94,6 +98,10 @@ module Bricks
             end
           end
         end
+      end
+      
+      def skin_name_with_static
+        z_static ? ('$' + z_static) : skin_name_without_static
       end
 
       private

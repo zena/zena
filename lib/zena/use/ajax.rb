@@ -309,7 +309,8 @@ module Zena
           with_context(:node => base_node.dup) do
             node.dom_prefix = dom_name
             dom_id = node.dom_id(:erb => false)
-
+            
+            # TODO: add 'encode_params' and x='"foobar"' to add any value in the request
             out %Q{<%= form_remote_tag(:url => zafu_node_path(#{node}), :method => :get, :html => {:id => \"#{dom_id}_f\"}) %>
             <div class='hidden'>
               <input type='hidden' name='t_url' value='#{template_url(upd)}'/>

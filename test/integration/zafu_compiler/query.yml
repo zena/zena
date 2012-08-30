@@ -250,6 +250,11 @@ select_in_from:
   tem: '/<%= var2.attributes\["pt"\] %>: <%= var2.attributes\["it"\] %>/'
   res: "<div>a wiki with Zena: bird, a wiki with Zena: flower, Clean Water project: it's a lake</div>"
 
+select_in_from_saved:
+  src: "<div do='images select title as it from projects select title as pt in site' do='set' list='this' do='list' do='each' join=', '><r:pt/>: <r:it/></div>"
+  tem: '/<%= var3.attributes\["pt"\] %>: <%= var3.attributes\["it"\] %>/'
+  res: "<div>a wiki with Zena: bird, a wiki with Zena: flower, Clean Water project: it's a lake</div>"
+
 select_group:
   src: "<div do='images select title as it from projects select title as pt in site' do='group' by='pt' do='each_group' join=' / '><r:pt/>: <r:each join=', ' do='it'/></div>"
   res: "<div>a wiki with Zena: bird, flower / Clean Water project: it's a lake</div>"

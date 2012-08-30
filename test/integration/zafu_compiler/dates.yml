@@ -152,6 +152,12 @@ input_date:
   tem: '/date_box\(@node, "node\[date\]", :value => @node.prop\[.date.\], :size => 15\)/'
   res: "/value='2006-03-15 01:00'/"
 
+input_date_value_now:
+  context:
+    node: opening
+  src: "<r:Post?><r:input type='date' name='date' value='now'/></r:Post?>"
+  tem: '/date_box\(@node, "node\[date\]", :value => Time.now, :size => 15\)/'
+
 input_date_no_time:
   context:
     node: opening
@@ -193,3 +199,10 @@ time_year:
     tz: 'US/Pacific'
   src: "<r:Post?><b do='this.date.year'/> <b do='this.date.year(\"UTC\")'/></r:Post?>"
   res: "<b>2011</b> <b>2012</b>"
+
+time_wday:
+  context:
+    node: opening
+    tz: 'US/Pacific'
+  src: "<r:Post?><b do='this.date.wday'/> <b do='this.date.wday(\"UTC\")'/></r:Post?>"
+  res: "<b>2</b> <b>3</b>"

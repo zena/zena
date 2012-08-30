@@ -47,12 +47,14 @@ module Zena
         def get_template_text(path, section_id = nil, opts = {})
           if path =~ DEFAULT_PATH
             filepath = File.join(DEFAULT_TEMPLATES_PATH, "#{$1}.zafu")
-            text = File.exist?(filepath) ? File.read(filepath) : nil
-            return text, path, nil
+            if text = File.exist?(filepath) ? File.read(filepath) : nil
+              return text, path, nil
+            end
           elsif @skin.nil? && path == 'Node'
             filepath = File.join(DEFAULT_TEMPLATES_PATH, "default/#{path}.zafu")
-            text = File.exist?(filepath) ? File.read(filepath) : nil
-            return text, path, nil
+            if text = File.exist?(filepath) ? File.read(filepath) : nil
+              return text, path, nil
+            end
           else
             path = path.split('/').map {|s| String.from_filename(s) }
             if doc = find_document_for_template(path, section_id)

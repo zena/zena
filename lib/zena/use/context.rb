@@ -193,7 +193,7 @@ module Zena
               # Do we have this variable already ?
               if up_var = get_context_var('set_var', var)
                 if up_var.klass != typed_string.klass
-                  return parser_error("Type mismatch for var #{var}=#{code}: #{typed_string.klass.inspect} != #{up_var.klass.inspect}")
+                  return parser_error("Type mismatch for var #{var}=#{code}: #{typed_string.klass} != #{up_var.klass}")
                 end
                 
                 if typed_string.could_be_nil?

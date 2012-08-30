@@ -24,6 +24,8 @@ things they can/cannot do :
 TODO: when a user is 'destroyed', pass everything he owns to another user or just mark the user as 'deleted'...
 =end
 class User < ActiveRecord::Base
+  attr_accessor :zafu_cache
+  
   include Property
   RESCUE_SKIN_ID = -1
   ANY_SKIN_ID    = 0

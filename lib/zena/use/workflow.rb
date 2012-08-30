@@ -113,6 +113,7 @@ module Zena
 
 
         base.before_validation :set_workflow_defaults
+        
         base.validate      :workflow_validation
         base.before_create :workflow_before_create
 
@@ -409,7 +410,8 @@ module Zena
 
       def apply_with_callbacks(method, *args)
         if apply_without_callbacks(method, *args)
-          callback = :"after_#{@current_transition[:name]}"
+          transition_name = @current_transition ? @current_transition[:name] : method
+          callback = :"after_#{transition_name}"
           if respond_to?(callback, true)
             send(callback)
           else
