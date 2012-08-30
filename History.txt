@@ -1,4 +1,4 @@
-== 1.2.2
+== 1.2.2 2012-08-30
 
 * Major changes
  * Basic zjs to batch create/update nodes (with grid.js).
