@@ -20,6 +20,7 @@ class ProjectTest < Zena::Unit::TestCase
     assert_equal nodes_id(:cleanWater), node.get_project_id
     node[:parent_id] = nodes_id(:zena)
     if !node.save
+      # Cannot cast string to string hash ?
       assert false, "Can save node (#{err(node)})"
     else
       assert true
