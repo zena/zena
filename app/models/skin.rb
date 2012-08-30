@@ -4,4 +4,9 @@ class Skin < Section
   def skin_name
     title.to_filename
   end
+  
+  def self.text_from_fs_skin(brick_name, skin_name, path, opts)
+    # dummy implementation
+    nil
+  end
 end

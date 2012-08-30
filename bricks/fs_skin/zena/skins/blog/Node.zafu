@@ -59,7 +59,7 @@
     <div style="clear: both;"> </div>
 
     <div id="footer">
-      &copy; Copyright <a href="#">Static blog</a> | <r:zena type='made'/> | <r:login_link/>
+      &copy; Copyright <a href="#">Fs_skin blog</a> | <r:zena type='made'/> | <r:login_link/>
     </div>
   </div>
 </body>

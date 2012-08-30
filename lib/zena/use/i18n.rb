@@ -41,7 +41,7 @@ module Zena
                 return false
               end
             else
-              text, ignore = ::Skin.text_from_static(@static[:brick_name], @static[:skin_name], @static[:path], :ext => 'yml')
+              text, ignore = ::Skin.text_from_fs_skin(@static[:brick_name], @static[:skin_name], @static[:path], :ext => 'yml')
               unless text
                 @dict = {}
                 error("missing 'dictionary'")

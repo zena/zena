@@ -7,9 +7,9 @@
  * Enabled rebuilding of templates on partial query.
  * Enabled 'hash' property type.
  * Enabled javascript on toggle.
- * Enabled "static" brick to use zafu stored in brick file system.
+ * Enabled "fs_skin" brick to use zafu stored in brick file system.
  * No need to use '&gt;' or '&lt;' in html params. \' escape works. Yeah !!
- * Enabled "static" assets with symlink to skins in static bricks (/static/[brick]-[skin]/xxx.css => bricks/[brick]/skins/[skin]/static/xxx.css)
+ * Enabled "static" assets with symlink to skins in fs_skin bricks (/static/[brick]-[skin]/xxx.css => bricks/[brick]/skins/[skin]/static/xxx.css)
  * No more strict scoping: "set" variables are rewritten if type matches.
  * Added support for new in rubyless (Post.new, Post.new(:title => 'foo')).
  * Added support for type in custom queries and SQLiss select "nodes select created_at as ti:time"

@@ -19,7 +19,11 @@ class ProjectTest < Zena::Unit::TestCase
     node = secure!(Project) { Project.find(nodes_id(:cleanWater))}
     assert_equal nodes_id(:cleanWater), node.get_project_id
     node[:parent_id] = nodes_id(:zena)
-    assert node.save, 'Can save node'
+    if !node.save
+      assert false, "Can save node (#{err(node)})"
+    else
+      assert true
+    end
     node.reload
     assert_equal nodes_id(:cleanWater), node.get_project_id
     assert_equal nodes_id(:zena), node[:project_id]

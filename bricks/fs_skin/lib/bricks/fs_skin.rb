@@ -1,5 +1,5 @@
 module Bricks
-  module Static
+  module Fs_skin
     ELEM = "([a-zA-Z_]+)"
     ELEM_REGEXP = %r{^#{ELEM}$}
     SECURE_PATH_REGEXP = %r{^[a-zA-Z_/\-\+]+$}
@@ -9,41 +9,41 @@ module Bricks
     
     module ControllerMethods
       def self.included(base)
-        base.alias_method_chain :get_template_text, :static
-        base.alias_method_chain :template_url_for_asset, :static
-        base.alias_method_chain :get_best_template, :static
+        base.alias_method_chain :get_template_text, :fs_skin
+        base.alias_method_chain :template_url_for_asset, :fs_skin
+        base.alias_method_chain :get_best_template, :fs_skin
       end
 
-      def get_template_text_with_static(path, section_id = nil, opts = {})
+      def get_template_text_with_fs_skin(path, section_id = nil, opts = {})
         if path =~ ZAFU_URL_REGEXP
           brick_name, skin_name, path = $1, $2, $3
-          Skin.text_from_static(brick_name, skin_name, path, opts)
-        elsif !(path =~ %r{^(/|\$)}) && section_id.nil? && @static_brick_name && @static_skin_name
-          Skin.text_from_static(@static_brick_name, @static_skin_name, path, opts)
+          Skin.text_from_fs_skin(brick_name, skin_name, path, opts)
+        elsif !(path =~ %r{^(/|\$)}) && section_id.nil? && @fs_skin_brick_name && @fs_skin_skin_name
+          Skin.text_from_fs_skin(@fs_skin_brick_name, @fs_skin_skin_name, path, opts)
         else
-          return *get_template_text_without_static(path, section_id, opts)
+          return *get_template_text_without_fs_skin(path, section_id, opts)
         end
       end
 
-      def template_url_for_asset_with_static(opts)
+      def template_url_for_asset_with_fs_skin(opts)
         # TODO
-        template_url_for_asset_without_static(opts)
+        template_url_for_asset_without_fs_skin(opts)
       end
 
-      def get_best_template_with_static(kpaths, format, mode, skin)
-        return get_best_template_without_static(kpaths, format, mode, skin) unless static = skin.z_static
+      def get_best_template_with_fs_skin(kpaths, format, mode, skin)
+        return get_best_template_without_fs_skin(kpaths, format, mode, skin) unless fs_skin = skin.z_fs_skin
         if idx_template = IdxTemplate.first(
-           :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ? AND (skin_id = ? OR static = ?) AND site_id = ?",
-              kpaths, format, mode, skin.id, static, skin.site_id],
+           :conditions => ["tkpath IN (?) AND format = ? AND mode #{mode ? '=' : 'IS'} ? AND (skin_id = ? OR fs_skin = ?) AND site_id = ?",
+              kpaths, format, mode, skin.id, fs_skin, skin.site_id],
             :order     => "length(tkpath) DESC, skin_id DESC"
           )
           if idx_template.path.nil?
             template = secure(Template) { Template.find(idx_template.node_id) }
-            get_best_template_without_static(kpaths, format, mode, skin, template)
-          elsif static =~ STATIC_SKIN_REGEXP
-            @static_brick_name, @static_skin_name = $1, $2
+            get_best_template_without_fs_skin(kpaths, format, mode, skin, template)
+          elsif fs_skin =~ STATIC_SKIN_REGEXP
+            @fs_skin_brick_name, @fs_skin_skin_name = $1, $2
             if idx_template.path =~ SECURE_PATH_REGEXP
-              zafu_url = "$#{@static_brick_name}-#{@static_skin_name}/#{idx_template.path}"
+              zafu_url = "$#{@fs_skin_brick_name}-#{@fs_skin_skin_name}/#{idx_template.path}"
               template = Template.new
               template.tkpath = idx_template.tkpath
               [zafu_url, template]
@@ -53,11 +53,11 @@ module Bricks
       end
 
       # TODO
-      # Asset resolution: route = /static/static-blog/img/style.css
-      # ===> static brick ==> brick path
+      # Asset resolution: route = /fs_skin/fs_skin-blog/img/style.css
+      # ===> fs_skin brick ==> brick path
       # ===> blog/img/style.css ==> brick path/zena/skins/  blog/img/style.css
       # Cache in public directory
-      # FIXME: clear_cache should erase /home/static
+      # FIXME: clear_cache should erase /home/fs_skin
     end # ControllerMethods
 
     module SkinMethods
@@ -65,17 +65,17 @@ module Bricks
         
         base.class_eval do
           property do |p|
-            p.string 'z_static'
+            p.string 'z_fs_skin'
           end
 
-          safe_property 'z_static'
-          validate :validate_z_static
-          alias_method_chain :skin_name, :static
+          safe_property 'z_fs_skin'
+          validate :validate_z_fs_skin
+          alias_method_chain :skin_name, :fs_skin
         end
         
         # We move this method here so that we do not need to reference
-        # Bricks::Static in I18n when static brick is disabled.
-        def base.text_from_static(brick_name, skin_name, path, opts)
+        # Bricks::Fs_skin in I18n when fs_skin brick is disabled.
+        def base.text_from_fs_skin(brick_name, skin_name, path, opts)
           if path =~ SECURE_PATH_REGEXP
             fullpath = "$#{brick_name}-#{skin_name}/#{path}"
             section_id = nil
@@ -100,14 +100,14 @@ module Bricks
         end
       end
       
-      def skin_name_with_static
-        z_static ? ('$' + z_static) : skin_name_without_static
+      def skin_name_with_fs_skin
+        z_fs_skin ? ('$' + z_fs_skin) : skin_name_without_fs_skin
       end
 
       private
-        def validate_z_static
-          if !(z_static.nil? || z_static =~ STATIC_SKIN_REGEXP)
-            errors.add(:z_static, _('invalid'))
+        def validate_z_fs_skin
+          if !(z_fs_skin.nil? || z_fs_skin =~ STATIC_SKIN_REGEXP)
+            errors.add(:z_fs_skin, _('invalid'))
           end
           true
         end
@@ -115,17 +115,17 @@ module Bricks
 
     module SiteMethods
       def self.included(base)
-        base.alias_method_chain :rebuild_index, :static
+        base.alias_method_chain :rebuild_index, :fs_skin
       end
 
-      def rebuild_index_with_static(nodes = nil, page = nil, page_count = nil)
+      def rebuild_index_with_fs_skin(nodes = nil, page = nil, page_count = nil)
         if !page
-          Zena::SiteWorker.perform(self, :rebuild_static_index, nil)
+          Zena::SiteWorker.perform(self, :rebuild_fs_skin_index, nil)
         end
-        rebuild_index_without_static(nodes, page, page_count)
+        rebuild_index_without_fs_skin(nodes, page, page_count)
       end
 
-      def rebuild_static_index
+      def rebuild_fs_skin_index
         Zena::Db.execute "DELETE FROM idx_templates WHERE node_id IS NULL AND site_id = #{id}"
         Bricks.paths_for('zena/skins').each do |p|
           if p =~ BRICK_NAME_REGEXP
@@ -133,7 +133,7 @@ module Bricks
             list = []
             Dir.foreach(p) do |skin_name|
               if skin_name =~ ELEM_REGEXP
-                build_static_index(brick_name, skin_name, "#{p}/#{skin_name}")
+                build_fs_skin_index(brick_name, skin_name, "#{p}/#{skin_name}")
               end
             end
           end
@@ -141,7 +141,7 @@ module Bricks
       end
 
       private
-        def add_static_symlink(brick_name, skin_name, skin_path)
+        def add_fs_skin_symlink(brick_name, skin_name, skin_path)
           source_path = File.join(skin_path, 'static')
           target_dir  = File.join(RAILS_ROOT, 'public', 'static')
           target_path = File.join(target_dir, "#{brick_name}-#{skin_name}") 
@@ -153,15 +153,15 @@ module Bricks
           end
         end
         
-        def build_static_index(brick_name, skin_name, path)
-          add_static_symlink(brick_name, skin_name, path)
+        def build_fs_skin_index(brick_name, skin_name, path)
+          add_fs_skin_symlink(brick_name, skin_name, path)
           # path = absolute path
           # 1. Find all templates
           Dir.foreach(path) do |elem|
             next if elem =~ /^\./
             elem_path = File.join(path, elem)
             if File.directory?(elem_path)
-              build_static_index(brick_name, skin_name, elem_path)
+              build_fs_skin_index(brick_name, skin_name, elem_path)
             elsif elem =~ Template::MODE_FORMAT_FROM_TITLE
               # 2. Get klass, mode, format
               klass    = $1
@@ -178,7 +178,7 @@ module Bricks
                   :mode    => mode,
                   :format  => format,
                   :site_id => id,
-                  :static  => "#{brick_name}-#{skin_name}",
+                  :fs_skin => "#{brick_name}-#{skin_name}",
                   :path    => idx_path
                 )
               end
@@ -186,5 +186,5 @@ module Bricks
           end
         end
     end # SiteMethods
-  end # Static
+  end # Fs_skin
 end # Bricks

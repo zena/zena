@@ -1,6 +1,6 @@
 
-namespace :static do
-  desc 'rebuild static index'
+namespace :fs_skin do
+  desc 'rebuild fs_skin index'
   task :index => :environment do
     # Make sure all bricks are loaded before executing the index rebuild
     Zena::Use.upgrade_class('Site')
@@ -16,10 +16,10 @@ namespace :static do
       Thread.current[:visitor] = site.any_admin
       if ENV['WORKER'] == 'false' || RAILS_ENV == 'test'
         # We avoid SiteWorker.
-        site.rebuild_static_index
+        site.rebuild_fs_skin_index
       else
         # We try to use the site worker.
-        Zena::SiteWorker.perform(site, :rebuild_static_index, nil)
+        Zena::SiteWorker.perform(site, :rebuild_fs_skin_index, nil)
       end
     end
   end
