@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2012-08-24}
+  s.date = %q{2012-08-30}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -2491,7 +2491,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<differ>, ["= 0.1.2"])
       s.add_runtime_dependency(%q<RedCloth>, ["= 3.0.4"])
       s.add_runtime_dependency(%q<open4>, [">= 0"])
-      s.add_runtime_dependency(%q<querybuilder>, ["= 1.1.2"])
+      s.add_runtime_dependency(%q<querybuilder>, ["= 1.1.3"])
     else
       s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.3"])
       s.add_dependency(%q<tzinfo>, [">= 0"])
@@ -2517,7 +2517,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<differ>, ["= 0.1.2"])
       s.add_dependency(%q<RedCloth>, ["= 3.0.4"])
       s.add_dependency(%q<open4>, [">= 0"])
-      s.add_dependency(%q<querybuilder>, ["= 1.1.2"])
+      s.add_dependency(%q<querybuilder>, ["= 1.1.3"])
     end
   else
     s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.3"])
@@ -2544,7 +2544,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<differ>, ["= 0.1.2"])
     s.add_dependency(%q<RedCloth>, ["= 3.0.4"])
     s.add_dependency(%q<open4>, [">= 0"])
-    s.add_dependency(%q<querybuilder>, ["= 1.1.2"])
+    s.add_dependency(%q<querybuilder>, ["= 1.1.3"])
   end
 end
 

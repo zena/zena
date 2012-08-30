@@ -245,6 +245,11 @@ simple_select:
   tem: '/<%= var1.attributes\["ti"\] %>/'
   res: "<div>crocodiles</div>"
 
+select_with_type:
+  src: "<div do='nodes select created_at as ti:time' find='first' do='ti' format='%d.%m.%Y'/>"
+  tem: '/format_date\(var1.rcast\("ti", :time\)/'
+  res: "<div>11.04.2006</div>"
+
 select_in_from:
   src: "<div do='images select title as it from projects select title as pt in site' do='each' join=', '><r:pt/>: <r:it/></div>"
   tem: '/<%= var2.attributes\["pt"\] %>: <%= var2.attributes\["it"\] %>/'

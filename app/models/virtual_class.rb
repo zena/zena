@@ -351,7 +351,16 @@ class VirtualClass < Role
 
           # In order to use types other then String, we use the overwritten property's
           # type.
-          if type = safe_column_types[method]
+          if type_name = query.types[method]
+            klass = Node.cast_to_class(type_name)
+            if klass == String
+              return {:method => "attributes[#{method.inspect}]", :nil => true, :class => klass}
+            elsif klass
+              return {:method => "rcast(#{method.inspect}, #{type_name.inspect})", :nil => true, :class => klass}
+            else
+              return nil
+            end
+          elsif type = safe_column_types[method]
             return type.merge(:method => "attributes[#{method.inspect}]", :nil => true)
           elsif type = real_class.safe_method_type(signature)
             return type.merge(:nil => true)

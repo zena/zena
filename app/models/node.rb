@@ -209,6 +209,7 @@ class Node < ActiveRecord::Base
   safe_property  :title, :text, :summary
 
   safe_attribute :created_at, :updated_at, :event_at, :log_at, :publish_from, :basepath, :inherit, :position
+  safe_attribute :idx_datetime1, :idx_datetime2, :idx_float1, :idx_float2, :idx_string1, :idx_string2, :idx_integer1, :idx_integer2
 
 
   # safe_node_context defined in Enrollable
@@ -292,6 +293,50 @@ class Node < ActiveRecord::Base
 
   def v_number
     version.number
+  end
+  
+  Caster = ::ActiveRecord::ConnectionAdapters::Column
+  
+  # Return class of cast value.
+  def self.cast_to_class(type)
+    case type
+      when :string    then String
+      when :text      then String
+      when :integer   then Number
+      when :float     then Number
+      when :decimal   then Number
+      when :datetime  then Time
+      when :timestamp then Time
+      when :time      then Time
+      when :date      then Time
+      when :binary    then String
+      when :boolean   then Boolean
+      else nil
+    end
+  end
+  
+  # Read with cast to an appropriate instance. This is used along with
+  # custom select in QueryBuilder queries.
+  def rcast(key, type)
+    @rcast_cache ||= {}
+    @rcast_cache[key] ||= begin
+      value = @attributes[key]
+      return nil if value.nil?
+      case type
+        when :string    then value
+        when :text      then value
+        when :integer   then value.to_i rescue value ? 1 : 0
+        when :float     then value.to_f
+        when :decimal   then Caster.value_to_decimal(value)
+        when :datetime  then Caster.string_to_time(value)
+        when :timestamp then Caster.string_to_time(value)
+        when :time      then Caster.string_to_time(value)
+        when :date      then Caster.string_to_time(value)
+        when :binary    then Caster.binary_to_string(value)
+        when :boolean   then Caster.value_to_boolean(value)
+        else value
+      end
+    end
   end
 
   # This is an adaptation of Versions::Multi code to use our special v_ shortcut

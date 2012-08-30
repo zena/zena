@@ -63,7 +63,12 @@ Node:
       - courses.custom_a AS repeat_every
       - form.last_date AS last_date
       - form.last_date + INTERVAL courses.custom_a MONTH AS next_date
+      # Current hack to properly cast values to Time during read
+      - form.last_date + INTERVAL courses.custom_a MONTH AS idx_datetime1
       - MAX(IF(assigned_pages.custom_a,assigned_pages.custom_a,5)) AS priority
+    types:
+      next_date: time
+      last_date: time
     tables:
       - nodes AS courses
       # assigned to

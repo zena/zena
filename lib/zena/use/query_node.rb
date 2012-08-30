@@ -205,7 +205,13 @@ module Zena
         def process_field(field_name)
           if fld = @query.attributes_alias[field_name]
             # use custom query alias value defined in select clause: 'custom_a AS validation'
-            return processing_filter? ? "(#{fld})" : fld
+            if processing_filter?
+              # We need to use the full original clause, except when the clause contains group functions (MAX, MIN, etc).
+              # If the clause is too complex, we need to use something simpler or it will break (custom queries).
+              "(#{fld})"
+            else
+              fld
+            end
           elsif processing_filter? && map_def = self.class.filter_fields[field_name]
             # Special filter fields such as 'role', 'tag' or 'class'
             if map_def.kind_of?(String)
