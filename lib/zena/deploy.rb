@@ -93,9 +93,11 @@ Capistrano::Configuration.instance(:must_exist).load do
       'current/tmp',
       'current/log',
       'shared/log',
+      # Passenger uses the owner of environment.rb as worker
+      'config/environment.rb',
     ].map {|dir| "#{deploy_to}/#{dir}"}
 
-    # make sure production.log is created before so that it gets the correct permissionsong
+    # make sure production.log is created before so that it gets the correct permission
     run "touch #{deploy_to}/shared/log/production.log"
     run "chown -R www-data:www-data #{directories.join(' ')}"
   end
@@ -195,8 +197,31 @@ Capistrano::Configuration.instance(:must_exist).load do
     unless self[:host]
       puts "HOST not set (use -s host=...)"
     else
-      vhost = render("#{templates}/vhost.rhtml", :config => self)
-      put(vhost, "#{vhost_root}/#{self[:host]}")
+      vhost_files = []
+      if self[:ssl] == :all
+        vhost = render("#{templates}/vhost.rhtml", :config => self, :ssl => true, :vhost_port => ':443')
+        put(vhost, "#{vhost_root}/#{self[:host]}.ssl")
+        vhost_files << "#{self[:host]}.ssl"
+        
+        # Redirect if not ssl
+        vhost = render("#{templates}/vhost_ssl_redir.rhtml", :config => self)
+        put(vhost, "#{vhost_root}/#{self[:host]}")
+        vhost_files << "#{self[:host]}"
+      elsif self[:ssl] == :logged_in
+        # Redirect only if logged in
+        vhost = render("#{templates}/vhost.rhtml", :config => self, :ssl => true, :vhost_port => ':443')
+        put(vhost, "#{vhost_root}/#{self[:host]}.ssl")
+        vhost_files << "#{self[:host]}.ssl"
+
+        # Redirect to ssl if logged in (this redirect is triggered by Zena).
+        vhost = render("#{templates}/vhost.rhtml", :config => self, :ssl => false, :vhost_port => ':80')
+        put(vhost, "#{vhost_root}/#{self[:host]}")
+        vhost_files << "#{self[:host]}"
+      else
+        vhost = render("#{templates}/vhost.rhtml", :config => self, :ssl => false, :vhost_port => '')
+        put(vhost, "#{vhost_root}/#{self[:host]}")
+        vhost_files << "#{self[:host]}"
+      end
 
       # directory setup for log
       run "test -e #{sites_root}/#{self[:host]}/log || mkdir #{sites_root}/#{self[:host]}/log"
@@ -205,7 +230,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       run "test -e /etc/apache2/sites-enabled/#{self[:host]} || a2ensite #{self[:host]}" if debian_host
 
       unless self[:host] =~ /^www/
-        vhost_www = render("#{templates}/vhost_www.rhtml", :config => self)
+        vhost_www = render("#{templates}/vhost_www.rhtml", :config => self, :vhost_port => (self[:ssl] ? ':80' : '80'))
         put(vhost_www, "#{vhost_root}/www.#{self[:host]}")
         run "test -e /etc/apache2/sites-enabled/www.#{self[:host]} || a2ensite www.#{self[:host]}" if debian_host
       end
@@ -317,6 +342,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     modules = %w{rewrite deflate proxy_balancer proxy proxy_http expires}
     if self[:ssl]
       modules << 'ssl'
+      modules << 'headers'
       # Default in debian: no need to change ports.
       # /etc/apache2/ports.conf:
       # Listen 443

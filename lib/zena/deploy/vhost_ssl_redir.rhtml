@@ -1,0 +1,12 @@
+# Zena apache2 vhost for <%= config[:host] %>
+# Automatically generated file.
+
+<VirtualHost *:80>
+  ServerName <%= config[:host] %>
+	
+  # Redirect all requests to ssl
+
+  RewriteEngine On
+  RewriteCond %{HTTPS} off
+  RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [NE]
+</VirtualHost>

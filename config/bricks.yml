@@ -1,6 +1,5 @@
 test:
-  # Integration testing does not use 'port' settings so we must use 80...
-  asset_port:  80
+#  asset_port:  80
   tags:        ON
   captcha:     ON
   acls:        ON
@@ -13,9 +12,9 @@ test:
 
 
 development:
-  asset_port: 7999
-  mongrel:   ON
-  passenger: OFF
+#  asset_port: 7999
+  mongrel:   OFF
+  passenger: ON
   uv:
     switch:  ON
     activate_if:
@@ -51,11 +50,11 @@ development:
       gem: 'delayed_job'
 
 production:
-  # Port used only to provide assets during custom rendering (pdf).
-  # We need this to avoid deadlocks.
-  asset_port: 7999
-  mongrel:   ON
-  passenger: OFF
+# Port used only to provide assets during custom rendering (pdf).
+# We need this to avoid deadlocks with round-robin based serving.
+#  asset_port: 7999
+  mongrel:   OFF
+  passenger: ON
   uv:
     switch:  ON
     activate_if:

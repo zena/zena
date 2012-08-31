@@ -1,3 +1,8 @@
+== 1.2.3
+
+* Major changes
+ * Better support for Passenger (deploy receipt, asset host)
+
 == 1.2.2 2012-08-30
 
 * Major changes

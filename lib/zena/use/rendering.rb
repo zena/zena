@@ -272,14 +272,15 @@ module Zena
           # urls to localhost (the rendering engine is external to Zena and will need to
           # make calls to get assets).
           def baseurl
-            if Zena::ASSET_PORT
+            if Zena::ASSET_PORT > 0
               if Zena::ASSET_PORT == request.port
                 raise Exception.new("Custom rendering not allowed on this process (port == asset_port).")
               else
                 "http://127.0.0.1:#{Zena::ASSET_PORT}"
               end
             else
-              raise Exception.new("Using custom rendering without an asset host ('asset_port' setting in bricks.yml).")
+              # This can break if using mongrel and round-robin (deadlock)
+              "#{ssl_request? ? 'https' : 'http'}://#{current_site.host}"
             end
           end
 

@@ -1,7 +1,7 @@
 # zena apache2 vhost for <%= config[:host] %>
 # automatically generated file
 
-<VirtualHost *<%= config[:ssl] ? ':443' : '' %>>
+<VirtualHost *<%= vhost_port %>>
   ServerName <%= config[:host] %>
 
   DocumentRoot <%= config[:sites_root] %>/<%= config[:host] %>/public
@@ -13,6 +13,8 @@
     AllowOverride None
     Order allow,deny
     Allow from all
+    # Passenger does not support MultiViews and we do not need it.
+    Options -MultiViews
   </Directory>
 
   <% if config[:static].include?('cgi-bin') %>
@@ -42,7 +44,6 @@
     Satisfy All
   </DirectoryMatch>
 
-<% if config[:app_type] == :mongrel %>
   RewriteEngine On
   <% if config[:debug_rewrite] %>
   # rewrite debugging
@@ -59,25 +60,23 @@
   # Rewrite index to check for static
   RewriteRule ^/$ /index.html [QSA]
 
-  # Rewrite to check for Rails cached page
-  RewriteRule ^([^.]+)$ $1.html [QSA]
-
   # Serve static (cached) assets
   RewriteCond %{QUERY_STRING} ^[0-9]+$
-  RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME}.%{QUERY_STRING} -f
+  RewriteCond %{DOCUMENT_ROOT}%{REQUEST_FILENAME}.%{QUERY_STRING} -f
   # We have to use '.'. If we use '?' apache won't find the file.
   RewriteRule ^/(.*)$ %{REQUEST_FILENAME}.%{QUERY_STRING} [L]
 
   # Rails assets (static CSS, JS).
   RewriteCond %{QUERY_STRING} ^[0-9]+$
-  RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} -f
+  RewriteCond %{DOCUMENT_ROOT}%{REQUEST_FILENAME} -f
   RewriteRule ^/(.*)$ %{REQUEST_FILENAME} [L]
 
+<% if config[:app_type] == :mongrel %>
   # else
   #  Request with query string (if some page is cached, the same page with a query should not be served as static)
   RewriteCond %{QUERY_STRING} ^.+$ [OR]
   #  All non-static
-  RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f
+  RewriteCond %{DOCUMENT_ROOT}%{REQUEST_FILENAME} !-f
   RewriteRule ^/(.*)$ balancer://<%= config[:balancer] %>%{REQUEST_URI} [P,QSA,L]
 <% elsif config[:app_type] == :passenger %>
   PassengerAppRoot <%= config[:app_root] %>
@@ -110,11 +109,12 @@
   CustomLog <%= config[:sites_root] %>/<%= config[:host] %>/log/deflate.log deflate
   <% end %>
 
-  <% if config[:ssl] %>
+  <% if ssl %>
   SSLEngine on
   SSLCertificateFile /etc/ssl/<%= config[:host] %>.crt
   SSLCertificateKeyFile /etc/ssl/<%= config[:host] %>.key
   SSLCACertificateFile /etc/ssl/<%= config[:ssl_pem] %>
   SSLVerifyClient None
+  RequestHeader set X_FORWARDED_PROTO 'https'
   <% end %>
 </VirtualHost>

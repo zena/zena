@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{zena}
-  s.version = "1.2.2"
+  s.version = "1.2.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2012-08-30}
+  s.date = %q{2012-08-31}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -626,6 +626,7 @@ Gem::Specification.new do |s|
     "lib/zena/deploy/stats.vhost.rhtml",
     "lib/zena/deploy/template.rb",
     "lib/zena/deploy/vhost.rhtml",
+    "lib/zena/deploy/vhost_ssl_redir.rhtml",
     "lib/zena/deploy/vhost_www.rhtml",
     "lib/zena/fix_rails_layouts.rb",
     "lib/zena/foxy_parser.rb",

@@ -16,9 +16,9 @@ def run(cmd)
 end
 
 operations = [
-  'ruby lib/upload_progress_server.rb ',
   'rake worker:',
 <% if config[:app_type] == :mongrel %>
+  'ruby lib/upload_progress_server.rb ',
   'mongrel_rails cluster::',
 <% end %>  
   # 'rake sphinx:',
@@ -53,6 +53,11 @@ if %w{start restart}.include?(cmd)
   operations.each do |op|
     run "cd #{APP_ROOT} && #{op}start"
   end
+  
+  <% if config[:app_type] == :passenger %>
+  # Restart Passenger
+  run "cd #{APP_ROOT} && touch tmp/restart.txt"
+  <% end %>
 end
 
 unless %w{start stop restart}.include?(cmd)

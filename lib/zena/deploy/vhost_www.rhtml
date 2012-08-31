@@ -1,7 +1,7 @@
 # zena apache2 vhost for <%= config[:host] %>
 # automatically generated file
 
-<VirtualHost *>
+<VirtualHost *<%= vhost_port %>>
   ServerName www.<%= config[:host] %>
 
   RewriteEngine On

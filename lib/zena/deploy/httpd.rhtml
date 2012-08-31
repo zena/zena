@@ -1,9 +1,20 @@
 # zena apache2 setup for <%= config[:balancer] %>
 # automatically generated file
 
+<% if config[:ssl] %>
+NameVirtualHost *:80
+NameVirtualHost *:443
+
+SSLProtocol all
+SSLCipherSuite HIGH:MEDIUM
+<% else %>
 NameVirtualHost *
+<% end %>
+
 <% if config[:app_type] == :passenger  %>
-LoadModule upload_progress_module /usr/lib/apache2/modules/mod_upload_progress.so
+LoadModule passenger_module /usr/lib/ruby/gems/1.8/gems/<%= config[:passenger_version] || 'passenger-3.0.17' %>/ext/apache2/mod_passenger.so
+PassengerRoot /usr/lib/ruby/gems/1.8/gems/<%= config[:passenger_version] || 'passenger-3.0.17' %>
+PassengerRuby /usr/bin/ruby1.8
 PassengerDefaultUser www-data
 <% elsif config[:app_type] == :mongrel %>
 <Proxy *>
@@ -30,8 +41,3 @@ PassengerDefaultUser www-data
   ExpiresByType text/css "access plus 1 year"
   ExpiresByType application/javascript "access plus 1 year"
 </IfModule>
-
-<% if config[:ssl] %>
-SSLProtocol all
-SSLCipherSuite HIGH:MEDIUM
-<% end %>
