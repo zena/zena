@@ -107,8 +107,8 @@ each_add_with_form_klass_set:
   res: "!/hidden.*node\[klass\].*Node.*select.*node\[klass\]/"
 
 each_add_with_select:
-  src: "<r:children><r:each do='title'/><r:add/><r:form><r:select name='icon_id' nodes='images in project' selected='[main.icon_id]_abc'/></r:form></r:children>"
-  'ajax/each/add/with/select/en/list1_form.erb': '/map.|r| \[r.name, r.zip.to_s\]., \"#.@node.icon_zip._abc\"\)/'
+  src: "<r:children><r:each do='title'/><r:add/><r:form><r:select name='icon_id' nodes='images in project' selected='main.icon_id'/></r:form></r:children>"
+  'ajax/each/add/with/select/en/list1_form.erb': '/map.|r| \[r.name, r.zip.to_s\]., \"#.@node.icon_zip\"\)/'
   tem: "/nodes.kpath LIKE 'NDI%'/"
 
 each_edit_with_form:

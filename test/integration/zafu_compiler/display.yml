@@ -418,6 +418,13 @@ show_param:
   tem: "<%= h params[:t] %>"
   res: "hello"
 
+display_hash_type:
+  context:
+    node: test
+  src: "<r:void do='settings[\"one\"]'/>"
+  tem: "<%= (@node.prop['settings'] ? @node.prop['settings'][\"one\"] : nil) %>"
+  res: "un"
+  
 default_host:
   context:
     node: 'bird_jpg'

@@ -45,7 +45,7 @@ translate_id_to_zip:
 select_class_existing_node:
   context:
     node: 'letter'
-  src: "<r:form><r:select name='klass' root_class='Note' selected='Post'/></r:form>"
+  src: "<r:form><r:select name='klass' root_class='Note'/></r:form>"
   res: "/<select name=.node\[klass\]. id=.list1_klass.><option value=\"Note\">klass_Note<\/option>\n<option value=\"Letter\" selected=\"selected\">  klass_Letter<\/option>\n<option value=\"Post\">  klass_Post<\/option><\/select>/"
 
 select_class_new_node:
@@ -66,12 +66,12 @@ select_data:
   res: "/<select name=.k. data-d='foo'.*NN.*k_Note.*NNL.*k_Letter.*NNP.*k_Post/"
 
 select_nodes:
-  src: "<r:form><r:select nodes='images in site' name='foo'></select></r:form>"
-  res: "/name='node\[foo\]'[^>]+><option value=\"\" selected=\"selected\"></option>\n<option value=\"40\">Autumn Tree</option>\n<option value=\"30\">bird</option>/"
+  src: "<r:form><r:select nodes='images in site' name='origin'></select></r:form>"
+  res: "/name='node\[origin\]'[^>]+><option value=\"\" selected=\"selected\"></option>\n<option value=\"40\">Autumn Tree</option>\n<option value=\"30\">bird</option>/"
 
 select_nodes_show_rubyless:
-  src: "<r:form><r:select nodes='images in site' name='foo' show='title.limit(3)'></select></r:form>"
-  res: "/name='node\[foo\]'[^>]+><option value=\"\" selected=\"selected\"></option>\n<option value=\"40\">Aut…</option>\n<option value=\"30\">bir…</option>/"
+  src: "<r:form><r:select nodes='images in site' name='origin' show='title.limit(3)'></select></r:form>"
+  res: "/name='node\[origin\]'[^>]+><option value=\"\" selected=\"selected\"></option>\n<option value=\"40\">Aut…</option>\n<option value=\"30\">bir…</option>/"
 
 do_not_set_parent_id_if_form_contains_parent_id:
   src: "<r:children><r:each do='title'/><r:add/><r:form><r:select name='parent_id' nodes='projects in site'/><input name='title'/></r:form></r:children>"
@@ -82,15 +82,15 @@ select_nodes_selected:
   res: "/option\s* value=.21.\s* selected=.selected.>Clean Water/"
 
 select_nodes_in_ajax:
-  src: "<r:pages><r:each do='title'/><r:add/><r:form><r:select nodes='images in site' name='d_ref'/></r:form></r:pages>"
-  res: "/name=.node\[d_ref\].[^>]+><option value=\"\" selected=\"selected\"></option>\n<option value=\"40\">Autumn Tree</option>\n<option value=\"30\">bird</option>/"
+  src: "<r:pages><r:each do='title'/><r:add/><r:form><r:select nodes='images in site' name='origin'/></r:form></r:pages>"
+  res: "/name=.node\[origin\].[^>]+><option value=\"\" selected=\"selected\"></option>\n<option value=\"40\">Autumn Tree</option>\n<option value=\"30\">bird</option>/"
 
 select_nodes_show_attr:
   src: "<r:form><r:select name='title' nodes='images in site' attr='ext' show='title'/></r:form>"
   res: "/name=.node\[title\].[^>]+>.*<option value=\"jpg\">flower</option>\n<option value=\"jpg\">it's a lake</option>/"
 
 select_time_zone:
-  src: "<r:form><r:select type='time_zone' name='d_tz'/></r:form>"
+  src: "<r:form><r:select type='time_zone' name='settings[tz]'/></r:form>"
   res: "/Asia/Jakarta.*Europe/Zurich.*US/Hawai"
 
 select_values_tshow:
@@ -300,6 +300,20 @@ select_eval_value:
   src: "<r:select param='q' eval='params[:f]'/>"
   tem: "<select name='q'><%= options_for_select((params[:f] || '').split(',').map(&:strip).map {|e| [trans(e), e]}, param_value(\"q\").to_s) %></select>"
   res: "<select name='q'><option value=\"a\">a</option>\n<option value=\"b\">b</option>\n<option value=\"c\">c</option>\n<option value=\"en\" selected=\"selected\">english</option></select>"
+
+select_for_hash:
+  context:
+    node: test
+  src: "<r:select label='t' name='settings[one]' values='foo,un'/>"
+  tem: "<label>settings_one</label> <span><select name='node[settings][one]'><%= options_for_select([[\"settings_one_foo\", \"foo\"], [\"settings_one_un\", \"un\"]], (@node.prop['settings'] ? @node.prop['settings'][\"one\"] : nil).to_s) %></select></span>"
+  res: "/<label>settings_one</label> .*option value=\"un\" selected=\"selected\"/"
+
+select_for_hash_tprefix:
+  context:
+    node: test
+  src: "<r:select tprefix='rel' name='settings[one]' values='foo,un'/>"
+  tem: "<select name='node[settings][one]'><%= options_for_select([[\"rel_foo\", \"foo\"], [\"rel_un\", \"un\"]], (@node.prop['settings'] ? @node.prop['settings'][\"one\"] : nil).to_s) %></select>"
+  res: "<select name='node[settings][one]'><option value=\"foo\">rel_foo</option>\n<option value=\"un\" selected=\"selected\">rel_un</option></select>"
 
 crop:
   context:

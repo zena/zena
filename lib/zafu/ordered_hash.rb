@@ -34,7 +34,7 @@ module Zafu
       end
 
       def each
-        get_keys.each do |k|
+        keys.each do |k|
           yield(k, self[k])
         end
       end

@@ -436,9 +436,15 @@ module Zena
             attribute = param
           else
             return parser_error("missing name") unless attribute
-
-            if value = @params[:selected]
-              selected = ::RubyLess.translate_string(self, value)
+            # {:value=>"<%= fquote((@node.prop['settings'] ? @node.prop['settings'][\"foo\"] : nil)) %>", :name=>"node[settings][foo]"}
+            # "settings_foo"
+            
+            
+            if selected = @params[:value] || @params[:selected]
+              selected = ::RubyLess.translate(self, selected)
+              unless selected.klass <= String
+                selected = "#{selected}.to_s"
+              end
             elsif @context[:in_filter]
               selected = "param_value(#{attribute.inspect}).to_s"
             elsif %w{parent_id}.include?(attribute)
@@ -448,18 +454,21 @@ module Zena
             elsif attribute =~ /^(.*)_id$/
               # relation
               selected = "#{node}.rel[#{$1.inspect}].other_zip.to_s"
-            elsif type = node.klass.safe_method_type([attribute])
-              selected = "#{node}.#{type[:method]}.to_s"
+            elsif selected = html_attributes[:value]
+              if selected =~ /\A<%= .*?\((.+)\)\s*%>/
+                # remove <%= %>
+                selected = "#{$1}.to_s"
+              else
+                selected = selected.inspect
+              end
             else
-              # ???
-              selected = "#{node}.prop[#{attribute.inspect}].to_s"
+              # FIXME: This would not work for a [asdf][asdf] hash property type...
+              selected = ::RubyLess.translate(self, "this.#{attribute}")
             end
           end
           
           if @context[:in_filter] || @params[:param]
             html_attributes[:name] = attribute
-          else
-            html_attributes[:name] = "#{node.form_name}[#{attribute}]"
           end
           html_attributes.delete(:value)
           select_tag = Zafu::Markup.new('select', html_attributes)
@@ -480,7 +489,7 @@ module Zena
                 end
               end
             end
-            select_tag.wrap "<%= options_for_select(#{options_list.inspect}, (#{node}.new_record? ? #{selected} : #{node}.klass)) %>"
+            select_tag.wrap "<%= options_for_select(#{options_list.inspect}, #{selected}) %>"
           elsif @params[:type] == 'time_zone'
             # <r:select name='d_tz' type='time_zone'/>
             select_tag.wrap "<%= options_for_select(TZInfo::Timezone.all_identifiers, #{selected}) %>"
@@ -802,6 +811,7 @@ module Zena
                 show_values = translate_list(show)
               else
                 tprefix = @params[:tprefix] || @params[:name] || @params[:param]
+                tprefix = tprefix.gsub('[','_').gsub(']','')
                 if tprefix == 'false'
                   tprefix = ''
                 else

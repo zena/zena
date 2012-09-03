@@ -61,7 +61,8 @@ class AclTest < Zena::Unit::TestCase
         end
         assert subject.update_attributes(:query => "'nodes where 1 = \#{asset_host? ? 1 : 0} in site'")
         assert_nil subject.authorize?(base_node, {:id => nodes_zip(:over_zeus)}, mock_request)
-        assert_equal 'A plan to overrule Zeus', subject.authorize?(base_node, {:id => nodes_zip(:over_zeus)}, mock_request(:get, {}, 80)).title
+        visitor.asset_host = true
+        assert_equal 'A plan to overrule Zeus', subject.authorize?(base_node, {:id => nodes_zip(:over_zeus)}, mock_request).title
       end
     end # saving an acl with asset_host in query
 
