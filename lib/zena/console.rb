@@ -20,23 +20,6 @@ module Zena
       secure(Node) { Node.create_node(Node.transform_attributes(attrs)) }
     end
 
-    def rename_prop(list, old_key, new_key)
-      list = find(list) if list.kind_of?(String)
-      if list.first.kind_of?(Node)
-        list = list.map(&:visible_versions).flatten
-      end
-
-      list.each do |rec|
-        prop  = rec.prop
-        value = prop.delete(old_key)
-        if !value.blank?
-          prop[new_key] = value
-          Zena::Db.execute "UPDATE #{rec.class.table_name} SET properties=#{Zena::Db.quote(rec.class.encode_properties(prop))} WHERE id=#{rec[:id]}"
-        end
-      end
-      "Renamed '#{old_key}' to '#{new_key}' in #{list.size} #{list.first.class.to_s.downcase.pluralize}"
-    end
-
     def field_to_prop(list, native_key, prop_key)
       list = find(list) if list.kind_of?(String)
       list.each do |rec|
@@ -70,15 +53,33 @@ module Zena
       end
     end
 
+    def rename_prop(pseudo_sql, old_key, new_key)
+      count = 0
+      foreach(pseudo_sql) do |node|
+        node.versions.each do |rec|
+          count += 1
+          prop  = rec.prop
+          value = prop.delete(old_key)
+          if !value.blank?
+            prop[new_key] = value
+            Zena::Db.execute "UPDATE #{rec.class.table_name} SET properties=#{Zena::Db.quote(rec.class.encode_properties(prop))} WHERE id=#{rec[:id]}"
+          end
+        end
+      end
+      "Renamed '#{old_key}' to '#{new_key}' in #{count} versions"
+    end
+
     # Transform every value of a given property by using a block with |node, old_value| and
     # returning the new value.
     def change_prop(pseudo_sql, key)
+      count = 0
       unless block_given?
         puts "You need to provide a block |node, old_value| and return the new value"
         return
       end
       foreach(pseudo_sql) do |node|
         node.versions.each do |v|
+          count += 1
           prop = v.prop
           val  = prop[key]
           new_val = yield(node, val)
@@ -92,6 +93,7 @@ module Zena
           end
         end
       end
+      "Changed '#{key}' prop in #{count} versions"
     end
 
     def login(name, host = nil)

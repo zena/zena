@@ -30,7 +30,14 @@ module Zena
           Zena::SiteWorker.perform(site, action, page + 1)
 
           # do action on nodes
-          site.send(action, nodes, page, page_count)
+          begin
+            site.send(action, nodes, page, page_count)
+          rescue => err
+            # If we let the action fail, it will rerun and we will recreate an action for page + 1 !
+            Site.logger.warn "[JOB] Failed: '#{action}'"
+            Site.logger.warn err.message
+          end
+          
         end
       end
     end

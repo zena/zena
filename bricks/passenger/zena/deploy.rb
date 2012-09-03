@@ -16,7 +16,8 @@ Capistrano::Configuration.instance(:must_exist).load do
         c_file = File.read("#{Zena::ROOT}/vendor/apache2_upload_progress/mod_upload_progress.c")
         run "test -e #{tmp_dir}  || mkdir #{tmp_dir}"
         put c_file, "#{tmp_dir}/mod_upload_progress.c"
-        run "cd #{tmp_dir} && apxs2 -c -i mod_upload_progress.c && rm -rf #{tmp_dir}"
+        run "cd #{tmp_dir} && apxs2 -c -i -a mod_upload_progress.c && rm -rf #{tmp_dir}"
+        run apache2_reload_cmd
       end
     end
 

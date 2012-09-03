@@ -2,7 +2,7 @@ module Zafu
 
   if RUBY_VERSION.split('.')[0..1].join('.').to_f > 1.8
     OrderedHash = Hash
-  else
+  elsif !defined?(OrderedHash)
     class OrderedHash < Hash
 
       def []=(k, v)
@@ -22,8 +22,9 @@ module Zafu
         res.merge!(hash)
         res
       end
-
+      
       alias o_keys keys
+      
       def get_keys
         @keys ||= o_keys
       end
@@ -33,7 +34,7 @@ module Zafu
       end
 
       def each
-        keys.each do |k|
+        get_keys.each do |k|
           yield(k, self[k])
         end
       end

@@ -339,7 +339,7 @@ Capistrano::Configuration.instance(:must_exist).load do
 
     run "test -e /etc/apache2/sites-enabled/000-default && a2dissite default || echo 'default already disabled'"
 
-    modules = %w{rewrite deflate proxy_balancer proxy proxy_http expires}
+    modules = %w{rewrite headers deflate proxy_balancer proxy proxy_http expires}
     if self[:ssl]
       modules << 'ssl'
       modules << 'headers'
