@@ -33,9 +33,9 @@ class UserSessionsController < ApplicationController
       @user_session.destroy
       reset_session
       #flash.now[:notice] = _("Successfully logged out.")
-      redirect_to "http://#{current_site.host}#{port}#{params[:redirect] || home_path(:prefix => prefix)}"
+      redirect_to "http://#{current_site.host}#{params[:redirect] || home_path(:prefix => prefix)}"
     else
-      redirect_to "http://#{current_site.host}#{port}#{home_path(:prefix => prefix)}"
+      redirect_to "http://#{current_site.host}#{home_path(:prefix => prefix)}"
     end
   end
 

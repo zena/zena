@@ -15,7 +15,7 @@ class Acl < ActiveRecord::Base
   include RubyLess
 
   safe_method :params  => Zena::Use::ZafuSafeDefinitions::ParamsDictionary
-  safe_method :asset_host?  => Boolean
+  safe_method :asset_host? => {:class => Boolean, :method => 'visitor.asset_host?'}
   safe_method :visitor => User
 
   def safe_method_type(signature, receiver = nil)
@@ -45,11 +45,6 @@ class Acl < ActiveRecord::Base
     @exec_skin ||= secure(Skin) { Skin.find(exec_skin_id) }
   end
 
-  # Returns true if we are on the asset host.
-  def asset_host?
-    @asset_host
-  end
-
   # Make visitor public so that we can use 'visitor' in queries.
   def visitor
     super
@@ -76,7 +71,7 @@ class Acl < ActiveRecord::Base
     def make_query(node, params = {}, request = nil)
       @node   = node
       @params = params
-      @asset_host = request ? request.port.to_i == Zena::ASSET_PORT : false
+      
       query_str = safe_eval(self.query)
 
       # We add a stupid order clause to avoid the 'order by title' thing.

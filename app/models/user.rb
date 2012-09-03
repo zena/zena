@@ -24,7 +24,7 @@ things they can/cannot do :
 TODO: when a user is 'destroyed', pass everything he owns to another user or just mark the user as 'deleted'...
 =end
 class User < ActiveRecord::Base
-  attr_accessor :zafu_cache
+  attr_accessor :zafu_cache, :asset_host
   
   include Property
   RESCUE_SKIN_ID = -1
@@ -66,7 +66,7 @@ class User < ActiveRecord::Base
   safe_attribute          :login, :time_zone, :created_at, :updated_at, :lang, :id
   safe_method             :initials => String, :status => Number, :status_name => String,
                           :is_anon? => Boolean, :is_admin? => Boolean, :user? => Boolean, :commentator? => Boolean,
-                          :moderated? => Boolean
+                          :moderated? => Boolean, :asset_host? => Boolean
 
   safe_context            :node => node_user_proc,
                           :to_publish => ['Version'], :redactions => ['Version'], :proposed => ['Version'],
@@ -215,6 +215,9 @@ class User < ActiveRecord::Base
     # tested in site_test
     user_site.anon_id == self[:id] && (!new_record? || self[:login].nil?) # (when creating a new site, anon_id == nil)
   end
+  
+  # This is set on the user during login.
+  alias asset_host? asset_host
 
   # Return true if the user's status is high enough to start editing nodes.
   def user?

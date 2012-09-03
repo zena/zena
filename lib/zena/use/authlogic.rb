@@ -39,7 +39,8 @@ module Zena
           end
 
           def set_visitor
-            unless site = forge_cookie_with_http_auth || Site.find_by_host(request.host)
+            forge_cookie_with_http_auth
+            unless site = Site.find_by_host(request.host)
               raise ActiveRecord::RecordNotFound.new("host not found #{request.host}")
             end
 
@@ -47,7 +48,10 @@ module Zena
             ::I18n.locale = site.default_lang
 
             User.send(:with_scope, :find => {:conditions => ['site_id = ?', site.id]}) do
-              Thread.current[:visitor] = token_visitor || registered_visitor || anonymous_visitor(site)
+              if user = token_visitor || registered_visitor || anonymous_visitor(site)
+                user.asset_host = @asset_host
+                Thread.current[:visitor] = user
+              end
             end
           end
 
@@ -83,27 +87,17 @@ module Zena
           end
 
           # Create a fake cookie based on HTTP_AUTH using session_id and render_token. This is
-          # only used for requests to localhost.
+          # only used for requests from localhost (asset host).
           def forge_cookie_with_http_auth
-            if (request.host == '127.0.0.1' || request.host == 'localhost') && request.port == Zena::ASSET_PORT
+            if (request.headers['REMOTE_ADDR'] == '127.0.0.1' || request.headers['REMOTE_ADDR'] == '::1') && 
+               (Zena::ASSET_PORT.to_i == 0 || request.port.to_i == Zena::ASSET_PORT)
               authenticate_with_http_basic do |login, password|
                 # login    = visitor.id
                 # password = persistence_token
-
-                # Temporary user to find site
-                user = User.find(login)
-                if user && site = user.site
-                  # OK, we can set host
-                  request.env['HTTP_HOST'] = "#{site.host}:#{Zena::ASSET_PORT}"
-                  # forge cookie
-                  cookies['user_credentials'] = "#{password}::#{login}"
-                  site
-                else
-                  raise ActiveRecord::RecordNotFound
-                end
+                @asset_host = true
+                # forge cookie
+                cookies['user_credentials'] = "#{password}::#{login}"
               end
-            else
-              nil
             end
           end
 
