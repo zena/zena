@@ -987,9 +987,7 @@ Zena.prepare_query = function(data, base, res) {
   return res
 }
 
-Zena.do = function(method, dom, query) {
-  var dom = $(dom)
-
+var makeUrl = function(method, dom, query) {
   var zip
   if (typeof(query) == 'string') {
     query = {id:query}
@@ -1010,23 +1008,42 @@ Zena.do = function(method, dom, query) {
     // put
     url = '/nodes/' + zip
   }
+  return url
+}
 
+Zena.do = function(method, dom, query, opts) {
+  var dom = $(dom)
+  var opts = opts || {}
   if (Object.prototype.toString.apply(query) === '[object Array]') {
     var list = query
     var todo = list.length
     for (var i=0; i < list.length; i++) {
-      new Ajax.Request(url, {
+      var q = list[i]
+      new Ajax.Request(makeUrl(method, dom, q), {
         method:method,
-        parameters:Zena.prepare_query(list[i]),
+        parameters:Zena.prepare_query(q),
         asynchronous:true,
         onSuccess: function() {
-          todo--;
+          todo--
           if (todo == 0) {
+            if (opts.onSuccess) {
+              opts.onSuccess(dom)
+              return
+            }
+            
+            while(!dom.getAttribute('data-z')) {
+              dom = dom.up()
+              if (dom.tagName == 'BODY') {
+                // reload page
+                window.location.href = window.location.href
+                return
+              }
+            }
             Zena.reload(dom)
           }
         },
-        onFailure: function() {
-          alert("Could not "+method+" "+Object.toJSON(query))
+        onFailure: opts.onFailure || function() {
+          alert("Could not "+method+" "+Object.toJSON(q))
         }
       });
     }
@@ -1034,7 +1051,7 @@ Zena.do = function(method, dom, query) {
     query.dom_id = dom.id
     if (!query.s) query.s = $(document.body).getAttribute('data-z')
     if (!query.t_url) query.t_url = $(document.body).getAttribute('data-t') + '/' + (dom.getAttribute('data-t') || dom.id)
-    new Ajax.Request(url, {
+    new Ajax.Request(makeUrl(method, dom, query), {
       method:method,
       parameters:Zena.prepare_query(query),
       asynchronous:true,
@@ -1063,4 +1080,94 @@ Zena.loading = function(e) {
   e.addClassName('zloading')
 }
 
+Zena._add_sort = function(dom, upd, elem, val) {
+  var query
+  elem.setAttribute('data-p',val)
+  var link_id = elem.getAttribute('data-l')
+  if (link_id) {
+    query = {
+      id:elem.id.gsub(/^[^0-9]+/,''),
+      node: {
+        link_id:elem.getAttribute('data-l'),
+        l_status:val
+      }
+    }
+  } else {
+    query = {
+      id:elem.id.gsub(/^.*?_/,''),
+      node: {}
+    }
+    query.node[dom.getAttribute('data-a') || 'position'] = val
+  }
+  upd.push(query)
+}
 
+Zena._sortable_upd = function(dom) {
+  var dom  = $(dom)
+  var list = dom.childElements()
+  // remove elements without 'data-p' attribute (forms, add buttons, etc)
+  for(var i = list.length - 1; i >= 0; i--) {
+    if (!list[i].hasAttribute('data-p') || !list[i].id) {
+      list.splice(i,1)
+    }
+  }
+  var upd = []
+  var prev = list[0]
+  var p_s  = parseFloat(prev.getAttribute('data-p')) || 0
+  
+  if (p_s == 0) {
+    p_s = 1
+    Zena._add_sort(dom, upd, prev, p_s)
+  }
+
+  var list_len = list.length
+  for(var i = 1; i < list_len; i++) {
+    var curr = list[i]
+    var c_s  = parseFloat(curr.getAttribute('data-p')) || 0
+    var next = list[i+1]
+    var n_s  = next ? parseFloat(next.getAttribute('data-p')) || 0 : false
+    if (i == 1 && p_s > c_s) {
+      p_s = c_s > 0.01 ? c_s / 2 : 1
+      Zena._add_sort(dom, upd, prev, p_s)
+    }
+
+    if(p_s < c_s) {
+      // ok
+    } else {
+      if (n_s && p_s < n_s && n_s - p_s > 0.01) {
+        c_s = (p_s + n_s) / 2
+      } else {
+        c_s = p_s + 1
+      }
+      Zena._add_sort(dom, upd, curr, c_s)
+    }
+    prev = curr
+    p_s = c_s
+  }
+
+  Zena.put(dom, upd)
+}
+
+Zena.sortable = function(dom) {
+  var dom = $(dom)
+  Sortable.create(dom, {
+    onUpdate: Zena._sortable_upd
+  })
+}
+
+Zena.resetSort = function(dom) {
+  var dom = $(dom)
+  var list = dom.childElements()
+  var upd = []
+  // remove elements without 'data-p' attribute (forms, add buttons, etc)
+  for(var i = list.length - 1; i >= 0; i--) {
+    if (!list[i].getAttribute('data-p') || !list[i].id) {
+      list.splice(i,1)
+    }
+  }
+  
+  for(var i = list.length - 1; i >= 0; i--) {
+    Zena._add_sort(dom, upd, list[i], '')
+  }
+  Zena.put(dom, upd)
+}

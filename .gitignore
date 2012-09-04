@@ -19,6 +19,7 @@ doc/coverage
 log/
 pkg/*
 public/images/ext/*_pv.png
+public/static
 public/images/ext/*_std.png
 public/images/ext/*_tiny.png
 public/images/ext/*_mini.png

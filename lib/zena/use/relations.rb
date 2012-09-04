@@ -130,7 +130,7 @@ module Zena
         def l_status
           return @l_status if defined? @l_status
           val = @link ? @link[:status] : self['l_status']
-          val ? val.to_i : nil
+          val ? val.to_f : nil
         end
 
         # TODO: could we use LINK_ATTRIBUTES and 'define_method' here ?
@@ -232,7 +232,7 @@ module Zena
         end
 
         def l_status=(v)
-          @l_status = v.blank? ? nil : v.to_i
+          @l_status = v.blank? ? nil : v.to_f
           if rel = relation_proxy_from_link
             rel.other_status = @l_status
           end
