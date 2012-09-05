@@ -67,7 +67,7 @@ trans_rubyless_attr:
   context:
     lang: 'fr'
   src: "<p do=\"trans(v.lang)\"/>"
-  tem: "<p><%=h trans(@node.version.lang) %></p>"
+  tem: "<p><%= trans(@node.version.lang) %></p>"
   res: "<p>français</p>"
 
 trans_attr:
@@ -97,6 +97,11 @@ trans_literal_string:
 trans_block:
   src: "<r:t>en</r:t>"
   tem: "english"
+  
+link_trans:
+  # SECURITY: translation **REMOVES** html_escape (because the dictionary can contain JS or images).
+  src: "<r:link do='t' text='#{title}'/>"
+  tem: "<a href='<%= zen_path(@node) %>'><%= trans(\"#{@node.prop['title']}\") %></a>"
 
 lang_links:
   src: "<div id='lang' do='lang_links'><a>en</a> | <b>fr</b></div>"

@@ -699,7 +699,7 @@ module Zena
 
         # Also used by rubyless_expand
         def show_string(method)
-          if param(:h) == 'false'
+          if param(:h) == 'false' || (method.kind_of?(RubyLess::TypedString) && method.opts[:html_safe])
             "<%= #{method} %>"
           else
             "<%=h #{method} %>"

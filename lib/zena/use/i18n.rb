@@ -14,7 +14,7 @@ module Zena
         include RubyLess
 
         # never returns nil
-        safe_method [:get, String] => {:class => String, :accept_nil => true}
+        safe_method [:get, String] => {:class => String, :accept_nil => true, :html_safe => true}
 
         def initialize(node_id, static = nil)
           @node_id = node_id
@@ -27,6 +27,7 @@ module Zena
         end
 
         def get_without_loading(key, use_global = true)
+          # SECURITY: We consider all strings in dictionaries as SAFE.
           @dict[key] || (use_global && ApplicationController.send(:_, key))
         end
 
@@ -349,12 +350,14 @@ module Zena
             { :class  => String,
               :method => "#{dict}.get",
               :accept_nil => true,
+              :html_safe  => true,
               :pre_processor => Proc.new {|this, str| trans(str)}
             }
           else
             { :class  => String,
               :method => 'trans',
               :accept_nil => true,
+              :html_safe  => true,
               :pre_processor => Proc.new {|this, str| trans(str)}
             }
           end
@@ -367,7 +370,7 @@ module Zena
             # will call ApplicationController(:_) if key is not found
             dict.get(text, use_global)
           elsif use_global
-            helper.send(:_, text)
+            ::ERB::Util.html_escape(helper.send(:_, text))
           else
             nil
           end
