@@ -107,7 +107,7 @@ module Bricks
             :type        => 'text/html',
             # Compile html to pdf
             :disposition => 'inline',
-            :data        => "Could not render pdf file... <a href='#{debug_url}'>debug</a>"
+            :error       => "Could not render pdf file... <a href='#{debug_url}'>debug</a>"
           }
         end
       end

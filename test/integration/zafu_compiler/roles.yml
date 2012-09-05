@@ -10,7 +10,7 @@ default:
 
 show_property_filter_vclass:
   src: "<r:Letter? do='paper'/>"
-  tem: "<% if @node.kpath_match?('NNL') %><%= @node.prop['paper'] %><% end %>"
+  tem: "<% if @node.kpath_match?('NNL') %><%=h @node.prop['paper'] %><% end %>"
 
 show_property_filter_role_no_role:
   src: "<r:Original?>Has an origin</r:Original?>"
@@ -59,12 +59,12 @@ vclass_name:
   context:
     node: letter
   src: "<r:vclass do='name'/>"
-  tem: "<% var1 = @node.virtual_class %><%= var1.name %>"
+  tem: "<% var1 = @node.virtual_class %><%=h var1.name %>"
   res: "Letter"
 
 vclass_icon:
   src: " <r:Letter do='icon'/>"
-  tem: "<% if var1 = VirtualClass[\"Letter\"] %> <%= var1.prop['icon'] %><% end %>"
+  tem: "<% if var1 = VirtualClass[\"Letter\"] %> <%=h var1.prop['icon'] %><% end %>"
   res: " /images/page.png"
 
 vclass_img:
@@ -89,7 +89,7 @@ vclass_column_size:
 
 vclass_context:
   src: "<r:Image><r:name/></r:Image>"
-  tem: "<% if var1 = VirtualClass[\"Image\"] %><%= var1.name %><% end %>"
+  tem: "<% if var1 = VirtualClass[\"Image\"] %><%=h var1.name %><% end %>"
   res: "Image"
 
 vclass_scope:
@@ -101,7 +101,7 @@ vclass_scope:
 
 vclass_in_rubyless:
   src: "<b do='Contact.name'/>"
-  tem: "<b><%= (VirtualClass[\"Contact\"] ? VirtualClass[\"Contact\"].name : nil) %></b>"
+  tem: "<b><%=h (VirtualClass[\"Contact\"] ? VirtualClass[\"Contact\"].name : nil) %></b>"
   res: "<b>Contact</b>"
 
 grid_manual:
@@ -137,4 +137,4 @@ inspect_display_links:
         <li do='each' do='link'/>
       </ul>
     </r:Template>
-  tem: '/<h3><%= _zrel %></h3>/'
+  tem: '/<h3><%=h _zrel %></h3>/'

@@ -242,7 +242,7 @@ query_count:
 
 simple_select:
   src: "<div do='nodes select title as ti' find='first' do='ti'/>"
-  tem: '/<%= var1.attributes\["ti"\] %>/'
+  tem: '/<%=h var1.attributes\["ti"\] %>/'
   res: "<div>crocodiles</div>"
 
 select_with_type:
@@ -252,12 +252,12 @@ select_with_type:
 
 select_in_from:
   src: "<div do='images select title as it from projects select title as pt in site' do='each' join=', '><r:pt/>: <r:it/></div>"
-  tem: '/<%= var2.attributes\["pt"\] %>: <%= var2.attributes\["it"\] %>/'
+  tem: '/<%=h var2.attributes\["pt"\] %>: <%=h var2.attributes\["it"\] %>/'
   res: "<div>a wiki with Zena: bird, a wiki with Zena: flower, Clean Water project: it's a lake</div>"
 
 select_in_from_saved:
   src: "<div do='images select title as it from projects select title as pt in site' do='set' list='this' do='list' do='each' join=', '><r:pt/>: <r:it/></div>"
-  tem: '/<%= var3.attributes\["pt"\] %>: <%= var3.attributes\["it"\] %>/'
+  tem: '/<%=h var3.attributes\["pt"\] %>: <%=h var3.attributes\["it"\] %>/'
   res: "<div>a wiki with Zena: bird, a wiki with Zena: flower, Clean Water project: it's a lake</div>"
 
 select_group:
@@ -284,7 +284,7 @@ find_with_rubyless:
 
 find_loads_class:
   src: "<div do='find(11)'><r:origin/></div>"
-  tem: "<% if var1 = find_node_by_zip(11) %><div><%= var1.prop['origin'] %></div><% end %>"
+  tem: "<% if var1 = find_node_by_zip(11) %><div><%=h var1.prop['origin'] %></div><% end %>"
 
 query_on_vclass:
   # typical syntax error (should be Contact?)

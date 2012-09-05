@@ -221,7 +221,7 @@ textarea_with_blocks:
   context:
     node: 'ant'
   src: "<r:Contact? do='textarea' name='first_name'>Sir <r:show attr='first_name'/></r:Contact?>"
-  tem: "/<textarea name='node\[first_name\]'>Sir <%= h @node.prop\['first_name'\] %></textarea>/"
+  tem: "/<textarea name='node\[first_name\]'>Sir <%=h @node.prop\['first_name'\] %></textarea>/"
   res: "<textarea name='node[first_name]'>Sir Solenopsis</textarea>"
 
 input_new:
@@ -232,7 +232,7 @@ input_new:
 
 show_in_form:
   src: "<r:form><b do='title'/></r:form>"
-  tem: "/<b><%= @node.prop\['title'\] %></b>/"
+  tem: "/<b><%=h @node.prop\['title'\] %></b>/"
   res: '/<b>status title</b>/'
 
 not_set_parent_id:

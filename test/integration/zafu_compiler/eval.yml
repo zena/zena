@@ -24,12 +24,12 @@ set_var:
 
 set_var_propagates:
   src: "<div do='set' a='%q{hello}'><r:void do='set' a='%q{goodbye}'/><r:a/></div>"
-  tem: '<div><% _za = "hello" %><% _za = "goodbye" %><%= _za %></div>'
+  tem: '<div><% _za = "hello" %><% _za = "goodbye" %><%=h _za %></div>'
   res: "<div>goodbye</div>"
 
 set_var_can_be_nil:
   src: "<div do='set' a='%q{hello}'><r:void do='set' a='origin'/><r:a/></div>"
-  tem: "<div><% _za = \"hello\" %><% _za = @node.prop['origin'] || _za %><%= _za %></div>"
+  tem: "<div><% _za = \"hello\" %><% _za = @node.prop['origin'] || _za %><%=h _za %></div>"
   res: "<div>hello</div>"
 
 set_var_different_type:
@@ -38,12 +38,12 @@ set_var_different_type:
 
 node_eval:
   src: "<r:void do='@node.eval(\"title\")'/>"
-  tem: "<%= @node.zafu_eval(\"title\") %>"
+  tem: "<%=h @node.zafu_eval(\"title\") %>"
   res: "status title"
 
 node_eval_array:
   context:
     node: opening
   src: "<r:void do='@node.eval(\"set_tag_ids\")'/>"
-  tem: "<%= @node.zafu_eval(\"set_tag_ids\") %>"
+  tem: "<%=h @node.zafu_eval(\"set_tag_ids\") %>"
   res: "33,34"

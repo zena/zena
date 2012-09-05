@@ -85,7 +85,7 @@ store_node:
 store_in_block:
   src: "<r:block><r:void set_found='this' do='node' where='id = 18 in site' do='page'><r:found do='title'/>: <r:show attr='title'/></r:void></r:block>"
   res: "<div id='list1' data-z='22'>status title: a wiki with Zena</div>"
-  'zafu_attributes/store/in/block/en/list1.erb': "/_zfound = @node.*<% var3 = _zfound %><%= var3.prop\['title'\] %>:/"
+  'zafu_attributes/store/in/block/en/list1.erb': "/_zfound = @node.*<% var3 = _zfound %><%=h var3.prop\['title'\] %>:/"
 
 set_var_outside_block:
   old_src: "<r:node select='18' set_found='this' do='pages'><r:block><r:show attr='title'/>: <r:context select='found' do='title'/></r:block></r:node>"

@@ -12,7 +12,7 @@ params:
     d: 'hello ladies'
   old_src: "<i do='show' param='d'/>"
   src: "<i do='params[:d]'/>"
-  tem: "<i><%= params[:d] %></i>"
+  tem: "<i><%=h params[:d] %></i>"
   res: "<i>hello ladies</i>"
 
 string_gsub:
@@ -146,8 +146,8 @@ hash_to_params:
       one: '1'
       two: '2'
   src: "<b do='{:q => params[:q]}' do='to_param'/>"
-  tem: "<% var1 = {:q => params[:q]} %><b><%= var1.to_param %></b>"
-  res: '<b>q%5Bone%5D=1&q%5Btwo%5D=2</b>'
+  tem: "<% var1 = {:q => params[:q]} %><b><%=h var1.to_param %></b>"
+  res: '<b>q%5Bone%5D=1&amp;q%5Btwo%5D=2</b>'
 
 string_hash:
   src: "<b do='set' a='string_hash'>AAA<r:eval>a['foo']</r:eval></b>"

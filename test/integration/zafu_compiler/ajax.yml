@@ -6,8 +6,8 @@ default:
 
 block:
   src: "<r:parent><r:block name='foobar' do='title'/></r:parent>"
-  tem: "<% if var1 = @node.parent %><div id='foobar' data-z='<%= var1.zip %>'><%= var1.prop['title'] %></div><% end %>"
-  'ajax/block/en/foobar.erb': "<div id='<%= ndom_id(@node) %>' data-z='<%= @node.zip %>'><%= @node.prop['title'] %></div>"
+  tem: "<% if var1 = @node.parent %><div id='foobar' data-z='<%= var1.zip %>'><%=h var1.prop['title'] %></div><% end %>"
+  'ajax/block/en/foobar.erb': "<div id='<%= ndom_id(@node) %>' data-z='<%= @node.zip %>'><%=h @node.prop['title'] %></div>"
 
 add:
   src: "<ul id='children' do='nodes'><li do='each' do='link'/><li do='add'/></ul>"
@@ -133,7 +133,7 @@ block_dictionary:
 make_form:
   src: "<ul do='children'><li do='each' do='title'/><li do='add'/></ul>"
   tem: "/<li style='display:none;' class='form' id='list1_0'>.*remote_form_for\(:node, var2_new"
-  'ajax/make/form/en/list1.erb': "<li id='<%= ndom_id(@node) %>'><%= @node.prop['title'] %></li>"
+  'ajax/make/form/en/list1.erb': "<li id='<%= ndom_id(@node) %>'><%=h @node.prop['title'] %></li>"
   'ajax/make/form/en/list1_form.erb': "/<li class='form' id='<%= ndom_id\(@node\) %>'>/"
 
 each_edit_cannot_write:
@@ -366,7 +366,7 @@ update_target_encode_params:
 
 include_update_target:
   src: "IUT: <r:include template='/ajax/update/target'><r:with part='foo'><r:show attr='title'/></r:with></r:include>"
-  tem: "/IUT: UT: <div .*id='foo'.*><%= h @node.prop\['title'\] %></div> <a .*zen_path.*onclick='new Ajax.Request/"
+  tem: "/IUT: UT: <div .*id='foo'.*><%=h @node.prop\['title'\] %></div> <a .*zen_path.*onclick='new Ajax.Request/"
 
 id_in_each_group_should_be_scoped:
   src: "<ul do='comments from nodes in site' do='group' by='discussion_id'><li do='each'><r:node do='block' do='title'/></li></ul>"
@@ -422,13 +422,13 @@ js:
 
 js_dyn:
   src: "x <r:js>alert('ho <r:title/>');</r:js> y"
-  tem: "x <% js_data << capture do %>alert('ho <%= @node.prop['title'] %>');<% end %> y"
+  tem: "x <% js_data << capture do %>alert('ho <%=h @node.prop['title'] %>');<% end %> y"
   res: "x  y"
   js: "<script type=\"text/javascript\">\n//<![CDATA[\nalert('ho status title');\n//]]>\n</script>"
 
 js_less_then:
   src: "x <r:js>if (i < 4) alert('ho <r:title/>');</r:js> y"
-  tem: "x <% js_data << capture do %>if (i < 4) alert('ho <%= @node.prop['title'] %>');<% end %> y"
+  tem: "x <% js_data << capture do %>if (i < 4) alert('ho <%=h @node.prop['title'] %>');<% end %> y"
   res: "x  y"
   js: "<script type=\"text/javascript\">\n//<![CDATA[\nif (i < 4) alert('ho status title');\n//]]>\n</script>"
 

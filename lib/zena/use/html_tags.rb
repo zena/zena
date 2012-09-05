@@ -163,7 +163,7 @@ module Zena
         include LinkTags
         include RubyLess
 
-        safe_method [:flash_messages] => String
+        safe_method [:flash_messages] => {:class => String, :method => 'flash_messages', :html_safe => true}
         # TODO: replace 'flash_messages' with a FlashHash context or a list
         # of Flash messages.
 
@@ -171,11 +171,11 @@ module Zena
           type = opts[:show] || 'both'
 
           if (type == 'notice' || type == 'both') && flash[:notice]
-            notice = "<div class='auto_fade notice' onclick='new Effect.Fade(this)'>#{flash[:notice]}</div>"
+            notice = "<div class='auto_fade notice' onclick='new Effect.Fade(this)'>#{::ERB::Util.html_escape(flash[:notice])}</div>"
           end
 
           if (type == 'error'  || type == 'both') && flash[:error ]
-            error = "<div class='error' onclick='new Effect.Fade(this)'>#{flash[:error]}</div>"
+            error = "<div class='error' onclick='new Effect.Fade(this)'>#{::ERB::Util.html_escape(flash[:error])}</div>"
           end
 
           if page = opts[:page]

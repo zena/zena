@@ -14,7 +14,7 @@ comments_shown_if_empty_but_can_comment:
 
 discussion:
   src: "<r:discussion do='comments' do='title'></r:discussion>"
-  tem: "<% if var1 = @node.discussion %><% if var2 = var1.comments %><%= var2.first.title %><% end %><% end %>"
+  tem: "<% if var1 = @node.discussion %><% if var2 = var1.comments %><%=h var2.first.title %><% end %><% end %>"
   # no error
   res: "What about rivers ?"
 

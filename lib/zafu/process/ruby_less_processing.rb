@@ -240,12 +240,14 @@ module Zafu
         def rubyless_expand(res)
           if res.klass == String && !@blocks.detect {|b| !b.kind_of?(String)}
             if lit = res.literal
-              out erb_escape(lit)
+              out param(:h) == 'false' ? erb_escape(lit) : ::ERB::Util.html_escape(lit)
             # TODO: Enable this when we have time to ensure tests/functionality work correctly.
             #elsif res.opts[:h]
             #  show_string(res)
-            else
+            elsif res.opts[:html_safe]
               out "<%= #{res} %>"
+            else
+              show_string(res)
             end
           elsif res.klass == Boolean
             expand_if(res)

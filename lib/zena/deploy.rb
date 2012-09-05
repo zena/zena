@@ -94,7 +94,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       'current/log',
       'shared/log',
       # Passenger uses the owner of environment.rb as worker
-      'config/environment.rb',
+      'current/config/environment.rb',
     ].map {|dir| "#{deploy_to}/#{dir}"}
 
     # make sure production.log is created before so that it gets the correct permission
@@ -157,6 +157,11 @@ Capistrano::Configuration.instance(:must_exist).load do
     create_vhost
     create_awstats
     logrotate
+    run "chown -R www-data:www-data #{sites_root}/#{self[:host]}"
+  end
+  
+  task :mksymlinks, :roles => :app do
+    run "#{in_current} rake zena:mksymlinks HOST='#{self[:host]}'"
     run "chown -R www-data:www-data #{sites_root}/#{self[:host]}"
   end
 
@@ -230,7 +235,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       run "test -e /etc/apache2/sites-enabled/#{self[:host]} || a2ensite #{self[:host]}" if debian_host
 
       unless self[:host] =~ /^www/
-        vhost_www = render("#{templates}/vhost_www.rhtml", :config => self, :vhost_port => (self[:ssl] ? ':80' : '80'))
+        vhost_www = render("#{templates}/vhost_www.rhtml", :config => self, :vhost_port => (self[:ssl] ? ':80' : ''))
         put(vhost_www, "#{vhost_root}/www.#{self[:host]}")
         run "test -e /etc/apache2/sites-enabled/www.#{self[:host]} || a2ensite www.#{self[:host]}" if debian_host
       end
@@ -287,7 +292,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       else
         # create logrotate config file
         logrotate_conf = render("#{templates}/logrotate_host.rhtml", :config => self )
-        put(logrotate_conf, "/etc/logrotate.d/#{self[:host]}")
+        put(logrotate_conf, "/etc/logrotate.d/#{db_name}-#{self[:host]}")
       end
     end
   end

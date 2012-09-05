@@ -43,7 +43,7 @@ pages:
 
 root:
   src: "<r:root do='title'/>"
-  tem: "<% if var1 = visitor.site.root_node %><%= var1.prop['title'] %><% end %>"
+  tem: "<% if var1 = visitor.site.root_node %><%=h var1.prop['title'] %><% end %>"
   res: 'Zena the wild CMS'
 
 root_should_be_a_project_for_relations:
@@ -52,7 +52,7 @@ root_should_be_a_project_for_relations:
 
 root_should_be_a_project_for_attributes:
   src: "<r:root do='origin'/>"
-  tem: "<% if var1 = visitor.site.root_node %><%= var1.prop['origin'] %><% end %>"
+  tem: "<% if var1 = visitor.site.root_node %><%=h var1.prop['origin'] %><% end %>"
 
 notes:
   context:
@@ -118,11 +118,11 @@ author:
 
 public_readable_link:
   src: "<r:show attr='set_tag_ids'/>"
-  tem: '<%= h @node.rel["set_tag"].try(:other_zips) %>'
+  tem: '<%=h @node.rel["set_tag"].try(:other_zips) %>'
 
 public_readable_link_for:
   src: "<r:show attr='hot_for_ids'/>"
-  tem: '<%= h @node.rel["hot_for"].try(:other_zips) %>'
+  tem: '<%=h @node.rel["hot_for"].try(:other_zips) %>'
   res: '21'
 
 public_readable_link_id:
@@ -140,7 +140,7 @@ context_root:
 
 parent:
   src: "<r:parent do='title'/>"
-  tem: "<% if var1 = @node.parent %><%= var1.prop['title'] %><% end %>"
+  tem: "<% if var1 = @node.parent %><%=h var1.prop['title'] %><% end %>"
   res: "Clean Water project"
 
 parent_no_parent:
@@ -433,7 +433,7 @@ same_name_as_class:
 
 start:
   src: "<r:start do='title'/>"
-  tem: "<% var1 = start_node %><%= var1.prop['title'] %>"
+  tem: "<% var1 = start_node %><%=h var1.prop['title'] %>"
   res: 'status title'
 
 from_class_start:
@@ -471,7 +471,7 @@ first:
 
 rubyless_first:
   src: "<div do='nodes in site'><span do='first.title'/></div>"
-  tem: "/span><%= \(var1.first \? var1.first.prop\['title'\] : nil\) %>/"
+  tem: "/span><%=h \(var1.first \? var1.first.prop\['title'\] : nil\) %>/"
   res: '<div><span>a wiki with Zena</span></div>'
 
 query_in_array:

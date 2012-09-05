@@ -49,20 +49,17 @@ multiline_tag:
       </div>
     </div>
   tem: "!/do='pages'/"
-
   
 show_title:
-  old_src: "<r:show attr='title'/>"
-  old_tem: "<%= @node.title %>"
   src: "<r:title/>"
-  tem: "<%= @node.prop['title'] %>"
+  tem: "<%=h @node.prop['title'] %>"
   res: "status title"
 
 show_title_with_opts:
   old_src: "<h1 do='title' class='s70' status='true' actions='all'>this is the title</h1>"
   old_tem: "/<h1 class='s<%= @node.version.status %>'><%= show_title\(:node=>@node\) \+ node_actions\(:node=>@node, .*:actions=>\"all\"/"
   src: "<h1 do='title' prefix='status' actions='all' live='true'>this is the title</h1>"
-  tem: "<h1 class='s<%= @node.version.status %>'><span id='_title<%= @node.zip %>'><%= h @node.prop['title'] %></span> <%= node_actions(@node, :actions => \"all\") %></h1>"
+  tem: "<h1 class='s<%= @node.version.status %>'><span id='_title<%= @node.zip %>'><%=h @node.prop['title'] %></span> <%= node_actions(@node, :actions => \"all\") %></h1>"
   old_res: "/<h1 class='s50'><span id='title22'.*class='actions'>/"
   res: "/<h1 class='s50'><span id='_title22'.*class='actions'>/"
 
@@ -90,7 +87,7 @@ show_title_in_list:
 
 do_title:
   src: "<h2 do='title'/>"
-  tem: "<h2><%= @node.prop['title'] %></h2>"
+  tem: "<h2><%=h @node.prop['title'] %></h2>"
   res: "<h2>status title</h2>"
 
 show_title_link_id_from_stored:
@@ -140,7 +137,7 @@ title_in_version_context:
 show_shortcut:
   old_src: "<p do='[title]'>hello</p>"
   src: "<p do='title'>hello</p>"
-  tem: "<p><%= @node.prop['title'] %></p>"
+  tem: "<p><%=h @node.prop['title'] %></p>"
   res: "<p>status title</p>"
 
 zazen_shortcut:
@@ -184,13 +181,13 @@ show_width:
 show_else:
   old_src: "<r:show attr='comment' else='name'/>"
   src: "<r:show eval='origin || title'/>"
-  tem: "<%= h (@node.prop['origin'] or @node.prop['title']) %>"
+  tem: "<%=h (@node.prop['origin'] or @node.prop['title']) %>"
   res: "status title"
 
 show_default:
   old_src: "<r:show attr='d_foo' default='baz'/>"
   src: "<r:show eval='origin || \"baz\"'/>"
-  tem: "<%= h (@node.prop['origin'] or \"baz\") %>"
+  tem: "<%=h (@node.prop['origin'] or \"baz\") %>"
   res: "baz"
 
 javascripts:
@@ -330,7 +327,7 @@ show_with_label_shortcut:
   context:
     lang: fr
   src: "<li do='show' label='t' blank='hide' attr='title'/>"
-  tem: "<% if !@node.prop['title'].blank? %><li><label>titre</label> <span><%= h @node.prop['title'] %></span></li><% end %>"
+  tem: "<% if !@node.prop['title'].blank? %><li><label>titre</label> <span><%=h @node.prop['title'] %></span></li><% end %>"
   res: "<li><label>titre</label> <span>Etat des travaux</span></li>"
 
 show_with_custom_label_shortcut:
@@ -414,15 +411,15 @@ short_path:
 show_param:
   context:
     t: 'hello'
-  src: "<r:show param='t'/>"
-  tem: "<%= h params[:t] %>"
+#  src: "<r:show param='t'/><r:show param='x'/>"
+  tem: "<%=h params[:t] %><%=h params[:x] %>"
   res: "hello"
 
 display_hash_type:
   context:
     node: test
   src: "<r:void do='settings[\"one\"]'/>"
-  tem: "<%= (@node.prop['settings'] ? @node.prop['settings'][\"one\"] : nil) %>"
+  tem: "<%=h (@node.prop['settings'] ? @node.prop['settings'][\"one\"] : nil) %>"
   res: "un"
   
 default_host:

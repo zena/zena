@@ -2,7 +2,7 @@
 <%= hidden_field 'node', 'parent_id', :value => @node.parent_zip  %>
 <p class="btn_validate"><input type="submit" onclick="$('loader').style.visibility = 'visible';" value='<%= _('validate') %>'/></p>
 <% [:redir, :js, :reload].each do |p|; next unless params[p] %>
-<input type='hidden' name='<%= p %>' value='<%= h params[p] %>'/>
+<input type='hidden' name='<%= p %>' value='<%=h params[p] %>'/>
 <% end %>
 
 <input type='hidden' name='node[klass]' value='Template'/>

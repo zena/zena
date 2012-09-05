@@ -205,7 +205,7 @@ module Zena
       module ViewMethods
         include RubyLess
 
-        safe_method [:lang_links, {:wrap => String, :join => String}] => String
+        safe_method [:lang_links, {:wrap => String, :join => String}] => {:class => String, :method => 'lang_links', :html_safe => true}
 
         def self.included(base)
           base.send(:alias_method_chain, :will_paginate, :i18n) if base.respond_to?(:will_paginate)

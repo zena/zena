@@ -147,10 +147,11 @@ module Zena
               }
             end
 
-            if result[:type] == 'text/html'
+            if error = result[:error]
               # error reporting from rendering engine
               opts[:cache] = false
-              render :text => result[:data]
+              @render_error = error
+              render :file => 'nodes/render_error'
             else
               if zafu_headers
                 if disposition = zafu_headers.delete('Content-Disposition')

@@ -432,6 +432,7 @@ module Zena
                 :class  => String,
                 :method => 'zazen',
                 :accept_nil => true,
+                :html_safe => true,
                 :append_hash => {:node => ::RubyLess::TypedString.new(node.to_s, :class => node.klass)}
               }
             else
@@ -517,7 +518,7 @@ module Zena
 
         # ??? <r:h do='foasfa'/> ?
         # def r_h
-        #   out "<%= h ??? %>"
+        #   out "<%=h ??? %>"
         # end
 
         # Insert javascript asset tags
@@ -701,7 +702,7 @@ module Zena
           if param(:h) == 'false'
             "<%= #{method} %>"
           else
-            "<%= h #{method} %>"
+            "<%=h #{method} %>"
           end
         end
 

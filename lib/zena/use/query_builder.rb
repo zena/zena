@@ -5,7 +5,7 @@ module Zena
       module ViewMethods
         include RubyLess
         safe_method [:query_parse, String] => {:class => String, :accept_nil => true}
-        safe_method :query_errors => {:class => String, :nil => true}
+        safe_method :query_errors => {:class => String, :nil => true, :html_safe => true}
 
         def find_node_by_zip(zip)
           return nil unless zip
@@ -34,7 +34,7 @@ module Zena
                 return klass.do_find(opts[:find] || :all, eval(query.to_s, opts[:binding] || binding))
               end
             rescue ::QueryBuilder::Error => err
-              @query_errors = "<span class='query'>#{pseudo_sql}</span> <span class='error'>#{err}</span>"
+              @query_errors = "<span class='query'>#{::ERB::Util.html_escape(pseudo_sql)}</span> <span class='error'>#{::ERB::Util.html_escape(err)}</span>"
             end
           end
           # error

@@ -134,7 +134,7 @@ class HtmlTagsTest < Zena::View::TestCase
           end
 
           should 'show notice' do
-            assert_match %r{Amy & Eve}, flash_messages(:show => 'both')
+            assert_match %r{Amy &amp; Eve}, flash_messages(:show => 'both')
           end
         end
 

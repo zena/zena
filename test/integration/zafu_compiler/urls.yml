@@ -108,7 +108,7 @@ link_parent:
 
 link_with_block:
   src: "<r:link href='parent'>look at <b do='title'>her</b></r:link>"
-  tem: "<a href='<%= zen_path(@node.parent) %>'>look at <b><%= @node.prop['title'] %></b></a>"
+  tem: "<a href='<%= zen_path(@node.parent) %>'>look at <b><%=h @node.prop['title'] %></b></a>"
   res: "<a href='/oo/projects-list/Clean-Water-project'>look at <b>status title</b></a>"
 
 link_project:

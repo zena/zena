@@ -56,7 +56,7 @@ include_part:
 
 include_part_replace_method:
   src: "include_part: <r:include template='/meta/id/name' part='bob' do='title'/>"
-  tem: "include_part: <b><%= @node.prop['title'] %></b>"
+  tem: "include_part: <b><%=h @node.prop['title'] %></b>"
 
 id_do:
   src: "<h1 id='logo' do='title'/>"
@@ -72,7 +72,7 @@ with_part_do_setup:
   
 with_part_do:
   src: "with_part_do: <r:include template='/meta/with/part/do/setup'><r:with part='main' do='title'/></r:include>"
-  tem: "with_part_do: <div id='content'>hello <div id='main'><%= @node.prop['title'] %></div></div>"
+  tem: "with_part_do: <div id='content'>hello <div id='main'><%=h @node.prop['title'] %></div></div>"
   
 # this test is a dummy used by include_context
 context_dummy:

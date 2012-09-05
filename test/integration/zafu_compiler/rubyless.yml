@@ -4,6 +4,11 @@ default:
     visitor: 'anon'
     node: 'status'
 
+show_literal:
+  src: "<r:void do='%Q{&}'/>"
+  tem: "&amp;"
+  res: "&amp;"
+  
 tagged_relation:
   context:
     node: 'art'
@@ -28,7 +33,7 @@ tagged_rubyless:
 
 optional_hash:
   src: "<r:dummy do='hello' lang='fr'/>"
-  tem: "<% var1 = @node.dummy %><%= var1.hello({:lang => \"fr\"}) %>"
+  tem: "<% var1 = @node.dummy %><%=h var1.hello({:lang => \"fr\"}) %>"
   res: "Salut poilu!"
 
 build_query:

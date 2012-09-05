@@ -67,7 +67,7 @@ trans_rubyless_attr:
   context:
     lang: 'fr'
   src: "<p do=\"trans(v.lang)\"/>"
-  tem: "<p><%= trans(@node.version.lang) %></p>"
+  tem: "<p><%=h trans(@node.version.lang) %></p>"
   res: "<p>français</p>"
 
 trans_attr:
