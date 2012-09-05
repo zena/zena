@@ -516,7 +516,12 @@ module Zena
         def r_ajax?
           r_if(RubyLess.translate(self, 'ajax?'))
         end
-
+        
+        def r_reset_sort
+          text = text_for_link(trans('reset_sort'))
+          out "<a href='javascript:void()' onclick='Zena.resetSort(this)'>#{text}</a>"
+        end
+        
         protected
 
           def need_ajax?(each_block)

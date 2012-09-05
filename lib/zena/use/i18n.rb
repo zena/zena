@@ -351,14 +351,20 @@ module Zena
               :method => "#{dict}.get",
               :accept_nil => true,
               :html_safe  => true,
-              :pre_processor => Proc.new {|this, str| trans(str)}
+              :pre_processor => Proc.new {|this, str| 
+                t = erb_escape(trans(str))
+                RubyLess::TypedString.new(t.inspect, :html_safe => true, :literal => t, :class => String)
+              }
             }
           else
             { :class  => String,
               :method => 'trans',
               :accept_nil => true,
               :html_safe  => true,
-              :pre_processor => Proc.new {|this, str| trans(str)}
+              :pre_processor => Proc.new {|this, str| 
+                t = erb_escape(trans(str))
+                RubyLess::TypedString.new(t.inspect, :html_safe => true, :literal => t, :class => String)
+              }
             }
           end
         end
@@ -370,7 +376,7 @@ module Zena
             # will call ApplicationController(:_) if key is not found
             dict.get(text, use_global)
           elsif use_global
-            ::ERB::Util.html_escape(helper.send(:_, text))
+            helper.send(:_, text)
           else
             nil
           end

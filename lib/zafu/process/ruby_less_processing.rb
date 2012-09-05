@@ -238,16 +238,12 @@ module Zafu
         end
 
         def rubyless_expand(res)
-          if res.klass == String && !@blocks.detect {|b| !b.kind_of?(String)}
-            if lit = res.literal
-              out param(:h) == 'false' ? erb_escape(lit) : ::ERB::Util.html_escape(lit)
-            else
-              show_string(res)
-            end
+          if res.klass == String && !(@blocks.detect {|b| !b.kind_of?(String)})
+            r_show(res)
           elsif res.klass == Boolean
             expand_if(res)
           elsif @blocks.empty?
-            out "<%= #{res} %>"
+            r_show(res)
           else
             expand_with_finder(:method => res, :class => res.klass, :query => res.opts[:query], :nil => res.could_be_nil?)
           end

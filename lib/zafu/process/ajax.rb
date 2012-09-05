@@ -368,7 +368,7 @@ module Zafu
 
       # Return true if we need to insert the dom id for this element.
       def need_dom_id?
-        @context[:form] || child['unlink'] || (single_child_method && single_child_method == child['drop'])
+        @context[:form] || @params[:sortable] || child['unlink'] || (single_child_method && single_child_method == child['drop'])
       end
 
       # Unique template_url, ending with dom_id

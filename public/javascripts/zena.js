@@ -1028,18 +1028,9 @@ Zena.do = function(method, dom, query, opts) {
           if (todo == 0) {
             if (opts.onSuccess) {
               opts.onSuccess(dom)
-              return
+            } else {
+              (dom).highlight()
             }
-            
-            while(!dom.getAttribute('data-z')) {
-              dom = dom.up()
-              if (dom.tagName == 'BODY') {
-                // reload page
-                window.location.href = window.location.href
-                return
-              }
-            }
-            Zena.reload(dom)
           }
         },
         onFailure: opts.onFailure || function() {
@@ -1150,13 +1141,30 @@ Zena._sortable_upd = function(dom) {
 
 Zena.sortable = function(dom) {
   var dom = $(dom)
+  if (dom.hasAttribute('data-p')) {
+    // initialized on first child element
+    var id = dom.id.gsub(/_\d+$/,'') + '_s'
+    var parent = dom.up()
+    if (!parent.id) {
+      parent.id = id
+      dom = $(id)
+    } else {
+      dom = $(parent.id)
+    }
+  }
   Sortable.create(dom, {
     onUpdate: Zena._sortable_upd
   })
 }
 
-Zena.resetSort = function(dom) {
-  var dom = $(dom)
+Zena.resetSort = function(ref) {
+  var dom
+  if (typeof(ref) == 'string') {
+    dom = $(ref)
+  } else {
+    dom = $(ref).up().up()
+  }
+  
   var list = dom.childElements()
   var upd = []
   // remove elements without 'data-p' attribute (forms, add buttons, etc)
@@ -1169,5 +1177,19 @@ Zena.resetSort = function(dom) {
   for(var i = list.length - 1; i >= 0; i--) {
     Zena._add_sort(dom, upd, list[i], '')
   }
-  Zena.put(dom, upd)
+  
+  Zena.do('put', dom, upd, {
+    onSuccess: function() {
+      while(!dom.getAttribute('data-z')) {
+        dom = dom.up()
+        if (dom.tagName == 'BODY') {
+          // reload page
+          window.location.href = window.location.href
+          return
+        }
+      }
+      dom.highlight()
+      Zena.reload(dom)
+    }
+  })
 }

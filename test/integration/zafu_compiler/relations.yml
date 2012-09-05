@@ -466,7 +466,7 @@ array_count:
 
 first:
   src: "<div do='nodes in site'><r:first do='link'/></div>"
-  tem: "/if var2 = var1.first %><a href='<%= zen_path\(var2\) %>'><%= var2.prop\['title'\] %>/"
+  tem: "/if var2 = var1.first %><a href='<%= zen_path\(var2\) %>'><%=h var2.prop\['title'\] %>/"
   res: '/a href.*a wiki with Zena/'
 
 rubyless_first:

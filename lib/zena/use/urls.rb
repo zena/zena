@@ -816,6 +816,7 @@ module Zena
           end
 
           def text_for_link(default = nil)
+            
             if dynamic_blocks?
               expand_with
             else
@@ -826,15 +827,19 @@ module Zena
               end
 
               if method
-                method.literal ? erb_escape(method.literal) : "<%= #{method} %>"
+                if method.opts[:html_safe]
+                  method.literal || "<%= #{method} %>"
+                else
+                  method.literal ? ::ERB::Util.html_escape(method.literal) : "<%=h #{method} %>"
+                end
               elsif default
                 default
               elsif node.will_be?(Node)
-                "<%= #{node(Node)}.prop['title'] %>"
+                "<%=h #{node(Node)}.prop['title'] %>"
               elsif node.will_be?(Version)
-                "<%= #{node(Version)}.node.prop['title'] %>"
+                "<%=h #{node(Version)}.node.prop['title'] %>"
               elsif node.will_be?(Link)
-                "<%= #{node(Link)}.name %>"
+                "<%=h #{node(Link)}.name %>"
               else
                 _('edit')
               end

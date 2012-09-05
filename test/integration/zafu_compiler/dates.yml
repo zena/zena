@@ -22,7 +22,7 @@ select_date_attr:
 
 date_in_link:
   src: "<r:link y='log_at.year'/>"
-  tem: "<a href='<%= zen_path(@node, {:y => (@node.log_at ? @node.log_at.year_tz : nil)}) %>'><%= @node.prop['title'] %></a>"
+  tem: "<a href='<%= zen_path(@node, {:y => (@node.log_at ? @node.log_at.year_tz : nil)}) %>'><%=h @node.prop['title'] %></a>"
 
 log_at:
   context:

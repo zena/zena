@@ -13,7 +13,7 @@ add:
   src: "<ul id='children' do='nodes'><li do='each' do='link'/><li do='add'/></ul>"
   tem: "/\[\"children_add\", \"children_0\"\].each\(Element.toggle\)/"
   'ajax/add/en/children_form.erb': "/class='form' .*id='<%= ndom_id\(@node\) %>'/"
-  'ajax/add/en/children.erb': "<li id='<%= ndom_id(@node) %>'><a href='<%= zen_path(@node) %>'><%= @node.prop['title'] %></a></li>"
+  'ajax/add/en/children.erb': "<li id='<%= ndom_id(@node) %>'><a href='<%= zen_path(@node) %>'><%=h @node.prop['title'] %></a></li>"
 
 edit_not_each:
   src: "<li class='blah'>this is a post <r:edit>edit post</r:edit></li>"
@@ -269,6 +269,14 @@ draggable_with_id_set:
   src: "<h1 id='title' do='title' draggable='true'/>"
   tem: "/<h1 id='title'><span class='drag' id='<%= %Q\{drag_#\{@node.zip\}\} %>'><span class='drag_handle'>&nbsp;</span><% add_drag_id\(%Q\{drag_#\{@node.zip\}/"
 
+sortable:
+  context:
+    node: 'projects'
+  src: "<ol do='pages'><li do='reset_sort'/><li do='each' sortable='true' do='title'/></ol>"
+  tem: "/<ol>.*Zena.resetSort.*<li data-a='position' data-p='<%= var2.position %>' id='<%= %Q.list1_#.var2.zip.. %>'>/"
+  res: "/<li data-a='position' data-p='0.0' id='list1_29'><span class='drag_handle'>&nbsp;</span>a wiki with Zena</li>/"
+  js: "/Zena.sortable\('list1_29', \{handle:'drag_handle'\}\)/"
+  
 unlink:
   context:
     node: 'art'

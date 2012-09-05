@@ -45,7 +45,52 @@ build_erb_with_void:
     lang: fr
   src: "ABC: <r:void><</r:void><r:void>%= 5+8 %</r:void><r:void>></r:void></r:load>"
   tem: "ABC: <span class='parser_error'>Invalid tag near '&lt;&lt;/r:void&gt;&lt;'</span>"
-  
+
+erb_in_trans_do:
+  context:
+    lang: fr
+  src: |
+    <r:load dictionary='/Default skin/translations'>
+      <p do='t'>mean</p>
+    </r:load>
+  res: "!/13/"
+
+erb_in_trans_do_t:
+  context:
+    lang: fr
+  src: |
+    <r:load dictionary='/Default skin/translations'>
+      <p do='t("mean")'/>
+    </r:load>
+  res: "!/13/"
+
+erb_in_trans_r_t:
+  context:
+    lang: fr
+  src: |
+    <r:load dictionary='/Default skin/translations'>
+      <r:t>mean</r:t>
+    </r:load>
+  res: "!/13/"
+
+erb_in_trans_dyn_t:
+  context:
+    lang: fr
+  src: |
+    <r:load dictionary='/Default skin/translations'>
+      <p do='t("#{origin}mean")'/>
+    </r:load>
+  res: "!/13/"
+
+erb_in_trans_link:
+  context:
+    lang: fr
+  src: |
+    <r:load dictionary='/Default skin/translations'>
+      <p do='link' t='mean'/>
+    </r:load>
+  res: "!/13/"
+
 mean_inc:
   src: '<'
   res: '&lt;'

@@ -6,7 +6,8 @@ module Zafu
     module Context
       def r_each
         if node.list_context?
-          if @params[:alt_class] || @params[:join]
+          
+          if @params[:alt_class] || @params[:join] || @params[:sortable]
             out "<% #{var}_max_index = #{node}.size - 1 %>" if @params[:alt_reverse]
             out "<% #{node}.each_with_index do |#{var},#{var}_index| %>"
 
@@ -34,11 +35,30 @@ module Zafu
           end
 
           raw_dom_prefix = node.raw_dom_prefix
+          query = node.opts[:query]
 
           with_context(:node => node.move_to(var, node.klass.first, :query => node.opts[:query])) do
             # We pass the :query option for RubyLess resolution by using the QueryBuilder finder
+            
+            before_wrap = ''
 
             steal_and_eval_html_params_for(@markup, @params)
+            if s = @params[:sortable]
+              unless sort_attr = @params.delete(:sort_attr)
+                if query
+                  sort_attr = query.select_keys.include?('l_status') ? 'l_status' : 'position'
+                else
+                  sort_attr = 'position'
+                end
+              end
+              @markup.set_param(:'data-a', sort_attr)
+              @markup.set_dyn_param(:'data-p', "<%= #{node}.#{RubyLess.translate(node.klass, sort_attr)} %>")
+              s = 'drag_handle' if s == 'true'
+              unless s == 'all' || @blocks.detect{|b| b.kind_of?(String) ? b =~ /class=.#{s}/ : (b.params[:class] == s || (b.markup && b.markup.params[:class] == s))}
+                before_wrap << "<span class='#{s}'>&nbsp;</span>"
+              end
+            end
+            
             # The id set here should be used as prefix for sub-nodes to ensure uniqueness of generated DOM ids
             if node.list_context?
               # we are still in a list (example: previous context was [[Node]], current is [Node])
@@ -47,12 +67,22 @@ module Zafu
               node.dom_prefix = dom_name unless raw_dom_prefix
               node.propagate_dom_scope!
 
-              if need_dom_id?
+              if need_dom_id? || @params[:sortable]
                 @markup.set_id(node.dom_id)
               end
             end
-
-            out wrap(expand_with)
+            
+            if s = @params[:sortable]
+              if s == 'all'
+                # drag full element
+                before_wrap << %Q{<% if #{var}_index == 0; js_data << "Zena.sortable('#{node.dom_id(:erb => false)}')" end %>}
+              else
+                # drag element with given class
+                s = 'drag_handle' if s == 'true'
+                before_wrap << %Q{<% if #{var}_index == 0; js_data << "Zena.sortable('#{node.dom_id(:erb => false)}', {handle:'#{s}'})" end %>}
+              end
+            end
+            out wrap(before_wrap + expand_with)
           end
           out "<% end %>"
         else
