@@ -211,6 +211,11 @@ module Zena
           if perform_caching && caching_allowed(:authenticated => opts.delete(:authenticated))
           
             url = page_cache_file(opts.delete(:url))
+            if url =~ %r{^/(\w\w)\.html$}
+              # Root cache: make sure we create directory to prevent
+              # Multiviews errors.
+              Dir.mkdir(SITES_ROOT + current_site.public_path + "/#{$1}")
+            end
             opts = {:expire_after  => nil,
                     :path          => (current_site.public_path + url),
                     :content_data  => response.body,

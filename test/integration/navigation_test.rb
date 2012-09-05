@@ -411,6 +411,25 @@ class NavigationTest < Zena::Integration::TestCase
     follow_redirect!
     assert_response :missing
   end
+  
+  def test_cache_root
+    without_files('test.host/public') do
+      preserving_files('/test.host/data') do
+        with_caching do
+          login(:anon)
+          root_path = "#{SITES_ROOT}#{visitor.site.public_path}/en.html"
+          lang_dir  = "#{SITES_ROOT}#{visitor.site.public_path}/en"
+          assert !File.exists?(root_path), "No cached file yet"
+          assert !File.exists?(lang_dir), "No cached file yet"
+          get 'http://test.host/en'
+          
+          # Both en.html and en directory exist
+          assert !File.exists?(root_path), "No cached file yet"
+          assert !File.exists?(lang_dir), "No cached file yet"
+        end
+      end
+    end
+  end
 
   def test_should_not_change_session_lang_on_login
     get 'http://test.host/'
