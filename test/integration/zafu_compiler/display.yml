@@ -198,6 +198,10 @@ stylesheets:
   src: "<r:stylesheets list='zena,code,search'/>"
   tem: "/link href.*/stylesheets/zena.css.*text/css.*code.css.*text/css.*search.css.*stylesheet/"
 
+search_box:
+  src: "<div id='search' do='search_box' type='search'/>"
+  res: "/<div id='search'><div class=\"search\">/"
+  
 icon:
   context:
     node: wiki

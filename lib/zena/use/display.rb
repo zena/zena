@@ -208,7 +208,7 @@ module Zena
         include ImageTags
         include RubyLess
         safe_method  [:sprintf,     String, Number]                     => {:class => String, :method => 'sprintf'}
-        safe_method  [:search_box,  {:ajax => String, :type => String}] => String
+        safe_method  [:search_box,  {:ajax => String, :type => String}] => {:class => String, :method => 'search_box', :html_safe => true}
         safe_context [:admin_links, {:list => String}]                  => [String]
 
         # Return sprintf formated entry. Return '' for values eq to zero.

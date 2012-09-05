@@ -717,7 +717,7 @@ class NodesControllerTest < Zena::Controller::TestCase
         # cache info ok
         get 'show', :prefix => 'en', :path => ["image#{node.zip}.jpg"], :cachestamp => node.updated_at.to_i
         assert_response :success
-        assert File.exist?(make_cache_path("#{SITES_ROOT}/test.host/public/en/image#{node.zip}.jpg", node))
+        assert File.exist?("#{SITES_ROOT}/test.host/public/en/image#{node.zip}.jpg")
       end
     end
   end
@@ -778,10 +778,6 @@ END:VCALENDAR
     end
   end
 
-  def make_cache_path(file, node)
-    "#{file}.#{node.updated_at.to_i}"
-  end
-
   def test_cache_css_auto_publish
     test_site('zena')
     Site.connection.execute    "UPDATE sites set auto_publish = #{Zena::Db::TRUE}, redit_time = 7200 WHERE id = #{sites_id(:zena)}"
@@ -795,7 +791,7 @@ END:VCALENDAR
         assert !File.exist?(filename)
         get 'show', :prefix => 'en', :path => [name], :cachestamp => node.updated_at.to_i
         assert_response :success
-        cache1 = make_cache_path(filename, node)
+        cache1 = filename
         assert File.exist?(cache1) # cached page created
         assert_match %r[body \{ background: #eee; color:#444;], File.read(cache1)
         put 'save_text', :id => nodes_zip(:style_css), :node => {'text' => '/* empty */'}
@@ -806,7 +802,7 @@ END:VCALENDAR
         assert !File.exist?(cache1) # old cached page removed
         get 'show', :prefix => 'en', :path => [name], :cachestamp => node.updated_at.to_i
         assert_response :success
-        cache2 = make_cache_path(filename, node)
+        cache2 = filename
         assert File.exist?(cache2) # cached page created again
         assert_match %r[/\* empty \*/], File.read(cache2)
       end

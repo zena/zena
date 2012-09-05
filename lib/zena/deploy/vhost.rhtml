@@ -60,13 +60,7 @@
   # Rewrite index to check for static
   RewriteRule ^/$ /index.html [QSA]
 
-  # Serve static (cached) assets
-  RewriteCond %{QUERY_STRING} ^[0-9]+$
-  RewriteCond %{DOCUMENT_ROOT}%{REQUEST_FILENAME}.%{QUERY_STRING} -f
-  # We have to use '.'. If we use '?' apache won't find the file.
-  RewriteRule ^/(.*)$ %{REQUEST_FILENAME}.%{QUERY_STRING} [L]
-
-  # Rails assets (static CSS, JS).
+  # Cached/static assets
   RewriteCond %{QUERY_STRING} ^[0-9]+$
   RewriteCond %{DOCUMENT_ROOT}%{REQUEST_FILENAME} -f
   RewriteRule ^/(.*)$ %{REQUEST_FILENAME} [L]

@@ -236,10 +236,10 @@ module Zena
           path << ".#{ext}" unless path =~ /\.#{ext}(\?\d+|)$/
           #
           # FULL QUERY_STRING in cached page ?
-          if cachestamp_format?(params['format'])
-            # We have to use a '.' because apache cannot serve static files with '?'.
-            path << "." << make_cachestamp(@node, params['mode'])
-          end
+          # if cachestamp_format?(params['format'])
+          #   # We have to use a '.' because apache cannot serve static files with '?'.
+          #   path << "." << make_cachestamp(@node, params['mode'])
+          # end
           path
         end
 

@@ -16,7 +16,7 @@ class AclIntegrationTest < Zena::Integration::TestCase
       should 'find nodes' do
         get "http://erebus.host/oo/project#{nodes_zip(:over_zeus)}.html"
         assert_response :success
-        assert_match %r{there is "A plan to overrule Zeus"}, response.body
+        assert_match %r{there is &quote;A plan to overrule Zeus&quote;}, response.body
       end
     end # with normal access
 
@@ -48,7 +48,7 @@ class AclIntegrationTest < Zena::Integration::TestCase
 
         should 'render with forced skin' do
           get "http://erebus.host/oo/project#{nodes_zip(:queen)}.html"
-          assert_match %r{you can see \"My Queen\"}, response.body
+          assert_match %r{you can see &quote;My Queen&quote;}, response.body
         end
 
         should 'find items in view with exec_group' do
