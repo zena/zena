@@ -3,6 +3,7 @@ require 'rubyless'
 module Zafu
   module Process
     module RubyLessProcessing
+      EXCLUDE_KEYS_IN_ARGS = [:h]
       include RubyLess
 
       def self.included(base)
@@ -211,6 +212,7 @@ module Zafu
           hash_arguments = []
           arguments = []
           params.keys.sort {|a,b| a.to_s <=> b.to_s}.each do |k|
+            next if EXCLUDE_KEYS_IN_ARGS.include?(k)
             if k =~ /\A_/
               arguments << "%Q{#{params[k]}}"
             else

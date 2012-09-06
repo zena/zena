@@ -695,7 +695,7 @@ module Zena
 
           def insert_ajax_args(target, hash_params, action)
             hash_params << ":s => start_id"
-            hash_params << ":link_id => this.link_id" if @context[:has_link_id] && node.will_be?(Node)
+            hash_params << ":link_id => this.link_id" if @context[:has_link_id] && node.will_be?(Node) && !node.list_context?
             
             # FIXME: when we have proper markup.dyn_params[:id] support,
             # we should not need this crap anymore.

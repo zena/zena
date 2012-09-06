@@ -420,12 +420,21 @@ class NavigationTest < Zena::Integration::TestCase
           root_path = "#{SITES_ROOT}#{visitor.site.public_path}/en.html"
           lang_dir  = "#{SITES_ROOT}#{visitor.site.public_path}/en"
           assert !File.exists?(root_path), "No cached file yet"
-          assert !File.exists?(lang_dir), "No cached file yet"
+          assert !File.exists?(lang_dir), "No cached directory yet"
           get 'http://test.host/en'
+          assert_response :success
           
           # Both en.html and en directory exist
-          assert !File.exists?(root_path), "No cached file yet"
-          assert !File.exists?(lang_dir), "No cached file yet"
+          assert File.exists?(root_path), "Cached file created"
+          assert File.exists?(lang_dir), "Cached directory created"
+          
+          FileUtils.rm root_path
+          # Only en directory exists
+          get 'http://test.host/en'
+          assert_response :success
+          # Both en.html and en directory exist
+          assert File.exists?(root_path), "Cached file created"
+          assert File.exists?(lang_dir), "Cached directory created"
         end
       end
     end

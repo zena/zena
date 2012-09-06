@@ -54,6 +54,11 @@ show_title:
   src: "<r:title/>"
   tem: "<%=h @node.prop['title'] %>"
   res: "status title"
+  
+show_title_h_false:
+  src: "<r:title h='false'/>"
+  tem: "<%= @node.prop['title'] %>"
+  res: "status title"
 
 show_title_with_opts:
   old_src: "<h1 do='title' class='s70' status='true' actions='all'>this is the title</h1>"

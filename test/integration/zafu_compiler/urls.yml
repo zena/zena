@@ -320,6 +320,12 @@ link_page_next_with_block:
   src: "<r:nodes in='site' limit='3' order='zip' paginate='pak'><r:link page='next' do='t'>next</r:link></r:nodes>"
   res: "<a href='/oo/projects-list/Clean-Water-project/page22.html?pak=2'>next</a>"
 
+link_page_next_relation:
+  context:
+    node: art
+  src: "<r:Tag?><div id='a' do='block' do='tagged order by l_status asc limit 1 paginate pak'><r:link page='next' update='a' do='t'>next</r:link></div></r:Tag?>"
+  res: "!/parser_error/"
+
 link_page_list:
   context:
     pak: 2
