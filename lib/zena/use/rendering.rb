@@ -152,6 +152,13 @@ module Zena
               opts[:cache] = false
               @render_error = error
               render :file => 'nodes/render_error'
+            
+            elsif result[:type] == 'text/html'
+              # debugging mode from rendering engine
+              opts[:cache] = false
+              
+              render :inline => result[:data]
+              
             else
               if zafu_headers
                 if disposition = zafu_headers.delete('Content-Disposition')
@@ -183,9 +190,13 @@ module Zena
             cache_page(:content_data => result[:data], :content_path => result[:file]) if opts[:cache]
           else
             # html
-            render :file => template_url(opts), :layout=>false, :status => opts[:status]
-            headers.merge!(zafu_headers)
-            cache_page(:url => opts[:cache_url]) if opts[:cache]
+            if opts.delete(:as_string)
+              render_to_string :file => template_url(opts), :layout => false
+            else
+              render :file => template_url(opts), :layout => false, :status => opts[:status]
+              headers.merge!(zafu_headers)
+              cache_page(:url => opts[:cache_url]) if opts[:cache]
+            end
           end
         # This does not work, Rendering::Redirect is wrapped in TemplateError
         # rescue Zena::Use::Rendering::Redirect

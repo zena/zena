@@ -108,11 +108,6 @@ Zena.version_preview = function(url) {
   }
 }
 
-// version diff.
-Zena.version_diff = function(id, from, to) {
-  window.location.href = '/nodes/' + id + '/versions/' + from.innerHTML + '/diff?to=' + to.innerHTML;
-}
-
 // save (does not use ajax when there is a file upload)
 Zena.save = function(url, form, on_complete, show_url, event) {
   if ($(form).select('[name="attachment"]')[0]) {
@@ -193,7 +188,7 @@ Zena.diff_select = function(tag) {
   if (diff_from) diff_from.style.background = '#7A6414';
   if (diff_to)   diff_to.style.background   = '#FAD12A';
   if (diff_from && diff_to) {
-    opener.Zena.version_diff($('node_zip').innerHTML, diff_from, diff_to);
+    Zena.t().location.href = '/nodes/' + $('node_zip').innerHTML + '/versions/' + diff_from.innerHTML + '/diff?to=' + diff_to.innerHTML;
   }
 }
 

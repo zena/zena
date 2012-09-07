@@ -90,28 +90,54 @@ class VersionsController < ApplicationController
 
   # TODO: test/improve or remove (experiments)
   def diff
-    # source
-    source = @node.version.prop
+    if false
+      # FULL PAGE DIFF
+      
+      # Render with source
+      source_html = render_and_cache :as_string => true
 
-    # target
-    if params[:to].to_i > 0
-      version = secure!(Version) { Version.find(:first, :conditions => ['node_id = ? AND number = ?', @node.id, params[:to]])}
-      @node.version = version
+      # target
+      if params[:to].to_i > 0
+        version = secure!(Version) { Version.find(:first, :conditions => ['node_id = ? AND number = ?', @node.id, params[:to]])}
+        # Reload prop
+        @node.prop = version.prop
+      else
+        # default
+        @node.instance_variable_set(:@version, nil)
+      end
+
+      # Render with target
+      target_html = render_and_cache :as_string => true
+      
+      result = Differ.diff_by_word(target_html, source_html).format_as(:html)
+      
+      render :inline => result # Broken because Differ does not understand html...
     else
-      # default
-      @node.instance_variable_set(:@version, nil)
+      # PROP DIFF
+
+      # source
+      source = @node.version.prop
+
+      # target
+      if params[:to].to_i > 0
+        version = secure!(Version) { Version.find(:first, :conditions => ['node_id = ? AND number = ?', @node.id, params[:to]])}
+        @node.version = version
+      else
+        # default
+        @node.instance_variable_set(:@version, nil)
+      end
+      target = @node.prop
+
+      keys = (target.keys + source.keys).uniq
+
+      keys.each do |k|
+        target[k] = Differ.diff_by_word(
+          target[k] || '',
+          source[k] || '').format_as(:html).gsub(/(\s+)<\/del>/, '</del>\1')
+      end
+
+      show
     end
-    target = @node.prop
-
-    keys = (target.keys + source.keys).uniq
-
-    keys.each do |k|
-      target[k] = Differ.diff_by_word(
-        target[k] || '',
-        source[k] || '').format_as(:html).gsub(/(\s+)<\/del>/, '</del>\1')
-    end
-
-    show
   end
 
   # preview when editing node
