@@ -57,6 +57,21 @@
   RewriteCond %{SCRIPT_FILENAME} !maintenance.html
   RewriteRule ^.*$ /system/maintenance.html [L]
 
+<% list = (config[:lang_list] || 'en').split(',').map(&:strip)
+  last = list.last
+  list.each do |l|
+	if l != last %>
+  # Browser wants "<%= l %>" as favorite language
+  RewriteCond %{REQUEST_URI} ^/$
+  RewriteCond %{HTTP:Accept-Language} ^<%= l %>
+  RewriteRule ^.*$ /<%= l %> [R,L]
+<%  else %>
+  # Default language for website is "<%= l %>"
+  RewriteCond %{REQUEST_URI} ^/$
+  RewriteRule ^.*$ /<%= l %> [R,L]
+<%  end
+end %>
+
   # Rewrite index to check for static
   RewriteRule ^/$ /index.html [QSA]
 
