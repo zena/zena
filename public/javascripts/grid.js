@@ -18,27 +18,10 @@ Grid.log = function(what, msg) {
 }
 
 Grid.changed = function(cell, val, prev, skip_html) {
-  if (!skip_html) {
-    if (val.value == val.show) {
-      cell.innerHTML = val.value
-    } else {
-      cell.innerHTML = val.show
-      cell.setAttribute('data-v', val.value)
-    }
-  }
   var row = cell.up('tr')
   var table = row.up('table')
   var grid = table.grid
-  if (prev.value == val.value) return;
-  if (cell.orig_value == val.value) {
-    cell.removeClassName('changed')
-    if (row.select('.changed').length == 0) {
-      row.removeClassName('changed')
-    }
-  } else {
-    cell.addClassName('changed')
-    row.addClassName('changed')
-  }
+  
   var pos = Grid.pos(cell)
 
   var attr, id
@@ -52,6 +35,22 @@ Grid.changed = function(cell, val, prev, skip_html) {
       // Prepare for create
       id = Grid.buildObj(grid, row)
     }
+  }
+  
+  if (!skip_html) {
+    var show_h = grid.show[attr] || {}
+    cell.setAttribute('data-v', val.value)
+    cell.innerHTML = show_h[val.value] || val.show
+  }
+  if (prev.value == val.value) return;
+  if (cell.orig_value == val.value) {
+    cell.removeClassName('changed')
+    if (row.select('.changed').length == 0) {
+      row.removeClassName('changed')
+    }
+  } else {
+    cell.addClassName('changed')
+    row.addClassName('changed')
   }
 
   var change = {
@@ -309,8 +308,21 @@ Grid.isReadOnly = function(cell) {
   return cell.select('a').length > 0 || cell.getAttribute('data-m') == 'r'
 }
 
+Grid.closeCheckbox = function() {
+  if (Grid.need_close) {
+    Grid.closeCell(Grid.need_close)
+    Grid.need_close = false
+  }
+}
 Grid.openCell = function(cell) {
-  if (cell.hasClassName('input') || Grid.isReadOnly(cell)) return;
+  Grid.closeCheckbox()
+  
+  if (cell.hasClassName('input')) return;
+  if (Grid.isReadOnly(cell)) {
+    var n = Element.next(cell)
+    if (n) Grid.openCell(n)
+    return
+  }
   var val = Grid.getValue(cell)
   cell.prev_value = val;
 
@@ -353,11 +365,17 @@ Grid.openCell = function(cell) {
       input = cell.childElements()[0]
       input.value = value
     }
+
     input.setStyle({
       width: w + 'px',
       height: h + 'px'
     })
-    input.observe('blur', Grid.closeCell)
+    
+    if (input.type == 'checkbox') {
+      Grid.need_close = cell
+    } else {
+      input.observe('blur', Grid.closeCell)
+    }
     input.observe('keydown', Grid.keydown)
     input.observe('paste', Grid.paste)
     input.focus()
@@ -377,6 +395,7 @@ Grid.click = function(event) {
     // sort
     Grid.sort(cell)
   } else {
+    if (event.element().tagName == 'INPUT') return;
     Grid.openCell(cell)
   }
 }
@@ -735,6 +754,7 @@ Grid.make = function(table, opts) {
     add: opts.add || opts.add == undefined,
     remove: opts.remove || opts.remove == undefined,
     keydown: opts.keydown,
+    show: opts.show || {},
   };
   
   // Detect type.
@@ -753,6 +773,9 @@ Grid.make = function(table, opts) {
   
 
   if (table.grid.attr_name) {
+    table.insert({
+      after: "<p class='grid_btn'><a class='undo' href='javascript:' onclick='Grid.undo(" + Grid.grid_c + ")'>undo</a></p>"
+    });
     // If we have an attr_name, rows and columns are
     // serialized as json in a single field.
     table.insert({
@@ -805,6 +828,7 @@ Grid.isChanged = function(elem) {
 Grid.save = function(grid_id) {
   // do not run on GUI thread
   setTimeout(function() {
+    Grid.closeCheckbox()
     var table = Grid.grids[grid_id]
     var grid  = table.grid
     var data  = Grid.compact(grid.changes)
@@ -864,7 +888,7 @@ Grid.save = function(grid_id) {
           method: 'post'
         });
       } else {
-        new Ajax.Request('/nodes/' + id.replace('id_',''), {
+        new Ajax.Request('/nodes/' + id.replace(/^[^0-9]+/,''), {
           parameters: attrs,
           onSuccess: function(transport) {
             done_count++
@@ -884,6 +908,8 @@ Grid.save = function(grid_id) {
 }
 
 Grid.undo = function(grid_id, skip_undone) {
+  Grid.closeCheckbox()
+    
   var table = Grid.grids[grid_id]
   var grid = table.grid
   var changes = grid.changes
@@ -927,6 +953,11 @@ Grid.undo = function(grid_id, skip_undone) {
     changes.pop()
   }
 
+  if (grid.input) {
+    // single attribute table, serialize in input field
+    grid.input.value = Grid.serialize(table)
+  }
+  
   if (!skip_undone) {
     setTimeout(function() {
       table.select('.undone').invoke('removeClassName', 'undone')

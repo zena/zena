@@ -51,10 +51,11 @@ module Bricks
 
         res = prefix + error.to_s
         uuid = UUIDTools::UUID.random_create.to_s.gsub('-','')[0..6]
+        dom_id = opts[:id] || "grid#{uuid}"
         msg = opts[:msg] || _('type to edit')
-        res << "<table id='grid#{uuid}' data-a='node[#{attribute}]' data-msg='#{msg}' class='grid'>"
+        res << "<table id='#{dom_id}' data-a='node[#{attribute}]' data-msg='#{msg}' class='grid'>"
         if node.can_write? && !opts[:no_edit]
-          js_data << "Grid.make('grid#{uuid}');"
+          js_data << "Grid.make('#{dom_id}');"
         end
 
 
@@ -105,7 +106,12 @@ module Bricks
         code = RubyLess.translate(node(Node).klass, attribute)
         msg = RubyLess.translate(self, "t('type to edit')")
         editable = @params[:edit] == 'true' ? '' : ', :no_edit => true'
-        out "<%= make_table(:attribute => #{attribute.inspect}, :node => #{node(Node)}, :msg => #{msg}#{editable}) %>"
+        if dom_id = @params[:id]
+          id_opt = ":id => #{dom_id.inspect}, "
+        else
+          id_opt = ''
+        end
+        out "<%= make_table(#{id_opt}:attribute => #{attribute.inspect}, :node => #{node(Node)}, :msg => #{msg}#{editable}) %>"
       end
     end
   end # Grid
