@@ -50,7 +50,11 @@ class Group < ActiveRecord::Base
   end
 
   def user_ids=(list)
-    @defined_user_ids = list
+    if public_group? || site_group?
+      # ignore
+    else
+      @defined_user_ids = list
+    end
   end
 
   alias o_users users
@@ -92,7 +96,7 @@ class Group < ActiveRecord::Base
     # Public and admin groups are special. They cannot be destroyed.
     def check_can_destroy
       # do not destroy admin or public groups
-      raise Zena::AccessViolation.new("'admin', 'site' or 'public' groups cannot be destroyed") if visitor.site.protected_group_ids.include?( id )
+      raise Zena::AccessViolation.new("'admin', 'logged-in' or 'public' groups cannot be destroyed") if visitor.site.protected_group_ids.include?( id )
       return can_destroy?
     end
 

@@ -107,12 +107,27 @@ class GroupTest < Zena::Unit::TestCase
     assert groups(:admin).users.include?(users(:ant))
   end
 
-  def test_cannot_update_site_or_public
+  def test_cannot_update_site_or_public_user_ids
     login(:lion)
     group = groups(:public)
-    assert !group.update_attributes(:user_ids=>[])
+    # ignores user_ids
+    assert group.update_attributes(:user_ids=>[])
+    assert_equal [users_id(:ant), users_id(:anon), users_id(:tiger), users_id(:lion)].sort, group.user_ids.sort
     group = groups(:workers)
-    assert !group.update_attributes(:user_ids=>[])
+    # ignores user_ids
+    assert group.update_attributes(:user_ids=>[])
+    assert_equal [users_id(:ant), users_id(:tiger), users_id(:lion)].sort, group.user_ids.sort
+  end
+  
+  def test_can_update_site_or_public_name
+    login(:lion)
+    group = groups(:public)
+    assert group.update_attributes(:name=>'pub')
+    assert_equal 'pub', groups(:public).name
+    
+    group = groups(:workers)
+    assert group.update_attributes(:name=>'logged-in', :user_ids => [])
+    assert_equal 'logged-in', groups(:workers).name
   end
 
   def test_cannot_destroy_group_with_nodes

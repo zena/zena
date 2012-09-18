@@ -136,8 +136,8 @@ class Site < ActiveRecord::Base
       editors.users << admin_user
 
       # create site group
-      sgroup = site.send(:secure,Group) { Group.create( :name => 'site') }
-      raise Exception.new("Could not create site group for site [#{host}] (site#{site[:id]})\n#{sgroup.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if sgroup.new_record?
+      sgroup = site.send(:secure,Group) { Group.create( :name => 'logged-in') }
+      raise Exception.new("Could not create logged-in group for site [#{host}] (site#{site[:id]})\n#{sgroup.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if sgroup.new_record?
 
       site.public_group_id = pub[:id]
       site.site_group_id   = sgroup[:id]
