@@ -1,7 +1,7 @@
 # zena awstats vhost for <%= config[:host] %>
 # automatically generated file
 
-<VirtualHost *>
+<VirtualHost *<%= vhost_port %>>
   ServerName stats.<%= config[:host] %>
 
   DocumentRoot /usr/share/doc/awstats/examples

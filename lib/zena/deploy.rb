@@ -259,7 +259,7 @@ Capistrano::Configuration.instance(:must_exist).load do
         run "chmod 640 /etc/awstats/awstats.#{self[:host]}.conf"
 
         # create stats vhost
-        stats_vhost = render("#{templates}/stats.vhost.rhtml", :config => self)
+        stats_vhost = render("#{templates}/stats.vhost.rhtml", :config => self, :vhost_port => (self[:ssl] ? ':80' : ''))
         put(stats_vhost, "#{vhost_root}/stats.#{self[:host]}")
         run "test -e /etc/apache2/sites-enabled/stats.#{self[:host]} || a2ensite stats.#{self[:host]}"
 
@@ -349,6 +349,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       modules << 'ssl'
       modules << 'headers'
       # Default in debian: no need to change ports.
+      # Remove NameVirtualHost directives in ports.conf (avoids warnings).
       # /etc/apache2/ports.conf:
       # Listen 443
     end
