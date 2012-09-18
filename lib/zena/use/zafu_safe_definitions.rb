@@ -5,6 +5,35 @@ module Zena
         include RubyLess
         safe_method ['[]', Symbol] => {:class => String, :nil => true}
       end
+      
+      # This class is used to return Array params ['foo', 'bar'] as ['foo', 'bar'], not 'foobar'.
+      # It also splits String params 'foo, bar' as ['foo', 'bar'].
+      class AParamsDictionary
+        def initialize(params)
+          @aparams = {}
+          params.each do |k, v|
+            @aparams[k.to_sym] = transform(v)
+          end
+          
+          def [](key)
+            @aparams[key.to_sym] || []
+          end
+        end
+        
+        include RubyLess
+        safe_method ['[]', Symbol] => {:class => [String], :nil => false}
+        
+        private
+          def transform(v)
+            if v.kind_of?(Array)
+              v.map {|k| k.to_s}.select{|e| !e.blank?}
+            elsif v.kind_of?(String)
+              v.split(',').map(&:strip).select{|e| !e.blank?}
+            else
+              []
+            end
+          end
+      end
 
       module ViewMethods
         include RubyLess
@@ -96,6 +125,7 @@ module Zena
         end
 
         safe_method :params => ParamsDictionary
+        safe_method :aparams => AParamsDictionary
         safe_method :now    => {:method => 'Time.now', :class => Time}
         safe_method :string_hash => {:method => 'StringHash.new', :class => StringHash}
         safe_method [:string_hash, Hash] => {:method => 'StringHash.from_hash', :class => StringHash}
@@ -167,6 +197,10 @@ module Zena
         # Returns the largest of two values.
         def zafu_max(a, b)
           [a, b].max
+        end
+        
+        def aparams
+          @aparams ||= AParamsDictionary.new(params)
         end
       end # ViewMethods
 

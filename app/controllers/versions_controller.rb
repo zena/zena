@@ -89,6 +89,7 @@ class VersionsController < ApplicationController
   end
 
   # TODO: test/improve or remove (experiments)
+  # https://github.com/samg/diffy
   def diff
     if false
       # FULL PAGE DIFF

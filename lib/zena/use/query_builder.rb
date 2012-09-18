@@ -17,7 +17,7 @@ module Zena
         end
 
         def query(class_name, node_name, pseudo_sql, opts = {})
-          type = opts[:type] || :find
+          type = opts[:type] || (opts[:find] == :count ? :count : :find)
           @query_errors = nil
           if klass = VirtualClass[class_name]
             begin
@@ -174,7 +174,6 @@ module Zena
         # Open a list context with a query comming from the url params. Default param name is
         # "qb"
         def r_query
-          return parser_error("Cannot be used in list context (#{node.class_name})") if node.list_context?
           return parser_error("Missing 'default' query") unless default_psql = @params[:default]
 
           count = get_count(default_psql, {:find => @params[:find]})
@@ -184,9 +183,21 @@ module Zena
           rescue ::QueryBuilder::Error => err
             return parser_error(err.message)
           end
-
-          klass = count == :all ? [default_query.main_class] : default_query.main_class
-
+          
+          if count == :all
+            klass = [default_query.main_class]
+            type = :find
+            res_nil = true
+          elsif count == :first
+            klass = default_query.main_class
+            type = :find
+            res_nil = true
+          else
+            klass = Number
+            type = :count
+            res_nil = false
+          end
+          
           can_be_nil = true
           if sql = @params[:eval]
             sql = RubyLess.translate(self, sql)
@@ -205,8 +216,12 @@ module Zena
             sql = "#{sql} || #{default_psql.inspect}"
           end
 
-          query = DynamicQuery.new(default_query, node, sql, count)
-          expand_with_finder(:method => query.to_s, :class => klass, :nil => true, :query => query)
+          query = DynamicQuery.new(default_query, single_node, sql, count)
+          if @blocks.empty? && type == :count
+            out "<%= #{query.to_s} %>"
+          else
+            expand_with_finder(:method => query.to_s, :class => klass, :nil => res_nil, :query => query)
+          end
         end
 
         # Pre-processing of the 'find("...")' method.
@@ -292,7 +307,7 @@ module Zena
         private
           def single_node
             node = self.node
-            while node.list_context?
+            while node.list_context? || node.klass <= String || node.klass <= Number
               node = node.up
               if !node
                 raise ::QueryBuilder::Error.new("Could not access node context  query builder from list #{self.node.class_name}")

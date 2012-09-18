@@ -116,6 +116,22 @@ role_as_relation_filter:
   sql: "%Q{SELECT nodes.* FROM nodes,nodes_roles WHERE #{secure_scope('nodes')} AND nodes_roles.role_id = 493147733 AND nodes_roles.node_id = nodes.id ORDER BY nodes.zip ASC}"
   res: 'Autumn Tree'
 
+relation_filter:
+  context:
+    node: status
+    params:
+      list: 22
+  src: "projects where hot.id in (#{params[:list]}) in site"
+  sql: "[%Q{SELECT nodes.*,links.id AS `link_id`,links.status AS `l_status`,links.comment AS `l_comment`,links.date AS `l_date` FROM links,nodes,nodes AS jn1 WHERE #{secure_scope('nodes')} AND jn1.zip IN (?) AND jn1.id = links.target_id AND links.relation_id = 126629661 AND links.source_id = nodes.id AND nodes.kpath LIKE 'NPP%' ORDER BY nodes.zip ASC}, params[:list]]"
+  res: "Clean Water project"
+
+relation_filter_attr:
+  context:
+    node: status
+  src: "projects where hot.title = 'Etat des travaux' in site"
+  sql: "/ml1.value = 'Etat des travaux' AND ml1.lang = 'fr' AND ml1.key = 'title' AND ml1.node_id = jn1.id AND jn1.id = links.target_id/"
+  res: "Clean Water project"
+  
 filter_by_parent:
   src: "nodes where parent_id = 11 in site"
 #       nodes where parent.zip = ...

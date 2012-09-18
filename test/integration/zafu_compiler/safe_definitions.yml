@@ -159,3 +159,17 @@ string_hash_with_params:
   res: "<b>AAAmen</b>"
   tem: "/StringHash.from_hash\(\{:foo => \"men\"\}\)/"
   
+aparams:
+  context:
+    par: 'a, b, '
+  src: "<div do='aparams[:par]'><r:each join='==' do='this'/></div>"
+  res: "<div>a==b</div>"
+  
+aparams_array:
+  context:
+    par:
+      - a
+      - b
+      - ''
+  src: "<div do='aparams[:par]'><r:each join='==' do='this'/></div>"
+  res: "<div>a==b</div>"

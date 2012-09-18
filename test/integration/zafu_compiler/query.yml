@@ -278,6 +278,20 @@ query_errors:
   src: "<r:query default='nodes' select='nodes in #{params[:c]}'><r:elsif test='query_errors' do='query_errors'/></r:query>"
   res: "<span class='query'>nodes in badaboum</span> <span class='error'>Invalid scope 'badaboum'.</span>"
 
+query_count:
+  context:
+    c: 'badaboum'
+  src: "<r:query default='nodes in site' find='count' select='pages in site'/>"
+  tem: "/:find => :count/"
+  res: "19"
+
+query_count_string_context:
+  context:
+    c: 'badaboum'
+  src: "<r:void do='%q{2007}'><r:query default='nodes in site' find='count' select='pages where created_at.year < #{this} in site'/></r:void>"
+  tem: '/.Node., "@node".*:find => :count/'
+  res: "19"
+  
 find_with_rubyless:
   src: "<b do='find(\"images in site limit 2\")' do='each' join=', ' do='title'/>"
   res: "<b>Autumn Tree, bird</b>"

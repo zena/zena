@@ -177,7 +177,7 @@ module Zena
 
         def get_scope_index_field(field_name)
           return nil if @query.main_class.real_class.column_names.include?(field_name)
-          # scope index
+          # 1. Try scope index
           klass = @query.main_class
           if index_model = klass.kind_of?(VirtualClass) ? klass.idx_class : nil
             index_model = Zena.resolve_const(index_model) rescue NilClass
@@ -192,7 +192,6 @@ module Zena
               nil
             end
           else
-            # no index model: ignore
             nil
           end
         end
@@ -241,20 +240,6 @@ module Zena
           elsif field_name == 'random'
             Zena::Db.sql_function(field_name, nil)
           else
-            if processing_filter? && field_name =~ /^(.*)_ids?$/
-              # tag_id = 33  ===> join links as lk, nodes as tt .......
-              rel = $1
-
-              # Fake field_or_attr so it does not use 'zip' on nodes
-              context[:processing] = :relation
-                if join_relation($1, 'jnode')
-                  res = "#{table('jnode')}.zip"
-                end
-              context[:processing] = :filter
-
-              return res
-            end
-
             # property or real column
 
             # FIXME !!!! Why does this happen ?
@@ -364,8 +349,42 @@ module Zena
           if fld = get_scope_index_field(scope_idx_field)
             return [[:idx_field, fld], function]
           else
-            # not a scope index field
-            return [arg1, arg2]
+            # 2. Try to use relation as scope filter 'hot.title = "xxx"', 'hot.title = "xxx"'
+            # Multiple links with hot.id = 334 and hot2.id = 323...
+            rel = class_name.sub(/\d$/,'')
+
+            source_kpath = @query.main_class.kpath
+
+            if rel = RelationProxy.find_by_role(rel.singularize, source_kpath)
+              table_to_use = add_key_value_table('jnode', 'nodes', class_name) do |tbl_name|
+                # This block is only executed once per relation name (once for 'hot', once for 'hot2')
+                distinct!
+                add_table('links')
+                add_filter "#{table('links')}.#{rel.link_side} = #{table(main_table)}.id"
+                add_filter "#{table('links')}.relation_id = #{rel.id}"
+                add_filter "#{table('jnode')}.id = #{table('links')}.#{rel.other_side}"
+              end
+              
+              # Temporarily move to the remote class
+              tbl_alias_bak = context[:table_alias]
+              context[:table_alias] = table_to_use
+              main_class_bak = @query.main_class
+              
+                @query.main_class = rel.other_vclass
+                fld = process_field(field_name)
+                
+              # Move back
+              @query.main_class = main_class_bak
+              context[:table_alias] = tbl_alias_bak
+              if fld
+                [[:idx_field, fld], function]
+              else
+                nil
+              end
+            else
+              # not a scope index field
+              return [arg1, arg2]
+            end
           end
         end
 
@@ -603,14 +622,9 @@ module Zena
             end
 
             if rel = RelationProxy.find_by_role(relation.singularize, source_kpath)
-              if use_name
-                # Doing a jnode.. (node for filtering), we need to reverse relation
-                rel.side = rel.side == :source ? :target : :source
-                add_table(use_name, main_table)
-              else
-                add_table(main_table)
-                set_main_class(rel.other_vclass)
-              end
+
+              add_table(main_table)
+              set_main_class(rel.other_vclass)
 
               add_table('links')
 
