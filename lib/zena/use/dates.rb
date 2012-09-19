@@ -288,6 +288,8 @@ module Zena
         def strftime_tz(format, tz = nil)
           if tz.blank?
             tz = visitor.tz
+          elsif tz == 'UTC'
+             return self.strftime(format.to_s)
           elsif tz.kind_of?(String)
             tz = TZInfo::Timezone.get(tz)
           end
@@ -301,6 +303,8 @@ module Zena
         def year_tz(tz = nil)
           if tz.blank?
             tz = visitor.tz
+          elsif tz == 'UTC'
+             return self.year
           elsif tz.kind_of?(String)
             tz = TZInfo::Timezone.get(tz)
           end
@@ -314,6 +318,8 @@ module Zena
         def advance_tz(opts, tz = nil)
           if tz.blank?
             tz = visitor.tz
+          elsif tz == 'UTC'
+             return self.advance(opts)
           elsif tz.kind_of?(String)
             tz = TZInfo::Timezone.get(tz)
           end
@@ -327,6 +333,8 @@ module Zena
         def wday_tz(tz = nil)
           if tz.blank?
             tz = visitor.tz
+          elsif tz == 'UTC'
+             return self.wday
           elsif tz.kind_of?(String)
             tz = TZInfo::Timezone.get(tz)
           end
@@ -340,6 +348,8 @@ module Zena
         def to_date_tz(tz = nil)
           if tz.blank?
             tz = visitor.tz
+          elsif tz == 'UTC'
+             return self.to_date
           elsif tz.kind_of?(String)
             tz = TZInfo::Timezone.get(tz)
           end
