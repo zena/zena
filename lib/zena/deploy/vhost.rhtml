@@ -75,10 +75,21 @@ end %>
   # Rewrite index to check for static
   RewriteRule ^/$ /index.html [QSA]
 
-  # Cached/static assets
+  # Serve static (cached) assets
   RewriteCond %{QUERY_STRING} ^[0-9]+$
-  RewriteCond %{DOCUMENT_ROOT}%{REQUEST_FILENAME} -f
+  RewriteCond %{DOCUMENT_ROOT}<%= config[:cache_path] %>%{REQUEST_FILENAME}.%{QUERY_STRING} -f
+  RewriteRule ^/(.*)$ <%= config[:cache_path] %>%{REQUEST_FILENAME}.%{QUERY_STRING} [L]
+
+  # Static CSS, JS
+  RewriteCond %{QUERY_STRING} ^[0-9]+$
+  RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} -f
   RewriteRule ^/(.*)$ %{REQUEST_FILENAME} [L]
+
+  # Zena dynamic cache                                                                 
+  RewriteCond %{QUERY_STRING} ^$                                                 
+  RewriteCond %{DOCUMENT_ROOT}<%= config[:cache_path] %>%{REQUEST_FILENAME} -f [OR]                  
+  RewriteCond %{DOCUMENT_ROOT}<%= config[:cache_path] %>%{REQUEST_FILENAME}.html -f                  
+  RewriteRule ^/(.*)$ <%= config[:cache_path] %>%{REQUEST_FILENAME} [L]
 
 <% if config[:app_type] == :mongrel %>
   # else

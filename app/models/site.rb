@@ -50,6 +50,9 @@ class Site < ActiveRecord::Base
     ['nodes'               , 'site_id = ?'],
   ]
   ACTIONS = %w{clear_cache rebuild_index}
+  PUBLIC_PATH = Bricks.raw_config['public_path'] || '/public'
+  CACHE_PATH  = Bricks.raw_config['cache_path']  || '/public'
+  
   include RubyLess
   safe_method  :host => String, :lang_list => [String], :default_lang => String
   safe_method  :root => Proc.new {|h, r, s| {:method => 'root_node', :class => VirtualClass['Project'], :nil => true}}
@@ -231,7 +234,13 @@ class Site < ActiveRecord::Base
   # If you need to serve from another directory, we do not store the path into the sites table
   # for security reasons. The easiest way around this limitation is to symlink the 'public' directory.
   def public_path
-    "/#{self[:host]}/public"
+    "/#{self[:host]}#{PUBLIC_PATH}"
+  end
+  
+  # This is the place where cached files should be stored in case we do not want
+  # to store the cached file inside the public directory.
+  def cache_path
+    "/#{self[:host]}#{CACHE_PATH}"
   end
 
   # Return path for documents data: RAILS_ROOT/sites/_host_/data
@@ -374,7 +383,7 @@ class Site < ActiveRecord::Base
   end
 
   def clear_cache(clear_zafu = true)
-    path = "#{SITES_ROOT}#{self.public_path}"
+    path = "#{SITES_ROOT}#{self.cache_path}"
     Site.logger.error("\n-----------------\nCLEAR CACHE FOR SITE #{host}\n-----------------\n")
 
     if File.exist?(path)

@@ -53,6 +53,7 @@ production:
 # Port used only to provide assets during custom rendering (pdf).
 # We need this to avoid deadlocks with round-robin based serving.
 #  asset_port: 7999
+  cache_path: '/public/cache'
   mongrel:   OFF
   passenger: ON
   uv:

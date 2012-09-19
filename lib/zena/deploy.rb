@@ -204,6 +204,7 @@ Capistrano::Configuration.instance(:must_exist).load do
     else
       vhost_files = []
       if self[:ssl] == :all
+        self[:cache_path] = Site::CACHE_PATH.sub(%r{^#{Site::PUBLIC_PATH}},'')
         vhost = render("#{templates}/vhost.rhtml", :config => self, :ssl => true, :vhost_port => ':443')
         put(vhost, "#{vhost_root}/#{self[:host]}.ssl")
         vhost_files << "#{self[:host]}.ssl"
