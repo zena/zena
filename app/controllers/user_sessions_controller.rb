@@ -3,7 +3,8 @@
 Create, destroy sessions by letting users login and logout. When the user does not login, he/she is considered to be the anonymous user.
 =end
 class UserSessionsController < ApplicationController
-  skip_before_filter :set_after_login, :force_authentication?
+  skip_before_filter :set_after_login, :force_authentication?, :redirect_to_https
+  before_filter :session_redirect_to_https
 
   # /login
   def new
@@ -55,7 +56,7 @@ class UserSessionsController < ApplicationController
     end
     
     # Overwrite redirect on https rules for this controller
-    def redirect_to_https
+    def session_redirect_to_https
       if params[:action] == 'destroy'
         # ignore
       else
