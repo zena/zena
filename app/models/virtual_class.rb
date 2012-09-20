@@ -597,7 +597,7 @@ class VirtualClass < Role
         Zena::Db.execute "UPDATE roles SET kpath = '#{new_kpath}' WHERE kpath = '#{old_kpath}' AND site_id = #{current_site.id} AND (type = 'Role' or type IS NULL)"
         # ========================================= Update templates
         idx_templates = IdxTemplate.all(
-          :conditions => ['tkpath = ? AND site_id = ?', old_kpath, site_id]
+          :conditions => ['tkpath = ? AND site_id = ? AND node_id IS NOT NULL', old_kpath, site_id]
         )
 
         if !idx_templates.empty?
