@@ -33,11 +33,8 @@ PassengerDefaultUser www-data
 <% end %>
 
 <IfModule mod_expires.c>
-  ExpiresActive on
-  ExpiresDefault A0
-  ExpiresByType image/jpeg "access plus 1 year"
-  ExpiresByType image/gif "access plus 1 year"
-  ExpiresByType image/png "access plus 1 year"
-  ExpiresByType text/css "access plus 1 year"
-  ExpiresByType application/javascript "access plus 1 year"
+  <FilesMatch "\.(ico|pdf|flv|jpe?g|png|gif|js|css|swf)">
+    ExpiresActive On
+    ExpiresDefault "access plus 1 year"
+  </FilesMatch>
 </IfModule>

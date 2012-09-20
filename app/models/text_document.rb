@@ -15,7 +15,7 @@ class TextDocument < Document
   class << self
     # Return true if a new text document can be created with the content_type. Used by the superclass Document to choose the corret subclass when creating a new object.
     def accept_content_type?(content_type)
-      (content_type =~ /(^text|^image\/svg\+xml|x-javascript)/) && 
+      (content_type =~ /(^text|^image\/svg\+xml|javascript)/) && 
       (Zena::TYPE_TO_EXT[content_type.chomp] != ['rtf'])
     end
 

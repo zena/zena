@@ -315,6 +315,7 @@ EXT_TYPE = [
   [ "jpe"       , "image/jpeg"                     ],
   [ "jpeg"      , "image/jpeg"                     ],
   [ "js"        , "application/x-javascript"       ],
+  [ "js"        , "text/javascript"                ],
   [ "kar"       , "audio/midi"                     ],
   [ "latex"     , "application/x-latex"            ],
   [ "lha"       , "application/octet-stream"       ],

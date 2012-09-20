@@ -21,7 +21,9 @@ module Zena
       ALLOWED_REGEXP = /\A(([a-zA-Z]+)([0-9]+)|([#{String::ALLOWED_CHARS_IN_URL}\-%]+))(_[a-zA-Z]+|)(\..+|)\Z/
 
       module Common
-        CACHESTAMP_FORMATS = ['jpg', 'png', 'gif', 'css', 'js']
+        # This is directly related to the FileMatch clause in httpd.rhtml (mod_expires for apaches)
+        CACHESTAMP_FORMATS = %w{ico pdf flv jpg jpeg png gif js css swf}
+        
         def prefix
           if visitor.is_anon?
             visitor.lang

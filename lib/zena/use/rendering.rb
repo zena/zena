@@ -252,6 +252,8 @@ module Zena
           if cachestamp_format?(params['format'])
             # We have to use a '.' because apache cannot serve static files with '?'.
             path << "." << make_cachestamp(@node, params['mode'])
+            # Set expire
+            response.headers['Expires'] = 1.year.from_now.httpdate
           end
           path
         end
