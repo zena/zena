@@ -248,7 +248,7 @@ module Zena
           method = "group_array(#{node}) {|e| #{key}}"
           out "<% if #{var} = #{method} %>"
             open_node_context({:method => method}, :node => node.move_to(var, [node.klass], :query => node.opts[:query])) do
-              if child['each_group']
+              if descendant('each_group')
                 out expand_with
               else
                 @var = nil
