@@ -86,10 +86,15 @@ end %>
   RewriteRule ^/(.*)$ %{REQUEST_FILENAME} [L]
 
   # Zena dynamic cache                                                                 
-  RewriteCond %{QUERY_STRING} ^$                                                 
-  RewriteCond %{DOCUMENT_ROOT}<%= config[:cache_path] %>%{REQUEST_FILENAME} -f [OR]                  
-  RewriteCond %{DOCUMENT_ROOT}<%= config[:cache_path] %>%{REQUEST_FILENAME}.html -f                  
-  RewriteRule ^/(.*)$ <%= config[:cache_path] %>%{REQUEST_FILENAME} [L]
+  RewriteCond %{DOCUMENT_ROOT}<%= config[:cache_path] %>%{REQUEST_FILENAME}%{QUERY_STRING} -f
+  RewriteRule ^/(.*)$ <%= config[:cache_path] %>%{REQUEST_FILENAME}%{QUERY_STRING} [L]
+  RewriteCond %{DOCUMENT_ROOT}<%= config[:cache_path] %>%{REQUEST_FILENAME}%{QUERY_STRING}.html -f
+  RewriteRule ^/(.*)$ <%= config[:cache_path] %>%{REQUEST_FILENAME}%{QUERY_STRING}.html [L]
+
+  RewriteCond %{DOCUMENT_ROOT}/cache%{REQUEST_FILENAME}%{QUERY_STRING} -f
+  RewriteRule ^/(.*)$ /cache%{REQUEST_FILENAME}%{QUERY_STRING} [L]
+  RewriteCond %{DOCUMENT_ROOT}/cache%{REQUEST_FILENAME}%{QUERY_STRING}.html -f
+  RewriteRule ^/(.*)$ /cache%{REQUEST_FILENAME}%{QUERY_STRING}.html [L]
 
 <% if config[:app_type] == :mongrel %>
   # else

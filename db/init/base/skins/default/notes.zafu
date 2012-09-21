@@ -1,4 +1,5 @@
-<div id='notes' do='posts' in='project' limit='10' order='date desc'>
+<r:cache allow_query='p=\d'/>
+<div id='notes' do='posts in project order by date desc limit 10 paginate p'>
   <ul class='note_list'>
     <li do='add' after='self' klass='Post' done='focus' focus='title'/>
     <li class='inline_form' do='form'>
@@ -16,5 +17,6 @@
       <r:zazen attr='text' live='true'/>
       <div class='clear'></div>
     </li>
+    <li><r:link page='next' do='t' text='older posts'/></li>
   </ul>
 </div>

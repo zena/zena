@@ -35,6 +35,7 @@ module Zena
       module ControllerMethods
         def self.included(base)
           base.send(:helper_attr, :js_data, :zafu_headers)
+          base.send(:helper_method, :set_caching)
           base.send(:layout, false)
         end
 
@@ -44,6 +45,12 @@ module Zena
 
         def zafu_headers
           @zafu_headers ||= {}
+        end
+        
+        def set_caching(opts)
+          if request.query_string =~ opts[:allow_query]
+            @cache_query = request.query_string
+          end
         end
 
         # TODO: test
@@ -235,7 +242,7 @@ module Zena
 
         # Return true if we can cache the current page
         def caching_allowed(opts = {})
-          return false if current_site.authentication? || query_params != {}
+          return false if current_site.authentication? || (query_params != {} && !@cache_query)
           # Cache even if authenticated (public content).
           #                       Content viewed by anonymous user should be cached anyway.
           opts[:authenticated] || visitor.is_anon?
@@ -246,14 +253,19 @@ module Zena
           path = url || url_for(:only_path => true, :skip_relative_url_root => true, :cachestamp => nil)
           path = ((path.empty? || path == "/") ? "/index" : URI.unescape(path))
           ext = params[:format].blank? ? 'html' : params[:format]
-          path << ".#{ext}" unless path =~ /\.#{ext}(\?\d+|)$/
-          #
+
           # FULL QUERY_STRING in cached page ?
-          if cachestamp_format?(params['format'])
+          if @cache_query
+            # This builds blog29.htmlp=2.html and it is OK (helps make rewrite rules simple)
+            path << @cache_query << ".#{ext}"
+          elsif cachestamp_format?(params['format'])
             # We have to use a '.' because apache cannot serve static files with '?'.
+            path << ".#{ext}" unless path =~ /\.#{ext}(\?\d+|)$/
             path << "." << make_cachestamp(@node, params['mode'])
             # Set expire
             response.headers['Expires'] = 1.year.from_now.httpdate
+          else
+            path << ".#{ext}" unless path =~ /\.#{ext}(\?\d+|)$/
           end
           path
         end
@@ -320,6 +332,15 @@ module Zena
           else
             out "<% set_headers(#{headers.join(', ')}) %>"
           end
+        end
+        
+        # <r:cache rebuild='true' allow_query='p=1?[0-9]'/>
+        def r_cache
+          return parser_error("Missing 'allow_query' regular expression") unless re = @params[:allow_query]
+          reg_test = %r{^#{re}$}
+          out "<% set_caching(:allow_query => #{reg_test.inspect}) %>"
+        rescue => err
+          parser_error("Invalid regular expression (#{err.message})")
         end
 
         def r_style

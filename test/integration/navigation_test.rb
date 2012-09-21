@@ -418,23 +418,51 @@ class NavigationTest < Zena::Integration::TestCase
         with_caching do
           login(:anon)
           root_path = "#{SITES_ROOT}#{visitor.site.public_path}/en.html"
-          lang_dir  = "#{SITES_ROOT}#{visitor.site.public_path}/en"
           assert !File.exists?(root_path), "No cached file yet"
-          assert !File.exists?(lang_dir), "No cached directory yet"
           get 'http://test.host/en'
           assert_response :success
           
-          # Both en.html and en directory exist
+          # en.html exist
           assert File.exists?(root_path), "Cached file created"
-          assert File.exists?(lang_dir), "Cached directory created"
+        end
+      end
+    end
+  end
+  
+  def test_cache_query_string
+    without_files('test.host/public') do
+      preserving_files('/test.host/data') do
+        with_caching do
+          login(:anon)
+          base  = "#{SITES_ROOT}#{visitor.site.public_path}"
+          good = {
+            '/en?p=1' => '/enp=1.html',
+            '/en?p=2' => '/enp=2.html',
+            '/en?p=9' => '/enp=9.html',
+            '/en/blog29.html?p=2' => '/en/blog29.htmlp=2.html',
+          }
           
-          FileUtils.rm root_path
-          # Only en directory exists
-          get 'http://test.host/en'
-          assert_response :success
-          # Both en.html and en directory exist
-          assert File.exists?(root_path), "Cached file created"
-          assert File.exists?(lang_dir), "Cached directory created"
+          bad = {
+            '/en?x=1'  => '/en.htmlx=1.html',
+            '/en?ap=2' => '/en.htmlap=2.html',
+            '/en?p=99' => '/en.htmlp=99.html',
+            '/en/blog29.html?p=21' => '/en/blog29.htmlp=21.html',
+            '/en/blog29.html?x=2'  => '/en/blog29.htmlx=2.html',
+          }
+          
+          good.each do |p, c|
+            assert !File.exists?(base + c), "No cached file yet"
+            get "http://test.host#{p}"
+            assert_response :success
+            assert File.exists?(base + c), "Cached file created"
+          end
+          
+          bad.each do |p, c|
+            assert !File.exists?(base + c), "No cached file yet"
+            get "http://test.host#{p}"
+            assert_response :success
+            assert !File.exists?(base + c), "No cached file created"
+          end
         end
       end
     end
