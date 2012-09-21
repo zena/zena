@@ -42,6 +42,18 @@ Grid.changed = function(cell, val, prev, skip_html) {
     cell.setAttribute('data-v', val.value)
     cell.innerHTML = show_h[val.value] || val.show
   }
+  
+  if (grid.onChange) {
+    // onChange can be used to recompute total (so cell value should be set first)
+    var v = val.value
+    val = grid.onChange(cell, val, attr)
+    if (!val) return
+    if (v != val.value) {
+      cell.innerHTML = val.show
+      cell.setAttribute('data-v', val.value)
+    } 
+  }
+  
   if (prev.value == val.value) return;
   if (cell.orig_value == val.value) {
     cell.removeClassName('changed')
@@ -305,7 +317,7 @@ Grid.keydown = function(event) {
 }
 
 Grid.isReadOnly = function(cell) {
-  return cell.select('a').length > 0 || cell.getAttribute('data-m') == 'r'
+  return cell.select('a').length > 0 || cell.getAttribute('data-m') == 'r' || cell.hasClassName('action')
 }
 
 Grid.closeCheckbox = function() {
@@ -319,7 +331,7 @@ Grid.openCell = function(cell) {
   
   if (cell.hasClassName('input')) return;
   if (Grid.isReadOnly(cell)) {
-    var n = Element.next(cell)
+    var n = Element.next(cell) || cell.up().nextSiblings().first().childElements()[0]
     if (n) Grid.openCell(n)
     return
   }
@@ -457,10 +469,15 @@ Grid.copy = function(cell) {
 
 Grid.addRow = function(table, row) {
   // insert row below
-  var row_str = '<tr>';
-  var cells = row.childElements();
-  for (var i = 0; i < cells.length -1; i++) {
-    row_str = row_str + '<td></td>';
+  var row_str = '<tr>'
+  var grid = table.grid
+  if (grid.newRow) {
+    row_str = row_str + $(grid.newRow).innerHTML
+  } else {
+    var cells = row.childElements()
+    for (var i = 0; i < cells.length -1; i++) {
+      row_str = row_str + '<td></td>'
+    }
   }
   row_str = row_str + Grid.Buttons(table.grid) + '</tr>';
   row.insert({
@@ -745,12 +762,14 @@ Grid.make = function(table, opts) {
   table.grid = {
     changes: [],
     id: Grid.grid_c,
-    helper_id: table.getAttribute('data-helper'),
-    fdate: table.getAttribute('data-fdate'),
+    helper_id: opts.helper || table.getAttribute('data-helper'),
+    fdate: opts.fdate || table.getAttribute('data-fdate'),
+    newRow: opts.newRow,
     counter: 0, // Used to create dom_ids for new objects
     onSuccess: opts.onSuccess,
     onFailure: opts.onFailure || Grid.onFailure,
     onStart: opts.onStart || Grid.onStart,
+    onChange: opts.onChange,
     add: opts.add || opts.add == undefined,
     remove: opts.remove || opts.remove == undefined,
     keydown: opts.keydown,
@@ -786,7 +805,9 @@ Grid.make = function(table, opts) {
   } else {
     var rows = table.select('tr')
     for (var i = 1; i < rows.length; i++) {
-      if (!rows[i].id) {
+      if (rows[i].id || rows[i].getAttribute('data-m') == 'r') {
+        // do not create object
+      } else {
         Grid.buildObj(table.grid, rows[i])
       }
     }
@@ -818,12 +839,8 @@ Grid.clearChanges = function(list, id) {
 }
 
 Grid.isChanged = function(elem) {
-  var table = $(elem)
-  var grid = table.grid
-  // buildObj adds a row per new object on load
-  return grid.changes.length > (table.attr_name ? 0 : table.select('tr').length - 1)
+  return $$('#'+$(elem).id+' .changed').length > 0
 }
-
 
 Grid.save = function(grid_id) {
   // do not run on GUI thread
