@@ -150,6 +150,8 @@ module Zena
         safe_method_for Number, :fmt       => {:class => String, :pre_processor => true}
         safe_method_for Number, [:fmt, Number] => {:class => String, :pre_processor => true}
 
+        safe_method_for Range, :to_a       => {:class => [Number], :pre_processor => true}
+
         safe_method_for NilClass, :to_f    => {:class => Number, :pre_processor => true}
         safe_method_for NilClass, :to_i    => {:class => Number, :pre_processor => true}
         safe_method_for NilClass, :to_json => {:class => String, :pre_processor => true}

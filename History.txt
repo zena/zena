@@ -5,10 +5,11 @@
  * Support for 'sortable' <== TODO: Document
  * html_escape all properties by default
  * Better support for Passenger (default deployment method now)
- * Simplified caching (not saving cachestamp with file)
+ * Simplified caching (using cachestamp in filename)
 
 * Minor changes
  * Support for 'lang_list' when creating vhost file <== TODO: Document
+ * Support for Range in zafu. <== TODO: Document
 
 == 1.2.2 2012-08-30
 

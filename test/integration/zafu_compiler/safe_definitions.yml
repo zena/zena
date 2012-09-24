@@ -140,6 +140,12 @@ array_include:
   src: "<b do='[1,2,3].include?(2)'/>"
   tem: "<% if [1,2,3].include?(2) %><b></b><% end %>"
 
+range:
+  context:
+    x: 4
+  src: "<r:void do='(0..params[:x].to_i).to_a'><span do='each' join=' ' do='this'/></r:void>"
+  res: '<span>0</span> <span>1</span> <span>2</span> <span>3</span> <span>4</span>'
+  
 hash_to_params:
   context:
     q:
