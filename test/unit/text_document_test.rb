@@ -27,17 +27,17 @@ class TextDocumentTest < Zena::Unit::TestCase
           #header { background:url('bird.jpg') }
           #pv     { background:url('bird_pv.jpg') }
           #footer { background:url('/projects list/a wiki with Zena/flower.jpg') }
-          #no_stamp { background:url('/en/image30_pv.jpg?100001001345') }
+          #no_stamp { background:url('/en/image30_pv.7f6f0.jpg') }
           END_CSS
 
           assert subject.update_attributes(:text => css)
 
           parsed_css =<<-END_CSS
           body { font-size:10px; }
-          #header { background:url('/en/image30.jpg?1144713600') }
-          #pv     { background:url('/en/image30_pv.jpg?967816914293') }
-          #footer { background:url('/en/image31.jpg?1144713600') }
-          #no_stamp { background:url('/en/image30_pv.jpg?967816914293') }
+          #header { background:url('/en/image30.11fbc.jpg') }
+          #pv     { background:url('/en/image30_pv.7f6f0.jpg') }
+          #footer { background:url('/en/image31.11fbc.jpg') }
+          #no_stamp { background:url('/en/image30_pv.7f6f0.jpg') }
           END_CSS
 
           assert_equal parsed_css, subject.text
@@ -141,11 +141,11 @@ class TextDocumentTest < Zena::Unit::TestCase
     assert node.errors.empty?
     res =<<-END_CSS
     body { font-size:10px; behavior:url("/stylesheets/csshover2.htc?#{File.mtime(File.join(RAILS_ROOT, 'public/stylesheets/csshover2.htc')).to_i}"); }
-    #header { background:url('/en/image30.jpg?1144713600') }
-    #pv     { background:url('/en/image30_pv.jpg?967816914293') }
-    #footer { background:url('/en/image31.jpg?1144713600') }
-    #back   { background:url('/en/image31.jpg?1144713600') }
-    #no_stamp { background:url('/en/image30_pv.jpg?967816914293') }
+    #header { background:url('/en/image30.11fbc.jpg') }
+    #pv     { background:url('/en/image30_pv.7f6f0.jpg') }
+    #footer { background:url('/en/image31.11fbc.jpg') }
+    #back   { background:url('/en/image31.11fbc.jpg') }
+    #no_stamp { background:url('/en/image30_pv.7f6f0.jpg') }
     END_CSS
     assert_equal res, text
     text = node.parse_assets(text, helper, 'text')
@@ -186,9 +186,9 @@ class TextDocumentTest < Zena::Unit::TestCase
     assert node.errors.empty?
     res =<<-END_CSS
     body { font-size:10px; }
-    #header { background:url('/en/image30.jpg?1144713600') }
-    #tiny   { background:url('/en/image30_tiny.jpg?812062401186') }
-    #footer { background:url('/en/image31.jpg?1144713600') }
+    #header { background:url('/en/image30.11fbc.jpg') }
+    #tiny   { background:url('/en/image30_tiny.0059b.jpg') }
+    #footer { background:url('/en/image31.11fbc.jpg') }
     END_CSS
     assert_equal res, text
   end

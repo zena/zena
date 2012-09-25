@@ -116,14 +116,6 @@ class CachedPage < ActiveRecord::Base
       else
         File.open(filepath, "wb+") { |f| f.write(content_data) }
       end
-      
-      # This is not needed anymore if we use a separate /cache folder
-      # if path =~ %r{^#{current_site.public_path}/(\w\w)\.html$}
-      #   # Root cache: make sure we create directory to prevent
-      #   # Multiviews errors.
-      #   lang_path = "#{SITES_ROOT}#{current_site.public_path}/#{$1}"
-      #   Dir.mkdir(lang_path) unless File.exist?(lang_path)
-      # end
 
       # create join values from context for automatic expire
       if (ids = @expire_with_ids || visitor.visited_node_ids) != []

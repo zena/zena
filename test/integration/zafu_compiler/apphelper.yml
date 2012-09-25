@@ -11,7 +11,7 @@ img_tag_use_icon:
   context:
     node: 'wiki'
   tem: "<%= img_tag(@node, :alt_src => 'icon') %>"
-  res: "<img src='/en/image30.jpg?1144713600' width='660' height='600' alt='bird' class='full'/>"
+  res: "<img src='/en/image30.11fbc.jpg' width='660' height='600' alt='bird' class='full'/>"
 
 set_lang_fr:
   context:

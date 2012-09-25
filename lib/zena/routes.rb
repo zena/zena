@@ -17,8 +17,6 @@ module Zena
       resources :acls
       resources :iformats
 
-
-      connect ':prefix/*path?:cachestamp',  :controller => 'nodes', :action => 'show', :prefix => /\w\w/, :cachestamp => /\d+/
       connect ':prefix/*path',  :controller => 'nodes', :action => 'show', :prefix => /\w\w/
       connect 'dav/*path_info', :controller => 'nodes', :action => 'webdav'
 

@@ -23,8 +23,7 @@ class NavigationTest < Zena::Integration::TestCase
     assert_redirected_to 'http://test.host/oo'
     follow_redirect!
     assert_response :success
-    get 'http://test.host/fr/textdocument54.css?1144713600' # data with timestamp
-    assert_response :success
+    get 'http://test.host/fr/textdocument54.11fbc.css' # data with timestamp
   end
 
   def test_should_not_redirect_to_css
@@ -451,17 +450,17 @@ class NavigationTest < Zena::Integration::TestCase
           }
           
           good.each do |p, c|
-            assert !File.exists?(base + c), "No cached file yet"
+            assert !File.exists?(base + c), "No cached file #{c} yet"
             get "http://test.host#{p}"
             assert_response :success
-            assert File.exists?(base + c), "Cached file created"
+            assert File.exists?(base + c), "Cached file #{c} created"
           end
           
           bad.each do |p, c|
-            assert !File.exists?(base + c), "No cached file yet"
+            assert !File.exists?(base + c), "No cached file #{c} yet"
             get "http://test.host#{p}"
             assert_response :success
-            assert !File.exists?(base + c), "No cached file created"
+            assert !File.exists?(base + c), "No cached file #{c} created"
           end
         end
       end

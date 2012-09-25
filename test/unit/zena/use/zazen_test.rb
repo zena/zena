@@ -49,15 +49,15 @@ class ZazenTest < Zena::View::TestCase
 
   def test_make_image
     # * [!24!] inline image 24. (default format is 'pv' defined in #ImageBuilder). Options are :
-    assert_equal "<p><img src='/en/projects-list/Clean-Water-project/image24_std.jpg?929831698949' width='545' height='400' alt='it&apos;s a lake' class='std'/></p>", zazen('!24!')
+    assert_equal "<p><img src='/en/projects-list/Clean-Water-project/image24_std.75a9a.jpg' width='545' height='400' alt='it&apos;s a lake' class='std'/></p>", zazen('!24!')
     # ** [!024!] inline image, default format, link to full image.
-    assert_equal "<p><a class='popup' href='/en/projects-list/Clean-Water-project/image24.jpg?1144713600' target='_blank'><img src='/en/projects-list/Clean-Water-project/image24_std.jpg?929831698949' width='545' height='400' alt='it&apos;s a lake' class='std'/></a></p>", zazen('!024!')
+    assert_equal "<p><a class='popup' href='/en/projects-list/Clean-Water-project/image24.11fbc.jpg' target='_blank'><img src='/en/projects-list/Clean-Water-project/image24_std.75a9a.jpg' width='545' height='400' alt='it&apos;s a lake' class='std'/></a></p>", zazen('!024!')
   end
 
   def test_make_image_with_document
-    assert_match %r{<p><a.*href=.*en/projects-list/Clean-Water-project/document25\.pdf.*img src='/images/ext/pdf.png' width='32' height='32' alt='pdf document' class='doc'/></a></p>}, zazen('!25!')
-    assert_match %r{<p><a.*href=.*en/projects-list/Clean-Water-project/document25\.pdf.*img src='/images/ext/pdf.png' width='32' height='32' alt='pdf document' class='doc'/></a></p>}, zazen('!025!') # same as '!25!'
-    assert_match %r{<p><a.*href=.*en/projects-list/Clean-Water-project/document25\.pdf.*img src='/images/ext/pdf_pv.png' width='70' height='70' alt='pdf document' class='doc'/></a></p>}, zazen('!25_pv!')
+    assert_match %r{<p><a.*href=.*en/projects-list/Clean-Water-project/document25\.11fbc.pdf.*img src='/images/ext/pdf.png' width='32' height='32' alt='pdf document' class='doc'/></a></p>}, zazen('!25!')
+    assert_match %r{<p><a.*href=.*en/projects-list/Clean-Water-project/document25\.11fbc.pdf.*img src='/images/ext/pdf.png' width='32' height='32' alt='pdf document' class='doc'/></a></p>}, zazen('!025!') # same as '!25!'
+    assert_match %r{<p><a.*href=.*en/projects-list/Clean-Water-project/document25\.11fbc.pdf.*img src='/images/ext/pdf_pv.png' width='70' height='70' alt='pdf document' class='doc'/></a></p>}, zazen('!25_pv!')
   end
 
   def test_make_bad_image
@@ -66,34 +66,34 @@ class ZazenTest < Zena::View::TestCase
 
   def test_make_image_align
     # ** [!<.24!] or [!<24!] inline image surrounded with <p class='float_left'></p>
-    assert_match %r{class='img_left'.*img.*/en/projects-list/Clean-Water-project/image24_std.jpg.*class='std'}, zazen('!<.24!')
-    assert_match %r{class='img_left'.*img.*/en/projects-list/Clean-Water-project/image24_std.jpg.*class='std'}, zazen('!<24!')
+    assert_match %r{class='img_left'.*img.*/en/projects-list/Clean-Water-project/image24_std.75a9a.jpg.*class='std'}, zazen('!<.24!')
+    assert_match %r{class='img_left'.*img.*/en/projects-list/Clean-Water-project/image24_std.75a9a.jpg.*class='std'}, zazen('!<24!')
     # ** [!>.24!] inline image surrounded with <p class='float_right'></p>
-    assert_match %r{class='img_right'.*img.*/en/projects-list/Clean-Water-project/image24_std.jpg.*class='std'}, zazen('!>.24!')
-    assert_match %r{class='img_right'.*img.*/en/projects-list/Clean-Water-project/image24_std.jpg.*class='std'}, zazen('!>24!')
+    assert_match %r{class='img_right'.*img.*/en/projects-list/Clean-Water-project/image24_std.75a9a.jpg.*class='std'}, zazen('!>.24!')
+    assert_match %r{class='img_right'.*img.*/en/projects-list/Clean-Water-project/image24_std.75a9a.jpg.*class='std'}, zazen('!>24!')
     # ** [!=.24!] inline image with <p class='center'></p>
-    assert_match %r{class='img_center'.*img.*/en/projects-list/Clean-Water-project/image24_std.jpg.*class='std'}, zazen('!=.24!')
-    assert_match %r{class='img_center'.*img.*/en/projects-list/Clean-Water-project/image24_std.jpg.*class='std'}, zazen('!=24!')
+    assert_match %r{class='img_center'.*img.*/en/projects-list/Clean-Water-project/image24_std.75a9a.jpg.*class='std'}, zazen('!=.24!')
+    assert_match %r{class='img_center'.*img.*/en/projects-list/Clean-Water-project/image24_std.75a9a.jpg.*class='std'}, zazen('!=24!')
   end
 
   def test_make_iformat
     # ** [!24_pv!] inline image transformed to format 'pv'. Formats are defined in #ImageBuilder.
-    assert_match %r{.*img.*/en/projects-list/Clean-Water-project/image24.jpg.*600.*440.*class='full'}, zazen('!24_full!')
-    assert_match %r{.*img.*/en/projects-list/Clean-Water-project/image24_tiny.jpg.*16.*16.*class='tiny'}, zazen('!24_tiny!')
+    assert_match %r{.*img.*/en/projects-list/Clean-Water-project/image24.[0-9a-f]+.jpg.*600.*440.*class='full'}, zazen('!24_full!')
+    assert_match %r{.*img.*/en/projects-list/Clean-Water-project/image24_tiny.[0-9a-f]+.jpg.*16.*16.*class='tiny'}, zazen('!24_tiny!')
   end
 
   def test_all_options
     # ** all the options above can be used together as in [!>.26.std!] : inline image on the right, size 'med'.
-    assert_match %r{class='img_right'.*img.*/en/projects-list/Clean-Water-project/image24_mini.jpg.*32.*32.*class='mini'}, zazen('!>24_mini!')
-    assert_match %r{class='img_right'.*img.*/en/projects-list/Clean-Water-project/image24_mini.jpg.*32.*32.*class='mini'}, zazen('!>.24_mini!')
+    assert_match %r{class='img_right'.*img.*/en/projects-list/Clean-Water-project/image24_mini.[0-9a-f]+.jpg.*32.*32.*class='mini'}, zazen('!>24_mini!')
+    assert_match %r{class='img_right'.*img.*/en/projects-list/Clean-Water-project/image24_mini.[0-9a-f]+.jpg.*32.*32.*class='mini'}, zazen('!>.24_mini!')
   end
 
   def test_make_gallery
     # ** [![2,3,5]!] gallery : inline preview with javascript inline viewer
-    assert_match %r{table.*gallery.*Zena.transfer.*image24_pv.jpg.*image24_std.jpg.*image30_pv.jpg.*image30_std.jpg}m, zazen('![24,30]!')
+    assert_match %r{table.*gallery.*Zena.transfer.*image24_pv.*image24_std.*image30_pv.*image30_std}m, zazen('![24,30]!')
     @node = secure!(Node) { Node.find(nodes_id(:wiki)) }
     # ** [![]!] gallery with all images contained in the current node
-    assert_match %r{table.*gallery.*Zena.transfer.*image30_pv.jpg.*image30_std.jpg.*image31_pv.jpg.*image31_std.jpg}m, zazen('![]!')
+    assert_match %r{table.*gallery.*Zena.transfer.*image30_pv.*image30_std.*image31_pv.*image31_std}m, zazen('![]!')
   end
 
   def test_make_gallery_bad_zips
@@ -118,13 +118,13 @@ class ZazenTest < Zena::View::TestCase
 
   def test_image_as_link
     # * [!26!:37] you can use an image as the source for a link
-    assert_zazen_match "p a[@href='/en/projects-list/Clean-Water-project'] img.std[@src='/en/image30_std.jpg?929831698949'][@width='440'][@height='400']", '!30!:21'
+    assert_zazen_match "p a[@href='/en/projects-list/Clean-Water-project'] img.std[@src='/en/image30_std.75a9a.jpg'][@width='440'][@height='400']", '!30!:21'
     # * [!26!:www.example.com] use an image for an outgoing link
-    assert_zazen_match "p a[@href='http://www.example.com'] img.std[@src='/en/image30_std.jpg?929831698949']", '!30!:http://www.example.com'
+    assert_zazen_match "p a[@href='http://www.example.com'] img.std[@src='/en/image30_std.75a9a.jpg']", '!30!:http://www.example.com'
   end
 
   def test_full
-    assert_zazen_match "div.img_left a[@href='/en/projects-list/Clean-Water-project'][@onclick*=window.open] img.std[@src='/en/projects-list/Clean-Water-project/image24_std.jpg?929831698949'][@width='545'][@height='400'][@alt*=lake]", '!<.24_3!:021'
+    assert_zazen_match "div.img_left a[@href='/en/projects-list/Clean-Water-project'][@onclick*=window.open] img.std[@src='/en/projects-list/Clean-Water-project/image24_std.75a9a.jpg'][@width='545'][@height='400'][@alt*=lake]", '!<.24_3!:021'
   end
 
   def test_empty_image_ref
@@ -139,7 +139,7 @@ class ZazenTest < Zena::View::TestCase
 
   def test_pseudo_id
     assert_zazen_match "a[@href='/en/contact15.html'][text()='people/Panthera Leo Verneyi']", 'This is a "link"::Leo.'
-    assert_zazen_match "a[@href='/en/image30_pv.jpg?967816914293'][text()='projects list/a wiki with Zena/bird_pv.jpg']", 'This is a "link"::bir_pv.data.'
+    assert_zazen_match "a[@href='/en/image30_pv.7f6f0.jpg'][text()='projects list/a wiki with Zena/bird_pv.jpg']", 'This is a "link"::bir_pv.data.'
   end
 
   context 'An absolute pseudo path' do
@@ -156,7 +156,7 @@ class ZazenTest < Zena::View::TestCase
     end
 
     should 'resolve as image without using the current node' do
-      assert_match %Q{img[@src='/en/image30_std.jpg?929831698949']}, zazen(%Q{See !#{subject}!})
+      assert_match %Q{img[@src='/en/image30_std.75a9a.jpg']}, zazen(%Q{See !#{subject}!})
     end
 
 
@@ -166,7 +166,7 @@ class ZazenTest < Zena::View::TestCase
       end
 
       should 'resolve with mode in image tag' do
-        assert_equal "<p>See <img src='/en/image30_side.jpg?100321116926' width='220' height='500' alt='bird' class='side'/></p>", zazen(%Q{See !#{subject}!})
+        assert_equal "<p>See <img src='/en/image30_side.9698b.jpg' width='220' height='500' alt='bird' class='side'/></p>", zazen(%Q{See !#{subject}!})
       end
 
       should 'resolve with mode as link' do
@@ -174,11 +174,11 @@ class ZazenTest < Zena::View::TestCase
       end
 
       should 'resolve with mode as link to image' do
-        assert_equal "<p>Read <a href=\"/en/image30_side.html\"><img src='/en/image30_std.jpg?929831698949' width='440' height='400' alt='bird' class='std'/></a></p>", zazen(%Q{Read !30!:#{subject}})
+        assert_equal "<p>Read <a href=\"/en/image30_side.html\"><img src='/en/image30_std.75a9a.jpg' width='440' height='400' alt='bird' class='std'/></a></p>", zazen(%Q{Read !30!:#{subject}})
       end
 
       should 'resolve with mode as link and image tag' do
-        assert_equal "<p>See <a href=\"/en/image30_side.html\"><img src='/en/image30_side.jpg?100321116926' width='220' height='500' alt='bird' class='side'/></a></p>", zazen(%Q{See !#{subject}!:#{subject}})
+        assert_equal "<p>See <a href=\"/en/image30_side.html\"><img src='/en/image30_side.9698b.jpg' width='220' height='500' alt='bird' class='side'/></a></p>", zazen(%Q{See !#{subject}!:#{subject}})
       end
     end
   end # An absolute pseudo path

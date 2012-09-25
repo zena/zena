@@ -1,6 +1,7 @@
 require 'test_helper'
 
 class NodesControllerTest < Zena::Controller::TestCase
+  include Zena::Use::Urls::Common
   context 'An anonymous user' do
     setup do
       login(:anon)
@@ -165,22 +166,21 @@ class NodesControllerTest < Zena::Controller::TestCase
 
       context 'asking for show' do
         subject do
+          @stamp = make_cachestamp(secure(Node) { Node.find(nodes_id(:projects))}, nil)
           {
             :action => 'show', :controller => 'nodes',
-            :path   => ["page#{nodes_zip(:projects)}_info.js"],
+            :path   => ["page#{nodes_zip(:projects)}_info.#{@stamp}.js"],
             :prefix => 'en'
           }
         end
 
         should 'recognize show page' do
-          assert_recognizes subject, "/en/page#{nodes_zip(:projects)}_info.js"
+          assert_recognizes subject, "/en/page#{nodes_zip(:projects)}_info.#{@stamp}.js"
         end
 
         should 'insert cachestamp and render template' do
           get_subject
-          #
-          assert_redirected_to "/en/page18_info.js?#{nodes(:projects).updated_at.to_i}"
-          get 'show', :path => subject[:path], :cachestamp => nodes(:projects).updated_at.to_i.to_s, :prefix => 'en'
+          get 'show', :path => subject[:path], :prefix => 'en'
           assert_response :success
           assert_equal '{some:"json"}', @response.body
         end
@@ -650,12 +650,12 @@ class NodesControllerTest < Zena::Controller::TestCase
     end # trying to destroy an inaccessible node
   end # A user
 
-
+  
   def test_foo
-    assert_generates '/en/img.jpg?1234', :controller => :nodes, :action => :show, :prefix => 'en', :path => ["img.jpg"], :cachestamp => '1234'
+    assert_generates '/en/img.ff823.jpg', :controller => :nodes, :action => :show, :prefix => 'en', :path => ["img.ff823.jpg"]
     assert_recognizes(
-      {:controller => 'nodes', :action => 'show', :prefix => 'en', :path => ["img.jpg"], :cachestamp => '1234'},
-      '/en/img.jpg?1234'
+      {:controller => 'nodes', :action => 'show', :prefix => 'en', :path => ["img.ff823.jpg"]},
+      '/en/img.ff823.jpg'
     )
   end
 
@@ -664,12 +664,12 @@ class NodesControllerTest < Zena::Controller::TestCase
     node = secure!(Node) { nodes(:bird_jpg) }
     get 'show', :prefix => 'oo', :path => ["image#{node.zip}.jpg"]
     # missing cache info
-    assert_redirected_to "/en/image#{node.zip}.jpg?#{node.updated_at.to_i}"
+    assert_redirected_to "/en/image#{node.zip}.#{make_cachestamp(node,nil)}.jpg"
     # bad cache info
-    get 'show', :prefix => 'en', :path => ["image#{node.zip}.jpg"], :cachestamp => '1234'
-    assert_redirected_to "/en/image#{node.zip}.jpg?#{node.updated_at.to_i}"
+    get 'show', :prefix => 'en', :path => ["image#{node.zip}.1234.jpg"]
+    assert_redirected_to "/en/image#{node.zip}.#{make_cachestamp(node,nil)}.jpg"
     # cache info ok
-    get 'show', :prefix => 'en', :path => ["image#{node.zip}.jpg"], :cachestamp => node.updated_at.to_i
+    get 'show', :prefix => 'en', :path => ["image#{node.zip}.#{make_cachestamp(node,nil)}.jpg"]
     assert_response :success
   end
 
@@ -678,12 +678,12 @@ class NodesControllerTest < Zena::Controller::TestCase
     node = secure!(Node) { nodes(:bird_jpg) }
     get 'show', :prefix => 'oo', :path => ["image#{node.zip}_pv.jpg"]
     # missing cache info, can use public image
-    assert_redirected_to "/en/image#{node.zip}_pv.jpg?#{node.updated_at.to_i + Iformat['pv'][:hash_id]}"
+    assert_redirected_to "/en/image#{node.zip}_pv.#{make_cachestamp(node,'pv')}.jpg"
     # bad cache info
-    get 'show', :prefix => 'en', :path => ["image#{node.zip}.jpg"], :cachestamp => '1234'
-    assert_redirected_to "/en/image#{node.zip}.jpg?#{node.updated_at.to_i}"
+    get 'show', :prefix => 'en', :path => ["image#{node.zip}.1234.jpg"]
+    assert_redirected_to "/en/image#{node.zip}.#{make_cachestamp(node,nil)}.jpg"
     # cache info ok
-    get 'show', :prefix => 'en', :path => ["image#{node.zip}.jpg"], :cachestamp => node.updated_at.to_i
+    get 'show', :prefix => 'en', :path => ["image#{node.zip}.#{make_cachestamp(node,nil)}.jpg"]
     assert_response :success
   end
 
@@ -692,12 +692,12 @@ class NodesControllerTest < Zena::Controller::TestCase
     node = secure!(Node) { nodes(:style_css) }
     get 'show', :prefix => 'oo', :path => ["textdocument#{node.zip}.css"]
     # missing cache info, should use public lang
-    assert_redirected_to "/en/textdocument#{node.zip}.css?#{node.updated_at.to_i}"
+    assert_redirected_to "/en/textdocument#{node.zip}.#{make_cachestamp(node,nil)}.css"
     # bad cache info
-    get 'show', :prefix => 'en', :path => ["textdocument#{node.zip}.css"], :cachestamp => '1234'
-    assert_redirected_to "/en/textdocument#{node.zip}.css?#{node.updated_at.to_i}"
+    get 'show', :prefix => 'en', :path => ["textdocument#{node.zip}.1234.css"]
+    assert_redirected_to "/en/textdocument#{node.zip}.#{make_cachestamp(node,nil)}.css"
     # cache info ok
-    get 'show', :prefix => 'en', :path => ["textdocument#{node.zip}.css"], :cachestamp => node.updated_at.to_i
+    get 'show', :prefix => 'en', :path => ["textdocument#{node.zip}.#{make_cachestamp(node,nil)}.css"]
     assert_response :success
   end
 
@@ -708,16 +708,16 @@ class NodesControllerTest < Zena::Controller::TestCase
         node = secure!(Node) { nodes(:bird_jpg) }
         get 'show', :prefix => 'en', :path => ["image#{node.zip}.jpg"]
         # missing cache info
-        assert_redirected_to "/en/image#{node.zip}.jpg?#{node.updated_at.to_i}"
+        assert_redirected_to "/en/image#{node.zip}.#{make_cachestamp(node,nil)}.jpg"
         assert !File.exist?("#{SITES_ROOT}/test.host/public/en/image#{node.zip}.jpg")
         # bad cache info
-        get 'show', :prefix => 'en', :path => ["image#{node.zip}.jpg"], :cachestamp => '1234'
-        assert_redirected_to "/en/image#{node.zip}.jpg?#{node.updated_at.to_i}"
-        assert !File.exist?("#{SITES_ROOT}/test.host/public/en/image#{node.zip}.jpg")
+        get 'show', :prefix => 'en', :path => ["image#{node.zip}.1234.jpg"]
+        assert_redirected_to "/en/image#{node.zip}.#{make_cachestamp(node,nil)}.jpg"
+        assert !File.exist?("#{SITES_ROOT}/test.host/public/en/image#{node.zip}.#{make_cachestamp(node,nil)}.jpg")
         # cache info ok
-        get 'show', :prefix => 'en', :path => ["image#{node.zip}.jpg"], :cachestamp => node.updated_at.to_i
+        get 'show', :prefix => 'en', :path => ["image#{node.zip}.#{make_cachestamp(node,nil)}.jpg"]
         assert_response :success
-        assert File.exist?("#{SITES_ROOT}/test.host/public/en/image#{node.zip}.jpg")
+        assert File.exist?("#{SITES_ROOT}/test.host/public/en/image#{node.zip}.#{make_cachestamp(node,nil)}.jpg")
       end
     end
   end
@@ -785,14 +785,15 @@ END:VCALENDAR
     login(:tiger)
     node = secure!(Node) { nodes(:style_css) }
     without_files('/test.host/public') do
-      name = "textdocument#{node.zip}.css"
-      filename = "#{SITES_ROOT}/test.host/public/en/#{name}"
+      name = 'textdocument54.11fbc.css'
+      base = "#{SITES_ROOT}/test.host/public/en"
+      filename = [base, name].join('/')
       with_caching do
         assert !File.exist?(filename)
-        get 'show', :prefix => 'en', :path => [name], :cachestamp => node.updated_at.to_i
+        get 'show', :prefix => 'en', :path => [name]
         assert_response :success
         cache1 = filename
-        assert File.exist?(cache1) # cached page created
+        assert File.exist?(cache1), "Cache exists #{cache1}" # cached page created
         assert_match %r[body \{ background: #eee; color:#444;], File.read(cache1)
         put 'save_text', :id => nodes_zip(:style_css), :node => {'text' => '/* empty */'}
         node = assigns['node']
@@ -800,9 +801,12 @@ END:VCALENDAR
         assert_equal Zena::Status::Pub, node.version.status
         assert_equal versions_id(:style_css_en), node.version.id # auto publish
         assert !File.exist?(cache1) # old cached page removed
-        get 'show', :prefix => 'en', :path => [name], :cachestamp => node.updated_at.to_i
+        name2 = "textdocument54.#{make_cachestamp(node, nil)}.css"
+        get 'show', :prefix => 'en', :path => [name]
+        assert_redirected_to "/en/#{name2}"
+        get 'show', :prefix => 'en', :path => [name2]
         assert_response :success
-        cache2 = filename
+        cache2 = [base, name2].join('/')
         assert File.exist?(cache2) # cached page created again
         assert_match %r[/\* empty \*/], File.read(cache2)
       end
@@ -853,6 +857,51 @@ END:VCALENDAR
       assert_equal 2, doc_versions.size
       assert_match %r{two}, doc_versions[0].text
       assert_match %r{deux}, doc_versions[1].text
+    end
+  end
+  
+  def test_import_xhtml
+    without_files('/test.host/data') do
+      without_files('/test.host/zafu') do
+        login(:lion)
+        post 'import', :id => nodes(:skins).zip, :node => {:klass => 'Skin', :v_status => Zena::Status::Pub}, :attachment => uploaded_archive('jet_30.zip')
+        
+        node_list = assigns(:nodes)
+        nodes = {}
+        node_list.each do |n|
+          nodes[n.title] = n
+        end
+        assert skin = nodes['jet_30']
+        assert_kind_of Skin, skin
+        assert zafu = nodes['Node']
+        assert_kind_of Template, zafu
+        assert_equal 'html', zafu.format
+        assert_equal 'Node', zafu.target_klass
+        assert_equal 'N', zafu.tkpath
+        assert style = nodes['style']
+        assert_kind_of TextDocument, style
+        assert navBar = nodes['nav_bar']
+        assert_kind_of Image, navBar
+        assert xhtmlBgHover = nodes['xhtml_bg_hover']
+        assert_kind_of Image, xhtmlBgHover
+        assert topIcon = nodes['top_icon']
+        assert_kind_of Image, topIcon
+        ['lft_pic1', 'lft_pic2', 'lft_pic3'].each do |p|
+          assert nodes[p]
+          assert_kind_of Image, nodes[p]
+        end
+        assert_match %r{#header ul\{\s*background:url\('/en/image#{navBar.zip}.[0-9a-f]+.gif'\)}m, style.text
+        assert_match %r{a\.xht:hover\{\s*background:url\('/en/image#{xhtmlBgHover.zip}.[0-9a-f]+.gif'\)}, style.text
+
+        # use this template
+        status = nodes(:status)
+        status.visitor = Thread.current[:visitor]
+        assert status.update_attributes(:skin_id => skin.id, :inherit => 0)
+        get 'show', 'prefix'=>'oo', 'path'=>['projects-list', 'Clean-Water-project', "page#{status.zip}.html"]
+        assert_response :success
+
+        assert_match %r{posuere eleifend arcu</p>\s*<img [^>]*src\s*=\s*./en/image#{topIcon.zip}.[0-9a-f]+.gif}, @response.body
+      end
     end
   end
 
@@ -966,7 +1015,7 @@ END:VCALENDAR
 
   def test_search_qb
     login(:anon)
-    get 'search', 'qb' => 'nodes where (set_tag_id = 33 and hot_id = 22) in site'
+    get 'search', 'qb' => 'projects where (set_tag.id = 33 and hot.id = 22) in site'
     assert_response :success
     assert nodes = assigns(:nodes)
     assert_equal [nodes_id(:cleanWater)], nodes.map(&:id)

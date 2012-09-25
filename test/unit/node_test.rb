@@ -1369,13 +1369,6 @@ done: \"I am done\""
     end
   end
 
-  # FIXME: write test
-  def test_assets
-    print 'P'
-    # sweep_cache (save) => remove asset folder
-    # render math ?
-  end
-
   def find_node_by_pseudo(string, base_node = nil)
     secure(Node) { Node.find_node_by_pseudo(string, base_node || @node) }
   end

@@ -418,7 +418,7 @@ nodes_in_site_group_by_year:
 
 find_by_zip:
   src: "<div do='find(30)' do='img'/>"
-  res: '/image30_std.jpg/'
+  res: '/image30_std.75a9a.jpg/'
 
 find_count:
   context:

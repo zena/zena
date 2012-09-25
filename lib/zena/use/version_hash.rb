@@ -59,10 +59,22 @@ module Zena
           end
         end
 
-        def version_id(lang = nil)
+        def version_id(lang = nil, ugps = visitor.group_ids)
           lang ||= visitor.lang
-          access = can_see_redactions? ? vhash['w'] : vhash['r']
+          access = can_see_redactions?(ugps) ? vhash['w'] : vhash['r']
           access[lang] || access[self[:ref_lang]] || access.values.first
+        end
+        
+        # Return true if the current version can be seen by the public.
+        def v_public?
+          visitor.is_anon? ||
+          begin
+            anon = visitor.site.anon
+            # visible by anonymous
+            can_read?(anon, anon.group_ids) &&
+            # anonymous would see this exact version
+            version.id == version_id(visitor.lang, visitor.site.anon.group_ids)
+          end
         end
 
         # Return the list of versions that are stored in the vhash and could be loaded depending

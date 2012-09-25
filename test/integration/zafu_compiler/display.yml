@@ -35,7 +35,7 @@ cdata:
   res: |
     <script type='text/javascript'>
       <![CDATA[
-      var urls = ['http://test.host/oo/image40_med.jpg?390663777446', 'http://test.host/en/image30_med.jpg?390663777446'];
+      var urls = ['http://test.host/oo/image40_med.05b01.jpg', 'http://test.host/en/image30_med.05b01.jpg'];
       //]]>
     </script>
 
@@ -250,7 +250,7 @@ img_tag_icon:
   context:
     node: 'cleanWater'
   src: "<r:img alt_src='icon'/>"
-  res: "<img src='/en/projects-list/Clean-Water-project/image24_std.jpg?929831698949' width='545' height='400' alt='it&apos;s a lake' class='std'/>"
+  res: "<img src='/en/projects-list/Clean-Water-project/image24_std.75a9a.jpg' width='545' height='400' alt='it&apos;s a lake' class='std'/>"
 
 icon:
   context:
@@ -262,36 +262,36 @@ img_image:
   context:
     node: 'bird_jpg'
   src: "<r:img/><r:img mode='med'/>"
-  res: "/<img src='/en/image30_std.jpg\?929831698949' width='440' height='400' alt='bird' class='std'/><img src='/en/image30_med.jpg\?390663777446' width='220' height='200' alt='bird' id='.*' class='med' onclick='Zena.popup\(this\)'/>/"
+  res: "/<img src='/en/image30_std.75a9a.jpg' width='440' height='400' alt='bird' class='std'/><img src='/en/image30_med.05b01.jpg' width='220' height='200' alt='bird' id='.*' class='med' onclick='Zena.popup\(this\)'/>/"
 
 img_image_not_public:
   context:
     visitor: 'ant'
     node: 'tree_jpg'
   src: "<r:img/><r:img mode='med'/>"
-  res: "/<img src='/oo/image40_std.jpg\?929831698949' width='600' height='399' alt='Autumn Tree' class='std'/><img src='/oo/image40_med.jpg\?390663777446' width='300' height='200' alt='Autumn Tree' id='.*' class='med' onclick='Zena.popup\(this\)'/>/"
+  res: "/<img src='/oo/image40_std.75a9a.jpg' width='600' height='399' alt='Autumn Tree' class='std'/><img src='/oo/image40_med.05b01.jpg' width='300' height='200' alt='Autumn Tree' id='.*' class='med' onclick='Zena.popup\(this\)'/>/"
 
 img_href:
   context:
     node: 'bird_jpg'
   src: "<r:img link='this'/>"
-  res: "<a href='/oo/image30.html'><img src='/en/image30_std.jpg?929831698949' width='440' height='400' alt='bird' class='std'/></a>"
+  res: "<a href='/oo/image30.html'><img src='/en/image30_std.75a9a.jpg' width='440' height='400' alt='bird' class='std'/></a>"
 
 img_src_id:
   src: "<r:img src='find(30)'/>"
-  res: "<img src='/en/image30_std.jpg?929831698949' width='440' height='400' alt='bird' class='std'/>"
+  res: "<img src='/en/image30_std.75a9a.jpg' width='440' height='400' alt='bird' class='std'/>"
 
 img_src_finder:
   src: "<r:img src='find(\"icon from project\")'/>"
-  res: "/image24_std.jpg/"
+  res: "/image24_std.75a9a.jpg/"
 
 img_src_mode:
   src: "<r:img src='find(30)' mode='pv'/>"
-  res: "<img src='/en/image30_pv.jpg?967816914293' width='70' height='70' alt='bird' class='pv'/>"
+  res: "<img src='/en/image30_pv.7f6f0.jpg' width='70' height='70' alt='bird' class='pv'/>"
 
 img_html_params:
   src: "<r:img src='find(30)' id='super'/>"
-  res: "<img src='/en/image30_std.jpg?929831698949' width='440' height='400' alt='bird' id='super' class='std'/>"
+  res: "<img src='/en/image30_std.75a9a.jpg' width='440' height='400' alt='bird' id='super' class='std'/>"
 
 zena:
   src: "<r:zena/>"
@@ -436,7 +436,7 @@ default_host:
     node: 'bird_jpg'
   src: "<r:default host='b.#{site.host}'><r:zazen text='this is a \"link\":12.'/> xxx: <r:img/></r:default>"
   tem: '/zazen.*:host.*visitor.site.host/'
-  res: "/href=\"http://b.test.host/oo/section12.html\">link.*src='http://b.test.host/en/image30_std.jpg/"
+  res: "/href=\"http://b.test.host/oo/section12.html\">link.*src='http://b.test.host/en/image30_std.75a9a.jpg/"
 
 zazen_without_markup:
   src: "<r:void do='zazen(title)'/>"

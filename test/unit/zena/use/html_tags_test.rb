@@ -24,12 +24,12 @@ class HtmlTagsTest < Zena::View::TestCase
           assert_match 'img', img_tag(subject)
         end
 
-        should 'append timestamp' do
-          assert_match %r{\?1144713600}, img_tag(subject)
+        should 'use timestamp' do
+          assert_match %r{image30.11fbc.jpg}, img_tag(subject)
         end
 
         should 'use IFormat for timestamp' do
-          assert_match %r{\?967816914293}, img_tag(subject, :mode => 'pv')
+          assert_match %r{image30_pv.7f6f0.jpg}, img_tag(subject, :mode => 'pv')
         end
 
         should 'set class from mode' do
@@ -222,7 +222,7 @@ class HtmlTagsTest < Zena::View::TestCase
 
   def test_alt_with_apos
     doc = secure!(Node) { nodes(:lake_jpg) }
-    assert_equal "<img src='/en/projects-list/Clean-Water-project/image24.jpg?1144713600' width='600' height='440' alt='it&apos;s a lake' class='full'/>", img_tag(doc)
+    assert_equal "<img src='/en/projects-list/Clean-Water-project/image24.11fbc.jpg' width='600' height='440' alt='it&apos;s a lake' class='full'/>", img_tag(doc)
   end
 
   def test_select_id
@@ -281,7 +281,7 @@ class HtmlTagsTest < Zena::View::TestCase
     assert_equal [], @controller.js_data
     img_tag(img, :mode => 'med', :id => 'flop') # med has a popup setting
     popup_data = JSON.load(@controller.js_data[0][%r{\A.*?(\{.*\}).*\Z},1])
-    assert_equal '/en/image30_std.jpg?929831698949', popup_data['src']
+    assert_equal '/en/image30_std.75a9a.jpg', popup_data['src']
     assert_equal 400, popup_data['height']
     assert_equal 440, popup_data['width']
   end

@@ -1,5 +1,7 @@
 require 'tempfile'
 require 'digest/sha1'
+# convert PDF to JPG
+# convert -geometry 1600x1600 -density 200x200 -quality 90 test.pdf test.jpg
 unless defined?(Magick)
   begin
     # this works on the deb box

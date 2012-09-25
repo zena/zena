@@ -18,7 +18,7 @@ module Zena
       }
 
 
-      ALLOWED_REGEXP = /\A(([a-zA-Z]+)([0-9]+)|([#{String::ALLOWED_CHARS_IN_URL}\-%]+))(_[a-zA-Z]+|)(\..+|)\Z/
+      ALLOWED_REGEXP = /\A(([a-zA-Z]+)([0-9]+)|([#{String::ALLOWED_CHARS_IN_URL}\-%]+))(_[a-zA-Z]+|)(=[a-z0-9]+|)(\..+|)\Z/
 
       module Common
         # This is directly related to the FileMatch clause in httpd.rhtml (mod_expires for apaches)
@@ -101,7 +101,7 @@ module Zena
           end
 
           if node.kind_of?(Document) && format == node.ext
-            if node.public? && !visitor.site.authentication?
+            if node.v_public? && !visitor.site.authentication?
               # force the use of a cacheable path for the data, even when navigating in '/oo'
               pre = node.version.lang
             end
@@ -110,12 +110,9 @@ module Zena
           if asset = opts.delete(:asset)
             mode   = nil
           end
-
-
+            
           if should_cachestamp?(node, format, asset)
-            opts[:cachestamp] = make_cachestamp(node, mode)
-          else
-            opts.delete(:cachestamp) # cachestamp
+            stamp = make_cachestamp(node, mode)
           end
 
           path = if !asset && node[:id] == visitor.site[:root_id] && mode.nil? && format == 'html'
@@ -124,7 +121,8 @@ module Zena
             "#{abs_url_prefix}/#{pre}/" +
             basepath_as_url(node.basepath) +
             (mode  ? "_#{mode}"  : '') +
-            (asset ? ".#{asset}" : '') +
+            (asset ? "=#{asset}" : '') +
+            (stamp ? ".#{stamp}" : '') +
             (format == 'html' ? '' : ".#{format}")
           else
             "#{abs_url_prefix}/#{pre}/" +
@@ -132,7 +130,8 @@ module Zena
             (node.klass.downcase   ) +
             (node[:zip].to_s       ) +
             (mode  ? "_#{mode}"  : '') +
-            (asset ? ".#{asset}" : '') +
+            (asset ? "=#{asset}" : '') +
+            (stamp ? ".#{stamp}" : '') +
             ".#{format}"
           end
           append_query_params(path, opts)
@@ -152,7 +151,6 @@ module Zena
           if opts == {}
             path
           else
-            cachestamp = opts.delete(:cachestamp)
             tz = opts.delete(:tz)
             list = opts.keys.map do |k|
               # FIXME: DOC
@@ -183,14 +181,10 @@ module Zena
                 nil
               end
             end.flatten.compact
-            if cachestamp
-              result = path + "?#{cachestamp}" + (list.empty? ? '' : "&#{list.sort.join('&')}")
-              result
-            else
-              # TODO: replace '&' by '&amp;' ? Or escape later ? Use h before zen_path in templates ? What about css/xls/other stuff ?
-              # Best solution: use 'h' in template when set in default
-              path + (list.empty? ? '' : "?#{list.sort.join('&')}")
-            end
+            
+            # TODO: replace '&' by '&amp;' ? Or escape later ? Use h before zen_path in templates ? What about css/xls/other stuff ?
+            # Best solution: use 'h' in template when set in default
+            path + (list.empty? ? '' : "?#{list.sort.join('&')}")
           end
         end
 
@@ -220,7 +214,7 @@ module Zena
         end
 
         def make_cachestamp(node, mode)
-          if mode
+          str = if mode
             if node.kind_of?(Image)
               if iformat = Iformat[mode]
                 "#{node.updated_at.to_i + iformat[:hash_id]}"
@@ -236,6 +230,8 @@ module Zena
           else
             node.updated_at.to_i.to_s
           end
+          
+          Digest::SHA1.hexdigest(str)[0..4]
         end
 
         # Url parameters (without format/mode/prefix...)

@@ -223,14 +223,13 @@ module Zena
         def cache_page(opts={})
           if cachestamp_format?(params['format'])
             headers['Expires'] = (Time.now + 365*24*3600).strftime("%a, %d %b %Y %H:%M:%S GMT")
-            headers['Cache-Control'] = (!current_site.authentication? && @node.public?) ? 'public' : 'private'
+            headers['Cache-Control'] = (!current_site.authentication? && @node.v_public?) ? 'public' : 'private'
           end
 
           if perform_caching && caching_allowed(:authenticated => opts.delete(:authenticated))
           
             url = page_cache_file(opts.delete(:url))
             
-            Node.logger.warn(current_site.cache_path + url)
             opts = {:expire_after  => nil,
                     :path          => (current_site.cache_path + url),
                     :content_data  => response.body,
@@ -250,7 +249,7 @@ module Zena
 
         # Cache file path that reflects the called url
         def page_cache_file(url = nil)
-          path = url || url_for(:only_path => true, :skip_relative_url_root => true, :cachestamp => nil)
+          path = url || url_for(:only_path => true, :skip_relative_url_root => true)
           path = ((path.empty? || path == "/") ? "/index" : URI.unescape(path))
           ext = params[:format].blank? ? 'html' : params[:format]
 
@@ -258,15 +257,15 @@ module Zena
           if @cache_query
             # This builds blog29.htmlp=2.html and it is OK (helps make rewrite rules simple)
             path << @cache_query << ".#{ext}"
-          elsif cachestamp_format?(params['format'])
-            # We have to use a '.' because apache cannot serve static files with '?'.
-            path << ".#{ext}" unless path =~ /\.#{ext}(\?\d+|)$/
-            path << "." << make_cachestamp(@node, params['mode'])
-            # Set expire
-            response.headers['Expires'] = 1.year.from_now.httpdate
           else
             path << ".#{ext}" unless path =~ /\.#{ext}(\?\d+|)$/
           end
+          
+          if cachestamp_format?(params['format'])
+            # Set expire
+            response.headers['Expires'] = 1.year.from_now.httpdate
+          end
+          
           path
         end
 

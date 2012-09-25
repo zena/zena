@@ -170,7 +170,7 @@ class NodesController < ApplicationController
           content_path = @node.asset_path(filename)
           content_type = (Zena::EXT_TO_TYPE[params[:format]] || ['application/octet-stream'])[0]
           send_file(content_path, :filename=>filename, :type => content_type, :disposition=>'inline', :x_sendfile => ENABLE_XSENDFILE)
-          cache_page(:content_path => content_path, :authenticated => @node.public?) # content_path is used to cache by creating a symlink
+          cache_page(:content_path => content_path, :authenticated => @node.v_public?) # content_path is used to cache by creating a symlink
         elsif @node.kind_of?(Document) && params[:format] == @node.ext
           # Get document data (inline if possible)
           content_path = nil
@@ -192,7 +192,8 @@ class NodesController < ApplicationController
             send_file(content_path, :filename => @node.filename, :type => @node.content_type, :disposition => 'inline', :stream => false, :x_sendfile => ENABLE_XSENDFILE)
           end
 
-          cache_page(:content_path => content_path, :authenticated => @node.public?) # content_path is used to cache by creating a symlink
+          # content_path is used to cache by creating a symlink
+          cache_page(:content_path => content_path, :authenticated => @node.v_public?)
         else
           render_and_cache
           # FIXME: redirect to document format should occur in render_and_cache
@@ -574,6 +575,7 @@ class NodesController < ApplicationController
     #  archive-1    ---> fullpath
     #  archive      ---> fullpath
     def find_node
+      
       if path = params[:path]
         # We do not use params[:path] because Rails does url unescape
         # and we want to do this ourselves.
@@ -592,13 +594,14 @@ class NodesController < ApplicationController
         if path.last =~ Zena::Use::Urls::ALLOWED_REGEXP
           zip    = $3
           name   = $4
-          params[:mode] = $5 == '' ? nil : $5[1..-1]
-          asset_and_format = $6 == '' ? '' : $6[1..-1]
-          if asset_and_format =~ /(\w+)\.(\w+)/
-            params[:asset ] = $1
+          params[:mode]    = $5 == '' ? nil : $5[1..-1]
+          params[:asset]   = $6 == '' ? nil : $6[1..-1]
+          stamp_and_format = $7 == '' ? '' : $7[1..-1]
+          if stamp_and_format =~ /(\w+)\.(\w+)/
+            @cachestamp = $1
             set_format($2)
           else
-            set_format(asset_and_format)
+            set_format(stamp_and_format)
           end
 
           # We use the visitor to find the node in order to ease implementation
@@ -647,37 +650,26 @@ class NodesController < ApplicationController
         end
       when 'show'
 
-        if params[:format] != 'html' && params[:cachestamp].nil?
-          # maybe not seen, try to find it
-          params.each do |k,v|
-            if k =~ /\A\d+\Z/ && v.nil?
-              params[:cachestamp] = k
-              params.delete(k)
-              break
-            end
-          end
-        end
-
         if params[:prefix] != prefix && !avoid_prefix_redirect
           # lang changed
           set_visitor_lang(params[:prefix])
           redirect_to zen_path(@node, path_params) and return false
         end
 
-        current_url  = append_query_params("/#{params[:prefix]}/#{params[:path].join('/')}", :cachestamp => params[:cachestamp])
+        current_url  = "/#{params[:prefix]}/#{params[:path].join('/')}"
         base_url     = zen_path(@node,
           :prefix => params[:prefix],
           :format => params[:format],
           :mode   => params[:mode],
           :asset  => params[:asset])
-
+        
         if current_url != base_url
           # Badly formed url, redirect
           redirect_to zen_path(@node, path_params) and return false
         end
-
+        
         if should_cachestamp?(@node, params[:format], params[:asset]) &&
-           params[:cachestamp] != make_cachestamp(@node, params[:mode])
+           @cachestamp != make_cachestamp(@node, params[:mode])
           # Invalid cachestamp, redirect
           redirect_to zen_path(@node, path_params) and return false
         end

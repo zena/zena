@@ -1,5 +1,3 @@
-require 'zafu/ordered_hash'
-
 module Zafu
   # A Markup object is used to hold information on the tag used (<li>), it's parameters (.. class='xxx') and
   # indentation.
@@ -32,9 +30,9 @@ module Zafu
       # Parse parameters into a hash. This parsing supports multiple values for one key by creating additional keys:
       # <tag do='hello' or='goodbye' or='gotohell'> creates the hash {:do=>'hello', :or=>'goodbye', :or1=>'gotohell'}
       def parse_params(text)
-        return OrderedHash.new unless text
+        return Zafu::OrderedHash.new unless text
         return text if text.kind_of?(Hash)
-        params = OrderedHash.new
+        params = Zafu::OrderedHash.new
         rest = text.strip
         while (rest != '')
           if rest =~ /(.+?)=/
@@ -72,9 +70,9 @@ module Zafu
       if params
         self.params = params
       else
-        @params = OrderedHash.new
+        @params = Zafu::OrderedHash.new
       end
-      @dyn_params = OrderedHash.new
+      @dyn_params = Zafu::OrderedHash.new
     end
 
     # Set params either using a string (like "alt='time passes' class='zen'")

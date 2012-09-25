@@ -58,15 +58,6 @@ class RemoteTest < Zena::Integration::TestCase
           assert_equal ['News list'], subject.all('title like "%w%"').map(&:title)
         end
       end # finding nodes
-
-      context 'getting Klass attributes' do
-        should 'return list of properties' do
-          # TODO
-          print 'P'
-          #assert_equal {}, subject.properties
-        end
-      end # getting Klass attributes
-
     end # and a remote class
 
 

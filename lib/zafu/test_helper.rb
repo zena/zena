@@ -1,5 +1,3 @@
-require 'zafu/template'
-
 module Zafu
   module TestHelper
     include RubyLess::SafeClass

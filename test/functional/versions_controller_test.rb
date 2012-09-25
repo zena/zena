@@ -88,8 +88,8 @@ class VersionsControllerTest < Zena::Controller::TestCase
 
     res =<<-END_CSS
     body { font-size:10px; }
-    #header { background:url('/en/image30.jpg?1144713600') }
-    #footer { background:url('/en/image31.jpg?1144713600') }
+    #header { background:url('/en/image30.11fbc.jpg') }
+    #footer { background:url('/en/image31.11fbc.jpg') }
     END_CSS
     assert_equal res, node.text
     get 'edit', :node_id => node.zip, :id => 0, :unparse_assets => 'true'

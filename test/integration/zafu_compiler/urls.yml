@@ -207,7 +207,7 @@ link_format_data:
   context:
     node: bird_jpg
   src: "<r:link format='data'/>"
-  res: "<a href='/en/image30.jpg?1144713600'>bird</a>"
+  res: "<a href='/en/image30.11fbc.jpg'>bird</a>"
 
 live_link_format:
   old_src: "<h2 do='title' link='details.xml'/>"
@@ -219,7 +219,7 @@ live_link_data_mode:
     node: 'bird_jpg'
   old_src: "<h2 do='title' link='pv.data'>super title</h2>"
   src: "<h2 do='link' live='true' mode='pv' format='data'/>"
-  res: "<h2><a id='_title30' href='/en/image30_pv.jpg?967816914293'>bird</a></h2>"
+  res: "<h2><a id='_title30' href='/en/image30_pv.7f6f0.jpg'>bird</a></h2>"
 
 url_with_lang:
   context:
@@ -303,8 +303,8 @@ encode_blank_values:
 
 cachestamp:
   # 26 would be the template for rendering JS's id.
-  src: "<script src='#{path(project, :format => \"js\", :tstamp => find(26).updated_at.to_i)}'></script>"
-  res: "<script src='/oo/projects-list/Clean-Water-project.js?1144713600&tstamp=1176249600'></script>"
+  src: "<script src='#{path(project, :format => \"js\")}'></script>"
+  res: "<script src='/oo/projects-list/Clean-Water-project.11fbc.js'></script>"
 
 node_in_argument:
   src: "<r:link node[done_by]='visitor_node'/>"

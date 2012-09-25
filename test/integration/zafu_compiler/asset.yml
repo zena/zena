@@ -10,7 +10,7 @@ default:
 
 rename_asset:
   src: "<link href='/Default skin/style.css' rel='Stylesheet' type='text/css'/>"
-  tem: "<link rel='Stylesheet' type='text/css' href='/en/textdocument54.css?1144713600'/>"
+  tem: "<link rel='Stylesheet' type='text/css' href='/en/textdocument54.11fbc.css'/>"
 
 should_not_change_script:
   src: "<script type='text/javascript' src='http://example.com'></script>"
@@ -23,5 +23,5 @@ change_style_url:
     </style>
   res: |
     <style>
-    #super { background:url('/oo/image40.jpg?1144713600');}
+    #super { background:url('/oo/image40.11fbc.jpg');}
     </style>

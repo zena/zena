@@ -15,6 +15,10 @@ class ProjectTest < Zena::Unit::TestCase
   end
 
   def test_update_set_project_id_on_update
+    login(:lion)
+    # Memory based cache leaks. Make sure we start with a clean cache.
+    VirtualClass.expire_cache!
+    
     login(:tiger)
     node = secure!(Project) { Project.find(nodes_id(:cleanWater))}
     assert_equal nodes_id(:cleanWater), node.get_project_id

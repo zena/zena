@@ -1,5 +1,3 @@
-require 'zafu/markup'
-
 module Zafu
   PARAM_KEY_REGEXP = %r{^\s+([\w_\-\[\]:]+)=}m
   PARAM_VALUE_REGEXP = %r{('|")(|[^\1]*?[^\\])\1}m
@@ -26,7 +24,7 @@ module Zafu
     # This callback is run just after the block is initialized (Parser#initialize).
     def start(mode)
       # tag_context
-      @markup = Markup.new(@options.delete(:html_tag))
+      @markup = Zafu::Markup.new(@options.delete(:html_tag))
 
       # html_tag
       if html_params = @options.delete(:html_tag_params)

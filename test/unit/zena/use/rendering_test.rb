@@ -54,7 +54,7 @@ class RenderingInControllerTest < Zena::Controller::TestCase
   def make_template(zafu, mode = 'special')
     login(:lion)
     # create template for 'special' mode
-    secure(Template) { Template.create(:parent_id => nodes_id(:default), :title => "Node-#{mode}.zafu", :text => zafu, :v_status => Zena::Status::Pub) }
+    @template = secure(Template) { Template.create(:parent_id => nodes_id(:default), :title => "Node-#{mode}.zafu", :text => zafu, :v_status => Zena::Status::Pub) }
   end
 
   context 'A custom rendering engine' do
@@ -96,7 +96,7 @@ class RenderingInControllerTest < Zena::Controller::TestCase
 
   end # A custom rendering engine
 
-  context 'Custom rendering options' do
+  context 'Custom headers' do
     subject do
       login(:lion)
       # create template for 'special' mode
@@ -117,7 +117,7 @@ class RenderingInControllerTest < Zena::Controller::TestCase
         assert_equal v, @response.headers[k]
       end
     end
-  end # Custom rendering options
+  end # Custom headers
 
   context 'special rendering zafu' do
     subject do
@@ -185,17 +185,17 @@ class RenderingInControllerTest < Zena::Controller::TestCase
     end # to update
   end # special rendering zafu
 
-  context 'Custom rendering options on html' do
+  context 'Custom headers on html' do
+    setup do
+      make_template %q{<r:headers X-Foobar='my thing' Content-Type='text/css' Content-Disposition='attachment; filename=special_#{title}.csv'/>}, 'bar'
+    end
+    
     subject do
-      login(:lion)
-      # create template for 'special' mode
-      @template = secure(Template) { Template.create(:parent_id => nodes_id(:default), :title => 'Node-bar.zafu', :text => @zafu, :v_status => Zena::Status::Pub) }
       login(:anon)
       {:action => 'show', :controller => 'nodes', :path => ["section#{nodes_zip(:people)}_bar.html"], :prefix => 'en'}
     end
 
     should 'set type and disposition headers' do
-      @zafu = %q{<r:headers X-Foobar='my thing' Content-Type='text/css' Content-Disposition='attachment; filename=special_#{title}.csv'/>}
       get_subject
       assert_response :success
       {
@@ -206,13 +206,23 @@ class RenderingInControllerTest < Zena::Controller::TestCase
         assert_equal v, @response.headers[k]
       end
     end
+  end
+  
+  context 'With a master template' do
+    setup do
+      make_template %q{MASTER_TEMPLATE[<r:master_template do='id'/>]}, 'baz'
+    end
+    
+    subject do
+      login(:anon)
+      {:action => 'show', :controller => 'nodes', :path => ["section#{nodes_zip(:people)}_baz.html"], :prefix => 'en'}
+    end
     
     should 'find master template' do
-      @zafu = %q{MASTER_TEMPLATE[<r:master_template do='id'/>]}
       get_subject
       assert_response :success
       assert_equal "MASTER_TEMPLATE[#{@template.zip}]", @response.body
     end
-  end # Custom rendering options
+  end # Custom headers on html
 
 end

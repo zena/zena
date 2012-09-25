@@ -547,9 +547,9 @@ wiki_node_en:
       <r:include template='/Default skin/Node'>
         <r:with part='main'>
           WIKI
+          //! This is used for testing cache on non-root paths.
+          <r:cache allow_query='p=\d'/>
         </r:with>
-        //! This is used for testing cache on non-root paths.
-        <r:cache allow_query='p=\d'/>
       </r:include>
     format:        html
     tkpath:        N

@@ -91,11 +91,6 @@ end %>
   RewriteCond %{DOCUMENT_ROOT}<%= config[:cache_path] %>%{REQUEST_FILENAME}%{QUERY_STRING}.html -f
   RewriteRule ^/(.*)$ <%= config[:cache_path] %>%{REQUEST_FILENAME}%{QUERY_STRING}.html [L]
 
-  RewriteCond %{DOCUMENT_ROOT}/cache%{REQUEST_FILENAME}%{QUERY_STRING} -f
-  RewriteRule ^/(.*)$ /cache%{REQUEST_FILENAME}%{QUERY_STRING} [L]
-  RewriteCond %{DOCUMENT_ROOT}/cache%{REQUEST_FILENAME}%{QUERY_STRING}.html -f
-  RewriteRule ^/(.*)$ /cache%{REQUEST_FILENAME}%{QUERY_STRING}.html [L]
-
 <% if config[:app_type] == :mongrel %>
   # else
   #  Request with query string (if some page is cached, the same page with a query should not be served as static)

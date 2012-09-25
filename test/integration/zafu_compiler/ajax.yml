@@ -205,7 +205,7 @@ live_filter_select_options:
 draggable_do_syntax:
   src: "<r:images in='site' do='each' draggable='all' do='img' mode='pv'/>"
   tem: "/add_drag_id\(%Q\{list1_#\{var2.zip\}\}/"
-  res: "/id='list1_30'><img src='/en/image30_pv.jpg\?967816914293'/"
+  res: "/id='list1_30'><img src='/en/image30_pv.7f6f0.jpg'/"
   js: '/"list1_24"\].each.*Zena.draggable\(item, false\)/'
 
 draggable_true:

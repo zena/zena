@@ -44,7 +44,8 @@ module Zena
 
         # Return true if the node can be viewed by all (public)
         def public?
-          can_read?(visitor.site.anon,visitor.site.anon.group_ids) # visible by anonymous
+          anon = visitor.site.anon
+          can_read?(anon, anon.group_ids) # visible by anonymous
         end
 
         # Return true if the node is properly secured (was loaded with secure)
@@ -77,12 +78,12 @@ module Zena
         # Returns true if the current visitor can see redactions (unpublished versions)
         # of the node.
         def can_see_redactions?(ugps = visitor.group_ids)
-          visitor.group_ids.include?(wgroup_id)
+          ugps.include?(wgroup_id)
         end
 
         # The node has just been created so the creator can still delete it
         # or move it around.
-        def draft?(vis=visitor)
+        def draft?
           !publish_from && visitor.id == user_id &&
           visitor.user? && visitor.id == version.user_id &&
           versions.count == 1
@@ -90,7 +91,7 @@ module Zena
 
         # The node has just been created so the creator can still delete it
         # or move it around.
-        def draft_was_true?(vis=visitor)
+        def draft_was_true?
           !publish_from_was && visitor.id == user_id_was &&
           visitor.user? && visitor.id == version.user_id_was &&
           versions.count == 1

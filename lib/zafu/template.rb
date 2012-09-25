@@ -1,5 +1,3 @@
-require 'zafu/compiler'
-
 module Zafu
   class Template
     def initialize(template, src_helper = nil, compiler = Zafu::Compiler)
