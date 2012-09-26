@@ -152,7 +152,9 @@ Capistrano::Configuration.instance(:must_exist).load do
   #========================== MANAGE HOST   =========================#
   desc "create a new site [-s host='...' -s pass='...' -s lang='...']"
   task :mksite, :roles => :app do
-    run "#{in_current} rake zena:mksite HOST='#{self[:host]}' PASSWORD='#{self[:pass]}' RAILS_ENV='production' HOST_LANG='#{self[:lang] || 'en'}'"
+    lang = self[:lang] ||= (self[:lang_list] || 'en').split(',').map(&:strip).first
+    self[:lang_list] ||= lang
+    run "#{in_current} rake zena:mksite HOST='#{self[:host]}' PASSWORD='#{self[:pass]}' RAILS_ENV='production' HOST_LANG='#{lang}' LANG_LIST='#{self[:lang_list] || lang}'"
     run "test -e #{sites_root}/#{self[:host]} || mkdir #{sites_root}/#{self[:host]}"
     create_vhost
     create_awstats
@@ -204,7 +206,11 @@ Capistrano::Configuration.instance(:must_exist).load do
     else
       vhost_files = []
       if self[:ssl] == :all
-        self[:cache_path] = Site::CACHE_PATH.sub(%r{^#{Site::PUBLIC_PATH}},'')
+        
+        public_path = Bricks.raw_config['public_path'] || '/public'
+        cache_path  = Bricks.raw_config['cache_path']  || '/public'
+        
+        self[:cache_path] = cache_path.sub(%r{^#{public_path}},'')
         vhost = render("#{templates}/vhost.rhtml", :config => self, :ssl => true, :vhost_port => ':443')
         put(vhost, "#{vhost_root}/#{self[:host]}.ssl")
         vhost_files << "#{self[:host]}.ssl"

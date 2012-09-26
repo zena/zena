@@ -8,5 +8,6 @@ class AddFsSkinToIdxTemplates < ActiveRecord::Migration
   def self.down
     remove_index  :idx_templates, :name => "index_idx_templates_on_fs_skin"
     remove_column :idx_templates, :fs_skin
+    remove_column :idx_templates, :path
   end
 end

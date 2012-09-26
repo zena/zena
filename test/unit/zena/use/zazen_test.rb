@@ -55,9 +55,9 @@ class ZazenTest < Zena::View::TestCase
   end
 
   def test_make_image_with_document
-    assert_match %r{<p><a.*href=.*en/projects-list/Clean-Water-project/document25\.11fbc.pdf.*img src='/images/ext/pdf.png' width='32' height='32' alt='pdf document' class='doc'/></a></p>}, zazen('!25!')
-    assert_match %r{<p><a.*href=.*en/projects-list/Clean-Water-project/document25\.11fbc.pdf.*img src='/images/ext/pdf.png' width='32' height='32' alt='pdf document' class='doc'/></a></p>}, zazen('!025!') # same as '!25!'
-    assert_match %r{<p><a.*href=.*en/projects-list/Clean-Water-project/document25\.11fbc.pdf.*img src='/images/ext/pdf_pv.png' width='70' height='70' alt='pdf document' class='doc'/></a></p>}, zazen('!25_pv!')
+    assert_match %r{<p><a.*href=.*en/projects-list/Clean-Water-project/document25.pdf.*img src='/images/ext/pdf.png' width='32' height='32' alt='pdf document' class='doc'/></a></p>}, zazen('!25!')
+    assert_match %r{<p><a.*href=.*en/projects-list/Clean-Water-project/document25.pdf.*img src='/images/ext/pdf.png' width='32' height='32' alt='pdf document' class='doc'/></a></p>}, zazen('!025!') # same as '!25!'
+    assert_match %r{<p><a.*href=.*en/projects-list/Clean-Water-project/document25.pdf.*img src='/images/ext/pdf_pv.png' width='70' height='70' alt='pdf document' class='doc'/></a></p>}, zazen('!25_pv!')
   end
 
   def test_make_bad_image

@@ -129,13 +129,13 @@ class UrlsTest < Zena::View::TestCase
   def test_data_path_for_public_documents
     login(:ant)
     node = secure!(Node) { nodes(:water_pdf) }
-    assert_equal "/en/projects-list/Clean-Water-project/document25.11fbc.pdf", data_path(node)
+    assert_equal "/en/projects-list/Clean-Water-project/document25.pdf", data_path(node)
     node = secure!(Node) { nodes(:status) }
     assert_equal "/oo/projects-list/Clean-Water-project/page22.html", data_path(node)
 
     login(:anon)
     node = secure!(Node) { nodes(:water_pdf) }
-    assert_equal "/en/projects-list/Clean-Water-project/document25.11fbc.pdf", data_path(node)
+    assert_equal "/en/projects-list/Clean-Water-project/document25.pdf", data_path(node)
     node = secure!(Node) { nodes(:status) }
     assert_equal "/en/projects-list/Clean-Water-project/page22.html", data_path(node)
   end
@@ -146,7 +146,7 @@ class UrlsTest < Zena::View::TestCase
     assert node.update_attributes( :rgroup_id => groups_id(:workers), :inherit => 0 )
     assert !node.public?
     assert !node.v_public?
-    assert_equal "/oo/projects-list/Clean-Water-project/document25.#{make_cachestamp(node,nil)}.pdf", data_path(node)
+    assert_equal "/oo/projects-list/Clean-Water-project/document25.pdf", data_path(node)
     node = secure!(Node) { nodes(:status) }
     assert_equal "/oo/projects-list/Clean-Water-project/page22.html", data_path(node)
 

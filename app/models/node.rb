@@ -1487,8 +1487,8 @@ class Node < ActiveRecord::Base
     export_keys[:dates].each do |k, v|
       hash[k] = visitor.tz.utc_to_local(v).strftime("%Y-%m-%d %H:%M:%S")
     end
-
-    hash.merge!('class' => self.klass)
+    
+    hash.merge!('class' => self.klass, 'position' => self.position)
     hash.to_yaml
   end
 

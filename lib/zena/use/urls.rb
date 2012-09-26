@@ -22,7 +22,7 @@ module Zena
 
       module Common
         # This is directly related to the FileMatch clause in httpd.rhtml (mod_expires for apaches)
-        CACHESTAMP_FORMATS = %w{ico pdf flv jpg jpeg png gif js css swf}
+        CACHESTAMP_FORMATS = %w{ico flv jpg jpeg png gif js css swf}
         
         def prefix
           if visitor.is_anon?
