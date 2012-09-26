@@ -20,9 +20,13 @@ Examples:
 class NodesController < ApplicationController
   before_filter :check_is_admin,  :only => [:export]
   before_filter :check_api_group
+  if Bricks.raw_config['passenger']
+    before_filter :escape_path, :only => [:index, :show]
+  end
   before_filter :find_node, :except => [:index, :create, :not_found, :catch_all, :search]
   before_filter :check_can_drive, :only => [:edit]
   before_filter :check_path,      :only => [:index, :show]
+
   layout :popup_layout,           :only => [:edit, :import]
 
   def index
@@ -621,6 +625,14 @@ class NodesController < ApplicationController
       end
     end
 
+    # Passenger unescapes url before passing it to Rails. We escape it back.
+    # FIXME: Performance: reverse this code (consider unescaped urls the norm and unescape if not using Passenger).
+    def escape_path
+      if params[:path]
+        params[:path].map! {|p| URI.escape(p) }
+      end
+    end
+    
     def set_format(format)
       request.instance_eval do
         parameters[:format] = format
