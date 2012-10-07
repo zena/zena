@@ -419,7 +419,7 @@ Grid.valueFromInput = function(input) {
     val.show  = input.select('option[value="'+val.value+'"]').first().innerHTML
   } else {
     if (input.type == 'checkbox') {
-      val.value = input.checked ? input.value : (input.getAttribute('data-off') || cell.getAttribute('data-v'))
+      val.value = input.checked ? input.value : (input.getAttribute('data-off') || input.up('TD').getAttribute('data-v'))
     } else {
       val.value = input.value
     }
