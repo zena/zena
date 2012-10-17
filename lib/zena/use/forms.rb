@@ -317,15 +317,17 @@ module Zena
                   break
                 end
               end
-              if params[:done] == 'focus'
-                if params[:focus]
-                  hidden_fields['done'] = "'$(\"#{erb_dom_id}_#{params[:focus]}\").focus();'"
-                else
+              
+              if params[:done]
+                if params[:done] == 'focus'
                   hidden_fields['done'] = "'$(\"#{erb_dom_id}_form_t\").focusFirstElement();'"
+                else
+                  done = RubyLess.translate_string(self, params[:done])
                 end
-              elsif params[:done]
-                done = RubyLess.translate_string(self, params[:done])
+              elsif params[:focus]
+                hidden_fields['done'] = "'$(\"#{erb_dom_id}_#{params[:focus]}\").focus();'"
               end
+              
             else
               # ajax form, not in 'add'
               done = RubyLess.translate_string(self, @params[:done])

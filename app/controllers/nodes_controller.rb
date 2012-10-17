@@ -631,6 +631,7 @@ class NodesController < ApplicationController
       if params[:path]
         params[:path].map! {|p| URI.escape(p) }
       end
+      true
     end
     
     def set_format(format)

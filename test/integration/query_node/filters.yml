@@ -125,6 +125,15 @@ relation_filter:
   sql: "[%Q{SELECT nodes.*,links.id AS `link_id`,links.status AS `l_status`,links.comment AS `l_comment`,links.date AS `l_date` FROM links,nodes,nodes AS jn1 WHERE #{secure_scope('nodes')} AND jn1.zip IN (?) AND jn1.id = links.target_id AND links.relation_id = 126629661 AND links.source_id = nodes.id AND nodes.kpath LIKE 'NPP%' GROUP BY nodes.id ORDER BY nodes.zip ASC}, params[:list]]"
   res: "Clean Water project"
 
+relation_filter_null:
+  context:
+    node: status
+    params:
+      list: 22
+  src: "projects where hot.id is null in site"
+  sql: "[%Q{SELECT nodes.*,links.id AS `link_id`,links.status AS `l_status`,links.comment AS `l_comment`,links.date AS `l_date` FROM links,nodes,nodes AS jn1 WHERE #{secure_scope('nodes')} AND jn1.zip IN (?) AND jn1.id = links.target_id AND links.relation_id = 126629661 AND links.source_id = nodes.id AND nodes.kpath LIKE 'NPP%' GROUP BY nodes.id ORDER BY nodes.zip ASC}, params[:list]]"
+  res: "Clean Water project"
+
 relation_filter_attr:
   context:
     node: status

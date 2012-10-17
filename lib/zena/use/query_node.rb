@@ -359,7 +359,7 @@ module Zena
               table_to_use = add_key_value_table('jnode', 'nodes', class_name) do |tbl_name|
                 # This block is only executed once per relation name (once for 'hot', once for 'hot2')
                 distinct!
-                add_table('links')
+                add_table('links', nil, :left)
                 add_filter "#{table('links')}.#{rel.link_side} = #{table(main_table)}.id"
                 add_filter "#{table('links')}.relation_id = #{rel.id}"
                 add_filter "#{table('jnode')}.id = #{table('links')}.#{rel.other_side}"
