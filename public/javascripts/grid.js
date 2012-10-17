@@ -39,7 +39,7 @@ Grid.changed = function(cell, val, prev, skip_html) {
   
   if (!skip_html) {
     var show_h = grid.show[attr] || {}
-    cell.setAttribute('data-v', val.value)
+    if (cell.hasAttribute('data-v')) cell.setAttribute('data-v', val.value)
     cell.innerHTML = show_h[val.value] || val.show
   }
   
@@ -50,7 +50,7 @@ Grid.changed = function(cell, val, prev, skip_html) {
     if (!val) return
     if (v != val.value) {
       cell.innerHTML = val.show
-      cell.setAttribute('data-v', val.value)
+      if (cell.hasAttribute('data-v')) cell.setAttribute('data-v', val.value)
     } 
   }
   
@@ -113,7 +113,7 @@ Grid.buildObj = function(grid, row) {
 }
 
 Grid.closeCell = function(e) {
-  if (Grid.in_paste) return
+  if (Grid.no_blur) return
   var cell = e.tagName ? e : e.element().up()
   var table = cell.up('table')
   var prev = cell.prev_value
@@ -134,6 +134,8 @@ Grid.closeCell = function(e) {
   if (table.grid.input) {
     // single attribute table, serialize in input field
     table.grid.input.value = Grid.serialize(table)
+  } else if (table.grid.autoSave) {
+    Grid.save(table.id)
   }
 }
 
@@ -161,9 +163,9 @@ Grid.paste = function(event) {
       bottom: "<textarea style='position:fixed; top:0; left:10100px;' id='grid_p_" + table.grid.id + "'></textarea>"
     });
     paster = $("grid_p_" + table.grid.id);
-    Grid.in_paste = true // prevent original input blur
+    Grid.no_blur = true // prevent original input blur
     paster.focus();
-    Grid.in_paste = false
+    Grid.no_blur = false
   }
   setTimeout(function() {
     var text
@@ -275,6 +277,11 @@ Grid.keydown = function(event) {
       return false
     } else if (cell.childElements().first().tagName == 'SELECT' && event.shiftKey) {
       return
+    } else if (grid.autoSave) {
+      // this will close cell
+      var i = cell.childElements().first()
+      if (i) i.blur()
+      return
     }
     var pos = Grid.pos(cell);
     // go to next row
@@ -326,14 +333,22 @@ Grid.closeCheckbox = function() {
     Grid.need_close = false
   }
 }
-Grid.openCell = function(cell) {
+Grid.openCell = function(cell, get_next) {
+  var get_next = get_next == undefined ? true : get_next
   Grid.closeCheckbox()
   
   if (cell.hasClassName('input')) return;
   if (Grid.isReadOnly(cell)) {
-    var n = Element.next(cell) || cell.up().nextSiblings().first().childElements()[0]
-    if (n) Grid.openCell(n)
-    return
+    if (get_next) {
+      var n = Element.next(cell) || cell.up().nextSiblings().first().childElements()[0]
+      if (n) {
+        return Grid.openCell(n)
+      } else {
+        return false
+      }
+    } else {
+      return false
+    }
   }
   var val = Grid.getValue(cell)
   cell.prev_value = val;
@@ -393,6 +408,7 @@ Grid.openCell = function(cell) {
     input.focus()
     input.select()
   }
+  return true
 }
 
 Grid.click = function(event) {
@@ -401,14 +417,19 @@ Grid.click = function(event) {
   var table = cell.up('table')
   if (row.hasClassName('action')) {
     Grid.action(event, cell, row, true)
+    Event.stop(event)
   } else if (cell.hasClassName('action')) {
     Grid.action(event, cell, row, false)
+    Event.stop(event)
   } else if (cell.tagName == 'TH' && !table.grid.attr_name) {
     // sort
     Grid.sort(cell)
+    Event.stop(event)
   } else {
     if (event.element().tagName == 'INPUT') return;
-    Grid.openCell(cell)
+    if (Grid.openCell(cell, false)) {
+      Event.stop(event)
+    }
   }
 }
 
@@ -419,7 +440,7 @@ Grid.valueFromInput = function(input) {
     val.show  = input.select('option[value="'+val.value+'"]').first().innerHTML
   } else {
     if (input.type == 'checkbox') {
-      val.value = input.checked ? input.value : (input.getAttribute('data-off') || input.up('TD').getAttribute('data-v'))
+      val.value = input.checked ? input.value : (input.getAttribute('data-off') || cell.getAttribute('data-v'))
     } else {
       val.value = input.value
     }
@@ -770,6 +791,9 @@ Grid.make = function(table, opts) {
     onFailure: opts.onFailure || Grid.onFailure,
     onStart: opts.onStart || Grid.onStart,
     onChange: opts.onChange,
+    // Save on cell close
+    autoSave: opts.autoSave || false,
+    sort: opts.sort == undefined ? true : opts.sort,
     add: opts.add || opts.add == undefined,
     remove: opts.remove || opts.remove == undefined,
     keydown: opts.keydown,
@@ -803,6 +827,9 @@ Grid.make = function(table, opts) {
     table.grid.input = $("grid_a_" + Grid.grid_c);
     if (!empty) table.grid.input.value = Grid.serialize(table);
   } else {
+    // Otherwise each row is a new object and each column
+    // corresponds to a different attribute (defined in the 
+    // 'th' of the table).
     var rows = table.select('tr')
     for (var i = 1; i < rows.length; i++) {
       if (rows[i].id || rows[i].getAttribute('data-m') == 'r') {
@@ -811,12 +838,11 @@ Grid.make = function(table, opts) {
         Grid.buildObj(table.grid, rows[i])
       }
     }
-    // Otherwise each row is a new object and each column
-    // corresponds to a different attribute (defined in the 
-    // 'th' of the table).
-    table.insert({
-      after: "<p class='grid_btn'><a class='save' href='javascript:' onclick='Grid.save(" + Grid.grid_c + ")'>save</a> <a class='undo' href='javascript:' onclick='Grid.undo(" + Grid.grid_c + ")'>undo</a></p>"
-    });
+    if (!table.grid.autoSave) {
+      table.insert({
+        after: "<p class='grid_btn'><a class='save' href='javascript:' onclick='Grid.save(" + Grid.grid_c + ")'>save</a> <a class='undo' href='javascript:' onclick='Grid.undo(" + Grid.grid_c + ")'>undo</a></p>"
+      });
+    }
   }
 
   table.observe('click', Grid.click);
@@ -846,7 +872,7 @@ Grid.save = function(grid_id) {
   // do not run on GUI thread
   setTimeout(function() {
     Grid.closeCheckbox()
-    var table = Grid.grids[grid_id]
+    var table = Grid.grids[grid_id] || $(grid_id)
     var grid  = table.grid
     var data  = Grid.compact(grid.changes)
     if (grid.list_name) {
@@ -863,7 +889,7 @@ Grid.save = function(grid_id) {
           operations.put = (operations.put || 0) + 1
         }
       })
-      if (!grid.onStart(operations)) return
+      if (!grid.onStart(operations, data)) return
     }
     data.each(function(pair) {
       var id = pair.key
@@ -927,7 +953,7 @@ Grid.save = function(grid_id) {
 Grid.undo = function(grid_id, skip_undone) {
   Grid.closeCheckbox()
     
-  var table = Grid.grids[grid_id]
+  var table = Grid.grids[grid_id] || $(grid_id)
   var grid = table.grid
   var changes = grid.changes
   var last = changes.last()
@@ -1192,5 +1218,4 @@ Tags.make = function(elem, opts) {
     }
   })
 }
-
 
