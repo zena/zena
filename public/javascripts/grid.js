@@ -119,15 +119,14 @@ Grid.closeCell = function(e) {
   var prev = cell.prev_value
   var val  = Grid.getValue(cell)
 
-  if (table.grid.list_name) {
+  if (table.grid.is_list) {
     if (val.value == 'on') {
       cell.addClassName('on')
     } else {
       cell.removeClassName('on')
     }
-  } else {
-    cell.removeClassName('input')
   }
+  cell.removeClassName('input')
 
   Grid.changed(cell, val, prev)
 
@@ -356,7 +355,7 @@ Grid.openCell = function(cell, get_next) {
   var value = val.value
   var table = cell.up('table')
 
-  if (table.grid.list_name) {
+  if (table.grid.is_list) {
     if (value == 'on') {
       cell.setAttribute('data-v', 'off')
     } else {
@@ -780,7 +779,7 @@ Grid.make = function(table, opts) {
   if (table.grid) return;
   Grid.grid_c++;
   Grid.grids[Grid.grid_c] = table;
-  table.grid = {
+  var grid = {
     changes: [],
     id: Grid.grid_c,
     helper_id: opts.helper || table.getAttribute('data-helper'),
@@ -799,13 +798,18 @@ Grid.make = function(table, opts) {
     keydown: opts.keydown,
     show: opts.show || {},
   };
+  table.grid = grid
+  grid.table = table
   
   // Detect type.
-  table.grid.attr_name = table.getAttribute('data-a');
-  table.grid.list_name = table.getAttribute('data-l');
+  grid.attr_name = table.getAttribute('data-a')
+  grid.list_name = table.getAttribute('data-l')
+  // Reverse list name (update columns instead of rows)
+  grid.rlist_name = table.getAttribute('data-r')
+  grid.is_list = grid.list_name || grid.rlist_name
 
   var empty = false;
-  if (table.grid.attr_name && table.select('th').length == 0) {
+  if (grid.attr_name && table.select('th').length == 0) {
     empty = true;
     var msg = table.getAttribute('data-msg') || "type to edit";
     table.innerHTML = "<tr><th>" + msg + "</th></tr><tr><td></td></tr>";
@@ -815,17 +819,17 @@ Grid.make = function(table, opts) {
   Grid.addButtons(table)
   
 
-  if (table.grid.attr_name) {
+  if (grid.attr_name) {
     table.insert({
       after: "<p class='grid_btn'><a class='undo' href='javascript:' onclick='Grid.undo(" + Grid.grid_c + ")'>undo</a></p>"
     });
     // If we have an attr_name, rows and columns are
     // serialized as json in a single field.
     table.insert({
-      after: "<input type='hidden' id='grid_a_" + Grid.grid_c + "' name='" + table.grid.attr_name + "'/>"
+      after: "<input type='hidden' id='grid_a_" + Grid.grid_c + "' name='" + grid.attr_name + "'/>"
     });
-    table.grid.input = $("grid_a_" + Grid.grid_c);
-    if (!empty) table.grid.input.value = Grid.serialize(table);
+    grid.input = $("grid_a_" + Grid.grid_c);
+    if (!empty) grid.input.value = Grid.serialize(table);
   } else {
     // Otherwise each row is a new object and each column
     // corresponds to a different attribute (defined in the 
@@ -838,7 +842,7 @@ Grid.make = function(table, opts) {
         Grid.buildObj(table.grid, rows[i])
       }
     }
-    if (!table.grid.autoSave) {
+    if (!grid.autoSave) {
       table.insert({
         after: "<p class='grid_btn'><a class='save' href='javascript:' onclick='Grid.save(" + Grid.grid_c + ")'>save</a> <a class='undo' href='javascript:' onclick='Grid.undo(" + Grid.grid_c + ")'>undo</a></p>"
       });
@@ -877,7 +881,10 @@ Grid.save = function(grid_id) {
     var data  = Grid.compact(grid.changes)
     if (grid.list_name) {
       data = Grid.dataForList(grid, data)
+    } else if (grid.rlist_name) {
+      data = Grid.dataForReverseList(grid, data)
     }
+
     var todo_count = data.keys().length
     var done_count = 0
     if (grid.onStart) {
@@ -891,6 +898,7 @@ Grid.save = function(grid_id) {
       })
       if (!grid.onStart(operations, data)) return
     }
+
     data.each(function(pair) {
       var id = pair.key
       var changes = pair.value
@@ -900,6 +908,7 @@ Grid.save = function(grid_id) {
           attrs['node['+pair.key+']'] = pair.value
         }
       })
+
       if (changes._new) {
         new Ajax.Request('/nodes', {
           parameters: attrs,
@@ -980,7 +989,7 @@ Grid.undo = function(grid_id, skip_undone) {
       [cell, cell.up()].invoke('addClassName', 'changed')
     }
     cell.addClassName('undone')
-    if (grid.list_name) {
+    if (grid.is_list) {
       cell.setAttribute('data-v', value)
       if (value == 'on') {
         cell.addClassName('on')
@@ -1039,6 +1048,9 @@ Grid.test = function() {
 // detects which rows have changes and builds the full list of
 // ids in the format some_relation_ids:"123,345,888,432". Other fields
 // are kept as is.
+// If update_relation_for is 'column', the list of ids is reversed (they
+// contain the row ids) and we build operation for setting the relation 
+// with the column id).
 Grid.dataForList = function(grid, data) {
   var res = {}
   var list_name = grid.list_name
@@ -1073,6 +1085,43 @@ Grid.dataForList = function(grid, data) {
   return $H(res)
 }
 
+Grid.dataForReverseList = function(grid, data) {
+  var res = {}
+  var rlist_name = grid.rlist_name
+  // {"id_184": {"147": "on"}, "id_193": {"147": "on", "146": "off"}}
+  data.each(function(pair) {
+    var def = pair.value
+    for (var key in def) {
+      if (parseInt(key) + '' == key) {
+        // number key = there is a change in the list
+        var col = res[key]
+        if (!col) {
+          // build full column update operation
+          col = {id:key}
+          res[key] = col
+          var list = []
+          var pos = grid.pos[key]
+          var rows = grid.table.childElements()[0].select('tr')
+          for(var i = rows.length - 1; i >= 0; i--) {
+            var row = rows[i]
+            if (row.getAttribute('data-m') != 'r') {
+              var cell = rows[i].childElements()[pos]
+              if (cell && cell.hasClassName('on')) {
+                list.push(row.id.sub(/^[^\d]+/,''))
+              }
+            }
+          }
+          col[rlist_name] = list.join(',')
+        } 
+      } else {
+        // ignore other attributes
+      }
+    }
+  })
+
+  return $H(res)
+}
+
 Grid.notify = function(table, changes) {
   var rows = table.childElements()[0].select('tr')
   var grid = table.grid
@@ -1085,10 +1134,11 @@ Grid.notify = function(table, changes) {
     } else {
       row = $(obj_id)
     }
-    var cells = row.childElements()
+
     var change = changes[obj_id]
     for (var attr in change) {
       if (attr == 'id') continue
+
       if (attr == grid.list_name) {
         var list_on = change[attr].split(/,/)
         var cells = row.childElements()
@@ -1105,11 +1155,36 @@ Grid.notify = function(table, changes) {
             }
             cell.prev_value = undefined
             cell.removeClassName('error')
+            if (cell.hasClassName('changed')) cell.addClassName('saved')
             cell.removeClassName('changed')
-            cell.addClassName('saved')
+          }
+        }
+      } else if (attr == grid.rlist_name) {
+        var list_on = change[attr].split(/,/)
+        var pos = grid.pos[obj_id.sub(/^[^\d]+/,'')]
+        var rows = grid.table.childElements()[0].select('tr')
+        for(var i = rows.length - 1; i >= 0; i--) {
+          var row = rows[i]
+          if (row.getAttribute('data-m') != 'r') {
+            var cell = row.childElements()[pos]
+            if (list_on.indexOf(row.id.sub(/^[^\d]+/,'')) >= 0) {
+              cell.orig_value = 'on'
+              cell.setAttribute('data-v', 'on')
+            } else {
+              cell.orig_value = 'off'
+              cell.setAttribute('data-v', 'off')
+            }
+            cell.prev_value = undefined
+            cell.removeClassName('error')
+            if (cell.hasClassName('changed')) cell.addClassName('saved')
+            cell.removeClassName('changed')
+            if (row.select('.changed').length == 0) {
+              row.removeClassName('changed')
+            }
           }
         }
       } else {
+        var cells = row.childElements()
         var cell
         var i = pos[attr]
         if (i == undefined) continue
@@ -1133,7 +1208,7 @@ Grid.notify = function(table, changes) {
   // later
   setTimeout(function() {
     table.select('.saved').invoke('removeClassName', 'saved')
-  }, 1000)
+  }, 600)
 }
 
 Grid.simulateClick = function(l) {
@@ -1218,4 +1293,5 @@ Tags.make = function(elem, opts) {
     }
   })
 }
+
 
