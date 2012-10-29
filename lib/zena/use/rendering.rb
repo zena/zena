@@ -334,10 +334,24 @@ module Zena
         end
         
         # <r:cache rebuild='true' allow_query='p=1?[0-9]'/>
+        # <r:cache rebuild='true' allow_query='p=1?[0-9]'/>
         def r_cache
-          return parser_error("Missing 'allow_query' regular expression") unless re = @params[:allow_query]
-          reg_test = %r{^#{re}$}
-          out "<% set_caching(:allow_query => #{reg_test.inspect}) %>"
+          params_list = []
+          if re = @params[:allow_query]
+            reg_test = %r{^#{re}$}
+            params_list << ":allow_query => #{reg_test.inspect}"
+          end
+          
+          if rebuild = @params[:rebuild]
+            # TODO: implement "replace if changed (diff)" instead of cache removal if there is the rebuild
+            # setting so that the cached timestamp does not change.
+            params_list << ":rebuild => #{@params[:rebuild].inspect}"
+          end
+          
+          if at = @params[:expire_at]
+            params_list << ":rebuild => #{@params[:rebuild].inspect}"
+          end
+          out "<% set_caching(:allow_query => #{reg_test.inspect}, :rebuild => #{@params[:rebuild].inspect}) %>"
         rescue => err
           parser_error("Invalid regular expression (#{err.message})")
         end

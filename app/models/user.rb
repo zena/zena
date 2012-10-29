@@ -66,7 +66,7 @@ class User < ActiveRecord::Base
   safe_attribute          :login, :time_zone, :created_at, :updated_at, :lang, :id
   safe_method             :initials => String, :status => Number, :status_name => String,
                           :is_anon? => Boolean, :is_admin? => Boolean, :user? => Boolean, :commentator? => Boolean,
-                          :moderated? => Boolean, :asset_host? => Boolean
+                          :moderated? => Boolean, :asset_host? => Boolean, [:in_group?, String] => Boolean
 
   safe_context            :node => node_user_proc,
                           :to_publish => ['Version'], :redactions => ['Version'], :proposed => ['Version'],
@@ -218,6 +218,12 @@ class User < ActiveRecord::Base
   
   # This is set on the user during login.
   alias asset_host? asset_host
+  
+  def in_group?(name)
+    @group_names ||= begin
+      groups.all(:order=>'name').map(&:name)
+    end.include?(name)
+  end
 
   # Return true if the user's status is high enough to start editing nodes.
   def user?
