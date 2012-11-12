@@ -73,7 +73,7 @@ module Zafu
         # Return id, style, form and cancel parts of the form.
         def form_options
           opts = {}
-
+          
           # Do we need this ?
           # opts[:klass] = node.master_class(ActiveRecord::Base).to_s
 
@@ -85,7 +85,7 @@ module Zafu
             opts[:id]    = "#{node.dom_prefix}_tbl"
             form_id      = node.dom_prefix
           end
-
+          
           form_id ||= "#{node.dom_prefix}_form_t"
           if @context[:template_url]
             opts[:form_tag]    = "<% remote_form_for(:#{node.form_name}, #{node}, :html => {:id => #{form_id.inspect}}) do |f| %>"

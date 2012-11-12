@@ -5,7 +5,7 @@
     <r:void name='stylesheets'>
       <r:stylesheets media='all' list='reset,zena,code,calendar,grid'/>
     </r:void>
-    <link href="style.css" rel="Stylesheet" type="text/css"/>
+    <link href="img/style.css" rel="Stylesheet" type="text/css"/>
 <style>
 .test { float:left; width:200px; padding:10px; background:#eee; border:1px solid #333; margin:0 10px 10px 0}
 .test h3 {background:#333; color:white; text-align:center; margin:-10px -10px 10px -10px;}
@@ -229,6 +229,23 @@
     </ul>
   </div>
 
+  <div class='test' id='filter3' do='selenium'>
+    <h3>filter3</h3>
+    <p>From with live preview.</p>
+    <r:form redir='url(this, :test => "filter3")' node[v_status]='50' preview='filter3_preview'>
+      <r:input label='t' name='title'/>
+	  <r:textarea label='t' name='text'/>
+    </r:form>
+
+		<div id='filter3_preview' do='block' do='preview_node'>
+		  <r:ajax?>
+				<span id='filter3_msg' do='if' test='title == "Foobar"'>PREVIEW</span>
+			</r:ajax?>
+		  <h3 id='filter3_title' do='title'/>
+		  <div id='filter3_zazen' do='zazen' attr='text'/>
+		</div>
+  </div>
+
   //! form1
   <div class='test' id='form1' do='selenium'>
     <h3>form1</h3>
@@ -365,7 +382,7 @@
   <div class='test' id='grid1' do='selenium'>
     <h3>grid editing</h3>
     <p>Attribute based grid.</p>
-    <r:form redir='url(this, :test =&gt;"grid1")'>
+    <r:form redir='url(this, :test => "grid1")'>
       <r:grid attr='origin'/>
       <r:input type='submit'/>
     </r:form>

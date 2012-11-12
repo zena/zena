@@ -5,7 +5,7 @@ syntax:         '= 1.0.0'
 tzinfo:
 uuidtools:      '= 2.0.0'
 rails:          '= 2.3.11'
-json:           '= 1.7.5'
+json:           '= 1.5.1'
 authlogic:      '= 2.1.3'
 fast_gettext:   '~> 0.4.16'
 will_paginate:  '~> 2.3.12'
@@ -18,7 +18,7 @@ gem_plugin:     # upload progress
 simple_xlsx_writer:    # spreadsheet
   lib:          'simple_xlsx'
 
-querybuilder:   '= 1.1.4'
+querybuilder:   '= 1.2.0'
 yamltest:       '= 0.7.0'
 rubyless:       '= 0.8.8'
 property:       '= 2.3.2'

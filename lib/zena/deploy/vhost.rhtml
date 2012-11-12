@@ -58,9 +58,9 @@
   RewriteRule ^.*$ /system/maintenance.html [L]
 
 <% list = (config[:lang_list] || 'en').split(',').map(&:strip)
-  last = list.last
-  list.each do |l|
-	if l != last %>
+  default = list.first
+  list.reverse_each do |l|
+	if l != default %>
   # Browser wants "<%= l %>" as favorite language
   RewriteCond %{REQUEST_URI} ^/$
   RewriteCond %{HTTP:Accept-Language} ^<%= l %>

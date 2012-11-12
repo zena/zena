@@ -6,6 +6,8 @@
  * html_escape all properties by default
  * Better support for Passenger (default deployment method now)
  * Simplified caching (using cachestamp in filename)
+ * Added preview='dom_id' to [form]. (Use preview_node to show preview content.) <== TODO: Document
+ * Added "in_group" zafu method on visitor. <== TODO: Document
 
 * Minor changes
  * Support for 'lang_list' when creating vhost file <== TODO: Document

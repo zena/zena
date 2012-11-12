@@ -27,7 +27,7 @@ filter_l_status:
     node:  art
     class: Tag
   src: "tagged where l_status > 5"
-  sql: "[%Q{SELECT nodes.*,links.id AS `link_id`,links.status AS `l_status`,links.comment AS `l_comment`,links.date AS `l_date` FROM links,nodes WHERE #{secure_scope('nodes')} AND links.status > 5 AND nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags) AND links.target_id = ? ORDER BY nodes.zip ASC}, @node.id]"
+  sql: "[%Q{SELECT nodes.*,links.id AS `link_id`,links.status AS `l_status`,links.comment AS `l_comment`,links.date AS `l_date` FROM links JOIN nodes WHERE #{secure_scope('nodes')} AND links.status > 5 AND nodes.id = links.source_id AND links.relation_id = _ID(node_has_tags) AND links.target_id = ? ORDER BY nodes.zip ASC}, @node.id]"
   res: "Clean Water project"
 
 param_filter:
@@ -80,7 +80,7 @@ negative_value:
 
 filter_through_links:
   src: "projects where (set_tag.id = 33 and hot.id = 22) in site"
-  sql: "/jn1\.zip = 33 AND jn2\.zip = 22.*links.source_id = nodes.id/"
+  sql: "/.*li1.source_id = nodes.id.*li2.source_id = nodes.id.*jn1\.zip = 33 AND jn2\.zip = 22/"
   res: "Clean Water project"
 
 filter_with_fullpath:
@@ -91,7 +91,7 @@ filter_with_fullpath:
 
 class_filter:
   src: "nodes where class like Image or class = Project in site"
-  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND (nodes.kpath LIKE 'NDI%' OR nodes.kpath = 'NPP') GROUP BY id ORDER BY nodes.zip ASC}"
+  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND (nodes.kpath LIKE 'NDI%' OR nodes.kpath = 'NPP') GROUP BY nodes.id ORDER BY nodes.zip ASC}"
   res: "Zena the wild CMS, Clean Water project, it's a lake, bird, flower, Autumn Tree"
 
 class_filter_with_quotes:
@@ -104,7 +104,7 @@ klass_filter:
 
 role_filter:
   src: "nodes where role = Original in site"
-  sql: "%Q{SELECT nodes.* FROM nodes,nodes_roles WHERE #{secure_scope('nodes')} AND (nodes_roles.node_id = nodes.id AND nodes_roles.role_id = 493147733) ORDER BY nodes.zip ASC}"
+  sql: "%Q{SELECT nodes.* FROM nodes JOIN nodes_roles WHERE #{secure_scope('nodes')} AND (nodes_roles.node_id = nodes.id AND nodes_roles.role_id = 493147733) ORDER BY nodes.zip ASC}"
   res: 'Autumn Tree'
 
 role_filter_string:
@@ -113,7 +113,7 @@ role_filter_string:
 
 role_as_relation_filter:
   src: "originals in site"
-  sql: "%Q{SELECT nodes.* FROM nodes,nodes_roles WHERE #{secure_scope('nodes')} AND nodes_roles.role_id = 493147733 AND nodes_roles.node_id = nodes.id ORDER BY nodes.zip ASC}"
+  sql: "%Q{SELECT nodes.* FROM nodes JOIN nodes_roles WHERE #{secure_scope('nodes')} AND nodes_roles.role_id = 493147733 AND nodes_roles.node_id = nodes.id ORDER BY nodes.zip ASC}"
   res: 'Autumn Tree'
 
 relation_filter:
@@ -122,29 +122,28 @@ relation_filter:
     params:
       list: 22
   src: "projects where hot.id in (#{params[:list]}) in site"
-  sql: "[%Q{SELECT nodes.*,links.id AS `link_id`,links.status AS `l_status`,links.comment AS `l_comment`,links.date AS `l_date` FROM links,nodes,nodes AS jn1 WHERE #{secure_scope('nodes')} AND jn1.zip IN (?) AND jn1.id = links.target_id AND links.relation_id = 126629661 AND links.source_id = nodes.id AND nodes.kpath LIKE 'NPP%' GROUP BY nodes.id ORDER BY nodes.zip ASC}, params[:list]]"
+  sql: "[%Q{SELECT nodes.* FROM nodes LEFT JOIN links AS li1 ON li1.source_id = nodes.id AND li1.relation_id = 126629661 LEFT JOIN nodes AS jn1 ON jn1.id = li1.target_id WHERE #{secure_scope('nodes')} AND jn1.zip IN (?) AND nodes.kpath LIKE 'NPP%' GROUP BY nodes.id ORDER BY nodes.zip ASC}, params[:list]]"
   res: "Clean Water project"
 
 relation_filter_null:
   context:
     node: status
-    params:
-      list: 22
   src: "projects where hot.id is null in site"
-  sql: "[%Q{SELECT nodes.*,links.id AS `link_id`,links.status AS `l_status`,links.comment AS `l_comment`,links.date AS `l_date` FROM links,nodes,nodes AS jn1 WHERE #{secure_scope('nodes')} AND jn1.zip IN (?) AND jn1.id = links.target_id AND links.relation_id = 126629661 AND links.source_id = nodes.id AND nodes.kpath LIKE 'NPP%' GROUP BY nodes.id ORDER BY nodes.zip ASC}, params[:list]]"
-  res: "Clean Water project"
+  sql: "%Q{SELECT nodes.* FROM nodes LEFT JOIN links AS li1 ON li1.source_id = nodes.id AND li1.relation_id = 126629661 LEFT JOIN nodes AS jn1 ON jn1.id = li1.target_id WHERE #{secure_scope('nodes')} AND jn1.zip IS NULL AND nodes.kpath LIKE 'NPP%' GROUP BY nodes.id ORDER BY nodes.zip ASC}"
+  # NOT CleanWater
+  res: "Zena the wild CMS, a wiki with Zena"
 
 relation_filter_attr:
   context:
     node: status
   src: "projects where hot.title = 'Etat des travaux' in site"
-  sql: "/ml1.value = 'Etat des travaux' AND ml1.lang = 'fr' AND ml1.key = 'title' AND ml1.node_id = jn1.id AND jn1.id = links.target_id/"
+  sql: "/ON ml1.node_id = jn1.id AND ml1.key = 'title' AND ml1.lang = 'fr'.*ml1.value = 'Etat des travaux'/"
   res: "Clean Water project"
   
 filter_by_parent:
   src: "nodes where parent_id = 11 in site"
 #       nodes where parent.zip = ...
-  sql: "%Q{SELECT nodes.* FROM nodes,nodes AS jn1 WHERE #{secure_scope('nodes')} AND jn1.zip = 11 AND jn1.id = nodes.parent_id AND jn1.site_id = nodes.site_id ORDER BY nodes.zip ASC}"
+  sql: "%Q{SELECT nodes.* FROM nodes LEFT JOIN nodes AS jn1 ON jn1.id = nodes.parent_id AND jn1.site_id = nodes.site_id WHERE #{secure_scope('nodes')} AND jn1.zip = 11 ORDER BY nodes.zip ASC}"
   res: 'people, projects list, Collections, Kill the bugs, Nature, zena enhancements, Skins (layout themes)'
 #many_role_filter:
 # This is not working (or clause on 'indexed' fields is not supported right now)
@@ -154,7 +153,7 @@ filter_by_parent:
 
 quoted_literal:
   src: "nodes where tag=\"10'000\" in site"
-  sql: "%Q{SELECT nodes.* FROM links AS ta1,nodes WHERE #{secure_scope('nodes')} AND ta1.comment = '10\\\\'000' AND nodes.id = ta1.source_id AND ta1.relation_id IS NULL ORDER BY nodes.zip ASC}"
+  sql: "%Q{SELECT nodes.* FROM nodes LEFT JOIN links AS ta1 ON nodes.id = ta1.source_id AND ta1.relation_id IS NULL WHERE #{secure_scope('nodes')} AND ta1.comment = '10\\\\'000' ORDER BY nodes.zip ASC}"
   res: ''
 # filters on ml strings are in properties.yml
 

@@ -65,7 +65,8 @@ module Zena
 
       module ModelMethods
         include RubyLess
-        safe_context       :ancestors => {:class => ['Node'], :method => 'z_ancestors'}
+                                         # This is used to defer :class type resolution to compilation time
+        safe_method        :ancestors => Proc.new {|h, r, s| {:method => 'z_ancestors', :class => [VirtualClass['Node']], :nil => true}}
         safe_method        :fullpath => String, :short_path => [String]
 
         def self.included(base)

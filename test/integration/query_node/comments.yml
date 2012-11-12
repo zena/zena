@@ -9,7 +9,7 @@ default:
 comments_from_nodes_in_site:
   context:
     visitor: lion
-  sql: "Comment: %Q{SELECT comments.* FROM comments,discussions,nodes AS no1 WHERE comments.discussion_id = discussions.id AND discussions.node_id = no1.id AND #{secure_scope('no1')} GROUP BY comments.id ORDER BY comments.created_at ASC}"
+  sql: "Comment: %Q{SELECT comments.* FROM comments JOIN discussions JOIN nodes AS no1 WHERE comments.discussion_id = discussions.id AND discussions.node_id = no1.id AND #{secure_scope('no1')} GROUP BY comments.id ORDER BY comments.created_at ASC}"
   res: "Comment: I agree, I think this is bad, OK for me, Why ?, Travailleurs, unissez-vous !, Nice site, What about rivers ?, re: What about rivers ?, I want to become queen"
 
 does_not_see_secret:

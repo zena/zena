@@ -238,8 +238,12 @@ Capistrano::Configuration.instance(:must_exist).load do
       # directory setup for log
       run "test -e #{sites_root}/#{self[:host]}/log || mkdir #{sites_root}/#{self[:host]}/log"
       run "chown www-data:www-data #{sites_root}/#{self[:host]}/log"
-
-      run "test -e /etc/apache2/sites-enabled/#{self[:host]} || a2ensite #{self[:host]}" if debian_host
+      
+      if debian_host
+        vhost_files.each do |host|
+          run "test -e /etc/apache2/sites-enabled/#{host} || a2ensite #{host}"
+        end
+      end
 
       unless self[:host] =~ /^www/
         vhost_www = render("#{templates}/vhost_www.rhtml", :config => self, :vhost_port => (self[:ssl] ? ':80' : ''))
@@ -312,7 +316,8 @@ Capistrano::Configuration.instance(:must_exist).load do
       run "#{in_current} rake zena:rename_site OLD_HOST='#{self[:old_host]}' HOST='#{self[:host]}' RAILS_ENV='production'"
       old_vhosts = ["#{self[:old_host]}",
                     "stats.#{self[:old_host]}",
-                    "www.#{self[:old_host]}"]
+                    "www.#{self[:old_host]}",
+                    "#{self[:old_host]}.ssl"]
       old_vhosts.each do |vhost|
         run "test -e /etc/apache2/sites-enabled/#{vhost} && a2dissite #{vhost} || true"
         vhost_path = "#{vhost_root}/#{vhost}"

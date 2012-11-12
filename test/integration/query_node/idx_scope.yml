@@ -4,27 +4,27 @@ default:
     node: 'cleanWater'
     visitor: 'ant'
   src: "blogs where blog.title = 'a wiki with Zena' in site"
-  sql: "%Q{SELECT nodes.* FROM idx_projects AS sc1,nodes WHERE #{secure_scope('nodes')} AND sc1.blog_title = 'a wiki with Zena' AND nodes.id = sc1.node_id AND nodes.kpath LIKE 'NPPB%' ORDER BY nodes.zip ASC}"
+  sql: "%Q{SELECT nodes.* FROM nodes LEFT JOIN idx_projects AS sc1 ON nodes.id = sc1.node_id WHERE #{secure_scope('nodes')} AND sc1.blog_title = 'a wiki with Zena' AND nodes.kpath LIKE 'NPPB%' ORDER BY nodes.zip ASC}"
   res: 'a wiki with Zena'
 
 # CUSTOM TABLE BASED INDEX
 
 get_kpath_from_class:
   src: "blogs where contact.name = 'xx' in site"
-  sql: "%Q{SELECT nodes.* FROM idx_projects AS sc1,nodes WHERE #{secure_scope('nodes')} AND sc1.contact_name = 'xx' AND nodes.id = sc1.node_id AND nodes.kpath LIKE 'NPPB%' ORDER BY nodes.zip ASC}"
+  sql: "%Q{SELECT nodes.* FROM nodes LEFT JOIN idx_projects AS sc1 ON nodes.id = sc1.node_id WHERE #{secure_scope('nodes')} AND sc1.contact_name = 'xx' AND nodes.kpath LIKE 'NPPB%' ORDER BY nodes.zip ASC}"
 
 get_kpath_from_class_with_function:
   src: "blogs where tag.created_at.year = 'xx' in site"
-  sql: "%Q{SELECT nodes.* FROM idx_projects AS sc1,nodes WHERE #{secure_scope('nodes')} AND year(sc1.tag_created_at) = 'xx' AND nodes.id = sc1.node_id AND nodes.kpath LIKE 'NPPB%' ORDER BY nodes.zip ASC}"
+  sql: "%Q{SELECT nodes.* FROM nodes LEFT JOIN idx_projects AS sc1 ON nodes.id = sc1.node_id WHERE #{secure_scope('nodes')} AND year(sc1.tag_created_at) = 'xx' AND nodes.kpath LIKE 'NPPB%' ORDER BY nodes.zip ASC}"
 
 many_keys:
   src: "blogs where blog.title = 'a wiki with Zena' and contact.name = 'cont' in site"
-  sql: "%Q{SELECT nodes.* FROM idx_projects AS sc1,nodes WHERE #{secure_scope('nodes')} AND sc1.blog_title = 'a wiki with Zena' AND sc1.contact_name = 'cont' AND nodes.id = sc1.node_id AND nodes.kpath LIKE 'NPPB%' ORDER BY nodes.zip ASC}"
+  sql: "%Q{SELECT nodes.* FROM nodes LEFT JOIN idx_projects AS sc1 ON nodes.id = sc1.node_id WHERE #{secure_scope('nodes')} AND sc1.blog_title = 'a wiki with Zena' AND sc1.contact_name = 'cont' AND nodes.kpath LIKE 'NPPB%' ORDER BY nodes.zip ASC}"
   res: 'a wiki with Zena'
 
 or_keys:
   src: "blogs where blog.title = 'bad' or contact.name = 'cont' in site"
-  sql: "%Q{SELECT nodes.* FROM idx_projects AS sc1,nodes WHERE #{secure_scope('nodes')} AND ((sc1.blog_title = 'bad' AND nodes.id = sc1.node_id) OR (sc1.contact_name = 'cont' AND nodes.id = sc1.node_id)) AND nodes.kpath LIKE 'NPPB%' GROUP BY nodes.id ORDER BY nodes.zip ASC}"
+  sql: "%Q{SELECT nodes.* FROM nodes LEFT JOIN idx_projects AS sc1 ON nodes.id = sc1.node_id WHERE #{secure_scope('nodes')} AND (sc1.blog_title = 'bad' OR sc1.contact_name = 'cont') AND nodes.kpath LIKE 'NPPB%' GROUP BY nodes.id ORDER BY nodes.zip ASC}"
   res: 'a wiki with Zena'
 
 id_key:
@@ -34,10 +34,10 @@ id_key:
 
 sort_by_scoped_value:
   src: "blogs in site order by contact.name asc"
-  sql: "%Q{SELECT nodes.* FROM idx_projects AS sc1,nodes WHERE #{secure_scope('nodes')} AND nodes.id = sc1.node_id AND nodes.kpath LIKE 'NPPB%' ORDER BY sc1.contact_name ASC}"
+  sql: "%Q{SELECT nodes.* FROM nodes LEFT JOIN idx_projects AS sc1 ON nodes.id = sc1.node_id WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NPPB%' ORDER BY sc1.contact_name ASC}"
   res: 'a wiki with Zena'
 
 should_not_mess_with_select:
   src: "blogs select title as blog_title in site order by contact.name asc"
-  sql: "%Q{SELECT nodes.*,ml1.value AS `blog_title` FROM idx_nodes_ml_strings AS ml1,idx_projects AS sc1,nodes WHERE #{secure_scope('nodes')} AND nodes.id = sc1.node_id AND ml1.lang = 'fr' AND ml1.key = 'title' AND ml1.node_id = nodes.id AND nodes.kpath LIKE 'NPPB%' ORDER BY sc1.contact_name ASC}"
+  sql: "%Q{SELECT nodes.*,ml1.value AS `blog_title` FROM nodes LEFT JOIN idx_nodes_ml_strings AS ml1 ON ml1.node_id = nodes.id AND ml1.key = 'title' AND ml1.lang = 'fr' LEFT JOIN idx_projects AS sc1 ON nodes.id = sc1.node_id WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NPPB%' ORDER BY sc1.contact_name ASC}"
   res: 'a wiki with Zena'

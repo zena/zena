@@ -18,7 +18,7 @@ less_then_in_dyn_param:
 
 greater_then_in_dyn_param:
   src: "<a foo='#{created_at > now ? \'yes\' : \'no\'}'>xx</a>"
-  tem: "<a foo='<%= (@node.created_at ? (@node.created_at>Time.now) : nil) ? \"yes\" : \"no\" %>'>xx</a>"
+  tem: "<a foo='<%= ((@node.created_at ? (@node.created_at>Time.now) : nil) ? \"yes\" : \"no\") %>'>xx</a>"
 
 greater_then_in_do:
   src: "<a foo='bar' do='pages where created_at > 7'>xx</a>"

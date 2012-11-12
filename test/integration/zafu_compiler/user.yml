@@ -48,5 +48,5 @@ version_author_is_a_node:
 
 in_group:
   src: <r:if test='visitor.in_group?("managers")'>managers</r:if>
-  tem: ""
+  tem: "<% if visitor.in_group?(\"managers\") %>managers<% end %>"
   res: ""

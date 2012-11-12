@@ -239,7 +239,7 @@ module Zena
             end
 
             opts[:form_tag]    = %Q{
-<% form_for(:#{node.form_name}, #{node}, :url => #{node}.new_record? ? #{node.form_name.pluralize}_path : #{node.form_name}_path(#{node}.zip), :html => {:method => #{node}.new_record? ? :post : :put, :id => \"\#{ndom_id(#{node})}_form_t\"}) do |f| %>
+<% form_for(:#{node.form_name}, #{node}, :url => #{node}.new_record? ? #{node.form_name.pluralize}_path : #{node.form_name}_path(#{node}.zip), :html => {:method => #{node}.new_record? ? :post : :put, :id => #{"#{node.dom_prefix}_form_t".inspect}}) do |f| %>
 #{error_messages}}
           end
 
@@ -340,6 +340,13 @@ module Zena
               end
               hidden_fields['done'] = done
             end
+          elsif upd = @params.delete(:preview)
+            hidden_fields['t_url']  = template_url(upd)
+            hidden_fields['dom_id'] = upd
+            hidden_fields['s']      = "<%= start_node_zip %>"
+            loading = @params[:loading]
+            loading = 'Zena.loading' if loading == 'true'
+            out "<% filter_form(#{node}, \"#{dom_name}_form_t\", #{loading.inspect}, '#{upd}') %>"
           else
             # no ajax
             cancel = "" # link to normal node ?

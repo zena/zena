@@ -183,8 +183,8 @@ module Zena
             index_model = Zena.resolve_const(index_model) rescue NilClass
             if index_model < Zena::Use::ScopeIndex::IndexMethods && index_model.column_names.include?(field_name)
               table_to_use = add_key_value_table('scope_index', index_model.table_name) do |tbl_name|
-                # This block is only executed once
-                add_filter "#{table('nodes')}.id = #{tbl_name}.node_id"
+                # This block is only executed once (ON clause)
+                "#{table('nodes')}.id = #{tbl_name}.node_id"
               end
               "#{table_to_use}.#{field_name}"
             else
@@ -219,7 +219,7 @@ module Zena
               use_name, source, target, filter = table_def
               table_to_use = add_key_value_table(use_name, target, map_def[:key]) do |tbl_name|
                 # This block is only executed once
-                add_filter filter.gsub(
+                filter.gsub(
                   'TABLE1', table(source)
                 ).gsub(
                   'TABLE2', tbl_name
@@ -264,12 +264,14 @@ module Zena
 
               tbl = add_key_value_table(group_name, index_table, field_name) do |tbl_name|
                 # This block is only executed once
-                add_filter "#{tbl_name}.node_id = #{table}.id"
-                add_filter "#{tbl_name}.key = #{quote(field_name)}"
+                on_clause = "#{tbl_name}.node_id = #{table}.id AND #{tbl_name}.key = #{quote(field_name)}"
                 if group_name.to_s =~ /^ml_/
-                  add_filter "#{tbl_name}.lang = #{quote(visitor.lang)}"
+                  on_clause << " AND #{tbl_name}.lang = #{quote(visitor.lang)}"
                 end
                 # no need for distinct, the new table makes a 1-1 relation
+                # ON CLAUSE
+                on_clause
+                
               end
 
               "#{tbl}.value"
@@ -358,11 +360,13 @@ module Zena
             if rel = RelationProxy.find_by_role(rel.singularize, source_kpath)
               table_to_use = add_key_value_table('jnode', 'nodes', class_name) do |tbl_name|
                 # This block is only executed once per relation name (once for 'hot', once for 'hot2')
+                # TODO: Can we remove this ?
                 distinct!
-                add_table('links', nil, :left)
-                add_filter "#{table('links')}.#{rel.link_side} = #{table(main_table)}.id"
-                add_filter "#{table('links')}.relation_id = #{rel.id}"
-                add_filter "#{table('jnode')}.id = #{table('links')}.#{rel.other_side}"
+                lnk = add_key_value_table('links', 'links', class_name) do |lt|
+                  "#{lt}.#{rel.link_side} = #{table(main_table)}.id AND #{lt}.relation_id = #{rel.id}"
+                end
+                
+                %Q{#{tbl_name}.id = #{lnk}.#{rel.other_side}}
               end
               
               # Temporarily move to the remote class

@@ -187,9 +187,26 @@ module Zena
           else
             loading = ''
           end
+          # Disable 'redir' parameter during preview or filter.
           js_data << %Q{new Form.Observer('#{dom_id}', 0.3, function(element, value) {#{loading}
-            new Ajax.Request('#{zafu_node_path(node)}', {asynchronous:true, evalScripts:true, method:'get', parameters:Form.serialize('#{dom_id}')})
+            var data = Form.serialize('#{dom_id}').gsub(/&redir=/,'&no_redir=')
+            new Ajax.Request('#{zafu_node_path(node)}', {asynchronous:true, evalScripts:true, method:'get', parameters:data})
           });}
+        end
+        
+        # Load parameters in node before rendering.
+        # SECURITY: There may be a security threat here if the node attributes are used for queries or relations.
+        def preview_node(node)
+          return nil if !node.kind_of?(Node)
+          if attrs = params[:node]
+            # Return a copy
+            new_node = node.dup
+            new_node.version = node.version.dup
+            new_node.attributes = Node.transform_attributes(params[:node], node, true)
+            return new_node
+          else
+            return node
+          end
         end
 
         # Include draggable ids in bottom of page Javascript.
@@ -284,7 +301,11 @@ module Zena
           end
         end
 
-        # Display an input field to filter a remote block
+        def r_preview_node
+          expand_if("#{var} = preview_node(#{node})", node.move_to(var, node.klass))
+        end
+        
+        # Display an input field to filter a remote block.
         def r_filter
           if upd = @params[:update]
             return unless block = find_target(upd)

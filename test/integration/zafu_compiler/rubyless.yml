@@ -29,7 +29,7 @@ tagged_rubyless:
   context:
     node: 'status'
   src: "<r:tagged do='keys'><r:each join=', ' do='show'/></r:tagged>"
-  res: "sky, blue"
+  res: "/sky, blue|blue, sky/"
 
 optional_hash:
   src: "<r:dummy do='hello' lang='fr'/>"

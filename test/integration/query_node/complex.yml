@@ -49,7 +49,7 @@ all_courses_for_mike:
     class: Employee
   src: assigned_courses from pages in project from assigned_jobs
   # TODO: optimization
-  #sql: "[%Q{SELECT no1.*,li1.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links,nodes,nodes AS no1,links AS li1 WHERE no1.id = li1.target_id AND li1.relation_id = 512923747 AND li1.source_id = nodes.id AND nodes.kpath LIKE 'NP%' AND nodes.project_id = links.target_id AND links.relation_id = 813976280 AND links.source_id = \#{@node.id} AND (\#{@node.secure_scope('no1')}) GROUP BY no1.id ORDER BY no1.position ASC, no1.node_name ASC}]"
+  #sql: "[%Q{SELECT no1.*,li1.id AS link_id,links.status AS l_status,links.comment AS l_comment,links.date AS l_date FROM links JOIN nodes JOIN nodes AS no1,links AS li1 WHERE no1.id = li1.target_id AND li1.relation_id = 512923747 AND li1.source_id = nodes.id AND nodes.kpath LIKE 'NP%' AND nodes.project_id = links.target_id AND links.relation_id = 813976280 AND links.source_id = \#{@node.id} AND (\#{@node.secure_scope('no1')}) GROUP BY no1.id ORDER BY no1.position ASC, no1.node_name ASC}]"
   res: "problem formulation, information transmission, secure a site, how to use the winch, how to use the radio, fiber junction, responsabilities management, motivate your team, our vision"
 
 all_achieved_formations_for_roger:
