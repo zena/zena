@@ -4,7 +4,9 @@ module Zena
       DATE_FIELD_REGEXP = %r{\d+[\.-/]\d+[\.-/]\d+}
       module ViewMethods
         include RubyLess
+        # Pseudo string comming from params.
         safe_method [:query_parse, String] => {:class => String, :accept_nil => true}
+        safe_method [:query_parse, Hash] => {:class => String, :accept_nil => true}
         safe_method [:query_parse, String, Hash] => {:class => String, :accept_nil => true}
         
         safe_method :query_errors => {:class => String, :nil => true, :html_safe => true}
@@ -30,6 +32,9 @@ module Zena
                 # mixed in and strangely RubyLess cannot access the helpers from 'self'.
                 :rubyless_helper => zafu_helper.helpers
               )
+              
+              # Node.logger.warn eval(query.to_s(type == :count ? :count : :find), opts[:binding] || binding)
+              
               if type == :count
                 return klass.do_find(:count, eval(query.to_s(:count), opts[:binding] || binding))
               else
@@ -81,7 +86,6 @@ module Zena
             end
 
             if arg =~ DATE_FIELD_REGEXP
-              # FIXME: Use to_utc and date function in Zena::Db
               arg = query_parse_dates(arg)
               first = arg.first
             end
@@ -111,8 +115,10 @@ module Zena
 
           def query_parse_dates(str)
             str.gsub(DATE_FIELD_REGEXP) do |date_str|
-              if date = DateTime.parse(date_str) rescue nil
-                date.strftime("'%Y-%m-%d'")
+              # Consider params as coming from the visitor's timezone.
+              if time = parse_date(date_str)
+                # We now have an UTC field.
+                time.strftime("'%Y-%m-%d %H:%M'")
               else
                 date_str
               end
