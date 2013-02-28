@@ -48,7 +48,7 @@ module Zena
               return img_tag(icon, opts.merge(:alt_src => nil))
             end
           end
-
+          
           # 3. generic icon
           res ||= generic_img_tag(obj, opts)
 
@@ -489,6 +489,7 @@ module Zena
         end
 
         def extract_label(res, attribute)
+          return res if @params[:type] == 'hidden'
           attribute ||= @params[:param]
           if (label = param(:label) || param(:tlabel)) && attribute
             case label
