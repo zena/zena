@@ -1,6 +1,7 @@
 module Zena
   module Use
     module ZafuSafeDefinitions
+      # This is a dummy class to declare safe parameters on params.
       class ParamsDictionary
         include RubyLess
         safe_method ['[]', Symbol] => {:class => String, :nil => true}
@@ -31,6 +32,32 @@ module Zena
               v.split(',').map(&:strip).select{|e| !e.blank?}
             else
               []
+            end
+          end
+      end
+      
+      # This class is used to access nested Hash params {:key => 'foo'}.
+      class HParamsDictionary
+        def initialize(params)
+          @params = {}
+          params.each do |k, v|
+            @params[k.to_sym] = transform(v)
+          end
+        end
+        
+        def [](key)
+          @params[key.to_sym] || {}
+        end
+        
+        include RubyLess
+        safe_method ['[]', Symbol] => {:class => ParamsDictionary, :nil => false}
+        
+        private
+          def transform(v)
+            if v.kind_of?(Hash)
+              v
+            else
+              {}
             end
           end
       end
@@ -126,6 +153,8 @@ module Zena
 
         safe_method :params => ParamsDictionary
         safe_method :aparams => AParamsDictionary
+        safe_method :hparams => HParamsDictionary
+        
         safe_method :now    => {:method => 'Time.now', :class => Time}
         safe_method :string_hash => {:method => 'StringHash.new', :class => StringHash}
         safe_method [:string_hash, Hash] => {:method => 'StringHash.from_hash', :class => StringHash}
@@ -203,6 +232,10 @@ module Zena
         
         def aparams
           @aparams ||= AParamsDictionary.new(params)
+        end
+        
+        def hparams
+          @hparams ||= HParamsDictionary.new(params)
         end
       end # ViewMethods
 

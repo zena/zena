@@ -12,6 +12,8 @@
 * Minor changes
  * Support for 'lang_list' when creating vhost file <== TODO: Document
  * Support for Range in zafu. <== TODO: Document
+ * Added options to query_parse to ignore unwanted parameters <== TODO: Document
+ * Added 'hparams' option to only return Hash parameters from params. <== TODO: Document
 
 == 1.2.2 2012-08-30
 

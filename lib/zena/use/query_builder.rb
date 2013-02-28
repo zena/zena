@@ -5,6 +5,8 @@ module Zena
       module ViewMethods
         include RubyLess
         safe_method [:query_parse, String] => {:class => String, :accept_nil => true}
+        safe_method [:query_parse, String, Hash] => {:class => String, :accept_nil => true}
+        
         safe_method :query_errors => {:class => String, :nil => true, :html_safe => true}
 
         def find_node_by_zip(zip)
@@ -43,13 +45,15 @@ module Zena
 
         # Takes a hash of parameters and builds query arguments for SQLiss
         # the query ends up like ' AND param_name = "foo" AND param_name > 35'...
-        def query_parse(params)
+        def query_parse(params, opts = {})
+          ignore_params = (opts[:ignore] || '').split(',').map(&:strip)
           params ||= {}
           res = []
           if params.kind_of?(String)
             return params
           elsif params.kind_of?(Hash)
             params.each do |k,v|
+              next if ignore_params.include?(k.to_s)
               clause = query_build_clause(k,v)
               res << clause unless clause.blank?
             end
