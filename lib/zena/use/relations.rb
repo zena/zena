@@ -151,19 +151,6 @@ module Zena
           @link ? @link[:id] : (self[:link_id] == -1 ? nil : self[:link_id]) # -1 == dummy link
         end
 
-        def link_id=(v)
-          if @link && @link[:id].to_i != v.to_i
-            @link = nil
-          end
-          self[:link_id] = v.to_i
-          if @link_attributes_to_update
-            if rel = relation_proxy_from_link
-              @link_attributes_to_update.each do |k,v|
-                rel.send("other_#{k}=",v)
-              end
-            end
-          end
-        end
 
         # FIXME: this method does an 'update' not only 'add'
         def add_link(role, hash)
@@ -228,13 +215,19 @@ module Zena
           @l_comment = v.blank? ? nil : v
           if rel = relation_proxy_from_link
             rel.other_comment = @l_comment
+          else
+            l = @link_attributes_to_update ||= {}
+            l[:comment] = @l_comment
           end
         end
 
         def l_status=(v)
-          @l_status = v.blank? ? nil : v.to_f
+          @l_status = v.blank? ? nil : v
           if rel = relation_proxy_from_link
             rel.other_status = @l_status
+          else
+            l = @link_attributes_to_update ||= {}
+            l[:status] = @l_status
           end
         end
 
@@ -242,6 +235,23 @@ module Zena
           @l_date = v.blank? ? nil : v
           if rel = relation_proxy_from_link
             rel.other_date = @l_date
+          else
+            l = @link_attributes_to_update ||= {}
+            l[:date] = @l_date
+          end
+        end
+        
+        def link_id=(v)
+          if @link && @link[:id].to_i != v.to_i
+            @link = nil
+          end
+          self[:link_id] = v.to_i
+          if @link_attributes_to_update
+            if rel = relation_proxy_from_link
+              @link_attributes_to_update.each do |k,v|
+                rel.send("other_#{k}=",v)
+              end
+            end
           end
         end
 

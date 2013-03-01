@@ -119,21 +119,21 @@ module Zena
       module FormTags
         # Date selection tool.
         # TODO: make it work with form_helper: <%= f.date_box(:event_at) %>
-      	def date_box(obj, name, opts = {})
-      	  rnd_id = rand(100000000000)
-      	  defaults = {  :id=>"datef#{rnd_id}", :button=>"dateb#{rnd_id}", :display=>"dated#{rnd_id}" }
-      	  opts = defaults.merge(opts)
-      	  date = opts[:value] || obj.safe_send(name)
-      	  showsTime = opts[:time] || 'true'
-      	  # TODO: could we pass the format from the view so that it is
-      	  # translated with the view's dictionary during compilation ?
-      	  dateFormat = showsTime == 'true' ? _('datetime') : _('long_date')
-      	  value = format_date(date, :format => dateFormat)
+        def date_box(obj, name, opts = {})
+          rnd_id = rand(100000000000)
+          defaults = {  :id=>"datef#{rnd_id}", :button=>"dateb#{rnd_id}", :display=>"dated#{rnd_id}" }
+          opts = defaults.merge(opts)
+          date = opts[:value] || obj.safe_send(name)
+          showsTime = opts[:time] || 'true'
+          # TODO: could we pass the format from the view so that it is
+          # translated with the view's dictionary during compilation ?
+          dateFormat = showsTime == 'true' ? _('datetime') : _('long_date')
+          value = format_date(date, :format => dateFormat)
 
-      	  # TODO: migrate code to Zafu::Markup (needs Zafu 0.7.7)
-      	  # fld = Zafu::Markup.new('input')
-      	  # fld.params = (opts[:html] || {}).merge(:name => "node[#{name}]", :id => opts[:id], :type => 'text', :value => value)
-      	  if opts[:size]
+          # TODO: migrate code to Zafu::Markup (needs Zafu 0.7.7)
+          # fld = Zafu::Markup.new('input')
+          # fld.params = (opts[:html] || {}).merge(:name => "node[#{name}]", :id => opts[:id], :type => 'text', :value => value)
+          if opts[:size]
             fld = "<input id='#{opts[:id]}' name='#{name}' type='text' size='#{opts[:size]}' value='#{value}' class='#{opts[:class]}'/>"
           else
             fld = "<input id='#{opts[:id]}' name='#{name}' type='text' value='#{value}' class='#{opts[:class]}'/>"
@@ -147,11 +147,11 @@ module Zena
               ifFormat    : '#{dateFormat}'
           });}
 
-      		<<-EOL
+          <<-EOL
       <span class="date_box"><img src="/calendar/iconCalendar.gif" id="#{opts[:button]}" alt='#{_('date selection')}'/>
       #{fld}</span>
-      		EOL
-      	end
+          EOL
+        end
       end
       
       module ModelMethods

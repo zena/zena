@@ -60,9 +60,9 @@
         </r:documents>
 
         <div id='pages' do='block' do='pages'>
-		  <h3 do='t'>pages</h3>
+      <h3 do='t'>pages</h3>
           <ol>
-			<li do='reset_sort'/>
+      <li do='reset_sort'/>
             <li do='each' sortable='true' class='li_s#{v.status}' do='link'/>
             <li do='add' before='self'/>
             <li class='inline_form' do='form'>

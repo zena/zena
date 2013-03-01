@@ -60,7 +60,7 @@
 <% list = (config[:lang_list] || 'en').split(',').map(&:strip)
   default = list.first
   list.reverse_each do |l|
-	if l != default %>
+  if l != default %>
   # Browser wants "<%= l %>" as favorite language
   RewriteCond %{REQUEST_URI} ^/$
   RewriteCond %{HTTP:Accept-Language} ^<%= l %>

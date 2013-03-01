@@ -495,3 +495,12 @@ each_alternate_by_hand:
   src: "<ol do='pages'><r:each alt_class='blue'><li class='#{alt_class}' do='title'/></r:each></ol>"
   tem: "/class='<%= _zaltclass %>'/"
   res: "<ol><li class=''>crocodiles</li><li class='blue'>status title</li></ol>"
+
+with_a_custom_img_tag_field:
+  # img_tag field set in test.
+  src: "<r:zazen text='!22! !22_pv!'/> IMG: <r:img/>"
+  res: "<div class='zazen'><foobar>IMAGE</foobar> <a class='popup' href='/oo/status-title/status-title/page22.html' target='_blank'><img src='/images/ext/page_pv.png' width='70' height='70' alt='Page node' class='node'/></a></div> IMG: <foobar>IMAGE</foobar>"
+
+invalid_document:
+  src: "<r:zazen text='!21!'/>"
+  res: "/images/ext/project.png/"

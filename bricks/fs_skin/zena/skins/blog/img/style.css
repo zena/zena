@@ -22,14 +22,14 @@ form .date_box { float:none;}
 #navigation #search { float:right;}
 
 #main {float:left; width:530px; padding:10px; margin-left:50px; line-height:14px; }
-#right h2 {margin-top:10px; font:bold 12px Verdana, 'Trebuchet MS', Sans-serif; padding:5px 0 5px 5px;  	border-bottom:1px dotted #999; }
-#right ul  {color:#999; text-align:left; margin:3px 0 8px 0;  padding-left:20px; text-decoration:none; 	list-style-type:square; 	}
-#right ul li {padding:2px 0 2px 0px; margin:0 2px; 	}
+#right h2 {margin-top:10px; font:bold 12px Verdana, 'Trebuchet MS', Sans-serif; padding:5px 0 5px 5px;    border-bottom:1px dotted #999; }
+#right ul  {color:#999; text-align:left; margin:3px 0 8px 0;  padding-left:20px; text-decoration:none;   list-style-type:square;   }
+#right ul li {padding:2px 0 2px 0px; margin:0 2px;   }
 #right ul a {font-weight:600; color:#173D7F; }
 #right ul a:hover { color :#333;  }
 
 #right { clear:right; float:right; width:130px; padding:5px; margin-right:20px; }
-#right h2 {padding:2px 0 5px 0px;  font:bold 14px Verdana, 'Trebuchet MS', Sans-serif; color:#444; 	border-bottom:1px dotted #999; margin-bottom:5px; margin-top:10px; }
+#right h2 {padding:2px 0 5px 0px;  font:bold 14px Verdana, 'Trebuchet MS', Sans-serif; color:#444;   border-bottom:1px dotted #999; margin-bottom:5px; margin-top:10px; }
 #right div { clear:both;}
 
 #lcomments li,#lcomments ul { list-style-type:none; margin:0;padding:0; color:#444;}

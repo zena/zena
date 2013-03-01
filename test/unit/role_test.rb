@@ -278,7 +278,7 @@ class RoleTest < Zena::Unit::TestCase
             e = assert_raise(Exception) do
               subject.import_columns({
                 'one' => {
-                  'ptype' => 'stringbar',
+                  'ptype' => 'string',
                 },
                 'paper' => {
                   'ptype' => 'integer',

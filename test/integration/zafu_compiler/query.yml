@@ -37,8 +37,10 @@ literal:
   res: "para = \"hello\""
 
 literal_date:
+  context:
+    lang: fr
   tem: "<%= query_parse('para' => %{2.12.1983}) %>"
-  res: "para = '1983-12-02'"
+  res: "para = '1983-12-01 23:00'"
 
 number:
   tem: "<%= query_parse('para' => %{45}) %>"
@@ -55,8 +57,10 @@ greater_then:
 greater_then_date:
   context:
     lang: fr
+    tz: Asia/Jakarta
   tem: "<%= query_parse('para' => %{>7.5.1965}) %>"
-  res: "para >'1965-05-07'"
+  # Uses visitor timezone to UTC
+  res: "para >'1965-05-06 17:00'"
 
 greater_or_equal_then:
   tem: "<%= query_parse('para' => %{>=32}) %>"
@@ -86,19 +90,19 @@ interval_date:
   context:
     lang: fr
   tem: "<%= query_parse('para' => %{1.1.2010..31.12.2010}) %>"
-  res: "para >= '2010-01-01' and para <= '2010-12-31'"
+  res: "para >= '2009-12-31 23:00' and para <= '2010-12-30 23:00'"
 
 not_interval_date:
   context:
     lang: fr
   tem: "<%= query_parse('para' => %{!1.1.2010..31.12.2010}) %>"
-  res: "not (para >= '2010-01-01' and para <= '2010-12-31')"
+  res: "not (para >= '2009-12-31 23:00' and para <= '2010-12-30 23:00')"
 
 interval_date_en:
   context:
     lang: en
   tem: "<%= query_parse('para' => %{2010/1/1..2010/12/31}) %>"
-  res: "para >= '2010-01-01' and para <= '2010-12-31'"
+  res: "para >= '2009-12-31 23:00' and para <= '2010-12-30 23:00'"
 
 like:
   tem: "<%= query_parse('para' => %{*bar}) %>"

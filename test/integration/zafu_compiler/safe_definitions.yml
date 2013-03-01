@@ -179,3 +179,12 @@ aparams_array:
       - ''
   src: "<div do='aparams[:par]'><r:each join='==' do='this'/></div>"
   res: "<div>a==b</div>"
+
+hparams:
+  context:
+    par:
+      x: 'a'
+      y: 'b'
+  src: "<div do='hparams[:par][:x]'/><div do='hparams[:par][:y]'/>"
+  res: "<div>a</div><div>b</div>"
+

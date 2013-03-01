@@ -635,9 +635,9 @@ Zena.reload_and_close = function(href) {
 
 Zena.t = function() {
   if (opener && !opener.is_editor) {
-		return opener;
+    return opener;
   } else if (parent != window) {
-	  return parent;
+    return parent;
   } else {
     return window;
   }
@@ -649,8 +649,8 @@ Zena.popup_gallery = null;
 Zena.popup_keydown = function(evt) {
   var gallery = Zena.popup_gallery;
 
-	var code = evt.keyCode;
-	var character = String.fromCharCode(code);
+  var code = evt.keyCode;
+  var character = String.fromCharCode(code);
 
   if (code == Event.KEY_LEFT) {
     if (gallery.prev) {
@@ -710,8 +710,8 @@ Zena.popup = function(elem) {
   if (config.navigation) {
     if (!this.popup_gallery) {
       Event.observe(document.body, 'keydown', function(e) {
-    	  var evt = e || window.event;
-    	  $('pg_info').innerHTML = evt.keyCode;
+        var evt = e || window.event;
+        $('pg_info').innerHTML = evt.keyCode;
       });
     }
     if (!this.popup_gallery || this.popup_gallery.klass != config.klass) {

@@ -362,6 +362,15 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     node.update_attributes!(:date => Time.utc(2012,1,1,0,0))
     yt_do_test('dates', 'time_year')
   end
+  
+  def test_display_with_a_custom_img_tag_field
+    login(:lion)
+    node = secure(Node) { nodes(:status) }
+    node.prop['img_tag_std'] = "<foobar>IMAGE</foobar>"
+    node.send(:dump_properties)
+    Zena::Db.execute "UPDATE versions SET properties = #{Zena::Db.quote(node.version[:properties])}"
+    yt_do_test('display', 'with_a_custom_img_tag_field')
+  end
 
   yt_make
 end

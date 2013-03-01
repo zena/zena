@@ -6,9 +6,9 @@ module Zena
 
       module FormTags
         #TODO: test
-      	# Return the list of groups from the visitor for forms
-      	def form_groups
-      	  @form_groups ||= Group.find(:all, :select=>'id, name', :conditions=>"id IN (#{visitor.group_ids.join(',')})", :order=>"name ASC").collect {|p| [p.name, p.id]}
+        # Return the list of groups from the visitor for forms
+        def form_groups
+          @form_groups ||= Group.find(:all, :select=>'id, name', :conditions=>"id IN (#{visitor.group_ids.join(',')})", :order=>"name ASC").collect {|p| [p.name, p.id]}
         end
 
         #TODO: test

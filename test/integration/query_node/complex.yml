@@ -63,8 +63,8 @@ custom_query_form_date:
   context:
     node: roger
     class: Employee
-  src: emp_form_dates order by title ASC
-  res: "dangerous transportations, engine maintenance, fiber junction, how to use the radio, how to use the winch, information transmission, problem formulation, secure a site"
+  src: det_programs order by title ASC
+  res: ""
 
 custom_query_form_with_where:
   context:

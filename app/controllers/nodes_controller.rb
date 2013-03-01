@@ -234,6 +234,11 @@ class NodesController < ApplicationController
     end
     @node.errors.add('file', file_error) if file_error
 
+    if params[Zena::Use::Upload::UPLOAD_KEY]
+      # Respond in parent from iframe.
+      return render_upload
+    end
+    
     respond_to do |format|
       if @node.errors.empty?
         flash.now[:notice] = 'Node was successfully created.'

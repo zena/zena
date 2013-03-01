@@ -52,30 +52,8 @@ class DocumentsController < ApplicationController
   # Create a document with upload progression (upload in mongrel)
   def upload
     create_document
-
-    responds_to_parent do # execute the redirect in the iframe's parent window
-      render :update do |page|
-        if @node.new_record?
-          page.replace_html 'form_errors', error_messages_for(:node, :object => @node)
-          page.call 'UploadProgress.setAsError'
-        else
-          page.call 'UploadProgress.setAsFinished'
-          page.delay(1) do # allow the progress bar fade to complete
-            if params[:js]
-              page << params[:js]
-            end
-            if params[:reload]
-              page << "Zena.t().Zena.reload(#{params[:reload].inspect})"
-            end
-            if params[:redir]
-              page << "Zena.reload_and_close(#{params[:redir].inspect})"
-            else
-              page.redirect_to document_url(@node[:zip], :reload => params[:reload], :js => params[:js])
-            end
-          end
-        end
-      end
-    end
+    
+    render_upload
   end
 
   def upload_progress
@@ -109,7 +87,7 @@ class DocumentsController < ApplicationController
         raise ActiveRecord::RecordNotFound
       end
     end
-
+    
     def create_document
       attrs = params['node']
       file, error = get_attachment

@@ -55,6 +55,25 @@
 # FIXME: replace all these with simpler tests.
 Node:
   # Used to test custom select types (repeat_every, last_date)
+  # find programs filtered by zip contained in parameters a, b, c, d, e or f.
+  det_program:
+    # find all programs with given tags
+    main_table: programs
+    select:
+     - programs.*
+    tables:
+      # We need the dummy clause in case we have no params
+      - "#{(['nodes AS dummy'] + %w{a b c d e f}.map{|s| params[s].blank? ? nil : \"links AS #{s}links JOIN nodes AS #{s}keys\"}.compact).join(' JOIN ')}"
+      - nodes AS programs
+    where:
+     # [a]links.target_id = programs.id AND [a]links.relation_id = RELATION_ID(assigned_key) AND [a]links.source_id = [a]keys.id AND [a]keys.zip = #{params['a'].to_i}
+     - "(#{([1] + %w{a b c d e f}.map{|s| params[s].blank? ? nil : \"(programs.id = #{s}links.target_id AND #{s}links.relation_id = RELATION_ID(assigned_formation) AND #{s}links.source_id = #{s}keys.id AND #{s}keys.zip = #{params[s].to_i})\"}.compact).join(' AND ')})"
+     # 2. filter programs
+     - programs.kpath LIKE 'NPR%'
+    group: programs.id
+    # title ordering set in zafu
+    order: zip ASC
+
   emp_form_date:
     # find courses assigned_to pages in job assigned_to CURRENT_NODE (employee)
     main_table: courses

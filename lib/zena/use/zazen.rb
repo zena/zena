@@ -65,7 +65,9 @@ module Zena
             if text[0..0] == ' '
               text = "\n\n#{text}"
             end
-            res = ZazenParser.new(text,:helper=>self).render(opt)
+            @zazen = ZazenParser.new(text, :helper=>self)
+            res = @zazen.render(opt)
+            @zazen = nil
             if no_p && !text.include?("\n")
               res.gsub(%r{\A<p>|</p>\Z},'')
             else
@@ -74,6 +76,14 @@ module Zena
           end
         rescue Timeout::Error
           return %Q{<span class='parser_error'>#{_('Could not render text (Timeout error)')}</span>}
+        end
+        
+        def raw_content(txt)
+          if @zazen
+            @zazen.raw_content(txt)
+          else
+            txt
+          end
         end
 
         # TODO: test
@@ -172,7 +182,7 @@ module Zena
         def make_image(opts)
           id, style, link, mode, title = opts[:id], opts[:style], opts[:link], opts[:mode], opts[:title]
           mode ||= 'std' # default mode
-          img = opts[:node] || secure(Document) { Document.find_by_zip(id) }
+          img = opts[:node] || secure(Node) { Node.find_by_zip(id) }
 
           return "<span class='unknownLink'>#{_('unknown document')}</span>" unless img
 
@@ -182,11 +192,13 @@ module Zena
           title = img.summary if title == ""
 
           image = img_tag(img, :mode=>mode, :host=>opts[:host])
+          
+          return "<span class='unknownLink'>#{_('invalid document')}</span>" unless image
 
           unless link
-            if id[0..0] == "0" || !img.kind_of?(Image)
+            if id[0..0] == "0" || (!img.kind_of?(Image) && !(image =~ /ZAZENBLOCKCODE/))
               # if the id starts with '0' or it is not an Image, link to data
-              link = zen_path(img, :format => img.ext)
+              link = zen_path(img, :format => img.prop['ext'])
               link_tag = "<a class='popup' href='#{link}' target='_blank'>"
             end
           end

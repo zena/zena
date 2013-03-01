@@ -5,6 +5,8 @@ require 'uuidtools'
 module Zena
   module Use
     module Upload
+      UPLOAD_KEY = defined?(Mongrel) ? 'upload_id' : "X-Progress-ID"
+      
       def self.has_network?
         response = nil
         Net::HTTP.new('example.com', '80').start do |http|
@@ -41,6 +43,7 @@ module Zena
             yield(att, error) if block_given?
             [att, error]
           end
+          
 
         private
           def fetch_uri(uri_str, max_file_size = 10)
@@ -141,13 +144,37 @@ module Zena
               end
             end
           end
+          
+          def render_upload
+            responds_to_parent do # execute the redirect in the iframe's parent window
+              render :update do |page|
+                if @node.new_record?
+                  page.replace_html 'form_errors', error_messages_for(:node, :object => @node)
+                  page.call 'UploadProgress.setAsError'
+                else
+                  page.call 'UploadProgress.setAsFinished'
+                  page.delay(1) do # allow the progress bar fade to complete
+                    if js = params[:js]
+                      page << js.gsub('NODE_ID', @node.zip.to_s)
+                    end
+                    if params[:reload]
+                      page << "Zena.t().Zena.reload(#{params[:reload].inspect})"
+                    end
+                    if params[:redir]
+                      page << "Zena.reload_and_close(#{params[:redir].inspect})"
+                    else
+                      page.redirect_to document_url(@node[:zip], :reload => params[:reload], :js => params[:js])
+                    end
+                  end
+                end
+              end
+            end
+          end
       end # ControllerMethods
 
       module ViewMethods
         include RubyLess
-        safe_method [:upload_field, {:type => String}] => String
 
-        UPLOAD_KEY = defined?(Mongrel) ? 'upload_id' : "X-Progress-ID"
         def upload_form_tag(url_opts, html_opts = {})
           @uuid = UUIDTools::UUID.random_create.to_s.gsub('-','')
           html_opts.reverse_merge!(:multipart => true, :id => "UploadForm#{@uuid}")
@@ -165,6 +192,7 @@ module Zena
         end
 
         def upload_field(opts = {})
+          uuid = opts[:uuid] || @uuid
           case opts[:type].to_s
           when 'onclick'
             link = link_to_remote(_("change"), :update=>'upload_field', :url => get_uf_documents_path(:uuid => @uuid), :method => :get, :complete=>"['file', 'upload_field'].each(Element.toggle);")
@@ -174,11 +202,11 @@ module Zena
 <div id="upload_field" class='toggle_div' style='display:none;'></div>
 TXT
           else
-            attach_file_id, attach_url_id = "af#{@uuid}", "au#{@uuid}"
+            attach_file_id, attach_url_id = "af#{uuid}", "au#{uuid}"
             onchange = %Q{onchange="Zena.get_filename(this,'node_title'); $('node_title').focus(); $('node_title').select();"}
             <<-TXT
 <div id='#{attach_file_id}' class='attach'><label for='attachment' onclick=\"['#{attach_file_id}', '#{attach_url_id}'].each(Element.toggle);\">#{_('file')} / <span class='off'>#{_('url')}</span></label>
-<input  style='line-height:1.5em;' id="attachment#{@uuid}" name="attachment" #{onchange} class='file' type="file" /></div>
+<input  style='line-height:1.5em;' id="attachment#{uuid}" name="attachment" #{onchange} class='file' type="file" /></div>
 
 <div id='#{attach_url_id}' class='attach' style='display:none;'><label for='url' onclick=\"['#{attach_file_id}', '#{attach_url_id}'].each(Element.toggle);\"><span class='off'>#{_('file')}</span> / #{_('url')}</label>
 <input  style='line-height:1.5em;' size='30' id='attachment_url' type='text' #{onchange} name='attachment_url'/><br/></div>

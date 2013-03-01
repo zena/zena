@@ -7,7 +7,14 @@ module Zena
       include Zena::Acts::Secure
 
       PSEUDO_ID_REGEXP = ":[0-9a-zA-Z-]+\\+*|\\([^\\)]*\\)"
-
+      
+      def raw_content(txt)
+        txt = [:raw, txt] if txt.kind_of?(String)
+        @escaped_code << txt
+        @block_counter += 1
+        return "<pre>\\ZAZENBLOCKCODE#{@block_counter}ZAZENBLOCKCODE\\</pre>"
+      end
+      
       def start(mode)
         @helper = @options[:helper]
         # we do nothing, everything is done when 'render' is called
@@ -326,12 +333,10 @@ module Zena
 
       def extract_code(fulltext)
         @escaped_code = []
-        block_counter = -1
+        @block_counter = -1
         fulltext.gsub!( /<code([^>]*)>(.*?)<\/code>/m ) do
           if @translate_ids
-            @escaped_code << $&
-            block_counter += 1
-            "<pre>\\ZAZENBLOCKCODE#{block_counter}ZAZENBLOCKCODE\\</pre>"
+            raw_content([nil, $&])
           else
             params, text = $1, $2
             pre_params = []
@@ -345,9 +350,7 @@ module Zena
             end
             #pre_params << "class='code'" unless params =~ /class\s*=/
             pre_params = pre_params.blank? ? nil : pre_params.join(' ')
-            @escaped_code << [lang, text, pre_params]
-            block_counter += 1
-            "<pre>\\ZAZENBLOCKCODE#{block_counter}ZAZENBLOCKCODE\\</pre>"
+            raw_content([lang, text, pre_params])
           end
         end
 
@@ -366,7 +369,13 @@ module Zena
             @escaped_code[$1.to_i]
           else
             code_lang, code, pre_params = @escaped_code[$1.to_i]
-            Zena::CodeSyntax.new(code, @context[:pretty_code] ? code_lang : nil).to_html(@context.merge(:pre_params => pre_params))
+            # FIXME: How to not parse with Textile ?
+            if code_lang == :raw then
+              # SECURITY: symbol cannot be set from zazen.
+              code
+            else
+              Zena::CodeSyntax.new(code, @context[:pretty_code] ? code_lang : nil).to_html(@context.merge(:pre_params => pre_params))
+            end
           end
         end
 

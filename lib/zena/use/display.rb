@@ -67,6 +67,18 @@ module Zena
         # <img> tag definition to show an Image / mp3 document
         # FIXME: this should live inside zafu
         def asset_img_tag(obj, opts)
+          if img_tag = obj.prop["img_tag_#{opts[:mode] || 'std'}"]
+            # Hand made image tag
+            if img_tag.kind_of?(String)
+              # We use code to make it raw.
+              return raw_content(img_tag)
+            end
+          elsif img_tag = obj.prop["img_tag"]
+            if img_tag.kind_of?(Hash) && img_tag = img_tag[opts[:mode] || 'std']
+              return raw_content(img_tag)
+            end
+          end
+          
           if obj.kind_of?(Image)
             res     = {}
             format  = Iformat[opts[:mode]] || Iformat['std']

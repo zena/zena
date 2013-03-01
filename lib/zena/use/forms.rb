@@ -238,8 +238,16 @@ module Zena
               error_messages = r_errors + "\n"
             end
 
-            opts[:form_tag]    = %Q{
-<% form_for(:#{node.form_name}, #{node}, :url => #{node}.new_record? ? #{node.form_name.pluralize}_path : #{node.form_name}_path(#{node}.zip), :html => {:method => #{node}.new_record? ? :post : :put, :id => #{"#{node.dom_prefix}_form_t".inspect}}) do |f| %>
+            html_id = "#{node.dom_prefix}_form_t".inspect
+            if descendant('upload_field')
+              uuid = UUIDTools::UUID.random_create.to_s.gsub('-','')
+              set_context_var('upload', 'uuid', uuid)
+              upload_html = ", :multipart => true, :onsubmit => %Q{submitUploadForm(#{html_id}, '#{uuid}');}"
+              upload_url  = "'#{Zena::Use::Upload::UPLOAD_KEY}' => '#{uuid}'"
+            end
+            
+            opts[:form_tag] = %Q{
+<% form_for(:#{node.form_name}, #{node}, :url => #{node}.new_record? ? #{node.form_name.pluralize}_path(#{upload_url}) : #{node.form_name}_path(#{node}.zip#{upload_url ? ", #{upload_url}" : ""}), :html => {:method => #{node}.new_record? ? :post : :put, :id => #{html_id}#{upload_html}}) do |f| %>
 #{error_messages}}
           end
 
@@ -408,6 +416,10 @@ module Zena
           end
 
           hidden_fields
+        end
+        
+        def r_upload_field
+          "<%= upload_field(:uuid => #{get_context_var('upload', 'uuid').inspect}) %>"
         end
 
         def r_textarea
