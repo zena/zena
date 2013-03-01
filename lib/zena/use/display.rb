@@ -71,11 +71,11 @@ module Zena
             # Hand made image tag
             if img_tag.kind_of?(String)
               # We use code to make it raw.
-              return raw_content(img_tag)
+              return raw_content(img_tag.gsub('UUID', "img#{UUIDTools::UUID.random_create.to_s.gsub('-','')[0..6]}"))
             end
           elsif img_tag = obj.prop["img_tag"]
             if img_tag.kind_of?(Hash) && img_tag = img_tag[opts[:mode] || 'std']
-              return raw_content(img_tag)
+              return raw_content(img_tag.gsub('UUID', "img#{UUIDTools::UUID.random_create.to_s.gsub('-','')[0..6]}"))
             end
           end
           

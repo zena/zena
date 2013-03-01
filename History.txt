@@ -18,6 +18,7 @@
  * Added 'hparams' option to only return Hash parameters from params. <== TODO: Document
  * Fixed query_parse to convert dates to UTC.
  * Fixed form preview inside block.
+ * Added unique id to img_tag_{mode} code generated 'UUID'. <== TODO: Document
 
 == 1.2.2 2012-08-30
 
