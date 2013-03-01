@@ -231,19 +231,38 @@
 
   <div class='test' id='filter3' do='selenium'>
     <h3>filter3</h3>
-    <p>From with live preview.</p>
+    <p>Form with live preview.</p>
     <r:form redir='url(this, :test => "filter3")' node[v_status]='50' preview='filter3_preview'>
       <r:input label='t' name='title'/>
-	  <r:textarea label='t' name='text'/>
+    <r:textarea label='t' name='text'/>
     </r:form>
 
-		<div id='filter3_preview' do='block' do='preview_node'>
-		  <r:ajax?>
-				<span id='filter3_msg' do='if' test='title == "Foobar"'>PREVIEW</span>
-			</r:ajax?>
-		  <h3 id='filter3_title' do='title'/>
-		  <div id='filter3_zazen' do='zazen' attr='text'/>
-		</div>
+    <div id='filter3_preview' do='block' do='preview_node'>
+      <r:ajax?>
+        <span id='filter3_msg' do='if' test='title == "Foobar"'>PREVIEW</span>
+      </r:ajax?>
+      <h3 id='filter3_title' do='title'/>
+      <div id='filter3_zazen' do='zazen' attr='text'/>
+    </div>
+  </div>
+
+  <div class='test' id='filter4' do='selenium'>
+    <h3>filter4</h3>
+    <p>Form with live preview from block.</p>
+    <div id='filter4_b' do='block'>
+      <r:form redir='url(this, :test => "filter4")' node[v_status]='50' preview='filter4_preview'>
+        <r:input label='t' name='title'/>
+      <r:textarea label='t' name='text'/>
+      </r:form>
+    </div>
+
+    <div id='filter4_preview' do='block' do='preview_node'>
+      <r:ajax?>
+        <span id='filter4_msg' do='if' test='title == "Foobar"'>PREVIEW</span>
+      </r:ajax?>
+      <h3 id='filter4_title' do='title'/>
+      <div id='filter4_zazen' do='zazen' attr='text'/>
+    </div>
   </div>
 
   //! form1
@@ -283,8 +302,8 @@
   <div class='test' id='form4' do='selenium'>
     <h3>form4</h3>
     <p>Form to update hash property.</p>
-	<p id='form4_one' do='settings["one"]'/>
-	<p id='form4_two' do='settings["two"]'/>
+  <p id='form4_one' do='settings["one"]'/>
+  <p id='form4_two' do='settings["two"]'/>
     <r:form node[v_status]='50'>
       <ul>
         <li><r:input label='t' name='settings[two]'/></li>

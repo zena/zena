@@ -1,0 +1,20 @@
+open '/oo/testnode37.html?test=filter4'
+# Should render preview_node with current values
+verify_text 'filter4_title', 'Kill the bugs'
+type 'filter4_b_title', 'Foobar'
+wait_for_element_present 'filter4_msg'
+verify_text 'filter4_title', 'Foobar'
+type 'filter4_b_text', '*hop*'
+wait_for_element_present 'css=#filter4_zazen strong'
+
+# submit
+click_and_wait 'css=input[type=submit]'
+
+# Redirected to same page
+# Parameter on [form] properly passed
+verify_text 'filter4_title', 'Foobar'
+type 'filter4_b_title', 'Kill the bugs'
+type 'filter4_b_text', ''
+click_and_wait 'css=input[type=submit]'
+# Reverted changes
+verify_text 'filter4_title', 'Kill the bugs'

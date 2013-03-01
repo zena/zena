@@ -140,7 +140,9 @@ module Zafu
           #node.dom_prefix = dom_name
           @markup.set_id(node.dom_id(:list => false))
           @markup.set_dyn_param(:"data-z", "<%= #{node}.zip %>")
-          expand_with
+          # Elements inside the block should render as normal (not transforming forms into remote
+          # forms or things like this).
+          expand_with(:template_url => nil)
         elsif @context[:saved_template]
           # already in a parent's store operation. Reset scope and simply render inline elements
           # reset scope

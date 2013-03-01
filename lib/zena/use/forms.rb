@@ -247,6 +247,8 @@ module Zena
         end
 
         def form_hidden_fields(opts)
+          dom_name = node.dom_prefix || dom_name
+          
           hidden_fields = super
           add_params = @context[:add] ? @context[:add].params : {}
           set_fields = []
