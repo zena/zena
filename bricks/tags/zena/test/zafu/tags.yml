@@ -43,3 +43,7 @@ tag_names:
 checkbox_tagged:
   src: "<r:input type='checkbox' name='tagged[blue]'/>"
   res: "<input type='hidden' name='node[tagged][blue]' value=''/><input type='checkbox' name='node[tagged][blue]' value='blue' checked='checked'/>"
+
+tag_cloud:
+  src: "<r:void do='tag_cloud from nodes in site' do='each' join=', '><r:name/> (<r:link_count/>)</r:void>"
+  res: "blue (2), sky (1)"

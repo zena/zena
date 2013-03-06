@@ -506,6 +506,7 @@ with_a_custom_img_tag_field_with_JS:
   src: "<r:zazen text='A:!22!'/> C:<r:img/>"
   res: "<div class='zazen'><p>A:blah blah blah blah </p></div> C:blah blah blah blah "
   js: "/\nsome js\nmore JS\nsome js\nmore JS\n/"
+
 invalid_document:
   src: "<r:zazen text='!21!'/>"
   res: "/images/ext/project.png/"

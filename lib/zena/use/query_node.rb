@@ -488,6 +488,24 @@ module Zena
                 add_filter "#{table('comments')}.discussion_id = #{table('discussions')}.id"
                 # after_parse
               end
+            when 'tag_cloud'
+              # tag cloud
+              if last?
+                change_processor Link.query_compiler, :rubyless_helper => @rubyless_helper
+                # no need to load discussions, versions and all the mess
+                add_table('links')
+                lnk = table('links')
+                add_filter "(#{lnk}.source_id = #{process_attr('id')} OR #{lnk}.target_id = #{process_attr('id')}) AND #{lnk}.relation_id IS NULL"
+              else
+                after_process # Make sure we secure the current part
+                change_processor Link.query_compiler, :rubyless_helper => @rubyless_helper
+                
+                add_table('links')
+                lnk = table('links')
+                add_filter "(#{lnk}.source_id = #{table('nodes')}.id OR #{lnk}.target_id = #{table('nodes')}.id) AND #{lnk}.relation_id IS NULL"
+              end
+              @query.group = " GROUP BY #{lnk}.comment"
+              add_select("COUNT(#{table('nodes')}.id)", 'link_count')
             else
               return nil
             end

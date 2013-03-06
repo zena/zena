@@ -1,6 +1,11 @@
 class Link < ActiveRecord::Base
+  include Zena::Use::QueryLink::ModelMethods
+  
   include RubyLess
   safe_attribute :status, :comment, :date
+  # Used in tag cloud
+  safe_method :name  => String
+  safe_method :link_count => Number
 
   attr_reader :relation
   attr_accessor :start, :side
@@ -117,5 +122,14 @@ class Link < ActiveRecord::Base
 
   def role
     relation_proxy.other_role
+  end
+  
+  # Used by tags
+  def name
+    comment
+  end
+  
+  def link_count
+    read_attribute('link_count') || 0
   end
 end
