@@ -190,7 +190,7 @@ module Zena
           # Disable 'redir' parameter during preview or filter.
           js_data << %Q{new Form.Observer('#{dom_id}', 0.3, function(element, value) {#{loading}
             var data = Form.serialize('#{dom_id}').gsub(/&redir=/,'&no_redir=')
-            new Ajax.Request('#{zafu_node_path(node)}', {asynchronous:true, evalScripts:true, method:'get', parameters:data})
+            new Ajax.Request('#{zafu_node_path(node)}', {asynchronous:true, evalScripts:true, method:'post', parameters:data})
           });}
         end
         

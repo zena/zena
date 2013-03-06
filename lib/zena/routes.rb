@@ -24,7 +24,7 @@ module Zena
         :collection => { :asearch => :get, :search => :get },
         :member =>     { :import => :post, :export => :get, :save_text => :put,
                          :order => :any, :clear_order => :any,
-                         :zafu => :get, :drop => :put, :attribute => :get,
+                         :zafu => :any, :drop => :put, :attribute => :get,
                          :find => :get # same as search but starting on current node instead of root
                        }.merge(Zena::Use.routes('nodes')) do |nodes|
         nodes.resources :versions,

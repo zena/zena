@@ -20,6 +20,7 @@
  * Fixed form preview inside block.
  * Added unique id to img_tag_{mode} code generated 'UUID'. <== TODO: Document
  * Added PATH_mode.format and [JS] marker to img_tag_{mode}.
+ * Fixed form preview with long text (use POST).
 
 == 1.2.2 2012-08-30
 
