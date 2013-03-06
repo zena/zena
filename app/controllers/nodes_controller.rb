@@ -218,7 +218,7 @@ class NodesController < ApplicationController
     file, file_error = get_attachment
     if file
       attrs['file'] = file
-      attrs['klass'] = 'Document'
+      attrs['klass'] ||= 'Document'
     end
 
     attrs = secure(Node) { Node.transform_attributes(attrs) }

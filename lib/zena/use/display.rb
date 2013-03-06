@@ -13,6 +13,8 @@ module Zena
 
       module ImageTags
         include Common
+        IMG_TAG_EXTRA_RE = %r{UUID|(PATH)_([a-z]+)\.([a-z]+)}
+        IMG_TAG_EXTRA_JS = %r{\[JS\](.*?)\[/JS\]}
 
         # This is used by _crop.rhtml
         def crop_formats(obj)
@@ -71,7 +73,19 @@ module Zena
             # Hand made image tag
             if img_tag.kind_of?(String)
               # We use code to make it raw.
-              return raw_content(img_tag.gsub('UUID', "img#{UUIDTools::UUID.random_create.to_s.gsub('-','')[0..6]}"))
+              uuid = "img#{UUIDTools::UUID.random_create.to_s.gsub('-','')[0..6]}"
+              tag = img_tag.gsub(IMG_TAG_EXTRA_RE) do
+                if $& == 'UUID'
+                  uuid
+                elsif $1 == 'PATH'
+                  zen_path(obj, :mode => $2, :format => $3)
+                end
+              end
+              tag.gsub!(IMG_TAG_EXTRA_JS) do
+                self.js_data << $1
+                ''
+              end
+              return raw_content(tag)
             end
           elsif img_tag = obj.prop["img_tag"]
             if img_tag.kind_of?(Hash) && img_tag = img_tag[opts[:mode] || 'std']
@@ -537,7 +551,7 @@ module Zena
         # Insert javascript asset tags
         def r_javascripts
           if @params[:list] == 'all' || @params[:list].nil?
-            list = %w{ prototype effects dragdrop window zena grid }
+            list = %w{ prototype effects dragdrop window zena grid upload-progress }
           else
             list = @params[:list].split(',').map{|e| e.strip}
           end
@@ -584,7 +598,7 @@ module Zena
         # Insert stylesheet asset tags
         def r_stylesheets
           if @params[:list] == 'all' || @params[:list].nil?
-            list = %w{ reset window zena code grid }
+            list = %w{ reset window zena code grid upload-progress }
           else
             list = @params[:list].split(',').map{|e| e.strip}
           end

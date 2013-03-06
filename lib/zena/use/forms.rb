@@ -419,7 +419,7 @@ module Zena
         end
         
         def r_upload_field
-          "<%= upload_field(:uuid => #{get_context_var('upload', 'uuid').inspect}) %>"
+          "<%= upload_field(:uuid => #{get_context_var('upload', 'uuid').inspect}, :dom => #{node.dom_prefix.inspect}) %>"
         end
 
         def r_textarea

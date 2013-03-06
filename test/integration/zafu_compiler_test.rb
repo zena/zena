@@ -366,10 +366,19 @@ class ZafuCompilerTest < Zena::Controller::TestCase
   def test_display_with_a_custom_img_tag_field
     login(:lion)
     node = secure(Node) { nodes(:status) }
-    node.prop['img_tag_std'] = "<foobar>IMAGE</foobar>"
+    node.prop['img_tag_std'] = "<foobar>PATH=PATH_std.html uuid=UUID</foobar>"
     node.send(:dump_properties)
     Zena::Db.execute "UPDATE versions SET properties = #{Zena::Db.quote(node.version[:properties])}"
     yt_do_test('display', 'with_a_custom_img_tag_field')
+  end
+  
+  def test_display_with_a_custom_img_tag_field_with_JS
+    login(:lion)
+    node = secure(Node) { nodes(:status) }
+    node.prop['img_tag_std'] = "blah blah [JS]some js[/JS]blah blah [JS]more JS[/JS]"
+    node.send(:dump_properties)
+    Zena::Db.execute "UPDATE versions SET properties = #{Zena::Db.quote(node.version[:properties])}"
+    yt_do_test('display', 'with_a_custom_img_tag_field_with_JS')
   end
 
   yt_make

@@ -193,6 +193,7 @@ module Zena
 
         def upload_field(opts = {})
           uuid = opts[:uuid] || @uuid
+          dom  = opts[:dom]  || 'node'
           case opts[:type].to_s
           when 'onclick'
             link = link_to_remote(_("change"), :update=>'upload_field', :url => get_uf_documents_path(:uuid => @uuid), :method => :get, :complete=>"['file', 'upload_field'].each(Element.toggle);")
@@ -203,10 +204,10 @@ module Zena
 TXT
           else
             attach_file_id, attach_url_id = "af#{uuid}", "au#{uuid}"
-            onchange = %Q{onchange="Zena.get_filename(this,'node_title'); $('node_title').focus(); $('node_title').select();"}
+            onchange = %Q{onchange="Zena.get_filename(this,'#{dom}_title'); $('#{dom}_title').focus(); $('#{dom}_title').select();"}
             <<-TXT
 <div id='#{attach_file_id}' class='attach'><label for='attachment' onclick=\"['#{attach_file_id}', '#{attach_url_id}'].each(Element.toggle);\">#{_('file')} / <span class='off'>#{_('url')}</span></label>
-<input  style='line-height:1.5em;' id="attachment#{uuid}" name="attachment" #{onchange} class='file' type="file" /></div>
+<input  style='line-height:1.5em;' id="attachment#{uuid}" name="attachment" #{onchange} class='file' type='file'/></div>
 
 <div id='#{attach_url_id}' class='attach' style='display:none;'><label for='url' onclick=\"['#{attach_file_id}', '#{attach_url_id}'].each(Element.toggle);\"><span class='off'>#{_('file')}</span> / #{_('url')}</label>
 <input  style='line-height:1.5em;' size='30' id='attachment_url' type='text' #{onchange} name='attachment_url'/><br/></div>

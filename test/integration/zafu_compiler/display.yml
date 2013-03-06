@@ -498,9 +498,14 @@ each_alternate_by_hand:
 
 with_a_custom_img_tag_field:
   # img_tag field set in test.
-  src: "<r:zazen text='!22! !22_pv!'/> IMG: <r:img/>"
-  res: "<div class='zazen'><foobar>IMAGE</foobar> <a class='popup' href='/oo/status-title/status-title/page22.html' target='_blank'><img src='/images/ext/page_pv.png' width='70' height='70' alt='Page node' class='node'/></a></div> IMG: <foobar>IMAGE</foobar>"
+  src: "<r:zazen text='A:!22! B:!22_pv!'/> C:<r:img/>"
+  res: "/A:<foobar>PATH=.*page22_std.html uuid=img.*</foobar> B:.*<img src='/images/ext/page_pv.png'.*C:<foobar>PATH=.*page22_std.html uuid=img.*</foobar>/"
 
+with_a_custom_img_tag_field_with_JS:
+  # img_tag field set in test.
+  src: "<r:zazen text='A:!22!'/> C:<r:img/>"
+  res: "<div class='zazen'><p>A:blah blah blah blah </p></div> C:blah blah blah blah "
+  js: "/\nsome js\nmore JS\nsome js\nmore JS\n/"
 invalid_document:
   src: "<r:zazen text='!21!'/>"
   res: "/images/ext/project.png/"
