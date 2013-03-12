@@ -86,8 +86,13 @@ module Bricks
         else
           acl_params[:id] = zip
         end
-
-        visitor.acl_authorized?(::Acl::ACTION_FROM_METHOD[request.method], acl_params, request)
+        if request.path =~ %r{^/nodes/\d+/zafu$}
+          # This is to allow preview by using POST requests (long text in js).
+          action = 'read'
+        else
+          action = ::Acl::ACTION_FROM_METHOD[request.method]
+        end
+        visitor.acl_authorized?(action, acl_params, request)
       end
     end # UserMethods
   end # Acls

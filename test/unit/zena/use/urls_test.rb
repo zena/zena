@@ -127,7 +127,7 @@ class UrlsTest < Zena::View::TestCase
   end
 
   def test_data_path_for_public_documents
-    login(:ant)
+    login(:lion)
     node = secure!(Node) { nodes(:water_pdf) }
     assert_equal "/en/projects-list/Clean-Water-project/document25.pdf", data_path(node)
     node = secure!(Node) { nodes(:status) }

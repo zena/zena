@@ -397,6 +397,11 @@ class User < ActiveRecord::Base
       if login.blank? && !is_anon?
         self.login = name
       end
+      
+      if !is_admin?
+        # Make sure we remove dev_skin settings if user is not an admin.
+        self[:dev_skin_id] = nil
+      end
     end
 
     # Validates that anon user does not have a login, that other users have a password

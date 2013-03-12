@@ -2,6 +2,7 @@
 
 * Minor changes
  * Support for raw html in zazen with '<notextile>' or '<html>' tag. Must be allowed with notextile='true' on [zazen] tag.
+ * Fixed preview of content with ACL (considering the POST on /zafu as a 'read').
 
 == 1.2.3 2013-03-11
 

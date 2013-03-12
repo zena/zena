@@ -113,8 +113,7 @@ class NodesController < ApplicationController
     end
   end
 
-  # RJS method. show.js not working... ?
-  # FIXME: remove.
+  # RJS method. Enables using POST in JS for large text preview. Seen as 'read' in ACL.
   def zafu
     return self.update if params[:method] == 'put'
     respond_to do |format|
