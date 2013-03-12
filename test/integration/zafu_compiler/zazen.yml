@@ -126,3 +126,11 @@ target:
     <r:zazen text='"":12' target="foobar"/>
   tem: /:target => "foobar"/
   res: /<div class='zazen'><p><a .* target=\"foobar\"/
+
+notextile_not_auth:
+  src: "<r:zazen text='<notextile>hello</notextile>'/>"
+  res: "<div class='zazen'></div>"
+
+notextile_auth:
+  src: "<r:zazen notextile='true' text='<notextile>hello\nblah\nblah</notextile>'/>"
+  res: "<div class='zazen'>hello\nblah\nblah</div>"

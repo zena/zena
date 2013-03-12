@@ -453,12 +453,13 @@ module Zena
           end
 
           if signature
+            # TODO: Get 'notextile' param from rubyless.
             if node = node(Node)
               {
                 :class  => String,
                 :method => 'zazen',
                 :accept_nil => true,
-                :html_safe => true,
+                :html_safe  => true,
                 :append_hash => {:node => ::RubyLess::TypedString.new(node.to_s, :class => node.klass)}
               }
             else
@@ -468,7 +469,7 @@ module Zena
             node = node(Node) || '@node'
             return nil unless attribute = get_attribute_or_eval
 
-            hash_arguments = extract_from_params(:code, :host, :line_numbers, :theme, :target) || []
+            hash_arguments = extract_from_params(:code, :notextile, :host, :line_numbers, :theme, :target) || []
 
             hash_arguments.insert(0, ":node => #{node}")
 

@@ -334,11 +334,18 @@ module Zena
       def extract_code(fulltext)
         @escaped_code = []
         @block_counter = -1
-        fulltext.gsub!( /<code([^>]*)>(.*?)<\/code>/m ) do
+        fulltext.gsub!( /<(code|notextile|html)([^>]*)>(.*?)<\/\1>/m ) do
           if @translate_ids
             raw_content([nil, $&])
+          elsif $1 == 'notextile' || $1 == 'html'
+            # FIXME: SECURITY. How to avoid the use of notextile in comments and such ?
+            if @context[:notextile] == 'true'
+              raw_content($3)
+            else
+              ''
+            end
           else
-            params, text = $1, $2
+            params, text = $2, $3
             pre_params = []
             if params =~ /\A(.*)lang\s*=\s*("|')([^"']+)\2(.*)\Z/m
               pre, lang, post = $1.strip, $3, $4.strip
