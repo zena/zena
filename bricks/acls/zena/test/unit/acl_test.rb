@@ -5,9 +5,9 @@ class AclTest < Zena::Unit::TestCase
   def base_node
     visitor.node_without_secure
   end
-  MockRequest = Struct.new(:method, :params, :port)
+  MockRequest = Struct.new(:method, :params, :port, :path)
 
-  def mock_request(method = :get, params = {}, port = 0)
+  def mock_request(method = :get, params = {}, port = 0, path = '/nodes/33')
     MockRequest.new(method, params, port)
   end
 
@@ -81,6 +81,21 @@ class AclTest < Zena::Unit::TestCase
       end
     end # saving an acl with asset_host in query
 
+    context 'saving an acl with a wrong create_kpath' do
+      subject do
+        acls(:rap)
+      end
+
+      should 'return an error' do
+        erebus_id = groups_id(:erebus)
+        visitor.instance_eval do
+          @group_ids = self.group_ids + [erebus_id]
+        end
+        assert !subject.update_attributes(:query => "nodes in site")
+        assert_equal 'parse error on value ["in", 1] (kIN)', subject.errors[:query]
+      end
+    end # saving an acl with asset_host in query
+
 
     context 'a visitor' do
       context 'with normal access' do
@@ -109,6 +124,24 @@ class AclTest < Zena::Unit::TestCase
                          subject.find_node(
                           nil, nodes_zip(:queen), nil, mock_request(:get)
                          ).id
+          end
+          
+          context 'creating an object' do
+            
+            should 'not find node if kpath does not match' do
+              assert_raise(ActiveRecord::RecordNotFound) do
+                subject.find_node(
+                 nil, nodes_zip(:queen), nil, mock_request(:post, {'node' => {'klass' => 'Page'}})
+                ).id
+              end
+            end
+
+            should 'find node if kpath matches' do
+              assert_equal nodes(:queen).id,
+                           subject.find_node(
+                            nil, nodes_zip(:queen), nil, mock_request(:post, {'node' => {'klass' => 'Contact'}})
+                           ).id
+            end
           end
 
           should 'not find node out of acl scope' do

@@ -48,6 +48,12 @@ class AclsControllerTest < Zena::Controller::TestCase
             post :create, :acl => { :query => '%q{assigned_project}', :group_id => groups_id(:sky) }
           end
         end
+        
+        should 'not create acl with bad kpath' do
+          assert_difference('Acl.count', 0) do
+            post :create, :acl => { :query => '%q{assigned_project}', :group_id => groups_id(:sky), :create_kpath => 'TRI' }
+          end
+        end
       end # with admin rights
 
     end # creating an acl

@@ -34,7 +34,11 @@ module Bricks
       def acl_authorized?(action, params, request)
         node = nil
         group_ids_bak = group_ids.dup
-        acls(action, params[:mode], params[:format]).each do |acl|
+        if action == 'create'
+          klass = (params['node'] || {})['klass']
+        end
+        
+        acls(action, params[:mode], params[:format], klass).each do |acl|
           # Load exec_group to execute query
           if acl.exec_group_id
             @group_ids = group_ids_bak + [acl.exec_group_id]
@@ -56,17 +60,30 @@ module Bricks
 
       # Find all acls for the visitor for a given action. The action should
       # be one of the following: 'create', 'read', 'update', 'delete'. See
-      # Acl::ACTIONS.
-      def acls(action, mode, format)
+      # Acl::ACTIONS. If the action is 'create', we should also pass the class
+      # of the object to create.
+      def acls(action, mode, format, klass = nil)
         mode = '' if mode.blank?
         # Can the format be blank ?
         format = 'html' if format.blank?
-        secure(Acl) { Acl.find(:all,
-          :conditions => [
-            'group_id IN (?) AND action = ? AND (mode = ? OR mode = ?) AND (format = ? OR format = ?)',
-             group_ids, action, '*', mode, '*', format],
-          :order => 'priority DESC'
-        )} || []
+        if action == 'create'
+          return [] unless klass = VirtualClass[klass || 'Node']
+          # Can the format be blank ?
+          format = 'html' if format.blank?
+          secure(Acl) { Acl.find(:all,
+            :conditions => [
+              'group_id IN (?) AND action = ? AND (mode = ? OR mode = ?) AND (format = ? OR format = ?) AND create_kpath IN (?)',
+               group_ids, action, '*', mode, '*', format, klass.split_kpath],
+            :order => 'priority DESC'
+          )}
+        else
+          secure(Acl) { Acl.find(:all,
+            :conditions => [
+              'group_id IN (?) AND action = ? AND (mode = ? OR mode = ?) AND (format = ? OR format = ?)',
+               group_ids, action, '*', mode, '*', format],
+            :order => 'priority DESC'
+          )}
+        end || []
       end
 
       def get_skin_with_acls(node)

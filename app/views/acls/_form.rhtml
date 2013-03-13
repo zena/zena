@@ -21,7 +21,11 @@
       </tr>
       <tr>
         <td class='label'><%= _('action')%> <%= help(_('acl_action_help')) %></td>
-        <td><%= select('acl', 'action',  Acl::ACTIONS ) %></td>
+        <td>
+          <%= select('acl', 'action',  Acl::ACTIONS ) %>
+          
+          <%= _('create only: allow') %> <%= select('acl', 'create_kpath', Node.kpaths_for_form ) %>
+        </td>
       </tr>
       <tr class='priority'>
         <td class='label'><%= _('priority')%> <%= help(_('acl_priority_help')) %></td>

@@ -1,5 +1,8 @@
 == 1.2.4
 
+* Major changes
+ * Added class filtering to Acl in 'create' action.
+ 
 * Minor changes
  * Support for raw html in zazen with '<notextile>' or '<html>' tag. Must be allowed with notextile='true' on [zazen] tag.
  * Fixed preview of content with ACL (considering the POST on /zafu as a 'read').

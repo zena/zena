@@ -23,7 +23,7 @@ class NodesController < ApplicationController
   if Bricks.raw_config['passenger']
     before_filter :escape_path, :only => [:index, :show]
   end
-  before_filter :find_node, :except => [:index, :create, :not_found, :catch_all, :search]
+  before_filter :find_node, :except => [:index, :create, :zafu, :not_found, :catch_all, :search]
   before_filter :check_can_drive, :only => [:edit]
   before_filter :check_path,      :only => [:index, :show]
 
@@ -115,6 +115,12 @@ class NodesController < ApplicationController
 
   # RJS method. Enables using POST in JS for large text preview. Seen as 'read' in ACL.
   def zafu
+    # We allow preview by using POST requests (long text in js) but they should appear as 'GET' in 
+    # find_node.
+    request.method = 'GET' if request.method == 'POST'
+    
+    @node = visitor.find_node(nil, params[:id], nil, request)
+    
     return self.update if params[:method] == 'put'
     respond_to do |format|
       format.js { render :action => 'show' }
@@ -224,7 +230,13 @@ class NodesController < ApplicationController
 
     begin
       # Make sure we can load parent (also enables ACL to work for us here).
-      parent = visitor.find_node(nil, attrs.delete('parent_zip'), nil, request)
+      zip = attrs.delete('parent_zip')
+      parent = visitor.find_node(nil, zip, nil, request)
+      if !parent.can_write? && !visitor.exec_acl
+        # Try to use ACL
+        parent = visitor.find_node(nil, zip, nil, request) || parent
+      end
+
       @node = parent.new_child(attrs, false)
       @node.save
     rescue ActiveRecord::RecordNotFound
@@ -387,6 +399,10 @@ class NodesController < ApplicationController
   end
 
   def update
+    if !@node.can_write?
+      # Try to use ACL
+      @node = visitor.find_node_with_acls(nil, params[:id], nil, request) || @node
+    end
     params['node'] ||= {}
     file, file_error = get_attachment
     params['node']['file'] = file if file

@@ -49,6 +49,18 @@ class Acl < ActiveRecord::Base
   def visitor
     super
   end
+  
+  def create_vclass_name
+    if create_kpath
+      if klass = VirtualClass.find_by_kpath(create_kpath)
+        klass.name
+      else
+        create_kpath
+      end
+    else
+      'Node'
+    end
+  end
 
   protected
     def set_defaults
@@ -66,6 +78,10 @@ class Acl < ActiveRecord::Base
 
     def validate_acl
       make_query(visitor.prototype)
+      self[:create_kpath] = 'N' if self[:create_kpath].blank?
+      unless VirtualClass.find_by_kpath(create_kpath)
+        errors.add(:create_kpath, 'invalid (could not find class)')
+      end
     end
 
     def make_query(node, params = {}, request = nil)

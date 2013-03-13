@@ -68,6 +68,17 @@ class VirtualClass < Role
     end
   end
   
+  # Class path hierarchy. Example for (Post) : N, NN, NNP  
+  def self.split_kpath(kpath)
+    parts = []
+    kpath.split(//).each_index { |i| parts << kpath[0..i] }
+    parts
+  end
+  
+  def split_kpath
+    @split_kpath ||= VirtualClass.split_kpath(kpath)
+  end
+  
   class Cache
     def initialize
       clear_cache!

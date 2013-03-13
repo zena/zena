@@ -145,7 +145,8 @@ class AclIntegrationTest < Zena::Integration::TestCase
         setup do
           # The visitor can create objects in assigned_project as direct parent
           Zena::Db.execute "UPDATE acls SET query = '%q{assigned_project}', action = 'create' WHERE id = #{acls_id(:rap)}"
-          @create_url = "http://erebus.host/nodes?node[parent_id]=#{nodes_zip(:queen)}&node[klass]=Page&node[title]=foobar"
+          @create_url = "http://erebus.host/nodes?node[parent_id]=#{nodes_zip(:queen)}&node[klass]=Contact&node[title]=foobar"
+          @create_bad = "http://erebus.host/nodes?node[parent_id]=#{nodes_zip(:queen)}&node[klass]=Page&node[title]=foobar"
         end
 
         context 'with wrong user status' do
@@ -169,6 +170,14 @@ class AclIntegrationTest < Zena::Integration::TestCase
             assert_equal visitor.id, node.user_id
             assert_equal nodes_id(:queen), node.parent_id
             assert_equal 'foobar', node.title
+          end
+          
+          context 'with wrong klass type' do
+            should 'create item' do
+              assert_difference('Node.count', 0) do
+                post @create_bad
+              end
+            end
           end
 
           should 'not create item out of acl scope' do

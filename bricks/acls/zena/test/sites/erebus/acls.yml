@@ -17,6 +17,27 @@ rap:
   # allow any format
   format:          '*'
 
+# Create Posts in assigned projects
+create_rap:
+  name:            create posts in assigned projects
+  # Anyone in the 'sky' group
+  group:           sky
+  # can create
+  action:          create
+  # in  'assigned_projects'
+  query:           "%q{assigned_projects}"
+  # objects with kpath
+  create_kpath:    NRC
+  # by receiving the 'erebus' access group
+  exec_group:      erebus
+  # and viewing it through the 'sky' Skin.
+  exec_skin:       sky
+  priority:        10
+  # allow any mode
+  mode:            '*'
+  # allow any format
+  format:          '*'
+
 # Read self (this never matches)
 self:
   name:            read assigned projects

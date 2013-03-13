@@ -59,11 +59,7 @@ module Zena
 
         # Class path hierarchy. Example for (Post) : N, NN, NNP
         def split_kpath
-          @split_kpath ||= begin
-            klasses   = []
-            kpath.split(//).each_index { |i| klasses << kpath[0..i] }
-            klasses
-          end
+          @split_kpath ||= VirtualClass.split_kpath(kpath)
         end
       end
 

@@ -1,7 +1,7 @@
 <tr id='acl<%= li[:id] %>'>
   <td class="adm_icon"><%= link_to_remote( _("img_acl"), :update=>"acl#{li[:id]}", :url=>edit_acl_path(li), :method=>:get) %></td>
   <td class='group'><%= li.group.name %></td>
-  <td class='act'><%= li.action %></td>
+  <td class='act'><%= li.action %><% if li.action == 'create' %> <span class='constant'><%= li.create_vclass_name %></span><% end %></td>
   <td class='name'><%= li.name %></td>
   <td class='mode'><%= li.mode %></td>
   <td class='format'><%= li.format %></td>

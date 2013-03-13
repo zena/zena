@@ -287,16 +287,16 @@ module Zena
         end
 
         def process_not_equal(left, right)
-          if left == [:field, 'class'] && (right[0] == :field || right[0] == :string)
+          if (left == [:field, 'class'] || left == [:field, 'klass']) && (right[0] == :field || right[0] == :string)
             process_equal(left, right, true)
           else
-            super
+            process_op(:'<>', left, right)
           end
         end
         
         # Handle special case for 'class = ' and 'role = ' and 'foo.date ='
         def process_equal(left, right, is_not = nil)
-          if left == [:field, 'class'] && (right[0] == :field || right[0] == :string)
+          if (left == [:field, 'class'] || left == [:field, 'klass']) && (right[0] == :field || right[0] == :string)
             if klass = Node.get_class(right.last)
               "#{field_or_attr('kpath')} #{is_not ? '<>' : '='} #{quote(klass.kpath)}"
             else
@@ -318,13 +318,13 @@ module Zena
             b = right
             process([:and, [:<=, b, a], [:<, a, [:+, b, [:interval, [:integer, '1'], 'day']]]])
           else
-            super
+            process_op(:'=', left, right)
           end
         end
 
         # Handle special case for 'class like '
         def process_like(left, right, is_not = nil)
-          if left == [:field, 'class'] && right[0] == :field
+          if (left == [:field, 'class'] || left == [:field, 'klass']) && right[0] == :field
             if klass = Node.get_class(right[1])
               "#{field_or_attr('kpath')} #{is_not ? 'NOT ' : ''}LIKE #{quote(klass.kpath + '%')}"
             else
@@ -337,7 +337,7 @@ module Zena
         
         # [:like, [:field, "class"], [:field, "Image"]]
         def process_not(arg)
-          if arg[1] == [:field, 'class'] && arg[0] == :like
+          if (arg[1] == [:field, 'class'] || arg[1] == [:field, 'klass']) && arg[0] == :like
             process_like(arg[1], arg[2], true)
           else
             super
