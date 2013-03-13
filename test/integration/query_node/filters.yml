@@ -94,6 +94,16 @@ class_filter:
   sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND (nodes.kpath LIKE 'NDI%' OR nodes.kpath = 'NPP') GROUP BY nodes.id ORDER BY nodes.zip ASC}"
   res: "Zena the wild CMS, Clean Water project, it's a lake, bird, flower, Autumn Tree"
 
+class_not_like:
+  src: "documents where class not like Image in site limit 3"
+  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath NOT LIKE 'NDI%' AND nodes.kpath LIKE 'ND%' ORDER BY nodes.zip ASC LIMIT 3}"
+  res: "water, Forest, Project-changes-xml"
+
+class_not_equal:
+  src: "documents where class <> Image in site limit 3"
+  sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath <> 'NDI' AND nodes.kpath LIKE 'ND%' ORDER BY nodes.zip ASC LIMIT 3}"
+  res: "water, Forest, Project-changes-xml"
+
 class_filter_with_quotes:
   src: "nodes where class = 'Project' and title = 'k' in site"
   sql: "/nodes.kpath = 'NPP'/"
