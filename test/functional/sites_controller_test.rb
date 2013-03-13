@@ -22,6 +22,23 @@ class SitesControllerTest < Zena::Controller::TestCase
     end
   end
 
+
+  test 'should clear cache with GET' do
+    with_caching do
+      login(:anon)
+      @node = secure!(Node) { nodes(:status) }
+      filepath = "#{RAILS_ROOT}/sites/test.host/public/en/clear_cache_test.html"
+      assert !File.exist?(filepath)
+      secure!(CachedPage) { CachedPage.create(:expire_after => nil, :path => "/test.host/public/en/clear_cache_test.html", :content_data => "houbahouba", :node_id => @node[:id], :expire_with_ids => visitor.visited_node_ids) }
+      assert File.exist?(filepath)
+      assert CachedPage.find(:first, :conditions => ["path = ?", "/test.host/public/en/clear_cache_test.html"])
+      login(:lion)
+      get :clear_cache
+      assert !File.exist?(filepath)
+      assert !CachedPage.find(:first, :conditions => ["path = ?", "/test.host/public/en/clear_cache_test.html"])
+    end
+  end
+
   test 'clearing cache should clear zafu' do
     with_caching do
       login(:anon)
@@ -39,6 +56,8 @@ class SitesControllerTest < Zena::Controller::TestCase
   test "should not have access to sites if not admin" do
     login(:tiger)
     get :index
+    assert_response :missing
+    get :clear_cache
     assert_response :missing
   end
 

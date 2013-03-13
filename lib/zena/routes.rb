@@ -63,7 +63,8 @@ module Zena
 
       resources :columns
 
-      resources :sites, :member => { :action => :put, :jobs => :get }
+      resources :sites, :collection => { :clear_cache => :get },
+                        :member     => { :action => :put, :jobs => :get }
 
       resources :comments,
                     :collection => { :empty_bin => :delete },

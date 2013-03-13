@@ -1,6 +1,7 @@
+# TODO: Cleanup sites_controller now that we only support visitors for a single site !!
 class SitesController < ApplicationController
   before_filter :remove_methods, :only => [:new, :create, :destroy]
-  before_filter :find_site, :except => [:index, :create, :new]
+  before_filter :find_site, :except => [:index, :create, :new, :clear_cache]
   before_filter :visitor_node
   before_filter :check_is_admin
   layout :admin_layout
@@ -50,6 +51,12 @@ class SitesController < ApplicationController
         format.xml  { render :xml => @site.errors }
       end
     end
+  end
+  
+  def clear_cache
+    @site = secure!(Site) { Site.first }
+    @site.clear_cache
+    redirect_to '/'
   end
 
   def action
