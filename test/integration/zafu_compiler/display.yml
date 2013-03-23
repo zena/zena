@@ -77,7 +77,6 @@ show_title_link_http:
 show_title_link_attribute:
   context:
     node: 'bird_jpg'
-  old_src: "<r:title link='http://[name].com'/>"
   src: "<a href='http://#{title}.com' do='title'/>"
   res: "<a href='http://bird.com'>bird</a>"
 
