@@ -6,7 +6,7 @@ module Bricks
       def math_asset(opts)
         content    = opts[:content]
         node       = opts[:node]
-        if !(content =~ /^\s*\\begin\{(align|equation|itemize|equation)/)
+        if !(content =~ /^\s*\\begin\{(align|equation|itemize)/)
           pre = '\['
           post = '\]'
         else
