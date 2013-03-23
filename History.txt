@@ -2,6 +2,8 @@
 
 * Major changes
  * Added class filtering to Acl in 'create' action.
+ * Uploading html files does not transform them into zafu (use .zafu ext for this)
+ * Added file upload support from zena remote API.
  
 * Minor changes
  * Support for raw html in zazen with '<notextile>' or '<html>' tag. Must be allowed with notextile='true' on [zazen] tag.

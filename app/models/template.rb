@@ -40,7 +40,7 @@ class Template < TextDocument
   # Class Methods
   class << self
     def accept_content_type?(content_type)
-      content_type =~ /text\/(html|zafu)/
+      content_type =~ /text\/(zafu)/
     end
   end # Class Methods
 

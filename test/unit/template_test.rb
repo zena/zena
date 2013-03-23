@@ -123,7 +123,7 @@ class TemplateTest < Zena::Unit::TestCase
 
       context 'with a blank title' do
         subject do
-          secure(Template) { Template.create(:parent_id=>nodes_id(:default), :target_klass => 'Section') }
+          secure(Template) { Template.create(:parent_id => nodes_id(:default), :target_klass => 'Section') }
         end
 
         should 'use target_klass as title' do
@@ -198,9 +198,9 @@ class TemplateTest < Zena::Unit::TestCase
           secure!(Document) { Document.create(:parent_id => nodes_id(:default), :title => 'sub.html')}
         end
 
-        should 'create a Template' do
+        should 'create a TextDocument' do
           assert !subject.new_record?
-          assert_kind_of Template, subject
+          assert_kind_of TextDocument, subject
         end
       end # with an html extension
 

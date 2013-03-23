@@ -619,7 +619,9 @@ class Node < ActiveRecord::Base
     def new_node(new_attributes, transform = true)
       attributes = transform ? transform_attributes(new_attributes) : new_attributes
 
-      klass_name = attributes.delete('class') || attributes.delete('klass') || 'Page'
+      klass_name = attributes.delete('class') || attributes.delete('klass')
+      klass_name ||= attributes['file'] ? 'Document' : 'Page'
+      
       if klass_name.kind_of?(VirtualClass) || klass_name.kind_of?(Class)
         klass = klass_name
       else
@@ -632,6 +634,10 @@ class Node < ActiveRecord::Base
           def node.klass; @klass; end
           return node
         end
+      end
+      
+      if attributes['file'] && !(klass.kpath =~ %r{^ND})
+        klass = VirtualClass['Document']
       end
 
       if klass.kind_of?(VirtualClass)
@@ -766,6 +772,7 @@ class Node < ActiveRecord::Base
                   if ['html','xhtml'].include?(attrs['ext']) && attrs['title'] == 'index'
                     attrs['ext']   = 'zafu'
                     attrs['title'] = 'Node'
+                    attrs['content_type'] = 'text/zafu'
                     insert_zafu_headings = true
                   elsif attrs['ext'] == 'yml' && attrs['title'] == '_roles'
                     # import roles

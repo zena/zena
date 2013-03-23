@@ -1,4 +1,4 @@
-require 'httparty'
+require 'httmultiparty'
 
 module Zena
   module Remote
@@ -10,7 +10,7 @@ module Zena
       # We create a new class because HTTParty works this way (class globals).
       def self.connect(uri, token)
         Class.new(self) do
-          include HTTParty
+          include HTTMultiParty
           extend Zena::Remote::Interface::ConnectionMethods
 
           class << self

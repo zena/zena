@@ -63,14 +63,19 @@ class Document < Node
     def new(attrs = {}, vclass = nil)
       attrs = attrs.stringify_keys
       file  = attrs['file'] || ((attrs['version_attributes'] || {})['content_attributes'] || {})['file']
-      if attrs['content_type']
-        content_type = attrs['content_type']
-      elsif file && file.respond_to?(:content_type)
-        content_type = file.content_type
-      elsif ct = attrs['content_type']
+      
+      if ct = attrs['content_type']
         content_type = ct
+      elsif file && file.respond_to?(:content_type) && file.content_type != 'application/octet-stream'
+        content_type = file.content_type
       elsif attrs['title'] =~ /^.*\.(\w+)$/ && types = Zena::EXT_TO_TYPE[$1.downcase]
         content_type = types[0]
+      elsif file
+        content_type = 'application/octet-stream'
+      elsif attrs['target_klass'] || self <= Template
+        content_type = 'text/zafu'
+      else
+        content_type = 'text/plain'
       end
 
       real_class = document_class_from_content_type(content_type)
@@ -156,7 +161,7 @@ class Document < Node
   def filepath(format=nil)
     version.attachment.filepath(format)
   end
-
+  
   protected
     def set_defaults
       set_defaults_from_file

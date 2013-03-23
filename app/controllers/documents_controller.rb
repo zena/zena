@@ -13,7 +13,7 @@ class DocumentsController < ApplicationController
   def new
     # Use the Template class so that we can use the same object in forms which need the Template properties.
     @node = @parent.new_child(:class => Template)
-
+    
     respond_to do |format|
       format.html
     end

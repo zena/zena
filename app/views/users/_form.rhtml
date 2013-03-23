@@ -23,6 +23,7 @@
     <% end -%>
     <% end -%>
       <tr><td class='label'><%= _("status")%>  </td><td><%= select('user', 'status', User::Status.reject {|k,v| v > User::Status[:admin]}.map{|k,v| [_(k.to_s),v]}.sort{|a,b| b[1] <=> a[1]}) %></td></tr>
+      <tr><td class='label'><%= _("single_access_token")%>  </td><td><%= @user.single_access_token %></td></tr>
       <tr><td class='label'><%= _('language')%>   </td><td><%= select('user', 'lang', visitor.site.lang_list.map {|l| [_(l),l]}) %></td></tr>
       <tr><td class='label'><%= _("time zone")%>  </td><td><select name='user[time_zone]'><%= options_for_select([''] + TZInfo::Timezone.all_identifiers, @user[:time_zone] || '') %></select></td></tr>
     <% unless @user.is_anon? -%>
