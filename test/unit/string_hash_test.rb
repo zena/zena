@@ -12,7 +12,7 @@ class StringHashTest < Test::Unit::TestCase
     end
     
     should 'convert to json' do
-      assert_match %r{"json_class":"StringHash",\{"data":\{"b":"2","a":"1"|"a":"1","b":"2"\}\}|\{"data":\{"b":"2","a":"1"|"a":"1","b":"2"\},"json_class":"StringHash"\}}, subject.to_json
+      assert_match %r{"json_class":"StringHash","data":\{"b":"2","a":"1"|"a":"1","b":"2"\}|"data":\{"b":"2","a":"1"|"a":"1","b":"2"\},"json_class":"StringHash"}, subject.to_json
     end
     
     should 'create from json' do

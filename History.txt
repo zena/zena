@@ -1,15 +1,18 @@
 == 1.2.4
 
 * Major changes
- * Added class filtering to Acl in 'create' action.
+ * Added class filtering to Acl in 'create' action. <== TODO: Document
  * Uploading html files does not transform them into zafu (use .zafu ext for this)
  * Added file upload support from zena remote API.
+ * Added 'content_type' regexp to force virtual class on Document creation. <== TODO: Document
+ * Extended "create group" in vclass to be "allow group" (edit).
  
 * Minor changes
  * Support for raw html in zazen with '<notextile>' or '<html>' tag. Must be allowed with notextile='true' on [zazen] tag.
  * Fixed preview of content with ACL (considering the POST on /zafu as a 'read').
  * Added support for "class not like Image" or "class <> Image" to sqliss.
  * Added url to clear cache with /sites/clear_cache (admin only). <== TODO: Document
+ * encode_params now supports arrays.
 
 == 1.2.3 2013-03-11
 

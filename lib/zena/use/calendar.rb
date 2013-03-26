@@ -289,6 +289,8 @@ module Zena
                 if !c_date_code.klass <= Time
                   return parser_error("Invalid 'date' parameter. Should be a Time (found #{current_date.klass})")
                 end
+              elsif dvar = get_context_var('set_var', 'date')
+                c_date_code = dvar
               else
                 # Get current date from url for the current time_zone
                 c_date_code = RubyLess.translate(self, 'date(tz)')

@@ -44,18 +44,11 @@ calendar_bad_attr:
   src: "<div do='calendar' attr='date' select='posts where #{cal_start} <= starsky and hutch < #{cal_end} in project'/>"
   res: "/<span class='method'>calendar</span> <span class='message'>Unknown field 'starsky'/"
 
-#calendar_l_date:
-#  context:
-#    ref_date: "2009-7-17"
-#    node: 'zena'
-#  src: "<div do='calendar' select='added_notes' date='l_date' />"
-#  res: "/<td class='ref'><span>17</span><ol><li><a href='/oo/projects-list/Clean-Water-project/post27.html'>opening</a></li></ol></td>/"
-#
-#calendar_hours:
-#  context:
-#    ref_date: "2009-7-17"
-#    node: 'zena'
-#  # I do not like the way we do this, the 'else' thing is not helping. Maybe we need some
-#  # extra zafu tags because it' messy: we have 3 lists (days, hours, nodes) ...
-#  src: "<div do='calendar' select='added_notes' date='l_date' split_hours='12'><r:if test='hour eq 0' do='[current_date]' format='%d'/><div do='void' set_class='hour_[hour]' do='each' do='title' join=', '/><r:else><r:if test='hour eq 0' do='[current_date]' format='%d'/><div do='void' set_class='hour_[hour]'></div></r:else></div>"
-#  res: "/<td class='ref'>17<div class='hour_0'></div><div class='hour_12'>opening</div></td>/"
+# Should render without errors.
+calendar_other_date:
+  src: |
+    <r:void set_date='date.advance(:months => 1)'>
+      <div do='calendar' attr='created_at' select='pages where #{cal_start} <= created_at and created_at < #{cal_end} in site'/>
+    </r:void>
+  res: '/Clean-Water-project/'
+  
