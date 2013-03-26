@@ -198,11 +198,14 @@ class #{node.klass}: #{Array(node.klass).first.columns.keys.join(', ')}
             else_markup.set_dyn_param('href', '<%= logout_path %>')
 
             markup.set_dyn_param('href', '<%= login_path %>')
+            unless markup.param[:rel]
+              markup.set_param('rel', 'nofollow')
+            end
 
             out markup.wrap(expand_if("visitor.is_anon?", self.node, else_markup))
           else
             out "<% if visitor.is_anon? %>"
-            out "<%= link_to #{_('login').inspect}, login_path %>"
+            out "<%= link_to #{_('login').inspect}, login_path, :rel => 'nofollow' %>"
             out "<% else %>"
             out "<%= link_to #{_('logout').inspect}, logout_path %>"
             out "<% end %>"
