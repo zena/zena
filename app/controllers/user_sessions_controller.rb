@@ -28,15 +28,16 @@ class UserSessionsController < ApplicationController
     end
   end
 
+  # Logout
   def destroy
     port = request.port == 80 ? '' : ":#{request.port}"
     if @user_session = UserSession.find
       @user_session.destroy
       reset_session
       #flash.now[:notice] = _("Successfully logged out.")
-      redirect_to "http://#{current_site.host}#{params[:redirect] || home_path(:prefix => prefix)}"
+      redirect_to "http://#{host_with_port}#{params[:redirect] || home_path(:prefix => prefix)}"
     else
-      redirect_to "http://#{current_site.host}#{home_path(:prefix => prefix)}"
+      redirect_to "http://#{host_with_port}#{home_path(:prefix => prefix)}"
     end
   end
 
