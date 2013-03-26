@@ -34,10 +34,11 @@ class UserSessionsController < ApplicationController
     if @user_session = UserSession.find
       @user_session.destroy
       reset_session
+      host = current_site.ssl_on_auth ? current_site.host : host_with_port
       #flash.now[:notice] = _("Successfully logged out.")
-      redirect_to "http://#{host_with_port}#{params[:redirect] || home_path(:prefix => prefix)}"
+      redirect_to "http://#{host}#{params[:redirect] || home_path(:prefix => prefix)}"
     else
-      redirect_to "http://#{host_with_port}#{home_path(:prefix => prefix)}"
+      redirect_to "http://#{host}#{home_path(:prefix => prefix)}"
     end
   end
 
