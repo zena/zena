@@ -159,6 +159,8 @@ module Zena
                   value = params[key]
                   if value.kind_of?(Hash)
                     {key => value}.to_query
+                  elsif value.kind_of?(Array)
+                    {key => value.map{|v| v.blank? ? nil : v}.compact}.to_query
                   elsif !value.blank?
                     "#{key}=#{CGI.escape(value)}"
                   else

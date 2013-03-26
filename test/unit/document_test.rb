@@ -7,19 +7,32 @@ class DocumentTest < Zena::Unit::TestCase
     should 'return self on unknown content_type' do
       class Dummy < Document
       end
-      assert_equal Dummy, Dummy.document_class_from_content_type('zorglub')
+      assert_equal 'DocumentTest::Dummy', Dummy.document_class_from_content_type('zorglub').to_s
     end
 
     should 'return Image on image types' do
-      assert_equal Image, Document.document_class_from_content_type('image/png')
+      assert_equal 'Image', Document.document_class_from_content_type('image/png').to_s
     end
     
     should 'not return Image on svg' do
-      assert_equal TextDocument, Document.document_class_from_content_type('image/svg+xml')
+      assert_equal 'TextDocument', Document.document_class_from_content_type('image/svg+xml').to_s
     end
 
     should 'return TextDocument on nil' do
-      assert_equal TextDocument, Document.document_class_from_content_type(nil)
+      assert_equal 'TextDocument', Document.document_class_from_content_type(nil).to_s
+    end
+    
+    should 'return matching content_type sub-class' do
+      login(:lion)
+      secure(VirtualClass) {
+        VirtualClass.create(
+          :superclass      => 'TextDocument',
+          :name            => 'HtmlDoc',
+          :create_group_id => groups_id(:public), 
+          :content_type    => 'text/html'
+        )}
+      assert_equal VirtualClass['HtmlDoc'], Document.document_class_from_content_type('text/html')  
+      assert_equal VirtualClass['TextDocument'], Document.document_class_from_content_type('text/plain')
     end
   end
 

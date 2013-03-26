@@ -60,6 +60,17 @@ class VirtualClassTest < Zena::Unit::TestCase
     assert !classes_for_form.include?("Page")
     assert !classes_for_form.include?("Reference")
   end
+  
+  def test_sub_classes
+    # add a sub class
+    login(:lion)
+    vclass = VirtualClass.create(:superclass => 'Post', :name => 'Super', :create_group_id => groups_id(:public))
+    assert !vclass.new_record?
+
+    login(:anon)
+    
+    assert_equal %w{Post Super}, VirtualClass['Post'].sub_classes.map(&:name)
+  end
 
   def test_post_classes_for_form_opt
     # add a sub class
@@ -808,8 +819,74 @@ class VirtualClassTest < Zena::Unit::TestCase
     should 'consider role methods as safe' do
       assert_equal Hash[:class=>String, :method=>"prop['assigned']", :nil=>true], subject.safe_method_type(['assigned'])
     end
+    
+    # with content_type
+    #
   end # A virtual class
+  
+  context 'Creating a virtual class' do
+    context 'with an admin visitor' do
+      setup do
+        login(:lion)
+      end
+      
+      context 'with content_type' do
+        subject do
+          {
+            :superclass      => 'Document',
+            :name            => 'HtmlDoc',
+            :create_group_id => groups_id(:public), 
+            :content_type    => 'text/html'}
+        end
 
+        should 'save and create regexp' do
+          v = secure(VirtualClass) { VirtualClass.new(subject) }
+          assert v.save
+          assert_equal %r{^text/html$}, v.content_type_re
+        end
+        
+        should 'add an error on bad content_type' do
+          v = secure(VirtualClass) { VirtualClass.new(subject.merge(:content_type => '(')) }
+          assert !v.save
+          assert_equal 'invalid characters', v.errors[:content_type]
+        end
+        
+      end
+    end
+  end
+  
+  context 'A Virtual class' do
+    context 'subclass of Document with content_type' do
+      setup do
+        login(:lion)
+      end
+      
+      context 'with content_type' do
+        subject do
+          secure(VirtualClass) {
+            VirtualClass.create(
+              :superclass      => 'TextDocument',
+              :name            => 'HtmlDoc',
+              :create_group_id => groups_id(:public), 
+              :content_type    => 'text/html'
+            )}
+        end
+
+        should 'be used to create matching content_type documents' do
+          klass = subject
+          n = secure!(Document) { Document.create(
+                :parent_id    => nodes_id(:cleanWater),
+                :content_type => 'text/html',
+                :file         => uploaded_text('some.txt'))
+          }
+              
+          assert !n.new_record?
+          assert_equal subject.name, n.klass
+        end
+      end
+    end
+  end
+  
   context 'A visitor with write access' do
     setup do
       login(:tiger)

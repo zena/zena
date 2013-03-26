@@ -53,6 +53,14 @@ class UrlsTest < Zena::View::TestCase
     assert_equal '/en/projects-list/Clean-Water-project/page22.html?a%5Bb%5D=Bee&p=Pepe', zen_path(node, :encode_params => 'p,a')
   end
 
+  def test_zen_path_query_params_array
+    login(:anon)
+    node = secure!(Node) { nodes(:status) }
+    assert_equal '/en/projects-list/Clean-Water-project/page22.html?p=5', zen_path(node, :p => 5)
+    @params = {'p' => 'Pepe', 'b' => ['','bee','c','','dee']}
+    assert_equal '/en/projects-list/Clean-Water-project/page22.html?b%5B%5D=bee&b%5B%5D=c&b%5B%5D=dee&p=Pepe', zen_path(node, :encode_params => 'p,b')
+  end
+
   def test_zen_path_cache_stamp
     login(:ant)
     node = secure!(Node) { nodes(:zena) }

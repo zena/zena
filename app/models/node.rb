@@ -1691,6 +1691,10 @@ class Node < ActiveRecord::Base
           errors.add('klass', 'invalid') if !self.class.allowed_change_to_classes.include?(@new_klass)
         end
       end
+      
+      if vclass.create_group_id
+        errors.add('klass', 'unauthorized') if !visitor.group_ids.include?(vclass.create_group_id)
+      end
     end
 
     # Called before destroy. An node must be empty to be destroyed
@@ -1818,8 +1822,10 @@ class Node < ActiveRecord::Base
     def change_klass
       if @new_klass
         if !can_drive? || !self[:parent_id]
+          # not allowed
           return
         elsif !self.class.allowed_change_to_classes.include?(@new_klass)
+          # invalid class (unknown or visitor does have access)
           return
         end
       end

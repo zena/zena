@@ -34,7 +34,7 @@ class VirtualClass < Role
     attr_accessor :export_attributes
   end
 
-  self.export_attributes = %w{auto_create_discussion icon monolingual}
+  self.export_attributes = %w{auto_create_discussion icon monolingual content_type}
 
   attr_accessor :import_result
   belongs_to    :create_group, :class_name => 'Group', :foreign_key => 'create_group_id'
@@ -52,7 +52,10 @@ class VirtualClass < Role
   include Zena::Use::ScopeIndex::VirtualClassMethods
 
   property.boolean 'monolingual'
+  property.text    'content_type'
+  
   safe_method  :monolingual? => Boolean
+  safe_method  :content_type => String
   safe_method  :roles     => {:class => ['Role'], :method => 'sorted_roles'}
   safe_method  :relations => {:class => ['RelationProxy'], :method => 'all_relations'}
   safe_method  [:relations, String] => {:class => ['RelationProxy'], :method => 'filtered_relations'}
@@ -251,6 +254,7 @@ class VirtualClass < Role
     attribute = opts[:class_attr] || 'name'
 
     VirtualClass.all_classes(base_kpath, opts[:without]).map do |vclass|
+      # Only insert allowed classes.
       if vclass.create_group_id.nil? || group_ids.include?(vclass.create_group_id)
         # white spaces are insecable spaces (not ' ')
         a, b = vclass.kpath, vclass.name
@@ -259,6 +263,15 @@ class VirtualClass < Role
         nil
       end
     end.compact
+  end
+  
+  def sub_classes
+    @sub_classes ||= VirtualClass.all_classes(self.kpath).sort {|a,b| a.name <=> b.name}
+  end
+  
+  def content_type_re
+    # if content_type is empty => match all
+    @content_type_re ||= %r{^#{content_type || ".*"}$}
   end
 
   # Include all roles into the this schema. By including the superclass
@@ -590,6 +603,17 @@ class VirtualClass < Role
       unless self[:real_class]
         errors.add('superclass', 'invalid')
       end
+      
+      if content_type =~ /[^a-zA-Z\.\-\/\*\|\\]/
+        errors.add('content_type', 'invalid characters')
+      else
+        begin
+          re = %r{^#{content_type}$}
+        rescue RegexpError => err
+          errors.add('content_type', err.message)
+        end
+      end
+      
     end
 
     def get_real_class(klass)

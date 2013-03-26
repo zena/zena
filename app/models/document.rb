@@ -78,19 +78,19 @@ class Document < Node
         content_type = 'text/plain'
       end
 
-      real_class = document_class_from_content_type(content_type)
+      klass = document_class_from_content_type(content_type)
+      real_class = klass.real_class
 
-      unless vclass && vclass.kpath =~ /\A#{real_class.kpath}/
-        # vclass is not compatible (force kpath)
-        vclass = VirtualClass[real_class.to_s]
+      if vclass && vclass.kpath =~ /\A#{real_class.kpath}/ && vclass.content_type_re =~ content_type
+        klass = vclass
       end
 
       attrs['content_type'] = content_type
 
       if real_class != self
-        secure(real_class) { real_class.o_new(attrs, vclass) }
+        secure(real_class) { real_class.o_new(attrs, klass) }
       else
-        super(attrs, vclass)
+        super(attrs, klass)
       end
     end
 
@@ -104,7 +104,7 @@ class Document < Node
 
     # Return document class and content_type from content_type
     def document_class_from_content_type(content_type)
-      if content_type
+      base = if content_type
         if Image.accept_content_type?(content_type)
           Image
         elsif Template.accept_content_type?(content_type)
@@ -120,6 +120,18 @@ class Document < Node
       else
         self
       end
+      
+      # Try to find a virtual sub-class accepting the content type
+      vclass = nil
+      VirtualClass[base.to_s].sub_classes.each do |v|
+        next if v.real_class?
+        
+        if content_type =~ v.content_type_re
+          vclass = v
+          break
+        end
+      end
+      vclass || VirtualClass[base.to_s]
     end
 
     # Return true if the content_type can change independantly from the file
@@ -205,8 +217,10 @@ class Document < Node
       end
 
       klass = Document.document_class_from_content_type(content_type)
+      
+      real_class = klass.real_class
 
-      if klass != self.class
+      if real_class != self.class
         if @new_file
           errors.add('file', 'incompatible with this class')
         else
