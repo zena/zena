@@ -562,6 +562,14 @@ namespace :zena do
       exec cmd
     end
   end
+  
+  desc "Remove rdoc warning/error"
+  task :fix_rakefile do
+    # Fix Rakefile
+    path = "#{RAILS_ROOT}/Rakefile"
+    text = File.read(path)
+    File.open(path, 'wb') {|f| f.puts text.gsub("require 'rake/rdoctask'\n", '')}
+  end
 end # zena
 
 namespace :gettext do
