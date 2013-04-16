@@ -2,7 +2,7 @@
 # on debian install ?????
 require 'rubygems'
 require 'mysql' # to have Mysql class
-require 'yaml'
+require 'safe_yaml'
 require 'date'
 
 # Use this custom format (we do not record the logname or user):

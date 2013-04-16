@@ -1,5 +1,5 @@
 # FIXME: ========== cleanup and remove ====================
-require 'yaml'
+require 'safe_yaml'
 require 'date'
 require 'fileutils'
 require 'zena/info'

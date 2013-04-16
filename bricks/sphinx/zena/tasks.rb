@@ -1,7 +1,7 @@
 # The ThinkingSphinx::Configuration needs RAILS_ROOT and RAILS_ENV in order to function. Only 'setup' needs the
 # environment since it needs to get configuration settings from the classes in zena.
 require 'tempfile'
-require 'yaml'
+require 'safe_yaml'
 require 'thinking_sphinx'
 require 'zlib'
 

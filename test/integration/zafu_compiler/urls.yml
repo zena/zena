@@ -266,6 +266,18 @@ action_destroy:
   src: "<r:link action='destroy'/>"
   res: "<a data-confirm='Destroy status title ?' href='/nodes/22' onclick='return Zena.m(this,\"delete\")'>status title</a>"
 
+action_destroy_message_apos:
+  context:
+    p: "O'Hear"
+  src: "<r:link action='destroy' confirm='#{params[:p]}'/>"
+  res: "<a data-confirm='O&apos;Hear' href='/nodes/22' onclick='return Zena.m(this,\"delete\")'>status title</a>"
+
+action_destroy_message_apos_remote:
+  context:
+    p: "O'Hear"
+  src: "<div id='foo' do='block'></div><r:link action='destroy' confirm='#{params[:p]}' update='foo'/>"
+  res: "/confirm\(\"O&apos;Hear\"\)/"
+
 action_publish:
   src: "<r:link action='publish'/>"
   res: "<a href='/nodes/22/versions/0/publish' onclick='return Zena.m(this,\"put\")'>status title</a>"

@@ -1,4 +1,4 @@
-require 'yaml'
+require 'safe_yaml'
 require 'fileutils'
 
 # We need to make sure the RAILS_ENV is set before brick activation or the wrong bricks will

@@ -416,7 +416,7 @@ module Zena
             if confirm.literal
               markup.set_param(:"data-confirm", confirm.literal)
             else
-              markup.set_dyn_param(:"data-confirm", "<%= #{confirm} %>")
+              markup.set_dyn_param(:"data-confirm", "<%= fquote(#{confirm}) %>")
             end
           end
 
@@ -429,7 +429,7 @@ module Zena
             if true
               # Use onclick with Ajax.
               if confirm
-                markup.set_dyn_param(:onclick, "if(confirm(\"<%= #{confirm} %>\")) {new Ajax.Request(\"<%= #{href} %>\", {asynchronous:true, evalScripts:true, method:\"#{http_method}\"});} return false;")
+                markup.set_dyn_param(:onclick, "if(confirm(\"<%= fquote(#{confirm}) %>\")) {new Ajax.Request(\"<%= #{href} %>\", {asynchronous:true, evalScripts:true, method:\"#{http_method}\"});} return false;")
               else
                 markup.set_dyn_param(:onclick, "new Ajax.Request(\"<%= #{href} %>\", {asynchronous:true, evalScripts:true, method:\"#{http_method}\"}); return false;")
               end

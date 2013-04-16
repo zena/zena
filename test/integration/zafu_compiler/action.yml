@@ -40,7 +40,7 @@ login_link_with_blocks_not_logged_in:
   context:
     visitor: 'anon'
   src: "<r:login_link><r:title/><r:else do='title'/></r:login_link>"
-  res: "<a rel='nofollow'  href='/login'>status title</a>"
+  res: "<a rel='nofollow' href='/login'>status title</a>"
 
 visitor_link_not_logged_in:
   context:

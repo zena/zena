@@ -266,7 +266,7 @@ module Zena
             #if relation.record_count > 5
             #  # FIXME: show message ?
             #end
-            links = rel.records(:limit => 5, :order => "link_id DESC")
+            links = rel.records(:limit => 25, :order => "link_id DESC")
             res << [rel, links] if links
           end
           res
