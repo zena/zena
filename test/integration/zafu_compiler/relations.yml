@@ -33,7 +33,7 @@ icon:
     node: 'cleanWater'
   src: "<r:icon do='title'/>"
   tem: "/ORDER BY links.id DESC/"
-  res: "it's a lake"
+  res: "it&#39;s a lake"
 
 pages:
   context:
@@ -91,7 +91,7 @@ pages_random:
 
 nodes_in_project:
   src: "<r:nodes in='project' limit='2'><r:each join=', '><r:show attr='title'/></r:each></r:nodes>"
-  res: "it's a lake, Lake Tanganyika"
+  res: "it&#39;s a lake, Lake Tanganyika"
 
 nodes_in_project_stored:
   src: "<r:void set_foo='this'><r:node where='id = 29 in site'>from <r:show attr='title'/>, look at <r:foo do='title'/>: <r:foo do='pages in project' do='each' join=', ' do='title'/></r:node></r:void>"
@@ -289,7 +289,7 @@ projects:
 
 nodes:
   src: "<r:nodes in='project'><r:each join=', ' do='show' attr='title'/></r:nodes>"
-  res: "it's a lake, Lake Tanganyika, parc opening, status title, water"
+  res: "it&#39;s a lake, Lake Tanganyika, parc opening, status title, water"
 
 menu_with_favorites:
   context:
@@ -348,7 +348,7 @@ where:
 
 where_like:
   src: "<r:images where='title like \"%ke\"' in='site' do='each' join=',' do='title'/>"
-  res: "it's a lake"
+  res: "it&#39;s a lake"
 
 else:
   src: "<r:nodes where='id = 1' in='site' else='[this]' do='each' join=',' do='title'/>"
@@ -363,7 +363,7 @@ where_not:
   context:
     node: 'cleanWater'
   src: "<r:nodes where='title ne \"status title\"' do='each' join=',' do='title'/>"
-  res: "it's a lake,Lake Tanganyika,parc opening,water"
+  res: "it&#39;s a lake,Lake Tanganyika,parc opening,water"
 
 where_two_attributes:
   src: "<r:nodes where='log_at ne event_at' in='site' do='each' join=', ' do='title'/>"
@@ -373,7 +373,7 @@ where_two_attributes:
 many_or:
   # old: or='images in site' or='tags in site'
   src: "<r:tagged in='site or images in site or tags in site' do='each' join=',' do='title'/>"
-  res: "Art,bird,Clean Water project,flower,it's a lake,News list,parc opening,Top menu"
+  res: "Art,bird,Clean Water project,flower,it&#39;s a lake,News list,parc opening,Top menu"
 
 hot_or_page:
   context:
@@ -405,11 +405,11 @@ group_by_project_sort_zip:
   context:
     visitor: ant
   src: "<r:images in='site' order='zip ASC' do='group' by='project' sort='id'><b do='project' do='title'/>: <r:each join=', ' do='title'/></r:images>"
-  res: "<b>Clean Water project</b>: it's a lake<b>a wiki with Zena</b>: bird, flower<b>Zena the wild CMS</b>: Autumn Tree"
+  res: "<b>Clean Water project</b>: it&#39;s a lake<b>a wiki with Zena</b>: bird, flower<b>Zena the wild CMS</b>: Autumn Tree"
 
 group_by_parent_sort:
   src: "<r:images in='site' order='title ASC' do='group' by='parent' sort='title'><b do='parent' do='title'/>: <r:each join=', ' do='title'/></r:images>"
-  res: "<b>a wiki with Zena</b>: bird, flower<b>Clean Water project</b>: it's a lake"
+  res: "<b>a wiki with Zena</b>: bird, flower<b>Clean Water project</b>: it&#39;s a lake"
 
 nodes_in_site_group_by_year:
   old_src: "<r:nodes in='site' group='log_at:year' order='log_at:year asc, title ASC' do='each' join=', '><r:show attr='log_at' format='%Y'/></r:nodes>"

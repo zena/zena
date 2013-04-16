@@ -169,7 +169,7 @@ query_with_default:
     visitor: lion
     node: cleanWater
   src: "<r:query default='nodes in project' do='each' join=', ' do='title'/>"
-  res: "crocodiles, it's a lake, The lake we love, Nice Bananas, parc opening, status title, water"
+  res: "crocodiles, it&#39;s a lake, The lake we love, Nice Bananas, parc opening, status title, water"
 
 query_with_param:
   # Live compile and query from params
@@ -257,16 +257,16 @@ select_with_type:
 select_in_from:
   src: "<div do='images select title as it from projects select title as pt in site' do='each' join=', '><r:pt/>: <r:it/></div>"
   tem: '/<%=h var2.attributes\["pt"\] %>: <%=h var2.attributes\["it"\] %>/'
-  res: "<div>a wiki with Zena: bird, a wiki with Zena: flower, Clean Water project: it's a lake</div>"
+  res: "<div>a wiki with Zena: bird, a wiki with Zena: flower, Clean Water project: it&#39;s a lake</div>"
 
 select_in_from_saved:
   src: "<div do='images select title as it from projects select title as pt in site' do='set' list='this' do='list' do='each' join=', '><r:pt/>: <r:it/></div>"
   tem: '/<%=h var3.attributes\["pt"\] %>: <%=h var3.attributes\["it"\] %>/'
-  res: "<div>a wiki with Zena: bird, a wiki with Zena: flower, Clean Water project: it's a lake</div>"
+  res: "<div>a wiki with Zena: bird, a wiki with Zena: flower, Clean Water project: it&#39;s a lake</div>"
 
 select_group:
   src: "<div do='images select title as it from projects select title as pt in site' do='group' by='pt' do='each_group' join=' / '><r:pt/>: <r:each join=', ' do='it'/></div>"
-  res: "<div>a wiki with Zena: bird, flower / Clean Water project: it's a lake</div>"
+  res: "<div>a wiki with Zena: bird, flower / Clean Water project: it&#39;s a lake</div>"
 
 select_group_count:
   src: "<div do='images select id.count as img_count from projects select id as pid, title as pt in site group by pid' do='each' join=', '><r:pt/>: <r:img_count/></div>"
@@ -280,7 +280,7 @@ query_errors:
   context:
     c: 'badaboum'
   src: "<r:query default='nodes' select='nodes in #{params[:c]}'><r:elsif test='query_errors' do='query_errors'/></r:query>"
-  res: "<span class='query'>nodes in badaboum</span> <span class='error'>Invalid scope 'badaboum'.</span>"
+  res: "<span class='query'>nodes in badaboum</span> <span class='error'>Invalid scope &#39;badaboum&#39;.</span>"
 
 query_count:
   context:

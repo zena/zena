@@ -407,7 +407,7 @@ module Zena
           http_method = http_method_from_action(options[:action])
             
           if http_method == 'delete' && method != 'unlink'
-            confirm ||= '#{t("Destroy")} #{h title} ?'
+            confirm ||= '#{t("Destroy")} "#{h title}" ?'
           end
 
           if confirm

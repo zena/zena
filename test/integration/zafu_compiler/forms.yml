@@ -87,7 +87,7 @@ select_nodes_in_ajax:
 
 select_nodes_show_attr:
   src: "<r:form><r:select name='title' nodes='images in site' attr='ext' show='title'/></r:form>"
-  res: "/name=.node\[title\].[^>]+>.*<option value=\"jpg\">flower</option>\n<option value=\"jpg\">it's a lake</option>/"
+  res: "/name=.node\[title\].[^>]+>.*<option value=\"jpg\">flower</option>\n<option value=\"jpg\">it&#39;s a lake</option>/"
 
 select_time_zone:
   src: "<r:form><r:select type='time_zone' name='settings[tz]'/></r:form>"

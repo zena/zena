@@ -255,7 +255,7 @@ icon:
   context:
     node: 'cleanWater'
   src: "<r:icon do='title'/>"
-  res: "it's a lake"
+  res: "it&#39;s a lake"
 
 img_image:
   context:

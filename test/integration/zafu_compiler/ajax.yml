@@ -80,7 +80,7 @@ each_add_with_form:
       <li do='add'>add new</li>
       <li do='form'><input name='title'/> this is the form</li>
     </ol>
-  res: "/<li id='list1_30'>bird.*<li id='list1_31'>flower.*<li.*list1_add.*list1_0.*toggle.*<li.*style.*none.*list1_0.*Ajax.Request.*input type='hidden' name='node\[parent_id\]' value=.29.*input type='hidden' name='t_url' value=.ajax/each/add/with/form/list1/"
+  res: "/<li id='list1_30'>bird.*<li id='list1_31'>flower.*<li.*list1_add.*list1_0.*toggle.*<li.*style.*none.*list1_0.*Ajax.Request.*name='t_url' value=.ajax/each/add/with/form/list1/"
 
 each_add_with_form_in_sub_block:
   context:
@@ -141,7 +141,7 @@ each_edit_cannot_write:
     node: 'cleanWater'
     visitor: 'anon'
   src: "<r:children><li do='each'><r:show attr='title'>blah</r:show> <r:edit>edit</r:edit></li>\n</r:children>"
-  res: "/<li id='list1_24'>it's a lake</li>.*/"
+  res: "/<li id='list1_24'>it&#39;s a lake</li>.*/"
 
 add_each_publish:
   src: "<ul do='children' id='things'><li do='each'>I <p do='title'>blah</p></li><li do='add' publish='true'/></ul>"
