@@ -38,6 +38,31 @@ Daemons.run_proc('worker', daemon_options) do
   require File.join('config', 'environment')
 
   require 'delayed/worker'
+  class Delayed::Job
+    private
+      # FIX Delayed Job to work with safe_yaml
+      # TODO: Remove this when we upgrade to Ruby 1.9
+      def deserialize(source)
+        handler = YAML.load(source, :safe => false) rescue nil
+
+        unless handler.respond_to?(:perform)
+          if handler.nil? && source =~ ParseObjectFromYaml
+            handler_class = $1
+          end
+          attempt_to_load(handler_class || handler.class)
+          handler = YAML.load(source, :safe => false)
+        end
+
+        return handler if handler.respond_to?(:perform)
+
+        raise DeserializationError,
+          'Job failed to load: Unknown handler. Try to manually require the appropriate file.'
+      rescue TypeError, LoadError, NameError => e
+        raise DeserializationError,
+          "Job failed to load: #{e.message}. Try to manually require the required file."
+      end
+  end
+  
   begin
     require 'thinking_sphinx'
     require 'thinking_sphinx/deltas/delayed_delta'

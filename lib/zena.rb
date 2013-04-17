@@ -1,10 +1,11 @@
-# FIXME: ========== cleanup and remove ====================
 require 'safe_yaml'
+SafeYAML::OPTIONS[:default_mode] = :safe
 require 'date'
 require 'fileutils'
 require 'zena/info'
 require 'bricks'
 
+# FIXME: ========== cleanup
 SITES_ROOT = "#{RAILS_ROOT}/sites"
 AUTHENTICATED_PREFIX = "oo"
 PASSWORD_SALT = "jf93jfnvnas09093nas0923" # type anything here (but change this line !)
