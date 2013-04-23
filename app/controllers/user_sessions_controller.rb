@@ -34,9 +34,17 @@ class UserSessionsController < ApplicationController
     if @user_session = UserSession.find
       @user_session.destroy
       reset_session
-      host = current_site.ssl_on_auth ? current_site.host : host_with_port
+      if current_site.ssl_on_auth
+        # SSH only when authenticated
+        host = current_site.host
+        http = 'http'
+      else
+        # Keep current host and port settings
+        host = host_with_port
+        http = host =~ /:/ ? 'https' : 'http'
+      end
       #flash.now[:notice] = _("Successfully logged out.")
-      redirect_to "http://#{host}#{params[:redirect] || home_path(:prefix => prefix)}"
+      redirect_to "#{http}://#{host}#{params[:redirect] || home_path(:prefix => prefix)}"
     else
       redirect_to "http://#{host}#{home_path(:prefix => prefix)}"
     end
