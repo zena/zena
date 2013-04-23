@@ -48,7 +48,12 @@ module Zena
               name = "node[#{name}]"
             end
             res = []
-            res << "<input type='hidden' name='#{name}' value=''/>"
+            if default = opts[:default]
+              default = fquote default.to_s
+            else
+              default = ''
+            end
+            res << "<input type='hidden' name='#{name}' value='#{default}'/>"
             list.each_with_index do |value, i|
               res << ("<input type='checkbox' name='#{name}' value='#{value}'" +
               (selected.include?(value.to_s) ? " checked='checked'/> " : '/> ') +
@@ -622,6 +627,9 @@ module Zena
             end
             meth = RubyLess.translate(self, "this.#{name}")
             opts << ":selected => #{meth}"
+            if default = @params[:default]
+              opts << ":default => #{default.inspect}"
+            end
             attribute = name
             res = "<%= make_checkbox(#{node}, #{opts.join(', ')}) %>"
           else

@@ -273,6 +273,10 @@ label_on_checkbox:
   src: "<r:checkbox label='t' name='title' values='1,2'/>"
   res: "/<label>titre</label>.*input type='checkbox'"
 
+default_checkbox:
+  src: "<r:checkbox name='title' values='1' default='0'/>"
+  res: "/<input type='hidden' name='node\[title\]' value='0'/>/"
+  
 label_on_select:
   context:
     lang: fr
