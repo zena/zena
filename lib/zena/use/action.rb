@@ -268,7 +268,10 @@ class #{node.klass}: #{Array(node.klass).first.columns.keys.join(', ')}
             end
           end
         end
-
+        
+        def r_versions_list
+          out "<%= render :partial=>'versions/list' %>"
+        end
 
         # TODO: test
         def r_swap

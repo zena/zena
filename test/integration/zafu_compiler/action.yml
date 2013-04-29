@@ -91,3 +91,7 @@ swap_in_each_with_block:
 hand_made_swap:
   src: "<r:link update='_page' node[origin]='next_in_list(origin, \"todo,done\")' action='update'/>"
   tem: "/node\[origin\]. => next_in_list_s\(@node.prop\['origin'\].*todo,done.*method:.put./"
+
+versions_list:
+  src: "<r:versions_list/>"
+  res: "/td class=\"date\">2006-03-10</td>/"

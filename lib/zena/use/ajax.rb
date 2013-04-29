@@ -9,10 +9,13 @@ module Zena
         # to avoid the clash with Rails' dom_id method.
         def ndom_id(node = @node, append_form = true)
           if node.kind_of?(Node) && !node.new_record?
-            if params[:action] == 'create' && !params[:udom_id]
+            if params[:action] == 'create' && !params[:udom_id] && !params[:s]
+              # !params[:s] is to not use this when executing Zena.post
+              
+              # We cannot filter with params[:zadd] because this breaks when editing in lists.
               return "#{params[:dom_id]}_#{node.zip}"
             end
-          elsif append_form && node.kind_of?(Node) && params[:zadd]
+          elsif append_form && node.kind_of?(Node) && params[:zadd] 
             return "#{params[:dom_id]}_#{node.zip.to_i}"
           end
 
@@ -68,7 +71,7 @@ module Zena
                   end
                 end
               end
-              page.replace params[:udom_id], :file => template_path_from_template_url('', params[:u_url])
+              page.replace params[:udom_id], :file => template_path_from_template_url('', params[:u_url] || params[:t_url])
               if params[:upd_both]
                 @dom_id = params[:dom_id]
                 page.replace params[:dom_id], :file => template_path_from_template_url
@@ -92,19 +95,26 @@ module Zena
               page.replace params[:dom_id], :file => template_path_from_template_url
               page << "$('#{params[:dom_id]}_form_t').focusFirstElement();"
             when 'create'
-              pos = params[:position]  || :before
-              ref = params[:reference] || "#{params[:dom_id]}_add"
-              page.insert_html pos.to_sym, ref, :file => template_path_from_template_url
-              if obj.kind_of?(Node)
-                @node = obj.parent.new_child(:class => obj.class)
+              if params[:zadd]
+                # ADD WITH FORM...
+                pos = params[:position]  || :before
+                ref = params[:reference] || "#{params[:dom_id]}_add"
+                page.insert_html pos.to_sym, ref, :file => template_path_from_template_url
+                if obj.kind_of?(Node)
+                  @node = obj.parent.new_child(:class => obj.class)
+                else
+                  instance_variable_set("@#{base_class.to_s.underscore}", obj.clone)
+                end
+                page.replace ndom_id, :file => template_path_from_template_url('_form')
+                if params[:done]
+                  page << params[:done]
+                elsif params[:zadd]
+                  page.toggle "#{params[:dom_id]}_0", "#{params[:dom_id]}_add"
+                end
               else
-                instance_variable_set("@#{base_class.to_s.underscore}", obj.clone)
-              end
-              page.replace ndom_id, :file => template_path_from_template_url('_form')
-              if params[:done]
-                page << params[:done]
-              elsif params[:zadd]
-                page.toggle "#{params[:dom_id]}_0", "#{params[:dom_id]}_add"
+                # Zena.post operation
+                page.replace ndom_id, :file => template_path_from_template_url
+                page << params[:done] if params[:done]
               end
             when 'update'
               page.replace ndom_id, :file => template_path_from_template_url

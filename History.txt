@@ -6,6 +6,7 @@
  * Added file upload support from zena remote API.
  * Added 'content_type' regexp to force virtual class on Document creation. <== TODO: Document
  * Extended "create group" in vclass to be "allow group" (edit).
+ * Added support for [versions_list] to display list of versions and status.
  
 * Minor changes
  * Support for raw html in zazen with '<notextile>' or '<html>' tag. Must be allowed with notextile='true' on [zazen] tag.
@@ -18,7 +19,7 @@
 
 * Major changes
  * Better support for Passenger (deploy receipt, asset host)
- * Support for 'sortable' <== TODO: Document
+ * Support for 'sortable'
  * html_escape all properties by default
  * Better support for Passenger (default deployment method now)
  * Simplified caching (using cachestamp in filename)

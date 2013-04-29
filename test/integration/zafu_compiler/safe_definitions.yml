@@ -145,7 +145,12 @@ range:
     x: 4
   src: "<r:void do='(0..params[:x].to_i).to_a'><span do='each' join=' ' do='this'/></r:void>"
   res: '<span>0</span> <span>1</span> <span>2</span> <span>3</span> <span>4</span>'
-  
+
+range_literal:
+  src: "<r:void do='(0..4).to_a'><span do='each' join=' ' do='this'/></r:void>"
+  tem: '/\(0..4\)/'
+  res: '<span>0</span> <span>1</span> <span>2</span> <span>3</span> <span>4</span>'
+    
 hash_to_params:
   context:
     q:

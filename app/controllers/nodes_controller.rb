@@ -120,8 +120,11 @@ class NodesController < ApplicationController
     request.method = 'GET' if request.method == 'POST'
     
     @node = visitor.find_node(nil, params[:id], nil, request)
-    
-    return self.update if params[:method] == 'put'
+    # security risk with ACL (change an object before display with extended rights). Must check no ACL before
+    # preview. Only enable with proper security if this is really needed.
+    # if params['node']
+    #   @node.attributes = secure(Node) {Node.transform_attributes(params['node'], @node, true)}
+    # end
     respond_to do |format|
       format.js { render :action => 'show' }
     end

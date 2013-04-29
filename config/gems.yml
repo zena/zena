@@ -21,7 +21,7 @@ simple_xlsx_writer:    # spreadsheet
 querybuilder:   '= 1.2.1'
 yamltest:       '= 0.7.0'
 safe_yaml:      '= 0.8.0'
-rubyless:       '= 0.8.9'
+rubyless:       '= 0.8.10'
 property:       '= 2.3.2'
 versions:       '= 0.3.1'
 
