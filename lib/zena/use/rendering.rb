@@ -81,13 +81,16 @@ module Zena
             zafu_node('@node', Project)
 
             respond_to do |format|
-              format.xml  { render :nothing => true, :status => "404 Not Found" }
               format.all do
-                not_found = "#{SITES_ROOT}/#{current_site.host}/public/#{prefix}/404.html"
-                if File.exists?(not_found)
-                  render :text => File.read(not_found), :status => '404 Not Found'
+                if request.format == Mime::XML
+                  render :nothing => true, :status => "404 Not Found"
                 else
-                  render_and_cache :mode => '+notFound', :format => 'html', :cache_url => "/#{prefix}/404.html", :status => '404 Not Found'
+                  not_found = "#{SITES_ROOT}/#{current_site.host}/public/#{prefix}/404.html"
+                  if File.exists?(not_found)
+                    render :text => File.read(not_found), :status => '404 Not Found'
+                  else
+                    render_and_cache :mode => '+notFound', :format => 'html', :cache_url => "/#{prefix}/404.html", :status => '404 Not Found'
+                  end
                 end
               end
             end

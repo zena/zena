@@ -206,3 +206,7 @@ time_wday:
     tz: 'US/Pacific'
   src: "<r:Post?><b do='this.date.wday'/> <b do='this.date.wday(\"UTC\")'/></r:Post?>"
   res: "<b>2</b> <b>3</b>"
+
+date_id:
+  src: "<r:input type='date' name='updated_at' id='foobar'/>"
+  res: "/id='foobar'/"

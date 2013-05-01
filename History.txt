@@ -14,6 +14,8 @@
  * Added support for "class not like Image" or "class <> Image" to sqliss.
  * Added url to clear cache with /sites/clear_cache (admin only). <== TODO: Document
  * encode_params now supports arrays.
+ * Add 'id' to date input.
+ * Fixed 404 error.
 
 == 1.2.3 2013-03-11
 

@@ -251,7 +251,7 @@ module Zena
               end
             else
               if params[:controller] == 'nodes'
-                res << tag_in + "<a href='#{zen_path(@node, :lang => l)}'>#{l}</a>"
+                res << tag_in + "<a href='#{zen_path(@node, :lang => l)}'>#{l}</a>" + tag_out
               else
                 res << tag_in + link_to(l, params.merge(:lang => l)) + tag_out
               end

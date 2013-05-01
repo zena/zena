@@ -342,7 +342,6 @@ module Zena
               elsif params[:focus]
                 hidden_fields['done'] = "'$(\"#{erb_dom_id}_#{params[:focus]}\").focus();'"
               end
-              
             else
               # ajax form, not in 'add'
               done = RubyLess.translate_string(self, @params[:done])
@@ -570,10 +569,12 @@ module Zena
             end
             value = code # @context[:in_add] ? "''" : code
             html_params = [':size => 15']
-            [:style, :class, :onclick, :size, :time].each do |key|
+            [:style, :class, :onclick, :size, :time, :id].each do |key|
               html_params << ":#{key} => #{@params[key].inspect}" if @params[key]
             end
-            html_params << ":id=>\"#{node.dom_id(:erb => false)}_#{attribute}\"" if node.dom_prefix
+            if !@params[:id] and node.dom_prefix
+              html_params << ":id=>\"#{node.dom_id(:erb => false)}_#{attribute}\""
+            end
             "<%= date_box(#{node}, #{html_attributes[:name].inspect}, :value => #{value}, #{html_params.join(', ')}) %>"
           when 'id'
             return parser_error("select id without name") unless attribute

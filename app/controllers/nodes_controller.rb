@@ -630,7 +630,6 @@ class NodesController < ApplicationController
           else
             set_format(stamp_and_format)
           end
-
           # We use the visitor to find the node in order to ease implementation
           # of custom access rules (Acl).
           @node = visitor.find_node(path, zip, name, request)
