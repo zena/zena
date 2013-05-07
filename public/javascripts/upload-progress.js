@@ -100,9 +100,11 @@ var UploadProgress = {
 	  Effect.Appear('progress_shell' + this.uuid) ;
   },
 
-  setAsError: function() {
-    $('progress_shell' + this.uuid).remove();
-    $('attachment' + this.uuid).show();
+  setAsError: function(error) {
+	  this.uploading = false
+		this.watcher.stop()
+		$('progress_text' + this.uuid).innerHTML  = error;
+    $('progress_bar' + this.uuid).setStyle({background:"#f88"})
   },
 
   setAsFinished: function() {

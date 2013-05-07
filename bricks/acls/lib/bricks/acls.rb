@@ -93,7 +93,11 @@ module Bricks
       def find_node_with_acls(path, zip, name, request)
         find_node_without_acls(path, zip, name, request)
       rescue ActiveRecord::RecordNotFound
-        raise unless visitor.use_acls?
+        find_node_force_acls(path, zip, name, request)
+      end
+      
+      def find_node_force_acls(path, zip, name, request)
+        raise ActiveRecord::RecordNotFound unless visitor.use_acls?
         acl_params = request.params.dup
         if name =~ /^\d+$/
           acl_params[:id] = name

@@ -235,16 +235,22 @@ class NodesController < ApplicationController
       # Make sure we can load parent (also enables ACL to work for us here).
       zip = attrs.delete('parent_zip')
       parent = visitor.find_node(nil, zip, nil, request)
-      if !parent.can_write? && !visitor.exec_acl
+      if !parent.can_write? && !visitor.exec_acl && visitor.respond_to?(:find_node_force_acls)
         # Try to use ACL
-        parent = visitor.find_node(nil, zip, nil, request) || parent
+        # FIXME: TEST
+        parent = visitor.find_node_force_acls(nil, zip, nil, request) || parent
       end
-
+      
       @node = parent.new_child(attrs, false)
+      if visitor.exec_acl && !(@node.kpath =~ %r{^#{visitor.exec_acl.create_kpath}})
+        # Document creation can change initial klass depending on mime type. Make sure it is still allowed.
+        @node.errors.add('klass', 'Not allowed')
+      end
       @node.save
     rescue ActiveRecord::RecordNotFound
       # Let normal processing insert errors
-      @node = secure!(Node) { Node.create_node(attrs) }
+      @node = Node.new
+      @node.errors.add('base', 'Not allowed')
     end
     @node.errors.add('file', file_error) if file_error
 

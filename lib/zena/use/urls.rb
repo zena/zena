@@ -734,7 +734,6 @@ module Zena
 
           # <r:link page='next'/> <r:link page='previous'/> <r:link page='list'/>
           def pagination_links
-
             return parser_error("not in pagination scope") unless pagination_key = get_context_var('paginate', 'key')
             page_direction = @params.delete(:page)
             case page_direction

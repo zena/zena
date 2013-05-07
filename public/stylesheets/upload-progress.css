@@ -1,4 +1,5 @@
 .progress_shell { display: table; background:#15242B; width:15em; padding:0; position:relative; border:2px solid #999;}
 .progress_text  { position:absolute; text-align:center; width:15em; color:#ccc;}
+.progress_text .errors  { color:#222;}
 .progress_bar   { background:#35f;}
 #UploadIFrame {width:0; height:0; border:0; }

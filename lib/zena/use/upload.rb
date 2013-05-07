@@ -149,8 +149,9 @@ module Zena
             responds_to_parent do # execute the redirect in the iframe's parent window
               render :update do |page|
                 if @node.new_record?
+                  page << "UploadProgress.setAsError(#{error_messages_for(:node, :object => @node).inspect})"
+                  Node.logger.warn "ERROR #{error_messages_for(:node, :object => @node)}"
                   page.replace_html 'form_errors', error_messages_for(:node, :object => @node)
-                  page.call 'UploadProgress.setAsError'
                 else
                   page.call 'UploadProgress.setAsFinished'
                   page.delay(1) do # allow the progress bar fade to complete
@@ -160,10 +161,11 @@ module Zena
                     if params[:reload]
                       page << "Zena.t().Zena.reload(#{params[:reload].inspect})"
                     end
-                    if params[:redir]
-                      page << "Zena.reload_and_close(#{params[:redir].inspect})"
-                    else
+                    if params[:redir] == 'more'
+                      # This is used when we want "upload more" in popup window.
                       page.redirect_to document_url(@node[:zip], :reload => params[:reload], :js => params[:js])
+                    elsif params[:redir]
+                      page << "Zena.t().window.location = #{params[:redir].gsub('NODE_ID', @node.zip.to_s).inspect}"
                     end
                   end
                 end

@@ -839,7 +839,11 @@ Zena.set_toggle = function(dom_id, definition) {
     if (elem.tagName == 'TR') {
       target = elem.select('td')[0];
     }
-    target.insert({top:"<input type='checkbox' class='cb'/>"});
+		var input_type = 'checkbox'
+		if (definition['arity'] == 'one') {
+			input_type = 'radio'
+		}
+    target.insert({top:"<input type='"+input_type+"' class='cb'/>"});
   }
 
   if (list.indexOf(id) == -1) {
@@ -879,7 +883,7 @@ Zena.toggle = function(elem, definition, id) {
       onSuccess: function() {
         if (definition['arity'] == 'one') {
           // uncheck all
-          definition['list'] = {};
+          definition['list'] = [];
           // search for siblings
           elem.siblings().each(function(s) {
             try {

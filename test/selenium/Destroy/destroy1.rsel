@@ -8,7 +8,7 @@ click 'css=input[type=submit]'
 wait_for_element_present 'destroy_destroy1'
 
 click 'css=#destroy_destroy1 a'
-assert_confirmation 'Destroy destroy1 ?'
+assert_confirmation 'Destroy "destroy1" ?'
 wait_for_element_not_present 'destroy_destroy1'
 
 # Reload
