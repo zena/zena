@@ -23,7 +23,7 @@ class NodesController < ApplicationController
   if Bricks.raw_config['passenger']
     before_filter :escape_path, :only => [:index, :show]
   end
-  before_filter :find_node, :except => [:index, :create, :zafu, :not_found, :catch_all, :search]
+  before_filter :find_node, :except => [:index, :create, :update, :zafu, :not_found, :catch_all, :search]
   before_filter :check_can_drive, :only => [:edit]
   before_filter :check_path,      :only => [:index, :show]
 
@@ -234,12 +234,7 @@ class NodesController < ApplicationController
     begin
       # Make sure we can load parent (also enables ACL to work for us here).
       zip = attrs.delete('parent_zip')
-      parent = visitor.find_node(nil, zip, nil, request)
-      if !parent.can_write? && !visitor.exec_acl && visitor.respond_to?(:find_node_force_acls)
-        # Try to use ACL
-        # FIXME: TEST
-        parent = visitor.find_node_force_acls(nil, zip, nil, request) || parent
-      end
+      parent = visitor.find_node(nil, zip, nil, request, true)
       
       @node = parent.new_child(attrs, false)
       if visitor.exec_acl && !(@node.kpath =~ %r{^#{visitor.exec_acl.create_kpath}})
@@ -408,10 +403,8 @@ class NodesController < ApplicationController
   end
 
   def update
-    if !@node.can_write?
-      # Try to use ACL
-      @node = visitor.find_node_with_acls(nil, params[:id], nil, request) || @node
-    end
+    @node = visitor.find_node(nil, params[:id], nil, request, true)
+    
     params['node'] ||= {}
     file, file_error = get_attachment
     params['node']['file'] = file if file

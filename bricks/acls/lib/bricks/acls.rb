@@ -90,10 +90,12 @@ module Bricks
         exec_acl ? exec_acl.exec_skin : get_skin_without_acls(node)
       end
 
-      def find_node_with_acls(path, zip, name, request)
-        find_node_without_acls(path, zip, name, request)
-      rescue ActiveRecord::RecordNotFound
-        find_node_force_acls(path, zip, name, request)
+      def find_node_with_acls(path, zip, name, request, need_write = false)
+        n = find_node_without_acls(path, zip, name, request, need_write) rescue nil
+        if !n || (!n.can_write? && need_write)
+          n = find_node_force_acls(path, zip, name, request) || n
+        end
+        n
       end
       
       def find_node_force_acls(path, zip, name, request)

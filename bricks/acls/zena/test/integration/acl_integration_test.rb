@@ -186,6 +186,30 @@ class AclIntegrationTest < Zena::Integration::TestCase
             end
             assert_response :missing
           end
+          
+          context 'with read access' do
+            setup do
+              # We must grant read access on visitor node to avoid errors in page rendering
+              Zena::Db.execute "UPDATE nodes SET rgroup_id = #{groups_id(:site)} WHERE id IN (#{nodes_id(:queen)},#{nodes_id(:demeter)})"
+            end
+            
+            should 'read without acl' do
+              get "http://erebus.host/oo/project#{nodes_zip(:queen)}.html"
+              assert_response :success
+              assert_nil visitor.exec_acl
+            end
+            
+            should 'load acl' do
+              assert_difference('Node.count', 1) do
+                post @create_url
+              end
+              node = assigns(:node)
+              assert visitor.exec_acl
+              assert_equal visitor.id, node.user_id
+              assert_equal nodes_id(:queen), node.parent_id
+              assert_equal 'foobar', node.title
+            end
+          end
 
           context 'without use acl' do
             setup do
@@ -231,6 +255,25 @@ class AclIntegrationTest < Zena::Integration::TestCase
           should 'not update item out of acl scope' do
             put "http://erebus.host/nodes/#{nodes_zip(:queen)}?node[title]=foobar"
             assert_response :missing
+          end
+          
+          context 'with read access' do
+            setup do
+              # We must grant read access on visitor node to avoid errors in page rendering
+              Zena::Db.execute "UPDATE nodes SET rgroup_id = #{groups_id(:site)} WHERE id IN (#{nodes_id(:persephone)},#{nodes_id(:demeter)})"
+            end
+            
+            should 'read without acl' do
+              get "http://erebus.host/oo/contact#{nodes_zip(:persephone)}.html"
+              assert_response :success
+              assert_nil visitor.exec_acl
+            end
+            
+            should 'load acl' do
+              put @update_url
+              assert_equal 'foobar', nodes(:persephone).title
+              assert visitor.exec_acl
+            end
           end
 
           context 'without use acl' do
