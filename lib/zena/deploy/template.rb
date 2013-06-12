@@ -32,11 +32,17 @@ end
 end
 
 inside('app/controllers') do
-  app = File.read('application_controller.rb')
-  app.gsub!(/class\s+ApplicationController\s+<\s+ActionController::Base/, "class ApplicationController < ActionController::Base\n  include Zena::App")
-  app.gsub!(/^(\s+)protect_from_forgery/, '\1# protect_from_forgery')
   File.open('application_controller.rb', 'wb') do |f|
-    f.write(app)
+    f.write %q{
+  # Filters added to this controller apply to all controllers in the application.
+  # Likewise, all the methods added will be available for all controllers.
+
+  class ApplicationController < ActionController::Base
+    include Zena::App
+    helper :all # include all helpers, all the time
+    # protect_from_forgery # See ActionController::RequestForgeryProtection for details
+  end
+}
   end
 end
 

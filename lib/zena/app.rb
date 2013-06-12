@@ -52,6 +52,7 @@ module Zena
         end
 
         helper_method :render_to_string
+        filter_parameter_logging :password
       end
       Bricks.apply_patches('application_controller.rb')
       Bricks.apply_patches('application_helper.rb')
