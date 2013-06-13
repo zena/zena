@@ -1,4 +1,4 @@
-== 1.2.4
+== 1.2.4 2013-06-13
 
 * Major changes
  * Added class filtering to Acl in 'create' action. <== TODO: Document
