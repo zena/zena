@@ -1,7 +1,13 @@
 == 1.2.5
 
+* Major changes
+ * To support video streaming: redirect on first document cache. WARNING: This 
+   implies changes to vhost files !
+
 * Minor changes
  * Fixed encode_params in Ajax requests.
+ * Fixed cached path in vhost file.
+ * Added "uuid" method (generates a unique id). <== TODO: Document
  
 == 1.2.4 2013-06-13
 

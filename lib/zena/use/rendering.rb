@@ -239,7 +239,13 @@ module Zena
                     :content_data  => response.body,
                     :node_id       => @node[:id]
                     }.merge(opts)
-            secure!(CachedPage) { CachedPage.create(opts) }
+            if secure!(CachedPage) { CachedPage.create(opts) }
+              true
+            else
+              false
+            end
+          else
+            false
           end
         end
 

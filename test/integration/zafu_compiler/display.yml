@@ -509,3 +509,7 @@ with_a_custom_img_tag_field_with_JS:
 invalid_document:
   src: "<r:zazen text='!21!'/>"
   res: "/images/ext/project.png/"
+
+uuid:
+  src: "<div id='foo#{uuid}'>hop</div>"
+  res: "/<div id='foou[a-z0-9]+'>hop</div>/"

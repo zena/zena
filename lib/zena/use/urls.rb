@@ -279,7 +279,7 @@ module Zena
         def host_with_port
           @host_with_port ||= begin
             port = request.port
-            if port.blank? || port.to_s == '80'
+            if port.blank? || port.to_s == '80' || port.to_s == '443'
               current_site.host
             else
               "#{current_site.host}:#{port}"

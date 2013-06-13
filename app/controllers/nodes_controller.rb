@@ -203,14 +203,19 @@ class NodesController < ApplicationController
           else
             content_path = @node.filepath
           end
-
-          if content_path
-            # FIXME RAILS: remove 'stream => false' when rails streaming is fixed
-            send_file(content_path, :filename => @node.filename, :type => @node.content_type, :disposition => 'inline', :stream => false, :x_sendfile => ENABLE_XSENDFILE)
-          end
-
+          
           # content_path is used to cache by creating a symlink
-          cache_page(:content_path => content_path, :authenticated => @node.v_public?)
+          cache_ok = cache_page(:content_path  => content_path, :authenticated => @node.v_public?)
+          
+          if content_path
+            if @node.v_public? && cache_ok
+              # This is the simplest working solution to save cached version and use apache for serving (all xsendfile and such do not work with video streaming).
+              redirect_to data_path(@node, :mode => params[:mode]) + "?1"
+            else
+              # FIXME RAILS: remove 'stream     => false' when rails streaming is fixed
+              send_file(content_path, :filename => @node.filename, :type => @node.content_type, :disposition => 'inline', :stream => false, :x_sendfile => ENABLE_XSENDFILE)
+            end
+          end
         else
           render_and_cache
           # FIXME: redirect to document format should occur in render_and_cache

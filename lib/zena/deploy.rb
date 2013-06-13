@@ -205,12 +205,13 @@ Capistrano::Configuration.instance(:must_exist).load do
       puts "HOST not set (use -s host=...)"
     else
       vhost_files = []
+        
+      public_path = Bricks.raw_config['public_path'] || '/public'
+      cache_path  = Bricks.raw_config['cache_path']  || '/public'
+
+      self[:cache_path] = cache_path.sub(%r{^#{public_path}},'')
+        
       if self[:ssl] == :all
-        
-        public_path = Bricks.raw_config['public_path'] || '/public'
-        cache_path  = Bricks.raw_config['cache_path']  || '/public'
-        
-        self[:cache_path] = cache_path.sub(%r{^#{public_path}},'')
         vhost = render("#{templates}/vhost.rhtml", :config => self, :ssl => true, :vhost_port => ':443')
         put(vhost, "#{vhost_root}/#{self[:host]}.ssl")
         vhost_files << "#{self[:host]}.ssl"

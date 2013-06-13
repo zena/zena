@@ -236,6 +236,7 @@ module Zena
         safe_method  [:sprintf,     String, Number]                     => {:class => String, :method => 'sprintf'}
         safe_method  [:search_box,  {:ajax => String, :type => String}] => {:class => String, :method => 'search_box', :html_safe => true}
         safe_context [:admin_links, {:list => String}]                  => [String]
+        safe_method :uuid => String
 
         # Return sprintf formated entry. Return '' for values eq to zero.
         def sprintf_unless_zero(fmt, value)
@@ -245,6 +246,11 @@ module Zena
         # Display a search field
         def search_box(opts={})
           render_to_string(:partial=>'search/form', :locals => {:ajax => opts[:ajax], :type => opts[:type]})
+        end
+        
+        # Return a random string that can be used as id (starts with a character)
+        def uuid
+          'u' + UUIDTools::UUID.random_create.to_s.gsub('-','')[0..8]
         end
 
         # Return the 'zip' of the node corresponding to the browser url (start node). This value is kept

@@ -75,10 +75,10 @@ end %>
   # Rewrite index to check for static
   RewriteRule ^/$ /index.html [QSA]
 
-  # Serve static (cached) assets
+  # Serve static (recently cached) assets
   RewriteCond %{QUERY_STRING} ^[0-9]+$
-  RewriteCond %{DOCUMENT_ROOT}<%= config[:cache_path] %>%{REQUEST_FILENAME}.%{QUERY_STRING} -f
-  RewriteRule ^/(.*)$ <%= config[:cache_path] %>%{REQUEST_FILENAME}.%{QUERY_STRING} [L]
+  RewriteCond %{DOCUMENT_ROOT}<%= config[:cache_path] %>%{REQUEST_FILENAME} -f
+  RewriteRule ^/(.*)$ <%= config[:cache_path] %>%{REQUEST_FILENAME} [L]
 
   # Static CSS, JS
   RewriteCond %{QUERY_STRING} ^[0-9]+$
