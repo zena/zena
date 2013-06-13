@@ -1,3 +1,8 @@
+== 1.2.5
+
+* Minor changes
+ * Fixed encode_params in Ajax requests.
+ 
 == 1.2.4 2013-06-13
 
 * Major changes

@@ -162,7 +162,9 @@ module Zena
             list = opts.keys.map do |k|
               # FIXME: DOC
               if k.to_s == 'encode_params'
-                opts[k].map do |key|
+                list = opts[k]
+                list = list.split(',').map(&:strip) unless list.kind_of?(Array)
+                list.map do |key|
                   value = params[key]
                   if value.kind_of?(Hash)
                     {key => value}.to_query
