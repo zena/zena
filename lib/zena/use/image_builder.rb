@@ -80,6 +80,7 @@ module Zena
 
       def initialize(h)
         params = {:height=>nil, :width=>nil, :path=>nil, :file=>nil, :actions=>[]}.merge(h)
+        node = params.delete(:node)
 
         params.each do |k,v|
           case k
@@ -105,6 +106,10 @@ module Zena
           if @img = build_image_from_file_or_path
             @width  = @img.columns
             @height = @img.rows
+            if node && node.respond_to?(:fix_sizes)
+              # Fix property
+              node.fix_sizes(@width, @height)
+            end
           end
         end
       end
@@ -331,6 +336,8 @@ module Zena
             img
           end
         end
+      rescue
+        nil
       end
     end # ImageBuilder
   end # Use

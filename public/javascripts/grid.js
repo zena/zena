@@ -902,12 +902,20 @@ Grid.save = function(grid_id) {
     data.each(function(pair) {
       var id = pair.key
       var changes = pair.value
-      var attrs = {zjs:true, "opts[format]":grid.fdate}
+      var attrs = {}
+      if (!grid.list_name && !grid.rlist_name) {
+        // insert forced field values
+        var a = $(id).getAttribute('data-base')
+        if (a) attrs = a.evalJSON()
+      }
+      attrs.zjs = true
+      attrs["opts[format]"] = grid.fdate
       $H(changes).each(function(pair) {
         if (pair.key != '_new') {
           attrs['node['+pair.key+']'] = pair.value
         }
-      })
+      })  
+
 
       if (changes._new) {
         new Ajax.Request('/nodes', {
@@ -940,6 +948,7 @@ Grid.save = function(grid_id) {
           method: 'post'
         });
       } else {
+        // UPDATE
         new Ajax.Request('/nodes/' + id.replace(/^[^0-9]+/,''), {
           parameters: attrs,
           onSuccess: function(transport) {

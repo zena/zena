@@ -120,6 +120,11 @@ class NodesController < ApplicationController
     request.method = 'GET' if request.method == 'POST'
     
     @node = visitor.find_node(nil, params[:id], nil, request)
+
+    if params[:link_id]
+      @link = Link.find_through(@node, params[:link_id])
+    end
+    
     # security risk with ACL (change an object before display with extended rights). Must check no ACL before
     # preview. Only enable with proper security if this is really needed.
     # if params['node']
@@ -240,8 +245,9 @@ class NodesController < ApplicationController
       if visitor.exec_acl && !(@node.kpath =~ %r{^#{visitor.exec_acl.create_kpath}})
         # Document creation can change initial klass depending on mime type. Make sure it is still allowed.
         @node.errors.add('klass', 'Not allowed')
+      else
+        @node.save
       end
-      @node.save
     rescue ActiveRecord::RecordNotFound
       # Let normal processing insert errors
       @node = Node.new
@@ -404,6 +410,10 @@ class NodesController < ApplicationController
 
   def update
     @node = visitor.find_node(nil, params[:id], nil, request, true)
+
+    if params[:link_id]
+      @link = Link.find_through(@node, params[:link_id])
+    end
     
     params['node'] ||= {}
     file, file_error = get_attachment

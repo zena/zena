@@ -746,7 +746,7 @@ class NodesControllerTest < Zena::Controller::TestCase
     opening = secure!(Node) { nodes(:opening) }
     art = opening.find(:first, 'set_tag')
     assert_equal 5, art.l_status
-    put 'update', :id => art[:zip], :node => {:l_status => 54321}, :link_id => links_id(:opening_in_art)
+    put 'update', :id => art[:zip], :node => {:l_status => 54321, :link_id => links_id(:opening_in_art)}
     art = assigns(:node)
     assert_equal 54321, art.l_status
     # reload

@@ -9,7 +9,11 @@ else
 end
 
 gem 'zena', :version => Zena::VERSION
+route '# Insert custom routes here.'
+route ''
 route 'map.zen_routes'
+route ''
+route '# Routes below this are never reached.'
 
 rakefile("zena_tasks.rake") do
 <<-TASK

@@ -54,8 +54,9 @@ module Zena
               default = ''
             end
             res << "<input type='hidden' name='#{name}' value='#{default}'/>"
+            type = opts[:type] || 'checkbox'
             list.each_with_index do |value, i|
-              res << ("<input type='checkbox' name='#{name}' value='#{value}'" +
+              res << ("<input type='#{type}' name='#{name}' value='#{value}'" +
               (selected.include?(value.to_s) ? " checked='checked'/> " : '/> ') +
               "<span>#{show[i]}</span>")
             end
@@ -510,7 +511,10 @@ module Zena
             if !tprefix.blank? && tprefix != 'false'
               options_list.map! do |e|
                 if e[0] =~ /^([^a-zA-Z]*)(.*)$/
-                  [$1 + trans("#{tprefix}_#{$2}"), e[1]]
+                  name = "#{tprefix}_#{$2}"
+                  t = trans(name)
+                  t = $2 if t == name
+                  [$1 + t, e[1]]
                 else
                   e
                 end
@@ -569,7 +573,7 @@ module Zena
             end
             value = code # @context[:in_add] ? "''" : code
             html_params = [':size => 15']
-            [:style, :class, :onclick, :size, :time, :id].each do |key|
+            [:style, :class, :onclick, :size, :time, :id, :onUpdate].each do |key|
               html_params << ":#{key} => #{@params[key].inspect}" if @params[key]
             end
             if !@params[:id] and node.dom_prefix
@@ -625,11 +629,17 @@ module Zena
               opts << ":show => #{show_values.split(',').map(&:strip).inspect}"
             elsif show_values = @params[:tshow]
               opts << ":show => #{translate_list(show_values).inspect}"
+            else
+              opts << ":show => #{translate_list(values, @params[:tprefix] || name).inspect}"
             end
             meth = RubyLess.translate(self, "this.#{name}")
             opts << ":selected => #{meth}"
             if default = @params[:default]
               opts << ":default => #{default.inspect}"
+            end
+            
+            if type = @params[:type]
+              opts << ":type => #{type.inspect}"
             end
             attribute = name
             res = "<%= make_checkbox(#{node}, #{opts.join(', ')}) %>"
@@ -663,7 +673,10 @@ module Zena
           extract_label(res, attribute)
         end
 
-        alias r_radio r_checkbox
+        def r_radio
+          @params[:type] = 'radio'
+          r_checkbox
+        end
 
         # Parse params to extract everything that is relevant to building input fields.
         # TODO: refactor and pass the @markup so that attributes are added directly
@@ -832,8 +845,13 @@ module Zena
                 set_attr  = ::RubyLess.translate(self, @params[:attr] || 'id')
                 show_attr = ::RubyLess.translate(self, @params[:show] || 'title')
               end
-
-              options_list = "[['','']] + (#{nodes} || []).map{|r| [#{show_attr}, #{set_attr}.to_s]}"
+              
+              if @params[:blank] != 'false'
+                options_list = "[['', '']] + "
+              else
+                options_list = ""
+              end
+              options_list = "#{options_list}(#{nodes} || []).map{|r| [#{show_attr}, #{set_attr}.to_s]}"
             elsif values = @params[:values]
               options_list = values.split(',').map(&:strip)
 

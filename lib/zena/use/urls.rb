@@ -88,6 +88,13 @@ module Zena
 
           pre    = opts.delete(:prefix) || (visitor.is_anon? && opts.delete(:lang)) || prefix
           mode   = opts.delete(:mode)
+          if ep = opts[:encode_params]
+            ep = ep.split(',').map(&:strip)
+            if ep.delete('mode')
+              mode ||= params[:mode]
+            end
+            opts['encode_params'] = ep
+          end
 
           if host = opts.delete(:host)
             if ssl = opts.delete(:ssl)
@@ -155,7 +162,7 @@ module Zena
             list = opts.keys.map do |k|
               # FIXME: DOC
               if k.to_s == 'encode_params'
-                opts[k].split(',').map(&:strip).map do |key|
+                opts[k].map do |key|
                   value = params[key]
                   if value.kind_of?(Hash)
                     {key => value}.to_query
@@ -429,7 +436,7 @@ module Zena
             if true
               # Use onclick with Ajax.
               if confirm
-                markup.set_dyn_param(:onclick, "if(confirm(\"<%= fquote(#{confirm}) %>\")) {new Ajax.Request(\"<%= #{href} %>\", {asynchronous:true, evalScripts:true, method:\"#{http_method}\"});} return false;")
+                markup.set_dyn_param(:onclick, "if(confirm(this.getAttribute(\"data-confirm\"))) {new Ajax.Request(\"<%= #{href} %>\", {asynchronous:true, evalScripts:true, method:\"#{http_method}\"});} return false;")
               else
                 markup.set_dyn_param(:onclick, "new Ajax.Request(\"<%= #{href} %>\", {asynchronous:true, evalScripts:true, method:\"#{http_method}\"}); return false;")
               end

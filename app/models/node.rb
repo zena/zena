@@ -915,7 +915,7 @@ class Node < ActiveRecord::Base
       end
 
       if !res['parent_id'] && p = attributes['parent_id']
-        res['parent_zip'] = p
+        res['parent_zip'] = p unless p.blank?
       end
 
       attributes.each do |key, value|
@@ -949,7 +949,7 @@ class Node < ActiveRecord::Base
         elsif key =~ /^(\w+)_id$/
           res["#{$1}_zip"] = value
         elsif key =~ /^(\w+)_ids$/
-          res["#{$1}_zips"] = value.kind_of?(Array) ? value : value.split(',')
+          res["#{$1}_zips"] = value.kind_of?(Array) ? value : value.split(',').map(&:strip)
         elsif key == 'v_status' || key == 'file'
           res[key] = value unless value.blank?
         elsif value.kind_of?(Hash)

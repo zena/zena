@@ -187,9 +187,18 @@ encode_params:
       b: 'Bee'
     c: 'Sea'
     x: ''
-  src: "<r:link encode_params='a,c,x,y'/>"
-  tem: "/:encode_params => \"a,c,x,y\"/"
+  src: "<r:link encode_params='a,c,x,y,mode'/>"
+  tem: "/:encode_params => \"a,c,x,y,mode\"/"
   res: "/page22\.html\?a%5Bb%5D=Bee&c=Sea'/"
+
+encode_params_mode:
+  context:
+    mode: 'print'
+    a: 'Sea'
+    b: ''
+  src: "<r:link encode_params='a,b,mode'/>"
+  tem: "/:encode_params => \"a,b,mode\"/"
+  res: "/page22_print\.html\?a=Sea'/"
 
 title_link_mode:
   old_src: "<h2 do='title' link='details'/>"
@@ -276,7 +285,7 @@ action_destroy_message_apos_remote:
   context:
     p: "O'Hear"
   src: "<div id='foo' do='block'></div><r:link action='destroy' confirm='#{params[:p]}' update='foo'/>"
-  res: "/confirm\(\"O&apos;Hear\"\)/"
+  res: "/confirm\(this.getAttribute\(.data-confirm.\)\)/"
 
 action_publish:
   src: "<r:link action='publish'/>"

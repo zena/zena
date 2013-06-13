@@ -41,7 +41,7 @@ module Zena
         @attributes['tag_names'] = SerializableArray.new('tag_names', 'tag', list)
       end
 
-      def parent_id(v)
+      def parent_id=(v)
         if v then
           # Cannot have nil values here (root node special case).
           @attributes['parent_id'] = v

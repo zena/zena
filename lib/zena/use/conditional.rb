@@ -10,27 +10,28 @@ module Zena::Use::Conditional
       return parser_error("Cannot scope class in list (use each before filtering).") if node.list_context?
       # capital letter ==> class conditional
       if klass = VirtualClass[class_name]
-        if node.klass.kpath =~ %r{^#{klass.kpath}} || klass.kpath =~ %r{^#{node.klass.kpath}} || @context[:saved_template]
+        # FIXME: This does not always work... (block inside block resets class scoping...). We should always render blocks with 'Node' class...
+        #if node.klass.kpath =~ %r{^#{klass.kpath}} || klass.kpath =~ %r{^#{node.klass.kpath}} || @context[:saved_template]
           # Saved templates can be rendered with anything...
           # FIXME: Make sure saved templates from 'block' start with the proper node type ?
           cond     = "#{node}.kpath_match?('#{klass.kpath}')"
           new_node = node.move_to(node.name, klass)
-        else
-          # render nothing: incompatible classes
-          cond     = 'false'
-          new_node = node.move_to(node.name, klass)
-        end
+        #else
+        #  # render nothing: incompatible classes
+        #  cond     = 'false'
+        #  new_node = node.move_to(node.name, klass)
+        #end
       elsif role = Node.get_role(class_name)
-        if node.klass.kpath =~ %r{^#{role.kpath}} || role.kpath =~ %r{^#{node.klass.kpath}} || @context[:saved_template]
-          # Saved templates can be rendered with anything...
-          # FIXME: Make sure saved templates from 'block' start with the proper node type ?
+        #if node.klass.kpath =~ %r{^#{role.kpath}} || role.kpath =~ %r{^#{node.klass.kpath}} || @context[:saved_template]
+        #  # Saved templates can be rendered with anything...
+        #  # FIXME: Make sure saved templates from 'block' start with the proper node type ?
           cond     = "#{node}.has_role?(#{role.id})"
           new_node = node.move_to(node.name, node.klass)
-        else
-          # render nothing: incompatible classes
-          cond     = 'false'
-          new_node = node.move_to(node.name, node.klass)
-        end
+        #else
+        #  # render nothing: incompatible classes
+        #  cond     = 'false'
+        #  new_node = node.move_to(node.name, node.klass)
+        #end
       else
         return parser_error("Invalid role or class '#{class_name}'")
       end

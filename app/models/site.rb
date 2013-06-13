@@ -470,17 +470,19 @@ class Site < ActiveRecord::Base
   # unpublished templates).
   def rebuild_index(nodes = nil, page = nil, page_count = nil)
     if !page
-      Site.logger.error("\n----------------- REBUILD INDEX FOR SITE #{host} -----------------\n")
-      # Reset reference to cache origin to make sure it is always overwriten
-      Zena::Use::ScopeIndex::AVAILABLE_MODELS.each do |klass|
-        changes = klass.column_names.select{|n| n =~ %r{(.*)_id}}.reject {|n| %w{node_id site_id}.include?(n)}.map do |c|
-          "#{c} = NULL"
-        end.join(', ')
-        klass.connection.execute "UPDATE #{klass.table_name} SET #{changes} WHERE site_id = #{id}"
-      end
-      
       Zena::SiteWorker.perform(self, :rebuild_index)
     else
+      if page == 1
+        Site.logger.error("\n----------------- REBUILD INDEX FOR SITE #{host} -----------------\n")
+        # Reset reference to cache origin to make sure it is always overwritten
+        Zena::Use::ScopeIndex::AVAILABLE_MODELS.each do |klass|
+          changes = klass.column_names.select{|n| n =~ %r{(.*)_id}}.reject {|n| %w{node_id site_id}.include?(n)}.map do |c|
+            "#{c} = NULL"
+          end.join(', ')
+          Site.logger.error("#{klass.name}: reset #{changes}\n")
+          Zena::Db.execute "UPDATE #{klass.table_name} SET #{changes} WHERE site_id = #{id}"
+        end
+      end
       # do things
       nodes.each do |node|
         node.rebuild_index!

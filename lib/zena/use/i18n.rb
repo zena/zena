@@ -384,9 +384,15 @@ module Zena
 
         # Translate a string representing a list of values separated with a comma ('dog,cat,house')
         # to a list of strings.
-        def translate_list(str)
+        def translate_list(str, prefix = nil)
           if trad = trans(str, false)
             trad.split(',').map(&:strip)
+          elsif prefix
+            str.split(',').map(&:strip).map do |v|
+              k = "#{prefix}_#{v}"
+              d = trans(k)
+              d == k ? v : d
+            end
           else
             str.split(',').map(&:strip).map{|v| trans(v)}
           end

@@ -133,7 +133,8 @@ module Zena
           opts[:format] ||= params[:format].blank? ? 'html' : params[:format]
           #
           # cleanup before rendering
-          params.delete(:mode)
+          # params.delete(:mode)
+          
           if opts[:format] != 'html'
 
             method = "render_to_#{opts[:format]}"

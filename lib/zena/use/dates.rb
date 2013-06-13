@@ -138,11 +138,14 @@ module Zena
           else
             fld = "<input id='#{opts[:id]}' name='#{name}' type='text' value='#{value}' class='#{opts[:class]}'/>"
           end
-
+          
+          if onUpdate = opts[:onUpdate]
+            onUpdate = "onUpdate : #{onUpdate},"
+          end
           js_data << %Q{Calendar.setup({
               inputField  : "#{opts[:id]}",      // id of the input field
               button      : "#{opts[:button]}",  // trigger for the calendar (button ID)
-              singleClick : true,
+              singleClick : true,#{onUpdate}
               showsTime   : #{showsTime},
               ifFormat    : '#{dateFormat}'
           });}

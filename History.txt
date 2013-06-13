@@ -16,6 +16,15 @@
  * encode_params now supports arrays.
  * Add 'id' to date input.
  * Fixed 404 error.
+ * Toggle takes dynamic parameters for "js" and "arity".
+ * Fixed multiple toggles side-by-side.
+ * Fixed nested blocks and class scoping.
+ * Added support for "onUpdate" in [input] with date type.
+ * Hash 'keys' returns sorted elements in zafu.
+ * Improved computation of width and height in [img] when using 'forced' iformat.
+ * Image width and height properties auto-fix themselves (need to read file on each display if not fixed).
+ * Added support for 'mode' in encode_params.
+ * Fixed [link_name]_status, _comment and other relation proxy methods.
 
 == 1.2.3 2013-03-11
 

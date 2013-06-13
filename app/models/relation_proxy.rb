@@ -70,7 +70,7 @@ class RelationProxy < Relation
   # get
 
   def other_link
-    other_links ? other_links[0] : nil
+    other_links ? other_links.first : nil
   end
 
   def other_id
@@ -100,9 +100,9 @@ class RelationProxy < Relation
     }.merge(opts)
     @records = secure(Node) { Node.find(:all, options) }
   end
-
+  
   LINK_ATTRIBUTES.each do |sym|
-    define_method(sym) do
+    define_method(:"other_#{sym}") do
       other_link ? other_link[sym] : nil
     end
   end

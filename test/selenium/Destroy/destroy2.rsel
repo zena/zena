@@ -1,0 +1,17 @@
+# Add first element
+open '/oo/testnode37.html?test=destroy1'
+verify_element_not_present 'destroy_destroy2'
+
+click 'css=img[alt=add]'
+type 'destroy_list1_title', "rock'n rol\"l"
+type 'destroy_list1_summary', 'destroy2'
+click 'css=input[type=submit]'
+wait_for_element_present 'destroy_destroy2'
+
+click 'css=#destroy_destroy2 a'
+assert_confirmation 'Destroy "rock\'n rol"l" ?'
+wait_for_element_not_present 'destroy_destroy2'
+
+# Reload
+open '/oo/testnode37.html?test=destroy2'
+verify_element_not_present 'destroy_destroy2'

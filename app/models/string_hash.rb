@@ -61,5 +61,5 @@ class StringHash < Hash
   end
 
   safe_context [:[], String] => String
-  safe_method :keys => [String]
+  safe_method :keys => {:class => [String], :method => 'keys.sort'}
 end

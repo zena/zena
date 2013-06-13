@@ -420,6 +420,7 @@ module Zena
           return parser_error("Invalid class 'for' parameter: #{finder.klass}") unless finder.klass <= Node
 
           node.dom_prefix = dom_name
+          var = root.get_unique_name('tog')
           dom_id = node.dom_id(:erb => false)
           markup.set_id(node.dom_id)
           markup.append_param(:class, 'toggle')
@@ -463,16 +464,16 @@ module Zena
 
           markup.append_param(:class, 'toggle')
           
-          opts = {}
+          opts = []
           if arity = @params.delete(:arity)
-            opts[:arity] = arity
+            opts << ":arity => #{RubyLess.translate_string(self, arity)}"
           end
           
           if js = @params.delete(:js)
-            opts[:js] = js
+            opts << ":js => #{RubyLess.translate_string(self, js)}"
           end
-          
-          markup.pre_wrap[:toggle] = "<% add_toggle_id(\"#{dom_id}\", #{"#{var}_tog".inspect}, #{RubyLess.translate_string(self, role)},#{opts.inspect}) { #{finder} } %>"
+          var = root.get_unique_name('tog')
+          markup.pre_wrap[:toggle] = "<% add_toggle_id(\"#{dom_id}\", #{var.inspect}, #{RubyLess.translate_string(self, role)},{#{opts.join(', ')}}) { #{finder} } %>"
         end
 
         def r_unlink

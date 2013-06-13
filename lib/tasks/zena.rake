@@ -373,7 +373,7 @@ namespace :zena do
         nodes = Node.find(:all,
           :conditions => ['site_id = ?', site.id]
         )
-        site.rebuild_index(secure_result(nodes))
+        site.rebuild_index(secure_result(nodes), 1)
       else
         # We try to use the site worker.
         site.rebuild_index

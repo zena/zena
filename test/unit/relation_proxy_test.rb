@@ -572,22 +572,33 @@ class RelationProxyTest < Zena::Unit::TestCase
     subject do
       node = secure(Node) { nodes(:cleanWater)}
     end
-
-    setup do
+    
+    should 'update with string list of ids' do
       login(:lion)
       node = secure(Node) { nodes(:cleanWater)}
       assert_difference('Link.count', 3) do
-        node.update_attributes_with_transformation('reference_ids' => [:art, :menu, :bird_jpg].map {|s| nodes_zip(s)})
+        node.update_attributes_with_transformation('reference_ids' => [:art, :menu, :bird_jpg].map {|s| nodes_zip(s)}.join(', '))
       end
     end
+    
+    context 'updating' do
 
-    should 'use other_id to update status' do
-      assert_difference('Link.count', 0) do
-        assert subject.update_attributes_with_transformation('rel' => {'reference' => {'other_id' => nodes_zip(:art), :status => 100}})
-        err subject
+      setup do
+        login(:lion)
+        node = secure(Node) { nodes(:cleanWater)}
+        assert_difference('Link.count', 3) do
+          node.update_attributes_with_transformation('reference_ids' => [:art, :menu, :bird_jpg].map {|s| nodes_zip(s)})
+        end
       end
 
-      assert_equal 100, subject.find(:first, 'reference where l_status = 100').l_status
+      should 'use other_id to update status' do
+        assert_difference('Link.count', 0) do
+          assert subject.update_attributes_with_transformation('rel' => {'reference' => {'other_id' => nodes_zip(:art), :status => 100}})
+          err subject
+        end
+
+        assert_equal 100, subject.find(:first, 'reference where l_status = 100').l_status
+      end
     end
   end # With many links
 end

@@ -284,7 +284,7 @@ module Zena
                 node
               elsif errors = result['errors']
                 @errors = errors
-                log_message errors
+                log_message errors.inspect
                 false
               else
                 log_message "Could not save:"
@@ -293,7 +293,7 @@ module Zena
               end
             elsif errors = result['errors']
               log_message "Could not save:"
-              log_message errors
+              log_message errors.inspect
               false
             else
               log_message "Could not save:"
@@ -304,6 +304,12 @@ module Zena
 
           def new_record?
             id.nil?
+          end
+          
+          def save!
+            if !save
+              raise Exception.new("Could not save.")
+            end
           end
         end
       end # Update

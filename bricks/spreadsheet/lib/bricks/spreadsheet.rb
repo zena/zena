@@ -84,6 +84,7 @@ module Bricks
       def render_html
         html = []
         @sheets.each do |s|
+          html << "<h3>#{s.name}</h3>"
           html << '<table>'
           s.rows.each do |r|
             html << '<tr>'
@@ -189,7 +190,6 @@ td{border:1px solid #444; padding:2px;}
 </style>
 </head>
 <body>
-<h1>Render as #{type}</h1>
 #{data}
 </body>
 </html>

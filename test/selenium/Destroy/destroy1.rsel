@@ -4,6 +4,7 @@ verify_element_not_present 'destroy_destroy1'
 
 click 'css=img[alt=add]'
 type 'destroy_list1_title', 'destroy1'
+type 'destroy_list1_summary', 'destroy1'
 click 'css=input[type=submit]'
 wait_for_element_present 'destroy_destroy1'
 

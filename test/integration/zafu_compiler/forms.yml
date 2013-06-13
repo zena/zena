@@ -46,24 +46,26 @@ select_class_existing_node:
   context:
     node: 'letter'
   src: "<r:form><r:select name='klass' root_class='Note'/></r:form>"
-  res: "/<select name=.node\[klass\]. id=.list1_klass.><option value=\"Note\">klass_Note<\/option>\n<option value=\"Letter\" selected=\"selected\">  klass_Letter<\/option>\n<option value=\"Post\">  klass_Post<\/option><\/select>/"
+  res: "/<select name=.node\[klass\]. id=.list1_klass.><option value=\"Note\">Note<\/option>\n<option value=\"Letter\" selected=\"selected\">  Letter<\/option>\n<option value=\"Post\">  Post<\/option><\/select>/"
 
 select_class_new_node:
   src: "<r:pages><r:each/><r:add/><r:form><r:select name='klass' root_class='Note' selected='Post'/></r:form>"
-  res: "/<select.*name=.node\[klass\].*klass_Note.*klass_Letter.*Post. selected=.selected./"
+  res: "/<select.*name=.node\[klass\].*Note.*Letter.*Post. selected=.selected./"
 
 select_class_kpath:
   src: "<r:select param='k' root_class='Note' attr='kpath'/>"
-  res: "/<select.*name=.k.*NN.*k_Note.*NNL.*k_Letter.*NNP.*k_Post/"
+  res: "/<select.*name=.k.*NN.*Note.*NNL.*Letter.*NNP.*Post/"
 
 select_class_tprefix:
-  src: "<r:select tprefix='foo' param='k' root_class='Note'/>"
-  tem: '/\["foo_Note", "Note"\]/'
-  res: "/foo_Note.*foo_Letter/"
+  context:
+    lang: fr
+  src: "<r:load dictionary='/Default skin/translations'><r:select tprefix='foo' param='k' root_class='Note'/></r:load>"
+  tem: '/\["the Foo Note", "Note"\]/'
+  res: "/the Foo Note.*Letter/"
 
 select_data:
   src: "<r:select data-d='foo' param='k' root_class='Note' attr='kpath'/>"
-  res: "/<select name=.k. data-d='foo'.*NN.*k_Note.*NNL.*k_Letter.*NNP.*k_Post/"
+  res: "/<select name=.k. data-d='foo'.*NN.*Note.*NNL.*Letter.*NNP.*Post/"
 
 select_nodes:
   src: "<r:form><r:select nodes='images in site' name='origin'></select></r:form>"
@@ -105,7 +107,7 @@ select_prop:
 
 select_l_status:
   # Refactor select to use collection_select.
-  src: "<r:select name='l_status' values='1,2,3' tshow='en,fr,de'/>"
+  src: "<r:select name='l_status' values='1.0, 2.0, 3.0' tshow='en,fr,de'/>"
   tem: "/@node.l_status.to_s/"
 
 form_publish:
@@ -118,6 +120,20 @@ checkbox:
   src: "<r:checkbox role='calendar' nodes='11'/>"
   res: "/hidden.*node\[calendar_ids\]\[\]' value=''.*input type='checkbox' name='node\[calendar_ids\]\[\]' value='11' checked='checked'.*Zena/"
 
+checkbox_literal_auto_trans:
+  context:
+    node: 'people'
+  src: "<r:load dictionary='/Default skin/translations'><r:checkbox name='assigned' values='1,2'/></r:load>"
+  tem: "/foo/"
+  res: "/value='1'/> <span>foo</span>/"
+
+radio_literal_auto_trans:
+  context:
+    node: 'people'
+    lang: fr
+  src: "<r:load dictionary='/Default skin/translations'><r:radio name='assigned' values='1,2'/></r:load>"
+  res: "/value='1'/> <span>foo</span>/"
+  
 checkbox_literal:
   context:
     node: 'people'
@@ -351,3 +367,10 @@ should_show_fields_for_columns:
   src: "<r:load dictionary='/Default skin/translations'><r:form><r:select name='assigned' values=',1,2,3'/></r:form></r:load>"
   tem: "/foo.*bar/"
   res: "/value=\"1\">foo<\/option>\n<option value=\"2\">bar/"
+
+form_rel_status:
+  context:
+    node: 'cleanWater'
+  src: "<r:input name='set_tag_status'/>"
+  tem: "/other_status/"
+  res: "<input type='text' name='node[set_tag_status]' value='10.0'/>"

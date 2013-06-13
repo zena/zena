@@ -82,8 +82,10 @@ class Image < Document
 
   # Return the width in pixels for an image at the given format.
   def width(format=nil)
-    if format.nil? || format.size == :keep
+    if format.nil? || format[:size] == :keep
       prop['width']
+    elsif format[:size] == :force
+      format[:width]
     else
       if img = image_with_format(format)
         img.width
@@ -95,8 +97,10 @@ class Image < Document
 
   # Return the height in pixels for an image at the given format.
   def height(format=nil)
-    if format.nil? || format.size == :keep
+    if format.nil? || format[:size] == :keep
       prop['height']
+    elsif format[:size] == :force
+      format[:height]
     else
       if img = image_with_format(format)
         img.height
@@ -147,7 +151,7 @@ class Image < Document
 
   # Return a file with the data for the given format. It is the receiver's responsability to close the file.
   def file(format=nil)
-    if format.nil? || format.size == :keep
+    if format.nil? || format[:size] == :keep
       super()
     else
       if File.exist?(self.filepath(format)) || make_image(format)
@@ -199,6 +203,14 @@ class Image < Document
     fname = "#{filename}.#{Zena::TYPE_TO_EXT[ctype][0]}"
     uploaded_file(file, filename, ctype)
   end
+  
+  # This is called if the image's width and/or height is nil and image builder could
+  # compute the size.
+  def fix_sizes(w, h)
+    prop['width']  = w
+    prop['height'] = h
+    Zena::Db.set_attribute(version, 'properties', encode_properties(@properties))
+  end
 
   private
 
@@ -234,7 +246,7 @@ class Image < Document
         format   ||= Iformat['full']
         @formats ||= {}
         @formats[format[:name]] ||= Zena::Use::ImageBuilder.new(:path => filepath,
-                :width => prop['width'], :height => prop['height']).transform!(format)
+                :width => prop['width'], :height => prop['height'], :node => self).transform!(format)
       else
         raise StandardError, "No image to work on"
       end

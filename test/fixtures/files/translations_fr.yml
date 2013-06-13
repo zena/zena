@@ -23,3 +23,4 @@ translations:
   assigned_1: foo
   assigned_2: bar
   assigned_3: baz
+  foo_Note: "the Foo Note"
