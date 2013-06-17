@@ -716,7 +716,8 @@ class NodesControllerTest < Zena::Controller::TestCase
         assert !File.exist?("#{SITES_ROOT}/test.host/public/en/image#{node.zip}.#{make_cachestamp(node,nil)}.jpg")
         # cache info ok
         get 'show', :prefix => 'en', :path => ["image#{node.zip}.#{make_cachestamp(node,nil)}.jpg"]
-        assert_response :success
+        # This is the redirect to force apache serving
+        assert_redirected_to "/en/image#{node.zip}.#{make_cachestamp(node,nil)}.jpg?1"
         assert File.exist?("#{SITES_ROOT}/test.host/public/en/image#{node.zip}.#{make_cachestamp(node,nil)}.jpg")
       end
     end

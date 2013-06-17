@@ -85,8 +85,7 @@ ancestors_on_root:
 
 prop_in_list_context:
   src: "<div do='nodes in site'><r:title/></div>"
-  tem: "/var1.first.prop\['title'\]/"
-  res: '<div>a wiki with Zena</div>'
+  tem: "/unknown method <span class='type'>title..</span> .\[Node\] context./"
 
 role_existing_class_name:
   # Should understand 'Comment' as a Role.

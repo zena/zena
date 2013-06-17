@@ -34,7 +34,8 @@ module Zafu
 
         rubyless_render(@method, params)
       rescue RubyLess::NoMethodError => err
-        parser_continue("#{err.error_message} <span class='type'>#{err.method_with_arguments}</span> (#{node.klass} context)")
+        klass_name = node.list_context? ? "[#{node.klass}]" : node.klass.to_s
+        parser_continue("#{err.error_message} <span class='type'>#{err.method_with_arguments}</span> (#{klass_name} context)")
       rescue RubyLess::Error => err
         parser_continue(err.message)
       end
@@ -181,10 +182,7 @@ module Zafu
           elsif node && node.list_context? && type = safe_method_from(Array, signature, node)
             # FIXME: why do we need this here ? Remove with related code in zafu_safe_definitions ?
             type = type[:class].call(self, node.klass, signature) if type[:class].kind_of?(Proc)
-            type.merge(:receiver => RubyLess::TypedString.new(node.name, :class => Array, :elem => node.klass.first))
-          elsif node && node.list_context? && type = safe_method_from(node.klass.first, signature, node)
-            type = type[:class].call(self, node.klass, signature) if type[:class].kind_of?(Proc)
-            type.merge(:receiver => RubyLess::TypedString.new("#{node.name}.first", :class => node.klass.first, :h => true))
+            type.merge(:receiver => RubyLess::TypedString.new(node.name, :class => Array, :query => node.opts[:query], :elem => node.klass.first))
           elsif @rendering_block_owner && @blocks.first.kind_of?(String) && !added_options
             # Insert the block content into the method: <r:trans>blah</r:trans> becomes trans("blah")
             signature_with_block = signature.dup

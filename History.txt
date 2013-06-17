@@ -3,6 +3,7 @@
 * Major changes
  * To support video streaming: redirect on first document cache. WARNING: This 
    implies changes to vhost files !
+ * WARN: Properties in list context do not resolve with first element anymore. "first" prefix needed.
 
 * Minor changes
  * Fixed encode_params in Ajax requests.

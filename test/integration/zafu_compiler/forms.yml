@@ -123,6 +123,7 @@ checkbox:
 checkbox_literal_auto_trans:
   context:
     node: 'people'
+    lang: 'fr'
   src: "<r:load dictionary='/Default skin/translations'><r:checkbox name='assigned' values='1,2'/></r:load>"
   tem: "/foo/"
   res: "/value='1'/> <span>foo</span>/"

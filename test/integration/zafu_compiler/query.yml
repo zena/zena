@@ -265,7 +265,7 @@ select_in_from_saved:
   res: "<div>a wiki with Zena: bird, a wiki with Zena: flower, Clean Water project: it&#39;s a lake</div>"
 
 select_group:
-  src: "<div do='images select title as it from projects select title as pt in site' do='group' by='pt' do='each_group' join=' / '><r:pt/>: <r:each join=', ' do='it'/></div>"
+  src: "<div do='images select title as it from projects select title as pt in site' do='group' by='pt' do='each_group' join=' / '><r:first do='pt'/>: <r:each join=', ' do='it'/></div>"
   res: "<div>a wiki with Zena: bird, flower / Clean Water project: it&#39;s a lake</div>"
 
 select_group_count:

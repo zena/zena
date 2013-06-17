@@ -117,7 +117,9 @@ module Zena
         def self.first_proc
           @@first_proc ||= Proc.new do |receiver, method|
             if elem = receiver.opts[:elem] || receiver.klass.first
-              RubyLess::TypedString.new("#{receiver.raw}.first", :class => elem, :nil => true)
+              # All query contexts are only opened if they are not empty.
+              could_be_nil = !receiver.opts[:query]
+              RubyLess::TypedString.new("#{receiver.raw}.first", :class => elem, :nil => could_be_nil, :query => receiver.opts[:query])
             else
               # should never happen
               raise RubyLess::NoMethodError.new(receiver.raw, receiver.klass, ['first'])

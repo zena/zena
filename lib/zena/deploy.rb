@@ -332,7 +332,7 @@ Capistrano::Configuration.instance(:must_exist).load do
       awstats = '/etc/cron.d/awstats'
       run %Q{sed "/config=#{self[:host]} /d" #{awstats} >#{awstats}.tmp && mv #{awstats}.tmp #{awstats}}
 
-      logrotate_conf = "/etc/logrotate.d/#{self[:old_host]}"
+      logrotate_conf = "/etc/logrotate.d/#{db_name}-#{self[:old_host]}"
       run "test -e #{logrotate_conf} && rm #{logrotate_conf} || true"
 
       create_vhost

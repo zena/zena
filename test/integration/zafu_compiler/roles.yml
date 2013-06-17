@@ -131,7 +131,7 @@ manual_select:
 
 inspect_display_links:
   src: |
-    <r:Template do='relations' do='each' set_rel='name' do='main'>
+    <r:Template do='relations' do='each' do='main' set_rel='name'>
       <h3 do='rel'/>
       <ul do='query' default='nodes' select='#{rel}s'>
         <li do='each' do='link'/>

@@ -390,7 +390,7 @@ each_whitespace:
 
 set_class_before_query:
   # Uses list context
-  src: "<div class='foo_#{title}' do='images in site'></div>"
+  src: "<div class='foo_#{first.title}' do='images in site'></div>"
   res: "<div class='foo_Autumn Tree'></div>"
 
 flash_messages:
@@ -513,3 +513,8 @@ invalid_document:
 uuid:
   src: "<div id='foo#{uuid}'>hop</div>"
   res: "/<div id='foou[a-z0-9]+'>hop</div>/"
+
+use_first_in_list:
+  src: "<r:void do='contacts where id = 13 in site'><r:first do='link'/> // <r:first do='title'/></r:void>"
+  tem: "/var1.first.*var1.first/"
+  res: "<a href='/oo/contact13.html'>Solenopsis Invicta</a> // Solenopsis Invicta"

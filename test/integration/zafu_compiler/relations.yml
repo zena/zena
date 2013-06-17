@@ -392,23 +392,23 @@ where_with_param:
 group_by_secret_project:
   context:
     visitor: ant
-  src: "<r:pages where='title like \"t%\"' in='site' order='title ASC' do='group' by='project'><b do='project' do='title'/>: <r:each join=',' do='title'/></r:pages>"
+  src: "<r:pages where='title like \"t%\"' in='site' order='title ASC' do='group' by='project'><b do='first.project' do='title'/>: <r:each join=',' do='title'/></r:pages>"
   res: ": Talk<b>Zena the wild CMS</b>: Top menu"
 
 group_by_project:
   context:
     visitor: lion
-  src: "<r:notes in='site' order='title ASC' do='group' by='project'><b do='project' do='title'/>: <r:each join=',' do='title'/></r:notes>"
+  src: "<r:notes in='site' order='title ASC' do='group' by='project'><b do='first.project' do='title'/>: <r:each join=',' do='title'/></r:notes>"
   res: "<b>Clean Water project</b>: parc opening<b>Secret</b>: Proposition<b>Zena the wild CMS</b>: zena enhancements"
 
 group_by_project_sort_zip:
   context:
     visitor: ant
-  src: "<r:images in='site' order='zip ASC' do='group' by='project' sort='id'><b do='project' do='title'/>: <r:each join=', ' do='title'/></r:images>"
+  src: "<r:images in='site' order='zip ASC' do='group' by='project' sort='id'><b do='first.project' do='title'/>: <r:each join=', ' do='title'/></r:images>"
   res: "<b>Clean Water project</b>: it&#39;s a lake<b>a wiki with Zena</b>: bird, flower<b>Zena the wild CMS</b>: Autumn Tree"
 
 group_by_parent_sort:
-  src: "<r:images in='site' order='title ASC' do='group' by='parent' sort='title'><b do='parent' do='title'/>: <r:each join=', ' do='title'/></r:images>"
+  src: "<r:images in='site' order='title ASC' do='group' by='parent' sort='title'><b do='first.parent' do='title'/>: <r:each join=', ' do='title'/></r:images>"
   res: "<b>a wiki with Zena</b>: bird, flower<b>Clean Water project</b>: it&#39;s a lake"
 
 nodes_in_site_group_by_year:
@@ -466,12 +466,12 @@ array_count:
 
 first:
   src: "<div do='nodes in site'><r:first do='link'/></div>"
-  tem: "/if var2 = var1.first %><a href='<%= zen_path\(var2\) %>'><%=h var2.prop\['title'\] %>/"
+  tem: "/var2 = var1.first %><a href='<%= zen_path\(var2\) %>'><%=h var2.prop\['title'\] %>/"
   res: '/a href.*a wiki with Zena/'
 
 rubyless_first:
   src: "<div do='nodes in site'><span do='first.title'/></div>"
-  tem: "/span><%=h \(var1.first \? var1.first.prop\['title'\] : nil\) %>/"
+  tem: "/span><%=h var1.first.prop\['title'\] %>/"
   res: '<div><span>a wiki with Zena</span></div>'
 
 query_in_array:

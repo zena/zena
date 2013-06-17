@@ -13,8 +13,8 @@ comments_shown_if_empty_but_can_comment:
   tem: "/if \(var1 = @node.comments\) \|\| \(@node.can_comment\? && var1=\[\]\) %>/"
 
 discussion:
-  src: "<r:discussion do='comments' do='title'></r:discussion>"
-  tem: "<% if var1 = @node.discussion %><% if var2 = var1.comments %><%=h var2.first.title %><% end %><% end %>"
+  src: "<r:discussion do='comments' do='first.title'></r:discussion>"
+  tem: "<% if var1 = @node.discussion %><% if var2 = var1.comments %><%=h (var2.first ? var2.first.title : nil) %><% end %><% end %>"
   # no error
   res: "What about rivers ?"
 

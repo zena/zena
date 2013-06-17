@@ -93,7 +93,7 @@ module Zena
             if ep.delete('mode')
               mode ||= params[:mode]
             end
-            opts['encode_params'] = ep
+            opts[:encode_params] = ep
           end
 
           if host = opts.delete(:host)
@@ -155,6 +155,7 @@ module Zena
         end
 
         def append_query_params(path, opts)
+          
           if opts == {}
             path
           else
@@ -504,107 +505,6 @@ module Zena
           # We wrap without callbacks (before_wrap, after_wrap) so that the link
           # is used as raw text in these callbacks.
           markup.wrap(text)
-=begin
-          query_params = options[:query_params] || {}
-          default_text = options[:default_text]
-          params = {}
-          (options[:params] || @params).each do |k,v|
-            next if v.nil?
-            params[k] = v
-          end
-
-          opts = {}
-
-          if href = params.delete(:href)
-            if lnode = get_context_var('set_var', value) && stored.klass <= Node
-              # using stored node
-            else
-              lnode, klass = build_finder(:first, href, {})
-              return unless lnode
-              return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
-            end
-          else
-            # obj
-            if node_class == Version
-              lnode = "#{node}.node"
-              opts[:lang] = "#{node}.lang"
-            elsif node.will_be?(Node)
-              lnode = node
-            else
-              lnode = @context[:previous_node]
-            end
-          end
-
-          if fmt = params.delete(:format)
-            if fmt == 'data'
-              opts[:format] = "#{node}.ext"
-            else
-              opts[:format] = fmt.inspect
-            end
-          end
-
-          if mode = params.delete(:mode)
-            opts[:mode] = mode.inspect
-          end
-
-          if anchor = params.delete(:anchor)
-            opts[:anchor] = anchor.inspect
-          end
-
-          if anchor_in = params.delete(:in)
-            finder, klass = build_finder(:first, anchor_in, {})
-            return unless finder
-            return parser_error("invalid class (#{klass})") unless klass.ancestors.include?(Node)
-            opts[:anchor_in] = finder
-          end
-
-          if @html_tag && @html_tag != 'a'
-            # FIXME: can we remove this ?
-            # html attributes do not belong to anchor
-            pre_space = ''
-            html_params = {}
-          else
-            html_params = get_html_params(params.merge(@html_tag_params), :link)
-            pre_space = @space_before || ''
-            @html_tag_done = true
-          end
-
-          (params.keys - [:style, :class, :id, :rel, :name, :anchor, :attr, :tattr, :trans, :text]).each do |k|
-            next if k.to_s =~ /if_|set_|\A_/
-            query_params[k] = params[k]
-          end
-
-          # TODO: merge these two query_params cleanup things into something cleaner.
-          else
-            # direct link
-            query_params.each do |k,v|
-              if k == :date
-                if v == 'current_date'
-                  query_params[k] = current_date
-                elsif v =~ /\A\d/
-                  query_params[k] = v.inspect
-                elsif v =~ /\[/
-                  attribute, static = parse_attributes_in_value(v.gsub('"',''), :erb => false)
-                  query_params[k] = "\"#{attribute}\""
-                else
-                  query_params[k] = node_attribute(v)
-                end
-              else
-                attribute, static = parse_attributes_in_value(v.gsub('"',''), :erb => false)
-                query_params[k] = "\"#{attribute}\""
-              end
-            end
-
-            query_params.merge!(opts)
-
-            opts_str = ''
-            query_params.keys.sort {|a,b| a.to_s <=> b.to_s }.each do |k|
-              opts_str << ",:#{k.to_s.gsub(/[^a-z_A-Z_]/,'')}=>#{query_params[k]}"
-            end
-
-            pre_space + "<a#{params_to_html(html_params)} href='<%= zen_path(#{lnode}#{opts_str}) %>'>#{text_for_link(default_text)}</a>"
-          end
-=end
         end
 
 
