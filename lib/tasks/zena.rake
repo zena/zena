@@ -143,6 +143,41 @@ namespace :zena do
       end
     end
   end
+  
+  desc "Create a new site alias, parameters are ALIAS, HOST"
+  task :mkalias => :environment do
+    # 0. set host name
+    unless host = ENV['HOST']
+      puts "Please set HOST to the hostname for the master site. Aborting."
+    else
+      unless ali = ENV['ALIAS']
+        puts "Please set ALIAS to the hostname of the alias site. Aborting."
+      else
+        if Site.find_by_host(ali)
+          puts "Host alias already exists in the database. Aborting."
+        else
+          unless site = Site.find_by_host(host)
+            puts "Master host not found in the database. Aborting."
+          else
+            alias_site = site.create_alias(ali)
+            
+            if alias_site.new_record?
+              puts "Could not create site alias ! Errors:"
+              alias_site.errors.each do |k,v|
+                puts "[#{k}] #{v}"
+              end
+              raise "Aborting."
+            else
+              # 1. create directories and symlinks
+              `rake zena:mksymlinks HOST=#{ali.inspect}`
+
+              puts "Site alias [#{ali} => #{host}] created."
+            end
+          end
+        end
+      end
+    end
+  end
 
   desc "Create symlinks for a site"
   task :mksymlinks => :zena_config do
@@ -362,7 +397,7 @@ namespace :zena do
     if ENV['HOST']
       sites = [Site.find_by_host(ENV['HOST'])]
     else
-      sites = Site.all
+      sites = Site.master_sites
     end
     
     sites.each do |site|
@@ -387,7 +422,7 @@ namespace :zena do
     if ENV['HOST']
       sites = [Site.find_by_host(ENV['HOST'])]
     else
-      sites = Site.all
+      sites = Site.master_sites
     end
     sites.each do |site|
       # Does not use SiteWorker.
@@ -401,7 +436,7 @@ namespace :zena do
     if ENV['HOST']
       sites = [Site.find_by_host(ENV['HOST'])]
     else
-      sites = Site.all
+      sites = Site.master_sites
     end
     sites.each do |site|
       # We avoid SiteWorker by passing nodes.

@@ -15,3 +15,22 @@ zena:
     recaptcha_pub: 'pub'
     recaptcha_priv: 'priv'
     usr_prototype_attributes: "{'klass' => 'Contact', 'address' => 'Iping', 'name' => login}"
+
+alias:
+  master:          zena
+  host:            alias.host
+  root:            wiki
+  anon:            anon
+  public_group:    public
+  site_group:      workers
+  authentication:  no
+  auto_publish:    no
+  redit_time:      7200
+  languages:       
+  default_lang:    
+  formats_updated_at:
+  api_group:       
+  prop:
+    recaptcha_pub: 'pub'
+    recaptcha_priv: 'priv'
+    usr_prototype_attributes: "{'klass' => 'Contact', 'address' => 'Iping', 'name' => login}"

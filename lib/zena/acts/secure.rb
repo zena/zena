@@ -145,9 +145,10 @@ Just doing the above will filter all result according to the logged in user.
               find[:conditions] = node_find_scope
             end
           elsif klass.column_names.include?('site_id')
-            find[:conditions] = {klass.table_name => {:site_id => visitor.site[:id]}}
+            find[:conditions] = {klass.table_name => {:site_id => visitor.site.id}}
           elsif klass <= ::Site
-            find[:conditions] = {klass.table_name => {:id => visitor.site[:id]}}
+            id = visitor.site.id
+            find[:conditions] = ['id = ? or master_id = ?', id, id]
           end
 
           # FIXME: 'with_scope' is protected now. Can we live with something cleaner like this ?
@@ -307,6 +308,14 @@ end # Zena
 # Return the current site. Raise an error if the visitor is not set.
 def current_site
   visitor.site
+end
+
+# This method should be used to install a given user and site as the current visitor.
+def setup_visitor(user, site)
+  raise "Missing site information" unless site
+  Thread.current[:visitor] = user
+  # Load alias site in visitor
+  user.site = site
 end
 
 # Return the current visitor. Raise an error if the visitor is not set.

@@ -1545,7 +1545,11 @@ msgstr "groupe de site"
 
 #: app/views/sites/_li.erb:2 lib/gettext_strings.rb:34
 msgid "site_img"
-msgstr "<img src='/images/world.png' alt='site'/>"
+msgstr "<img src='/images/world.png' alt='site' title='site'/>"
+
+#: app/views/sites/_li.erb:2 lib/gettext_strings.rb:34
+msgid "alias_img"
+msgstr "<img src='/images/world_link.png' alt='alias' title='alias'/>"
 
 #: app/views/sites/index.erb:1 lib/zena/use/display.rb:279
 msgid "sites"

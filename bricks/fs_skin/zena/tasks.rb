@@ -9,7 +9,7 @@ namespace :fs_skin do
     if ENV['HOST']
       sites = [Site.find_by_host(ENV['HOST'])]
     else
-      sites = Site.all
+      sites = Site.master_sites
     end
     
     sites.each do |site|

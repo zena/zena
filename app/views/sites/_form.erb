@@ -14,21 +14,24 @@
   <% end %>
   <table cellspacing='0' class='edit_site'>
     <tr><td class='label'><%= _('host') %></td><td><%= @site[:host] %></td></tr>
-    <% Site.attributes_for_form[:text].each do |name| -%>
+    <tr><td class='label'><%= _('root') %></td><td><%= text_field('site', :root_zip, :size=>15, :value => @site.root_zip) %></td></tr>
+    <% Site.attributes_for_form(@site.is_alias?)[:text].each do |name| -%>
     <tr><td class='label'><%= _(name) %></td><td><%= text_field('site', name, :size=>nil) %></td></tr>
     <% end -%>
+    <% if !@site.is_alias? %>
     <tr><td class='label'><%= _('redit_time') %></td><td><%= text_field('site', :redit_time, :size=>15, :value => @site.redit_time) %></td></tr>
     <tr><td class='label'><%= _('public group') %></td><td><%= @site.public_group.name %></td></tr>
     <tr><td class='label'><%= _('site group') %></td><td><%= @site.site_group.name %></td></tr>
     <tr><td class='label'><%= _('API group') %></td><td><%= select('site', 'api_group_id',  visitor.all_groups.map{|g| [g.name, g.id]}, {:include_blank => true, :selected => @site.api_group_id} ) %></td></tr>
 
     <tr><td class='label'><%= _('options') %></td><td>
-    <% Site.attributes_for_form[:bool].each do |sym| -%>
+    <% end %>
+    <% Site.attributes_for_form(@site.is_alias?)[:bool].each do |sym| -%>
     <input type='hidden' name='site[<%= sym %>]' value=''/>
     <input type='checkbox' name='site[<%= sym %>]' value='1'<%= @site.send(sym) ? " checked='checked'" : '' %>/> <%= _(sym.to_s) %><br/>
     <% end -%>
     </td></tr>
-    <% if !@site.new_record? %>
+    <% if !@site.new_record? && !@site.is_alias? %>
     <tr><td class='label'><%= _('action') %></td><td id='messages<%= @site[:id] %>'>
       <ul>
         <% Site::ACTIONS.each do |action| %>

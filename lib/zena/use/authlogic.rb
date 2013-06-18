@@ -50,7 +50,8 @@ module Zena
             User.send(:with_scope, :find => {:conditions => ['site_id = ?', site.id]}) do
               if user = token_visitor || registered_visitor || anonymous_visitor(site)
                 user.asset_host = @asset_host
-                Thread.current[:visitor] = user
+                # Make sure we load alias site in visitor
+                setup_visitor(user, site)
               end
             end
           end

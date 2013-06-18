@@ -16,6 +16,7 @@ The #Site model holds configuration information for a site:
 +default_lang+::    The default language of the site.
 =end
 class Site < ActiveRecord::Base
+  attr_accessor :alias # = site alias (different settings + domain)
   CLEANUP_SQL = [
     ['attachments'         , 'site_id = ?'],
     ['cached_pages'        , 'site_id = ?'],
@@ -59,7 +60,7 @@ class Site < ActiveRecord::Base
 
   validate :valid_site
   validates_uniqueness_of :host
-  attr_accessible :name, :languages, :default_lang, :authentication, :http_auth, :ssl_on_auth, :auto_publish, :redit_time, :api_group_id
+  attr_accessible :name, :languages, :default_lang, :authentication, :http_auth, :ssl_on_auth, :auto_publish, :redit_time, :api_group_id, :root_zip
   has_many :groups, :order => "name"
   has_many :nodes
   has_many :users
@@ -74,7 +75,12 @@ class Site < ActiveRecord::Base
 
   @@attributes_for_form = {
     :bool => %w{authentication http_auth auto_publish ssl_on_auth},
-    :text => %w{name languages default_lang},
+    :text => %w{languages default_lang},
+  }
+  
+  @@alias_attributes_for_form = {
+    :bool => %w{},
+    :text => %w{},
   }
 
   class << self
@@ -210,15 +216,27 @@ class Site < ActiveRecord::Base
       site.instance_variable_set(:@being_created, false)
       site
     end
+    
+    def master_sites
+      Site.all(:conditions => ['master_id is NULL'])
+    end
 
     def find_by_host(host)
       host = $1 if host =~ /^(.*)\.$/
-      self.find(:first, :conditions => ['host = ?', host]) rescue nil
+      if site = self.find(:first, :conditions => ['host = ?', host]) rescue nil
+        if id = site.master_id
+          # The loaded site is an alias, load master site.
+          master = self.find(:first, :conditions => ['id = ?', id])
+          master.alias = site
+          site = master
+        end
+      end
+      site
     end
 
     # List of attributes that can be configured in the admin form
-    def attributes_for_form
-      @@attributes_for_form
+    def attributes_for_form(is_alias = false)
+      is_alias ? @@alias_attributes_for_form : @@attributes_for_form
     end
   end
 
@@ -234,26 +252,26 @@ class Site < ActiveRecord::Base
   # If you need to serve from another directory, we do not store the path into the sites table
   # for security reasons. The easiest way around this limitation is to symlink the 'public' directory.
   def public_path
-    "/#{self[:host]}#{PUBLIC_PATH}"
+    "/#{host}#{PUBLIC_PATH}"
   end
   
   # This is the place where cached files should be stored in case we do not want
   # to store the cached file inside the public directory.
   def cache_path
-    "/#{self[:host]}#{CACHE_PATH}"
+    "/#{host}#{CACHE_PATH}"
   end
 
   # Return path for documents data: RAILS_ROOT/sites/_host_/data
   # You can symlink the 'data' directory if you need to keep the data in some other place.
   def data_path
-    "/#{self[:host]}/data"
+    "/#{host}/data"
   end
 
   # Return the path for zafu rendered templates: RAILS_ROOT/sites/_host_/zafu
   def zafu_path
-    "/#{self[:host]}/zafu"
+    "/#{host}/zafu"
   end
-
+  
   # Return the anonymous user, the one used by anonymous visitors to visit the public part
   # of the site.
   def anon
@@ -268,8 +286,7 @@ class Site < ActiveRecord::Base
   # Return the root node or a dummy if the visitor cannot view root
   # node (such as during a 404 or login rendering).
   def root_node
-    @root ||= secure(Node) { Node.find(self.root_id) } ||
-              Node.new(:title => host)
+    @root ||= secure(Node) { Node.find(root_id) } || Node.new(:title => host)
   end
 
   # Return the public group: the one in which every visitor belongs.
@@ -337,6 +354,41 @@ class Site < ActiveRecord::Base
   def lang_list
     (self[:languages] || "").split(',').map(&:strip)
   end
+  
+  ###### Alias handling
+  def is_alias?
+    !self[:master_id].blank?
+  end
+  
+  def host
+    @host ||= @alias && @alias[:host] || self[:host]
+  end
+  
+  def root_id
+    @root_id ||= @alias && @alias[:root_id] || self[:root_id]
+  end
+  
+  def root_zip
+    root_node.zip
+  end
+  
+  def root_zip=(zip)
+    if id = secure(Node) { Node.translate_pseudo_id(zip) }
+      self[:root_id] = id
+    else
+      @root_zip_error = _('could not be found')
+    end
+  end
+  
+  def create_alias(hostname)
+    raise "Hostname '#{hostname}' already exists" if Site.find_by_host(hostname)
+    ali = Site.new(self.attributes)
+    ali.host = hostname
+    ali.master_id = self.id
+    ali.save
+    ali
+  end
+  ######
 
   def being_created?
     @being_created
@@ -383,24 +435,36 @@ class Site < ActiveRecord::Base
   end
 
   def clear_cache(clear_zafu = true)
-    path = "#{SITES_ROOT}#{self.cache_path}"
-    Site.logger.error("\n-----------------\nCLEAR CACHE FOR SITE #{host}\n-----------------\n")
-
-    if File.exist?(path)
-      Dir.foreach(path) do |elem|
-        next unless elem =~ /^(\w\w\.html|\w\w|login\.html)$/
-        FileUtils.rmtree(File.join(path, elem))
-      end
-
-      Zena::Db.execute "DELETE FROM caches WHERE site_id = #{self[:id]}"
-      Zena::Db.execute "DELETE FROM cached_pages_nodes WHERE cached_pages_nodes.node_id IN (SELECT nodes.id FROM nodes WHERE nodes.site_id = #{self[:id]})"
-      Zena::Db.execute "DELETE FROM cached_pages WHERE site_id = #{self[:id]}"
+    paths = ["#{SITES_ROOT}#{self.cache_path}"]
+    aliases = Site.all(:master_id => self.id)
+    aliases.each do |site|
+      paths << "#{SITES_ROOT}#{site.cache_path}"
     end
+    Site.logger.error("\n-----------------\nCLEAR CACHE FOR SITE #{host} (#{aliases.map(&:host).join(', ')})\n-----------------\n")
 
-    if clear_zafu
-      path = "#{SITES_ROOT}#{self.zafu_path}"
+    paths.each do |path|
       if File.exist?(path)
-        FileUtils.rmtree(path)
+        Dir.foreach(path) do |elem|
+          next unless elem =~ /^(\w\w\.html|\w\w|login\.html)$/
+          FileUtils.rmtree(File.join(path, elem))
+        end
+
+        Zena::Db.execute "DELETE FROM caches WHERE site_id = #{self[:id]}"
+        Zena::Db.execute "DELETE FROM cached_pages_nodes WHERE cached_pages_nodes.node_id IN (SELECT nodes.id FROM nodes WHERE nodes.site_id = #{self[:id]})"
+        Zena::Db.execute "DELETE FROM cached_pages WHERE site_id = #{self[:id]}"
+      end
+    end
+    
+    # Clear zafu
+    if clear_zafu
+      paths = ["#{SITES_ROOT}#{self.zafu_path}"]
+      aliases.each do |site|
+        paths << "#{SITES_ROOT}#{site.cache_path}"
+      end
+      paths.each do |path|
+        if File.exist?(path)
+          FileUtils.rmtree(path)
+        end
       end
     end
 
@@ -510,8 +574,19 @@ class Site < ActiveRecord::Base
   private
     def valid_site
       errors.add(:host, 'invalid') if self[:host].nil? || (self[:host] =~ /^\./) || (self[:host] =~ /[^\w\.\-]/)
-      errors.add(:languages, 'invalid') unless self[:languages].split(',').inject(true){|i,l| (i && l =~ /^\w\w$/)}
-      errors.add(:default_lang, 'invalid') unless self[:languages].split(',').include?(self[:default_lang])
+      
+      if !is_alias?
+        errors.add(:languages, 'invalid') unless self[:languages].split(',').inject(true){|i,l| (i && l =~ /^\w\w$/)}
+        errors.add(:default_lang, 'invalid') unless self[:languages].split(',').include?(self[:default_lang])
+      else
+        self[:languages] = nil
+        self[:default_lang] = nil
+      end
+      
+      if @root_zip_error
+        errors.add('root_id', @root_zip_error)
+        @root_zip_error = nil
+      end
     end
 
 end

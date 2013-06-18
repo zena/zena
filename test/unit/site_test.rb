@@ -362,7 +362,58 @@ class SiteTest < Zena::Unit::TestCase
     end
   end
 
+  context 'A site alias' do
+    subject do
+      Site.find_by_host('alias.host')
+    end
 
+    should 'return master' do
+      assert_equal sites_id('zena'), subject.id
+    end
+
+    should 'have alias' do
+      assert_equal sites_id('alias'), subject.alias.id
+    end
+
+    should 'return alias host' do
+      assert_equal 'alias.host', subject.host
+    end
+    
+    should 'return alias zafu path' do
+      assert_equal '/alias.host/zafu', subject.zafu_path
+    end
+    
+    should 'return alias root node' do
+      assert_equal nodes_id(:wiki), subject.root_id
+    end
+  end
+  
+  context 'Creating a site alias' do
+    subject do
+      Site.find_by_host('test.host')
+    end
+
+    should 'create site' do
+      assert_difference('Site.count', 1) do
+        assert_difference('Node.count', 0) do
+          assert_difference('User.count', 0) do
+            subject.create_alias('foo.bar')
+          end
+        end
+      end
+    end
+
+    should 'set master_id' do
+      ali = subject.create_alias('foo.bar')
+      assert_equal subject.id, ali.master_id
+    end
+    
+    should 'set host name' do
+      ali = subject.create_alias('foo.bar')
+      assert_equal 'foo.bar', ali.host
+    end
+  end
+  
   private
     def fullpath(*args)
       args.map {|sym| nodes_zip(sym).to_s}.join('/')

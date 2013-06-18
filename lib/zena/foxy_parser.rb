@@ -709,7 +709,7 @@ module Zena
       end
 
       def multi_site_id_keys
-        super + ['su', 'anon']
+        super + ['su', 'anon', 'master']
       end
   end
 
