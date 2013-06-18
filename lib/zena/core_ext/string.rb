@@ -101,9 +101,9 @@ class String
   def limit(size, readmore = '…')
     if self.size > size
       # readmore can contain a link: <a...> but this is defined in the zafu template.
-      ::ERB::Util.html_escape(self[0..(size-1)]) + readmore
+      self[0..(size-1)] + readmore
     else
-      ::ERB::Util.html_escape(self)
+      self
     end
   end
 
