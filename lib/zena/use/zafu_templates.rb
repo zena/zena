@@ -261,6 +261,7 @@ module Zena
             return default_template_url(opts) unless zafu_url
             
             rel_path  = current_site.zafu_path + "/#{zafu_url}/#{lang_path}/_main.erb"
+            
             path      = SITES_ROOT + rel_path
             if !File.exists?(path) || params[:rebuild]
               if @node && klass = VirtualClass.find_by_kpath(template.tkpath)

@@ -54,8 +54,9 @@ class SitesController < ApplicationController
   end
   
   def clear_cache
-    @site = secure!(Site) { Site.first }
-    @site.clear_cache
+    secure!(Site) { Site.all }.each do |site|
+      site.clear_cache
+    end
     redirect_to '/'
   end
 

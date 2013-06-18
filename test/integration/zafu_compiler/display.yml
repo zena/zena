@@ -331,7 +331,7 @@ string_size:
   res: '<div>11</div>'
 
 string_limit:
-  src: "<div do='text'><r:void do='limit(10,\"\")'/><r:if test='size > 10' do='link' href='@node' do='t' t='read more'/></div>"
+  src: "<div do='text'><r:void do='limit(10,\"\")'/><r:if test='size > 10' do='link' href='@node' t='read more'/></div>"
   res: "<div>status tex<a href='/oo/projects-list/Clean-Water-project/page22.html'>read more</a></div>"
 
 show_with_label_shortcut:

@@ -99,17 +99,18 @@ module Zena
     def login(name, host = nil)
       finder = {}
       finder[:conditions] = cond = [[]]
+      site = nil
       if host
-        finder[:joins] = 'INNER JOIN sites ON sites.id = users.site_id'
-        cond.first << 'sites.host = ?'
-        cond << host.to_s
+        site = Site.find_by_host(host)
+        cond.first << 'site_id = ?'
+        cond << site.id
       end
 
       cond.first << 'users.login = ?'
       cond << name.to_s
       cond[0] = cond.first.join(' AND ')
       if visitor = User.find(:first, finder)
-        Thread.current[:visitor] = visitor
+        setup_visitor(visitor, site || visitor.site)
         puts "Logged #{visitor.login} in #{visitor.site.host}"
       else
         raise ActiveRecord::RecordNotFound

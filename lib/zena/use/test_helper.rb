@@ -9,7 +9,7 @@ module Zena
       # Set visitor for unit testing
       def login(fixture)
         user = users(fixture)
-        Thread.current[:visitor] = user
+        setup_visitor(user, user.site)
         user.ip = '10.0.0.44'
         $_test_site = user.site.name
         ::I18n.locale = user.lang

@@ -36,7 +36,8 @@ class MultipleHostsTest < ActionController::IntegrationTest
 
   def test_cache
     # We need the visitor to load VirtualClass cache.
-    Thread.current[:visitor] = users(:anon)
+    anon_user = users(:anon)
+    setup_visitor(anon_user, anon_user.site)
     node_zip = nodes(:zena, :people).zip
     Thread.current[:visitor] = nil
     

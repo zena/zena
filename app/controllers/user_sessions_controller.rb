@@ -58,7 +58,7 @@ class UserSessionsController < ApplicationController
         raise ActiveRecord::RecordNotFound.new("host not found #{request.host}")
       end
 
-      Thread.current[:visitor] = anonymous_visitor(site)
+      setup_visitor(anonymous_visitor(site), site)
     end
 
     def redirect_after_login

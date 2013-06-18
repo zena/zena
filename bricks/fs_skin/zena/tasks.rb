@@ -13,7 +13,7 @@ namespace :fs_skin do
     end
     
     sites.each do |site|
-      Thread.current[:visitor] = site.any_admin
+      setup_visitor(site.any_admin, site)
       if ENV['WORKER'] == 'false' || RAILS_ENV == 'test'
         # We avoid SiteWorker.
         site.rebuild_fs_skin_index

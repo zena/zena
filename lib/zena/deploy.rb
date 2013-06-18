@@ -162,6 +162,19 @@ Capistrano::Configuration.instance(:must_exist).load do
     run "chown -R www-data:www-data #{sites_root}/#{self[:host]}"
   end
   
+  desc "create a new site alias [-s host='...' -s alias='...' -s pass='...']"
+  task :mkalias, :roles => :app do
+    run "#{in_current} rake zena:mksite HOST='#{self[:host]}' ALIAS='#{self[:alias]}' RAILS_ENV='production'"
+    
+    # Same as mksite
+    self[:host] = self[:alias]
+    run "test -e #{sites_root}/#{self[:host]} || mkdir #{sites_root}/#{self[:host]}"
+    create_vhost
+    create_awstats
+    logrotate
+    run "chown -R www-data:www-data #{sites_root}/#{self[:host]}"
+  end
+  
   task :mksymlinks, :roles => :app do
     run "#{in_current} rake zena:mksymlinks HOST='#{self[:host]}'"
     run "chown -R www-data:www-data #{sites_root}/#{self[:host]}"

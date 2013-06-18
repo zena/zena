@@ -1,5 +1,6 @@
 zena:
   host:            test.host
+  orphan:          zena
   root:            zena
   anon:            anon
   public_group:    public
@@ -19,6 +20,7 @@ zena:
 alias:
   master:          zena
   host:            alias.host
+  orphan:          zena
   root:            wiki
   anon:            anon
   public_group:    public
@@ -31,6 +33,7 @@ alias:
   formats_updated_at:
   api_group:       
   prop:
+    ssl_on_auth: true
     recaptcha_pub: 'pub'
     recaptcha_priv: 'priv'
     usr_prototype_attributes: "{'klass' => 'Contact', 'address' => 'Iping', 'name' => login}"

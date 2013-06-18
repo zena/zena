@@ -401,7 +401,7 @@ namespace :zena do
     end
     
     sites.each do |site|
-      Thread.current[:visitor] = site.any_admin
+      setup_visitor(site.any_admin, site)
       
       if ENV['WORKER'] == 'false' || RAILS_ENV == 'test'
         # We avoid SiteWorker by passing nodes.
@@ -440,7 +440,7 @@ namespace :zena do
     end
     sites.each do |site|
       # We avoid SiteWorker by passing nodes.
-      Thread.current[:visitor] = site.any_admin
+      setup_visitor(site.any_admin, site)
       nodes = Node.find(:all,
         :conditions => ['site_id = ?', site.id]
       )

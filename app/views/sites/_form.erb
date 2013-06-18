@@ -23,9 +23,9 @@
     <tr><td class='label'><%= _('public group') %></td><td><%= @site.public_group.name %></td></tr>
     <tr><td class='label'><%= _('site group') %></td><td><%= @site.site_group.name %></td></tr>
     <tr><td class='label'><%= _('API group') %></td><td><%= select('site', 'api_group_id',  visitor.all_groups.map{|g| [g.name, g.id]}, {:include_blank => true, :selected => @site.api_group_id} ) %></td></tr>
-
-    <tr><td class='label'><%= _('options') %></td><td>
     <% end %>
+    
+    <tr><td class='label'><%= _('options') %></td><td>
     <% Site.attributes_for_form(@site.is_alias?)[:bool].each do |sym| -%>
     <input type='hidden' name='site[<%= sym %>]' value=''/>
     <input type='checkbox' name='site[<%= sym %>]' value='1'<%= @site.send(sym) ? " checked='checked'" : '' %>/> <%= _(sym.to_s) %><br/>

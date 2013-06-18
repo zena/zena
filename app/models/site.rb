@@ -6,7 +6,8 @@ A zena installation supports many sites. Each site is uniquely identified by it'
 The #Site model holds configuration information for a site:
 
 +host+::            Unique host name. (teti.ch, zenadmin.org, dev.example.org, ...)
-+root_id+::         Site root node id. This is the only node in the site without a parent.
++orphan_id+::       Site seed node id. This is the only node in the site without a parent.
++root_id+::         This is the apparent root of the site.
 +anon_id+::         Anonymous user id. This user is the 'public' user of the site. Even if +authorize+ is set to true, this user is needed to configure the defaults for all newly created users.
 +public_group_id+:: Id of the 'public' group. Every user of the site (with 'anonymous user') belongs to this group.
 +site_group_id+::   Id of the 'site' group. Every user except anonymous are part of this group. This group can be seen as the 'logged in users' group.
@@ -55,8 +56,9 @@ class Site < ActiveRecord::Base
   CACHE_PATH  = Bricks.raw_config['cache_path']  || '/public'
   
   include RubyLess
-  safe_method  :host => String, :lang_list => [String], :default_lang => String
-  safe_method  :root => Proc.new {|h, r, s| {:method => 'root_node', :class => VirtualClass['Project'], :nil => true}}
+  safe_method  :host   => String, :lang_list => [String], :default_lang => String, :master_host => String
+  safe_method  :root   => Proc.new {|h, r, s| {:method => 'root_node',   :class => VirtualClass['Project'], :nil => true}}
+  safe_method  :orphan => Proc.new {|h, r, s| {:method => 'orphan_node', :class => VirtualClass['Project'], :nil => true}}
 
   validate :valid_site
   validates_uniqueness_of :host
@@ -79,7 +81,7 @@ class Site < ActiveRecord::Base
   }
   
   @@alias_attributes_for_form = {
-    :bool => %w{},
+    :bool => %w{authentication auto_publish ssl_on_auth},
     :text => %w{},
   }
 
@@ -123,7 +125,7 @@ class Site < ActiveRecord::Base
         :lang  => site.default_lang, :status => User::Status[:admin])
       admin_user.site = site
 
-      Thread.current[:visitor] = admin_user
+      setup_visitor(admin_user, site)
 
       unless admin_user.save
         # rollback
@@ -180,6 +182,8 @@ class Site < ActiveRecord::Base
       raise Exception.new("Could not publish root node for site [#{host}] (site#{site[:id]})\n#{root.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless (root.v_status == Zena::Status::Pub || root.publish)
 
       site.root_id = root[:id]
+      site.orphan_id = root[:id]
+      
       # Make sure safe definitions on Time/Array/String are available on prop_eval validation.
       Zena::Use::ZafuSafeDefinitions
       # Should not be needed since we load PropEval in Node, but it does not work
@@ -247,7 +251,7 @@ class Site < ActiveRecord::Base
   Site.attributes_for_form[:text] << 'usr_prototype_attributes'
   Site.attributes_for_form[:bool] << 'expire_in_dev'
   attr_accessible :usr_prototype_attributes, :expire_in_dev
-
+  
   # Return path for static/cached content served by proxy: RAILS_ROOT/sites/_host_/public
   # If you need to serve from another directory, we do not store the path into the sites table
   # for security reasons. The easiest way around this limitation is to symlink the 'public' directory.
@@ -264,12 +268,12 @@ class Site < ActiveRecord::Base
   # Return path for documents data: RAILS_ROOT/sites/_host_/data
   # You can symlink the 'data' directory if you need to keep the data in some other place.
   def data_path
-    "/#{host}/data"
+    "/#{master_host}/data"
   end
 
   # Return the path for zafu rendered templates: RAILS_ROOT/sites/_host_/zafu
   def zafu_path
-    "/#{host}/zafu"
+    "/#{master_host}/zafu"
   end
   
   # Return the anonymous user, the one used by anonymous visitors to visit the public part
@@ -287,6 +291,11 @@ class Site < ActiveRecord::Base
   # node (such as during a 404 or login rendering).
   def root_node
     @root ||= secure(Node) { Node.find(root_id) } || Node.new(:title => host)
+  end
+  
+  # Return the orphan node.
+  def orphan_node
+    @orphan ||= secure(Node) { Node.find(orphan_id) } || Node.new(:title => host)
   end
 
   # Return the public group: the one in which every visitor belongs.
@@ -313,16 +322,6 @@ class Site < ActiveRecord::Base
   def admin_user_ids
     # TODO: PERFORMANCE admin_user_ids could be cached in the 'site' record.
     @admin_user_ids ||= secure!(User) { User.find(:all, :conditions => "status >= #{User::Status[:admin]}") }.map {|r| r[:id]}
-  end
-
-  # Return true if the site is configured to force authentication
-  def authentication?
-    self[:authentication]
-  end
-
-  # Return true if the site is configured to automatically publish redactions
-  def auto_publish?
-    self[:auto_publish]
   end
 
   # Set redit time from a string of the form "1d 4h 5s" or "4 days"
@@ -360,8 +359,28 @@ class Site < ActiveRecord::Base
     !self[:master_id].blank?
   end
   
+  # This is the host of the master site.
+  def master_host
+    self[:host]
+  end
+  
+  # Host with aliasing (returns alias host if alias is loaded)
   def host
-    @host ||= @alias && @alias[:host] || self[:host]
+    @alias && @alias.host || master_host
+  end
+  
+  def ssl_on_auth
+    @alias && @alias.prop['ssl_on_auth'] || self.prop['ssl_on_auth']
+  end
+  
+  # Return true if the site is configured to automatically publish redactions
+  def auto_publish?
+    @alias && @alias[:auto_publish] || self[:auto_publish]
+  end
+  
+  # Return true if the site is configured to force authentication
+  def authentication?
+    @alias && @alias[:authentication] || self[:authentication]
   end
   
   def root_id
@@ -385,6 +404,9 @@ class Site < ActiveRecord::Base
     ali = Site.new(self.attributes)
     ali.host = hostname
     ali.master_id = self.id
+    ali.orphan_id = self.orphan_id
+    ali.root_id   = self.root_id
+    ali.prop      = self.prop
     ali.save
     ali
   end
@@ -436,7 +458,7 @@ class Site < ActiveRecord::Base
 
   def clear_cache(clear_zafu = true)
     paths = ["#{SITES_ROOT}#{self.cache_path}"]
-    aliases = Site.all(:master_id => self.id)
+    aliases = Site.all(:conditions => {:master_id => self.id})
     aliases.each do |site|
       paths << "#{SITES_ROOT}#{site.cache_path}"
     end

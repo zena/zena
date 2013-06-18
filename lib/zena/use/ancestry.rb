@@ -10,7 +10,7 @@ module Zena
         TITLE_ML_JOIN = %Q{INNER JOIN idx_nodes_ml_strings AS id1 ON id1.node_id = nodes.id AND id1.key = 'title'}
 
         # (slow). Find a node by it's path. This is used during node importation when stored as zml files or to resolve custom_base url until we have an "alias" table.
-        def find_by_path(path, parent_id = current_site.root_id, multilingual = false)
+        def find_by_path(path, parent_id = current_site.orphan_id, multilingual = false)
           res  = nil
           path = path.split('/') unless path.kind_of?(Array)
           last = path.size - 1

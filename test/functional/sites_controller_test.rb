@@ -23,7 +23,7 @@ class SitesControllerTest < Zena::Controller::TestCase
   end
 
 
-  test 'should clear cache with GET' do
+  test 'should clear cache with get' do
     with_caching do
       login(:anon)
       @node = secure!(Node) { nodes(:status) }

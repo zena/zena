@@ -379,8 +379,24 @@ class SiteTest < Zena::Unit::TestCase
       assert_equal 'alias.host', subject.host
     end
     
-    should 'return alias zafu path' do
-      assert_equal '/alias.host/zafu', subject.zafu_path
+    should 'return master zafu path' do
+      assert_equal '/test.host/zafu', subject.zafu_path
+    end
+    
+    should 'return master data path' do
+      assert_equal '/test.host/data', subject.data_path
+    end
+    
+    should 'return alias public path' do
+      assert_equal '/alias.host/public', subject.public_path
+    end
+    
+    should 'return alias cache path' do
+      assert_equal '/alias.host/public', subject.cache_path
+    end
+    
+    should 'return alias auth settings' do
+      assert subject.ssl_on_auth
     end
     
     should 'return alias root node' do
