@@ -79,13 +79,13 @@ vclass_roles:
     node: letter
   src: "<r:vclass do='roles' do='each' join=', '><r:name/> (<r:columns do='each' join=',' do='name'/>)</r:vclass>"
   tem: "/var1 = @node\.virtual_class .* var2 = var1.sorted_roles/"
-  res: "Node (summary,text,title), Original (origin,settings,tz,weight), Task (assigned), Letter (paper,search,search_mono)"
+  res: "Node (summary,text,title), Original (origin,settings,tz,weight), Task (assigned), Note (info), Letter (paper,search,search_mono)"
 
 vclass_column_size:
   context:
     node: letter
   src: "<r:vclass do='roles' do='each' join=', '><r:name/> (<r:columns do='size'/>)</r:vclass>"
-  res: "Node (3), Original (4), Task (1), Letter (3)"
+  res: "Node (3), Original (4), Task (1), Note (1), Letter (3)"
 
 vclass_context:
   src: "<r:Image><r:name/></r:Image>"

@@ -6,3 +6,7 @@ DEFAULTS:
 Contact:
   kpath:           NC
   real_class:      Node
+  
+Note:
+  kpath:           NN
+  real_class:      Note

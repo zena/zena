@@ -250,14 +250,11 @@ class RoleTest < Zena::Unit::TestCase
       end
 
       context 'with invalid index' do
-        should 'raise errors' do
+        should 'raise index errors' do
           e = nil
           assert_difference('Column.count', 0) do
             e = assert_raise(ActiveRecord::RecordInvalid) do
               subject.import_columns({
-                'one' => {
-                  'ptype' => 'stringbar',
-                },
                 'two' => {
                   'ptype' => 'integer',
                   'index' => 'bad',
@@ -271,6 +268,24 @@ class RoleTest < Zena::Unit::TestCase
         end
       end # with invalid index
 
+      context 'with invalid ptype' do
+        should 'raise index errors' do
+          e = nil
+          assert_difference('Column.count', 0) do
+            e = assert_raise(ActiveRecord::RecordInvalid) do
+              subject.import_columns({
+                'one' => {
+                  'ptype' => 'stringbar',
+                },
+              })
+            end
+          end
+
+          r = e.record
+          assert_equal "Column 'one' Validation failed: Ptype invalid", "#{r.class} '#{r.name}' #{e.message}"
+        end
+      end # with invalid ptype
+      
       context 'with invalid column name' do
         should 'raise errors' do
           e = nil

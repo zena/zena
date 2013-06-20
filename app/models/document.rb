@@ -124,7 +124,7 @@ class Document < Node
       # Try to find a virtual sub-class accepting the content type
       vclass = nil
       VirtualClass[base.to_s].sub_classes.each do |v|
-        next if v.real_class?
+        next if v.real_class != base
         
         if content_type =~ v.content_type_re
           vclass = v
@@ -207,7 +207,7 @@ class Document < Node
       end
     end
 
-    # Make sure the new file
+    # Make sure the new file is OK with current class.
     def valid_content_type
       return true unless prop.content_type_changed?
 

@@ -10,11 +10,12 @@ class VirtualClassesController < ApplicationController
     secure(::Role) do
       @virtual_classes = ::Role.paginate(:all, :order => 'kpath', :per_page => 200, :page => params[:page])
     end
-
+    
+    list = @virtual_classes.map(&:name)
     if last = @virtual_classes.last
       last_kpath = last.kpath
       Node.native_classes.each do |kpath, klass|
-        if kpath < last_kpath
+        if kpath < last_kpath && !list.include?(klass.name)
           @virtual_classes << klass
         end
       end

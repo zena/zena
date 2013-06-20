@@ -271,12 +271,18 @@ class Role < ActiveRecord::Base
 
     def validate_role
       errors.add('base', 'You do not have the rights to change roles.') unless visitor.is_admin?
-      if new_record?
-        errors.add('superclass', 'invalid') unless @superclass.kind_of?(VirtualClass) && @superclass.kpath
-      end
 
-      if @superclass && self.class == ::Role
-        self.kpath = @superclass.kpath
+      if name == 'Node'
+        self.kpath = 'N'
+        errors.add('base', 'cannot create role of name "Node"') if self.class == ::Role
+      else
+        if new_record?
+          errors.add('superclass', 'invalid') unless @superclass.kind_of?(VirtualClass) && @superclass.kpath
+        end
+
+        if @superclass && self.class == ::Role
+          self.kpath = @superclass.kpath
+        end
       end
     end
 

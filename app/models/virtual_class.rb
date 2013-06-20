@@ -146,14 +146,17 @@ class VirtualClass < Role
       end
 
       conditions[0] = conditions[0].join(' AND ')
-
+      
+      seen_names = {}
       Node.native_classes.each do |kpath, real_class|
+        seen_names[real_class.name] = true
         load_roles_and_cache(build_vclass_from_real_class(real_class))
       end
 
       VirtualClass.all(
         :conditions => conditions,
         :order      => 'kpath ASC').each do |vclass|
+        next if seen_names[vclass.name]
         load_roles_and_cache(vclass)
       end
 
@@ -184,15 +187,21 @@ class VirtualClass < Role
     end
 
     def build_vclass_from_real_class(real_class)
-      vclass = VirtualClass.new(:name => real_class.name)
+      # Merge virtual class from db if it exists.
+      if vclass = VirtualClass.first(:conditions => {:name => real_class.name, :site_id => current_site.id})
+        # ...
+      else
+        vclass = VirtualClass.new(:name => real_class.name)
+        if real_class <= TextDocument
+          vclass.monolingual = true
+        end
+      end
       vclass.kpath      = real_class.kpath
       vclass.real_class = real_class
       vclass.include_role real_class.schema
       vclass.instance_variable_set(:@is_real_class, true)
       vclass.site_id = current_site.id
-      if real_class <= TextDocument
-        vclass.monolingual = true
-      end
+      
       vclass
     end
 
@@ -405,19 +414,26 @@ class VirtualClass < Role
       nil
     end
   end
+  
+  def defined_in_db?
+    !id.blank?
+  end
 
   # Return safe columns including super class's safe columns
   def defined_safe_columns
-    @defined_safe_columns ||= if real_class?
-      # Get columns from the 'native' schema of the real class (this schema is a Property::Role,
-      # not a VirtualClass or ::Role).
-      #
-      # Only columns explicitly declared safe are safe here
-      real_class.schema.defined_columns.values.select do |col|
-        real_class.safe_method_type([col.name])
-      end.sort {|a,b| a.name <=> b.name}
-    else
-      super
+    @defined_safe_columns ||= begin
+      # If we have 
+      list = defined_in_db? ? super : []
+      if real_class?
+        # Get columns from the 'native' schema of the real class (this schema is a Property::Role,
+        # not a VirtualClass or ::Role).
+        #
+        # Only columns explicitly declared safe are safe here
+        list += real_class.schema.defined_columns.values.select do |col|
+          real_class.safe_method_type([col.name])
+        end
+      end
+      list.sort {|a,b| a.name <=> b.name}
     end
   end
 
@@ -553,6 +569,10 @@ class VirtualClass < Role
 
   protected
     def rebuild_kpath(superclass)
+      if self.name == self.real_class.name
+        return self[:kpath] = self.real_class.kpath
+      end
+      
       index = 0
       kpath = nil
       try_keys = "#{name}ABCDEFGHIJKLMNOPQRSTUCWXYZ1234567890"
@@ -588,13 +608,24 @@ class VirtualClass < Role
       end
 
       return if !errors.empty?
-      @superclass ||= self.superclass
+      
+      if native = Node.native_classes_by_name[name]
+        self[:real_class] = native.name
+        up = native.superclass
+        if up != ActiveRecord::Base
+          @superclass = VirtualClass[up.name]
+        else
+          # superclass of 'Node' virtual class is Node ruby class.
+          @superclass = Node
+        end
+      else
+        @superclass ||= self.superclass
+        self[:real_class] = get_real_class(@superclass)
+      end
 
       if real_class? || name_changed? || @superclass != old.superclass
         rebuild_kpath(@superclass)
       end
-
-      self[:real_class] = get_real_class(@superclass)
 
       unless (secure!(Group) { Group.find(self[:create_group_id]) } rescue nil)
         errors.add('create_group_id', 'invalid group')

@@ -61,3 +61,7 @@ Blog:
     idx_class:       IdxProject
     idx_scope:       "{'blog' => 'self'}"
     idx_reverse_scope: "nodes in project"
+
+Note:
+  kpath:           NN
+  real_class:      Note

@@ -2,8 +2,8 @@
 require 'test_helper'
 
 class VirtualClassTest < Zena::Unit::TestCase
-  POST_PROPERTIES = %w{assigned cached_role_ids date origin settings summary text title tz weight}
-  NOTE_PROPERTIES = %w{assigned cached_role_ids origin settings summary text title tz weight}
+  POST_PROPERTIES = %w{assigned cached_role_ids date info origin settings summary text title tz weight}
+  NOTE_PROPERTIES = %w{assigned cached_role_ids info origin settings summary text title tz weight}
   
   def test_virtual_subclasse
     # add a sub class
@@ -427,8 +427,19 @@ class VirtualClassTest < Zena::Unit::TestCase
       end # that is not a virtual class instance
 
     end # from a node instance
-
   end # Loading a virtual class
+  
+  context 'With a virtual class linked to a real class' do
+    setup do
+      login(:lion)
+      vclass = secure(VirtualClass) { VirtualClass.create(:superclass => 'Document', :name => 'Image')}
+    end
+
+    should 'description' do
+      
+    end
+  end
+  
 
   def self.should_clear_cache
 
@@ -509,7 +520,7 @@ class VirtualClassTest < Zena::Unit::TestCase
     should 'load new role from cache' do
       subject
       # no more linked to assigned
-      assert_equal %w{assigned cached_role_ids date foo origin settings summary text title tz weight}, VirtualClass['Post'].column_names.sort
+      assert_equal %w{assigned cached_role_ids date foo info origin settings summary text title tz weight}, VirtualClass['Post'].column_names.sort
     end
 
   end # Creating a Column
@@ -528,7 +539,7 @@ class VirtualClassTest < Zena::Unit::TestCase
     should 'load new role from cache' do
       subject
       # no more linked to Original
-      assert_equal %w{assigned cached_role_ids date summary text title}, VirtualClass['Post'].column_names.sort
+      assert_equal %w{assigned cached_role_ids date info summary text title}, VirtualClass['Post'].column_names.sort
     end
 
   end # Updating a Role
@@ -566,7 +577,7 @@ class VirtualClassTest < Zena::Unit::TestCase
     should 'load new role from cache' do
       subject
       # no more linked to Original
-      assert_equal %w{assigned cached_role_ids date summary text title}, VirtualClass['Post'].column_names.sort
+      assert_equal %w{assigned cached_role_ids date info summary text title}, VirtualClass['Post'].column_names.sort
     end
 
   end # Deleting a Role
@@ -585,7 +596,7 @@ class VirtualClassTest < Zena::Unit::TestCase
     should 'load new role from cache' do
       subject
       # no more linked to assigned
-      assert_equal %w{assigned cached_role_ids date origin settings summary text title weight}, VirtualClass['Post'].column_names.sort
+      assert_equal %w{assigned cached_role_ids date info origin settings summary text title weight}, VirtualClass['Post'].column_names.sort
     end
 
   end # Deleting a Column
@@ -710,6 +721,37 @@ class VirtualClassTest < Zena::Unit::TestCase
           assert_equal %w{Node Original Task}, subject.sorted_roles.map(&:name)
         end
       end
+      
+      context 'linked to a real class' do
+        subject do
+          VirtualClass['Note']
+        end
+
+        should 'have an id' do
+          assert subject.id
+        end
+
+        should 'define superclass' do
+          assert_equal VirtualClass['Node'], subject.superclass
+        end
+
+        should 'be the superclass of descendants' do
+          assert_equal subject, VirtualClass['Post'].superclass
+        end
+
+        should 'load all properties' do
+          assert_equal %w{assigned cached_role_ids info origin settings summary text title tz weight}, subject.column_names.sort
+        end
+
+        should 'return list of roles' do
+          assert_equal %w{Node Original Task Note}, subject.sorted_roles.map(&:name)
+        end
+        
+        should 'define safe columns' do
+          assert_equal %w{info}, subject.defined_safe_columns.map(&:name)
+        end
+      end
+
     end # of a real class
 
 
@@ -723,7 +765,7 @@ class VirtualClassTest < Zena::Unit::TestCase
       end
 
       should 'return safe columns' do
-        assert_equal %w{summary text title assigned origin settings tz weight date}, subject.safe_columns.map(&:name)
+        assert_equal %w{summary text title assigned origin settings tz weight info date}, subject.safe_columns.map(&:name)
       end
 
       should 'return defined safe columns' do
@@ -731,7 +773,7 @@ class VirtualClassTest < Zena::Unit::TestCase
       end
 
       should 'return safe column types' do
-        assert_equal %w{assigned date origin settings summary text title tz weight}, subject.safe_column_types.keys.sort
+        assert_equal %w{assigned date info origin settings summary text title tz weight}, subject.safe_column_types.keys.sort
       end
 
       should 'return type on safe method type' do
@@ -744,7 +786,7 @@ class VirtualClassTest < Zena::Unit::TestCase
       end
 
       should 'return list of roles' do
-        assert_equal %w{Node Original Task Post}, subject.sorted_roles.map(&:name)
+        assert_equal %w{Node Original Task Note Post}, subject.sorted_roles.map(&:name)
       end
     end # of a virtual class
 
@@ -836,7 +878,8 @@ class VirtualClassTest < Zena::Unit::TestCase
             :superclass      => 'Document',
             :name            => 'HtmlDoc',
             :create_group_id => groups_id(:public), 
-            :content_type    => 'text/html'}
+            :content_type    => 'text/html',
+          }
         end
 
         should 'save and create regexp' do
@@ -851,6 +894,68 @@ class VirtualClassTest < Zena::Unit::TestCase
           assert_equal 'invalid characters', v.errors[:content_type]
         end
         
+      end
+      
+      context 'linked to a real class' do
+        subject do
+          v = secure(VirtualClass) do
+            VirtualClass.new({
+              :superclass      => 'Document',
+              :name            => 'Page',
+              :create_group_id => groups_id(:public),
+            })
+          end
+          v.save
+          v
+        end
+
+        should 'save' do
+          assert !subject.new_record?
+        end
+        
+        should 'rewrite superclass' do
+          subject
+          assert_equal VirtualClass['Node'], subject.superclass
+        end
+        
+        should 'properly set real_class' do
+          assert_equal Page, subject.real_class
+        end
+        
+        should 'echo kpath' do
+          assert_equal Page.kpath, subject.kpath
+        end
+      end
+      
+
+      context 'linked to Node class' do
+        subject do
+          v = secure(VirtualClass) do
+            VirtualClass.new({
+              :name            => 'Node',
+              :create_group_id => groups_id(:public),
+            })
+          end
+          v.save
+          v
+        end
+
+        should 'save' do
+          err subject
+          assert !subject.new_record?
+        end
+
+        should 'rewrite superclass' do
+          assert_equal Node, subject.superclass
+        end
+
+        should 'properly set real_class' do
+          assert_equal Node, subject.real_class
+        end
+
+        should 'echo kpath' do
+          assert_equal Node.kpath, subject.kpath
+        end
       end
     end
   end

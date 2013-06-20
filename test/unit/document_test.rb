@@ -80,6 +80,20 @@ class DocumentTest < Zena::Unit::TestCase
           assert_equal 'water-1', subject.title
         end
       end # with same title
+      
+      context 'with a sub-class of Image' do
+        setup do
+          login(:lion)
+          vclass = secure(VirtualClass) { VirtualClass.create(:superclass => 'Image', :name => 'Video', :create_group_id => groups_id(:public))}
+        end
+        
+        should 'create a document' do
+          assert_difference('Node.count', 1) do
+            assert !subject.new_record?
+            assert_equal Document, subject.class
+          end
+        end
+      end
 
       context 'without a file' do
         subject do

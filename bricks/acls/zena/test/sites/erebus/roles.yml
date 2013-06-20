@@ -10,3 +10,7 @@ Reference:
 Contact:
   kpath:           NRC
   real_class:      Node
+  
+Note:
+  kpath:           NN
+  real_class:      Note
