@@ -494,3 +494,8 @@ core_context:
 find_less_then:
   src: <div do='projects where created_at < "2010-05-01" in site' do='each' do='title'/>
   tem: "/nodes.created_at < '2010-05-01'/"
+
+l_status_sum_group_year:
+  src: '<r:void do="set_tags select l_status.sum as s from nodes select created_at as c in site group by c.month" do="each" join=", "><r:s/>: <r:c/></r:void>'
+#  tem: 'xxx'
+  res: '15: 2006-03-10 00:00:00'

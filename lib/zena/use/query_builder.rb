@@ -1,7 +1,7 @@
 module Zena
   module Use
     module QueryBuilder
-      DATE_FIELD_REGEXP = %r{\d+[\.-/]\d+[\.-/]\d+}
+      DATE_FIELD_REGEXP = %r{\d+[\.\-/]\d+[\.\-/]\d+}
       module ViewMethods
         include RubyLess
         # Pseudo string comming from params.

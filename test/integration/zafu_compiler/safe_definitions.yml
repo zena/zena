@@ -169,6 +169,11 @@ string_hash_with_params:
   src: "<b do='set' a='string_hash(:foo => \"men\")'>AAA<r:eval>a['foo']</r:eval></b>"
   res: "<b>AAAmen</b>"
   tem: "/StringHash.from_hash\(\{:foo => \"men\"\}\)/"
+
+string_from_string:
+  src: "<b do='set' a='string_hash(%q[{\"pack\": 4}])'>AAA<r:eval>a['pack']</r:eval></b>"
+  res: "<b>AAA4</b>"
+  tem: "/StringHash.from_string/"
   
 aparams:
   context:

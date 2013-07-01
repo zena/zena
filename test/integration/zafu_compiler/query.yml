@@ -104,6 +104,12 @@ interval_date_en:
   tem: "<%= query_parse('para' => %{2010/1/1..2010/12/31}) %>"
   res: "para >= '2009-12-31 23:00' and para <= '2010-12-30 23:00'"
 
+interval_date_iso:
+  context:
+    lang: en
+  tem: "<%= query_parse('para' => %{2010-1-1..2010-12-31}) %>"
+  res: "para >= '2009-12-31 23:00' and para <= '2010-12-30 23:00'"
+
 like:
   tem: "<%= query_parse('para' => %{*bar}) %>"
   res: "para like \"%bar\""

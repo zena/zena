@@ -3,6 +3,8 @@ class StringHash < Hash
   
   def self.from_string(str)
     from_hash(JSON.parse(str))
+  rescue
+    from_hash({})
   end
   
   def self.from_hash(hash)
