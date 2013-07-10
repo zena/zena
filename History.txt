@@ -11,6 +11,7 @@
  * Fixed cached path in vhost file.
  * Added "uuid" method (generates a unique id). <== TODO: Document
  * Added support for JSON String in [string_hash] <== TODO: Document
+ * Fixed [headers] when 'Status' is set (change to redirect on 300).
  
 == 1.2.4 2013-06-13
 

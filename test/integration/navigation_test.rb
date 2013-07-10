@@ -473,6 +473,43 @@ class NavigationTest < Zena::Integration::TestCase
       end
     end
   end
+  
+  def test_not_cache_on_redirect
+    login(:lion)
+    t = secure(Template) { 
+      Template.create(
+        :parent_id => nodes_id(:default),
+        :title     => 'Node-headers.zafu',
+        :text      => %q{<r:headers Location='/login' Status='303'/>DUMMY BODY},
+        :v_status  => Zena::Status::Pub
+      )
+    }
+    
+    without_files('test.host/public') do
+      without_files('/test.host/zafu') do
+        preserving_files('/test.host/data') do
+          with_caching do
+            login(:anon)
+            base  = "#{SITES_ROOT}#{visitor.site.public_path}"
+          
+            c = '/fr/page18.html'
+            assert !File.exists?(base + c), "No cached file #{c} yet"
+            get "http://test.host#{c}"
+            assert_response :success
+            assert File.exists?(base + c), "Cached file #{c} created"
+          
+            c = '/fr/page18_headers.html'
+            assert !File.exists?(base + c), "No cached file #{c} yet"
+            get "http://test.host#{c}"
+            assert_equal '<html><body>You are being <a href="http://test.host/login">redirected</a>.</body></html>', response.body
+            assert_response :redirect
+            assert_redirected_to '/login'
+            assert !File.exists?(base + c), "No cached file #{c} created"
+          end
+        end
+      end
+    end
+  end
 
   def test_should_not_change_session_lang_on_login
     get 'http://test.host/'

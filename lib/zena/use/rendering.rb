@@ -184,8 +184,19 @@ module Zena
                 if filename = zafu_headers.delete('filename')
                   result[:filename] = filename
                 end
-
+                
+                status = zafu_headers.delete('Status')
                 headers.merge!(zafu_headers)
+                
+                if (status.to_i / 100) == 3
+                  redirect_to zafu_headers.delete('Location'), :status => status.to_i
+                else
+                  render :status => status.to_i
+                end
+                
+                headers.merge!(zafu_headers)
+                
+                return
               end
 
               if data = result.delete(:data)
@@ -205,7 +216,26 @@ module Zena
               render_to_string :file => template_url(opts), :layout => false
             else
               render :file => template_url(opts), :layout => false, :status => opts[:status]
+              
+              if status = zafu_headers.delete('Status')
+                # reset rendering
+                response.content_type = nil
+                erase_render_results
+                reset_variables_added_to_assigns
+                
+                if (status.to_i / 100) == 3
+                  redirect_to zafu_headers.delete('Location'), :status => status.to_i
+                else
+                  render :status => status.to_i
+                end
+                
+                headers.merge!(zafu_headers)
+                
+                return
+              end
+              
               headers.merge!(zafu_headers)
+              
               cache_page(:url => opts[:cache_url]) if opts[:cache]
             end
           end

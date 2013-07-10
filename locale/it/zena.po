@@ -480,7 +480,7 @@ msgstr "Acl with highest priority is tested first."
 
 #: app/views/acls/_form.rhtml:47
 msgid "acl_query_help"
-msgstr "SQLiss query to fetch all the nodes for which this acl authorizes access."
+msgstr "SQLiss query to fetch all the nodes for which this acl authorizes access (Ruby)."
 
 #: lib/zena/use/display.rb:282
 msgid "acls"
