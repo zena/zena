@@ -5,12 +5,15 @@
    implies changes to vhost files !
  * WARN: Properties in list context do not resolve with first element anymore. "first" prefix needed.
  * Enable VirtualClass on native classes !
+ * Added 'activity' brick which records visitor's last "seen_at" date. <== TODO: Document
 
 * Minor changes
  * Fixed encode_params in Ajax requests.
  * Fixed cached path in vhost file.
  * Added "uuid" method (generates a unique id). <== TODO: Document
  * Added support for JSON String in [string_hash] <== TODO: Document
+ * Added 'login_info' to Node.
+ * Added 'group_names' to User class.
  * Fixed [headers] when 'Status' is set (change to redirect on 300).
  
 == 1.2.4 2013-06-13

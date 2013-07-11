@@ -1,5 +1,5 @@
 module Bricks
-  module Fs_skin
+  module FsSkin
     ELEM = "([a-zA-Z_]+)"
     ELEM_REGEXP = %r{^#{ELEM}$}
     SECURE_PATH_REGEXP = %r{^[a-zA-Z_/\-\+]+$}
@@ -74,7 +74,7 @@ module Bricks
         end
         
         # We move this method here so that we do not need to reference
-        # Bricks::Fs_skin in I18n when fs_skin brick is disabled.
+        # Bricks::FsSkin in I18n when fs_skin brick is disabled.
         def base.text_from_fs_skin(brick_name, skin_name, path, opts)
           if path =~ SECURE_PATH_REGEXP
             fullpath = "$#{brick_name}-#{skin_name}/#{path}"
@@ -186,5 +186,5 @@ module Bricks
           end
         end
     end # SiteMethods
-  end # Fs_skin
+  end # FsSkin
 end # Bricks

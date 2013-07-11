@@ -1,1 +1,0 @@
-Zena.use Bricks::Single

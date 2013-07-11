@@ -1,7 +1,7 @@
 <h2 class='title'><%= _('users') %></h2>
 
 <table id='user_list' class='admin' cellspacing="0">
-  <tr><th class='nav' colspan='5'><%= will_paginate @users %></th></tr>
+  <tr><th class='nav' colspan='6'><%= will_paginate @users %></th></tr>
   <%= render :partial=>'users/li',  :collection=>@users %>
   <%= render :partial=>'users/add', :locals=>{:groups=>@groups} %>
 </table>

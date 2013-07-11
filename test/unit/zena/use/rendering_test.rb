@@ -40,7 +40,7 @@ class RenderingTest < Zena::View::TestCase
   end # With a node and skin
 end
 
-class RenderingInControllerTest < Zena::Controller::TestCase
+class RenderingControllerTest < Zena::Controller::TestCase
   tests NodesController
 
   class MockSession < ActiveRecord::Base

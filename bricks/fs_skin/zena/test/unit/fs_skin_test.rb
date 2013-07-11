@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../../../../../test/test_helper'
 
-class Fs_skinTest < Zena::Unit::TestCase
+class FsSkinTest < Zena::Unit::TestCase
 
   context 'A Skin' do
     setup do

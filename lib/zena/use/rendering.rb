@@ -171,31 +171,27 @@ module Zena
               render :inline => result[:data]
               
             else
-              if zafu_headers
-                if disposition = zafu_headers.delete('Content-Disposition')
-                  result.delete(:filename) if disposition =~ /filename\s*=/
-                  result[:disposition] = disposition
-                end
+              
+              if disposition = zafu_headers.delete('Content-Disposition')
+                result.delete(:filename) if disposition =~ /filename\s*=/
+                result[:disposition] = disposition
+              end
 
-                if type = zafu_headers.delete('Content-Type')
-                  result[:type] = type
-                end
+              if type = zafu_headers.delete('Content-Type')
+                result[:type] = type
+              end
 
-                if filename = zafu_headers.delete('filename')
-                  result[:filename] = filename
-                end
-                
-                status = zafu_headers.delete('Status')
-                headers.merge!(zafu_headers)
-                
+              if filename = zafu_headers.delete('filename')
+                result[:filename] = filename
+              end
+              
+              if status = zafu_headers.delete('Status')
                 if (status.to_i / 100) == 3
                   redirect_to zafu_headers.delete('Location'), :status => status.to_i
                 else
                   render :status => status.to_i
                 end
-                
                 headers.merge!(zafu_headers)
-                
                 return
               end
 
@@ -206,7 +202,9 @@ module Zena
               else
                 # Should never happen
                 raise Exception.new("Render '#{params[:format]}' should return either :file or :data (none found).")
-              end
+              end  
+              headers.merge!(zafu_headers)
+              
             end
 
             cache_page(:content_data => result[:data], :content_path => result[:file]) if opts[:cache]

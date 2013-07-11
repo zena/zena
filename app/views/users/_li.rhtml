@@ -12,5 +12,8 @@ end %>
   <td class="login"><%= li.is_anon? ? '<i>public</i>' : li.login %></td>
   <td class="fullname" ><a href='<%= zen_path(li.node) %>'><%= li.node ? li.node.title : '' %></a></td>
   <td class="login"><%= _(User::Num_to_status[li.status].to_s) %></td>
+  <% if Bricks::CONFIG['activity'] %>
+  <td class="seen_at"><%= format_date(li.seen_at, :format =>_(Zena::Use::Dates::DATETIME)) %></td>
+  <% end %>
   <td class="groups"><%= li.groups.map {|g| g.name }.join(', ') %></td>
 </tr>

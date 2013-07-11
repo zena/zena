@@ -225,7 +225,8 @@ class Node < ActiveRecord::Base
                      :data_b => {:class => ['DataEntry'], :zafu => {:data_root => 'node_b'}},
                      :data_c => {:class => ['DataEntry'], :zafu => {:data_root => 'node_c'}},
                      :data_d => {:class => ['DataEntry'], :zafu => {:data_root => 'node_d'}},
-                     :traductions => ['Version'], :discussion  => 'Discussion'
+                     :traductions => ['Version'], :discussion  => 'Discussion',
+                     :login_info => 'User'
 
   # we use safe_method because the columns can be null, but the values are never null
   safe_method        :kpath => String, :user_zip => Number, :user_id => Number,
@@ -1204,6 +1205,10 @@ class Node < ActiveRecord::Base
   # TODO: why do we need secure here ?
   def user
     secure!(User) { o_user }
+  end
+  
+  def login_info
+    secure(User) { User.find(:first, :conditions => {:node_id => self.id})}
   end
 
   # Find all data entries linked to the current node

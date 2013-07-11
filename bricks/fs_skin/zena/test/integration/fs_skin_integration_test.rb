@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../../../../../test/test_helper'
 
-class Fs_skinIntegrationTest < Zena::Integration::TestCase
+class FsSkinIntegrationTest < Zena::Integration::TestCase
 
   context 'A page using a fs_skin Skin' do
     subject do
@@ -23,7 +23,7 @@ class Fs_skinIntegrationTest < Zena::Integration::TestCase
       should 'use fs_skin template' do
         get "http://test.host/en/blog#{subject.zip}.html"
         assert_response :success
-        assert_match %r{Copyright <a href="#">Fs_skin blog</a>}, response.body
+        assert_match %r{Copyright <a href="#">FsSkin blog</a>}, response.body
       end
     end # with normal access
   end # A page using a fs_skin Skin

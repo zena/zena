@@ -33,10 +33,6 @@ module Bricks
       paths_for('models')
     end
 
-    def init_paths
-      paths_for('zena/init.rb')
-    end
-
     def migrations_for(brick)
       File.join(brick_path(brick), 'zena', 'migrate')
     end
@@ -93,7 +89,7 @@ module Bricks
     def load_zafu(mod)
       Bricks::CONFIG.keys.each do |brick_name|
         begin
-          mod.send(:include, eval("Bricks::#{brick_name.capitalize}::ZafuMethods"))
+          mod.send(:include, eval("Bricks::#{brick_name.camelcase}::ZafuMethods"))
         rescue NameError
           # ignore
         end
@@ -121,16 +117,28 @@ module Bricks
         path = File.join(path, 'lib')
         ActiveSupport::Dependencies.autoload_paths      << path
         ActiveSupport::Dependencies.autoload_once_paths << path
-        $LOAD_PATH                                  << path
+        $LOAD_PATH                                      << path
       end
 
       if @@no_init
         puts "=> Not executing bricks init code."
         return
       end
-      # load 'init'
-      init_paths.each do |init_path|
-        require init_path
+      
+      # execute Zena.use module and load 'init'
+      bricks.each do |path|
+        mod = path.split('/').last
+        mod_path = "bricks/#{mod}"
+        if File.exist?("#{Rails.root}/#{mod_path}/lib/#{mod_path}.rb") # bricks/acl/lib/bricks/acl.rb
+          require mod_path
+          mod = eval "Bricks::#{mod.camelcase}"
+          Zena.use mod
+        
+          init_rb = "#{path}/zena/init.rb"
+          if File.exist?(init_rb)
+            require init_rb
+          end
+        end
       end
     end
   end

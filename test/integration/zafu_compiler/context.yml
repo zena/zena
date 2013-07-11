@@ -25,3 +25,7 @@ master_template_on_static_render:
   src: "<r:master_template><r:title/></r:master_template>"
   tem: ''
   # Master template on template rendering is tested in 'find master template', rendering_test.rb
+
+login_info:
+  src: "<r:contacts in='site'><r:each do='login_info'><r:login/>, </r:each></r:contacts>"
+  res: "lion, tiger, ant, , "

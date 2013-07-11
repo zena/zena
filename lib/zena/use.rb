@@ -27,7 +27,6 @@ module Zena
       end
 
       def each_module_for(name)
-        create_module_hash
         modules_for(name).each do |mod|
           yield(mod)
         end

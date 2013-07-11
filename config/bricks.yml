@@ -9,10 +9,12 @@ test:
   worker:      OFF
   uv:          OFF
   spreadsheet: ON
+  activity:    ON
 
 
 development:
-#  asset_port: 7999
+#  asset_port: 7999  
+  activity:  ON
   mongrel:   OFF
   passenger: ON
   uv:
@@ -53,6 +55,7 @@ production:
 # Port used only to provide assets during custom rendering (pdf).
 # We need this to avoid deadlocks with round-robin based serving.
 #  asset_port: 7999
+  activity:  ON
   cache_path: '/public/cache'
   mongrel:   OFF
   passenger: ON

@@ -14,5 +14,3 @@ class Delayed::Job
       self[:site_id] = current_site[:id]
     end
 end
-
-Zena.use Bricks::Worker
