@@ -215,8 +215,10 @@ Capistrano::Configuration.instance(:must_exist).load do
   desc "Update vhost configuration file"
   task :create_vhost, :roles => :web do
     unless self[:host]
-      puts "HOST not set (use -s host=...)"
+      puts "HOST not set (use -s host=... -s lang_list=...)"
     else
+      lang = self[:lang] ||= (self[:lang_list] || 'en').split(',').map(&:strip).first
+      self[:lang_list] ||= lang
       vhost_files = []
         
       public_path = Bricks.raw_config['public_path'] || '/public'

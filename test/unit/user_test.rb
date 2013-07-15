@@ -54,6 +54,26 @@ class UserTest < Zena::Unit::TestCase
           assert_nothing_raised { users(:ant).destroy }
         end
       end
+      
+      class GroupsUsersCounter < ActiveRecord::Base
+        set_table_name :groups_users
+      end
+      
+      should 'remove links to groups' do
+        assert_difference('User.count', -1) do
+          assert_difference('GroupsUsersCounter.count', -2) do
+            assert_nothing_raised { users(:ant).destroy }
+          end
+        end
+      end
+      
+      should 'not remove linked node' do
+        assert_difference('User.count', -1) do
+          assert_difference('Node.count', 0) do
+            assert_nothing_raised { users(:ant).destroy }
+          end
+        end
+      end
     end # with admin rights
   end # Destroying a user
 
