@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Gaspard Bucher"]
-  s.date = %q{2013-06-20}
+  s.date = %q{2013-07-11}
   s.default_executable = %q{zena}
   s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
@@ -298,13 +298,15 @@ Gem::Specification.new do |s|
     "bricks/acls/zena/test/sites/erebus/sites.yml",
     "bricks/acls/zena/test/sites/erebus/users.yml",
     "bricks/acls/zena/test/unit/acl_test.rb",
+    "bricks/activity/lib/bricks/activity.rb",
+    "bricks/activity/zena/migrate/20130711135905_add_activity_to_user.rb",
+    "bricks/activity/zena/test/integration/activity_integration_test.rb",
     "bricks/captcha/MIT-LICENSE",
     "bricks/captcha/README",
     "bricks/captcha/lib/bricks/captcha.rb",
     "bricks/captcha/zena/init.rb",
     "bricks/captcha/zena/test/zafu/captcha.yml",
     "bricks/fs_skin/lib/bricks/fs_skin.rb",
-    "bricks/fs_skin/zena/init.rb",
     "bricks/fs_skin/zena/migrate/20110702010330_add_fs_skin_to_idx_templates.rb",
     "bricks/fs_skin/zena/skins/blog/Image-edit.zafu",
     "bricks/fs_skin/zena/skins/blog/Image.zafu",
@@ -327,7 +329,6 @@ Gem::Specification.new do |s|
     "bricks/fs_skin/zena/test/integration/fs_skin_integration_test.rb",
     "bricks/fs_skin/zena/test/unit/fs_skin_test.rb",
     "bricks/grid/lib/bricks/grid.rb",
-    "bricks/grid/zena/init.rb",
     "bricks/math/lib/bricks/math.rb",
     "bricks/math/zena/init.rb",
     "bricks/mongrel/README",
@@ -357,7 +358,6 @@ Gem::Specification.new do |s|
     "bricks/pdf/zena/init.rb",
     "bricks/pdf/zena/tasks.rb",
     "bricks/single/lib/bricks/single.rb",
-    "bricks/single/zena/init.rb",
     "bricks/sphinx/MIT-LICENSE",
     "bricks/sphinx/README",
     "bricks/sphinx/lib/bricks/sphinx.rb",
@@ -368,7 +368,6 @@ Gem::Specification.new do |s|
     "bricks/sphinx/zena/tasks.rb",
     "bricks/spreadsheet/README",
     "bricks/spreadsheet/lib/bricks/spreadsheet.rb",
-    "bricks/spreadsheet/zena/init.rb",
     "bricks/spreadsheet/zena/test/sites/zena/links.yml",
     "bricks/spreadsheet/zena/test/unit/xlsx_test.rb",
     "bricks/spreadsheet/zena/test/zafu/README",
@@ -2478,87 +2477,87 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<property>, ["= 2.3.2"])
-      s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
-      s.add_runtime_dependency(%q<tzinfo>, [">= 0"])
-      s.add_runtime_dependency(%q<differ>, ["= 0.1.2"])
-      s.add_runtime_dependency(%q<versions>, ["= 0.3.1"])
-      s.add_runtime_dependency(%q<fast_gettext>, ["~> 0.4.16"])
-      s.add_runtime_dependency(%q<gettext>, ["= 2.1.0"])
-      s.add_runtime_dependency(%q<safe_yaml>, ["= 0.8.0"])
-      s.add_runtime_dependency(%q<rails>, ["= 2.3.18"])
-      s.add_runtime_dependency(%q<daemons>, [">= 0"])
-      s.add_runtime_dependency(%q<ruby-recaptcha>, ["= 1.0.3"])
-      s.add_runtime_dependency(%q<gem_plugin>, [">= 0"])
-      s.add_runtime_dependency(%q<simple_xlsx_writer>, [">= 0"])
-      s.add_runtime_dependency(%q<syntax>, ["= 1.0.0"])
-      s.add_runtime_dependency(%q<shoulda>, ["= 2.10.3"])
-      s.add_runtime_dependency(%q<rubyless>, ["= 0.8.10"])
       s.add_runtime_dependency(%q<querybuilder>, ["= 1.2.2"])
-      s.add_runtime_dependency(%q<httmultiparty>, ["= 0.3.8"])
-      s.add_runtime_dependency(%q<hpricot>, [">= 0"])
-      s.add_runtime_dependency(%q<json>, ["= 1.5.1"])
+      s.add_runtime_dependency(%q<ruby-recaptcha>, ["= 1.0.3"])
+      s.add_runtime_dependency(%q<uuidtools>, ["= 2.0.0"])
+      s.add_runtime_dependency(%q<shoulda>, ["= 2.10.3"])
+      s.add_runtime_dependency(%q<rails>, ["= 2.3.18"])
       s.add_runtime_dependency(%q<open4>, [">= 0"])
-      s.add_runtime_dependency(%q<jeweler>, [">= 0"])
-      s.add_runtime_dependency(%q<will_paginate>, ["~> 2.3.12"])
+      s.add_runtime_dependency(%q<hpricot>, [">= 0"])
       s.add_runtime_dependency(%q<RedCloth>, ["= 3.0.4"])
-      s.add_runtime_dependency(%q<yamltest>, ["= 0.7.0"])
+      s.add_runtime_dependency(%q<gettext>, ["= 2.1.0"])
+      s.add_runtime_dependency(%q<httmultiparty>, ["= 0.3.8"])
+      s.add_runtime_dependency(%q<gem_plugin>, [">= 0"])
+      s.add_runtime_dependency(%q<will_paginate>, ["~> 2.3.12"])
+      s.add_runtime_dependency(%q<jeweler>, [">= 0"])
+      s.add_runtime_dependency(%q<tzinfo>, [">= 0"])
+      s.add_runtime_dependency(%q<fast_gettext>, ["~> 0.4.16"])
+      s.add_runtime_dependency(%q<syntax>, ["= 1.0.0"])
+      s.add_runtime_dependency(%q<property>, ["= 2.3.2"])
       s.add_runtime_dependency(%q<authlogic>, ["= 2.1.3"])
+      s.add_runtime_dependency(%q<versions>, ["= 0.3.1"])
+      s.add_runtime_dependency(%q<json>, ["= 1.5.1"])
+      s.add_runtime_dependency(%q<yamltest>, ["= 0.7.0"])
+      s.add_runtime_dependency(%q<simple_xlsx_writer>, [">= 0"])
+      s.add_runtime_dependency(%q<safe_yaml>, ["= 0.8.0"])
+      s.add_runtime_dependency(%q<daemons>, [">= 0"])
+      s.add_runtime_dependency(%q<differ>, ["= 0.1.2"])
+      s.add_runtime_dependency(%q<rubyless>, ["= 0.8.10"])
     else
-      s.add_dependency(%q<property>, ["= 2.3.2"])
-      s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
-      s.add_dependency(%q<tzinfo>, [">= 0"])
-      s.add_dependency(%q<differ>, ["= 0.1.2"])
-      s.add_dependency(%q<versions>, ["= 0.3.1"])
-      s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
-      s.add_dependency(%q<gettext>, ["= 2.1.0"])
-      s.add_dependency(%q<safe_yaml>, ["= 0.8.0"])
-      s.add_dependency(%q<rails>, ["= 2.3.18"])
-      s.add_dependency(%q<daemons>, [">= 0"])
-      s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.3"])
-      s.add_dependency(%q<gem_plugin>, [">= 0"])
-      s.add_dependency(%q<simple_xlsx_writer>, [">= 0"])
-      s.add_dependency(%q<syntax>, ["= 1.0.0"])
-      s.add_dependency(%q<shoulda>, ["= 2.10.3"])
-      s.add_dependency(%q<rubyless>, ["= 0.8.10"])
       s.add_dependency(%q<querybuilder>, ["= 1.2.2"])
-      s.add_dependency(%q<httmultiparty>, ["= 0.3.8"])
-      s.add_dependency(%q<hpricot>, [">= 0"])
-      s.add_dependency(%q<json>, ["= 1.5.1"])
+      s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.3"])
+      s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
+      s.add_dependency(%q<shoulda>, ["= 2.10.3"])
+      s.add_dependency(%q<rails>, ["= 2.3.18"])
       s.add_dependency(%q<open4>, [">= 0"])
-      s.add_dependency(%q<jeweler>, [">= 0"])
-      s.add_dependency(%q<will_paginate>, ["~> 2.3.12"])
+      s.add_dependency(%q<hpricot>, [">= 0"])
       s.add_dependency(%q<RedCloth>, ["= 3.0.4"])
-      s.add_dependency(%q<yamltest>, ["= 0.7.0"])
+      s.add_dependency(%q<gettext>, ["= 2.1.0"])
+      s.add_dependency(%q<httmultiparty>, ["= 0.3.8"])
+      s.add_dependency(%q<gem_plugin>, [">= 0"])
+      s.add_dependency(%q<will_paginate>, ["~> 2.3.12"])
+      s.add_dependency(%q<jeweler>, [">= 0"])
+      s.add_dependency(%q<tzinfo>, [">= 0"])
+      s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
+      s.add_dependency(%q<syntax>, ["= 1.0.0"])
+      s.add_dependency(%q<property>, ["= 2.3.2"])
       s.add_dependency(%q<authlogic>, ["= 2.1.3"])
+      s.add_dependency(%q<versions>, ["= 0.3.1"])
+      s.add_dependency(%q<json>, ["= 1.5.1"])
+      s.add_dependency(%q<yamltest>, ["= 0.7.0"])
+      s.add_dependency(%q<simple_xlsx_writer>, [">= 0"])
+      s.add_dependency(%q<safe_yaml>, ["= 0.8.0"])
+      s.add_dependency(%q<daemons>, [">= 0"])
+      s.add_dependency(%q<differ>, ["= 0.1.2"])
+      s.add_dependency(%q<rubyless>, ["= 0.8.10"])
     end
   else
-    s.add_dependency(%q<property>, ["= 2.3.2"])
-    s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
-    s.add_dependency(%q<tzinfo>, [">= 0"])
-    s.add_dependency(%q<differ>, ["= 0.1.2"])
-    s.add_dependency(%q<versions>, ["= 0.3.1"])
-    s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
-    s.add_dependency(%q<gettext>, ["= 2.1.0"])
-    s.add_dependency(%q<safe_yaml>, ["= 0.8.0"])
-    s.add_dependency(%q<rails>, ["= 2.3.18"])
-    s.add_dependency(%q<daemons>, [">= 0"])
-    s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.3"])
-    s.add_dependency(%q<gem_plugin>, [">= 0"])
-    s.add_dependency(%q<simple_xlsx_writer>, [">= 0"])
-    s.add_dependency(%q<syntax>, ["= 1.0.0"])
-    s.add_dependency(%q<shoulda>, ["= 2.10.3"])
-    s.add_dependency(%q<rubyless>, ["= 0.8.10"])
     s.add_dependency(%q<querybuilder>, ["= 1.2.2"])
-    s.add_dependency(%q<httmultiparty>, ["= 0.3.8"])
-    s.add_dependency(%q<hpricot>, [">= 0"])
-    s.add_dependency(%q<json>, ["= 1.5.1"])
+    s.add_dependency(%q<ruby-recaptcha>, ["= 1.0.3"])
+    s.add_dependency(%q<uuidtools>, ["= 2.0.0"])
+    s.add_dependency(%q<shoulda>, ["= 2.10.3"])
+    s.add_dependency(%q<rails>, ["= 2.3.18"])
     s.add_dependency(%q<open4>, [">= 0"])
-    s.add_dependency(%q<jeweler>, [">= 0"])
-    s.add_dependency(%q<will_paginate>, ["~> 2.3.12"])
+    s.add_dependency(%q<hpricot>, [">= 0"])
     s.add_dependency(%q<RedCloth>, ["= 3.0.4"])
-    s.add_dependency(%q<yamltest>, ["= 0.7.0"])
+    s.add_dependency(%q<gettext>, ["= 2.1.0"])
+    s.add_dependency(%q<httmultiparty>, ["= 0.3.8"])
+    s.add_dependency(%q<gem_plugin>, [">= 0"])
+    s.add_dependency(%q<will_paginate>, ["~> 2.3.12"])
+    s.add_dependency(%q<jeweler>, [">= 0"])
+    s.add_dependency(%q<tzinfo>, [">= 0"])
+    s.add_dependency(%q<fast_gettext>, ["~> 0.4.16"])
+    s.add_dependency(%q<syntax>, ["= 1.0.0"])
+    s.add_dependency(%q<property>, ["= 2.3.2"])
     s.add_dependency(%q<authlogic>, ["= 2.1.3"])
+    s.add_dependency(%q<versions>, ["= 0.3.1"])
+    s.add_dependency(%q<json>, ["= 1.5.1"])
+    s.add_dependency(%q<yamltest>, ["= 0.7.0"])
+    s.add_dependency(%q<simple_xlsx_writer>, [">= 0"])
+    s.add_dependency(%q<safe_yaml>, ["= 0.8.0"])
+    s.add_dependency(%q<daemons>, [">= 0"])
+    s.add_dependency(%q<differ>, ["= 0.1.2"])
+    s.add_dependency(%q<rubyless>, ["= 0.8.10"])
   end
 end
 

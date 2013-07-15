@@ -129,7 +129,7 @@ module Bricks
       bricks.each do |path|
         mod = path.split('/').last
         mod_path = "bricks/#{mod}"
-        if File.exist?("#{Rails.root}/#{mod_path}/lib/#{mod_path}.rb") # bricks/acl/lib/bricks/acl.rb
+        if File.exist?("#{path}/lib/#{mod_path}.rb") # bricks/acl/lib/bricks/acl.rb
           require mod_path
           mod = eval "Bricks::#{mod.camelcase}"
           Zena.use mod

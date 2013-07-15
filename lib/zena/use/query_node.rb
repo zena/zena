@@ -105,7 +105,7 @@ module Zena
         end
       end
 
-      class Compiler < QueryBuilder::Processor
+      class Compiler < ::QueryBuilder::Processor
         attr_reader :context # ?
         set_main_table 'nodes'
         set_main_class 'Node'
@@ -328,7 +328,7 @@ module Zena
             if klass = Node.get_class(right[1])
               "#{field_or_attr('kpath')} #{is_not ? 'NOT ' : ''}LIKE #{quote(klass.kpath + '%')}"
             else
-              raise QueryBuilder::QueryException.new("Unknown class #{right.last.inspect}.")
+              raise ::QueryBuilder::QueryException.new("Unknown class #{right.last.inspect}.")
             end
           else
             process_op(:like, left, right)
@@ -577,7 +577,7 @@ module Zena
                 set_main_class(klass)
                 kpath_filter = ".kpath LIKE #{quote("#{klass.kpath}%")}" unless klass.kpath == 'N'
               else
-                raise QueryBuilder::QueryException.new("Unknown class #{klass} in scope '#{class_name}:#{scope}'.")
+                raise ::QueryBuilder::QueryException.new("Unknown class #{klass} in scope '#{class_name}:#{scope}'.")
               end
             else
               klass = nil
