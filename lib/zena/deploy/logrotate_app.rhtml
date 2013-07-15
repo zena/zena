@@ -1,9 +1,12 @@
+# zena apache2 app logrotate configuration for <%= config[:db_name] %>
+# automatically generated file
+
 <%= config[:app_root] %>/log/production.log {
-	weekly
-	missingok
-	rotate 9
-	compress
-	delaycompress
-	notifempty
-	copytruncate
+  weekly
+  missingok
+  rotate 9
+  compress
+  delaycompress
+  notifempty
+  copytruncate
 }
