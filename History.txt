@@ -1,4 +1,4 @@
-== 1.2.5
+== 1.2.5 2013-07-15
 
 * Major changes
  * To support video streaming: redirect on first document cache. WARNING: This 

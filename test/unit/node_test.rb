@@ -140,7 +140,21 @@ class NodeTest < Zena::Unit::TestCase
           end
         end
       end # setting with transformations
+      
+      context 'saving multiple times' do
+        subject do
+          secure(Node) { nodes(:status) }
+        end
 
+        should 'not create multiple versions' do
+          assert_difference('Version.count', 1) do
+            subject.update_attributes_with_transformation(:title => 'One')
+            assert subject.update_attributes_with_transformation(:reference_id => '33')
+            assert subject.update_attributes_with_transformation(:reference_id => '34')
+          end
+        end
+      end
+      
     end # on a node with write access
   end # A logged in user
 
