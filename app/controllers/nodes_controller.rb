@@ -30,7 +30,7 @@ class NodesController < ApplicationController
   layout :popup_layout,           :only => [:edit, :import]
 
   def index
-    if @node = secure(Node) { Node.find(current_site.root_id) }
+    if @node = secure(Node) { Node.find(current_site.home_id) }
       respond_to do |format|
         format.html { render_and_cache :mode => '+index' }
         format.xml  { render :xml => @node.to_xml }

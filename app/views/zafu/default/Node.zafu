@@ -15,12 +15,12 @@
 </head>
 
 <body do='void' name='body'>
-  <div id='top' do='root' do='link'/>
+  <div id='top' do='home' do='link'/>
   <div id='header'>
     <div id='login' do='login_link'/>
     <div id='visitor'><r:visitor_link/> <r:if test='can_edit?' do='link' mode='admin' do='t'>btn_edit</r:if></div>
     <div id='search' do='search_box' type='search'/>
-    <ol id='menu' do='root' do='pages'>
+    <ol id='menu' do='home' do='pages'>
       <li do='each' on_if='is_ancestor?(main)' do='link'/>
     </ol>
   </div>

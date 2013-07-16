@@ -29,3 +29,10 @@ master_template_on_static_render:
 login_info:
   src: "<r:contacts in='site'><r:each do='login_info'><r:login/>, </r:each></r:contacts>"
   res: "lion, tiger, ant, , "
+
+home_compiled_to_project:
+  context:
+    site: alias
+  src: "<r:home do='collaborators'/>"
+  # project_has_collaborators => home resolved as project during compilation
+  tem: '/links.relation_id = 540144154/'

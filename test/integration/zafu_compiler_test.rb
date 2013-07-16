@@ -98,7 +98,7 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     end
 
     context = yt_get('context', file, test)
-    site = sites(context.delete('site') || 'zena')
+    site = Site.setup_master(sites(context.delete('site') || 'zena'))
     $_test_site = site.name
     @request.host = site.host
 

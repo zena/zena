@@ -1,3 +1,8 @@
+== 1.2.6
+
+* Major changes
+  * Support for multiple domains (site alias) for a single site.
+  
 == 1.2.5 2013-07-15
 
 * Major changes
@@ -6,6 +11,7 @@
  * WARN: Properties in list context do not resolve with first element anymore. "first" prefix needed.
  * Enable VirtualClass on native classes !
  * Added 'activity' brick which records visitor's last "seen_at" date. <== TODO: Document
+ * Support for site alias (other domain pointing to same data) "rake mkalias". <== TODO: Document
 
 * Minor changes
  * Fixed encode_params in Ajax requests.

@@ -8,7 +8,7 @@ class VersionsController < ApplicationController
     respond_to do |format|
 
       format.html {
-        if @node.id == current_site.root_id
+        if @node.id == current_site.home_id
           render_and_cache :cache => false, :mode => '+index'
           insert_warning
         else

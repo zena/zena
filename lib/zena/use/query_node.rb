@@ -546,8 +546,14 @@ module Zena
             when 'root'
               # Special pseudo-context
               add_table(main_table)
-              set_main_class(VirtualClass['Project'])
+              set_main_class(current_site.root_node.vclass)
               add_filter "#{table}.id = #{current_site.root_id}"
+              return true
+            when 'home'
+              # Special pseudo-context
+              add_table(main_table)
+              set_main_class(current_site.home_node.vclass)
+              add_filter "#{table}.id = #{current_site.home_id}"
               return true
             #when 'author', 'traductions', 'versions'
             #  # TODO: not implemented yet...

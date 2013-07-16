@@ -7,11 +7,17 @@ module Zena
       include Zena::Use::Upload::UploadedFile
 
       # Set visitor for unit testing
-      def login(fixture)
+      def login(fixture, site_name = nil)
         user = users(fixture)
-        setup_visitor(user, user.site)
+        if site_name
+          site = Site.setup_master(Site.find_by_name(site_name))
+        else
+          # Not an alias
+          site = user.site
+        end
+        setup_visitor(user, site)
         user.ip = '10.0.0.44'
-        $_test_site = user.site.name
+        $_test_site = site.name
         ::I18n.locale = user.lang
       end
 

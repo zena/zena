@@ -82,3 +82,15 @@ project_as_blog:
   # This is the same as "project where class like Blog"
   src: "Blog:project"
   sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NPPB%' AND nodes.id = ? ORDER BY nodes.zip ASC}, @node.get_project_id]"
+
+from_root:
+  context:
+    site: alias
+  src: nodes from root limit 3
+  res: 'people, projects list, Collections'
+  
+from_home:
+  context:
+    site: alias
+  src: nodes from home limit 3
+  res: 'bird, flower'

@@ -1280,64 +1280,6 @@ class Node < ActiveRecord::Base
   # Id to zip mapping for user_id. Used by zafu and forms.
   def user_zip; self[:user_id]; end
 
-  # transform to another class
-  # def vclass=(new_class)
-  #   if new_class.kind_of?(String)
-  #     klass = Module.const_get(new_class)
-  #   else
-  #     klass = new_class
-  #   end
-  #   raise NameError if !klass.ancestors.include?(Node) || klass.version_class != self.class.content_class
-  #
-  #
-  #
-  # rescue NameError
-  #   errors.add('klass', 'invalid')
-  # end
-
-  # transform an Node into another Object. This is a two step operation :
-  # 1. create a new object with the attributes from the old one
-  # 2. move old object out of the way (setting parent_id and section_id to -1)
-  # 3. try to save new object
-  # 4. delete old and set new object id to old
-  # THIS IS DANGEROUS !! NEEDS TESTING
-  # def change_to(klass)
-  #   return nil if self[:id] == current_site[:root_id]
-  #   # ==> Check for class specific information (file to remove, participations, tags, etc) ... should we leave these things and
-  #   # not care ?
-  #   # ==> When changing into something else : update version type and data !!!
-  #   my_id = self[:id].to_i
-  #   my_parent = self[:parent_id].to_i
-  #   my_project = self[:section_id].to_i
-  #   connection = self.class.connection
-  #   # 1. create a new object with the attributes from the old one
-  #   new_obj = secure!(klass) { klass.new(self.attributes) }
-  #   # 2. move old object out of the way (setting parent_id and section_id to -1)
-  #   self.class.connection.execute "UPDATE #{self.class.table_name} SET parent_id='0', section_id='0' WHERE id=#{my_id}"
-  #   # 3. try to save new object
-  #   if new_obj.save
-  #     tmp_id = new_obj[:id]
-  #     # 4. delete old and set new object id to old. Delete tmp Version.
-  #     self.class.connection.execute "DELETE FROM #{self.class.table_name} WHERE id=#{my_id}"
-  #     self.class.connection.execute "DELETE FROM #{Version.table_name} WHERE node_id=#{tmp_id}"
-  #     self.class.connection.execute "UPDATE #{self.class.table_name} SET id='#{my_id}' WHERE id=#{tmp_id}"
-  #     self.class.connection.execute "UPDATE #{self.class.table_name} SET section_id=id WHERE id=#{my_id}" if new_obj.kind_of?(Section)
-  #     self.class.logger.info "[#{self[:id]}] #{self.class} --> #{klass}"
-  #     if new_obj.kind_of?(Section)
-  #       # update section_id for children
-  #       sync_section(my_id)
-  #     elsif self.kind_of?(Section)
-  #       # update section_id for children
-  #       sync_section(parent[:section_id])
-  #     end
-  #     secure ( klass ) { klass.find(my_id) }
-  #   else
-  #     # set object back
-  #     self.class.connection.execute "UPDATE #{self.class.table_name} SET parent_id='#{my_parent}', section_id='#{my_project}' WHERE id=#{my_id}"
-  #     self
-  #   end
-  # end
-
   # Find the discussion for the current context (v_status and v_lang). This automatically creates a new #Discussion if there is
   # no closed or open discussion for the current lang and Node#can_auto_create_discussion? is true
   def discussion

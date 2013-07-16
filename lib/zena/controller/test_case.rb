@@ -10,7 +10,7 @@ module Zena
         activate_authlogic
       end
 
-      def login(fixture)
+      def login(fixture, site_name = nil)
         super
         if defined?(@controller)
           @controller.class_eval do

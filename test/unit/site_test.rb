@@ -400,7 +400,11 @@ class SiteTest < Zena::Unit::TestCase
     end
     
     should 'return alias root node' do
-      assert_equal nodes_id(:wiki), subject.root_id
+      assert_equal nodes_id(:zena), subject.root_id
+    end
+    
+    should 'return alias home node' do
+      assert_equal nodes_id(:wiki), subject.home_id
     end
   end
   

@@ -1,7 +1,7 @@
 zena:
   host:            test.host
-  orphan:          zena
   root:            zena
+  home:            zena
   anon:            anon
   public_group:    public
   site_group:      workers
@@ -20,8 +20,8 @@ zena:
 alias:
   master:          zena
   host:            alias.host
-  orphan:          zena
-  root:            wiki
+  root:            zena
+  home:            wiki
   anon:            anon
   public_group:    public
   site_group:      workers

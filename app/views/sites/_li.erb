@@ -5,7 +5,7 @@
           :method => :get) %></td>
   <td class="name"><%= li.host %></td>
   <% if !li.master_id %>
-    <td class='root'><%= li.root_node.title.limit(10) %></td>
+    <td class='home'><%= li.home_node.title.limit(10) %></td>
     <% [:languages, :default_lang].each do |sym| -%>
       <td class="<%= sym %>"><%= li[sym] %></td>
     <% end -%>
@@ -15,6 +15,6 @@
     <td class='redit_time'  ><%= li.redit_time %></td>
     <td class='options'><%= Site.attributes_for_form(li.is_alias?)[:bool].reject{|sym| !li.send(sym)}.join(', ') %></td>
   <% else %>
-    <td colspan='8' class='root'><%= li.root_node.title %></td>
+    <td colspan='8' class='root'><%= li.home_node.title %></td>
   <% end -%>  
 </tr>

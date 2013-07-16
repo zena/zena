@@ -6,8 +6,8 @@ A zena installation supports many sites. Each site is uniquely identified by it'
 The #Site model holds configuration information for a site:
 
 +host+::            Unique host name. (teti.ch, zenadmin.org, dev.example.org, ...)
-+orphan_id+::       Site seed node id. This is the only node in the site without a parent.
-+root_id+::         This is the apparent root of the site.
++root_id+::         Site seed node id. This is the only node in the site without a parent.
++home_id+::         This is the apparent root of the site (home page).
 +anon_id+::         Anonymous user id. This user is the 'public' user of the site. Even if +authorize+ is set to true, this user is needed to configure the defaults for all newly created users.
 +public_group_id+:: Id of the 'public' group. Every user of the site (with 'anonymous user') belongs to this group.
 +site_group_id+::   Id of the 'site' group. Every user except anonymous are part of this group. This group can be seen as the 'logged in users' group.
@@ -57,12 +57,12 @@ class Site < ActiveRecord::Base
   
   include RubyLess
   safe_method  :host   => String, :lang_list => [String], :default_lang => String, :master_host => String
-  safe_method  :root   => Proc.new {|h, r, s| {:method => 'root_node',   :class => VirtualClass['Project'], :nil => true}}
-  safe_method  :orphan => Proc.new {|h, r, s| {:method => 'orphan_node', :class => VirtualClass['Project'], :nil => true}}
+  safe_method  :root   => Proc.new {|h, r, s| {:method => 'root_node', :class => current_site.root_node.vclass, :nil => true}}
+  safe_method  :home   => Proc.new {|h, r, s| {:method => 'home_node', :class => current_site.home_node.vclass, :nil => true}}
 
   validate :valid_site
   validates_uniqueness_of :host
-  attr_accessible :name, :languages, :default_lang, :authentication, :http_auth, :ssl_on_auth, :auto_publish, :redit_time, :api_group_id, :root_zip
+  attr_accessible :name, :languages, :default_lang, :authentication, :http_auth, :ssl_on_auth, :auto_publish, :redit_time, :api_group_id, :home_zip
   has_many :groups, :order => "name"
   has_many :nodes
   has_many :users
@@ -181,8 +181,8 @@ class Site < ActiveRecord::Base
 
       raise Exception.new("Could not publish root node for site [#{host}] (site#{site[:id]})\n#{root.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") unless (root.v_status == Zena::Status::Pub || root.publish)
 
+      site.home_id = root[:id]
       site.root_id = root[:id]
-      site.orphan_id = root[:id]
       
       # Make sure safe definitions on Time/Array/String are available on prop_eval validation.
       Zena::Use::ZafuSafeDefinitions
@@ -228,14 +228,21 @@ class Site < ActiveRecord::Base
     def find_by_host(host)
       host = $1 if host =~ /^(.*)\.$/
       if site = self.find(:first, :conditions => ['host = ?', host]) rescue nil
-        if id = site.master_id
-          # The loaded site is an alias, load master site.
-          master = self.find(:first, :conditions => ['id = ?', id])
-          master.alias = site
-          site = master
-        end
+        setup_master(site)
+      else
+        nil
       end
-      site
+    end
+    
+    def setup_master(site)
+      if id = site.master_id
+        # The loaded site is an alias, load master site.
+        master = self.find(:first, :conditions => ['id = ?', id])
+        master.alias = site
+        master
+      else
+        site
+      end
     end
 
     # List of attributes that can be configured in the admin form
@@ -293,9 +300,9 @@ class Site < ActiveRecord::Base
     @root ||= secure(Node) { Node.find(root_id) } || Node.new(:title => host)
   end
   
-  # Return the orphan node.
-  def orphan_node
-    @orphan ||= secure(Node) { Node.find(orphan_id) } || Node.new(:title => host)
+  # Return the home node.
+  def home_node
+    @home ||= secure(Node) { Node.find(home_id) } || Node.new(:title => host)
   end
 
   # Return the public group: the one in which every visitor belongs.
@@ -383,19 +390,19 @@ class Site < ActiveRecord::Base
     @alias && @alias[:authentication] || self[:authentication]
   end
   
-  def root_id
-    @root_id ||= @alias && @alias[:root_id] || self[:root_id]
+  def home_id
+    @home_id ||= @alias && @alias[:home_id] || self[:home_id] || self[:root_id]
   end
   
-  def root_zip
-    root_node.zip
+  def home_zip
+    home_node.zip
   end
   
-  def root_zip=(zip)
+  def home_zip=(zip)
     if id = secure(Node) { Node.translate_pseudo_id(zip) }
-      self[:root_id] = id
+      self[:home_id] = id
     else
-      @root_zip_error = _('could not be found')
+      @home_zip_error = _('could not be found')
     end
   end
   
@@ -404,8 +411,8 @@ class Site < ActiveRecord::Base
     ali = Site.new(self.attributes)
     ali.host = hostname
     ali.master_id = self.id
-    ali.orphan_id = self.orphan_id
     ali.root_id   = self.root_id
+    ali.home_id   = self.home_id
     ali.prop      = self.prop
     ali.save
     ali
@@ -605,9 +612,9 @@ class Site < ActiveRecord::Base
         self[:default_lang] = nil
       end
       
-      if @root_zip_error
-        errors.add('root_id', @root_zip_error)
-        @root_zip_error = nil
+      if @home_zip_error
+        errors.add('root_id', @home_zip_error)
+        @home_zip_error = nil
       end
     end
 
