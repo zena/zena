@@ -3,7 +3,8 @@
 
   Examples:
 
-  Bricks::Pdf.engine = 'Xhtml2pdf'
+  Bricks::Pdf.engine = 'prince'
+  Bricks::Pdf.cmd    = '/usr/local/bin/prince'
 
   Bricks::Pdf.render_file "myfile.html"                            => STDOUT       (strings)
   Bricks::Pdf.render_file "myfile.html", "out.pdf"                 => out.pdf      (file)

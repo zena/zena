@@ -2,8 +2,9 @@ module Bricks
   module Pdf
     module Engine
       module Prince
+        CMD = Bricks::CONFIG['pdf']['cmd'] || 'prince'
         def command(opts)
-          cmd = ['prince']
+          cmd = [CMD]
           {
             :http_user     => '--http-user=',
             :http_password => '--http-password=',
