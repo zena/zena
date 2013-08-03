@@ -83,6 +83,14 @@ filter_through_links:
   sql: "/.*li1.source_id = nodes.id.*li2.source_id = nodes.id.*jn1\.zip = 33 AND jn2\.zip = 22/"
   res: "Clean Water project"
 
+filter_through_many_links:
+  context:
+    params:
+      ids: '33,22'
+  src: "projects where set_tag.id in (#{params[:ids].split(',')}) in site"
+  sql: "/AND jn1.zip IN \(\?\)/"
+  res: "Clean Water project"
+
 filter_with_fullpath:
   # Get all objects under a given node (node the '/' to avoid self)
   src: "nodes where fullpath like \"#{fullpath}/%\" in site order by fullpath"
