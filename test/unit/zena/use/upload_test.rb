@@ -20,13 +20,13 @@ class UploadTest < Zena::View::TestCase
 
       context 'to a file too large' do
         setup do
-          @params = {'attachment_url' => "http://zenadmin.org/zena_playground.zip"}
+          @params = {'attachment_url' => "http://apod.nasa.gov/apod/image/0901/gcenter_hstspitzer_big.jpg"}
         end
 
         should 'return an error about file being too big, without a download' do
           file, error = get_attachment
           assert_nil file
-          assert_equal 'size (631.6 MB) too big to fetch url', error
+          assert_equal 'size (10.9 MB) too big to fetch url', error
         end
       end
 

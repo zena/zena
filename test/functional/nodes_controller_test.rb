@@ -983,7 +983,7 @@ END:VCALENDAR
     if Zena::Use::Upload.has_network?
       preserving_files('test.host/data') do
         assert_difference('Node.count', 1) do
-          post 'create', 'attachment_url' => 'http://zenadmin.org/fr/blog/image5.jpg', 'node' => {'parent_id' => nodes_zip(:zena)}
+          post 'create', 'attachment_url' => 'http://zenadmin.org/fr/blog/image5.0c8db.jpg', 'node' => {'parent_id' => nodes_zip(:zena)}
         end
         document = assigns(:node)
         assert_equal 73633, document.size

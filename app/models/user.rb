@@ -405,7 +405,7 @@ class User < ActiveRecord::Base
       
       if !is_admin?
         # Make sure we remove dev_skin settings if user is not an admin.
-        self[:dev_skin_id] = nil
+        self.dev_skin_id = nil
       end
     end
 

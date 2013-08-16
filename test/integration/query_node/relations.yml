@@ -94,3 +94,11 @@ from_home:
     site: alias
   src: nodes from home limit 3
   res: 'bird, flower'
+
+# openging in art(33) and news(34)
+having_on_relation_count:
+  context:
+    params:
+      ids: '33,34'
+  src: 'tagged from tag select id.count as t_count where id in (#{params[:ids].split(",")}) in site having t_count = #{params[:ids].split(",").size}'
+  res: 'super ouverture'

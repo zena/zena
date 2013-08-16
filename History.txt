@@ -3,6 +3,11 @@
 * Major changes
   * Support for multiple domains (site alias) for a single site.
   
+* Minor changes
+  * Added 'cmd' option for pdf brick. <== TODO: Document
+  * Added 'local_ips' option to bricks.yml (used when pdf engine cannot render non-public assets). <== TODO: Document
+  * Fixed dependency on newer versions of rails.
+  
 == 1.2.5 2013-07-15
 
 * Major changes

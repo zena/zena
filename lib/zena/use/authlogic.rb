@@ -86,11 +86,11 @@ module Zena
               User.find_by_single_access_token(user_token)
             end
           end
-
+          
           # Create a fake cookie based on HTTP_AUTH using session_id and render_token. This is
           # only used for requests from localhost (asset host).
           def forge_cookie_with_http_auth
-            if (request.headers['REMOTE_ADDR'] == '127.0.0.1' || request.headers['REMOTE_ADDR'] == '::1') && 
+            if Zena::LOCAL_IPS.include?(request.headers['REMOTE_ADDR']) &&
                (Zena::ASSET_PORT.to_i == 0 || request.port.to_i == Zena::ASSET_PORT)
               authenticate_with_http_basic do |login, password|
                 # login    = visitor.id

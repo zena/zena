@@ -21,6 +21,8 @@ module Zena
   end
 
   ASSET_PORT     = Bricks.raw_config['asset_port'].to_i
+  LOCAL_IPS      = ((Bricks.raw_config['local_ips'] || '').split(',').map(&:strip) + %w{127.0.0.1 ::1}).uniq
+  
 
   ENABLE_LATEX   = true  && has_executable('pdflatex') # enable LateX post-rendering
   ENABLE_FOP     = true  && has_executable('fop', 'xsltproc') # enable xsl-fo post-rendering

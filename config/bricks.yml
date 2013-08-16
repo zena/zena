@@ -54,7 +54,12 @@ development:
 production:
 # Port used only to provide assets during custom rendering (pdf).
 # We need this to avoid deadlocks with round-robin based serving.
+# Do not use with Passenger.
 #  asset_port: 7999
+#
+# When external rendering engines (pdf) cannot get non-public assets, add the server ip to
+# what Zena considers 'local'
+#  local_ips: 123.45.67.89, 127.0.0.1
   activity:  ON
   cache_path: '/public/cache'
   mongrel:   OFF
