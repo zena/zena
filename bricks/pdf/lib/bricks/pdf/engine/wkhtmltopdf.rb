@@ -24,7 +24,7 @@ module Bricks
           if file = opts[:output]
             cmd << file
           else
-            cmd << "-o -"
+            cmd << "-"
           end
 
           # FIXME: find a way to redirect errors on screen instead of main log.

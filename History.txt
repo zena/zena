@@ -1,13 +1,13 @@
-== 1.2.6, 1.2.7
+== 1.2.6, 1.2.7 2013-08-16
 
 * Major changes
   * Support for multiple domains (site alias) for a single site.
+  * Added support for wkhtmltopdf (Thanks Jean-Baptiste).
   
 * Minor changes
   * Added 'cmd' option for pdf brick. <== TODO: Document
   * Added 'local_ips' option to bricks.yml (used when pdf engine cannot render non-public assets). <== TODO: Document
   * Fixed dependency on newer versions of rails.
-  * Fixed authlogic dependency problems.
   
 == 1.2.5 2013-07-15
 

@@ -23,7 +23,8 @@ development:
       gem: 'uv'
   pdf:
     switch: ON
-    engine: prince
+    engine: wkhtmltopdf
+    cmd: /usr/local/bin/wkhtmltopdf
 
   math:
     switch: ON
@@ -74,7 +75,8 @@ production:
       gem: 'simple_xlsx'
   pdf:
     switch: ON
-    engine: prince
+    engine: wkhtmltopdf
+    cmd: /usr/local/bin/wkhtmltopdf
   math:
     switch: ON
     live:   ON

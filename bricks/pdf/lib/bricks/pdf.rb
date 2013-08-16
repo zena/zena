@@ -3,8 +3,8 @@
 
   Examples:
 
-  Bricks::Pdf.engine = 'prince'
-  Bricks::Pdf.cmd    = '/usr/local/bin/prince'
+  Bricks::Pdf.engine = 'wkhtmltopdf'
+  Bricks::Pdf.cmd    = '/usr/local/bin/wkhtmltopdf'
 
   Bricks::Pdf.render_file "myfile.html"                            => STDOUT       (strings)
   Bricks::Pdf.render_file "myfile.html", "out.pdf"                 => out.pdf      (file)
@@ -41,7 +41,6 @@ module Bricks
     def render(options)
       res = nil
 
-      # TODO: redirect error messages...
       IO.popen(command(options), 'w+') do |io|
 
         if data = options[:data]
