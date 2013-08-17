@@ -26,8 +26,8 @@ begin
     gemspec.rubyforge_project = 'zena'
 
     gemspec.files.exclude 'config/routes.rb'
-    gemspec.files.exclude 'vendor/plugins/selenium-on-rails'
-    gemspec.files.exclude 'vendor/TextMate'
+    gemspec.files.exclude %r{^vendor/plugins/selenium-on-rails}
+    gemspec.files.exclude %r{vendor/TextMate}
 
 
     # Gem dependecies

@@ -1,3 +1,8 @@
+== 1.2.8
+
+* Minor changes
+  * Fixed gemspec to not include TextMate helper and selenium plugin.
+
 == 1.2.6, 1.2.7 2013-08-16
 
 * Major changes
