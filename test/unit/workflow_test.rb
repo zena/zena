@@ -377,6 +377,72 @@ class WorkflowTest < Zena::Unit::TestCase
           assert_equal 'Brazil', node.prop['country']
         end
       end
+      
+      context 'with another user saving without clone' do
+        setup do
+          login(:lion)
+        end
+
+        should 'not create new version' do
+          node = secure!(Node) { nodes(:lake) }
+          assert_difference('Version.count', 0) do
+            assert node.update_attributes_without_clone(:first_name => 'Mea Lua', :country => 'Brazil')
+            node = secure!(Node) { nodes(:lake) } # reload
+            assert_equal 'Mea Lua we love', node.title
+            assert_equal 'Brazil', node.prop['country']
+          end
+        end
+
+        should 'not change version author' do
+          node = secure!(Node) { nodes(:lake) }
+          orig_user = node.version.user_id
+          assert_not_equal visitor.id, orig_user
+          assert_difference('Version.count', 0) do
+            assert node.update_attributes_without_clone(:first_name => 'Mea Lua', :country => 'Brazil')
+            node = secure!(Node) { nodes(:lake) } # reload
+            assert_equal orig_user, node.version.user_id
+          end
+        end
+        
+        should 'not change node timestamp' do
+          node = secure!(Node) { nodes(:lake) }
+          updated_at = node.updated_at
+          assert_difference('Version.count', 0) do
+            assert node.update_attributes_without_clone(:first_name => 'Mea Lua', :country => 'Brazil')
+            node = secure!(Node) { nodes(:lake) } # reload
+            assert_equal updated_at, node.updated_at
+          end
+        end
+
+        should 'not change version timestamp' do
+          node = secure!(Node) { nodes(:lake) }
+          updated_at = node.version.updated_at
+          assert_difference('Version.count', 0) do
+            assert node.update_attributes_without_clone(:first_name => 'Mea Lua', :country => 'Brazil')
+            node = secure!(Node) { nodes(:lake) } # reload
+            assert_equal updated_at, node.version.updated_at
+          end
+        end
+
+        should 'evaluate prop_eval' do
+          node = secure!(Node) { nodes(:lake) }
+          assert_difference('Version.count', 0) do
+            assert node.update_attributes_without_clone(:first_name => 'Mea Lua', :country => 'Brazil')
+            node = secure!(Node) { nodes(:lake) } # reload
+            assert_equal 'Mea Lua we love', node.title
+          end
+        end
+        
+        should 'evaluate indices' do
+          node = secure!(Node) { nodes(:opening) }
+          assert_difference('Version.count', 0) do
+            t = Time.utc(2013, 8, 21, 10, 59)
+            assert node.update_attributes_without_clone(:date => t)
+            node = secure!(Node) { nodes(:opening) } # reload
+            assert_equal t, node.idx_datetime1
+          end
+        end
+      end
 
       should 'be able to create nodes using properties' do
         node = secure!(Node) { Node.create(defaults.merge(:title => 'Pandeiro')) }

@@ -43,14 +43,18 @@ module Zena
 
         # Return true if the version should be cloned if it was changed.
         def clone_on_change?
-          # not same user
-          user_id != visitor.id ||
-          # changed lang
-          lang_changed?         ||
-          # new version on top of publication
-          status_changed?       ||
-          # not in redit time
-          Time.now > created_at + current_site[:redit_time].to_i
+          if node && node.no_clone_on_change?
+            false
+          else
+            # not same user
+            user_id != visitor.id ||
+            # changed lang
+            lang_changed?         ||
+            # new version on top of publication
+            status_changed?       ||
+            # not in redit time
+            Time.now > created_at + current_site[:redit_time].to_i
+          end
         end
 
         # Returns true if the version has been edited (not just a status change)
@@ -487,10 +491,34 @@ module Zena
       end
 
       # Update an node's attributes or the node's version/content attributes. If the attributes contains only
-      # :v_... or :c_... keys, then only the version will be saved. If the attributes does not contain any :v_... or :c_...
-      # attributes, only the node is saved, without creating a new version.
+      # properties, then only the version will be saved. If the attributes does not contain any properties
+      # only the node is saved, without creating a new version.
       def update_attributes(new_attributes)
         apply(:update_attributes, new_attributes)
+      end
+      
+      # Used when we want to update properties *without* changing author and/or creating new versions. This
+      # is needed when we want to synchronise some properties with an external application.
+      def update_attributes_without_clone(new_attributes)
+        @no_clone_on_change       = true
+        Node.record_timestamps    = false
+        Version.record_timestamps = false
+        # We set v_status
+        if v_status == Zena::Status::Pub
+          # This forces index rebuild by selecting the :publish transition instead of :edit.
+          attrs = new_attributes.merge(:v_status => Zena::Status::Pub)
+        else
+          attrs = new_attributes
+        end
+        apply(:update_attributes, attrs)
+      ensure
+        @no_clone_on_change       = nil
+        Node.record_timestamps    = true
+        Version.record_timestamps = true
+      end
+      
+      def no_clone_on_change?
+        @no_clone_on_change == true
       end
 
       private
@@ -611,8 +639,11 @@ module Zena
               self.publish_from = get_publish_from(version.id)
             end
           end
-
-          self.updated_at = Time.now unless changed? # force 'updated_at' sync
+          
+          unless @no_clone_on_change
+            # Do not force updated_at sync when using "update_attributes_without_clone"
+            self.updated_at = Time.now unless changed? # force 'updated_at' sync
+          end
           true
         end
 

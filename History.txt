@@ -1,5 +1,9 @@
 == 1.2.8
 
+* Major changes
+  * Added "update_attributes_without_clone" to update attributes without versioning (used to sync
+    attributes with external app). This does not change timestamps nor version or node author.
+    
 * Minor changes
   * Fixed gemspec to not include TextMate helper and selenium plugin.
 
