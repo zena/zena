@@ -195,9 +195,9 @@ module Zena
                 return
               end
 
-              if data = result.delete(:data)
+              if data = result[:data]
                 send_data(data , result)
-              elsif file = result.delete(:file)
+              elsif file = result[:file]
                 send_file(file , result)
               else
                 # Should never happen

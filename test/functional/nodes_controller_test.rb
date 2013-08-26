@@ -727,8 +727,9 @@ class NodesControllerTest < Zena::Controller::TestCase
     test_site(:zena)
     without_files('/test.host/public') do
       name = "section#{nodes_zip(:people)}.xml"
+      cache_path = "#{SITES_ROOT}/test.host/public/en/#{name}"
       with_caching do
-        assert !File.exist?("#{SITES_ROOT}/test.host/public/fr/#{name}")
+        assert !File.exist?(cache_path)
         login(:lion)
         doc = secure!(Template) { Template.create('title'=>'Node', 'format'=>'xml', 'text' => '<?xml version="1.0" encoding="utf-8"?><node><title do="title"/></node>', 'parent_id'=>nodes_id(:default))}
         assert !doc.new_record?, "Not a new record"
@@ -736,8 +737,9 @@ class NodesControllerTest < Zena::Controller::TestCase
         login(:anon)
         get 'show', :prefix => 'en', :path => [name]
         assert_response :success
-        assert_equal "<?xml version=\"1.0\" encoding=\"utf-8\"?><node><title>people</title></node>", @response.body
-        assert File.exist?("#{SITES_ROOT}/test.host/public/en/#{name}")
+        assert_equal '<?xml version="1.0" encoding="utf-8"?><node><title>people</title></node>', @response.body
+        assert File.exist?(cache_path)
+        assert_equal '<?xml version="1.0" encoding="utf-8"?><node><title>people</title></node>', File.read(cache_path)
       end
     end
   end
