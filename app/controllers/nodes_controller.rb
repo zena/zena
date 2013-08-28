@@ -423,11 +423,18 @@ class NodesController < ApplicationController
     params['node'] ||= {}
     file, file_error = get_attachment
     params['node']['file'] = file if file
-    # Make sure we load the correct version for edited v_lang
-    lang = params['node']['v_lang'] || visitor.lang
-    @node.version(lang)
-    @v_status_before_update = @node.v_status
-    @node.update_attributes_with_transformation(params['node'])
+    
+    #============= [TRANSACTION HERE to prevent double version bug on double submit
+    # This can only fix the issue if Version creation/saving is not done after_commit !!
+    Node.transaction do
+      # Make sure we load the correct version for edited v_lang
+      lang = params['node']['v_lang'] || visitor.lang
+      @node.version(lang)
+      @v_status_before_update = @node.v_status
+      @node.update_attributes_with_transformation(params['node'])
+    end
+    #============= TO HERE TRANSACTION]
+    
     # What is this 'extfile' thing ?
     @node.errors.add('extfile', file_error) if file_error
 

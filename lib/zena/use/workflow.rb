@@ -12,7 +12,7 @@ module Zena
       module VersionMethods
         attr_reader   :stored_workflow, :status_set
         # Enable the use of version.backup = 'true' to force clone
-        attr_accessor :backup
+        attr_accessor :backup, :no_clone_on_change
 
         def self.included(base)
           base.before_save :store_workflow_changes
@@ -43,7 +43,7 @@ module Zena
 
         # Return true if the version should be cloned if it was changed.
         def clone_on_change?
-          if node && node.no_clone_on_change?
+          if @no_clone_on_change
             false
           else
             # not same user
@@ -500,9 +500,9 @@ module Zena
       # Used when we want to update properties *without* changing author and/or creating new versions. This
       # is needed when we want to synchronise some properties with an external application.
       def update_attributes_without_clone(new_attributes)
-        @no_clone_on_change       = true
-        Node.record_timestamps    = false
-        Version.record_timestamps = false
+        version.no_clone_on_change = true
+        Node.record_timestamps     = false
+        Version.record_timestamps  = false
         # We set v_status
         if v_status == Zena::Status::Pub
           # This forces index rebuild by selecting the :publish transition instead of :edit.
@@ -512,13 +512,9 @@ module Zena
         end
         apply(:update_attributes, attrs)
       ensure
-        @no_clone_on_change       = nil
-        Node.record_timestamps    = true
-        Version.record_timestamps = true
-      end
-      
-      def no_clone_on_change?
-        @no_clone_on_change == true
+        version.no_clone_on_change = nil
+        Node.record_timestamps     = true
+        Version.record_timestamps  = true
       end
 
       private
@@ -640,7 +636,7 @@ module Zena
             end
           end
           
-          unless @no_clone_on_change
+          unless version.no_clone_on_change
             # Do not force updated_at sync when using "update_attributes_without_clone"
             self.updated_at = Time.now unless changed? # force 'updated_at' sync
           end
