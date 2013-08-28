@@ -249,6 +249,7 @@ module Zena
           # opts[:skin] option removed
           @skin     = get_skin
           mode      = opts[:mode]
+          mode      = nil if mode.blank?
           format    = opts[:format] || 'html'
           klass     = @node.vclass
 
