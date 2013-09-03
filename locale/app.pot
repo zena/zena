@@ -96,8 +96,12 @@ msgstr ""
 msgid "Cache cleared."
 msgstr ""
 
-#: app/controllers/user_sessions_controller.rb:21
+#: app/controllers/user_sessions_controller.rb:23
 msgid "Invalid login or password."
+msgstr ""
+
+#: app/controllers/user_sessions_controller.rb:28
+msgid "You need to wait %ih %im %is before any new attempt (%i failed attempts)."
 msgstr ""
 
 #: app/controllers/users_controller.rb:117

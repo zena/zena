@@ -168,7 +168,9 @@ module Zena
         
         def zafu_flash
           @zafu_flash ||= if flash[:notice] || flash[:error]
-            flash.stringify_keys
+            flash.stringify_keys.tap do |e|
+              Rails.logger.warn e.inspect
+            end
           else
             {}
           end

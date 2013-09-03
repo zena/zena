@@ -14,6 +14,7 @@ a:hover { color:#04a;}
 table { margin:20px;}
 td { padding:5px; }
 #login_form { border:1px solid grey; background:#eee; width:400px; margin:120px auto; padding:0;}
+.error {background:#fcc; padding:8px; border-bottom:1px solid #333}
 </style>
 </head>
 

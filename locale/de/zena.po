@@ -226,9 +226,13 @@ msgstr "Freitag"
 msgid "Invalid action '%{action}'."
 msgstr ""
 
-#: app/controllers/user_sessions_controller.rb:21
+#: app/controllers/user_sessions_controller.rb:23
 msgid "Invalid login or password."
-msgstr ""
+msgstr "Ungültige Login oder Passwort."
+
+#: app/controllers/user_sessions_controller.rb:28
+msgid "You need to wait %ih %im %is before any new attempt (%i failed attempts)."
+msgstr "Sie müssen warten %iS %iM %iS vor ein neuen Versuch (%i Fehlversuche)."
 
 #: lib/gettext_strings.rb:143
 msgid "Jan"

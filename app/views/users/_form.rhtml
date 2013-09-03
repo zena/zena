@@ -26,6 +26,7 @@
       <tr><td class='label'><%= _("single_access_token")%>  </td><td><%= @user.single_access_token %></td></tr>
       <tr><td class='label'><%= _('language')%>   </td><td><%= select('user', 'lang', visitor.site.lang_list.map {|l| [_(l),l]}) %></td></tr>
       <tr><td class='label'><%= _("time zone")%>  </td><td><select name='user[time_zone]'><%= options_for_select([''] + TZInfo::Timezone.all_identifiers, @user[:time_zone] || '') %></select></td></tr>
+      <tr><td class='label'><%= _("login_attempt_count")%>  </td><td><%= check_box('user', 'login_attempt_count', {}, 0, @user.login_attempt_count) %> reset</td></tr>
     <% unless @user.is_anon? -%>
       <tr><td class='label'><%= _("groups")%>     </td><td>
       <%= @groups.inject([]) do |list, g|

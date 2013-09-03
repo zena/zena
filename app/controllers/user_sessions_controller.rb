@@ -14,15 +14,30 @@ class UserSessionsController < ApplicationController
 
   def create
     User.send(:with_scope, :find => {:conditions => ['site_id = ?', visitor.site.id]}) do
+      if user = User.find_by_login(params[:login])
+        # FAIL: 1s, FAIL: 2s, FAIL: 4s, FAIL: 8s, FAIL: 16s, FAIL: 32s, FAIL: 64s
+        wait_in_seconds = 2 ** user.login_attempt_count.to_i
+        elapsed         = Time.now.to_i - user.login_attempted_at.to_i
+        if elapsed < wait_in_seconds
+          w = Time.at(wait_in_seconds - elapsed)
+          msg = _("You need to wait %ih %im %is before any new attempt (%i failed attempts).")
+          flash[:error] = msg % [w.hour, w.min, w.sec, user.login_attempt_count.to_i]
+          return redirect_to login_path
+        end
+      else
+        flash[:error] = _("Invalid login or password.")
+        return redirect_to login_path
+      end
       @user_session = UserSession.new(:login=>params[:login], :password=>params[:password])
       if @user_session.save
-        #flash.now[:notice] = _("Successfully logged in.")
+        # Reset login attempts count
+        Zena::Db.set_attribute(user, 'login_attempt_count', 0)
+        Zena::Db.set_attribute(user, 'login_attempted_at',  nil)
         redirect_to  redirect_after_login
       else
-        flash[:notice] = _("Invalid login or password.")
-        # FIXME: find a better way to lock without blocking the process.
-        # Also lock longer and longer (exponentially).
-        sleep(2)
+        flash[:error] = _("Invalid login or password.")
+        Zena::Db.set_attribute(user, 'login_attempt_count', user.login_attempt_count.to_i + 1)
+        Zena::Db.set_attribute(user, 'login_attempted_at',  Time.now.utc)
         redirect_to login_path
       end
     end
@@ -41,7 +56,7 @@ class UserSessionsController < ApplicationController
       else
         # Keep current host and port settings
         host = host_with_port
-        http = host =~ /:/ ? 'https' : 'http'
+        http = host =~ /:443/ ? 'https' : 'http'
       end
       #flash.now[:notice] = _("Successfully logged out.")
       redirect_to "#{http}://#{host}#{params[:redirect] || home_path(:prefix => prefix)}"

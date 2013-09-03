@@ -14,11 +14,41 @@ class UserSessionsControllerTest < Zena::Controller::TestCase
       assert assigns(:user_session).persisting?
       assert_response 302
     end
-
-    should "redirect to login page if login failed" do
-      post 'create', :login=>'ant', :password=>'boom'
-      assert !assigns(:user_session).persisting?
-      assert_redirected_to login_path
+    
+    context 'on failure' do
+      should "redirect to login page" do
+        post 'create', :login=>'ant', :password=>'boom'
+        assert !assigns(:user_session).persisting?
+        assert_redirected_to login_path
+      end
+      
+      should 'increment user login_attempt_count' do
+        assert_nil users(:ant).login_attempt_count
+        post 'create', :login=>'ant', :password=>'boom'
+        assert_equal 1, users(:ant).login_attempt_count
+      end
+      
+      should 'set attempt datetime' do
+        a = Time.now.utc.to_i
+        assert_nil users(:ant).login_attempted_at
+        post 'create', :login=>'ant', :password=>'boom'
+        b = Time.now.utc.to_i
+        assert a <= users(:ant).login_attempted_at.to_i
+        assert b >= users(:ant).login_attempted_at.to_i
+      end
+    end
+    
+    context 'with a large attempt count' do
+      setup do
+        Zena::Db.set_attribute(users(:ant), 'login_attempt_count', 10)
+        Zena::Db.set_attribute(users(:ant), 'login_attempted_at', Time.now.utc)
+      end
+      
+      should 'refuse login' do
+        post 'create', :login => 'ant', :password => 'ant'
+        assert_redirected_to login_path
+        assert_equal 'You need to wait 0h 17m 4s before any new attempt (10 failed attempts).', flash[:error]
+      end
     end
 
   end
@@ -50,7 +80,7 @@ class UserSessionsControllerTest < Zena::Controller::TestCase
 
     should 'not be allowed to login' do
       post 'create', :login => 'ant', :password => 'ant'
-      assert !assigns(:user_session).persisting?
+      assert !assigns(:user_session)
       assert_redirected_to login_path
     end
   end
