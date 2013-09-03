@@ -262,6 +262,10 @@ class Role < ActiveRecord::Base
       relation.save!
     end
   end
+  
+  def db_columns
+    @original_columns || {}
+  end
 
   private
     def set_defaults

@@ -1611,7 +1611,8 @@ class Node < ActiveRecord::Base
 
     # Make sure the node is complete before creating it (check parent and project references)
     def validate_node
-      errors.add(:title, "can't be blank") if title.blank?
+      # Make sure title is never blank
+      self.title = vclass.name if title.blank?
 
       if @parent_zip_error
         errors.add('parent_id', @parent_zip_error)

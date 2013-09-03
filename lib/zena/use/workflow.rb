@@ -43,6 +43,7 @@ module Zena
 
         # Return true if the version should be cloned if it was changed.
         def clone_on_change?
+          # List of changed versioned properties
           if @no_clone_on_change
             false
           else
@@ -59,8 +60,11 @@ module Zena
 
         # Returns true if the version has been edited (not just a status change)
         def edited?
-          return true if new_record? || (changes.keys - WORKFLOW_ATTRIBUTES != [])
-          return true if node && node.prop.changed?
+          new_record? ||
+          (changes.keys - WORKFLOW_ATTRIBUTES != []) ||
+          # The node loaded here is guaranteed to be the same as the one where props are changed:
+          # node.version.node.object_id == node.object_id
+          nprop.changed?
         end
 
         private
@@ -73,6 +77,10 @@ module Zena
             @stored_workflow[:lang_was]             = lang_was
             @status_set = nil
             true
+          end
+          
+          def nprop
+            @nprop ||= node.prop
           end
 
       end
@@ -385,30 +393,50 @@ module Zena
 
       # Gateway to all modifications of the node or it's versions.
       def apply(method, *args)
-        res = case method
+        case method
         when :update_attributes
           self.attributes = args.first
-          save
         when :propose
           # TODO: replace with version.status = ...
           self.version_attributes = {'status' => args[0] || Zena::Status::Prop}
-          save
         when :publish
           self.version_attributes = {'status' => Zena::Status::Pub}
-          save
         when :refuse, :redit
           self.version_attributes = {'status' => Zena::Status::Red}
-          save
         when :unpublish, :remove
           self.version_attributes = {'status' => Zena::Status::Rem}
-          save
         when :destroy_version
           if versions.count == 1 && empty?
-            self.destroy # will destroy last version
+            return self.destroy # will destroy last version
           else
             self.version_attributes = {:__destroy => true}
-            save
           end
+        else
+          return
+        end
+        
+        if @version
+          # We accessed version, make sure '@node' in version is self
+          @version.instance_variable_set(:@node, self)
+        end
+        
+        # Determine if we need to lock version cloning
+        if @no_clone_on_change || (prop.changed? && !changed_versioned_properties?)
+          # We only lock if properties are changed (not in case of status changes: publication, etc)
+          begin
+            Node.record_timestamps     = false
+            Version.record_timestamps  = false
+            version.no_clone_on_change = true
+            # Make sure indices are rebuilt
+            save
+          ensure
+            @no_clone_on_change = nil
+            Node.record_timestamps     = true
+            Version.record_timestamps  = true
+            version.no_clone_on_change = nil
+          end
+        else
+          save
         end
       end
 
@@ -500,45 +528,48 @@ module Zena
       # Used when we want to update properties *without* changing author and/or creating new versions. This
       # is needed when we want to synchronise some properties with an external application.
       def update_attributes_without_clone(new_attributes)
-        version.no_clone_on_change = true
-        Node.record_timestamps     = false
-        Version.record_timestamps  = false
-        # We set v_status
-        if v_status == Zena::Status::Pub
-          # This forces index rebuild by selecting the :publish transition instead of :edit.
-          attrs = new_attributes.merge(:v_status => Zena::Status::Pub)
-        else
-          attrs = new_attributes
-        end
-        apply(:update_attributes, attrs)
-      ensure
-        version.no_clone_on_change = nil
-        Node.record_timestamps     = true
-        Version.record_timestamps  = true
+        @no_clone_on_change = true
+        apply(:update_attributes, new_attributes)
       end
 
       private
-        def set_workflow_defaults
-          version = self.version
-
-          # Alter version status or set default value
-          if version.edited? || version.new_record?
-            if version.status_set?
-              if version.status == Zena::Status::Pub &&
-                 version.edited? && !full_drive?
-                # We silently revert to redaction: refuse auto_publish by setting version status.
-                version.status = Zena::Status::Red
+        def changed_versioned_properties?
+          columns = vclass.db_columns
+          prop.changes.keys.select do |k|
+            if type = columns[k]
+              if type.versioned?
+                return true
               end
             else
-              # Set default version status
-              version.status = (auto_publish? && full_drive?) ? Zena::Status::Pub : Zena::Status::Red
+              # Properties defined in the model are versioned.
+              return true
             end
-          else
-            # keep status value set
           end
+          false
+        end
+        
+        def set_workflow_defaults
+          version = self.version
+          if !@no_clone_on_change
+            # Alter version status or set default value
+            if version.edited? || version.new_record?
+              if version.status_set?
+                if version.status == Zena::Status::Pub &&
+                   version.edited? && !full_drive?
+                  # We silently revert to redaction: refuse auto_publish by setting version status.
+                  version.status = Zena::Status::Red
+                end
+              else
+                # Set default version status
+                version.status = (auto_publish? && full_drive?) ? Zena::Status::Pub : Zena::Status::Red
+              end
+            else
+              # keep status value set
+            end
 
-          # Set default version's publish_from date
-          version.publish_from = version.status.to_i == Zena::Status::Pub ? (version.publish_from || Time.now) : version.publish_from
+            # Set default version's publish_from date
+            version.publish_from = version.status.to_i == Zena::Status::Pub ? (version.publish_from || Time.now) : version.publish_from
+          end
 
           # Store transition before any validation takes place
           set_current_transition

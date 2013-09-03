@@ -78,7 +78,7 @@
  * Added "in_group" zafu method on visitor. <== TODO: Document
  * Added [upload_field] method to zafu to allow custom upload forms. <== TODO: Document
  * Added support for custom images on nodes with the "img_tag_{mode}" string attribute or the 'img_tag' hash attribute. <== TODO: Document
- * Added support for tag clouds through sqliss (<r:void do='tag_cloud from nodes in site' do='each' join=', '><r:name/> (<r:link_count/>)</r:void>). <== TODO: Document
+ * Added support for tag clouds through sqliss (<r:void do='tag_cloud from nodes in site' do='each' join=', '><r:name/> (<r:link_count/>)</r:void>).
 
 * Minor changes
  * Support for 'lang_list' when creating vhost file <== TODO: Document

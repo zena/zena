@@ -463,27 +463,8 @@ class NodesController < ApplicationController
               redirect_to params[:redir] || zen_path(@node, :mode => params[:mode])
             end
           else
-            begin
-              if request.referer
-                route = ActionController::Routing::Routes.recognize_path(request.referer[%r{https?://[^/]+(.*)},1])
-              else
-                route = {:action => 'show'}
-              end
-              if route[:action] == 'index'
-                mode = '+index'
-              elsif route[:action] == 'search'
-                mode = '+search'
-              elsif path = route[:path]
-                if path.last =~ Zena::Use::Urls::ALLOWED_REGEXP
-                  zip  = $3
-                  name = $4
-                  mode = $5 == '' ? nil : $5[1..-1]
-                end
-              end
-            rescue ActionController::RoutingError
-              mode = nil
-            end
-            render_and_cache :mode => mode, :cache => false
+            flash[:error] = error_messages_for(:node, :object => @node).html_safe
+            redirect_to zen_path(@node, :mode => params[:mode])
           end
         end # html
 

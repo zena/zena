@@ -71,7 +71,7 @@ module Bricks
         template_path = template_url(opts)
 
         # Produce html
-        data = render_to_string(:file => template_path, :layout=>false)
+        data = render_to_string(:file => template_path, :layout => false)
 
         target_file = Tempfile.new('trg').path + '.pdf'
 

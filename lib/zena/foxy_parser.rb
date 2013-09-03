@@ -785,6 +785,9 @@ module Zena
             col[:header_keys] << :role
             col[:header_keys] << :name
           end
+          if !col['versioned']
+            col['versioned'] = 1
+          end
         end
       end
   end

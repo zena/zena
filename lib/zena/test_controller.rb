@@ -75,6 +75,9 @@ module Zena
       @node = secure!(Node) { Node.find(params[:node_id])}
       @text = params[:text]
       @test_url  = params[:url]
+      if f = params.delete(:flash)
+        flash.now[:error] = f
+      end
       params.delete(:user_id)
       params.delete(:user)
       params.delete(:prefix)

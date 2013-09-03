@@ -3,7 +3,7 @@
           :update =>"column#{li[:id]}",
           :url    => edit_column_path(li),
           :method => :get) %></td>
-  <td class='name'>
+  <td class='name <%= li.versioned? ? 'versioned' : 'not-versioned'  %>'>
     <%= li.name %>
   </td>
   <td class='index'>

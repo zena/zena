@@ -378,68 +378,142 @@ class WorkflowTest < Zena::Unit::TestCase
         end
       end
       
-      context 'with another user saving without clone' do
+      context 'with another user' do
         setup do
           login(:lion)
         end
-
-        should 'not create new version' do
-          node = secure!(Node) { nodes(:lake) }
-          assert_difference('Version.count', 0) do
-            assert node.update_attributes_without_clone(:first_name => 'Mea Lua', :country => 'Brazil')
-            node = secure!(Node) { nodes(:lake) } # reload
-            assert_equal 'Mea Lua we love', node.title
-            assert_equal 'Brazil', node.prop['country']
+        
+        context 'saving without clone' do
+          
+          should 'not create new version' do
+            node = secure!(Node) { nodes(:lake) }
+            assert_difference('Version.count', 0) do
+              assert node.update_attributes_without_clone(:first_name => 'Mea Lua', :country => 'Brazil')
+              node = secure!(Node) { nodes(:lake) } # reload
+              assert_equal 'Mea Lua we love', node.title
+              assert_equal 'Brazil', node.prop['country']
+            end
           end
-        end
 
-        should 'not change version author' do
-          node = secure!(Node) { nodes(:lake) }
-          orig_user = node.version.user_id
-          assert_not_equal visitor.id, orig_user
-          assert_difference('Version.count', 0) do
-            assert node.update_attributes_without_clone(:first_name => 'Mea Lua', :country => 'Brazil')
-            node = secure!(Node) { nodes(:lake) } # reload
-            assert_equal orig_user, node.version.user_id
+          should 'not change version author' do
+            node = secure!(Node) { nodes(:lake) }
+            orig_user = node.version.user_id
+            assert_not_equal visitor.id, orig_user
+            assert_difference('Version.count', 0) do
+              assert node.update_attributes_without_clone(:first_name => 'Mea Lua', :country => 'Brazil')
+              node = secure!(Node) { nodes(:lake) } # reload
+              assert_equal orig_user, node.version.user_id
+            end
+          end
+
+          should 'not change node timestamp' do
+            node = secure!(Node) { nodes(:lake) }
+            updated_at = node.updated_at
+            assert_difference('Version.count', 0) do
+              assert node.update_attributes_without_clone(:first_name => 'Mea Lua', :country => 'Brazil')
+              node = secure!(Node) { nodes(:lake) } # reload
+              assert_equal updated_at, node.updated_at
+            end
+          end
+
+          should 'not change version timestamp' do
+            node = secure!(Node) { nodes(:lake) }
+            updated_at = node.version.updated_at
+            assert_difference('Version.count', 0) do
+              assert node.update_attributes_without_clone(:first_name => 'Mea Lua', :country => 'Brazil')
+              node = secure!(Node) { nodes(:lake) } # reload
+              assert_equal updated_at, node.version.updated_at
+            end
+          end
+
+          should 'evaluate prop_eval' do
+            node = secure!(Node) { nodes(:lake) }
+            assert_difference('Version.count', 0) do
+              assert node.update_attributes_without_clone(:first_name => 'Mea Lua', :country => 'Brazil')
+              node = secure!(Node) { nodes(:lake) } # reload
+              assert_equal 'Mea Lua we love', node.title
+            end
+          end
+
+          should 'evaluate indices' do
+            node = secure!(Node) { nodes(:opening) }
+            assert_difference('Version.count', 0) do
+              t = Time.utc(2013, 8, 21, 10, 59)
+              assert node.update_attributes_without_clone(:date => t)
+              node = secure!(Node) { nodes(:opening) } # reload
+              assert_equal t, node.idx_datetime1
+            end
           end
         end
         
-        should 'not change node timestamp' do
-          node = secure!(Node) { nodes(:lake) }
-          updated_at = node.updated_at
-          assert_difference('Version.count', 0) do
-            assert node.update_attributes_without_clone(:first_name => 'Mea Lua', :country => 'Brazil')
-            node = secure!(Node) { nodes(:lake) } # reload
-            assert_equal updated_at, node.updated_at
+        context 'updating not versioned props only' do
+          
+          should 'not create new version' do
+            node = secure!(Node) { nodes(:lake) }
+            assert_difference('Version.count', 0) do
+              assert node.update_attributes(:'cart' => {'foo' => 'hello'})
+              node = secure!(Node) { nodes(:lake) } # reload
+              assert_equal 'hello', node.cart['foo']
+            end
           end
-        end
 
-        should 'not change version timestamp' do
-          node = secure!(Node) { nodes(:lake) }
-          updated_at = node.version.updated_at
-          assert_difference('Version.count', 0) do
-            assert node.update_attributes_without_clone(:first_name => 'Mea Lua', :country => 'Brazil')
-            node = secure!(Node) { nodes(:lake) } # reload
-            assert_equal updated_at, node.version.updated_at
+          should 'not change version author' do
+            node = secure!(Node) { nodes(:lake) }
+            orig_user = node.version.user_id
+            assert_not_equal visitor.id, orig_user
+            assert_difference('Version.count', 0) do
+              assert node.update_attributes(:'cart' => {'foo' => 'hello'})
+              node = secure!(Node) { nodes(:lake) } # reload
+              assert_equal orig_user, node.version.user_id
+            end
           end
-        end
 
-        should 'evaluate prop_eval' do
-          node = secure!(Node) { nodes(:lake) }
-          assert_difference('Version.count', 0) do
-            assert node.update_attributes_without_clone(:first_name => 'Mea Lua', :country => 'Brazil')
-            node = secure!(Node) { nodes(:lake) } # reload
-            assert_equal 'Mea Lua we love', node.title
+          should 'not change node timestamp' do
+            node = secure!(Node) { nodes(:lake) }
+            updated_at = node.updated_at
+            assert_difference('Version.count', 0) do
+              assert node.update_attributes(:'cart' => {'foo' => 'hello'})
+              node = secure!(Node) { nodes(:lake) } # reload
+              assert_equal updated_at, node.updated_at
+            end
           end
-        end
-        
-        should 'evaluate indices' do
-          node = secure!(Node) { nodes(:opening) }
-          assert_difference('Version.count', 0) do
-            t = Time.utc(2013, 8, 21, 10, 59)
-            assert node.update_attributes_without_clone(:date => t)
-            node = secure!(Node) { nodes(:opening) } # reload
-            assert_equal t, node.idx_datetime1
+
+          should 'not change version timestamp' do
+            node = secure!(Node) { nodes(:lake) }
+            updated_at = node.version.updated_at
+            assert_difference('Version.count', 0) do
+              assert node.update_attributes(:'cart' => {'foo' => 'hello'})
+              node = secure!(Node) { nodes(:lake) } # reload
+              assert_equal updated_at, node.version.updated_at
+            end
+          end
+
+          should 'evaluate prop_eval' do
+            node = secure!(Node) { nodes(:lake) }
+            
+            c = secure(VirtualClass) { virtual_classes(:Contact) }
+            assert c.update_attributes(:prop_eval => %q[{'cart' => {'baz' => cart['foo']}}])
+            
+            assert_difference('Version.count', 0) do
+              assert node.update_attributes(:'cart' => {'foo' => 'hello'})
+              node = secure!(Node) { nodes(:lake) } # reload
+              assert_equal 'hello', node.cart['baz']
+            end
+            
+            # Make sure to clear VirtualClass cache to avoid errors due to prop_eval propagation
+            VirtualClass.expire_cache!
+          end
+
+          should 'evaluate indices' do
+            
+            c = secure(Column) { columns(:Contact_cart) }
+            assert c.update_attributes(:index => '.idx_string1', :ptype => 'string')
+            node = secure!(Node) { nodes(:lake) }
+            assert_difference('Version.count', 0) do
+              assert node.update_attributes(:'cart' => 'Hop', :v_status => Zena::Status::Pub)
+              node = secure!(Node) { nodes(:lake) } # reload
+              assert_equal 'Hop', node.idx_string1
+            end
           end
         end
       end

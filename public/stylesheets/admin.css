@@ -43,6 +43,8 @@ table.admin td:first-child { border-left: 1px solid #999; }
 .admin th { background:#999; color:#222; font-weight:bold;}
 .admin .Role { color:#eee;}
 .admin .name { font-weight:bold;}
+.admin .name.versioned { color:#1F8A1F}
+.admin .name.not-versioned { color:#5699B9}
 .admin .blank { text-align:center; background:none; padding-top:2em;}
 .admin th .kpath {font-weight:normal; font-family:Monaco, monospace; color:#ccc;}
 .admin .light { background:#eee;}

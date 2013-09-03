@@ -409,8 +409,9 @@ class NodesControllerTest < Zena::Controller::TestCase
 
           should 'set error message on skin_id' do
             put_subject
-            assert_response :success
+            assert_response :redirect
             assert_equal 'type mismatch (Page is not a Skin)', assigns(:node).errors[:skin_id]
+            assert_equal %Q{<table class='errors'>\n<tr><td><b>skin_id</b></td><td>type mismatch (Page is not a Skin)</td></tr>\n</table>}, flash[:error]
           end
         end # with a bad value
 

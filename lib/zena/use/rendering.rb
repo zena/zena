@@ -279,7 +279,10 @@ module Zena
 
         # Return true if we can cache the current page
         def caching_allowed(opts = {})
-          return false if current_site.authentication? || (query_params != {} && !@cache_query)
+          return false if current_site.authentication? ||
+                          (query_params != {} && !@cache_query) ||
+                          flash[:notice] ||
+                          flash[:error]
           # Cache even if authenticated (public content).
           #                       Content viewed by anonymous user should be cached anyway.
           opts[:authenticated] || visitor.is_anon?

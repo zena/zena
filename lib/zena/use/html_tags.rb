@@ -163,19 +163,28 @@ module Zena
         include LinkTags
         include RubyLess
 
-        safe_method [:flash_messages] => {:class => String, :method => 'flash_messages', :html_safe => true}
-        # TODO: replace 'flash_messages' with a FlashHash context or a list
-        # of Flash messages.
+        safe_method :flash          => {:class => StringHash, :method => 'zafu_flash'}
+        safe_method :flash_messages => {:class => String,     :method => 'flash_messages', :html_safe => true}
+        
+        def zafu_flash
+          @zafu_flash ||= if flash[:notice] || flash[:error]
+            flash.stringify_keys
+          else
+            {}
+          end
+        end
 
         def flash_messages(opts={})
           type = opts[:show] || 'both'
 
-          if (type == 'notice' || type == 'both') && flash[:notice]
-            notice = "<div class='auto_fade notice' onclick='new Effect.Fade(this)'>#{::ERB::Util.html_escape(flash[:notice])}</div>"
+          if (type == 'notice' || type == 'both') && (msg = flash[:notice])
+            msg = ::ERB::Util.html_escape(msg) unless msg.html_safe?
+            notice = "<div class='auto_fade notice' onclick='new Effect.Fade(this)'>#{msg}</div>"
           end
 
-          if (type == 'error'  || type == 'both') && flash[:error ]
-            error = "<div class='error' onclick='new Effect.Fade(this)'>#{::ERB::Util.html_escape(flash[:error])}</div>"
+          if (type == 'error'  || type == 'both') && (msg = flash[:error ])
+            msg = ::ERB::Util.html_escape(msg) unless msg.html_safe?
+            error = "<div class='error' onclick='new Effect.Fade(this)'>#{msg}</div>"
           end
 
           if page = opts[:page]

@@ -47,3 +47,7 @@ checkbox_tagged:
 tag_cloud:
   src: "<r:void do='tag_cloud from nodes in site' do='each' join=', '><r:name/> (<r:link_count/>)</r:void>"
   res: "blue (2), sky (1)"
+
+tag_cloud_where:
+  src: "<r:void do='tag_cloud where name like \"s%\" from nodes in site' do='each' join=', '><r:name/> (<r:link_count/>)</r:void>"
+  res: "sky (1)"

@@ -396,10 +396,12 @@ set_class_before_query:
   src: "<div class='foo_#{first.title}' do='images in site'></div>"
   res: "<div class='foo_Autumn Tree'></div>"
 
-flash_messages:
-  src: "<r:flash_messages/>"
-  tem: "<%= flash_messages %>"
-  res: "<div id='flash_messages'></div>"
+flash:
+  context:
+    flash: "Ho ho"
+  src: "<r:void do='flash[\"error\"]'/>"
+  tem: "<%=h zafu_flash[\"error\"] %>"
+  res: "Ho ho"
 
 date_without_set_var:
   context:

@@ -22,7 +22,49 @@ class RenderingTest < Zena::View::TestCase
         assert File.exist?(fullpath)
         FileUtils.rm(fullpath)
       end
+      
+      should 'build template partial on template_path_from_template_url' do
+        fullpath  = fullpath_from_template_url('Default skin/Node/pages', false)
+        main_path = fullpath_from_template_url('Default skin/Node/_main', false)
+        FileUtils.rm(fullpath)  if File.exist?(fullpath)
+        FileUtils.rm(main_path) if File.exist?(main_path)
+        assert_equal '/test.host/zafu/Default skin/Node/en/pages.erb', template_path_from_template_url('', 'Default skin/Node/pages', true)
+        assert File.exist?(main_path)
+        assert File.exist?(fullpath)
+        FileUtils.rm(fullpath)
+      end
+      
+      context 'with an alias site' do
+        setup do
+          setup_visitor(visitor, Site.find_by_host('alias.host'))
+        end
+        
+        should 'build template on template_path_from_template_url' do
+          fullpath = fullpath_from_template_url('wiki skin/Page-changes/_main', false)
+          if File.exist?(fullpath)
+            FileUtils.rm(fullpath)
+          end
+          assert_equal '/test.host/zafu/wiki skin/Page-changes/en/foo.erb', template_path_from_template_url('', 'wiki skin/Page-changes/foo', true)
+          assert File.exist?(fullpath)
+          FileUtils.rm(fullpath)
+        end
 
+        should 'build template partial on template_path_from_template_url' do
+          fullpath  = fullpath_from_template_url('Default skin/Node/pages', false)
+          main_path = fullpath_from_template_url('Default skin/Node/_main', false)
+          FileUtils.rm(fullpath)  if File.exist?(fullpath)
+          FileUtils.rm(main_path) if File.exist?(main_path)
+          assert_equal '/test.host/zafu/Default skin/Node/en/pages.erb', template_path_from_template_url('', 'Default skin/Node/pages', true)
+          assert File.exist?(main_path)
+          assert File.exist?(fullpath)
+          FileUtils.rm(fullpath)
+        end
+        
+        should 'find site alias on visitor site' do
+          assert_equal 'alias.host', visitor.site.host
+        end
+      end
+      
       should 'return a fullpath on fullpath_from_template_url' do
         assert_equal "#{SITES_ROOT}/test.host/zafu/SKIN/TEMPLATE/en/DOM_ID.erb", fullpath_from_template_url('SKIN/TEMPLATE/DOM_ID', false)
       end

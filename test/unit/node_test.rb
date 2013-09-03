@@ -199,11 +199,12 @@ class NodeTest < Zena::Unit::TestCase
     assert node.save , "Save succeeds"
   end
 
-  def test_page_new_without_title
+  def test_node_new_without_title
     login(:tiger)
     node = secure!(Node) { Node.new(:parent_id => nodes_id(:cleanWater)) }
-    assert ! node.save, 'Save fails'
-    assert_equal 'can\'t be blank', node.errors[:title]
+    node.save
+    assert !node.new_record?, 'Not a new record'
+    assert_equal 'Node', node.title
   end
 
   def test_new_set_section_id
@@ -251,8 +252,8 @@ class NodeTest < Zena::Unit::TestCase
     login(:tiger)
     node = secure!(Node) { nodes(:status)  }
     node.title = nil
-    assert !node.save
-    assert_equal 'can\'t be blank', node.errors[:title]
+    assert node.save
+    assert_equal 'Page', node.title
   end
 
   def test_update_set_section_id

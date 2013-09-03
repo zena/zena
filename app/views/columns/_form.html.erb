@@ -18,16 +18,18 @@
       <td class='label'><%= _("type")%></td>
       <td class='label'><%= _("name")%></td>
       <td class='label'><%= _("index")%></td>
+      <td class='label'><%= _("vers.")%></td>
     </tr>
     <tr class='ruby'>
       <td><span class='constant'><%= select('column', 'role_id', Column.roles_for_form  ) %></span></td>
       <td><span class='text'><%= select('column', 'ptype',   Column::TYPES_FOR_FORM ) %></span></td>
       <td><%= text_field('column', 'name',  :size=>15 ) %></td>
       <td><span class='text'><%= select_tag "column[index]", grouped_options_for_select(Column.indices_for_form, @column.index, '') %></span></td>
+      <td><span class='text'><%= check_box('column', 'versioned', {}, 1, 0) %></span></td>
     </tr>
     <tr>
       <td class='label'><%= _("comment") %></td>
-      <td colspan='3'>
+      <td colspan='4'>
         <%= text_area('column', 'comment', :rows => 2, :cols => 50) %>
       </td>
     </tr>

@@ -29,9 +29,8 @@ class UsersControllerTest < Zena::Controller::TestCase
       setup do
         login(:lion)
         # Make a bad admin layout
-        Version.connection.execute "UPDATE #{Version.table_name} SET properties = '{\"data\":{\"title\":\"foo\",\"text\":\"empty\"},\"json_class\":\"Property::Properties\"}' WHERE id = #{versions_id(:Node_admin_layout_zafu_en)}"
+        Version.connection.execute "UPDATE #{Version.table_name} SET properties = '{\"data\":{\"title\":\"foo\",\"text\":\"empty\",\"tkpath\":\"N\"},\"json_class\":\"Property::Properties\"}' WHERE id = #{versions_id(:Node_admin_layout_zafu_en)}"
         without_files('test.host/zafu') do
-            get 'index'
           get 'index'
         end
       end

@@ -168,6 +168,20 @@ class PropEvalTest < Zena::Unit::TestCase
             assert_equal 'LAST:Invicta FIRST:Solenopsis', idx_ml_value(subject.id, 'title')
             assert_equal 'LAST:Invicta FIRST:Solenopsis', nodes(:ant).title
           end
+          
+          context 'with a rule yielding blank title' do
+            setup do
+              v = VirtualClass['Letter']
+              v.update_attributes(:prop_eval => %q[{'title' => ''}])
+            end
+
+            should 'use class name for title' do
+              l = secure(Node) { nodes(:letter) }
+              l.rebuild_index!
+              l = secure(Node) { nodes(:letter) }
+              assert_equal 'Letter', l.title
+            end
+          end
         end # rebuilding index
 
       end # from a class with evaluated properties

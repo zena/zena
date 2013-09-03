@@ -27,6 +27,10 @@ Letter_search_mono:
 Contact_name:
   index:           string
 
+Contact_cart:
+  ptype:           hash
+  versioned:       0
+
 Post_date:
   index:           '.idx_datetime1'
   ptype:           datetime

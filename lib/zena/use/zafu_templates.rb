@@ -247,15 +247,25 @@ module Zena
         # Return the path of a template for the given skin, mode and format. Compiles the zafu template if needed.
         def template_url(opts={})
           # opts[:skin] option removed
-          @skin     = get_skin
+          if vclass = opts[:vclass]
+            # We know the skin title, skip 'get_skin'
+            @skins ||= {}
+            @skin     = @skins[opts[:skin]] ||= secure(Skin) { Skin.find_by_title(opts[:skin]) }
+            
+            # possible classes for the master template :
+            kpaths = [vclass.kpath]
+          else
+            @skin     = get_skin
+            vclass    = @node.vclass
+            
+            # possible classes for the master template :
+            kpaths = []
+            vclass.kpath.split(//).each_index { |i| kpaths << vclass.kpath[0..i] }
+          end
+          
           mode      = opts[:mode]
           mode      = nil if mode.blank?
           format    = opts[:format] || 'html'
-          klass     = @node.vclass
-
-          # possible classes for the master template :
-          kpaths = []
-          klass.kpath.split(//).each_index { |i| kpaths << klass.kpath[0..i] }
 
           if @skin
             zafu_url, template = get_best_template(kpaths, format, mode, @skin)
@@ -265,11 +275,8 @@ module Zena
             
             path      = SITES_ROOT + rel_path
             if !File.exists?(path) || params[:rebuild]
-              if @node && klass = VirtualClass.find_by_kpath(template.tkpath)
-                zafu_node('@node', klass)
-              else
-                nil
-              end
+              # Use the template's target vclass as starting context
+              zafu_node('@node', VirtualClass.find_by_kpath(template.tkpath))
 
               # template is a new record when template is returned for
               # a static file.
@@ -321,7 +328,7 @@ module Zena
           end
 
           template_url = template_url.split('/')
-          base_p = ['', current_site.host, 'zafu'] + template_url[0..-2]
+          base_p = [current_site.zafu_path] + template_url[0..-2]
           lang_p = [dev_mode? ? "dev_#{lang}" : lang]
           part_p = template_url[-1]
           
@@ -329,21 +336,13 @@ module Zena
           if !File.exist?(main_fullpath) && build
             skin = template_url[0]
             template_name = template_url[-2]
+            
             if template_name =~ ::Template::MODE_FORMAT_FROM_TITLE
-              # title changed force  update
               klass  = $1
               mode   = $4 || ''
               format = $6 || 'html'
-              # Template rendering node
-              node_bak = @node
-                # Find first node matching klass
-                vclass = VirtualClass[klass]
-                @node = Node.sfind("#{klass.underscore} in site", :first)
-                if @node.skin.title != skin
-                  @node.skin = secure(Skin) { Skin.find_by_title(skin) }
-                end
-                template_url(:mode => mode, :format => format)
-              @node = node_bak
+              
+              template_url(:mode => mode, :format => format, :vclass => VirtualClass[klass], :skin => skin)
             end
           end
           
@@ -452,7 +451,7 @@ module Zena
                 end
               end
             end
-
+            
             res = ZafuCompiler.new_with_url(zafu_url, :helper => zafu_helper).to_erb(:dev => dev_mode?, :node => get_node_context, :master_template => template)
             
             unless valid_template?(res, opts)

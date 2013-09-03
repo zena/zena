@@ -95,7 +95,7 @@ class Template < TextDocument
         end
       end
 
-      if version.edited?
+      if prop.changes.keys != []
          self.mode = mode.gsub(/[^a-zA-Z\+]/, '') if mode
 
         if !target_klass.blank?

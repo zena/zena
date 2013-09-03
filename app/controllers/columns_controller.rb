@@ -25,7 +25,7 @@ class ColumnsController < ApplicationController
       end
     end
 
-    @column  = Column.new
+    @column  = Column.new(:versioned => true)
 
     respond_to do |format|
       format.html # index.html.erb
