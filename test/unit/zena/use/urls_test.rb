@@ -33,6 +33,7 @@ class UrlsTest < Zena::View::TestCase
     node = secure!(Node) { nodes(:status) }
     assert_equal '/en/projects-list/Clean-Water-project/page22.html', zen_path(node)
     assert_equal '/en/projects-list/Clean-Water-project/page22_test.html', zen_path(node, :mode=>'test')
+    assert_equal '/en/projects-list/Clean-Water-project/page22.html', zen_path(node, :mode=>'')
   end
 
   def test_zen_path_custom_base_with_accents

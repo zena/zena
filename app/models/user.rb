@@ -67,7 +67,7 @@ class User < ActiveRecord::Base
   safe_method             :status => Number, :status_name => String,
                           :is_anon? => Boolean, :is_admin? => Boolean, :user? => Boolean, :commentator? => Boolean,
                           :moderated? => Boolean, :asset_host? => Boolean, [:in_group?, String] => Boolean,
-                          :group_names => [String]
+                          :group_names => [String], :site => {:class => Site}
 
   safe_context            :node => node_user_proc,
                           :to_publish => ['Version'], :redactions => ['Version'], :proposed => ['Version'],

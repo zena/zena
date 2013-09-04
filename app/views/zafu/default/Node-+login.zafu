@@ -32,7 +32,13 @@ td { padding:5px; }
 
             <td><input name="password" size="20" type="password" /></td>
           </tr>
-          <tr><td></td><td><input name="commit" type="submit" value=" login " /> <p class='cancel' do='link' do='t'>cancel</p></td></tr>
+          <tr>
+            <td></td>
+            <td>
+              <input name="commit" type="submit" value=" login " /> <p class='cancel' do='link' do='t'>cancel</p>
+              <input name='lang' type='hidden' value='#{visitor.lang}'/>
+            </td>
+          </tr>
         </table>
       </form>
     </div>

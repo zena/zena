@@ -442,6 +442,10 @@ default_host:
   tem: '/zazen.*:host.*visitor.site.host/'
   res: "/href=\"http://b.test.host/oo/section12.html\">link.*src='http://b.test.host/en/image30_std.75a9a.jpg/"
 
+visitor_site_host:
+  src: "<r:eval>visitor.site.host</r:eval>"
+  res: "test.host"
+
 zazen_without_markup:
   src: "<r:void do='zazen(title)'/>"
   res: "<p>status title</p>"

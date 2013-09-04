@@ -11,7 +11,7 @@ class NavigationTest < Zena::Integration::TestCase
     # 1. site forces authentication
     Site.connection.execute "UPDATE sites SET authentication = 1 WHERE id = #{sites_id(:zena)}"
     get 'http://test.host/'
-    assert_redirected_to 'http://test.host/login'
+    assert_redirected_to 'http://test.host/login?lang=en'
 
     post 'http://test.host/session', :login=>'tiger', :password=>'tiger'
     assert_redirected_to "http://test.host/"
@@ -31,7 +31,7 @@ class NavigationTest < Zena::Integration::TestCase
     # 1. site forces authentication
     Site.connection.execute "UPDATE sites SET authentication = 1 WHERE id = #{sites_id(:zena)}"
     get 'http://test.host/en/textdocument53.css' # style_css
-    assert_redirected_to 'http://test.host/login'
+    assert_redirected_to 'http://test.host/login?lang=en'
 
     post 'http://test.host/session', :login=>'tiger', :password=>'tiger'
     assert_redirected_to "http://test.host/oo"
@@ -81,7 +81,7 @@ class NavigationTest < Zena::Integration::TestCase
           reset!
           get *subject
           assert_response :redirect
-          assert_redirected_to 'http://ocean.host/login'
+          assert_redirected_to 'http://ocean.host/login?lang=en'
           assert_equal users_id(:incognito), visitor.id
         end
       end # but invalid host
@@ -516,7 +516,7 @@ class NavigationTest < Zena::Integration::TestCase
     assert_redirected_to 'http://test.host/en'
     assert_equal 'en', session[:lang]
     get 'http://test.host/oo'
-    assert_redirected_to 'http://test.host/login'
+    assert_redirected_to 'http://test.host/login?lang=en'
     post 'http://test.host/session', :login => 'ant', :password => 'ant'
     assert_redirected_to 'http://test.host/oo'
     # should not change session lang

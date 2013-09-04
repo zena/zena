@@ -155,6 +155,25 @@ class NodeTest < Zena::Unit::TestCase
         end
       end
       
+      context 'destroying a node with failing before_destroy' do
+        ::Page.send(:before_destroy, :test_before_destroy)
+        class ::Page
+          attr_accessor :fail_on_destroy
+          def test_before_destroy
+            return false if @fail_on_destroy
+          end
+        end
+        
+        should 'not touch node versions' do
+          node = secure(Node) { nodes(:status) }
+          node.fail_on_destroy = true
+          assert_difference('Node.count', 0) do
+            assert_difference('Version.count', 0) do
+              node.destroy
+            end
+          end
+        end
+      end
     end # on a node with write access
   end # A logged in user
 

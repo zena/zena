@@ -133,11 +133,11 @@ module Bricks
           require mod_path
           mod = eval "Bricks::#{mod.camelcase}"
           Zena.use mod
-        
-          init_rb = "#{path}/zena/init.rb"
-          if File.exist?(init_rb)
-            require init_rb
-          end
+        end
+      
+        init_rb = "#{path}/zena/init.rb"
+        if File.exist?(init_rb)
+          require init_rb
         end
       end
     end

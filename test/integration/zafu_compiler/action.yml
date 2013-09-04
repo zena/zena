@@ -20,7 +20,7 @@ login_link:
     # Forces NodesController type of url and params
     fake_controller: 'nodes'
   src: "<r:login_link/>"
-  res: '<a href="/oo/projects-list/Clean-Water-project/page22.html" rel="nofollow">login</a>'
+  res: '<a href="/oo/projects-list/Clean-Water-project/page22.html?lang=en" rel="nofollow">login</a>'
 
 logout_link_other_controller:
   src: "<r:login_link/>"

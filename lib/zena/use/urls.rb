@@ -88,6 +88,7 @@ module Zena
 
           pre    = opts.delete(:prefix) || (visitor.is_anon? && opts.delete(:lang)) || prefix
           mode   = opts.delete(:mode)
+          mode   = nil if mode.blank?
           if ep = opts[:encode_params]
             ep = ep.split(',').map(&:strip)
             if ep.delete('mode')

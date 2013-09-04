@@ -24,7 +24,7 @@ module Zena
               v_pub = record['publish_from']
 
               if v_pub.kind_of?(String)
-                v_pub = DateTime.parse(record['publish_from']) rescue Time.now
+                v_pub = DateTime.parse(record['publish_from']) rescue Time.now.utc
               end
 
               if n_pub.nil? || v_pub < n_pub
@@ -37,7 +37,10 @@ module Zena
           elsif record['status'].to_i == Zena::Status::Pub
             # ok for readers
             r_hash[lang] = record['id'].to_i
-            v_pub = DateTime.parse(record['publish_from']) rescue Time.now
+            v_pub = record['publish_from']
+            if v_pub.kind_of?(String)   
+              v_pub = DateTime.parse(record['publish_from']) rescue Time.now.utc
+            end
             if n_pub.nil? || v_pub < n_pub
               n_pub = v_pub
             end

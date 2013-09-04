@@ -181,7 +181,7 @@ module Zena
 
         # Redirect on lang change "...?lang=de"
         def check_lang
-          if params[:lang]
+          if params[:lang] && params[:controller] != 'user_sessions'
             # redirects other controllers (users controller, etc)
             redirect_url = params
             redirect_url.delete(:lang)

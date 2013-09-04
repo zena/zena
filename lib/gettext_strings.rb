@@ -155,6 +155,7 @@ module Zena
 
     N_('User name:')  # login form
     N_('Password:')   # login form
+    N_('Login for')   # login form
 
     # temporary (seems like the updatepo script does not parse 'templates' directory)
     N_('you are editing the original')

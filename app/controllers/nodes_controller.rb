@@ -269,7 +269,10 @@ class NodesController < ApplicationController
       if @node.errors.empty?
         flash.now[:notice] = 'Node was successfully created.'
         format.html {
-          redirect_to  params[:redir] || zen_path(@node, :mode => params[:mode], :new => 'true')
+          if redir = params[:redir]
+            redir = redir.gsub('NODE_ID', @node.zip.to_s)
+          end
+          redirect_to  redir || zen_path(@node, :mode => params[:mode], :new => 'true')
         }
         format.js do
           if params[:zjs]
@@ -320,8 +323,7 @@ class NodesController < ApplicationController
     respond_to do |format|
       format.html do
         if @node.destroy
-          # These flash messages tend to hang around stupidly
-          # flash[:notice] = _("Node destroyed.")
+          flash[:notice] = _("Node destroyed.")
           redirect_to params[:redir] || zen_path(@node.parent)
         else
           flash.now[:notice] = _("Could not destroy node.")

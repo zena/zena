@@ -41,6 +41,11 @@ module Zena
 
       module ControllerMethods
         include Common
+
+        # /login?lang=fr
+        def login_path
+          super(:lang => params[:lang] || visitor.lang)
+        end
       end
 
       module ViewMethods
@@ -154,11 +159,13 @@ module Zena
             end
           end
         end
-
+        
+        # /oo
         def login_path
           if params[:controller] == 'nodes'
-            zen_path(@node, :prefix => AUTHENTICATED_PREFIX)
+            zen_path(@node, :prefix => AUTHENTICATED_PREFIX, :lang => visitor.lang)
           else
+            # ?
             super
           end
         end

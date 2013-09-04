@@ -359,7 +359,7 @@ class NodesControllerTest < Zena::Controller::TestCase
           assert_redirected_to '/foo/bar/baz'
         end
       end # with a redir param
-
+      
       context 'by changing a link comment' do
         subject do
           {:action => 'update', :controller => 'nodes', :id => nodes_zip(:opening), :node => {:link_id => links_id(:opening_in_art), :l_comment => 'To be removed'}}
@@ -537,6 +537,18 @@ class NodesControllerTest < Zena::Controller::TestCase
           should 'redirect to "redir" param' do
             post_subject
             assert_redirected_to '/foo/bar/baz'
+          end
+        end # with a redir param
+        
+
+        context 'with a redir param with NODE_ID' do
+          subject do
+            {:action => 'create', :controller => 'nodes', :node => {:parent_id => nodes_zip(:zena), :title => 'hello'}, :redir => '/foo/bar/baz/NODE_ID'}
+          end
+
+          should 'replace NODE_ID in redirect' do
+            post_subject
+            assert_redirected_to "/foo/bar/baz/66"
           end
         end # with a redir param
 

@@ -74,7 +74,7 @@ module Zena
 
         # TODO: decide if we need to keep this (Zena::Remote makes a much better console the MySQL console...)
         def set__id
-          self._id = self.title if @need_set__id
+          self._id = self.title.limit(39) if @need_set__id
         end
 
         # Must happend after 'change_klass'

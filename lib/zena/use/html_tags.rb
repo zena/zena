@@ -164,13 +164,11 @@ module Zena
         include RubyLess
 
         safe_method :flash          => {:class => StringHash, :method => 'zafu_flash'}
-        safe_method :flash_messages => {:class => String,     :method => 'flash_messages', :html_safe => true}
+        safe_method :flash_messages => {:class => String,     :html_safe => true}
         
         def zafu_flash
           @zafu_flash ||= if flash[:notice] || flash[:error]
-            flash.stringify_keys.tap do |e|
-              Rails.logger.warn e.inspect
-            end
+            flash.stringify_keys
           else
             {}
           end

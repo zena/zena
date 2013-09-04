@@ -47,7 +47,7 @@ class ColumnsController < ApplicationController
   # GET /columns/new
   # GET /columns/new.xml
   def new
-    @column = Column.new
+    @column = Column.new(:versioned => true)
 
     respond_to do |format|
       format.html # new.html.erb

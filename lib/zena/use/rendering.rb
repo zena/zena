@@ -169,7 +169,7 @@ module Zena
               opts[:cache] = false
               
               render :inline => result[:data]
-              
+            
             else
               
               if disposition = zafu_headers.delete('Content-Disposition')
