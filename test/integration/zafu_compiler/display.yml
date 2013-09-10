@@ -527,3 +527,11 @@ use_first_in_list:
   src: "<r:void do='contacts where id = 13 in site'><r:first do='link'/> // <r:first do='title'/></r:void>"
   tem: "/var1.first.*var1.first/"
   res: "<a href='/oo/contact13.html'>Solenopsis Invicta</a> // Solenopsis Invicta"
+
+# Make sure variables do not reach...
+zafu_eval:
+  context:
+    code: "<r:title/>"
+  src: "<r:title/>: [<r:parent do='zafu_eval' code='params[:code]'/>]"
+  tem: "/<%= zafu_eval\(var1/"
+  res: 'status title: [Clean Water project]'

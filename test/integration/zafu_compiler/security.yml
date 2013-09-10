@@ -114,3 +114,9 @@ build_erb_with_rubyless:
 multiple_trans:
   src: "<r:t text='<'/><r:t text='%'/>"
   tem: "&lt;%"
+
+zafu_eval:
+  context:
+    code: "<%= 3.class %>"
+  src: "<r:zafu_eval code='params[:code]'/>"
+  res: '&lt;%= 3.class %&gt;'

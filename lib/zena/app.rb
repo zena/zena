@@ -20,6 +20,7 @@ Zena.use  [
   Zena::Use::Upload,
   Zena::Use::Urls,
   Zena::Use::ZafuAttributes,
+  Zena::Use::ZafuEval,
   Zena::Use::ZafuSafeDefinitions,
   Zena::Use::ZafuTemplates,
   Zena::Use::Zazen,
