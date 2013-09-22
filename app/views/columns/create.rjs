@@ -1,6 +1,6 @@
 if @column.errors.empty?
   page.insert_html :before, 'add_column', :partial=>'columns/li', :collection=>[@column]
-  @column = Column.new(:role_id => @column.role_id, :ptype => @column.ptype)
+  @column = Column.new(:role_id => @column.role_id, :ptype => @column.ptype, :versioned => true)
   page.replace_html 'add_column_form', :partial=>'columns/form'
   page << "$('column_name').focus();"
 else

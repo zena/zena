@@ -136,9 +136,9 @@ module Zena
           def redirect_to_https
             if current_site.ssl_on_auth
               if !ssl_request? && !visitor.is_anon? && !local_request?
-                redirect_to :protocol => "https://" 
+                redirect_to({:protocol => 'https'}.merge(params), :flash => flash)
               elsif ssl_request? && visitor.is_anon?
-                redirect_to :protocol => "http://" 
+                redirect_to({:protocol => 'http'}.merge(params), :flash => flash)
               end
             end
           end
