@@ -149,6 +149,9 @@ class Node < ActiveRecord::Base
   include Property::Serialization::JSON
 
   store_properties_in :version
+  
+  invalid_property_failover 'title' => 'INVALID PROPERTY', 'ext' => 'txt', 'content/type' => 'text/plain'
+  
 
   property do |p|
     # Multilingual string index on 'title'

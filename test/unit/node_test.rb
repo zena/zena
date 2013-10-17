@@ -1508,4 +1508,19 @@ done: \"I am done\""
     assert_equal nodes_zip(:status).to_s, node.safe_send("id")
     assert_equal nil, node.safe_send("object_id")
   end
+  
+  context 'a node with invalid properties' do
+    setup do
+      version = secure(Node) { nodes(:status) }.version
+      Zena::Db.set_attribute(version, 'properties', '{"foo":')
+    end
+    
+    subject do
+      secure(Node) { nodes(:status) }
+    end
+    
+    should 'return the failover property value' do
+      assert_equal 'INVALID PROPERTY', subject.title
+    end
+  end
 end

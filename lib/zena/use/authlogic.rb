@@ -136,9 +136,10 @@ module Zena
           def redirect_to_https
             if current_site.ssl_on_auth
               if !ssl_request? && !visitor.is_anon? && !local_request?
-                redirect_to({:protocol => 'https'}.merge(params), :flash => flash)
+                # Note that this does not work for PUT or DELETE verbs...
+                redirect_to(params.merge({:protocol => 'https'}), :flash => flash)
               elsif ssl_request? && visitor.is_anon?
-                redirect_to({:protocol => 'http'}.merge(params), :flash => flash)
+                redirect_to(params.merge({:protocol => 'http'}), :flash => flash)
               end
             end
           end
