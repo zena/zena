@@ -1,0 +1,19 @@
+default:
+  context:
+    lang: 'en'
+    site: alias
+    visitor: 'ant'
+    node: 'status'
+  src: "<r:site do='host'/>: <r:home do='title'/>"
+  tem: "/Node.do_find.*979649407"
+  res: "alias.host: a wiki with Zena"
+  
+link_href_home:
+  src: "<r:link href='home'/>"
+  res: "<a href='/oo/blog29.html'>status title</a>"
+  
+test_home:
+  context:
+    node: wiki
+  src: "<r:if test='id == home.id'>ok</r:if>"
+  res: 'ok'

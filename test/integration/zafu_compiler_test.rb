@@ -5,6 +5,7 @@ class ZafuCompilerTest < Zena::Controller::TestCase
   OK = [
     'action',
     'asset',
+    'alias_site',
     'conditional',
     'calendar',
     'dates',
@@ -99,17 +100,18 @@ class ZafuCompilerTest < Zena::Controller::TestCase
 
     context = yt_get('context', file, test)
     site = Site.setup_master(sites(context.delete('site') || 'zena'))
+    # This is used to find fixtures: returns master name (not alias)
     $_test_site = site.name
     @request.host = site.host
 
     # set context
     params = {}
     #params[:user_id] = users_id(context.delete('visitor').to_sym)
-    params['user'] = context.delete 'visitor'
+    params['user']    = context.delete 'visitor'
     params['node_id'] = nodes_id(context.delete('node').to_sym)
     params['prefix']  = context.delete('lang')
     params['date']    = context['ref_date'] ? context.delete('ref_date').to_s : nil
-    params['url'] = "#{file}/#{test.to_s.gsub('_', '/')}"
+    params['url']     = "#{file}/#{test.to_s.gsub('_', '/')}"
     params.merge!(context) # merge the rest of the context as query parameters
 
     compiled_files = {}

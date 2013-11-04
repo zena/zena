@@ -599,7 +599,7 @@ module Zena
             end
             
             method = "#{method}(#{method_args.join(', ')})"
-            
+
             ::RubyLess.translate(self, method)
           end
 

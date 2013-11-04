@@ -5,7 +5,7 @@ module Zena
     include Zena::Use::Fixtures
     include Zena::Use::TestHelper
     helper_method :get_template_text, :template_url_for_asset, :save_erb_to_url
-    skip_before_filter :set_visitor
+    skip_before_filter :set_visitor, :redirect_to_https
     prepend_before_filter :set_context
 
     include  Zena::Use::HtmlTags::ViewMethods
@@ -70,7 +70,7 @@ module Zena
 
     # We skip authlogic
     def set_context
-      login(params[:user])
+      login(params[:user], request.host)
       set_visitor_lang(params[:prefix])
       @node = secure!(Node) { Node.find(params[:node_id])}
       @text = params[:text]

@@ -7,10 +7,10 @@ module Zena
       include Zena::Use::Upload::UploadedFile
 
       # Set visitor for unit testing
-      def login(fixture, site_name = nil)
+      def login(fixture, host = nil)
         user = users(fixture)
-        if site_name
-          site = Site.setup_master(Site.find_by_name(site_name))
+        if host
+          site = Site.setup_master(Site.find_by_host(host))
         else
           # Not an alias
           site = user.site
