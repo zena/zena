@@ -531,6 +531,13 @@ module Zena
         @no_clone_on_change = true
         apply(:update_attributes, new_attributes)
       end
+      
+      # Used when we want to save changed properties *without* changing author and/or creating new versions.
+      # This is needed when we want to synchronise some properties with an external application.
+      def save_without_clone
+        @no_clone_on_change = true
+        apply(:update_attributes, {})
+      end
 
       private
         def changed_versioned_properties?

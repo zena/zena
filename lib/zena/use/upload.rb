@@ -31,6 +31,11 @@ module Zena
 
       module ControllerMethods
         include UploadedFile
+        
+        def self.included(base)
+          base.send(:helper_method, :fetch_html)
+        end
+        
         protected
           include ActionView::Helpers::NumberHelper # number_to_human_size
           def get_attachment
@@ -44,6 +49,14 @@ module Zena
             [att, error]
           end
           
+          def fetch_html(uri_str)
+            response, error = fetch_response(uri_str)
+            if response
+              response.body
+            else
+              ''
+            end
+          end
 
         private
           def fetch_uri(uri_str, max_file_size = 10)
@@ -176,6 +189,7 @@ module Zena
 
       module ViewMethods
         include RubyLess
+        safe_method [:fetch_html, String] => String
 
         def upload_form_tag(url_opts, html_opts = {})
           @uuid = UUIDTools::UUID.random_create.to_s.gsub('-','')

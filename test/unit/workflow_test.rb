@@ -444,6 +444,41 @@ class WorkflowTest < Zena::Unit::TestCase
               assert_equal t, node.idx_datetime1
             end
           end
+          
+          context 'with save cmd' do
+            
+            should 'not create new version' do
+              node = secure!(Node) { nodes(:lake) }
+              assert_difference('Version.count', 0) do
+                node.attributes = {:first_name => 'Mea Lua', :country => 'Brazil'}
+                assert node.save_without_clone
+                node = secure!(Node) { nodes(:lake) } # reload
+                assert_equal 'Mea Lua we love', node.title
+                assert_equal 'Brazil', node.prop['country']
+              end
+            end
+            
+            should 'evaluate prop_eval' do
+              node = secure!(Node) { nodes(:lake) }
+              assert_difference('Version.count', 0) do
+                node.attributes = {:first_name => 'Mea Lua', :country => 'Brazil'}
+                assert node.save_without_clone
+                node = secure!(Node) { nodes(:lake) } # reload
+                assert_equal 'Mea Lua we love', node.title
+              end
+            end
+
+            should 'evaluate indices' do
+              node = secure!(Node) { nodes(:opening) }
+              assert_difference('Version.count', 0) do
+                t = Time.utc(2013, 8, 21, 10, 59)
+                node.prop['date'] = t
+                assert node.save_without_clone
+                node = secure!(Node) { nodes(:opening) } # reload
+                assert_equal t, node.idx_datetime1
+              end
+            end
+          end
         end
         
         context 'updating not versioned props only' do

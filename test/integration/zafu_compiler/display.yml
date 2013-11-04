@@ -535,3 +535,8 @@ zafu_eval:
   src: "<r:title/>: [<r:parent do='zafu_eval' code='params[:code]'/>]"
   tem: "/<%= zafu_eval\(var1/"
   res: 'status title: [Clean Water project]'
+
+fetch_html:
+  src: "HELLO: <r:void do='fetch_html(\"http://zenadmin.org/en\")' h='false'/>"
+  tem: "HELLO: <%= fetch_html(\"http://zenadmin.org/en\") %>"
+  res: "/HELLO:.*DOCTYPE.*zenadmin.org/en/features/"

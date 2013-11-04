@@ -1,14 +1,16 @@
 == 1.2.8
 
 * Major changes
-  * Added "update_attributes_without_clone" to update attributes without versioning (used to sync
-    attributes with external app). This does not change timestamps nor version or node author.
+  * Added "update_attributes_without_clone" and "save_without_clone" to update attributes
+    without versioning (used to sync attributes with external app). This does not change
+    timestamps nor version or node author.
   * Added login retry wait delay on failures.
     
 * Minor changes
   * Fixed gemspec to not include TextMate helper and selenium plugin.
   * Fixed xml generated file caching.
   * Added NODE_ID in 'redir' param on node creation (replaced by actual id). <== TODO: Document
+  * Added fetch_html rubyless method to views (does an HTTP GET and returns body).
 
 == 1.2.6, 1.2.7 2013-08-16
 
