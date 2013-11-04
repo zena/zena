@@ -525,15 +525,10 @@ class Site < ActiveRecord::Base
       rec = Zena::Db.fetch_attributes(['id', 'fullpath', 'basepath', 'custom_base', 'zip'], 'nodes', "parent_id #{parent_id ? "= #{parent_id}" : "IS NULL"} AND site_id = #{self.id} ORDER BY id ASC LIMIT #{batch_size} OFFSET #{i * batch_size}")
       break if rec.empty?
       rec.each do |rec|
-        if parent_id
-          rec['fullpath'] = parent_fullpath == '' ? rec['zip'] : "#{parent_fullpath}/#{rec['zip']}"
-        else
-          # root node
-          rec['fullpath'] = ''
-        end
+        rec['fullpath'] = parent_fullpath == '' ? rec['zip'] : "#{parent_fullpath}/#{rec['zip']}"
 
         if rec['custom_base'] == Zena::Db::TRUE_RESULT
-          rec['basepath'] = rec['fullpath']
+          rec['basepath'] = Zena::Use::Ancestry.basepath_from_fullpath(rec['fullpath'])
         else
           rec['basepath'] = parent_basepath
         end

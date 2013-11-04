@@ -93,5 +93,5 @@ having_on_relation_count:
 
 # TODO: change how fullpath is built should solve this issue.
 in_home:
-  src: "documents in home"
-  res: bird, flower
+  src: "images in home"
+  res: it's a lake, bird, flower, Autumn Tree

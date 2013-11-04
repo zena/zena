@@ -289,19 +289,19 @@ class SiteTest < Zena::Unit::TestCase
     opening = secure(Node) { nodes(:opening) }
     cleanWater = secure(Node) { nodes(:cleanWater) }
     art = secure(Node) { nodes(:art) }
-    assert_equal fullpath(:projects, :cleanWater, :status), status.fullpath
+    assert_equal fullpath(:zena, :projects, :cleanWater, :status), status.fullpath
     assert_equal fullpath(:projects, :cleanWater), status.basepath
     assert_equal false, status.custom_base
 
-    assert_equal fullpath(:projects, :cleanWater, :opening), opening.fullpath
+    assert_equal fullpath(:zena, :projects, :cleanWater, :opening), opening.fullpath
     assert_equal fullpath(:projects, :cleanWater), opening.basepath
     assert_equal false, opening.custom_base
 
-    assert_equal fullpath(:projects, :cleanWater), cleanWater.fullpath
+    assert_equal fullpath(:zena, :projects, :cleanWater), cleanWater.fullpath
     assert_equal fullpath(:projects, :cleanWater), cleanWater.basepath
     assert_equal true, cleanWater.custom_base
 
-    assert_equal fullpath(:collections, :art), art.fullpath
+    assert_equal fullpath(:zena, :collections, :art), art.fullpath
     assert_equal '', art.basepath
     assert_equal false, art.custom_base
   end
@@ -317,10 +317,10 @@ class SiteTest < Zena::Unit::TestCase
 
     should 'not alter fullpath' do
       node = secure!(Node) { nodes(:status) }
-      assert_equal fullpath(:projects, :cleanWater, :status), node.fullpath
+      assert_equal fullpath(:zena, :projects, :cleanWater, :status), node.fullpath
       subject.clear_cache
       node = secure!(Node) { nodes(:status) }
-      assert_equal fullpath(:projects, :cleanWater, :status), node.fullpath
+      assert_equal fullpath(:zena, :projects, :cleanWater, :status), node.fullpath
     end
   end
 

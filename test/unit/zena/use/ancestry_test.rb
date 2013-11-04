@@ -68,12 +68,12 @@ class AncestryTest < Zena::Unit::TestCase
     end
 
     should 'rebuild fullpath in new parent' do
-      assert_equal fullpath(:people, :lion, :secret), subject.fullpath
+      assert_equal fullpath(:zena, :people, :lion, :secret), subject.fullpath
     end
 
     should 'rebuild children fullpath' do
-      assert_equal fullpath(:people, :lion, :secret, :talk), nodes(:talk).fullpath
-      assert_equal fullpath(:people, :lion, :secret, :proposition), nodes(:proposition).fullpath
+      assert_equal fullpath(:zena, :people, :lion, :secret, :talk), nodes(:talk).fullpath
+      assert_equal fullpath(:zena, :people, :lion, :secret, :proposition), nodes(:proposition).fullpath
     end
 
     context 'with custom_base set' do
@@ -188,12 +188,12 @@ class AncestryTest < Zena::Unit::TestCase
       end
 
       should 'build fullpath' do
-        assert_equal [nodes_zip(:projects), subject.zip].join('/'), subject.fullpath
+        assert_equal [nodes_zip(:zena), nodes_zip(:projects), subject.zip].join('/'), subject.fullpath
       end
 
       should 'build basepath' do
         err subject
-        assert_equal [nodes_zip(:projects), subject.zip].join('/'), subject.fullpath
+        assert_equal [nodes_zip(:zena), nodes_zip(:projects), subject.zip].join('/'), subject.fullpath
       end
     end # creating a node
 

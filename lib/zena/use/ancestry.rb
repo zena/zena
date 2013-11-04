@@ -2,6 +2,11 @@ module Zena
   module Use
     # This module handles the creation and maintenance of a 'fullpath' and cached project/section_id.
     module Ancestry
+      
+      def self.basepath_from_fullpath(fullpath)
+        fullpath.split('/')[1..-1].join('/')
+      end
+      
       module ClassMethods
         def title_join
           %Q{INNER JOIN idx_nodes_ml_strings AS id1 ON id1.node_id = nodes.id AND id1.key = 'title' AND id1.lang = '#{visitor.lang}'}
@@ -103,7 +108,7 @@ module Zena
           elsif parent_id.nil?
             []
           else
-            path = fullpath.split('/')[0..-2]
+            path = fullpath.split('/')[1..-2]
             [current_site.root_node].compact + (secure(Node) { Node.fullpath_map(path, :node) } || [])
           end
         end
@@ -137,8 +142,10 @@ module Zena
         end
 
         # (slow). Transform a list of zips into a fullpath.
-        def fullpath_as_title(path = fullpath)
-          if path == self.fullpath
+        def fullpath_as_title(path = nil)
+          if !path
+            # When using fullpath, we remove first element (root)
+            path = fullpath.split('/')[1..-1]
             # secure returns nil instead of [] so we fix this.
             @fullpath_as_title ||= secure(Node) { Node.fullpath_map(path, :title) } || []
           else
@@ -164,7 +171,7 @@ module Zena
             if parent = parent(false)
               path = parent.fullpath.split('/') + [zip]
             else
-              path = []
+              path = [zip]
             end
             self.fullpath = path.join('/')
           end
@@ -172,7 +179,7 @@ module Zena
           def rebuild_basepath
             return unless new_record? || parent_id_changed? || custom_base_changed? || basepath.nil?
             if custom_base
-              self[:basepath] = self.fullpath
+              self[:basepath] = Ancestry.basepath_from_fullpath(self.fullpath)
             elsif parent = parent(false)
               self[:basepath] = parent.basepath || ""
             else
@@ -199,7 +206,7 @@ module Zena
               list.each do |rec|
                 rec['fullpath'].sub!(fullpath_re, fullpath_new) if fullpath_re
                 if rec['custom_base'] == Zena::Db::TRUE_RESULT
-                  rec['basepath'] = rec['fullpath']
+                  rec['basepath'] = Ancestry.basepath_from_fullpath(rec['fullpath'])
                   bases << rec['basepath']
                 else
                   while rec['fullpath'].size <= bases.last.size
@@ -215,6 +222,7 @@ module Zena
             end
             true
           end
+          
       end # ModelMethods
     end # Ancestry
   end # Use

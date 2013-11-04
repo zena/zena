@@ -438,7 +438,7 @@ module Zena
             begin
               eval(klass).kpath =~ /^#{Page.kpath}/
               if node['custom_base']
-                node['basepath'] = node['fullpath']
+                node['basepath'] = node['fullpath'].split('/')[1..-1].join('/')
               else
                 node['basepath'] = parent['basepath']
               end
@@ -447,8 +447,8 @@ module Zena
             end
           else
             # If we do not quote the content, FoxyParser will insert NULL.
+            node['fullpath'] = "#{node['zip']}"
             node['basepath'] = "''"
-            node['fullpath'] = "''"
           end
         end
         node['fullpath']
