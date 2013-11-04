@@ -463,7 +463,7 @@ class Site < ActiveRecord::Base
     end
   end
 
-  def clear_cache(clear_zafu = true)
+  def clear_cache(should_clear_zafu = true)
     paths = ["#{SITES_ROOT}#{self.cache_path}"]
     aliases = Site.all(:conditions => {:master_id => self.id})
     aliases.each do |site|
@@ -484,20 +484,16 @@ class Site < ActiveRecord::Base
       end
     end
     
-    # Clear zafu
-    if clear_zafu
-      paths = ["#{SITES_ROOT}#{self.zafu_path}"]
-      aliases.each do |site|
-        paths << "#{SITES_ROOT}#{site.cache_path}"
-      end
-      paths.each do |path|
-        if File.exist?(path)
-          FileUtils.rmtree(path)
-        end
-      end
-    end
+    clear_zafu if should_clear_zafu
 
     true
+  end
+  
+  def clear_zafu
+    path = "#{SITES_ROOT}#{self.zafu_path}"
+    if File.exist?(path)
+      FileUtils.rmtree(path)
+    end
   end
 
   # Rebuild vhash indices for the Site. This method uses the Worker thread to rebuild and works on

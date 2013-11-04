@@ -235,28 +235,16 @@ namespace :zena do
   end
 
   desc "Remove all zafu compiled templates"
-  task :clear_zafu => :zena_config do
-    if File.exist?(SITES_ROOT)
-      Dir.foreach(SITES_ROOT) do |site|
-        next if site =~ /^\./
-        FileUtils.rmtree(File.join(SITES_ROOT, site, 'zafu'))
-      end
+  task :clear_zafu => :environment do
+    Site.all.each do |site|
+      site.clear_zafu
     end
   end
 
   desc "Remove all cached data" # FIXME: cachedPages db should be cleared to
   task :clear_cache => :environment do
-    if File.exist?(SITES_ROOT)
-      Dir.foreach(SITES_ROOT) do |site|
-        next if site =~ /^\./ || !File.exist?(File.join(SITES_ROOT,site,'public'))
-        Dir.foreach(File.join(SITES_ROOT,site,'public')) do |elem|
-          next unless elem =~ /^(\w\w\.html|\w\w)$/
-          FileUtils.rmtree(File.join(SITES_ROOT, site, 'public', elem))
-        end
-      end
-      ['caches', 'cached_pages', 'cached_pages_nodes'].each do |tbl|
-        Site.connection.execute "DELETE FROM #{tbl}"
-      end
+    Site.all.each do |site|
+      site.clear_cache
     end
   end
 
@@ -278,7 +266,7 @@ namespace :zena do
   end
 
   task :full_backup => :environment do
-    data_folders = Site.find(:all).map { |s| File.join(SITES_ROOT, s.data_path) }.reject { |p| !File.exist?(p) }
+    data_folders = Site.all.map { |s| File.join(SITES_ROOT, s.data_path) }.reject { |p| !File.exist?(p) }
     cmd = "tar czf #{RAILS_ROOT}/sites_data.tgz #{data_folders.join(' ')}"
     puts cmd
     puts `#{cmd}`
