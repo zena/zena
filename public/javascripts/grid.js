@@ -1232,6 +1232,7 @@ Grid.simulateClick = function(l) {
 }
 
 Grid.sort = function(cell) {
+  var numeric = cell.hasClassName('numeric')
   var table = cell.up('table')
   var desc = false
   if (cell.hasClassName('asc')) {
@@ -1242,15 +1243,21 @@ Grid.sort = function(cell) {
     table.select('.asc, .desc').each(function(e) { e.removeClassName('asc').removeClassName('desc') })
     cell.addClassName('asc')
   }
+  // TODO move buttons, headers in theaders and simply select('tbody').first()
+  // no need for splice then.
   var body = table.childElements()[0]
   var rows = body.select('tr')
   rows.splice(0,1)
   var col_i = Grid.pos(cell)
 
   rows.sort(function(a, b) {
-    var atxt = a.childElements()[col_i].innerHTML.stripTags().toLowerCase()
-    var btxt = b.childElements()[col_i].innerHTML.stripTags().toLowerCase()
-    return atxt.localeCompare(btxt) * (desc ? -1 : 1)
+    var atxt = a.childElements()[col_i].innerHTML.stripTags().strip().toLowerCase()
+    var btxt = b.childElements()[col_i].innerHTML.stripTags().strip().toLowerCase()
+    if (numeric) {
+      return ((parseFloat(atxt)||0) - (parseFloat(btxt)||0)) * (desc ? -1 : 1)
+    } else {
+      return atxt.localeCompare(btxt) * (desc ? -1 : 1)
+    }
   }).each(Element.prototype.appendChild, body)
 }       
 
