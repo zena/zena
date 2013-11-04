@@ -3,7 +3,7 @@ it_should_compile_custom_select:
     node_name: '@node'
     node: roger
     visitor: complex_admin
-    site: complex
+    host: complex.host
     ref_date: 2004-09-01
   src: "<r:emp_form_dates do='each' join=', '><r:show attr='title'/>(<r:priority/>)[<r:last_date format='%Y-%m'/>]</r:emp_form_dates>"
   tem: '/var2.attributes\["priority"\].*\[<%= format_date\(var2.rcast\("last_date", :time\), :format => "%Y-%m"\) %>\]/'
@@ -14,7 +14,7 @@ type_cast_to_time_using_existing_field:
     node_name: '@node'
     node: roger
     visitor: complex_admin
-    site: complex
+    host: complex.host
     ref_date: 2004-09-01
   src: "<r:emp_form_dates where='idx_datetime1 is not null' do='each' join=', ' do='idx_datetime1' format='%d.%m.%Y %H:%M'/>"
   tem: '/format_date\(var2.idx_datetime1/'
@@ -25,7 +25,7 @@ type_cast_to_time_custom_field:
     node_name: '@node'
     node: roger
     visitor: complex_admin
-    site: complex
+    host: complex.host
     ref_date: 2004-09-01
   src: "<r:emp_form_dates where='next_date is not null' do='each' join=', ' do='next_date' format='%d.%m.%Y %H:%M'/>"
   tem: '/format_date\(var2.rcast\("next_date", :time/'
@@ -36,7 +36,7 @@ it_should_group_by_custom_select:
     node_name: '@node'
     node: roger
     visitor: complex_admin
-    site: complex
+    host: complex.host
     ref_date: 2004-09-01
   src: "<r:emp_form_dates do='group' by='priority' do='each_group' join=', '><r:show attr='priority'/></r:emp_form_dates>"
   res: '10, 5, 1'
@@ -46,7 +46,7 @@ it_should_secure_table:
     node_name: '@node'
     node: roger
     visitor: complex_admin
-    site: complex
+    host: complex.host
     ref_date: 2004-09-01
   src: "<r:secure_tables do='count'/>"
   tem: "/secure_scope\('other'\)/"

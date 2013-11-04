@@ -22,7 +22,7 @@ module Zena
         safe_method :visitor_node => visitor_node_proc
         safe_method :main => Proc.new {|h, r, s| {:method => '@node', :class => VirtualClass['Node']}}
         safe_method :root => Proc.new {|h, r, s| {:method => 'visitor.site.root_node', :class => VirtualClass['Project'], :nil => true}}
-        safe_method :home => Proc.new {|h, r, s| {:method => 'visitor.site.home_node', :class => VirtualClass['Node'], :nil => true}}
+        safe_method :home => Proc.new {|h, r, s| {:method => 'visitor.site.home_node', :class => visitor.site.home_node.vclass, :nil => true}}
         safe_method :site => {:class => Site, :method => 'visitor.site'}
 
         # Group an array of records by key.

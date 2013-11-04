@@ -62,6 +62,7 @@ production:
 # When external rendering engines (pdf) cannot get non-public assets, add the server ip to
 # what Zena considers 'local'
 #  local_ips: 123.45.67.89, 127.0.0.1
+# index_on_fullpath: ON
   activity:  ON
   cache_path: '/public'
   mongrel:   OFF

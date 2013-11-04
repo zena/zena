@@ -99,9 +99,9 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     end
 
     context = yt_get('context', file, test)
-    site = Site.setup_master(sites(context.delete('site') || 'zena'))
+    site = Site.setup_master(Site.find_by_host(context.delete('host') || 'test.host'))
     # This is used to find fixtures: returns master name (not alias)
-    $_test_site = site.name
+    $_test_site   = site.name
     @request.host = site.host
 
     # set context
@@ -383,5 +383,20 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     yt_do_test('display', 'with_a_custom_img_tag_field_with_JS')
   end
 
+  def test_alias_site_from_home
+    login(:lion)
+    node = secure(Page) { Page.create(:title => 'one', :parent_id => nodes_id(:wiki))}
+    sub  = secure(Page) { Page.create(:title => 'two', :parent_id => node.id)}
+    secure(Page) { Page.create(:title => 'three', :parent_id => sub.id)}
+    yt_do_test('alias_site', 'from_home')
+  end
+  
+  def test_alias_site_in_home
+    login(:lion)
+    node = secure(Page) { Page.create(:title => 'one', :parent_id => nodes_id(:wiki))}
+    sub  = secure(Page) { Page.create(:title => 'two', :parent_id => node.id)}
+    secure(Page) { Page.create(:title => 'three', :parent_id => sub.id)}
+    yt_do_test('alias_site', 'in_home')
+  end
   yt_make
 end

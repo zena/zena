@@ -160,6 +160,19 @@ module Zena
             nil
           end
         end
+        
+        def apply_scope(scope)
+          case scope
+          when 'sub_nodes'
+            context[:processing] = :scope
+            add_filter("#{field_or_attr('fullpath')} LIKE CONCAT(#{field_or_attr('fullpath', table(main_table, -1))},'/%')")
+          when 'home'
+            context[:processing] = :scope
+            add_filter("#{field_or_attr('fullpath')} LIKE CONCAT(#{insert_bind('current_site.home_node.fullpath')},'/%')")
+          else
+            super
+          end
+        end
 
         def process_attr(attribute)
           case attribute
@@ -553,7 +566,7 @@ module Zena
               # Special pseudo-context
               add_table(main_table)
               set_main_class(current_site.home_node.vclass)
-              add_filter "#{table}.id = #{current_site.home_id}"
+              add_filter "#{table}.id = #{insert_bind('current_site.home_id')}"
               return true
             #when 'author', 'traductions', 'versions'
             #  # TODO: not implemented yet...

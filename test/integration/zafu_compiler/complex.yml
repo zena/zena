@@ -58,7 +58,7 @@ default:
     node_name: '@node'
     node: roger
     visitor: complex_admin
-    site: complex
+    host: complex.host
     ref_date: 2004-09-01
   src: "<r:emp_form_dates where='repeat_every is not null' do='each' join=', '><r:show attr='title'/>(<r:show attr='priority'/>, <r:show attr='last_date' format='%Y-%m-%d'/>, <r:show attr='next_date' format='%Y-%m-%d'/>)</r:emp_form_dates>"
   res: "secure_a_site(10, , ), winch_usage(10, , ), dangerous_transportations(10, 2004-03-15, 2006-03-15), engine(5, , ), transmit_information(5, 2002-05-05, 2003-05-05), fiber_junction(5, 2003-03-03, 2005-03-03), radio_usage(1, , )"

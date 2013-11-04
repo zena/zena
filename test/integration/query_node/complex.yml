@@ -3,7 +3,7 @@ default:
     node_name: '@node'
     node: complex
     visitor: complex_admin
-    site: complex
+    host: complex.host
   src: ""
   sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.parent_id = ? ORDER BY nodes.zip ASC}, @node.id]"
   res: "cskin, list of employees, jobs, courses list"

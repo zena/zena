@@ -83,18 +83,6 @@ project_as_blog:
   src: "Blog:project"
   sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NPPB%' AND nodes.id = ? ORDER BY nodes.zip ASC}, @node.get_project_id]"
 
-from_root:
-  context:
-    site: alias
-  src: nodes from root limit 3
-  res: 'people, projects list, Collections'
-  
-from_home:
-  context:
-    site: alias
-  src: nodes from home limit 3
-  res: 'bird, flower'
-
 # openging in art(33) and news(34)
 having_on_relation_count:
   context:
@@ -102,3 +90,8 @@ having_on_relation_count:
       ids: '33,34'
   src: 'tagged from tag select id.count as t_count where id in (#{params[:ids].split(",")}) in site having t_count = #{params[:ids].split(",").size}'
   res: 'super ouverture'
+
+# TODO: change how fullpath is built should solve this issue.
+in_home:
+  src: "documents in home"
+  res: bird, flower

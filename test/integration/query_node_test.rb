@@ -37,9 +37,8 @@ class QueryNodeTest < Zena::Unit::TestCase
     (@context[:params] || {}).each do |k,v|
       params[k.to_sym] = v
     end
-
-    $_test_site = @context[:site] || 'zena'
-    login(@context[:visitor].to_sym, $_test_site)
+    
+    login(@context[:visitor].to_sym, @context[:host])
 
     @context[:rubyless_helper] = self
     defaults = (@context[:default] ||= {})

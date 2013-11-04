@@ -155,3 +155,9 @@ coalesce:
   src: "nodes in site order by parent_id.coalesce(0) asc limit 1"
   sql: "%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} ORDER BY COALESCE(nodes.parent_id,0) ASC LIMIT 1}"
   res: "Zena the wild CMS"
+
+in_sub_nodes:
+  context:
+    node: cleanWater
+  src: pages in sub_nodes
+  res: "Etat des travaux, crocodiles"

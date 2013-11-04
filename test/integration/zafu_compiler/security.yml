@@ -120,3 +120,7 @@ zafu_eval:
     code: "<%= 3.class %>"
   src: "<r:zafu_eval code='params[:code]'/>"
   res: '&lt;%= 3.class %&gt;'
+
+eval_in_query:
+  src: "<r:void do=\"nodes where title like '#{puts Time.now}/%' in site\"/>"
+  res: /Unknown constant 'Time'/

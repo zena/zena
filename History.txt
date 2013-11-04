@@ -5,12 +5,15 @@
     without versioning (used to sync attributes with external app). This does not change
     timestamps nor version or node author.
   * Added login retry wait delay on failures.
+  * Added support for 'in home' or 'from home' in sqliss.
+  * Added support for any scope with 'in sub_nodes' (uses fullpath field).
     
 * Minor changes
   * Fixed gemspec to not include TextMate helper and selenium plugin.
   * Fixed xml generated file caching.
   * Added NODE_ID in 'redir' param on node creation (replaced by actual id). <== TODO: Document
   * Added fetch_html rubyless method to views (does an HTTP GET and returns body).
+  * Fixed a bug in site alias zafu compilation (wrong home reference).
 
 == 1.2.6, 1.2.7 2013-08-16
 

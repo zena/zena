@@ -1,11 +1,11 @@
 default:
   context:
     lang: 'en'
-    site: alias
+    host: alias.host
     visitor: 'ant'
     node: 'status'
   src: "<r:site do='host'/>: <r:home do='title'/>"
-  tem: "/Node.do_find.*979649407"
+  tem: "/visitor.site.home_node"
   res: "alias.host: a wiki with Zena"
   
 link_href_home:
@@ -17,3 +17,26 @@ test_home:
     node: wiki
   src: "<r:if test='id == home.id'>ok</r:if>"
   res: 'ok'
+
+all_sub_nodes:
+  src: "<r:void do=\"nodes where fullpath like '#{home.fullpath}/%' in site\" do='each' join=', ' do='title'/>"
+  tem: '/visitor.site.home_node.fullpath/'
+  res: 'bird, flower'
+
+from_root:
+  context:
+    host: alias.host
+  src: <r:void do='nodes from root limit 3' do='each' join=', ' do='title'/>
+  res: 'Collections, Kill the bugs, Nature'
+
+# For this test, we add some sub-nodes in wiki
+from_home:
+  context:
+    host: alias.host
+  src: <r:void do='nodes from home' do='each' join=', ' do='title'/>
+  res: 'bird, flower, one'
+
+# For this test, we add some sub-nodes in wiki
+in_home:
+  src: <r:void do='nodes in home' do='each' join=', ' do='title'/>
+  res: bird, flower, one, three, two

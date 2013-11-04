@@ -32,7 +32,7 @@ login_info:
 
 home_compiled_to_project:
   context:
-    site: alias
+    host: alias.host
   src: "<r:home do='collaborators'/>"
   # project_has_collaborators => home resolved as project during compilation
   tem: '/links.relation_id = 540144154/'

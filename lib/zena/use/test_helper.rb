@@ -10,6 +10,7 @@ module Zena
       def login(fixture, host = nil)
         user = users(fixture)
         if host
+          raise 'FIXME' unless host =~ /\./
           site = Site.setup_master(Site.find_by_host(host))
         else
           # Not an alias
@@ -19,6 +20,9 @@ module Zena
         user.ip = '10.0.0.44'
         $_test_site = site.name
         ::I18n.locale = user.lang
+      rescue => err
+        puts "#{host.inspect}"
+        puts err.backtrace
       end
 
       # Show object's errors
