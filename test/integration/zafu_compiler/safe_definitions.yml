@@ -45,6 +45,10 @@ string_strip:
   tem: "<%= \" #{@node.zip}\".strip %>"
   res: "22"
 
+string_split:
+  src: "<r:void do=\"'one,two'.split(',')\"><span do='each' join=' ' do='this'/></r:void>"
+  res: '<span>one</span> <span>two</span>'
+
 string_to_i:
   eval: "%Q{ #{id}}.to_i"
   tem: "<%= \" #{@node.zip}\".to_i %>"

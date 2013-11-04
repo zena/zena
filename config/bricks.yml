@@ -13,7 +13,8 @@ test:
 
 
 development:
-#  asset_port: 7999  
+#  asset_port: 7999    
+  cache_path: '/public'
   activity:  ON
   mongrel:   OFF
   passenger: ON
@@ -62,7 +63,7 @@ production:
 # what Zena considers 'local'
 #  local_ips: 123.45.67.89, 127.0.0.1
   activity:  ON
-  cache_path: '/public/cache'
+  cache_path: '/public'
   mongrel:   OFF
   passenger: ON
   uv:
