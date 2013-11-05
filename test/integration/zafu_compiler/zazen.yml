@@ -15,6 +15,10 @@ link_anchor:
   tem: "<%= zazen('see \"\":22#') %>"
   res: "<p>see <a href=\"#node22\">status title</a></p>"
 
+link_anchor_remote:
+  tem: "<%= zazen('see \"\":18#foo') %>"
+  res: "<p>see <a href=\"/oo/page18.html#foo\">projects list</a></p>"
+
 link_anchor_attribute:
   tem: "<%= zazen('see \"\":22#[title]') %>"
   res: "<p>see <a href=\"#status-title\">status title</a></p>"

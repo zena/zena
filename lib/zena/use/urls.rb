@@ -537,10 +537,10 @@ module Zena
           # Build the 'href' part of a link.
           def make_href(remote_target = nil, opts = {})
             anchor = @params[:anchor]
-            if anchor && !@params[:href]
-              # Link on same page
-              return ::RubyLess.translate(self, "%Q{##{get_anchor_name(anchor)}}")
-            end
+            # if anchor && !@params[:href]
+            #   # Link on same page (? Why would this be of any use ? We can write <a href='#xxx'>....</a>.)
+            #   return ::RubyLess.translate(self, "%Q{##{get_anchor_name(anchor)}}")
+            # end
 
             if opts[:action] == 'edit' && remote_target
               method = 'zafu_node_path'
@@ -599,7 +599,7 @@ module Zena
             end
             
             method = "#{method}(#{method_args.join(', ')})"
-            
+
             ::RubyLess.translate(self, method)
           end
 

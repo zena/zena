@@ -14,6 +14,7 @@
   * Added NODE_ID in 'redir' param on node creation (replaced by actual id). <== TODO: Document
   * Added fetch_html rubyless method to views (does an HTTP GET and returns body).
   * Fixed a bug in site alias zafu compilation (wrong home reference).
+  * Fixed anchor in zazen url "":22#foo should link to anchor #foo in node '22'.
 
 == 1.2.6, 1.2.7 2013-08-16
 

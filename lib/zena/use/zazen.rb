@@ -124,11 +124,6 @@ module Zena
             node = opts[:node]
           end
 
-          if %w{true [id] [zip]}.include?(anchor)
-            return "<span class='unknownLink'>#{_('unknown link')}</span>" unless node
-            anchor_value = "node#{node.zip}"
-          end
-
           if !node && (
              opts[:id]           ||
              opts[:title].blank? ||
@@ -144,9 +139,13 @@ module Zena
 
           if anchor
             if %w{true [id] [zip]}.include?(anchor)
+              return "<span class='unknownLink'>#{_('unknown link')}</span>" unless node
               anchor_value = "node#{node.zip}"
-            elsif anchor =~ /\[(.+)\]/
+              anchor_only = true
+            elsif anchor =~ /\[(.+)\]/  
+              return "<span class='unknownLink'>#{_('unknown link')}</span>" unless node
               anchor_value = node.prop[$1].try(:url_name)
+              anchor_only = true
             else
               anchor_value = anchor
             end
@@ -154,8 +153,10 @@ module Zena
             if anchor_in
               node = node.find(:first, anchor_in)
               link_to title, "#{zen_path(node, link_opts)}##{anchor_value}"
-            else
+            elsif anchor_only  
               link_to title, "##{anchor_value}"
+            else  
+              link_to title, "#{zen_path(node, link_opts)}##{anchor_value}"
             end
           elsif opts[:id] && opts[:id][0..0] == '0'
             link_to title, zen_path(node, link_opts), :popup => true

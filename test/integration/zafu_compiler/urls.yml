@@ -124,12 +124,14 @@ link_root:
   res: "<a href='/oo'>status title</a>"
 
 link_anchor:
-  src: "<r:link anchor='true'/>"
+  old_src: "<r:link anchor='true'/>"
+  src: "<a href='#node#{id}' do='title'/>"
   res: "<a href='#node22'>status title</a>"
 
 link_anchor_title:
   old_src: "<r:link anchor='[name]'/>"
-  src: "<r:link anchor='#{title.url_name}'/>"
+  old_src: "<r:link anchor='#{title.url_name}'/>"
+  src: "<a href='##{title.url_name}' do='title'/>"
   res: "<a href='#status-title'>status title</a>"
 
 link_anchor_in:
@@ -140,6 +142,10 @@ link_anchor_name_in:
   old_src: "<r:link anchor='[name]' in='parent'/>"
   src: "<r:link anchor='#{title.url_name}' href='parent'/>"
   res: "<a href='/oo/projects-list/Clean-Water-project#status-title'>status title</a>"
+
+link_anchor_lit:
+  src: <r:void do='node where id=18 in site' do='link' anchor='foo'/>
+  res: "<a href='/oo/page18.html#foo'>projects list</a>"
 
 link_stored:
   old_src: "<r:void store='foo'><r:parent><r:link href='foo' do='title'/></r:parent></r:void>"
