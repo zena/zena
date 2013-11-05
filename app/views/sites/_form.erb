@@ -15,6 +15,7 @@
   <table cellspacing='0' class='edit_site'>
     <tr><td class='label'><%= _('host') %></td><td><%= @site[:host] %></td></tr>
     <tr><td class='label'><%= _('home') %></td><td><%= text_field('site', :home_zip, :size=>15, :value => @site.home_zip) %></td></tr>
+    <tr><td class='label'><%= _('skin') %></td><td><%= text_field('site', :skin_zip, :size=>15, :value => @site.skin_zip) %></td></tr>
     <% Site.attributes_for_form(@site.is_alias?)[:text].each do |name| -%>
     <tr><td class='label'><%= _(name) %></td><td><%= text_field('site', name, :size=>nil) %></td></tr>
     <% end -%>

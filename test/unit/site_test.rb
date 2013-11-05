@@ -406,6 +406,10 @@ class SiteTest < Zena::Unit::TestCase
     should 'return alias home node' do
       assert_equal nodes_id(:wiki), subject.home_id
     end
+    
+    should 'return alias skin node' do
+      assert_equal nodes_id(:wikiSkin), subject.skin_id
+    end
   end
   
   context 'Creating a site alias' do
@@ -431,6 +435,24 @@ class SiteTest < Zena::Unit::TestCase
     should 'set host name' do
       ali = subject.create_alias('foo.bar')
       assert_equal 'foo.bar', ali.host
+    end
+  end
+  
+  context 'Editing a site alias skin' do
+    subject do
+      secure(Site) { sites(:alias) }
+    end
+    
+    should 'allow setting skin' do
+      assert_equal nodes_id(:wikiSkin), subject.skin_id
+      assert subject.update_attributes(:skin_zip => nodes_zip(:default))
+      assert_equal nodes_id(:default), sites(:alias).skin.id
+    end
+    
+    should 'allow setting skin to nil' do
+      assert_equal nodes_id(:wikiSkin), subject.skin_id
+      assert subject.update_attributes(:skin_zip => '')
+      assert_nil sites(:alias).skin_id
     end
   end
   

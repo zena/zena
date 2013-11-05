@@ -63,6 +63,10 @@ class RenderingTest < Zena::View::TestCase
         should 'find site alias on visitor site' do
           assert_equal 'alias.host', visitor.site.host
         end
+        
+        should 'find forced skin on any node' do
+          assert_equal 'wiki skin', visitor.get_skin(nodes(:zena)).title
+        end
       end
       
       should 'return a fullpath on fullpath_from_template_url' do

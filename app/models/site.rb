@@ -62,7 +62,7 @@ class Site < ActiveRecord::Base
 
   validate :valid_site
   validates_uniqueness_of :host
-  attr_accessible :name, :languages, :default_lang, :authentication, :http_auth, :ssl_on_auth, :auto_publish, :redit_time, :api_group_id, :home_zip
+  attr_accessible :name, :languages, :default_lang, :authentication, :http_auth, :ssl_on_auth, :auto_publish, :redit_time, :api_group_id, :home_zip, :skin_zip
   has_many :groups, :order => "name"
   has_many :nodes
   has_many :users
@@ -405,6 +405,30 @@ class Site < ActiveRecord::Base
       @home_zip_error = _('could not be found')
     end
   end
+
+  def skin_zip
+    skin ? skin.zip : nil
+  end
+  
+  def skin_zip=(zip)
+    if zip.blank?
+      self[:skin_id] = nil
+    else
+      if id = secure(Node) { Node.translate_pseudo_id(zip) }
+        self[:skin_id] = id
+      else
+        @skin_zip_error = _('could not be found')
+      end
+    end
+  end
+
+  def skin
+    secure(Skin) { Skin.find_by_id(skin_id) }
+  end
+
+  def skin_id
+    @alias && @alias[:skin_id] || self[:skin_id]
+  end
   
   def create_alias(hostname)
     raise "Hostname '#{hostname}' already exists" if Site.find_by_host(hostname)
@@ -604,8 +628,13 @@ class Site < ActiveRecord::Base
       end
       
       if @home_zip_error
-        errors.add('root_id', @home_zip_error)
+        errors.add('root_zip', @home_zip_error)
         @home_zip_error = nil
+      end
+      
+      if @skin_zip_error
+        errors.add('skin_zip', @skin_zip_error)
+        @skin_zip_error = nil
       end
     end
 

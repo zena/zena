@@ -339,7 +339,7 @@ class User < ActiveRecord::Base
       nil
     when ANY_SKIN_ID
       # normal skin
-      node.skin || (node.parent ? node.parent.skin : nil)
+      current_site.skin || node.skin || (node.parent ? node.parent.skin : nil)
     else
       # find skin from zip
       secure(Skin) { Skin.find_by_zip(skin_zip)}

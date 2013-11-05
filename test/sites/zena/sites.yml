@@ -22,6 +22,7 @@ alias:
   host:            alias.host
   root:            zena
   home:            wiki
+  skin:            wikiSkin
   anon:            anon
   public_group:    public
   site_group:      workers
