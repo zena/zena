@@ -123,36 +123,50 @@ module Zena
             stamp = make_cachestamp(node, mode)
           end
 
-          path = if !asset && node[:id] == visitor.site[:root_id] && mode.nil? && format == 'html'
+          path = if !asset && node[:id] == visitor.site.home_id && mode.nil? && format == 'html'
             "#{abs_url_prefix}/#{pre}" # index page
           elsif node[:custom_base]
             "#{abs_url_prefix}/#{pre}/" +
-            basepath_as_url(node.basepath) +
-            (mode  ? "_#{mode}"  : '') +
-            (asset ? "=#{asset}" : '') +
-            (stamp ? ".#{stamp}" : '') +
+            basepath_as_url(node, true) +
+            (mode  ? "_#{mode}"  : '')  +
+            (asset ? "=#{asset}" : '')  +
+            (stamp ? ".#{stamp}" : '')  +
             (format == 'html' ? '' : ".#{format}")
           else
             "#{abs_url_prefix}/#{pre}/" +
-            (node.basepath.blank? ? '' : "#{basepath_as_url(node.basepath)}/") +
-            (node.klass.downcase   ) +
-            (node[:zip].to_s       ) +
-            (mode  ? "_#{mode}"  : '') +
-            (asset ? "=#{asset}" : '') +
-            (stamp ? ".#{stamp}" : '') +
+            basepath_as_url(node, false)+
+            (node.klass.downcase   )    +
+            (node[:zip].to_s       )    +
+            (mode  ? "_#{mode}"  : '')  +
+            (asset ? "=#{asset}" : '')  +
+            (stamp ? ".#{stamp}" : '')  +
             ".#{format}"
           end
           append_query_params(path, opts)
         end
 
-        def basepath_as_url(path)
-          path.split('/').map do |zip|
-            if n = secure(Node) { Node.find_by_zip(zip) }
-              n.title.url_name
-            else
-              nil
+        def basepath_as_url(node, is_end)
+          path = node.basepath
+          if !path.blank?
+            @home_base ||= begin
+              p = Zena::Use::Ancestry.basepath_from_fullpath(current_site.home_node.fullpath)
+              %r{^#{p}/?}
             end
-          end.compact.join('/')
+            path = path.sub(@home_base, '')
+            return '' if path.blank?
+            path = path.split('/').map do |zip|
+              if n = secure(Node) { Node.find_by_zip(zip) }
+                n.title.url_name
+              else
+                nil
+              end
+            end.compact.join('/')
+          end
+          if is_end
+            path
+          else
+            path.blank? ? '' : "#{path}/"
+          end
         end
 
         def append_query_params(path, opts)

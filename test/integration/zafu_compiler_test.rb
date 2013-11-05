@@ -398,5 +398,17 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     secure(Page) { Page.create(:title => 'three', :parent_id => sub.id)}
     yt_do_test('alias_site', 'in_home')
   end
+  
+  def test_alias_site_link_with_custom_base
+    login(:lion)
+    secure(Node) { nodes(:wiki) }.tap do |w|
+      w.update_attributes(:custom_base => true)
+      err w
+    end
+    node = secure(Page) { Page.create(:title => 'one', :parent_id => nodes_id(:wiki), :custom_base => true)}
+    sub  = secure(Page) { Page.create(:title => 'two', :parent_id => node.id)}
+    secure(Page) { Page.create(:title => 'three', :parent_id => sub.id)}
+    yt_do_test('alias_site', 'link_with_custom_base')
+  end
   yt_make
 end

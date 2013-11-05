@@ -8,10 +8,6 @@ default:
   tem: "/visitor.site.home_node"
   res: "alias.host: a wiki with Zena"
   
-link_href_home:
-  src: "<r:link href='home'/>"
-  res: "<a href='/oo/blog29.html'>status title</a>"
-  
 test_home:
   context:
     node: wiki
@@ -40,3 +36,17 @@ from_home:
 in_home:
   src: <r:void do='nodes in home' do='each' join=', ' do='title'/>
   res: bird, flower, one, three, two
+
+link_to_home:
+  src: <r:void do='home' do='link'/>
+  res: <a href='/oo'>a wiki with Zena</a>
+  
+link_with_custom_base:
+  # custom base is set on 'home' before this test
+  src: <r:void do='image in home' find='first' do='link'/> <r:void do='page where title = "three" in home' find='first' do='link'/>
+  res: <a href='/oo/image30.html'>bird</a> <a href='/oo/one/page68.html'>three</a>
+  
+link_with_custom_base_out_of_home:
+  # custom base is set on 'home' before this test
+  src: <r:void do='page where id = 22 in site' find='first' do='link'/>
+  res: <a href='/oo/projects-list/Clean-Water-project/page22.html'>status title</a>

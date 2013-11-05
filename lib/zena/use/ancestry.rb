@@ -4,6 +4,7 @@ module Zena
     module Ancestry
       
       def self.basepath_from_fullpath(fullpath)
+        return '' if !fullpath # This happens with pseudo root/home when node is not accessible
         fullpath.split('/')[1..-1].join('/')
       end
       
