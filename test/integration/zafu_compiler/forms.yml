@@ -375,3 +375,16 @@ form_rel_status:
   src: "<r:input name='set_tag_status'/>"
   tem: "/other_status/"
   res: "<input type='text' name='node[set_tag_status]' value='10.0'/>"
+
+# Before change, tiger uses ant as profile
+uparams_profile:
+  context:
+    node: tiger
+  src: "<r:select name='uparams[profile]' type='profile'/>"
+  res: "<select name='node[uparams][profile]'><option value=\"ant\" selected=\"selected\">ant</option></select>"
+
+uparams_login:
+  context:
+    node: ant
+  src: "<r:input name='uparams[login]'/>"
+  res: "<input type='text' name='node[uparams][login]' value='ant'/>"

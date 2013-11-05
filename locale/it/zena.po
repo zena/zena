@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: version 0.0.1\n"
-"POT-Creation-Date: 2013-09-04 10:29-0000\n"
+"POT-Creation-Date: 2013-11-05 18:22-0000\n"
 "PO-Revision-Date: 2012-05-03 09:43+0100\n"
 "Last-Translator: Gaspard Bucher <gaspard@teti.ch>\n"
 "Language-Team: en <gaspard@teti.ch>\n"
@@ -14,7 +14,7 @@ msgstr ""
 "X-Poedit-Bookmarks: -1,-1,-1,219,-1,-1,-1,-1,-1,-1\n"
 "X-Poedit-Basepath: /Users/gaspard/svk/zena\n"
 
-#: lib/gettext_strings.rb:119
+#: lib/gettext_strings.rb:120
 msgid "%Y-%m-%d %H:%M"
 msgstr "%Y-%m-%d %H:%M"
 
@@ -31,7 +31,7 @@ msgstr ""
 msgid "%{d} days ago"
 msgstr ""
 
-#: lib/gettext_strings.rb:75 lib/zena/use/display.rb:187
+#: lib/gettext_strings.rb:76 lib/zena/use/display.rb:187
 msgid "%{ext} document"
 msgstr ""
 
@@ -47,7 +47,7 @@ msgstr ""
 msgid "%{m} minutes ago"
 msgstr ""
 
-#: lib/gettext_strings.rb:76 lib/zena/use/display.rb:175
+#: lib/gettext_strings.rb:77 lib/zena/use/display.rb:175
 msgid "%{type} node"
 msgstr ""
 
@@ -63,16 +63,16 @@ msgstr ""
 msgid "1 minute ago"
 msgstr ""
 
-#: app/views/sites/_form.erb:25
+#: app/views/sites/_form.erb:26
 #, fuzzy
 msgid "API group"
 msgstr "<img src='/images/group.png' alt='group'/>"
 
-#: lib/gettext_strings.rb:146
+#: lib/gettext_strings.rb:147
 msgid "Apr"
 msgstr "apr."
 
-#: lib/gettext_strings.rb:133
+#: lib/gettext_strings.rb:134
 msgid "April"
 msgstr "aprile"
 
@@ -105,17 +105,26 @@ msgid ""
 "Are you sure you want to permanently remove the content of this rubbish bin ?"
 msgstr ""
 
-#: lib/gettext_strings.rb:150
+#: lib/gettext_strings.rb:151
 msgid "Aug"
 msgstr "ag."
 
-#: lib/gettext_strings.rb:137
+#: lib/gettext_strings.rb:138
 msgid "August"
 msgstr "agosto"
 
-#: app/controllers/nodes_controller.rb:371
+#: app/controllers/nodes_controller.rb:374
 msgid "Backup created."
 msgstr ""
+
+#: app/models/user.rb:370
+msgid "Cannot be changed"
+msgstr ""
+
+#: app/models/user.rb:379
+#, fuzzy
+msgid "Cannot be found"
+msgstr "Node not found."
 
 #: app/controllers/columns_controller.rb:73
 #, fuzzy
@@ -144,16 +153,16 @@ msgstr ""
 msgid "Could not change version back to redaction."
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:585
+#: app/controllers/nodes_controller.rb:588
 #, fuzzy
 msgid "Could not clear order."
 msgstr "User could not be updated."
 
-#: app/controllers/nodes_controller.rb:373
+#: app/controllers/nodes_controller.rb:376
 msgid "Could not create backup."
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:326
+#: app/controllers/nodes_controller.rb:329
 #, fuzzy
 msgid "Could not destroy node."
 msgstr "User could not be updated."
@@ -190,7 +199,7 @@ msgstr ""
 msgid "Could not rollback:"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:568
+#: app/controllers/nodes_controller.rb:571
 msgid "Could not update order."
 msgstr ""
 
@@ -199,11 +208,11 @@ msgstr ""
 msgid "Data entry was successfully created."
 msgstr "Informations successfully updated."
 
-#: lib/gettext_strings.rb:154
+#: lib/gettext_strings.rb:155
 msgid "Dec"
 msgstr "dic."
 
-#: lib/gettext_strings.rb:141
+#: lib/gettext_strings.rb:142
 msgid "December"
 msgstr "dicembre"
 
@@ -211,19 +220,19 @@ msgstr "dicembre"
 msgid "Delete relation '%{role}' between '%{source}' and '%{target}' ?"
 msgstr ""
 
-#: lib/gettext_strings.rb:144
+#: lib/gettext_strings.rb:145
 msgid "Feb"
 msgstr "febbr."
 
-#: lib/gettext_strings.rb:131
+#: lib/gettext_strings.rb:132
 msgid "February"
 msgstr "febbraio"
 
-#: lib/gettext_strings.rb:126
+#: lib/gettext_strings.rb:127
 msgid "Fri"
 msgstr "ven."
 
-#: lib/gettext_strings.rb:113
+#: lib/gettext_strings.rb:114
 msgid "Friday"
 msgstr "venerdì"
 
@@ -236,73 +245,73 @@ msgstr ""
 msgid "Invalid login or password."
 msgstr "Invalid login or password."
 
-#: lib/gettext_strings.rb:143
+#: lib/gettext_strings.rb:144
 msgid "Jan"
 msgstr "genn."
 
-#: lib/gettext_strings.rb:130
+#: lib/gettext_strings.rb:131
 msgid "January"
 msgstr "gennaio"
 
-#: lib/gettext_strings.rb:149
+#: lib/gettext_strings.rb:150
 msgid "Jul"
 msgstr "luglio"
 
-#: lib/gettext_strings.rb:136
+#: lib/gettext_strings.rb:137
 msgid "July"
 msgstr "luglio"
 
-#: lib/gettext_strings.rb:148
+#: lib/gettext_strings.rb:149
 msgid "Jun"
 msgstr "giugno"
 
-#: lib/gettext_strings.rb:135
+#: lib/gettext_strings.rb:136
 msgid "June"
 msgstr "giugno"
 
-#: lib/gettext_strings.rb:158
+#: lib/gettext_strings.rb:159
 msgid "Login for"
 msgstr "Accedi per"
 
-#: lib/gettext_strings.rb:145
+#: lib/gettext_strings.rb:146
 msgid "Mar"
 msgstr "mar."
 
-#: lib/gettext_strings.rb:132
+#: lib/gettext_strings.rb:133
 msgid "March"
 msgstr "marzo"
 
-#: lib/gettext_strings.rb:134 lib/gettext_strings.rb:147
+#: lib/gettext_strings.rb:135 lib/gettext_strings.rb:148
 msgid "May"
 msgstr "maggio"
 
-#: lib/gettext_strings.rb:122
+#: lib/gettext_strings.rb:123
 msgid "Mon"
 msgstr "lun."
 
-#: lib/gettext_strings.rb:109
+#: lib/gettext_strings.rb:110
 msgid "Monday"
 msgstr "lunedì"
 
-#: app/controllers/nodes_controller.rb:323
+#: app/controllers/nodes_controller.rb:326
 #: app/controllers/versions_controller.rb:251
 #, fuzzy
 msgid "Node destroyed."
 msgstr "<img src='/images/bomb.png' alt='destroy'/>"
 
-#: lib/gettext_strings.rb:153
+#: lib/gettext_strings.rb:154
 msgid "Nov"
 msgstr "nov."
 
-#: lib/gettext_strings.rb:140
+#: lib/gettext_strings.rb:141
 msgid "November"
 msgstr "novembre"
 
-#: lib/gettext_strings.rb:152
+#: lib/gettext_strings.rb:153
 msgid "Oct"
 msgstr "ott."
 
-#: lib/gettext_strings.rb:139
+#: lib/gettext_strings.rb:140
 msgid "October"
 msgstr "ottobre"
 
@@ -311,11 +320,11 @@ msgstr "ottobre"
 msgid "Order cleared."
 msgstr "Order updated."
 
-#: app/controllers/nodes_controller.rb:566
+#: app/controllers/nodes_controller.rb:569
 msgid "Order updated"
 msgstr "Order updated."
 
-#: lib/gettext_strings.rb:157
+#: lib/gettext_strings.rb:158
 msgid "Password:"
 msgstr ""
 
@@ -352,19 +361,19 @@ msgstr "Informations successfully updated."
 msgid "Rolled back to redaction."
 msgstr ""
 
-#: lib/gettext_strings.rb:127
+#: lib/gettext_strings.rb:128
 msgid "Sat"
 msgstr "sab."
 
-#: lib/gettext_strings.rb:114
+#: lib/gettext_strings.rb:115
 msgid "Saturday"
 msgstr "sabato"
 
-#: lib/gettext_strings.rb:151
+#: lib/gettext_strings.rb:152
 msgid "Sep"
 msgstr "sett."
 
-#: lib/gettext_strings.rb:138
+#: lib/gettext_strings.rb:139
 msgid "September"
 msgstr "settembre"
 
@@ -373,11 +382,11 @@ msgstr "settembre"
 msgid "Site was successfully updated."
 msgstr "Le mot de passe a été modifié avec succès."
 
-#: lib/gettext_strings.rb:128
+#: lib/gettext_strings.rb:129
 msgid "Sun"
 msgstr "dom."
 
-#: lib/gettext_strings.rb:115
+#: lib/gettext_strings.rb:116
 msgid "Sunday"
 msgstr "domenica"
 
@@ -385,19 +394,19 @@ msgstr "domenica"
 msgid "This node contains sub-nodes: it cannot be destroyed."
 msgstr ""
 
-#: lib/gettext_strings.rb:125
+#: lib/gettext_strings.rb:126
 msgid "Thu"
 msgstr "giov."
 
-#: lib/gettext_strings.rb:112
+#: lib/gettext_strings.rb:113
 msgid "Thursday"
 msgstr "giovedì"
 
-#: lib/gettext_strings.rb:123
+#: lib/gettext_strings.rb:124
 msgid "Tue"
 msgstr "mart."
 
-#: lib/gettext_strings.rb:110
+#: lib/gettext_strings.rb:111
 msgid "Tuesday"
 msgstr "martedì"
 
@@ -413,7 +422,7 @@ msgstr ""
 msgid "Upload succeeded."
 msgstr ""
 
-#: lib/gettext_strings.rb:156
+#: lib/gettext_strings.rb:157
 msgid "User name:"
 msgstr ""
 
@@ -435,11 +444,11 @@ msgstr "Informations successfully updated."
 msgid "VirtualClass was successfully updated."
 msgstr "Le mot de passe a été modifié avec succès."
 
-#: lib/gettext_strings.rb:124
+#: lib/gettext_strings.rb:125
 msgid "Wed"
 msgstr "merc."
 
-#: lib/gettext_strings.rb:111
+#: lib/gettext_strings.rb:112
 msgid "Wednesday"
 msgstr "mercoledì"
 
@@ -504,17 +513,17 @@ msgstr ""
 msgid "acls"
 msgstr "acls"
 
-#: app/views/sites/_form.erb:35 app/views/acls/_form.rhtml:23
+#: app/views/sites/_form.erb:36 app/views/acls/_form.rhtml:23
 #: app/views/acls/index.rhtml:7
 #, fuzzy
 msgid "action"
 msgstr "icon"
 
-#: lib/gettext_strings.rb:171
+#: lib/gettext_strings.rb:172
 msgid "address"
 msgstr ""
 
-#: lib/gettext_strings.rb:68
+#: lib/gettext_strings.rb:69
 msgid "admin"
 msgstr ""
 
@@ -552,7 +561,7 @@ msgstr ""
 msgid "bak"
 msgstr ""
 
-#: lib/gettext_strings.rb:178
+#: lib/gettext_strings.rb:179
 msgid "birthday"
 msgstr ""
 
@@ -589,19 +598,19 @@ msgstr "<img src='/images/bomb.png' alt='empty bin'/>"
 msgid "btn_column_add"
 msgstr "<img src='/images/textfield_add.png' alt='add a property'/>"
 
-#: lib/gettext_strings.rb:82
+#: lib/gettext_strings.rb:83
 msgid "btn_destroy"
 msgstr "<img src='/images/bomb.png' alt='destroy'/>"
 
-#: lib/gettext_strings.rb:87
+#: lib/gettext_strings.rb:88
 msgid "btn_destroy_version"
 msgstr "<img src='/images/bomb.png' alt='destroy'/>"
 
-#: lib/gettext_strings.rb:85
+#: lib/gettext_strings.rb:86
 msgid "btn_drive"
 msgstr "<img src='/images/wrench.png' alt='drive'/>"
 
-#: lib/gettext_strings.rb:84
+#: lib/gettext_strings.rb:85
 msgid "btn_edit"
 msgstr "<img src='/images/page_edit.png' alt='edit'/>"
 
@@ -613,7 +622,7 @@ msgstr "<img src='/images/group_add.png' alt='add a group'/>"
 msgid "btn_iformat_add"
 msgstr "<img src='/images/photo_add.png' alt='add an image format'/>"
 
-#: lib/gettext_strings.rb:83
+#: lib/gettext_strings.rb:84
 msgid "btn_propose"
 msgstr "<img src='/images/picture_empty.png' alt='propose'/>"
 
@@ -621,11 +630,11 @@ msgstr "<img src='/images/picture_empty.png' alt='propose'/>"
 msgid "btn_publish"
 msgstr "<img src='/images/wand.png' alt='publish'/>"
 
-#: lib/gettext_strings.rb:88
+#: lib/gettext_strings.rb:89
 msgid "btn_redit"
 msgstr "<img src='/images/page_edit.png' alt='edit'/>"
 
-#: lib/gettext_strings.rb:86
+#: lib/gettext_strings.rb:87
 msgid "btn_refuse"
 msgstr "<img src='/images/delete.png' alt='refuse'/>"
 
@@ -665,7 +674,7 @@ msgstr "Open the edition window to edit the node."
 msgid "btn_title_open_discussion"
 msgstr "Open the edition window to edit the node"
 
-#: lib/gettext_strings.rb:81
+#: lib/gettext_strings.rb:82
 msgid "btn_unpublish"
 msgstr "<img src='/images/delete.png' alt='unpublish'/>"
 
@@ -713,7 +722,7 @@ msgid "cannot update multiple targets"
 msgstr ""
 
 #: app/views/nodes/_groups.rhtml:19 app/views/nodes/_parent.rhtml:11
-#: lib/zena/use/upload.rb:201
+#: lib/zena/use/upload.rb:215
 msgid "change"
 msgstr ""
 
@@ -748,11 +757,11 @@ msgstr ""
 msgid "classes import"
 msgstr "import"
 
-#: lib/gettext_strings.rb:181
+#: lib/gettext_strings.rb:182
 msgid "clear_cache"
 msgstr ""
 
-#: lib/gettext_strings.rb:182
+#: lib/gettext_strings.rb:183
 msgid "clear_cache done."
 msgstr "Cache cleared."
 
@@ -761,7 +770,7 @@ msgstr "Cache cleared."
 msgid "close"
 msgstr "<img src='/images/lock.png' alt='closed'/>"
 
-#: lib/gettext_strings.rb:63
+#: lib/gettext_strings.rb:64
 #, fuzzy
 msgid "closed"
 msgstr "<img src='/images/lock.png' alt='closed'/>"
@@ -778,7 +787,7 @@ msgstr ""
 msgid "comment(s)"
 msgstr ""
 
-#: lib/gettext_strings.rb:70
+#: lib/gettext_strings.rb:71
 msgid "commentator"
 msgstr ""
 
@@ -810,14 +819,14 @@ msgstr "contact"
 msgid "convert"
 msgstr ""
 
-#: app/models/node.rb:1554 app/models/node.rb:1566
+#: app/models/node.rb:1557 app/models/node.rb:1569
 #: app/models/relation_proxy.rb:186 app/models/relation_proxy.rb:210
-#: app/models/site.rb:405
+#: app/models/site.rb:405 app/models/site.rb:420
 #, fuzzy
 msgid "could not be found"
 msgstr "Node not found."
 
-#: app/controllers/nodes_controller.rb:443
+#: app/controllers/nodes_controller.rb:446
 msgid "could not update"
 msgstr "The node could not be updated."
 
@@ -825,7 +834,7 @@ msgstr "The node could not be updated."
 msgid "could not update user"
 msgstr "User could not be updated."
 
-#: lib/gettext_strings.rb:174
+#: lib/gettext_strings.rb:175
 msgid "country"
 msgstr ""
 
@@ -859,13 +868,13 @@ msgstr "++"
 msgid "data entries"
 msgstr "%Y-%m-%d %H:%M"
 
-#: lib/gettext_strings.rb:117 lib/zena/use/dates.rb:16
+#: lib/gettext_strings.rb:118 lib/zena/use/dates.rb:16
 #: lib/zena/use/dates.rb:130 lib/zena/use/dates.rb:190
 #: lib/zena/use/dates.rb:201
 msgid "datetime"
 msgstr "%Y-%m-%d %H:%M"
 
-#: lib/gettext_strings.rb:108
+#: lib/gettext_strings.rb:109
 msgid "de"
 msgstr "german"
 
@@ -873,7 +882,7 @@ msgstr "german"
 msgid "default_iformat_img"
 msgstr "<img src='/images/photo_grey.png' alt='image format'/>"
 
-#: lib/gettext_strings.rb:73
+#: lib/gettext_strings.rb:74
 msgid "deleted"
 msgstr ""
 
@@ -941,7 +950,7 @@ msgstr "doc"
 msgid "drive_tab"
 msgstr "drive"
 
-#: lib/zafu/process/ajax.rb:218 lib/zena/use/urls.rb:752
+#: lib/zafu/process/ajax.rb:218 lib/zena/use/urls.rb:767
 msgid "edit"
 msgstr ""
 
@@ -960,11 +969,11 @@ msgstr "<img src='/images/target.png' alt='role'/>"
 msgid "edit site"
 msgstr "%Y-%m-%d %H:%M"
 
-#: lib/gettext_strings.rb:177
+#: lib/gettext_strings.rb:178
 msgid "email"
 msgstr ""
 
-#: lib/gettext_strings.rb:106
+#: lib/gettext_strings.rb:107
 msgid "en"
 msgstr "english"
 
@@ -995,7 +1004,7 @@ msgstr ""
 msgid "file_tab"
 msgstr "file"
 
-#: lib/gettext_strings.rb:169
+#: lib/gettext_strings.rb:170
 msgid "first_name"
 msgstr "first name"
 
@@ -1009,7 +1018,7 @@ msgstr ""
 msgid "forward"
 msgstr ""
 
-#: lib/gettext_strings.rb:107
+#: lib/gettext_strings.rb:108
 msgid "fr"
 msgstr "french"
 
@@ -1035,7 +1044,7 @@ msgstr ""
 msgid "group"
 msgstr ""
 
-#: app/views/groups/index.rhtml:1 app/views/users/_form.rhtml:31
+#: app/views/groups/index.rhtml:1 app/views/users/_form.rhtml:37
 #: lib/zena/use/display.rb:295
 msgid "groups"
 msgstr ""
@@ -1121,11 +1130,11 @@ msgstr "<img src='/images/key.png' alt='access control list'/>"
 msgid "img_closed"
 msgstr "<img src='/images/lock.png' alt='closed'/>"
 
-#: lib/gettext_strings.rb:58
+#: lib/gettext_strings.rb:59
 msgid "img_comments"
 msgstr "<img src='/images/comments.png' alt='comments'/>"
 
-#: lib/gettext_strings.rb:59
+#: lib/gettext_strings.rb:60
 msgid "img_comments_inside"
 msgstr "<img src='/images/comment.png' alt='private comments'/>"
 
@@ -1133,23 +1142,23 @@ msgstr "<img src='/images/comment.png' alt='private comments'/>"
 msgid "img_custom_inherit"
 msgstr "<img src='/images/cog.png' alt='custom rights'/>"
 
-#: lib/gettext_strings.rb:190
+#: lib/gettext_strings.rb:191
 msgid "img_datetime"
 msgstr "<img src='/images/date.png' alt='datetime property'/>"
 
-#: lib/gettext_strings.rb:189
+#: lib/gettext_strings.rb:190
 msgid "img_float"
 msgstr "<img src='/images/chart_curve.png' alt='float property'/>"
 
-#: lib/gettext_strings.rb:55
+#: lib/gettext_strings.rb:56
 msgid "img_group"
 msgstr "<img src='/images/group.png' alt='group'/>"
 
-#: lib/gettext_strings.rb:56
+#: lib/gettext_strings.rb:57
 msgid "img_group_pub"
 msgstr "<img src='/images/group_pub.png' alt='public group'/>"
 
-#: lib/gettext_strings.rb:57
+#: lib/gettext_strings.rb:58
 msgid "img_group_site"
 msgstr "<img src='/images/group_site.png' alt='site group'/>"
 
@@ -1161,7 +1170,7 @@ msgstr "<img src='/images/page_white_stack.png' alt='has many'/>"
 msgid "img_has_one"
 msgstr "<img src='/images/page_white.png' alt='has one'/>"
 
-#: lib/gettext_strings.rb:188
+#: lib/gettext_strings.rb:189
 msgid "img_integer"
 msgstr "<img src='/images/chart_line.png' alt='integer property'/>"
 
@@ -1169,7 +1178,7 @@ msgstr "<img src='/images/chart_line.png' alt='integer property'/>"
 msgid "img_link"
 msgstr "<img src='/images/tag_blue.png' alt='link'/>"
 
-#: lib/gettext_strings.rb:66 lib/zena/use/i18n.rb:219
+#: lib/gettext_strings.rb:67 lib/zena/use/i18n.rb:219
 msgid "img_next_page"
 msgstr ""
 "<img src='/images/control_fastforward.png' alt='next page' title='next page'/"
@@ -1179,7 +1188,7 @@ msgstr ""
 msgid "img_open"
 msgstr "<img src='/images/lock_open.png' alt='open'/>"
 
-#: lib/gettext_strings.rb:65 lib/zena/use/i18n.rb:219
+#: lib/gettext_strings.rb:66 lib/zena/use/i18n.rb:219
 msgid "img_prev_page"
 msgstr ""
 "<img src='/images/control_rewind.png' alt='previous page' title='previous "
@@ -1197,7 +1206,7 @@ msgstr "<img src='/images/user_pub.png' alt='public'/>"
 msgid "img_relation"
 msgstr "<img src='/images/link.png' alt='relation'/>"
 
-#: lib/gettext_strings.rb:187
+#: lib/gettext_strings.rb:188
 msgid "img_string"
 msgstr "<img src='/images/text_align_left.png' alt='string property'/>"
 
@@ -1209,11 +1218,15 @@ msgstr "<img src='/images/user.png' alt='user'/>"
 msgid "img_user_admin"
 msgstr "<img src='/images/user_admin.png' alt='administrator'/>"
 
-#: lib/gettext_strings.rb:54
+#: lib/gettext_strings.rb:53
+msgid "img_user_profile"
+msgstr "<img src='/images/user_orange.png' title='profile user'/>"
+
+#: lib/gettext_strings.rb:55
 msgid "img_user_pub"
 msgstr "<img src='/images/user_pub.png' alt='anonymous user'/>"
 
-#: lib/gettext_strings.rb:53
+#: lib/gettext_strings.rb:54
 msgid "img_user_su"
 msgstr "<img src='/images/user_su.png' alt='super user'/>"
 
@@ -1271,7 +1284,7 @@ msgstr "Informations successfully updated."
 msgid "inherit"
 msgstr ""
 
-#: app/views/discussions/_form.rhtml:12 lib/gettext_strings.rb:60
+#: app/views/discussions/_form.rhtml:12 lib/gettext_strings.rb:61
 msgid "inside"
 msgstr ""
 
@@ -1297,6 +1310,10 @@ msgstr " validate "
 msgid "inverse"
 msgstr ""
 
+#: app/views/users/_form.rhtml:51
+msgid "is profile"
+msgstr ""
+
 #: app/views/sites/jobs.erb:1 lib/zena/use/display.rb:316
 msgid "jobs"
 msgstr ""
@@ -1306,11 +1323,11 @@ msgid "kpath"
 msgstr ""
 
 #: app/views/users/preferences.html.erb:17
-#: app/views/templates/edit_tabs/_title.rhtml:7 app/views/users/_form.rhtml:27
+#: app/views/templates/edit_tabs/_title.rhtml:7 app/views/users/_form.rhtml:33
 msgid "language"
 msgstr ""
 
-#: lib/gettext_strings.rb:170
+#: lib/gettext_strings.rb:171
 msgid "last_name"
 msgstr "last name"
 
@@ -1322,7 +1339,7 @@ msgstr ""
 msgid "links_tab"
 msgstr "relations"
 
-#: lib/gettext_strings.rb:173
+#: lib/gettext_strings.rb:174
 msgid "locality"
 msgstr ""
 
@@ -1330,7 +1347,7 @@ msgstr ""
 msgid "login"
 msgstr ""
 
-#: app/views/users/_form.rhtml:29
+#: app/views/users/_form.rhtml:35
 msgid "login_attempt_count"
 msgstr ""
 
@@ -1355,7 +1372,7 @@ msgstr ""
 msgid "missing target"
 msgstr "tags"
 
-#: lib/gettext_strings.rb:176
+#: lib/gettext_strings.rb:177
 msgid "mobile"
 msgstr ""
 
@@ -1366,7 +1383,11 @@ msgstr ""
 msgid "mode"
 msgstr ""
 
-#: lib/gettext_strings.rb:71
+#: app/views/users/_form.rhtml:25
+msgid "profile"
+msgstr ""
+
+#: lib/gettext_strings.rb:72
 #, fuzzy
 msgid "moderated"
 msgstr "Node successfully updated."
@@ -1391,7 +1412,7 @@ msgstr "management"
 msgid "name"
 msgstr ""
 
-#: app/controllers/nodes_controller.rb:542
+#: app/controllers/nodes_controller.rb:545
 msgid "new"
 msgstr ""
 
@@ -1408,7 +1429,7 @@ msgstr ""
 msgid "new relation"
 msgstr "<img src='/images/target.png' alt='role'/>"
 
-#: lib/gettext_strings.rb:120
+#: lib/gettext_strings.rb:121
 msgid "news_date"
 msgstr "%A, %B %d %Y"
 
@@ -1416,16 +1437,16 @@ msgstr "%A, %B %d %Y"
 msgid "no API"
 msgstr ""
 
-#: lib/gettext_strings.rb:78
+#: lib/gettext_strings.rb:79
 #, fuzzy
 msgid "no result found"
 msgstr "Node not found."
 
-#: app/controllers/nodes_controller.rb:542
+#: app/controllers/nodes_controller.rb:545
 msgid "node not found"
 msgstr "Node not found."
 
-#: app/controllers/nodes_controller.rb:441
+#: app/controllers/nodes_controller.rb:444
 msgid "node updated"
 msgstr "Node successfully updated."
 
@@ -1433,12 +1454,12 @@ msgstr "Node successfully updated."
 msgid "old password"
 msgstr ""
 
-#: lib/gettext_strings.rb:62
+#: lib/gettext_strings.rb:63
 #, fuzzy
 msgid "open"
 msgstr "<img src='/images/lock_open.png' alt='open'/>"
 
-#: app/views/sites/_form.erb:28 lib/gettext_strings.rb:36
+#: app/views/sites/_form.erb:29 lib/gettext_strings.rb:36
 msgid "options"
 msgstr ""
 
@@ -1455,7 +1476,7 @@ msgstr ""
 msgid "original is #X this view"
 msgstr ""
 
-#: app/views/discussions/_form.rhtml:11 lib/gettext_strings.rb:61
+#: app/views/discussions/_form.rhtml:11 lib/gettext_strings.rb:62
 msgid "outside"
 msgstr ""
 
@@ -1488,7 +1509,7 @@ msgstr ""
 msgid "popup"
 msgstr ""
 
-#: lib/gettext_strings.rb:172
+#: lib/gettext_strings.rb:173
 msgid "postal_code"
 msgstr ""
 
@@ -1528,7 +1549,7 @@ msgstr "property"
 msgid "pub"
 msgstr "<img src='/images/wand.png' alt='publish'/>"
 
-#: app/views/sites/_form.erb:23 lib/gettext_strings.rb:37
+#: app/views/sites/_form.erb:24 lib/gettext_strings.rb:37
 msgid "public group"
 msgstr ""
 
@@ -1553,7 +1574,7 @@ msgstr ""
 msgid "re: "
 msgstr ""
 
-#: lib/gettext_strings.rb:72
+#: lib/gettext_strings.rb:73
 msgid "reader"
 msgstr ""
 
@@ -1561,28 +1582,28 @@ msgstr ""
 msgid "readers"
 msgstr ""
 
-#: lib/gettext_strings.rb:165
+#: lib/gettext_strings.rb:166
 msgid "rebuild"
 msgstr "rebuild template"
 
-#: lib/gettext_strings.rb:166
+#: lib/gettext_strings.rb:167
 msgid "rebuild_btn"
 msgstr "<img src='/images/arrow_refresh.png' alt='rebuild template'/>"
 
-#: lib/gettext_strings.rb:183
+#: lib/gettext_strings.rb:184
 #, fuzzy
 msgid "rebuild_index"
 msgstr "<img src='/images/arrow_refresh.png' alt='rebuild template'/>"
 
-#: lib/gettext_strings.rb:184
+#: lib/gettext_strings.rb:185
 msgid "rebuild_index done."
 msgstr "Rebuilding index."
 
-#: lib/gettext_strings.rb:162
+#: lib/gettext_strings.rb:163
 msgid "redaction saved"
 msgstr ""
 
-#: app/views/sites/_form.erb:22
+#: app/views/sites/_form.erb:23
 #, fuzzy
 msgid "redit_time"
 msgstr "%H:%M"
@@ -1637,7 +1658,7 @@ msgstr " save "
 msgid "search field"
 msgstr "search"
 
-#: lib/gettext_strings.rb:79
+#: lib/gettext_strings.rb:80
 msgid "search results"
 msgstr ""
 
@@ -1653,11 +1674,11 @@ msgstr "%m.%d"
 msgid "short_time"
 msgstr "%H:%M"
 
-#: app/views/users/_form.rhtml:26
+#: app/views/users/_form.rhtml:32
 msgid "single_access_token"
 msgstr ""
 
-#: app/views/sites/_form.erb:24 lib/gettext_strings.rb:38
+#: app/views/sites/_form.erb:25 lib/gettext_strings.rb:38
 #, fuzzy
 msgid "site group"
 msgstr "<img src='/images/group.png' alt='group'/>"
@@ -1674,67 +1695,67 @@ msgstr ""
 msgid "size"
 msgstr ""
 
-#: app/views/nodes/_groups.rhtml:18
+#: app/views/sites/_form.erb:18 app/views/nodes/_groups.rhtml:18
 msgid "skin"
 msgstr ""
 
-#: app/views/links/_form.rhtml:29 app/views/users/_form.rhtml:25
+#: app/views/links/_form.rhtml:29 app/views/users/_form.rhtml:31
 msgid "status"
 msgstr "status"
 
-#: lib/gettext_strings.rb:96
+#: lib/gettext_strings.rb:97
 msgid "status_0"
 msgstr "deleted"
 
-#: lib/gettext_strings.rb:104
+#: lib/gettext_strings.rb:105
 msgid "status_0_img"
 msgstr "<img src='/images/weather_lightning.png'/>"
 
-#: lib/gettext_strings.rb:95
+#: lib/gettext_strings.rb:96
 msgid "status_10"
 msgstr "removed"
 
-#: lib/gettext_strings.rb:103
+#: lib/gettext_strings.rb:104
 msgid "status_10_img"
 msgstr "<img src='/images/weather_rain.png'/>"
 
-#: lib/gettext_strings.rb:94
+#: lib/gettext_strings.rb:95
 msgid "status_20"
 msgstr "replaced"
 
-#: lib/gettext_strings.rb:102
+#: lib/gettext_strings.rb:103
 msgid "status_20_img"
 msgstr "<img src='/images/weather_clouds.png'/>"
 
-#: lib/gettext_strings.rb:90
+#: lib/gettext_strings.rb:91
 msgid "status_50"
 msgstr "published"
 
-#: lib/gettext_strings.rb:98
+#: lib/gettext_strings.rb:99
 msgid "status_50_img"
 msgstr "<img src='/images/weather_sun.png'/>"
 
-#: lib/gettext_strings.rb:91
+#: lib/gettext_strings.rb:92
 msgid "status_60"
 msgstr "proposed"
 
-#: lib/gettext_strings.rb:99
+#: lib/gettext_strings.rb:100
 msgid "status_60_img"
 msgstr "<img src='/images/magnifier.png'/>"
 
-#: lib/gettext_strings.rb:92
+#: lib/gettext_strings.rb:93
 msgid "status_65"
 msgstr "proposed with"
 
-#: lib/gettext_strings.rb:100
+#: lib/gettext_strings.rb:101
 msgid "status_65_img"
 msgstr "<img src='/images/magnifier.png'/>"
 
-#: lib/gettext_strings.rb:93
+#: lib/gettext_strings.rb:94
 msgid "status_70"
 msgstr "redaction"
 
-#: lib/gettext_strings.rb:101
+#: lib/gettext_strings.rb:102
 msgid "status_70_img"
 msgstr "<img src='/images/pencil.png'/>"
 
@@ -1754,7 +1775,7 @@ msgstr ""
 msgid "tags"
 msgstr "status"
 
-#: lib/gettext_strings.rb:175
+#: lib/gettext_strings.rb:176
 msgid "telephone"
 msgstr ""
 
@@ -1774,7 +1795,7 @@ msgstr "text"
 msgid "textdocument_tab"
 msgstr "text doc."
 
-#: app/views/users/preferences.html.erb:18 app/views/users/_form.rhtml:28
+#: app/views/users/preferences.html.erb:18 app/views/users/_form.rhtml:34
 msgid "time zone"
 msgstr ""
 
@@ -1800,7 +1821,7 @@ msgstr "turn dev off"
 msgid "turn dev on"
 msgstr ""
 
-#: lib/gettext_strings.rb:167
+#: lib/gettext_strings.rb:168
 msgid "turn_dev_off_btn"
 msgstr "<img src='/images/bug.png' title='turn dev off'/>"
 
@@ -1809,7 +1830,7 @@ msgstr "<img src='/images/bug.png' title='turn dev off'/>"
 msgid "type"
 msgstr ""
 
-#: app/models/node.rb:1561
+#: app/models/node.rb:1564
 msgid "type mismatch (%{type} is not a Skin)"
 msgstr ""
 
@@ -1825,12 +1846,12 @@ msgstr ""
 msgid "upload more"
 msgstr ""
 
-#: app/views/users/_form.rhtml:45
+#: app/views/users/_form.rhtml:59
 #, fuzzy
 msgid "use acls"
 msgstr "<img src='/images/lock.png' alt='closed'/>"
 
-#: lib/gettext_strings.rb:69
+#: lib/gettext_strings.rb:70
 msgid "user"
 msgstr ""
 
@@ -1840,7 +1861,7 @@ msgid "users"
 msgstr ""
 
 #: app/views/columns/_form.html.erb:36 app/views/relations/_form.erb:42
-#: app/views/sites/_form.erb:43 app/views/users/preferences.html.erb:19
+#: app/views/sites/_form.erb:44 app/views/users/preferences.html.erb:19
 #: app/views/users/preferences.html.erb:38
 #: app/views/virtual_classes/_form.erb:48 app/views/acls/_form.rhtml:64
 #: app/views/comments/_form.rhtml:23 app/views/groups/_form.rhtml:42
@@ -1849,7 +1870,7 @@ msgstr ""
 #: app/views/templates/document_create_tabs/_import.rhtml:2
 #: app/views/templates/document_create_tabs/_template.rhtml:3
 #: app/views/templates/document_create_tabs/_text_document.rhtml:3
-#: app/views/users/_form.rhtml:52 app/views/versions/edit.rhtml:17
+#: app/views/users/_form.rhtml:66 app/views/versions/edit.rhtml:17
 msgid "validate"
 msgstr " validate "
 
@@ -1892,7 +1913,7 @@ msgstr ""
 msgid "yesterday"
 msgstr "<img src='/images/bomb.png' alt='destroy'/>"
 
-#: lib/gettext_strings.rb:161
+#: lib/gettext_strings.rb:162
 msgid "you are editing the original"
 msgstr ""
 

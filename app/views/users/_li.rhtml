@@ -1,6 +1,8 @@
 <% icon = 'user'
 if li.is_anon?
   icon += '_pub'
+elsif li.is_profile?
+  icon += '_profile'
 elsif li.is_admin?
   icon += '_admin'
 end %>
@@ -9,12 +11,18 @@ end %>
           :update =>"user#{li[:id]}",
           :url    => edit_user_path(li),
           :method => :get) %></td>
-  <td class="login"><%= li.is_anon? ? '<i>public</i>' : li.login %></td>
-  <td class="fullname" ><a href='<%= zen_path(li.node) %>'><%= li.node ? li.node.title : '' %></a></td>
+  <td class="login<%= li.is_profile? ? ' profile' : '' %>"><%= li.is_anon? ? '<i>public</i>' : li.login %></td>
+  <td class="groups<%= li.profile_id ? ' profile' : '' %>">
+    <% if li.profile_id %>
+      <%= li.profile %>
+    <% else %>
+      <%= li.groups.map {|g| g.name }.join(', ') %>
+    <% end %>
+  </td>
   <td class="login"><%= _(User::Num_to_status[li.status].to_s) %></td>
+  <td class="fullname" ><a href='<%= zen_path(li.node) %>'><%= li.node ? li.node.title : '' %></a></td>
   <% if Bricks::CONFIG['activity'] %>
   <td class="seen_at"><%= format_date(li.seen_at, :format =>_(Zena::Use::Dates::DATETIME)) %></td>
   <% end %>
   <td class="failed"><% if li.login_attempt_count.to_i > 0 %><%= li.login_attempt_count %> login failures<% end %></td>
-  <td class="groups"><%= li.groups.map {|g| g.name }.join(', ') %></td>
 </tr>

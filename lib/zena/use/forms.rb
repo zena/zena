@@ -81,6 +81,10 @@ module Zena
           end
           base
         end
+        
+        def profile_users
+          secure(User) {User.find_all_by_is_profile(true) } || []
+        end
       end # ViewMethods
 
       module ZafuMethods
@@ -449,7 +453,7 @@ module Zena
 
           extract_label(res, attribute || erb_attr)
         end
-
+        
         # <r:select name='klass' root_class='...'/>
         # <r:select name='parent_id' nodes='projects in site'/>
         # <r:select name='parent_id' values='a,b,c'/>
@@ -524,6 +528,9 @@ module Zena
           elsif @params[:type] == 'time_zone'
             # <r:select name='d_tz' type='time_zone'/>
             select_tag.wrap "<%= options_for_select(TZInfo::Timezone.all_identifiers, #{selected}) %>"
+          elsif @params[:type] == 'profile'
+            # <r:select name='uparams[model]' type='model'/>
+            select_tag.wrap "<%= options_for_select(profile_users.map{|u| u.login}.sort, #{selected}) %>"
           elsif options_list = get_options_for_select
             select_tag.wrap "<%= options_for_select(#{options_list}, #{selected}) %>"
           else

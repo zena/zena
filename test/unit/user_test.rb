@@ -468,4 +468,166 @@ class UserTest < Zena::Unit::TestCase
       assert subject.api_authorized?
     end
   end # A user in the api_group
+  
+  context 'Setting user profile' do
+    setup do
+      login(:lion)
+      secure(User) { users(:ant) }.update_attributes(:group_ids => [groups_id(:admin)])
+    end
+    
+    subject do
+      secure(User) { User.create(:login => 'foobar', :password => 'foobar', :status => User::Status[:deleted]) }
+    end
+    
+    should 'copy groups' do
+      assert_equal %w{public workers}, subject.groups.map(&:name).sort
+      assert subject.update_attributes(:profile => 'ant')
+      assert_equal %w{admin public workers}, subject.groups.map(&:name).sort
+    end
+    
+    context 'changing profile' do
+      setup do
+        subject.update_attributes(:profile => 'ant')
+      end
+      
+      should 'sync groups in dependant users' do
+        assert_equal %w{admin public workers}, subject.groups.map(&:name).sort
+
+        assert secure(User) { users(:ant) }.update_attributes(:group_ids => [])
+        # reload
+        user = User.find(subject.id)
+        assert_equal %w{public workers}, user.groups.map(&:name).sort
+      end
+
+      should 'sync status in dependant users' do
+        assert_equal %w{admin public workers}, subject.groups.map(&:name).sort
+
+        assert secure(User) { users(:ant) }.update_attributes(:status => User::Status[:deleted])
+        # reload
+        user = User.find(subject.id)
+        assert_equal User::Status[:deleted], user.status
+      end
+      
+      context 'through group edit' do
+        should 'sync groups in dependant users' do
+          assert_equal %w{admin public workers}, subject.groups.map(&:name).sort
+          grp = secure(Group) { groups(:admin) }
+          assert grp.update_attributes(:user_ids => [])
+          # Remove user
+          # reload
+          user = User.find(subject.id)
+          assert_equal %w{public workers}, user.groups.map(&:name).sort
+          
+          assert grp.update_attributes(:user_ids => [users_id(:ant)])
+          # Add user
+          # reload
+          user = User.find(subject.id)
+          assert_equal %w{admin public workers}, user.groups.map(&:name).sort
+        end
+      end
+      
+      context 'removing is_profile' do
+        context 'with dependant users' do
+          should 'error on is_profile' do
+            subject
+            ant = secure(User) { users(:ant) }
+            assert !ant.update_attributes(:is_profile => false)
+            assert_equal 'Cannot be removed (profile used).', ant.errors.on(:is_profile)
+          end
+        end
+      end
+    end
+  end # Setting user profile
+  
+  context 'reading through contact node' do
+    setup do
+      login(:lion)
+    end
+    
+    subject do
+      secure(Node) { nodes(:ant) }
+    end
+    
+    should 'read user settings' do
+      assert_equal 'ant', subject.linked_user.login
+    end
+  end
+  
+  context 'updating through contact node' do
+    setup do
+      login(:lion)
+    end
+    
+    subject do
+      secure(Node) { nodes(:ant) }
+    end
+    
+    should 'update user settings' do
+      assert subject.update_attributes('uparams' => {'login' => 'antidote'})
+      assert_equal 'antidote', users(:ant).login
+    end
+    
+    should 'update password' do
+      assert subject.update_attributes('uparams' => {'password' => 'hello world'})
+      assert_equal Zena::CryptoProvider::Initial.encrypt('hello world'), users(:ant).crypted_password
+    end
+    
+    should 'update profile' do
+      secure(User) { users(:tiger) }.update_attributes(:is_profile => true)
+      assert subject.update_attributes('uparams' => {'profile' => 'tiger', 'is_profile' => false})
+      assert_equal users_id(:tiger), users(:ant).profile_id
+    end
+    
+    should 'not update inaccessible fields' do
+      assert subject.update_attributes('uparams' => {'site_id' => 5})
+      assert_equal sites_id(:zena), users(:ant).site_id
+    end
+  end
+  
+  context 'creating through contact node' do
+    setup do
+      login(:lion)
+    end
+    
+    subject do
+      secure(Node) { nodes(:people).new_child({
+        :first_name => 'My',
+        :name       => 'Giraffe',
+        :klass      => 'Contact',
+        :uparams    => {:password => 'long big neck', :profile => 'ant' }
+      })}.tap do |obj|
+        assert obj.save
+      end
+    end
+    
+    should 'create user' do
+      err subject
+      assert !subject.new_record?
+      # Reload all
+      node = secure(Node) { Node.find(subject.id)}
+      user = node.linked_user
+      assert_equal 'My Giraffe', node.title
+      assert_equal 'My Giraffe', user.login
+    end
+  end
+  
+  context 'not an admin' do
+    
+    context 'updating through contact node' do
+      setup do
+        login(:tiger)
+      end
+
+      subject do
+        secure(Node) { nodes(:ant) }
+      end
+
+      should 'ignore user settings' do
+        assert subject.update_attributes('uparams' => {'login' => 'antidote', 'password' => 'a fool is a fool'})
+        ant = users(:ant)
+        assert_equal 'ant', ant.login
+        assert_equal Zena::CryptoProvider::Initial.encrypt('ant'), ant.crypted_password
+      end
+    end
+  end
 end

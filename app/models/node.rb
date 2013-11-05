@@ -248,7 +248,10 @@ class Node < ActiveRecord::Base
                      :version => 'Version', :v_status => Number, :v_lang => String,
                      :v_publish_from => Time, :v_backup => Boolean,
                      :zip => Number, :parent_id => {:class => Number, :nil => true, :method => 'parent_zip'},
-                     :user => 'User',
+                     # Legacy, to be removed
+                     :user     => 'User',
+                     :owner    => 'User',
+                     :uparams  => StringHash,
                      :author => author_proc,
                      :vclass => {:class => 'VirtualClass', :method => 'virtual_class'},
                      :new_record? => Boolean,
@@ -643,7 +646,7 @@ class Node < ActiveRecord::Base
       if attributes['file'] && !(klass.kpath =~ %r{^ND})
         klass = VirtualClass['Document']
       end
-
+      
       if klass.kind_of?(VirtualClass)
         node = secure(klass.real_class) { klass.new_instance(attributes) }
       else
@@ -1475,6 +1478,36 @@ class Node < ActiveRecord::Base
     return nil unless type = virtual_class.safe_method_type([method])
     res = eval(type[:method])
     res ? res.to_s : nil
+  end  
+  
+  def uparams=(params)
+    return unless visitor.is_admin?
+    @set_user = params
+  end
+  
+  # Find all users using this node as contact node.
+  def linked_users
+    @linked_users ||= secure(User) { User.all(:conditions => {:node_id => self.id}) }
+  end
+  
+  def uparams
+    @uparams ||= if l = linked_user
+      h = StringHash.new
+      [:login, :lang, :profile].each do |k|
+        h[k] = linked_user.send(k)
+      end
+      h
+    else
+      {}
+    end
+  end
+  
+  # Find first user using this node as contact node
+  def linked_user
+    @linked_user ||= begin
+      l = linked_users
+      l && l.first
+    end
   end
 
   protected
@@ -1667,6 +1700,8 @@ class Node < ActiveRecord::Base
       if vclass.auto_create_discussion
         Discussion.create(:node_id=>self[:id], :lang=>v_lang, :inside => false)
       end
+      
+      update_linked_user
     end
     
     def node_after_destroy
@@ -1751,7 +1786,7 @@ class Node < ActiveRecord::Base
       allOK
     end
 
-    # This method is run whenever 'apply' is called.
+    # This method is run whenever 'apply' is called (not on create).
     def after_all
       return unless super
       if @add_comment
@@ -1766,8 +1801,34 @@ class Node < ActiveRecord::Base
         remove_instance_variable(:@add_comment)
       end
       remove_instance_variable(:@discussion) if defined?(@discussion) # force reload
-
-      true
+      
+      update_linked_user
+    end
+    
+    def update_linked_user
+      if params = @set_user
+        if !users = linked_users
+          # Create user
+          user = secure(User) { User.new }
+          user.node_id = self.id
+          users = [user]
+        end
+        users.each do |user|
+          user.attributes = params
+          if user.login.blank?
+            user.login = title.strip
+          end
+          if !user.save
+            user.errors.each do |k,v|
+              errors.add("user[#{k}]", v)
+            end
+          end
+        end
+        remove_instance_variable :@set_user
+        errors.empty?
+      else
+        true
+      end
     end
 
     def change_klass

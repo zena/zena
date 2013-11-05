@@ -21,6 +21,7 @@ class Group < ActiveRecord::Base
   before_save             :do_replace_by
   before_destroy          :check_can_destroy
   belongs_to              :site
+  after_save              :update_dependant_users
 
   # FIXME: test translate_pseudo_id for groups
   def self.translate_pseudo_id(id,sym=:id)
@@ -116,7 +117,9 @@ class Group < ActiveRecord::Base
           errors.add('base', 'you cannot add or remove users from this group')
           return false
         end
-
+        
+        @model_users   = self.users.select {|u| u.is_profile?}
+        model_user_ids = @model_users.map(&:id)
         self.users    = []
         visitor_added = false
         @defined_user_ids.each do |id|
@@ -125,6 +128,9 @@ class Group < ActiveRecord::Base
             next
           end
           self.users << user
+          if user.is_profile?
+            @model_users << user unless model_user_ids.include?(user.id)
+          end
           visitor_added = user[:id] == visitor[:id]
         end
       end
@@ -143,5 +149,13 @@ class Group < ActiveRecord::Base
         @replace_by_group_on_save = nil
       end
       return errors.empty?
+    end
+    
+    def update_dependant_users
+      if list = @model_users
+        list.each do |u|
+          u.save # Force sync
+        end
+      end
     end
 end

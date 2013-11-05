@@ -410,5 +410,13 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     secure(Page) { Page.create(:title => 'three', :parent_id => sub.id)}
     yt_do_test('alias_site', 'link_with_custom_base')
   end
+  
+  def test_forms_uparams_profile
+    login(:lion)
+    tiger = users(:tiger)
+    assert tiger.update_attributes(:profile => :ant)
+    yt_do_test('forms', 'uparams_profile')
+  end
+  
   yt_make
 end

@@ -15,7 +15,7 @@ ant:
   groups:          public, workers
   status:          user
   lang:            fr
-  is_model:        true
+  is_profile:      true
 
 tiger:
   login:           tiger

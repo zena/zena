@@ -251,7 +251,7 @@ class Site < ActiveRecord::Base
     end
   end
 
-  property.string 'usr_prototype_attributes'
+  property.string 'usr_prototype_attributes'  
   property.boolean 'expire_in_dev'
   property.boolean 'ssl_on_auth'
 

@@ -8,6 +8,8 @@
   * Added support for 'in home' or 'from home' in sqliss.
   * Added support for any scope with 'in sub_nodes' (uses fullpath field).
   * Added forced skin setting for sites (overwrites all but ACL skin settings). <== TODO: Document
+  * Added support for profile users.  <== TODO: Document
+  * Added support to edit linked_user through node's pseudo attribute 'uparams' (admin only).  <== TODO: Document
     
 * Minor changes
   * Fixed gemspec to not include TextMate helper and selenium plugin.

@@ -15,7 +15,7 @@
 
 
 table.admin, table.admin table { border-collapse:separate; border-width:0; margin:auto; border-color:#999; border-style:solid; }
-table.admin { width:500px; }
+table.admin { width:650px; }
 .admin_group { display:table; margin:1em auto; width:500px; border:1px solid grey; padding:5px; background:#eee;}
 .admin_group .btn_validate { float:right;}
 table.admin table { width:90%; }
@@ -27,6 +27,7 @@ table.admin td:first-child { border-left: 1px solid #999; }
 #add_user  td { border: 0;}
 #add_group td { border: 0;}
 #virtual_class_list td, #virtual_class_list, #virtual_class_list th {border-color:#ccc;}
+.admin .profile {font-weight: bold;}
 .admin td { padding: 3px; height:18px; border-right:1px solid #999; border-bottom:1px solid #999; }
 .admin th { border-bottom:1px solid #999; padding:4px;}
 .admin .adm_icon, .admin .adm_add, .admin .action { width:22px; text-align:center; margin:0;}

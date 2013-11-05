@@ -29,6 +29,7 @@ class User < ActiveRecord::Base
   include Property
   RESCUE_SKIN_ID = -1
   ANY_SKIN_ID    = 0
+  MODEL_ATTRIBUTES = [:group_ids, :status]
 
   property do |p|
     # nil ==> no dev mode
@@ -74,7 +75,7 @@ class User < ActiveRecord::Base
                           :comments_to_publish => ['Comment']
 
   attr_accessible         :login, :lang, :node, :time_zone, :status, :group_ids, :site_ids, :crypted_password, :password, :dev_skin_id, :node_attributes,
-                          :login_attempt_count
+                          :login_attempt_count, :is_profile, :profile
   attr_accessor           :visited_node_ids
   attr_accessor           :ip
 
@@ -93,6 +94,7 @@ class User < ActiveRecord::Base
   before_destroy          :dont_destroy_protected_users
   validates_presence_of   :site_id
   before_create           :create_node
+  after_save              :user_after_save
 
   Status = {
     :su          => 80,
@@ -363,6 +365,31 @@ class User < ActiveRecord::Base
   def dev_mode?
     !dev_skin_id.blank?
   end
+  
+  def profile=(m)
+    # Make sure the user is an admin
+    if !visitor.is_admin?
+      @profile_error = _('Cannot be changed')
+    elsif m.blank?
+      self[:profile_id] = nil
+    else
+      # Try to find profile user
+      if profile = secure(User) { User.find_by_login_and_is_profile(m.to_s, true) }
+        # Copy access definitions from profile to current user done during validation
+        self[:profile_id] = profile.id
+      else
+        @profile_error = _('Cannot be found')
+      end
+    end
+  end
+  
+  def profile_user
+    @profile_user ||= secure(User) { User.find(self[:profile_id]) }
+  end
+  
+  def profile
+    profile_user ? profile_user.login : ''
+  end
 
   private
 
@@ -373,6 +400,8 @@ class User < ActiveRecord::Base
     def create_node
       # do not try to create a node if the root node is not created yet
       return unless visitor.site.root_id
+      # This happens if the user is created from the node[user] params.
+      return if self[:node_id]
       @node.version.status = Zena::Status::Pub
 
       unless @node.save
@@ -392,7 +421,20 @@ class User < ActiveRecord::Base
       return true if current_site.being_created?
 
       self[:site_id] = visitor.site[:id]
-
+      
+      if self[:profile_id]
+        # Copy elements
+        profile = secure(User) { User.find(self[:profile_id] ) }
+        MODEL_ATTRIBUTES.each do |k|
+          self.send(:"#{k}=", profile.send(k))
+        end
+        
+        # Ignore setting (to avoid loops)
+        if self[:is_profile]
+          self[:profile_id] = nil
+        end
+      end
+      
       if new_record?
         self.status = site.anon.status if status.blank?
         self.lang   = site.anon.lang   if lang.blank?
@@ -401,7 +443,7 @@ class User < ActiveRecord::Base
       end
 
       if login.blank? && !is_anon?
-        self.login = name
+        self.login = self.node.title.strip
       end
       
       if !is_admin?
@@ -446,7 +488,19 @@ class User < ActiveRecord::Base
           errors.add(:time_zone, 'invalid')
         end
       end
-
+      
+      if self.is_profile_was && !self.is_profile
+        # Make sure there are no dependant users
+        if secure(User) { User.all(:conditions => {:profile_id => self.id}) }
+          errors.add('is_profile', _('Cannot be removed (profile used).'))
+        end
+      end
+      
+      if @profile_error
+        errors.add(:profile_id, @profile_error)
+        remove_instance_variable :@profile_error
+      end
+      
       if @password_too_short
         errors.add(:password, 'too short')
         remove_instance_variable :@password_too_short
@@ -455,7 +509,8 @@ class User < ActiveRecord::Base
 
     def valid_node
       return unless visitor.site[:root_id] # do not validate node if the root node is not created yet
-      return if !new_record? && !@node
+
+      return if (!new_record? || self[:node_id]) && !@node
       if !@node
         # force creation of node, even if it is a plain copy of the prototype
         self.node_attributes = {'title' => login}
@@ -499,5 +554,17 @@ class User < ActiveRecord::Base
 
     def old
       @old ||= self.class.find(self[:id])
+    end
+    
+    def user_after_save
+      @node.save if @node
+      return unless is_profile?
+      
+      if users = secure(User) { User.all(:conditions => {:profile_id => self.id}) }
+        users.each do |u|
+          u.save # this will trigger sync
+        end
+      end
+      true
     end
 end
