@@ -21,6 +21,8 @@
   * Fixed anchor in zazen url "":22#foo should link to anchor #foo in node '22'.
   * Prop eval returning nil for title properly replaces title with class name.
   * Type ctrl+return to enter a newline inside a grid.
+  * Checking for defined accessors on links before passing to relation proxy (this enables custom code
+    on relation modification without passing through RelationProxy).
 
 == 1.2.6, 1.2.7 2013-08-16
 

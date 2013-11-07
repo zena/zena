@@ -601,4 +601,24 @@ class RelationProxyTest < Zena::Unit::TestCase
       end
     end
   end # With many links
+  
+  context 'with a native writer' do
+    subject do
+      node = secure(Node) { nodes(:cleanWater)}
+      class << node
+        def reference_zips=(list)
+          @list=list
+        end
+      end
+      node
+    end
+    
+    should 'update with string list of ids' do
+      login(:lion)
+      assert_difference('Link.count', 0) do
+        subject.update_attributes_with_transformation('reference_ids' => [:art, :menu, :bird_jpg].map {|s| nodes_zip(s)}.join(', '))
+        assert_equal '30,33,35', subject.instance_variable_get(:@list).sort.join(',')
+      end
+    end
+  end
 end
