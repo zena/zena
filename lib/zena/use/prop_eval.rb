@@ -85,7 +85,7 @@ module Zena
           if code = vclass.prop_eval
             hash = safe_eval(code)
             if hash.kind_of?(Hash)
-              if hash['title'] == ''
+              if hash.has_key?('title') && hash['title'].blank?
                 # Avoid blank title
                 hash['title'] = vclass.name
               end

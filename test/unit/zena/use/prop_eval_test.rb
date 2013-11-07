@@ -36,6 +36,36 @@ class PropEvalTest < Zena::Unit::TestCase
         end
       end # with valid code
 
+      context 'with valid code creating empty title' do
+        setup do
+          assert subject.update_attributes(:prop_eval => %q[{'title' => ''}])
+        end
+        
+        should 'save class name as title' do
+          letter = secure(Node) { nodes(:letter) }
+          assert_equal 'zena enhancements', nodes(:letter).title
+          letter.rebuild_index!
+          assert_equal 'Letter', nodes(:letter).title
+          assert letter.update_attributes(:date => Time.now)
+          assert_equal 'Letter', nodes(:letter).title
+        end
+      end # with valid code
+      
+      context 'with valid code creating nil title' do
+        setup do
+          assert subject.update_attributes(:prop_eval => %q[{'title' => nil}])
+        end
+        
+        should 'save class name as title' do
+          letter = secure(Node) { nodes(:letter) }
+          assert_equal 'zena enhancements', nodes(:letter).title
+          letter.rebuild_index!
+          assert_equal 'Letter', nodes(:letter).title
+          assert letter.update_attributes(:date => Time.now)
+          assert_equal 'Letter', nodes(:letter).title
+        end
+      end # with valid code
+      
       context 'with valid code using vclass methods' do
         subject do
           secure(VirtualClass) { virtual_classes(:Post) }

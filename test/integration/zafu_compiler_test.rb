@@ -411,11 +411,11 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     yt_do_test('alias_site', 'link_with_custom_base')
   end
   
-  def test_forms_uparams_profile
+  def test_forms_auth_profile
     login(:lion)
     tiger = users(:tiger)
     assert tiger.update_attributes(:profile => :ant)
-    yt_do_test('forms', 'uparams_profile')
+    yt_do_test('forms', 'auth_profile')
   end
   
   yt_make

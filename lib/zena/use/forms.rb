@@ -529,7 +529,7 @@ module Zena
             # <r:select name='d_tz' type='time_zone'/>
             select_tag.wrap "<%= options_for_select(TZInfo::Timezone.all_identifiers, #{selected}) %>"
           elsif @params[:type] == 'profile'
-            # <r:select name='uparams[model]' type='model'/>
+            # <r:select name='auth[model]' type='model'/>
             select_tag.wrap "<%= options_for_select(profile_users.map{|u| u.login}.sort, #{selected}) %>"
           elsif options_list = get_options_for_select
             select_tag.wrap "<%= options_for_select(#{options_list}, #{selected}) %>"

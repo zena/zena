@@ -268,7 +268,26 @@ Grid.keydown = function(event) {
     }
     Grid.openCell(prev);
     event.stop();
-  } else if ((key == 40 && event.altKey) || (key == 13 && !event.shiftKey)) {
+  } else if ((key == 13 && event.ctrlKey)) {
+	  // insert return
+		return true;
+  } else if ((false && key == 38) || (key == 13 && event.shiftKey)) {
+    // up
+    if (cell.childElements().first().tagName == 'SELECT' && event.shiftKey) {
+      return
+    }
+    var row = cell.up();
+    if (Grid.pos(row) == 1) {
+      // stop
+    } else {
+      var pos = Grid.pos(cell);
+      // move up
+      row = row.previousSiblings().first();
+      var next = row.childElements()[pos];
+      Grid.openCell(next);
+    }
+    event.stop();
+  } else if ((key == 40 && event.altKey) || (key == 13)) {
     // down
     if (event.altKey) {
       Grid.copy(cell, 'down')
@@ -300,22 +319,6 @@ Grid.keydown = function(event) {
     } else {
        next = row.childElements()[pos];
        Grid.openCell(next);
-    }
-    event.stop();
-  } else if ((false && key == 38) || (key == 13 && event.shiftKey)) {
-    // up
-    if (cell.childElements().first().tagName == 'SELECT' && event.shiftKey) {
-      return
-    }
-    var row = cell.up();
-    if (Grid.pos(row) == 1) {
-      // stop
-    } else {
-      var pos = Grid.pos(cell);
-      // move up
-      row = row.previousSiblings().first();
-      var next = row.childElements()[pos];
-      Grid.openCell(next);
     }
     event.stop();
   }

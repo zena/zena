@@ -549,7 +549,7 @@ class UserTest < Zena::Unit::TestCase
     end
     
     should 'read user settings' do
-      assert_equal 'ant', subject.linked_user.login
+      assert_equal 'ant', subject.auth_user.login
     end
   end
   
@@ -563,23 +563,28 @@ class UserTest < Zena::Unit::TestCase
     end
     
     should 'update user settings' do
-      assert subject.update_attributes('uparams' => {'login' => 'antidote'})
+      assert subject.update_attributes('auth' => {'login' => 'antidote'})
       assert_equal 'antidote', users(:ant).login
     end
     
     should 'update password' do
-      assert subject.update_attributes('uparams' => {'password' => 'hello world'})
+      assert subject.update_attributes('auth' => {'password' => 'hello world'})
       assert_equal Zena::CryptoProvider::Initial.encrypt('hello world'), users(:ant).crypted_password
+    end
+    
+    should 'not update password if blank' do
+      assert subject.update_attributes('auth' => {'password' => ''})
+      assert_equal Zena::CryptoProvider::Initial.encrypt('ant'), users(:ant).crypted_password
     end
     
     should 'update profile' do
       secure(User) { users(:tiger) }.update_attributes(:is_profile => true)
-      assert subject.update_attributes('uparams' => {'profile' => 'tiger', 'is_profile' => false})
+      assert subject.update_attributes('auth' => {'profile' => 'tiger', 'is_profile' => false})
       assert_equal users_id(:tiger), users(:ant).profile_id
     end
     
     should 'not update inaccessible fields' do
-      assert subject.update_attributes('uparams' => {'site_id' => 5})
+      assert subject.update_attributes('auth' => {'site_id' => 5})
       assert_equal sites_id(:zena), users(:ant).site_id
     end
   end
@@ -594,7 +599,7 @@ class UserTest < Zena::Unit::TestCase
         :first_name => 'My',
         :name       => 'Giraffe',
         :klass      => 'Contact',
-        :uparams    => {:password => 'long big neck', :profile => 'ant' }
+        :auth    => {:password => 'long big neck', :profile => 'ant' }
       })}.tap do |obj|
         assert obj.save
       end
@@ -605,7 +610,7 @@ class UserTest < Zena::Unit::TestCase
       assert !subject.new_record?
       # Reload all
       node = secure(Node) { Node.find(subject.id)}
-      user = node.linked_user
+      user = node.auth_user
       assert_equal 'My Giraffe', node.title
       assert_equal 'My Giraffe', user.login
     end
@@ -623,7 +628,7 @@ class UserTest < Zena::Unit::TestCase
       end
 
       should 'ignore user settings' do
-        assert subject.update_attributes('uparams' => {'login' => 'antidote', 'password' => 'a fool is a fool'})
+        assert subject.update_attributes('auth' => {'login' => 'antidote', 'password' => 'a fool is a fool'})
         ant = users(:ant)
         assert_equal 'ant', ant.login
         assert_equal Zena::CryptoProvider::Initial.encrypt('ant'), ant.crypted_password

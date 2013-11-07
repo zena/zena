@@ -247,11 +247,10 @@ class Node < ActiveRecord::Base
                      :versions => {:class => ['Version'], :method => 'zafu_versions'},
                      :version => 'Version', :v_status => Number, :v_lang => String,
                      :v_publish_from => Time, :v_backup => Boolean,
-                     :zip => Number, :parent_id => {:class => Number, :nil => true, :method => 'parent_zip'},
-                     # Legacy, to be removed
-                     :user     => 'User',
-                     :owner    => 'User',
-                     :uparams  => StringHash,
+                     :zip  => Number, :parent_id => {:class => Number, :nil => true, :method => 'parent_zip'},
+                     :user => 'User',
+                     :auth_user => {:class => 'User', :nil => true},
+                     :auth      => StringHash,
                      :author => author_proc,
                      :vclass => {:class => 'VirtualClass', :method => 'virtual_class'},
                      :new_record? => Boolean,
@@ -1480,21 +1479,21 @@ class Node < ActiveRecord::Base
     res ? res.to_s : nil
   end  
   
-  def uparams=(params)
+  def auth=(params)
     return unless visitor.is_admin?
     @set_user = params
   end
   
   # Find all users using this node as contact node.
-  def linked_users
-    @linked_users ||= secure(User) { User.all(:conditions => {:node_id => self.id}) }
+  def auth_users
+    @auth_users ||= secure(User) { User.all(:conditions => {:node_id => self.id}) }
   end
   
-  def uparams
-    @uparams ||= if l = linked_user
+  def auth
+    @auth ||= if l = auth_user
       h = StringHash.new
       [:login, :lang, :profile].each do |k|
-        h[k] = linked_user.send(k)
+        h[k] = auth_user.send(k)
       end
       h
     else
@@ -1503,9 +1502,9 @@ class Node < ActiveRecord::Base
   end
   
   # Find first user using this node as contact node
-  def linked_user
-    @linked_user ||= begin
-      l = linked_users
+  def auth_user
+    @auth_user ||= begin
+      l = auth_users
       l && l.first
     end
   end
@@ -1701,7 +1700,7 @@ class Node < ActiveRecord::Base
         Discussion.create(:node_id=>self[:id], :lang=>v_lang, :inside => false)
       end
       
-      update_linked_user
+      update_auth_user
     end
     
     def node_after_destroy
@@ -1802,12 +1801,12 @@ class Node < ActiveRecord::Base
       end
       remove_instance_variable(:@discussion) if defined?(@discussion) # force reload
       
-      update_linked_user
+      update_auth_user
     end
     
-    def update_linked_user
+    def update_auth_user
       if params = @set_user
-        if !users = linked_users
+        if !users = auth_users
           # Create user
           user = secure(User) { User.new }
           user.node_id = self.id

@@ -377,14 +377,20 @@ form_rel_status:
   res: "<input type='text' name='node[set_tag_status]' value='10.0'/>"
 
 # Before change, tiger uses ant as profile
-uparams_profile:
+auth_profile:
   context:
     node: tiger
-  src: "<r:select name='uparams[profile]' type='profile'/>"
-  res: "<select name='node[uparams][profile]'><option value=\"ant\" selected=\"selected\">ant</option></select>"
+  src: "<b do='auth[\"profile\"]'/>: <r:select name='auth[profile]' type='profile'/>"
+  res: "<b>ant</b>: <select name='node[auth][profile]'><option value=\"ant\" selected=\"selected\">ant</option></select>"
 
-uparams_login:
+auth_login:
   context:
     node: ant
-  src: "<r:input name='uparams[login]'/>"
-  res: "<input type='text' name='node[uparams][login]' value='ant'/>"
+  src: "<r:input name='auth[login]'/>"
+  res: "<input type='text' name='node[auth][login]' value='ant'/>"
+
+auth_password:
+  context:
+    node: ant
+  src: "<r:input type='password' name='auth[password]'/>"
+  res: "<input type='password' name='node[auth][password]' value=''/>"

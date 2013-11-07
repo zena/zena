@@ -9,7 +9,8 @@
   * Added support for any scope with 'in sub_nodes' (uses fullpath field).
   * Added forced skin setting for sites (overwrites all but ACL skin settings). <== TODO: Document
   * Added support for profile users.  <== TODO: Document
-  * Added support to edit linked_user through node's pseudo attribute 'uparams' (admin only).  <== TODO: Document
+  * Added support to edit auth_user (linked user) through node's pseudo attribute 'auth' (admin only) or
+    through 'auth_user'.
     
 * Minor changes
   * Fixed gemspec to not include TextMate helper and selenium plugin.
@@ -18,6 +19,8 @@
   * Added fetch_html rubyless method to views (does an HTTP GET and returns body).
   * Fixed a bug in site alias zafu compilation (wrong home reference).
   * Fixed anchor in zazen url "":22#foo should link to anchor #foo in node '22'.
+  * Prop eval returning nil for title properly replaces title with class name.
+  * Type ctrl+return to enter a newline inside a grid.
 
 == 1.2.6, 1.2.7 2013-08-16
 
