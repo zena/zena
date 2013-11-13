@@ -188,6 +188,7 @@ class Node < ActiveRecord::Base
   before_create      :node_before_create
   after_save         :spread_project_and_section
   after_create       :node_after_create
+  before_destroy     :node_before_destroy
   after_destroy      :node_after_destroy
   attr_protected     :zip, :id, :section_id, :project_id, :publish_from, :created_at, :updated_at
   attr_protected     :site_id
@@ -1480,7 +1481,7 @@ class Node < ActiveRecord::Base
   end  
   
   def auth=(params)
-    return unless visitor.is_admin?
+    return unless visitor.is_manager?
     @set_user = params
   end
   
@@ -1703,7 +1704,17 @@ class Node < ActiveRecord::Base
       update_auth_user
     end
     
+    def node_before_destroy
+      if !visitor.is_manager? && auth_users
+        errors.add(:base, 'Cannot destroy: node is a user')
+        false
+      else
+        true
+      end
+    end
+    
     def node_after_destroy
+      update_auth_user
       sweep_cache
     end
 
@@ -1785,7 +1796,7 @@ class Node < ActiveRecord::Base
       allOK
     end
 
-    # This method is run whenever 'apply' is called (not on create).
+    # This method is run whenever 'apply' is called (not on create or destroy).
     def after_all
       return unless super
       if @add_comment
@@ -1805,7 +1816,21 @@ class Node < ActiveRecord::Base
     end
     
     def update_auth_user
-      if params = @set_user
+      if destroyed?
+        if users = auth_users
+          users.each do |user|
+            user.profile_id = nil
+            user.node_id    = nil
+            user.status = User::Status[:deleted]
+            if !user.save
+              user.errors.each do |k,v|
+                errors.add("user[#{k}]", v)
+              end
+            end
+          end
+        end
+        errors.empty?
+      elsif params = @set_user
         if !users = auth_users
           # Create user
           user = secure(User) { User.new }

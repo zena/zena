@@ -11,6 +11,7 @@
   * Added support for profile users.  <== TODO: Document
   * Added support to edit auth_user (linked user) through node's pseudo attribute 'auth' (admin only) or
     through 'auth_user'.
+  * Created 'manager' user status: can edit users (only through 'auth'). <== TODO: Document
     
 * Minor changes
   * Fixed gemspec to not include TextMate helper and selenium plugin.
@@ -23,6 +24,8 @@
   * Type ctrl+return to enter a newline inside a grid.
   * Checking for defined accessors on links before passing to relation proxy (this enables custom code
     on relation modification without passing through RelationProxy).
+  * Refuses to delete user node unless visitor is a manager.
+  * Marks user as deleted and remove profile if node is destroyed.
 
 == 1.2.6, 1.2.7 2013-08-16
 

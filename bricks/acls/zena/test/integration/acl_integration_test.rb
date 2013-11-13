@@ -294,7 +294,7 @@ class AclIntegrationTest < Zena::Integration::TestCase
         setup do
           # The visitor can delete objects in assigned_project
           Zena::Db.execute "UPDATE acls SET query = '%q{nodes in project from assigned_project}', action = 'delete' WHERE id = #{acls_id(:rap)}"
-          @delete_url = "http://erebus.host/nodes/#{nodes_zip(:persephone)}"
+          @delete_url = "http://erebus.host/nodes/#{nodes_zip(:wedding)}"
         end
 
         context 'with wrong user status' do

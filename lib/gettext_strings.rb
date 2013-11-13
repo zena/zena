@@ -50,6 +50,7 @@ module Zena
     N_('img_custom_inherit') # icon
     N_('img_user')          # edit users (admin)
     N_('img_user_admin')    # edit users (admin)
+    N_('img_user_manager')  # edit users (admin)
     N_('img_user_profile')  # edit users (admin)
     N_('img_user_su')       # edit users (admin)
     N_('img_user_pub')      # edit users (admin)

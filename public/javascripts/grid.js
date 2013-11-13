@@ -735,6 +735,12 @@ Grid.addButtons = function(table) {
   return data
 }
 
+Grid.onSuccess = function(grid, id, method, done_count, todo_count) {
+	$$('.grid_done_'+grid.id).each(function(e) {
+		e.update(grid.msg.saved + ' ' + done_count + '/' + todo_count)
+	})
+}
+
 Grid.onFailure = function(grid, id, errors) {
   var cells = $(id).select('td')
   errors.each(function(pair) {
@@ -789,7 +795,7 @@ Grid.make = function(table, opts) {
     fdate: opts.fdate || table.getAttribute('data-fdate'),
     newRow: opts.newRow,
     counter: 0, // Used to create dom_ids for new objects
-    onSuccess: opts.onSuccess,
+    onSuccess: opts.onSuccess || Grid.onSuccess,
     onFailure: opts.onFailure || Grid.onFailure,
     onStart: opts.onStart || Grid.onStart,
     onChange: opts.onChange,
@@ -800,6 +806,7 @@ Grid.make = function(table, opts) {
     remove: opts.remove || opts.remove == undefined,
     keydown: opts.keydown,
     show: opts.show || {},
+		msg: opts.msg || {saved:'Saved'},
   };
   table.grid = grid
   grid.table = table
@@ -847,7 +854,7 @@ Grid.make = function(table, opts) {
     }
     if (!grid.autoSave) {
       table.insert({
-        after: "<p class='grid_btn'><a class='save' href='javascript:' onclick='Grid.save(" + Grid.grid_c + ")'>save</a> <a class='undo' href='javascript:' onclick='Grid.undo(" + Grid.grid_c + ")'>undo</a></p>"
+        after: "<p class='grid_done grid_done_"+Grid.grid_c+"'></p><p class='grid_btn'><a class='save' href='javascript:' onclick='Grid.save(" + Grid.grid_c + ")'>save</a> <a class='undo' href='javascript:' onclick='Grid.undo(" + Grid.grid_c + ")'>undo</a></p>"
       });
     }
   }
@@ -961,7 +968,7 @@ Grid.save = function(grid_id) {
             Grid.notify(table, attrs)
             Grid.clearChanges(grid.changes, id)
             if (grid.onSuccess) {
-              grid.onSuccess(id, 'put', done_count, todo_count)
+              grid.onSuccess(grid, id, 'put', done_count, todo_count)
             }
           },
           method: 'put'

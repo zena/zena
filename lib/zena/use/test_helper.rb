@@ -8,7 +8,7 @@ module Zena
 
       # Set visitor for unit testing
       def login(fixture, host = nil)
-        user = users(fixture)
+        user = fixture.kind_of?(Fixnum) ? User.find(fixture) : users(fixture)
         if host
           raise 'FIXME' unless host =~ /\./
           site = Site.setup_master(Site.find_by_host(host))

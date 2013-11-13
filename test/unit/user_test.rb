@@ -296,7 +296,7 @@ class UserTest < Zena::Unit::TestCase
     login(:lion)
     user = secure!(User) { users(:lion) }
     assert !user.update_attributes(:status => User::Status[:user])
-    assert_equal 'You do not have the rights to do this.', user.errors[:status]
+    assert_equal 'You cannot remove your own access rights.', user.errors[:status]
     user = secure!(User) { users(:lion) }
     assert user.update_attributes('status' => User::Status[:admin].to_s, 'time_zone' => 'Europe/Berlin')
   end
@@ -562,7 +562,7 @@ class UserTest < Zena::Unit::TestCase
       secure(Node) { nodes(:ant) }
     end
     
-    should 'update user settings' do
+    should 'update auth settings' do
       assert subject.update_attributes('auth' => {'login' => 'antidote'})
       assert_equal 'antidote', users(:ant).login
     end
@@ -585,7 +585,7 @@ class UserTest < Zena::Unit::TestCase
     
     should 'not update inaccessible fields' do
       assert subject.update_attributes('auth' => {'site_id' => 5})
-      assert_equal sites_id(:zena), users(:ant).site_id
+      assert_equal sites_id(:zena), subject.reload.site_id
     end
   end
   
@@ -616,6 +616,65 @@ class UserTest < Zena::Unit::TestCase
     end
   end
   
+  context 'Destroying node' do
+    subject do
+      secure(Node) { nodes(:tiger) }
+    end
+    
+    context 'as an admin' do
+      setup do
+        login(:lion)
+      end
+      
+      should 'mark user as deleted' do
+        assert_difference('User.count', 0) do
+          assert_difference('Node.count', -1) do
+            subject.destroy
+          end
+        end
+        user = users(:tiger)
+        assert_nil user.node_id
+        assert_equal User::Status[:deleted], user.status
+      end
+      
+      context 'from a user with profile' do
+        subject do
+          tiger = secure(Node) { nodes(:tiger) }
+          assert tiger.update_attributes('auth' => {'profile' => 'ant'})
+          secure(Node) { nodes(:tiger) }
+        end
+        
+        should 'remove profile' do
+          assert_equal 'ant', subject.auth['profile']
+          assert_difference('User.count', 0) do
+            assert_difference('Node.count', -1) do
+              subject.destroy
+            end
+          end
+          user = users(:tiger)
+          assert_nil user.node_id
+          assert_nil user.profile_id
+          assert_equal User::Status[:deleted], user.status
+        end
+      end
+    end
+    
+    context 'not as an admin' do
+      setup do
+        login(:tiger)
+      end
+      
+      should 'refuse to delete contact node' do
+        assert_difference('User.count', 0) do
+          assert_difference('Node.count', 0) do
+            assert !subject.destroy
+          end
+        end
+        assert_equal 'Cannot destroy: node is a user', subject.errors[:base]
+      end
+    end
+  end
+  
   context 'not an admin' do
     
     context 'updating through contact node' do
@@ -635,4 +694,90 @@ class UserTest < Zena::Unit::TestCase
       end
     end
   end
+  
+  context 'a manager' do
+    setup do
+      login(:lion)
+      manager = secure(User) { User.create({
+        'lang'       => 'fr',
+        'time_zone'  => 'Europe/Zurich',
+        'status'     => '55',
+        'password'   => 'secret',
+        'login'      => 'bolomey',
+        'group_ids'  => [groups_id(:public), ''],
+        'node_attributes' => {
+          'name'       => 'Dupont',
+          'first_name' => 'Paul',
+          'email'      => 'paul.bolomey@brainfuck.com'
+        }
+        })
+      }
+      err manager
+      assert !manager.new_record?
+      login(manager.id)
+    end
+    
+    context 'editing a user' do
+      subject do
+        users(:tiger)
+      end
+      
+      should 'not be allowed to change groups' do
+        assert_equal %w{managers public workers}, subject.groups.map{|g| g.name}.sort
+        assert !subject.update_attributes(:group_ids => [])
+        assert_equal 'Only admin can change groups.', subject.errors[:group_ids]
+        assert_equal %w{managers public workers}, subject.reload.groups.map{|g| g.name}.sort
+      end
+      
+      should 'be allowed to change profile' do
+        assert_equal %w{managers public workers}, subject.groups.map{|g| g.name}.sort
+        assert subject.update_attributes(:profile => 'ant')
+        assert_equal %w{public workers}, subject.reload.groups.map{|g| g.name}.sort
+      end
+      
+      should 'be allowed to change status' do
+        assert subject.update_attributes(:status => User::Status[:reader])
+        assert_equal User::Status[:reader], subject.reload.status
+      end
+      
+      should 'not be allowed to set admin status' do
+        assert subject.update_attributes(:profile => 'ant')
+        assert_equal %w{public workers}, subject.reload.groups.map{|g| g.name}.sort
+      end
+      
+      context 'through node' do
+        subject do
+          secure(Node) { nodes(:tiger) }
+        end
+      
+        should 'update auth settings' do
+          assert subject.update_attributes('auth' => {'login' => 'antidote'})
+          assert_equal 'antidote', users(:tiger).login
+        end
+      end
+      
+      context 'on an admin' do
+        subject do
+          users(:lion)
+        end
+        
+        should 'not be allowed to edit' do
+          assert !subject.update_attributes(:login => 'lionixbar')
+          assert_equal 'You cannot edit this user (high status).', subject.errors[:base]
+        end
+      end
+      
+      context 'on self' do
+        subject do
+          visitor.reload
+        end
+        
+        should 'be allowed to edit' do
+          assert subject.update_attributes(:login => 'lionixbar')
+          assert_equal 'lionixbar', subject.reload.login
+        end
+      end
+    end
+  end
+      
 end

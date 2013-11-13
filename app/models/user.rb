@@ -29,7 +29,7 @@ class User < ActiveRecord::Base
   include Property
   RESCUE_SKIN_ID = -1
   ANY_SKIN_ID    = 0
-  MODEL_ATTRIBUTES = [:group_ids, :status]
+  ATTRIBUTES_FROM_PROFILE = [:group_ids, :status]
 
   property do |p|
     # nil ==> no dev mode
@@ -66,7 +66,7 @@ class User < ActiveRecord::Base
 
   safe_attribute          :login, :time_zone, :created_at, :updated_at, :lang, :id
   safe_method             :status => Number, :status_name => String,
-                          :is_anon? => Boolean, :is_admin? => Boolean, :user? => Boolean, :commentator? => Boolean,
+                          :is_anon? => Boolean, :is_admin? => Boolean, :is_manager? => Boolean, :user? => Boolean, :commentator? => Boolean,
                           :moderated? => Boolean, :asset_host? => Boolean, [:in_group?, String] => Boolean,
                           :group_names => [String], :site => {:class => Site}
 
@@ -97,12 +97,13 @@ class User < ActiveRecord::Base
   after_save              :user_after_save
 
   Status = {
-    :su          => 80,
-    :admin       => 60,  # can create other users, manage site, etc
-    :user        => 50,  # can write articles + publish (depends on access rights)
-    :commentator => 40,  # can write comments
-    :moderated   => 30,  # can write comments (moderated)
-    :reader      => 20,  # can read
+    :su          => 80,  # Not used
+    :admin       => 60,  # Is in all groups, can access admin interface, etc
+    :manager     => 55,  # Can manage other users. Cannot edit groups.
+    :user        => 50,  # Can write articles + publish (depends on access rights)
+    :commentator => 40,  # Can write comments
+    :moderated   => 30,  # Can write comments (moderated)
+    :reader      => 20,  # Can read
     :deleted     => 0,
   }.freeze
   Num_to_status = Hash[*Status.map{|k,v| [v,k]}.flatten].freeze
@@ -212,6 +213,11 @@ class User < ActiveRecord::Base
   # Return true if the user is in the admin group or if the user is the super user.
   def is_admin?
     status.to_i >= User::Status[:admin]
+  end
+  
+  # Has user administration rights
+  def is_manager?
+    status.to_i >= User::Status[:manager]
   end
 
   # Return true if the user is the anonymous user for the current visited site
@@ -367,8 +373,8 @@ class User < ActiveRecord::Base
   end
   
   def profile=(m)
-    # Make sure the user is an admin
-    if !visitor.is_admin?
+    if !visitor.is_manager?
+      # Make sure the user is a manager before changing profile
       @profile_error = _('Cannot be changed')
     elsif m.blank?
       self[:profile_id] = nil
@@ -425,7 +431,7 @@ class User < ActiveRecord::Base
       if self[:profile_id]
         # Copy elements
         profile = secure(User) { User.find(self[:profile_id] ) }
-        MODEL_ATTRIBUTES.each do |k|
+        ATTRIBUTES_FROM_PROFILE.each do |k|
           self.send(:"#{k}=", profile.send(k))
         end
         
@@ -433,6 +439,10 @@ class User < ActiveRecord::Base
         if self[:is_profile]
           self[:profile_id] = nil
         end
+      elsif @defined_group_ids && !visitor.is_admin?
+        # Do not allow direct edition of groups by non-admin (even manager cannot do this).
+        @defined_group_ids = nil
+        @defined_group_ids_error = true
       end
       
       if new_record?
@@ -457,9 +467,25 @@ class User < ActiveRecord::Base
     def valid_user
       self[:site_id] = visitor.site[:id]
 
-      if !site.being_created? && !visitor.is_admin? && visitor[:id] != self[:id]
-        errors.add('base', 'You do not have the rights to do this.')
-        return false
+      if !site.being_created?
+        if !visitor.is_manager? && visitor[:id] != self[:id]
+          errors.add('base', 'You do not have the rights to do this.')
+          return false
+        elsif visitor.is_admin?
+          # All OK
+        elsif visitor.is_manager?
+          # Changing status of users above or equal to manager not allowed
+          if status_changed? && status >= User::Status[:manager]
+            errors.add('base', 'You cannot set this status (too high).')
+            return false
+          end
+          
+          # Editing users above or equal to manager not allowed
+          if status_was >= User::Status[:manager] && visitor.id != self.id
+            errors.add('base', 'You cannot edit this user (high status).')
+            return false
+          end
+        end
       end
 
       errors.add('lang', 'not available') unless site.lang_list.include?(lang)
@@ -477,7 +503,7 @@ class User < ActiveRecord::Base
           old = User.find(self[:id])
           self[:crypted_password] = old[:crypted_password] if self[:crypted_password].nil? || self[:crypted_password] == ""
           errors.add(:login, "can't be blank") if self[:login].blank?
-          errors.add(:status, 'You do not have the rights to do this.') if self[:id] == visitor[:id] && old.is_admin? && self.status.to_i != old.status
+          errors.add(:status, 'You cannot remove your own access rights.') if self[:id] == visitor[:id] && old.is_admin? && self.status.to_i != old.status
         end
       end
 
@@ -502,8 +528,13 @@ class User < ActiveRecord::Base
       end
       
       if @password_too_short
-        errors.add(:password, 'too short')
+        errors.add(:password, _('Too short'))
         remove_instance_variable :@password_too_short
+      end
+      
+      if @defined_group_ids_error
+        errors.add(:group_ids, _('Only admin can change groups.'))
+        remove_instance_variable :@defined_group_ids_error
       end
     end
 

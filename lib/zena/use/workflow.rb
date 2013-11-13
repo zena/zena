@@ -220,14 +220,22 @@ module Zena
             node.can_drive? && !version.edited?
           end
 
+          # This is when destroy goes through version removal.
+          # When destroy is triggered directly, node_before_destroy is used for validation.
           add_transition(:destroy_version,  :from => (-1..Zena::Status::Rep),
                                             :to   => -1) do |node, version|
-            if node.can_drive? && !visitor.is_anon? && (node.versions.count > 1 || node.empty?)
-              true
+            if node.can_drive? && !visitor.is_anon?
+              if node.versions.count > 1
+                true
+              elsif !node.empty?
+                [false, "Cannot destroy last version: node is not empty."]
+              elsif !visitor.is_manager? && node.auth_users
+                [false, "Cannot destroy last version: node is a user."]
+              else
+                true
+              end
             elsif visitor.is_anon?
               [false, "Anonymous users are not allowed to destroy versions."]
-            elsif node.versions.count > 1 || node.empty?
-              [false, "Cannot destroy last version: node is not empty."]
             else
               false
             end
@@ -365,19 +373,6 @@ module Zena
         transition && (transition[:validate].nil? || transition[:validate].call(self, version))
       end
 
-      #def allowed_transitions
-      #  @allowed_transitions ||= begin
-      #    prev_status = version.status_was.to_i
-      #    allowed = []
-      #    self.class.transitions.each do |t|
-      #      if t[:from].include?(prev_status)
-      #        allowed << t if transition_allowed?(t)
-      #      end
-      #    end
-      #    allowed
-      #  end
-      #end
-
       # Returns false is the current visitor does not have enough rights to perform the action.
       def can_apply?(method)
         case method
@@ -387,7 +382,8 @@ module Zena
           can_drive?
         else
           # All the other actions are version transition changes
-          transition_allowed?(method)
+          allowed, msg = transition_allowed?(method)
+          allowed
         end
       end
 
@@ -594,21 +590,6 @@ module Zena
             else
               errors.add(:base, message || "You do not have the rights to #{transition[:name].to_s.gsub('_', ' ')}.")
             end
-            #unless transition_allowed?(transition)
-            #  if transition_allowed?(transition)
-            #    if [Zena::Status::Prop, Zena::Status::PropWith].include?(@original_version.status)
-            #      errors.add(:base, "You do not have the rights to change a proposition's attributes.")
-            #    else
-            #      errors.add(:base, "You do not have the rights to #{transition[:name].to_s.gsub('_', ' ')} and change attributes.")
-            #    end
-            #  elsif @original_version &&
-            #       (Zena::Status::Prop..Zena::Status::PropWith).include?(@original_version.status) &&
-            #       version.edited?
-            #    errors.add(:base, "You cannot edit while a proposition is beeing reviewed.")
-            #  else
-            #    errors.add(:base, "You do not have the rights to #{transition[:name].to_s.gsub('_', ' ')}.")
-            #  end
-            #end
           elsif version.edited? && (Zena::Status::Prop..Zena::Status::PropWith).include?(version.status_was)
             errors.add(:base, 'You cannot edit while a proposition is beeing reviewed.')
           else

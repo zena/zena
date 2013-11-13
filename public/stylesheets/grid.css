@@ -16,10 +16,12 @@
 .grid .action .del {background:url('/images/bullet_delete.png') no-repeat; padding:5px;}
 .grid .action .copy {background:url('/images/table_go.png') no-repeat; padding:8px;}
 
-.grid_btn a {text-decoration:none; border:1px solid #333; border-radius:4px; padding:2px 5px; color:white;}
+.grid_btn a {text-decoration:none; border:1px solid #333; border-radius:4px; padding:2px 5px; color:#333;}
 .grid_btn {margin:1em 0}
 .grid_btn a.save {background:#80B62D}
 .grid_btn a.undo {background:#AAB76D}
+.grid_btn a.save:active {position:relative; top:1px; background:#97D13E}
+.grid_btn a.undo:active {position:relative; top:1px; background:#D8E69B}
 .grid_msg {border:1px solid #888; background:#eee; border-radius:4px; padding:5px; display:table}
 
 .tags li {border-radius:2px; background:#ccc url('/images/remove_tag.png') no-repeat; padding:2px 5px 2px 15px; margin:3px; display:inline; background-position:2px 4px}

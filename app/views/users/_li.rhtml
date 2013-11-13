@@ -5,6 +5,8 @@ elsif li.is_profile?
   icon += '_profile'
 elsif li.is_admin?
   icon += '_admin'
+elsif li.is_manager?
+  icon += '_manager'
 end %>
 <tr id='user<%= li[:id] %>' class='u<%= li.status %>'>
   <td class="adm_icon"><%= link_to_remote(li.use_acls? ? " #{_('img_acl')}" : _("img_#{icon}"),

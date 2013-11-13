@@ -29,7 +29,7 @@ module Bricks
           alias_method_chain :find_node, :acls
           attr_accessible :use_acls
         end
-        ::User::MODEL_ATTRIBUTES << :use_acls
+        ::User::ATTRIBUTES_FROM_PROFILE << :use_acls
       end
 
       def acl_authorized?(action, params, request)
