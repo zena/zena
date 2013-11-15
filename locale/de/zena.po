@@ -1184,21 +1184,16 @@ msgid "img_group_site"
 msgstr "<img src='/images/group_site.png' title='site group'/>"
 
 #: app/views/relations/_li.erb:8 app/views/relations/_li.erb:18
-#, fuzzy
 msgid "img_has_many"
-msgstr "<img src='/images/user_admin.png' title='administrator'/>"
+msgstr "<img src='/images/page_white_stack.png' alt='viele'/>"
 
 #: app/views/relations/_li.erb:8 app/views/relations/_li.erb:18
-#, fuzzy
 msgid "img_has_one"
-msgstr "übernehmen"
+msgstr "<img src='/images/page_white.png' alt='has one'/>"
 
 #: lib/gettext_strings.rb:190
-#, fuzzy
 msgid "img_integer"
-msgstr ""
-"<img src='/images/control_fastforward.png' title='next page' title='next "
-"page'/>"
+msgstr "<img src='/images/chart_line.png' alt='Integer'/>"
 
 #: app/views/links/_li.rhtml:2
 msgid "img_link"
@@ -1229,12 +1224,10 @@ msgid "img_public"
 msgstr "<img src='/images/user_pub.png' title='public'/>"
 
 #: app/views/relations/_li.erb:2
-#, fuzzy
 msgid "img_relation"
-msgstr "Bezüge"
+msgstr "<img src='/images/link.png' alt='Bezüge'/>"
 
 #: lib/gettext_strings.rb:189
-#, fuzzy
 msgid "img_string"
 msgstr "<img src='/images/tag_blue.png' title='Link'/>"
 

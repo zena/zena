@@ -26,6 +26,7 @@
     on relation modification without passing through RelationProxy).
   * Refuses to delete user node unless visitor is a manager.
   * Marks user as deleted and remove profile if node is destroyed.
+  * Enable 'parent_id', 'project_id', 'section_id' Rubyless methods. <== TODO: Document
 
 == 1.2.6, 1.2.7 2013-08-16
 

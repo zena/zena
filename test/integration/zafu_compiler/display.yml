@@ -540,3 +540,21 @@ fetch_html:
   src: "HELLO: <r:void do='fetch_html(\"http://zenadmin.org/en\")' h='false'/>"
   tem: "HELLO: <%= fetch_html(\"http://zenadmin.org/en\") %>"
   res: "/HELLO:.*DOCTYPE.*zenadmin.org/en/features/"
+
+section_id:
+  context:
+    node: wiki_Node_zafu
+  src: "section: <p do='section_id'/>"
+  res: 'section: <p>43</p>'
+
+project_id:
+  context:
+    node: wiki_Node_zafu
+  src: "project: <p do='project_id'/>"
+  res: 'project: <p>11</p>'
+
+parent_id:
+  context:
+    node: ant
+  src: "parent: <p do='parent_id'/>"
+  res: 'parent: <p>12</p>'
