@@ -662,9 +662,12 @@ class VirtualClass < Role
         Zena::Db.execute "UPDATE nodes SET kpath = '#{new_kpath}' WHERE vclass_id = #{self.id} AND site_id = #{current_site.id}"
         Zena::Db.execute "UPDATE roles SET kpath = '#{new_kpath}' WHERE kpath = '#{old_kpath}' AND site_id = #{current_site.id} AND (type = 'Role' or type IS NULL)"
         # ========================================= Update templates
+        # Find Template through IdxTemplate
         idx_templates = IdxTemplate.all(
           :conditions => ['tkpath = ? AND site_id = ? AND node_id IS NOT NULL', old_kpath, site_id]
         )
+        # This is for fs_skin
+        Zena::Db.execute "UPDATE idx_templates SET tkpath = '#{new_kpath}' WHERE tkpath = '#{old_kpath}' AND site_id = #{current_site.id}"
 
         if !idx_templates.empty?
           # update related templates
@@ -683,12 +686,14 @@ class VirtualClass < Role
         end
         
         # ========================================= Update relations
-        Relation.all(
-          :conditions => ['source_kpath = ? or target_kpath = ?', old_kpath, old_kpath]
-        ).each do |rel|
-          rel.source_kpath = new_kpath if rel.source_kpath == old_kpath
-          rel.target_kpath = new_kpath if rel.target_kpath == old_kpath
-          rel.save!
+        secure(Relation) do
+          Relation.all(
+            :conditions => ['source_kpath = ? or target_kpath = ?', old_kpath, old_kpath]
+          ).each do |rel|
+            rel.source_kpath = new_kpath if rel.source_kpath == old_kpath
+            rel.target_kpath = new_kpath if rel.target_kpath == old_kpath
+            rel.save!
+          end
         end
         
         # ========================================= Update sub-classes

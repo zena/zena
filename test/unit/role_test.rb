@@ -432,6 +432,8 @@ class RoleTest < Zena::Unit::TestCase
         end
       end # with duplicate column names
     end # importing virtual classes
+    
+    
   end # An admin
 
   # Indexed columns in role tested in NodeTest

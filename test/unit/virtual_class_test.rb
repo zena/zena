@@ -1207,6 +1207,61 @@ class VirtualClassTest < Zena::Unit::TestCase
       end # with relations
 
     end
-  end # An admin
+    
+    context 'with same classes in different sites' do
+      
+      setup do
+        @one = Site.create_for_host('one.host', 'secret')
+        assert_equal 'one.host', current_site.host
+        make_vclass_and_relations(current_site)
+        check_relations(@one.id)
+        
+        @two = Site.create_for_host('two.host', 'secret')
+        assert_equal 'two.host', current_site.host
+        assert_equal 'admin', visitor.login
+        make_vclass_and_relations(current_site)
+        check_relations(@two.id)
+      end
+      
+      subject do
+        VirtualClass['Cat']
+      end
 
+      should 'not make a mess on move' do
+        assert_difference('Relation.count', 0) do
+         assert subject.update_attributes(:superclass => 'Project')
+         check_relations(@one.id)
+        end
+      end
+    end
+  end # An admin
+  
+  private
+    
+    def make_vclass_and_relations(site)
+      sub = VirtualClass.create(:superclass => 'Page',    :name => 'Sub', :create_group_id => site.public_group_id)
+      cat = VirtualClass.create(:superclass => 'Section', :name => 'Cat', :create_group_id => site.public_group_id)
+      
+      Relation.create(
+        :source_kpath => sub.kpath,
+        :source_role  => 'cat_sub',
+        :target_kpath => cat.kpath,
+        :target_role  => 'sub_cat'
+      )
+      
+      Relation.create(
+        :source_kpath => sub.kpath,
+        :source_role  => 'cat_page',
+        :target_kpath => Page.kpath,
+        :target_role  => 'page_cat'
+      )
+    end
+
+    def check_relations(site_id)
+      assert cat = VirtualClass.find_by_site_id_and_name(site_id, 'Cat')
+      assert sub = VirtualClass.find_by_site_id_and_name(site_id, 'Sub')
+      assert cat_sub  = Relation.find_by_site_id_and_source_role(site_id, 'cat_sub')
+      assert cat_page = Relation.find_by_site_id_and_source_role(site_id, 'cat_page')
+      assert_equal 2, Relation.count(:conditions => {:site_id => site_id})
+    end
 end
