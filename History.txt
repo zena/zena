@@ -28,6 +28,7 @@
   * Marks user as deleted and remove profile if node is destroyed.
   * Enable 'parent_id', 'project_id', 'section_id' Rubyless methods. <== TODO: Document
   * Fixed a critical bug related to changing a virtual class' superclass.
+  * Do not trigger Ajax 'loading' unless it takes more then 300 ms (avoid blink).
 
 == 1.2.6, 1.2.7 2013-08-16
 

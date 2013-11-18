@@ -1067,7 +1067,14 @@ Zena.post = function(dom_name, query) {
 }
 
 Zena.loading = function(e) {
-  e.addClassName('zloading')
+  var id = e.id
+  e.addClassName('zloading_s')
+  setTimeout(function() {
+    e = $(id)
+    if (e.hasClassName('zloading_s')) {
+      e.addClassName('zloading')
+    }
+  }, 300)
 }
 
 Zena._add_sort = function(dom, upd, elem, val) {
