@@ -428,7 +428,7 @@ module Zena
         def extract_label(res, attribute)
           return res if @params[:type] == 'hidden'
           attribute ||= @params[:param]
-          if (label = param(:label) || param(:tlabel)) && attribute
+          if (label = @params[:tlabel] || param(:label) || param(:tlabel)) && attribute
             case label
             when 'true'
               "<label>#{attribute}</label> <span>#{res}</span>"

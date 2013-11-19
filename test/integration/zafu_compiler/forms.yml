@@ -394,3 +394,9 @@ auth_password:
     node: ant
   src: "<r:input type='password' name='auth[password]'/>"
   res: "<input type='password' name='node[auth][password]' value=''/>"
+
+tlabel_with_default_label:
+  context:
+    lang: fr
+  src: "<r:default label='t'><r:input name='title' tlabel='Monday'/></r:default>"
+  res: '/<label>lundi</label>/'

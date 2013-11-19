@@ -29,6 +29,7 @@
   * Enable 'parent_id', 'project_id', 'section_id' Rubyless methods. <== TODO: Document
   * Fixed a critical bug related to changing a virtual class' superclass.
   * Do not trigger Ajax 'loading' unless it takes more then 300 ms (avoid blink).
+  * Fixed tlabel on [input] when there is a default label (should overwride default).
 
 == 1.2.6, 1.2.7 2013-08-16
 
