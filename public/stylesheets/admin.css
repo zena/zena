@@ -97,7 +97,7 @@ ul.actions select { width:186px; }
 .actions .errors li { margin-left:0.4em; background:inherit; line-height:1.2em;}
 
 /* forms */
-label { font-size:0.9em; font-weight:bold; display:block; color:#5C1515; margin:10px 0 5px; clear:left;}
+.nform label { font-size:0.9em; font-weight:bold; display:block; color:#5C1515; margin:10px 0 5px; clear:left;}
 
 .comment { font-style:italic; color:#777}
 .comment strong {font-weight:bold; font-style:italic;}
@@ -110,3 +110,6 @@ label { font-size:0.9em; font-weight:bold; display:block; color:#5C1515; margin:
 .virtual_class .nav.constant {color: #003F9D;}
 .role .constant {color:#0C9616;}
 .role .nav.constant {color:#05540B;}
+.boxes p {margin:2px 0}
+.boxes input {}
+.boxes label {padding-left:8px; }

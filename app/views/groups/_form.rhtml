@@ -16,19 +16,21 @@
   <% end %>
     <table cellspacing='0'>
       <tr><td class='label'><%= _('name')%>       </td><td><%= text_field('group', 'name',        :size=>15 ) %></td></tr>
-      <tr><td class='label'><%= _('users')%>      </td><td>
-        <%= @users.inject([]) do |list, u|
-          unless u.is_anon?
-            if (@group[:id] == visitor.site.public_group_id) || (@group[:id] == visitor.site.site_group_id)
-              list << "<input type='checkbox' name='group[user_ids][]' value='#{u.id}' class='box' checked='1' disabled='1'/>#{u.login}"
-            else
-              list << "<input type='checkbox' name='group[user_ids][]' value='#{u.id}' class='box' #{(@group && @group.user_ids.include?(u[:id])) ? "checked='1'" : ''}/>#{u.login}"
+      <tr><td class='label'><%= _('users')%>      </td>
+        <td class='boxes'>
+          <p><%= @users.inject([]) do |list, u|
+            unless u.is_anon?
+              if (@group[:id] == visitor.site.public_group_id) || (@group[:id] == visitor.site.site_group_id)
+                list << "<input type='checkbox' name='group[user_ids][]' value='#{u.id}' class='box' checked='1' disabled='1'/>#{u.login}"
+              else
+                list << "<input id='user#{u.id}' type='checkbox' name='group[user_ids][]' value='#{u.id}' class='box' #{(@group && @group.user_ids.include?(u[:id])) ? "checked='1'" : ''}/><label for='user#{u.id}'>#{u.login}</label>"
+              end
             end
-          end
-          list
-        end.join(' ') %>
-        <input type='hidden' name='group[user_ids][]' value=''/>
-        </td></tr>
+            list
+          end.join('</p><p>') %></p>
+          <input type='hidden' name='group[user_ids][]' value=''/>
+          </td>
+        </tr>
       <% if !@group.new_record? -%>
       <tr><td class='label'><%= _('replace by') %></td><td><%= select('group', 'replace_by', @groups.map{|g| [g[:name], g[:id]]} , {:include_blank => true}) %></td></tr>
       <% end -%>
@@ -36,7 +38,8 @@
       <td class='label'><%= _('auto_publish') %></td>
     <td>
       <input type='hidden' name='group[auto_publish]' value=''/>
-      <input type='checkbox' name='group[auto_publish]' value='1'<%= @group.auto_publish? ? " checked='checked'" : '' %>/> <%= _('auto_publish') %>
+      <input  id='auto_publish' type='checkbox' name='group[auto_publish]' value='1'<%= @group.auto_publish? ? " checked='checked'" : '' %>/>
+      <label for='auto_publish'><%= _('auto_publish') %></label>
     </td>
     </tr>
       <tr><td colspan='2'><input type='submit' class='btn_validate' value='<%= _('validate') %>'/></td></tr>

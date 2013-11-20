@@ -40,8 +40,18 @@
     <tr><td class='label'><%= _('prop eval') %></td><td><%= text_area('virtual_class', 'prop_eval', :rows => 2, :cols => 30) %></td></tr>
 
     <tr><td class='label'><%= _('edit group') %></td><td><%= select('virtual_class', 'create_group_id',  visitor.all_groups.map{|g| [g.name, g.id]} ) %></td></tr>
-    <tr><td class='label'><%= _('auto create discussion')%></td><td><%= check_box('virtual_class', 'auto_create_discussion') %></td></tr>
-    <tr><td class='label'><%= _('monolingual') %></td><td><%= check_box('virtual_class', 'monolingual') %></td></tr>
+    <tr>
+      <td class='label'>
+        <label for='virtual_class_auto_create_discussion'><%= _('auto create discussion')%></label>
+      </td>
+      <td><%= check_box('virtual_class', 'auto_create_discussion') %></td>
+    </tr>
+    <tr>
+      <td class='label'>
+        <label for='virtual_class_monolingual'><%= _('monolingual') %></label>
+      </td>
+      <td><%= check_box('virtual_class', 'monolingual') %></td>
+    </tr>
     <tr><td class='label'><%= _('content_type')%></td><td><%= text_field('virtual_class', 'content_type') %></td></tr>
 <% end -%>
     <tr><td class='label'><%= _('icon')%>      </td><td><%= text_field('virtual_class', 'icon',        :size=>15 ) %></td></tr>
