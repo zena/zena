@@ -481,7 +481,7 @@ class User < ActiveRecord::Base
           end
           
           # Editing users above or equal to manager not allowed
-          if status_was >= User::Status[:manager] && visitor.id != self.id
+          if status_was.to_i >= User::Status[:manager] && visitor.id != self.id
             errors.add('base', 'You cannot edit this user (high status).')
             return false
           end
