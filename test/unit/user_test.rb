@@ -615,6 +615,24 @@ class UserTest < Zena::Unit::TestCase
       assert_equal 'My Giraffe', user.login
       assert_equal node.id, user.node_id
     end
+    
+    context 'with defined login' do
+      setup do
+        secure(Node) { nodes(:people).new_child({
+          :first_name => 'My',
+          :name       => 'Giraffe',
+          :klass      => 'Contact',
+          :auth    => {:password => 'long big neck', :profile => 'ant', :login => 'giraffe' }
+        })}.tap do |obj|
+          assert obj.save
+        end
+      end
+    
+      should 'use defined login' do
+        user = secure(User) { User.find_by_login('giraffe') }
+        assert_equal 'My Giraffe', user.node.title
+      end
+    end
   end
   
   context 'Destroying node' do

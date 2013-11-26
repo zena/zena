@@ -1498,8 +1498,7 @@ class Node < ActiveRecord::Base
   
   # Find all users using this node as contact node.
   def auth_users
-    return nil if new_record?
-    @auth_users ||= secure(User) { User.all(:conditions => {:node_id => self.id}) }
+    @auth_users ||= new_record? ? nil : secure(User) { User.all(:conditions => {:node_id => self.id}) }
   end
   
   def auth
