@@ -1045,7 +1045,7 @@ class Node < ActiveRecord::Base
 
   # check inheritance chain through kpath
   def kpath_match?(kpath)
-    vclass.kpath =~ /^#{kpath}/
+    self.kpath =~ /^#{kpath}/
   end
 
   # virtual class
