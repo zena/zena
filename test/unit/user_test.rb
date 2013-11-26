@@ -609,10 +609,11 @@ class UserTest < Zena::Unit::TestCase
       err subject
       assert !subject.new_record?
       # Reload all
-      node = secure(Node) { Node.find(subject.id)}
-      user = node.auth_user
+      user = secure(User) { User.find_by_login('My Giraffe') }
+      node = user.node
       assert_equal 'My Giraffe', node.title
       assert_equal 'My Giraffe', user.login
+      assert_equal node.id, user.node_id
     end
   end
   

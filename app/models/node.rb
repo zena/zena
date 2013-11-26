@@ -1481,14 +1481,24 @@ class Node < ActiveRecord::Base
     res = eval(type[:method])
     res ? res.to_s : nil
   end  
-  
+
   def auth=(params)
     return unless visitor.is_manager?
-    @set_user = params
+    if !users = auth_users
+      # Create user
+      user = secure(User) { User.new }
+      users = @auth_users = [user]
+      @auth_user = user
+    end
+    users.each do |user|
+      user.attributes = params
+    end
+    @auth = nil
   end
   
   # Find all users using this node as contact node.
   def auth_users
+    return nil if new_record?
     @auth_users ||= secure(User) { User.all(:conditions => {:node_id => self.id}) }
   end
   
@@ -1832,25 +1842,26 @@ class Node < ActiveRecord::Base
           end
         end
         errors.empty?
-      elsif params = @set_user
-        if !users = auth_users
-          # Create user
-          user = secure(User) { User.new }
-          user.node_id = self.id
-          users = [user]
-        end
-        users.each do |user|
-          user.attributes = params
-          if user.login.blank?
-            user.login = title.strip
-          end
-          if !user.save
-            user.errors.each do |k,v|
-              errors.add("user[#{k}]", v)
+      elsif users = auth_users
+        auth_user = users.first
+        if auth_user.new_record? || auth_user.changed?
+          users.each do |user|
+            if user.new_record?
+              # Creating user
+              user.node_id = self.id
+            end
+            
+            if user.login.blank?
+              user.login = title.strip
+            end
+            
+            if !user.save
+              user.errors.each do |k,v|
+                errors.add("user[#{k}]", v)
+              end
             end
           end
         end
-        remove_instance_variable :@set_user
         errors.empty?
       else
         true
