@@ -10,7 +10,9 @@ test:
   uv:          OFF
   spreadsheet: ON
   activity:    ON
-
+  currency:
+    switch: ON
+    app_id: test_app_id_xxx # APP_ID for testing is in config/currency_app_id.txt
 
 development:
 #  asset_port: 7999    

@@ -3,6 +3,7 @@
 *.gem
 .rbenv-version
 restart.txt
+config/currency_app_id.txt
 config/deploy_config.rb
 config/database.yml
 config/mysql.yml
