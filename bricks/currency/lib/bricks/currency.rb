@@ -55,6 +55,7 @@ module Bricks
         raise "Invalid base currency '#{base}'" if ratio.nil?
       end
       list.map do |l|
+        l = l.strip
         rate  = rates[l]
         title = curr[l]
         if !rate
