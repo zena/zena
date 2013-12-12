@@ -13,6 +13,7 @@
     through 'auth_user'.
   * Created 'manager' user status: can edit users (only through 'auth'). <== TODO: Document
   * Created 'currency' brick to fetch openexchangerates.org exchange rates. <== TODO: Document
+  * Using latest querybuilder to support 'union' (fixes 'or clause' errors).
     
 * Minor changes
   * Fixed gemspec to not include TextMate helper and selenium plugin.
