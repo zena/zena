@@ -169,7 +169,7 @@ checkbox_checked_hash_value:
     node: test
   src: "<r:input type='checkbox' name='settings[one]' value='un'/> <r:input type='checkbox' name='settings[one]' value='deux'/>"
   tem: "/@node.prop\[.settings.\]\[.one.\] : nil\) == .un. \? . checked='checked'/"
-  res: "<input type='hidden' name='node[settings][one]' value=''/><input type='checkbox' name='node[settings][one]' value='un' checked='checked'/><input type='hidden' name='node[settings][one]' value=''/> <input type='checkbox' name='node[settings][one]' value='deux'/>"
+  res: "<input type='hidden' name='node[settings][one]' value=''/><input type='checkbox' name='node[settings][one]' value='un' checked='checked'/> <input type='hidden' name='node[settings][one]' value=''/><input type='checkbox' name='node[settings][one]' value='deux'/>"
 
 checkbox_unchecked_value:
   src: "<r:input type='checkbox' name='tagged[foo]'/>"
@@ -400,3 +400,11 @@ tlabel_with_default_label:
     lang: fr
   src: "<r:default label='t'><r:input name='title' tlabel='Monday'/></r:default>"
   res: '/<label>lundi</label>/'
+
+p_do_input:
+  src: "<p class='foo' do='input' name='title'/>"
+  res: "<p class='foo'><input type='text' name='node[title]' value='status title'/></p>"
+
+p_do_input_with_label:
+  src: "<p class='foo' do='input' name='title' label='t'/>"
+  res: "<p class='foo'><label>title</label> <span><input type='text' name='node[title]' value='status title'/></span></p>"

@@ -606,14 +606,27 @@ module Zena
           else
             # 'text', 'hidden', 'checkbox', ...
             return parser_error('Missing name.') unless attribute || html_attributes[:name]
-            @markup.tag = 'input'
-            @markup.set_param(:type, @params[:type] || 'text')
-
+            
+            if @markup.tag != 'input'
+              # Do not rewrite tag, use another one.
+              markup = Zafu::Markup.new('input')
+            else
+              markup = @markup
+            end
+            
+            markup.tag = 'input'
+            markup.set_param(:type, @params[:type] || 'text')
+            
             checked = html_attributes.delete(:checked)
-            @markup.set_dyn_params(html_attributes)
-            @markup.append_attribute checked if checked
-            @markup.done = false
-            wrap('')
+            markup.set_dyn_params(html_attributes)
+            markup.append_attribute checked if checked
+            markup.done = false
+            
+            if markup == @markup
+              wrap('')
+            else
+              markup.wrap('')
+            end
           end
 
           if @params[:type] == 'checkbox'

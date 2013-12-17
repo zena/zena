@@ -13,7 +13,6 @@
     through 'auth_user'.
   * Created 'manager' user status: can edit users (only through 'auth'). <== TODO: Document
   * Created 'currency' brick to fetch openexchangerates.org exchange rates. <== TODO: Document
-  * Using latest querybuilder to support 'union' (fixes 'or clause' errors).
     
 * Minor changes
   * Fixed gemspec to not include TextMate helper and selenium plugin.
@@ -32,6 +31,7 @@
   * Fixed a critical bug related to changing a virtual class' superclass.
   * Do not trigger Ajax 'loading' unless it takes more then 300 ms (avoid blink).
   * Fixed tlabel on [input] when there is a default label (should overwride default).
+  * Fixed "<p do='input'..." so that the "p" tag is preserved.
 
 == 1.2.6, 1.2.7 2013-08-16
 
