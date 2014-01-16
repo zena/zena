@@ -164,7 +164,7 @@ Capistrano::Configuration.instance(:must_exist).load do
   
   desc "create a new site alias [-s host='...' -s alias='...' -s pass='...']"
   task :mkalias, :roles => :app do
-    run "#{in_current} rake zena:mksite HOST='#{self[:host]}' ALIAS='#{self[:alias]}' RAILS_ENV='production'"
+    run "#{in_current} rake zena:mkalias HOST='#{self[:host]}' ALIAS='#{self[:alias]}' RAILS_ENV='production'"
     
     # Same as mksite
     self[:host] = self[:alias]
