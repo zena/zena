@@ -37,7 +37,15 @@ module Zena
             end
             return
           end
-
+          
+          # Make sure we render requests in chronological order
+          page << "if (Zena.stampOk('#{params[:dom_id]}', #{params[:zs].to_i})) {"
+            # We cannot 'return' in Firefox, the eval script is not in a function
+            do_update_page_content(page, obj)
+          page << "}"
+        end
+        
+        def do_update_page_content(page, obj)
           if params[:t_id] && obj.errors.empty?
             obj = secure(Node) { Node.find_by_zip(params[:t_id])}
             @node = obj
@@ -191,15 +199,17 @@ module Zena
           list << dom_id
         end
 
-        def filter_form(node, dom_id, loading, upd)
+        def filter_form(node, form_id, loading, upd)
           if loading
             loading = "\n#{loading}($('#{upd}'));"
           else
             loading = ''
           end
           # Disable 'redir' parameter during preview or filter.
-          js_data << %Q{new Form.Observer('#{dom_id}', 0.3, function(element, value) {#{loading}
-            var data = Form.serialize('#{dom_id}').gsub(/&redir=/,'&no_redir=')
+          js_data << %Q{new Form.Observer('#{form_id}', 0.3, function(element, value) {#{loading}
+            var data = Form.serialize('#{form_id}', {hash: true})
+            delete data.redir
+            data.zs = Zena.stamp(data.dom_id)
             new Ajax.Request('#{zafu_node_path(node)}', {asynchronous:true, evalScripts:true, method:'post', parameters:data})
           });}
         end

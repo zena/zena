@@ -453,6 +453,7 @@ module Zena
 
             if true
               # Use onclick with Ajax.
+              # FIXME: Use Zena.do so that we can use ajax stamp. This means that we write a variant of "make_href" which returns json for query parameters.
               if confirm
                 markup.set_dyn_param(:onclick, "if(confirm(this.getAttribute(\"data-confirm\"))) {new Ajax.Request(\"<%= #{href} %>\", {asynchronous:true, evalScripts:true, method:\"#{http_method}\"});} return false;")
               else
