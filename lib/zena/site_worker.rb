@@ -58,8 +58,8 @@ module Zena
 
     # Return a textual description of the operation.
     def info
-      if site_id == current_site.site_id
-        "#{action}, #{_('page')} #{page}/#{page_count}"
+      if site_id == current_site.id
+        "<b>#{action}</b>, #{_('page')} #{page}/#{page_count}"
       else
         # Do not show jobs from other sites
         "-"
