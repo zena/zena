@@ -13,6 +13,8 @@
     through 'auth_user'.
   * Created 'manager' user status: can edit users (only through 'auth'). <== TODO: Document
   * Created 'currency' brick to fetch openexchangerates.org exchange rates. <== TODO: Document
+  * Do not render an older Ajax reply if a newer one has already been received. This fixes the
+    live query confusion.
     
 * Minor changes
   * Fixed gemspec to not include TextMate helper and selenium plugin.
@@ -32,6 +34,10 @@
   * Do not trigger Ajax 'loading' unless it takes more then 300 ms (avoid blink).
   * Fixed tlabel on [input] when there is a default label (should overwride default).
   * Fixed "<p do='input'..." so that the "p" tag is preserved.
+  * Using shift+enter to insert carriage return in grid.
+  * Improved jobs display.
+  * Fixed a cache handling bug where a page could exist in the filesystem without having a cache entry
+    in the database.
 
 == 1.2.6, 1.2.7 2013-08-16
 
