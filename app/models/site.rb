@@ -497,14 +497,16 @@ class Site < ActiveRecord::Base
 
     paths.each do |path|
       if File.exist?(path)
+        # First remove DB entries so that we do not risk race condition where a cached page is created during
+        # filesystem operation and before.
+        Zena::Db.execute "DELETE FROM caches WHERE site_id = #{self[:id]}"
+        Zena::Db.execute "DELETE FROM cached_pages_nodes WHERE cached_pages_nodes.node_id IN (SELECT nodes.id FROM nodes WHERE nodes.site_id = #{self[:id]})"
+        Zena::Db.execute "DELETE FROM cached_pages WHERE site_id = #{self[:id]}"
+      
         Dir.foreach(path) do |elem|
           next unless elem =~ /^(\w\w\.html|\w\w|login\.html)$/
           FileUtils.rmtree(File.join(path, elem))
         end
-
-        Zena::Db.execute "DELETE FROM caches WHERE site_id = #{self[:id]}"
-        Zena::Db.execute "DELETE FROM cached_pages_nodes WHERE cached_pages_nodes.node_id IN (SELECT nodes.id FROM nodes WHERE nodes.site_id = #{self[:id]})"
-        Zena::Db.execute "DELETE FROM cached_pages WHERE site_id = #{self[:id]}"
       end
     end
     
