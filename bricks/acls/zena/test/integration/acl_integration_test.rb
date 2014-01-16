@@ -118,7 +118,7 @@ class AclIntegrationTest < Zena::Integration::TestCase
           should 'allow t_url in rendering skin' do
             get @zafu_url
             assert_response :success
-            assert_equal %{Element.replace("list1", "Zafu safe ok\\n");\n}, response.body
+            assert_equal %{if (Zena.stampOk('list1', 0)) {\nElement.replace(\"list1\", \"Zafu safe ok\\n\");\n\n}}, response.body
           end
         end # using zafu ajax
 

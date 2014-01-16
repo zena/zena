@@ -214,7 +214,7 @@ class RenderingControllerTest < Zena::Controller::TestCase
           :t_url  => 'Default skin/Node-ins/foo',
           :dom_id => 'foo',
         }
-        assert_equal %Q{Element.replace(\"foo\", \"\\u003Cdiv id='foo' data-z='12'\\u003Ehello people\\u003C/div\\u003E\");\n}, @response.body
+        assert_equal %Q{if (Zena.stampOk('foo', 0)) {\nElement.replace(\"foo\", \"\\u003Cdiv id='foo' data-z='12'\\u003Ehello people\\u003C/div\\u003E\");\n\n}}, @response.body
       end
 
       context 'with insert' do
@@ -225,7 +225,7 @@ class RenderingControllerTest < Zena::Controller::TestCase
             :dom_id => 'foo',
             :insert => 'bottom',
           }
-          assert_equal %Q{Zena.insert_inner(\"foo\", \"bottom\", \"\\u003Cdiv id='foo' data-z='12'\\u003Ehello people\\u003C/div\\u003E\");\n}, @response.body
+          assert_equal %Q{if (Zena.stampOk('foo', 0)) {\nZena.insert_inner(\"foo\", \"bottom\", \"\\u003Cdiv id='foo' data-z='12'\\u003Ehello people\\u003C/div\\u003E\");\n\n}}, @response.body
         end
       end # with insert
     end # to update

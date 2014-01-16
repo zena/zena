@@ -160,5 +160,5 @@ in_sub_nodes:
   context:
     node: cleanWater
   src: pages in sub_nodes
-  sql: "xx"
+  sql: "/nodes.fullpath LIKE CONCAT.\?,'/%'./"
   res: "Etat des travaux, crocodiles"
