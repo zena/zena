@@ -839,10 +839,10 @@ Zena.set_toggle = function(dom_id, definition) {
     if (elem.tagName == 'TR') {
       target = elem.select('td')[0];
     }
-		var input_type = 'checkbox'
-		if (definition['arity'] == 'one') {
-			input_type = 'radio'
-		}
+    var input_type = 'checkbox'
+    if (definition['arity'] == 'one') {
+      input_type = 'radio'
+    }
     target.insert({top:"<input type='"+input_type+"' class='cb'/>"});
   }
 
@@ -1018,6 +1018,7 @@ Zena.do = function(method, dom, query, opts) {
     var todo = list.length
     for (var i=0; i < list.length; i++) {
       var q = list[i]
+      q.zs = Zena.stamp(dom.id)
       new Ajax.Request(makeUrl(method, dom, q), {
         method:method,
         parameters:Zena.prepare_query(q),
@@ -1041,6 +1042,7 @@ Zena.do = function(method, dom, query, opts) {
     query.dom_id = dom.id
     if (!query.s) query.s = $(document.body).getAttribute('data-z')
     if (!query.t_url) query.t_url = $(document.body).getAttribute('data-t') + '/' + (dom.getAttribute('data-t') || dom.id)
+    query.zs = Zena.stamp(dom.id)
     new Ajax.Request(makeUrl(method, dom, query), {
       method:method,
       parameters:Zena.prepare_query(query),
@@ -1198,4 +1200,23 @@ Zena.resetSort = function(ref) {
       Zena.reload(dom)
     }
   })
+}
+
+var stamps = {}
+Zena.stamp = function (dom) {
+  var s = (stamps[dom] || 0) + 1
+  stamps[dom] = s
+  return s
+}
+
+// Used to make sure requests are served in chronological order. Stores stamp by dom_id.
+Zena.stampOk = function(dom, stamp) {
+  var c = stamps[dom]
+  if (
+    !c ||            // this happens if Zena.stamp was not called prior to the ajax query (old templates)
+    (stamp == c) ||  // this is normal behavior
+    stamp == 0) {    // this happens with pagination (Zena.stamp is called for query but not for pagination so the stamp is always 0)
+    return true
+  }
+  return false
 }
