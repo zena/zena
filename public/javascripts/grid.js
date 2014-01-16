@@ -268,10 +268,10 @@ Grid.keydown = function(event) {
     }
     Grid.openCell(prev);
     event.stop();
-  } else if ((key == 13 && event.ctrlKey)) {
+  } else if ((key == 13 && event.shiftKey)) {
 	  // insert return
 		return true;
-  } else if ((false && key == 38) || (key == 13 && event.shiftKey)) {
+  } else if ((false && key == 38)) {
     // up
     if (cell.childElements().first().tagName == 'SELECT' && event.shiftKey) {
       return
