@@ -5,12 +5,13 @@ module Bricks
       include RubyLess
       set_table_name :delayed_jobs
 
-      safe_method  :run_at => Time, :created_at => Time, :info   => String
+      safe_method  :run_at => Time, :created_at => Time, :info   => {:class => String, :html_safe => true}
       # can be nil
       safe_context :locked_at => Time, :locked_by => String
 
       def info
-        obj = YAML.load(self[:handler])
+        # We load struct, not just a hash
+        obj = YAML.load(self[:handler], :safe => false)
         if obj.respond_to?(:info)
           obj.info
         else
