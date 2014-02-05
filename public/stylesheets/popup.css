@@ -48,7 +48,7 @@ form .infos li { clear:none;}
 .tab_content { font-size:0.9em; padding:30px 0 2px 8px; }
 /* text */
 #text_tab { padding:0;}
-#node_text { width:95%; height:75%; margin:30px 5px 5px 5px; font:inherit; padding:5px;}
+#node_text { width:97%; height:75%; margin:30px 0px 5px 0px; font:inherit; padding:5px;}
 
 /* title */
 .full_width { width:96%; font:inherit; font-size:0.9em; padding:2px;}

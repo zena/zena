@@ -226,8 +226,8 @@ Zena.resizeElement = function(name) {
   }
   var hMargin = obj.offsetLeft;
   var vMargin = obj.offsetTop;
-  obj.style.width  = (myWidth  - hMargin - 5) + 'px';
-  obj.style.height = (myHeight - vMargin - 5) + 'px';
+  // obj.style.width  = (myWidth  - hMargin - 5) + 'px';
+  obj.style.height = (myHeight - vMargin - 12) + 'px';
 }
 
 // transfer html from src tag to trgt tag
@@ -1079,15 +1079,15 @@ Zena.loading = function(e) {
   }, 300)
 }
 
-Zena._add_sort = function(dom, upd, elem, val) {
+Zena._add_sort = function(upd, elem, val) {
   var query
   elem.setAttribute('data-p',val)
   var link_id = elem.getAttribute('data-l')
   if (link_id) {
     query = {
-      id:elem.id.gsub(/^[^0-9]+/,''),
+      id:elem.id.gsub(/^.*?_/,''),
       node: {
-        link_id:elem.getAttribute('data-l'),
+        link_id:link_id,
         l_status:val
       }
     }
@@ -1096,7 +1096,7 @@ Zena._add_sort = function(dom, upd, elem, val) {
       id:elem.id.gsub(/^.*?_/,''),
       node: {}
     }
-    query.node[dom.getAttribute('data-a') || 'position'] = val
+    query.node[elem.getAttribute('data-a') || 'position'] = val
   }
   upd.push(query)
 }
@@ -1116,7 +1116,7 @@ Zena._sortable_upd = function(dom) {
   
   if (p_s == 0) {
     p_s = 1
-    Zena._add_sort(dom, upd, prev, p_s)
+    Zena._add_sort(upd, prev, p_s)
   }
 
   var list_len = list.length
@@ -1127,7 +1127,7 @@ Zena._sortable_upd = function(dom) {
     var n_s  = next ? parseFloat(next.getAttribute('data-p')) || 0 : false
     if (i == 1 && p_s > c_s) {
       p_s = c_s > 0.01 ? c_s / 2 : 1
-      Zena._add_sort(dom, upd, prev, p_s)
+      Zena._add_sort(upd, prev, p_s)
     }
 
     if(p_s < c_s) {
@@ -1138,7 +1138,7 @@ Zena._sortable_upd = function(dom) {
       } else {
         c_s = p_s + 1
       }
-      Zena._add_sort(dom, upd, curr, c_s)
+      Zena._add_sort(upd, curr, c_s)
     }
     prev = curr
     p_s = c_s

@@ -53,6 +53,10 @@ module Zafu
               end
               @markup.set_param(:'data-a', sort_attr)
               @markup.set_dyn_param(:'data-p', "<%= #{node}.#{RubyLess.translate(node.klass, sort_attr)} %>")
+              if sort_attr == 'l_status'
+                @markup.set_dyn_param(:'data-l', "<%= #{node}.link_id %>")
+              end
+              
               s = 'drag_handle' if s == 'true'
               unless s == 'all' || @blocks.detect{|b| b.kind_of?(String) ? b =~ /class=.#{s}/ : (b.params[:class] == s || (b.markup && b.markup.params[:class] == s))}
                 before_wrap << "<span class='#{s}'>&nbsp;</span>"
