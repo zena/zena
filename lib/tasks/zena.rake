@@ -364,7 +364,7 @@ namespace :zena do
         end
       end
 
-      %w{db:fixtures:load zena:rebuild_index}.each do |task|
+      %w{db:fixtures:load fs_skin:index zena:rebuild_index}.each do |task|
         puts "******************************* #{task}"
         Rake::Task[task].invoke
       end

@@ -65,7 +65,7 @@ module Bricks
         
         base.class_eval do
           property do |p|
-            p.string 'z_fs_skin'
+            p.string 'z_fs_skin', :index => '.idx_string1'
           end
 
           safe_property 'z_fs_skin'

@@ -33,7 +33,7 @@
         </ul>
       </div>
       <r:void name='latest_comments'/>
-      <div id='pages' do='nodes'>
+      <div id='pages' do='block' do='nodes'>
         <h2>pages</h2>
         <ul>
           <li do='each' do='link'/>

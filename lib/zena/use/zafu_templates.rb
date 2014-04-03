@@ -251,27 +251,27 @@ module Zena
             # We know the skin title, skip 'get_skin'
             @skins ||= {}
             
-            if opts[:skin].to_s =~ /^$(.*)/
+            if opts[:skin].to_s =~ /^\$(.*)/
               # The skin passed through the url is $brick-bar if using fs_skin and this does not work.
-              @skin = get_skin
+              @skin = @skins[opts[:skin]] ||= secure(Skin) { visitor.site.root_node.find("skin where z_fs_skin = '#{$1}' in site") }
             else
-              @skin     = @skins[opts[:skin]] ||= secure(Skin) { Skin.find_by_title(opts[:skin]) }
+              @skin = @skins[opts[:skin]] ||= secure(Skin) { Skin.find_by_title(opts[:skin]) }
             end
             
             # possible classes for the master template :
             kpaths = [vclass.kpath]
           else
-            @skin     = get_skin
-            vclass    = @node.vclass
+            @skin  = get_skin
+            vclass = @node.vclass
             
             # possible classes for the master template :
             kpaths = []
             vclass.kpath.split(//).each_index { |i| kpaths << vclass.kpath[0..i] }
           end
           
-          mode      = opts[:mode]
-          mode      = nil if mode.blank?
-          format    = opts[:format] || 'html'
+          mode   = opts[:mode]
+          mode   = nil if mode.blank?
+          format = opts[:format] || 'html'
 
           if @skin
             zafu_url, template = get_best_template(kpaths, format, mode, @skin)
