@@ -11,6 +11,8 @@ fast_gettext:   '~> 0.4.16'
 will_paginate:  '~> 2.3.12'
 differ:         '= 0.1.2'
 shoulda:        '= 2.10.3'
+#rubyzip:        '= 0.9.9'
+httparty:       '= 0.7.8'
 httmultiparty : '= 0.3.8'
 open4:
 daemons:        # upload progress

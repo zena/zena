@@ -15,6 +15,8 @@
   * Created 'currency' brick to fetch openexchangerates.org exchange rates. <== TODO: Document
   * Do not render an older Ajax reply if a newer one has already been received. This fixes the
     live query confusion.
+  * Fixed loose requirements of httparty and rubyzip preventing installation.
+  * Added 'fsize' method in view to display human readable octet size.
     
 * Minor changes
   * Fixed gemspec to not include TextMate helper and selenium plugin.
@@ -38,6 +40,7 @@
   * Improved jobs display.
   * Fixed a cache handling bug where a page could exist in the filesystem without having a cache entry
     in the database.
+  * Fixed building templates on the fly with fs_skin on JS call.
 
 == 1.2.6, 1.2.7 2013-08-16
 

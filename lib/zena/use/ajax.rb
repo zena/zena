@@ -55,6 +55,12 @@ module Zena
 
           if obj.new_record?
             # A. could not create object: show form with errors
+            # FIXME: We should return the errors as JSON (at least if the form does not exist)
+            
+            obj.errors.each_error do |er, msg|
+              Rails.logger.warn "  [#{err}] #{msg}"
+            end
+
             page.replace ndom_id, :file => template_path_from_template_url('_form')
           elsif @errors || !obj.errors.empty?
             # B. could not update/delete: show errors

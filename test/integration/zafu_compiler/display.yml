@@ -558,3 +558,7 @@ parent_id:
     node: ant
   src: "parent: <p do='parent_id'/>"
   res: 'parent: <p>12</p>'
+
+fsize:
+  src: "<b do='fsize(32*1024)'/> <b do='fsize(3.45*1024*1024)'/>"
+  res: "<b>32 Kb</b> <b>3.5 Mb</b>"

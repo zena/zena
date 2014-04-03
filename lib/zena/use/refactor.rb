@@ -23,7 +23,8 @@ module Zena
       module ViewMethods
 
         include Common
-
+        include RubyLess
+        safe_method [:fsize, Number] => String
 
         # TODO: see if this is still needed. Creates a pseudo random string to avoid browser side ajax caching
         def rnd

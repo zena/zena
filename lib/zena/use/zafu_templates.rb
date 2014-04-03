@@ -250,7 +250,13 @@ module Zena
           if vclass = opts[:vclass]
             # We know the skin title, skip 'get_skin'
             @skins ||= {}
-            @skin     = @skins[opts[:skin]] ||= secure(Skin) { Skin.find_by_title(opts[:skin]) }
+            
+            if opts[:skin].to_s =~ /^$(.*)/
+              # The skin passed through the url is $brick-bar if using fs_skin and this does not work.
+              @skin = get_skin
+            else
+              @skin     = @skins[opts[:skin]] ||= secure(Skin) { Skin.find_by_title(opts[:skin]) }
+            end
             
             # possible classes for the master template :
             kpaths = [vclass.kpath]
