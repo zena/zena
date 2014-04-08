@@ -93,6 +93,31 @@ class AncestryTest < Zena::Unit::TestCase
 
   end # Moving an object
 
+  context 'Moving a document' do
+    setup do
+      login(:lion)
+      # Move 'talk' inside 'tree_jpg'
+      talk = secure(Node) {nodes(:talk)}
+      
+      assert talk.update_attributes(:parent_id => subject.id)
+      
+      # Move 'tree_jpg' inside 'ant'
+      subject.update_attributes(:parent_id => nodes_id(:ant))
+    end
+    
+    subject do
+      secure(Node) { nodes(:tree_jpg) }
+    end
+    
+    should 'rebuild fullpath in new parent' do
+      assert_equal fullpath(:zena, :people, :ant, :tree_jpg), subject.fullpath
+    end
+
+    should 'rebuild children fullpath' do
+      assert_equal fullpath(:zena, :people, :ant, :tree_jpg, :talk), nodes(:talk).fullpath
+    end
+  end
+  
   context 'Finding an object from a path' do
     setup do
       login(:lion)
@@ -205,16 +230,33 @@ class AncestryTest < Zena::Unit::TestCase
       login(:ant)
       Node.connection.execute "UPDATE nodes SET parent_id = #{nodes_id(:status)} WHERE id = #{nodes_id(:cleanWater)}"
     end
-
+    
     subject do
-      secure(Node) { nodes(:lake_jpg) }
+      secure(Node) { nodes(:status) }
     end
-
+    
     should 'raise Invalid record on site rebuild_fullpath' do
-      assert_raise(Zena::InvalidRecord) { current_site.rebuild_fullpath(subject.parent_id) }
+      assert_raise(Zena::InvalidRecord) do
+        Zena::Use::Ancestry.rebuild_all_paths(subject.id, subject.zip, subject.custom_base)
+      end
     end
   end # A node in an ancestry loop
-
+  
+  context 'Rebuilding paths for site' do
+    setup do
+      Zena::Db.execute "UPDATE nodes SET fullpath = NULL, basepath = NULL"
+    end
+    
+    should 'Rebuild paths for all nodes' do
+      login(:lion)
+      assert_nil s.fullpath
+      assert_nil s.basepath
+      current_site.rebuild_fullpath(nil, 1)
+      s = nodes(:status)
+      assert_equal '11/18/21/22', s.fullpath
+      assert_equal '18/21', s.basepath
+    end
+  end
 
   private
     def fullpath(*args)

@@ -8,6 +8,56 @@ module Zena
         fullpath.split('/')[1..-1].join('/')
       end
       
+      # Makes a fullpath from the node's zip and parent zip Array.
+      # Returns fullpath as an Array.
+      def self.make_fullpath(zip, parent_fullpath)
+        if parent_fullpath
+          parent_fullpath + [zip]
+        else
+          [zip]
+        end
+      end
+      
+      # Rebuild basepath and return new value
+      def self.make_basepath(fullpath, custom_base, parent_basepath)
+        if custom_base
+          fullpath[1..-1]
+        else
+          parent_basepath || []
+        end
+      end
+      
+      # Forces rebuild of paths. Returns the new paths.
+      def self.rebuild_paths(id, zip, custom_base, parent_fullpath, parent_basepath)
+        fullpath = make_fullpath(zip, parent_fullpath)
+        basepath = make_basepath(fullpath, custom_base, parent_basepath)
+        rec = {:fullpath => fullpath.join('/'), :basepath => basepath.join('/')}
+        Zena::Db.execute "UPDATE nodes SET #{rec.map {|k,v| "#{Zena::Db.connection.quote_column_name(k)}=#{Zena::Db.quote(v)}"}.join(', ')} WHERE id = #{id} AND site_id = #{current_site.id}"
+        return fullpath, basepath
+      end
+      
+      # Forces a full recursive basepath and fullpath rebuild. If parent_fullpath and parent_basepath
+      # are nil, base is the root node. parent_fullpath and parent_basepath should be provided as Array.
+      def self.rebuild_all_paths(id, zip, custom_base, parent_fullpath = nil, parent_basepath = nil, visited = {})
+        raise Zena::InvalidRecord, "Infinit loop in 'ancestors'. Node zip = #{zip}." if visited[id]
+        fullpath, basepath = rebuild_paths(id, zip, custom_base, parent_fullpath, parent_basepath)
+        visited[id] = true
+        
+        # Do the same for each child. Depth first. Batch of 100 for children listing.
+        i = 0
+        batch_size = 100
+        while true
+          list  = Zena::Db.fetch_attributes(['id', 'zip', 'custom_base'], 'nodes', "parent_id = #{id} AND site_id = #{current_site.id} ORDER BY id ASC LIMIT #{batch_size} OFFSET #{i * batch_size}")
+
+          break if list.empty?
+          list.each do |rec|
+            rebuild_all_paths(rec['id'], rec['zip'], rec['custom_base'] == "1", fullpath, basepath, visited)
+          end
+          # 100 more
+          i += 1
+        end
+      end
+      
       module ClassMethods
         def title_join
           %Q{INNER JOIN idx_nodes_ml_strings AS id1 ON id1.node_id = nodes.id AND id1.key = 'title' AND id1.lang = '#{visitor.lang}'}
@@ -67,6 +117,7 @@ module Zena
             zip == '..' ? '..' : (list[zip.to_i] || (sym == :node ? nil : '*'))
           end.compact
         end
+        
       end # ClassMethods
 
       module ModelMethods
@@ -170,22 +221,20 @@ module Zena
           def rebuild_fullpath
             return unless new_record? || parent_id_changed? || fullpath.nil?
             if parent = parent(false)
-              path = parent.fullpath.split('/') + [zip]
+              self[:fullpath] = Ancestry.make_fullpath(zip, parent.fullpath.split('/')).join('/')
             else
-              path = [zip]
+              self[:fullpath] = Ancestry.make_fullpath(zip, nil).join('/')
             end
-            self.fullpath = path.join('/')
           end
-
+          
           def rebuild_basepath
             return unless new_record? || parent_id_changed? || custom_base_changed? || basepath.nil?
-            if custom_base
-              self[:basepath] = Ancestry.basepath_from_fullpath(self.fullpath)
-            elsif parent = parent(false)
-              self[:basepath] = parent.basepath || ""
+            if parent = parent(false)
+              parent_basepath = parent.basepath.split('/')
             else
-              self[:basepath] = ""
+              parent_basepath = nil
             end
+            self[:basepath] = Ancestry.make_basepath(self.fullpath.split('/'), custom_base, parent_basepath).join('/')
           end
 
           def rebuild_children_fullpath

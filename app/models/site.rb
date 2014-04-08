@@ -51,7 +51,7 @@ class Site < ActiveRecord::Base
     ['zips'                , 'site_id = ?'],
     ['nodes'               , 'site_id = ?'],
   ]
-  ACTIONS = %w{clear_cache rebuild_index}
+  ACTIONS = %w{clear_cache rebuild_index rebuild_fullpath}
   PUBLIC_PATH = Bricks.raw_config['public_path'] || '/public'
   CACHE_PATH  = Bricks.raw_config['cache_path']  || '/public'
   
@@ -539,40 +539,24 @@ class Site < ActiveRecord::Base
     true
   end
 
-  # Recreates the fullpath ('/zip/zip/zip').
-  # TODO: find a way to use SiteWorker (need to remove get_nodes): fix rake when this is done.
-  def rebuild_fullpath(parent_id = nil, parent_fullpath = "", parent_basepath = "", start=[])
-    raise Zena::InvalidRecord, "Infinit loop in 'ancestors' (#{start.inspect} --> #{parent_id})" if start.include?(parent_id)
-    start += [parent_id]
-    i = 0
-    batch_size = 100
-    children = []
-    while true
-      rec = Zena::Db.fetch_attributes(['id', 'fullpath', 'basepath', 'custom_base', 'zip'], 'nodes', "parent_id #{parent_id ? "= #{parent_id}" : "IS NULL"} AND site_id = #{self.id} ORDER BY id ASC LIMIT #{batch_size} OFFSET #{i * batch_size}")
-      break if rec.empty?
-      rec.each do |rec|
-        rec['fullpath'] = parent_fullpath == '' ? rec['zip'] : "#{parent_fullpath}/#{rec['zip']}"
-
-        if rec['custom_base'] == Zena::Db::TRUE_RESULT
-          rec['basepath'] = Zena::Use::Ancestry.basepath_from_fullpath(rec['fullpath'])
-        else
-          rec['basepath'] = parent_basepath
-        end
-
-        id = rec.delete('id')
-        children << [id, rec['fullpath'], rec['basepath'], start]
-        Zena::Db.execute "UPDATE nodes SET #{rec.map {|k,v| "#{Zena::Db.connection.quote_column_name(k)}=#{Zena::Db.quote(v)}"}.join(', ')} WHERE id = #{id}"
+  # Rebuild fullpath cache for the Site. This method uses the Worker thread to rebuild and works on
+  # chunks of 50 nodes.
+  #
+  # The visitor used during index rebuild should be an admin user.
+  def rebuild_fullpath(nodes = nil, page = nil, page_count = nil)
+    if !page
+      Zena::SiteWorker.perform(self, :rebuild_fullpath)
+    else
+      if page == 1
+        Site.logger.error("\n----------------- REBUILD FULLPATH FOR SITE #{host} -----------------\n")
       end
-      # 50 more
-      i += 1
-    end
-    children.each do |child|
-      rebuild_fullpath(*child)
+      # do things
+      Zena::Use::Ancestry.rebuild_all_paths(root_node.id, root_node.zip, root_node.custom_base)
     end
 
     true
   end
-
+  
   # Rebuild property indices for the Site. This method uses the Worker thread to rebuild and works on
   # chunks of 50 nodes.
   #
