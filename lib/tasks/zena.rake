@@ -413,8 +413,10 @@ namespace :zena do
       sites = Site.master_sites
     end
     sites.each do |site|
+      puts "************** Rebuild paths for '#{site.host}' *************"
       # Does not use SiteWorker.
-      site.rebuild_fullpath
+      setup_visitor(site.any_admin, site)
+      site.rebuild_fullpath(nil, 1)
     end
   end
 

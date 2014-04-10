@@ -5,6 +5,7 @@ DEFAULTS:
   lang:            fr
 
 complex_anon:
+  groups:          public
   status:          moderated
   node:            anonymous
 

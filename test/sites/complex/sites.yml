@@ -1,7 +1,7 @@
 complex:
   host:            complex.host
   root:            complex
-  anon:            anon
+  anon:            complex_anon
   public_group:    public
   site_group:      complex
   authentication:  yes

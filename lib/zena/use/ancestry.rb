@@ -28,33 +28,49 @@ module Zena
       end
       
       # Forces rebuild of paths. Returns the new paths.
-      def self.rebuild_paths(id, zip, custom_base, parent_fullpath, parent_basepath)
+      def self.rebuild_paths(rec, parent_fullpath, parent_basepath)
+        id, zip, custom_base = rec['id'], rec['zip'], rec['custom_base']
+        custom_base = custom_base == true || custom_base == '1'
         fullpath = make_fullpath(zip, parent_fullpath)
         basepath = make_basepath(fullpath, custom_base, parent_basepath)
-        rec = {:fullpath => fullpath.join('/'), :basepath => basepath.join('/')}
-        Zena::Db.execute "UPDATE nodes SET #{rec.map {|k,v| "#{Zena::Db.connection.quote_column_name(k)}=#{Zena::Db.quote(v)}"}.join(', ')} WHERE id = #{id} AND site_id = #{current_site.id}"
+        new_paths = {'fullpath' => fullpath.join('/'), 'basepath' => basepath.join('/')}
+        if !new_paths.keys.inject(true){|s,e| s && rec[e] == new_paths[e]}
+          # Need to save
+          log = "[#{zip}] Fix paths: #{rec['fullpath']} => #{new_paths['fullpath']}, #{rec['basepath']} => #{new_paths['basepath']}"
+          Rails.logger.warn log
+          if RAILS_ENV != 'test'
+            # When running rake task
+            puts log
+          end
+          Zena::Db.execute "UPDATE nodes SET #{new_paths.map {|k,v| "#{Zena::Db.connection.quote_column_name(k)}=#{Zena::Db.quote(v)}"}.join(', ')} WHERE id = #{id} AND site_id = #{current_site.id}"
+        end
         return fullpath, basepath
       end
       
       # Forces a full recursive basepath and fullpath rebuild. If parent_fullpath and parent_basepath
       # are nil, base is the root node. parent_fullpath and parent_basepath should be provided as Array.
-      def self.rebuild_all_paths(id, zip, custom_base, parent_fullpath = nil, parent_basepath = nil, visited = {})
-        raise Zena::InvalidRecord, "Infinit loop in 'ancestors'. Node zip = #{zip}." if visited[id]
-        fullpath, basepath = rebuild_paths(id, zip, custom_base, parent_fullpath, parent_basepath)
-        visited[id] = true
+      def self.rebuild_all_paths(rec, parent_fullpath = nil, parent_basepath = nil, visited = {})
+        raise Zena::InvalidRecord, "Infinit loop in 'ancestors'. Node zip = #{rec['zip']}." if visited[rec['id']]
+        fullpath, basepath = rebuild_paths(rec, parent_fullpath, parent_basepath)
+        visited[rec['id']] = true
         
         # Do the same for each child. Depth first. Batch of 100 for children listing.
         i = 0
         batch_size = 100
         while true
-          list  = Zena::Db.fetch_attributes(['id', 'zip', 'custom_base'], 'nodes', "parent_id = #{id} AND site_id = #{current_site.id} ORDER BY id ASC LIMIT #{batch_size} OFFSET #{i * batch_size}")
+          list  = Zena::Db.fetch_attributes(['id', 'zip', 'custom_base', 'fullpath', 'basepath'], 'nodes', "parent_id = #{rec['id']} AND site_id = #{current_site.id} ORDER BY id ASC LIMIT #{batch_size} OFFSET #{i * batch_size}")
 
           break if list.empty?
-          list.each do |rec|
-            rebuild_all_paths(rec['id'], rec['zip'], rec['custom_base'] == "1", fullpath, basepath, visited)
+          list.each do |child|
+            rebuild_all_paths(child, fullpath, basepath, visited)
           end
-          # 100 more
-          i += 1
+
+          if list.size == batch_size
+            # 100 more
+            i += 1
+          else
+            break
+          end
         end
       end
       

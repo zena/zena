@@ -551,7 +551,7 @@ class Site < ActiveRecord::Base
         Site.logger.error("\n----------------- REBUILD FULLPATH FOR SITE #{host} -----------------\n")
       end
       # do things
-      Zena::Use::Ancestry.rebuild_all_paths(root_node.id, root_node.zip, root_node.custom_base)
+      Zena::Use::Ancestry.rebuild_all_paths(root_node)
     end
 
     true

@@ -41,6 +41,7 @@
   * Fixed a cache handling bug where a page could exist in the filesystem without having a cache entry
     in the database.
   * Fixed building templates on the fly with fs_skin on JS call.
+  * Fixed rebuild_fullpath and added link in sites on web interface.
 
 == 1.2.6, 1.2.7 2013-08-16
 

@@ -237,7 +237,7 @@ class AncestryTest < Zena::Unit::TestCase
     
     should 'raise Invalid record on site rebuild_fullpath' do
       assert_raise(Zena::InvalidRecord) do
-        Zena::Use::Ancestry.rebuild_all_paths(subject.id, subject.zip, subject.custom_base)
+        Zena::Use::Ancestry.rebuild_all_paths(subject)
       end
     end
   end # A node in an ancestry loop
