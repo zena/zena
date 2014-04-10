@@ -42,11 +42,15 @@ def symlink_assets(from, to)
   end
 end
 
-def copy_assets(from, to)
+def copy_assets(from, to, copy_all = false)
   from = File.expand_path(from)
   to = File.expand_path(to)
   return if from == to
-  ['config/mongrel_upload_progress.conf', 'lib/upload_progress_server.rb', 'config/deploy.rb', 'config/bricks.yml', 'public/**/*'].each do |base_path|
+  folders = ['public/**/*']
+  if copy_all
+    folders += ['config/mongrel_upload_progress.conf', 'lib/upload_progress_server.rb', 'config/deploy.rb', 'config/bricks.yml']
+  end
+  folders.each do |base_path|
     if base_path =~ /\*/
       Dir["#{from}/#{base_path}"].each do |path|
         path = path[(from.length + 1)..-1]
@@ -103,6 +107,15 @@ def copy_files(from, to)
 end
 
 namespace :zena do
+  desc "Copy all assets including gem and deploy config from zena gem to application."
+  task :all_assets => :zena_config do
+    if Zena::ROOT == RAILS_ROOT
+      puts "Copy all assets should only be used when zena is loaded externally (via gem for example)."
+    else
+      copy_assets(Zena::ROOT, RAILS_ROOT, true)
+    end
+  end
+
   desc "Copy latest assets from zena gem to application (images, stylesheets, javascripts)."
   task :assets => :zena_config do
     if Zena::ROOT == RAILS_ROOT

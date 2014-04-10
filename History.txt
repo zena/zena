@@ -42,6 +42,7 @@
     in the database.
   * Fixed building templates on the fly with fs_skin on JS call.
   * Fixed rebuild_fullpath and added link in sites on web interface.
+  * Removing bricks.yml and other initial config files from 'rake zena:assets'.
 
 == 1.2.6, 1.2.7 2013-08-16
 

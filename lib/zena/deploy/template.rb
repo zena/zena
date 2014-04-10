@@ -50,5 +50,5 @@ inside('app/controllers') do
   end
 end
 
-rake 'zena:assets OVERWRITE_ASSETS=true'
+rake 'zena:all_assets OVERWRITE_ASSETS=true'
 rake 'zena:fix_rakefile'
