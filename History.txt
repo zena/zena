@@ -1,3 +1,5 @@
+In this history, elements listed with a '~' still need to be documented.
+
 == 1.2.8
 
 * Major changes
@@ -7,21 +9,24 @@
   * Added login retry wait delay on failures.
   * Added support for 'in home' or 'from home' in sqliss.
   * Added support for any scope with 'in sub_nodes' (uses fullpath field).
-  * Added forced skin setting for sites (overwrites all but ACL skin settings). <== TODO: Document
-  * Added support for profile users.  <== TODO: Document
+  ~ Added forced skin setting for sites (overwrites all but ACL skin settings).
+  ~ Added support for profile users.
   * Added support to edit auth_user (linked user) through node's pseudo attribute 'auth' (admin only) or
     through 'auth_user'.
-  * Created 'manager' user status: can edit users (only through 'auth'). <== TODO: Document
-  * Created 'currency' brick to fetch openexchangerates.org exchange rates. <== TODO: Document
+  ~ Created 'manager' user status: can edit users (only through 'auth').
+  ~ Created 'currency' brick to fetch openexchangerates.org exchange rates.
   * Do not render an older Ajax reply if a newer one has already been received. This fixes the
     live query confusion.
   * Fixed loose requirements of httparty and rubyzip preventing installation.
   * Added 'fsize' method in view to display human readable octet size.
+  ~ Added 'pasteTable' option to disable (by setting false) multi cell paste in grid.
+  ~ Using contenteditable in grid instead of input form. Turn off with contenteditable option.
+  * Fixed grid bug when leaving page while in input field.
     
 * Minor changes
   * Fixed gemspec to not include TextMate helper and selenium plugin.
   * Fixed xml generated file caching.
-  * Added NODE_ID in 'redir' param on node creation (replaced by actual id). <== TODO: Document
+  ~ Added NODE_ID in 'redir' param on node creation (replaced by actual id).
   * Added fetch_html rubyless method to views (does an HTTP GET and returns body).
   * Fixed a bug in site alias zafu compilation (wrong home reference).
   * Fixed anchor in zazen url "":22#foo should link to anchor #foo in node '22'.
@@ -31,7 +36,7 @@
     on relation modification without passing through RelationProxy).
   * Refuses to delete user node unless visitor is a manager.
   * Marks user as deleted and remove profile if node is destroyed.
-  * Enable 'parent_id', 'project_id', 'section_id' Rubyless methods. <== TODO: Document
+  ~ Enable 'parent_id', 'project_id', 'section_id' Rubyless methods.
   * Fixed a critical bug related to changing a virtual class' superclass.
   * Do not trigger Ajax 'loading' unless it takes more then 300 ms (avoid blink).
   * Fixed tlabel on [input] when there is a default label (should overwride default).
@@ -51,8 +56,8 @@
   * Added support for wkhtmltopdf (Thanks Jean-Baptiste).
   
 * Minor changes
-  * Added 'cmd' option for pdf brick. <== TODO: Document
-  * Added 'local_ips' option to bricks.yml (used when pdf engine cannot render non-public assets). <== TODO: Document
+  ~ Added 'cmd' option for pdf brick.
+  ~ Added 'local_ips' option to bricks.yml (used when pdf engine cannot render non-public assets).
   * Fixed dependency on newer versions of rails.
   
 == 1.2.5 2013-07-15
@@ -62,14 +67,14 @@
    implies changes to vhost files !
  * WARN: Properties in list context do not resolve with first element anymore. "first" prefix needed.
  * Enable VirtualClass on native classes !
- * Added 'activity' brick which records visitor's last "seen_at" date. <== TODO: Document
- * Support for site alias (other domain pointing to same data) "rake mkalias". <== TODO: Document
+ ~ Added 'activity' brick which records visitor's last "seen_at" date.
+ ~ Support for site alias (other domain pointing to same data) "rake mkalias".
 
 * Minor changes
  * Fixed encode_params in Ajax requests.
  * Fixed cached path in vhost file.
- * Added "uuid" method (generates a unique id). <== TODO: Document
- * Added support for JSON String in [string_hash] <== TODO: Document
+ ~ Added "uuid" method (generates a unique id).
+ ~ Added support for JSON String in [string_hash]
  * Added 'login_info' to Node.
  * Added 'group_names' to User class.
  * Fixed [headers] when 'Status' is set (change to redirect on 300).
@@ -77,10 +82,10 @@
 == 1.2.4 2013-06-13
 
 * Major changes
- * Added class filtering to Acl in 'create' action. <== TODO: Document
+ ~ Added class filtering to Acl in 'create' action.
  * Uploading html files does not transform them into zafu (use .zafu ext for this)
  * Added file upload support from zena remote API.
- * Added 'content_type' regexp to force virtual class on Document creation. <== TODO: Document
+ ~ Added 'content_type' regexp to force virtual class on Document creation.
  * Extended "create group" in vclass to be "allow group" (edit).
  * Added support for [versions_list] to display list of versions and status.
  
@@ -88,7 +93,7 @@
  * Support for raw html in zazen with '<notextile>' or '<html>' tag. Must be allowed with notextile='true' on [zazen] tag.
  * Fixed preview of content with ACL (considering the POST on /zafu as a 'read').
  * Added support for "class not like Image" or "class <> Image" to sqliss.
- * Added url to clear cache with /sites/clear_cache (admin only). <== TODO: Document
+ ~ Added url to clear cache with /sites/clear_cache (admin only).
  * encode_params now supports arrays.
  * Add 'id' to date input.
  * Fixed 404 error.
@@ -110,20 +115,20 @@
  * html_escape all properties by default
  * Better support for Passenger (default deployment method now)
  * Simplified caching (using cachestamp in filename)
- * Added preview='dom_id' to [form]. (Use preview_node to show preview content.) <== TODO: Document
- * Added "in_group" zafu method on visitor. <== TODO: Document
- * Added [upload_field] method to zafu to allow custom upload forms. <== TODO: Document
- * Added support for custom images on nodes with the "img_tag_{mode}" string attribute or the 'img_tag' hash attribute. <== TODO: Document
+ ~ Added preview='dom_id' to [form]. (Use preview_node to show preview content.)
+ ~ Added "in_group" zafu method on visitor.
+ ~ Added [upload_field] method to zafu to allow custom upload forms.
+ ~ Added support for custom images on nodes with the "img_tag_{mode}" string attribute or the 'img_tag' hash attribute.
  * Added support for tag clouds through sqliss (<r:void do='tag_cloud from nodes in site' do='each' join=', '><r:name/> (<r:link_count/>)</r:void>).
 
 * Minor changes
- * Support for 'lang_list' when creating vhost file <== TODO: Document
- * Support for Range in zafu. <== TODO: Document
- * Added options to query_parse to ignore unwanted parameters <== TODO: Document
- * Added 'hparams' option to only return Hash parameters from params. <== TODO: Document
+ ~ Support for 'lang_list' when creating vhost file
+ ~ Support for Range in zafu.
+ ~ Added options to query_parse to ignore unwanted parameters
+ ~ Added 'hparams' option to only return Hash parameters from params.
  * Fixed query_parse to convert dates to UTC.
  * Fixed form preview inside block.
- * Added unique id to img_tag_{mode} code generated 'UUID'. <== TODO: Document
+ ~ Added unique id to img_tag_{mode} code generated 'UUID'.
  * Added PATH_mode.format and [JS] marker to img_tag_{mode}.
  * Fixed form preview with long text (use POST).
 
@@ -146,12 +151,12 @@
 * Minor changes
  * Fixed label traduction for param.
  * Enable ajax response on Node destroy (use dummy update parameter).
- * Added 'sum' method on array. <===== TODO: Document
+ ~ Added 'sum' method on array.
  * Added 'loading' option to [filter].
  * Added 'master_template' zafu method to access the master template used for compilation.
  * Fixed creation of modules bug.
  * Using latest QueryBuilder (fixes default scope bug).
- * Added 'ssl_on_auth' option to force https after (and during) login. <=== TODO: Document
+ ~ Added 'ssl_on_auth' option to force https after (and during) login.
  * Removing evaluated strings if copy_id is blank.
  * Exporting relations by class name instead of kpath (may differ from site to site).
  * Using any character to build kpath if no character from the class name can be used.
@@ -159,7 +164,7 @@
  * Added support for "target" in [zazen] when rendering links.
  * Fixed kpath propagation to relations on kpath change.
  * Fixed [block] in [block] with [filter] bug.
- * Added support for KPATH_VALUE(ClassName) in custom queries. <==== TODO: Document
+ ~ Added support for KPATH_VALUE(ClassName) in custom queries.
  * Fixed class scoping Contact? when current node is more specialized.
  * Fixed bug on syntax error in Acl query.
  * Fixed cache expire bug (some pages were not properly removed).
@@ -170,7 +175,7 @@
  * Added 'remove_from_db' method to remove a site from the database.
  * Fixed asset caching PLEASE FIX YOUR VHOST FILES: rake zena:create_vhost -s host='xxxxx'.
  * Fixed deadlock_retry (a bug in the error message aborted the retry).
- * Created 'spreadsheet' brick to ease xlsx and csv generation. <===== TODO: Document
+ ~ Created 'spreadsheet' brick to ease xlsx and csv generation.
  * Better JS based grid editor.
 
 * Minor changes
@@ -180,9 +185,9 @@
  * Enabled 'alt_class' to work on multiple elements ([each]).
  * Fixed ajax bugs with dom_ids in nested partials.
  * Better Acl display, comments on relations.
- * Support for 'to_date' on time object with proper timezone translation. <===== TODO: Document
+ ~ Support for 'to_date' on time object with proper timezone translation.
  * Time to 'year' should use timezone.
- * Added tprefix to [select] (with default value) to ease translated options for select. <===== TODO: Document
+ ~ Added tprefix to [select] (with default value) to ease translated options for select.
  * Fixed bug when using [input] checkbox with param.
  * Added jobs list in admin links.
 

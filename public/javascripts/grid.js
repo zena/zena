@@ -27,7 +27,7 @@ Grid.changed = function(cell, val, prev, skip_html) {
   var attr, id
   if (grid.attr_name) {
     attr = pos;
-    id = Grid.pos(row) - 1;
+    id = Grid.pos(row);
   } else {
     attr = grid.attr[pos];
     id = row.id;
@@ -53,8 +53,9 @@ Grid.changed = function(cell, val, prev, skip_html) {
       if (cell.hasAttribute('data-v')) cell.setAttribute('data-v', val.value)
     } 
   }
-  
+
   if (prev.value == val.value) return;
+
   if (cell.orig_value == val.value) {
     cell.removeClassName('changed')
     if (row.select('.changed').length == 0) {
@@ -112,9 +113,26 @@ Grid.buildObj = function(grid, row) {
   return id
 }
 
+Grid.selectAll = function(elem) {
+  var range, selection;
+  if (document.body.createTextRange) {
+    range = document.body.createTextRange()
+    range.moveToElementText(elem)
+    range.select()
+  } else if (window.getSelection) {
+    selection = window.getSelection()
+    range = document.createRange()
+    range.selectNodeContents(elem)
+    selection.removeAllRanges()
+    selection.addRange(range)
+  }
+}
+
 Grid.closeCell = function(e) {
   if (Grid.no_blur) return
-  var cell = e.tagName ? e : e.element().up()
+  var cell = e.tagName ? e : e.element()
+  if (cell.tagName != 'TD') cell = cell.up('td')
+  if (!cell.hasClassName('in')) return
   var table = cell.up('table')
   var prev = cell.prev_value
   var val  = Grid.getValue(cell)
@@ -126,7 +144,10 @@ Grid.closeCell = function(e) {
       cell.removeClassName('on')
     }
   }
+  // 'input' is added when we have a form element
   cell.removeClassName('input')
+  // 'in' is added during edit
+  cell.removeClassName('in')
 
   Grid.changed(cell, val, prev)
 
@@ -145,9 +166,14 @@ Grid.pos = function(elem) {
   }
 }
 
-Grid.paste = function(event) {
+Grid.pasteTable = function(event) {
   var input = event.element();
-  var start_cell  = input.up();
+  var start_cell
+  if (input.tagName == 'TD') {
+    start_cell = input
+  } else {
+    start_cell = input.up();
+  }
   var row   = start_cell.up();
   var table = row.up('table');
   var row_offset = Grid.pos(row);
@@ -182,7 +208,11 @@ Grid.paste = function(event) {
     }
     if (lines.length == 1 && lines[0].length == 1) {
       // simple case
-      input.value = lines[0][0];
+      if (input == start_cell) {
+        start_cell.innerHTML = lines[0][0]
+      } else {
+        input.value = lines[0][0]
+      }
     } else {
       // copy/paste from spreadsheet
       table.grid.changes.push('start')
@@ -212,7 +242,11 @@ Grid.paste = function(event) {
           }
           var val = {value:tabs[j], show:tabs[j]}
           if (i==0 && j==0) {
-            input.value = val.value
+            if (input == cell) {
+              cell.innerHTML = lines[0][0]
+            } else {
+              input.value = val.value
+            }
             Grid.changed(cell, val, cell.prev_value, true)
             cell.prev_value = val
           } else if (!Grid.isReadOnly(cell)) {
@@ -234,7 +268,13 @@ Grid.paste = function(event) {
 Grid.keydown = function(event) {
   var input = event.element()
   var key = event.keyCode
-  var cell = input.up()
+  var cell
+  if (input.tagName == 'TD') {
+    // contenteditable
+    cell = input
+  } else {
+    cell = input.up()
+  }
   var grid = cell.up('table').grid
   if (grid.keydown && grid.keydown(event, key)) {
     event.stop()
@@ -247,12 +287,12 @@ Grid.keydown = function(event) {
       // wrap around on tab
       var row = cell.up('tr').nextSiblings()[0];
       if (!row) {
-        row = cell.up('tbody').childElements()[1];
+        row = cell.up('tbody').childElements()[2];
       }
       next = row.childElements()[0];
     }
-    Grid.openCell(next);
     event.stop();
+    Grid.openCell(next, false, true);
   } else if ((false && key == 37) || (key == 9 && event.shiftKey)) {
     // shift-tab + left key
     var prev = cell.previousSiblings()[0];
@@ -266,7 +306,7 @@ Grid.keydown = function(event) {
       if (prev.hasClassName('action'))
         prev = prev.previousSiblings()[0];
     }
-    Grid.openCell(prev);
+    Grid.openCell(prev, true, true);
     event.stop();
   } else if ((key == 13 && event.shiftKey)) {
 	  // insert return
@@ -284,16 +324,17 @@ Grid.keydown = function(event) {
       // move up
       row = row.previousSiblings().first();
       var next = row.childElements()[pos];
-      Grid.openCell(next);
+      Grid.openCell(next, false, true);
     }
     event.stop();
   } else if ((key == 40 && event.altKey) || (key == 13)) {
     // down
+    var input = cell.childElements().first()
     if (event.altKey) {
       Grid.copy(cell, 'down')
       event.stop()
       return false
-    } else if (cell.childElements().first().tagName == 'SELECT' && event.shiftKey) {
+    } else if (input && input.tagName == 'SELECT' && event.shiftKey) {
       return
     } else if (grid.autoSave) {
       // this will close cell
@@ -313,12 +354,12 @@ Grid.keydown = function(event) {
         row = crow.nextSiblings().first();
         var next = row.childElements()[0];
         setTimeout(function() {
-          Grid.openCell(next);      
+          Grid.openCell(next, false, true);      
         }, 100);
       }
     } else {
        next = row.childElements()[pos];
-       Grid.openCell(next);
+       Grid.openCell(next, false, true);
     }
     event.stop();
   }
@@ -326,7 +367,7 @@ Grid.keydown = function(event) {
 }
 
 Grid.isReadOnly = function(cell) {
-  return cell.select('a').length > 0 || cell.getAttribute('data-m') == 'r' || cell.hasClassName('action')
+  return cell.select('a').length > 0 || cell.getAttribute('data-m') == 'r' || cell.hasClassName('action') || cell.up('tr').hasClassName('action')
 }
 
 Grid.closeCheckbox = function() {
@@ -335,16 +376,77 @@ Grid.closeCheckbox = function() {
     Grid.need_close = false
   }
 }
-Grid.openCell = function(cell, get_next) {
+
+Grid.makeInput = function(cell, table, value) {
+  var w = cell.getWidth() - 5
+  var h = cell.getHeight() - 5
+  cell.addClassName('in')
+  
+  // Try to find a form for the cell
+  var input
+  if (table.grid.helper && cell.tagName != 'TH') {
+    var pos = Grid.pos(cell)
+    input = table.grid.helper[pos]
+    if (input) {
+      input = Element.clone(input, true)
+      cell.update(input)
+      if (input.type == 'checkbox') {
+        if (value == input.value) {
+          input.checked = true
+        }
+      } else {
+        if (value && value.strip() != '') input.value = value
+      }
+    }
+  }
+  
+  if (!input && !table.grid.contenteditable) {
+    // default input field
+    cell.update(Grid.default_input)
+    input = cell.childElements()[0]
+    input.value = value
+  }
+
+  if (input) {
+    if (!table.grid.contenteditable) {
+      cell.addClassName('input')
+    }
+    input.setStyle({
+      width: w + 'px',
+      height: h + 'px'
+    })
+    
+    if (input.type == 'checkbox') {
+      Grid.need_close = cell
+    } else {
+      input.observe('blur', Grid.closeCell)
+    }
+    input.observe('keydown', Grid.keydown)
+    if (table.grid.pasteTable) {
+      input.observe('paste', Grid.pasteTable)
+    }
+    input.focus()
+    input.select()
+  } else {
+    // contenteditable listener
+    cell.observe('keydown', Grid.keydown)
+    if (table.grid.pasteTable) {
+      cell.observe('paste', Grid.pasteTable)
+    }
+    cell.observe('blur', Grid.closeCell)
+  }
+}
+
+Grid.openCell = function(cell, get_next, focus) {
   var get_next = get_next == undefined ? true : get_next
   Grid.closeCheckbox()
   
-  if (cell.hasClassName('input')) return;
+  if (cell.hasClassName('in')) return;
   if (Grid.isReadOnly(cell)) {
     if (get_next) {
       var n = Element.next(cell) || cell.up().nextSiblings().first().childElements()[0]
       if (n) {
-        return Grid.openCell(n)
+        return Grid.openCell(n, false, focus)
       } else {
         return false
       }
@@ -366,49 +468,11 @@ Grid.openCell = function(cell, get_next) {
     }
     Grid.closeCell(cell)
   } else {
-    var w = cell.getWidth() - 5
-    var h = cell.getHeight() - 5
-    cell.addClassName('input')
-    
-    // Try to find a form for the cell
-    var input
-    if (table.grid.helper && cell.tagName != 'TH') {
-      var pos = Grid.pos(cell)
-      input = table.grid.helper[pos]
-      if (input) {
-        input = Element.clone(input, true)
-        cell.update(input)
-        if (input.type == 'checkbox') {
-          if (value == input.value) {
-            input.checked = true
-          }
-        } else {
-          if (value && value.strip() != '') input.value = value
-        }
-      }
-    }
-    
-    if (!input) {
-      // default input field
-      cell.update(Grid.default_input)
-      input = cell.childElements()[0]
-      input.value = value
-    }
-
-    input.setStyle({
-      width: w + 'px',
-      height: h + 'px'
-    })
-    
-    if (input.type == 'checkbox') {
-      Grid.need_close = cell
-    } else {
-      input.observe('blur', Grid.closeCell)
-    }
-    input.observe('keydown', Grid.keydown)
-    input.observe('paste', Grid.paste)
-    input.focus()
-    input.select()
+    Grid.makeInput(cell, table, val.value)
+  }
+  if (focus && cell.up('table').grid.contenteditable) {
+    cell.focus()
+    Grid.selectAll(cell)
   }
   return true
 }
@@ -428,7 +492,7 @@ Grid.click = function(event) {
     Grid.sort(cell)
     Event.stop(event)
   } else {
-    if (event.element().tagName == 'INPUT') return;
+    if (cell.hasClassName('in')) return;
     if (Grid.openCell(cell, false)) {
       Event.stop(event)
     }
@@ -458,7 +522,9 @@ Grid.getValue = function(cell) {
   var val = {}
   val.show = cell.innerHTML
   val.value = cell.getAttribute('data-v') || val.show
-  if (!cell.orig_value) cell.orig_value = val.value
+  if (cell.orig_value == undefined) {
+    cell.orig_value = val.value
+  }
   return val
 }
 
@@ -498,8 +564,9 @@ Grid.addRow = function(table, row) {
     row_str = row_str + $(grid.newRow).innerHTML
   } else {
     var cells = row.childElements()
+    var td = grid.contenteditable ? '<td contenteditable="true"></td>' : '<td></td>'
     for (var i = 0; i < cells.length -1; i++) {
-      row_str = row_str + '<td></td>'
+      row_str = row_str + td
     }
   }
   row_str = row_str + Grid.Buttons(table.grid) + '</tr>';
@@ -530,9 +597,10 @@ Grid.addCol = function(table, cell) {
         after: "<th>[title]</th>"
       });
     } else {
+      var td = table.grid.contenteditable ? '<td contenteditable="true"></td>' : '<td></td>'
       cells = rows[i].select('td');
       cells[pos].insert({
-        after: "<td></td>"
+        after: td
       });
     }
   }
@@ -573,7 +641,8 @@ Grid.action = function(event, cell, row, is_col) {
       Grid.addCol(table, cell);
     } else {
       var new_row = Grid.addRow(table, row);
-      Grid.openCell(new_row.childElements()[0]);
+      var cell = new_row.childElements()[0]
+      Grid.openCell(cell, false, true)
     }
   } else if (span.hasClassName('del')) {
     if (is_col) {
@@ -807,6 +876,8 @@ Grid.make = function(table, opts) {
     keydown: opts.keydown,
     show: opts.show || {},
 		msg: opts.msg || {saved:'Saved'},
+    pasteTable: opts.pasteTable == undefined ? true : opts.pasteTable,
+    contenteditable: opts.contenteditable == undefined ? true : opts.contenteditable,
   };
   table.grid = grid
   grid.table = table
@@ -859,6 +930,13 @@ Grid.make = function(table, opts) {
     }
   }
 
+  if (grid.contenteditable) {
+    table.select('td').each(function(cell) {
+      if (!Grid.isReadOnly(cell)) {
+        cell.setAttribute('contenteditable', true)
+      }
+    })
+  }
   table.observe('click', Grid.click);
 }
 
@@ -995,7 +1073,14 @@ Grid.undo = function(grid_id, skip_undone) {
   var old = change._old
   for (attr in change) {
     if (attr == 'id' || attr == '_old') continue
-    var cell = $(change.id).childElements()[grid.pos[attr]]
+    var cell
+    if (grid.attr_name) {
+      // id = row position, attr = cell position
+      var row = grid.table.select('tr')[change.id]
+      cell = row.childElements()[attr]
+    } else {
+      cell = $(change.id).childElements()[grid.pos[attr]]
+    }
     var val  = old
     var value = old.value
     cell.innerHTML = val.show || ''
