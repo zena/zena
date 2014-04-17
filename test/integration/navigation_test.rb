@@ -339,6 +339,24 @@ class NavigationTest < Zena::Integration::TestCase
     end # with a mode
 
   end # On a page with custom base
+  
+  context 'on a site alias with custom base' do
+    setup do
+      login(:lion, 'alias.host')
+      # home = wiki
+      # create 'foo' with custom_base and 'bar' inside wiki
+      @foo = secure(Page) { Page.create(:parent_id => nodes_id(:wiki), :title => 'foo', :custom_base => true, :v_status => Zena::Status::Pub)}
+      @bar = secure(Page) { Page.create(:parent_id => @foo.id,          :title => 'bar') }
+    end
+
+    should 'render page' do
+      get 'http://alias.host/fr/foo'
+      assert_response :success
+      get "http://alias.host/fr/foo/page#{@bar.zip}.html"
+      assert_response :success
+    end
+  end
+  
 
   def test_url_with_custom_base
     get 'http://test.host/en/projects-list/Clean-Water-project'

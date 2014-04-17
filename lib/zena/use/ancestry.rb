@@ -30,7 +30,7 @@ module Zena
       # Forces rebuild of paths. Returns the new paths.
       def self.rebuild_paths(rec, parent_fullpath, parent_basepath)
         id, zip, custom_base = rec['id'], rec['zip'], rec['custom_base']
-        custom_base = custom_base == true || custom_base == '1'
+        custom_base = custom_base == true || custom_base == Zena::Db::TRUE_RESULT
         fullpath = make_fullpath(zip, parent_fullpath)
         basepath = make_basepath(fullpath, custom_base, parent_basepath)
         new_paths = {'fullpath' => fullpath.join('/'), 'basepath' => basepath.join('/')}
@@ -82,7 +82,7 @@ module Zena
         TITLE_ML_JOIN = %Q{INNER JOIN idx_nodes_ml_strings AS id1 ON id1.node_id = nodes.id AND id1.key = 'title'}
 
         # (slow). Find a node by it's path. This is used during node importation when stored as zml files or to resolve custom_base url until we have an "alias" table.
-        def find_by_path(path, parent_id = current_site.root_id, multilingual = false)
+        def find_by_path(path, parent_id = current_site.home_id, multilingual = false)
           res  = nil
           path = path.split('/') unless path.kind_of?(Array)
           last = path.size - 1
@@ -258,7 +258,7 @@ module Zena
 
             # Update descendants
             fullpath_new = self.fullpath
-            fullpath_new = "#{fullpath_new}/" if fullpath_was == ''
+            fullpath_new = "#{fullpath_new}/" if fullpath_was.blank?
             fullpath_re  = fullpath_changed? ? %r{\A#{self.fullpath_was}} : nil
 
             bases = [self.basepath]
