@@ -151,7 +151,7 @@ class UsersController < ApplicationController
         if params[:user]
           # visitor changing his/her own info : restrict fields
           params[:user].keys.each do |k|
-            params[:user].delete(k) unless [:login, :time_zone, :lang, :password, :time_zone, :retype_password, :old_password].include?(k.to_sym)
+            params[:user].delete(k) unless ['login', 'time_zone', 'lang', 'password', 'time_zone', 'retype_password', 'old_password'].include?(k.to_s)
           end
         end
       else
