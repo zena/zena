@@ -408,7 +408,58 @@
     <r:js>
 $$('.grid').each(function(e) {
    Grid.make(e);
+   $('grid1').insert({bottom:'grid setup done'})
  });
+    </r:js>
+  </div>
+  
+  //! grid table edit
+  <div class='test' id='grid2' do='selenium'>
+    <h3>grid table</h3>
+    <p>Batch create and edit objects</h3>
+    <table class='grid' id='grid2_table' do='posts in site'>
+      <tr>
+        <th data-a='date' do='t'>date</th>
+        <th data-a='parent_id' do='t'>parent</th>
+        <th data-a='title' do='t'>title</th>
+        <th data-a='summary' do='t'>summary</th>
+      </tr>
+
+      <r:each>
+        <tr id='id_#{id}'>
+          <td class='date' do='this.date' format='%d.%m.%Y %H:%M'/>
+          <r:parent>
+            <td data-v='#{id}' do='title'/>
+          </r:parent>
+          <td class='title' do='title'/>
+          <td class='summary' do='summary'/>
+        </tr>
+      </r:each>
+    </table>
+
+    <div id='h_grid' style='display:none'>
+      <select name='parent_id' do='projects in site'>
+        <option value='#{id}' do='each' do='title'/>
+      </select>
+      <r:input data-d='true' type='hidden' param='klass' value='Post'/>
+    </div>
+
+    <table style='display:none'>
+      <tr id='new_row'>
+        <td class='date'></td>
+        <td></td>
+        <td class='title'></td>
+        <td class='summary'></td>
+      </tr>
+    </table>
+
+    <r:js>
+      Grid.make('grid2_table', {
+        newRow: 'new_row',
+        helper: 'h_grid',
+        fdate: '%d.%m.%Y %H:%M',
+        contenteditable: true,
+      })
     </r:js>
   </div>
   </r:with>

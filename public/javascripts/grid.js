@@ -17,6 +17,28 @@ Grid.log = function(what, msg) {
   log.innerHTML = log.innerHTML + '<br/><b>' + what + '</b> ' + msg
 }
 
+Grid.showValue = function(grid, attr, value) {
+  var show_h = grid.show[attr]
+  if (show_h == undefined) {
+    // try to find value from select
+    if (grid.helper) {
+      var pos = grid.pos[attr]
+      var input = grid.helper[pos]
+      if (input && input.tagName == 'SELECT') {
+        show_h = {}
+        grid.show[attr] = show_h
+        input.select('option').each(function(el) {
+          show_h[el.value] = el.innerHTML
+        })
+      }
+    }
+    if (!show_h) grid.show[attr] = false;
+  }
+
+  // cell.setAttribute('data-v', value)
+  return show_h ? show_h[value] : undefined
+}
+
 Grid.changed = function(cell, val, prev, skip_html) {
   var row = cell.up('tr')
   var table = row.up('table')
@@ -38,9 +60,8 @@ Grid.changed = function(cell, val, prev, skip_html) {
   }
   
   if (!skip_html) {
-    var show_h = grid.show[attr] || {}
-    if (cell.hasAttribute('data-v')) cell.setAttribute('data-v', val.value)
-    cell.innerHTML = show_h[val.value] || val.show
+    var show = Grid.showValue(grid, attr, val.value)
+    cell.innerHTML = show || val.show
   }
   
   if (grid.onChange) {
@@ -131,7 +152,7 @@ Grid.selectAll = function(elem) {
 Grid.closeCell = function(e) {
   if (Grid.no_blur) return
   var cell = e.tagName ? e : e.element()
-  if (cell.tagName != 'TD') cell = cell.up('td')
+  if (cell.tagName != 'TD' && cell.tagName != 'TH') cell = cell.up('td') || cell.up('th')
   if (!cell.hasClassName('in')) return
   var table = cell.up('table')
   var prev = cell.prev_value
@@ -269,12 +290,13 @@ Grid.keydown = function(event) {
   var input = event.element()
   var key = event.keyCode
   var cell
-  if (input.tagName == 'TD') {
+  if (input.tagName == 'TD' || input.tagName == 'TH') {
     // contenteditable
     cell = input
   } else {
     cell = input.up()
   }
+
   var grid = cell.up('table').grid
   if (grid.keydown && grid.keydown(event, key)) {
     event.stop()
@@ -287,7 +309,7 @@ Grid.keydown = function(event) {
       // wrap around on tab
       var row = cell.up('tr').nextSiblings()[0];
       if (!row) {
-        row = cell.up('tbody').childElements()[2];
+        row = cell.up('tbody').childElements()[grid.firstRow];
       }
       next = row.childElements()[0];
     }
@@ -299,7 +321,7 @@ Grid.keydown = function(event) {
     if (!prev) {
       // wrap back around on shift+tab
       var row = cell.up('tr').previousSiblings()[0]
-      if (!row || row.hasClassName('action')) {
+      if (!row || (row.hasClassName('header') && !grid.attr_name) || row.hasClassName('action')) {
         row = cell.up('tbody').childElements().last();
       }
       prev = row.childElements().last();
@@ -408,9 +430,9 @@ Grid.makeInput = function(cell, table, value) {
   }
 
   if (input) {
-    if (!table.grid.contenteditable) {
-      cell.addClassName('input')
-    }
+    cell.setAttribute('contenteditable', false)
+    // need blur on input field, etc...
+    cell.addClassName('input')
     input.setStyle({
       width: w + 'px',
       height: h + 'px'
@@ -429,6 +451,9 @@ Grid.makeInput = function(cell, table, value) {
     input.select()
   } else {
     // contenteditable listener
+    if (table.grid.contenteditable) {
+      cell.setAttribute('contenteditable', true)
+    }
     cell.observe('keydown', Grid.keydown)
     if (table.grid.pasteTable) {
       cell.observe('paste', Grid.pasteTable)
@@ -896,11 +921,15 @@ Grid.make = function(table, opts) {
     table.innerHTML = "<tr><th>" + msg + "</th></tr><tr><td></td></tr>";
   }
   
+  // Make sure header row has 'header' class
+  table.select('tr').first().addClassName('header')
   Grid.makeAttrPos(table)
   Grid.addButtons(table)
   
 
   if (grid.attr_name) {
+    // action buttons, header (editable), first row
+    grid.firstRow = 1
     table.insert({
       after: "<p class='grid_btn'><a class='undo' href='javascript:' onclick='Grid.undo(" + Grid.grid_c + ")'>undo</a></p>"
     });
@@ -912,6 +941,8 @@ Grid.make = function(table, opts) {
     grid.input = $("grid_a_" + Grid.grid_c);
     if (!empty) grid.input.value = Grid.serialize(table);
   } else {
+    // header, first row
+    grid.firstRow = 1
     // Otherwise each row is a new object and each column
     // corresponds to a different attribute (defined in the 
     // 'th' of the table).
@@ -1234,7 +1265,7 @@ Grid.notify = function(table, changes) {
     var row
     if (grid.attr_name) {
       // attr table
-      row = rows[parseInt(obj_id)+1]
+      row = rows[parseInt(obj_id)]
     } else {
       row = $(obj_id)
     }
@@ -1296,7 +1327,8 @@ Grid.notify = function(table, changes) {
         cell.removeClassName('changed')
         cell.removeClassName('error')
         if (cell.getAttribute('data-v') != change[attr]) {
-          cell.innerHTML = change[attr]
+          var show = Grid.showValue(grid, attr, change[attr])
+          cell.innerHTML = show || change[attr]
         }
         cell.orig_value = change[attr]
         cell.prev_value = undefined
