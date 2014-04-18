@@ -4,7 +4,7 @@
 
     <h2 do='t'>search results</h2>
 
-    <ul id='search_results' do='search_results'>
+    <ul id='search_results' do='nodes where fulltext match #{params[:q]} in site'>
       <li class='result_entry' do='each'>
         <p class='result_image' do='Document?'>
           <r:link format='data' do='img' alt_src='icon' mode='pv'/>

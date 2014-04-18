@@ -179,3 +179,36 @@ coalesce_in_filter:
   src: "posts select date.coalesce('2011-11-01') as da in site"
   sql: "%Q{SELECT nodes.*,COALESCE(nodes.idx_datetime1,'2011-11-01') AS `da` FROM nodes WHERE #{secure_scope('nodes')} AND nodes.kpath LIKE 'NNP%' ORDER BY nodes.zip ASC}"
   res: 'super ouverture'
+
+match:
+  src: "pages where fulltext match 'wiki' in site"
+  sql: "/ve1.idx_text_high LIKE '%wiki%'/"
+
+match_string_dyn:
+  src: "pages where fulltext match 'wiki#{params[:foo]}' in site"
+  sql: "/ve1.idx_text_high LIKE \?.*\"%wiki#\{params\[:foo\]\}/"
+
+match_dstring:
+  src: "pages where fulltext match \"ho#{params[:foo]}\" in site"
+  sql: "/ve1.idx_text_high LIKE \?.*\"%ho#\{params\[:foo\]\}/"
+
+match_dstring_no_rb:
+  src: "pages where fulltext match \"ho\" in site"
+  sql: "/ve1.idx_text_high LIKE '%ho%'/"
+  
+match_number:
+  src: "pages where fulltext match 123 in site"
+  sql: "/ve1.idx_text_high LIKE '%123%'/"
+
+match_rubyless:
+  src: "pages where fulltext match #{params[:foo]} in site"
+  sql: "/ve1.idx_text_high LIKE \?.*, \"%#\{params\[:foo\]\}%\"/"
+
+match_field:
+  src: "pages where fulltext match id in site"
+  sql: "Can only match against literal or rubyless values."
+
+match_sphinx:
+  src: "pages where sphinx match #{params[:foo]} in site"
+  sql: "[%Q{SELECT nodes.* FROM nodes WHERE #{secure_scope('nodes')} AND nodes.zip IN (?) AND nodes.kpath LIKE 'NP%' ORDER BY nodes.zip ASC}, test_search_for_ids(params[:foo])]"
+  res: 'Zena the wild CMS, projects list, a wiki with Zena'

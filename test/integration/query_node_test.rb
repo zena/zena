@@ -1,6 +1,26 @@
 require 'test_helper'
 require 'yamltest'
 
+# Mock sphinx search
+
+# add 'sphinx match xxxx' to QueryNode
+Node.query_compiler.add_fulltext_field('sphinx') do |processor, table, right|
+  helper = processor.instance_variable_get(:@rubyless_helper)
+  case right[0]
+  when :string, :dstring, :real, :integer
+    value = RubyLess.translate_string(helper, right[1])
+  when :rubyless
+    value = RubyLess.translate(helper, right[1])
+  else
+    raise ::QueryBuilder::Error.new("Can only match against literal or rubyless values.")
+  end
+  "#{table}.zip IN (#{processor.send(:insert_bind, "test_search_for_ids(#{value})")})"
+end
+
+def test_search_for_ids(fld)
+  [11, 18, 29]
+end
+
 class QueryNodeTest < Zena::Unit::TestCase
   include RubyLess
   safe_method :date => Time

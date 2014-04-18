@@ -22,6 +22,7 @@ In this history, elements listed with a '~' still need to be documented.
   ~ Added 'pasteTable' option to disable (by setting false) multi cell paste in grid.
   ~ Using contenteditable in grid instead of input form. Turn off with contenteditable option.
   * Fixed grid bug when leaving page while in input field.
+  ~ Implemented 'fulltext match' or 'sphinx match' to use fulltext search in node query.
     
 * Minor changes
   * Fixed gemspec to not include TextMate helper and selenium plugin.

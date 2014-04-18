@@ -125,10 +125,14 @@ module Zena
         end
 
         class << self
-          attr_accessor :filter_fields
+          attr_accessor :filter_fields, :fulltext_fields
 
           def add_filter_field(key, fld_def)
             self.filter_fields[key] = fld_def
+          end
+          
+          def add_fulltext_field(key, &block)
+            self.fulltext_fields[key] = block
           end
         end
 
@@ -139,6 +143,42 @@ module Zena
           'project_id' => {:key => 'zip', :table => ['jnode', 'nodes', 'nodes', 'TABLE2.id = TABLE1.project_id AND TABLE2.site_id = TABLE1.site_id']},
           'section_id' => {:key => 'zip', :table => ['jnode', 'nodes', 'nodes', 'TABLE2.id = TABLE1.section_id AND TABLE2.site_id = TABLE1.site_id']},
           'now'        => Zena::Db::NOW,
+        }
+        
+        self.fulltext_fields = {
+          # Default fulltext search
+          'fulltext' => Proc.new {|processor, table, right|
+            # We use the add_key_value_table rule to avoid inserting the
+            # same index access twice.
+            tbl = processor.send(:add_key_value_table, 'versions', 'versions', 'idx_text_high') do |tbl_name|
+              # This block is only executed once
+              on_clause = "#{tbl_name}.node_id = #{table}.id"
+              # lang
+              on_clause << " AND #{tbl_name}.lang = #{processor.send(:quote, visitor.lang)}"
+              # published
+              on_clause << " AND #{tbl_name}.status >= #{Zena::Status::Pub}"
+              
+              # 1=1 relation, no need for distinct
+              on_clause
+            end
+            
+            case right[0]
+            when :string, :dstring, :real, :integer
+              str = "%#{right[1]}%"
+            when :rubyless
+              str = "%\#{#{right[1]}}%"
+            else
+              raise ::QueryBuilder::Error.new("Can only match against literal or rubyless values.")
+            end
+            
+            value = RubyLess.translate_string(processor.instance_variable_get(:@rubyless_helper), str)
+            if value.literal
+              value = processor.send(:quote, value.literal)
+            else
+              value = processor.send(:insert_bind, value)
+            end
+            "#{tbl}.idx_text_high LIKE #{value}"
+          }
         }
 
         # Scope current context with previous context.
@@ -345,6 +385,18 @@ module Zena
             end
           else
             process_op(:like, left, right)
+          end
+        end
+        
+        def process_match(left, right)
+          if left[0] == :field
+            if proc = self.class.fulltext_fields[left[1]]
+              proc.call(self, table, right)
+            else
+              raise ::QueryBuilder::Error.new("Unknown matching field #{left[1].inspect}.")
+            end
+          else  
+            raise ::QueryBuilder::Error.new("Left argument for 'match' should be a fulltext index type.")
           end
         end
         

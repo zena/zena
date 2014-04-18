@@ -4,6 +4,8 @@ module Bricks
   module Sphinx
     module NodeClassMethods
       include Zena::Acts::Secure
+      
+      # This seems overly complex.... FIXME: can't we only use the qb 'match' clause ?
       def search_text(query, opts = {})
         if offset = opts[:offset]
           limit = opts[:limit] || 20
