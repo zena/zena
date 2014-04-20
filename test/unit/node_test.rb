@@ -267,6 +267,19 @@ class NodeTest < Zena::Unit::TestCase
     assert node.save , "Save succeeds"
   end
 
+  def test_set_hash_attribute
+    login(:lion)
+    node = secure!(Node) { nodes(:lake) }
+    assert node.update_attributes(:'cart' => {'foo' => 'hello', 'bar' => 'bye'})
+    ant = secure!(Node) { nodes(:ant) }
+    ant.cart = node.cart
+    assert ant.save
+    # reload
+    ant = secure!(Node) { nodes(:ant) }
+    assert_equal 'hello', ant.cart['foo']
+    assert_equal 'bye', ant.cart['bar']
+  end
+  
   def test_page_update_without_title
     login(:tiger)
     node = secure!(Node) { nodes(:status)  }
