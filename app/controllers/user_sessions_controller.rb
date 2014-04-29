@@ -8,8 +8,13 @@ class UserSessionsController < ApplicationController
 
   # /login
   def new
-    @node = visitor.site.root_node
-    render_and_cache :mode => '+login'
+    # If user is already logged in, redirect to home page
+    if !visitor.is_anon?
+      redirect_to home_path(:prefix => prefix)
+    else
+      @node = visitor.site.root_node
+      render_and_cache :mode => '+login'
+    end
   end
 
   def create
@@ -72,8 +77,13 @@ class UserSessionsController < ApplicationController
       unless site = Site.find_by_host(request.host)
         raise ActiveRecord::RecordNotFound.new("host not found #{request.host}")
       end
-
-      setup_visitor(anonymous_visitor(site), site)
+      
+      if params[:action] == 'new'
+        # keep visitor
+        super
+      else
+        setup_visitor(anonymous_visitor(site), site)
+      end
     end
 
     def redirect_after_login

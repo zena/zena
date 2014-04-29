@@ -68,7 +68,7 @@ class User < ActiveRecord::Base
   safe_method             :status => Number, :status_name => String,
                           :is_anon? => Boolean, :is_admin? => Boolean, :is_manager? => Boolean, :user? => Boolean, :commentator? => Boolean,
                           :moderated? => Boolean, :asset_host? => Boolean, [:in_group?, String] => Boolean,
-                          :group_names => [String], :site => {:class => Site}
+                          :group_names => [String], [:group_id_to_name, Number] => String, :site => Site
 
   safe_context            :node => node_user_proc,
                           :to_publish => ['Version'], :redactions => ['Version'], :proposed => ['Version'],
@@ -235,8 +235,19 @@ class User < ActiveRecord::Base
     end
   end
   
+  # Return the name of a group for a given id. If the visitor is not in the group,
+  # the method returns nil
+  def group_id_to_name(id)
+    (@group_ids_to_name ||= Hash[*all_groups.map{|g| [g.id, g.name]}.flatten])[id]
+  end
+  
   def in_group?(name)
     group_names.include?(name)
+  end
+  
+  def reload_groups!
+    @group_ids  = nil
+    @all_groups = nil
   end
 
   # Return true if the user's status is high enough to start editing nodes.
@@ -278,19 +289,15 @@ class User < ActiveRecord::Base
   # Zena::Db.fetch_ids("SELECT id FROM groups WHERE site_id = #{current_site.id} ORDER BY name ASC")
   # Zena::Db.fetch_ids("SELECT group_id FROM groups_users WHERE user_id = #{id} ORDER BY name ASC", 'group_id')
   def group_ids
-    @group_ids ||= if is_admin?
-      site.groups.map(&:id)
-    else
-      groups.all(:order=>'name').map(&:id)
-    end
+    @group_ids ||= all_groups.map(&:id)
   end
-
-  # Return all groups (used in forms) managed by the user.
+  
+  # Return all groups in which the user belongs directly or indirectly (admin).
   def all_groups
-    if is_admin?
-      site.groups
+    @all_groups ||= if is_admin?
+      site.groups.all(:order => 'name')
     else
-      groups.all(:order=>'name').map(&:id)
+      groups.all(:order => 'name')
     end
   end
 

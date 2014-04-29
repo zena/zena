@@ -562,3 +562,13 @@ parent_id:
 fsize:
   src: "<b do='fsize(32*1024)'/> <b do='fsize(3.45*1024*1024)'/>"
   res: "<b>32 Kb</b> <b>3.5 Mb</b>"
+
+group_id_to_name_ant:
+  src: "<r:title/>: auth = <r:void do='visitor.group_id_to_name(rgroup_id)'/> // <r:void do='visitor.group_id_to_name(dgroup_id) || \"unknown\"'/>"
+  res: "status title: auth = public // unknown"
+
+group_id_to_name:
+  context:
+    visitor: lion
+  src: "<r:title/>: auth = <r:void do='visitor.group_id_to_name(rgroup_id)'/> // <r:void do='visitor.group_id_to_name(dgroup_id) || \"unknown\"'/>"
+  res: "status title: auth = public // managers"

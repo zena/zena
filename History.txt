@@ -23,6 +23,7 @@ In this history, elements listed with a '~' still need to be documented.
   ~ Using contenteditable in grid instead of input form. Turn off with contenteditable option.
   * Fixed grid bug when leaving page while in input field.
   ~ Implemented 'fulltext match' or 'sphinx match' to use fulltext search in node query.
+  ~ Added 'group_id_to_name' to visitor (enables group name display from node auth settings).
     
 * Minor changes
   * Fixed gemspec to not include TextMate helper and selenium plugin.
@@ -49,6 +50,7 @@ In this history, elements listed with a '~' still need to be documented.
   * Fixed building templates on the fly with fs_skin on JS call.
   * Fixed rebuild_fullpath and added link in sites on web interface.
   * Removing bricks.yml and other initial config files from 'rake zena:assets'.
+  * Request for 'login' page while logged in redirects to home page instead of clearing session (fixes iPhone login issues).
 
 == 1.2.6, 1.2.7 2013-08-16
 

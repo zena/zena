@@ -155,7 +155,7 @@ class Site < ActiveRecord::Base
       site.groups << pub << sgroup << editors
 
       # Reload group_ids in admin
-      admin_user.instance_variable_set(:@group_ids, nil)
+      admin_user.reload_groups!
 
       # =========== CREATE Anonymous User =====================
       # create anon user

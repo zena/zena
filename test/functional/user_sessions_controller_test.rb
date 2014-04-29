@@ -70,6 +70,11 @@ class UserSessionsControllerTest < Zena::Controller::TestCase
     should "check if visitor is admin" do
       assert visitor.is_admin?
     end
+    
+    should 'redirect to home on login' do
+      get :new
+      assert_redirected_to 'oo'
+    end
 
   end
 
