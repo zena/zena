@@ -75,6 +75,11 @@ module Zena
             raise ActiveRecord::RecordNotFound unless visitor.is_admin?
             @admin = true
           end
+          
+          # Returns true if the site is not in readonly mode.
+          def check_not_readonly
+            raise ActiveRecord::ReadOnlyRecord if current_site.site_readonly?
+          end
 
           def lang
             visitor.lang

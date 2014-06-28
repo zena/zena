@@ -16,3 +16,7 @@ default_lang:
   eval: "site.default_lang"
   tem: "<%= visitor.site.default_lang %>"
   res: "en"
+
+readonly:
+  eval: "site.readonly?"
+  res: "true"

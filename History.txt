@@ -24,6 +24,7 @@ In this history, elements listed with a '~' still need to be documented.
   * Fixed grid bug when leaving page while in input field.
   ~ Implemented 'fulltext match' or 'sphinx match' to use fulltext search in node query.
   ~ Added 'group_id_to_name' to visitor (enables group name display from node auth settings).
+  ~ Added 'site_readonly' attribute to site with 'site.readonly?' rubyless. Useful for locking site during updates or migrations.
     
 * Minor changes
   * Fixed gemspec to not include TextMate helper and selenium plugin.

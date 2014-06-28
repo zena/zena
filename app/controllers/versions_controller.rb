@@ -1,7 +1,7 @@
 require 'differ'
 class VersionsController < ApplicationController
   layout :popup_layout, :except => [:preview, :diff, :show]
-  before_filter :find_version, :verify_access
+  before_filter :find_version, :check_not_readonly, :verify_access
 
   # Display a specific version of a node
   def show

@@ -18,7 +18,10 @@ Examples:
 
 =end
 class NodesController < ApplicationController
+  before_filter :check_not_readonly,  :except => [:index, :show, :search, :zafu, :not_found]
+  
   before_filter :check_is_admin,  :only => [:export]
+  
   before_filter :check_api_group
   if Bricks.raw_config['passenger']
     before_filter :escape_path, :only => [:index, :show]

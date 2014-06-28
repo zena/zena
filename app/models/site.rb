@@ -59,10 +59,11 @@ class Site < ActiveRecord::Base
   safe_method  :host   => String, :lang_list => [String], :default_lang => String, :master_host => String
   safe_method  :root   => Proc.new {|h, r, s| {:method => 'root_node', :class => current_site.root_node.vclass, :nil => true}}
   safe_method  :home   => Proc.new {|h, r, s| {:method => 'home_node', :class => current_site.home_node.vclass, :nil => true}}
+  safe_method  :readonly? => {:method => 'site_readonly?', :class => Boolean}
 
   validate :valid_site
   validates_uniqueness_of :host
-  attr_accessible :name, :languages, :default_lang, :authentication, :http_auth, :ssl_on_auth, :auto_publish, :redit_time, :api_group_id, :home_zip, :skin_zip
+  attr_accessible :name, :languages, :default_lang, :authentication, :http_auth, :ssl_on_auth, :site_readonly, :auto_publish, :redit_time, :api_group_id, :home_zip, :skin_zip
   has_many :groups, :order => "name"
   has_many :nodes
   has_many :users
@@ -76,7 +77,7 @@ class Site < ActiveRecord::Base
   include Zena::Use::MLIndex::SiteMethods
 
   @@attributes_for_form = {
-    :bool => %w{authentication http_auth auto_publish ssl_on_auth},
+    :bool => %w{authentication http_auth auto_publish ssl_on_auth site_readonly},
     :text => %w{languages default_lang},
   }
   

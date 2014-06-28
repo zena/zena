@@ -72,7 +72,7 @@ module Zena
         # * super user
         # * members of +write_group+ if there status is at least 'user'.
         def can_write?(vis=visitor, ugps=visitor.group_ids)
-          ( ugps.include?(wgroup_id) && visitor.user?)  # write group
+          !current_site.site_readonly? && ( ugps.include?(wgroup_id) && visitor.user?)  # write group
         end
 
         # Returns true if the current visitor can see redactions (unpublished versions)
@@ -101,7 +101,7 @@ module Zena
         # * super user
         # * members of +drive_group+ if member status is at least 'user'
         def can_drive?(vis=visitor, ugps=visitor.group_ids)
-          ( vis.user? && (ugps.include?(dgroup_id) || draft?) )
+          !current_site.site_readonly? && ( vis.user? && (ugps.include?(dgroup_id) || draft?) )
         end
 
         # 'can_drive?' before attribute change
@@ -111,7 +111,7 @@ module Zena
 
         # 'can_drive?' without draft? exceptions
         def full_drive?(vis=visitor, ugps=visitor.group_ids)
-          ( vis.user? && ugps.include?(dgroup_id) )
+          !current_site.site_readonly? && ( vis.user? && ugps.include?(dgroup_id) )
         end
 
         # 'full_drive?' before attribute change

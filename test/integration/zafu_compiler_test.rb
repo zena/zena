@@ -418,5 +418,11 @@ class ZafuCompilerTest < Zena::Controller::TestCase
     yt_do_test('forms', 'auth_profile')
   end
   
+  def test_site_readonly
+    login(:lion)
+    current_site.update_attributes("site_readonly" => true)
+    yt_do_test('site', 'readonly')
+  end
+  
   yt_make
 end
