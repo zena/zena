@@ -31,17 +31,18 @@ class UploadTest < Zena::View::TestCase
         end
       end
 
-      context 'to a file without size' do
-        setup do
-          @params = {'attachment_url' => "http://prdownload.berlios.de/zena/zena_playground.zip"}
-        end
-
-        should 'return an error about missing content length' do
-          file, error = get_attachment
-          assert_nil file
-          assert_equal 'unknown size: cannot fetch url', error
-        end
-      end
+      # this test is not reproductible: need to find an improper configurered HTTP server...
+      # context 'to a file without size' do
+      #   setup do
+      #     @params = {'attachment_url' => "http://prdownload.berlios.de/zena/zena_playground.zip"}
+      #   end
+      # 
+      #   should 'return an error about missing content length' do
+      #     file, error = get_attachment
+      #     assert_nil file
+      #     assert_equal 'unknown size: cannot fetch url', error
+      #   end
+      # end
 
 
       context 'that is not valid' do
