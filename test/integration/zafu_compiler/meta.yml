@@ -58,6 +58,10 @@ include_part_replace_method:
   src: "include_part: <r:include template='/meta/id/name' part='bob' do='title'/>"
   tem: "include_part: <b><%=h @node.prop['title'] %></b>"
 
+include_no_template_no_part:
+  src: "<r:include temalate='/foo/bar'/>"
+  tem: "/missing 'template' or 'part' parameter/"
+
 id_do:
   src: "<h1 id='logo' do='title'/>"
   res: "<h1 id='logo'>status title</h1>"

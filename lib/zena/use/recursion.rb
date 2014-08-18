@@ -10,7 +10,7 @@ module Zena
         # recursion
         def r_include
           return '' if @context[:saved_template]
-          return super if @params[:template] || !@params[:part]
+          return parser_error("missing 'template' or 'part' parameter") if !@params[:part]
           recursion = get_context_var('recursion', @params[:part])
           return parser_error("no parent named '#{@params[:part]}'") unless recursion
           klass = recursion[:klass]
