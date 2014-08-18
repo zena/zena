@@ -62,7 +62,9 @@ module Zena
         # TODO: use number_to_human_size instead
         def fsize(size)
           size = size.to_f
-          if size >= 1024 * 1024 * 1024
+          if size >= 1024 * 1024 * 1024 * 1024
+            sprintf("%.2f Tb", size/(1024*1024*1024*1024))
+          elsif size >= 1024 * 1024 * 1024
             sprintf("%.2f Gb", size/(1024*1024*1024))
           elsif size >= 1024 * 1024
             sprintf("%.1f Mb", size/(1024*1024))
