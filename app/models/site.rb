@@ -540,8 +540,7 @@ class Site < ActiveRecord::Base
     true
   end
 
-  # Rebuild fullpath cache for the Site. This method uses the Worker thread to rebuild and works on
-  # chunks of 50 nodes.
+  # Rebuild fullpath cache for the Site. This method uses the Worker thread to rebuild.
   #
   # The visitor used during index rebuild should be an admin user.
   def rebuild_fullpath(nodes = nil, page = nil, page_count = nil)
@@ -549,10 +548,10 @@ class Site < ActiveRecord::Base
       Zena::SiteWorker.perform(self, :rebuild_fullpath)
     else
       if page == 1
-        Site.logger.error("\n----------------- REBUILD FULLPATH FOR SITE #{host} -----------------\n")
+        Site.logger.error("\n----------------- REBUILD FULLPATH FOR SITE #{host} (#{Node.count(:conditions => {:site_id => id})} nodes)-----------------\n")
+        # Rebuild all paths at once (no pagination because of recursion)
+        Zena::Use::Ancestry.rebuild_all_paths(root_node)
       end
-      # do things
-      Zena::Use::Ancestry.rebuild_all_paths(root_node)
     end
 
     true
