@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.authors = ["Gaspard Bucher"]
   s.date = %q{2014-08-18}
   s.default_executable = %q{zena}
-  s.description = %q{zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
+  s.description = %q{zena is a Ruby on Rails  CMS (content management system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour).}
   s.email = %q{gaspard@teti.ch}
   s.executables = ["zena"]
   s.extra_rdoc_files = [
