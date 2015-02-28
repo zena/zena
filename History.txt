@@ -264,7 +264,7 @@ In this history, elements listed with a '~' still need to be documented.
  * Fixed 'root' scoping and custom urls with mode ('_' in url).
  * Fixed 'host' option for zazen, link and img tags.
  * Fixed [url] method to properly include port number and protocol (https).
- * Improved properties and relations managment interfaces.
+ * Improved properties and relations management interfaces.
  * Improved capistrano tasks on site rename.
  * Fixed a bug where cached_role_ids would not be recalculated on rebuild rebuild.
  * Fixed type_cast bug on Time value.
