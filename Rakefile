@@ -18,7 +18,7 @@ begin
   Jeweler::Tasks.new do |gemspec|
     gemspec.name = 'zena'
     gemspec.summary = 'CMS with super natural powers, based on Ruby on Rails'
-    gemspec.description = "zena is a Ruby on Rails  CMS (content managment system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour)."
+    gemspec.description = "zena is a Ruby on Rails  CMS (content management system) with a focus on usability, ease of customization and web 2.0 goodness (application like behaviour)."
     gemspec.email = "gaspard@teti.ch"
     gemspec.homepage = "http://zenadmin.org"
     gemspec.authors = ['Gaspard Bucher']
