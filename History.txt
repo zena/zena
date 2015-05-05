@@ -1,6 +1,11 @@
 In this history, elements listed with a '~' still need to be documented.
 
-== 1.2.8
+== 1.2.9
+
+* Minor changes
+  * Fixed bug related to "data-t" attribute missing in <body> tag (#80).
+  
+== 1.2.8 2014-08-17
 
 * Major changes
   * Added "update_attributes_without_clone" and "save_without_clone" to update attributes
