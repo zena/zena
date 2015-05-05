@@ -476,7 +476,7 @@ module Zena
               res.sub!('</body>', "<%= render_js %></body>")
             end
             
-            if request.format == Mime::HTML
+            if request.format == Mime::HTML || opts[:format] == 'html'
               # Insert start id
               res.sub!('<body', %Q{<body data-t='#{zafu_url}' data-z='<%= @node.zip %>' })
             end

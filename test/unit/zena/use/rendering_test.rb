@@ -14,12 +14,13 @@ class RenderingTest < Zena::View::TestCase
       end
       
       should 'build template on template_path_from_template_url' do
-        fullpath = fullpath_from_template_url('wiki skin/Page-changes/_main', false)
+        fullpath = fullpath_from_template_url('Default skin/Node/_main', false)
         if File.exist?(fullpath)
           FileUtils.rm(fullpath)
         end
-        assert_equal '/test.host/zafu/wiki skin/Page-changes/en/foo.erb', template_path_from_template_url('', 'wiki skin/Page-changes/foo', true)
+        assert_equal '/test.host/zafu/Default skin/Node/en/pages.erb', template_path_from_template_url('', 'Default skin/Node/pages', true)
         assert File.exist?(fullpath)
+        assert_match %r{<body[^>]*data-t=['"]Default skin/Node['"]}, File.read(fullpath)
         FileUtils.rm(fullpath)
       end
       
