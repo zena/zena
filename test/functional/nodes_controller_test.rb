@@ -979,7 +979,9 @@ END:VCALENDAR
       img = secure!(Node) { nodes(:bird_jpg) }
       assert_not_equal pub_version_id, img.version.id
       assert_not_equal pub_content_id, img.version.attachment.id
-      assert_equal 2002,   img.size
+      # image size can vary depending on image processor.
+      assert 2002 <= img.size
+      assert img.size <= 2010
       assert_equal 160,  img.width
       assert_equal 80, img.height
     end

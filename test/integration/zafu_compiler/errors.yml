@@ -35,9 +35,9 @@ show_var:
   src: "<r:show eval='boo'/>"
   tem: "/unknown method 'boo\(\)' for Zena::ZafuCompiler/"
 
-show_bad_sprintf:
+show_bad_strftime:
   src: "<p do='show' attr='updated_at' format='%.2f %i hop'/>"
-  res: "<p>.2f i hop</p>"
+  res: "<p>%.2f %i hop</p>"
 
 division_by_zero_in_eval:
   eval: "1/0"
