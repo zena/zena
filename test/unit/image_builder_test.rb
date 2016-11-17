@@ -49,7 +49,7 @@ class Zena::Use::ImageBuilderTest < Zena::Unit::TestCase
 
     def test_write_sepia
       img = Zena::Use::ImageBuilder.new(:path=>uploaded_jpg('bird.jpg').path)
-      img.transform!(:size=>:limit, :width=>280, :ratio=>2/3.0, :post=>Proc.new {|img| img.sepiatone(Magick::MaxRGB * 0.8)})
+      img.transform!(:size=>:limit, :width=>280, :ratio=>2/3.0, :post=>Proc.new {|img| img.sepiatone(Magick::QuantumRange * 0.8)})
       assert !File.exist?("#{SITES_ROOT}/test.host/sepia.jpg"), "File does not exist"
       assert_nothing_raised { img.write("#{SITES_ROOT}/test.host/sepia.jpg")}
       assert File.exist?("#{SITES_ROOT}/test.host/sepia.jpg"), "File saved ok"
@@ -114,7 +114,7 @@ class Zena::Use::ImageBuilderTest < Zena::Unit::TestCase
 
   def test_set_background
     img = Zena::Use::ImageBuilder.new(:width=>100, :height=>30)
-    img.set_background!(Magick::MaxRGB,120,15)
+    img.set_background!(Magick::QuantumRange,120,15)
     assert_equal 120, img.width
     assert_equal 30, img.height
   end

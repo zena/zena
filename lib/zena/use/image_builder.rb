@@ -14,7 +14,7 @@ unless defined?(Magick)
       puts "ImageMagick not found. Using dummy."
       # Create a dummy magick module
       module Magick
-        CenterGravity = OverCompositeOp = MaxRGB = NorthGravity = SouthGravity = nil
+        CenterGravity = OverCompositeOp = QuantumRange = NorthGravity = SouthGravity = nil
         class << self
         end
         class ZenaDummy
@@ -273,7 +273,7 @@ module Zena
           if crop_scale > 1.0
             # we do not zoom. Fill with transparent background.
             crop_min!(w,h,format[:gravity])
-            set_background!(Magick::MaxRGB, w, h)
+            set_background!(Magick::QuantumRange, w, h)
           else
             resize!(crop_scale * scale)
             crop_min!(w, h,format[:gravity])
@@ -282,7 +282,7 @@ module Zena
           crop_scale = [w.to_f/pw, h.to_f/ph].min
           resize!(crop_scale * scale)
           crop_min!(w, h,format[:gravity])
-          set_background!(Magick::MaxRGB, w, h)
+          set_background!(Magick::QuantumRange, w, h)
         when :limit
           crop_scale = [w.to_f/pw, h.to_f/ph].min
           resize!(crop_scale * scale)
