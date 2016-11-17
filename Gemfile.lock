@@ -1,3 +1,43 @@
+GIT
+  remote: https://github.com/zena/property.git
+  revision: 1b6b94748b68c0888c2d527a2bd2a53beb0d9721
+  branch: 2.2.1-with-ar2.3.18
+  specs:
+    property (2.3.4)
+      activerecord (~> 2.3)
+
+GIT
+  remote: https://github.com/zena/querybuilder.git
+  revision: e24ae5531e5c1ef124fa06689483e3a39dec82e1
+  branch: 2.2.1
+  specs:
+    querybuilder (1.2.3)
+      rubyless (>= 0.7.0)
+
+GIT
+  remote: https://github.com/zena/rubyless.git
+  revision: e52f307835d022013612cc7de00bbe320fba193d
+  branch: 2.2.1
+  specs:
+    rubyless (0.9.0)
+      ruby_parser (~> 2.3.1)
+      sexp_processor (>= 3.0.1)
+
+GIT
+  remote: https://github.com/zena/versions.git
+  revision: e9e49de2019f8089d9a8d74fd9534d0fd89f9ea6
+  branch: 2.2.1
+  specs:
+    versions (0.3.1)
+      activerecord
+
+GIT
+  remote: https://github.com/zena/yamltest.git
+  revision: 5b1e20406376634ac4f8c38d7df42e9f45fd3da7
+  branch: 2.2.1
+  specs:
+    yamltest (0.9.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -33,7 +73,8 @@ GEM
       multipart-post
     httparty (0.7.8)
       crack (= 0.1.8)
-    json (1.5.1)
+    i18n (0.7.0)
+    iconv (1.0.4)
     launchy (2.4.3)
       addressable (~> 2.3)
     locale (2.1.2)
@@ -41,11 +82,7 @@ GEM
     multipart-post (2.0.0)
     mysql (2.9.1)
     open4 (1.3.4)
-    property (2.3.4)
-      activerecord (~> 2.3)
     public_suffix (1.3.3)
-    querybuilder (1.2.3)
-      rubyless (>= 0.7.0)
     rack (1.1.6)
     rails (2.3.18)
       actionmailer (= 2.3.18)
@@ -54,7 +91,7 @@ GEM
       activeresource (= 2.3.18)
       activesupport (= 2.3.18)
       rake (>= 0.8.3)
-    rake (10.5.0)
+    rake (10.1.1)
     rdoc (2.4.2)
       hoe (>= 1.11.0)
       minitest (~> 1.3)
@@ -75,16 +112,14 @@ GEM
     ruby-recaptcha (1.0.3)
     ruby_parser (2.3.1)
       sexp_processor (~> 3.0)
-    rubyless (0.8.11)
-      ruby_parser (~> 2.3.1)
-      sexp_processor (>= 3.0.1)
     rubyzip (0.9.9)
-    safe_yaml (0.8.0)
+    safe_yaml (1.0.4)
     sexp_processor (3.2.0)
     shoulda (2.10.3)
     simple_xlsx_writer (0.5.3)
       fast_xs (>= 0.7.3)
       rubyzip (>= 0.9.4)
+    syck (1.2.0)
     syntax (1.0.0)
     thread_safe (0.3.5)
     tzinfo (1.2.2)
@@ -93,10 +128,8 @@ GEM
       launchy (>= 0.3.2)
       rake (>= 0.8.3)
       rspec (>= 1.1.11)
-    versions (0.3.1)
-      activerecord
     will_paginate (2.3.12)
-    yamltest (0.7.0)
+    yajl-ruby (1.3.0)
 
 PLATFORMS
   ruby
@@ -113,28 +146,31 @@ DEPENDENCIES
   hpricot (= 0.8.6)
   httmultiparty (= 0.3.8)
   httparty (= 0.7.8)
-  json (= 1.5.1)
+  i18n
+  iconv
   mysql (= 2.9.1)
   open4 (= 1.3.4)
-  property (= 2.3.4)
+  property!
   public_suffix (= 1.3.3)
-  querybuilder (= 1.2.3)
+  querybuilder!
   rails (= 2.3.18)
-  rake (= 10.5.0)
+  rake (= 10.1.1)
   rdoc (= 2.4.2)
   rmagick (= 2.16.0)
   ruby-recaptcha (= 1.0.3)
-  rubyless (= 0.8.11)
+  rubyless!
   rubyzip (= 0.9.9)
-  safe_yaml (= 0.8.0)
+  safe_yaml
   shoulda (= 2.10.3)
   simple_xlsx_writer (= 0.5.3)
+  syck
   syntax (= 1.0.0)
   tzinfo (= 1.2.2)
   uuidtools (= 2.0.0)
-  versions (= 0.3.1)
+  versions!
   will_paginate (= 2.3.12)
-  yamltest (= 0.7.0)
+  yajl-ruby
+  yamltest!
 
 BUNDLED WITH
    1.13.6
