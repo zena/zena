@@ -115,11 +115,9 @@ class_not_equal:
 class_filter_with_quotes:
   src: "nodes where class = 'Project' and title = 'k' in site"
   sql: "/nodes.kpath = 'NPP'/"
-
 klass_filter:
   src: "nodes where klass = 'Project' and title = 'k' in site"
   sql: "/nodes.kpath = 'NPP'/"
-
 role_filter:
   src: "nodes where role = Original in site"
   sql: "%Q{SELECT nodes.* FROM nodes JOIN nodes_roles WHERE #{secure_scope('nodes')} AND (nodes_roles.node_id = nodes.id AND nodes_roles.role_id = 493147733) ORDER BY nodes.zip ASC}"
@@ -157,7 +155,7 @@ relation_filter_attr:
   src: "projects where hot.title = 'Etat des travaux' in site"
   sql: "/ON ml1.node_id = jn1.id AND ml1.key = 'title' AND ml1.lang = 'fr'.*ml1.value = 'Etat des travaux'/"
   res: "Clean Water project"
-  
+
 filter_by_parent:
   src: "nodes where parent_id = 11 in site"
 #       nodes where parent.zip = ...
@@ -195,7 +193,7 @@ match_dstring:
 match_dstring_no_rb:
   src: "pages where fulltext match \"ho\" in site"
   sql: "/ve1.idx_text_high LIKE '%ho%'/"
-  
+
 match_number:
   src: "pages where fulltext match 123 in site"
   sql: "/ve1.idx_text_high LIKE '%123%'/"
