@@ -21,7 +21,7 @@ class UploadTest < Zena::View::TestCase
       context 'to a file too large' do
         setup do
           #@params = {'attachment_url' => 'http://apod.nasa.gov/apod/image/0901/gcenter_hstspitzer_big.jpg'}
-          @params = {'attachment_url' => 'http://upload.wikimedia.org/wikipedia/commons/f/f4/360-degree_Panorama_of_the_Southern_Sky.jpg'}
+          @params = {'attachment_url' => 'https://upload.wikimedia.org/wikipedia/commons/f/f4/360-degree_Panorama_of_the_Southern_Sky.jpg'}
         end
 
         should 'return an error about file being too big, without a download' do
@@ -36,7 +36,7 @@ class UploadTest < Zena::View::TestCase
       #   setup do
       #     @params = {'attachment_url' => "http://prdownload.berlios.de/zena/zena_playground.zip"}
       #   end
-      # 
+      #
       #   should 'return an error about missing content length' do
       #     file, error = get_attachment
       #     assert_nil file
