@@ -156,7 +156,7 @@ namespace :zena do
       end
     end
   end
-  
+
   desc "Create a new site alias, parameters are ALIAS, HOST"
   task :mkalias => :environment do
     # 0. set host name
@@ -173,7 +173,7 @@ namespace :zena do
             puts "Master host not found in the database. Aborting."
           else
             alias_site = site.create_alias(ali)
-            
+
             if alias_site.new_record?
               puts "Could not create site alias ! Errors:"
               alias_site.errors.each do |k,v|
@@ -393,17 +393,17 @@ namespace :zena do
   task :rebuild_index => :environment do
     # Make sure all bricks are loaded before executing the index rebuild
     Zena::Use.upgrade_class('Site')
-  
+
     include Zena::Acts::Secure
     if ENV['HOST']
       sites = [Site.find_by_host(ENV['HOST'])]
     else
       sites = Site.master_sites
     end
-    
+
     sites.each do |site|
       setup_visitor(site.any_admin, site)
-      
+
       if ENV['WORKER'] == 'false' || RAILS_ENV == 'test'
         # We avoid SiteWorker by passing nodes.
         nodes = Node.find(:all,
@@ -451,17 +451,17 @@ namespace :zena do
     end
   end
 
-  Rake::RDocTask.new do |rdoc|
-       files = ['README', 'doc/README_FOR_APP', 'CREDITS', 'MIT-LICENSE', 'app/**/*.rb',
-                'lib/**/*.rb']
-       rdoc.rdoc_files.add(files)
-       rdoc.main = "doc/README_FOR_APP" # page to start on
-       rdoc.title = "Zena Documentation"
-       rdoc.template = "./doc/template/allison.rb"
-       rdoc.rdoc_dir = 'doc/app' # rdoc output folder
-       rdoc.options << '--line-numbers' << '--inline-source'
-  end
-  Rake::Task['zena:rdoc'].comment = "Create the rdoc documentation"
+  # Rake::RDocTask.new do |rdoc|
+  #      files = ['README', 'doc/README_FOR_APP', 'CREDITS', 'MIT-LICENSE', 'app/**/*.rb',
+  #               'lib/**/*.rb']
+  #      rdoc.rdoc_files.add(files)
+  #      rdoc.main = "doc/README_FOR_APP" # page to start on
+  #      rdoc.title = "Zena Documentation"
+  #      rdoc.template = "./doc/template/allison.rb"
+  #      rdoc.rdoc_dir = 'doc/app' # rdoc output folder
+  #      rdoc.options << '--line-numbers' << '--inline-source'
+  # end
+  # Rake::Task['zena:rdoc'].comment = "Create the rdoc documentation"
 
   namespace :test do
     desc 'Cleanup before testing'
@@ -600,13 +600,13 @@ namespace :zena do
       exec cmd
     end
   end
-  
+
   desc "Remove rdoc warning/error"
   task :fix_rakefile do
     # Fix Rakefile
     path = "#{RAILS_ROOT}/Rakefile"
     text = File.read(path)
-    File.open(path, 'wb') {|f| f.puts text.gsub("require 'rake/rdoctask'\n", '')}
+    File.open(path, 'wb') {|f| f.puts text.gsub("require 'rake/task'\n", '')}
   end
 end # zena
 
