@@ -153,6 +153,7 @@ module Zena
               tz = ActiveRecord::Base.default_timezone == :utc ? "+0:0" : "SYSTEM"
               execute("SET time_zone = '#{tz}'")
               execute("SET collation_connection = 'utf8_unicode_ci'")
+              execute("SET sql_mode = ''")
             end
             alias_method_chain :configure_connection, :zena
           end
