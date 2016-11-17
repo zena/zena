@@ -22,7 +22,7 @@ module Zena
 
   ASSET_PORT     = Bricks.raw_config['asset_port'].to_i
   LOCAL_IPS      = ((Bricks.raw_config['local_ips'] || '').split(',').map(&:strip) + %w{127.0.0.1 ::1}).uniq
-  
+
 
   ENABLE_LATEX   = true  && has_executable('pdflatex') # enable LateX post-rendering
   ENABLE_FOP     = true  && has_executable('fop', 'xsltproc') # enable xsl-fo post-rendering
@@ -229,7 +229,7 @@ module Zena
       puts "** Bricks: #{Bricks::CONFIG.map{|k,v| k}.sort.join(', ')}"
 
       add_load_paths(config)
-      config_gems(config)
+      #config_gems(config)
       set_default_timezone(config)
       Zena::Db.prepare_connection
 
@@ -472,6 +472,6 @@ end
 
 Zena::EXT_TO_TYPE, Zena::TYPE_TO_EXT = make_hashes(EXT_TYPE)
 Zena.add_load_paths
-Zena.gems_setup
+#Zena.gems_setup
 Zena.load_custom_extensions
 require 'rubyless'
