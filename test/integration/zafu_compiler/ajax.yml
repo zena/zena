@@ -276,7 +276,7 @@ sortable:
   tem: "/<ol>.*Zena.resetSort.*<li data-a='position' data-p='<%= var2.position %>' id='<%= %Q.list1_#.var2.zip.. %>'>/"
   res: "/<li data-a='position' data-p='0.0' id='list1_29'><span class='drag_handle'>&nbsp;</span>a wiki with Zena</li>/"
   js: "/Zena.sortable\('list1_29', \{handle:'drag_handle'\}\)/"
-  
+
 unlink:
   context:
     node: 'art'
@@ -324,11 +324,11 @@ drop_done_remove:
   src: "<div do='drop' set='reference' done='remove'></div>"
   js: "/done=remove/"
 
-drop_param:
-  src: "<r:drop change='params' d='%{foo}'>params[:d] = <r:show eval='params[:d]'/></r:drop>"
-  tem: "/<div class='drop' id='list1'.*><% add_drop_id\(%Q\{list1\}, :url => drop_node_path\(@node.*:d => \"foo\", :change => \"params\"/"
-  res: "<div class='drop' id='list1' data-z='22'>params[:d] = </div>"
-  js: '/Droppables.add\(.list1.*d=foo/'
+# drop_param:
+#   src: "<r:drop change='params' d='%{foo}'>params[:d] = <r:show eval='params[:d]'/></r:drop>"
+#   tem: "/<div class='drop' id='list1'.*><% add_drop_id\(%Q\{list1\}, :url => drop_node_path\(@node.*:d => \"foo\", :change => \"params\"/"
+#   res: "<div class='drop' id='list1' data-z='22'>params[:d] = </div>"
+#   js: '/Droppables.add\(.list1.*d=foo/'
 
 drop_in_each:
   src: "<ul do='pages'><li do='each'><ul do='drop' set='reference'>...</ul></li></ul>"
