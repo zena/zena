@@ -1,10 +1,16 @@
 In this history, elements listed with a '~' still need to be documented.
 
+== 1.3.0
+  * Add Bundler Gemfile
+  * works on MySQL 5.7
+  * Update rmagick
+  * Remove zena gem_config and gem_setup
+
 == 1.2.9
 
 * Minor changes
   * Fixed bug related to "data-t" attribute missing in <body> tag (#80).
-  
+
 == 1.2.8 2014-08-17
 
 * Major changes
@@ -30,7 +36,7 @@ In this history, elements listed with a '~' still need to be documented.
   ~ Implemented 'fulltext match' or 'sphinx match' to use fulltext search in node query.
   ~ Added 'group_id_to_name' to visitor (enables group name display from node auth settings).
   ~ Added 'site_readonly' attribute to site with 'site.readonly?' rubyless. Useful for locking site during updates or migrations.
-    
+
 * Minor changes
   * Fixed gemspec to not include TextMate helper and selenium plugin.
   * Fixed xml generated file caching.
@@ -63,16 +69,16 @@ In this history, elements listed with a '~' still need to be documented.
 * Major changes
   * Support for multiple domains (site alias) for a single site.
   * Added support for wkhtmltopdf (Thanks Jean-Baptiste).
-  
+
 * Minor changes
   ~ Added 'cmd' option for pdf brick.
   ~ Added 'local_ips' option to bricks.yml (used when pdf engine cannot render non-public assets).
   * Fixed dependency on newer versions of rails.
-  
+
 == 1.2.5 2013-07-15
 
 * Major changes
- * To support video streaming: redirect on first document cache. WARNING: This 
+ * To support video streaming: redirect on first document cache. WARNING: This
    implies changes to vhost files !
  * WARN: Properties in list context do not resolve with first element anymore. "first" prefix needed.
  * Enable VirtualClass on native classes !
@@ -87,7 +93,7 @@ In this history, elements listed with a '~' still need to be documented.
  * Added 'login_info' to Node.
  * Added 'group_names' to User class.
  * Fixed [headers] when 'Status' is set (change to redirect on 300).
- 
+
 == 1.2.4 2013-06-13
 
 * Major changes
@@ -97,7 +103,7 @@ In this history, elements listed with a '~' still need to be documented.
  ~ Added 'content_type' regexp to force virtual class on Document creation.
  * Extended "create group" in vclass to be "allow group" (edit).
  * Added support for [versions_list] to display list of versions and status.
- 
+
 * Minor changes
  * Support for raw html in zazen with '<notextile>' or '<html>' tag. Must be allowed with notextile='true' on [zazen] tag.
  * Fixed preview of content with ACL (considering the POST on /zafu as a 'read').
