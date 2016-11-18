@@ -17,17 +17,18 @@ at_code_ruby:
   # default
   res: "<p>some <code class='idle_code'><span class=\"keyword\">class </span><span class=\"punct\">&lt;&lt;</span> <span class=\"constant\">self</span></code></p>"
 
-at_code_and_zazen:
-  src: |
-    This @do='[title]'@ and "":332.
-    
-    <code>blah</code>
-  res: "/\[make_link id:\|332\| title:\|\|\]/"
+# Not valid YAML
+# at_code_and_zazen:
+#   src: |
+#     This @do='[title]'@ and "":332.
+
+#     <code>blah</code>
+#   res: "/\[make_link id:\|332\| title:\|\|\]/"
 
 code_ruby:
   src: |
     some text
-    
+
     <code lang='ruby'>def hello
       puts "hello" << " world!"
     end</code>
@@ -37,7 +38,7 @@ code_ruby:
 img_after_brackets:
   src: |
     Text updated in [July 2008].
-    
+
     !30_full!
   res: "<p>Text updated in [July 2008].</p>\n\n\n\t<p>[make_image id:|30| images:true mode:|full| style:||]</p>"
 
@@ -52,7 +53,7 @@ gallery:
 gallery_and_images:
   src: |
     !23!
-    
+
     ![12]!
   res: "<p>[make_image id:|23| images:true style:||]</p>\n\n\n\t<p>[make_gallery [|12|] ]</p>"
 
