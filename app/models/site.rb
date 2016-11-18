@@ -54,7 +54,7 @@ class Site < ActiveRecord::Base
   ACTIONS = %w{clear_cache rebuild_index rebuild_fullpath}
   PUBLIC_PATH = Bricks.raw_config['public_path'] || '/public'
   CACHE_PATH  = Bricks.raw_config['cache_path']  || '/public'
-  
+
   include RubyLess
   safe_method  :host   => String, :lang_list => [String], :default_lang => String, :master_host => String
   safe_method  :root   => Proc.new {|h, r, s| {:method => 'root_node', :class => current_site.root_node.vclass, :nil => true}}
@@ -80,7 +80,7 @@ class Site < ActiveRecord::Base
     :bool => %w{authentication http_auth auto_publish ssl_on_auth site_readonly},
     :text => %w{languages default_lang},
   }
-  
+
   @@alias_attributes_for_form = {
     :bool => %w{authentication auto_publish ssl_on_auth},
     :text => %w{},
@@ -173,7 +173,7 @@ class Site < ActiveRecord::Base
       # =========== CREATE ROOT NODE ============================
 
       root = site.send(:secure,Project) do
-        Project.create( :title => site.name, :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :dgroup_id => editors[:id], :title => site.name, :v_status => Zena::Status::Pub)
+        Project.create( :title => site.name, :rgroup_id => pub[:id], :wgroup_id => sgroup[:id], :dgroup_id => editors[:id], :v_status => Zena::Status::Pub)
       end
 
       raise Exception.new("Could not create root node for site [#{host}] (site#{site[:id]})\n#{root.errors.map{|k,v| "[#{k}] #{v}"}.join("\n")}") if root.new_record?
@@ -184,7 +184,7 @@ class Site < ActiveRecord::Base
 
       site.home_id = root[:id]
       site.root_id = root[:id]
-      
+
       # Make sure safe definitions on Time/Array/String are available on prop_eval validation.
       Zena::Use::ZafuSafeDefinitions
       # Should not be needed since we load PropEval in Node, but it does not work
@@ -221,7 +221,7 @@ class Site < ActiveRecord::Base
       site.instance_variable_set(:@being_created, false)
       site
     end
-    
+
     def master_sites
       Site.all(:conditions => ['master_id is NULL'])
     end
@@ -234,7 +234,7 @@ class Site < ActiveRecord::Base
         nil
       end
     end
-    
+
     def setup_master(site)
       if id = site.master_id
         # The loaded site is an alias, load master site.
@@ -252,21 +252,21 @@ class Site < ActiveRecord::Base
     end
   end
 
-  property.string 'usr_prototype_attributes'  
+  property.string 'usr_prototype_attributes'
   property.boolean 'expire_in_dev'
   property.boolean 'ssl_on_auth'
 
   Site.attributes_for_form[:text] << 'usr_prototype_attributes'
   Site.attributes_for_form[:bool] << 'expire_in_dev'
   attr_accessible :usr_prototype_attributes, :expire_in_dev
-  
+
   # Return path for static/cached content served by proxy: RAILS_ROOT/sites/_host_/public
   # If you need to serve from another directory, we do not store the path into the sites table
   # for security reasons. The easiest way around this limitation is to symlink the 'public' directory.
   def public_path
     "/#{host}#{PUBLIC_PATH}"
   end
-  
+
   # This is the place where cached files should be stored in case we do not want
   # to store the cached file inside the public directory.
   def cache_path
@@ -283,7 +283,7 @@ class Site < ActiveRecord::Base
   def zafu_path
     "/#{master_host}/zafu"
   end
-  
+
   # Return the anonymous user, the one used by anonymous visitors to visit the public part
   # of the site.
   def anon
@@ -300,7 +300,7 @@ class Site < ActiveRecord::Base
   def root_node
     @root ||= secure(Node) { Node.find(root_id) } || Node.new(:title => host)
   end
-  
+
   # Return the home node.
   def home_node
     @home ||= secure(Node) { Node.find(home_id) } || Node.new(:title => host)
@@ -361,44 +361,44 @@ class Site < ActiveRecord::Base
   def lang_list
     (self[:languages] || "").split(',').map(&:strip)
   end
-  
+
   ###### Alias handling
   def is_alias?
     !self[:master_id].blank?
   end
-  
+
   # This is the host of the master site.
   def master_host
     self[:host]
   end
-  
+
   # Host with aliasing (returns alias host if alias is loaded)
   def host
     @alias && @alias.host || master_host
   end
-  
+
   def ssl_on_auth
     @alias && @alias.prop['ssl_on_auth'] || self.prop['ssl_on_auth']
   end
-  
+
   # Return true if the site is configured to automatically publish redactions
   def auto_publish?
     @alias && @alias[:auto_publish] || self[:auto_publish]
   end
-  
+
   # Return true if the site is configured to force authentication
   def authentication?
     @alias && @alias[:authentication] || self[:authentication]
   end
-  
+
   def home_id
     @home_id ||= @alias && @alias[:home_id] || self[:home_id] || self[:root_id]
   end
-  
+
   def home_zip
     home_node.zip
   end
-  
+
   def home_zip=(zip)
     if id = secure(Node) { Node.translate_pseudo_id(zip) }
       self[:home_id] = id
@@ -410,7 +410,7 @@ class Site < ActiveRecord::Base
   def skin_zip
     skin ? skin.zip : nil
   end
-  
+
   def skin_zip=(zip)
     if zip.blank?
       self[:skin_id] = nil
@@ -430,7 +430,7 @@ class Site < ActiveRecord::Base
   def skin_id
     @alias && @alias[:skin_id] || self[:skin_id]
   end
-  
+
   def create_alias(hostname)
     raise "Hostname '#{hostname}' already exists" if Site.find_by_host(hostname)
     ali = Site.new(self.attributes)
@@ -503,19 +503,19 @@ class Site < ActiveRecord::Base
         Zena::Db.execute "DELETE FROM caches WHERE site_id = #{self[:id]}"
         Zena::Db.execute "DELETE FROM cached_pages_nodes WHERE cached_pages_nodes.node_id IN (SELECT nodes.id FROM nodes WHERE nodes.site_id = #{self[:id]})"
         Zena::Db.execute "DELETE FROM cached_pages WHERE site_id = #{self[:id]}"
-      
+
         Dir.foreach(path) do |elem|
           next unless elem =~ /^(\w\w\.html|\w\w|login\.html)$/
           FileUtils.rmtree(File.join(path, elem))
         end
       end
     end
-    
+
     clear_zafu if should_clear_zafu
 
     true
   end
-  
+
   def clear_zafu
     path = "#{SITES_ROOT}#{self.zafu_path}"
     if File.exist?(path)
@@ -556,7 +556,7 @@ class Site < ActiveRecord::Base
 
     true
   end
-  
+
   # Rebuild property indices for the Site. This method uses the Worker thread to rebuild and works on
   # chunks of 50 nodes.
   #
@@ -604,7 +604,7 @@ class Site < ActiveRecord::Base
   private
     def valid_site
       errors.add(:host, 'invalid') if self[:host].nil? || (self[:host] =~ /^\./) || (self[:host] =~ /[^\w\.\-]/)
-      
+
       if !is_alias?
         errors.add(:languages, 'invalid') unless self[:languages].split(',').inject(true){|i,l| (i && l =~ /^\w\w$/)}
         errors.add(:default_lang, 'invalid') unless self[:languages].split(',').include?(self[:default_lang])
@@ -612,12 +612,12 @@ class Site < ActiveRecord::Base
         self[:languages] = nil
         self[:default_lang] = nil
       end
-      
+
       if @home_zip_error
         errors.add('root_zip', @home_zip_error)
         @home_zip_error = nil
       end
-      
+
       if @skin_zip_error
         errors.add('skin_zip', @skin_zip_error)
         @skin_zip_error = nil

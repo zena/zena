@@ -149,9 +149,9 @@ class Node < ActiveRecord::Base
   include Property::Serialization::JSON
 
   store_properties_in :version
-  
+
   invalid_property_failover 'title' => 'INVALID PROPERTY', 'ext' => 'txt', 'content/type' => 'text/plain'
-  
+
 
   property do |p|
     # Multilingual string index on 'title'
@@ -234,8 +234,9 @@ class Node < ActiveRecord::Base
 
   # we use safe_method because the columns can be null, but the values are never null
   safe_method        :kpath => String, :user_zip => Number, :user_id => Number,
-                     :parent_id   => {:class => Number, :method =>  'parent_zip'}, :parent_zip  => Number,
-                     :project_id  => {:class => Number, :method => 'project_zip'}, :project_zip => Number, 
+                     # :parent_id   => {:class => Number, :method =>  'parent_zip'},
+                     :parent_zip  => Number,
+                     :project_id  => {:class => Number, :method => 'project_zip'}, :project_zip => Number,
                      :section_id  => {:class => Number, :method => 'section_zip'}, :section_zip => Number,
                      :ref_lang => String,
                      :position => Number, :rgroup_id => Number,
@@ -243,7 +244,7 @@ class Node < ActiveRecord::Base
                      :klass => String,
                      :m_text => String, :m_title => String, :m_author => String,
                      :id => {:class => Number, :method => 'zip'},
-                     :skin => 'Skin', :ref_lang => String,
+                     :skin => 'Skin',
                      :visitor => 'User', [:is_ancestor?, Node] => Boolean,
                      :comments_count => Number,
                      :v => {:class => 'Version', :method => 'version'},
@@ -303,9 +304,9 @@ class Node < ActiveRecord::Base
   def v_number
     version.number
   end
-  
+
   Caster = ::ActiveRecord::ConnectionAdapters::Column
-  
+
   # Return class of cast value.
   def self.cast_to_class(type)
     case type
@@ -323,7 +324,7 @@ class Node < ActiveRecord::Base
       else nil
     end
   end
-  
+
   # Read with cast to an appropriate instance. This is used along with
   # custom select in QueryBuilder queries.
   def rcast(key, type)
@@ -364,7 +365,7 @@ class Node < ActiveRecord::Base
   include Zena::Use::ScopeIndex::ModelMethods
 
   include Zena::Use::QueryNode::ModelMethods
-  
+
   # Used by zafu_eval when parsing dates.
   include Zena::Use::Dates::ModelMethods
 
@@ -630,7 +631,7 @@ class Node < ActiveRecord::Base
 
       klass_name = attributes.delete('class') || attributes.delete('klass')
       klass_name ||= attributes['file'] ? 'Document' : 'Page'
-      
+
       if klass_name.kind_of?(VirtualClass) || klass_name.kind_of?(Class)
         klass = klass_name
       else
@@ -644,11 +645,11 @@ class Node < ActiveRecord::Base
           return node
         end
       end
-      
+
       if attributes['file'] && !(klass.kpath =~ %r{^ND})
         klass = VirtualClass['Document']
       end
-      
+
       if klass.kind_of?(VirtualClass)
         node = secure(klass.real_class) { klass.new_instance(attributes) }
       else
@@ -913,7 +914,7 @@ class Node < ActiveRecord::Base
 
       copy_node = new_attributes.delete(:_copy)
       attributes = new_attributes.stringify_keys
-      
+
       if copy_node || attributes['copy_id']
         if !copy_node && attributes['copy_id'].blank?
           attributes = Node.new.replace_attributes_in_values(attributes)
@@ -1005,7 +1006,7 @@ class Node < ActiveRecord::Base
   def zafu_versions
     versions.all(:order => 'number desc')
   end
-  
+
   # Enable dynamic property evaluation
   def zafu_eval(str, opts = {})
     value = safe_eval(str)
@@ -1021,7 +1022,7 @@ class Node < ActiveRecord::Base
   rescue RubyLess::Error
     nil
   end
-  
+
   # Remove loaded version and properties on reload.
   def reload
     @version    = nil
@@ -1214,7 +1215,7 @@ class Node < ActiveRecord::Base
   def user
     secure!(User) { o_user }
   end
-  
+
   def login_info
     secure(User) { User.find(:first, :conditions => {:node_id => self.id})}
   end
@@ -1449,7 +1450,7 @@ class Node < ActiveRecord::Base
     export_keys[:dates].each do |k, v|
       hash[k] = visitor.tz.utc_to_local(v).strftime("%Y-%m-%d %H:%M:%S")
     end
-    
+
     hash.merge!('class' => self.klass, 'position' => self.position)
     hash.to_yaml
   end
@@ -1480,7 +1481,7 @@ class Node < ActiveRecord::Base
     return nil unless type = virtual_class.safe_method_type([method])
     res = eval(type[:method])
     res ? res.to_s : nil
-  end  
+  end
 
   def auth=(params)
     return unless visitor.is_manager?
@@ -1495,12 +1496,12 @@ class Node < ActiveRecord::Base
     end
     @auth = nil
   end
-  
+
   # Find all users using this node as contact node.
   def auth_users
     @auth_users ||= new_record? ? nil : secure(User) { User.all(:conditions => {:node_id => self.id}) }
   end
-  
+
   def auth
     @auth ||= if l = auth_user
       h = StringHash.new
@@ -1512,7 +1513,7 @@ class Node < ActiveRecord::Base
       {}
     end
   end
-  
+
   # Find first user using this node as contact node
   def auth_user
     @auth_user ||= begin
@@ -1686,7 +1687,7 @@ class Node < ActiveRecord::Base
           errors.add('klass', 'invalid') if !self.class.allowed_change_to_classes.include?(@new_klass)
         end
       end
-      
+
       if vclass.create_group_id
         errors.add('klass', 'unauthorized') if !visitor.group_ids.include?(vclass.create_group_id)
       end
@@ -1711,10 +1712,10 @@ class Node < ActiveRecord::Base
       if vclass.auto_create_discussion
         Discussion.create(:node_id=>self[:id], :lang=>v_lang, :inside => false)
       end
-      
+
       update_auth_user
     end
-    
+
     def node_before_destroy
       if !visitor.is_manager? && auth_users
         errors.add(:base, 'Cannot destroy: node is a user')
@@ -1723,7 +1724,7 @@ class Node < ActiveRecord::Base
         true
       end
     end
-    
+
     def node_after_destroy
       update_auth_user
       sweep_cache
@@ -1770,7 +1771,7 @@ class Node < ActiveRecord::Base
       end
       sweep_cache
     end
-    
+
     # Called after a node is modified and directly published.
     def after_auto_publish
       sweep_cache
@@ -1822,10 +1823,10 @@ class Node < ActiveRecord::Base
         remove_instance_variable(:@add_comment)
       end
       remove_instance_variable(:@discussion) if defined?(@discussion) # force reload
-      
+
       update_auth_user
     end
-    
+
     def update_auth_user
       if destroyed?
         if users = auth_users
@@ -1849,11 +1850,11 @@ class Node < ActiveRecord::Base
               # Creating user
               user.node_id = self.id
             end
-            
+
             if user.login.blank?
               user.login = title.strip
             end
-            
+
             if !user.save
               user.errors.each do |k,v|
                 errors.add("user[#{k}]", v)
