@@ -5,7 +5,7 @@ module Zafu
       if RAILS_ENV == 'development'
         base.class_eval do
           def render_for_file_with_rebuild(template_path, status = nil, layout = nil, locals = {}) #:nodoc:
-            path = template_path.respond_to?(:path_without_format_and_extension) ? template_path.path_without_format_and_extension : template_path
+            path = template_path.respond_to?(:path_without_format_and_extension,true) ? template_path.path_without_format_and_extension : template_path
             logger.info("Rendering #{path}" + (status ? " (#{status})" : '')) if logger
             # if params[:rebuild] == 'true'
               t = self.view_paths.find_template(template_path, 'html')

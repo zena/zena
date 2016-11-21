@@ -147,7 +147,7 @@ module Zena
         @pass    = {} # used to pass information to the parent
         res = nil
 
-        if respond_to?("r_#{@method}".to_sym)
+        if respond_to?("r_#{@method}".to_sym,true)
           res = do_method("r_#{@method}".to_sym)
         else
           res = do_method(:r_unknown)

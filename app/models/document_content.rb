@@ -91,7 +91,7 @@ class DocumentContent < ActiveRecord::Base
   def would_edit?(new_attrs)
     new_attrs.each do |k,v|
       if k == 'file'
-        return true if (v.respond_to?(:size) ? v.size : File.size(v.path)) != self.size
+        return true if (v.respond_to?(:size,true) ? v.size : File.size(v.path)) != self.size
         same = v.read(24) == self.file.read(24) && v.read == self.file.read
         v.rewind
         self.file.rewind

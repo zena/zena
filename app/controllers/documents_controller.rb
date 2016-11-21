@@ -13,7 +13,7 @@ class DocumentsController < ApplicationController
   def new
     # Use the Template class so that we can use the same object in forms which need the Template properties.
     @node = @parent.new_child(:class => Template)
-    
+
     respond_to do |format|
       format.html
     end
@@ -35,7 +35,7 @@ class DocumentsController < ApplicationController
         @node.skin_id ||= current_site.root_node.skin_id
 
         flash.now[:error] = _("Upload failed.")
-        unless @node.respond_to?('target_klass')
+        unless @node.respond_to?('target_klass',true)
           # Could we find another way to fake the new object as acting like a template ?
           class << @node
             def target_klass; nil; end
@@ -52,7 +52,7 @@ class DocumentsController < ApplicationController
   # Create a document with upload progression (upload in mongrel)
   def upload
     create_document
-    
+
     render_upload
   end
 
@@ -87,7 +87,7 @@ class DocumentsController < ApplicationController
         raise ActiveRecord::RecordNotFound
       end
     end
-    
+
     def create_document
       attrs = params['node']
       file, error = get_attachment

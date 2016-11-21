@@ -63,10 +63,10 @@ class Document < Node
     def new(attrs = {}, vclass = nil)
       attrs = attrs.stringify_keys
       file  = attrs['file'] || ((attrs['version_attributes'] || {})['content_attributes'] || {})['file']
-      
+
       if ct = attrs['content_type']
         content_type = ct
-      elsif file && file.respond_to?(:content_type) && file.content_type != 'application/octet-stream'
+      elsif file && file.respond_to?(:content_type,true) && file.content_type != 'application/octet-stream'
         content_type = file.content_type
       elsif attrs['title'] =~ /^.*\.(\w+)$/ && types = Zena::EXT_TO_TYPE[$1.downcase]
         content_type = types[0]
@@ -120,12 +120,12 @@ class Document < Node
       else
         self
       end
-      
+
       # Try to find a virtual sub-class accepting the content type
       vclass = nil
       VirtualClass[base.to_s].sub_classes.each do |v|
         next if v.real_class != base
-        
+
         if content_type =~ v.content_type_re
           vclass = v
           break
@@ -173,7 +173,7 @@ class Document < Node
   def filepath(format=nil)
     version.attachment.filepath(format)
   end
-  
+
   protected
     def set_defaults
       set_defaults_from_file
@@ -217,7 +217,7 @@ class Document < Node
       end
 
       klass = Document.document_class_from_content_type(content_type)
-      
+
       real_class = klass.real_class
 
       if real_class != self.class

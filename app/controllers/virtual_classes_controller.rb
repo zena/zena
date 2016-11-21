@@ -10,7 +10,7 @@ class VirtualClassesController < ApplicationController
     secure(::Role) do
       @virtual_classes = ::Role.paginate(:all, :order => 'kpath', :per_page => 200, :page => params[:page])
     end
-    
+
     list = @virtual_classes.map(&:name)
     if last = @virtual_classes.last
       last_kpath = last.kpath
@@ -97,7 +97,7 @@ class VirtualClassesController < ApplicationController
     end
   rescue ActiveRecord::RecordInvalid => e
     r = e.record
-    if r.respond_to?(:name)
+    if r.respond_to?(:name,true)
       flash[:error] = "#{r.class} '#{r.name}' #{e.message}"
     else
       flash[:error] = "#{r.class} '#{r.inspect}' #{e.message}"

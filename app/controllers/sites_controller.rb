@@ -25,7 +25,7 @@ class SitesController < ApplicationController
   end
 
   def jobs
-    @jobs = @site.respond_to?(:jobs) ? @site.jobs : []
+    @jobs = @site.respond_to?(:jobs,true) ? @site.jobs : []
     respond_to do |format|
       format.html
     end
@@ -52,7 +52,7 @@ class SitesController < ApplicationController
       end
     end
   end
-  
+
   def clear_cache
     secure!(Site) { Site.all }.each do |site|
       site.clear_cache

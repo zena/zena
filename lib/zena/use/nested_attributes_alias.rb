@@ -6,7 +6,7 @@ module Zena
       module ViewMethods
         class InstanceTag < ActionView::Helpers::InstanceTag
           def value(object)
-            if object.respond_to?(:nested_model_names_for_alias) && nested_model_names = object.nested_model_names_for_alias(@method_name)
+            if object.respond_to?(:nested_model_names_for_alias,true) && nested_model_names = object.nested_model_names_for_alias(@method_name)
               method_name = nested_model_names.pop # remove method
               nested_model_names.each do |nested_model_name|
                 object = object.send(nested_model_name)
@@ -18,7 +18,7 @@ module Zena
           end
 
           def value_before_type_cast(object)
-            if object.respond_to?(:nested_model_names_for_alias) && nested_model_names = object.nested_model_names_for_alias(@method_name)
+            if object.respond_to?(:nested_model_names_for_alias,true) && nested_model_names = object.nested_model_names_for_alias(@method_name)
               method_name = nested_model_names.pop # remove method
               nested_model_names.each do |nested_model_name|
                 object = object.send(nested_model_name)
@@ -146,7 +146,7 @@ module Zena
 
         # Return the list of all ordered routes, including routes defined in the superclass
         def nested_attr_alias_list
-          @@_nested_attr_alias_list[self] ||= if superclass.respond_to?(:nested_attributes_alias)
+          @@_nested_attr_alias_list[self] ||= if superclass.respond_to?(:nested_attributes_alias,true)
             # merge with superclass attributes
             list = superclass.nested_attr_alias_list.dup
             (@@_nested_attr_alias[self] || []).each do |regex, method|

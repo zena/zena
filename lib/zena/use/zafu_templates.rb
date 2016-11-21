@@ -183,7 +183,7 @@ module Zena
           # File path:
           rel_path  = current_site.zafu_path + "/#{zafu_url}/#{lang_path}/_main.erb"
           path      = SITES_ROOT + rel_path
-          
+
           if !File.exists?(path)
             rebuild_template(nil, opts.merge(:zafu_url => zafu_url, :rel_path => rel_path, :dev_mode => (dev_mode? && opts[:mode] != '+popupLayout')))
           end
@@ -235,7 +235,7 @@ module Zena
 
         def self.included(base)
 #          base.send(:helper_attr, :asset_cache)
-          if base.respond_to?(:helper_method)
+          if base.respond_to?(:helper_method,true)
             base.send(:helper_method, :dev_mode?, :lang_path, :rebuild_template, :get_template_text, :template_url, :template_url_for_asset, :zafu_helper, :template_path_from_template_url, :save_erb_to_url, :default_template_url, :fullpath_from_template_url)
           end
 
@@ -250,25 +250,25 @@ module Zena
           if vclass = opts[:vclass]
             # We know the skin title, skip 'get_skin'
             @skins ||= {}
-            
+
             if opts[:skin].to_s =~ /^\$(.*)/
               # The skin passed through the url is $brick-bar if using fs_skin and this does not work.
               @skin = @skins[opts[:skin]] ||= secure(Skin) { visitor.site.root_node.find("skin where z_fs_skin = '#{$1}' in site") }
             else
               @skin = @skins[opts[:skin]] ||= secure(Skin) { Skin.find_by_title(opts[:skin]) }
             end
-            
+
             # possible classes for the master template :
             kpaths = [vclass.kpath]
           else
             @skin  = get_skin
             vclass = @node.vclass
-            
+
             # possible classes for the master template :
             kpaths = []
             vclass.kpath.split(//).each_index { |i| kpaths << vclass.kpath[0..i] }
           end
-          
+
           mode   = opts[:mode]
           mode   = nil if mode.blank?
           format = opts[:format] || 'html'
@@ -276,9 +276,9 @@ module Zena
           if @skin
             zafu_url, template = get_best_template(kpaths, format, mode, @skin)
             return default_template_url(opts) unless zafu_url
-            
+
             rel_path  = current_site.zafu_path + "/#{zafu_url}/#{lang_path}/_main.erb"
-            
+
             path      = SITES_ROOT + rel_path
             if !File.exists?(path) || params[:rebuild]
               # Use the template's target vclass as starting context
@@ -337,21 +337,21 @@ module Zena
           base_p = [current_site.zafu_path] + template_url[0..-2]
           lang_p = [dev_mode? ? "dev_#{lang}" : lang]
           part_p = template_url[-1]
-          
+
           main_fullpath = SITES_ROOT + (base_p + lang_p + ['_main.erb']).join('/')
           if !File.exist?(main_fullpath) && build
             skin = template_url[0]
             template_name = template_url[-2]
-            
+
             if template_name =~ ::Template::MODE_FORMAT_FROM_TITLE
               klass  = $1
               mode   = $4 || ''
               format = $6 || 'html'
-              
+
               template_url(:mode => mode, :format => format, :vclass => VirtualClass[klass], :skin => skin)
             end
           end
-          
+
           (base_p + lang_p + ["#{part_p}#{suffix}.erb"]).join('/')
         end
 
@@ -457,9 +457,9 @@ module Zena
                 end
               end
             end
-            
+
             res = ZafuCompiler.new_with_url(zafu_url, :helper => zafu_helper).to_erb(:dev => dev_mode?, :node => get_node_context, :master_template => template)
-            
+
             unless valid_template?(res, opts)
               # problem during rendering, use default zafu
               return nil
@@ -475,7 +475,7 @@ module Zena
             else
               res.sub!('</body>', "<%= render_js %></body>")
             end
-            
+
             if request.format == Mime::HTML || opts[:format] == 'html'
               # Insert start id
               res.sub!('<body', %Q{<body data-t='#{zafu_url}' data-z='<%= @node.zip %>' })

@@ -32,7 +32,7 @@ module Zena
 
           def self.log_message(msg)
             logger = @message_logger || self.logger
-            if logger.respond_to?(:info)
+            if logger.respond_to?(:info,true)
               logger.info "-\n"
               logger.info "  %-10s: %s" % ['operation', 'message']
               logger.info "  %-10s: %s" % ['message', msg.inspect]

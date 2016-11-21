@@ -6,7 +6,7 @@ module Zena
   module Use
     module Upload
       UPLOAD_KEY = defined?(Mongrel) ? 'upload_id' : "X-Progress-ID"
-      
+
       def self.has_network?
         response = nil
         Net::HTTP.new('example.com', '80').start do |http|
@@ -21,7 +21,7 @@ module Zena
         protected
           def uploaded_file(file, filename = nil, content_type = nil)
             (class << file; self; end;).class_eval do
-              alias local_path path if respond_to?(:path)  # FIXME: do we need this ?
+              alias local_path path if respond_to?(:path,true)  # FIXME: do we need this ?
               define_method(:original_filename) { filename }
               define_method(:content_type) { content_type }
             end
@@ -31,11 +31,11 @@ module Zena
 
       module ControllerMethods
         include UploadedFile
-        
+
         def self.included(base)
           base.send(:helper_method, :fetch_html)
         end
-        
+
         protected
           include ActionView::Helpers::NumberHelper # number_to_human_size
           def get_attachment
@@ -48,7 +48,7 @@ module Zena
             yield(att, error) if block_given?
             [att, error]
           end
-          
+
           def fetch_html(uri_str)
             response, error = fetch_response(uri_str)
             if response
@@ -157,7 +157,7 @@ module Zena
               end
             end
           end
-          
+
           def render_upload
             responds_to_parent do # execute the redirect in the iframe's parent window
               render :update do |page|

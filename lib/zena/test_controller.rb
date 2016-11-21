@@ -41,7 +41,7 @@ module Zena
     def test_render
       if params[:format] and params[:format] != 'html' then
         met = :"render_to_#{params[:format]}"
-        if respond_to?(met)
+        if respond_to?(met,true)
           result = self.send(met, {:inline => @text})
           render :text => result[:data]
           headers.merge!(result[:type])

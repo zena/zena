@@ -170,7 +170,7 @@ module Zafu
           elsif type = safe_method_from(helper, signature)
             # Resolve template helper methods
             type
-          elsif helper.respond_to?(:helpers) && type = safe_method_from(helper.helpers, signature)
+          elsif helper.respond_to?(:helpers,true) && type = safe_method_from(helper.helpers, signature)
             # Resolve by looking at the included helpers
             type
           elsif node && !node.list_context? && type = safe_method_from(node.klass, signature, node)
@@ -302,7 +302,7 @@ module Zafu
 
         def safe_method_from(solver, signature, receiver = nil)
 
-          if solver.respond_to?(:safe_method_type)
+          if solver.respond_to?(:safe_method_type,true)
             solver.safe_method_type(signature, receiver)
           else
             RubyLess::SafeClass.safe_method_type_for(solver, signature)

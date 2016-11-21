@@ -14,7 +14,7 @@ module Zena
         raise Exception.new("Invalid attributes. Expecting a hash, found #{new_attributes.inspect}") unless new_attributes.kind_of?(Hash)
         new_attributes.stringify_keys.each do |key, value|
           writer = "#{key}=".to_sym
-          if self.respond_to?(writer)
+          if self.respond_to?(writer,true)
             self.send(writer, value)
           elsif value.kind_of?(Array)
             # setting multiple ids

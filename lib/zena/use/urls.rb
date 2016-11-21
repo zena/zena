@@ -23,7 +23,7 @@ module Zena
       module Common
         # This is directly related to the FileMatch clause in httpd.rhtml (mod_expires for apaches)
         CACHESTAMP_FORMATS = %w{ico flv jpg jpeg png gif js css swf}
-        
+
         def prefix
           if visitor.is_anon?
             visitor.lang
@@ -118,7 +118,7 @@ module Zena
           if asset = opts.delete(:asset)
             mode   = nil
           end
-            
+
           if should_cachestamp?(node, format, asset)
             stamp = make_cachestamp(node, mode)
           end
@@ -170,7 +170,7 @@ module Zena
         end
 
         def append_query_params(path, opts)
-          
+
           if opts == {}
             path
           else
@@ -193,7 +193,7 @@ module Zena
                   end
                 end
               elsif value = opts[k]
-                if value.respond_to?(:strftime_tz)
+                if value.respond_to?(:strftime_tz,true)
                   "#{k}=#{CGI.escape(value.strftime_tz(_(Zena::Use::Dates::DATETIME), tz))}"
                 elsif value.kind_of?(Hash)
                   "#{k}=#{value.to_query}"
@@ -208,7 +208,7 @@ module Zena
                 nil
               end
             end.flatten.compact
-            
+
             # TODO: replace '&' by '&amp;' ? Or escape later ? Use h before zen_path in templates ? What about css/xls/other stuff ?
             # Best solution: use 'h' in template when set in default
             path + (list.empty? ? '' : "?#{list.sort.join('&')}")
@@ -257,7 +257,7 @@ module Zena
           else
             node.updated_at.to_i.to_s
           end
-          
+
           Digest::SHA1.hexdigest(str)[0..4]
         end
 
@@ -420,7 +420,7 @@ module Zena
           steal_and_eval_html_params_for(markup, @params)
 
           href = make_href(remote_target, options)
-          
+
           # This is to make sure live_id is set *inside* the <a> tag.
           if @live_param
             text = add_live_id(text_for_link, markup)
@@ -430,7 +430,7 @@ module Zena
           end
 
           http_method = http_method_from_action(options[:action])
-            
+
           if http_method == 'delete' && method != 'unlink'
             confirm ||= '#{t("Destroy")} "#{h title}" ?'
           end
@@ -462,8 +462,8 @@ module Zena
             else
               #### FIXME: We need the 'update' parameter to trigger a js response for delete but we ignore
               ####        the content.
-              
-              
+
+
               if remote_target.kind_of?(String)
                 # YUCK. We should have a way to have dom_ids that do not need
                 # us to look for remote_target !
@@ -471,7 +471,7 @@ module Zena
               end
               # Experimental new model for javascript actions.
               # Works for 'swap' but needs more adaptations for 'edit' or other links
-            
+
               hash_params = []
               (options[:query_params] || @params).each do |key, value|
                 next if [:update, :href, :eval, :text, :attr, :t, :host].include?(key)
@@ -500,13 +500,13 @@ module Zena
               if host = param(:host)
                 hash_params << ":host => %Q{#{host}}"
               end
-            
+
               if !hash_params.blank?
                 query = RubyLess.translate(self, "{#{hash_params.join(', ')}}.to_json")
               else
                 query = ''
               end
-            
+
               dom_id, dom_prefix = get_dom_id(remote_target)
               markup.set_dyn_param(:onclick, %Q{return Zena.#{http_method}("<%= #{dom_id} %>",<%= #{query} %>)})
             end
@@ -612,7 +612,7 @@ module Zena
             unless hash_params.empty?
               method_args << hash_params.join(', ')
             end
-            
+
             method = "#{method}(#{method_args.join(', ')})"
 
             ::RubyLess.translate(self, method)
@@ -621,7 +621,7 @@ module Zena
           def insert_ajax_args(target, hash_params, action)
             hash_params << ":s => start_id"
             hash_params << ":link_id => this.link_id" if @context[:has_link_id] && node.will_be?(Node) && !node.list_context?
-            
+
             # FIXME: when we have proper markup.dyn_params[:id] support,
             # we should not need this crap anymore.
             case action
@@ -740,7 +740,7 @@ module Zena
           end
 
           def text_for_link(default = nil)
-            
+
             if dynamic_blocks?
               expand_with
             else

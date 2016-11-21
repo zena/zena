@@ -32,7 +32,7 @@ module Zena
           end
 
           # Replace placeholders by their real values
-          @helper.replace_placeholders(@text) if @helper.respond_to?('replace_placeholders')
+          @helper.replace_placeholders(@text) if @helper.respond_to?('replace_placeholders',true)
           @blocks = ""
           enter(:wiki)
         end

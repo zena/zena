@@ -46,7 +46,7 @@ module Zena
         def zafu_headers
           @zafu_headers ||= {}
         end
-        
+
         def set_caching(opts)
           if request.query_string =~ opts[:allow_query]
             @cache_query = request.query_string
@@ -134,7 +134,7 @@ module Zena
           #
           # cleanup before rendering
           # params.delete(:mode)
-          
+
           if opts[:format] != 'html'
 
             method = "render_to_#{opts[:format]}"
@@ -143,7 +143,7 @@ module Zena
               opts[:debug] = true
             end
 
-            if respond_to?(method)
+            if respond_to?(method,true)
               # Call custom rendering engine 'render_to_pdf' for example.
               result = send(method, opts)
             else
@@ -163,15 +163,15 @@ module Zena
               opts[:cache] = false
               @render_error = error
               render :file => 'nodes/render_error'
-            
+
             elsif result[:type] == 'text/html'
               # debugging mode from rendering engine
               opts[:cache] = false
-              
+
               render :inline => result[:data]
-            
+
             else
-              
+
               if disposition = zafu_headers.delete('Content-Disposition')
                 result.delete(:filename) if disposition =~ /filename\s*=/
                 result[:disposition] = disposition
@@ -184,7 +184,7 @@ module Zena
               if filename = zafu_headers.delete('filename')
                 result[:filename] = filename
               end
-              
+
               if status = zafu_headers.delete('Status')
                 if (status.to_i / 100) == 3
                   redirect_to zafu_headers.delete('Location'), :status => status.to_i
@@ -202,9 +202,9 @@ module Zena
               else
                 # Should never happen
                 raise Exception.new("Render '#{params[:format]}' should return either :file or :data (none found).")
-              end  
+              end
               headers.merge!(zafu_headers)
-              
+
             end
 
             cache_page(:content_data => result[:data], :content_path => result[:file]) if opts[:cache]
@@ -214,26 +214,26 @@ module Zena
               render_to_string :file => template_url(opts), :layout => false
             else
               render :file => template_url(opts), :layout => false, :status => opts[:status]
-              
+
               if status = zafu_headers.delete('Status')
                 # reset rendering
                 response.content_type = nil
                 erase_render_results
                 reset_variables_added_to_assigns
-                
+
                 if (status.to_i / 100) == 3
                   redirect_to zafu_headers.delete('Location'), :status => status.to_i
                 else
                   render :status => status.to_i
                 end
-                
+
                 headers.merge!(zafu_headers)
-                
+
                 return
               end
-              
+
               headers.merge!(zafu_headers)
-              
+
               cache_page(:url => opts[:cache_url]) if opts[:cache]
             end
           end
@@ -259,9 +259,9 @@ module Zena
           end
 
           if perform_caching && caching_allowed(:authenticated => opts.delete(:authenticated))
-          
+
             url = page_cache_file(opts.delete(:url))
-            
+
             opts = {:expire_after  => nil,
                     :path          => (current_site.cache_path + url),
                     :content_data  => response.body,
@@ -301,12 +301,12 @@ module Zena
           else
             path << ".#{ext}" unless path =~ /\.#{ext}(\?\d+|)$/
           end
-          
+
           if cachestamp_format?(params['format'])
             # Set expire
             response.headers['Expires'] = 1.year.from_now.httpdate
           end
-          
+
           path
         end
 
@@ -373,7 +373,7 @@ module Zena
             out "<% set_headers(#{headers.join(', ')}) %>"
           end
         end
-        
+
         # <r:cache rebuild='true' allow_query='p=1?[0-9]'/>
         # <r:cache rebuild='true' allow_query='p=1?[0-9]'/>
         def r_cache
@@ -382,13 +382,13 @@ module Zena
             reg_test = %r{^#{re}$}
             params_list << ":allow_query => #{reg_test.inspect}"
           end
-          
+
           if rebuild = @params[:rebuild]
             # TODO: implement "replace if changed (diff)" instead of cache removal if there is the rebuild
             # setting so that the cached timestamp does not change.
             params_list << ":rebuild => #{@params[:rebuild].inspect}"
           end
-          
+
           if at = @params[:expire_at]
             params_list << ":rebuild => #{@params[:rebuild].inspect}"
           end

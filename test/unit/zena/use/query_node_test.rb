@@ -22,7 +22,7 @@ class QueryNodeTest < Zena::Unit::TestCase
     end
 
     should 'implement db_attr' do
-      assert subject.new.respond_to?(:db_attr)
+      assert subject.new.respond_to?(:db_attr,true)
     end
 
     should 'declare db_attr as safe RubyLess' do

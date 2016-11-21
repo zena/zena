@@ -8,7 +8,7 @@ module Zena
         safe_method [:query_parse, String] => {:class => String, :accept_nil => true}
         safe_method [:query_parse, Hash] => {:class => String, :accept_nil => true}
         safe_method [:query_parse, String, Hash] => {:class => String, :accept_nil => true}
-        
+
         safe_method :query_errors => {:class => String, :nil => true, :html_safe => true}
 
         def find_node_by_zip(zip)
@@ -32,9 +32,9 @@ module Zena
                 # mixed in and strangely RubyLess cannot access the helpers from 'self'.
                 :rubyless_helper => zafu_helper.helpers
               )
-              
+
               # Node.logger.warn eval(query.to_s(type == :count ? :count : :find), opts[:binding] || binding)
-              
+
               if type == :count
                 return klass.do_find(:count, eval(query.to_s(:count), opts[:binding] || binding))
               else
@@ -193,7 +193,7 @@ module Zena
           rescue ::QueryBuilder::Error => err
             return parser_error(err.message)
           end
-          
+
           if count == :all
             klass = [default_query.main_class]
             type = :find
@@ -207,7 +207,7 @@ module Zena
             type = :count
             res_nil = false
           end
-          
+
           can_be_nil = true
           if sql = @params[:eval]
             sql = RubyLess.translate(self, sql)
@@ -330,7 +330,7 @@ module Zena
           def build_query(count, pseudo_sql, raw_filters = [])
             node = single_node
 
-            if !node.klass.respond_to?(:build_query)
+            if !node.klass.respond_to?(:build_query,true)
               # Fallback to Node
               node = node.up(Node)
             end

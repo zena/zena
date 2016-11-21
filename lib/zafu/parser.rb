@@ -62,7 +62,7 @@ module Zafu
           attr_accessor :#{clbk}_callbacks
 
           def #{clbk}_callbacks
-            @#{clbk}_callbacks ||= superclass.respond_to?(:#{clbk}_callbacks) ? superclass.#{clbk}_callbacks : []
+            @#{clbk}_callbacks ||= superclass.respond_to?(:#{clbk}_callbacks,true) ? superclass.#{clbk}_callbacks : []
           end
 
           def #{clbk}(*args)

@@ -5,7 +5,7 @@ module Zafu
     def compile(template)
       @template = template
       helper   = Thread.current[:view]
-      if !helper.respond_to?(:zafu_context)
+      if !helper.respond_to?(:zafu_context,true)
         raise Exception.new("Please add \"include Zafu::ControllerMethods\" into your ApplicationController for zafu to work properly.")
       end
       ast = Zafu::Template.new(template, self)

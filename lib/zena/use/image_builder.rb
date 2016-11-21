@@ -106,7 +106,7 @@ module Zena
           if @img = build_image_from_file_or_path
             @width  = @img.columns
             @height = @img.rows
-            if node && node.respond_to?(:fix_sizes)
+            if node && node.respond_to?(:fix_sizes,true)
               # Fix property
               node.fix_sizes(@width, @height)
             end
