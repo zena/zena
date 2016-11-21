@@ -5,7 +5,7 @@ require(File.join(File.dirname(__FILE__), 'config', 'boot'))
 
 require 'rake'
 require 'rake/testtask'
-
+require 'single_test/tasks'
 require 'tasks/rails'
 
 task :default => 'zena:test'
