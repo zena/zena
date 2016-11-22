@@ -4,6 +4,8 @@ require 'test_help'
 require 'yamltest'
 require 'shoulda'
 
+Zena.initialize_gettext
+
 def deb(*args)
   raise Exception.new
 rescue Exception => err

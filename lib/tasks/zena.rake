@@ -1,5 +1,6 @@
 require 'safe_yaml'
 require 'fileutils'
+require 'gettext_i18n_rails/tasks'
 
 # We need to make sure the RAILS_ENV is set before brick activation or the wrong bricks will
 # be loaded.

@@ -3,12 +3,13 @@ source "https://rubygems.org"
 
 gem 'rails',          '2.3.18'
 
+gem 'versions',       :git=>'https://github.com/zena/versions.git', :branch => '2.2.1'
 gem 'querybuilder',   :git=>'https://github.com/zena/querybuilder.git', :branch =>'2.2.1'
 gem 'yamltest',       :git=>'https://github.com/zena/yamltest.git', :branch => '2.2.1'
 gem 'safe_yaml'
 gem 'rubyless',       :git=>'https://github.com/zena/rubyless.git', :branch=>'2.2.1'
 gem 'property',       :git=>'https://github.com/zena/property.git', :branch=>'2.2.1-with-ar2.3.18'
-gem 'versions',       :git=>'https://github.com/zena/versions.git', :branch => '2.2.1'
+
 
 gem 'rake',						'10.1.1'
 gem 'hpricot',				'0.8.6'
@@ -19,8 +20,10 @@ gem 'uuidtools',      '2.0.0'
 #gem 'json',           '1.5.1'
 gem 'yajl-ruby', require: 'yajl'
 gem 'authlogic',      '2.1.11'
+
 gem 'fast_gettext'    #,   '0.4.16'
-gem	'gettext', 				'2.1.0'
+gem 'gettext_i18n_rails', :git => 'https://github.com/grosser/gettext_i18n_rails.git'
+
 gem 'will_paginate',  '2.3.12'
 gem 'differ',         '0.1.2'
 gem 'httparty',       '0.7.8'
@@ -43,5 +46,7 @@ gem 'syck'
 group :test, :development do
 	gem 'shoulda',        '2.10.3'
 	gem 'test-unit'
-	gem 'single_test', 		'~> 0.6.0'
+	gem 'single_test', 		'~> 0.6.0'				#, 				'2.1.0'
+	gem 'ruby_parser', :require => 'false'
+	gem	'gettext', :require => 'false'
 end

@@ -1,4 +1,11 @@
 GIT
+  remote: https://github.com/grosser/gettext_i18n_rails.git
+  revision: 0777c698ea218760ddf4ba51895900cc6a23b2b6
+  specs:
+    gettext_i18n_rails (1.8.0)
+      fast_gettext (>= 0.9.0)
+
+GIT
   remote: https://github.com/zena/property.git
   revision: 1b6b94748b68c0888c2d527a2bd2a53beb0d9721
   branch: 2.2.1-with-ar2.3.18
@@ -63,8 +70,9 @@ GEM
     fast_gettext (1.3.0)
     fast_xs (0.8.0)
     gem_plugin (0.2.3)
-    gettext (2.1.0)
+    gettext (3.2.2)
       locale (>= 2.0.5)
+      text (>= 1.3.0)
     hoe (3.15.2)
       rake (>= 0.8, < 12.0)
     hpricot (0.8.6)
@@ -126,6 +134,7 @@ GEM
     syntax (1.0.0)
     test-unit (3.2.2)
       power_assert
+    text (1.3.1)
     thread_safe (0.3.5)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
@@ -147,7 +156,8 @@ DEPENDENCIES
   differ (= 0.1.2)
   fast_gettext
   gem_plugin (= 0.2.3)
-  gettext (= 2.1.0)
+  gettext
+  gettext_i18n_rails!
   hpricot (= 0.8.6)
   httmultiparty (= 0.3.8)
   httparty (= 0.7.8)
@@ -163,6 +173,7 @@ DEPENDENCIES
   rdoc (= 2.4.2)
   rmagick (= 2.16.0)
   ruby-recaptcha (= 1.0.3)
+  ruby_parser
   rubyless!
   rubyzip (= 0.9.9)
   safe_yaml

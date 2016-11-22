@@ -207,9 +207,11 @@ module Zena
 
     def initialize_gettext
       require 'fast_gettext'
-
-      FastGettext.add_text_domain 'zena', :path => "#{Zena::ROOT}/locale" #File.dirname(__FILE__) + '/../../locale'
-      FastGettext.default_text_domain = 'zena'
+      require 'gettext_i18n_rails'
+      Object.send(:include, FastGettext::Translation)
+      FastGettext.available_locales = ['en','de','fr','it']
+      FastGettext.default_locale='en'
+      FastGettext.add_text_domain( 'zena', :path => "#{Zena::ROOT}/locale", :type=>:po,  :report_warning => false)
       FastGettext.text_domain = 'zena'
     end
 
